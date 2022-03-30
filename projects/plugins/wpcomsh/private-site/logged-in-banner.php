@@ -47,7 +47,7 @@ function show_logged_in_banner() {
 
 	$my_home_url      = 'https://wordpress.com/home/' . $blog_domain;
 	$change_theme_url = 'https://wordpress.com/themes/' . $blog_domain;
- 
+
 	$is_coming_soon_mode         = site_is_coming_soon() || site_is_public_coming_soon();
 	$is_launched_and_coming_soon = $is_site_launched && $is_coming_soon_mode;
 
@@ -79,7 +79,7 @@ function show_logged_in_banner() {
 	?>
 	<div class="launch-banner-wrapper" id="wpcom-launch-banner-wrapper">
 		<style id="wpcom-launch-banner-style">
-				<?php include( __DIR__.'/style.css' ) ?>
+				<?php include __DIR__ . '/style.css'; ?>
 		</style>
 		<div class="launch-banner" id="launch-banner">
 			<div class="launch-banner-content">

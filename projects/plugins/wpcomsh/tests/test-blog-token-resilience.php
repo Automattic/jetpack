@@ -10,7 +10,7 @@ class BlogTokenResilienceTest extends WP_UnitTestCase {
 		Atomic_Persistent_Data::delete( 'JETPACK_BLOG_TOKEN' );
 		delete_option( 'blog_token' );
 	}
-	
+
 	/**
 	 * Tests the filter to get the blog token on WPCOMSH_Blog_Token_Resilience class
 	 *
@@ -43,22 +43,22 @@ class BlogTokenResilienceTest extends WP_UnitTestCase {
 			'empty'           => array(
 				null,
 				null,
-				false
+				false,
 			),
 			'only_db'         => array(
 				'asd',
 				null,
-				'asd'
+				'asd',
 			),
 			'only_persistent' => array(
 				null,
 				'qwe',
-				'qwe'
+				'qwe',
 			),
 			'both'            => array(
 				'asda',
 				'qwew',
-				'qwew'
+				'qwew',
 			),
 		);
 	}
@@ -70,10 +70,10 @@ class BlogTokenResilienceTest extends WP_UnitTestCase {
  */
 if ( ! class_exists( 'Jetpack_Options' ) ) {
 	class Jetpack_Options {
-	
+
 		public static function get_option( $option_name, $default = false ) {
 			return apply_filters( 'jetpack_options', get_option( $option_name, $default ), $option_name );
 		}
-	
+
 	}
 }

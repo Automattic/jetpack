@@ -67,14 +67,21 @@ function add_logotool_button( $wp_customize ) {
 	// Adding it back just overwrites the previous control instance.
 	$wp_customize->add_control( $logo_control );
 
-	add_action( 'customize_controls_enqueue_scripts', function() use ( $logo_control ) {
-		wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), [ 'customize-controls' ], '20210706', true );
-		wp_localize_script( 'wpcom-logo-tool', '_LogoTool_', [
-			'l10n' => [ 'create' => __( 'Create logo', 'wpcomsh' ) ],
-			'controlId' => $logo_control->id,
-			'settingId' => $logo_control->setting->id,
-		] );
-	} );
+	add_action(
+		'customize_controls_enqueue_scripts',
+		function() use ( $logo_control ) {
+			wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), [ 'customize-controls' ], '20210706', true );
+			wp_localize_script(
+				'wpcom-logo-tool',
+				'_LogoTool_',
+				[
+					'l10n'      => [ 'create' => __( 'Create logo', 'wpcomsh' ) ],
+					'controlId' => $logo_control->id,
+					'settingId' => $logo_control->setting->id,
+				]
+			);
+		}
+	);
 
 }
 add_action( 'customize_register', 'add_logotool_button', 20 );

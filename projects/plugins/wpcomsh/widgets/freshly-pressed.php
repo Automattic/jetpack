@@ -5,9 +5,12 @@
 class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 
 	function __construct() {
-		$widget_ops = array( 'classname' => 'widget_freshly_pressed', 'description' => __( 'Display a Freshly Pressed badge in your sidebar', 'wpcomsh' ) );
+		$widget_ops  = array(
+			'classname'   => 'widget_freshly_pressed',
+			'description' => __( 'Display a Freshly Pressed badge in your sidebar', 'wpcomsh' ),
+		);
 		$control_ops = array( 'width' => 250 );
-		parent::__construct( 'freshly_pressed', __( 'Freshly Pressed', 'wpcomsh' ), $widget_ops, $control_ops);
+		parent::__construct( 'freshly_pressed', __( 'Freshly Pressed', 'wpcomsh' ), $widget_ops, $control_ops );
 	}
 
 	function widget( $args, $instance ) {
@@ -22,8 +25,9 @@ class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
-		if ( $title )
+		if ( $title ) {
 			echo $before_title . esc_html( $title ) . $after_title;
+		}
 
 		$badge_size = $this->get_badge_size( $instance['badge'] );
 
@@ -86,7 +90,7 @@ class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 	function get_badge_size( $badge ) {
 		$badges = $this->badges();
 
-		return $badges[$badge];
+		return $badges[ $badge ];
 	}
 }
 

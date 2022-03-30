@@ -4,7 +4,7 @@
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
-$_core_dir = getenv( 'WP_CORE_DIR' );
+$_core_dir  = getenv( 'WP_CORE_DIR' );
 
 if ( ! $_tests_dir ) {
 	$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
@@ -21,7 +21,7 @@ final class Atomic_Persistent_Data {
 	public static $data = [];
 
 	public static function set( $key, $value ) {
-		self::$data[$key] = $value;
+		self::$data[ $key ] = $value;
 	}
 
 	public static function delete( $key ) {
@@ -31,8 +31,8 @@ final class Atomic_Persistent_Data {
 	}
 
 	public function __get( $key ) {
-		if ( isset( self::$data[$key] ) ) {
-			return self::$data[$key];
+		if ( isset( self::$data[ $key ] ) ) {
+			return self::$data[ $key ];
 		}
 
 		return null;

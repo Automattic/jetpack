@@ -15,9 +15,9 @@
  * Jetpack site.
  */
 class WPCOMSH_Log {
-	static protected $log_endpoint = 'https://public-api.wordpress.com/rest/v1.1/automated-transfers/log';
+	protected static $log_endpoint = 'https://public-api.wordpress.com/rest/v1.1/automated-transfers/log';
 	private static $instance;
-	private $log_queue = array();
+	private $log_queue         = array();
 	private $has_shutdown_hook = false;
 	private $siteurl;
 
@@ -45,6 +45,7 @@ class WPCOMSH_Log {
 	 * It is intended to be used when we are sure we want to send logs to logstash and
 	 * we are sure that we don't fire it off frequently. Good example of when we want to use this
 	 * is during the site setup process
+	 *
 	 * @param $message
 	 */
 	public static function unsafe_direct_log( $message, $extra = array() ) {
@@ -63,7 +64,10 @@ class WPCOMSH_Log {
 	}
 
 	public function log( $message, $extra = array() ) {
-		$this->log_queue[] = array( "message" => $message, "extra" => $extra );
+		$this->log_queue[] = array(
+			'message' => $message,
+			'extra'   => $extra,
+		);
 		if ( ! $this->has_shutdown_hook ) {
 			register_shutdown_function( array( $this, 'send_to_api' ) );
 			$this->has_shutdown_hook = true;
@@ -73,8 +77,8 @@ class WPCOMSH_Log {
 	public function send_to_api() {
 		if ( count( $this->log_queue ) > 0 ) {
 			$payload = array(
-				'siteurl' => $this->siteurl,
-				'messages' =>$this->log_queue
+				'siteurl'  => $this->siteurl,
+				'messages' => $this->log_queue,
 			);
 
 			wp_remote_post( self::$log_endpoint, array( 'body' => array( 'error' => json_encode( $payload ) ) ) );

@@ -36,7 +36,7 @@ function wpcomsh_maybe_enable_share_action() {
 		return;
 	}
 
-	if ( Jetpack::is_plugin_active( 'classic-editor/classic-editor.php') ||
+	if ( Jetpack::is_plugin_active( 'classic-editor/classic-editor.php' ) ||
 		array_key_exists( 'classic-editor.php', get_mu_plugins() ) ) {
 		return;
 	}

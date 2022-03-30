@@ -16,7 +16,7 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 			__( 'Category Cloud', 'wpcomsh' ),
 			array(
 				'description' => __( 'Your most used categories in cloud format.', 'wpcomsh' ),
-				'classname' => 'widget_tag_cloud',
+				'classname'   => 'widget_tag_cloud',
 			)
 		);
 
@@ -30,13 +30,16 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 	}
 
 	public function widget( $args, $instance ) {
-		$instance = wp_parse_args( $instance, array(
-			'parent_pad' => 0,
-			'max_tags' => 30,
-			'exclude' => '',
-			'min_font_per' => $this->min_font_per,
-			'max_font_per' => $this->max_font_per,
-		) );
+		$instance = wp_parse_args(
+			$instance,
+			array(
+				'parent_pad'   => 0,
+				'max_tags'     => 30,
+				'exclude'      => '',
+				'min_font_per' => $this->min_font_per,
+				'max_font_per' => $this->max_font_per,
+			)
+		);
 
 		if ( empty( $instance['title'] ) ) {
 			$instance['title'] = __( 'Category Cloud', 'wpcomsh' );
@@ -45,20 +48,22 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 		$tags_info = wp_cache_get( 'widget_cat_cloud_cache' . $this->id, 'widget' );
 
 		if ( ! $tags_info ) {
-			$categories = get_categories( array(
-				'orderby' => 'count',
-				'order' => 'DESC',
-				'hierarchical' => 0,
-				'pad_counts' => $instance['parent_pad'],
-				'number' => $instance['max_tags'],
-				'exclude' => $instance['exclude'],
-			) );
+			$categories = get_categories(
+				array(
+					'orderby'      => 'count',
+					'order'        => 'DESC',
+					'hierarchical' => 0,
+					'pad_counts'   => $instance['parent_pad'],
+					'number'       => $instance['max_tags'],
+					'exclude'      => $instance['exclude'],
+				)
+			);
 
-			$tags = array();
+			$tags     = array();
 			$tag_urls = array();
 
 			foreach ( $categories as $cat ) {
-				$tags[ $cat->name ] = $cat->count;
+				$tags[ $cat->name ]     = $cat->count;
 				$tag_urls[ $cat->name ] = get_category_link( $cat->term_id );
 			}
 
@@ -66,13 +71,17 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 
 			// Cache only if we're not in the customizer view. That view can add some garbage to the urls, which we then cache and display to other users.
 			if ( ! $this->is_preview() ) {
-				wp_cache_add( 'widget_cat_cloud_cache' . $this->id, array(
-					'tags' => $tags,
-					'tag_urls' => $tag_urls,
-				), 'widget' );
+				wp_cache_add(
+					'widget_cat_cloud_cache' . $this->id,
+					array(
+						'tags'     => $tags,
+						'tag_urls' => $tag_urls,
+					),
+					'widget'
+				);
 			}
 		} else {
-			$tags = $tags_info['tags'];
+			$tags     = $tags_info['tags'];
 			$tag_urls = $tags_info['tag_urls'];
 		}
 
@@ -99,7 +108,7 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 		foreach ( $tags as $tag_name => $num_posts ) {
 			$font_size = $instance['min_font_per'] + ( ( $num_posts - $min_value ) * $step );
 			echo '<a href="' . esc_attr( $tag_urls[ $tag_name ] ) . '" style="font-size: ' . $font_size . '%; padding: 1px; margin: 1px;" '
-			     . ' title="' . esc_attr( $tag_name . ' (' . $num_posts . ')' ) . '">' . esc_html( $tag_name ) . '</a> ';
+				 . ' title="' . esc_attr( $tag_name . ' (' . $num_posts . ')' ) . '">' . esc_html( $tag_name ) . '</a> ';
 		}
 
 		echo '</div>';
@@ -112,14 +121,17 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 	}
 
 	public function form( $instance ) {
-		$instance = wp_parse_args( $instance, array(
-			'title' => '',
-			'parent_pad' => false,
-			'max_tags' => 30,
-			'exclude' => '',
-			'min_font_per' => $this->min_font_per,
-			'max_font_per' => $this->max_font_per,
-		) );
+		$instance = wp_parse_args(
+			$instance,
+			array(
+				'title'        => '',
+				'parent_pad'   => false,
+				'max_tags'     => 30,
+				'exclude'      => '',
+				'min_font_per' => $this->min_font_per,
+				'max_font_per' => $this->max_font_per,
+			)
+		);
 
 		?>
 		<p>
@@ -172,10 +184,10 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 	}
 
 	public function update( $new_instance, $old_instance ) {
-		$new_instance['title'] = strip_tags( $new_instance['title'] );
-		$new_instance['parent_pad'] = isset( $new_instance['parent_pad'] );
-		$new_instance['max_tags'] = (int) $new_instance['max_tags'];
-		$new_instance['exclude'] = strip_tags( $new_instance['exclude'] );
+		$new_instance['title']        = strip_tags( $new_instance['title'] );
+		$new_instance['parent_pad']   = isset( $new_instance['parent_pad'] );
+		$new_instance['max_tags']     = (int) $new_instance['max_tags'];
+		$new_instance['exclude']      = strip_tags( $new_instance['exclude'] );
 		$new_instance['min_font_per'] = $this->normalize_int_value( (int) $new_instance['min_font_per'], $this->min_font_per, 1000, 10 );
 		$new_instance['max_font_per'] = $this->normalize_int_value( (int) $new_instance['max_font_per'], $this->max_font_per, 9999, 10 );
 

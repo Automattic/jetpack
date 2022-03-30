@@ -27,6 +27,7 @@ use function wp_send_json_error;
  * We disable some Jetpack modules if the site is private and atomic
  *
  * !!! KEEP THIS LIST IN SYNC WITH THE LIST ON WPCOM !!!
+ *
  * @see private_blog_filter_jetpack_active_modules in wp-content/mu-plugins/private-blog.php (update this to an actual link when D41356-code lands)
  */
 const DISABLED_JETPACK_MODULES_WHEN_PRIVATE = [
@@ -60,6 +61,7 @@ function admin_init() {
 	/**
 	 * Don't add the action when we don't intend to alter core behavior.
 	 * The mere presence of a `blog_privacy_selector` hook changes things!
+	 *
 	 * @see https://github.com/WordPress/wordpress-develop/blob/fd479f953731bbf522b32b9d95eeb68bc455c418/src/wp-admin/options-reading.php#L178-L202
 	 */
 	if ( ( is_jetpack_connected() || site_is_private() ) && should_update_privacy_selector() ) {
@@ -164,18 +166,18 @@ function privatize_blog_priv_selector() {
 
 	if ( ! $has_jetpack_connection && site_is_private() ) {
 		$escaped_content = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'wpcomsh' );
-	} else if ( ! $has_jetpack_connection || ! is_callable( 'Jetpack::build_raw_urls' ) ) {
+	} elseif ( ! $has_jetpack_connection || ! is_callable( 'Jetpack::build_raw_urls' ) ) {
 		return;
 	} else {
-		$site_slug = Jetpack::build_raw_urls( get_home_url() );
-		$settings_url = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
-		$manage_label = __( 'Manage your site visibility settings', 'wpcomsh' );
+		$site_slug       = Jetpack::build_raw_urls( get_home_url() );
+		$settings_url    = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
+		$manage_label    = __( 'Manage your site visibility settings', 'wpcomsh' );
 		$escaped_content = '<a target="_blank" href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
 	}
 
 	?>
 <noscript>
-<p><?php echo wp_kses_post( $escaped_content ) ?></p>
+<p><?php echo wp_kses_post( $escaped_content ); ?></p>
 </noscript>
 <script>
 ( function() {
@@ -183,10 +185,10 @@ function privatize_blog_priv_selector() {
 	if ( ! widgetArea ) {
 	  return;
 	}
-	widgetArea.innerHTML = '<?php echo wp_kses_post( $escaped_content ) ?>';
+	widgetArea.innerHTML = '<?php echo wp_kses_post( $escaped_content ); ?>';
 } )()
 </script>
-        <?php
+		<?php
 }
 
 /**
@@ -207,7 +209,7 @@ function fetch_option_from_wpcom( $option ) {
 	}
 	$options = $jetpack->get_cloud_site_options( [ $option ] );
 
-	return $options[$option];
+	return $options[ $option ];
 }
 
 /**
@@ -216,6 +218,7 @@ function fetch_option_from_wpcom( $option ) {
  * - The `wpcom_coming_soon` option on the "cloud site" is truthy
  *
  * As such, "coming soon" is just a flavor of private sites and is always false on sites that are public.
+ *
  * @return bool
  */
 function site_is_coming_soon() : bool {
@@ -258,8 +261,8 @@ function site_is_public_coming_soon() : bool {
  * @return string
  */
 function site_launch_status() : string {
-    // We need to check for launch status for private by default sites
-    // and coming soon + public by default sites
+	// We need to check for launch status for private by default sites
+	// and coming soon + public by default sites
 	if ( ! site_is_private() && ! site_is_public_coming_soon() ) {
 		return '';
 	}
@@ -284,6 +287,7 @@ function is_launched() {
  * This will be used to determine that the option has been set after the launch of the Private Site module.
  *
  * This is in contrast to WordPress.com Simple sites which relies on the `blog_public` option.
+ *
  * @return bool
  */
 function site_is_private() {
@@ -334,20 +338,24 @@ function hide_videopress_from_jetpack_plans_page() {
 				}
 				window.Initial_State.getModules.videopress.override = "inactive";
 			}
-		', 'before'
+		',
+		'before'
 	);
 };
 
 function register_additional_jetpack_xmlrpc_methods( $methods ) {
-	return array_merge( $methods, [
-		'jetpack.getClosestThumbnailSizeUrl' => '\Private_Site\get_closest_thumbnail_size_url',
-		'jetpack.getReadAccessCookies' => '\Private_Site\get_read_access_cookies',
-	] );
+	return array_merge(
+		$methods,
+		[
+			'jetpack.getClosestThumbnailSizeUrl' => '\Private_Site\get_closest_thumbnail_size_url',
+			'jetpack.getReadAccessCookies'       => '\Private_Site\get_read_access_cookies',
+		]
+	);
 }
 
 function get_closest_thumbnail_size_url( $args ) {
 	[ $url, $width, $height ] = $args;
-	$id = attachment_url_to_postid( $url );
+	$id                       = attachment_url_to_postid( $url );
 	if ( ! $id ) {
 		return false;
 	}
@@ -369,21 +377,32 @@ function get_read_access_cookies( $args ) {
 
 	$user = get_user_by( 'id', intval( $user_id ) );
 	if ( ! $user ) {
-		return new WP_Error( 'account_not_found',
-			'Account not found. If you already have an account, make sure you have connected to WordPress.com.' );
+		return new WP_Error(
+			'account_not_found',
+			'Account not found. If you already have an account, make sure you have connected to WordPress.com.'
+		);
 	}
 	if ( ! $user->has_cap( 'read' ) ) {
 		return new WP_Error( 'access error', 'User does not have "read" capabilities' );
 	}
 
 	add_filter( 'send_auth_cookies', '__return_false' );
-	add_filter( 'auth_cookie_expiration', function () use ( $expiration ) {
-		return $expiration;
-	}, 1000 );
-	add_action( 'set_logged_in_cookie', function ( $_cookie, $expiration ) use ( &$logged_in_cookie, &$logged_in_cookie_expiration ) {
-		$logged_in_cookie = $_cookie;
-		$logged_in_cookie_expiration = $expiration;
-	}, 10, 2 );
+	add_filter(
+		'auth_cookie_expiration',
+		function () use ( $expiration ) {
+			return $expiration;
+		},
+		1000
+	);
+	add_action(
+		'set_logged_in_cookie',
+		function ( $_cookie, $expiration ) use ( &$logged_in_cookie, &$logged_in_cookie_expiration ) {
+			$logged_in_cookie            = $_cookie;
+			$logged_in_cookie_expiration = $expiration;
+		},
+		10,
+		2
+	);
 	wp_set_auth_cookie( $user->ID, true );
 	if ( ! $logged_in_cookie ) {
 		return new WP_Error( 'authorization_failed', 'Authorization cookie was not found' );
@@ -419,7 +438,15 @@ function send_access_denied_error_response() {
 	if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ||
 		 'admin-ajax.php' === ( $wp->query_vars['pagename'] ?? '' )
 	) {
-		wp_send_json_error( [ 'code' => 'private_site', 'message' => __( 'This site is private.', 'wpcomsh' ) ] );
+		wp_send_json_error(
+			[
+				'code'    => 'private_site',
+				'message' => __(
+					'This site is private.',
+					'wpcomsh'
+				),
+			]
+		);
 	}
 
 	require access_denied_template_path();
@@ -529,11 +556,18 @@ function rest_dispatch_request( $dispatch_result, $request, $route, $handler ) {
 
 function xmlrpc_methods_limit_to_allowed_list( $methods ) {
 	if ( should_prevent_site_access() ) {
-		return array_filter( $methods, function ( $key ) {
-			return in_array( $key, [
-				'demo.sayHello', // Permits the Jetpack debug tool. See: p58i-8OX-p2#comment-46085
-			] ) || preg_match( '/^jetpack\..+/', $key );
-		}, ARRAY_FILTER_USE_KEY );
+		return array_filter(
+			$methods,
+			function ( $key ) {
+				return in_array(
+					$key,
+					[
+						'demo.sayHello', // Permits the Jetpack debug tool. See: p58i-8OX-p2#comment-46085
+					]
+				) || preg_match( '/^jetpack\..+/', $key );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
 	}
 	return $methods;
 }
@@ -620,11 +654,11 @@ function is_site_preview() {
 }
 
 function site_preview_source() {
-	$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : "";
+	$ua                = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
 	$apps_ua_fragments = [
-		'iphone-app' => " wp-iphone/",
-		'android-app' => " wp-android/",
-		'desktop-app' => " WordPressDesktop/",
+		'iphone-app'  => ' wp-iphone/',
+		'android-app' => ' wp-android/',
+		'desktop-app' => ' WordPressDesktop/',
 	];
 	foreach ( $apps_ua_fragments as $source => $fragment ) {
 		if ( strpos( $ua, $fragment ) !== false ) {
@@ -640,7 +674,7 @@ function site_preview_source() {
 		isset( $_GET['widgetPreview'] ) || // Gutenberg < 9.2
 		isset( $_GET['widget-preview'] ) // Gutenberg >= 9.2
 	) {
-		return "browser-iframe";
+		return 'browser-iframe';
 	}
 
 	return false;
@@ -673,7 +707,7 @@ function access_denied_template_path() {
  * @param array $whitelist
  * @return array
  */
-function remove_privacy_option_from_whitelist($whitelist) {
+function remove_privacy_option_from_whitelist( $whitelist ) {
 	$blog_public_index = array_search( 'blog_public', $whitelist['reading'], true );
 	unset( $whitelist['reading'][ $blog_public_index ] );
 
@@ -686,7 +720,7 @@ function remove_privacy_option_from_whitelist($whitelist) {
  *
  * @return bool
  */
-function should_update_privacy_selector( ) {
+function should_update_privacy_selector() {
 	return apply_filters( 'wpcom_should_update_privacy_selector', true );
 }
 
@@ -718,11 +752,11 @@ function private_no_pinning() {
 function hide_opml() {
 	if ( should_prevent_site_access() ) {
 		status_header( 403 );
-?>
-		<error><?php esc_html_e( 'This site is private.', 'wpcomsh' ) ?></error>
+		?>
+		<error><?php esc_html_e( 'This site is private.', 'wpcomsh' ); ?></error>
 	</head>
 </opml>
-<?php
+		<?php
 		exit;
 	}
 }
@@ -735,9 +769,12 @@ function hide_opml() {
  * @return array Array of modules after filtering.
  */
 function filter_jetpack_active_modules( $modules ) {
-	return array_filter( $modules, function( $module_name ) {
-		return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE );
-	} );
+	return array_filter(
+		$modules,
+		function( $module_name ) {
+			return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE );
+		}
+	);
 }
 
 /**
@@ -748,9 +785,13 @@ function filter_jetpack_active_modules( $modules ) {
  * @return array Array of modules after filtering.
  */
 function filter_jetpack_get_available_modules( $modules ) {
-	return array_filter( $modules, function( $module_name ) {
-		return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE );
-	}, ARRAY_FILTER_USE_KEY );
+	return array_filter(
+		$modules,
+		function( $module_name ) {
+			return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE );
+		},
+		ARRAY_FILTER_USE_KEY
+	);
 }
 
 /**
@@ -776,12 +817,15 @@ function use_classic_editor_if_requested() {
 		return;
 	}
 
-	add_action( 'classic_editor_plugin_settings', function () {
-		return [
-			'editor' => 'classic',
-			'allow-users' => false,
-		];
-	} );
+	add_action(
+		'classic_editor_plugin_settings',
+		function () {
+			return [
+				'editor'      => 'classic',
+				'allow-users' => false,
+			];
+		}
+	);
 
 	require dirname( __DIR__ ) . '/vendor/wordpress/classic-editor-plugin/classic-editor.php';
 	\Classic_Editor::init_actions();
@@ -801,13 +845,18 @@ function use_classic_editor_if_requested() {
 	// 1. Opens Gutenberg
 	// 2. Clicks "Switch to classic editor"
 	// 3. Clicks "Use Classic editor" in the prompt
-	add_filter( 'get_user_metadata', function( $value, $object_id, $meta_key, $single ) {
-		if ( $meta_key === 'calypsoify' ) {
-			return 0;
-		}
+	add_filter(
+		'get_user_metadata',
+		function( $value, $object_id, $meta_key, $single ) {
+			if ( $meta_key === 'calypsoify' ) {
+				return 0;
+			}
 
-		return $value;
-	}, 10, 4 );
+			return $value;
+		},
+		10,
+		4
+	);
 }
 
 function disable_classic_editor_plugin_when_needed( $plugins ) {
@@ -839,8 +888,7 @@ function should_override_editor_with_classic_editor() {
 		return false;
 	}
 
-
-	if ( $pagenow !== "post.php" && $pagenow !== "post-new.php" ) {
+	if ( $pagenow !== 'post.php' && $pagenow !== 'post-new.php' ) {
 		return false;
 	}
 

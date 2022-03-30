@@ -37,8 +37,8 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 	$classes[] = ' locale-' . sanitize_html_class( strtolower( str_replace( '_', '-', get_locale() ) ) );
 
 	$preview_source = site_preview_source();
-	$redirect_to = $preview_source === 'android-app' ? '/' : set_url_scheme( original_request_url() );
-	$login_link = site_url() . '/wp-login.php?redirect_to=' . $redirect_to;
+	$redirect_to    = $preview_source === 'android-app' ? '/' : set_url_scheme( original_request_url() );
+	$login_link     = site_url() . '/wp-login.php?redirect_to=' . $redirect_to;
 	?>
 
 </head>
@@ -47,41 +47,41 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 	<h1><a href="<?php echo esc_url( $login_link ); ?>" tabindex="-1"><?php bloginfo( 'name' ); ?></a></h1>
 	<div class="message" style="overflow: auto;">
 		<p>
-			<?php if ( $preview_source === "android-app" ) { ?>
+			<?php if ( $preview_source === 'android-app' ) { ?>
 				<?php
 					// This text will be only ever displayed to english audience - Android support will land before scaling to
 					// non-english users
 				?>
 				This site is private. Private sites cannot be previewed from the app yet. Log in using your web browser to preview the site. <br>
-				<?php $button_text = esc_html( 'Log in using browser', 'wpcomsh' ) ?>
-			<?php } else if ( is_user_logged_in() ) { ?>
+				<?php $button_text = esc_html( 'Log in using browser', 'wpcomsh' ); ?>
+			<?php } elseif ( is_user_logged_in() ) { ?>
 				<?php esc_html_e( 'This site is private. You need to log in as a user with permissions before previewing it.', 'wpcomsh' ); ?><br>
-				<?php $button_text = esc_html( 'Switch user', 'wpcomsh' ) ?>
+				<?php $button_text = esc_html( 'Switch user', 'wpcomsh' ); ?>
 			<?php } else { ?>
 				<?php esc_html_e( 'This site is private. You need to log in to the preview to see it.', 'wpcomsh' ); ?><br>
-				<?php $button_text = esc_html( 'Log in', 'wpcomsh' ) ?>
+				<?php $button_text = esc_html( 'Log in', 'wpcomsh' ); ?>
 			<?php } ?>
 
 			<br>
-			<?php if ( $preview_source === "browser-iframe" ) { ?>
+			<?php if ( $preview_source === 'browser-iframe' ) { ?>
 				<script>
 					function handleClick() {
-						<?php if ( isset ( $_GET['calypso_token'] ) ) { ?>
+						<?php if ( isset( $_GET['calypso_token'] ) ) { ?>
 							window.calypso.postMessage(JSON.stringify({
 							  type: 'needs-auth',
-							  channel: "preview-" + <?php echo json_encode( $_GET['calypso_token'] ) ?>
+							  channel: "preview-" + <?php echo json_encode( $_GET['calypso_token'] ); ?>
 							}), '*');
 						<?php } else { ?>
-							window.location.href = <?php echo json_encode( $login_link ) ?>;
+							window.location.href = <?php echo json_encode( $login_link ); ?>;
 						<?php } ?>
 					}
 				</script>
 				<span class="button-primary" onclick="handleClick()">
-					<?php echo $button_text ?>
+					<?php echo $button_text; ?>
 				</span>
 			<?php } else { ?>
 				<a class="button-primary" href="<?php echo esc_url( $login_link ); ?>">
-					<?php echo $button_text ?>
+					<?php echo $button_text; ?>
 				</a>
 			<?php } ?>
 		</p>

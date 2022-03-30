@@ -20,7 +20,7 @@ function replace_version( $filename ) {
 		if ( stripos( $line, "define( 'WPCOMSH_VERSION'," ) !== false ) {
 			$line = "define( 'WPCOMSH_VERSION', '{$version}' );\n";
 		}
-		
+
 		$lines[] = $line;
 	}
 

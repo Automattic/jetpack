@@ -31,8 +31,8 @@ add_filter( 'a8c_enable_public_coming_soon', '__return_true' );
  *
  * @return int The value of WPCOM_PUBLIC_COMING_SOON if set, otherwise the option value
  */
-function wpcomsh_coming_soon_get_atomic_persistent_data( $wpcom_public_coming_soon ){
-	$persistent_data = new Atomic_Persistent_Data();
+function wpcomsh_coming_soon_get_atomic_persistent_data( $wpcom_public_coming_soon ) {
+	$persistent_data                   = new Atomic_Persistent_Data();
 	$persistent_data_coming_soon_value = $persistent_data->WPCOM_PUBLIC_COMING_SOON;
 
 	if ( $persistent_data_coming_soon_value !== null ) {
@@ -52,15 +52,15 @@ add_filter( 'option_wpcom_public_coming_soon', 'wpcomsh_coming_soon_get_atomic_p
  * @return void
  */
 function wpcom_public_coming_soon_replace_yoast_seo_notice() {
-	$wpseo_options = get_option('wpseo', false );	
+	$wpseo_options = get_option( 'wpseo', false );
 	if ( ! $wpseo_options ) {
 		// Do nothing if Yoast is not installed
 		return;
 	}
-	
-	$is_wpcom_public_coming_soon_enabled = 1 === (int) get_option('wpcom_public_coming_soon', 0);
-	$are_search_engines_discouraged = 0 === (int) get_option( 'blog_public' );
-	
+
+	$is_wpcom_public_coming_soon_enabled = 1 === (int) get_option( 'wpcom_public_coming_soon', 0 );
+	$are_search_engines_discouraged      = 0 === (int) get_option( 'blog_public' );
+
 	// The Yoast SEO notice should be replaced
 	// either if the site is in Coming Soon mode,
 	// or if indexing is discouraged on the site
@@ -78,9 +78,9 @@ function wpcom_public_coming_soon_replace_yoast_seo_notice() {
 		update_option( 'wpseo', $wpseo_options );
 	}
 
-	$pagenow = $GLOBALS['pagenow'];
+	$pagenow             = $GLOBALS['pagenow'];
 	$on_wpseo_admin_page = $pagenow === 'admin.php' && strpos( filter_input( INPUT_GET, 'page' ), 'wpseo' ) === 0;
-	$notice_pages = [
+	$notice_pages        = [
 		'index.php',
 		'plugins.php',
 		'update-core.php',
@@ -93,11 +93,11 @@ function wpcom_public_coming_soon_replace_yoast_seo_notice() {
 		&& ( $on_wpseo_admin_page || in_array( $pagenow, $notice_pages, true ) )
 	) {
 		// Get site slug & settings url
-		$blog_id    = get_current_blog_id();
-		$site_url   = get_home_url( $blog_id );
-		$site_slug  = wp_parse_url( $site_url, PHP_URL_HOST );
+		$blog_id      = get_current_blog_id();
+		$site_url     = get_home_url( $blog_id );
+		$site_slug    = wp_parse_url( $site_url, PHP_URL_HOST );
 		$settings_url = 'https://wordpress.com/settings/general/' . $site_slug . '#site-privacy-settings';
-		
+
 		if ( $is_wpcom_public_coming_soon_enabled ) {
 			$text = __(
 				'Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site\'s privacy settings.'
@@ -163,8 +163,7 @@ add_action( 'admin_enqueue_scripts', 'wpcom_fse_global_editors_script' );
 /**
  * Enable site launch on editor
  */
-function wpcom_editor_site_launch()
-{
+function wpcom_editor_site_launch() {
 	// Temporarily disable launch.
 	return false;
 

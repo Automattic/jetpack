@@ -23,7 +23,7 @@ function wpcomsh_is_wpcom_premium_theme( $theme_slug ) {
 	) {
 		error_log(
 			"WPComSH: WPCom premium themes folder couldn't be located. " .
-			"Check whether the " . WPCOMSH_PREMIUM_THEMES_PATH . " constant points to the correct directory."
+			'Check whether the ' . WPCOMSH_PREMIUM_THEMES_PATH . ' constant points to the correct directory.'
 		);
 
 		return false;
@@ -47,7 +47,7 @@ function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
 	) {
 		error_log(
 			"WPComSH: WPCom pub themes folder couldn't be located. " .
-			"Check whether the " . WPCOMSH_PUB_THEMES_PATH . " constant points to the correct directory."
+			'Check whether the ' . WPCOMSH_PUB_THEMES_PATH . ' constant points to the correct directory.'
 		);
 
 		return false;
@@ -74,7 +74,7 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 		$themes_source_path = WPCOMSH_PREMIUM_THEMES_SYMLINK;
 	}
 
-	$abs_theme_path = $themes_source_path . "/{$theme_slug}";
+	$abs_theme_path         = $themes_source_path . "/{$theme_slug}";
 	$abs_theme_symlink_path = get_theme_root() . '/' . $theme_slug;
 
 	if ( ! file_exists( $abs_theme_path ) ) {
@@ -91,7 +91,7 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 			: WPCOMSH_PREMIUM_THEMES_PATH;
 
 		$error_message = "Can't symlink theme with slug: ${theme_slug}." .
-						 "Make sure it exists in the " . $theme_source_folder_path . " directory.";
+						 'Make sure it exists in the ' . $theme_source_folder_path . ' directory.';
 
 		error_log( 'WPComSH: ' . $error_message );
 
@@ -110,7 +110,7 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 function wpcomsh_delete_theme_cache( $theme_slug = null ) {
 	$theme = wp_get_theme( $theme_slug );
 
-	if ( $theme instanceof WP_Theme) {
+	if ( $theme instanceof WP_Theme ) {
 		$theme->cache_delete();
 	}
 }

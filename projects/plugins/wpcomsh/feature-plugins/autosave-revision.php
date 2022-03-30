@@ -7,7 +7,7 @@
  * TODO: this function is extracted from Core's wp_save_post_revision function. Submit it as
  *       a Core patch and then delete if from here after it's merged.
  *
- * @param int $post_id The ID of the post to save as a revision.
+ * @param int     $post_id The ID of the post to save as a revision.
  * @param WP_Post $post The proposed post update.
  * @return bool Whether the proposed update is different from the last saved revision.
  */
@@ -80,8 +80,8 @@ function wpcom_post_has_changed_since_last_revision( $post_id, $post ) {
 function wpcom_is_big_edit( $post_before, $post_after ) {
 	// TODO: make the criteria more reasonable, maybe even make a text diff and look at its +-.
 	$before_len = strlen( $post_before->post_content );
-	$after_len = strlen( $post_after->post_content );
-	$size_diff = absint( $after_len - $before_len );
+	$after_len  = strlen( $post_after->post_content );
+	$size_diff  = absint( $after_len - $before_len );
 	// depends on size: starts at 50 chars (approx one line) for smallest posts, and ends up
 	// being at least 250 chars for 1000 chars posts and bigger.
 	$size_threshold = 50 + min( $before_len, 1000 ) / 5;
@@ -128,11 +128,11 @@ function wpcom_create_autosave_revision( $post_ID, $post_after, $post_before ) {
 	// on the next autosave instead of creating a new one.
 	// If the autosave is indeed fresh, update the parent post with its content and timestamp before
 	// saving it as revision.
-	if ( $post_before->post_modified > $revision_post->post_modified) {
+	if ( $post_before->post_modified > $revision_post->post_modified ) {
 		foreach ( array_keys( _wp_post_revision_fields( $revision_post ) ) as $field ) {
 			$revision_post->$field = $post_before->$field;
 		}
-		$revision_post->post_modified = $post_before->post_modified;
+		$revision_post->post_modified     = $post_before->post_modified;
 		$revision_post->post_modified_gmt = $post_before->post_modified_gmt;
 	}
 

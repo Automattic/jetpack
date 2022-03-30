@@ -19,10 +19,18 @@ function wpcomsh_is_migration_in_progress() {
  */
 function wpcomsh_redirect_if_active_migration() {
 	if ( wpcomsh_is_migration_in_progress() && ! wp_doing_ajax() ) {
-		$redirect_url = 'https://wordpress.com/migrate/' . str_replace( '/', '::', str_replace( array(
-				'https://',
-				'http://',
-			), '', untrailingslashit( site_url( '/' ) ) ) );
+		$redirect_url = 'https://wordpress.com/migrate/' . str_replace(
+			'/',
+			'::',
+			str_replace(
+				array(
+					'https://',
+					'http://',
+				),
+				'',
+				untrailingslashit( site_url( '/' ) )
+			)
+		);
 
 		wp_safe_redirect( $redirect_url, 302 );
 		exit();

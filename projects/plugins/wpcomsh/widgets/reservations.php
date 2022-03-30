@@ -2,7 +2,7 @@
 
 class WPCOM_Widget_Reservations extends WP_Widget {
 	private $defaults = array();
-	private $fields = array();
+	private $fields   = array();
 
 	public function __construct() {
 		parent::__construct(
@@ -67,37 +67,48 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
-		if ( empty( $instance['show'] ) )
+		if ( empty( $instance['show'] ) ) {
 			return;
+		}
 
-		$contact_form_shortcode = "[contact-form";
+		$contact_form_shortcode = '[contact-form';
 
-		if ( isset( $instance['email_to'] ) && ! empty( $instance['email_to'] ) )
+		if ( isset( $instance['email_to'] ) && ! empty( $instance['email_to'] ) ) {
 			$contact_form_shortcode .= " to='" . esc_attr( $instance['email_to'] ) . "'";
+		}
 
-		if ( isset( $instance['subject'] ) && ! empty( $instance['subject'] ) )
+		if ( isset( $instance['subject'] ) && ! empty( $instance['subject'] ) ) {
 			$contact_form_shortcode .= " subject='" . esc_attr( $instance['subject'] ) . "'";
+		}
 
-		$contact_form_shortcode .= "]";
+		$contact_form_shortcode .= ']';
 
-		if ( in_array( 'name', $instance['show'] ) )
+		if ( in_array( 'name', $instance['show'] ) ) {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['name'] ) . "' type='name'/]";
-		if ( in_array( 'email', $instance['show'] ) )
+		}
+		if ( in_array( 'email', $instance['show'] ) ) {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['email'] ) . "' type='email' required='1'/]";
-		if ( in_array( 'phone', $instance['show'] ) )
+		}
+		if ( in_array( 'phone', $instance['show'] ) ) {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['phone'] ) . "' type='text'/]";
-		if ( in_array( 'adults', $instance['show'] ) )
+		}
+		if ( in_array( 'adults', $instance['show'] ) ) {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['adults'] ) . "' type='text' data='" . esc_attr( json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
-		if ( in_array( 'children', $instance['show'] ) )
+		}
+		if ( in_array( 'children', $instance['show'] ) ) {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['children'] ) . "' type='text' data='" . esc_attr( json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
-		if ( in_array( 'arrival', $instance['show'] ) )
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['arrival'] ) ."' type='date' data='" . esc_attr( json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
-		if ( in_array( 'departure', $instance['show'] ) )
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['departure'] ) ."' type='date' data='" . esc_attr( json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
-		if ( in_array( 'message', $instance['show'] ) )
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['message'] ) ."' type='textarea' /]";
+		}
+		if ( in_array( 'arrival', $instance['show'] ) ) {
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['arrival'] ) . "' type='date' data='" . esc_attr( json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
+		}
+		if ( in_array( 'departure', $instance['show'] ) ) {
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['departure'] ) . "' type='date' data='" . esc_attr( json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
+		}
+		if ( in_array( 'message', $instance['show'] ) ) {
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['message'] ) . "' type='textarea' /]";
+		}
 
-		$contact_form_shortcode .= "[/contact-form]";
+		$contact_form_shortcode .= '[/contact-form]';
 
 		echo $args['before_widget'];
 		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
@@ -111,9 +122,9 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 		$new_instance['show'] = array();
 
 		foreach ( $this->fields as $field_key => $unused ) {
-			if ( isset( $new_instance['show-' . $field_key] ) ) {
+			if ( isset( $new_instance[ 'show-' . $field_key ] ) ) {
 				$new_instance['show'][] = $field_key;
-				unset( $new_instance['show-' . $field_key] );
+				unset( $new_instance[ 'show-' . $field_key ] );
 			}
 		}
 
@@ -143,7 +154,7 @@ add_action( 'widgets_init', 'reservations_widget_register' );
 function reservations_widget_style() {
 	if ( is_active_widget( null, null, 'reservations' ) ) {
 		wp_enqueue_style( 'widget-reservations', plugins_url( 'reservations/css/reservations.css', __FILE__ ) );
-		wp_enqueue_script( 'widget-reservations', plugins_url( 'reservations/js/reservations.js', __FILE__ ), 'jquery',  '20130312', true );
+		wp_enqueue_script( 'widget-reservations', plugins_url( 'reservations/js/reservations.js', __FILE__ ), 'jquery', '20130312', true );
 	}
 }
 add_action( 'wp_enqueue_scripts', 'reservations_widget_style' );

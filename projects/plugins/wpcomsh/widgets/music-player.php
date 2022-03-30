@@ -6,14 +6,17 @@
 
 class Music_Player_Widget extends WP_Widget {
 
-    /**
-     * Constructor
-     *
-     * @return void
-     **/
+	/**
+	 * Constructor
+	 *
+	 * @return void
+	 **/
 	function __construct() {
-		$widget_ops = array( 'classname' => 'music-player', 'description' => __( 'A multi-song music player', 'wpcomsh' ) );
-		parent::__construct( 'music-player', __( 'Music Player', 'wpcomsh'  ), $widget_ops );
+		$widget_ops = array(
+			'classname'   => 'music-player',
+			'description' => __( 'A multi-song music player', 'wpcomsh' ),
+		);
+		parent::__construct( 'music-player', __( 'Music Player', 'wpcomsh' ), $widget_ops );
 		add_action( 'admin_enqueue_scripts', array( $this, 'widget_scripts' ) );
 	}
 
@@ -22,13 +25,13 @@ class Music_Player_Widget extends WP_Widget {
 		wp_enqueue_script( 'music-player', plugins_url( 'music-player/music-player.js', __FILE__ ), array( 'jquery', 'thickbox' ), 1, true );
 	}
 
-    /**
-     * Outputs the HTML for this widget.
-     *
-     * @param array  An array of standard parameters for widgets in this theme
-     * @param array  An array of settings for this widget instance
-     * @return void Echoes it's output
-     **/
+	/**
+	 * Outputs the HTML for this widget.
+	 *
+	 * @param array  An array of standard parameters for widgets in this theme
+	 * @param array  An array of settings for this widget instance
+	 * @return void Echoes it's output
+	 **/
 	function widget( $args, $instance ) {
 		extract( $args, EXTR_SKIP );
 
@@ -45,29 +48,35 @@ class Music_Player_Widget extends WP_Widget {
 		echo $after_widget;
 	}
 
-    /**
-     * Deals with the settings when they are saved by the admin. Here is
-     * where any validation should be dealt with.
-     *
-     * @param array  An array of new settings as submitted by the admin
-     * @param array  An array of the previous settings
-     * @return array The validated and (if necessary) amended settings
-     **/
+	/**
+	 * Deals with the settings when they are saved by the admin. Here is
+	 * where any validation should be dealt with.
+	 *
+	 * @param array  An array of new settings as submitted by the admin
+	 * @param array  An array of the previous settings
+	 * @return array The validated and (if necessary) amended settings
+	 **/
 	function update( $new_instance, $old_instance ) {
 		// update logic goes here
-		$updated_instance['title'] = strip_tags( $new_instance['title'] );
+		$updated_instance['title']     = strip_tags( $new_instance['title'] );
 		$updated_instance['shortcode'] = strip_tags( $new_instance['shortcode'] );
 		return $updated_instance;
 	}
 
-    /**
-     * Displays the form for this widget on the Widgets page of the WP Admin area.
-     *
-     * @param array  An array of the current settings for this widget
-     * @return void Echoes it's output
-     **/
+	/**
+	 * Displays the form for this widget on the Widgets page of the WP Admin area.
+	 *
+	 * @param array  An array of the current settings for this widget
+	 * @return void Echoes it's output
+	 **/
 	function form( $instance ) {
-		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'shortcode' => '' ) );
+		$instance = wp_parse_args(
+			(array) $instance,
+			array(
+				'title'     => '',
+				'shortcode' => '',
+			)
+		);
 		printf(
 			'<p><label>%s <input type="text" value="%s" name="%s" id="%s" /></label></p>',
 			__( 'Title:', 'wpcomsh' ),
@@ -94,5 +103,5 @@ class Music_Player_Widget extends WP_Widget {
 
 add_action( 'widgets_init', 'register_Music_Player_Widget' );
 function register_Music_Player_Widget() {
-	register_widget('Music_Player_Widget');
+	register_widget( 'Music_Player_Widget' );
 }

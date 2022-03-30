@@ -111,8 +111,9 @@ function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
 
 	foreach ( $disallowed_mimes as $disallowed_mime ) {
 		foreach ( $mimes as $ext_pattern => $mime ) {
-			if ( strpos( $ext_pattern, $disallowed_mime ) !== false )
+			if ( strpos( $ext_pattern, $disallowed_mime ) !== false ) {
 				unset( $mimes[ $ext_pattern ] );
+			}
 		}
 	}
 

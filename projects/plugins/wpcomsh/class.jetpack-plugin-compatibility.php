@@ -4,6 +4,7 @@ class Jetpack_Plugin_Compatibility {
 
 	/**
 	 * Jetpack_Plugin_Compatibility constructor.
+	 *
 	 * @param array $incompatible_plugins Plugin file locations and html messaging in the format:
 	 * array(
 	 *   'example-plugin/example-plugin.php' => 'example-plugin interferes with Jetpack sync and has been disabled.'
@@ -33,12 +34,12 @@ class Jetpack_Plugin_Compatibility {
 	protected $admin_notices = array();
 
 	function check_plugin_compatibility() {
-		foreach( $this->incompatible_plugins as $plugin => $message ) {
+		foreach ( $this->incompatible_plugins as $plugin => $message ) {
 			if ( ! is_plugin_active( $plugin ) ) {
 				continue;
 			}
 			deactivate_plugins( $plugin );
-			$deactivated_plugin = explode( "/", $plugin )[ 0 ];
+			$deactivated_plugin    = explode( '/', $plugin )[0];
 			$this->admin_notices[] = '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html( $message ) . '</strong></p></div>';
 			if ( isset( $_GET['activate'] ) ) {
 				unset( $_GET['activate'] );

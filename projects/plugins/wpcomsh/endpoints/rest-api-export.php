@@ -2,7 +2,7 @@
 
 // used to enable wp_upload_bits call with .xml filename
 function wpcomsh_whitelist_xml_upload( $mimes ) {
-	$mimes[ 'xml' ] = 'application/xml+rss';
+	$mimes['xml'] = 'application/xml+rss';
 	return $mimes;
 }
 
@@ -20,16 +20,19 @@ function wpcomsh_whitelist_xml_upload( $mimes ) {
  */
 function wpcomsh_rest_api_export( $request = null ) {
 	// Uses wp-admin's export_wp function */
-	require_once( ABSPATH . 'wp-admin/includes/export.php' );
+	require_once ABSPATH . 'wp-admin/includes/export.php';
 
-	$args = wpcomsh_rest_api_export_options( $request );
-	$_blog_id = (int) Jetpack_Options::get_option( 'id' );
+	$args        = wpcomsh_rest_api_export_options( $request );
+	$_blog_id    = (int) Jetpack_Options::get_option( 'id' );
 	$export_name = "wpcomsh-export-$_blog_id";
 
 	if ( get_transient( $export_name ) ) {
-		return new WP_REST_Response( array(
-			'error' => "Export in progress",
-		), 423);
+		return new WP_REST_Response(
+			array(
+				'error' => 'Export in progress',
+			),
+			423
+		);
 	} else {
 		// set an hour long _lock_
 		set_transient( $export_name, $export_name, HOUR_IN_SECONDS );
@@ -39,27 +42,33 @@ function wpcomsh_rest_api_export( $request = null ) {
 	add_filter( 'upload_mimes', 'wpcomsh_whitelist_xml_upload' );
 
 	// Create a placeholder file in upload directory to stream exported content to.
-	$timestamp = current_time( 'timestamp', true );
-	$filename = "$export_name-$timestamp.xml";
-	$upload = wp_upload_bits( $filename, null, '', null );
+	$timestamp = time();
+	$filename  = "$export_name-$timestamp.xml";
+	$upload    = wp_upload_bits( $filename, null, '', null );
 
 	// disable uploading of WXR file type
 	remove_filter( 'upload_mimes', 'wpcomsh_whitelist_xml_upload' );
 
 	if ( ! empty( $upload['error'] ) ) {
 		delete_transient( $export_name );
-		return new WP_REST_Response( array(
-			'error' => $upload['error'],
-		), 500);
+		return new WP_REST_Response(
+			array(
+				'error' => $upload['error'],
+			),
+			500
+		);
 	}
 	$upload_file = $upload['file'];
-	$upload_url = $upload['url'];
+	$upload_url  = $upload['url'];
 
 	// Capture and stream WXR output of export_wp to $upload_file
-	ob_start( function ($data) use ( $upload_file ) {
-		file_put_contents( $upload_file, $data, FILE_APPEND );
-		return '';
-	}, 1048576 ); // flush to file in 1MB chunks
+	ob_start(
+		function ( $data ) use ( $upload_file ) {
+			file_put_contents( $upload_file, $data, FILE_APPEND );
+			return '';
+		},
+		1048576
+	); // flush to file in 1MB chunks
 	try {
 		export_wp( $args );
 	} catch ( Exception $e ) {
@@ -67,9 +76,12 @@ function wpcomsh_rest_api_export( $request = null ) {
 		ob_end_clean();
 		delete_transient( $export_name );
 		@unlink( $upload_file );
-		return new WP_REST_Response( array(
-			'error' => $e->getMessage(),
-		), 500);
+		return new WP_REST_Response(
+			array(
+				'error' => $e->getMessage(),
+			),
+			500
+		);
 	}
 
 	// export finished without exception. flush and close
@@ -77,11 +89,14 @@ function wpcomsh_rest_api_export( $request = null ) {
 	$upload_size = filesize( $upload_file );
 
 	delete_transient( $export_name );
-	return new WP_REST_Response( array(
-		'url' => $upload_url,
-		'type' => 'wxr',
-		'size' => $upload_size,
-	), 200);
+	return new WP_REST_Response(
+		array(
+			'url'  => $upload_url,
+			'type' => 'wxr',
+			'size' => $upload_size,
+		),
+		200
+	);
 }
 
 // Declare privileages this plugin needs
@@ -155,12 +170,15 @@ function wpcomsh_rest_api_export_options( $request ) {
  * Initialize API
  */
 function wpcomsh_rest_api_export_init() {
-	register_rest_route( 'wpcomsh/v1', '/export',
+	register_rest_route(
+		'wpcomsh/v1',
+		'/export',
 		array(
 			array(
-				'methods' => WP_REST_Server::READABLE,
+				'methods'             => WP_REST_Server::READABLE,
 				'permission_callback' => 'wpcomsh_rest_api_export_permission_callback',
-				'callback' => 'wpcomsh_rest_api_export',
-			)
-		) );
+				'callback'            => 'wpcomsh_rest_api_export',
+			),
+		)
+	);
 }

@@ -16,10 +16,15 @@ class FunctionsTest extends WP_UnitTestCase {
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
-     */
+	 */
 	function test_wpcomsh_get_atomic_client_id_defined() {
 		define( 'ATOMIC_CLIENT_ID', '2' );
-		add_filter( 'wpcomsh_get_atomic_client_id', function() { return '3'; } );
+		add_filter(
+			'wpcomsh_get_atomic_client_id',
+			function() {
+				return '3';
+			}
+		);
 		$this->assertSame( 2, wpcomsh_get_atomic_client_id() );
 	}
 
@@ -28,7 +33,12 @@ class FunctionsTest extends WP_UnitTestCase {
 	 * value provided by filter hook.
 	 */
 	function test_wpcomsh_get_atomic_client_id_filter() {
-		add_filter( 'wpcomsh_get_atomic_client_id', function() { return '1'; } );
+		add_filter(
+			'wpcomsh_get_atomic_client_id',
+			function() {
+				return '1';
+			}
+		);
 		$this->assertSame( 1, wpcomsh_get_atomic_client_id() );
 	}
 }

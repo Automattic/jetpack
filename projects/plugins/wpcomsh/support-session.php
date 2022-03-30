@@ -19,13 +19,13 @@ if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
  * or a client-side check when SSO is disabled or the Jetpack connection is broken.
  */
 class WPCOMSH_Support_Session_Detect {
-	const COOKIE_NAME = '_wpcomsh_support_session_detected';
-	const DETECTION_URI = '/_wpcomsh_detect_support_session';
-	const NONCE_ACTION = 'support-session-detect';
-	const NONCE_NAME = 'nonce';
-	const LOGIN_PATH = '/wp-login.php';
+	const COOKIE_NAME                  = '_wpcomsh_support_session_detected';
+	const DETECTION_URI                = '/_wpcomsh_detect_support_session';
+	const NONCE_ACTION                 = 'support-session-detect';
+	const NONCE_NAME                   = 'nonce';
+	const LOGIN_PATH                   = '/wp-login.php';
 	const QUERY_PARAM_TO_SHORT_CIRCUIT = 'disable-support-session-detection';
-	const EMERGENCY_LOGIN_PATH = '/wp-login.php?' . WPCOMSH_Support_Session_Detect::QUERY_PARAM_TO_SHORT_CIRCUIT;
+	const EMERGENCY_LOGIN_PATH         = '/wp-login.php?' . self::QUERY_PARAM_TO_SHORT_CIRCUIT;
 
 	public function __construct() {
 		// Detect support session on WordPress.com SSO success
@@ -40,10 +40,10 @@ class WPCOMSH_Support_Session_Detect {
 
 	/**
 	 * Answers whether we need to detect whether the request is probably part of a support session.
-	 * 
+	 *
 	 * NOTE: This method is marked private because it is for internal use and can only be called
 	 * safely after pluggable functions have been declared.
-	 * 
+	 *
 	 * @return bool
 	 */
 	private static function need_to_detect() {
@@ -64,7 +64,7 @@ class WPCOMSH_Support_Session_Detect {
 
 	/**
 	 * Answers whether we think the request is probably part of a support session
-	 * 
+	 *
 	 * @return bool
 	 */
 	public static function is_probably_support_session() {
@@ -76,7 +76,7 @@ class WPCOMSH_Support_Session_Detect {
 
 	/**
 	 * Answers whether a value is a valid detection result
-	 * 
+	 *
 	 * @param $candidate_result
 	 * @return bool
 	 */
@@ -94,9 +94,9 @@ class WPCOMSH_Support_Session_Detect {
 				static::COOKIE_NAME,
 				$result,
 				array(
-					'path' => '/',
-					'expires' => $expires,
-					'secure' => true,
+					'path'     => '/',
+					'expires'  => $expires,
+					'secure'   => true,
 					'httponly' => true,
 					// Default to Strict SameSite setting until we have a reason to relax it
 					'samesite' => 'Strict',
@@ -119,7 +119,7 @@ class WPCOMSH_Support_Session_Detect {
 			isset( $_GET['result'] ) && 'success' === $_GET['result']
 		) {
 			$is_probably_support_session =
-				isset( $_GET['is_support_session' ] ) ? 'true' : 'false'; 
+				isset( $_GET['is_support_session'] ) ? 'true' : 'false';
 
 			$expires = 0;
 			if ( isset( $_GET['expires'] ) && ctype_digit( $_GET['expires'] ) ) {
@@ -158,7 +158,7 @@ class WPCOMSH_Support_Session_Detect {
 			$detection_uri = add_query_arg(
 				array(
 					'redirect' => urlencode( $destination_login_uri ),
-					'nonce' => wp_create_nonce( static::NONCE_ACTION ),
+					'nonce'    => wp_create_nonce( static::NONCE_ACTION ),
 				),
 				static::DETECTION_URI
 			);
@@ -362,7 +362,7 @@ class WPCOMSH_Support_Session_Safety {
 	/**
 	 * Adds a support-session class to admin body tags so we can write CSS rules
 	 * that apply only for support sessions.
-	 * 
+	 *
 	 * @param $body_element_classes
 	 * @return string
 	 */
@@ -376,20 +376,23 @@ class WPCOMSH_Support_Session_Safety {
 	 */
 	public static function hide_admin_tos_blurbs() {
 		// Stop showing ToS blurbs during support sessions
-		wp_add_inline_style( 'jetpack', '
+		wp_add_inline_style(
+			'jetpack',
+			'
 			.support-session .jp-banner__tos-blurb,
 			.support-session .jp-connect-full__tos-blurb {
 				visibility: hidden !important;
 			}
-		' );
+		'
+		);
 	}
 
 	/**
 	 * Prevent updates to the `jetpack_tos_agreed` option
-	 * 
+	 *
 	 * @param $new_value
 	 * @param $old_value
-	 * 
+	 *
 	 * @return string the old option value
 	 */
 	public static function stop_updating_jetpack_tos_agreed_option( $new_value, $old_value ) {
@@ -399,17 +402,20 @@ class WPCOMSH_Support_Session_Safety {
 
 	/**
 	 * Filter out the wpcom-tos tool from the tools Jetpack wants to load
-	 * 
+	 *
 	 * @param $jetpack_tools
-	 * 
+	 *
 	 * @return array the Jetpack tools without the wpcom-tos tool
 	 */
 	public static function remove_jetpack_wpcom_tos_tool( $jetpack_tools ) {
-		$filtered_jetpack_tools = array_filter( $jetpack_tools, function ( $tool_path ) {
-			$file_to_exclude = 'wpcom-tos.php';
-			$search_from_end = - strlen( $file_to_exclude );
-			return 0 !== substr_compare( $tool_path, $file_to_exclude, $search_from_end );
-		} );
+		$filtered_jetpack_tools = array_filter(
+			$jetpack_tools,
+			function ( $tool_path ) {
+				$file_to_exclude = 'wpcom-tos.php';
+				$search_from_end = - strlen( $file_to_exclude );
+				return 0 !== substr_compare( $tool_path, $file_to_exclude, $search_from_end );
+			}
+		);
 		return $filtered_jetpack_tools;
 	}
 }

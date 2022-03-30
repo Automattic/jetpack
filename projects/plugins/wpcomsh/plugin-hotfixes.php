@@ -18,7 +18,7 @@ add_filter( 'woocommerce_download_file_xsendfile_x_accel_redirect_file_path', 'w
 // We define a Akismet Key at the Platform Level which is always assumed to be valid so don't check it all the time.
 // Related: https://github.com/Automattic/jetpack/issues/12382
 function wpcomsh_pre_transient_jetpack_akismet_key_is_valid( $_false ) {
-    return 'valid';
+	return 'valid';
 }
 add_filter( 'pre_transient_jetpack_akismet_key_is_valid', 'wpcomsh_pre_transient_jetpack_akismet_key_is_valid' );
 

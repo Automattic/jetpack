@@ -1,8 +1,8 @@
 <?php
 
-require_once( 'rest-api-export.php' );
-require_once( 'rest-api-logout.php' );
-require_once( 'rest-api-reconnect.php' );
+require_once 'rest-api-export.php';
+require_once 'rest-api-logout.php';
+require_once 'rest-api-reconnect.php';
 
 /**
  * Initialize REST API.

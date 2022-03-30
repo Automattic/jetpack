@@ -3,26 +3,32 @@
 /**
  * Plugins that shouldn't be deactivated by the deactivate-user-plugins command.
  */
-define( 'WPCOMSH_CLI_DONT_DEACTIVATE_PLUGINS', array(
-	'akismet',
-	'jetpack',
-	// Avoid deactivating the file shim before the Atomic media backfill is complete
-	'wpcom-file-shim',
-) );
+define(
+	'WPCOMSH_CLI_DONT_DEACTIVATE_PLUGINS',
+	array(
+		'akismet',
+		'jetpack',
+		// Avoid deactivating the file shim before the Atomic media backfill is complete
+		'wpcom-file-shim',
+	)
+);
 
 /**
  * eCommerce plan plugins that shouldn't be deactivated by deactivate-user-plugins
  * when the site has an eCommerce plan.
  */
-define( 'WPCOMSH_CLI_ECOMMERCE_PLAN_PLUGINS', array(
-	'storefront-powerpack',
-	'woocommerce',
-	'facebook-for-woocommerce',
-	'mailchimp-for-woocommerce',
-	'woocommerce-services',
-	'woocommerce-product-addons',
-	'taxjar-simplified-taxes-for-woocommerce',
-) );
+define(
+	'WPCOMSH_CLI_ECOMMERCE_PLAN_PLUGINS',
+	array(
+		'storefront-powerpack',
+		'woocommerce',
+		'facebook-for-woocommerce',
+		'mailchimp-for-woocommerce',
+		'woocommerce-services',
+		'woocommerce-product-addons',
+		'taxjar-simplified-taxes-for-woocommerce',
+	)
+);
 
 /**
  * The option where we keep a list of plugins deactivated via wp-cli.
@@ -58,17 +64,20 @@ function wpcomsh_cli_confirm( $question ) {
  * @return string[]|false An array of plugin names. `false` if there is an error
  */
 function wpcomsh_cli_get_plugins_with_status( $status ) {
-	$list_result = WP_CLI::runcommand( "--skip-plugins --skip-themes plugin list --format=json --status=$status", array(
-		'launch' => false,
-		'return' => 'all',
-		'exit_error' => false,
-	) );
+	$list_result = WP_CLI::runcommand(
+		"--skip-plugins --skip-themes plugin list --format=json --status=$status",
+		array(
+			'launch'     => false,
+			'return'     => 'all',
+			'exit_error' => false,
+		)
+	);
 	if ( 0 !== $list_result->return_code ) {
 		return false;
 	}
 
 	$decoded_result = json_decode( $list_result->stdout );
-	if ( NULL === $decoded_result ) {
+	if ( null === $decoded_result ) {
 		return false;
 	}
 	if ( ! is_array( $decoded_result ) ) {
@@ -76,7 +85,8 @@ function wpcomsh_cli_get_plugins_with_status( $status ) {
 	}
 
 	return array_map(
-		function( $plugin ) { return $plugin->name; },
+		function( $plugin ) {
+			return $plugin->name; },
 		$decoded_result
 	);
 }
@@ -104,9 +114,9 @@ function wpcomsh_cli_save_deactivated_plugins_record( $deactivated_plugins ) {
  * Removes expired deactivations from the deactivation record.
  */
 function wpcomsh_cli_remove_expired_from_deactivation_record() {
-	$deactivated_plugins = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS, array() );
+	$deactivated_plugins             = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS, array() );
 	$deactivated_plugins_to_remember = array();
-	$current_time = time();
+	$current_time                    = time();
 
 	foreach ( $deactivated_plugins as $plugin_name => $timestamp ) {
 		if ( ( $current_time - $timestamp ) < WPCOMSH_CLI_PLUGIN_REACTIVATION_MAX_AGE ) {
@@ -160,8 +170,8 @@ function wpcomsh_cli_reschedule_deactivated_list_cleanup() {
  * @param string $file Plugin file
  */
 function wpcomsh_cli_remember_plugin_deactivation( $file ) {
-	$deactivated_plugins = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS );
-	$plugin_name = WP_CLI\Utils\get_plugin_name( $file );
+	$deactivated_plugins                 = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS );
+	$plugin_name                         = WP_CLI\Utils\get_plugin_name( $file );
 	$deactivated_plugins[ $plugin_name ] = time();
 	wpcomsh_cli_save_deactivated_plugins_record( $deactivated_plugins );
 	wpcomsh_cli_reschedule_deactivated_list_cleanup();
@@ -177,7 +187,7 @@ function wpcomsh_cli_remember_plugin_deactivation( $file ) {
  */
 function wpcomsh_cli_forget_plugin_deactivation( $file ) {
 	$deactivated_plugins = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS );
-	$plugin_name = WP_CLI\Utils\get_plugin_name( $file );
+	$plugin_name         = WP_CLI\Utils\get_plugin_name( $file );
 	unset( $deactivated_plugins[ $plugin_name ] );
 	wpcomsh_cli_save_deactivated_plugins_record( $deactivated_plugins );
 }
@@ -211,7 +221,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				$plugins_to_skip = array_unique( array_merge( $plugins_to_skip, WPCOMSH_CLI_ECOMMERCE_PLAN_PLUGINS ) );
 			}
 
-			foreach( array_intersect( $active_plugins, $plugins_to_skip ) as $skipped ) {
+			foreach ( array_intersect( $active_plugins, $plugins_to_skip ) as $skipped ) {
 				WP_CLI::log( WP_CLI::colorize( "  %b- skipping '$skipped'%n" ) );
 			}
 
@@ -221,9 +231,9 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				return;
 			}
 
-			$interactive = WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false );
+			$interactive      = WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false );
 			$green_check_mark = WP_CLI::colorize( "%G\xE2\x9C\x94%n" );
-			$red_x = WP_CLI::colorize( "%Rx%n" );
+			$red_x            = WP_CLI::colorize( '%Rx%n' );
 			foreach ( $plugins_to_deactivate as $plugin ) {
 				$deactivate = true;
 				if ( $interactive ) {
@@ -232,11 +242,14 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 				if ( $deactivate ) {
 					// Deactivate and print success/failure
-					$result = WP_CLI::runcommand( "--skip-plugins --skip-themes plugin deactivate $plugin", array(
-						'launch' => false,
-						'return' => 'all',
-						'exit_error' => false,
-					) );
+					$result = WP_CLI::runcommand(
+						"--skip-plugins --skip-themes plugin deactivate $plugin",
+						array(
+							'launch'     => false,
+							'return'     => 'all',
+							'exit_error' => false,
+						)
+					);
 					if ( 0 === $result->return_code ) {
 						WP_CLI::log( "  $green_check_mark deactivated '$plugin'" );
 					} else {
@@ -290,15 +303,15 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			$interactive = WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false );
 			if ( ! $interactive ) {
 				// Since we're not confirming one-by-one, we'll confirm once for all.
-				WP_CLI::log( "The following will be reactivated:" );
-				WP_CLI::log( "  - " . implode( "\n  - ", $plugins_to_reactivate ) );
+				WP_CLI::log( 'The following will be reactivated:' );
+				WP_CLI::log( '  - ' . implode( "\n  - ", $plugins_to_reactivate ) );
 				if ( ! wpcomsh_cli_confirm( 'Do you wish to proceed?' ) ) {
 					return;
 				}
 			}
 
 			$green_check_mark = WP_CLI::colorize( "%G\xE2\x9C\x94%n" );
-			$red_x = WP_CLI::colorize( "%Rx%n" );
+			$red_x            = WP_CLI::colorize( '%Rx%n' );
 			foreach ( $plugins_to_reactivate as $plugin ) {
 				$reactivate = true;
 				if ( $interactive ) {
@@ -306,11 +319,14 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				}
 
 				if ( $reactivate ) {
-					$result = WP_CLI::runcommand( "--skip-plugins --skip-themes plugin activate $plugin", array(
-						'launch' => false,
-						'return' => 'all',
-						'exit_error' => false,
-					) );
+					$result = WP_CLI::runcommand(
+						"--skip-plugins --skip-themes plugin activate $plugin",
+						array(
+							'launch'     => false,
+							'return'     => 'all',
+							'exit_error' => false,
+						)
+					);
 					if ( 0 === $result->return_code ) {
 						WP_CLI::log( "  $green_check_mark activated '$plugin'" );
 					} else {
@@ -357,13 +373,13 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				return;
 			}
 
-			if ( ! defined( 'WP_HOME' ) || WP_HOME !== $new_domain  ) {
+			if ( ! defined( 'WP_HOME' ) || WP_HOME !== $new_domain ) {
 				WP_CLI::warning( 'Did not send action. New domain does not match current WP_HOME value.' );
 				return;
 			}
 
 			do_action( 'update_option_home', $old_domain, $new_domain );
-			WP_CLI::success( "Sent the update_option_home action successfully." );
+			WP_CLI::success( 'Sent the update_option_home action successfully.' );
 		}
 
 		/**
@@ -372,7 +388,8 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * After switching the site language, language packs for plugins are not automatically downloaded and the user
 		 * has to manually check for and install updates, this command installs language packs for all plugins,
 		 * using the active site language.
-		  * @subcommand install-plugin-language-packs
+		 *
+		 * @subcommand install-plugin-language-packs
 		 */
 		public function install_plugin_language_packs() {
 			/**
@@ -380,15 +397,18 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			 * but now we need the actual site language to figure out what language packs to install
 			 */
 			global $wpdb;
-			$lang = $wpdb->get_var( "SELECT option_value FROM " . $wpdb->options . " WHERE option_name = 'WPLANG'" );
+			$lang = $wpdb->get_var( 'SELECT option_value FROM ' . $wpdb->options . " WHERE option_name = 'WPLANG'" );
 			if ( empty( $lang ) ) {
 				$lang = 'en_US';
 			}
 
 			$command = new Plugin_Language_Command();
-			$command->install( array( $lang ), array(
-				'all' => true
-			) );
+			$command->install(
+				array( $lang ),
+				array(
+					'all' => true,
+				)
+			);
 		}
 	}
 }
@@ -444,13 +464,13 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 	$already_symlinked = false;
 	if ( realpath( $plugin_to_symlink ) === realpath( $managed_plugin_relative_path ) ) {
 		$already_symlinked = true;
-	} else if ( is_dir( $plugin_to_symlink ) ) {
+	} elseif ( is_dir( $plugin_to_symlink ) ) {
 		$permission_to_remove = false;
 		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-existing', false ) ) {
 			$permission_to_remove = true;
-		} else if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-unmanaged', false ) ) {
+		} elseif ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-unmanaged', false ) ) {
 			$permission_to_remove = true;
-		} else if ( wpcomsh_cli_confirm( "Plugin '$plugin_to_symlink' exists. Delete it and replace with symlink to managed plugin?" ) ) {
+		} elseif ( wpcomsh_cli_confirm( "Plugin '$plugin_to_symlink' exists. Delete it and replace with symlink to managed plugin?" ) ) {
 			$permission_to_remove = true;
 		}
 		if ( ! $permission_to_remove ) {
@@ -466,7 +486,7 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 			WP_CLI::runcommand(
 				"--skip-plugins --skip-themes plugin delete '$plugin_to_symlink'",
 				array(
-					'launch' => false,
+					'launch'     => false,
 					'exit_error' => true,
 				)
 			);
@@ -475,7 +495,7 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 
 	if ( $already_symlinked ) {
 		WP_CLI::success( "Plugin '$plugin_to_symlink' is already symlinked" );
-	} else if ( symlink( $managed_plugin_relative_path, $plugin_to_symlink ) ) {
+	} elseif ( symlink( $managed_plugin_relative_path, $plugin_to_symlink ) ) {
 		WP_CLI::success( "Symlinked '$plugin_to_symlink' plugin" );
 	} else {
 		WP_CLI::error( "Failed to symlink '$plugin_to_symlink' plugin" );
@@ -487,7 +507,7 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 		WP_CLI::runcommand(
 			"--skip-plugins --skip-themes plugin activate '$plugin_to_symlink'",
 			array(
-				'launch' => false,
+				'launch'     => false,
 				'exit_error' => true,
 			)
 		);
@@ -545,13 +565,13 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 	$already_symlinked = false;
 	if ( realpath( $theme_to_symlink ) === realpath( $managed_theme_path ) ) {
 		$already_symlinked = true;
-	} else if ( is_dir( $theme_to_symlink ) ) {
+	} elseif ( is_dir( $theme_to_symlink ) ) {
 		$permission_to_remove = false;
 		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-existing', false ) ) {
 			$permission_to_remove = true;
-		} else if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-unmanaged', false ) ) {
+		} elseif ( WP_CLI\Utils\get_flag_value( $assoc_args, 'remove-unmanaged', false ) ) {
 			$permission_to_remove = true;
-		} else if ( wpcomsh_cli_confirm( "Theme '$theme_to_symlink' exists. Delete it and replace with symlink to managed theme?" ) ) {
+		} elseif ( wpcomsh_cli_confirm( "Theme '$theme_to_symlink' exists. Delete it and replace with symlink to managed theme?" ) ) {
 			$permission_to_remove = true;
 		}
 		if ( ! $permission_to_remove ) {
@@ -567,7 +587,7 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 			WP_CLI::runcommand(
 				"--skip-plugins --skip-themes theme delete '$theme_to_symlink'",
 				array(
-					'launch' => false,
+					'launch'     => false,
 					'exit_error' => true,
 				)
 			);
@@ -576,7 +596,7 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 
 	if ( $already_symlinked ) {
 		WP_CLI::success( "Theme '$theme_to_symlink' is already symlinked" );
-	} else if ( symlink( $managed_theme_path, $theme_to_symlink ) ) {
+	} elseif ( symlink( $managed_theme_path, $theme_to_symlink ) ) {
 		WP_CLI::success( "Symlinked '$theme_to_symlink' theme" );
 	} else {
 		WP_CLI::error( "Failed to symlink '$theme_to_symlink' theme" );
@@ -588,7 +608,7 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 		WP_CLI::runcommand(
 			"--skip-plugins --skip-themes theme activate '$theme_to_symlink'",
 			array(
-				'launch' => false,
+				'launch'     => false,
 				'exit_error' => true,
 			)
 		);
@@ -606,9 +626,12 @@ if ( ! defined( 'WP_CLI' ) || true !== WP_CLI ) {
 }
 
 // Force WordPress to always output English at the command line.
-WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
-	return 'en_US';
-});
+WP_CLI::add_wp_hook(
+	'pre_option_WPLANG',
+	function() {
+		return 'en_US';
+	}
+);
 
 // Maintain a record of deactivated plugins so that they can be reactivated
 // by the reactivate-user-plugins command

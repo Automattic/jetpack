@@ -88,7 +88,6 @@ function wpcomsh_sync_custom_logo_to_site_logo( $value ) {
  * removed when that change is released in Gutenberg and all Atomic sites are updated.
  *
  * Ported from wpcom hotfix: D63662-code
- *
  */
 function wpcomsh_hotfix_gutenberg_logo_bug() {
 	// Only add the filter if Gutenberg is active and the current version is missing the filter.
@@ -111,7 +110,6 @@ add_action( 'init', 'wpcomsh_hotfix_gutenberg_logo_bug', 11 );
  *
  * We are attempting to merge the same changes into core Gutenberg. If successful, these
  * changes can be removed. https://github.com/WordPress/gutenberg/pull/33522
- *
  */
 function wpcomsh_remove_site_editor_reset_styles() {
 	$current_screen = get_current_screen();
@@ -123,7 +121,7 @@ function wpcomsh_remove_site_editor_reset_styles() {
 	// Remove wp-reset-editor-styles css in the Site Editor, as it's not needed with an iframed editor,
 	// and can interfer with Global Styles if concatenated with other scripts.
 	if ( isset( wp_styles()->registered['wp-edit-blocks'] ) ) {
-		$wp_edit_blocks_dependencies                   = array_diff( wp_styles()->registered['wp-edit-blocks']->deps, array( 'wp-reset-editor-styles' ) );
+		$wp_edit_blocks_dependencies                    = array_diff( wp_styles()->registered['wp-edit-blocks']->deps, array( 'wp-reset-editor-styles' ) );
 		wp_styles()->registered['wp-edit-blocks']->deps = $wp_edit_blocks_dependencies;
 	}
 }

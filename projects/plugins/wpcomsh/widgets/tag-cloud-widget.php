@@ -15,7 +15,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		$widget_ops = array(
-			'description' => __( 'A cloud of your most used tags.', 'wpcomsh' ),
+			'description'                 => __( 'A cloud of your most used tags.', 'wpcomsh' ),
 			'customize_selective_refresh' => true,
 		);
 		parent::__construct( 'tag_cloud', __( 'Tag Cloud', 'wpcomsh' ), $widget_ops );
@@ -29,7 +29,6 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 	 * @param array $instance Settings for the current Tag Cloud widget instance.
 	 *
 	 * @since 2.8.0
-	 *
 	 */
 	public function widget( $args, $instance ) {
 		$current_taxonomy = $this->_get_current_taxonomy( $instance );
@@ -40,7 +39,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 			if ( 'post_tag' === $current_taxonomy ) {
 				$title = __( 'Tags', 'wpcomsh' );
 			} else {
-				$tax = get_taxonomy( $current_taxonomy );
+				$tax   = get_taxonomy( $current_taxonomy );
 				$title = $tax->labels->name;
 			}
 		}
@@ -64,9 +63,9 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 			apply_filters(
 				'widget_tag_cloud_args',
 				array(
-					'taxonomy' => $current_taxonomy,
-					'echo' => false,
-					'number' => empty( $instance['max_tags'] ) ? 0 : $instance['max_tags'],
+					'taxonomy'   => $current_taxonomy,
+					'echo'       => false,
+					'number'     => empty( $instance['max_tags'] ) ? 0 : $instance['max_tags'],
 					'show_count' => $show_count,
 				),
 				$instance
@@ -102,12 +101,11 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 	 *
 	 * @return array Settings to save or bool false to cancel saving.
 	 * @since 2.8.0
-	 *
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$instance = array();
-		$instance['title'] = sanitize_text_field( $new_instance['title'] );
-		$instance['count'] = ! empty( $new_instance['count'] ) ? 1 : 0;
+		$instance             = array();
+		$instance['title']    = sanitize_text_field( $new_instance['title'] );
+		$instance['count']    = ! empty( $new_instance['count'] ) ? 1 : 0;
 		$instance['taxonomy'] = stripslashes( $new_instance['taxonomy'] );
 		$instance['max_tags'] = empty( $new_instance['max_tags'] ) ? 0 : (int) $new_instance['max_tags'];
 
@@ -120,14 +118,13 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 	 * @param array $instance Current settings.
 	 *
 	 * @since 2.8.0
-	 *
 	 */
 	public function form( $instance ) {
-		$current_taxonomy = $this->_get_current_taxonomy( $instance );
-		$title_id = $this->get_field_id( 'title' );
-		$count = isset( $instance['count'] ) ? (bool) $instance['count'] : false;
+		$current_taxonomy  = $this->_get_current_taxonomy( $instance );
+		$title_id          = $this->get_field_id( 'title' );
+		$count             = isset( $instance['count'] ) ? (bool) $instance['count'] : false;
 		$instance['title'] = ! empty( $instance['title'] ) ? esc_attr( $instance['title'] ) : '';
-		$max_tags = empty( $instance['max_tags'] ) ? 0 : $instance['max_tags'];
+		$max_tags          = empty( $instance['max_tags'] ) ? 0 : $instance['max_tags'];
 
 		echo '<p><label for="' . $title_id . '">' . __( 'Title:', 'wpcomsh' ) . '</label>
 			<input type="text" class="widefat" id="' . $title_id . '" name="' . $this->get_field_name( 'title' ) . '" value="' . $instance['title'] . '" />
@@ -140,9 +137,9 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 		</p>';
 
 		$taxonomies = get_taxonomies( array( 'show_tagcloud' => true ), 'object' );
-		$id = $this->get_field_id( 'taxonomy' );
-		$name = $this->get_field_name( 'taxonomy' );
-		$input = '<input type="hidden" id="' . $id . '" name="' . $name . '" value="%s" />';
+		$id         = $this->get_field_id( 'taxonomy' );
+		$name       = $this->get_field_name( 'taxonomy' );
+		$input      = '<input type="hidden" id="' . $id . '" name="' . $name . '" value="%s" />';
 
 		$count_checkbox = sprintf(
 			'<p><input type="checkbox" class="checkbox" id="%1$s" name="%2$s"%3$s /> <label for="%1$s">%4$s</label></p>',
@@ -162,7 +159,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 
 			// Just a single tag cloud supporting taxonomy found, no need to display a select.
 			case 1:
-				$keys = array_keys( $taxonomies );
+				$keys     = array_keys( $taxonomies );
 				$taxonomy = reset( $keys );
 				printf( $input, esc_attr( $taxonomy ) );
 				echo $count_checkbox;
@@ -198,7 +195,6 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 	 *
 	 * @return string Name of the current taxonomy if set, otherwise 'post_tag'.
 	 * @since 4.4.0
-	 *
 	 */
 	public function _get_current_taxonomy( $instance ) {
 		if ( ! empty( $instance['taxonomy'] ) && taxonomy_exists( $instance['taxonomy'] ) ) {

@@ -37,7 +37,7 @@ function wpcomsh_plan_notices() {
 			'wpcomsh'
 		),
 		/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
-		'premium'  => __(
+		'premium'   => __(
 			'The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support.',
 			'wpcomsh'
 		),
@@ -52,7 +52,7 @@ function wpcomsh_plan_notices() {
 			'wpcomsh'
 		),
 		/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
-		'pro' => __(
+		'pro'       => __(
 			'The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href="%1$s">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
 			'wpcomsh'
 		),
@@ -67,7 +67,7 @@ function wpcomsh_plan_notices() {
 				'wpcomsh'
 			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
-			'premium'  => __(
+			'premium'   => __(
 				'The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support.',
 				'wpcomsh'
 			),
@@ -82,7 +82,7 @@ function wpcomsh_plan_notices() {
 				'wpcomsh'
 			),
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
-			'pro' => __(
+			'pro'       => __(
 				'The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href="%1$s">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access.',
 				'wpcomsh'
 			),

@@ -29,10 +29,10 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 		);
 
 		$this->defaults = array(
-			'title' => __( 'Posts I Like', 'wpcomsh'),
-			'liker' => 0,
-			'number' => 5,
-			'display' => 'list'
+			'title'   => __( 'Posts I Like', 'wpcomsh' ),
+			'liker'   => 0,
+			'number'  => 5,
+			'display' => 'list',
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) ) {
@@ -60,18 +60,18 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 		// outputs the options form on admin
 		$instance = array_merge( $this->defaults, $instance );
 
-		$title = $instance['title'];
+		$title  = $instance['title'];
 		$number = (int) $instance['number'];
 
 		if ( $number < 1 ) {
 			$number = 1;
-		} else if ( $number > 15 ) {
+		} elseif ( $number > 15 ) {
 			$number = 15;
 		}
 
 		$liker = $instance['liker'];
 		// If the liker is a wpcom user, convert it into a local user.
-		if( empty( $instance['local_liker'] ) ) {
+		if ( empty( $instance['local_liker'] ) ) {
 			$liker = self::get_local_user_from_wpcom_user( $liker );
 		}
 		if ( 0 === $liker ) {
@@ -100,15 +100,18 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 		</p>
 		<?php
 
-		$liker_dropdown = wp_dropdown_users( array(
-			'selected'                => $liker,
-			'name'                    => $this->get_field_name( 'liker' ),
-			'id'                      => $this->get_field_id( 'liker' ),
-			'echo'                    => false,
-			'hide_if_only_one_author' => true,
-		) );
+		$liker_dropdown = wp_dropdown_users(
+			array(
+				'selected'                => $liker,
+				'name'                    => $this->get_field_name( 'liker' ),
+				'id'                      => $this->get_field_id( 'liker' ),
+				'echo'                    => false,
+				'hide_if_only_one_author' => true,
+			)
+		);
 
-		if ( $liker_dropdown ) : ?>
+		if ( $liker_dropdown ) :
+			?>
 			<p>
 				<label for="<?php echo $this->get_field_id( 'liker' ); ?>"><?php esc_html_e( "Author's likes to display:", 'wpcomsh' ); ?></label>
 				<?php echo $liker_dropdown; ?>
@@ -119,7 +122,8 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 				name="<?php echo $this->get_field_name( 'liker' ); ?>"
 				value="<?php echo (int) $liker; ?>"
 			/>
-		<?php endif;
+			<?php
+		endif;
 	}
 
 	/**
@@ -135,7 +139,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 	function update( $new_instance, $old_instance ) {
 		// processes widget options to be saved
 
-		$instance = array();
+		$instance          = array();
 		$instance['title'] = wp_kses( $new_instance['title'], array() );
 		if ( $instance['title'] === $this->defaults['title'] ) {
 			$instance['title'] = false; // Store as false in case of language change
@@ -144,7 +148,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 		$instance['number'] = (int) $new_instance['number'];
 		if ( $instance['number'] < 1 ) {
 			$instance['number'] = 1;
-		} else if ( $instance['number'] > 15 ) {
+		} elseif ( $instance['number'] > 15 ) {
 			$instance['number'] = 15;
 		}
 
@@ -171,24 +175,24 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 	function widget( $args, $instance ) {
 		// Set default values to avoid displaying undeinfed index notices
 		$instance = array_merge( $this->defaults, $instance );
-		$title = apply_filters( 'widget_title', $instance['title'] );
+		$title    = apply_filters( 'widget_title', $instance['title'] );
 
 		/**
 		 * Use the Like's API to load all of a user's ($instance['liker']) likes
 		 * and put them all in a posts_i_like array so we can easily output it based on grid or list
 		 */
-		$liker = $instance['liker'];
+		$liker             = $instance['liker'];
 		$number_to_display = $instance['number'];
 
 		$get_image_options = array(
-			'from_html' => true,
+			'from_html'           => true,
 			'fallback_to_avatars' => true,
-			'gravatar_default' => 'https://s0.wp.com/i/logo/white-gray-80.png',
+			'gravatar_default'    => 'https://s0.wp.com/i/logo/white-gray-80.png',
 		);
 
 		if ( 'grid' === $instance['display'] ) {
 			// for grid display, we need an even number so it looks ok
-			$number_to_display += $number_to_display % 2;
+			$number_to_display               += $number_to_display % 2;
 			$get_image_options['avatar_size'] = 200;
 		} else {
 			$get_image_options['avatar_size'] = 40;
@@ -202,7 +206,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 		$posts_i_like = array();
 		if ( $liker && is_user_member_of_blog( $liker ) ) {
 			$force_update = is_customize_preview();
-			$posts = $this->get_liked_posts( $liker, $number_to_display, $force_update );
+			$posts        = $this->get_liked_posts( $liker, $number_to_display, $force_update );
 
 			foreach ( $posts as $post ) {
 				$posts_i_like[] = (object) $post;
@@ -227,7 +231,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 
 		if ( $posts_i_like ) {
 			if ( 'grid' == $instance['display'] ) {
-				$output  = '';
+				$output = '';
 
 				echo "<div class='widgets-grid-layout no-grav'>";
 
@@ -239,30 +243,30 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 					);
 
 					$output .= "<div class='widget-grid-view-image'>";
-					$output .= "<a href='"  . esc_url( $post->post_permalink ) . "' title='" . esc_attr( $hover_text ) . "' class='bump-view' data-bump-view='pil'>";
+					$output .= "<a href='" . esc_url( $post->post_permalink ) . "' title='" . esc_attr( $hover_text ) . "' class='bump-view' data-bump-view='pil'>";
 					$output .= "<img src='" . esc_url( $post->post_image ) . "'/>";
-					$output .= "</a>";
-					$output .= "</div>";
+					$output .= '</a>';
+					$output .= '</div>';
 				}
 
 				echo $output;
 
-				echo "</div>";
+				echo '</div>';
 
 			} else {
 				echo "<ul class='widgets-list-layout no-grav'>";
 
 				foreach ( $posts_i_like as $post ) {
-					echo "<li>";
+					echo '<li>';
 					echo "<img src='" . esc_url( $post->post_image ) . "' class='widgets-list-layout-blavatar' />";
-					echo "<div class='widgets-list-layout-links'><a href='" . esc_url( $post->post_permalink ) . "' class='bump-view' data-bump-view='pil'>" . esc_html( $post->post_title ) . "</a> ";
-					echo "<span>" . __( 'on', 'wpcomsh' );
-					echo "&nbsp;<a href='". esc_url( $post->blog_url ) . "' class='bump-view' data-bump-view='pil'>" . esc_html( $post->blog_name ) . "</a>";
-					echo "</span></div>";
-					echo "</li>";
+					echo "<div class='widgets-list-layout-links'><a href='" . esc_url( $post->post_permalink ) . "' class='bump-view' data-bump-view='pil'>" . esc_html( $post->post_title ) . '</a> ';
+					echo '<span>' . __( 'on', 'wpcomsh' );
+					echo "&nbsp;<a href='" . esc_url( $post->blog_url ) . "' class='bump-view' data-bump-view='pil'>" . esc_html( $post->blog_name ) . '</a>';
+					echo '</span></div>';
+					echo '</li>';
 				}
 
-				echo "</ul>";
+				echo '</ul>';
 			}
 		} elseif ( $current_user_controls_widget ) {
 			echo '<p>' . sprintf(
@@ -285,13 +289,13 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 			}
 		}
 
-		$proto = apply_filters( 'jetpack_can_make_outbound_https', true ) ? 'https' : 'http';
+		$proto   = apply_filters( 'jetpack_can_make_outbound_https', true ) ? 'https' : 'http';
 		$version = 2;
-		$path = 'liked-posts';
+		$path    = 'liked-posts';
 
 		$args = array(
-			'url' => sprintf( '%s://%s/wpcom/v%s/%s?count=%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $path, $post_count ),
-			'method' => 'GET',
+			'url'     => sprintf( '%s://%s/wpcom/v%s/%s?count=%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $path, $post_count ),
+			'method'  => 'GET',
 			'user_id' => $user_id,
 			'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
 		);
@@ -317,11 +321,13 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 	static function get_local_user_from_wpcom_user( $user_id ) {
 		global $wpdb;
 
-		return (int) $wpdb->get_var( $wpdb->prepare(
-			"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key=%s AND meta_value=%s",
-			'wpcom_user_id',
-			$user_id
-		) );
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key=%s AND meta_value=%s",
+				'wpcom_user_id',
+				$user_id
+			)
+		);
 	}
 }
 

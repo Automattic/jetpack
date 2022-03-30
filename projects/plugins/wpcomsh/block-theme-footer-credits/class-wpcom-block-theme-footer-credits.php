@@ -34,7 +34,7 @@ class WPCOM_Block_Theme_Footer_Credits {
 
 		// Try to find link to either WordPress.com or .org.
 		// Here we're expecting something along the lines of `<p>Powered by <a href="https://wordpress.org">WordPress</a></p>`
-		$credit_regex   = '/[^>]*<a[^(<|>)]*href="(http|https):\/\/(www\.)?wordpress.(org|com)(\/)?(\?\w+\=\w+)?"(\s?\w+\="[\w\-]+")*>.*<\/a>[^<]*/';
+		$credit_regex   = '/[^>]*<a[^(<|>)]*href="(http|https):\/\/(www\.)?wordpress.(org|com)(\/)?(\?\w+\=\w+)?"(\s?\w+\="[\w\-]+")*>.*<\/a>[^<]*/'; // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 		$credit_matches = preg_match( $credit_regex, $block_content );
 
 		// If there's a successful match, replace with our content.
@@ -79,7 +79,7 @@ class WPCOM_Block_Theme_Footer_Credits {
 	 * Should return as early as possible.
 	 * Can be overridden with the WordPress filter: `wpcom_should_show_block_theme_footer_credits`
 	 *
-	 * @param  int     $blog_id current blog ID
+	 * @param  int $blog_id current blog ID
 	 * @return boolean          true if the credits should show, false otherwise.
 	 */
 	public function should_update_footer_credits( $blog_id ) {

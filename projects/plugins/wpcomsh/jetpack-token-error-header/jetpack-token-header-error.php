@@ -28,18 +28,24 @@ class Atomic_Record_Jetpack_Token_Errors {
 		if ( ! isset( $error_data['signature_details'] ) ) {
 			return;
 		}
-		header( sprintf(
-			'X-Jetpack-Signature-Error: %s',
-			$error->get_error_code()
-		) );
-		header( sprintf(
-			'X-Jetpack-Signature-Error-Message: %s',
-			$error->get_error_message()
-		) );
-		header( sprintf(
-			'X-Jetpack-Signature-Error-Details: %s',
-			base64_encode( json_encode( $error_data['signature_details'] ) )
-		) );
+		header(
+			sprintf(
+				'X-Jetpack-Signature-Error: %s',
+				$error->get_error_code()
+			)
+		);
+		header(
+			sprintf(
+				'X-Jetpack-Signature-Error-Message: %s',
+				$error->get_error_message()
+			)
+		);
+		header(
+			sprintf(
+				'X-Jetpack-Signature-Error-Details: %s',
+				base64_encode( json_encode( $error_data['signature_details'] ) )
+			)
+		);
 	}
 
 	// stolen from https://github.com/Automattic/vip-go-mu-plugins/pull/1301
@@ -49,7 +55,7 @@ class Atomic_Record_Jetpack_Token_Errors {
 			return false;
 		}
 		// Simple UA check to filter out most
-		if ( false === stripos( $_SERVER[ 'HTTP_USER_AGENT' ], 'wpcomsh' ) ) {
+		if ( false === stripos( $_SERVER['HTTP_USER_AGENT'], 'wpcomsh' ) ) {
 			return false;
 		}
 		// If has a valid-looking UA, check the remote IP
@@ -64,8 +70,8 @@ class Atomic_Record_Jetpack_Token_Errors {
 			'195.234.108.0/22',
 		);
 
-		return self::check_ip( $_SERVER[ 'REMOTE_ADDR' ], $jetpack_ips ) ||
-			( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) && self::check_ip( $_SERVER[ 'HTTP_X_FORWARDED_FOR' ], $jetpack_ips ) );
+		return self::check_ip( $_SERVER['REMOTE_ADDR'], $jetpack_ips ) ||
+			( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) && self::check_ip( $_SERVER['HTTP_X_FORWARDED_FOR'], $jetpack_ips ) );
 	}
 
 	/**
@@ -76,13 +82,12 @@ class Atomic_Record_Jetpack_Token_Errors {
 	 *
 	 * @return bool Whether the IP is valid
 	 */
-	static function check_ip($request_ip, $ips)
-	{
-		if (!is_array($ips)) {
-			$ips = array($ips);
+	static function check_ip( $request_ip, $ips ) {
+		if ( ! is_array( $ips ) ) {
+			$ips = array( $ips );
 		}
-		foreach ($ips as $ip) {
-			if (self::check_ipv4($request_ip, $ip)) {
+		foreach ( $ips as $ip ) {
+			if ( self::check_ipv4( $request_ip, $ip ) ) {
 				return true;
 			}
 		}
@@ -97,24 +102,23 @@ class Atomic_Record_Jetpack_Token_Errors {
 	 *
 	 * @return bool Whether the request IP matches the IP, or whether the request IP is within the CIDR subnet
 	 */
-	static function check_ipv4($request_ip, $ip)
-	{
-		if (!filter_var($request_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+	static function check_ipv4( $request_ip, $ip ) {
+		if ( ! filter_var( $request_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 			return false;
 		}
-		if (false !== strpos($ip, '/')) {
-			list($address, $netmask) = explode('/', $ip, 2);
-			if ($netmask === '0') {
-				return filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+		if ( false !== strpos( $ip, '/' ) ) {
+			list($address, $netmask) = explode( '/', $ip, 2 );
+			if ( $netmask === '0' ) {
+				return filter_var( $address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 );
 			}
-			if ($netmask < 0 || $netmask > 32) {
+			if ( $netmask < 0 || $netmask > 32 ) {
 				return false;
 			}
 		} else {
 			$address = $ip;
 			$netmask = 32;
 		}
-		return 0 === substr_compare(sprintf('%032b', ip2long($request_ip)), sprintf('%032b', ip2long($address)), 0, $netmask);
+		return 0 === substr_compare( sprintf( '%032b', ip2long( $request_ip ) ), sprintf( '%032b', ip2long( $address ) ), 0, $netmask );
 	}
 
 }

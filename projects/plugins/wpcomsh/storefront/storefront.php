@@ -15,13 +15,15 @@ function wpcomsh_maybe_symlink_storefront() {
 
 	// Symlink storefront themes if WooCommerce is present.
 	if ( wpcomsh_site_has_woocommerce() ) {
-		
+
 		$was_storefront_symlinked = wpcomsh_symlink_storefront_parent_theme();
 
 		// Exit early if storefront parent theme was not symlinked.
 		if ( is_wp_error( $was_storefront_symlinked ) ) {
-			error_log( "Can't symlink storefront parent theme. Error: "
-				. print_r( $was_storefront_symlinked, true ) );
+			error_log(
+				"Can't symlink storefront parent theme. Error: "
+				. print_r( $was_storefront_symlinked, true )
+			);
 
 			return $was_storefront_symlinked;
 		}
@@ -69,12 +71,12 @@ add_filter( 'jetpack_wpcom_theme_delete', 'wpcomsh_jetpack_storefront_theme_dele
  */
 function wpcomsh_symlink_storefront_parent_theme() {
 	if ( ! file_exists( WP_CONTENT_DIR . '/themes/storefront' ) ) {
-		$storefront_theme_path = WPCOMSH_STOREFRONT_SYMLINK . '/latest';
+		$storefront_theme_path         = WPCOMSH_STOREFRONT_SYMLINK . '/latest';
 		$storefront_theme_symlink_path = get_theme_root() . '/storefront';
 
 		if ( ! symlink( $storefront_theme_path, $storefront_theme_symlink_path ) ) {
 			$error_message = "Can't symlink the storefront parent theme." .
-			                 "Make sure it exists in the " . WPCOMSH_STOREFRONT_PATH . " directory.";
+							 'Make sure it exists in the ' . WPCOMSH_STOREFRONT_PATH . ' directory.';
 
 			error_log( 'WPComSH: ' . $error_message );
 

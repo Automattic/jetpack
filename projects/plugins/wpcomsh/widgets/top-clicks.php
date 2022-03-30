@@ -5,7 +5,11 @@
  */
 class Widget_Top_Clicks extends WP_Widget {
 	var $alt_option_name = 'widget_stats_topclicks';
-	var $defaults = array( 'title' => '', 'count' => 10, 'len' => 25 );
+	var $defaults        = array(
+		'title' => '',
+		'count' => 10,
+		'len'   => 25,
+	);
 
 	public function __construct() {
 		parent::__construct(
@@ -18,12 +22,14 @@ class Widget_Top_Clicks extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
-		if ( empty( $instance['title'] ) )
+		if ( empty( $instance['title'] ) ) {
 			$instance['title'] = __( 'Top Clicks', 'wpcomsh' );
+		}
 
 		$instance['count'] = isset( $instance['count'] ) ? intval( $instance['count'] ) : null;
-		if ( empty( $instance['count'] ) || $instance['count'] < 1 || 10 < $instance['count'] )
+		if ( empty( $instance['count'] ) || $instance['count'] < 1 || 10 < $instance['count'] ) {
 			$instance['count'] = 10;
+		}
 
 		echo $args['before_widget'];
 		echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
@@ -58,18 +64,26 @@ class Widget_Top_Clicks extends WP_Widget {
 				</select>
 			</label>
 		</p>
-		<p><?php esc_html_e( 'Top Clicks are calculated from 48-72 hours of stats. They take a while to change.','wpcomsh' ); ?></p>
+		<p><?php esc_html_e( 'Top Clicks are calculated from 48-72 hours of stats. They take a while to change.', 'wpcomsh' ); ?></p>
 		<?php
 	}
 
 	public function update( $new_instance, $old_instance ) {
-		$new_instance = wp_parse_args( $new_instance, array( 'title' => __( 'Top Clicks', 'wpcomsh' ), 'count' => 10, 'len' => 25 ) );
+		$new_instance          = wp_parse_args(
+			$new_instance,
+			array(
+				'title' => __( 'Top Clicks', 'wpcomsh' ),
+				'count' => 10,
+				'len'   => 25,
+			)
+		);
 		$new_instance['title'] = strip_tags( $new_instance['title'] );
 		$new_instance['count'] = intval( $new_instance['count'] );
-		$new_instance['len'] = intval( $new_instance['len'] );
+		$new_instance['len']   = intval( $new_instance['len'] );
 
-		if ( $new_instance['len'] < 1 )
+		if ( $new_instance['len'] < 1 ) {
 			$new_instance['len'] = 20;
+		}
 
 		wp_cache_delete( 'display_top_clicks', 'output' );
 
@@ -77,7 +91,7 @@ class Widget_Top_Clicks extends WP_Widget {
 	}
 
 	protected function display_top_clicks( $number, $len = 25 ) {
-		$html = wp_cache_get( 'display_top_clicks', 'output' ) ;
+		$html = wp_cache_get( 'display_top_clicks', 'output' );
 		if ( empty( $html ) ) {
 			$urls = wp_cache_get( 'display_top_clicks_urls', 'stats' );
 			if ( false === $urls ) {
@@ -94,21 +108,24 @@ class Widget_Top_Clicks extends WP_Widget {
 			if ( ! empty( $urls ) ) {
 				arsort( $urls );
 				foreach ( $urls as $url => $views ) {
-					if ( ! $number-- )
+					if ( ! $number-- ) {
 						break;
-					if ( strstr( $url, 'pagead2.google' ) )
+					}
+					if ( strstr( $url, 'pagead2.google' ) ) {
 						continue;
+					}
 					// TEMP: mask out url shorteners to hide Top Clicks spam till we have a better solution
-					if ( preg_match('#(?:tinyurl[.]com)/.#', $url ) )
+					if ( preg_match( '#(?:tinyurl[.]com)/.#', $url ) ) {
 						continue;
-					$url = preg_replace( '/http:\/\/wordpress\.redirectingat\.com\/\?id=725X1342&site=[a-zA-Z0-9]+\.wordpress\.com&url=http%3A/', 'http:', $url );
-					$html .= "<li>" . $this->shrink_link( $url, $len ) . "</li>";
+					}
+					$url   = preg_replace( '/http:\/\/wordpress\.redirectingat\.com\/\?id=725X1342&site=[a-zA-Z0-9]+\.WordPress\.com&url=http%3A/', 'http:', $url );
+					$html .= '<li>' . $this->shrink_link( $url, $len ) . '</li>';
 				}
 			} else {
 				$html .= '<li>' . __( 'None', 'wpcomsh' ) . '</li>';
 			}
 			$html .= '</ul>';
-			$html = preg_replace( '|<a (.+?)>|', "<a $1 rel='nofollow'>", $html );
+			$html  = preg_replace( '|<a (.+?)>|', "<a $1 rel='nofollow'>", $html );
 			wp_cache_add( 'display_top_clicks', $html, 'output', 3600 );
 		}
 		echo $html;
@@ -135,8 +152,9 @@ class Widget_Top_Clicks extends WP_Widget {
 		$text = preg_replace( '!^(mailto:|https?://(www\.)?)!', '', $url );
 		$text = trim( $text, '/' );
 		$text = rawurldecode( $text );
-		if ( $len > 0 && strlen( $text ) > $len )
+		if ( $len > 0 && strlen( $text ) > $len ) {
 			$text = wp_html_excerpt( $text, $len ) . '&#8230;';
+		}
 		$text = esc_html( $text );
 
 		$url = esc_attr( $url );
@@ -150,10 +168,13 @@ class Widget_Top_Clicks extends WP_Widget {
 		}
 
 		// ALL NON-URL REFERRERS ARE ALLOWED UNLESS ADDED HERE
-		if ( in_array( $url, array(
-			'internal',
-			'DOCUMENT_REFERRER',
-		) ) ) {
+		if ( in_array(
+			$url,
+			array(
+				'internal',
+				'DOCUMENT_REFERRER',
+			)
+		) ) {
 			return false;
 		}
 		$parts = @ parse_url( $url );
@@ -167,10 +188,13 @@ class Widget_Top_Clicks extends WP_Widget {
 		}
 
 		// ALL HOSTS ARE ALLOWED UNLESS ADDED HERE
-		if ( in_array( $parts['host'], array(
-			'redirect.ad-feeds.com',
-			'shots.snap.com',
-		) ) ) {
+		if ( in_array(
+			$parts['host'],
+			array(
+				'redirect.ad-feeds.com',
+				'shots.snap.com',
+			)
+		) ) {
 			return false;
 		}
 

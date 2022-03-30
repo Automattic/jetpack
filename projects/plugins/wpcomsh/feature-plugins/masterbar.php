@@ -69,9 +69,12 @@ function wpcomsh_mimic_admin_page_load() {
 		@ini_set( 'display_errors', false ); // phpcs:ignore
 
 		define( 'WP_ADMIN', true );
-		add_action( 'wp_loaded', function() {
-			require_once ABSPATH . 'wp-admin/includes/admin.php';
-		} );
+		add_action(
+			'wp_loaded',
+			function() {
+				require_once ABSPATH . 'wp-admin/includes/admin.php';
+			}
+		);
 	}
 }
 add_action( 'muplugins_loaded', 'wpcomsh_mimic_admin_page_load' );
@@ -98,7 +101,7 @@ function wpcomsh_hide_color_schemes() {
 		return false;
 	}
 	$connection_manager        = new Connection_Manager( 'jetpack' );
-	$user_id_from_query_string = isset( $_GET[ 'user_id' ] ) ? $_GET[ 'user_id' ] : false;
+	$user_id_from_query_string = isset( $_GET['user_id'] ) ? $_GET['user_id'] : false;
 
 	if ( ! $connection_manager->is_user_connected( $user_id_from_query_string ) ) {
 		// If this is a local user, show the default UX.
@@ -203,6 +206,7 @@ add_filter( 'jetpack_show_wpcom_upgrades_email_menu', '__return_true' );
 /**
  * Checks if site sticker is toggled on/off.
  * For further information/context on Atomic_Persistent_Data and site_stickers please also see this diff: D66496-code
+ *
  * @return boolean
  */
 function wpcomsh_is_site_sticker_active( $sticker_name ) {
@@ -212,7 +216,7 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
 
 	$persistent_data = new \Atomic_Persistent_Data();
 
-	if ( $persistent_data->{"site_sticker_{$sticker_name}"}) {
+	if ( $persistent_data->{"site_sticker_{$sticker_name}"} ) {
 		return true;
 	}
 

@@ -20,8 +20,11 @@ const DOTORG_PLUGIN_INFO_ENDPOINT = DOTORG_PLUGINS_HOST . '/info/1.0/';
  * @return array}|WP_Error
  */
 function search_plugin_info( $slug ) {
-	$request = array( 'action' => 'plugin_information', 'timeout' => 15 );
-	$response = wp_remote_post( DOTORG_PLUGIN_INFO_ENDPOINT . $slug, array( 'body' => $request ) );
+	$request     = array(
+		'action'  => 'plugin_information',
+		'timeout' => 15,
+	);
+	$response    = wp_remote_post( DOTORG_PLUGIN_INFO_ENDPOINT . $slug, array( 'body' => $request ) );
 	$plugin_info = maybe_unserialize( $response['body'] );
 
 	if ( $plugin_info && property_exists( $plugin_info, 'error' ) ) {
@@ -33,13 +36,13 @@ function search_plugin_info( $slug ) {
 
 /**
  * Perform a request to WP COM API endpoint to check the plugin
- * 
+ *
  * @param  array $body array data with needed information to check the plugin
  * @return WP_Error|bool error instance if something fails, `true` if plugin is accepted.
  */
 function request_check_plugin( $slug, $body ) {
 	$wpcom_blog_id = Jetpack_Options::get_option( 'id' );
-	$endpoint = "/sites/{$wpcom_blog_id}/plugins/{$slug}/check";
+	$endpoint      = "/sites/{$wpcom_blog_id}/plugins/{$slug}/check";
 
 	$request = Jetpack_Client::wpcom_json_api_request_as_blog(
 		$endpoint,
@@ -61,7 +64,7 @@ function request_check_plugin( $slug, $body ) {
 	}
 
 	$response_code = wp_remote_retrieve_response_code( $request );
-	$response = json_decode( wp_remote_retrieve_body( $request ), true );
+	$response      = json_decode( wp_remote_retrieve_body( $request ), true );
 
 	$error_data = array(
 		'wpcom_blog_id' => $wpcom_blog_id,
@@ -107,28 +110,28 @@ function request_check_plugin( $slug, $body ) {
 
 /**
  * Tries to decompress the packge into a temporary folder.
- * 
+ *
  * @param  string $package
  * @return string|WP_Error
  */
 function uncompress_package( $package ) {
-	$package_info = pathinfo( $package );
+	$package_info     = pathinfo( $package );
 	$package_filename = $package_info['filename'];
 
 	$current_upload_folder = wp_upload_dir();
-	$path = $current_upload_folder['path'];
+	$path                  = $current_upload_folder['path'];
 
 	$tmp_package_folder = "{$path}/{$package_filename}";
 
 	// try to unzip the file
-	$zip_handler = new ZipArchive;
-	$was_opened = $zip_handler->open( $package );
-	if ( $was_opened !== TRUE ) {
+	$zip_handler = new ZipArchive();
+	$was_opened  = $zip_handler->open( $package );
+	if ( $was_opened !== true ) {
 		return new WP_Error( 'process_failed', 'The zip file could not be opened.' );
 	}
 
 	$was_uncompressed = $zip_handler->extractTo( $tmp_package_folder );
-	if ( $was_uncompressed !== TRUE ) {
+	if ( $was_uncompressed !== true ) {
 		return new WP_Error( 'process_failed', 'The zip file could not be decompressed.' );
 	}
 
@@ -142,10 +145,10 @@ function clean_folder( $dir ) {
 		return false;
 	}
 
-	$it = new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS );
+	$it        = new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS );
 	$old_files = new RecursiveIteratorIterator( $it, RecursiveIteratorIterator::CHILD_FIRST );
 
-	foreach( $old_files as $old_file ) {
+	foreach ( $old_files as $old_file ) {
 		if ( $old_file->isDir() ) {
 			rmdir( $old_file->getRealPath() );
 		} else {
@@ -167,14 +170,14 @@ function clean_folder( $dir ) {
  *  > file, then the file name will be used. If WordPress tells you that a newer version of your Plugin is
  *  > available, but you know nothing about a newer version, beware. It's possible that another Plugin with the
  *  > same directory name or file name is in the Plugin Repository, and it's this one which WordPress is seeing.
- *  
+ *
  *  - https://codex.wordpress.org/Writing_a_Plugin#Names.2C_Files.2C_and_Locations
- *  
+ *
  * @param  string $package - path of the package. Generally it's a .zip file.
  * @return array|WP_Error  - slug and version Array, or a WP_Error instance if something fails.
  */
 function get_plugin_data_from_package( $package ) {
-	if( ! is_file( $package ) ) {
+	if ( ! is_file( $package ) ) {
 		return new WP_Error( 'process_package_fails', 'Invalid plugin file.' );
 	}
 
@@ -183,8 +186,8 @@ function get_plugin_data_from_package( $package ) {
 		return $tmp_plugin_folder;
 	}
 
-	$tmp_plugin_dir  = @ opendir( $tmp_plugin_folder );
-	$plugin_files = array();
+	$tmp_plugin_dir = @ opendir( $tmp_plugin_folder );
+	$plugin_files   = array();
 	if ( $tmp_plugin_dir ) {
 		while ( ( $file = readdir( $tmp_plugin_dir ) ) !== false ) {
 			if ( substr( $file, 0, 1 ) == '.' ) {
@@ -228,7 +231,7 @@ function get_plugin_data_from_package( $package ) {
 
 	// finish getting plugin slug
 	$plugin_pathinfo = pathinfo( $plugin_folder );
-	$plugin_slug = $plugin_pathinfo['filename'];
+	$plugin_slug     = $plugin_pathinfo['filename'];
 
 	if ( ! $plugin_slug ) {
 		return new WP_Error( 'process_package_fails', 'Plugin slug not found.' );

@@ -21,7 +21,7 @@ function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
 		require JETPACK__GLOTPRESS_LOCALES_PATH;
 	}
 
-	$locale_slug = basename( $mofile, '.mo' );
+	$locale_slug        = basename( $mofile, '.mo' );
 	$actual_locale_slug = $locale_slug;
 
 	// These locales are not in our GP_Locales file, so rewrite them.
@@ -55,34 +55,47 @@ function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
 add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9999 );
 
 // Load translations for wpcomsh itself via MO file
-add_action( 'plugins_loaded', function() {
-	load_muplugin_textdomain( 'wpcomsh', 'wpcomsh/languages' );
-} );
+add_action(
+	'plugins_loaded',
+	function() {
+		load_muplugin_textdomain( 'wpcomsh', 'wpcomsh/languages' );
+	}
+);
 
 // Early deploy of this fix in Jetpack: https://github.com/Automattic/jetpack/pull/14797
 // To be removed after the release of 8.5 (but things won't break with the Jetpack fix shipped).
-add_filter( 'load_script_textdomain_relative_path', function( $relative, $src ) {
-	if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
-		// Get the local path from a URL which was CDN'ed by cdnize_plugin_assets().
-		if ( preg_match( '#^' . preg_quote( Jetpack_Photon_Static_Assets_CDN::CDN, '#' ) . 'p/[^/]+/[^/]+/(.*)$#', $src, $m ) ) {
-			return $m[1];
+add_filter(
+	'load_script_textdomain_relative_path',
+	function( $relative, $src ) {
+		if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
+			// Get the local path from a URL which was CDN'ed by cdnize_plugin_assets().
+			if ( preg_match( '#^' . preg_quote( Jetpack_Photon_Static_Assets_CDN::CDN, '#' ) . 'p/[^/]+/[^/]+/(.*)$#', $src, $m ) ) {
+				return $m[1];
+			}
 		}
-	}
 
-	return $relative;
-}, 10, 2);
+		return $relative;
+	},
+	10,
+	2
+);
 
 // Ensure use of the correct local path when loading the JavaScript translation file for a CDN'ed asset.
-add_filter( 'load_script_translation_file', function( $file, $handle, $domain ) {
-	global $wp_scripts;
-	if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
-		// This is a rewritten plugin URL, so load the language file from the plugins path.
-		if ( isset( $wp_scripts->registered[ $handle ] ) && wp_startswith( $wp_scripts->registered[ $handle ]->src, Jetpack_Photon_Static_Assets_CDN::CDN . 'p' ) ) {
-			return WP_LANG_DIR . '/plugins/' . basename( $file );
+add_filter(
+	'load_script_translation_file',
+	function( $file, $handle, $domain ) {
+		global $wp_scripts;
+		if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
+			// This is a rewritten plugin URL, so load the language file from the plugins path.
+			if ( isset( $wp_scripts->registered[ $handle ] ) && wp_startswith( $wp_scripts->registered[ $handle ]->src, Jetpack_Photon_Static_Assets_CDN::CDN . 'p' ) ) {
+				return WP_LANG_DIR . '/plugins/' . basename( $file );
+			}
 		}
-	}
-	return $file;
-}, 10, 3 );
+		return $file;
+	},
+	10,
+	3
+);
 
 // end of https://github.com/Automattic/jetpack/pull/14797
 
@@ -94,9 +107,9 @@ add_filter( 'load_script_translation_file', function( $file, $handle, $domain ) 
 // retrieves them from the Atomic side, then translates them before display.
 // See: D59986
 function wpcomsh_allow_en_locale_override( $locale_in ) {
-	if ( !empty( $_GET['_locale'] ) && 'en_US' === $_GET['_locale'] ) {
+	if ( ! empty( $_GET['_locale'] ) && 'en_US' === $_GET['_locale'] ) {
 		return 'en_US';
 	}
 	return $locale_in;
 }
-add_filter( 'pre_determine_locale', 'wpcomsh_allow_en_locale_override', 10, 1);
+add_filter( 'pre_determine_locale', 'wpcomsh_allow_en_locale_override' );

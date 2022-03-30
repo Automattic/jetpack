@@ -15,19 +15,26 @@ License: GPLv2 or later
 function tlkio_widget_init() {
 	register_widget( 'Tlkio_Widget' );
 }
-add_action( 'widgets_init', 'tlkio_widget_init');
+add_action( 'widgets_init', 'tlkio_widget_init' );
 
 class Tlkio_Widget extends WP_Widget {
 
-	private $defaults =  array( 'title' => '', 'channel' => 'lobby', 'height' => '400' );	
+	private $defaults = array(
+		'title'   => '',
+		'channel' => 'lobby',
+		'height'  => '400',
+	);
 
 	function __construct() {
-		$widget_ops = array( 'classname'   => 'tlkio-widget', 'description' => __( 'Add a tlk.io webchat.', 'wpcomsh' ) );
+		$widget_ops = array(
+			'classname'   => 'tlkio-widget',
+			'description' => __( 'Add a tlk.io webchat.', 'wpcomsh' ),
+		);
 		parent::__construct( 'tlkio_widget', __( 'tlk.io Webchat', 'wpcomsh' ), $widget_ops );
 	}
 
 	function widget( $args, $instance ) {
-		$instance = wp_parse_args( (array) $instance, $this->defaults );
+		$instance          = wp_parse_args( (array) $instance, $this->defaults );
 		$instance['title'] = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
 
 		echo $args['before_widget'];
@@ -43,10 +50,10 @@ class Tlkio_Widget extends WP_Widget {
 
 		echo $args['after_widget'];
 	}
-	
+
 	function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
-	?>
+		?>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'wpcomsh' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
@@ -59,16 +66,16 @@ class Tlkio_Widget extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>"><?php esc_html_e( 'Height (in pixel):', 'wpcomsh' ); ?></label>
 			<input id="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'height' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['height'] ); ?>" size="3" />
 		</p>
-	<?php
+		<?php
 	}
 
 	function update( $new_instance, $old_instance ) {
-		$instance = $old_instance;
+		$instance            = $old_instance;
 		$instance['title']   = strip_tags( $new_instance['title'] );
 		$instance['channel'] = strip_tags( $new_instance['channel'] );
 		$instance['height']  = intval( $new_instance['height'] );
 
 		return $instance;
 	}
- 
+
 }

@@ -39,18 +39,18 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 <body class="body">
 	<div class="inner">
 		<div class="main">
-			<div class="name"><?php echo esc_html( get_bloginfo( 'name' ) ) ?></div>
-			<div class="description"><?php esc_html_e( 'Coming Soon', 'wpcomsh' ) ?></div>
+			<div class="name"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></div>
+			<div class="description"><?php esc_html_e( 'Coming Soon', 'wpcomsh' ); ?></div>
 		</div>
 		<div class="marketing">
 			<?php if ( ! is_user_logged_in() ) : ?>
 				<div class="marketing-copy">
 					<img src="https://s2.wp.com/wp-content/themes/a8c/domain-landing-page/wpcom-wmark-white.svg" alt="WordPress.com" class="logo" />
-					<p class="copy"><?php echo esc_html_e( 'Build a website. Sell your stuff. Write a blog. And so much more.', 'wpcomsh' ) ?></p>
+					<p class="copy"><?php echo esc_html_e( 'Build a website. Sell your stuff. Write a blog. And so much more.', 'wpcomsh' ); ?></p>
 				</div>
 				<div class="marketing-buttons">
-					<p><a class="button button-secondary" href="<?php echo esc_url( $login_link ) ?>"><?php esc_html_e( 'Log in', 'wpcomsh' ) ?></a></p>
-					<p><a class="button button-primary " href="https://wordpress.com/start/?ref=coming_soon"><?php esc_html_e( 'Start your website', 'wpcomsh' ) ?></a></p>
+					<p><a class="button button-secondary" href="<?php echo esc_url( $login_link ); ?>"><?php esc_html_e( 'Log in', 'wpcomsh' ); ?></a></p>
+					<p><a class="button button-primary " href="https://wordpress.com/start/?ref=coming_soon"><?php esc_html_e( 'Start your website', 'wpcomsh' ); ?></a></p>
 				</div>
 			<?php endif; ?>
 		</div>
