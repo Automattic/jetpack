@@ -522,7 +522,7 @@ class csstidy { // phpcs:ignore
 		if ( ! is_dir( 'temp' ) ) {
 			$madedir = mkdir( 'temp' );
 			if ( ! $madedir ) {
-				print 'Could not make directory "temp" in ' . ( __DIR__ );
+				print 'Could not make directory "temp" in ' . __DIR__;
 				exit;
 			}
 		}
