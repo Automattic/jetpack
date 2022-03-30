@@ -22,7 +22,7 @@ import { isPriceValid } from '../../shared/currencies';
 import './editor.scss';
 
 export const name = 'recurring-payments';
-
+export const title = __( 'Payment Button', 'jetpack' );
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 		<Rect x="0" fill="none" width="24" height="24" />
@@ -38,7 +38,7 @@ const supportLink =
 		: 'https://jetpack.com/support/jetpack-blocks/payments-block/';
 
 export const settings = {
-	title: __( 'Payment Button', 'jetpack' ),
+	title,
 	icon: {
 		src: icon,
 		foreground: getIconColor(),

@@ -24,7 +24,7 @@ class Initializer {
 		/**
 		 * The filter allows abortion of the Jetpack Search package initialization.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 *
 		 * @param boolean $init_search_package Default value is true.
 		 */
@@ -62,6 +62,9 @@ class Initializer {
 			return;
 		}
 
+		// Load compatibility files.
+		add_action( 'plugins_loaded', array( static::class, 'include_compatibility_files' ) );
+
 		// Initialize search package.
 		if ( ! static::init_search( $blog_id ) ) {
 			/** This filter is documented in search/src/initalizers/class-initalizer.php */
@@ -72,9 +75,18 @@ class Initializer {
 		/**
 		 * Fires when the Jetpack Search package has been initialized.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 */
 		do_action( 'jetpack_search_loaded' );
+	}
+
+	/**
+	 * Extra tweaks to make Jetpack Search play well with others.
+	 */
+	public static function include_compatibility_files() {
+		if ( class_exists( 'Jetpack' ) ) {
+			require_once Package::get_installed_path() . 'compatibility/jetpack.php';
+		}
 	}
 
 	/**
@@ -122,7 +134,7 @@ class Initializer {
 		/**
 		 * The filter allows abortion of the Instant Search initialization.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 *
 		 * @param boolean $init_instant_search Default value is true.
 		 */
@@ -151,7 +163,7 @@ class Initializer {
 		/**
 		 * The filter allows abortion of the Classic Search initialization.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 *
 		 * @param boolean $init_instant_search Default value is true.
 		 */

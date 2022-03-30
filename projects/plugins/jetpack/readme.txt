@@ -242,23 +242,44 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.8-a.7 - 2022-03-15
+### 10.8-beta - 2022-03-29
+#### Major Enhancements
+- QR Post: add new feature which automatically generates QR codes for published posts. When scanned, the QR code will link visitors to the post. If a site has a custom logo set, it will be shown in the generated QR code image.
+
 #### Enhancements
-- Dashboard: add toggle to enable new Google Fonts feature.
-- Jetpack: add QRPost feature which generates QR codes for published posts. Currently a JETPACK_BETA_BLOCKS feature.
-- Premium Content block: use a drop down menu rather than two buttons to switch between the guest/subscriber views.
-- VideoPress: updated design of resumable uploader block.
+- Blocks: make settings discoverable and toggleable, and add a card to highlight the blocks available from Jetpack on the dashboard.
+- Dashboard: show Search benefits on the Jetpack disconnection screen.
+- External Media: add Openverse as an external Media provider.
+- Form Block: offer option to install/activate the Jetpack CRM plugin from the Form block settings panel.
+- Payment Block: clicking on payment links from email or WordPress.com Notifications/Reader will correctly open the corresponding payment form. Also add a unified Payment Block selector and introduce a post-publish panel for Payment Blocks.
+- Settings: add toggle to enable new Google Fonts feature for use in Global Styles.
+- Subscribe Block: block setting updates including name change, display of current subscribers, and a new style option. Also add pre/post-publish notices.
+- Tiled Gallery: add background color block setting.
+- Various Blocks: update Contact Info, Markdown, and Tiled Gallery blocks to include margin design tools.
+- VideoPress: added support for the `muted`, `controls` and `playsinline` properties on the 'wpvideo' and VideoPress shortcodes.
 
 #### Improved compatibility
-- General: clean up use of deprecated FILTER_SANITIZE_STRING constant. Also mark WPCom_Markdown::get_post_screen_post_type as deprecated due to lack of use.
+- Sharing: avoid warnings when the feature is not active on a site that uses the AMP plugin.
+- Slideshow shortcode: adds the Jetpack namespace to slideshow shortcode CSS class names.
+- Various Blocks: remove deprecated attributes from Button components.
 
 #### Bug fixes
+- Assistant: make call-to-actions point to checkout page.
+- Calendly Block: ensure it can be displayed inline when using a block enabled theme.
+- CLI Tools: ensure WP CLI is present before Jetpack packages extend the CLI class.
 - Google Analytics: fix showing an upgrade button with the latest Jetpack security plans.
 - Jetpack: fix missing "Connect User" button after restoring a connection.
-- Pay with Paypal widget: enable widget to work in block-based widget editor and full site editor.
+- Jetpack: remove the duplicated `jetpack_relatedposts_returned_results filter`.
+- Payment Blocks: fixes an issue with the upgrade banner being obscured from all payment blocks.
+- Pay with Paypal Block: fix inconsistent currency formatting.
+- Pay with PayPal widget: enable widget to work in block-based widget editor and full site editor.
+- Publicize: prevent newlines from being stripped from a custom Publicize message in the classic editor.
+- QR Post: improve the inner logo sizing.
 - SEO Tools: ensure Twitter cards get correct description when a site has a blank tagline.
-- Payments: swap JETPACK_VERSION for the correct JETPACK__VERSION.
-- Premium Content block: when a visitor subscribes, they now see the premium content without needing to reload the page.
+- Shortlinks: display the shortlinks interface in the block editor for all post types that support shortlinks.
+- Top Posts Widget: display a fallback list of posts to admins when there are no popular posts to display.
+- WordAds: fix defaulting to "house ad" mode for new activations.
+- WooCommerce: fix an issue preventing upgrading to version 6.3.0.
 
 --------
 

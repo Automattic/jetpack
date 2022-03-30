@@ -621,7 +621,7 @@ class Publicize extends Publicize_Base {
 	public function post_is_done_sharing( $post_id = null ) {
 		// Defaults to current post if $post_id is null.
 		$post = get_post( $post_id );
-		if ( is_null( $post ) ) {
+		if ( $post === null ) {
 			return false;
 		}
 
@@ -636,7 +636,7 @@ class Publicize extends Publicize_Base {
 	 * @param \WP_Post $post Post object.
 	 */
 	public function save_publicized( $post_ID, $post = null ) {
-		if ( is_null( $post ) ) {
+		if ( $post === null ) {
 			return;
 		}
 		// Only do this when a post transitions to being published.

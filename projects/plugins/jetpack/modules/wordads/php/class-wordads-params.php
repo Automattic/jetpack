@@ -44,7 +44,7 @@ class WordAds_Params {
 		foreach ( $settings as $setting => $default ) {
 			$option = get_option( $setting, null );
 
-			if ( is_null( $option ) ) {
+			if ( $option === null ) {
 
 				// Handle retroactively setting wordads_custom_adstxt_enabled to true if custom ads.txt content is already entered.
 				if ( 'wordads_custom_adstxt_enabled' === $setting ) {

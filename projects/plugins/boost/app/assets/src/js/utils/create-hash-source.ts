@@ -3,6 +3,12 @@
  */
 import { createHashHistory } from 'history';
 
+/**
+ * An adapter for svelte-navigator to use hash history.
+ *
+ * The createHistory function on svelte-navigator expects an object of type HistorySource.
+ * This function creates such an object using the history library.
+ */
 function createHashSource() {
 	const history = createHashHistory();
 	let listeners = [];

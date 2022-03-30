@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
@@ -103,7 +104,7 @@ class Dashboard {
 		/**
 		 * The filter allows to ommit adding a submenu item for Jetpack Search.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 *
 		 * @param boolean $should_add_search_submenu Default value is true.
 		 */
@@ -142,6 +143,13 @@ class Dashboard {
 		wp_add_inline_script(
 			'jp-search-dashboard',
 			( new Initial_State() )->render(),
+			'before'
+		);
+
+		// Connection initial state.
+		wp_add_inline_script(
+			'jp-search-dashboard',
+			Connection_Initial_State::render(),
 			'before'
 		);
 	}

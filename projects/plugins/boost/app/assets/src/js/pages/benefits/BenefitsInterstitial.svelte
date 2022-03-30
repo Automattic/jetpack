@@ -21,6 +21,9 @@
 		/* eslint-disable no-console */
 		console.log( 'CTA clicked' );
 	}
+
+	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
+	export let location, navigate;
 </script>
 
 <div id="jb-settings" class="jb-settings">
@@ -61,5 +64,11 @@
 				/>
 			</div>
 		</div>
+		<footer class="jb-footer-note">
+			{__(
+				'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
+				'jetpack-boost'
+			)}
+		</footer>
 	</div>
 </div>
