@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Licensing;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
@@ -22,6 +21,24 @@ use WP_Error;
  * @since $$next-version$$
  */
 class Endpoints {
+	/**
+	 * This property stores the localized "Insufficient Permissions" error message.
+	 *
+	 * @var string Generic error message when user is not allowed to perform an action.
+	 */
+	private static $user_permissions_error_msg;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		self::$user_permissions_error_msg = esc_html__(
+			'You do not have the correct user permissions to perform this action.
+			Please contact your site admin if you think this is a mistake.',
+			'jetpack-licensing'
+		);
+	}
+
 	/**
 	 * Declare the endpoints for the licensing package.
 	 *
@@ -170,7 +187,7 @@ class Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_permission_manage_user_licenses', REST_Connector::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_permission_manage_user_licenses', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
