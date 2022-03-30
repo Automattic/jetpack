@@ -55,6 +55,14 @@ ButtonLink.args = {
 	variant: 'link',
 };
 
+export const ButtonExternalLink = Template.bind( {} );
+ButtonExternalLink.argTypes = VariantDisabled;
+ButtonExternalLink.args = {
+	size: 'normal',
+	children: 'Jetpack Button',
+	variant: 'external-link',
+};
+
 const DownIcon = () => (
 	<svg width="15" height="9" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="10 9 4 7">
 		<path
