@@ -16,7 +16,7 @@ echo '::endgroup::'
 
 for SLUG in $(echo $CHANGED | jq -r 'keys[]'); do
 if [[ -d "./coverage/$SLUG" ]]
-FLAG=$($SLUG | tr / _)
+FLAG=$(echo $SLUG | tr / _)
 then
 		echo "::group::Send $SLUG coverage to codecov.io"
 		bash <(curl -s https://codecov.io/bash) -s ./coverage/$SLUG -F $FLAG || echo "Codecov failed to upload $FLAG"
