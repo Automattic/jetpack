@@ -39,6 +39,11 @@ define( 'JETPACK_DEBUG_HELPER_VERSION', '1.3.1-alpha' );
  * Include file names from the modules directory here.
  */
 $jetpack_dev_debug_modules = array(
+	'autoloader'         => array(
+		'file'        => 'class-autoloader-debug-helper.php',
+		'name'        => 'Autoloader Debug Helper',
+		'description' => '',
+	),
 	'broken-token'       => array(
 		'file'        => 'class-broken-token.php',
 		'name'        => 'Broken token Utilities',
