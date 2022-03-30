@@ -77,7 +77,7 @@ class WPCOM_JSON_API_List_Media_v1_2_Endpoint extends WPCOM_JSON_API_List_Media_
 			return $response;
 		}
 
-		foreach ( $media_list as $index => $media_item ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		foreach ( $media_list as $media_item ) {
 			// expose `revision_history` object for each image.
 			$media_item->revision_history = (object) array(
 				'items'    => (array) Jetpack_Media::get_revision_history( $media_item->ID ),
