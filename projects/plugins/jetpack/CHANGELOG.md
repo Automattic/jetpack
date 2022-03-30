@@ -2,6 +2,40 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.8-beta - 2022-03-29
+### Enhancements
+
+- Blocks: make settings discoverable and toggleable, and add a card to highlight the blocks available from Jetpack on the dashboard.
+- Form Block: offer option to install/activate the Jetpack CRM plugin from the Form block settings panel.
+- Payments Block: introduce new post-publish panel to highlight the options available with Payments blocks.
+- VideoPress: added support for the `muted`, `controls` and `playsinline` properties on the 'wpvideo' and VideoPress shortcodes.
+
+### Improved compatibility
+- Shortcodes: adds the Jetpack namespace to slideshow shortcode CSS class names.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Subscriptions Block: make the block messages clearer.
+- Payments Block: we now provide a way in which we can propagate the controls to the child blocks.
+- Payment Blocks: Added links to manage subscriptions and fees to the Product Management controls.
+- Payments Button Block: add back the upgrade nudge.
+- Fix ProductManagementControls not being able to open the block settings sidebar on site and widgets editor.
+- Adding language attributes to code blocks.
+- Search: Add search feature to benefits API.
+- Fix VS Code ESLint and prettier config.
+- Removed unneeded calls to Atomic_Plan_Manager.
+- Add uloggedin parameter for reporting.
+- Block Form: update required Jetpack CRM version.
+- Documented the `rna` prop of the Button component.
+- E2E tests: improve assertions for sync tests.
+- Jetpack CRM: adjust banner's wording.
+- Various PHPCS updates.
+- Search: removed migrated tests.
+- Updated package dependencies.
+- Assistant: make call-to-actions point to checkout page.
+- WordPress.com Toolbar: check if function exists before to use it.
+- WordPress.com Toolbar: avoid PHP notices when locale is not defined.
+- Payments Block: use the product management controls to manage subscriptions. Migrated the Payments Block to a functional component and cleaned up code.
+
 ## 10.8-a.11 - 2022-03-25
 
 ## 10.8-a.9 - 2022-03-23

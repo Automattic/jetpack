@@ -19,6 +19,9 @@
 	 * WordPress dependencies
 	 */
 	import { __ } from '@wordpress/i18n';
+
+	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
+	export let location, navigate;
 </script>
 
 <div class="jb-container--narrow">
