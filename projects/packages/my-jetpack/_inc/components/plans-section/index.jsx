@@ -49,7 +49,7 @@ function PlanSectionHeader( { purchases } ) {
 					: __( 'Your plans', 'jetpack-my-jetpack' ) }
 			</H3>
 			{ purchases.length === 0 && (
-				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
+				<Text variant="body">{ __( 'Want to power up your Jetpack?', 'jetpack-my-jetpack' ) }</Text>
 			) }
 		</>
 	);
@@ -74,14 +74,15 @@ function PlanSectionFooter( { purchases } ) {
 	}
 
 	return (
-		<p>
-			<ExternalLink
-				className={ styles[ 'external-link' ] }
-				href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
-			>
-				{ planLinkDescription }
-			</ExternalLink>
-		</p>
+		<Text
+			component={ ExternalLink }
+			className={ styles[ 'external-link' ] }
+			onClick={ clickHandler }
+			href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
+			variant="body"
+		>
+			{ planLinkDescription }
+		</Text>
 	);
 }
 
