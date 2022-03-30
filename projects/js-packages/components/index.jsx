@@ -30,7 +30,7 @@ export { default as Container } from './components/layout/container';
 export * from './components/product-icons';
 export { default as SplitButton } from './components/split-button';
 export { default as ThemeProvider } from './components/theme-provider';
-export { default as Text } from './components/text';
+export { default as Text, H2, H3, Title } from './components/text';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
 export { getUserLocale, cleanLocale } from './lib/locale';
