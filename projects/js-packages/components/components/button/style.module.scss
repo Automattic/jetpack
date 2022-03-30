@@ -103,8 +103,8 @@
 			}
 
 			&:focus:not(:disabled) {
-				box-shadow: inset 0 0 0 1px var(--jp-white), 0 0 0 var(--wp-admin-border-width-focus) var(--jp-red-80);
-				background: var(--jp-red-80);
+				box-shadow: inset 0 0 0 1px var(--jp-white), 0 0 0 var(--wp-admin-border-width-focus) var(--jp-red-70);
+				background: var(--jp-red-70);
 				color: var(--jp-white);
 			}
 
@@ -130,8 +130,8 @@
 			}
 
 			&:focus:not(:disabled) {
-				box-shadow: inset 0 0 0 1px var(--jp-white), 0 0 0 var(--wp-admin-border-width-focus) var(--jp-red-80);
-				color: var(--jp-red-80);
+				box-shadow: inset 0 0 0 1px var(--jp-white), 0 0 0 var(--wp-admin-border-width-focus) var(--jp-red-70);
+				color: var(--jp-red-70);
 			}
 
 			&:active:not(:disabled) {
@@ -151,8 +151,8 @@
 			}
 
 			&:focus:not(:disabled) {
-				color: var(--jp-red-80);
-				box-shadow: inset 0 0 0 1px var(--jp-white), 0 0 0 var(--wp-admin-border-width-focus) var(--jp-red-80);
+				color: var(--jp-red-70);
+				box-shadow: inset 0 0 0 1px var(--jp-white), 0 0 0 var(--wp-admin-border-width-focus) var(--jp-red-70);
 			}
 		}
 	}
