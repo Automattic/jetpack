@@ -51,7 +51,7 @@ class Autoloader_Debug_Helper {
 		<h1>Autoloader Debug Helper 😱!</h1>
 		<p>View current autoloader classmaps and cache settings</p>
 
-		<hr>
+		<hr />
 
 		<h2>Active plugins with autoloader data</h2>
 		<table class="widefat striped health-check-table" role="presentation">
@@ -85,6 +85,36 @@ class Autoloader_Debug_Helper {
 				<td>Latest plugin version</td>
 				<td><?php echo esc_html( $data['latest_plugin_version'] ); ?></td>
 			</tr>
+			</tbody>
+		</table>
+		<hr />
+		<h2>Complete list of classes and files found in Jetpack classmaps and filemaps</h2>
+		<?php if ( $data['unreadable_found'] ) : ?>
+			<strong>Attention! Unreadable files have been found in the classmap.</strong>
+		<?php else : ?>
+			<strong>Good news! No unreadable files have been found in the classmap.</strong>
+		<?php endif; ?>
+
+			<table class="widefat striped health-check-table" role="presentation">
+			<tbody>
+				<?php foreach ( $data['manifest'] as $classname => $entries ) : ?>
+					<?php $counter = 0; ?>
+					<?php foreach ( $entries as $entry ) : ?>
+					<tr>
+						<?php if ( $counter++ ) : ?>
+							<td>(in <?php echo esc_html( $entry['manifest'] ); ?>)</td>
+						<?php else : ?>
+							<td>
+								<strong><?php echo esc_html( $classname ); ?></strong><br />
+								(in <?php echo esc_html( $entry['manifest'] ); ?>)
+							</td>
+						<?php endif; ?>
+						<td><?php echo esc_html( $entry['version'] ); ?></td>
+						<td><?php echo esc_html( $entry['path'] ); ?></td>
+					</tr>
+					<?php endforeach; ?>
+					<tr><td colspan="3"><hr /></td></tr>
+				<?php endforeach; ?>
 			</tbody>
 		</table>
 		</div>
@@ -122,10 +152,18 @@ class Autoloader_Debug_Helper {
 		foreach ( $classes as $class ) {
 
 			if ( 0 === strpos( $class, 'Automattic\Jetpack\Autoloader' ) ) {
+
 				$parts = explode( '\\', $class );
 				array_pop( $parts );
 
-				return join( '\\', $parts );
+				$candidate = join( '\\', $parts );
+
+				// Older autoloaders also have namespaces, but don't have the Container.
+				if ( ! class_exists( $candidate . '\Container' ) ) {
+					continue;
+				}
+
+				return $candidate;
 			}
 		}
 	}
@@ -168,6 +206,47 @@ class Autoloader_Debug_Helper {
 			$plugin_data['Version']
 		);
 		$data['latest_plugin_version'] = $plugin_data['Version'];
+
+		$manifest        = array();
+		$manifest_reader = $container->get( $namespace . '\Manifest_Reader' );
+		foreach ( $data['active_plugins'] as $plugin ) {
+			$plugin_name                            = basename( $plugin );
+			$manifest[ $plugin_name . '_classmap' ] = array();
+			$manifest[ $plugin_name . '_filemap' ]  = array();
+
+			$manifest_reader->read_manifests(
+				array( $plugin ),
+				'vendor/composer/jetpack_autoload_classmap.php',
+				$manifest[ $plugin_name . '_classmap' ]
+			);
+			$manifest_reader->read_manifests(
+				array( $plugin ),
+				'vendor/composer/jetpack_autoload_filemap.php',
+				$manifest[ $plugin_name . '_filemap' ]
+			);
+		}
+
+		$manifest_by_classname    = array();
+		$data['unreadable_found'] = false;
+		foreach ( $manifest as $plugin_manifest_type => $manifest_data ) {
+
+			foreach ( $manifest_data as $classname => $entry ) {
+				$is_readable = is_readable( $entry['path'] );
+
+				if ( ! $is_readable ) {
+					$data['unreadable_found'] = true;
+				}
+
+				$manifest_by_classname[ $classname ][] = array_merge(
+					$entry,
+					array(
+						'manifest'    => $plugin_manifest_type,
+						'is_readable' => $is_readable,
+					)
+				);
+			}
+		}
+		$data['manifest'] = $manifest_by_classname;
 
 		return $data;
 	}
