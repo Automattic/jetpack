@@ -26,14 +26,13 @@ function jetpack_load_custom_css() {
 			include_once __DIR__ . '/custom-css/migrate-to-core.php';
 		} else { // TODO: DELETE THIS.
 			if ( defined( 'WP_CLI' ) && WP_CLI ) {
-				/**
-				 * Undo data migration CLI.
-				 */
-				function jetpack_custom_css_undo_data_migration_cli() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
-					Jetpack_Options::delete_option( 'custom_css_4.7_migration' );
-					WP_CLI::success( __( 'Option deleted, re-migrate via `wp jetpack custom-css migrate`.', 'jetpack' ) );
-				}
-				WP_CLI::add_command( 'jetpack custom-css undo-migrate', 'jetpack_custom_css_undo_data_migration_cli' );
+				WP_CLI::add_command(
+					'jetpack custom-css undo-migrate',
+					function () {
+						Jetpack_Options::delete_option( 'custom_css_4.7_migration' );
+						WP_CLI::success( __( 'Option deleted, re-migrate via `wp jetpack custom-css migrate`.', 'jetpack' ) );
+					}
+				);
 			}
 		}
 		// TODO: END DELETE THIS.
