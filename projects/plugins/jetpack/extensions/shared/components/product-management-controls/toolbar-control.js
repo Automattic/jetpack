@@ -110,7 +110,7 @@ export default function ProductManagementToolbarControl( {
 	}
 
 	return (
-		<BlockControls group="block">
+		<BlockControls __experimentalShareWithChildBlocks group="block">
 			<ToolbarDropdownMenu
 				className="product-management-control-toolbar__dropdown-button"
 				icon={ subscriptionIcon }

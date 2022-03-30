@@ -263,7 +263,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	protected function get_cast_option_value_or_null( $option_name, $cast_callable ) {
 		$option_value = get_option( $option_name, null );
-		if ( is_null( $option_value ) ) {
+		if ( $option_value === null ) {
 			return $option_value;
 		}
 

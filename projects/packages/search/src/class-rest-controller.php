@@ -41,8 +41,8 @@ class REST_Controller {
 	 */
 	public function __construct( $is_wpcom = false, $module_control = null, $plan = null ) {
 		$this->is_wpcom      = $is_wpcom;
-		$this->search_module = is_null( $module_control ) ? new Module_Control() : $module_control;
-		$this->plan          = is_null( $plan ) ? new Plan() : $plan;
+		$this->search_module = $module_control === null ? new Module_Control() : $module_control;
+		$this->plan          = $plan === null ? new Plan() : $plan;
 	}
 
 	/**
@@ -168,14 +168,14 @@ class REST_Controller {
 		}
 
 		$errors = array();
-		if ( ! is_null( $module_active ) ) {
+		if ( $module_active !== null ) {
 			$module_active_updated = $this->search_module->update_status( $module_active );
 			if ( is_wp_error( $module_active_updated ) ) {
 				$errors['module_active'] = $module_active_updated;
 			}
 		}
 
-		if ( ! is_null( $instant_search_enabled ) ) {
+		if ( $instant_search_enabled !== null ) {
 			$instant_search_enabled_updated = $this->search_module->update_instant_search_status( $instant_search_enabled );
 			if ( is_wp_error( $instant_search_enabled_updated ) ) {
 				$errors['instant_search_enabled'] = $instant_search_enabled_updated;
@@ -207,7 +207,7 @@ class REST_Controller {
 	 * @param boolean $instant_search_enabled - Instant Search status.
 	 */
 	protected function validate_search_settings( $module_active, $instant_search_enabled ) {
-		if ( ( true === $instant_search_enabled && false === $module_active ) || ( is_null( $module_active ) && is_null( $instant_search_enabled ) ) ) {
+		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
 				esc_html__( 'The arguments passed in are invalid.', 'jetpack-search-pkg' ),
@@ -277,7 +277,7 @@ class REST_Controller {
 
 		// Update plan data, plan info is in the request body.
 		// We do this to avoid another call to WPCOM and reduce latency.
-		if ( is_null( $payload['search_plan_info'] ) || ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
+		if ( $payload['search_plan_info'] === null || ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
 			$this->plan->get_plan_info_from_wpcom();
 		}
 

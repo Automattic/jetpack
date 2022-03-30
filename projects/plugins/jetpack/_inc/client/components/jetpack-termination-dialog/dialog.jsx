@@ -88,11 +88,15 @@ class JetpackTerminationDialog extends Component {
 		connectedPlugins: PropTypes.array,
 	};
 
-	state = {
-		step: JetpackTerminationDialog.FEATURE_STEP,
-		surveyAnswerId: null,
-		surveyAnswerText: '',
-	};
+	constructor( props ) {
+		super( props );
+
+		this.state = {
+			step: JetpackTerminationDialog.FEATURE_STEP,
+			surveyAnswerId: null,
+			surveyAnswerText: '',
+		};
+	}
 
 	handleContinueClick = () => {
 		const { location, purpose } = this.props;

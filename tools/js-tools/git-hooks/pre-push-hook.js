@@ -39,6 +39,8 @@ function checkChangelogFiles() {
 				"Allowing push because you're in draft mode. To exit draft mode, use `jetpack draft disable`"
 			)
 		);
+	} else if ( ! process.stdin.isTTY ) {
+		process.exitCode = 1;
 	} else {
 		try {
 			// Run the changelogger.
