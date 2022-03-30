@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import { __, _n } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import { Text, H3, Title } from '@automattic/jetpack-components';
@@ -9,6 +9,7 @@ import { Text, H3, Title } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
+import useAnalytics from '../../hooks/use-analytics';
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
@@ -49,7 +50,7 @@ function PlanSectionHeader( { purchases } ) {
 					: __( 'Your plans', 'jetpack-my-jetpack' ) }
 			</H3>
 			{ purchases.length === 0 && (
-				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
+				<Text variant="body">{ __( 'Want to power up your Jetpack?', 'jetpack-my-jetpack' ) }</Text>
 			) }
 		</>
 	);
@@ -73,15 +74,25 @@ function PlanSectionFooter( { purchases } ) {
 		);
 	}
 
+	const { recordEvent } = useAnalytics();
+
+	const clickHandler = useCallback( () => {
+		const event = purchases.length
+			? 'jetpack_myjetpack_plans_manage_click'
+			: 'jetpack_myjetpack_plans_purchase_click';
+		recordEvent( event );
+	}, [ purchases, recordEvent ] );
+
 	return (
-		<p>
-			<ExternalLink
-				className={ styles[ 'external-link' ] }
-				href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
-			>
-				{ planLinkDescription }
-			</ExternalLink>
-		</p>
+		<Text
+			component={ ExternalLink }
+			className={ styles[ 'external-link' ] }
+			onClick={ clickHandler }
+			href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
+			variant="body"
+		>
+			{ planLinkDescription }
+		</Text>
 	);
 }
 

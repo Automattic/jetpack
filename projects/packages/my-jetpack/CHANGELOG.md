@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.12] - 2022-03-29
+### Added
+- Add missing JS peer dependencies.
+
+### Changed
+- Microperformance: Use === null instead of is_null
+- My Jetpack: Moved in product icon components
+- My Jetpack: Tweak plan sections styles/sizes
+- My Jetpack: Update ProductDetailCard to use components and theme variables
+- My Jetpack: Use components to render headers elements
+- Use different URLs for manage and purchase links in plans section
+
+### Fixed
+- My Jetpack: Connect Screen logos quality
+
 ## [0.6.11] - 2022-03-23
 ### Added
 - My Jetpack: add error styles to the whole Product card component
@@ -385,6 +400,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[0.6.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.11...0.6.12
 [0.6.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.10...0.6.11
 [0.6.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.9...0.6.10
 [0.6.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.8...0.6.9

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed instance of normalizeHeaderName that wasn't renamed; fixed header parsing; removed unused compiler file.
