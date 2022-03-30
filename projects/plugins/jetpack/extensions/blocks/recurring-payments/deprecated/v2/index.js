@@ -8,7 +8,11 @@ import v1Migration from '../v1';
 export default {
 	isEligible: ( oldAttributes, oldInnerBlocks ) => {
 		// If the direct descendant of this block is a jetpack button, then it must be <= V3 block
-		return oldInnerBlocks.length && oldInnerBlocks[ 0 ]?.name === 'jetpack/button' && !v1Migration.isEligible( oldAttributes, oldInnerBlocks );
+		return (
+			oldInnerBlocks.length &&
+			oldInnerBlocks[ 0 ]?.name === 'jetpack/button' &&
+			! v1Migration.isEligible( oldAttributes, oldInnerBlocks )
+		);
 	},
 	save: ( { className } ) => (
 		<div className={ className }>
@@ -16,12 +20,19 @@ export default {
 		</div>
 	),
 	migrate: ( oldAttributes, oldInnerBlocks ) => {
+		const { align, ...buttonAttributes } = oldAttributes;
+		const newAttributes = {};
+		if ( align ) {
+			newAttributes.align = align;
+		}
+
 		const button = createBlock(
 			'jetpack/recurring-payments-button',
-			oldAttributes,
+			buttonAttributes,
 			oldInnerBlocks
 		);
-		return [ {}, [ button ] ];
+
+		return [ newAttributes, [ button ] ];
 	},
 	attributes: {
 		planId: {

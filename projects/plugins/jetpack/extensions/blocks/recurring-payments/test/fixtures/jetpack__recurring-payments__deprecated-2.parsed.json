@@ -2,7 +2,8 @@
 	{
 		"blockName": "jetpack/recurring-payments",
 		"attrs": {
-			"planId": 635
+			"planId": 635,
+			"align": "center"
 		},
 		"innerBlocks": [
 			{

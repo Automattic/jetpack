@@ -15,6 +15,7 @@ const deprecatedAttributes = [
 	'textButtonColor',
 	'customBackgroundButtonColor',
 	'customTextButtonColor',
+	'align',
 ];
 
 const migrateAttributes = oldAttributes => ( {
@@ -53,7 +54,7 @@ export default {
 		},
 	},
 	migrate: attributes => {
-		const newAttributes = omit( attributes, deprecatedAttributes );
+		const newButtonWrapperAttributes = omit( attributes, deprecatedAttributes );
 		const buttonAttributes = migrateAttributes( attributes );
 		const newInnerBlocks = [
 			createBlock( 'jetpack/button', {
@@ -65,10 +66,16 @@ export default {
 
 		const buttonWrapper = createBlock(
 			'jetpack/recurring-payments-button',
-			newAttributes,
+			newButtonWrapperAttributes,
 			newInnerBlocks
 		);
-		return [ {}, [ buttonWrapper ] ];
+
+		const newAttributes = {};
+		if ( attributes.align ) {
+			newAttributes.align = attributes.align;
+		}
+
+		return [ newAttributes, [ buttonWrapper ] ];
 	},
 	isEligible: ( attributes, innerBlocks ) =>
 		isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ),

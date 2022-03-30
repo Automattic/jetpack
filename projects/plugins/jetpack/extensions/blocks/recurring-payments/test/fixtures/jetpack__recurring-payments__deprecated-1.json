@@ -1,30 +1,32 @@
 [
-	{
-		"clientId": "_clientId_0",
-		"name": "jetpack/recurring-payments",
-		"isValid": true,
-		"attributes": {},
-		"innerBlocks": [
-			{
-				"clientId": "_clientId_0",
-				"name": "jetpack/recurring-payments-button",
-				"isValid": true,
-				"attributes": {},
-				"innerBlocks": [
-					{
-						"clientId": "_clientId_0",
-						"name": "jetpack/button",
-						"isValid": true,
-						"attributes": {
-							"element": "a",
-							"saveInPostContent": false,
-							"uniqueId": "recurring-payments-id"
-						},
-						"innerBlocks": []
-					}
-				]
-			}
-		],
-		"originalContent": ""
-	}
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/recurring-payments",
+        "isValid": true,
+        "attributes": {
+            "align": "center"
+        },
+        "innerBlocks": [
+            {
+                "clientId": "_clientId_0",
+                "name": "jetpack/recurring-payments-button",
+                "isValid": true,
+                "attributes": {},
+                "innerBlocks": [
+                    {
+                        "clientId": "_clientId_0",
+                        "name": "jetpack/button",
+                        "isValid": true,
+                        "attributes": {
+                            "element": "a",
+                            "saveInPostContent": false,
+                            "uniqueId": "recurring-payments-id",
+                        },
+                        "innerBlocks": []
+                    }
+                ]
+            }
+        ],
+        "originalContent": ""
+    }
 ]

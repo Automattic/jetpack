@@ -41,9 +41,6 @@ export const settings = {
 		planId: {
 			type: 'integer',
 		},
-		align: {
-			type: 'string',
-		},
 	},
 	edit,
 	save: ( { className } ) => (

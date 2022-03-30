@@ -3,7 +3,9 @@
 		"clientId": "_clientId_0",
 		"name": "jetpack/recurring-payments",
 		"isValid": true,
-		"attributes": {},
+		"attributes": {
+			"align": "center"
+		},
 		"innerBlocks": [
 			{
 				"clientId": "_clientId_0",

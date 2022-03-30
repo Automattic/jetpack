@@ -3,15 +3,16 @@
 		"clientId": "_clientId_0",
 		"name": "jetpack/recurring-payments",
 		"isValid": true,
-		"attributes": {},
+		"attributes": {
+			"align": "right"
+		},
 		"innerBlocks": [
 			{
 				"clientId": "_clientId_0",
 				"name": "jetpack/recurring-payments-button",
 				"isValid": true,
 				"attributes": {
-					"planId": 12,
-					"align": "right"
+					"planId": 12
 				},
 				"innerBlocks": [
 					{
