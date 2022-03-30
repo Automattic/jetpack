@@ -171,7 +171,6 @@
 		"css-loader": "6.5.1",
 		"enzyme": "3.11.0",
 		"enzyme-to-json": "3.6.2",
-		"eslint": "8.8.0",
 		"fs-extra": "10.0.0",
 		"glob": "7.1.6",
 		"jest": "27.3.1",
