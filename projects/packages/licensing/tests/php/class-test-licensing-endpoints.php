@@ -26,7 +26,7 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	/**
 	 * Ensure that Licensing package has been setup and hooks have been registered.
 	 */
-	public static function setUpBeforeClass() : void { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
+	public static function setUpBeforeClass() : void { // phpcs:ignore.
 		parent::setUpBeforeClass();
 
 		$licensing = new Licensing();
@@ -37,7 +37,7 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	/**
 	 * Setup environment for REST API endpoints test.
 	 */
-	public function setUp(): void { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
+	public function setUp(): void { // phpcs:ignore.
 		parent::set_up_wordbless();
 
 		global $wp_rest_server;
@@ -49,7 +49,7 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	/**
 	 * Clean environment for REST API endpoints test.
 	 */
-	public function tearDown(): void { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
+	public function tearDown(): void { // phpcs:ignore.
 		parent::tear_down_wordbless();
 
 		global $wp_rest_server;
