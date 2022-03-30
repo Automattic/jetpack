@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<ruleset>
+	<description>The phpcs standard for wpcomsh code.</description>
+	<file>.</file>
+	<!-- Exclude Composer vendor directory. -->
+	<exclude-pattern>*/.git/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+
+	<arg name="basepath" value="."/><!-- Strip the file paths down to the relevant bit -->
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="50"/>
+
+	<rule ref="WordPress">
+		<exclude name="Squiz.PHP.CommentedOutCode.Found" />
+		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
+		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+		<exclude name="Squiz.Commenting.BlockComment.NoEmptyLineBefore" />
+	</rule>
+
+	<rule ref="WordPress-Extra">
+		<exclude name="WordPress.Files.FileName"/>
+		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="WordPress.PHP.YodaConditions"/>
+	</rule>
+
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
+</ruleset>

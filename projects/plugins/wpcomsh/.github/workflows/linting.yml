@@ -1,0 +1,36 @@
+name: PHP Lint
+
+on: pull_request
+
+jobs:
+  phpcs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "7.4"
+          coverage: none
+          tools: composer, cs2pr
+
+      - name: Install php codesniffer
+        run: composer global require "squizlabs/php_codesniffer=*"
+
+      - name: Install wordpress coding standard
+        run: |
+          git clone -b master https://github.com/WordPress/WordPress-Coding-Standards.git ~/wpcs
+          ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/wpcs
+
+      - name: Detect coding standard violations
+        run: |
+          CHANGED_FILES=$(git diff --name-only origin/master | grep '\.php' | xargs)
+          if [[ ! -z "$CHANGED_FILES" ]]; then
+            ~/.composer/vendor/bin/phpcs -q --report=checkstyle $CHANGED_FILES | cs2pr --graceful-warnings
+          else 
+            echo "Skipping the check. PHP files not changed! $CHANGED_FILES"
+          fi

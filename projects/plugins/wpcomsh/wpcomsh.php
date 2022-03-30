@@ -2,21 +2,33 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.8.97
+ * Version: 2.8.98
  * Author: Automattic
  * Author URI: http://automattic.com/
+ *
+ * @package wpcomsh
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.8.97' );
+define( 'WPCOMSH_VERSION', '2.8.98' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
 // This exists only on the Atomic platform. Blank if migrated elsewhere, so it doesn't fatal.
 if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
+	/**
+	 * The class Atomic_Persistent_Data
+	 */
 	final class Atomic_Persistent_Data {
-		public function __get( $name ) {
+		/**
+		 * The get function
+		 *
+		 * @param mixed $name The persistent data key
+		 *
+		 * @return null
+		 */
+		public function __get( $name ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 			return null;
 		}
 	}
@@ -119,7 +131,7 @@ const WPCOM_CORE_ATOMIC_PLUGINS = [
 	'jetpack/jetpack.php',
 	'akismet/akismet.php',
 ];
-const WPCOM_FEATURE_PLUGINS = [
+const WPCOM_FEATURE_PLUGINS     = [
 	'coblocks/class-coblocks.php',
 	'full-site-editing/full-site-editing-plugin.php',
 	'gutenberg/gutenberg.php',
@@ -131,139 +143,144 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 	$wpcomsh_incompatible_plugins = array(
 		// "reset" - break/interfere with provided functionality
 		'advanced-database-cleaner/advanced-db-cleaner.php' => '"advanced-database-cleaner" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'advanced-reset-wp/advanced-reset-wp.php' => '"advanced-reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'advanced-wp-reset/advanced-wp-reset.php' => '"advanced-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'backup/backup.php' => '"backup" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'better-wp-security/better-wp-security.php' => '"better-wp-security" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'advanced-reset-wp/advanced-reset-wp.php'          => '"advanced-reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'advanced-wp-reset/advanced-wp-reset.php'          => '"advanced-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'backup/backup.php'                                => '"backup" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'better-wp-security/better-wp-security.php'        => '"better-wp-security" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'cf7-pipedrive-integration/class-cf7-pipedrive.php' => '"cf7-pipedrive-integration" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
-		'database-browser/database-browser.php' => '"database-browser" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'duplicator/duplicator.php' => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'extended-wp-reset/extended-wp-reset.php' => '"extended-wp-reset" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
-		'file-manager-advanced/file_manager_advanced.php' => '"file-manager-advanced" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'file-manager/file-manager.php' => '"file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'database-browser/database-browser.php'            => '"database-browser" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'duplicator/duplicator.php'                        => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'extended-wp-reset/extended-wp-reset.php'          => '"extended-wp-reset" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
+		'file-manager-advanced/file_manager_advanced.php'  => '"file-manager-advanced" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'file-manager/file-manager.php'                    => '"file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'plugins-garbage-collector/plugins-garbage-collector.php' => '"plugins-garbage-collector" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'post-type-switcher/post-type-switcher.php' => '"post-type-switcher" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'reset-wp/reset-wp.php' => '"reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'secure-file-manager/secure-file-manager.php' => '"secure-file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'ultimate-reset/ultimate-reset.php' => '"ultimate-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'ultimate-wp-reset/ultimate-wordpress-reset.php' => '"ultimate-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'username-changer/username-changer.php' => '"username-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'username-updater/username-updater.php' => '"username-updater" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'wd-youtube/wd-youtube.php' => '"wd-youtube" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
-		'wordpress-database-reset/wp-reset.php' => '"wordpress-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'wordpress-reset/wordpress-reset.php' => '"wordpress-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'wp-automatic/wp-automatic.php' => '"wp-automatic" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
-		'wp-clone-by-wp-academy/wpclone.php' => '"wp-clone-by-wp-academy" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'wp-config-file-editor/wp-config-file-editor.php' => '"wp-config-file-editor" has been deactivated, it messes up data necessary to manage your site and is not supported on WordPress.com.',
-		'wp-dbmanager/wp-dbmanager.php' => '"wp-dbmanager" has been deactivated, it messes up data necessary to manage your site and is not supported on WordPress.com.',
-		'wp-file-manager/file_folder_manager.php' => '"wp-file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'wp-prefix-changer/index.php' => '"wp-prefix-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'wp-reset/wp-reset.php' => '"wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'wpmu-database-reset/wpmu-database-reset.php' => '"wpmu-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'wps-hide-login/wps-hide-login.php' => '"wps-hide-login" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'z-inventory-manager/z-inventory-manager.php' => '"z-inventory-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'post-type-switcher/post-type-switcher.php'        => '"post-type-switcher" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'reset-wp/reset-wp.php'                            => '"reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'secure-file-manager/secure-file-manager.php'      => '"secure-file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'ultimate-reset/ultimate-reset.php'                => '"ultimate-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'ultimate-wp-reset/ultimate-wordpress-reset.php'   => '"ultimate-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'username-changer/username-changer.php'            => '"username-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'username-updater/username-updater.php'            => '"username-updater" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wd-youtube/wd-youtube.php'                        => '"wd-youtube" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
+		'wordpress-database-reset/wp-reset.php'            => '"wordpress-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wordpress-reset/wordpress-reset.php'              => '"wordpress-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-automatic/wp-automatic.php'                    => '"wp-automatic" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
+		'wp-clone-by-wp-academy/wpclone.php'               => '"wp-clone-by-wp-academy" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-config-file-editor/wp-config-file-editor.php'  => '"wp-config-file-editor" has been deactivated, it messes up data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-dbmanager/wp-dbmanager.php'                    => '"wp-dbmanager" has been deactivated, it messes up data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-file-manager/file_folder_manager.php'          => '"wp-file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-prefix-changer/index.php'                      => '"wp-prefix-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-reset/wp-reset.php'                            => '"wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wpmu-database-reset/wpmu-database-reset.php'      => '"wpmu-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wps-hide-login/wps-hide-login.php'                => '"wps-hide-login" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'z-inventory-manager/z-inventory-manager.php'      => '"z-inventory-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'wp-uninstaller-by-azed/wp-uninstaller-by-azed.php' => '"wp-uninstaller-by-azed" is not supported on WordPress.com.',
 
 		// backup
-		'backup-wd/backup-wd.php' => '"backup-wd" has been deactivated, WordPress.com handles managing your site backups for you.',
-		'backupwordpress/backupwordpress.php' => '"backupwordpress" has been deactivated, WordPress.com handles managing your site backups for you.',
-		'backwpup/backwpup.php' => '"backwpup" has been deactivated, WordPress.com handles managing your site backups for you.',
-		'wp-db-backup/wp-db-backup.php' => '"wp-db-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'backup-wd/backup-wd.php'                          => '"backup-wd" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'backupwordpress/backupwordpress.php'              => '"backupwordpress" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'backwpup/backwpup.php'                            => '"backwpup" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'wp-db-backup/wp-db-backup.php'                    => '"wp-db-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
 
 		// caching / performance
-		'cache-enabler/cache-enabler.php' => '"cache-enabler" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'comet-cache/comet-cache.php' => '"comet-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'hyper-cache/plugin.php' => '"hyper-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'powered-cache/powered-cache.php' => '"powered-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'jch-optimize/jch-optimize.php' => '"jch-optimize" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'quick-cache/quick-cache.php' => '"quick-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'w3-total-cache/w3-total-cache.php' => '"w3-total-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'wp-cache/wp-cache.php' => '"wp-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'wp-fastest-cache/wpFastestCache.php' => '"wp-fastest-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'wp-speed-of-light/wp-speed-of-light.php' => '"wp-speed-of-light" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'wp-super-cache/wp-cache.php' => '"wp-super-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'sg-cachepress/sg-cachepress.php' => '"sg-cachepress" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'wp-optimizer/wp-optizer.php' => '"wp-optimizer" has been deactivated, "performance" related plugins may break your site or cause issues and are not supported on WordPress.com.', // p9F6qB-66o-p2
+		'cache-enabler/cache-enabler.php'                  => '"cache-enabler" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'comet-cache/comet-cache.php'                      => '"comet-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'hyper-cache/plugin.php'                           => '"hyper-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'powered-cache/powered-cache.php'                  => '"powered-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'jch-optimize/jch-optimize.php'                    => '"jch-optimize" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'quick-cache/quick-cache.php'                      => '"quick-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'w3-total-cache/w3-total-cache.php'                => '"w3-total-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-cache/wp-cache.php'                            => '"wp-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-fastest-cache/wpFastestCache.php'              => '"wp-fastest-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-speed-of-light/wp-speed-of-light.php'          => '"wp-speed-of-light" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-super-cache/wp-cache.php'                      => '"wp-super-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'sg-cachepress/sg-cachepress.php'                  => '"sg-cachepress" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-optimizer/wp-optizer.php'                      => '"wp-optimizer" has been deactivated, "performance" related plugins may break your site or cause issues and are not supported on WordPress.com.', // p9F6qB-66o-p2
 
 		// sql heavy
-		'another-wordpress-classifieds-plugin/awpcp.php' => '"another-wordpress-classifieds-plugin" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'broken-link-checker/broken-link-checker.php' => '"broken-link-checker" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'leads/leads.php' => '"leads" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'native-ads-adnow/adnow-widget.php' => '"native-ads-now" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'ol_scrapes/ol_scrapes.php' => '"ol_scrapes" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'page-visit-counter/page-visit-counter.php' => '"page-visit-counter" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
-		'post-views-counter/post-views-counter.php' => '"post-views-counter" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
-		'tokenad/token-ad.php' => '"tokenad" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'top-10/top-10.php' => '"top-10" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'userpro/index.php' => '"userpro" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'another-wordpress-classifieds-plugin/awpcp.php'   => '"another-wordpress-classifieds-plugin" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'broken-link-checker/broken-link-checker.php'      => '"broken-link-checker" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'leads/leads.php'                                  => '"leads" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'native-ads-adnow/adnow-widget.php'                => '"native-ads-now" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'ol_scrapes/ol_scrapes.php'                        => '"ol_scrapes" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'page-visit-counter/page-visit-counter.php'        => '"page-visit-counter" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'post-views-counter/post-views-counter.php'        => '"post-views-counter" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'tokenad/token-ad.php'                             => '"tokenad" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'top-10/top-10.php'                                => '"top-10" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'userpro/index.php'                                => '"userpro" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'wordpress-popular-posts/wordpress-popular-posts.php' => '"wordpress-popular-posts" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'wp-cerber/wp-cerber.php' => '"wp-cerber" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'wp-inject/wpinject.php' => '"wp-inject" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'wp-postviews/wp-postviews.php' => '"wp-postviews" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
-		'wp-rss-aggregator/wp-rss-aggregator.php' => '"wp-rss-aggregator" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'wp-rss-feed-to-post/wp-rss-feed-to-post.php' => '"wp-rss-feed-to-post" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'wp-rss-wordai/wp-rss-wordai.php' => '"wp-rss-wordai" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'wp-session-manager/wp-session-manager.php' => '"wp-session-manager" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'wp-slimstat/wp-slimstat.php' => '"wp-slimstat" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
-		'wp-statistics/wp-statistics.php' => '"wp-statistics" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
-		'wp-ulike/wp-ulike.php' => '"wp-ulike" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
-		'WPRobot5/wprobot.php' => '"WPRobot5" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'wp-cerber/wp-cerber.php'                          => '"wp-cerber" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'wp-inject/wpinject.php'                           => '"wp-inject" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'wp-postviews/wp-postviews.php'                    => '"wp-postviews" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'wp-rss-aggregator/wp-rss-aggregator.php'          => '"wp-rss-aggregator" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'wp-rss-feed-to-post/wp-rss-feed-to-post.php'      => '"wp-rss-feed-to-post" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'wp-rss-wordai/wp-rss-wordai.php'                  => '"wp-rss-wordai" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'wp-session-manager/wp-session-manager.php'        => '"wp-session-manager" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'wp-slimstat/wp-slimstat.php'                      => '"wp-slimstat" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'wp-statistics/wp-statistics.php'                  => '"wp-statistics" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'wp-ulike/wp-ulike.php'                            => '"wp-ulike" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'WPRobot5/wprobot.php'                             => '"WPRobot5" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
 
 		// security
-		'wordfence/wordfence.php' => '"wordfence" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
-		'wp-simple-firewall/wp-simple-firewall.php' => '"wp-simple-firewall" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'wp-security-hardening/wp-hardening.php' => '"wp-security-hardening" has been deactivated. It breaks WordPress.com required plugins.', // p9F6qB-66o-p2
+		'wordfence/wordfence.php'                          => '"wordfence" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
+		'wp-simple-firewall/wp-simple-firewall.php'        => '"wp-simple-firewall" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-security-hardening/wp-hardening.php'           => '"wp-security-hardening" has been deactivated. It breaks WordPress.com required plugins.', // p9F6qB-66o-p2
 
 		// spam
-		'e-mail-broadcasting/e-mail-broadcasting.php' => '"e-mail-broadcasting" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
-		'mailit/mailit.php' => '"mailit"has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
-		'send-email-from-admin/send-email-from-admin.php' => '"send-email-from-admin" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
+		'e-mail-broadcasting/e-mail-broadcasting.php'      => '"e-mail-broadcasting" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
+		'mailit/mailit.php'                                => '"mailit"has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
+		'send-email-from-admin/send-email-from-admin.php'  => '"send-email-from-admin" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
 
 		// cloning/staging
-		'flo-launch/flo-launch.php' => 'Staging plugins delete data necessary to manage your site and are not supported on WordPress.com. flo-launch has been deactivated.',
-		'wp-staging/wp-staging.php' => 'Staging plugins delete data necessary to manage your site and are not supported on WordPress.com. wp-staging has been deactivated.',
+		'flo-launch/flo-launch.php'                        => 'Staging plugins delete data necessary to manage your site and are not supported on WordPress.com. flo-launch has been deactivated.',
+		'wp-staging/wp-staging.php'                        => 'Staging plugins delete data necessary to manage your site and are not supported on WordPress.com. wp-staging has been deactivated.',
 
 		// misc
 		'adult-mass-photos-downloader/adult-mass-photos-downloader.php' => '"adult-mass-photos-downloader" is not supported on WordPress.com.',
 		'adult-mass-videos-embedder/adult-mass-videos-embedder.php' => '"adult-mass-videos-embedder" is not supported on WordPress.com.',
-		'ari-adminer/ari-adminer.php' => '"ari-adminer" is not supported on WordPress.com.',
-		'automatic-video-posts' => '"automatic-video-posts" is not supported on WordPress.com.',
-		'blogmatic/index.php' => '"blogmatic is not supported on WordPress.com.',
-		'blogmatic-poster/index.php' => '"blogmatic-poster is not supported on WordPress.com.',
-		'bwp-minify/bwp-minify.php' => '"bwp-minify" is not supported on WordPress.com.',
-		'clearfy/clearfy.php' => '"clearfy" is not supported on WordPress.com.',
-		'cornerstone/main.php' => '"cornerstone" is not supported on WordPress.com.',
+		'ari-adminer/ari-adminer.php'                      => '"ari-adminer" is not supported on WordPress.com.',
+		'automatic-video-posts'                            => '"automatic-video-posts" is not supported on WordPress.com.',
+		'blogmatic/index.php'                              => '"blogmatic is not supported on WordPress.com.',
+		'blogmatic-poster/index.php'                       => '"blogmatic-poster is not supported on WordPress.com.',
+		'bwp-minify/bwp-minify.php'                        => '"bwp-minify" is not supported on WordPress.com.',
+		'clearfy/clearfy.php'                              => '"clearfy" is not supported on WordPress.com.',
+		'cornerstone/main.php'                             => '"cornerstone" is not supported on WordPress.com.',
 		'cryptocurrency-pricing-list/cryptocurrency-pricing-list-and-ticker.php' => '"cryptocurrency-pricing-list" is not supported on WordPress.com.',
-		'event-espresso-decaf/espresso.php' => '"event-espresso-decaf" is not supported on WordPress.com.',
-		'facetwp-manipulator/facetwp-manipulator.php' => '"facetwp-manipulator" is not supported on WordPress.com.',
-		'fast-velocity-minify/fvm.php' => '"fast-velocity-minify" is not supported on WordPress.com.',
-		'nginx-helper/nginx-helper.php' => '"nginx-helper" is not supported on WordPress.com.',
-		'porn-embed/Porn-Embed.php' => '"porn-embed" is not supported on WordPress.com.',
-		'really-simple-ssl/rlrsssl-really-simple-ssl.php' => '"really-simple-ssl" is not supported on WordPress.com.',
-		'robo-gallery/robogallery.php' => '"robo-gallery" is not supported on WordPress.com.',
-		'speed-contact-bar/speed-contact-bar.php' => '"speed-contact-bar" is not supported on WordPress.com.',
-		'trafficzion/trafficzion.php' => '"trafficzion" is not supported on WordPress.com.',
-		'unplug-jetpack/unplug-jetpack.php' => '"unplug-jetpack" is not supported on WordPress.com.',
-		'video-importer/video-importer.php' => '"video-importer" is not supported on WordPress.com.',
-		'woozone/plugin.php' => '"woozone" is not supported on WordPress.com.',
-		'wp-cleanfix/index.php' => '"wp-cleanfix" is not supported on WordPress.com.',
-		'wp-file-upload/wordpress_file_upload.php' => '"wp-file-upload" is not supported on WordPress.com.',
-		'wp-monero-miner-pro/monero-miner-pro.php' => '"wp-monero-miner-pro" is not supported on WordPress.com.',
+		'event-espresso-decaf/espresso.php'                => '"event-espresso-decaf" is not supported on WordPress.com.',
+		'facetwp-manipulator/facetwp-manipulator.php'      => '"facetwp-manipulator" is not supported on WordPress.com.',
+		'fast-velocity-minify/fvm.php'                     => '"fast-velocity-minify" is not supported on WordPress.com.',
+		'nginx-helper/nginx-helper.php'                    => '"nginx-helper" is not supported on WordPress.com.',
+		'porn-embed/Porn-Embed.php'                        => '"porn-embed" is not supported on WordPress.com.',
+		'really-simple-ssl/rlrsssl-really-simple-ssl.php'  => '"really-simple-ssl" is not supported on WordPress.com.',
+		'robo-gallery/robogallery.php'                     => '"robo-gallery" is not supported on WordPress.com.',
+		'speed-contact-bar/speed-contact-bar.php'          => '"speed-contact-bar" is not supported on WordPress.com.',
+		'trafficzion/trafficzion.php'                      => '"trafficzion" is not supported on WordPress.com.',
+		'unplug-jetpack/unplug-jetpack.php'                => '"unplug-jetpack" is not supported on WordPress.com.',
+		'video-importer/video-importer.php'                => '"video-importer" is not supported on WordPress.com.',
+		'woozone/plugin.php'                               => '"woozone" is not supported on WordPress.com.',
+		'wp-cleanfix/index.php'                            => '"wp-cleanfix" is not supported on WordPress.com.',
+		'wp-file-upload/wordpress_file_upload.php'         => '"wp-file-upload" is not supported on WordPress.com.',
+		'wp-monero-miner-pro/monero-miner-pro.php'         => '"wp-monero-miner-pro" is not supported on WordPress.com.',
 		'wp-monero-miner-using-coin-hive/wp-coin-hive.php' => '"wp-monero-miner-using-coin-hive" is not supported on WordPress.com.',
 		'wp-optimize-by-xtraffic/wp-optimize-by-xtraffic.php' => '"wp-optimize-by-xtraffic" is not supported on WordPress.com.',
-		'wpematico/wpematico.php' => '"wpematico" is not supported on WordPress.com.',
-		'zapp-proxy-server/zapp-proxy-server.php' => '"zapp-proxy-server" is not supported on WordPress.com.',
-		'propellerads-official/propeller-ads.php' => '"propellerads-official" is not supported on WordPress.com.',
-		'p3/p3.php' => '"p3" is not supported on WordPress.com.',
-		'yuzo-related-post/yuzo_related_post.php' => '"yuzo-related-post" is not supported on WordPress.com.',
-		'wpstagecoach/wpstagecoach.php' => '"wpstagecoach" is not supported on WordPress.com.', // p9F6qB-66o-p2
+		'wpematico/wpematico.php'                          => '"wpematico" is not supported on WordPress.com.',
+		'zapp-proxy-server/zapp-proxy-server.php'          => '"zapp-proxy-server" is not supported on WordPress.com.',
+		'propellerads-official/propeller-ads.php'          => '"propellerads-official" is not supported on WordPress.com.',
+		'p3/p3.php'                                        => '"p3" is not supported on WordPress.com.',
+		'yuzo-related-post/yuzo_related_post.php'          => '"yuzo-related-post" is not supported on WordPress.com.',
+		'wpstagecoach/wpstagecoach.php'                    => '"wpstagecoach" is not supported on WordPress.com.', // p9F6qB-66o-p2
 
 		// CRM
-		'civicrm/civicrm.php' => '"civicrm" is not supported on WordPress.com.', // p9F6qB-66o-p2
+		'civicrm/civicrm.php'                              => '"civicrm" is not supported on WordPress.com.', // p9F6qB-66o-p2
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
 
+/**
+ * Remove AMP WP Admin notices
+ *
+ * @return void
+ */
 function wpcomsh_remove_amp_wpadmin_notices() {
 	remove_action( 'admin_notices', '_amp_incorrect_plugin_slug_admin_notice' );
 }
@@ -273,6 +290,11 @@ add_action(
 	9 // Priority 9 to run before default priority
 );
 
+/**
+ * Remove VaultPress WP Admin notices
+ *
+ * @return void
+ */
 function wpcomsh_remove_vaultpress_wpadmin_notices() {
 	if ( ! class_exists( 'VaultPress' ) ) {
 		return;
@@ -299,8 +321,7 @@ add_action(
 // https://core.trac.wordpress.org/ticket/53705
 if (
 	! defined( 'JETPACK_PLUGIN_AUTOUPDATE' ) &&
-	0 === strncmp( $_SERVER['REQUEST_URI'], '/xmlrpc.php?', strlen( '/xmlrpc.php?' ) )
-)  {
+	0 === strncmp( $_SERVER['REQUEST_URI'], '/xmlrpc.php?', strlen( '/xmlrpc.php?' ) ) ) { //phpcs:ignore
 	define( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 }
 
@@ -310,6 +331,10 @@ if (
  * This is a pre-option filter for the auto_update_plugins option. Its purpose
  * is to default newly added plugins to being auto-updated. After that, if users
  * want to disable auto-updates for those plugins, they can.
+ *
+ * @param mixed $pre_auto_update_plugins Pre auto update plugins
+ *
+ * @return bool
  */
 function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) {
 	// Listing plugins is a costly operation, so we only want to do this under certain circumstances.
@@ -358,7 +383,7 @@ function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) 
 	if ( ! function_exists( 'get_plugins' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
-	$fresh_plugins_list = array_keys( get_plugins() );
+	$fresh_plugins_list  = array_keys( get_plugins() );
 	$auto_update_plugins = get_option( 'auto_update_plugins', array() );
 
 	$skip_new_plugins = false;
@@ -392,7 +417,7 @@ function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) 
 		update_option( 'auto_update_plugins', $auto_update_plugins );
 	}
 
-	if ( $baseline_plugins_list != $fresh_plugins_list ) {
+	if ( $baseline_plugins_list != $fresh_plugins_list ) { //phpcs:ignore
 		update_option( 'wpcomsh_plugins_considered_for_auto_update', $fresh_plugins_list, false );
 	}
 
@@ -400,32 +425,49 @@ function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) 
 }
 add_filter( 'pre_option_auto_update_plugins', 'wpcomsh_auto_update_new_plugins_by_default' );
 
-// TODO: Remove this once Page Optimize stops breaking CSS load order (has any version after v0.5.1)
-// This is a temporary fix for a page-optimize bug that causes spinner icons to show
-// all the time in the plugins list auto-update column
+/**
+ * TODO: Remove this once Page Optimize stops breaking CSS load order (has any version after v0.5.1)
+ * This is a temporary fix for a page-optimize bug that causes spinner icons to show
+ * all the time in the plugins list auto-update column
+ */
 function wpcomsh_patch_auto_update_spinner_style() {
-        $current_screen = get_current_screen();
-        if ( isset( $current_screen->id ) && 'plugins' === $current_screen->id ) {
-                wp_add_inline_style(
-                        'dashicons',
-                        '.toggle-auto-update .dashicons.hidden { display: none; }'
-                );
-        }
+		$current_screen = get_current_screen();
+	if ( isset( $current_screen->id ) && 'plugins' === $current_screen->id ) {
+			wp_add_inline_style(
+				'dashicons',
+				'.toggle-auto-update .dashicons.hidden { display: none; }'
+			);
+	}
 }
 add_action( 'admin_enqueue_scripts', 'wpcomsh_patch_auto_update_spinner_style', 999 );
 
+/**
+ * Get atomic managed theme template auto update label
+ *
+ * @return string
+ */
 function wpcomsh_atomic_managed_theme_template_auto_update_label() {
 	/* translators: Message about how a managed theme is updated. */
 	return __( 'Updates managed by WordPress.com', 'wpcomsh' );
 }
 add_filter( 'atomic_managed_theme_template_auto_update_label', 'wpcomsh_atomic_managed_theme_template_auto_update_label' );
 
+/**
+ * Get atomic managed plugin auto update debug label
+ *
+ * @return string
+ */
 function wpcomsh_atomic_managed_plugin_auto_update_debug_label() {
 	/* translators: Information about how a managed plugin is updated, for debugging purposes. */
 	return __( 'Updates managed by WordPress.com', 'wpcomsh' );
 }
 add_filter( 'atomic_managed_plugin_auto_update_debug_label', 'wpcomsh_atomic_managed_plugin_auto_update_debug_label' );
 
+/**
+ * Get atomic managed theme auto update debug label
+ *
+ * @return string
+ */
 function wpcomsh_atomic_managed_theme_auto_update_debug_label() {
 	/* translators: Information about how a managed theme is updated, for debugging purposes. */
 	return __( 'Updates managed by WordPress.com', 'wpcomsh' );
@@ -433,6 +475,9 @@ function wpcomsh_atomic_managed_theme_auto_update_debug_label() {
 add_filter( 'atomic_managed_theme_auto_update_debug_label', 'wpcomsh_atomic_managed_theme_auto_update_debug_label' );
 
 
+/**
+ * Add managed plugins action links
+ */
 function wpcomsh_managed_plugins_action_links() {
 	foreach ( WPCOM_CORE_ATOMIC_PLUGINS as $plugin ) {
 		if ( wpcomsh_is_managed_plugin( $plugin ) ) {
@@ -467,7 +512,10 @@ function wpcomsh_managed_plugins_action_links() {
 }
 add_action( 'admin_init', 'wpcomsh_managed_plugins_action_links' );
 
-// Remove hooks that add the plugins autoupdate column. They are ineffective on Atomic sites.
+
+/**
+ * Remove hooks that add the plugins autoupdate column. They are ineffective on Atomic sites.
+ */
 function wpcomsh_remove_plugin_autoupdates() {
 	if ( ! class_exists( 'Jetpack_Calypsoify' ) ) {
 		return;
@@ -479,12 +527,23 @@ function wpcomsh_remove_plugin_autoupdates() {
 }
 add_action( 'admin_init', 'wpcomsh_remove_plugin_autoupdates' );
 
-// Removed unused capability (it was only used for the autoupdates columns).
+
+/**
+ * Removed unused capability (it was only used for the autoupdates columns).
+ *
+ * @param mixed $caps Capabilities
+ * @param mixed $cap Capability
+ *
+ * @return [type]
+ */
 function wpcomsh_remove_autoupdates_meta_cap( $caps, $cap ) {
 	return 'jetpack_manage_autoupdates' === $cap ? array( 'do_not_allow' ) : $caps;
 }
 add_filter( 'map_meta_cap', 'wpcomsh_remove_autoupdates_meta_cap', 10, 2 );
 
+/**
+ * Hide update notice for managed plugins
+ */
 function wpcomsh_hide_update_notice_for_managed_plugins() {
 	$plugin_files = array_keys( get_plugins() );
 	foreach ( $plugin_files as $plugin ) {
@@ -495,6 +554,13 @@ function wpcomsh_hide_update_notice_for_managed_plugins() {
 }
 add_action( 'load-plugins.php', 'wpcomsh_hide_update_notice_for_managed_plugins', 25 );
 
+/**
+ * Check if pluginis managed
+ *
+ * @param mixed $plugin_file Name of plugin file
+ *
+ * @return bool
+ */
 function wpcomsh_is_managed_plugin( $plugin_file ) {
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && class_exists( 'Atomic_Platform_Mu_Plugin' ) ) {
 		return Atomic_Platform_Mu_Plugin::is_managed_plugin( $plugin_file );
@@ -503,16 +569,33 @@ function wpcomsh_is_managed_plugin( $plugin_file ) {
 	return false;
 }
 
+/**
+ * Hide hide vaultpress from plugin list
+ *
+ * @return void
+ */
 function hide_vaultpress_from_plugin_list() {
-	  global $wp_list_table;
-	  unset( $wp_list_table->items['vaultpress/vaultpress.php'] );
+	global $wp_list_table;
+	unset( $wp_list_table->items['vaultpress/vaultpress.php'] );
 }
 add_action( 'pre_current_active_plugins', 'hide_vaultpress_from_plugin_list' );
 
+/**
+ * Hide wpcomsh plugin links
+ *
+ * @return array
+ */
 function wpcomsh_hide_wpcomsh_plugin_links() {
 	return array();
 }
 
+/**
+ * Hide plugin deactivate edit links
+ *
+ * @param mixed $links The nav links
+ *
+ * @return array
+ */
 function wpcomsh_hide_plugin_deactivate_edit_links( $links ) {
 	if ( ! is_array( $links ) ) {
 		return array();
@@ -534,7 +617,7 @@ function wpcomsh_hide_plugin_deactivate_edit_links( $links ) {
  * @param array    $plugin_data An array of plugin data.
  * @param string   $status      Status filter currently applied to the plugin list.
  */
-function wpcom_hide_jetpack_version_number( $plugin_meta, $plugin_file, $plugin_data, $status ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+function wpcom_hide_jetpack_version_number( $plugin_meta, $plugin_file, $plugin_data, $status ) { // phpcs:ignore
 	if (
 		is_array( $plugin_meta )
 		&& isset( $plugin_data['slug'], $plugin_data['Version'] )
@@ -548,6 +631,12 @@ function wpcom_hide_jetpack_version_number( $plugin_meta, $plugin_file, $plugin_
 }
 add_filter( 'plugin_row_meta', 'wpcom_hide_jetpack_version_number', 10, 4 );
 
+/**
+ * Show plugin auto managed notice
+ *
+ * @param mixed $file The plugin file
+ * @param mixed $plugin_data The plugin data
+ */
 function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 	$plugin_name = 'The plugin';
 	$active      = is_plugin_active( $file ) ? ' active' : '';
@@ -556,16 +645,17 @@ function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 		$plugin_name = $plugin_data['Name'];
 	}
 
+	/* translators: %s: plugin name */
 	$message = sprintf( __( '%s is automatically managed for you.', 'wpcomsh' ), $plugin_name );
 
 	if ( in_array( $file, WPCOM_FEATURE_PLUGINS, true ) ) {
 		$message = esc_html__( 'This plugin was installed by WordPress.com and provides features offered in your plan subscription.', 'wpcomsh' );
 	}
 
-	echo '<tr class="plugin-update-tr' . $active . '">' .
+	echo '<tr class="plugin-update-tr' . $active . '">' . //phpcs:ignore
 			'<td colspan="4" class="plugin-update colspanchange">' .
 				'<div class="notice inline notice-success notice-alt">' .
-					"<p>{$message}</p>" .
+					"<p>{$message}</p>" . //phpcs:ignore
 				'</div>' .
 			'</td>' .
 		'</tr>';
@@ -575,16 +665,19 @@ function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
  * Renders a separator row for plugins that are managed by WordPress.com but the user has currently
  * removed it and added an unmanaged version.
  *
- * @param $file string Plugin file name.
+ * @param string $file  Plugin file name.
  */
 function wpcomsh_show_unmanaged_plugin_separator( $file ) {
 	$active = is_plugin_active( $file ) ? 'active' : '';
 
-	echo "<tr class=\"$active\">" .
+	echo "<tr class=\"$active\">" . //phpcs:ignore
 		'<th colspan="4" scope="row" class="check-column"></th>' .
-	     '</tr>';
+		'</tr>';
 }
 
+/**
+ * Register theme hooks
+ */
 function wpcomsh_register_theme_hooks() {
 	add_filter(
 		'jetpack_wpcom_theme_skip_download',
@@ -644,12 +737,12 @@ add_action( 'map_meta_cap', 'wpcomsh_map_caps', 10, 2 );
  * @param array $args    Optional parameters passed to has_cap(), typically object ID.
  * @return array
  */
-function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) {
+function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) { //phpcs:ignore
 	// Trying to edit or delete a user other than yourself?
 	if ( in_array( $args[0], [ 'edit_user', 'delete_user', 'remove_user', 'promote_user' ], true ) ) {
 		$jetpack = get_option( 'jetpack_options' );
 
-		if ( ! empty( $jetpack['master_user'] ) && $args[2] == $jetpack['master_user'] ) {
+		if ( ! empty( $jetpack['master_user'] ) && $args[2] == $jetpack['master_user'] ) { //phpcs:ignore
 			return [];
 		}
 	}
@@ -658,6 +751,13 @@ function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) {
 }
 add_filter( 'user_has_cap', 'wpcomsh_prevent_owner_removal', 10, 3 );
 
+/**
+ * Remove theme delete button
+ *
+ * @param array $prepared_themes Prepared themes
+ *
+ * @return array
+ */
 function wpcomsh_remove_theme_delete_button( $prepared_themes ) {
 
 	foreach ( $prepared_themes as $theme_slug => $theme_data ) {
@@ -671,7 +771,15 @@ function wpcomsh_remove_theme_delete_button( $prepared_themes ) {
 add_filter( 'wp_prepare_themes_for_js', 'wpcomsh_remove_theme_delete_button' );
 
 
-function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) {
+/**
+ * Jetpack wpcom theme skip download
+ *
+ * @param mixed $result Result
+ * @param mixed $theme_slug Theme slug
+ *
+ * @return bool
+ */
+function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) { //phpcs:ignore
 
 	$theme_type = wpcomsh_get_wpcom_theme_type( $theme_slug );
 
@@ -681,7 +789,7 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) {
 	}
 
 	if ( wpcomsh_is_theme_symlinked( $theme_slug ) ) {
-		error_log( "WPComSH: WPCom theme with slug: {$theme_slug} is already installed/symlinked." );
+		error_log( "WPComSH: WPCom theme with slug: {$theme_slug} is already installed/symlinked." ); //phpcs:ignore
 
 		return new WP_Error(
 			'wpcom_theme_already_installed',
@@ -726,7 +834,15 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) {
 	return true;
 }
 
-function wpcomsh_jetpack_wpcom_theme_delete( $result, $theme_slug ) {
+/**
+ * Jetpack wpcom theme delete
+ *
+ * @param mixed $result Result
+ * @param mixed $theme_slug Theme slug
+ *
+ * @return bool
+ */
+function wpcomsh_jetpack_wpcom_theme_delete( $result, $theme_slug ) { //phpcs:ignore
 
 	if (
 		! wpcomsh_is_wpcom_theme( $theme_slug ) ||
@@ -770,7 +886,7 @@ function wpcomsh_jetpack_wpcom_theme_delete( $result, $theme_slug ) {
 function wpcomsh_get_attachment_url( $url, $post_id ) {
 	$attachment_subdomain = get_option( 'wpcom_attachment_subdomain' );
 	if ( $attachment_subdomain ) {
-		if ( $file = get_post_meta( $post_id, '_wp_attached_file', true ) ) {
+		if ( $file = get_post_meta( $post_id, '_wp_attached_file', true ) ) { //phpcs:ignore
 			$local_file = WP_CONTENT_DIR . '/uploads/' . $file;
 			if ( ! file_exists( $local_file ) ) {
 				return esc_url( 'https://' . $attachment_subdomain . '/' . $file );
@@ -789,8 +905,8 @@ add_filter( 'wp_get_attachment_url', 'wpcomsh_get_attachment_url', 11, 2 );
  * @return int The filtered cookie expiration in seconds
  */
 function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
-	if ( isset( $_GET['expires'] ) ) {
-		$expires = absint( $_GET['expires'] );
+	if ( isset( $_GET['expires'] ) ) { //phpcs:ignore
+		$expires = absint( $_GET['expires'] ); //phpcs:ignore
 
 		if ( ! empty( $expires ) && $expires < $seconds ) {
 			$seconds = $expires;
@@ -819,7 +935,7 @@ function wpcomsh_add_wpcom_suffix_to_theme_endpoint_response( $formatted_theme )
 		return $formatted_theme;
 	}
 
-	$theme_slug = $formatted_theme['id'];
+	$theme_slug    = $formatted_theme['id'];
 	$is_storefront = 'storefront' === $theme_slug;
 
 	if ( wpcomsh_is_theme_symlinked( $theme_slug ) && ! $is_storefront ) {
@@ -844,10 +960,17 @@ function wpcomsh_handle_atomic_premium_theme_option() {
 			return sprintf( 'premium/%s', $stylesheet );
 	}
 
-	return FALSE;
+	return false;
 }
 add_filter( 'pre_option_at_wpcom_premium_theme', 'wpcomsh_handle_atomic_premium_theme_option' );
 
+/**
+ * Disable bulk plugin deactivation
+ *
+ * @param array $actions The actions
+ *
+ * @return array
+ */
 function wpcomsh_disable_bulk_plugin_deactivation( $actions ) {
 	if ( array_key_exists( 'deactivate-selected', $actions ) ) {
 		unset( $actions['deactivate-selected'] );
@@ -857,6 +980,9 @@ function wpcomsh_disable_bulk_plugin_deactivation( $actions ) {
 }
 add_filter( 'bulk_actions-plugins', 'wpcomsh_disable_bulk_plugin_deactivation' );
 
+/**
+ * Admin enqueue style
+ */
 function wpcomsh_admin_enqueue_style() {
 	wp_enqueue_style(
 		'wpcomsh-admin-style',
@@ -867,6 +993,13 @@ function wpcomsh_admin_enqueue_style() {
 }
 add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );
 
+/**
+ * Allow custom wp options
+ *
+ * @param araay $options The options
+ *
+ * @return array
+ */
 function wpcomsh_allow_custom_wp_options( $options ) {
 	// For storing AT options.
 	$options[] = 'at_options';
@@ -882,6 +1015,11 @@ add_filter( 'jetpack_options_whitelist', 'wpcomsh_allow_custom_wp_options' );
 
 add_filter( 'jetpack_site_automated_transfer', '__return_true' );
 
+/**
+ * Check site has pending automated transfer
+ *
+ * @return bool
+ */
 function check_site_has_pending_automated_transfer() {
 	return get_option( 'has_pending_automated_transfer' );
 }
@@ -929,7 +1067,7 @@ add_action( 'after_setup_theme', 'wpcomsh_load_theme_compat_file', 0 );
  *                       is specified.
  * @return string Filtered URL.
  */
-function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
+function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) { //phpcs:ignore
 	$url = preg_replace(
 		'#((?<!/)/[^/]+)*/wp-content/plugins/wordpress/plugins/wpcomsh/([^/]+)/#',
 		'/wp-content/mu-plugins/wpcomsh/',
@@ -944,6 +1082,11 @@ function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
 }
 add_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0, 3 );
 
+/**
+ * Require library helper function
+ *
+ * @param mixed $slug Slug of library
+ */
 function require_lib( $slug ) {
 	if ( ! preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
 		return;
@@ -956,7 +1099,7 @@ function require_lib( $slug ) {
 	);
 
 	// hand off to `jetpack_require_lib`, if possible.
-	if ( in_array( $slug, $in_jetpack ) && function_exists( 'jetpack_require_lib' ) ) {
+	if ( in_array( $slug, $in_jetpack ) && function_exists( 'jetpack_require_lib' ) ) { //phpcs:ignore
 		return jetpack_require_lib( $slug );
 	}
 
@@ -1007,11 +1150,15 @@ add_filter( 'jetpack_google_maps_api_key', 'wpcomsh_google_maps_api_key' );
  */
 add_filter( 'pre_option_link_manager_enabled', '__return_true' );
 
-/*
+/**
  * We have some instances where `track_number` of an audio attachment is `??0` and shows up as type string.
  * However the problem is, that if post has nested property attachments with this track_number, `json_serialize` fails silently.
  * Of course, this should be fixed during audio upload, but we need this fix until we can clean this up properly.
  * More detail here: 235-gh-Automattic/automated-transfer
+ *
+ * @param array $exif_data The file exif data
+ *
+ * @return array
  */
 function wpcomsh_jetpack_api_fix_unserializable_track_number( $exif_data ) {
 	if ( isset( $exif_data['track_number'] ) ) {
@@ -1030,6 +1177,13 @@ add_action( 'rest_api_init', 'wpcomsh_rest_api_init' );
 // Remove WordPress 5.2+ Site Health Tests that are not a good fit for Atomic
 add_filter( 'site_status_tests', 'wpcomsh_site_status_tests_disable' );
 
+/**
+ * The site status tests disable
+ *
+ * @param mixed $tests The tests
+ *
+ * @return [type]
+ */
 function wpcomsh_site_status_tests_disable( $tests ) {
 	unset( $tests['direct']['plugin_version'] );
 	unset( $tests['direct']['theme_version'] );
@@ -1038,6 +1192,8 @@ function wpcomsh_site_status_tests_disable( $tests ) {
 
 /**
  * Make User Agent consistent with the rest of WordPress.com.
+ *
+ * @param mixed $agent The agent
  */
 function wpcomsh_filter_outgoing_user_agent( $agent ) {
 	global $wp_version;
@@ -1046,16 +1202,31 @@ function wpcomsh_filter_outgoing_user_agent( $agent ) {
 }
 add_filter( 'http_headers_useragent', 'wpcomsh_filter_outgoing_user_agent', 999 );
 
-// Limit post revisions
-function wpcomsh_limit_post_revisions( $revisions ) {
+/**
+ * Limit post revisions
+ *
+ * @param mixed $revisions The revisions
+ *
+ * @return [type]
+ */
+function wpcomsh_limit_post_revisions( $revisions ) { //phpcs:ignore
 	return 100;
 }
 add_filter( 'wp_revisions_to_keep', 'wpcomsh_limit_post_revisions', 5 );
 
-// log wp_die() calls
+
+/**
+ * The log wp_die() calls
+ *
+ * @param mixed $message The message
+ * @param mixed $title The title
+ * @param mixed $args The arguments
+ *
+ * @return void
+ */
 function wpcomsh_wp_die_handler( $message, $title, $args ) {
 	$e = new Exception( 'wp_die was called' );
-	error_log( $e );
+	error_log( $e ); //phpcs:ignore
 
 	if ( function_exists( '_default_wp_die_handler' ) ) {
 		_default_wp_die_handler( $message, $title, $args );
@@ -1064,12 +1235,19 @@ function wpcomsh_wp_die_handler( $message, $title, $args ) {
 	// if the default wp_die handler is not available just die.
 	die();
 }
+
+/**
+ * Get wp die handler
+ */
 function wpcomsh_get_wp_die_handler() {
 	return 'wpcomsh_wp_die_handler';
 }
 // Disabling the die handler per p9F6qB-3TQ-p2
-//add_filter( 'wp_die_handler', 'wpcomsh_get_wp_die_handler' );
+// add_filter( 'wp_die_handler', 'wpcomsh_get_wp_die_handler' );
 
+/**
+ * Get Atomic site information
+ */
 function wpcomsh_get_at_site_info() {
 	$at_site_info_file = sys_get_temp_dir() . '/.at-site-info';
 
@@ -1077,7 +1255,7 @@ function wpcomsh_get_at_site_info() {
 		return [];
 	}
 
-	$site_info_json = file_get_contents( $at_site_info_file );
+	$site_info_json = file_get_contents( $at_site_info_file ); //phpcs:ignore
 
 	if ( empty( $site_info_json ) ) {
 		return [];
@@ -1091,6 +1269,9 @@ function wpcomsh_get_at_site_info() {
 	return $site_info;
 }
 
+/**
+ * Display disk space usage
+ */
 function wpcomsh_display_disk_space_usage() {
 	$site_info = wpcomsh_get_at_site_info();
 
@@ -1098,10 +1279,11 @@ function wpcomsh_display_disk_space_usage() {
 		return;
 	}
 
-	$space_used = $site_info['space_used'];
+	$space_used  = $site_info['space_used'];
 	$space_quota = $site_info['space_quota'];
 
 	$message = sprintf(
+		/* translators: Space usage message */
 		__(
 			'You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%).',
 			'wpcomsh'
@@ -1111,10 +1293,17 @@ function wpcomsh_display_disk_space_usage() {
 		number_format_i18n( ( $space_used / $space_quota ) * 100.0 )
 	);
 
-	echo "<p>$message</p>";
+	echo "<p>$message</p>"; //phpcs:ignore
 }
 add_action( 'pre-upload-ui', 'wpcomsh_display_disk_space_usage' );
 
+/**
+ * Debug information disk usage
+ *
+ * @param array $args The arguments
+ *
+ * @return array
+ */
 function wpcomsh_debug_information_disk_usage( $args ) {
 	if ( empty( $args['wp-paths-sizes']['fields'] ) ) {
 		return $args;
@@ -1126,15 +1315,15 @@ function wpcomsh_debug_information_disk_usage( $args ) {
 		return $args;
 	}
 
-	$space_used = $site_info['space_used'];
+	$space_used  = $site_info['space_used'];
 	$space_quota = $site_info['space_quota'];
 
 	unset( $args['wp-paths-sizes']['fields']['total_size'] );
-	$args['wp-paths-sizes']['fields']['wpcomsh-disk-space-used'] = array (
+	$args['wp-paths-sizes']['fields']['wpcomsh-disk-space-used']  = array(
 		'label' => __( 'Disk space used', 'wpcomsh' ),
 		'value' => size_format( $space_used, 1 ),
 	);
-	$args['wp-paths-sizes']['fields']['wpcomsh-disk-space-quota'] = array (
+	$args['wp-paths-sizes']['fields']['wpcomsh-disk-space-quota'] = array(
 		'label' => __( 'Disk space quota', 'wpcomsh' ),
 		'value' => size_format( $space_quota, 1 ),
 	);
@@ -1146,6 +1335,11 @@ add_filter( 'debug_information', 'wpcomsh_debug_information_disk_usage' );
 /**
  * Do not allow uploads from Calypso's media section if it would cause our
  * disk usage to go over the quota.
+ *
+ * @param mixed $value The value
+ * @param array $files The files
+ *
+ * @return mixed
  */
 function wpcomsh_jetpack_upload_handler_can_upload( $value, $files ) {
 	$site_info = wpcomsh_get_at_site_info();
@@ -1179,12 +1373,14 @@ add_filter( 'admin_email_check_interval', '__return_zero' );
 
 /**
  * Allow redirects to WordPress.com from Customizer.
+ *
+ * @param array $hosts The hosts
  */
 function wpcomsh_allowed_redirect_hosts( $hosts ) {
 	if ( is_array( $hosts ) ) {
 		$hosts[] = 'wordpress.com';
 		$hosts[] = 'calypso.localhost';
-		$hosts = array_unique( $hosts );
+		$hosts   = array_unique( $hosts );
 	}
 	return $hosts;
 }
@@ -1195,53 +1391,56 @@ add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
  *
  * Converts all plain-text HTTP URLs in post_content to links on display
  *
+ * @param array $content The content
+ *
  * @uses make_clickable()
  * @since 20121125
  */
-function wpcomsh_make_content_clickable($content) {
+function wpcomsh_make_content_clickable( $content ) {
 	// make_clickable() is expensive, check if plain-text URLs exist before running it
 	// don't look inside HTML tags
 	// don't look in <a></a>, <pre></pre>, <script></script> and <style></style>
 	// use <div class="skip-make-clickable"> in support docs where linkifying
 	// breaks shortcodes, etc.
 	$_split = preg_split( '/(<[^<>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
-	$end = $out = $combine = '';
-	$split = array();
+	$end    = $out = $combine = ''; //phpcs:ignore
+	$split  = array();
 
 	// filter the array and combine <a></a>, <pre></pre>, <script></script> and <style></style> into one
 	// (none of these tags can be nested so when we see the opening tag, we grab everything untill we reach the closing tag)
-	foreach( $_split as $chunk ) {
-		if ( $chunk === '' )
+	foreach ( $_split as $chunk ) {
+		if ( $chunk === '' ) {
 			continue;
+		}
 
 		if ( $end ) {
 			$combine .= $chunk;
 
-			if ( $end == strtolower( str_replace( array( "\t", ' ', "\r", "\n" ), '', $chunk ) ) ) {
+			if ( $end == strtolower( str_replace( array( "\t", ' ', "\r", "\n" ), '', $chunk ) ) ) { //phpcs:ignore
 				$split[] = $combine;
-				$end = $combine = '';
+				$end     = $combine = ''; //phpcs:ignore
 			}
 			continue;
 		}
 
 		if ( strpos( strtolower( $chunk ), '<a ' ) === 0 ) {
 			$combine .= $chunk;
-			$end = '</a>';
+			$end      = '</a>';
 		} elseif ( strpos( strtolower( $chunk ), '<pre' ) === 0 ) {
 			$combine .= $chunk;
-			$end = '</pre>';
+			$end      = '</pre>';
 		} elseif ( strpos( strtolower( $chunk ), '<style' ) === 0 ) {
 			$combine .= $chunk;
-			$end = '</style>';
+			$end      = '</style>';
 		} elseif ( strpos( strtolower( $chunk ), '<script' ) === 0 ) {
 			$combine .= $chunk;
-			$end = '</script>';
+			$end      = '</script>';
 		} elseif ( strpos( strtolower( $chunk ), '<div class="skip-make-clickable' ) === 0 ) {
 			$combine .= $chunk;
-			$end = '</div>';
+			$end      = '</div>';
 		} elseif ( strpos( strtolower( $chunk ), '<textarea' ) === 0 ) {
 			$combine .= $chunk;
-			$end = '</textarea>';
+			$end      = '</textarea>';
 		} else {
 			$split[] = $chunk;
 		}
@@ -1249,7 +1448,7 @@ function wpcomsh_make_content_clickable($content) {
 
 	foreach ( $split as $chunk ) {
 		// if $chunk is white space or a tag (or a combined tag), add it and continue
-		if ( preg_match( '/^\s+$/', $chunk ) || ( $chunk[0] == '<' && $chunk[ strlen( $chunk ) - 1 ] == '>' ) ) {
+		if ( preg_match( '/^\s+$/', $chunk ) || ( $chunk[0] == '<' && $chunk[ strlen( $chunk ) - 1 ] == '>' ) ) { //phpcs:ignore
 			$out .= $chunk;
 			continue;
 		}
@@ -1269,6 +1468,13 @@ function wpcomsh_make_content_clickable($content) {
 add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
 
+/**
+ * Hide scan threats from transients
+ *
+ * @param mixed $response The response
+ *
+ * @return mixed
+ */
 function wpcomsh_hide_scan_threats_from_transients( $response ) {
 	if ( ! empty( $response->threats ) ) {
 		$response->threats = [];
@@ -1277,6 +1483,13 @@ function wpcomsh_hide_scan_threats_from_transients( $response ) {
 }
 add_filter( 'transient_jetpack_scan_state', 'wpcomsh_hide_scan_threats_from_transients' );
 
+/**
+ * Hide scan threats from api
+ *
+ * @param mixed $response The reponse
+ *
+ * @return mixed
+ */
 function wpcom_hide_scan_threats_from_api( $response ) {
 	if (
 		! ( $response instanceof WP_REST_Response )
@@ -1294,8 +1507,8 @@ function wpcom_hide_scan_threats_from_api( $response ) {
 		return $response;
 	}
 
-	$json_body['threats'] = [];
-	$response_data['data'] = json_encode( $json_body );
+	$json_body['threats']  = [];
+	$response_data['data'] = json_encode( $json_body ); //phpcs:ignore
 	$response->set_data( $response_data );
 
 	return $response;
@@ -1307,16 +1520,21 @@ add_filter( 'rest_post_dispatch', 'wpcom_hide_scan_threats_from_api' );
  * p9o2xV-XY-p2
  */
 function wpcomsh_footer_rum_js() {
-	echo "<script defer id='bilmur' data-provider='wordpress.com' data-service='atomic' src='https://s0.wp.com/wp-content/js/bilmur.min.js?m=" . gmdate( 'YW' ). "'></script>\n";
+	echo "<script defer id='bilmur' data-provider='wordpress.com' data-service='atomic' src='https://s0.wp.com/wp-content/js/bilmur.min.js?m=" . gmdate( 'YW' ) . "'></script>\n"; //phpcs:ignore
 }
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 
+/**
+ * Upgrade transferred db
+ *
+ * @return void
+ */
 function wpcomsh_upgrade_transferred_db() {
 	global $wp_db_version;
 
 	if ( isset( $_SERVER['ATOMIC_SITE_ID'] ) ) {
-		$atomic_site_id = $_SERVER['ATOMIC_SITE_ID'];
-	} else if ( defined( 'ATOMIC_SITE_ID' ) ) {
+		$atomic_site_id = $_SERVER['ATOMIC_SITE_ID']; //phpcs:ignore
+	} elseif ( defined( 'ATOMIC_SITE_ID' ) ) {
 		$atomic_site_id = ATOMIC_SITE_ID;
 	}
 
@@ -1332,7 +1550,7 @@ function wpcomsh_upgrade_transferred_db() {
 	// https://github.com/WordPress/wordpress-develop/blob/b591209e141e0357a69fff1d01d2650ac2d916cb/src/wp-includes/version.php#L23
 	$db_version_5_5 = 48748;
 
-	if( $wp_db_version < $db_version_5_5 ) {
+	if ( $wp_db_version < $db_version_5_5 ) {
 		// WordPress isn't yet at the version for upgrade
 		return;
 	}
@@ -1356,7 +1574,7 @@ function wpcomsh_upgrade_transferred_db() {
 	if (
 		false !== get_option( 'comment_whitelist' ) &&
 		// default value from: https://github.com/WordPress/wordpress-develop/blob/f0733600c9b8a0833d7e63f60fae651d46f22320/src/wp-admin/includes/schema.php#L536
-		in_array( get_option( 'comment_previously_approved' ), array( false, 1 /* default value */ ) )
+		in_array( get_option( 'comment_previously_approved' ), array( false, 1 /* default value */ ) ) //phpcs:ignore
 	) {
 		$comment_previously_approved = get_option( 'comment_whitelist', '' );
 		update_option( 'comment_previously_approved', $comment_previously_approved );
@@ -1368,7 +1586,7 @@ function wpcomsh_upgrade_transferred_db() {
 	if (
 		false !== get_option( 'blacklist_keys' ) &&
 		// default value from https://github.com/WordPress/wordpress-develop/blob/f0733600c9b8a0833d7e63f60fae651d46f22320/src/wp-admin/includes/schema.php#L535
-		in_array( get_option( 'disallowed_keys' ), array( false, '' /* default value */ ) )
+		in_array( get_option( 'disallowed_keys' ), array( false, '' /* default value */ ) ) //phpcs:ignore
 	) {
 		// Use more clear and inclusive language.
 		$disallowed_list = get_option( 'blacklist_keys' );
@@ -1417,7 +1635,18 @@ function wpcomsh_upgrade_transferred_db() {
 }
 add_action( 'muplugins_loaded', 'wpcomsh_upgrade_transferred_db' );
 
-function wpcomsh_amp_dev_tools_enabled_default_user_metadata( $value, $object_id, $meta_key, $single, $meta_type ) {
+/**
+ * AMP dev tools enabled default user metadata
+ *
+ * @param mixed $value The value
+ * @param mixed $object_id The object id
+ * @param mixed $meta_key The meta key
+ * @param mixed $single Is single
+ * @param mixed $meta_type Meta type
+ *
+ * @return [type]
+ */
+function wpcomsh_amp_dev_tools_enabled_default_user_metadata( $value, $object_id, $meta_key, $single, $meta_type ) { //phpcs:ignore
 	if ( 'amp_dev_tools_enabled' === $meta_key && '' === $value ) {
 		return false;
 	}
@@ -1432,6 +1661,11 @@ add_filter( 'gutenberg_use_widgets_block_editor', '__return_false', 100 );
 
 /**
  * Tracks helper. Filters Jetpack TOS option if class exists.
+ *
+ * @param mixed $event The event
+ * @param mixed $event_properties The event property
+ *
+ * @return void
  */
 function wpcomsh_record_tracks_event( $event, $event_properties ) {
 	if ( class_exists( '\Automattic\Jetpack\Tracking' ) ) {
@@ -1453,6 +1687,11 @@ function wpcomsh_record_tracks_event( $event, $event_properties ) {
 /**
  * Helper for filtering tos_agreed for tracking purposes.
  * Explicit function so it can be removed afterwards.
+ *
+ * @param mixed $value The value
+ * @param mixed $name Name
+ *
+ * @return mixed
  */
 function wpcomsh_jetpack_filter_tos_for_tracking( $value, $name ) {
 	if ( 'tos_agreed' === $name ) {
@@ -1486,6 +1725,11 @@ if ( wpcomsh_is_managed_plugin( 'gutenberg/gutenberg.php' ) ) {
 	add_filter( 'yoast_display_gutenberg_compat_notification', '__return_false' );
 }
 
+/**
+ * Avoid proxied v2 banner
+ *
+ * @return void
+ */
 function wpcomsh_avoid_proxied_v2_banner() {
 	$priority = has_action( 'wp_footer', 'atomic_proxy_bar' );
 	if ( false !== $priority ) {
@@ -1502,8 +1746,7 @@ function wpcomsh_avoid_proxied_v2_banner() {
 // which are normally embedded within another page
 if (
 	defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST &&
-	isset( $_GET['legacy-widget-preview'] ) &&
-	0 === strncmp( $_SERVER['REQUEST_URI'], '/wp-admin/widgets.php?', strlen( '/wp-admin/widgets.php?' ) )
-) {
+	isset( $_GET['legacy-widget-preview'] ) && //phpcs:ignore
+	0 === strncmp( $_SERVER['REQUEST_URI'], '/wp-admin/widgets.php?', strlen( '/wp-admin/widgets.php?' ) ) ) { //phpcs:ignore
 	add_action( 'plugins_loaded', 'wpcomsh_avoid_proxied_v2_banner' );
 }
