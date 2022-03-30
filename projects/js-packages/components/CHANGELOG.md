@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.11.0 - 2022-03-30
+### Added
+- JS Components: Add spacing props to Text component
+
 ## 0.10.12 - 2022-03-29
 ### Added
 - Jetpack components: Add ThemeProvider stories for typographies and colors

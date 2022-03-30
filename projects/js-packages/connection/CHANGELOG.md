@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.17.6 - 2022-03-30
+### Changed
+- My Jetpack: tweak connection card styles and wording
+
 ## 0.17.5 - 2022-03-29
 ### Added
 - Connection: Use heading components to render status card cmp
