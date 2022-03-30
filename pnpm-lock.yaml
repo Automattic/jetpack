@@ -107,6 +107,7 @@ importers:
       '@wordpress/components': 19.5.0
       '@wordpress/date': 4.3.1
       '@wordpress/i18n': 4.3.1
+      '@wordpress/icons': 7.0.1
       classnames: 2.3.1
       jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
@@ -122,6 +123,7 @@ importers:
       '@wordpress/components': 19.5.0_978f344c876a57c1143ffe356b90df31
       '@wordpress/date': 4.3.1
       '@wordpress/i18n': 4.3.1
+      '@wordpress/icons': 7.0.1
       classnames: 2.3.1
       lodash: 4.17.21
       prop-types: 15.8.1
@@ -9160,7 +9162,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.17.8
-      '@wordpress/element': 4.1.1
+      '@wordpress/element': 4.3.0
       '@wordpress/primitives': 3.3.0
 
   /@wordpress/interface/4.2.3_978f344c876a57c1143ffe356b90df31:
