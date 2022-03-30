@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.8.4-alpha';
+	const PACKAGE_VERSION = '0.8.5-alpha';
 
 	/**
 	 * Instance of the object.
@@ -65,7 +65,7 @@ class Identity_Crisis {
 	 * @return object
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Identity_Crisis();
 		}
 

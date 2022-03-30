@@ -52,6 +52,16 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ 'jest-environment-jsdom' ] = '^27';
 	}
 
+	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
+	if ( pkg.name === '@wordpress/eslint-plugin' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( 'eslint-plugin-' ) || dep.endsWith( '/eslint-plugin' ) ) {
+				delete pkg.dependencies[ dep ];
+				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
+			}
+		}
+	}
+
 	// Unpin browserslist here.
 	if (
 		pkg.name === 'react-dev-utils' &&

@@ -22,7 +22,7 @@
 	},
 	"browserslist": "extends @wordpress/browserslist-config",
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.5",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
 		"@wordpress/browserslist-config": "4.1.1",
 		"sass": "1.43.3",
 		"sass-loader": "12.4.0",
@@ -31,7 +31,7 @@
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

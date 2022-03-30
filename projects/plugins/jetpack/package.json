@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "10.8.0-a.12",
+	"version": "10.9.0-a.0",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -48,13 +48,13 @@
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/components": "1.0.0-alpha.3",
 		"@automattic/format-currency": "1.0.0-alpha.0",
-		"@automattic/jetpack-analytics": "workspace:^0.1.8",
-		"@automattic/jetpack-api": "workspace:^0.10.0",
-		"@automattic/jetpack-components": "workspace:^0.10.12-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.17.5-alpha",
-		"@automattic/jetpack-licensing": "workspace:^0.4.12-alpha",
-		"@automattic/jetpack-partner-coupon": "workspace:^0.2.6-alpha",
-		"@automattic/jetpack-shared-extension-utils": "workspace:^0.3.1-alpha",
+		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
+		"@automattic/jetpack-api": "workspace:* || ^0.10",
+		"@automattic/jetpack-components": "workspace:* || ^0.11",
+		"@automattic/jetpack-connection": "workspace:* || ^0.17",
+		"@automattic/jetpack-licensing": "workspace:* || ^0.4",
+		"@automattic/jetpack-partner-coupon": "workspace:* || ^0.2",
+		"@automattic/jetpack-shared-extension-utils": "workspace:* || ^0.3",
 		"@automattic/popup-monitor": "1.0.0",
 		"@automattic/request-external-access": "1.0.0",
 		"@automattic/social-previews": "1.1.1",
@@ -139,9 +139,9 @@
 	},
 	"devDependencies": {
 		"@automattic/color-studio": "2.5.0",
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.5",
-		"@automattic/remove-asset-webpack-plugin": "workspace:^1.0.3",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.1",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
+		"@automattic/remove-asset-webpack-plugin": "workspace:* || ^1.0",
 		"@babel/core": "7.17.8",
 		"@babel/plugin-proposal-nullish-coalescing-operator": "7.16.7",
 		"@babel/plugin-transform-react-jsx": "7.17.3",
@@ -203,7 +203,7 @@
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

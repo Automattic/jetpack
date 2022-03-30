@@ -14,16 +14,16 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.",
-		"build-js": "echo 'Not implemented.",
-		"build-production": "echo 'Not implemented.",
-		"build-production-js": "echo 'Not implemented.",
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
 		"storybook:build": "build-storybook -s ./public -c ./storybook -o ./docs",
 		"dev:packages": "echo 'TODO dev:packages'",
 		"storybook:dev": "concurrently \"pnpm run dev:packages\" \"start-storybook -c ./storybook -p 50240 -s ./public\""
 	},
 	"devDependencies": {
-		"@automattic/jetpack-components": "workspace:^0.10.12-alpha",
+		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@babel/core": "7.17.8",
 		"@babel/plugin-syntax-jsx": "7.16.7",
 		"@babel/preset-react": "7.16.7",
@@ -60,7 +60,7 @@
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

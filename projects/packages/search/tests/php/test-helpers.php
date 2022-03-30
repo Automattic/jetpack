@@ -608,7 +608,7 @@ class Test_Helpers extends TestCase {
 	 * @dataProvider get_site_has_vip_index_data
 	 */
 	public function test_site_has_vip_index( $expected, $constant = null, $filter = false ) {
-		if ( ! is_null( $constant ) ) {
+		if ( $constant !== null ) {
 			Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $constant );
 		}
 

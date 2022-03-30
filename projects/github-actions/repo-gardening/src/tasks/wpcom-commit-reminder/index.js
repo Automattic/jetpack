@@ -103,7 +103,7 @@ async function wpcomCommitReminder( payload, octokit ) {
 	}
 	// Build our comment body.
 	const comment = `
-Great news! One last step: head over to your WordPress.com diff, ${ diffId[ 0 ] }, and commit it.
+Great news! One last step: head over to your WordPress.com diff, ${ diffId[ 0 ] }, and deploy it.
 Once you've done so, come back to this PR and add a comment with your changeset ID.
 
 **Thank you!**

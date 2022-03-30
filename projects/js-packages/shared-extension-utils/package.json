@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.3.1-alpha",
+	"version": "0.3.2-alpha",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -31,7 +31,7 @@
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {

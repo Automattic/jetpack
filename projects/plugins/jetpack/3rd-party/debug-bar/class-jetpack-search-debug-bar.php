@@ -43,7 +43,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return Jetpack_Search_Debug_Bar
 	 */
 	public static function instance() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Search_Debug_Bar();
 		}
 		return self::$instance;
@@ -116,7 +116,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 			unset( $last_query_info['response'] );
 			unset( $last_query_info['response_code'] );
 
-			if ( is_null( $last_query_info['es_time'] ) ) {
+			if ( $last_query_info['es_time'] === null ) {
 				$last_query_info['es_time'] = esc_html_x(
 					'cache hit',
 					'displayed in search results when results are cached',

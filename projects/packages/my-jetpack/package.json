@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "0.6.12-alpha",
+	"version": "0.6.13-alpha",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -22,9 +22,9 @@
 	},
 	"dependencies": {
 		"@automattic/format-currency": "1.0.0-alpha.0",
-		"@automattic/jetpack-analytics": "workspace:^0.1.8",
-		"@automattic/jetpack-components": "workspace:^0.10.12-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.17.5-alpha",
+		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
+		"@automattic/jetpack-components": "workspace:* || ^0.11",
+		"@automattic/jetpack-connection": "workspace:* || ^0.17",
 		"@wordpress/api-fetch": "6.0.1",
 		"@wordpress/components": "19.5.0",
 		"@wordpress/data": "6.3.0",
@@ -39,8 +39,8 @@
 		"*.scss"
 	],
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.5",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.1",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
 		"@babel/core": "7.17.8",
 		"@babel/preset-env": "7.16.11",
 		"@babel/register": "7.17.7",
@@ -69,7 +69,7 @@
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
