@@ -358,7 +358,7 @@ class Licensing {
 			'jetpack/v4',
 			'licensing/user/activation-notice-dismiss',
 			array(
-				'methods'             => WP_REST_Server::EDITABLE,
+				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::update_licensing_activation_notice_dismiss',
 				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
 				'args'                => array(
@@ -378,7 +378,7 @@ class Licensing {
 			'jetpack/v4',
 			'/licensing/attach-licenses',
 			array(
-				'methods'             => WP_REST_Server::EDITABLE,
+				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::attach_jetpack_licenses',
 				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
 				'args'                => array(
@@ -423,6 +423,62 @@ class Licensing {
 		}
 
 		return new WP_Error( 'invalid_permission_manage_user_licenses', REST_Connector::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that user can view Jetpack admin page.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @return bool Whether user has the capability 'jetpack_admin_page'.
+	 */
+	public static function view_admin_page_permission_check() {
+		if ( current_user_can( 'jetpack_admin_page' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_view_admin', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Validates that the parameter is a string.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string          $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_string( $value, $request, $param ) {
+		if ( ! is_string( $value ) ) {
+			/* translators: %s: The literal parameter name. Should not be translated. */
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a string.', 'jetpack-licensing' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is a non-negative integer (includes 0).
+	 *
+	 * @since 10.4.0
+	 *
+	 * @param int             $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_non_neg_int( $value, $request, $param ) {
+		if ( ! is_numeric( $value ) || $value < 0 ) {
+			return new WP_Error(
+				'invalid_param',
+				/* translators: %s: The literal parameter name. Should not be translated. */
+				sprintf( esc_html__( '%s must be a non-negative integer.', 'jetpack-licensing' ), $param )
+			);
+		}
+		return true;
 	}
 
 	/**
