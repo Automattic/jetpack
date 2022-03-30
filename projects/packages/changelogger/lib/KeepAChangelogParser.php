@@ -178,7 +178,7 @@ class KeepAChangelogParser extends Parser {
 			if ( '[' === $version[0] && ']' === substr( $version, -1 ) ) {
 				$version = substr( $version, 1, -1 );
 				if ( ! isset( $links[ $version ] ) ) {
-					throw new InvalidArgumentException( "Heading seems to have a linked version, but link was not found: $heading" );
+					throw new InvalidArgumentException( "Heading seems to have a linked version, but link was not found: $heading. Please ensure this version has a GitHub compare URL at the end of the CHANGELOG.md." );
 				}
 				$link                  = $links[ $version ];
 				$usedlinks[ $version ] = true;
