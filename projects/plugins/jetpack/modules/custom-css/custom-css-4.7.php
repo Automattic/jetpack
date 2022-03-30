@@ -110,7 +110,7 @@ class Jetpack_Custom_CSS_Enhancements {
 	public static function print_linked_custom_css() {
 		header( 'Content-type: text/css' );
 		header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + YEAR_IN_SECONDS ) . ' GMT' );
-		echo wp_get_custom_css(); // phpcs:ignore
+		echo wp_get_custom_css(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		exit;
 	}
 
