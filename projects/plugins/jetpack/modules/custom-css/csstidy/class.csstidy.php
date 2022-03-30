@@ -559,9 +559,7 @@ class csstidy { // phpcs:ignore
 		$content  = str_replace( "\r\n", "\n", $content ); // Unify newlines (because the output also only uses \n).
 		$template = explode( '|', $content );
 
-		for ( $i = 0; $i < count( $template ); $i++ ) { // phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed, Squiz.PHP.DisallowSizeFunctionsInLoops.Found
-			$this->template[ $i ] = $template[ $i ];
-		}
+		$this->template = array_replace( $this->template, $template );
 	}
 
 	/**
