@@ -55,12 +55,12 @@ class Endpoints {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::get_licensing_error',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'permission_callback' => __CLASS__ . '::can_manage_options_check',
 				),
 				array(
 					'methods'             => \WP_REST_Server::EDITABLE,
 					'callback'            => __CLASS__ . '::update_licensing_error',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'permission_callback' => __CLASS__ . '::can_manage_options_check',
 					'args'                => array(
 						'error' => array(
 							'required'          => true,
@@ -191,14 +191,14 @@ class Endpoints {
 	}
 
 	/**
-	 * Verify that user can view Jetpack admin page.
+	 * Verify that user can manage_options
 	 *
-	 * @since 4.3.0
+	 * @since $$next-version$$
 	 *
-	 * @return bool Whether user has the capability 'jetpack_admin_page'.
+	 * @return bool Whether user has the capability 'manage_options'.
 	 */
-	public static function view_admin_page_permission_check() {
-		if ( current_user_can( 'jetpack_admin_page' ) ) {
+	public static function can_manage_options_check() {
+		if ( current_user_can( 'manage_options' ) ) {
 			return true;
 		}
 
