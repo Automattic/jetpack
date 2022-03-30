@@ -386,7 +386,7 @@ class Endpoints {
 		$last_dismissed_time = ( '' === $request['last_detached_count'] )
 			? $default['last_dismissed_time']
 			// Use UTC timezone and convert to ISO8601 format(DateTime::W3C) for best compatibility with JavaScript Date in all browsers.
-			: ( new DateTime( 'NOW', new DateTimeZone( 'UTC' ) ) )->format( DateTime::W3C );
+			: ( new \DateTime( 'NOW', new \DateTimeZone( 'UTC' ) ) )->format( \DateTime::W3C );
 
 		$notice_data = array(
 			'last_detached_count' => $last_detached_count,
