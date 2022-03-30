@@ -44,29 +44,50 @@ class Autoloader_Debug_Helper {
 	 * Render UI.
 	 */
 	public function render_ui() {
+		$data = $this->get_autoloader_data();
+
 		?>
+		<div class="wrap">
 		<h1>Autoloader Debug Helper 😱!</h1>
 		<p>View current autoloader classmaps and cache settings</p>
 
 		<hr>
 
 		<h2>Active plugins with autoloader data</h2>
-		<pre>
-		<?php
+		<table class="widefat striped health-check-table" role="presentation">
+			<tbody>
+				<?php foreach ( $data['active_plugins'] as $plugin ) : ?>
+					<tr><td><?php echo esc_html( $plugin ); ?></td></tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 
-		$data = $this->get_autoloader_data();
-		print_r( $data['active_plugins'] );
-
-		?>
-		</pre>
 		<h2>Active plugins with cached autoloader data</h2>
-		<pre>
-		<?php
+		<table class="widefat striped health-check-table" role="presentation">
+			<tbody>
+				<?php foreach ( $data['cached_plugins'] as $plugin ) : ?>
+					<tr><td><?php echo esc_html( $plugin ); ?></td></tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 
-		print_r( $data['cached_plugins'] );
+		<h2>Latest plugin by Autoloader logic</h2>
+		<p>This is the Autoloader from the plugin and its version that Autoloader considers the newest
+			and uses to load the classmaps.</p>
 
-		?>
-		</pre>
+		<table class="widefat striped health-check-table" role="presentation">
+			<tbody>
+			<tr>
+				<td>Latest plugin</td>
+				<td><?php echo esc_html( $data['latest_plugin'] ); ?></td>
+			</tr>
+			<tr>
+				<td>Latest plugin version</td>
+				<td><?php echo esc_html( $data['latest_plugin_version'] ); ?></td>
+			</tr>
+			</tbody>
+		</table>
+		</div>
 		<?php
 	}
 
@@ -134,6 +155,19 @@ class Autoloader_Debug_Helper {
 		$plugins_handler        = $container->get( $namespace . '\Plugins_Handler' );
 		$data['active_plugins'] = $plugins_handler->get_active_plugins( true, true );
 		$data['cached_plugins'] = $plugins_handler->get_cached_plugins();
+
+		$plugin_locator         = $container->get( $namespace . '\Plugin_Locator' );
+		$data['current_plugin'] = $plugin_locator->find_current_plugin();
+
+		$autoloader_locator = $container->get( $namespace . '\Autoloader_Locator' );
+		$filename           = basename( $data['current_plugin'] );
+		$plugin_data        = get_plugin_data( $data['current_plugin'] . '/' . $filename . '.php' );
+
+		$data['latest_plugin']         = $autoloader_locator->find_latest_autoloader(
+			$data['active_plugins'],
+			$plugin_data['Version']
+		);
+		$data['latest_plugin_version'] = $plugin_data['Version'];
 
 		return $data;
 	}
