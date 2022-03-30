@@ -50,7 +50,7 @@ function PlanSectionHeader( { purchases } ) {
 					: __( 'Your plans', 'jetpack-my-jetpack' ) }
 			</H3>
 			{ purchases.length === 0 && (
-				<p>{ __( 'The extra power you added to your Jetpack.', 'jetpack-my-jetpack' ) }</p>
+				<p>{ __( 'Want to power up your Jetpack?', 'jetpack-my-jetpack' ) }</p>
 			) }
 		</>
 	);
