@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-licensing",
-	"version": "0.4.12-alpha",
+	"version": "0.4.13-alpha",
 	"description": "Jetpack licensing flow",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -24,11 +24,11 @@
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-test-renderer": "17.0.2",
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10"
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.1"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
@@ -37,8 +37,8 @@
 		"./action-types": "./src/state/action-types"
 	},
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.10.0",
-		"@automattic/jetpack-components": "workspace:^0.10.12-alpha",
+		"@automattic/jetpack-api": "workspace:* || ^0.10",
+		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@wordpress/i18n": "4.3.1",
 		"@wordpress/element": "4.1.1",
 		"prop-types": "15.7.2",
