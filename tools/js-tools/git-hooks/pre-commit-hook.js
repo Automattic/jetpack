@@ -6,6 +6,7 @@ const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
 const fs = require( 'fs' );
+const path = require( 'path' );
 const glob = require( 'glob' );
 let phpcsExcludelist = null;
 let eslintExcludelist = null;
@@ -156,17 +157,62 @@ function capturePreCommitTreeHash() {
 }
 
 /**
- * Run `prettier` over a list of files.
+ * Given a path, and a config filename, returns the "closest" config file in parent directories of the path.
+ *
+ * @param {string} configFileName - The name of the config file to find (e.g.: .prettierrc.js)
+ * @param {string} searchPath - The path to search for the closest config file.
+ * @returns {string} - The path to the closest config file.
+ */
+function findClosestConfigFile( configFileName, searchPath ) {
+	const pathPieces = searchPath.split( '/' );
+
+	for ( let i = pathPieces.length - 1; i >= 0; i-- ) {
+		const configPath = path.join( ...pathPieces.slice( 0, i ), configFileName );
+		if ( fs.existsSync( configPath ) ) {
+			return configPath;
+		}
+	}
+
+	return configFileName;
+}
+
+/**
+ * Given an array of paths, returns an object whose keys are the relevant config file paths, and
+ * whose values are an array of paths which should use the config file.
+ *
+ * @param {string} configFileName - The name of the config file to find (e.g.: .prettierrc.js)
+ * @param {Array} files - The set of files to divide by relevant config file.
+ * @returns {Object} - An object mapping config files to the files which should use them.
+ */
+function groupByClosestConfig( configFileName, files ) {
+	return files.reduce( ( groupedFiles, file ) => {
+		const closestConfig = findClosestConfigFile( configFileName, file );
+
+		if ( ! groupedFiles[ closestConfig ] ) {
+			groupedFiles[ closestConfig ] = [];
+		}
+
+		groupedFiles[ closestConfig ].push( file );
+		return groupedFiles;
+	}, {} );
+}
+
+/**
+ * Run `prettier` over a list of files. Automatically finds the closest prettierrc to apply to each.
  *
  * @param {Array} toPrettify - List of files to prettify.
  */
 function runPrettier( toPrettify ) {
 	if ( toPrettify.length > 0 ) {
-		execSync(
-			`pnpx prettier --config .prettierrc.js --ignore-path .eslintignore --write ${ toPrettify.join(
-				' '
-			) }`
-		);
+		const filesByConfig = groupByClosestConfig( '.prettierrc.js', toPrettify );
+
+		for ( const [ config, files ] of Object.entries( filesByConfig ) ) {
+			execSync(
+				`pnpx prettier --config ${ config } --ignore-path .eslintignore --write ${ files.join(
+					' '
+				) }`
+			);
+		}
 	}
 }
 
