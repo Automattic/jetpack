@@ -274,6 +274,11 @@ class Licensing {
 		return $default;
 	}
 
+	/**
+	 * Declare the endpoints for the licensing package.
+	 *
+	 * @since 10.9.0
+	 */
 	public function register_endpoints() {
 		/*
 		 * Get and update the last licensing error message.
@@ -464,7 +469,7 @@ class Licensing {
 
 		return new WP_Error(
 			'setting_license_key_failed',
-			esc_html__( 'Could not set this license key. Please try again.', 'jetpack' ),
+			esc_html__( 'Could not set this license key. Please try again.', 'jetpack-licensing' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -496,7 +501,7 @@ class Licensing {
 		} else {
 			return new WP_Error(
 				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack-licensing' ),
 				array( 'status' => $response_code )
 			);
 		}
@@ -529,7 +534,7 @@ class Licensing {
 		} else {
 			return new WP_Error(
 				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack-licensing' ),
 				array( 'status' => $response_code )
 			);
 		}
@@ -547,7 +552,7 @@ class Licensing {
 	public static function update_licensing_activation_notice_dismiss( $request ) {
 
 		if ( ! isset( $request['last_detached_count'] ) ) {
-			return new WP_Error( 'invalid_param', esc_html__( 'Missing parameter "last_detached_count".', 'jetpack' ), array( 'status' => 404 ) );
+			return new WP_Error( 'invalid_param', esc_html__( 'Missing parameter "last_detached_count".', 'jetpack-licensing' ), array( 'status' => 404 ) );
 		}
 
 		$default             = array(
