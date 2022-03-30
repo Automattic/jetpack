@@ -76,5 +76,7 @@ module.exports = {
 		],
 
 		'prettier/prettier': 0,
+
+		'@typescript-eslint/no-unused-vars': [ 'warn', { argsIgnorePattern: '^_' } ],
 	},
 };
