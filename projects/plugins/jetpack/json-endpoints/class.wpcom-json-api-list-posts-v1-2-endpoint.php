@@ -107,7 +107,7 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 			if ( 'any' === $args['type'] ) {
 				$whitelisted_post_types = $site->get_whitelisted_post_types();
 
-				if ( isset( $args['exclude_private_types'] ) && true == $args['exclude_private_types'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				if ( ! empty( $args['exclude_private_types'] ) ) {
 					$public_post_types = get_post_types( array( 'public' => true ) );
 					$args['type']      = array_intersect( $public_post_types, $whitelisted_post_types );
 				} else {
