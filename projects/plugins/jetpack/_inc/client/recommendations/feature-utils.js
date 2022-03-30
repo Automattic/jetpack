@@ -71,6 +71,12 @@ export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 				ctaLabel: __( 'Read More', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
 			};
+		case 'anti-spam':
+			return {
+				displayName: __( 'Spam Management', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+			};
 		default:
 			throw `Unknown resource slug in mapStateToSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
 	}
@@ -222,6 +228,18 @@ export const getStepContent = stepSlug => {
 				),
 				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
+			};
+		case 'anti-spam':
+			return {
+				question: __( 'It’s time to block spam comments.', 'jetpack' ),
+				description: __(
+					'Congratulations! Your content is getting traction and receiving comments. The more popular your content is, the more likely it is you will be a target for spam comments. To ensure a great experience for your readers, we recommend manually moderating spam or using an automated product like Jetpack Anti-spam.',
+					'jetpack'
+				),
+				ctaText: __( 'Learn how to block spam', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
 				illustrationPath: '/recommendations/general-illustration.png',
 				rnaIllustration: true,
 			};

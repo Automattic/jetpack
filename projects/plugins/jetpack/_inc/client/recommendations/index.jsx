@@ -69,6 +69,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SECURITY_PLAN:
 			redirectPath = '/security-plan';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.ANTI_SPAM:
+			redirectPath = '/anti-spam';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
@@ -126,6 +129,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/security-plan">
 						<ResourcePrompt stepSlug="security-plan" isNew={ isNew( 'security-plan' ) } />
+					</Route>
+					<Route path="/recommendations/anti-spam">
+						<ResourcePrompt stepSlug="anti-spam" isNew={ isNew( 'anti-spam' ) } />
 					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />

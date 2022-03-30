@@ -23,11 +23,13 @@ class Jetpack_Recommendations {
 
 	const PUBLICIZE_RECOMMENDATION     = 'publicize';
 	const SECURITY_PLAN_RECOMMENDATION = 'security-plan';
+	const ANTI_SPAM_RECOMMENDATION     = 'anti-spam';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
 		self::PUBLICIZE_RECOMMENDATION,
 		self::SECURITY_PLAN_RECOMMENDATION,
+		self::ANTI_SPAM_RECOMMENDATION,
 	);
 
 	/**
@@ -124,6 +126,9 @@ class Jetpack_Recommendations {
 
 		// Monitor for activating a new plugin.
 		add_action( 'activated_plugin', array( get_called_class(), 'plugin_activated' ), 10 );
+
+		// Monitor for the addition of a new comment.
+		add_action( 'comment_post', array( get_called_class(), 'comment_added' ), 10, 3 );
 	}
 
 	/**
@@ -204,6 +209,31 @@ class Jetpack_Recommendations {
 	}
 
 	/**
+	 * Runs when a new comment is added.
+	 *
+	 * @param integer $comment_id The ID of the comment that was added.
+	 * @param bool    $comment_approved Whether or not the comment is approved.
+	 * @param array   $commentdata Comment data.
+	 */
+	public static function comment_added( $comment_id, $comment_approved, $commentdata ) {
+		if ( is_plugin_active( 'akismet/akismet.php' ) || self::is_conditional_recommendation_enabled( self::ANTI_SPAM_RECOMMENDATION ) ) {
+			return;
+		}
+
+		if ( isset( $commentdata['comment_post_ID'] ) ) {
+			$post_id = $commentdata['comment_post_ID'];
+		} else {
+			$comment = get_comment( $comment_id );
+			$post_id = $comment->comment_post_ID;
+		}
+		$comment_count = get_comments_number( $post_id );
+
+		if ( intval( $comment_count ) >= 5 ) {
+			self::enable_conditional_recommendation( self::ANTI_SPAM_RECOMMENDATION );
+		}
+	}
+
+	/**
 	 * Enable a recommendation.
 	 *
 	 * @param string $recommendation_name The name of the recommendation to enable.
@@ -239,6 +269,17 @@ class Jetpack_Recommendations {
 			array_splice( $conditional_recommendations, $recommendation_index, 1 );
 			Jetpack_Options::update_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, $conditional_recommendations );
 		}
+	}
+
+	/**
+	 * Check to see if a recommendation is enabled or not.
+	 *
+	 * @param string $recommendation_name The name of the recommendation to check for.
+	 * @return bool
+	 */
+	public static function is_conditional_recommendation_enabled( $recommendation_name ) {
+		$conditional_recommendations = Jetpack_Options::get_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, array() );
+		return in_array( $recommendation_name, $conditional_recommendations, true );
 	}
 
 	/**
