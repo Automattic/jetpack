@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Updates the jetpack_pre_deactivate_module hook used in JP to act the same as the pre_activate.
-
-

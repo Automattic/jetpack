@@ -88,16 +88,6 @@ if ( ! is_readable( $autoload_packages_path ) ) {
 }
 
 /**
- * Extra tweaks to make Jetpack Search play well with others.
- */
-function include_compatibility_files() {
-	if ( class_exists( 'Jetpack' ) ) {
-		require_once __DIR__ . '/compatibility/jetpack.php';
-	}
-}
-add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
-
-/**
  * Setup autoloading
  */
 require_once $autoload_packages_path;

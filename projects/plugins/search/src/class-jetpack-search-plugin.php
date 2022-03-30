@@ -53,7 +53,7 @@ class Jetpack_Search_Plugin {
 	public static function initialize() {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
-		// Ininitialize My Jetpack.
+		// Initialize My Jetpack.
 		My_Jetpack_Initializer::init();
 	}
 }
