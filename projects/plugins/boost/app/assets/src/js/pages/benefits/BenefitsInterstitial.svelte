@@ -39,7 +39,7 @@
 						'jetpack-boost'
 					)}
 				</p>
-				<ul class="jb-checklist">
+				<ul class="jb-checklist my-2">
 					<li>{__( 'Automatic critical CSS regeneration', 'jetpack-boost' )}</li>
 					<li>{__( 'Performance scores are recalculated after each change', 'jetpack-boost' )}</li>
 					<li>{__( 'Dedicated email support', 'jetpack-boost' )}</li>

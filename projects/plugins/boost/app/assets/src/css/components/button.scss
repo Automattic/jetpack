@@ -30,6 +30,8 @@
 }
 
 .jb-button {
+  min-width: 135px !important;
+
   &--primary {
   	color: var(--jp-white)!important
   }
