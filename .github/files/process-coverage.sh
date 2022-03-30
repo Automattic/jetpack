@@ -15,12 +15,11 @@ tar --owner=0 --group=0 --xz -cvvf artifacts/coverage.tar.xz coverage
 echo '::endgroup::'
 
 for SLUG in $(echo $CHANGED | jq -r 'keys[]'); do
-echo ./coverage/$SLUG
 if [[ -d "./coverage/$SLUG" ]]
+FLAG=$($SLUG | tr / _)
 then
-    echo "./coverage/$SLUG exists on your filesystem."
 		echo "::group::Send $SLUG coverage to codecov.io"
-		bash <(curl -s https://codecov.io/bash) -s ./coverage/$SLUG -F $SLUG || echo "Codecov failed to upload $SLUG"
+		bash <(curl -s https://codecov.io/bash) -s ./coverage/$SLUG -F $FLAG || echo "Codecov failed to upload $FLAG"
 		echo '::endgroup::'
 fi
 done
