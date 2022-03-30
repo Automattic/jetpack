@@ -54,6 +54,7 @@ const CRMPluginIsInstalling = ( { isActivating } ) => {
 			icon={ <Icon style={ { animation: 'rotation 2s infinite linear' } } icon="update" /> }
 			disabled
 			aria-label={ btnTxt }
+			style={ { marginTop: '1em' } }
 		>
 			{ btnTxt }
 		</Button>
@@ -62,7 +63,11 @@ const CRMPluginIsInstalling = ( { isActivating } ) => {
 
 const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } ) => {
 	let button = (
-		<Button variant="secondary" onClick={ installAndActivateCRMPlugin }>
+		<Button
+			variant="secondary"
+			onClick={ installAndActivateCRMPlugin }
+			style={ { marginTop: '1em' } }
+		>
 			{ __( 'Install Jetpack CRM', 'jetpack' ) }
 		</Button>
 	);
