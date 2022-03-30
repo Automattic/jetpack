@@ -17,7 +17,7 @@
  */
 function jetpack_load_custom_css() {
 	// If WordPress has the core version of Custom CSS, load our new version.
-	// @see https://core.trac.wordpress.org/changeset/38829.
+	// @see https://core.trac.wordpress.org/changeset/38829
 	if ( function_exists( 'wp_get_custom_css' ) ) {
 		if ( ! function_exists( 'wp_update_custom_css_post' ) ) {
 			wp_die( 'Please run a SVN up to get the latest version of trunk, or update to at least 4.7 RC1' );
