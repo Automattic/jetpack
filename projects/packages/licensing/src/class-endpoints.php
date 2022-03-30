@@ -413,6 +413,6 @@ class Endpoints {
 			},
 			$request['licenses']
 		);
-		return rest_ensure_response( self::instance()->attach_licenses( $licenses ) );
+		return rest_ensure_response( Licensing::instance()->attach_licenses( $licenses ) );
 	}
 }
