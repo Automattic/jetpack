@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Updated the Membership endpoints to contain the newly added "public" property.

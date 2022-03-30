@@ -81,6 +81,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'type'     => 'string',
 							'required' => true,
 						),
+						'public'   => array(
+							'type' => 'boolean',
+						),
 					),
 				),
 			)
@@ -115,6 +118,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function create_product( $request ) {
+		$public = isset( $request['public'] ) ? (bool) $request['public'] : null;
+		$type   = isset( $request['type'] ) ? $request['type'] : null;
+
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			jetpack_require_lib( 'memberships' );
 			$connected_destination_account_id = Jetpack_Memberships::get_connected_account_id();
@@ -129,6 +135,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'currency'                         => $request['currency'],
 					'interval'                         => $request['interval'],
 					'connected_destination_account_id' => $connected_destination_account_id,
+					'type'                             => $type,
+					'public'                           => $public,
 				)
 			);
 			if ( is_wp_error( $product ) ) {
@@ -148,6 +156,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'price'    => $request['price'],
 					'currency' => $request['currency'],
 					'interval' => $request['interval'],
+					'type'     => $type,
+					'public'   => $public,
 				)
 			);
 			if ( is_wp_error( $response ) ) {
@@ -175,13 +185,17 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function create_products( $request ) {
+		$public = isset( $request['public'] ) ? (bool) $request['public'] : null;
+
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			jetpack_require_lib( 'memberships' );
 			$connected_destination_account_id = Jetpack_Memberships::get_connected_account_id();
 			if ( ! $connected_destination_account_id ) {
 				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
 			}
-			$result = Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $request['currency'], $connected_destination_account_id );
+
+			$result = Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $request['currency'], $connected_destination_account_id, $public );
+
 			if ( is_wp_error( $result ) ) {
 				$status = 'invalid_param' === $result->get_error_code() ? 400 : 500;
 				return new WP_Error( $result->get_error_code(), $result->get_error_message(), array( 'status' => $status ) );
@@ -198,6 +212,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				array(
 					'type'     => $request['type'],
 					'currency' => $request['currency'],
+					'public'   => $public,
 				)
 			);
 			if ( is_wp_error( $response ) ) {
@@ -227,10 +242,12 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
 		$source       = $request['source'];
+		$public       = ! isset( $request['public'] ) ? null : (bool) $request['public'];
+
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			jetpack_require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
-			return (array) get_memberships_settings_for_site( $blog_id, $product_type );
+			return (array) get_memberships_settings_for_site( $blog_id, $product_type, $public );
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$path    = "/sites/$blog_id/{$this->rest_base}/status";
@@ -239,6 +256,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					array(
 						'type'   => $product_type,
 						'source' => $source,
+						'public' => $public,
 					),
 					$path
 				);
