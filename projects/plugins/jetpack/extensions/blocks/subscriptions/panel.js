@@ -6,7 +6,7 @@ import { createInterpolateElement, useEffect, useState } from '@wordpress/elemen
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { isAtomicSite, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -27,8 +27,9 @@ export default function SubscribePanels() {
 		return null;
 	}
 
-	// Subscriptions will not be triggered on WoA's private sites.
-	if ( isAtomicSite() && isPrivateSite() ) {
+	// Subscriptions will not be triggered on private sites (on WordPress.com simple and WoA),
+	// nor on sites that have not been launched yet.
+	if ( isPrivateSite() || isComingSoon() ) {
 		return null;
 	}
 
