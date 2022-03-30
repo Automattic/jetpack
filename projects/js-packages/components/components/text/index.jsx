@@ -22,6 +22,16 @@ export const VARIANTS_MAPPING = {
 	label: 'p',
 };
 
+export const TIPOGRAPHY_WEIGHTS = {
+	regular: 'regular',
+	bold: 'bold',
+};
+
+export const TIPOGRAPHY_SIZES = {
+	medium: 'medium',
+	small: 'small',
+};
+
 const Text = ( { variant, children, component, className, ...componentProps } ) => {
 	const Component = component || VARIANTS_MAPPING[ variant ] || 'span';
 	const componentClassName = classNames( styles[ variant ], className );
@@ -48,3 +58,80 @@ Text.defaultProps = {
 };
 
 export default Text;
+
+/**
+ * Heading component - Medium size.
+ *
+ * @param {object} props                   - Component props.
+ * @param {React.Component} props.children - Heading component children.
+ * @returns {React.Component}                Headline Medium size instance.
+ */
+export const H2 = ( { children } ) => <Text variant="headline-medium">{ children }</Text>;
+
+H2.propTypes = {
+	/** The text itself that will be rendered. */
+	children: PropTypes.node,
+};
+
+H2.defaultProps = {
+	children: null,
+};
+
+/**
+ * Heading component - Small size,
+ * based on Text component.
+ *
+ * @param {object} props                   - Component props.
+ * @param {string} props.weight            - Font weight: 'bold' (default) | 'regular'.
+ * @param {React.Component} props.children - Heading component children.
+ * @returns {React.Component}                Headline Small size instance.
+ */
+export const H3 = ( { children, weight = 'bold' } ) => {
+	weight = weight === 'bold' ? '' : weight;
+
+	return (
+		<Text
+			variant={ `headline-small${ weight?.length ? `-${ weight }` : '' }` }
+			className={ styles[ 'headline-small' ] }
+		>
+			{ children }
+		</Text>
+	);
+};
+
+H3.propTypes = {
+	/** Font weight: bold | regular  */
+	weight: PropTypes.oneOf( Object.values( TIPOGRAPHY_WEIGHTS ) ),
+	/** The text itself that will be rendered. */
+	children: PropTypes.node,
+};
+
+H3.defaultProps = {
+	weight: TIPOGRAPHY_WEIGHTS.bold,
+	children: null,
+};
+
+/**
+ * Title component, based on Text component.
+ *
+ * @param {object} props                   - Component props.
+ * @param {React.Component} props.size     - Heading size: 'medium' (default) | 'small'.
+ * @param {React.Component} props.children - Heading component children.
+ * @returns {React.Component}                Headline level 2 component instance.
+ */
+export const Title = ( { children, size = 'medium' } ) => (
+	<Text variant={ `title-${ size }` } className={ styles[ `title-${ size }` ] }>
+		{ children }
+	</Text>
+);
+
+Title.propTypes = {
+	/** Font size: medium | small  */
+	size: PropTypes.oneOf( Object.values( TIPOGRAPHY_SIZES ) ),
+	/** The text itself that will be rendered. */
+	children: PropTypes.node,
+};
+
+Title.defaultProps = {
+	size: TIPOGRAPHY_SIZES.medium,
+};
