@@ -39,7 +39,7 @@ class Jetpack_SEO_Utils {
 			return false;
 		}
 
-		// For WPcom sites.
+		// For WPcom simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && method_exists( 'Jetpack_Plan', 'supports' ) ) {
 			return Jetpack_Plan::supports( 'advanced-seo' );
 		}
