@@ -42,7 +42,9 @@ class Endpoints {
 	/**
 	 * Declare the endpoints for the licensing package.
 	 *
-	 * @since 10.9.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 10.9.0
 	 */
 	public function register_endpoints() {
 		/*
@@ -73,6 +75,11 @@ class Endpoints {
 			)
 		);
 
+		/**
+		 * Sets a license. This is still used as part of the first pass at licensing done for partners.
+		 *
+		 * See https://github.com/Automattic/jetpack/pull/23687 for more details.
+		 */
 		register_rest_route(
 			'jetpack/v4',
 			'/licensing/set-license',
@@ -90,6 +97,7 @@ class Endpoints {
 				),
 			)
 		);
+
 		/**
 		 * Get Jetpack user licenses.
 		 */
@@ -162,7 +170,9 @@ class Endpoints {
 	/**
 	 * Verify that the user can set a Jetpack license key
 	 *
-	 * @since 9.5.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 9.5.0
 	 *
 	 * @return bool|WP_Error True if user is able to set a Jetpack license key
 	 */
@@ -177,6 +187,8 @@ class Endpoints {
 
 	/**
 	 * Verify that user can view and update user-licensing data.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return bool Whether the user is currently connected and they are the connection owner.
 	 */
@@ -208,7 +220,9 @@ class Endpoints {
 	/**
 	 * Validates that the parameter is a string.
 	 *
-	 * @since 4.3.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 4.3.0
 	 *
 	 * @param string          $value Value to check.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
@@ -227,7 +241,9 @@ class Endpoints {
 	/**
 	 * Validates that the parameter is a non-negative integer (includes 0).
 	 *
-	 * @since 10.4.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 10.4.0
 	 *
 	 * @param int             $value Value to check.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
@@ -249,7 +265,9 @@ class Endpoints {
 	/**
 	 * Update the last licensing error message.
 	 *
-	 * @since 9.0.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 9.0.0
 	 *
 	 * @param WP_REST_Request $request The request.
 	 *
@@ -264,7 +282,9 @@ class Endpoints {
 	/**
 	 * Get the last licensing error message, if any.
 	 *
-	 * @since 9.0.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 9.0.0
 	 *
 	 * @return string Licensing error message or empty string.
 	 */
@@ -275,7 +295,9 @@ class Endpoints {
 	/**
 	 * Set a Jetpack license
 	 *
-	 * @since 9.6.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 9.6.0
 	 *
 	 * @param WP_REST_Request $request The request.
 	 *
@@ -298,7 +320,9 @@ class Endpoints {
 	/**
 	 * Gets the users licenses.
 	 *
-	 * @since 10.4.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 10.4.0
 	 *
 	 * @return string|WP_Error A JSON object of user licenses if the request was successful, or a WP_Error otherwise.
 	 */
@@ -331,7 +355,9 @@ class Endpoints {
 	/**
 	 * Gets the users licenses counts.
 	 *
-	 * @since 10.4.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 10.4.0
 	 *
 	 * @return string|WP_Error A JSON object of user license counts if the request was successful, or a WP_Error otherwise.
 	 */
@@ -364,7 +390,9 @@ class Endpoints {
 	/**
 	 * Update the user-licenses activation notice dismissal data.
 	 *
-	 * @since 10.4.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 10.4.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -400,7 +428,9 @@ class Endpoints {
 	/**
 	 * Attach Jetpack licenses
 	 *
-	 * @since 10.4.0
+	 * @since $$next-version$$
+	 *
+	 * @since-jetpack 10.4.0
 	 *
 	 * @param WP_REST_Request $request The request.
 	 *

@@ -69,6 +69,8 @@ class Licensing {
 	/**
 	 * Initialize endpoints required for Licensing package.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
 	public function initialize_endpoints() {
