@@ -50,5 +50,5 @@ export function isPrivateSite() {
  */
 export function isComingSoon() {
 	const jetpackData = getJetpackData();
-	return jetpackData?.jetpack?.is_coming_soon ?? true;
+	return jetpackData?.jetpack?.is_coming_soon ?? false;
 }
