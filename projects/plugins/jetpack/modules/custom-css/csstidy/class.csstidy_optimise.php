@@ -295,7 +295,7 @@ class csstidy_optimise { // phpcs:ignore
 		if ( strtolower( substr( $color, 0, 4 ) ) === 'rgb(' ) {
 			$color_tmp = substr( $color, 4, strlen( $color ) - 5 );
 			$color_tmp = explode( ',', $color_tmp );
-			for ( $i = 0; $i < count( $color_tmp ); $i++ ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found, Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
+			for ( $i = 0, $l = count( $color_tmp ); $i < $l; $i++ ) {
 				$color_tmp[ $i ] = trim( $color_tmp[ $i ] );
 				if ( substr( $color_tmp[ $i ], -1 ) === '%' ) {
 					$color_tmp[ $i ] = round( ( 255 * $color_tmp[ $i ] ) / 100 );
