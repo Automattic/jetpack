@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.10.1 - 2022-03-29
+### Changed
+- Updated package dependencies.
+
 ## 0.10.0 - 2022-03-23
 ### Added
 - New API which returns the list of licenses from WPCOM

@@ -38,7 +38,7 @@ class DashCRM extends Component {
 				pluginLink={ this.props.siteAdminUrl + CRM_PLUGIN_DASH }
 				installOrActivatePrompt={ createInterpolateElement(
 					__(
-						'Sell more and get more leads with the Jetpack CRM plugin built specifically for WordPress.<br /><ExternalLink>Learn more</ExternalLink>',
+						'Sell more and get more leads with the free Jetpack CRM plugin built specifically for WordPress.<br /><ExternalLink>Learn more</ExternalLink>',
 						'jetpack'
 					),
 					{

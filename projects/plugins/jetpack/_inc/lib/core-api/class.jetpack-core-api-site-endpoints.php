@@ -6,7 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Initializer;
+
 /**
  * This is the endpoint class for `/site` endpoints.
  */
@@ -282,10 +282,10 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
-		if ( Jetpack::is_module_active( 'search' ) && ! Jetpack::is_plugin_active( 'search/jetpack-search.php' ) && class_exists( Jetpack_Search_Initializer::class ) ) {
+		if ( Jetpack::is_module_active( 'search' ) && ! class_exists( 'Automattic\\Jetpack\\Search_Plugin\\Jetpack_Search_Plugin' ) ) {
 			$benefits[] = array(
 				'name'        => 'search',
-				'title'       => esc_html__( 'Jetpack Search', 'jetpack' ),
+				'title'       => esc_html__( 'Search', 'jetpack' ),
 				'description' => esc_html__( 'Help your visitors find exactly what they are looking for, fast', 'jetpack' ),
 			);
 		}

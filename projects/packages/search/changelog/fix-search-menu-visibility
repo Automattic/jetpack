@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: fixed search submenu is shown because compatibility file is loaded too late
