@@ -8,12 +8,54 @@ import React from 'react';
  */
 import Button from '../index.jsx';
 
+const DisableVariant = {
+	variant: {
+		table: {
+			disable: true,
+		},
+	},
+};
+
+const DisableDisabled = {
+	disabled: {
+		table: {
+			disable: true,
+		},
+	},
+};
+
+const DisableIsDestructive = {
+	isDestructive: {
+		table: {
+			disable: true,
+		},
+	},
+};
+
+const DisableIsLoading = {
+	isLoading: {
+		table: {
+			disable: true,
+		},
+	},
+};
+
+const DisableIcon = {
+	icon: {
+		table: {
+			disable: true,
+		},
+	},
+};
+
 export default {
 	title: 'JS Packages/Components/Button',
 	component: Button,
 	argTypes: {
-		icon: {
-			control: false,
+		className: {
+			table: {
+				disable: true,
+			},
 		},
 	},
 	parameters: {
@@ -23,16 +65,16 @@ export default {
 	},
 };
 
-const VariantDisabled = {
-	variant: {
-		control: false,
-	},
-};
-
 const Template = args => <Button { ...args } />;
 
 export const ButtonPrimary = Template.bind( {} );
-ButtonPrimary.argTypes = VariantDisabled;
+ButtonPrimary.argTypes = {
+	...DisableVariant,
+	...DisableDisabled,
+	...DisableIcon,
+	...DisableIsLoading,
+	...DisableIsDestructive,
+};
 ButtonPrimary.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
@@ -40,7 +82,13 @@ ButtonPrimary.args = {
 };
 
 export const ButtonSecondary = Template.bind( {} );
-ButtonSecondary.argTypes = VariantDisabled;
+ButtonSecondary.argTypes = {
+	...DisableVariant,
+	...DisableDisabled,
+	...DisableIcon,
+	...DisableIsLoading,
+	...DisableIsDestructive,
+};
 ButtonSecondary.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
@@ -48,7 +96,13 @@ ButtonSecondary.args = {
 };
 
 export const ButtonLink = Template.bind( {} );
-ButtonLink.argTypes = VariantDisabled;
+ButtonLink.argTypes = {
+	...DisableVariant,
+	...DisableDisabled,
+	...DisableIcon,
+	...DisableIsLoading,
+	...DisableIsDestructive,
+};
 ButtonLink.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
@@ -56,7 +110,13 @@ ButtonLink.args = {
 };
 
 export const ButtonExternalLink = Template.bind( {} );
-ButtonExternalLink.argTypes = VariantDisabled;
+ButtonExternalLink.argTypes = {
+	...DisableVariant,
+	...DisableDisabled,
+	...DisableIcon,
+	...DisableIsLoading,
+	...DisableIsDestructive,
+};
 ButtonExternalLink.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
@@ -64,6 +124,11 @@ ButtonExternalLink.args = {
 };
 
 export const Icon = Template.bind( {} );
+Icon.argTypes = {
+	...DisableDisabled,
+	...DisableIsLoading,
+	...DisableIsDestructive,
+};
 Icon.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
@@ -73,9 +138,9 @@ Icon.args = {
 
 export const Disabled = Template.bind( {} );
 Disabled.argTypes = {
-	disabled: {
-		control: false,
-	},
+	...DisableDisabled,
+	...DisableIsDestructive,
+	...DisableIsLoading,
 };
 Disabled.args = {
 	size: 'normal',
@@ -86,9 +151,9 @@ Disabled.args = {
 
 export const Destructive = Template.bind( {} );
 Destructive.argTypes = {
-	isDestructive: {
-		control: false,
-	},
+	...DisableIsDestructive,
+	...DisableIsLoading,
+	...DisableDisabled,
 };
 Destructive.args = {
 	size: 'normal',
@@ -99,9 +164,9 @@ Destructive.args = {
 
 export const Loading = Template.bind( {} );
 Loading.argTypes = {
-	isLoading: {
-		control: false,
-	},
+	...DisableIsDestructive,
+	...DisableIsLoading,
+	...DisableDisabled,
 };
 Loading.args = {
 	size: 'normal',
