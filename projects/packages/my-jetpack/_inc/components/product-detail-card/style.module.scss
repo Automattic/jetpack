@@ -6,6 +6,8 @@
 
 	.container {
 		height: 100%;
+		display: flex;
+		flex-direction: column;
 	}
 }
 
@@ -69,6 +71,8 @@
 .features {
 	margin: 0;
 	padding: 0;
+	flex-grow: 1;
+	margin-bottom: calc( var( --spacing-base ) * 2 );
 
 	li {
 		list-style: none;
@@ -88,6 +92,7 @@
 	flex-wrap: wrap;
 	align-items: flex-end;
 	color: var( --jp-text-color);
+	margin-bottom: calc( var( --spacing-base ) * 3 );
 }
 
 .price {
