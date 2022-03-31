@@ -96,3 +96,16 @@ Destructive.args = {
 	variant: 'primary',
 	isDestructive: true,
 };
+
+export const Loading = Template.bind( {} );
+Loading.argTypes = {
+	isLoading: {
+		control: false,
+	},
+};
+Loading.args = {
+	size: 'normal',
+	children: 'Jetpack Button',
+	variant: 'primary',
+	isLoading: true,
+};
