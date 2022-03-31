@@ -26,23 +26,26 @@ test.describe.serial( 'Modules', () => {
 
 	modules.forEach( ( [ moduleSlug, moduleState ] = module ) => {
 		test( `The ${ moduleSlug } module should be ${ moduleState } by default`, async () => {
-			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual(
-				moduleState === 'enabled'
-			);
+			expect(
+				await jetpackBoostPage.isModuleEnabled( moduleSlug ),
+				`${ moduleSlug } should be enabled`
+			).toEqual( moduleState === 'enabled' );
 		} );
 
 		test( `The ${ moduleSlug } module state should toggle to an inverse state`, async () => {
 			await jetpackBoostPage.toggleModule( moduleSlug );
-			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual(
-				moduleState !== 'enabled'
-			);
+			expect(
+				await jetpackBoostPage.isModuleEnabled( moduleSlug ),
+				`${ moduleSlug } should not be enabled`
+			).toEqual( moduleState !== 'enabled' );
 		} );
 
 		test( `The ${ moduleSlug } module state should revert back to original state`, async () => {
 			await jetpackBoostPage.toggleModule( moduleSlug );
-			expect( await jetpackBoostPage.isModuleEnabled( moduleSlug ) ).toEqual(
-				moduleState === 'enabled'
-			);
+			expect(
+				await jetpackBoostPage.isModuleEnabled( moduleSlug ),
+				`${ moduleSlug } should be enabled`
+			).toEqual( moduleState === 'enabled' );
 		} );
 	} );
 } );

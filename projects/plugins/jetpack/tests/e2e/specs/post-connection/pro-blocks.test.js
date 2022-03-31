@@ -47,7 +47,10 @@ test.describe( 'Paid blocks', () => {
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
 			const frontend = await PostFrontendPage.init( page );
-			expect( await frontend.isRenderedBlockPresent( MailchimpBlock ) ).toBeTruthy();
+			expect(
+				await frontend.isRenderedBlockPresent( MailchimpBlock ),
+				'Block is present in post view'
+			).toBeTruthy();
 		} );
 	} );
 
@@ -73,7 +76,10 @@ test.describe( 'Paid blocks', () => {
 				await blockEditor.publishPost();
 				await blockEditor.viewPost();
 				const frontend = await PostFrontendPage.init( page );
-				expect( await frontend.isRenderedBlockPresent( SimplePaymentBlock ) ).toBeTruthy();
+				expect(
+					await frontend.isRenderedBlockPresent( SimplePaymentBlock ),
+					'Block is present in post view'
+				).toBeTruthy();
 			}
 		);
 	} );
@@ -101,7 +107,10 @@ test.describe( 'Paid blocks', () => {
 			await blockEditor.viewPost();
 
 			const frontend = await PostFrontendPage.init( page );
-			expect( await frontend.isRenderedBlockPresent( WordAdsBlock ) ).toBeTruthy();
+			expect(
+				await frontend.isRenderedBlockPresent( WordAdsBlock ),
+				'Block is present in post view'
+			).toBeTruthy();
 		} );
 	} );
 } );
