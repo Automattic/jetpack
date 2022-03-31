@@ -117,12 +117,16 @@ abstract class SAL_Post {
 	/**
 	 * Defining a base get_like_count() function to be extended in the Jetpack_Post class.
 	 *
+	 * This will define a default value for the like counts on a post, if this hasn't been defined yet.
+	 *
 	 * @see class.json-api-post-jetpack.php
 	 */
 	abstract public function get_like_count();
 
 	/**
 	 * Defining a base is_liked() function to be extended in the Jetpack_Post class.
+	 *
+	 * This will define a default value for whether or not the current user likes this post, if this hasn't been defined yet.
 	 *
 	 * @see class.json-api-post-jetpack.php
 	 */
@@ -131,12 +135,16 @@ abstract class SAL_Post {
 	/**
 	 * Defining a base is_reblogged() function to be extended in the Jetpack_Post class.
 	 *
+	 * This will define a default value for whether or not the current user reblogged this post, if this hasn't been defined yet.
+	 *
 	 * @see class.json-api-post-jetpack.php
 	 */
 	abstract public function is_reblogged();
 
 	/**
 	 * Defining a base is_following() function to be extended in the Jetpack_Post class.
+	 *
+	 * This will define a default value for whether or not the current user is following this blog, if this hasn't been defined yet.
 	 *
 	 * @see class.json-api-post-jetpack.php
 	 */
@@ -145,12 +153,16 @@ abstract class SAL_Post {
 	/**
 	 * Defining a base get_global_id() function to be extended in the Jetpack_Post class.
 	 *
+	 * This will define the unique WordPress.com-wide representation of a post, if this hasn't been defined yet.
+	 *
 	 * @see class.json-api-post-jetpack.php
 	 */
 	abstract public function get_global_id();
 
 	/**
 	 * Defining a base get_geo() function to be extended in the Jetpack_Post class.
+	 *
+	 * This will define a default value for whether or not there is gelocation data for this post, if this hasn't been defined yet.
 	 *
 	 * @see class.json-api-post-jetpack.php
 	 */
