@@ -176,7 +176,7 @@ class csstidy_optimise { // phpcs:ignore
 		$replace_colors = & $GLOBALS['csstidy']['replace_colors'];
 
 		$this->sub_value = trim( $this->sub_value );
-		if ( $this->sub_value == '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- caution : '0'.
+		if ( $this->sub_value === '' ) {
 			return;
 		}
 
@@ -240,25 +240,25 @@ class csstidy_optimise { // phpcs:ignore
 		$values = explode( ' ', $values );
 		switch ( count( $values ) ) {
 			case 4:
-				if ( $values[0] == $values[1] && $values[0] == $values[2] && $values[0] == $values[3] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				if ( $values[0] === $values[1] && $values[0] === $values[2] && $values[0] === $values[3] ) {
 					return $values[0] . $important;
-				} elseif ( $values[1] == $values[3] && $values[0] == $values[2] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				} elseif ( $values[1] === $values[3] && $values[0] === $values[2] ) {
 					return $values[0] . ' ' . $values[1] . $important;
-				} elseif ( $values[1] == $values[3] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				} elseif ( $values[1] === $values[3] ) {
 					return $values[0] . ' ' . $values[1] . ' ' . $values[2] . $important;
 				}
 				break;
 
 			case 3:
-				if ( $values[0] == $values[1] && $values[0] == $values[2] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				if ( $values[0] === $values[1] && $values[0] === $values[2] ) {
 					return $values[0] . $important;
-				} elseif ( $values[0] == $values[2] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				} elseif ( $values[0] === $values[2] ) {
 					return $values[0] . ' ' . $values[1] . $important;
 				}
 				break;
 
 			case 2:
-				if ( $values[0] == $values[1] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				if ( $values[0] === $values[1] ) {
 					return $values[0] . $important;
 				}
 				break;
