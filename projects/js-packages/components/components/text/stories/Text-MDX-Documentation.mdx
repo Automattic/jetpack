@@ -80,7 +80,26 @@ Prop | Description
 
 **Type**: `elementType`, `string`.
 
-Force an specific tag (`<span />`, `<div />`) or use a custom component that will receive className and children.
+Force an specific tag (`"span"`, `"div"`) or use a custom component that will receive className and children.
+
+The example below renders the component with a `<span />` element.
+
+<Source
+  language='jsx'
+  code={dedent`
+    import Text from '@automattic/jetpack-components';
+    function SpanTextComponent() {
+      return (
+        <Text component="span" variant="title-medium">
+          Never underestimate the span element
+        </Text>
+      );
+    }
+  `}
+/>
+
+The following example shows how to define the typography and the margin for a Custom component.
+The className is passed down to the custom component, while the properties that belong to the Text component (in this case, `component`, `variant` and `mb`) are not.
 
 <Source
   language='jsx'
@@ -99,8 +118,10 @@ Force an specific tag (`<span />`, `<div />`) or use a custom component that wil
     function CustomTextComponent() {
       return (
         <Text
-          className="custom-classname"
           component={ CustomComponent }
+          className="custom-classname"
+          variant="title-medium"
+          mb={ 3 }
         >
           Hello, Custom Text component!
         </Text>
@@ -109,7 +130,7 @@ Force an specific tag (`<span />`, `<div />`) or use a custom component that wil
   `}
 />
 
-[Custom Tag story](.?path=/story/js-packages-components-text--custom-tag) and [Custom Component story](.?path=/story/js-packages-components-text--custom-component)
+[▶️ Custom Tag story](.?path=/story/js-packages-components-text--custom-tag) and [▶️ Custom Component story](.?path=/story/js-packages-components-text--custom-component)
 
 #### Children
 
