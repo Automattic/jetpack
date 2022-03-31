@@ -844,7 +844,7 @@ class csstidy { // phpcs:ignore
 							}
 
 							$this->value = array_shift( $this->sub_value_arr );
-							while ( count( $this->sub_value_arr ) ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found
+							while ( $this->sub_value_arr ) {
 								$this->value .= ' ' . array_shift( $this->sub_value_arr );
 							}
 
