@@ -709,7 +709,7 @@ class csstidy { // phpcs:ignore
 						}
 					} else {
 						$lastpos = strlen( $this->selector ) - 1;
-						if ( -1 == $lastpos || ! ( ( ctype_space( $this->selector[ $lastpos ] ) || self::is_token( $this->selector, $lastpos ) && ',' === $this->selector[ $lastpos ] ) && ctype_space( $string[ $i ] ) ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+						if ( -1 === $lastpos || ! ( ( ctype_space( $this->selector[ $lastpos ] ) || self::is_token( $this->selector, $lastpos ) && ',' === $this->selector[ $lastpos ] ) && ctype_space( $string[ $i ] ) ) ) {
 							$this->selector .= $string[ $i ];
 						} elseif ( ctype_space( $string[ $i ] ) && $this->get_cfg( 'preserve_css' ) && ! $this->get_cfg( 'merge_selectors' ) ) {
 							$this->selector .= $string[ $i ];
@@ -726,7 +726,7 @@ class csstidy { // phpcs:ignore
 								$this->property = $this->css_new_property( $this->at, $this->selector, $this->property );
 								$this->_add_token( PROPERTY, $this->property );
 							}
-						} elseif ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] && '' == $this->property ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.PHP.NoSilencedErrors.Discouraged
+						} elseif ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] && '' === $this->property ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 							$this->status = 'ic';
 							++$i;
 							$this->from[] = 'ip';
@@ -741,7 +741,7 @@ class csstidy { // phpcs:ignore
 							$this->property = '';
 						} elseif ( '\\' === $string[ $i ] ) {
 							$this->property .= $this->_unicode( $string, $i );
-						} elseif ( '' == $this->property && ! ctype_space( $string[ $i ] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+						} elseif ( '' === $this->property && ! ctype_space( $string[ $i ] ) ) {
 							// else this is dumb IE a hack, keep it.
 							$this->property .= $string[ $i ];
 						}
@@ -752,7 +752,7 @@ class csstidy { // phpcs:ignore
 
 				/* Case in-value */
 				case 'iv':
-					$pn = ( ( "\n" === $string[ $i ] || "\r" === $string[ $i ] ) && $this->property_is_next( $string, $i + 1 ) || strlen( $string ) - 1 == $i ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					$pn = ( ( "\n" === $string[ $i ] || "\r" === $string[ $i ] ) && $this->property_is_next( $string, $i + 1 ) || strlen( $string ) - 1 === $i );
 					if ( ( self::is_token( $string, $i ) || $pn ) && ( ! ( ',' === $string[ $i ] && ! ctype_space( $string[ $i + 1 ] ) ) ) ) {
 						if ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 							$this->status = 'ic';
