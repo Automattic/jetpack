@@ -16,6 +16,7 @@ import {
 	ScanIcon,
 	StarIcon,
 	Text,
+	H3,
 } from '@automattic/jetpack-components';
 
 /**
@@ -178,13 +179,10 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 						<ProductIcon slug={ slug } />
 					</Col>
 
-					<Text variant="headline-small" className={ styles.title } component={ Col }>
-						{ title }
-					</Text>
-
-					<Text className={ styles.name } component={ Col }>
-						{ longDescription }
-					</Text>
+					<Col>
+						<H3>{ title }</H3>
+						<Text>{ longDescription }</Text>
+					</Col>
 
 					<Col>
 						<ul className={ styles.features }>
