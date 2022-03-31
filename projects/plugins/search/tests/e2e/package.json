@@ -29,15 +29,15 @@
 		"slack": "NODE_CONFIG_DIR='./config' slack"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.17.2",
-		"allure-playwright": "2.0.0-beta.14",
+		"@playwright/test": "1.20.1",
+		"allure-playwright": "2.0.0-beta.15",
 		"config": "3.3.7",
 		"eslint-plugin-playwright": "0.8.0",
 		"jetpack-e2e-commons": "*"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [],

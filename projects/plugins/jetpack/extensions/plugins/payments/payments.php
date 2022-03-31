@@ -2,7 +2,7 @@
 /**
  * Payments plugin.
  *
- * @since $$next-version$$
+ * @since 10.8
  *
  * @package automattic/jetpack
  */

@@ -2,6 +2,16 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.10.12 - 2022-03-29
+### Added
+- Jetpack components: Add ThemeProvider stories for typographies and colors
+- JS Components: add H2, H3 and Title components
+
+### Changed
+- JS Components: Minor Product Icons story and doc improvements
+- Moved in product icon components from My Jetpack
+- Updated package dependencies.
+
 ## 0.10.11 - 2022-03-23
 ### Added
 - Components: Add Text component
