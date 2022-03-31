@@ -28,6 +28,9 @@
  * @author Nikolay Matsievsky (speed at webo dot name) 2009-2010
  * @author Cedric Morin (cedric at yterium dot com) 2010
  */
+
+// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+
 /**
  * Defines ctype functions if required
  *
@@ -472,7 +475,6 @@ class csstidy { // phpcs:ignore
 			$add = trim( '\\' . $add );
 		}
 
-		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		if ( @ctype_xdigit( $string[ $i + 1 ] ) && ctype_space( $string[ $i ] )
 						&& ! $replaced || ! ctype_space( $string[ $i ] ) ) {
 			$i--;
@@ -570,7 +572,7 @@ class csstidy { // phpcs:ignore
 	 * @version 1.0
 	 */
 	public function parse_from_url( $url ) {
-		return $this->parse( @file_get_contents( $url ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		return $this->parse( @file_get_contents( $url ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 	}
 
 	/**
@@ -595,8 +597,8 @@ class csstidy { // phpcs:ignore
 	 */
 	public function parse( $string ) {
 		// Temporarily set locale to en_US in order to handle floats properly.
-		$old = @setlocale( LC_ALL, 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		@setlocale( LC_ALL, 'C' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$old = @setlocale( LC_ALL, 0 );
+		@setlocale( LC_ALL, 'C' );
 
 		// PHP bug? Settings need to be refreshed in PHP4.
 		$this->print = new csstidy_print( $this );
@@ -619,7 +621,7 @@ class csstidy { // phpcs:ignore
 				/* Case in at-block */
 				case 'at':
 					if ( self::is_token( $string, $i ) ) {
-						if ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+						if ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] ) {
 							$this->status = 'ic';
 							++$i;
 							$this->from[] = 'at';
@@ -647,7 +649,7 @@ class csstidy { // phpcs:ignore
 				/* Case in-selector */
 				case 'is':
 					if ( self::is_token( $string, $i ) ) {
-						if ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] && '' === trim( $this->selector ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+						if ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] && '' === trim( $this->selector ) ) {
 							$this->status = 'ic';
 							++$i;
 							$this->from[] = 'is';
@@ -702,7 +704,7 @@ class csstidy { // phpcs:ignore
 							$this->sel_separate[] = strlen( $this->selector );
 						} elseif ( '\\' === $string[ $i ] ) {
 							$this->selector .= $this->_unicode( $string, $i );
-						} elseif ( '*' === $string[ $i ] && @in_array( $string[ $i + 1 ], array( '.', '#', '[', ':' ), true ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElseif, WordPress.PHP.NoSilencedErrors.Discouraged
+						} elseif ( '*' === $string[ $i ] && @in_array( $string[ $i + 1 ], array( '.', '#', '[', ':' ), true ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElseif
 							// remove unnecessary universal selector, FS#147.
 						} else {
 							$this->selector .= $string[ $i ];
@@ -726,7 +728,7 @@ class csstidy { // phpcs:ignore
 								$this->property = $this->css_new_property( $this->at, $this->selector, $this->property );
 								$this->_add_token( PROPERTY, $this->property );
 							}
-						} elseif ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] && '' === $this->property ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+						} elseif ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] && '' === $this->property ) {
 							$this->status = 'ic';
 							++$i;
 							$this->from[] = 'ip';
@@ -754,7 +756,7 @@ class csstidy { // phpcs:ignore
 				case 'iv':
 					$pn = ( ( "\n" === $string[ $i ] || "\r" === $string[ $i ] ) && $this->property_is_next( $string, $i + 1 ) || strlen( $string ) - 1 === $i );
 					if ( ( self::is_token( $string, $i ) || $pn ) && ( ! ( ',' === $string[ $i ] && ! ctype_space( $string[ $i + 1 ] ) ) ) ) {
-						if ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+						if ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] ) {
 							$this->status = 'ic';
 							++$i;
 							$this->from[] = 'iv';
@@ -981,7 +983,6 @@ class csstidy { // phpcs:ignore
 
 		$this->print->_reset();
 
-		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@setlocale( LC_ALL, $old ); // Set locale back to original setting.
 
 		return ! ( empty( $this->css ) && empty( $this->import ) && empty( $this->charset ) && empty( $this->tokens ) && empty( $this->namespace ) );
@@ -1030,7 +1031,7 @@ class csstidy { // phpcs:ignore
 	 * @version 1.02
 	 */
 	public static function escaped( &$string, $pos ) {
-		return ! ( @( '\\' !== $string[ $pos - 1 ] ) || self::escaped( $string, $pos - 1 ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		return ! ( @( '\\' !== $string[ $pos - 1 ] ) || self::escaped( $string, $pos - 1 ) );
 	}
 
 	/**
