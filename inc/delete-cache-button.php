@@ -86,7 +86,7 @@ function wpsc_admin_bar_delete_cache() {
 			global $file_prefix;
 			wp_cache_debug( 'Cleaning cache for this site.' );
 			wp_cache_clean_cache( $file_prefix );
-			exit;
+			return;
 		}
 		$path           = trailingslashit( $path );
 		$supercachepath = realpath( get_supercache_dir() );
@@ -100,6 +100,7 @@ function wpsc_admin_bar_delete_cache() {
 
 		wp_cache_debug( 'Deleting cache files in directory: ' . $path );
 		wpsc_delete_files( $path );
+		return;
 	} else {
 		wp_cache_debug( 'Could not delete directory. It does not exist: ' . esc_attr( $_POST['path'] ) );
 	}
