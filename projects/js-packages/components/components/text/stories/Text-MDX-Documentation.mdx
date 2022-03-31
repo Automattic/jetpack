@@ -1,0 +1,123 @@
+import { Meta, Source, Story, Canvas } from '@storybook/addon-docs';
+import dedent from 'ts-dedent';
+import Text, { SPACING_VALUES, BOX_MODEL_VALUES, H2, H3, Title } from '../index.jsx';
+
+<Meta title="JS Packages/Components/Text/Readme" />
+
+# Text
+Set of React jetpack-components intended to facilitate when dealing with rendering text content.
+
+## <Text /\>
+
+`Text` is the primary component that renders text, supporting the following features:
+
+* **Typography**: provided by the ThemeProvider component.
+* **Spacing**: A simple range of shorthand classes to modify the text element's margin and padding.
+
+### Props
+
+#### variant
+
+**Type**: `headline-medium`, `headline-small`, `headline-small-regular`, `title-medium`, `title-small`, `body`, `body-small`, `body-extra-small`, `label`.
+
+Define the text Typography variant among the options offered by the ThemeProvider component.
+
+<Source
+	language='jsx'
+	code={dedent`
+		import Text from '@automattic/jetpack-components';
+		
+		function Hello() {
+			return (
+				<Text variant="headline-medium">
+					Hello, Text component!
+				</Text>
+			);
+		}
+	`}
+/>
+
+#### Spacing properties
+
+**Type**: number, one of `0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`.
+
+Use the following properties to define margin and padding of the text. The unit is defined by the `--spacing-base` value.
+
+Prop | Description
+---|---
+**m** | margin
+**mt** | margin-top
+**mr** | margin-right
+**mb** | margin-bottom
+**ml** | margin-left
+**mx** | margin left and right
+**my** | margin top and bottom
+**p** | padding
+**pt** | padding-top
+**pr** | padding-right
+**pb** | padding-bottom
+**pl** | padding-left
+**px** | padding left and right
+**py** | padding top and bottom
+
+<Source
+	language='jsx'
+	code={dedent`
+		import Text from '@automattic/jetpack-components';
+		
+		function HelloBoxModel() {
+			return (
+				<Text mt={ 2 } px={ 4 }>
+					Hello, Text component!
+				</Text>
+			);
+		}
+	`}
+/>
+
+# Text based components
+
+## <H2 /\>
+Text shorthand to render a `heading-medium` text, applying proper spacing.
+
+## <H3 /\>
+Text shorthand to render a `heading-small` text, applying proper spacing.
+
+### Props
+
+#### Weight: `bold` (default) | `regular`
+
+<Source
+	language='jsx'
+	code={dedent`
+		import { H3 } from '@automattic/jetpack-components';
+		
+		function Subtitle() {
+			return (
+				<H3 weight="regular">Let's explaining what H3 is</H3>
+			);
+		}
+	`}
+/>
+
+## <Title /\>
+Text shorthand to render a `body` text, applying proper spacing.
+
+### Props
+
+#### Size: `medium` (default) | `small`
+
+<Source
+	language='jsx'
+	code={dedent`
+		import { Title } from '@automattic/jetpack-components';
+		
+		function Subtitle() {
+			return (
+				<Title size="small">
+					To explain what a Title component does, we should before...
+				</Title>
+			);
+		}
+	`}
+/>
