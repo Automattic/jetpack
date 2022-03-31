@@ -156,7 +156,11 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 	}, [ onClick, trackButtonClick ] );
 
 	return (
-		<div className={ classnames( styles.card, className ) }>
+		<div
+			className={ classnames( styles.card, className, {
+				[ styles[ 'is-bundle-card' ] ]: isBundle,
+			} ) }
+		>
 			{ isBundle && (
 				<div className={ styles[ 'card-header' ] }>
 					<StarIcon className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
@@ -165,7 +169,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 			) }
 
 			<div className={ styles.container }>
-				{ isBundle && <div>{ icons }</div> }
+				{ isBundle && <div className={ styles[ 'product-bundle-icon' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />
 
 				<H3>{ title }</H3>

@@ -1,6 +1,17 @@
 .card {
 	background-color: var(--jp-white);
 	height: 100%;
+
+	.container {
+		height: 100%;
+		padding: calc( var(--spacing-base) * 6 );
+	}
+
+	&.is-bundle-card {
+		.container {
+			padding-top: calc( var(--spacing-base) * 2 );
+		}
+	}
 }
 
 .card-header {
@@ -10,7 +21,7 @@
 	color:var(--jp-white);
 	border-radius: var(--jp-border-radius) var(--jp-border-radius) 0 0;
 	padding: 0 var(--spacing-base); // 8px
-	height: 32px;
+	height: calc( var(--spacing-base) * 4 );
 }
 
 .product-bundle-icon {
@@ -18,9 +29,8 @@
 	margin-right: var(--spacing-base);
 }
 
-.container {
-	height: 100%;
-	padding: 0 calc( var(--spacing-base) * 5); // 40px
+.product-bundle-icons {
+	height: calc( var(--spacing-base) * 3 );
 }
 
 .plus-icon {
