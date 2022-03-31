@@ -181,10 +181,8 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 
 					<Col>
 						<H3>{ title }</H3>
-						<Text>{ longDescription }</Text>
-					</Col>
+						<Text mb={ 3 }>{ longDescription }</Text>
 
-					<Col>
 						<ul className={ styles.features }>
 							{ features.map( ( feature, id ) => (
 								<Text component="li" key={ `feature-${ id }` } variant="body-extra-small">
