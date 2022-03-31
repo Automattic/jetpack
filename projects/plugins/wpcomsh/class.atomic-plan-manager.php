@@ -1,4 +1,9 @@
 <?php
+/**
+ * Contains the definition of the Atomic_Plan_Manager class
+ *
+ * @package wpcomsh
+ */
 
 /**
  * Class Atomic_Plan_Manager
@@ -25,6 +30,13 @@ class Atomic_Plan_Manager {
 	const PERSONAL_PLAN_SLUG = 'personal';
 
 	/**
+	 * Pro plan slug
+	 *
+	 * @var string
+	 */
+	const PRO_PLAN_SLUG = 'pro';
+
+	/**
 	 * Business plan slug
 	 *
 	 * @var string
@@ -40,6 +52,8 @@ class Atomic_Plan_Manager {
 
 	/**
 	 * Atomic Plan Manager instance
+	 *
+	 * @var Atomic_Plan_Manager
 	 */
 	private static $instance;
 
@@ -96,6 +110,7 @@ class Atomic_Plan_Manager {
 	 */
 	public static function has_atomic_supported_plan() {
 		$supported_plans = array(
+			self::PRO_PLAN_SLUG,
 			self::BUSINESS_PLAN_SLUG,
 			self::ECOMMERCE_PLAN_SLUG,
 		);
