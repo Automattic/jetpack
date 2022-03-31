@@ -4,7 +4,6 @@
 	 */
 	import BackButton from '../../elements/BackButton.svelte';
 	import { Button } from '@wordpress/components';
-	import routerHistory from '../../utils/router-history';
 
 	import Logo from '../../svg/jetpack-green.svg';
 
@@ -14,7 +13,8 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 
-	const { navigate } = routerHistory;
+	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
+	export let location, navigate;
 </script>
 
 <div id="jb-settings" class="jb-settings">
