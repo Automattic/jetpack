@@ -23,9 +23,3 @@ const coreEmbedVariationPocketCasts = {
 };
 
 registerBlockVariation( 'core/embed', coreEmbedVariationPocketCasts );
-
-// Deliberately export name, title & empty settings object so we don't break `getExtensions`
-// but we also don't want to register any new plugin or block.
-export const name = 'pocketcasts';
-export const title = __( 'Pocket Casts', 'jetpack' );
-export const settings = {};
