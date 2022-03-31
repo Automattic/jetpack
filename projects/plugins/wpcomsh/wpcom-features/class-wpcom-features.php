@@ -94,6 +94,8 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_DAILY_MONTHLY                = 'jetpack_backup_daily_monthly'; // 2101
 	private const JETPACK_BACKUP_REALTIME                     = 'jetpack_backup_realtime'; // 2102
 	private const JETPACK_BACKUP_REALTIME_MONTHLY             = 'jetpack_backup_realtime_monthly'; // 2103
+	private const JETPACK_SEARCH                              = 'jetpack_search'; // 2104
+	private const JETPACK_SEARCH_MONTHLY                      = 'jetpack_search_monthly'; // 2105
 	private const JETPACK_BACKUP_T1_YEARLY                    = 'jetpack_backup_t1_yearly'; // 2112
 	private const JETPACK_BACKUP_T1_MONTHLY                   = 'jetpack_backup_t1_monthly'; // 2113
 	private const JETPACK_BACKUP_T2_YEARLY                    = 'jetpack_backup_t2_yearly'; // 2114
@@ -193,6 +195,7 @@ class WPCOM_Features {
 	public const ATOMIC                        = 'atomic';
 	public const BACKUPS                       = 'backups';
 	public const CALENDLY                      = 'calendly';
+	public const CLASSIC_SEARCH                = 'classic-search';
 	public const CONCIERGE                     = 'concierge';
 	public const CONCIERGE_BUSINESS            = 'concierge-business';
 	public const CORE_AUDIO                    = 'core/audio';
@@ -205,6 +208,7 @@ class WPCOM_Features {
 	public const ECOMMERCE_MANAGED_PLUGINS     = 'ecommerce-managed-plugins';
 	public const EMAIL_SUBSCRIPTION            = 'email-subscription';
 	public const FREE_BLOG                     = 'free-blog';
+	public const FULL_ACTIVITY_LOG             = 'full-activity-log';
 	public const GOOGLE_ANALYTICS              = 'google-analytics';
 	public const GOOGLE_MY_BUSINESS            = 'google-my-business';
 	public const INSTALL_PLUGINS               = 'install-plugins';
@@ -291,6 +295,14 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
 		),
+		self::CLASSIC_SEARCH                => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+			self::JETPACK_SEARCH,
+			self::JETPACK_SEARCH_MONTHLY,
+			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_BUSINESS_PLANS,
+		),
 		self::CONCIERGE                     => array(
 			self::WPCOM_BUSINESS_PLANS,
 			self::WPCOM_ECOMMERCE_PLANS,
@@ -344,6 +356,15 @@ class WPCOM_Features {
 		),
 		self::FREE_BLOG                     => array(
 			self::WPCOM_ALL_SITES,
+		),
+		self::FULL_ACTIVITY_LOG             => array(
+			self::JETPACK_BACKUP_DAILY_PLANS,
+			self::JETPACK_BACKUP_REALTIME_PLANS,
+			self::JETPACK_BACKUP_T1_PLANS,
+			self::JETPACK_BACKUP_T2_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::GOOGLE_ANALYTICS              => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -503,6 +524,9 @@ class WPCOM_Features {
 			self::WPCOM_ALL_SITES,
 			self::JETPACK_PERSONAL_AND_HIGHER,
 		),
+		self::UNLIMITED_THEMES              => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+		),
 		self::UPGRADED_UPLOAD_FILETYPES     => array(
 			self::SPACE_3GB,
 			self::SPACE_10GB,
@@ -513,9 +537,6 @@ class WPCOM_Features {
 			self::SPACE_UNLIMITED,
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
-		),
-		self::UNLIMITED_THEMES              => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
 		self::UPLOAD_PLUGINS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
