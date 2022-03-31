@@ -6,16 +6,7 @@ import classnames from 'classnames';
 import { Icon, check, plus } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
-import {
-	AntiSpamIcon,
-	BackupIcon,
-	CheckmarkIcon,
-	getIconBySlug,
-	ScanIcon,
-	StarIcon,
-	Text,
-	H3,
-} from '@automattic/jetpack-components';
+import { CheckmarkIcon, getIconBySlug, StarIcon, Text, H3 } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -23,32 +14,8 @@ import {
 import styles from './style.module.scss';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import { useProduct } from '../../hooks/use-product';
-
 import ProductDetailButton from '../product-detail-button';
-
-/**
- * Simple react component to render the product icon,
- * depending on the product slug.
- *
- * @param {string} slug - The product slug.
- * @returns {object}    ProductDetailCard react component.
- */
-function ProductIcon( { slug } ) {
-	switch ( slug ) {
-		case 'anti-spam':
-			return <AntiSpamIcon size={ 24 } />;
-
-		case 'backup':
-			return <BackupIcon size={ 24 } />;
-
-		case 'scan':
-			return <ScanIcon size={ 24 } />;
-
-		default:
-			return null;
-	}
-}
+import { useProduct } from '../../hooks/use-product';
 
 /**
  * React component to render the price.
@@ -154,6 +121,9 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 			onClick();
 		}
 	}, [ onClick, trackButtonClick ] );
+
+	// Todo: Fix in product-icons component.
+	const ProductIcon = getIconBySlug( slug ) ? getIconBySlug( slug ) : () => null;
 
 	return (
 		<div
