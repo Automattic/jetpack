@@ -78,6 +78,7 @@
 		list-style: none;
 		display: flex;
 		align-items: center;
+		height: calc( var( --spacing-base ) * 3 );
 		margin-bottom: var( --spacing-base );
 	}
 
