@@ -390,8 +390,8 @@ class csstidy_optimise { // phpcs:ignore
 			}
 
 			// Fix bad colors.
-			if ( in_array( $this->property, $color_values ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
-				if ( strlen( $temp[ $l ] ) == 3 || strlen( $temp[ $l ] ) == 6 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			if ( in_array( $this->property, $color_values, true ) ) {
+				if ( strlen( $temp[ $l ] ) === 3 || strlen( $temp[ $l ] ) === 6 ) {
 					$temp[ $l ] = '#' . $temp[ $l ];
 				} else {
 					$temp[ $l ] = '0';
@@ -400,7 +400,7 @@ class csstidy_optimise { // phpcs:ignore
 			}
 
 			if ( abs( $number[0] ) > 0 ) {
-				if ( $number[1] == '' && in_array( $this->property, $unit_values, true ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				if ( $number[1] === '' && in_array( $this->property, $unit_values, true ) ) {
 					$number[1] = 'px';
 				}
 			} else {
@@ -422,7 +422,7 @@ class csstidy_optimise { // phpcs:ignore
 	 */
 	public function analyse_css_number( $string ) {
 		// most simple checks first
-		if ( strlen( $string ) == 0 || ctype_alpha( $string[0] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		if ( strlen( $string ) === 0 || ctype_alpha( $string[0] ) ) {
 			return false;
 		}
 
@@ -514,12 +514,6 @@ class csstidy_optimise { // phpcs:ignore
 	 * @param array $array - selector array.
 	 */
 	public function discard_invalid_selectors( &$array ) {
-		$invalid = array( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			'+' => true,
-			'~' => true,
-			',' => true,
-			'>' => true,
-		);
 		foreach ( $array as $selector => $decls ) {
 			$ok        = true;
 			$selectors = array_map( 'trim', explode( ',', $selector ) );
