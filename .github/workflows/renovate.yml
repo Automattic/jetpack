@@ -27,7 +27,7 @@ jobs:
         with:
           path: monorepo
       - run: mv monorepo /tmp/monorepo
-      - uses: renovatebot/github-action@v32.4.1
+      - uses: renovatebot/github-action@v32.7.5
         with:
           configurationFile: /tmp/monorepo/.github/renovate-config.js
           token: ${{ secrets.RENOVATE_TOKEN }}

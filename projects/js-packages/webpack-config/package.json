@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "1.1.5",
+	"version": "1.1.7-alpha",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -18,9 +18,9 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-preserve-i18n": "1.0.0",
-		"@automattic/babel-plugin-replace-textdomain": "workspace:^1.0.3",
-		"@automattic/i18n-check-webpack-plugin": "workspace:^1.0.6",
-		"@automattic/i18n-loader-webpack-plugin": "workspace:^2.0.2",
+		"@automattic/babel-plugin-replace-textdomain": "workspace:* || ^1.0",
+		"@automattic/i18n-check-webpack-plugin": "workspace:* || ^1.0",
+		"@automattic/i18n-loader-webpack-plugin": "workspace:* || ^2.0",
 		"@automattic/webpack-rtl-plugin": "5.1.0",
 		"@babel/compat-data": "7.17.7",
 		"@babel/helper-compilation-targets": "7.17.7",
@@ -68,7 +68,7 @@
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

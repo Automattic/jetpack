@@ -53,7 +53,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	 * @return bool True if the append succeeded, False if not.
 	 */
 	public function append( $array ) {
-		if ( is_null( $array ) ) {
+		if ( $array === null ) {
 			return true;
 		}
 
@@ -121,7 +121,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 				$string .= "<$tag>";
 				$string .= $this->array_to_xml_string( $value );
 				$string .= "</$tag>";
-			} elseif ( is_null( $value ) ) {
+			} elseif ( $value === null ) {
 				$string .= "<$tag />";
 			} else {
 				$string .= "<$tag>" . htmlspecialchars( $value ) . "</$tag>";

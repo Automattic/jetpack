@@ -81,7 +81,7 @@ class JWT {
 	 * @uses urlsafe_b64_decode
 	 */
 	public static function decode( $jwt, $key, array $allowed_algs = array() ) {
-		$timestamp = is_null( static::$timestamp ) ? time() : static::$timestamp;
+		$timestamp = static::$timestamp === null ? time() : static::$timestamp;
 
 		if ( empty( $key ) ) {
 			throw new InvalidArgumentException( 'Key may not be empty' );
