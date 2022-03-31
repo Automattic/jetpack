@@ -18,7 +18,6 @@ $definition-combinations: (
   @each $postfixes, $properties in $definition-combinations {
 	@for $i from 1 to 5 {
 	  $spacing: math.pow(2, $i - 1) * $spacing-unit !important;
-	  $selector: '.' + $acronym + $postfixes + '-' + $i;
 
 	  .#{$acronym}#{$postfixes}-#{$i} {
 		@each $property-suffix in $properties {
