@@ -16,8 +16,13 @@ class Initializer {
 
 	/**
 	 * Initialize the search package.
+	 *
+	 * The method is called from the `Config` class.
 	 */
 	public static function init() {
+		// Load compatibility files - at this point all plugins are already loaded.
+		static::include_compatibility_files();
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package::send_version_to_tracker' );
 
@@ -61,9 +66,6 @@ class Initializer {
 			do_action( 'jetpack_search_abort', 'module_inactive', null );
 			return;
 		}
-
-		// Load compatibility files.
-		add_action( 'plugins_loaded', array( static::class, 'include_compatibility_files' ) );
 
 		// Initialize search package.
 		if ( ! static::init_search( $blog_id ) ) {
