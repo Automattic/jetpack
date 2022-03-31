@@ -21,10 +21,6 @@
 	</div>
 </Router>
 
-<div class="jb-section jb-section--alt">
-	<Tips />
-</div>
+<Tips />
 
-<div class="jb-section">
-	<Support />
-</div>
+<Support />
