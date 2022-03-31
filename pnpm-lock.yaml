@@ -1013,7 +1013,7 @@ importers:
       '@automattic/jetpack-connection': workspace:* || ^0.17
       '@automattic/jetpack-licensing': workspace:* || ^0.4
       '@automattic/jetpack-partner-coupon': workspace:* || ^0.2
-      '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.3
+      '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.4
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@automattic/popup-monitor': 1.0.0
       '@automattic/remove-asset-webpack-plugin': workspace:* || ^1.0
