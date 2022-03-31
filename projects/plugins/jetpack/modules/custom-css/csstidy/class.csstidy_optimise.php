@@ -568,7 +568,7 @@ class csstidy_optimise { // phpcs:ignore
 			$return[ $shorthands[ $property ][2] ] = $values[2] . $important;
 		} elseif ( count( $values ) === 2 ) {
 			for ( $i = 0; $i < 4; $i++ ) {
-				$return[ $shorthands[ $property ][ $i ] ] = ( ( $i % 2 != 0 ) ) ? $values[1] . $important : $values[0] . $important; // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+				$return[ $shorthands[ $property ][ $i ] ] = ( ( $i % 2 !== 0 ) ) ? $values[1] . $important : $values[0] . $important;
 			}
 		} else {
 			for ( $i = 0; $i < 4; $i++ ) {
