@@ -139,7 +139,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 			) }
 
 			<div className={ styles.container }>
-				{ isBundle && <div className={ styles[ 'product-bundle-icon' ] }>{ icons }</div> }
+				{ isBundle && <div className={ styles[ 'product-bundle-icons' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />
 
 				<H3>{ title }</H3>
