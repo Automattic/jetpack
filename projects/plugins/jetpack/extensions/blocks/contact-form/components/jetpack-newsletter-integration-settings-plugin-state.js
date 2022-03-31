@@ -38,7 +38,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 	isInstalling,
 } ) => {
 	return (
-		<p>
+		<p className="jetpack-contact-form__integration-panel">
 			<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
 				{ __(
 					'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
@@ -47,11 +47,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 				<br />
 				{ isInstalling && <CreativeMailPluginIsInstalling /> }
 				{ ! isInstalling && (
-					<Button
-						variant="secondary"
-						onClick={ installAndActivateCreativeMailPlugin }
-						style={ { marginTop: '1em' } }
-					>
+					<Button variant="secondary" onClick={ installAndActivateCreativeMailPlugin }>
 						{ __( 'Install Creative Mail plugin', 'jetpack' ) }
 					</Button>
 				) }
@@ -62,7 +58,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 
 const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalling } ) => {
 	return (
-		<p>
+		<p className="jetpack-contact-form__integration-panel">
 			<em>
 				{ __(
 					'To start sending email campaigns, activate the Creative Mail plugin for WordPress.',
@@ -72,11 +68,7 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 			<br />
 			{ isInstalling && <CreativeMailPluginIsInstalling isActivating /> }
 			{ ! isInstalling && (
-				<Button
-					variant="secondary"
-					onClick={ activateCreativeMailPlugin }
-					style={ { marginTop: '1em' } }
-				>
+				<Button variant="secondary" onClick={ activateCreativeMailPlugin }>
 					{ __( 'Activate Creative Mail Plugin', 'jetpack' ) }
 				</Button>
 			) }

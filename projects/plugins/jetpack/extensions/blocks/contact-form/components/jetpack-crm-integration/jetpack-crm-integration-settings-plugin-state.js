@@ -54,7 +54,6 @@ const CRMPluginIsInstalling = ( { isActivating } ) => {
 			icon={ <Icon style={ { animation: 'rotation 2s infinite linear' } } icon="update" /> }
 			disabled
 			aria-label={ btnTxt }
-			style={ { marginTop: '1em' } }
 		>
 			{ btnTxt }
 		</Button>
@@ -63,11 +62,7 @@ const CRMPluginIsInstalling = ( { isActivating } ) => {
 
 const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } ) => {
 	let button = (
-		<Button
-			variant="secondary"
-			onClick={ installAndActivateCRMPlugin }
-			style={ { marginTop: '1em' } }
-		>
+		<Button variant="secondary" onClick={ installAndActivateCRMPlugin }>
 			{ __( 'Install Jetpack CRM', 'jetpack' ) }
 		</Button>
 	);
@@ -77,7 +72,7 @@ const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } 
 	}
 
 	return (
-		<p className="jetpack-contact-form__crm_text">
+		<p className="jetpack-contact-form__crm_text jetpack-contact-form__integration-panel">
 			<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
 				{ __( 'You can save contacts from Jetpack contact forms in Jetpack CRM.', 'jetpack' ) }
 				<br />
@@ -89,7 +84,7 @@ const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } 
 
 const CRMPluginIsInstalled = ( { activateCRMPlugin, isInstalling } ) => {
 	return (
-		<p className="jetpack-contact-form__crm_text">
+		<p className="jetpack-contact-form__crm_text jetpack-contact-form__integration-panel">
 			<em>
 				{ __(
 					'You already have the Jetpack CRM plugin installed, but it’s not activated.',
