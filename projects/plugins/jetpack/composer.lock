@@ -1100,16 +1100,16 @@
         },
         {
             "name": "automattic/jetpack-my-jetpack",
-            "version": "v0.6.12",
+            "version": "v0.6.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-my-jetpack.git",
-                "reference": "4a14314cd488de5a38c64877aaedbd0cd10fa9c8"
+                "reference": "10b2fa1a4f4d38cc852d5ae2843f01c20e1ea637"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/4a14314cd488de5a38c64877aaedbd0cd10fa9c8",
-                "reference": "4a14314cd488de5a38c64877aaedbd0cd10fa9c8",
+                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/10b2fa1a4f4d38cc852d5ae2843f01c20e1ea637",
+                "reference": "10b2fa1a4f4d38cc852d5ae2843f01c20e1ea637",
                 "shasum": ""
             },
             "require": {
@@ -1154,9 +1154,9 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v0.6.12"
+                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v0.6.13"
             },
-            "time": "2022-03-29T18:21:25+00:00"
+            "time": "2022-03-31T19:28:12+00:00"
         },
         {
             "name": "automattic/jetpack-options",
