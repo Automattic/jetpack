@@ -22,7 +22,6 @@ import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import useAnalytics from '../../hooks/use-analytics';
 import useGlobalNotice from '../../hooks/use-notice';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import styles from './styles.module.scss';
 
@@ -58,13 +57,6 @@ export default function MyJetpackScreen() {
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
-
-	// No render when site is not connected.
-	const { isSiteConnected } = useMyJetpackConnection();
-
-	if ( ! isSiteConnected ) {
-		return null;
-	}
 
 	return (
 		<AdminPage>

@@ -139,4 +139,20 @@ class Products {
 		Products\Videopress::extend_plugin_action_links();
 	}
 
+	/**
+	 * Returns a list of Products slugs which have their corresponent plugins active on the site.
+	 *
+	 * @return array
+	 */
+	public static function get_products_with_active_plugins() {
+		$products              = self::get_products_classes();
+		$products_with_plugins = array();
+		foreach ( $products as $product ) {
+			if ( $product::is_plugin_active() ) {
+				$products_with_plugins[] = $product::$slug;
+			}
+		}
+		return $products_with_plugins;
+	}
+
 }

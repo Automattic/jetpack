@@ -345,7 +345,16 @@ abstract class Product {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
-		return $result === null;
+
+		// Connects the site if it's not connected.
+		$connection_manager = new Connection_Manager();
+		if ( ! $connection_manager->is_connected() ) {
+			$register = $connection_manager->register();
+			if ( is_wp_error( $register ) ) {
+				return $register;
+			}
+		}
+		return true;
 	}
 
 	/**

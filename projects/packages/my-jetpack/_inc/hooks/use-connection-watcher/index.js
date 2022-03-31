@@ -3,7 +3,8 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -11,6 +12,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { STORE_ID } from '../../state/store';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
+import useProducts from '../use-products';
 
 /**
  * React custom hook to watch connection.
@@ -18,12 +20,17 @@ import useMyJetpackNavigate from '../use-my-jetpack-navigate';
  * the hook dispatches an action to populate the global notice.
  */
 export default function useConnectionWatcher() {
+	const navigate = useNavigate();
 	const navToConnection = useMyJetpackNavigate( '/connection' );
 	const { setGlobalNotice } = useDispatch( STORE_ID );
-	const productsThatRequiresUserConnection = useSelect( select =>
-		select( STORE_ID ).getProductsThatRequiresUserConnection()
-	);
-	const { isSiteConnected, redirectUrl, hasConnectedOwner } = useMyJetpackConnection();
+
+	const {
+		productsThatRequiresUserConnection,
+		productsWithActivePlugin,
+		disconnectedAndOnePluginInstalled,
+	} = useProducts();
+
+	const { hasConnectedOwner } = useMyJetpackConnection();
 
 	const requiresUserConnection =
 		! hasConnectedOwner && productsThatRequiresUserConnection.length > 0;
@@ -49,10 +56,10 @@ export default function useConnectionWatcher() {
 	 * When the site is not connect, redirect to the Jetpack dashboard.
 	 */
 	useEffect( () => {
-		if ( ! isSiteConnected && redirectUrl ) {
-			navToConnection();
+		if ( disconnectedAndOnePluginInstalled ) {
+			navigate( `add-${ productsWithActivePlugin[ 0 ] }` );
 		}
-	}, [ isSiteConnected, redirectUrl, navToConnection ] );
+	}, [ disconnectedAndOnePluginInstalled, productsWithActivePlugin, navigate ] );
 
 	useEffect( () => {
 		if ( requiresUserConnection ) {

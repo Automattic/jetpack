@@ -111,17 +111,18 @@ class Initializer {
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
 			array(
-				'products'              => array(
+				'products'                 => array(
 					'items' => Products::get_products(),
 				),
-				'purchases'             => array(
+				'purchases'                => array(
 					'items' => array(),
 				),
-				'redirectUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
-				'siteSuffix'            => ( new Status() )->get_site_suffix(),
-				'myJetpackVersion'      => self::PACKAGE_VERSION,
-				'fileSystemWriteAccess' => self::has_file_system_write_access(),
-				'connectedPlugins'      => self::get_connected_plugins(),
+				'redirectUrl'              => admin_url( 'admin.php?page=my-jetpack' ),
+				'siteSuffix'               => ( new Status() )->get_site_suffix(),
+				'myJetpackVersion'         => self::PACKAGE_VERSION,
+				'fileSystemWriteAccess'    => self::has_file_system_write_access(),
+				'connectedPlugins'         => self::get_connected_plugins(),
+				'productsWithActivePlugin' => Products::get_products_with_active_plugins(),
 			)
 		);
 

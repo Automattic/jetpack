@@ -20,6 +20,7 @@ import { useProduct } from '../../hooks/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useProducts from '../../hooks/use-products';
 import { STORE_ID } from '../../state/store';
 import GoBackLink from '../go-back-link';
 
@@ -43,6 +44,7 @@ export default function ProductInterstitial( {
 	const { isUpgradableByBundle } = detail;
 
 	const { recordEvent } = useAnalytics();
+	const { disconnectedAndOnePluginInstalled } = useProducts();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -92,9 +94,11 @@ export default function ProductInterstitial( {
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col>
-					<GoBackLink onClick={ onClickGoBack } />
-				</Col>
+				{ ! disconnectedAndOnePluginInstalled && (
+					<Col>
+						<GoBackLink onClick={ onClickGoBack } />
+					</Col>
+				) }
 				<Col>
 					<Container
 						className={ ! isUpgradableByBundle ? styles.container : null }
