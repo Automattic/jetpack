@@ -789,7 +789,7 @@ class csstidy { // phpcs:ignore
 										if ( empty( $this->sub_value_arr ) ) {
 											// Quote URLs in imports only if they're not already inside url() and not already quoted.
 											if ( substr( $this->sub_value, 0, 4 ) !== 'url(' ) {
-												if ( ! ( substr( $this->sub_value, -1 ) == $this->sub_value[0] && in_array( $this->sub_value[0], array( "'", '"' ), true ) ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+												if ( ! ( substr( $this->sub_value, -1 ) === $this->sub_value[0] && in_array( $this->sub_value[0], array( "'", '"' ), true ) ) ) {
 													$this->sub_value = '"' . $this->sub_value . '"';
 												}
 											}
@@ -822,7 +822,7 @@ class csstidy { // phpcs:ignore
 							$this->property = strtolower( $this->property );
 
 							$this->optimise->subvalue();
-							if ( '' != $this->sub_value ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+							if ( '' !== $this->sub_value ) {
 								if ( substr( $this->sub_value, 0, 6 ) === 'format' ) {
 									$format_strings = self::parse_string_list( substr( $this->sub_value, 7, -1 ) );
 									if ( ! $format_strings ) {
@@ -837,7 +837,7 @@ class csstidy { // phpcs:ignore
 										$this->sub_value = substr( $this->sub_value, 0, -1 ) . ')';
 									}
 								}
-								if ( '' != $this->sub_value ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+								if ( '' !== $this->sub_value ) {
 									$this->sub_value_arr[] = $this->sub_value;
 								}
 								$this->sub_value = '';
@@ -880,7 +880,7 @@ class csstidy { // phpcs:ignore
 
 						if ( ctype_space( $string[ $i ] ) || ',' === $string[ $i ] ) {
 							$this->optimise->subvalue();
-							if ( '' != $this->sub_value ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+							if ( '' !== $this->sub_value ) {
 								$this->sub_value_arr[] = $this->sub_value;
 								$this->sub_value       = '';
 							}
