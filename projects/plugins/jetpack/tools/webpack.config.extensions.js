@@ -168,6 +168,7 @@ module.exports = [
 			'editor-experimental': editorExperimentalScript,
 			'editor-beta': editorBetaScript,
 			'editor-no-post-editor': editorNoPostEditorScript,
+			components: path.join( __dirname, '../extensions/shared/components/upgrade-nudge/index.jsx' ),
 			...viewBlocksScripts,
 		},
 		plugins: [
