@@ -1,6 +1,13 @@
 <?php
+/**
+ * Blog Token Resilience Test file.
+ *
+ * @package wpcomsh
+ */
 
-use Jetpack_Options;
+/**
+ * Class BlogTokenResilienceTest.
+ */
 class BlogTokenResilienceTest extends WP_UnitTestCase {
 
 	/**
@@ -61,19 +68,5 @@ class BlogTokenResilienceTest extends WP_UnitTestCase {
 				'qwew',
 			),
 		);
-	}
-
-}
-
-/**
- * Mock for Jetpack_Options
- */
-if ( ! class_exists( 'Jetpack_Options' ) ) {
-	class Jetpack_Options {
-
-		public static function get_option( $option_name, $default = false ) {
-			return apply_filters( 'jetpack_options', get_option( $option_name, $default ), $option_name );
-		}
-
 	}
 }

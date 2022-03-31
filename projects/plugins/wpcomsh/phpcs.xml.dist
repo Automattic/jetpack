@@ -5,6 +5,7 @@
 	<!-- Exclude Composer vendor directory. -->
 	<exclude-pattern>*/.git/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>/build</exclude-pattern>
 
 	<!-- Exclude externals -->
 	<exclude-pattern>/custom-colors</exclude-pattern>

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Feature Hook Test file.
+ *
+ * @package wpcomsh
+ */
 
 /**
  * Class FeatureHookTest.
