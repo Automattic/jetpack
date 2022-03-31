@@ -846,7 +846,7 @@ class csstidy { // phpcs:ignore
 							}
 
 							$this->value = array_shift( $this->sub_value_arr );
-							while ( count( $this->sub_value_arr ) ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found
+							while ( $this->sub_value_arr ) {
 								$this->value .= ' ' . array_shift( $this->sub_value_arr );
 							}
 
@@ -900,7 +900,7 @@ class csstidy { // phpcs:ignore
 					// parentheticals can be nested more than once.
 					if ( ')' === $_str_char && ( '(' === $string[ $i ] || '"' === $string[ $i ] || '\'' === $string[ $i ] ) && ! self::escaped( $string, $i ) ) {
 						$this->cur_string[]    = $string[ $i ];
-						$this->str_char[]      = $string[ $i ] === '(' ? ')' : $string[ $i ]; // phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
+						$this->str_char[]      = $string[ $i ] === '(' ? ')' : $string[ $i ];
 						$this->from[]          = 'instr';
 						$this->quoted_string[] = ! ( '(' === $string[ $i ] );
 						continue 2;
