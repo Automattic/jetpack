@@ -686,7 +686,7 @@ class csstidy { // phpcs:ignore
 							$this->status     = 'is';
 						} elseif ( '{' === $string[ $i ] ) {
 							$this->status = 'ip';
-							if ( '' == $this->at ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+							if ( '' === $this->at ) {
 								$this->at = $this->css_new_media_section( DEFAULT_AT );
 							}
 							$this->selector = $this->css_new_selector( $this->at, $this->selector );
@@ -811,7 +811,7 @@ class csstidy { // phpcs:ignore
 							$this->sub_value .= $string[ $i ];
 						}
 						if ( ( '}' === $string[ $i ] || ';' === $string[ $i ] || $pn ) && ! empty( $this->selector ) ) {
-							if ( '' == $this->at ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+							if ( '' === $this->at ) {
 								$this->at = $this->css_new_media_section( DEFAULT_AT );
 							}
 
