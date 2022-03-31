@@ -164,7 +164,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 					</div>
 				) }
 
-				{ isFree && <Text variant="title-small">{ __( 'Free', 'jetpack-my-jetpack' ) }</Text> }
+				{ isFree && <H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3> }
 
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Text
