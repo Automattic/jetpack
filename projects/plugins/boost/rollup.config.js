@@ -7,10 +7,15 @@ import resolve from '@rollup/plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
-import scss from 'rollup-plugin-scss';
+import postcss from 'rollup-plugin-postcss';
+import builtins from 'rollup-plugin-node-builtins';
+import globals from 'rollup-plugin-node-globals';
 import svelteSVG from 'rollup-plugin-svelte-svg';
 import copy from 'rollup-plugin-copy';
 import path from 'path';
+import { babel } from '@rollup/plugin-babel';
+import replace from '@rollup/plugin-replace';
+import json from '@rollup/plugin-json';
 
 const cssGenPath = path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) );
 
@@ -70,11 +75,49 @@ export default {
 		name: 'app',
 		file: 'app/assets/dist/jetpack-boost.js',
 		globals: {
+			'@wordpress/components': 'wp.components',
 			'@wordpress/i18n': 'wp.i18n',
+			react: 'window.React',
+			'react-dom': 'window.ReactDOM',
 		},
 	},
-	external: [ '@wordpress/i18n' ],
+	external: [ '@wordpress/components', '@wordpress/i18n', 'react', 'react-dom' ],
 	plugins: [
+		replace( {
+			preventAssignment: true,
+			delimiters: [ '', '' ],
+			values: {
+				"@import '@automattic": "@import '~@automattic",
+				'process.env.NODE_ENV': '"production"',
+			},
+		} ),
+
+		resolve( {
+			browser: true,
+			preferBuiltins: false,
+			dedupe: [ 'svelte' ],
+		} ),
+
+		commonjs(),
+		globals(),
+		builtins(),
+		json(),
+
+		babel( {
+			exclude: 'node_modules/**',
+			presets: [ '@babel/preset-react' ],
+			babelHelpers: 'bundled',
+			compact: true,
+		} ),
+
+		// we'll extract any component CSS out into
+		// a separate file - better for performance
+		postcss( {
+			extensions: [ '.css', '.sss', '.pcss', '.sass', '.scss' ],
+			extract: path.resolve( 'app/assets/dist/jetpack-boost.css' ),
+			minimize: true,
+		} ),
+
 		svelteSVG(),
 		svelte( {
 			preprocess: sveltePreprocess( { sourceMap: ! production } ),
@@ -83,23 +126,7 @@ export default {
 				dev: ! production,
 			},
 		} ),
-		// we'll extract any component CSS out into
-		// a separate file - better for performance
-		scss( {
-			output: 'app/assets/dist/jetpack-boost.css',
-			watch: [ 'app/assets/src/css' ],
-		} ),
 
-		// If you have external dependencies installed from
-		// npm, you'll most likely need these plugins. In
-		// some cases you'll need additional configuration -
-		// consult the documentation for details:
-		// https://github.com/rollup/plugins/tree/master/packages/commonjs
-		resolve( {
-			browser: true,
-			dedupe: [ 'svelte' ],
-		} ),
-		commonjs(),
 		typescript( {
 			sourceMap: ! production,
 			inlineSources: ! production,
@@ -119,5 +146,30 @@ export default {
 	],
 	watch: {
 		clearScreen: false,
+	},
+
+	onwarn: ( warning, defaultHandler ) => {
+		// Ignore unused external imports for known problem React / ReactDOM imports.
+		if ( warning.code === 'UNUSED_EXTERNAL_IMPORT' ) {
+			const ignoredImports = [
+				'createPortal',
+				'findDOMNode',
+				'render',
+				'unmountComponentAtNode',
+				'createRef',
+				'memo',
+				'useImperativeHandle',
+				'useDebugValue',
+				'lazy',
+				'Suspense',
+			];
+
+			const unignoredWarnings = warning.names.filter( name => ! ignoredImports.includes( name ) );
+			if ( unignoredWarnings.length === 0 ) {
+				return;
+			}
+		}
+
+		defaultHandler( warning );
 	},
 };
