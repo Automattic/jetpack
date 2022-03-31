@@ -381,7 +381,8 @@ class csstidy_optimise { // phpcs:ignore
 		} else {
 			$temp = array( $subvalue );
 		}
-		for ( $l = 0; $l < count( $temp ); $l++ ) { // phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed, Squiz.PHP.DisallowSizeFunctionsInLoops.Found
+
+		for ( $l = 0, $m = count( $temp ); $l < $m; $l++ ) {
 			// if we are not dealing with a number at this point, do not optimise anything.
 			$number = $this->analyse_css_number( $temp[ $l ] );
 			if ( $number === false ) {
