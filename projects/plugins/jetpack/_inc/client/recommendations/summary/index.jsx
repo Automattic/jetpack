@@ -4,7 +4,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -19,8 +19,8 @@ import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
 import { ProductCardUpsell } from '../product-card-upsell';
-import { generateCheckoutLink } from '../utils';
-import { getSiteTitle, getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
+import Timer from '../timer';
+import { getSiteTitle } from 'state/initial-state';
 import {
 	getSidebarCardSlug,
 	getSummaryFeatureSlugs,
@@ -44,8 +44,6 @@ const SummaryComponent = props => {
 		isFetchingSidebarData,
 		sidebarCardSlug,
 		siteTitle,
-		siteRawUrl,
-		siteAdminUrl,
 		summaryFeatureSlugs,
 		summaryResourceSlugs,
 		updateRecommendationsStep,
@@ -59,9 +57,11 @@ const SummaryComponent = props => {
 	}, [ updateRecommendationsStep ] );
 
 	const { product_slug: productSlug } = upsell || {};
-	const upgradeUrl = productSlug
-		? generateCheckoutLink( productSlug, siteAdminUrl, siteRawUrl, discountData?.code )
-		: null;
+	const { discount, is_used: isUsed, expiry_date: expiryDate } = discountData;
+	const hasDiscount = useMemo(
+		() => discount && ! isUsed && new Date( expiryDate ).valueOf() - Date.now() > 0,
+		[ discount, isUsed, expiryDate ]
+	);
 
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
@@ -135,6 +135,7 @@ const SummaryComponent = props => {
 	);
 
 	let sidebarCard;
+
 	if ( isFetchingSidebarData ) {
 		sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	} else {
@@ -144,21 +145,43 @@ const SummaryComponent = props => {
 				break;
 			case 'upsell':
 				sidebarCard = upsell.hide_upsell ? (
-					<ProductCardUpsellNoPrice upgradeUrl={ upgradeUrl } />
+					<ProductCardUpsellNoPrice />
 				) : (
 					<>
 						<ProductCardUpsell
 							{ ...upsell }
+							slug={ productSlug }
 							isRecommended
-							upgradeUrl={ upgradeUrl }
 							onClick={ onUpsellClick }
 							onMount={ onUpsellMount }
 						/>
+						{ hasDiscount && (
+							<div className="jp-recommendations-summary__discount">
+								<div className="jp-recommendations-summary__timer">
+									<Timer
+										timeClassName="jp-recommendations-summary__time"
+										label={ __( 'Discount ends in:', 'jetpack' ) }
+										expiryDate={ expiryDate }
+									/>
+								</div>
+								<a
+									className="jp-recommendations-summary__reco-link"
+									href="#/recommendations/product-suggestions"
+								>
+									{ __( 'See all discounted products', 'jetpack' ) }
+								</a>
+							</div>
+						) }
 						<div className="jp-recommendations-summary__footer">
 							<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
-							<div className="jp-recommendations-summary__footnote">
-								{ __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
-							</div>
+							{ hasDiscount && (
+								<div className="jp-recommendations-summary__footnote">
+									{ __(
+										'* Discount is for first term only, all renewals are at full price.',
+										'jetpack'
+									) }
+								</div>
+							) }
 						</div>
 					</>
 				);
@@ -214,8 +237,6 @@ const Summary = connect(
 			isFetchingSidebarData,
 			sidebarCardSlug: getSidebarCardSlug( state ),
 			siteTitle: getSiteTitle( state ),
-			siteRawUrl: getSiteRawUrl( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
 			upsell,

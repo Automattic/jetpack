@@ -311,7 +311,7 @@ export function getSiteBenefits( state ) {
  * @returns {object} Discount
  */
 export function getSiteDiscount( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'site', 'discount' ], null );
+	return get( state.jetpack.siteData, [ 'data', 'site', 'discount' ], {} );
 }
 
 /**

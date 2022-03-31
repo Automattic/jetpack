@@ -9,17 +9,13 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
-import { addSelectedRecommendation as addSelectedRecommendationAction } from 'state/recommendations';
-import { getSiteDiscount } from 'state/site/reducer';
+import {
+	addSelectedRecommendation as addSelectedRecommendationAction,
+	getUpsell,
+} from 'state/recommendations';
 import { ProductCardUpsell } from '../../product-card-upsell';
-import { generateCheckoutLink } from '../../utils';
 
-const recommendedProductSlug = 'jetpack_security_t1_yearly';
-
-const ProductSuggestionComponent = props => {
-	const { product, addSelectedRecommendation, siteAdminUrl, siteRawUrl, discountData } = props;
-
+const ProductSuggestionComponent = ( { product, addSelectedRecommendation, upsell } ) => {
 	const onPurchaseClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_click', {
 			type: product.slug,
@@ -31,14 +27,7 @@ const ProductSuggestionComponent = props => {
 	return (
 		<ProductCardUpsell
 			{ ...product }
-			price={ product.cost }
-			upgradeUrl={ generateCheckoutLink(
-				product.slug,
-				siteAdminUrl,
-				siteRawUrl,
-				discountData?.code
-			) }
-			isRecommended={ product.slug === recommendedProductSlug }
+			isRecommended={ product.slug === upsell?.product_slug }
 			onClick={ onPurchaseClick }
 		/>
 	);
@@ -50,9 +39,7 @@ ProductSuggestionComponent.propTypes = {
 
 const ProductSuggestion = connect(
 	state => ( {
-		siteAdminUrl: getSiteAdminUrl( state ),
-		siteRawUrl: getSiteRawUrl( state ),
-		discountData: getSiteDiscount( state ),
+		upsell: getUpsell( state ),
 	} ),
 	dispatch => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
