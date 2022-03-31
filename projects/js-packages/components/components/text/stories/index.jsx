@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import Text, { SPACING_VALUES, BOX_MODEL_VALUES } from '../index.jsx';
+import Text, { SPACING_VALUES, BOX_MODEL_VALUES, H2, H3, Title } from '../index.jsx';
 import styles from './style.module.scss';
 
 export default {
@@ -23,6 +23,7 @@ export default {
 			{}
 		),
 	},
+	subcomponents: { H2, H3, Title },
 };
 
 const Template = args => <Text { ...args }>{ args.variant ?? 'body' }</Text>;
