@@ -647,11 +647,11 @@ class csstidy { // phpcs:ignore
 				/* Case in-selector */
 				case 'is':
 					if ( self::is_token( $string, $i ) ) {
-						if ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] && '' == trim( $this->selector ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.PHP.NoSilencedErrors.Discouraged
+						if ( '/' === $string[ $i ] && '*' === @$string[ $i + 1 ] && '' === trim( $this->selector ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 							$this->status = 'ic';
 							++$i;
 							$this->from[] = 'is';
-						} elseif ( '@' === $string[ $i ] && '' == trim( $this->selector ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+						} elseif ( '@' === $string[ $i ] && '' === trim( $this->selector ) ) {
 							// Check for at-rule.
 							$this->invalid_at = true;
 							foreach ( $at_rules as $name => $type ) {
