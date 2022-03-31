@@ -72,7 +72,7 @@ class Functions {
 		$cloned_taxonomy = json_decode( wp_json_encode( $taxonomy ) );
 
 		// recursive taxonomies are no fun.
-		if ( is_null( $cloned_taxonomy ) ) {
+		if ( $cloned_taxonomy === null ) {
 			return null;
 		}
 		// Remove any meta_box_cb if they are not the default wp ones.
@@ -82,7 +82,7 @@ class Functions {
 		}
 		// Remove update call back.
 		if ( isset( $cloned_taxonomy->update_count_callback ) &&
-			! is_null( $cloned_taxonomy->update_count_callback ) ) {
+			$cloned_taxonomy->update_count_callback !== null ) {
 			$cloned_taxonomy->update_count_callback = null;
 		}
 		// Remove rest_controller_class if it something other then the default.
@@ -466,7 +466,7 @@ class Functions {
 		}
 		$plugins_action_links = get_option( 'jetpack_plugin_api_action_links', array() );
 		if ( ! empty( $plugins_action_links ) ) {
-			if ( is_null( $plugin_file_singular ) ) {
+			if ( $plugin_file_singular === null ) {
 				return $plugins_action_links;
 			}
 			return ( isset( $plugins_action_links[ $plugin_file_singular ] ) ? $plugins_action_links[ $plugin_file_singular ] : null );

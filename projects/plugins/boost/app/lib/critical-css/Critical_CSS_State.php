@@ -80,6 +80,18 @@ class Critical_CSS_State {
 		$this->state       = $state['state'];
 		$this->state_error = empty( $state['state_error'] ) ? null : $state['state_error'];
 		$this->sources     = $this->verify_sources( $state['sources'] );
+
+		$this->check_for_timeout();
+	}
+
+	/**
+	 * Check to see if the request is stuck at an unfinished state and mark it as failed if so.
+	 * @return void
+	 */
+	private function check_for_timeout() {
+		if ( self::REQUESTING === $this->state && ( microtime( true ) - $this->created ) > HOUR_IN_SECONDS ) {
+			$this->set_as_failed( 'timeout' );
+		}
 	}
 
 	private function get_state_transient() {

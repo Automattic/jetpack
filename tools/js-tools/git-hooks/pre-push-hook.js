@@ -39,7 +39,54 @@ function checkChangelogFiles() {
 				"Allowing push because you're in draft mode. To exit draft mode, use `jetpack draft disable`"
 			)
 		);
+	} else if ( ! process.stdin.isTTY ) {
+		process.exitCode = 1;
 	} else {
+		try {
+			// Run the changelogger.
+			const autoChangelog = spawnSync( 'pnpx', [ 'jetpack', 'changelog', 'add' ], {
+				stdio: 'inherit',
+			} );
+
+			// If the autochangelogger worked, commit the changelog files.
+			if ( autoChangelog.status === 0 ) {
+				const filesToCommit = [];
+				const changelogFiles = spawnSync( 'git', [
+					'-c',
+					'core.quotepath=off',
+					'diff',
+					'--name-only',
+					'--diff-filter=A',
+					'--cached',
+				] )
+					.stdout.toString()
+					.trim()
+					.split( '\n' );
+
+				for ( const file of changelogFiles ) {
+					const match = file.match( /^projects\/([^/]+\/[^/]+)\/changelog\// );
+					if ( match ) {
+						filesToCommit.push( file );
+					}
+				}
+
+				if ( filesToCommit.length > 0 ) {
+					const commitFiles = spawnSync( 'git', [ 'commit', ...filesToCommit, '-m', 'changelog' ] );
+					if ( commitFiles.status === 0 ) {
+						console.log(
+							'\n\n   _____ _____ _______   _____  _    _  _____ _    _            _____          _____ _   _\n  / ____|_   _|__   __| |  __ \\| |  | |/ ____| |  | |     /\\   / ____|   /\\   |_   _| \\ | |\n | |  __  | |    | |    | |__) | |  | | (___ | |__| |    /  \\ | |  __   /  \\    | | |  \\| |\n | | |_ | | |    | |    |  ___/| |  | |\\___ \\|  __  |   / /\\ \\| | |_ | / /\\ \\   | | | . ` |\n | |__| |_| |_   | |    | |    | |__| |____) | |  | |  / ____ \\ |__| |/ ____ \\ _| |_| |\\  |\n  \\_____|_____|  |_|    |_|     \\____/|_____/|_|  |_| /_/    \\_\\_____/_/    \\_\\_____|_| \\_|\n\n'
+						);
+						console.log(
+							chalk.green(
+								'Changelog file(s) committed! Ignore error below and `git push` again to include changelog files.'
+							)
+						);
+					}
+				}
+			}
+		} catch ( e ) {
+			console.log( 'Something went wrong', e );
+		}
 		process.exitCode = 1;
 	}
 }

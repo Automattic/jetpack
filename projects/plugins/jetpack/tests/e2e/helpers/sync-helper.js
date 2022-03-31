@@ -51,10 +51,10 @@ export async function waitTillSyncQueueIsEmpty( interval = 1000, maxAttempts = 1
 
 		if ( true === isEmpty ) {
 			logger.info( `waitTillSyncQueueisEmpty: Sync Queue is empty after ${ attempts } attempts` );
-			return resolve();
+			return resolve( true );
 		} else if ( maxAttempts && attempts === maxAttempts ) {
 			logger.warn( `waitTillSyncQueueisEmpty: Exceeded max attempts ( ${ maxAttempts } )` );
-			return reject();
+			return reject( false );
 		}
 		setTimeout( executeWait, interval, resolve, reject );
 	};

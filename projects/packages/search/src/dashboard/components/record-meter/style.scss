@@ -34,3 +34,17 @@ ul.jp-search-chart-legend {
   text-overflow: ellipsis;
   display:inherit;
 }
+
+.jp-search-notice-box {
+  border: solid .5px lightgrey;
+  margin-left: 5px;
+  padding: 0 5px;
+
+}
+
+.jp-search-notice-box__important {
+  border: solid .5px red;
+  color: red;
+  margin-left: 5px;
+  padding: 0 5px;
+}

@@ -519,7 +519,13 @@ export async function changeloggerCli( argv ) {
 async function gitAdd( argv ) {
 	const changelogPath = `projects/${ argv.project }/changelog`;
 	const addedFiles = await child_process
-		.spawnSync( 'git', [ 'ls-files', '--others', '--exclude-standard' ] )
+		.spawnSync( 'git', [
+			'-c',
+			'core.quotepath=off',
+			'ls-files',
+			'--others',
+			'--exclude-standard',
+		] )
 		.stdout.toString()
 		.trim();
 	for ( const file of addedFiles.split( '\n' ) ) {

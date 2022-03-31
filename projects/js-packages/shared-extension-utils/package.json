@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.3.0-alpha",
+	"version": "0.3.2-alpha",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -26,11 +26,12 @@
 		"@babel/core": "7.17.8",
 		"@babel/preset-react": "7.16.7",
 		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0"
+		"nyc": "15.1.0",
+		"react": "17.0.2"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
