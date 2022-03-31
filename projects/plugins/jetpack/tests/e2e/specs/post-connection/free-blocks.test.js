@@ -53,7 +53,7 @@ test.describe.parallel( 'Free blocks', () => {
 			const frontend = await PostFrontendPage.init( page );
 			expect(
 				await frontend.isRenderedBlockPresent( PinterestBlock, { pinId } ),
-				'Block is present in post view'
+				'Block should be displayed'
 			).toBeTruthy();
 		} );
 	} );
@@ -83,7 +83,7 @@ test.describe.parallel( 'Free blocks', () => {
 				await frontend.isRenderedBlockPresent( EventbriteBlock, {
 					eventId,
 				} ),
-				'Block is present in post view'
+				'Block should be displayed'
 			).toBeTruthy();
 		} );
 	} );

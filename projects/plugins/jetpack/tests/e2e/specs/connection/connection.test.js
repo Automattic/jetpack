@@ -29,7 +29,7 @@ test.describe( 'Connection', () => {
 
 		await test.step( 'Can assert that site is connected', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isConnected(), 'Jetpack should be connected' ).toBeTruthy();
+			expect( await jetpackPage.isConnected(), 'Site should be connected' ).toBeTruthy();
 		} );
 	} );
 
@@ -40,7 +40,7 @@ test.describe( 'Connection', () => {
 
 		await test.step( 'Can assert that site is connected', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isConnected(), 'Jetpack should be connected' ).toBeTruthy();
+			expect( await jetpackPage.isConnected(), 'Site should be connected' ).toBeTruthy();
 		} );
 	} );
 } );
