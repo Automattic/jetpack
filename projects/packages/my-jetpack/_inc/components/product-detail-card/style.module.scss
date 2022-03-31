@@ -3,12 +3,12 @@
 	height: 100%;
 	padding: calc( var( --spacing-base ) * 6 );
 	position: relative;
+}
 
-	.container {
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-	}
+.container {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 
 .card-header {
