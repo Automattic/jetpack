@@ -1445,16 +1445,16 @@
         },
         {
             "name": "automattic/jetpack-search",
-            "version": "v0.12.0",
+            "version": "v0.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-search.git",
-                "reference": "853dd85bfd6d07a448121376cebcfdae0c7220d2"
+                "reference": "1c28754688fd42f05173b8d6b31a62a7e3bb17ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/853dd85bfd6d07a448121376cebcfdae0c7220d2",
-                "reference": "853dd85bfd6d07a448121376cebcfdae0c7220d2",
+                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/1c28754688fd42f05173b8d6b31a62a7e3bb17ae",
+                "reference": "1c28754688fd42f05173b8d6b31a62a7e3bb17ae",
                 "shasum": ""
             },
             "require": {
@@ -1497,9 +1497,9 @@
             ],
             "description": "Tools to assist with enabling cloud search for Jetpack sites.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-search/tree/v0.12.0"
+                "source": "https://github.com/Automattic/jetpack-search/tree/v0.12.1"
             },
-            "time": "2022-03-29T18:21:34+00:00"
+            "time": "2022-03-31T17:21:29+00:00"
         },
         {
             "name": "automattic/jetpack-status",
