@@ -320,7 +320,7 @@ class csstidy_optimise { // phpcs:ignore
 		}
 
 		// #aabbcc -> #abc
-		if ( strlen( $color ) == 7 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		if ( strlen( $color ) === 7 ) {
 			$color_temp = strtolower( $color );
 			if ( $color_temp[0] === '#' && $color_temp[1] == $color_temp[2] && $color_temp[3] == $color_temp[4] && $color_temp[5] == $color_temp[6] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				$color = '#' . $color[1] . $color[3] . $color[5];
