@@ -3,10 +3,12 @@
  */
 import React from 'react';
 import { Button as WPButton, Spinner } from '@wordpress/components';
-import { Icon, external } from '@wordpress/icons';
+import * as icons from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import styles from './style.module.scss';
+
+const { Icon, ...allIcons } = icons;
 
 export const BUTTON_SIZES = {
 	NORMAL: 'normal',
@@ -24,21 +26,33 @@ const Button = ( {
 	children,
 	variant,
 	size,
-	icon,
+	icon: propIcon,
+	iconSize,
 	disabled,
 	isDestructive,
 	isLoading,
 	className: propsClassName,
 	text,
 } ) => {
-	const isExternalLink = variant === BUTTON_VARIANTS.EXTERNAL_LINK;
-	const externalIconSize = size === BUTTON_SIZES.NORMAL ? 20 : 16;
+	const icon =
+		typeof propIcon === 'string' ? (
+			<Icon icon={ allIcons[ propIcon ] } size={ iconSize } />
+		) : (
+			propIcon
+		);
+
 	const className = classNames( styles.button, {
 		[ styles.normal ]: size === BUTTON_SIZES.NORMAL,
 		[ styles.small ]: size === BUTTON_SIZES.SMALL,
 		[ styles.icon ]: Boolean( icon ),
 		propsClassName,
 	} );
+
+	const isExternalLink = variant === BUTTON_VARIANTS.EXTERNAL_LINK;
+	const externalIconSize = size === BUTTON_SIZES.NORMAL ? 20 : 16;
+	const externalIcon = isExternalLink && (
+		<Icon size={ externalIconSize } icon={ allIcons.external } />
+	);
 
 	return (
 		<WPButton
@@ -54,7 +68,7 @@ const Button = ( {
 			) : (
 				<>
 					{ children }
-					{ isExternalLink && <Icon size={ externalIconSize } icon={ external } /> }
+					{ externalIcon }
 				</>
 			) }
 		</WPButton>
