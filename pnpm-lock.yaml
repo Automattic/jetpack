@@ -657,6 +657,9 @@ importers:
       intersection-observer: 0.12.0
       webpack: 5.65.0
 
+  projects/packages/meta-tags:
+    specifiers: {}
+
   projects/packages/my-jetpack:
     specifiers:
       '@automattic/format-currency': 1.0.0-alpha.0
