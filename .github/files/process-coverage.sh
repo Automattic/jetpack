@@ -2,12 +2,12 @@
 
 set -eo pipefail
 
-BASE="$(pwd)"
+EXIT=0
 
 [[ -d coverage ]] && find coverage -type d -empty -delete
 if [[ ! -d coverage ]]; then
 	echo 'No coverage was generated.'
-	exit 0
+	exit $EXIT
 fi
 
 echo '::group::Copy coverage into artifacts'
@@ -20,8 +20,12 @@ chmod +x codecov
 for SLUG in $(jq -r 'keys[]' <<<"$CHANGED"); do
 	FLAG=$(tr / _ <<<"$SLUG")
 	if [[ -d "./coverage/$SLUG" ]]; then
-			echo "::group::Send $SLUG coverage to codecov.io"
-			./codecov -s ./coverage/$SLUG -F $FLAG || echo "Codecov failed to upload $FLAG"
-			echo '::endgroup::'
+		echo "::group::Send $SLUG coverage to codecov.io"
+		if ! ./codecov -Z -s "./coverage/$SLUG" -F "$FLAG"; then
+			echo "::error::Codecov failed to upload $SLUG"
+			EXIT=1
+		fi
+		echo "::endgroup::"
 	fi
 done
+exit $EXIT
