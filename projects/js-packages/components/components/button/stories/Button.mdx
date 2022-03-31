@@ -1,0 +1,76 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs';
+import Button from '../index.jsx';
+
+<Meta
+  title="JS Packages/Components/Button"
+  component={Button}
+/>
+
+# Button
+This is a component to create buttons and links across Jetpack.
+
+## Props
+
+Below is the current available props for `Button`.
+
+### variant
+
+It accepts 4 variants types: `primary`, `secondary`, `link`, `external-link`.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--button-primary" />
+  <Story id="js-packages-components-button--button-secondary" />
+  <Story id="js-packages-components-button--button-link" />
+  <Story id="js-packages-components-button--button-external-link" />
+</Canvas>
+
+### size
+
+It accepts 2 size types: `normal` and `small`.
+
+<Canvas>
+  <Story id="js-packages-components-button--button-primary" />
+  <Button size="small">Jetpack Button</Button>
+</Canvas>
+
+### icon
+
+It accepts an string which is some icon available at [@wordpress/icons](https://github.com/WordPress/gutenberg/blob/trunk/packages/icons/src/index.js) or a component.
+
+If using string, you could define the icon size using `iconSize` prop.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--icon" />
+</Canvas>
+
+### disabled
+
+Disables the button removing cursor-pointer effect.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--disabled" />
+</Canvas>
+
+### isDestructive
+
+Set button on destructive state, which change the color for red.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--destructive" />
+</Canvas>
+
+### isLoading
+
+Set button on loading state, which applies a centered spinner.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--loading" />
+</Canvas>
+
+### text
+
+It applies an text before children, it could be use together or alone.
+
+<Canvas>
+  <Button text="My Text">My Children</Button>
+</Canvas>

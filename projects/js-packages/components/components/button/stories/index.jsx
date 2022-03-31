@@ -7,6 +7,7 @@ import React from 'react';
  * Internal dependencies
  */
 import Button from '../index.jsx';
+import Doc from './Button.mdx';
 
 const DisableVariant = {
 	variant: {
@@ -61,6 +62,9 @@ export default {
 	parameters: {
 		backgrounds: {
 			default: 'Light',
+		},
+		docs: {
+			page: Doc,
 		},
 	},
 };
