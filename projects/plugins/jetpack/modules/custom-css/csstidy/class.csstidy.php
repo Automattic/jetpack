@@ -1000,8 +1000,8 @@ class csstidy { // phpcs:ignore
 			$lastpos              = 0;
 			$this->sel_separate[] = strlen( $this->selector );
 			foreach ( $this->sel_separate as $num => $pos ) {
-				if ( count( $this->sel_separate ) - 1 == $num ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-					$pos += 1; // phpcs:ignore Squiz.Operators.IncrementDecrementUsage.Found
+				if ( count( $this->sel_separate ) - 1 === $num ) {
+					++$pos;
 				}
 
 				$new_sels[] = substr( $this->selector, $lastpos, $pos - $lastpos - 1 );
