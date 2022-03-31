@@ -29,6 +29,7 @@ const Button = ( {
 	isDestructive,
 	isLoading,
 	className: propsClassName,
+	text,
 } ) => {
 	const isExternalLink = variant === BUTTON_VARIANTS.EXTERNAL_LINK;
 	const externalIconSize = size === BUTTON_SIZES.NORMAL ? 20 : 16;
@@ -46,6 +47,7 @@ const Button = ( {
 			icon={ icon }
 			disabled={ disabled }
 			isDestructive={ isDestructive }
+			text={ text }
 		>
 			{ isLoading ? (
 				<Spinner />
@@ -71,6 +73,7 @@ Button.propTypes = {
 	isDestructive: PropTypes.bool,
 	isLoading: PropTypes.bool,
 	className: PropTypes.string,
+	text: PropTypes.string,
 };
 
 Button.defaultProps = {
