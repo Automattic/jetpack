@@ -14,11 +14,11 @@ echo '::group::Copy coverage into artifacts'
 tar --owner=0 --group=0 --xz -cvvf artifacts/coverage.tar.xz coverage
 echo '::endgroup::'
 
-curl -Os https://uploader.codecov.io/latest/linux/codecov
+curl --fail --no-progress-meter -O https://uploader.codecov.io/latest/linux/codecov
 chmod +x codecov
 
-for SLUG in $(echo $CHANGED | jq -r 'keys[]'); do
-	FLAG=$(echo $SLUG | tr / _)
+for SLUG in $(jq -r 'keys[]' <<<"$CHANGED"); do
+	FLAG=$(tr / _ <<<"$SLUG")
 	if [[ -d "./coverage/$SLUG" ]]; then
 			echo "::group::Send $SLUG coverage to codecov.io"
 			./codecov -s ./coverage/$SLUG -F $FLAG || echo "Codecov failed to upload $FLAG"
