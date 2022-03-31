@@ -35,6 +35,8 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	 *
 	 * We could be using setupBeforeClass() here, but that has a conflict with our PHP 5.6 lint. So, using this workaround
 	 * and crying inside a bit. See: https://github.com/Automattic/jetpack/pull/23687#discussion_r838790636.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function maybe_do_setup() {
 		if ( ! $this->has_done_setup ) {
@@ -53,7 +55,9 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	/**
 	 * Create and get a user using WP factory.
 	 *
-	 * @since 4.4.0
+	 * @since-jetpack 4.4.0
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $role The role to assign the created user.
 	 *
@@ -81,7 +85,9 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	/**
 	 * Creates a WP_REST_Request and returns it.
 	 *
-	 * @since 4.4.0
+	 * @since-jetpack 4.4.0
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $route       REST API path to be append to /jetpack/v4/.
 	 * @param array  $json_params When present, parameters are added to request in JSON format.
@@ -110,7 +116,9 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	/**
 	 * Check response status code.
 	 *
-	 * @since 4.4.0
+	 * @since-jetpack 4.4.0
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param integer          $status   The expected status.
 	 * @param WP_REST_Response $response The response object.
@@ -122,7 +130,9 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	/**
 	 * Test saving and retrieving licensing errors.
 	 *
-	 * @since 9.0.0
+	 * @since-jetpack 9.0.0
+	 *
+	 * @since $$next-version$$
 	 */
 	public function test_licensing_error() {
 		$this->maybe_do_setup();
