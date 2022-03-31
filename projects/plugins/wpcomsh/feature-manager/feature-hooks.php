@@ -16,9 +16,19 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 
 	switch ( $cap ) {
 		case 'edit_themes':
-		case 'install_themes':
 		case 'update_themes':
 		case 'delete_themes':
+			if ( ! wpcom_site_has_feature( WPCOM_Features::INSTALL_THEMES ) ) {
+				$caps[] = 'do_not_allow';
+			}
+			break;
+
+		case 'install_themes':
+			// Don't restrict `install_themes` when installing from WP.com.
+			if ( wpcomsh_is_theme_install_request() ) {
+				break;
+			}
+
 			if ( ! wpcom_site_has_feature( WPCOM_Features::INSTALL_THEMES ) ) {
 				$caps[] = 'do_not_allow';
 			}
@@ -50,6 +60,27 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 add_filter( 'map_meta_cap', 'wpcomsh_map_feature_cap', 10, 2 );
 
 /**
+ * Whether the current request is an XML-RPC request from Calypso to install a WP.com theme.
+ *
+ * @return bool
+ */
+function wpcomsh_is_theme_install_request() {
+	// Return early for all non-API requests.
+	if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
+		return false;
+	}
+
+	// Return early-ish when it's not a varified XML-RPC request.
+	if (
+		! method_exists( 'Automattic\Jetpack\Connection\Manager', 'verify_xml_rpc_signature' ) ||
+		! ( new Automattic\Jetpack\Connection\Manager() )->verify_xml_rpc_signature() ) {
+		return false;
+	}
+
+	return class_exists( 'WPCOM_JSON_API' ) && preg_match( '@/sites/(.+)/themes/(.+)/install@', WPCOM_JSON_API::$self->path );
+}
+
+/**
  * If this site does NOT have the 'options-permalink' feature, remove the Settings > Permalinks submenu item.
  */
 function wpcomsh_maybe_remove_permalinks_menu_item() {
@@ -70,7 +101,7 @@ function wpcomsh_maybe_disable_permalink_page() {
 	}
 	if ( ! ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ) {
 		wp_die(
-			__( 'You do not have permission to access this page.', 'wpcomsh' ),
+			esc_html__( 'You do not have permission to access this page.', 'wpcomsh' ),
 			'',
 			array(
 				'back_link' => true,
@@ -91,7 +122,7 @@ add_action( 'load-options-permalink.php', 'wpcomsh_maybe_disable_permalink_page'
 /**
  * Restricts the allowed mime types if the site have does NOT have access to the required feature.
  *
- * @param array mimes Mime types keyed by the file extension regex corresponding to those types.
+ * @param array $mimes Mime types keyed by the file extension regex corresponding to those types.
  * @return array Allowed mime types.
  */
 function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
@@ -157,9 +188,9 @@ add_action( 'plugins_loaded', 'wpcomsh_maybe_redirect_to_calypso_plugin_pages' )
  * The footer credit feature lives in a separate platform-agnostic repository, so we rely on filters to manage it.
  * Pressable Footer Credit repository: https://github.com/Automattic/at-pressable-footer-credit
  *
- * @param bool $previous_value The previous value or default value of filter.
+ * @return bool
  */
-function wpcomsh_gate_footer_credit_feature( $previous_value ) {
+function wpcomsh_gate_footer_credit_feature() {
 	return wpcom_site_has_feature( WPCOM_Features::NO_WPCOM_BRANDING );
 }
 add_filter( 'wpcom_better_footer_credit_can_customize', 'wpcomsh_gate_footer_credit_feature' );
