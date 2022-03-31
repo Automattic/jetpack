@@ -50,7 +50,7 @@
 				<ReactComponent
 					this={PricingCard}
 					title={'Jetpack Boost'}
-					icon={`${ window.Jetpack_Boost.site.assetPath }../src/js/svg/forward.svg`}
+					icon={`${ window.Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
 					priceBefore={19.95}
 					priceAfter={9.95}
 					priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
