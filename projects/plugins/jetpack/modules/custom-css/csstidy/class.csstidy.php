@@ -898,7 +898,7 @@ class csstidy { // phpcs:ignore
 					// parentheticals can be nested more than once.
 					if ( ')' === $_str_char && ( '(' === $string[ $i ] || '"' === $string[ $i ] || '\'' === $string[ $i ] ) && ! self::escaped( $string, $i ) ) {
 						$this->cur_string[]    = $string[ $i ];
-						$this->str_char[]      = $string[ $i ] === '(' ? ')' : $string[ $i ]; // phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
+						$this->str_char[]      = $string[ $i ] === '(' ? ')' : $string[ $i ];
 						$this->from[]          = 'instr';
 						$this->quoted_string[] = ! ( '(' === $string[ $i ] );
 						continue 2;
