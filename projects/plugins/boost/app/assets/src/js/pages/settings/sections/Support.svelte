@@ -3,22 +3,12 @@
 	 * Internal dependencies
 	 */
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
-	import config from '../../../stores/config.ts';
-
+	import { isPaidPlan, openPaidSupport } from '../../../utils/paid-plan';
 	/**
 	 * WordPress dependencies
 	 */
 	import { __ } from '@wordpress/i18n';
 	import { Button } from '@wordpress/components';
-	import { derived } from 'svelte/store';
-
-	const isPaidPlan = derived( config, $config => $config.preferences.paidPlan === '1' );
-
-	const openSupport = () => {
-		const supportUrl = 'https://jetpackme.wordpress.com/contact-support/';
-
-		window.open( supportUrl, '_blank' );
-	};
 </script>
 
 {#if isPaidPlan}
@@ -40,7 +30,7 @@
 					<ReactComponent
 						this={Button}
 						label={__( 'Continue', 'jetpack-boost' )}
-						onClick={openSupport}
+						onClick={openPaidSupport}
 						className="jb-button jb-button--outline"
 						children={__( 'Contact Us', 'jetpack-boost' )}
 					/>
