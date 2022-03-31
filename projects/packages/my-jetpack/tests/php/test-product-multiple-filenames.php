@@ -2,7 +2,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
+use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 
@@ -55,6 +57,10 @@ class Test_Product_Multiple_Filenames extends TestCase {
 			unlink( WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
 			rmdir( WP_PLUGIN_DIR . '/jetpack' );
 		}
+
+		// Mock site connection.
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		Jetpack_Options::update_option( 'id', 123 );
 
 	}
 
