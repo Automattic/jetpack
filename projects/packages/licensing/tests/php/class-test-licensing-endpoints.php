@@ -24,36 +24,30 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	private $server;
 
 	/**
+	 * Used to store a boolean for whether we've initialized licensing before running tests.
+	 *
+	 * @var boolean
+	 */
+	private $has_done_setup;
+
+	/**
 	 * Ensure that Licensing package has been setup and hooks have been registered.
+	 *
+	 * We could be using setupBeforeClass() here, but that has a conflict with our PHP 5.6 lint. So, using this workaround
+	 * and crying inside a bit. See: https://github.com/Automattic/jetpack/pull/23687#discussion_r838790636.
 	 */
-	public static function setUpBeforeClass() : void { // phpcs:ignore.
-		parent::setUpBeforeClass();
+	public function maybe_do_setup() {
+		if ( ! $this->has_done_setup ) {
+			$licensing = new Licensing();
+			$licensing->initialize(); // Ensure that licensing hooks are initialized so that we can register endpoints.
 
-		$licensing = new Licensing();
-		$licensing->initialize();
-		do_action( 'rest_api_init' );
-	}
+			global $wp_rest_server;
+			$wp_rest_server = new \WP_REST_Server();
+			$this->server   = $wp_rest_server;
 
-	/**
-	 * Setup environment for REST API endpoints test.
-	 */
-	public function setUp(): void { // phpcs:ignore.
-		parent::set_up_wordbless();
-
-		global $wp_rest_server;
-		$wp_rest_server = new \WP_REST_Server();
-		$this->server   = $wp_rest_server;
-		do_action( 'rest_api_init' );
-	}
-
-	/**
-	 * Clean environment for REST API endpoints test.
-	 */
-	public function tearDown(): void { // phpcs:ignore.
-		parent::tear_down_wordbless();
-
-		global $wp_rest_server;
-		$wp_rest_server = null;
+			$this->has_done_setup = true;
+			do_action( 'rest_api_init' ); // Now, register endpoints.
+		}
 	}
 
 	/**
@@ -131,6 +125,8 @@ class Test_Licensing_Endpoints extends BaseTestCase {
 	 * @since 9.0.0
 	 */
 	public function test_licensing_error() {
+		$this->maybe_do_setup();
+
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user( 'administrator' );
 		$user->add_cap( 'jetpack_admin_page' );
