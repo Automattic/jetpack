@@ -23,18 +23,18 @@ Set of React jetpack-components intended to facilitate when dealing with renderi
 Define the text Typography variant among the options offered by the ThemeProvider component.
 
 <Source
-	language='jsx'
-	code={dedent`
-		import Text from '@automattic/jetpack-components';
-		
-		function Hello() {
-			return (
-				<Text variant="headline-medium">
-					Hello, Text component!
-				</Text>
-			);
-		}
-	`}
+  language='jsx'
+  code={dedent`
+    import Text from '@automattic/jetpack-components';
+    
+    function Hello() {
+      return (
+        <Text variant="headline-medium">
+          Hello, Text component!
+        </Text>
+      );
+    }
+  `}
 />
 
 #### Spacing properties
@@ -62,19 +62,58 @@ Prop | Description
 **py** | padding top and bottom
 
 <Source
-	language='jsx'
-	code={dedent`
-		import Text from '@automattic/jetpack-components';
-		
-		function HelloBoxModel() {
-			return (
-				<Text mt={ 2 } px={ 4 }>
-					Hello, Text component!
-				</Text>
-			);
-		}
-	`}
+  language='jsx'
+  code={dedent`
+    import Text from '@automattic/jetpack-components';
+    
+    function HelloBoxModel() {
+      return (
+        <Text mt={ 2 } px={ 4 }>
+          Hello, Text component!
+        </Text>
+      );
+    }
+  `}
 />
+
+#### component
+
+**Type**: `elementType`, `string`.
+
+Force an specific tag (`<span />`, `<div />`) or use a custom component that will receive className and children.
+
+<Source
+  language='jsx'
+  code={dedent`
+    import Text from '@automattic/jetpack-components';
+    
+    function CustomComponent( { children, className } ) {
+      // className, provided by Text, is "custom-classname"
+      return (
+        <div className={ className }>{ children }</div>
+      );
+    }
+    
+    // Use a custom component when rendering the <Text />,
+    // it passes down the className property to it.
+    function CustomTextComponent() {
+      return (
+        <Text
+          className="custom-classname"
+          component={ CustomComponent }
+        >
+          Hello, Custom Text component!
+        </Text>
+      );
+    }
+  `}
+/>
+
+#### Children
+
+**Type**: `node`.
+
+The text itself that will be rendered.
 
 # Text based components
 
@@ -89,16 +128,16 @@ Text shorthand to render a `heading-small` text, applying proper spacing.
 #### Weight: `bold` (default) | `regular`
 
 <Source
-	language='jsx'
-	code={dedent`
-		import { H3 } from '@automattic/jetpack-components';
-		
-		function Subtitle() {
-			return (
-				<H3 weight="regular">Let's explaining what H3 is</H3>
-			);
-		}
-	`}
+  language='jsx'
+  code={dedent`
+    import { H3 } from '@automattic/jetpack-components';
+    
+    function Subtitle() {
+      return (
+        <H3 weight="regular">Let's explaining what H3 is</H3>
+      );
+    }
+  `}
 />
 
 ## <Title /\>
@@ -109,16 +148,16 @@ Text shorthand to render a `body` text, applying proper spacing.
 #### Size: `medium` (default) | `small`
 
 <Source
-	language='jsx'
-	code={dedent`
-		import { Title } from '@automattic/jetpack-components';
-		
-		function Subtitle() {
-			return (
-				<Title size="small">
-					To explain what a Title component does, we should before...
-				</Title>
-			);
-		}
-	`}
+  language='jsx'
+  code={dedent`
+    import { Title } from '@automattic/jetpack-components';
+    
+    function Subtitle() {
+      return (
+        <Title size="small">
+          To explain what a Title component does, we should before...
+        </Title>
+      );
+    }
+  `}
 />
