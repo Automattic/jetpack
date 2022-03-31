@@ -36,7 +36,7 @@ const SiteTypeQuestionComponent = props => {
 		saveRecommendationsData,
 		siteTitle,
 		updateRecommendationsStep,
-		isLoadingSuggestions,
+		isFetchingSuggestions,
 		canShowProductSuggestions,
 	} = props;
 
@@ -109,7 +109,7 @@ const SiteTypeQuestionComponent = props => {
 				'jetpack'
 			) }
 			answer={ answerSection }
-			isLoadingSideContent={ isLoadingSuggestions }
+			isLoadingSideContent={ isFetchingSuggestions }
 			illustrationPath={
 				! canShowProductSuggestions ? 'recommendations/site-type-illustration.jpg' : null
 			}
@@ -128,7 +128,7 @@ export const SiteTypeQuestion = connect(
 			store: getDataByKey( state, 'site-type-store' ),
 			other: getDataByKey( state, 'site-type-other' ),
 		},
-		isLoadingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
+		isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
 		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 	} ),
 	dispatch => ( {

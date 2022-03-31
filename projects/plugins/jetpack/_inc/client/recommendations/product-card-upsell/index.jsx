@@ -3,7 +3,7 @@
  */
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
@@ -12,8 +12,10 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import Button from 'components/button';
+import { getIntroOffers, isFetchingIntroOffers } from 'state/intro-offers';
 import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
 import DiscountBadge from '../discount-badge';
+import withUpgradeUrl from '../hoc/with-upgrade-url';
 import RecommendedHeader from '../sidebar/recommended-header';
 
 /**
@@ -30,26 +32,39 @@ const Price = ( { className, integer, fraction, symbol } ) => (
 );
 
 const ProductCardUpsellComponent = ( {
+	slug,
 	title,
 	description,
 	billing_timeframe,
 	cost_timeframe,
-	currency_code,
-	upgradeUrl,
-	price,
+	currency_code: currency,
 	isRecommended,
 	features,
 	onClick,
 	onMount,
-	isLoadingDiscount,
+	isFetchingDiscount,
+	isFetchingOffers,
 	discountData,
+	introOffers,
+	upgradeUrl,
 } ) => {
-	const { discount } = discountData || {};
-	const rawPrice = ( price * 12 ) / 0.4 / 12; // TODO: get from API
-	const finalPrice = discount ? price * ( 1 - discount / 100 ) : price;
-	const totalDiscount = ( ( rawPrice - finalPrice ) / rawPrice ) * 100;
-	const rawCurrencyObject = getCurrencyObject( rawPrice, currency_code );
-	const currencyObject = getCurrencyObject( finalPrice, currency_code );
+	const { discount } = discountData;
+	const { original_price: originalPrice, raw_price: introPrice } = useMemo(
+		() => introOffers.find( ( { product_slug } ) => product_slug === slug ) || {},
+		[ slug, introOffers ]
+	);
+	const finalPrice = introPrice * ( 1 - discount / 100 );
+	const totalDiscount = originalPrice
+		? Math.round( ( ( originalPrice - finalPrice ) / originalPrice ) * 100 )
+		: null;
+	const originalCurrencyObject = useMemo( () => getCurrencyObject( originalPrice / 12, currency ), [
+		originalPrice,
+		currency,
+	] );
+	const currencyObject = useMemo( () => getCurrencyObject( finalPrice / 12, currency ), [
+		finalPrice,
+		currency,
+	] );
 
 	const header = isRecommended && (
 		<RecommendedHeader className="jp-recommendations-product-card-upsell__header" />
@@ -59,7 +74,7 @@ const ProductCardUpsellComponent = ( {
 		if ( onMount ) {
 			onMount();
 		}
-	}, [ onMount ] );
+	}, [] );
 
 	return (
 		<div
@@ -75,14 +90,14 @@ const ProductCardUpsellComponent = ( {
 					<li key={ feature }>{ feature }</li>
 				) ) }
 			</ul>
-			{ ! isLoadingDiscount && (
+			{ ! ( isFetchingDiscount || isFetchingOffers ) && (
 				<>
 					<div className="jp-recommendations-product-card-upsell__price-container">
 						<div className="jp-recommendations-product-card-upsell__price">
 							{ discount && (
 								<Price
 									className="jp-recommendations-product-card-upsell__raw-price"
-									{ ...rawCurrencyObject }
+									{ ...originalCurrencyObject }
 								/>
 							) }
 							<Price
@@ -122,22 +137,23 @@ const ProductCardUpsellComponent = ( {
 };
 
 ProductCardUpsellComponent.propTypes = {
+	slug: PropTypes.string.isRequired,
 	title: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
 	billing_timeframe: PropTypes.string.isRequired,
 	cost_timeframe: PropTypes.string.isRequired,
 	currency_code: PropTypes.string.isRequired,
-	upgradeUrl: PropTypes.string.isRequired,
 	features: PropTypes.arrayOf( PropTypes.string ).isRequired,
-	price: PropTypes.number.isRequired,
 	isRecommended: PropTypes.bool,
 	onClick: PropTypes.func,
 	onMount: PropTypes.func,
 };
 
 const ProductCardUpsell = connect( state => ( {
-	isLoadingDiscount: isFetchingSiteDiscount( state ),
+	isFetchingDiscount: isFetchingSiteDiscount( state ),
+	isFetchingOffers: isFetchingIntroOffers( state ),
 	discountData: getSiteDiscount( state ),
-} ) )( ProductCardUpsellComponent );
+	introOffers: getIntroOffers( state ),
+} ) )( withUpgradeUrl( ProductCardUpsellComponent ) );
 
 export { ProductCardUpsell };

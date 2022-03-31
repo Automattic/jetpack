@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
 
@@ -13,6 +13,7 @@ import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import {
 	getProductSuggestions,
 	isFetchingRecommendationsProductSuggestions,
+	isFetchingRecommendationsUpsell,
 } from 'state/recommendations';
 import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
 import { ProductSuggestion } from '../product-suggestion';
@@ -24,12 +25,20 @@ import Timer from '../../timer';
  */
 import './style.scss';
 
-const ProductSuggestionsComponent = props => {
-	const { isFetchingSuggestions, suggestions, isLoadingDiscount, discountData } = props;
-	const expiryDate = discountData?.expiry_date;
-	const discount = discountData?.discount;
+const ProductSuggestionsComponent = ( {
+	isFetchingSuggestions,
+	isFetchingDiscount,
+	isFetchingUpsell,
+	suggestions,
+	discountData,
+} ) => {
+	const { discount, expiry_date: expiryDate, is_used: isUsed } = discountData;
+	const hasDiscount = useMemo(
+		() => discount && ! isUsed && new Date( expiryDate ).valueOf() - Date.now() > 0,
+		[ discount, isUsed, expiryDate ]
+	);
 
-	if ( isFetchingSuggestions ) {
+	if ( isFetchingSuggestions || isFetchingUpsell ) {
 		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	}
 
@@ -52,7 +61,7 @@ const ProductSuggestionsComponent = props => {
 				<div></div>
 			</div>
 			<footer className="jp-recommendations-product-suggestion__footer">
-				{ ! isLoadingDiscount && discount && (
+				{ ! isFetchingDiscount && hasDiscount && (
 					<>
 						<span>
 							{ __(
@@ -77,8 +86,9 @@ const ProductSuggestionsComponent = props => {
 };
 
 export const ProductSuggestions = connect( state => ( {
-	suggestions: getProductSuggestions( state ),
 	isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
-	isLoadingDiscount: isFetchingSiteDiscount( state ),
+	isFetchingDiscount: isFetchingSiteDiscount( state ),
+	isFetchingUpsell: isFetchingRecommendationsUpsell( state ),
+	suggestions: getProductSuggestions( state ),
 	discountData: getSiteDiscount( state ),
 } ) )( ProductSuggestionsComponent );
