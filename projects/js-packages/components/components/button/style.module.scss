@@ -6,6 +6,11 @@
 
 	border-radius: var(--jp-border-radius);
 
+	// Loading Mode
+	& > :global(.components-spinner) {
+		margin: 0 var(--spacing-base);
+	}
+
 	// Normal Size & Font
 	&.normal {
 		height: 40px;

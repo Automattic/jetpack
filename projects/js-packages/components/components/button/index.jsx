@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { Button as WPButton } from '@wordpress/components';
+import { Button as WPButton, Spinner } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -20,13 +20,23 @@ export const BUTTON_VARIANTS = {
 	EXTERNAL_LINK: 'external-link',
 };
 
-const Button = ( { children, variant, size, icon, disabled, isDestructive } ) => {
+const Button = ( {
+	children,
+	variant,
+	size,
+	icon,
+	disabled,
+	isDestructive,
+	isLoading,
+	className: propsClassName,
+} ) => {
 	const isExternalLink = variant === BUTTON_VARIANTS.EXTERNAL_LINK;
 	const externalIconSize = size === BUTTON_SIZES.NORMAL ? 20 : 16;
 	const className = classNames( styles.button, {
 		[ styles.normal ]: size === BUTTON_SIZES.NORMAL,
 		[ styles.small ]: size === BUTTON_SIZES.SMALL,
 		[ styles.icon ]: Boolean( icon ),
+		propsClassName,
 	} );
 
 	return (
@@ -36,10 +46,15 @@ const Button = ( { children, variant, size, icon, disabled, isDestructive } ) =>
 			icon={ icon }
 			disabled={ disabled }
 			isDestructive={ isDestructive }
-			iconPosition="right"
 		>
-			{ children }
-			{ isExternalLink && <Icon size={ externalIconSize } icon={ external } /> }
+			{ isLoading ? (
+				<Spinner />
+			) : (
+				<>
+					{ children }
+					{ isExternalLink && <Icon size={ externalIconSize } icon={ external } /> }
+				</>
+			) }
 		</WPButton>
 	);
 };
@@ -54,6 +69,8 @@ Button.propTypes = {
 	size: PropTypes.oneOf( [ BUTTON_SIZES.NORMAL, BUTTON_SIZES.SMALL ] ),
 	disabled: PropTypes.bool,
 	isDestructive: PropTypes.bool,
+	isLoading: PropTypes.bool,
+	className: PropTypes.string,
 };
 
 Button.defaultProps = {
@@ -61,6 +78,7 @@ Button.defaultProps = {
 	size: BUTTON_SIZES.NORMAL,
 	disabled: false,
 	isDestructive: false,
+	isLoading: false,
 };
 
 export default Button;
