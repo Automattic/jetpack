@@ -29,7 +29,7 @@ class Jetpack_Connection_Banner {
 	 * @return self
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Connection_Banner();
 		}
 

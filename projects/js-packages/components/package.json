@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.10.12-alpha",
+	"version": "0.11.0-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -16,7 +16,7 @@
 		"qrcode.react": "2.0.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.1",
 		"@babel/core": "7.17.8",
 		"@babel/preset-react": "7.16.7",
 		"jetpack-js-test-runner": "workspace:*",
@@ -42,7 +42,7 @@
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

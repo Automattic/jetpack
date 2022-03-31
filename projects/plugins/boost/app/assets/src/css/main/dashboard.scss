@@ -3,6 +3,10 @@
 		font-size: 16px;
 	}
 
+  	&--main {
+	  background-color: $primary-white;
+	}
+
 	min-height: calc(100vh - 60px);
 	display: flex;
 	flex-direction: column;
@@ -30,11 +34,6 @@
 	margin-top: $halfling;
 }
 
-.jb-section--subpage {
-	/* Shrink margin-top on sub-pages to bring <- go back button up */
-	margin-top: 8px;
-}
-
 .jb-container {
 	width: 80%;
 	margin-left: auto;
@@ -43,6 +42,13 @@
 	&--narrow {
 		@extend .jb-container;
 		max-width: 744px;
+	}
+
+  	&--fixed {
+	  max-width: 1080px;
+	  width: auto;
+	  padding-left: $spacing-unit * 2;
+	  padding-right: $spacing-unit * 2;
 	}
 }
 
@@ -79,6 +85,12 @@
 		flex-direction: column;
 		justify-content: flex-start;
 	}
+}
+
+.jb-footer-note {
+	text-align: center;
+	margin-top: $halfling;
+	color: $gray_70;
 }
 
 .jb-signature--jetpack {

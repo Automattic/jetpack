@@ -88,7 +88,7 @@ function get_packages {
 	PACKAGES_DEV=$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= if $in.extra["branch-alias"]["dev-master"] then [ $in.extra["branch-alias"]["dev-master"], ( $in.extra["branch-alias"]["dev-master"] | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "^\(.v)" ) ) ] else [ "@dev" ] end )' "$BASE"/projects/packages/*/composer.json)
 	PACKAGES_NODEV=$(jq -c '( .[][0] | select( . != "@dev" ) ) |= empty' <<<"$PACKAGES_DEV")
 	PACKAGES_STAR=$(jq -c '.[] |= [ "@dev" ]' <<<"$PACKAGES_DEV")
-	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:^\($in.version)", "workspace:\($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
+	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:* || ^\( $in.version | sub( "^(?<v>[0-9]+\\.[0-9]+)(?:\\..*)$"; "\(.v)" ) )", "workspace:* || \($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
 	JSPACKAGES_STAR=$(jq -c '.[] |= [ "workspace:*" ]' <<<"$JSPACKAGES_PROJ")
 }
 
@@ -252,10 +252,10 @@ for SLUG in "${SLUGS[@]}"; do
 			fi
 		done < <(
 			if [[ -e "$PHPFILE" ]]; then
-				jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$PHPFILE"
+				jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( .value as $v | $packages[.key] as $vals | $vals and ( $vals | index( $v ) == null ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$PHPFILE"
 			fi
 			if [[ -e "$JSFILE" ]]; then
-				jq --argjson packages "$JSPACKAGES" -r '.dependencies // {}, .devDependencies // {}, .peerDependencies // {}, .optionalDependencies // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$JSFILE"
+				jq --argjson packages "$JSPACKAGES" -r '.dependencies // {}, .devDependencies // {}, .peerDependencies // {}, .optionalDependencies // {} | to_entries[] | select( .value as $v | $packages[.key] as $vals | $vals and ( $vals | index( $v ) == null ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$JSFILE"
 			fi
 		)
 	fi

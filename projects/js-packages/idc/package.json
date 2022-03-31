@@ -1,14 +1,14 @@
 {
 	"name": "@automattic/jetpack-idc",
-	"version": "0.10.4-alpha",
+	"version": "0.10.5-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-analytics": "workspace:^0.1.8",
-		"@automattic/jetpack-api": "workspace:^0.10.0",
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
-		"@automattic/jetpack-components": "workspace:^0.10.12-alpha",
+		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
+		"@automattic/jetpack-api": "workspace:* || ^0.10",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.1",
+		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@wordpress/base-styles": "4.1.1",
 		"@wordpress/components": "19.5.0",
 		"@wordpress/compose": "5.1.2",
@@ -44,7 +44,7 @@
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
