@@ -1045,7 +1045,7 @@ class csstidy { // phpcs:ignore
 	 * @version 1.2
 	 */
 	public function css_add_property( $media, $selector, $property, $new_val ) {
-		if ( $this->get_cfg( 'preserve_css' ) || '' == trim( $new_val ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		if ( $this->get_cfg( 'preserve_css' ) || '' === trim( $new_val ) ) {
 			return;
 		}
 
@@ -1110,8 +1110,8 @@ class csstidy { // phpcs:ignore
 			return $selector;
 		}
 		$selector = trim( $selector );
-		if ( strncmp( $selector, '@font-face', 10 ) != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-			if ( false != $this->settings['merge_selectors'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+		if ( strncmp( $selector, '@font-face', 10 ) !== 0 ) {
+			if ( $this->settings['merge_selectors'] ) {
 				return $selector;
 			}
 
