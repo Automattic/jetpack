@@ -23,6 +23,7 @@ use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Plugin\RUM;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -944,11 +945,13 @@ class Jetpack {
 
 		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
 			add_action( 'init', array( new Plugin_Tracking(), 'init' ) );
+			add_action( 'init', array( new RUM(), 'init' ) );
 		} else {
 			/**
-			 * Initialize tracking right after the user agrees to the terms of service.
+			 * Initialize tracking and RUM right after the user agrees to the terms of service.
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
+			add_action( 'jetpack_agreed_to_terms_of_service', array( new RUM(), 'init' ) );
 		}
 	}
 
