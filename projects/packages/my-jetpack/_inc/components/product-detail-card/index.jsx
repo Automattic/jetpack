@@ -10,9 +10,7 @@ import {
 	AntiSpamIcon,
 	BackupIcon,
 	CheckmarkIcon,
-	Col,
 	getIconBySlug,
-	Container,
 	ScanIcon,
 	StarIcon,
 	Text,
@@ -158,85 +156,67 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 	}, [ onClick, trackButtonClick ] );
 
 	return (
-		<Container
-			className={ classnames( styles.card, className ) }
-			fluid
-			horizontalGap={ 0 }
-			horizontalSpacing={ 0 }
-		>
+		<div className={ classnames( styles.card, className ) }>
 			{ isBundle && (
-				<Col className={ styles[ 'card-header' ] }>
+				<div className={ styles[ 'card-header' ] }>
 					<StarIcon className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
 					<Text variant="label">{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</Text>
-				</Col>
+				</div>
 			) }
 
-			<Col>
-				<Container horizontalSpacing={ 5 } horizontalGap={ 2 } className={ styles.container }>
-					<Col>
-						{ isBundle && <div>{ icons }</div> }
+			<div className={ styles.container }>
+				{ isBundle && <div>{ icons }</div> }
+				<ProductIcon slug={ slug } />
 
-						<ProductIcon slug={ slug } />
-					</Col>
+				<H3>{ title }</H3>
+				<Text mb={ 3 }>{ longDescription }</Text>
 
-					<Col>
-						<H3>{ title }</H3>
-						<Text mb={ 3 }>{ longDescription }</Text>
-
-						<ul className={ styles.features }>
-							{ features.map( ( feature, id ) => (
-								<Text component="li" key={ `feature-${ id }` } variant="body">
-									<Icon icon={ check } size={ 30 } />
-									{ feature }
-								</Text>
-							) ) }
-						</ul>
-					</Col>
-
-					{ needsPurchase && (
-						<Col className={ styles[ 'price-container' ] }>
-							<Price value={ price } currency={ currencyCode } isOld={ true } />
-							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
-							<Text className={ styles[ 'price-description' ] }>
-								{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
-							</Text>
-						</Col>
-					) }
-
-					{ isFree && (
-						<Text variant="title-small" component={ Col }>
-							{ __( 'Free', 'jetpack-my-jetpack' ) }
+				<ul className={ styles.features }>
+					{ features.map( ( feature, id ) => (
+						<Text component="li" key={ `feature-${ id }` } variant="body">
+							<Icon icon={ check } size={ 30 } />
+							{ feature }
 						</Text>
-					) }
+					) ) }
+				</ul>
 
-					<Col>
-						{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
-							<Text
-								component={ ProductDetailButton }
-								onClick={ clickHandler }
-								isLoading={ isFetching }
-								isPrimary={ ! isBundle }
-								href={ onClick ? undefined : addProductUrl }
-								className={ styles[ 'checkout-button' ] }
-								variant="body"
-							>
-								{
-									/* translators: placeholder is product name. */
-									sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
-								}
-							</Text>
-						) }
+				{ needsPurchase && (
+					<div className={ styles[ 'price-container' ] }>
+						<Price value={ price } currency={ currencyCode } isOld={ true } />
+						<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
+						<Text className={ styles[ 'price-description' ] }>
+							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+						</Text>
+					</div>
+				) }
 
-						{ isBundle && hasRequiredPlan && (
-							<div className={ styles[ 'product-has-required-plan' ] }>
-								<CheckmarkIcon size={ 36 } />
-								<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
-							</div>
-						) }
-					</Col>
-				</Container>
-			</Col>
-		</Container>
+				{ isFree && <Text variant="title-small">{ __( 'Free', 'jetpack-my-jetpack' ) }</Text> }
+
+				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+					<Text
+						component={ ProductDetailButton }
+						onClick={ clickHandler }
+						isLoading={ isFetching }
+						isPrimary={ ! isBundle }
+						href={ onClick ? undefined : addProductUrl }
+						className={ styles[ 'checkout-button' ] }
+						variant="body"
+					>
+						{
+							/* translators: placeholder is product name. */
+							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+						}
+					</Text>
+				) }
+
+				{ isBundle && hasRequiredPlan && (
+					<div className={ styles[ 'product-has-required-plan' ] }>
+						<CheckmarkIcon size={ 36 } />
+						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
+					</div>
+				) }
+			</div>
+		</div>
 	);
 };
 
