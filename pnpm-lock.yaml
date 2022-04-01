@@ -994,13 +994,11 @@ importers:
       '@playwright/test': 1.20.1
       allure-playwright: 2.0.0-beta.15
       config: 3.3.7
-      eslint-plugin-playwright: 0.8.0
       jetpack-e2e-commons: '*'
     devDependencies:
       '@playwright/test': 1.20.1
       allure-playwright: 2.0.0-beta.15
       config: 3.3.7
-      eslint-plugin-playwright: 0.8.0
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
 
   projects/plugins/jetpack:
@@ -1316,13 +1314,11 @@ importers:
       '@playwright/test': 1.20.1
       allure-playwright: 2.0.0-beta.15
       config: 3.3.7
-      eslint-plugin-playwright: 0.8.0
       jetpack-e2e-commons: '*'
     devDependencies:
       '@playwright/test': 1.20.1
       allure-playwright: 2.0.0-beta.15
       config: 3.3.7
-      eslint-plugin-playwright: 0.8.0
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
 
   projects/plugins/protect:
@@ -1381,13 +1377,11 @@ importers:
       '@playwright/test': 1.20.1
       allure-playwright: 2.0.0-beta.15
       config: 3.3.7
-      eslint-plugin-playwright: 0.8.0
       jetpack-e2e-commons: '*'
     devDependencies:
       '@playwright/test': 1.20.1
       allure-playwright: 2.0.0-beta.15
       config: 3.3.7
-      eslint-plugin-playwright: 0.8.0
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
 
   projects/plugins/social:
@@ -1545,7 +1539,6 @@ importers:
       axios: 0.26.1
       chalk: 5.0.1
       config: 3.3.7
-      eslint-plugin-playwright: 0.8.0
       localtunnel: 2.0.2
       lodash: 4.17.21
       pm2: 5.2.0
@@ -1560,7 +1553,6 @@ importers:
       axios: 0.26.1
       chalk: 5.0.1
       config: 3.3.7
-      eslint-plugin-playwright: 0.8.0
       localtunnel: 2.0.2
       lodash: 4.17.21
       pm2: 5.2.0
@@ -1659,6 +1651,7 @@ importers:
       eslint-plugin-jsdoc: 37.7.0
       eslint-plugin-jsx-a11y: 6.5.1
       eslint-plugin-lodash: 7.3.0
+      eslint-plugin-playwright: 0.8.0
       eslint-plugin-prettier: 4.0.0
       eslint-plugin-react: 7.28.0
       eslint-plugin-react-hooks: 4.3.0
@@ -1687,7 +1680,7 @@ importers:
       '@sveltejs/eslint-config': github.com/sveltejs/eslint-config/8a67624e4080bd7997606eb34981aa3346bc8de2_c2b0171ef20702dbd7016bdf1e9ef4fa
       '@typescript-eslint/eslint-plugin': 5.16.0_64b579c655ba1f8c39afc110229f83ae
       '@typescript-eslint/parser': 5.16.0_eslint@8.8.0+typescript@4.3.5
-      '@wordpress/eslint-plugin': 11.1.0_bdccf921644311ed365b24c3e09a7412
+      '@wordpress/eslint-plugin': 11.1.0_69c217cc35a8a8ad0fb1e3f5bb467123
       chalk: 4.1.2
       debug: 4.3.3
       eslint: 8.8.0
@@ -1701,6 +1694,7 @@ importers:
       eslint-plugin-jsdoc: 37.7.0_eslint@8.8.0
       eslint-plugin-jsx-a11y: 6.5.1_eslint@8.8.0
       eslint-plugin-lodash: 7.3.0_eslint@8.8.0
+      eslint-plugin-playwright: 0.8.0_e1299abd7c9c5462f49462f7a87d293e
       eslint-plugin-prettier: 4.0.0_5208900944bd53d50aafd0e7d193e6c3
       eslint-plugin-react: 7.28.0_eslint@8.8.0
       eslint-plugin-react-hooks: 4.3.0_eslint@8.8.0
@@ -8903,7 +8897,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.17.8
 
-  /@wordpress/eslint-plugin/11.1.0_bdccf921644311ed365b24c3e09a7412:
+  /@wordpress/eslint-plugin/11.1.0_69c217cc35a8a8ad0fb1e3f5bb467123:
     resolution: {integrity: sha512-NNIgJQqibdj5BsctkhCqjYt5NAs8eGBnuMSTnbhYCuUrs/PF3iF+jwY4OEOBOSlr00KyM9BfDxr9/5EWG8PmOw==}
     engines: {node: '>=12', npm: '>=6.9'}
     peerDependencies:
@@ -8941,6 +8935,7 @@ packages:
       eslint-plugin-jest: 26.0.0_3af42c85f66c3dfc4779ef230e2ba99e
       eslint-plugin-jsdoc: 37.7.0_eslint@8.8.0
       eslint-plugin-jsx-a11y: 6.5.1_eslint@8.8.0
+      eslint-plugin-playwright: 0.8.0_e1299abd7c9c5462f49462f7a87d293e
       eslint-plugin-prettier: 4.0.0_5208900944bd53d50aafd0e7d193e6c3
       eslint-plugin-react: 7.28.0_eslint@8.8.0
       eslint-plugin-react-hooks: 4.3.0_eslint@8.8.0
@@ -13334,7 +13329,7 @@ packages:
       lodash: 4.17.21
     dev: true
 
-  /eslint-plugin-playwright/0.8.0:
+  /eslint-plugin-playwright/0.8.0_e1299abd7c9c5462f49462f7a87d293e:
     resolution: {integrity: sha512-9uJH25m6H3jwU5O7bHD5M8cLx46L72EnIUe3dZqTox6M+WzOFzeUWaDJHHCdLGXZ8XlAU4mbCZnP7uhjKepfRA==}
     peerDependencies:
       eslint: '>=7'
@@ -13344,6 +13339,9 @@ packages:
         optional: true
       eslint-plugin-jest:
         optional: true
+    dependencies:
+      eslint: 8.8.0
+      eslint-plugin-jest: 26.0.0_3af42c85f66c3dfc4779ef230e2ba99e
     dev: true
 
   /eslint-plugin-prettier/4.0.0_5208900944bd53d50aafd0e7d193e6c3:
