@@ -264,7 +264,7 @@ abstract class SAL_Post {
 		$_attachments = new WP_Query(
 			array(
 				'post_parent'    => $this->post->ID,
-				'post_status   ' => 'inherit',
+				'post_status'    => 'inherit',
 				'post_type'      => 'attachment',
 				'posts_per_page' => '20',
 			)
