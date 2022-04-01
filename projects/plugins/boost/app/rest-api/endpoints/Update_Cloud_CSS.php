@@ -31,11 +31,15 @@ class Update_Cloud_CSS implements Contracts\Endpoint {
 			$storage   = new Critical_CSS_Storage();
 
 			foreach ( $providers as $provider => $result ) {
+				if ( ! isset( $result['data'] ) ) {
+					$state->set_as_failed( __( 'An unknown error occurred', 'jetpack-boost' ) );
+					continue;
+				}
 				$data = $result['data'];
-				if ( $result['success'] ) {
+				if ( isset( $result['success'] ) && $result['success'] ) {
 					$state->set_source_success( $provider );
 					$storage->store_css( $provider, $result['css'] );
-				} elseif ( true === $data['show_stopper'] ) {
+				} elseif ( isset( $data['show_stopper'] ) && $data['show_stopper'] ) {
 					$state->set_as_failed( $data['error'] );
 				} else {
 					$state->set_source_error( $provider, $data['urls'] );

@@ -16,7 +16,7 @@ export async function requestCloudCss(): Promise< void > {
 	try {
 		await api.post( '/cloud-css/request-generate' );
 	} catch ( e ) {
-		if ( 502 === e.httpCode ) {
+		if ( 200 !== e.httpCode ) {
 			setError();
 			stopPollingCloudCssStatus();
 			return;

@@ -120,8 +120,12 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		}
 		$state->create_request( $source_providers->get_providers() );
 
-		$client = new Cloud_CSS_Request( $state );
-		return $client->request_generate();
+		$client   = new Cloud_CSS_Request( $state );
+		$response = $client->request_generate();
+		if ( is_wp_error( $response ) ) {
+			$state->set_as_failed( $response->get_error_message() );
+		}
+		return $response;
 	}
 
 	/**
