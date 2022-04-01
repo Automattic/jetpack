@@ -100,6 +100,11 @@ module.exports = {
 			groupName: 'Size-limit',
 			matchPackageNames: [ 'size-limit', '@size-limit/preset-app' ],
 		},
+		// These aren't a monorepo, but we may as well do them all together anyway.
+		{
+			groupName: 'GitHub API packages',
+			matchPackagePatterns: [ '^@actions/', '^@octokit/' ],
+		},
 
 		// 🤷
 		{
