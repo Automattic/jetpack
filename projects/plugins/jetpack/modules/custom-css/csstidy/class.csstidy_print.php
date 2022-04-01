@@ -253,7 +253,7 @@ class csstidy_print { // phpcs:ignore
 
 				case VALUE:
 					$out .= $this->htmlsp( $token[1], $plain );
-					if ( $this->seeknocomment( $key, 1 ) == SEL_END && $this->parser->get_cfg( 'remove_last_;' ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					if ( $this->seeknocomment( $key, 1 ) === SEL_END && $this->parser->get_cfg( 'remove_last_;' ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 						$out .= str_replace( ';', '', $template[6] );
 					} else {
 						$out .= $template[6];
@@ -262,7 +262,7 @@ class csstidy_print { // phpcs:ignore
 
 				case SEL_END:
 					$out .= $template[7];
-					if ( $this->seeknocomment( $key, 1 ) != AT_END ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+					if ( $this->seeknocomment( $key, 1 ) !== AT_END ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 						$out .= $template[8];
 					}
 					break;
@@ -306,7 +306,7 @@ class csstidy_print { // phpcs:ignore
 			if ( ! isset( $this->tokens[ $i ] ) ) {
 				return;
 			}
-			if ( $this->tokens[ $i ][0] == COMMENT ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			if ( $this->tokens[ $i ][0] === COMMENT ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				$move += 1; // phpcs:ignore Squiz.Operators.IncrementDecrementUsage.Found
 				continue;
 			}
@@ -403,7 +403,7 @@ class csstidy_print { // phpcs:ignore
 
 		if ( $diff > 0 ) {
 			return '+' . $diff;
-		} elseif ( $diff == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		} elseif ( $diff === 0 ) {
 			return '+-' . $diff;
 		}
 
