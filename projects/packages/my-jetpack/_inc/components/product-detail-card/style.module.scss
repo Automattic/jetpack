@@ -1,26 +1,41 @@
 .card {
-	background-color: var(--jp-white);
+	background-color: var( --jp-white );
 	height: 100%;
+	padding: calc( var( --spacing-base ) * 8 );
+	position: relative;
+}
+
+.container {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 
 .card-header {
 	display: flex;
 	align-items: center;
-	background: var(--jp-black);
-	color:var(--jp-white);
-	border-radius: var(--jp-border-radius) var(--jp-border-radius) 0 0;
-	padding: 0 var(--spacing-base); // 8px
-	height: 32px;
+	background: var( --jp-black );
+	color: var( --jp-white );
+	border-radius: var( --jp-border-radius ) var( --jp-border-radius ) 0 0;
+	padding: 0 var( --spacing-base );
+	height: calc( var( --spacing-base ) * 4 );
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
 }
 
 .product-bundle-icon {
-	fill: var(--jp-white);
-	margin-right: var(--spacing-base);
+	fill: var( --jp-white );
+	margin-right: var( --spacing-base );
 }
 
-.container {
-	height: 100%;
-	padding: 0 calc( var(--spacing-base) * 5); // 40px
+.product-bundle-icons,
+.product-icon {
+	display: flex;
+	align-items: center;
+	height: calc( var( --spacing-base ) * 4 );
+	margin-bottom: calc( var( --spacing-base ) * 4 );
 }
 
 .plus-icon {
@@ -35,7 +50,7 @@
 	align-items: center;
 
 	svg {
-		margin-right: var(--spacing-base);
+		margin-right: var( --spacing-base );
 	}
 }
 
@@ -51,24 +66,29 @@
 	}
 
 	&:global(.is-secondary):hover:not(:disabled) {
-		background: var(--jp-black);
-		color: var(--jp-white);
+		background-color: var( --jp-black );
+		color: var( --jp-white );
 	}
 
 }
 
 .features {
 	margin: 0;
+	padding: 0;
+	flex-grow: 1;
+	margin-bottom: calc( var( --spacing-base ) * 2 );
 
 	li {
 		list-style: none;
 		display: flex;
-		align-items: center;
-		margin-bottom: var(--spacing-base);
+		align-items: start;
+		margin-bottom: var( --spacing-base );
 	}
 
 	svg {
-		fill: var(--jp-green-primary);
+		fill: var( --jp-green-primary);
+                margin-right: var( --spacing-base );
+		flex-shrink: 0;
 	}
 }
 
@@ -76,26 +96,27 @@
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-end;
-	color: var(--jp-text-color);
+	color: var( --jp-text-color);
+	margin-bottom: calc( var( --spacing-base ) * 3 );
 }
 
 .price {
 	position: relative;
 
 	&:first-child {
-		margin-right: var(--spacing-base);
+		margin-right: var( --spacing-base );
 	}
 
 	&.is-old {
-		color: var(--jp-gray-20);
+		color: var( --jp-gray-20);
 
 		&:after {
 			content: " ";
 			display: block;
 			width: 100%;
 			height: 3px;
-			background: var(--jp-red);
-			border-radius: var(--jp-border-radius);
+			background: var( --jp-red);
+			border-radius: var( --jp-border-radius );
 			position: absolute;
 			top: 50%;
 			margin-top: -2px;
@@ -106,5 +127,5 @@
 
 .price-description {
 	flex-grow: 2;
-	color: var(--jp-gray-40);
+	color: var( --jp-gray-40);
 }
