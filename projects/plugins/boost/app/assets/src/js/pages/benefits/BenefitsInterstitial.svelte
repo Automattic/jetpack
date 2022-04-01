@@ -16,6 +16,10 @@
 	 * WordPress dependencies
 	 */
 	import { __ } from '@wordpress/i18n';
+	import { jetpackURL } from '../../utils/jetpack-url';
+	import { createInterpolateElement } from '@wordpress/element';
+
+	import React from 'react';
 
 	function onCtaClick() {
 		/* eslint-disable no-console */
@@ -24,6 +28,25 @@
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
+
+	const infoText = createInterpolateElement(
+		__(
+			`By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareLink>share details</shareLink> with WordPress.com.`,
+			'jetpack-boost'
+		),
+		{
+			tosLink: React.createElement( 'a', {
+				href: jetpackURL( 'https://jetpack.com/redirect/?source=wpcom-tos' ),
+				target: '_blank',
+			} ),
+			shareLink: React.createElement( 'a', {
+				href: jetpackURL(
+					'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
+				),
+				target: '_blank',
+			} ),
+		}
+	);
 </script>
 
 <div id="jb-settings" class="jb-settings">
@@ -57,10 +80,7 @@
 					currencyCode={'USD'}
 					ctaText={__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}
 					{onCtaClick}
-					infoText={__(
-						'By clicking the button above, you agree to our Terms of Service and to share details with WordPress.com',
-						'jetpack-boost'
-					)}
+					{infoText}
 				/>
 			</div>
 		</div>
