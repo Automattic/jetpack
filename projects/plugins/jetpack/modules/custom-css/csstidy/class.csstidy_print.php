@@ -196,8 +196,7 @@ class csstidy_print { // phpcs:ignore
 		}
 
 		if ( $this->parser->get_cfg( 'timestamp' ) ) {
-			// @todo - see if we can use GM Date.
-			array_unshift( $this->tokens, array( COMMENT, ' CSSTidy ' . $this->parser->version . ': ' . date( 'r' ) . ' ' ) ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+			array_unshift( $this->tokens, array( COMMENT, ' CSSTidy ' . $this->parser->version . ': ' . gmdate( 'r' ) . ' ' ) );
 		}
 
 		if ( ! empty( $this->charset ) ) {
