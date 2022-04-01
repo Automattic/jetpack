@@ -697,7 +697,7 @@ class csstidy_optimise { // phpcs:ignore
 		}
 
 		$str_value = self::explode_ws( ',', $str_value );
-		for ( $i = 0; $i < count( $str_value ); $i++ ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found, Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
+		for ( $i = 0, $l = count( $str_value ); $i < $l; $i++ ) {
 			$have['clip']  = false;
 			$have['pos']   = false;
 			$have['color'] = false;
@@ -708,7 +708,7 @@ class csstidy_optimise { // phpcs:ignore
 			}
 			$str_value[ $i ] = self::explode_ws( ' ', trim( $str_value[ $i ] ) );
 
-			for ( $j = 0; $j < count( $str_value[ $i ] ); $j++ ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found, Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
+			for ( $j = 0, $k = count( $str_value[ $i ] ); $j < $k; $j++ ) {
 				if ( $have['bg'] === false && ( substr( $str_value[ $i ][ $j ], 0, 4 ) === 'url(' || $str_value[ $i ][ $j ] === 'none' ) ) {
 					$return['background-image'] .= $str_value[ $i ][ $j ] . ',';
 					$have['bg']                  = true;
