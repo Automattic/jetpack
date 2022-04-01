@@ -15,7 +15,7 @@ importers:
   projects/github-actions/repo-gardening:
     specifiers:
       '@actions/core': 1.4.0
-      '@actions/github': 5.0.0
+      '@actions/github': 5.0.1
       '@vercel/ncc': 0.28.5
       compare-versions: 3.6.0
       glob: 7.1.6
@@ -23,7 +23,7 @@ importers:
       node-fetch: 2.6.7
     dependencies:
       '@actions/core': 1.4.0
-      '@actions/github': 5.0.0
+      '@actions/github': 5.0.1
       compare-versions: 3.6.0
       glob: 7.1.6
       moment: 2.29.1
@@ -34,14 +34,14 @@ importers:
   projects/github-actions/required-review:
     specifiers:
       '@actions/core': 1.4.0
-      '@actions/github': 5.0.0
+      '@actions/github': 5.0.1
       '@vercel/ncc': 0.28.5
       error: 10.4.0
       js-yaml: 4.1.0
       picomatch: 2.2.3
     dependencies:
       '@actions/core': 1.4.0
-      '@actions/github': 5.0.0
+      '@actions/github': 5.0.1
       error: 10.4.0
       js-yaml: 4.1.0
       picomatch: 2.2.3
@@ -1722,13 +1722,13 @@ packages:
     resolution: {integrity: sha512-CGx2ilGq5i7zSLgiiGUtBCxhRRxibJYU6Fim0Q1Wg2aQL2LTnF27zbqZOrxfvFQ55eSBW0L8uVStgtKMpa0Qlg==}
     dev: false
 
-  /@actions/github/5.0.0:
-    resolution: {integrity: sha512-QvE9eAAfEsS+yOOk0cylLBIO/d6WyWIOvsxxzdrPFaud39G6BOkUwScXZn1iBzQzHyu9SBkkLSWlohDWdsasAQ==}
+  /@actions/github/5.0.1:
+    resolution: {integrity: sha512-JZGyPM9ektb8NVTTI/2gfJ9DL7Rk98tQ7OVyTlgTuaQroariRBsOnzjy0I2EarX4xUZpK88YyO503fhmjFdyAg==}
     dependencies:
       '@actions/http-client': 1.0.11
-      '@octokit/core': 3.5.1
-      '@octokit/plugin-paginate-rest': 2.17.0_@octokit+core@3.5.1
-      '@octokit/plugin-rest-endpoint-methods': 5.13.0_@octokit+core@3.5.1
+      '@octokit/core': 3.6.0
+      '@octokit/plugin-paginate-rest': 2.17.0_@octokit+core@3.6.0
+      '@octokit/plugin-rest-endpoint-methods': 5.13.0_@octokit+core@3.6.0
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -5342,6 +5342,20 @@ packages:
     transitivePeerDependencies:
       - encoding
 
+  /@octokit/core/3.6.0:
+    resolution: {integrity: sha512-7RKRKuA4xTjMhY+eG3jthb3hlZCsOwg3rztWh75Xc+ShDWOfDDATWbeZpAHBNRpm4Tv9WgBMOy1zEJYXG6NJ7Q==}
+    dependencies:
+      '@octokit/auth-token': 2.5.0
+      '@octokit/graphql': 4.8.0
+      '@octokit/request': 5.6.3
+      '@octokit/request-error': 2.1.0
+      '@octokit/types': 6.34.0
+      before-after-hook: 2.2.2
+      universal-user-agent: 6.0.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /@octokit/endpoint/6.0.12:
     resolution: {integrity: sha512-lF3puPwkQWGfkMClXb4k/eUT/nZKQfxinRWJrdZaJO85Dqwo/G0yOC434Jr2ojwafWJMYqFGFa5ms4jJUgujdA==}
     dependencies:
@@ -5369,6 +5383,15 @@ packages:
       '@octokit/core': 3.5.1
       '@octokit/types': 6.34.0
 
+  /@octokit/plugin-paginate-rest/2.17.0_@octokit+core@3.6.0:
+    resolution: {integrity: sha512-tzMbrbnam2Mt4AhuyCHvpRkS0oZ5MvwwcQPYGtMv4tUa5kkzG58SVB0fcsLulOZQeRnOgdkZWkRUiyBlh0Bkyw==}
+    peerDependencies:
+      '@octokit/core': '>=2'
+    dependencies:
+      '@octokit/core': 3.6.0
+      '@octokit/types': 6.34.0
+    dev: false
+
   /@octokit/plugin-request-log/1.0.4_@octokit+core@3.5.1:
     resolution: {integrity: sha512-mLUsMkgP7K/cnFEw07kWqXGF5LKrOkD+lhCrKvPHXWDywAwuDUeDwWBpc69XK3pNX0uKiVt8g5z96PJ6z9xCFA==}
     peerDependencies:
@@ -5376,12 +5399,12 @@ packages:
     dependencies:
       '@octokit/core': 3.5.1
 
-  /@octokit/plugin-rest-endpoint-methods/5.13.0_@octokit+core@3.5.1:
+  /@octokit/plugin-rest-endpoint-methods/5.13.0_@octokit+core@3.6.0:
     resolution: {integrity: sha512-uJjMTkN1KaOIgNtUPMtIXDOjx6dGYysdIFhgA52x4xSadQCz3b/zJexvITDVpANnfKPW/+E0xkOvLntqMYpviA==}
     peerDependencies:
       '@octokit/core': '>=3'
     dependencies:
-      '@octokit/core': 3.5.1
+      '@octokit/core': 3.6.0
       '@octokit/types': 6.34.0
       deprecation: 2.3.1
     dev: false
@@ -10271,7 +10294,7 @@ packages:
       loader-utils: 1.4.0
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
 
   /babel-loader/8.2.4_9477871d54680372d40c2081e3c861d6:
     resolution: {integrity: sha512-8dytA3gcvPPPv4Grjhnt8b5IIiTcq/zeXOPk4iTYI0SVXcsmuGg7JtBRDp8S9X+gJfhQ8ektjXZlDu1Bb33U8A==}
@@ -11956,7 +11979,7 @@ packages:
       postcss-modules-values: 4.0.0_postcss@8.4.8
       postcss-value-parser: 4.2.0
       semver: 7.3.5
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
 
   /css-minimizer-webpack-plugin/3.1.4_webpack@5.65.0:
     resolution: {integrity: sha512-JXnwBEA+a3FrmuBIJz7tKnCYGyraP86nuvX+wAqik1Lc8Ne9Ql8h5RpFbM3HjMpjXfhnqRBoTYIfArji5mteOg==}
