@@ -168,6 +168,8 @@ module.exports = [
 			'editor-experimental': editorExperimentalScript,
 			'editor-beta': editorBetaScript,
 			'editor-no-post-editor': editorNoPostEditorScript,
+			// this entry is added to generate components.css which is enqueued at
+			// https://github.com/Automattic/jetpack/blob/0e8a2c9ab438c8213fa4863220ccc342ea13cf42/projects/plugins/jetpack/_inc/lib/components.php#L24
 			components: path.join( __dirname, '../extensions/shared/components/upgrade-nudge/index.jsx' ),
 			...viewBlocksScripts,
 		},
