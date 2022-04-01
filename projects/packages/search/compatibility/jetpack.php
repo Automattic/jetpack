@@ -5,7 +5,7 @@
  * @package automattic/jetpack-search
  */
 
-namespace Automattic\Jetpack\Search_Plugin\Compatibility\Jetpack;
+namespace Automattic\Jetpack\Search\Compatibility\Jetpack;
 
 use Automattic\Jetpack\Search\Plan;
 use Jetpack;
