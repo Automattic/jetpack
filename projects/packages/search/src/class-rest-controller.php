@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;

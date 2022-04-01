@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Constants as Constants;
+
 /**
  * Class Automattic\Jetpack\Modules
  *
@@ -141,6 +143,10 @@ class Modules {
 		// Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated.
 		$file_name = basename( $file );
 
+		if ( ! Constants::is_defined( 'JETPACK__VERSION' ) ) {
+			return get_file_data( $file, $headers );
+		}
+
 		$cache_key = 'jetpack_file_data_' . JETPACK__VERSION;
 
 		$file_data_option = get_transient( $cache_key );
@@ -231,6 +237,10 @@ class Modules {
 	 */
 	public function get_available( $min_version = false, $max_version = false, $requires_connection = null, $requires_user_connection = null ) {
 		static $modules = null;
+
+		if ( ! Constants::is_defined( 'JETPACK__VERSION' ) || ! Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return array();
+		}
 
 		if ( ! isset( $modules ) ) {
 			$available_modules_option = \Jetpack_Options::get_option( 'available_modules', array() );
@@ -398,7 +408,7 @@ class Modules {
 		}
 
 		// Protect won't work with mis-configured IPs.
-		if ( 'protect' === $module ) {
+		if ( 'protect' === $module && Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
 			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 			if ( ! jetpack_protect_get_ip() ) {
 				$state->state( 'message', 'protect_misconfigured_ip' );
@@ -417,7 +427,10 @@ class Modules {
 		$errors->catch_errors( true );
 
 		ob_start();
-		require $this->get_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+		$module_path = $this->get_path( $module );
+		if ( file_exists( $module_path ) ) {
+			require $this->get_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+		}
 
 		$active[] = $module;
 		$this->update_active( $active );
@@ -464,6 +477,9 @@ class Modules {
 	 * @param string $slug Module slug.
 	 */
 	public function get_path( $slug ) {
+		if ( ! Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return '';
+		}
 		/**
 		 * Filters the path of a modules.
 		 *
