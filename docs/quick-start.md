@@ -38,7 +38,7 @@ The Jetpack Monorepo requires the following to be installed on your machine:
 - PNPM (a Node.js package manager): `npm install -g pnpm`
 - PHP (the language at the core of the WordPress ecosystem): `source .github/versions.sh && brew install php@$PHP_VERSION`
 - Composer (our PHP package manager): `brew install composer`
-- Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpm cli-setup`
+- Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpx jetpack cli link`
 	- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md).
 
 ## Running Jetpack locally

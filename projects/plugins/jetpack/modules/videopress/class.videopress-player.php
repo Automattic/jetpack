@@ -643,6 +643,9 @@ class VideoPress_Player {
 				case 'loop':
 				case 'permalink':
 				case 'cover':
+				case 'muted':
+				case 'controls':
+				case 'playsinline':
 					if ( in_array( $value, array( 1, 'true' ) ) ) {
 						$videopress_options[ $option ] = true;
 					} elseif ( in_array( $value, array( 0, 'false' ) ) ) {

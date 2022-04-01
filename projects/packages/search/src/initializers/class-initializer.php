@@ -16,15 +16,20 @@ class Initializer {
 
 	/**
 	 * Initialize the search package.
+	 *
+	 * The method is called from the `Config` class.
 	 */
 	public static function init() {
+		// Load compatibility files - at this point all plugins are already loaded.
+		static::include_compatibility_files();
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package::send_version_to_tracker' );
 
 		/**
 		 * The filter allows abortion of the Jetpack Search package initialization.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 *
 		 * @param boolean $init_search_package Default value is true.
 		 */
@@ -72,9 +77,18 @@ class Initializer {
 		/**
 		 * Fires when the Jetpack Search package has been initialized.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 */
 		do_action( 'jetpack_search_loaded' );
+	}
+
+	/**
+	 * Extra tweaks to make Jetpack Search play well with others.
+	 */
+	public static function include_compatibility_files() {
+		if ( class_exists( 'Jetpack' ) ) {
+			require_once Package::get_installed_path() . 'compatibility/jetpack.php';
+		}
 	}
 
 	/**
@@ -122,7 +136,7 @@ class Initializer {
 		/**
 		 * The filter allows abortion of the Instant Search initialization.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 *
 		 * @param boolean $init_instant_search Default value is true.
 		 */
@@ -151,7 +165,7 @@ class Initializer {
 		/**
 		 * The filter allows abortion of the Classic Search initialization.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.11.2
 		 *
 		 * @param boolean $init_instant_search Default value is true.
 		 */

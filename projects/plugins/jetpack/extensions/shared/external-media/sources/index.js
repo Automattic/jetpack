@@ -7,10 +7,16 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { GooglePhotosIcon, PexelsIcon } from '../../icons';
+import { GooglePhotosIcon, OpenverseIcon, PexelsIcon } from '../../icons';
 import GooglePhotosMedia from './google-photos';
+import OpenverseMedia from './openverse';
 import PexelsMedia from './pexels';
-import { SOURCE_WORDPRESS, SOURCE_GOOGLE_PHOTOS, SOURCE_PEXELS } from '../constants';
+import {
+	SOURCE_WORDPRESS,
+	SOURCE_GOOGLE_PHOTOS,
+	SOURCE_OPENVERSE,
+	SOURCE_PEXELS,
+} from '../constants';
 
 export const mediaSources = [
 	{
@@ -24,6 +30,12 @@ export const mediaSources = [
 		label: __( 'Pexels Free Photos', 'jetpack' ),
 		icon: <PexelsIcon className="components-menu-items__item-icon" />,
 		keyword: 'pexels',
+	},
+	{
+		id: SOURCE_OPENVERSE,
+		label: __( 'Openverse', 'jetpack' ),
+		icon: <OpenverseIcon className="components-menu-items__item-icon" />,
+		keyword: 'openverse',
 	},
 ];
 
@@ -57,6 +69,8 @@ export function getExternalLibrary( type ) {
 		return PexelsMedia;
 	} else if ( type === SOURCE_GOOGLE_PHOTOS ) {
 		return GooglePhotosMedia;
+	} else if ( type === SOURCE_OPENVERSE ) {
+		return OpenverseMedia;
 	}
 
 	return null;
