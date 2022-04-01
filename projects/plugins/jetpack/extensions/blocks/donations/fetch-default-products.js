@@ -11,7 +11,7 @@ const fetchDefaultProducts = async currency => {
 			data: {
 				type: 'donation',
 				currency,
-				public: false,
+				is_editable: false,
 			},
 		} );
 		return result;

@@ -15,7 +15,7 @@ const fetchStatus = async ( type = null ) => {
 	const path = addQueryArgs( '/wpcom/v2/memberships/status', {
 		source: query.origin === 'https://wordpress.com' ? 'gutenberg-wpcom' : 'gutenberg',
 		...( type && { type } ),
-		public: false,
+		is_editable: false,
 	} );
 	try {
 		const result = await apiFetch( {
