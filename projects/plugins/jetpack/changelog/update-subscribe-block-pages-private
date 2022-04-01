@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscribe Block: ensure subscription panels are not shown in the page editor, or when the site is private.

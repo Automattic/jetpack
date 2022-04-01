@@ -68,7 +68,6 @@ describe( 'SettingsCard', () => {
 			'comments',
 			'json-api',
 			'photon',
-			'google-fonts',
 		],
 		allCardsForNonAdmin = [ 'post-by-email' ];
 

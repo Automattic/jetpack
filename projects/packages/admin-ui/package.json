@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-admin-ui",
-	"version": "0.2.5",
+	"version": "0.2.6-alpha",
 	"description": "Generic Jetpack wp-admin UI elements",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -14,15 +14,15 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.",
-		"build-js": "echo 'Not implemented.",
-		"build-production": "echo 'Not implemented.",
-		"build-production-js": "echo 'Not implemented."
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'"
 	},
 	"devDependencies": {},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
