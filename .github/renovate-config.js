@@ -30,6 +30,7 @@ module.exports = {
 	timezone: 'UTC',
 	schedule: [ 'before 3am on the first day of the month' ],
 	updateNotScheduled: false,
+	semanticCommits: 'disabled',
 	packageRules: [
 		// Monorepo packages shouldn't be processed by renovate.
 		{
