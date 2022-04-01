@@ -52,6 +52,7 @@
             ],
             "description": "Handle .gitignore style files.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -114,6 +115,7 @@
             ],
             "description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -160,6 +162,7 @@
             ],
             "description": "A filter for PHP CodeSniffer to add support for .phpcsignore files and per-directory configuration files.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
