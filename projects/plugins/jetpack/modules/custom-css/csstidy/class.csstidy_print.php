@@ -149,7 +149,7 @@ class csstidy_print { // phpcs:ignore
 				break;
 		}
 		$cssparsed              = '';
-		$output                 = $cssparsed;
+		$output                 = '';
 		$this->output_css_plain = & $output;
 
 		$output .= $doctype_output . "\n" . '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="' . $lang . '"';
