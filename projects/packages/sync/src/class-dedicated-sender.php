@@ -58,9 +58,9 @@ class Dedicated_Sender {
 			return new WP_Error( 'empty_queue_' . $queue->id );
 		}
 
-		// Return early if we've gotten a retry-after header response.
+		// Return early if we've gotten a retry-after header response that is not expired.
 		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
-		if ( $retry_time ) {
+		if ( $retry_time && $retry_time >= microtime( true ) ) {
 			return new WP_Error( 'retry_after_' . $queue->id );
 		}
 

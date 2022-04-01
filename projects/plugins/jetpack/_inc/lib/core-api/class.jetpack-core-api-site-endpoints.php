@@ -282,6 +282,14 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
+		if ( Jetpack::is_module_active( 'search' ) && ! class_exists( 'Automattic\\Jetpack\\Search_Plugin\\Jetpack_Search_Plugin' ) ) {
+			$benefits[] = array(
+				'name'        => 'search',
+				'title'       => esc_html__( 'Search', 'jetpack' ),
+				'description' => esc_html__( 'Help your visitors find exactly what they are looking for, fast', 'jetpack' ),
+			);
+		}
+
 		// Finally, return the whole list of benefits.
 		return rest_ensure_response(
 			array(

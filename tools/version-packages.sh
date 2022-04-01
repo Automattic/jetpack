@@ -80,17 +80,17 @@ echo "$JSON" > "$DIR/composer.json"
 PACKAGES=$(jq -nc 'reduce inputs as $in ([]; . + [ $in.name ])' "$BASE"/projects/packages/*/composer.json)
 
 # Get current versions from the package.
-OLD_VERSIONS=$(jq -r --argjson packages "$PACKAGES" '( .["require-dev"] // {} ) + ( .require // {} ) | with_entries( select( ( .value | test( "\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) )' "$DIR/composer.json")
+OLD_VERSIONS=$(jq -r --argjson packages "$PACKAGES" '( .["require-dev"] // {} ) + ( .require // {} ) | with_entries( select( ( .value | test( "\\.x-dev$" ) ) and ( .key as $k | $packages | index( $k ) ) ) )' "$DIR/composer.json")
 
 # Update the packages that appear in composer.json
 TO_UPDATE=()
-mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.require // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
+mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.require // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and ( .key as $k | $packages | index( $k ) ) ) | .key' "$DIR/composer.json")
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	info "Updating packages: ${TO_UPDATE[*]}..."
 	composer require "${COMPOSER_ARGS[@]}" --no-update --working-dir="$DIR" -- "${TO_UPDATE[@]}"
 fi
 TO_UPDATE=()
-mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.["require-dev"] // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
+mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.["require-dev"] // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and ( .key as $k | $packages | index( $k ) ) ) | .key' "$DIR/composer.json")
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	info "Updating dev packages: ${TO_UPDATE[*]}..."
 	composer require "${COMPOSER_ARGS[@]}" --no-update --working-dir="$DIR" --dev -- "${TO_UPDATE[@]}"
@@ -104,7 +104,7 @@ EXIT=0
 while IFS=$'\t' read -r PKG OLDVER NEWVER; do
 	OV=$(sed -e 's/\.x-dev$/.0-alpha/' <<<"$OLDVER")
 	NV=$(sed -e 's/^\^//' -e 's/\.x-dev$/.0-alpha/' <<<"$NEWVER")
-	if ! pnpx semver -c -r ">$OV" "$NV" >/dev/null; then
+	if ! pnpx --no-install semver -c -r ">$OV" "$NV" >/dev/null; then
 		EXIT=1
 		error "$PKG was not upgraded ($NEWVER <= $OLDVER)"
 	fi

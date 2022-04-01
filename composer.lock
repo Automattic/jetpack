@@ -970,12 +970,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/PHP_CodeSniffer.git",
-                "reference": "3d743bd8b8e9e1b8a9c0a89f40e13420c9e9c8c2"
+                "reference": "cbb40b00601f0d9cf607b252ea4b5fa920a0059f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/3d743bd8b8e9e1b8a9c0a89f40e13420c9e9c8c2",
-                "reference": "3d743bd8b8e9e1b8a9c0a89f40e13420c9e9c8c2",
+                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/cbb40b00601f0d9cf607b252ea4b5fa920a0059f",
+                "reference": "cbb40b00601f0d9cf607b252ea4b5fa920a0059f",
                 "shasum": ""
             },
             "require": {
@@ -1017,7 +1017,7 @@
                 "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki",
                 "source": "https://github.com/squizlabs/PHP_CodeSniffer"
             },
-            "time": "2021-12-16T21:41:35+00:00"
+            "time": "2022-03-23T15:14:06+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -1069,7 +1069,7 @@
                 "source": "https://github.com/WordPress/WordPress-Coding-Standards",
                 "wiki": "https://github.com/WordPress/WordPress-Coding-Standards/wiki"
             },
-            "time": "2022-03-09T12:02:18+00:00"
+            "time": "2022-03-19T20:20:18+00:00"
         }
     ],
     "aliases": [

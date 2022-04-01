@@ -4,7 +4,7 @@ import {
 	execContainerShellCommand,
 } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { PluginsPage, JetpackPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import { test, expect } from '../../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
 test( 'Update Jetpack plugin', async ( { page } ) => {

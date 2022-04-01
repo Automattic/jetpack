@@ -1092,7 +1092,7 @@ class Jetpack_Photon {
 		}
 
 		// Bail if no host is found.
-		if ( is_null( $url_info['host'] ) ) {
+		if ( $url_info['host'] === null ) {
 			return false;
 		}
 
@@ -1102,7 +1102,7 @@ class Jetpack_Photon {
 		}
 
 		// Bail if no path is found.
-		if ( is_null( $url_info['path'] ) ) {
+		if ( $url_info['path'] === null ) {
 			return false;
 		}
 

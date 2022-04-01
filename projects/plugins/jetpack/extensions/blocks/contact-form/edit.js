@@ -76,6 +76,7 @@ export function JetpackContactFormEdit( {
 	blockType,
 	variations,
 	defaultVariation,
+	canUserInstallPlugins,
 } ) {
 	const {
 		to,
@@ -353,7 +354,9 @@ export function JetpackContactFormEdit( {
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
 				{ ! isSimpleSite() && (
 					<Fragment>
-						<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+						{ canUserInstallPlugins && (
+							<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+						) }
 						<NewsletterIntegrationSettings />
 					</Fragment>
 				) }
@@ -371,15 +374,17 @@ export default compose( [
 		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
 		const { getBlocks } = select( 'core/block-editor' );
 		const { getEditedPostAttribute } = select( 'core/editor' );
-		const { getSite, getUser } = select( 'core' );
+		const { getSite, getUser, canUser } = select( 'core' );
 		const innerBlocks = getBlocks( props.clientId );
 
 		const authorId = getEditedPostAttribute( 'author' );
 		const authorEmail = authorId && getUser( authorId ) && getUser( authorId ).email;
 		const postTitle = getEditedPostAttribute( 'title' );
+		const canUserInstallPlugins = canUser( 'create', 'plugins' );
 
 		return {
 			blockType: getBlockType && getBlockType( props.name ),
+			canUserInstallPlugins,
 			defaultVariation: getDefaultBlockVariation && getDefaultBlockVariation( props.name, 'block' ),
 			variations: getBlockVariations && getBlockVariations( props.name, 'block' ),
 

@@ -58,6 +58,10 @@ class Jetpack_Redux_State_Helper {
 			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'] );
 		}
 
+		// "mock" a block module in order to get it searchable in the settings.
+		$modules['blocks']['module']                    = 'blocks';
+		$modules['blocks']['additional_search_queries'] = esc_html_x( 'blocks, block, gutenberg', 'Search terms', 'jetpack' );
+
 		// Collecting roles that can view site stats.
 		$stats_roles   = array();
 		$enabled_roles = function_exists( 'stats_get_option' ) ? stats_get_option( 'roles' ) : array( 'administrator' );
@@ -353,7 +357,7 @@ class Jetpack_Redux_State_Helper {
 		$connect_urls = array();
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 		// phpcs:disable
-		foreach ( Jetpack_Keyring_Service_Helper::$SERVICES as $service_name => $service_info ) {
+		foreach ( Jetpack_Keyring_Service_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable
 			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name, $service_info['for'] );
 		}
