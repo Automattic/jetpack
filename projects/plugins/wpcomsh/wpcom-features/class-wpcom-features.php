@@ -96,12 +96,17 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_REALTIME_MONTHLY             = 'jetpack_backup_realtime_monthly'; // 2103
 	private const JETPACK_SEARCH                              = 'jetpack_search'; // 2104
 	private const JETPACK_SEARCH_MONTHLY                      = 'jetpack_search_monthly'; // 2105
+	private const JETPACK_SCAN                                = 'jetpack_scan'; // 2106
+	private const JETPACK_SCAN_MONTHLY                        = 'jetpack_scan_monthly'; // 2107
+	private const JETPACK_SCAN_REALTIME                       = 'jetpack_scan_realtime'; // 2108
+	private const JETPACK_SCAN_REALTIME_MONTHLY               = 'jetpack_scan_realtime_monthly'; // 2109
 	private const JETPACK_BACKUP_T1_YEARLY                    = 'jetpack_backup_t1_yearly'; // 2112
 	private const JETPACK_BACKUP_T1_MONTHLY                   = 'jetpack_backup_t1_monthly'; // 2113
 	private const JETPACK_BACKUP_T2_YEARLY                    = 'jetpack_backup_t2_yearly'; // 2114
 	private const JETPACK_BACKUP_T2_MONTHLY                   = 'jetpack_backup_t2_monthly'; // 2115
 	private const JETPACK_VIDEOPRESS                          = 'jetpack_videopress'; // 2116
 	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
+	private const JETPACK_BACKUP_ONE_TIME                     = 'jetpack_backup_one_time'; // 2201
 
 	// WPCOM "Level 2": Groups of level 1s
 	private const WPCOM_BLOGGER_PLANS       = [ self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y ];
@@ -156,6 +161,8 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_REALTIME_PLANS = [ self::JETPACK_SECURITY_REALTIME, self::JETPACK_SECURITY_REALTIME_MONTHLY ];
 	private const JETPACK_SECURITY_T1_PLANS       = [ self::JETPACK_SECURITY_T1_MONTHLY, self::JETPACK_SECURITY_T1_YEARLY ];
 	private const JETPACK_SECURITY_T2_PLANS       = [ self::JETPACK_SECURITY_T2_MONTHLY, self::JETPACK_SECURITY_T2_YEARLY ];
+
+	private const JETPACK_SCAN_PLANS = array( self::JETPACK_SCAN, self::JETPACK_SCAN_MONTHLY, self::JETPACK_SCAN_REALTIME, self::JETPACK_SCAN_REALTIME_MONTHLY );
 
 	private const JETPACK_BACKUP_DAILY_PLANS    = [ self::JETPACK_BACKUP_DAILY, self::JETPACK_BACKUP_DAILY_MONTHLY ];
 	private const JETPACK_BACKUP_REALTIME_PLANS = [ self::JETPACK_BACKUP_REALTIME, self::JETPACK_BACKUP_REALTIME_MONTHLY ];
@@ -228,6 +235,7 @@ class WPCOM_Features {
 	public const REAL_TIME_BACKUPS             = 'real-time-backups';
 	public const RECURRING_PAYMENTS            = 'recurring-payments';
 	public const REPUBLICIZE                   = 'republicize';
+	public const SCAN                          = 'scan';
 	public const SEARCH                        = 'search';
 	public const SECURITY_SETTINGS             = 'security-settings';
 	public const SEND_A_MESSAGE                = 'send-a-message';
@@ -282,6 +290,7 @@ class WPCOM_Features {
 		// BACKUPS - Site has *any* kind of backups.
 		self::BACKUPS                       => array(
 			self::JETPACK_BACKUP_DAILY_PLANS,
+			self::JETPACK_BACKUP_ONE_TIME,
 			self::JETPACK_BACKUP_REALTIME_PLANS,
 			self::JETPACK_BACKUP_T1_PLANS,
 			self::JETPACK_BACKUP_T2_PLANS,
@@ -467,6 +476,12 @@ class WPCOM_Features {
 			self::WP_P2_PLUS_MONTHLY,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
+		),
+		self::SCAN                        => array(
+			self::JETPACK_PREMIUM_AND_HIGHER,
+			self::JETPACK_SCAN_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::SEARCH                        => array(
 			self::WPCOM_SEARCH,
