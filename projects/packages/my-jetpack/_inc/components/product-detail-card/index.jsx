@@ -122,8 +122,27 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 		}
 	}, [ onClick, trackButtonClick ] );
 
-	// Todo: Fix in product-icons component.
-	const ProductIcon = getIconBySlug( slug ) ? getIconBySlug( slug ) : () => null;
+	/**
+	 * Temporary ProductIcon component.
+	 * Todo: Fix in product-icons component.
+	 * https://github.com/Automattic/jetpack/issues/23640
+	 *
+	 * @param {object} props      - Component props.
+	 * @param {string} props.slug - Product icon slug
+	 * @returns {object}            Icon Product component.
+	 */
+	function ProductIcon( { slug: iconSlug } ) {
+		const ProIcon = getIconBySlug( iconSlug );
+		if ( ! ProIcon ) {
+			return () => null;
+		}
+
+		return (
+			<div className={ styles[ 'product-icon' ] }>
+				<ProIcon />
+			</div>
+		);
+	}
 
 	return (
 		<div

@@ -1,7 +1,7 @@
 .card {
 	background-color: var( --jp-white );
 	height: 100%;
-	padding: calc( var( --spacing-base ) * 6 );
+	padding: calc( var( --spacing-base ) * 8 );
 	position: relative;
 }
 
@@ -30,8 +30,12 @@
 	margin-right: var( --spacing-base );
 }
 
-.product-bundle-icons {
-	height: calc( var( --spacing-base ) * 3 );
+.product-bundle-icons,
+.product-icon {
+	display: flex;
+	align-items: center;
+	height: calc( var( --spacing-base ) * 4 );
+	margin-bottom: calc( var( --spacing-base ) * 4 );
 }
 
 .plus-icon {
