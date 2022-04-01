@@ -759,7 +759,7 @@ importers:
       '@babel/preset-react': 7.16.7
       '@babel/preset-typescript': 7.16.7
       '@babel/runtime': 7.17.8
-      '@size-limit/preset-app': 6.0.3
+      '@size-limit/preset-app': 6.0.4
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1
       '@wordpress/base-styles': 4.1.1
@@ -791,7 +791,7 @@ importers:
       redux: 4.1.1
       refx: 3.1.1
       sass-loader: 12.4.0
-      size-limit: 6.0.3
+      size-limit: 6.0.4
       strip: 3.0.0
       tiny-lru: 7.0.6
       webpack: 5.65.0
@@ -833,7 +833,7 @@ importers:
       '@babel/preset-react': 7.16.7_@babel+core@7.17.8
       '@babel/preset-typescript': 7.16.7_@babel+core@7.17.8
       '@babel/runtime': 7.17.8
-      '@size-limit/preset-app': 6.0.3_size-limit@6.0.3
+      '@size-limit/preset-app': 6.0.4_size-limit@6.0.4
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1_preact@10.5.15
       '@wordpress/browserslist-config': 4.1.1
@@ -845,7 +845,7 @@ importers:
       postcss-loader: 6.2.0_postcss@8.3.11+webpack@5.65.0
       prettier: /wp-prettier/2.0.5
       sass-loader: 12.4.0_webpack@5.65.0
-      size-limit: 6.0.3
+      size-limit: 6.0.4
       webpack: 5.65.0
 
   projects/plugins/backup:
@@ -1029,7 +1029,7 @@ importers:
       '@babel/preset-typescript': 7.16.7
       '@babel/register': 7.17.7
       '@babel/runtime': 7.17.8
-      '@size-limit/preset-app': 5.0.3
+      '@size-limit/preset-app': 5.0.5
       '@testing-library/dom': 7.31.2
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1
@@ -1138,7 +1138,7 @@ importers:
       semver: 7.3.5
       sinon: 9.2.4
       sinon-chai: 3.7.0
-      size-limit: 5.0.3
+      size-limit: 5.0.5
       social-logos: 2.3.0
       static-site-generator-webpack-plugin: 3.4.2
       strip: 3.0.0
@@ -1262,7 +1262,7 @@ importers:
       '@babel/preset-typescript': 7.16.7_@babel+core@7.17.8
       '@babel/register': 7.17.7_@babel+core@7.17.8
       '@babel/runtime': 7.17.8
-      '@size-limit/preset-app': 5.0.3_size-limit@5.0.3
+      '@size-limit/preset-app': 5.0.5_size-limit@5.0.5
       '@testing-library/dom': 7.31.2
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1_preact@10.5.15
@@ -1304,7 +1304,7 @@ importers:
       sass-loader: 12.4.0_sass@1.38.1+webpack@5.65.0
       sinon: 9.2.4
       sinon-chai: 3.7.0_chai@4.3.4+sinon@9.2.4
-      size-limit: 5.0.3
+      size-limit: 5.0.5
       style-loader: 2.0.0_webpack@5.65.0
       url-loader: 4.1.1_webpack@5.65.0
 
@@ -5022,7 +5022,7 @@ packages:
     dependencies:
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 17.0.21
+      '@types/node': 17.0.23
       jest-mock: 27.5.1
 
   /@jest/fake-timers/27.5.1:
@@ -5031,7 +5031,7 @@ packages:
     dependencies:
       '@jest/types': 27.5.1
       '@sinonjs/fake-timers': 8.1.0
-      '@types/node': 17.0.21
+      '@types/node': 17.0.23
       jest-message-util: 27.5.1
       jest-mock: 27.5.1
       jest-util: 27.5.1
@@ -5170,7 +5170,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 17.0.21
+      '@types/node': 17.0.23
       '@types/yargs': 16.0.4
       chalk: 4.1.2
 
@@ -5819,39 +5819,39 @@ packages:
     resolution: {integrity: sha512-dNZafjM93Y+F+sfwTO5gTpsGXlnc/0Q+c2+62ViqP3gkMWvHEMSKkaEHgVJLcLg3i/g19GSIPziiKpgyne07Bw==}
     engines: {node: '>=8'}
     dependencies:
-      debug: 4.3.3
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /@size-limit/file/5.0.3_size-limit@5.0.3:
-    resolution: {integrity: sha512-tkxf5ntFdlZ1xHQAw4fYd+gIkH85S2D3Wb94upJhtOfPHwDsQoQycDFGQRwTgei07Eq5vA8Jj5f2mu/tAdoaXw==}
+  /@size-limit/file/5.0.5_size-limit@5.0.5:
+    resolution: {integrity: sha512-lnrQYRmTt0QzV08R9M61q0+EM7Jkcp1qZ/+BG01OOFA0rZtfHt9aKCdvoSEoMrIxK44A9lWHRmyNVnKKDfKbWA==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
-      size-limit: 5.0.3
+      size-limit: 5.0.5
     dependencies:
       semver: 7.3.5
-      size-limit: 5.0.3
+      size-limit: 5.0.5
     dev: true
 
-  /@size-limit/file/6.0.3_size-limit@6.0.3:
-    resolution: {integrity: sha512-OfDrkJBB7OAWtnedz6jpmL1pjlha1MpgtvYwUSP2442qB96nwMN5Ig78XR3ldPj2cbxq1FVoNnc2vfWMi40vQA==}
+  /@size-limit/file/6.0.4_size-limit@6.0.4:
+    resolution: {integrity: sha512-SoGUUNEHsZJTDlw6znuMbR0z6apr/NmeEXSFT6iB6gUPyOHIdFtFJpvWeS1vijC7OFQhWHskedB6nBJ6L+bd+A==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
-      size-limit: 6.0.3
+      size-limit: 6.0.4
     dependencies:
       semver: 7.3.5
-      size-limit: 6.0.3
+      size-limit: 6.0.4
     dev: true
 
-  /@size-limit/preset-app/5.0.3_size-limit@5.0.3:
-    resolution: {integrity: sha512-5lJunj5TZ+i/VPUlBmKvTcxW6Q0blKWj70CpH1z+RfrWRrnbqUJBkmjKWFp0NPUrkOnoMErqr/2EPxqmfLlSZw==}
+  /@size-limit/preset-app/5.0.5_size-limit@5.0.5:
+    resolution: {integrity: sha512-kgsTMRP3cr7BoIHMrnYnG8NBjqBKF8M/d9+EUwz9H2ujACrzjdJKaCnIsB9r64EmpAK0RVSFcvdxPKzXBASDHw==}
     peerDependencies:
-      size-limit: 5.0.3
+      size-limit: 5.0.5
     dependencies:
-      '@size-limit/file': 5.0.3_size-limit@5.0.3
-      '@size-limit/time': 5.0.3_size-limit@5.0.3
-      size-limit: 5.0.3
+      '@size-limit/file': 5.0.5_size-limit@5.0.5
+      '@size-limit/time': 5.0.5_size-limit@5.0.5
+      size-limit: 5.0.5
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -5859,14 +5859,14 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@size-limit/preset-app/6.0.3_size-limit@6.0.3:
-    resolution: {integrity: sha512-pfCJNmQsqDHYdaxRXI/LtTuUpElHVjFH5COkRoDhokCoazhZVvSRT6rvWsNbk9ONM8vg2n5vVOpzWe2vp2yYwg==}
+  /@size-limit/preset-app/6.0.4_size-limit@6.0.4:
+    resolution: {integrity: sha512-zY5N+E0dOhdtG0v6LgVNuUv3xBjS1iZ8ZwvRnWiPXC6e84iJg9HqRZ78xa+/M/Wdkv0Pofv2GQ9cTrzptmDeAQ==}
     peerDependencies:
-      size-limit: 6.0.3
+      size-limit: 6.0.4
     dependencies:
-      '@size-limit/file': 6.0.3_size-limit@6.0.3
-      '@size-limit/time': 6.0.3_size-limit@6.0.3
-      size-limit: 6.0.3
+      '@size-limit/file': 6.0.4_size-limit@6.0.4
+      '@size-limit/time': 6.0.4_size-limit@6.0.4
+      size-limit: 6.0.4
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -5874,15 +5874,15 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@size-limit/time/5.0.3_size-limit@5.0.3:
-    resolution: {integrity: sha512-BGBR38hPPwlHRwa+p+yVDXZYdmyLZ8DT0InMBlnbrAa/FthF34zeccIAx7lh4NGp+8rntxT3VOL59PpcLn1fxQ==}
+  /@size-limit/time/5.0.5_size-limit@5.0.5:
+    resolution: {integrity: sha512-uPm2HDmaselU/iGk/IONVqxUuXcJuyh1uh+Duc76ewJcMZNuPcIi0pk2AQ3Dc8lMXcGJFLn4zO50/caNG/nmbA==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
-      size-limit: 5.0.3
+      size-limit: 5.0.5
     dependencies:
       estimo: 2.3.4
       react: 17.0.2
-      size-limit: 5.0.3
+      size-limit: 5.0.5
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -5890,15 +5890,15 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@size-limit/time/6.0.3_size-limit@6.0.3:
-    resolution: {integrity: sha512-p6JpZg1wUr7e4ja9NozXo7IqdodcPEHswr4TeiruvhcMILGkUbSu8+fQ0kDTZt1Gju8BrsFvIWAiC+TWd07pqw==}
+  /@size-limit/time/6.0.4_size-limit@6.0.4:
+    resolution: {integrity: sha512-HA/YUsLi9KL/oMol1EmkFlwmxZa9OSkrfJxtGMsm9t3as/1Z/URmiaoMPKjOfaOEMZnnh2kgGRKZWwTSvPFqyg==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
-      size-limit: 6.0.3
+      size-limit: 6.0.4
     dependencies:
       estimo: 2.3.4
       react: 17.0.2
-      size-limit: 6.0.3
+      size-limit: 6.0.4
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -10271,7 +10271,7 @@ packages:
       loader-utils: 1.4.0
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
 
   /babel-loader/8.2.4_9477871d54680372d40c2081e3c861d6:
     resolution: {integrity: sha512-8dytA3gcvPPPv4Grjhnt8b5IIiTcq/zeXOPk4iTYI0SVXcsmuGg7JtBRDp8S9X+gJfhQ8ektjXZlDu1Bb33U8A==}
@@ -11956,7 +11956,7 @@ packages:
       postcss-modules-values: 4.0.0_postcss@8.4.8
       postcss-value-parser: 4.2.0
       semver: 7.3.5
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
 
   /css-minimizer-webpack-plugin/3.1.4_webpack@5.65.0:
     resolution: {integrity: sha512-JXnwBEA+a3FrmuBIJz7tKnCYGyraP86nuvX+wAqik1Lc8Ne9Ql8h5RpFbM3HjMpjXfhnqRBoTYIfArji5mteOg==}
@@ -13810,7 +13810,7 @@ packages:
       '@sitespeed.io/tracium': 0.3.3
       commander: 9.0.0
       find-chrome-bin: 0.1.0
-      nanoid: 3.3.1
+      nanoid: 3.3.2
       puppeteer-core: 13.5.1
     transitivePeerDependencies:
       - bufferutil
@@ -15651,7 +15651,7 @@ packages:
     dependencies:
       '@tootallnate/once': 1.1.2
       agent-base: 6.0.2
-      debug: 4.3.3
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
 
@@ -15675,7 +15675,7 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.3
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
 
@@ -16779,7 +16779,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 17.0.21
+      '@types/node': 17.0.23
 
   /jest-pnp-resolver/1.2.2_jest-resolve@27.5.1:
     resolution: {integrity: sha512-olV41bKSMm8BdnuMsewT4jqlZ8+3TCARAXjZGT9jcoSnrfUnRCqnMoF9XEeoWjbzObpqF9dRhHQj0Xb9QdF6/w==}
@@ -16947,7 +16947,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 17.0.21
+      '@types/node': 17.0.23
       chalk: 4.1.2
       ci-info: 3.3.0
       graceful-fs: 4.2.9
@@ -17453,6 +17453,7 @@ packages:
   /lilconfig/2.0.4:
     resolution: {integrity: sha512-bfTIN7lEsiooCocSISTWXkiWJkRqtL9wYtYy+8EK3Y41qh3mpwPU0ycTOgjdY9ErwXCc8QyrQp82bdL0Xkm9yA==}
     engines: {node: '>=10'}
+    dev: false
 
   /lilconfig/2.0.5:
     resolution: {integrity: sha512-xaYmXZtTHPAw5m+xLN8ab9C+3a8YmV3asNSPOATITbtwrfbwaLJj8h66H1WMIpALCkqsIzK3h7oQ+PdX+LQ9Eg==}
@@ -18432,8 +18433,8 @@ packages:
       snapdragon: 0.8.2
       to-regex: 3.0.2
 
-  /nanospinner/0.3.2:
-    resolution: {integrity: sha512-ToZuxmiRuuNe3McB7CVzP7PCOhzWAy4qx6ndb5QWxJFp6INdg3n0mVm8f7HR6Fz8raRg3/vzglIZYrOSna8vkg==}
+  /nanospinner/0.4.0:
+    resolution: {integrity: sha512-FhxiB9PcEztMw6XfQDSLJBMlmN4n7B2hl/oiK4Hy9479r1+df0i2099DgcEx+m6yBfBJVUuKpILvP8fM3rK3Sw==}
     dependencies:
       picocolors: 1.0.0
     dev: true
@@ -19392,6 +19393,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: false
+
+  /picocolors/0.1.0:
+    resolution: {integrity: sha512-W+3MFREUEjPt0MnYaR51VkLw8tY8UubrLOqcBmaQocZhM34hQhjg50FQ0c6f0UldPlecieoqUqI6ToM/dNblDw==}
+    dev: true
 
   /picocolors/0.2.1:
     resolution: {integrity: sha512-cMlDqaLEqfSaW8Z7N5Jw+lyIW869EzT73/F5lhtY9cLGoVxSXznfgfXMO0Z5K0o0Q2TkTXq+0KFsdnSe3jDViA==}
@@ -22621,22 +22626,22 @@ packages:
   /sisteransi/1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
-  /size-limit/5.0.3:
-    resolution: {integrity: sha512-522c33FTs09sDCN3SUjtxF3Jg361O8Xm1Rh9MUuGGVwY7XGvroE/vL20+//qGltUprGzYQONBbzy9TTdOJWgbw==}
+  /size-limit/5.0.5:
+    resolution: {integrity: sha512-DtblS3Qc1SmtEtAYE6RGmg1UFdIzz2aWhlnzbBc3FYc0XMsTVT0kKB40DMIZ/yU5JztkMetdqB5Q5Pow/iVazg==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     hasBin: true
     dependencies:
       bytes-iec: 3.1.1
       chokidar: 3.5.3
       ci-job-number: 1.2.2
-      colorette: 1.4.0
       globby: 11.1.0
-      lilconfig: 2.0.4
+      lilconfig: 2.0.5
       mico-spinner: 1.4.0
+      picocolors: 0.1.0
     dev: true
 
-  /size-limit/6.0.3:
-    resolution: {integrity: sha512-bvZuNG1dPJ8GTkFq3lXkW8H1+ybVV3D7GecowAGlfbNO2T1Mcvy8kCoCpwVOWnq1wV+TraRUtExnQzIyyV94NQ==}
+  /size-limit/6.0.4:
+    resolution: {integrity: sha512-zo/9FrXzetvZGFJnd1LC4mR9GvirElALlerMY3EOwEGdW7Lwgl2WT0hTRC2559ZR2PGfRpnXEgAFkayGAJOebg==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     hasBin: true
     dependencies:
@@ -22644,9 +22649,9 @@ packages:
       chokidar: 3.5.3
       ci-job-number: 1.2.2
       globby: 11.1.0
-      lilconfig: 2.0.4
-      nanospinner: 0.3.2
-      picocolors: 0.2.1
+      lilconfig: 2.0.5
+      nanospinner: 0.4.0
+      picocolors: 1.0.0
     dev: true
 
   /slash/2.0.0:
