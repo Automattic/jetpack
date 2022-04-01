@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.37.3] - 2022-03-29
+### Changed
+- Microperformance: Use === null instead of is_null
+
+### Fixed
+- Fix regression added to Jetpack webhooks handling
+
 ## [1.37.2] - 2022-03-23
 ### Changed
 - Jetpack now relies on Connection Webooks for authorize and authorize_redirect actions
@@ -530,6 +537,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.37.3]: https://github.com/Automattic/jetpack-connection/compare/v1.37.2...v1.37.3
 [1.37.2]: https://github.com/Automattic/jetpack-connection/compare/v1.37.1...v1.37.2
 [1.37.1]: https://github.com/Automattic/jetpack-connection/compare/v1.37.0...v1.37.1
 [1.37.0]: https://github.com/Automattic/jetpack-connection/compare/v1.36.4...v1.37.0

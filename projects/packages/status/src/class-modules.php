@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Constants as Constants;
+
 /**
  * Class Automattic\Jetpack\Modules
  *
@@ -33,6 +35,12 @@ class Modules {
 	 */
 	public function get( $module ) {
 		static $modules_details;
+
+		// This method relies heavy on auto-generated file found in Jetpack only: module-headings.php
+		// If it doesn't exist, it's safe to assume none of this will be helpful.
+		if ( ! function_exists( 'jetpack_has_no_module_info' ) ) {
+			return false;
+		}
 
 		if ( jetpack_has_no_module_info( $module ) ) {
 			return false;
@@ -100,7 +108,7 @@ class Modules {
 		 * This filter allows you to control where each module is filtered: Recommended,
 		 * and the default "Other" listing.
 		 *
-		 * @since 3.5.0
+		 * @since-jetpack 3.5.0
 		 *
 		 * @param array   $mod['feature'] The areas to feature this module:
 		 *     'Recommended' shows on the main Jetpack admin screen.
@@ -116,13 +124,57 @@ class Modules {
 		 * This filter allows overriding any info about Jetpack modules. It is dangerous,
 		 * so please be careful.
 		 *
-		 * @since 3.6.0
+		 * @since-jetpack 3.6.0
 		 *
 		 * @param array   $mod    The details of the requested module.
 		 * @param string  $module The slug of the module, e.g. sharedaddy
 		 * @param string  $file   The path to the module source file.
 		 */
 		return apply_filters( 'jetpack_get_module', $mod, $module, $file );
+	}
+
+	/**
+	 * Like core's get_file_data implementation, but caches the result.
+	 *
+	 * @param string $file Absolute path to the file.
+	 * @param array  $headers List of headers, in the format array( 'HeaderKey' => 'Header Name' ).
+	 */
+	public function get_file_data( $file, $headers ) {
+		// Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated.
+		$file_name = basename( $file );
+
+		if ( ! Constants::is_defined( 'JETPACK__VERSION' ) ) {
+			return get_file_data( $file, $headers );
+		}
+
+		$cache_key = 'jetpack_file_data_' . JETPACK__VERSION;
+
+		$file_data_option = get_transient( $cache_key );
+
+		if ( ! is_array( $file_data_option ) ) {
+			delete_transient( $cache_key );
+			$file_data_option = false;
+		}
+
+		if ( false === $file_data_option ) {
+			$file_data_option = array();
+		}
+
+		$key           = md5( $file_name . maybe_serialize( $headers ) );
+		$refresh_cache = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// If we don't need to refresh the cache, and already have the value, short-circuit!
+		if ( ! $refresh_cache && isset( $file_data_option[ $key ] ) ) {
+			return $file_data_option[ $key ];
+		}
+
+		$data = get_file_data( $file, $headers );
+
+		$file_data_option[ $key ] = $data;
+
+		set_transient( $cache_key, $file_data_option, 29 * DAY_IN_SECONDS );
+
+		return $data;
 	}
 
 	/**
@@ -152,7 +204,7 @@ class Modules {
 		 * Gives theme and plugin developers the power to alter the modules that
 		 * are activated on the fly.
 		 *
-		 * @since 5.8.0
+		 * @since-jetpack 5.8.0
 		 *
 		 * @param array $active Array of active module slugs.
 		 */
@@ -185,6 +237,10 @@ class Modules {
 	 */
 	public function get_available( $min_version = false, $max_version = false, $requires_connection = null, $requires_user_connection = null ) {
 		static $modules = null;
+
+		if ( ! Constants::is_defined( 'JETPACK__VERSION' ) || ! Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return array();
+		}
 
 		if ( ! isset( $modules ) ) {
 			$available_modules_option = \Jetpack_Options::get_option( 'available_modules', array() );
@@ -229,7 +285,7 @@ class Modules {
 		 */
 		$mods = apply_filters( 'jetpack_get_available_modules', $modules, $min_version, $max_version, $requires_connection, $requires_user_connection );
 
-		if ( ! $min_version && ! $max_version && is_null( $requires_connection ) && is_null( $requires_user_connection ) ) {
+		if ( ! $min_version && ! $max_version && $requires_connection === null && $requires_user_connection === null ) {
 			return array_keys( $mods );
 		}
 
@@ -243,7 +299,7 @@ class Modules {
 				continue;
 			}
 
-			$mod_details = $this->get_module( $slug );
+			$mod_details = $this->get( $slug );
 
 			if ( null !== $requires_connection && (bool) $requires_connection !== $mod_details['requires_connection'] ) {
 				continue;
@@ -352,7 +408,7 @@ class Modules {
 		}
 
 		// Protect won't work with mis-configured IPs.
-		if ( 'protect' === $module ) {
+		if ( 'protect' === $module && Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
 			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 			if ( ! jetpack_protect_get_ip() ) {
 				$state->state( 'message', 'protect_misconfigured_ip' );
@@ -371,7 +427,10 @@ class Modules {
 		$errors->catch_errors( true );
 
 		ob_start();
-		require $this->get_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+		$module_path = $this->get_path( $module );
+		if ( file_exists( $module_path ) ) {
+			require $this->get_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+		}
 
 		$active[] = $module;
 		$this->update_active( $active );
@@ -418,6 +477,9 @@ class Modules {
 	 * @param string $slug Module slug.
 	 */
 	public function get_path( $slug ) {
+		if ( ! Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return '';
+		}
 		/**
 		 * Filters the path of a modules.
 		 *

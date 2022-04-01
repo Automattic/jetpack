@@ -1,0 +1,13 @@
+.jb-checklist {
+  li {
+	padding-top: $spacing-unit;
+	padding-bottom: $spacing-unit;
+	padding-left: 2em;
+	vertical-align: middle;
+	background: url("../static/images/check.svg") no-repeat;
+	background-position: 0px 8px;
+	background-size: 1.5em;
+	line-height: 1.5em;
+	list-style-type: none;
+  }
+}

@@ -36,7 +36,7 @@ class Module_Control {
 	 * @param Plan|null $plan - Plan object.
 	 */
 	public function __construct( $plan = null ) {
-		$this->plan = is_null( $plan ) ? new Plan() : $plan;
+		$this->plan = $plan === null ? new Plan() : $plan;
 	}
 
 	/**
@@ -120,7 +120,7 @@ class Module_Control {
 		/**
 		 * Fires when a module is deactivated.
 		 *
-		 * @since 1.9.0
+		 * @since-jetpack 1.9.0
 		 *
 		 * @param string $module Module slug.
 		 */
@@ -134,7 +134,7 @@ class Module_Control {
 		/**
 		 * Fired after a module has been deactivated.
 		 *
-		 * @since 4.2.0
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param string $module Module slug.
 		 * @param boolean $success whether the module was deactivated.
@@ -144,7 +144,7 @@ class Module_Control {
 		 * Fires when a module is deactivated.
 		 * The dynamic part of the filter, $module, is the module slug.
 		 *
-		 * @since 1.9.0
+		 * @since-jetpack 1.9.0
 		 *
 		 * @param string $module Module slug.
 		 */

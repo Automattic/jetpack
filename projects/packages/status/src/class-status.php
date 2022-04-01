@@ -302,7 +302,7 @@ class Status {
 	 * Whether the site is currently onboarding or not.
 	 * A site is considered as being onboarded if it currently has an onboarding token.
 	 *
-	 * @since 5.8
+	 * @since-jetpack 5.8
 	 *
 	 * @access public
 	 * @static
