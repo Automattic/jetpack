@@ -915,7 +915,8 @@ class csstidy_optimise { // phpcs:ignore
 
 		// Fix for 100 and more font-size.
 		if ( $have['size'] === false && isset( $return['font-weight'] ) &&
-						is_numeric( $return['font-weight'][0] ) ) {
+			is_numeric( $return['font-weight'][0] )
+		) {
 			$return['font-size'] = $return['font-weight'];
 			unset( $return['font-weight'] );
 		}
