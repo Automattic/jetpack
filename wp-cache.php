@@ -30,6 +30,7 @@ Text Domain: wp-super-cache
 */
 
 require_once( dirname( __FILE__ ) . '/inc/delete-cache-button.php');
+require_once( dirname( __FILE__ ) . '/inc/preload-notification.php');
 
 if ( ! function_exists( 'wp_cache_phase2' ) ) {
 	require_once( dirname( __FILE__ ) . '/wp-cache-phase2.php');
@@ -867,7 +868,7 @@ table.wpsc-settings-table {
 				$currently_preloading = true;
 				if ( @file_exists( $cache_path . 'preload_permalink.txt' ) ) {
 					$url  = file_get_contents( $cache_path . 'preload_permalink.txt' );
-					$msg .= '<p>' . sprintf( __( '<strong>Page last cached:</strong> %s', 'wp-super-cache' ), $url ) . '</p>';
+					$msg .= '<p>' . sprintf( __( '<strong>Page last cached:</strong> %s', 'wp-super-cache' ), '<span id="preload_status">' . $url . '</span>' ) . '</p>';
 				}
 				if ( $msg != '' ) {
 					echo '<div class="notice notice-warning"><h4>' . esc_html__( 'Preload Active', 'wp-super-cache' ) . '</h4>' . $msg;
