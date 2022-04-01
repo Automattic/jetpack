@@ -167,7 +167,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 				<ul className={ styles.features }>
 					{ features.map( ( feature, id ) => (
 						<Text component="li" key={ `feature-${ id }` } variant="body">
-							<Icon icon={ check } size={ 30 } />
+							<Icon icon={ check } size={ 24 } />
 							{ feature }
 						</Text>
 					) ) }
