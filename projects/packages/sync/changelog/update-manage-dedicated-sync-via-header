@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Dedicated Sync flow: Allow enabling or disabling via WPCOM response header
