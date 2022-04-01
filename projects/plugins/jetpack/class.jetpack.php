@@ -6649,6 +6649,7 @@ endif;
 				_x( 'Automated daily scanning', 'Scan Product Feature', 'jetpack' ),
 				_x( 'One-click fixes for most issues', 'Scan Product Feature', 'jetpack' ),
 				_x( 'Instant email notifications', 'Scan Product Feature', 'jetpack' ),
+				_x( 'Access to latest Firewall rules', 'Scan Product Feature', 'jetpack' ),
 			),
 		);
 

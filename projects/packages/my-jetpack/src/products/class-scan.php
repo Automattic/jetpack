@@ -72,13 +72,14 @@ class Scan extends Module_Product {
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array Boost features list
+	 * @return array Scan features list
 	 */
 	public static function get_features() {
 		return array(
 			_x( 'Automated daily scanning', 'Scan Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'One-click fixes for most issues', 'Scan Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Instant email notifications', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Access to latest Firewall rules', 'Scan Product Feature', 'jetpack-my-jetpack' ),
 		);
 	}
 
