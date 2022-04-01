@@ -53,10 +53,6 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * Things that we do on init.
 	 */
 	public static function init() {
-		$min = '.min'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-			$min = ''; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		}
 
 		wp_register_style( 'jetpack-codemirror', plugins_url( 'custom-css/css/codemirror.css', __FILE__ ), array(), '20120905' );
 		wp_register_style( 'jetpack-customizer-css', plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), array(), '20140728' );
