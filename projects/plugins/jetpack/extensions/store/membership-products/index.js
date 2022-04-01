@@ -17,6 +17,7 @@ export const store = createReduxStore( STORE_NAME, {
 	reducer,
 	resolvers,
 	selectors,
+	__experimentalUseThunks: true,
 } );
 
 register( store );

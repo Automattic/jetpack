@@ -38,6 +38,7 @@ const ActionButton = ( {
 	onFixConnection,
 	isFetching,
 	className,
+	onAdd,
 } ) => {
 	if ( ! admin ) {
 		return (
@@ -57,7 +58,6 @@ const ActionButton = ( {
 	};
 
 	switch ( status ) {
-		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
 				<span className={ styles[ 'action-link-button' ] }>
@@ -66,6 +66,12 @@ const ActionButton = ( {
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
 					}
 				</span>
+			);
+		case PRODUCT_STATUSES.NEEDS_PURCHASE:
+			return (
+				<Button { ...buttonState } onClick={ onAdd }>
+					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
+				</Button>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
 			return (
@@ -81,7 +87,7 @@ const ActionButton = ( {
 			);
 		case PRODUCT_STATUSES.INACTIVE:
 			return (
-				<Button { ...buttonState } onClick={ onActivate }>
+				<Button { ...buttonState } variant="secondary" onClick={ onActivate }>
 					{ __( 'Activate', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
@@ -107,7 +113,7 @@ const ProductCard = props => {
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
-	const isAbsent = status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.NEEDS_PURCHASE;
+	const isAbsent = status === PRODUCT_STATUSES.ABSENT;
 	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
@@ -120,7 +126,7 @@ const ProductCard = props => {
 
 	const statusClassName = classNames( styles.status, {
 		[ styles.active ]: isActive,
-		[ styles.inactive ]: isInactive,
+		[ styles.inactive ]: isInactive || isPurchaseRequired,
 		[ styles.error ]: isError,
 		[ styles[ 'is-fetching' ] ]: isFetching,
 	} );
@@ -220,7 +226,6 @@ ProductCard.propTypes = {
 	onActivate: PropTypes.func,
 	onAdd: PropTypes.func,
 	slug: PropTypes.string.isRequired,
-	showDeactivate: PropTypes.bool,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
@@ -237,7 +242,6 @@ ProductCard.defaultProps = {
 	onFixConnection: () => {},
 	onActivate: () => {},
 	onAdd: () => {},
-	showDeactivate: true,
 };
 
 export default ProductCard;
