@@ -30,27 +30,8 @@ const optimization = {
 	concatenateModules: false,
 	emitOnErrors: true,
 };
-
-const jsPackagesDirPath = path.join( __dirname, '../../' );
-// List of directory/package names inside `js-packages`
-const packageNames = fs
-	.readdirSync( jsPackagesDirPath )
-	.filter( item => fs.lstatSync( jsPackagesDirPath + item ).isDirectory() );
-
-/**
- * In order to allow webpack resolve internal js-packages correctly,
- * We need to create aliases for all of the packages.
- */
-const alias = packageNames.reduce( ( prevValue, name ) => {
-	return {
-		...prevValue,
-		[ `@automattic/jetpack-${ name }` ]: path.join( jsPackagesDirPath, name ),
-	};
-}, {} );
-
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
-	alias,
 };
 
 /****** Plugins ******/
