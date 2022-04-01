@@ -814,7 +814,7 @@ class csstidy_optimise { // phpcs:ignore
 			}
 
 			$new_bg_value = trim( $new_bg_value );
-			if ( $i != $number_of_values - 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+			if ( $i !== $number_of_values - 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 				$new_bg_value .= ',';
 			}
 		}
@@ -845,7 +845,7 @@ class csstidy_optimise { // phpcs:ignore
 	public static function dissolve_short_font( $str_value ) {
 		$have              = array();
 		$font_prop_default = & $GLOBALS['csstidy']['font_prop_default'];
-		$font_weight       = array( 'normal', 'bold', 'bolder', 'lighter', 100, 200, 300, 400, 500, 600, 700, 800, 900 );
+		$font_weight       = array( 'normal', 'bold', 'bolder', 'lighter', '100', '200', '300', '400', '500', '600', '700', '800', '900' );
 		$font_variant      = array( 'normal', 'small-caps' );
 		$font_style        = array( 'normal', 'italic', 'oblique' );
 		$important         = '';
@@ -875,8 +875,8 @@ class csstidy_optimise { // phpcs:ignore
 
 		$str_value[0] = self::explode_ws( ' ', trim( $str_value[0] ) );
 
-		for ( $j = 0; $j < count( $str_value[0] ); $j++ ) { // phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found, Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
-			if ( $have['weight'] === false && in_array( $str_value[0][ $j ], $font_weight ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+		for ( $j = 0, $k = count( $str_value[0] ); $j < $k; $j++ ) {
+			if ( $have['weight'] === false && in_array( $str_value[0][ $j ], $font_weight, true ) ) {
 				$return['font-weight'] = $str_value[0][ $j ];
 				$have['weight']        = true;
 			} elseif ( $have['variant'] === false && in_array( $str_value[0][ $j ], $font_variant, true ) ) {
