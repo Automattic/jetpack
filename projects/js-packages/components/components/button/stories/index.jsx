@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { Icon as WPIcon, check } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -129,6 +130,7 @@ ButtonExternalLink.args = {
 
 export const Icon = Template.bind( {} );
 Icon.argTypes = {
+	...DisableIcon,
 	...DisableDisabled,
 	...DisableIsLoading,
 	...DisableIsDestructive,
@@ -136,7 +138,7 @@ Icon.argTypes = {
 Icon.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
-	icon: 'check',
+	icon: <WPIcon icon={ check } />,
 	variant: 'primary',
 };
 
