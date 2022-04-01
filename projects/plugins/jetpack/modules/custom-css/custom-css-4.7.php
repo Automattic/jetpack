@@ -557,14 +557,12 @@ class Jetpack_Custom_CSS_Enhancements {
 			$csstidy->set_cfg( 'template', __DIR__ . '/csstidy/wordpress-standard.tpl' );
 
 			// Test for some preg_replace stuff.
-			{
-				$prev = $css;
-				$css  = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $css );
-				// prevent content: '\3434' from turning into '\\3434'.
-				$css = str_replace( array( '\'\\\\', '"\\\\' ), array( '\'\\', '"\\' ), $css );
+			$prev = $css;
+			$css  = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $css );
+			// prevent content: '\3434' from turning into '\\3434'.
+			$css = str_replace( array( '\'\\\\', '"\\\\' ), array( '\'\\', '"\\' ), $css );
 			if ( $css !== $prev ) {
 				$warnings[] = 'preg_replace found stuff';
-			}
 			}
 
 			// Some people put weird stuff in their CSS, KSES tends to be greedy.
