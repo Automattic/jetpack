@@ -1921,7 +1921,7 @@ packages:
       '@babel/traverse': 7.17.3
       '@babel/types': 7.17.0
       convert-source-map: 1.8.0
-      debug: 4.3.4
+      debug: 4.3.3
       gensync: 1.0.0-beta.2
       json5: 2.2.1
       semver: 6.3.0
@@ -5516,7 +5516,7 @@ packages:
       async: 3.2.3
       chalk: 3.0.0
       dayjs: 1.8.36
-      debug: 4.3.4
+      debug: 4.3.3
       eventemitter2: 5.0.1
       fast-json-patch: 3.1.0
       fclone: 1.0.11
@@ -5539,7 +5539,7 @@ packages:
       '@opencensus/core': 0.0.9
       '@opencensus/propagation-b3': 0.0.8
       async: 2.6.3
-      debug: 4.3.4
+      debug: 4.3.3
       eventemitter2: 6.4.5
       require-in-the-middle: 5.1.0
       semver: 6.3.0
@@ -5555,8 +5555,8 @@ packages:
     engines: {node: '>=4.0'}
     dependencies:
       async: 2.6.3
-      axios: 0.21.4_debug@4.3.4
-      debug: 4.3.4
+      axios: 0.21.4_debug@4.3.3
+      debug: 4.3.3
       eventemitter2: 6.4.5
       ws: 7.5.7
     transitivePeerDependencies:
@@ -5912,7 +5912,7 @@ packages:
     resolution: {integrity: sha512-DTuBFbqu4gGfajREEMrkq5jBhcnskinhr4+AnfJEk48zhVeEv3XnUKGIX98B74kxhYsIMfApGGySTn7V3b5yBA==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
     dependencies:
-      '@types/node': 17.0.23
+      '@types/node': 17.0.21
     dev: true
 
   /@slack/types/2.4.0:
@@ -5927,7 +5927,7 @@ packages:
       '@slack/logger': 3.0.0
       '@slack/types': 2.4.0
       '@types/is-stream': 1.1.0
-      '@types/node': 17.0.23
+      '@types/node': 17.0.21
       axios: 0.26.1
       eventemitter3: 3.1.2
       form-data: 2.5.1
@@ -7792,7 +7792,7 @@ packages:
   /@types/is-stream/1.1.0:
     resolution: {integrity: sha512-jkZatu4QVbR60mpIzjINmtS1ZF4a/FqdTUTBeQDVOQ2PYyidtwFKr0B5G6ERukKwliq+7mIXvxyppwzG5EgRYg==}
     dependencies:
-      '@types/node': 17.0.23
+      '@types/node': 17.0.21
     dev: true
 
   /@types/istanbul-lib-coverage/2.0.4:
@@ -8004,7 +8004,7 @@ packages:
     resolution: {integrity: sha512-8uALY5LTvSuHgloDVUvWP3pIauILm+8/0pDMokuDYIoNsOkSwd5AiHBTSEJjKTDcZr5z8UpgOWZkxBF4iJftoA==}
     requiresBuild: true
     dependencies:
-      '@types/node': 17.0.23
+      '@types/node': 17.0.21
     dev: true
     optional: true
 
@@ -9610,7 +9610,7 @@ packages:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.3
     transitivePeerDependencies:
       - supports-color
 
@@ -10178,10 +10178,10 @@ packages:
       - debug
     dev: true
 
-  /axios/0.21.4_debug@4.3.4:
+  /axios/0.21.4_debug@4.3.3:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
-      follow-redirects: 1.14.9_debug@4.3.4
+      follow-redirects: 1.14.9_debug@4.3.3
     transitivePeerDependencies:
       - debug
     dev: true
@@ -10247,7 +10247,7 @@ packages:
       loader-utils: 1.4.0
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
 
   /babel-loader/8.2.4_9477871d54680372d40c2081e3c861d6:
     resolution: {integrity: sha512-8dytA3gcvPPPv4Grjhnt8b5IIiTcq/zeXOPk4iTYI0SVXcsmuGg7JtBRDp8S9X+gJfhQ8ektjXZlDu1Bb33U8A==}
@@ -11604,7 +11604,7 @@ packages:
     resolution: {integrity: sha512-mX/n7GKDYZMqvvkY6e6oBY49W8wxdmQt+ho/5lhwFDXqQW9gI+Ahp8EKp8VAbISPnmf2+Bv5uZK7lKXZ6pf1aA==}
     engines: {node: '>= 10.0.0'}
     dependencies:
-      json5: 2.2.1
+      json5: 2.2.0
     dev: true
 
   /configstore/5.0.1:
@@ -11932,7 +11932,7 @@ packages:
       postcss-modules-values: 4.0.0_postcss@8.4.8
       postcss-value-parser: 4.2.0
       semver: 7.3.5
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
 
   /css-minimizer-webpack-plugin/3.1.4_webpack@5.65.0:
     resolution: {integrity: sha512-JXnwBEA+a3FrmuBIJz7tKnCYGyraP86nuvX+wAqik1Lc8Ne9Ql8h5RpFbM3HjMpjXfhnqRBoTYIfArji5mteOg==}
@@ -14384,7 +14384,7 @@ packages:
       debug: 4.3.2
     dev: true
 
-  /follow-redirects/1.14.9_debug@4.3.4:
+  /follow-redirects/1.14.9_debug@4.3.3:
     resolution: {integrity: sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==}
     engines: {node: '>=4.0'}
     peerDependencies:
@@ -14393,7 +14393,7 @@ packages:
       debug:
         optional: true
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.3
     dev: true
 
   /for-in/1.0.2:
@@ -16690,7 +16690,7 @@ packages:
       '@types/stack-utils': 2.0.1
       chalk: 4.1.2
       graceful-fs: 4.2.9
-      micromatch: 4.0.5
+      micromatch: 4.0.4
       pretty-format: 27.5.1
       slash: 3.0.0
       stack-utils: 2.0.5
@@ -17113,6 +17113,12 @@ packages:
     hasBin: true
     dependencies:
       minimist: 1.2.5
+
+  /json5/2.2.1:
+    resolution: {integrity: sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==}
+    engines: {node: '>=6'}
+    hasBin: true
+    dev: true
 
   /jsonfile/2.4.0:
     resolution: {integrity: sha1-NzaitCi4e72gzIO1P6PWM6NcKug=}
@@ -19436,7 +19442,7 @@ packages:
     resolution: {integrity: sha512-FbLvW60w+vEyvMjP/xom2UPhUN/2bVpdtLfKJeYM3gwzYhoTEEChCOICfFzxkxuoEleOlnpjie+n1nue91bDQw==}
     engines: {node: '>=5'}
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -19447,7 +19453,7 @@ packages:
     dependencies:
       amp: 0.3.1
       amp-message: 0.1.2
-      debug: 4.3.4
+      debug: 4.3.3
       escape-string-regexp: 4.0.0
     transitivePeerDependencies:
       - supports-color
@@ -19472,7 +19478,7 @@ packages:
     requiresBuild: true
     dependencies:
       async: 3.2.3
-      debug: 4.3.4
+      debug: 4.3.3
       pidusage: 2.0.21
       systeminformation: 5.11.7
       tx2: 1.0.5
@@ -19498,7 +19504,7 @@ packages:
       commander: 2.15.1
       croner: 4.1.97
       dayjs: 1.8.36
-      debug: 4.3.4
+      debug: 4.3.3
       enquirer: 2.3.6
       eventemitter2: 5.0.1
       fclone: 1.0.11
