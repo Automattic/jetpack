@@ -2,13 +2,12 @@
 	/**
 	 * Internal dependencies
 	 */
-	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import { isPaidPlan, openPaidSupport } from '../../../utils/paid-plan';
+
 	/**
 	 * WordPress dependencies
 	 */
 	import { __ } from '@wordpress/i18n';
-	import { Button } from '@wordpress/components';
 </script>
 
 {#if isPaidPlan}
@@ -27,13 +26,13 @@
 					</p>
 				</div>
 				<div class="jb-support__cta">
-					<ReactComponent
-						this={Button}
-						label={__( 'Continue', 'jetpack-boost' )}
-						onClick={openPaidSupport}
-						className="jb-button jb-button--outline"
-						children={__( 'Contact Us', 'jetpack-boost' )}
-					/>
+					<button
+						class="components-button jb-button jb-button--outline"
+						on:click={openPaidSupport}
+						type="button"
+					>
+						{__( 'Contact Us', 'jetpack-boost' )}
+					</button>
 				</div>
 			</div>
 		</div>
