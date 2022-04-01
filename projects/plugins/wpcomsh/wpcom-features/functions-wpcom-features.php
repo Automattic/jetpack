@@ -11,6 +11,9 @@
  * @package WPCOM_Features
  */
 
+/**
+ * Load `WPCOM_Features` class.
+ */
 require_once __DIR__ . '/class-wpcom-features.php';
 
 /**
@@ -35,10 +38,16 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 			);
 		}
 
-		// Atomic site (WPCOMSH) purchases are stored in Atomic Persistent Data as a CSV string.
+		// Atomic site (WPCOMSH) purchases are stored in Atomic Persistent Data as a JSON encoded string.
 		$persistent_data = new Atomic_Persistent_Data();
-		// Retrieves that CSV & convert it to an array.
-		$purchases = str_getcsv( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+		$purchases       = json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+		if ( null !== $purchases ) {
+			// Each purchase has several fields, but we only want the product slug.
+			$purchases = wp_list_pluck( $purchases, 'product_slug' );
+		} else {
+			// Fallback to old CSV format if the string cannot be JSON decoded.
+			$purchases = str_getcsv( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+		}
 
 		$is_wpcom_site = true;
 	} else {
@@ -56,12 +65,17 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 
 		if ( false === $wp_cache_found ) {
 			// For optimal performance, get $purchases with a direct SQL query.
-			$sql = "SELECT sp.product_slug FROM `$wpdb->store_subscriptions` AS ss "
-				. "LEFT JOIN `$wpdb->store_products` AS sp ON ss.product_id = sp.product_id "
-				. 'WHERE ss.blog_id=%d AND ss.active=1';
-
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$purchases = $wpdb->get_col( $wpdb->prepare( $sql, $blog_id ) );
+			$purchases = $wpdb->get_col(
+				$wpdb->prepare(
+					"
+					SELECT sp.product_slug FROM `$wpdb->store_subscriptions` AS ss
+						LEFT JOIN `$wpdb->store_products` AS sp ON ss.product_id = sp.product_id
+					WHERE ss.blog_id=%d AND ss.active=1
+					",
+					$blog_id
+				)
+			);
 
 			/*
 			 * Cache the $purchases for 3 hours. Otherwise, the cache is invalidated when a purchase is made, using:
