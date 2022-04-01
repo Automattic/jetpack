@@ -141,7 +141,8 @@ class Waf {
 			return;
 		}
 		$version = get_option( self::VERSION_OPTION_NAME );
-		if ( JETPACK_WAF_VERSION !== $version ) {
+		if ( self::JETPACK_WAF_VERSION !== $version ) {
+			update_option( self::VERSION_OPTION_NAME, self::JETPACK_WAF_VERSION );
 			self::generate_rules();
 		}
 	}

@@ -12,9 +12,6 @@ if ( ! function_exists( 'add_action' ) ) {
 	return;
 }
 
-define( 'JETPACK_WAF_VERSION', '1.0.3' );
-define( 'JETPACK_WAF_DIR', __DIR__ );
-
 /**
  * Triggers when the Jetpack plugin is activated
  */
