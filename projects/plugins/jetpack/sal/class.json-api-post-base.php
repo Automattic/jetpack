@@ -712,7 +712,7 @@ abstract class SAL_Post {
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 		$post_likes_switched    = get_post_meta( $this->post->ID, 'switch_like_status', true );
 
-		return $post_likes_switched || ( '0' !== $sitewide_likes_enabled && $post_likes_switched );
+		return $post_likes_switched || ( $sitewide_likes_enabled && '0' !== $post_likes_switched );
 	}
 
 	/**
