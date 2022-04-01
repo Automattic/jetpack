@@ -1,9 +1,4 @@
 [
-	"projects/plugins/jetpack/_inc/lib/class.core-rest-api-endpoints.php",
-	"projects/plugins/jetpack/_inc/lib/class.jetpack-iframe-embed.php",
-	"projects/plugins/jetpack/_inc/lib/class.jetpack-keyring-service-helper.php",
-	"projects/plugins/jetpack/_inc/lib/class.jetpack-photon-image-sizes.php",
-	"projects/plugins/jetpack/_inc/lib/class.jetpack-photon-image.php",
 	"projects/plugins/jetpack/class.jetpack.php",
 	"projects/plugins/jetpack/functions.compat.php",
 	"projects/plugins/jetpack/functions.gallery.php",
