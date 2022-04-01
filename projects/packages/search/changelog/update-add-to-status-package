@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Janitorial: Refactor classes into shared package.
