@@ -42,7 +42,7 @@
 		"automattic/jetpack-status": "1.12.x-dev",
 		"automattic/jetpack-sync": "1.30.x-dev",
 		"automattic/jetpack-tracking": "1.14.x-dev",
-		"automattic/jetpack-waf": "0.1.x-dev",
+		"automattic/jetpack-waf": "0.2.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"
 	},
 	"require-dev": {

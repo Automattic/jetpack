@@ -136,6 +136,7 @@ class Admin {
 			'shownAdminNoticeIds' => $this->get_shown_admin_notice_ids(),
 			'preferences'         => array(
 				'showRatingPrompt' => $this->get_show_rating_prompt(),
+				'paidPlan'         => ( defined( 'JETPACK_BOOST_CLOUD_CSS' ) && true === JETPACK_BOOST_CLOUD_CSS ),
 			),
 
 			/**

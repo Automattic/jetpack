@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1e6cefd97378635321a830297e8dce66",
+    "content-hash": "42205631833260d212112627c12d16f4",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1829,7 +1829,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "c64f994de535ce6d4d78dbd120ae95b3eb0cffd7"
+                "reference": "8a7b20f20a0927d28f1f3baeda050f6c4e779ccb"
             },
             "require": {
                 "wikimedia/aho-corasick": "^1.0"
@@ -1838,20 +1838,22 @@
                 "automattic/jetpack-changelogger": "^3.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
-            "type": "library",
+            "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-waf",
+                "textdomain": "jetpack-waf",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 }
             },
             "autoload": {
                 "files": [
-                    "actions.php"
+                    "actions.php",
+                    "cli.php"
                 ],
                 "classmap": [
                     "src/"
@@ -1863,6 +1865,9 @@
                 ],
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-coverage-html": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"
