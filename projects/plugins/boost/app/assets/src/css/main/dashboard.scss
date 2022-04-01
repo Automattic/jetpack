@@ -15,23 +15,16 @@
 }
 
 .jb-section {
-	margin-bottom: $padding;
+	padding-top: $padding;
+	padding-bottom: $padding;
 }
 
 .jb-section--alt {
-	@extend .jb-section;
-	padding-top: $padding;
-	padding-bottom: $padding;
 	background-color: $alt_white;
 }
 
 .jb-section--scores {
-	margin-bottom: $halfling;
   	position: relative;
-}
-
-.jb-section--main {
-	margin-top: $halfling;
 }
 
 .jb-container {
@@ -80,7 +73,7 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-top: auto;
+	margin-top: $padding;
 	@include breakpoint( xs ) {
 		flex-direction: column;
 		justify-content: flex-start;
