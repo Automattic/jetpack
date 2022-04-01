@@ -867,7 +867,7 @@ abstract class SAL_Post {
 				}
 				break;
 			case 'display':
-				if ( -1 === get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
+				if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 				}
 				break;
