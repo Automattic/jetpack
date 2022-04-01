@@ -90,9 +90,14 @@ class Autoloader_Debug_Helper {
 		<hr />
 		<h2>Complete list of classes and files found in Jetpack classmaps and filemaps</h2>
 		<?php if ( $data['unreadable_found'] ) : ?>
-			<strong>Attention! Unreadable files have been found in the classmap.</strong>
+			<div class="notice notice-error settings-error">
+				<p><strong>Attention! Unreadable files have been found in the classmap.</strong></p>
+				<p>Examine the contents of the classmaps on this page - the missing files are marked in the list.</p>
+			</div>
 		<?php else : ?>
-			<strong>Good news! No unreadable files have been found in the classmap.</strong>
+			<div class="notice notice-success settings-error">
+				<strong>Good news! No unreadable files have been found in the classmap.</strong>
+			</div>
 		<?php endif; ?>
 
 			<table class="widefat striped health-check-table" role="presentation">
@@ -102,11 +107,19 @@ class Autoloader_Debug_Helper {
 					<?php foreach ( $entries as $entry ) : ?>
 					<tr>
 						<?php if ( $counter++ ) : ?>
-							<td>(in <?php echo esc_html( $entry['manifest'] ); ?>)</td>
+							<td>
+								(in <?php echo esc_html( $entry['manifest'] ); ?>)
+								<?php if ( ! $entry['is_readable'] ) : ?>
+									<br /><strong style="color:red;">FILE UNREADABLE</strong>
+								<?php endif; ?>
+							</td>
 						<?php else : ?>
 							<td>
 								<strong><?php echo esc_html( $classname ); ?></strong><br />
 								(in <?php echo esc_html( $entry['manifest'] ); ?>)
+								<?php if ( ! $entry['is_readable'] ) : ?>
+									<br /><strong style="color:red;">FILE UNREADABLE</strong>
+								<?php endif; ?>
 							</td>
 						<?php endif; ?>
 						<td><?php echo esc_html( $entry['version'] ); ?></td>
