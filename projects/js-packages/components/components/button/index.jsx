@@ -35,7 +35,7 @@ const Button = ( {
 	text,
 } ) => {
 	const icon =
-		typeof propIcon === 'string' ? (
+		typeof propIcon === 'string' && allIcons[ propIcon ] ? (
 			<Icon icon={ allIcons[ propIcon ] } size={ iconSize } />
 		) : (
 			propIcon
