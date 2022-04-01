@@ -64,6 +64,7 @@ class Current_Plan {
 			),
 			'supports' => array(
 				'akismet',
+				'payments',
 				'recurring-payments',
 				'premium-content/container',
 				'videopress',
