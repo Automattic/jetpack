@@ -12,8 +12,22 @@ namespace Automattic\Jetpack\Waf;
  */
 class Waf {
 
-	const MODE_OPTION_NAME = 'jetpack_waf_mode';
-	const RULES_FILE       = __DIR__ . '/../rules/rules.php';
+	const JETPACK_WAF_VERSION = '1.0.0';
+	const MODE_OPTION_NAME    = 'jetpack_waf_mode';
+	const RULES_FILE          = __DIR__ . '/../rules/rules.php';
+	const VERSION_OPTION_NAME = 'jetpack_waf_version';
+
+	/**
+	 * Set the mode definition if it has not been set.
+	 *
+	 * @return void
+	 */
+	public static function define_mode() {
+		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
+			$mode_option = get_option( self::MODE_OPTION_NAME );
+			define( 'JETPACK_WAF_MODE', $mode_option );
+		}
+	}
 
 	/**
 	 * Did the WAF run yet or not?
@@ -105,12 +119,13 @@ class Waf {
 	 * @return void
 	 */
 	public static function activate() {
-		if ( ! self::is_allowed_mode( self::MODE_OPTION_NAME ) ) {
+		self::define_mode();
+		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
-		$version = get_option( 'jetpack_waf_version' );
+		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( ! $version ) {
-			add_option( 'jetpack_waf_version', JETPACK_WAF_VERSION );
+			add_option( self::VERSION_OPTION_NAME, self::JETPACK_WAF_VERSION );
 		}
 		self::generate_rules();
 	}
@@ -121,10 +136,11 @@ class Waf {
 	 * @return void
 	 */
 	public static function update() {
-		if ( ! self::is_allowed_mode( self::MODE_OPTION_NAME ) ) {
+		self::define_mode();
+		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
-		$version = get_option( 'jetpack_waf_version' );
+		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( JETPACK_WAF_VERSION !== $version ) {
 			self::generate_rules();
 		}
@@ -137,7 +153,7 @@ class Waf {
 	 * @throws \Exception If file writing fails.
 	 * @return void
 	 */
-	private static function generate_rules() {
+	public static function generate_rules() {
 		global $wp_filesystem;
 
 		if ( ! function_exists( '\\WP_Filesystem' ) ) {
