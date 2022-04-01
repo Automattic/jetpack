@@ -14,7 +14,6 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\Sync\Data_Settings;
 
 /**
  * Class Jetpack_Protect
@@ -53,11 +52,19 @@ class Jetpack_Protect {
 					)
 				);
 				// Sync package.
-				$sync_settings                           = Data_Settings::MUST_SYNC_DATA_SETTINGS;
-				$sync_settings['jetpack_sync_modules'][] = 'Automattic\\Jetpack\\Sync\\Modules\\Options';
-				$sync_settings['jetpack_sync_callable_whitelist']['get_plugins'] = array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' );
-				$sync_settings['jetpack_sync_options_whitelist']                 = array( 'active_plugins' );
-				$config->ensure( 'sync', $sync_settings );
+				$config->ensure(
+					'sync',
+					array(
+						'jetpack_sync_modules'            => array(
+							'Automattic\\Jetpack\\Sync\\Modules\\Options',
+							'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+						),
+						'jetpack_sync_callable_whitelist' => array(
+							'get_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+						),
+						'jetpack_sync_options_whitelist'  => array( 'active_plugins' ),
+					)
+				);
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
