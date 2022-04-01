@@ -3,6 +3,7 @@
 	 * External dependencies
 	 */
 	import { slide } from 'svelte/transition';
+	import { createEventDispatcher } from 'svelte';
 
 	/**
 	 * WordPress dependencies
@@ -15,7 +16,6 @@
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
-	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import { primaryErrorSet } from '../../../stores/critical-css-recommendations';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 
@@ -25,12 +25,14 @@
 
 	const title = __( 'Failed to generate Critical CSS', 'jetpack-boost' );
 
+	const dispatch = createEventDispatcher();
+
 	/**
 	 * When users click "refresh" on a showstopper, track that they have already
 	 * tried this approach.
 	 */
 	function retryShowstopper() {
-		generateCriticalCss( true, true );
+		dispatch( 'retry' );
 	}
 </script>
 
@@ -59,7 +61,7 @@
 						showSuggestion={true}
 						showClosingParagraph={false}
 						foldRawErrors={false}
-						on:retry={generateCriticalCss}
+						on:retry={() => dispatch( 'retry' )}
 					/>
 				{:else}
 					{$criticalCssStatus.status_error}

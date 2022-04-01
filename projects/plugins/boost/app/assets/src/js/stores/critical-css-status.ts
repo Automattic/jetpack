@@ -57,6 +57,13 @@ const initialState = Jetpack_Boost.criticalCssStatus || {
 
 const { subscribe, update } = writable< CriticalCssStatus >( initialState );
 
+let status;
+subscribe( state => ( status = state ) );
+
+export function getStatus() {
+	return status;
+}
+
 /**
  * Derived datastore: contains the number of provider keys which failed in the
  * latest Critical CSS generation run.
@@ -134,6 +141,18 @@ export function updateGenerateStatus( generating: boolean, progress: number ): v
 }
 
 /**
+ * Helper method to update Cloud CSS generation progress status.
+ *
+ * @param {CriticalCssStatus} cssStatus Cloud CSS generation status.
+ */
+export function updateCloudStatus( cssStatus: CriticalCssStatus ): void {
+	return update( state => ( {
+		...state,
+		...cssStatus,
+	} ) );
+}
+
+/**
  * Send a request to the server requesting that Critical CSS gets regenerated.
  *
  * @param {boolean} reset              True if existing results should be thrown away before starting.
@@ -166,6 +185,23 @@ export function storeGenerateError( error: Error ): void {
 		...oldState,
 		status: 'error',
 		status_error: error,
+	} ) );
+}
+
+export function resetCloudStatus(): void {
+	return update( state => ( {
+		...state,
+		progress: 0,
+		success_count: 0,
+		percent_complete: 0,
+		status: 'requesting',
+	} ) );
+}
+
+export function setError(): void {
+	return update( state => ( {
+		...state,
+		status: 'error',
 	} ) );
 }
 

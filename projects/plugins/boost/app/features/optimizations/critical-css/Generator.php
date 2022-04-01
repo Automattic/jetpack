@@ -27,8 +27,8 @@ class Generator {
 
 	public $state;
 
-	public function __construct() {
-		$this->state = new Critical_CSS_State();
+	public function __construct( $state = 'local' ) {
+		$this->state = new Critical_CSS_State( $state );
 		$this->paths = new Source_Providers();
 		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
 			$this->state->create_request( $this->paths->get_providers() );
@@ -37,7 +37,6 @@ class Generator {
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_boost_proxy_css', array( $this, 'handle_css_proxy' ) );
 		}
-
 	}
 
 	/**
@@ -48,6 +47,13 @@ class Generator {
 			return array( 'status' => Critical_CSS_State::NOT_GENERATED );
 		}
 
+		if ( $this->state->is_fatal_error() ) {
+			return array(
+				'status'       => Critical_CSS_State::FAIL,
+				'status_error' => $this->state->get_state_error(),
+			);
+		}
+
 		if ( $this->state->is_pending() ) {
 			return array(
 				'status'                 => Critical_CSS_State::REQUESTING,
@@ -55,13 +61,8 @@ class Generator {
 				'success_count'          => $this->state->get_providers_success_count(),
 				'pending_provider_keys'  => $this->state->get_provider_urls(),
 				'provider_success_ratio' => $this->state->get_provider_success_ratios(),
-			);
-		}
-
-		if ( $this->state->is_fatal_error() ) {
-			return array(
-				'status'       => Critical_CSS_State::FAIL,
-				'status_error' => $this->state->get_state_error(),
+				'created'                => $this->state->get_created_time(),
+				'updated'                => $this->state->get_updated_time(),
 			);
 		}
 
@@ -73,12 +74,14 @@ class Generator {
 
 		return array(
 			'status'                => Critical_CSS_State::SUCCESS,
+			'percent_complete'      => $this->state->get_percent_complete(),
 			'success_count'         => $this->state->get_providers_success_count(),
 			'core_providers'        => self::CORE_PROVIDER_KEYS,
 			'core_providers_status' => $this->state->get_core_providers_status( self::CORE_PROVIDER_KEYS ),
 			'providers_errors'      => $providers_errors,
 			'provider_key_labels'   => $provider_key_labels,
 			'created'               => $this->state->get_created_time(),
+			'updated'               => $this->state->get_updated_time(),
 		);
 	}
 

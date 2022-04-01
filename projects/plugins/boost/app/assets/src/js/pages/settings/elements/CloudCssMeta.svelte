@@ -8,29 +8,46 @@
 	 * Internal dependencies
 	 */
 	import { requestCloudCss } from '../../../utils/cloud-css';
-	import { cloudCssStatus } from '../../../stores/cloud-css-status';
+	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
+
+	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
+
+	// Show an error if in error state, or if a success has 0 results.
+	let showError = false;
+	$: showError =
+		$criticalCssStatus.status === 'error' ||
+		( $criticalCssStatus.status === 'success' && $criticalCssStatus.success_count === 0 );
 </script>
 
 <div class="jb-cloud-css-meta">
-	<div class="meta-description">
-		{#if $cloudCssStatus.completed === 0}
-			{__( 'Jetpack Boost will generate Critical CSS for you automatically.', 'jetpack-boost' )}
-		{:else}
-			{sprintf(
-				/* translators: %d is a number of CSS Files which were successfully generated */
-				_n( '%d file generated', '%d files generated', $cloudCssStatus.completed, 'jetpack-boost' ),
-				$cloudCssStatus.completed
-			)}
-			<TimeAgo time={new Date( $cloudCssStatus.updated * 1000 )} />.
-			{#if $cloudCssStatus.pending}
-				{__( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' )}
+	{#if showError}
+		<CriticalCssShowStopperError on:retry={requestCloudCss} />
+	{:else}
+		<div class="meta-description">
+			{#if $criticalCssStatus.success_count === 0}
+				{__( 'Jetpack Boost will generate Critical CSS for you automatically.', 'jetpack-boost' )}
+			{:else}
+				{sprintf(
+					/* translators: %d is a number of CSS Files which were successfully generated */
+					_n(
+						'%d file generated',
+						'%d files generated',
+						$criticalCssStatus.success_count,
+						'jetpack-boost'
+					),
+					$criticalCssStatus.success_count
+				)}
+				<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
+				{#if $criticalCssStatus.percent_complete < 100}
+					{__( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' )}
+				{/if}
 			{/if}
-		{/if}
-	</div>
-	<button type="button" class="components-button is-link" on:click={requestCloudCss}>
-		<RefreshIcon />
-		{__( 'Regenerate', 'jetpack-boost' )}
-	</button>
+		</div>
+		<button type="button" class="components-button is-link" on:click={requestCloudCss}>
+			<RefreshIcon />
+			{__( 'Regenerate', 'jetpack-boost' )}
+		</button>
+	{/if}
 </div>

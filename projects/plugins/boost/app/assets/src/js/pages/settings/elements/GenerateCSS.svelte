@@ -44,7 +44,7 @@
 		</div>
 	</div>
 {:else if showError}
-	<CriticalCssShowStopperError />
+	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
 {:else if $criticalCssStatus.status === 'success'}
 	<div class="jb-critical-css__meta">
 		<div class="summary">
