@@ -569,17 +569,15 @@ class Jetpack_Custom_CSS_Enhancements {
 			$css = str_replace( '<=', '&lt;=', $css ); // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found
 
 			// Test for some kses stuff.
-			{
-				$prev = $css;
-				// Why KSES instead of strip_tags?  Who knows?
-				$css = wp_kses_split( $css, array(), array() );
-				$css = str_replace( '&gt;', '>', $css ); // kses replaces lone '>' with &gt;
-				// Why both KSES and strip_tags?  Because we just added some '>'.
-				$css = strip_tags( $css ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags -- scared to update this to wp_strip_all_tags since we're building a CSS file here.
+			$prev = $css;
+			// Why KSES instead of strip_tags?  Who knows?
+			$css = wp_kses_split( $css, array(), array() );
+			$css = str_replace( '&gt;', '>', $css ); // kses replaces lone '>' with &gt;
+			// Why both KSES and strip_tags?  Because we just added some '>'.
+			$css = strip_tags( $css ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags -- scared to update this to wp_strip_all_tags since we're building a CSS file here.
 
 			if ( $css !== $prev ) {
 				$warnings[] = 'kses found stuff';
-			}
 			}
 
 			// if we're not using a preprocessor.
