@@ -13,7 +13,7 @@ use Automattic\Jetpack\Connection\Secrets;
 /**
  * A series of utilities to interact with a Keyring instance.
  */
-class Jetpack_Keyring_Service_Helper {
+class Keyring_Service_Helper {
 	/**
 	 * Class instance
 	 *
@@ -250,7 +250,7 @@ class Jetpack_Keyring_Service_Helper {
 							sprintf(
 								wp_kses(
 									/* Translators: placeholder is a URL to a Settings page. */
-									__( "Jetpack is not connected. Please connect Jetpack by visiting <a href='%s'>Settings</a>.", 'jetpack' ),
+									__( "Jetpack is not connected. Please connect Jetpack by visiting <a href='%s'>Settings</a>.", 'jetpack-publicize-pkg' ),
 									array(
 										'a' => array(
 											'href' => array(),
