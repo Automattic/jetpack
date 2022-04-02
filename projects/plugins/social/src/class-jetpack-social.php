@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Publicize\Publicize;
 
 /**
  * Class Jetpack_Social
@@ -61,6 +62,7 @@ class Jetpack_Social {
 		);
 
 		My_Jetpack_Initializer::init();
+		new Publicize();
 	}
 
 	/**
