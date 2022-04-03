@@ -128,7 +128,9 @@ if ( is_multisite() && wpsupercache_site_admin() ) {
 <li><?php printf( __( '<a href="%s">Jetpack</a> provides everything you need to build a successful WordPress website including an image/photo CDN (free) and a video hosting service (paid).', 'wp-super-cache' ), 'https://jetpack.com/redirect/?source=jitm-wpsc-recommended' ); ?></li>
 <li><?php printf( __( '<a href="%s">Yahoo! Yslow</a> analyzes web pages and suggests ways to improve their performance based on a set of rules for high performance web pages. Also try the performance tools online at <a href="%s">GTMetrix</a>.', 'wp-super-cache' ), 'http://yslow.org/', 'https://gtmetrix.com/' ); ?></li>
 <li><?php printf( __( '<a href="%s">Use Google Libraries</a> allows you to load some commonly used Javascript libraries from Google webservers. Ironically, it may reduce your Yslow score.', 'wp-super-cache' ), 'https://wordpress.org/plugins/use-google-libraries/' ); ?></li>
+<li><?php printf( __( '<a href="%s">commonWP</a> does the same job as "Use Google Libraries" and offloads some commonly used static files to an external CDN.', 'wp-super-cache' ), 'https://wordpress.org/plugins/commonwp/' ); ?></li>
 <li><?php printf( __( '<strong>Advanced users only:</strong> Install an object cache. Choose from <a href="%s">Memcached</a>, <a href="%s">XCache</a>, <a href="%s">eAcccelerator</a> and others.', 'wp-super-cache' ), 'https://wordpress.org/plugins/memcached/', 'https://neosmart.net/WP/XCache/', 'https://neosmart.net/WP/eAccelerator/' ); ?></li>
 <li><?php printf( __( '<a href="%s">WP Crontrol</a> is a useful plugin to use when trying to debug garbage collection and preload problems.', 'wp-super-cache' ), 'https://wordpress.org/plugins/wp-crontrol/' ); ?></li>
 </ul>
+<p><?php _e( "* The links above (apart from Jetpack) go to websites outside the author's control. Caution is advised when testing any new software.", 'wp-super-cache' ); ?></p>
 
