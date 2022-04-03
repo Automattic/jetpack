@@ -2328,7 +2328,7 @@ function wp_cache_get_ob(&$buffer) {
 			wp_cache_writers_exit();
 			wp_cache_debug( 'Warning! Not writing another page to front page cache.', 1 );
 			return $buffer;
-		} elseif ( filesize( $tmp_cache_filename ) == 0 ) {
+		} elseif ( @filesize( $tmp_cache_filename ) == 0 ) {
 			wp_cache_debug( "Warning! The file $tmp_cache_filename was empty. Did not rename to {$cache_fname}", 5 );
 			@unlink( $tmp_cache_filename );
 		} else {
@@ -2342,7 +2342,7 @@ function wp_cache_get_ob(&$buffer) {
 	}
 	if ( $gz ) {
 		fclose( $gz );
-		if ( filesize( $tmp_cache_filename . '.gz' ) == 0 ) {
+		if ( @filesize( $tmp_cache_filename . '.gz' ) == 0 ) {
 			wp_cache_debug( "Warning! The file {$tmp_cache_filename}.gz was empty. Did not rename to {$cache_fname}.gz", 5 );
 			@unlink( $tmp_cache_filename . '.gz' );
 		} else {
