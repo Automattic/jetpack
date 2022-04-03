@@ -93,7 +93,7 @@ function wp_cache_serve_cache_file() {
 		return false;
 	}
 
-	if ( $wp_cache_no_cache_for_get && false == empty( $_GET ) ) {
+	if ( $wp_cache_no_cache_for_get && wpsc_is_get_query() ) {
 		wp_cache_debug( 'Non empty GET request. Caching disabled on settings page. ' . wpsc_dump_get_request(), 1 );
 		return false;
 	}
@@ -145,7 +145,7 @@ function wp_cache_serve_cache_file() {
 		if ( false == file_exists( $file ) ) {
 			wp_cache_debug( "No Super Cache file found for current URL: $file" );
 			return false;
-		} elseif ( false == empty( $_GET ) ) {
+		} elseif ( wpsc_is_get_query() ) {
 			wp_cache_debug( 'GET array not empty. Cannot serve a supercache file. ' . wpsc_dump_get_request() );
 			return false;
 		} elseif ( wp_cache_get_cookies_values() != '' ) {
@@ -1397,7 +1397,7 @@ function wp_cache_phase2() {
 		return false;
 	}
 
-	if ( ! empty( $_GET ) ) {
+	if ( wpsc_is_get_query() ) {
 		wp_cache_debug( 'Supercache caching disabled. Only using wp-cache. Non empty GET request. ' . wpsc_dump_get_request(), 5 );
 		$super_cache_enabled = false;
 	}
@@ -1878,7 +1878,7 @@ function wp_cache_ob_callback( $buffer ) {
 	if ( defined( 'DONOTCACHEPAGE' ) ) {
 		wp_cache_debug( 'DONOTCACHEPAGE defined. Caching disabled.', 2 );
 		$cache_this_page = false;
-	} elseif ( $wp_cache_no_cache_for_get && ! empty( $_GET ) ) {
+	} elseif ( $wp_cache_no_cache_for_get && wpsc_is_get_query() ) {
 		wp_cache_debug( 'Non empty GET request. Caching disabled on settings page. ' . wpsc_dump_get_request(), 1 );
 		$cache_this_page = false;
 	} elseif ( $_SERVER["REQUEST_METHOD"] == 'POST' || !empty( $_POST ) || get_option( 'gzipcompression' ) ) {
@@ -2107,7 +2107,7 @@ function wp_cache_get_ob(&$buffer) {
 
 	$dir = get_current_url_supercache_dir();
 	$supercachedir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $home_url[ 'host' ]);
-	if ( ! empty( $_GET ) || isset( $wp_super_cache_query[ 'is_feed' ] ) || ( $super_cache_enabled == true && is_dir( substr( $supercachedir, 0, -1 ) . '.disabled' ) ) ) {
+	if ( wpsc_is_get_query() || isset( $wp_super_cache_query[ 'is_feed' ] ) || ( $super_cache_enabled == true && is_dir( substr( $supercachedir, 0, -1 ) . '.disabled' ) ) ) {
 		wp_cache_debug( 'Supercache disabled: GET or feed detected or disabled by config.', 2 );
 		$super_cache_enabled = false;
 	}
@@ -2122,7 +2122,7 @@ function wp_cache_get_ob(&$buffer) {
 	}
 
 	if( $super_cache_enabled ) {
-		if ( wp_cache_get_cookies_values() == '' && empty( $_GET ) ) {
+		if ( wp_cache_get_cookies_values() == '' && ! wpsc_is_get_query() ) {
 			wp_cache_debug( 'Anonymous user detected. Only creating Supercache file.', 3 );
 			$supercacheonly = true;
 		}
@@ -3301,6 +3301,17 @@ function wp_cache_gc_watcher() {
 		wp_cache_debug( 'GC Watcher: scheduled new gc cron.', 5 );
 		schedule_wp_gc();
 	}
+}
+
+function wpsc_is_get_query() {
+	static $is_get_query = null;
+
+	if ( null === $is_get_query ) {
+		$request_uri = parse_url( $_SERVER['REQUEST_URI'] );
+		$is_get_query = $request_uri && ! empty( $request_uri['query'] );
+	}
+
+	return $is_get_query;
 }
 
 if ( ! function_exists( 'apache_request_headers' ) ) {
