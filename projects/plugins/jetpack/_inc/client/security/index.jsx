@@ -24,6 +24,7 @@ import BackupsScan from './backups-scan';
 import Antispam from './antispam';
 import { JetpackBackup } from './jetpack-backup';
 import { Monitor } from './monitor';
+import Firewall from './firewall';
 import { Protect } from './protect';
 import { SSO } from './sso';
 
@@ -71,7 +72,8 @@ export class Security extends Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
-		const foundProtect = this.props.isModuleFound( 'protect' ),
+		const foundFirewall = this.props.isModuleFound( 'firewall' ),
+			foundProtect = this.props.isModuleFound( 'protect' ),
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
@@ -133,6 +135,7 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</>
 				) }
+				{ foundFirewall && <Firewall { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>

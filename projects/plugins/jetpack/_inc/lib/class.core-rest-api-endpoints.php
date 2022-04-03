@@ -2417,6 +2417,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'custom-content-types',
 			),
 
+			// Firewall.
+			'jetpack_firewall_ip_list'             => array(
+				'description'       => esc_html__( 'Allow / Block list - Block or allow a specific request IP.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'firewall',
+			),
+			'jetpack_firewall_share_data'          => array(
+				'description'       => esc_html__( 'Share data with Jetpack.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'firewall',
+			),
 			// Galleries.
 			'tiled_galleries'                      => array(
 				'description'       => esc_html__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ),
