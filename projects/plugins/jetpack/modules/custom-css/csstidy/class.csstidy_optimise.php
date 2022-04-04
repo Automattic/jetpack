@@ -814,7 +814,7 @@ class csstidy_optimise { // phpcs:ignore
 			}
 
 			$new_bg_value = trim( $new_bg_value );
-			if ( $i !== $number_of_values - 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+			if ( $i !== $number_of_values - 1 ) {
 				$new_bg_value .= ',';
 			}
 		}
