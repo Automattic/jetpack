@@ -10,7 +10,7 @@ const PALETTE = require( '@automattic/color-studio' );
  * @returns {object} data in correct form to use in chart and notice-box
  */
 export default function getRecordInfo( data ) {
-	const maxRecordCount = 5; // this value determines when to cut off displaying post times & compound into an 'other'
+	const maxPostTypeCount = 5; // this value determines when to cut off displaying post times & compound into an 'other'
 	const recordInfo = [];
 	const postTypeBreakdown = [];
 
@@ -62,7 +62,7 @@ export default function getRecordInfo( data ) {
 		}
 
 		// sort & split items into included and other
-		const PostTypeItems = splitUsablePostTypes( postTypeBreakdown, numItems, maxRecordCount );
+		const PostTypeItems = splitUsablePostTypes( postTypeBreakdown, numItems, maxPostTypeCount );
 
 		// push includedItems into the recordInfo
 		for ( const item in PostTypeItems.includedItems ) {
@@ -114,13 +114,13 @@ export default function getRecordInfo( data ) {
  *
  * @param {Array} postTypeBreakdown - an array of the different post types with their counts
  * @param {number} numItems - count of different post types
- * @param {number} maxRecordCount - the max number of records to display before combining the rest into the 'other' category
+ * @param {number} maxPostTypeCount - the max number of records to display before combining the rest into the 'other' category
  * @returns {object} containing included items with post type and count, and other items, split.
  */
-export function splitUsablePostTypes( postTypeBreakdown, numItems, maxRecordCount ) {
+export function splitUsablePostTypes( postTypeBreakdown, numItems, maxPostTypeCount ) {
 	postTypeBreakdown.sort( ( a, b ) => ( a.data.data[ 0 ] < b.data.data[ 0 ] ? 1 : -1 ) );
 
-	const count = maxRecordCount <= numItems ? maxRecordCount : numItems;
+	const count = maxPostTypeCount <= numItems ? maxPostTypeCount : numItems;
 
 	return {
 		includedItems: postTypeBreakdown.slice( 0, count ),
