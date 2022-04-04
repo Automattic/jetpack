@@ -55,6 +55,15 @@
    - jetpack-search
    - jetpack-approvers
 
+# The Reach team reviews changes to the Social plugin, and the Publicize package.
+- name: Social
+  paths:
+   - 'projects/plugins/social/**'
+   - 'projects/packages/publicize/**'
+  teams:
+   - jetpack-reach
+   - jetpack-approvers
+
 # Jetpack Approvers review everything that hasn't been specifically assigned above.
 # This needs to be last.
 - name: Default to Jetpack Approvers
