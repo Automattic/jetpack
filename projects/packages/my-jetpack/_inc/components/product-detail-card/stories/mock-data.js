@@ -115,7 +115,6 @@ export const scanProductData = {
 		'Automated daily scanning',
 		'One-click fixes for most issues',
 		'Instant email notifications',
-		'Access to latest Firewall rules',
 	],
 	pricingForUi: {
 		currency_code: 'USD',
