@@ -40,7 +40,7 @@
 		"automattic/jetpack-roles": "1.4.x-dev",
 		"automattic/jetpack-search": "0.12.x-dev",
 		"automattic/jetpack-status": "1.12.x-dev",
-		"automattic/jetpack-sync": "1.31.x-dev",
+		"automattic/jetpack-sync": "1.30.x-dev",
 		"automattic/jetpack-tracking": "1.14.x-dev",
 		"automattic/jetpack-waf": "0.1.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"

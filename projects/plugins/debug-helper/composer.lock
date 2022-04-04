@@ -76,7 +76,6 @@
             ],
             "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
             "transport-options": {
-                "monorepo": true,
                 "relative": true
             }
         },
