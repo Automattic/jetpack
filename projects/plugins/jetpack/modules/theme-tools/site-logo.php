@@ -1,6 +1,7 @@
 <?php
-/*
- * Site Logo.
+/**
+ * Theme Tools: Site Logo.
+ *
  * @see https://jetpack.com/support/site-logo/
  *
  * This feature will only be activated for themes that declare their support.
@@ -16,6 +17,7 @@
  * );
  * add_theme_support( 'site-logo', $args );
  *
+ * @package automattic/jetpack
  */
 
 /**
