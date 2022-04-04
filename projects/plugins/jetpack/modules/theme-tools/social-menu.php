@@ -7,6 +7,8 @@
  * 'after_setup_theme' action:
  *
  * add_theme_support( 'jetpack-social-menu' );
+ *
+ * @package automattic/jetpack
  */
 
 /**
