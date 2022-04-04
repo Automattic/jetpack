@@ -1,17 +1,25 @@
 <?php
 /**
- * Our Site Logo class for managing a theme-agnostic logo through the Customizer.
+ * Site Logo class main class file.
  *
  * @package automattic/jetpack
+ */
+
+/**
+ * Site Logo class for managing a theme-agnostic logo through the Customizer.
  */
 class Site_Logo {
 	/**
 	 * Stores our single instance.
+	 *
+	 * @var Site_Logo
 	 */
 	private static $instance;
 
 	/**
 	 * Stores the attachment ID of the site logo.
+	 *
+	 * @var int
 	 */
 	public $logo;
 
@@ -259,7 +267,7 @@ class Site_Logo {
 	/**
 	 * Make custom image sizes available to the media manager.
 	 *
-	 * @param array $sizes
+	 * @param array $sizes List of image sizes.
 	 * @uses get_intermediate_image_sizes()
 	 * @return array All default and registered custom image sizes.
 	 */
@@ -283,6 +291,8 @@ class Site_Logo {
 	/**
 	 * Add site logos to media states in the Media Manager.
 	 *
+	 * @param array $media_states An array of media states.
+	 *
 	 * @return array The current attachment's media states.
 	 */
 	public function add_media_state( $media_states ) {
@@ -302,7 +312,7 @@ class Site_Logo {
 	/**
 	 * Reset the site logo if the current logo is deleted in the media manager.
 	 *
-	 * @param int $site_id
+	 * @param int $post_id Attachment ID.
 	 * @uses Site_Logo::remove_site_logo()
 	 */
 	public function reset_on_attachment_delete( $post_id ) {
@@ -334,6 +344,7 @@ class Site_Logo {
 	 * Adds custom classes to the array of body classes.
 	 *
 	 * @uses Site_Logo::has_site_logo()
+	 * @param array $classes Classes for the body element.
 	 * @return array Array of <body> classes
 	 */
 	public function body_classes( $classes ) {
@@ -348,7 +359,7 @@ class Site_Logo {
 	/**
 	 * Sanitize our header text Customizer setting.
 	 *
-	 * @param $input
+	 * @param any $input The input value to sanitize.
 	 * @return mixed 1 if checked, empty string if not checked.
 	 */
 	public function sanitize_checkbox( $input ) {
@@ -358,7 +369,7 @@ class Site_Logo {
 	/**
 	 * Validate and sanitize a new site logo setting.
 	 *
-	 * @param $input
+	 * @param any $input Logo setting value to sanitize.
 	 * @return mixed 1 if checked, empty string if not checked.
 	 */
 	public function sanitize_logo_setting( $input ) {
