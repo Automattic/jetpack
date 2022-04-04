@@ -306,7 +306,7 @@ class csstidy_print { // phpcs:ignore
 				return;
 			}
 			if ( $this->tokens[ $i ][0] === COMMENT ) {
-				$move += 1; // phpcs:ignore Squiz.Operators.IncrementDecrementUsage.Found
+				++$move;
 				continue;
 			}
 			return $this->tokens[ $i ][0];
