@@ -252,7 +252,7 @@ class csstidy_print { // phpcs:ignore
 
 				case VALUE:
 					$out .= $this->htmlsp( $token[1], $plain );
-					if ( $this->seeknocomment( $key, 1 ) === SEL_END && $this->parser->get_cfg( 'remove_last_;' ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					if ( $this->seeknocomment( $key, 1 ) === SEL_END && $this->parser->get_cfg( 'remove_last_;' ) ) {
 						$out .= str_replace( ';', '', $template[6] );
 					} else {
 						$out .= $template[6];
