@@ -115,7 +115,7 @@ export default {
 		postcss( {
 			extensions: [ '.css', '.sss', '.pcss', '.sass', '.scss' ],
 			extract: path.resolve( 'app/assets/dist/jetpack-boost.css' ),
-			minimize: true,
+			minimize: production,
 		} ),
 
 		svelteSVG(),
