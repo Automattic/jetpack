@@ -156,8 +156,8 @@ Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branch=ma
 ### How do I merge extensions to WordPress.com?
 
 - Merge to Jetpack master first.
-- Now, merge the auto-generated diff on WordPress.com.
-- There's no need to wait on release schedules, in fact it is best if you merge your WordPress.com diff immediately after you've merged to Jetpack master.
+- Then, merge the auto-generated diff on WordPress.com.
+- Note: before merging your WordPress.com diff, it is worth considering the release schedule if you are shipping a new feature. This is to avoid a situation where a new feature ends up on WordPress.com before anywhere else, and any subsequent site migrations mean that functionality is lost. Reach out to a Jetpack crew member if in doubt.
 
 ### What if I need to manually create a WordPress.com diff?
 

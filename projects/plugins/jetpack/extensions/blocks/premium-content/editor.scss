@@ -84,46 +84,6 @@
 	line-height: 36px;
 }
 
-.wp-block-premium-content-container---settings-add_plan
-	.components-panel__row.plan-name
-	.components-base-control,
-.wp-block-premium-content-container---settings-add_plan
-	.components-panel__row.plan-interval
-	.components-base-control {
-	width: 100%;
-}
-
-.wp-block-premium-content-container---settings-add_plan
-	.components-panel__row.plan-price
-	.components-base-control {
-	width: 45%;
-	margin: 0;
-}
-
-.wp-block-premium-content-container---settings-add_plan .components-panel__row:last-child {
-	margin-top: 25px;
-}
-
-.wp-block-premium-content-container---settings-add_plan .components-base-control:last-child {
-	margin: 0;
-}
-
-.wp-block-premium-content-container---link-to-earn {
-	margin: 16px;
-	display: block;
-}
-
-.premium-content-toolbar-button .components-dropdown-menu__toggle::after {
-	display: block;
-	content: '';
-	position: absolute;
-	bottom: 1px;
-	right: 0;
-	border-color: transparent currentColor currentColor transparent;
-	border-style: solid;
-	border-width: 4px;
-}
-
 /* Subscribe/Login buttons */
 
 .wp-block-buttons .wp-block[data-type='jetpack/recurring-payments'] {

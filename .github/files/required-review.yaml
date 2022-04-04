@@ -16,6 +16,7 @@
    - yamato-backup-and-security
    - heart-of-gold
    - jetpack-search
+   - jetpack-reach
 
 # Jetpack Approvers review the Jetpack plugin and all packages.
 - name: Jetpack and packages
@@ -24,6 +25,7 @@
    - 'projects/plugins/jetpack/**'
    # Exclude packages managed by other teams, which are covered by other blocks below.
    - '!projects/packages/search/**'
+   - '!projects/packages/publicize/**'
   teams:
    - jetpack-approvers
 
@@ -53,6 +55,15 @@
    - 'projects/packages/search/**'
   teams:
    - jetpack-search
+   - jetpack-approvers
+
+# The Reach team reviews changes to the Social plugin, and the Publicize package.
+- name: Social
+  paths:
+   - 'projects/plugins/social/**'
+   - 'projects/packages/publicize/**'
+  teams:
+   - jetpack-reach
    - jetpack-approvers
 
 # Jetpack Approvers review everything that hasn't been specifically assigned above.

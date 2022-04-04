@@ -729,13 +729,33 @@ async function buildProject( t ) {
 		);
 	}
 
-	// Remove engines from package.json.
+	// Remove engines and workspace refs from package.json.
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
 		const packageJson = JSON.parse(
 			await fs.readFile( `${ buildDir }/package.json`, { encoding: 'utf8' } )
 		);
+
 		packageJson.engines = packageJson.publish_engines; // May be undefined, that's ok.
 		delete packageJson.publish_engines;
+
+		const depTypes = [
+			'dependencies',
+			'devDependencies',
+			'peerDependencies',
+			'optionalDependencies',
+		];
+		for ( const key of depTypes ) {
+			if ( packageJson[ key ] ) {
+				for ( const [ pkg, ver ] of Object.entries( packageJson[ key ] ) ) {
+					if ( ver.startsWith( 'workspace:* || ' ) ) {
+						packageJson[ key ][ pkg ] = ver.substring( 15 );
+					} else if ( ver === 'workspace:*' ) {
+						delete packageJson[ key ][ pkg ];
+					}
+				}
+			}
+		}
+
 		await fs.writeFile(
 			`${ buildDir }/package.json`,
 			JSON.stringify( packageJson, null, '\t' ) + '\n',

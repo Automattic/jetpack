@@ -88,16 +88,6 @@ if ( ! is_readable( $autoload_packages_path ) ) {
 }
 
 /**
- * Extra tweaks to make Jetpack Search play well with others.
- */
-function include_compatibility_files() {
-	if ( class_exists( 'Jetpack' ) ) {
-		require_once __DIR__ . '/compatibility/jetpack.php';
-	}
-}
-add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
-
-/**
  * Setup autoloading
  */
 require_once $autoload_packages_path;
@@ -109,4 +99,4 @@ if ( method_exists( Assets::class, 'alias_textdomains_from_file' ) ) {
 	Assets::alias_textdomains_from_file( JETPACK_SEARCH_PLUGIN__DIR . '/jetpack_vendor/i18n-map.php' );
 }
 
-Jetpack_Search_Plugin::initiallize();
+Jetpack_Search_Plugin::bootstrap();

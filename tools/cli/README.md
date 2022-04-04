@@ -7,7 +7,7 @@ The `jetpack` CLI tool is used to help with development in [the Jetpack monorepo
 If you normally use just one Jetpack Monorepo checkout, you can add `jetpack` to your path by running
 ```sh
 pnpm install
-pnpm cli-setup
+pnpx jetpack cli link
 ```
 from the monorepo root.
 
@@ -21,7 +21,7 @@ You run a command by using `jetpack [command] [arguments]`. Every command suppor
 
 **Linking and Unlinking the CLI**
 
-The CLI commands can be run from anywhere, and the changes will be made in whichever directory it’s symlinked to. To change the directory that you want the CLI to run commands in, you can first run jetpack cli unlink, then change into the directory you want and run pnpm cli-setup again.
+The CLI commands can be run from anywhere, and the changes will be made in whichever directory it’s symlinked to. To change the directory that you want the CLI to run commands in, you can first run jetpack cli unlink, then change into the directory you want and run pnpx jetpack cli link again.
 
 ## Available Commands
 

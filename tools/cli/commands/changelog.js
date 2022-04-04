@@ -307,6 +307,16 @@ async function changelogAdd( argv ) {
 
 		const promptType = await changelogAddPrompt( argv, needChangelog, uniqueProjects );
 
+		// Bail if user doesn't want to auto-add.
+		if ( ! promptType.autoAdd && ! promptType.autoPrompt ) {
+			console.log(
+				chalk.green(
+					`Auto changelog cancelled. You can run 'jetpack changelog add [project-type/project]' to add changelogs individually.`
+				)
+			);
+			return;
+		}
+
 		// Auto add the changelog files for the projects that we can:
 		if ( promptType.autoAdd ) {
 			console.log(
@@ -509,7 +519,13 @@ export async function changeloggerCli( argv ) {
 async function gitAdd( argv ) {
 	const changelogPath = `projects/${ argv.project }/changelog`;
 	const addedFiles = await child_process
-		.spawnSync( 'git', [ 'ls-files', '--others', '--exclude-standard' ] )
+		.spawnSync( 'git', [
+			'-c',
+			'core.quotepath=off',
+			'ls-files',
+			'--others',
+			'--exclude-standard',
+		] )
 		.stdout.toString()
 		.trim();
 	for ( const file of addedFiles.split( '\n' ) ) {
