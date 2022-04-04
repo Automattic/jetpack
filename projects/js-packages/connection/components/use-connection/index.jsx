@@ -39,7 +39,7 @@ export default ( {
 	const handleConnectUser = () => {
 		if ( ! skipUserConnection ) {
 			connectUser( { from, redirectUri } );
-		} else {
+		} else if ( redirectUri ) {
 			window.location = redirectUri;
 		}
 	};
