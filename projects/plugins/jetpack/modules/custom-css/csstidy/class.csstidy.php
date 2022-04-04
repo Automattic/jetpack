@@ -722,7 +722,7 @@ class csstidy { // phpcs:ignore
 				/* Case in-property */
 				case 'ip':
 					if ( self::is_token( $string, $i ) ) {
-						if ( ( ':' === $string[ $i ] || '=' === $string[ $i ] ) && '' != $this->property ) { // phpcs:ignore  Universal.Operators.StrictComparisons.LooseNotEqual
+						if ( ( ':' === $string[ $i ] || '=' === $string[ $i ] ) && '' !== $this->property ) {
 							$this->status = 'iv';
 							if ( ! $this->get_cfg( 'discard_invalid_properties' ) || self::property_is_valid( $this->property ) ) {
 								$this->property = $this->css_new_property( $this->at, $this->selector, $this->property );
