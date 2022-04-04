@@ -265,7 +265,7 @@ class Site_Logo {
 		$valid_sizes[] = 'full';
 
 		// If the size declared in add_theme_support is valid, use it; otherwise, just go with 'thumbnail'.
-		$size = ( isset( $args[0]['size'] ) && in_array( $args[0]['size'], $valid_sizes ) ) ? $args[0]['size'] : 'thumbnail';
+		$size = ( isset( $args[0]['size'] ) && in_array( $args[0]['size'], $valid_sizes, true ) ) ? $args[0]['size'] : 'thumbnail';
 
 		return $size;
 	}
