@@ -54,7 +54,7 @@ export default function getRecordInfo( post_count, post_type_breakdown, tier, la
 	if ( numItems > 0 && hasValidData && hasBeenIndexed ) {
 		for ( let i = 0; i < numItems; i++ ) {
 			const theData = Object.values( post_type_breakdown )[ i ];
-			const name = capitalizeFirstLetter( Object.keys( post_type_breakdown )[ i ] );
+			const name = Object.keys( post_type_breakdown )[ i ];
 
 			postTypeBreakdown.push( {
 				data: createData( theData, colors[ i ], name ),
@@ -143,16 +143,6 @@ export function combineOtherCount( otherItems ) {
 	}
 
 	return runningTotal;
-}
-
-/**
- * capitalize the first letter of any string
- *
- * @param {string} string - takes any string
- * @returns {string} the same string, with the first letter capitalized
- */
-export function capitalizeFirstLetter( string ) {
-	return string.charAt( 0 ).toUpperCase() + string.slice( 1 );
 }
 
 /**
