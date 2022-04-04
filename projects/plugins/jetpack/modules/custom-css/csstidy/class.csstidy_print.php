@@ -305,7 +305,7 @@ class csstidy_print { // phpcs:ignore
 			if ( ! isset( $this->tokens[ $i ] ) ) {
 				return;
 			}
-			if ( $this->tokens[ $i ][0] === COMMENT ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			if ( $this->tokens[ $i ][0] === COMMENT ) {
 				$move += 1; // phpcs:ignore Squiz.Operators.IncrementDecrementUsage.Found
 				continue;
 			}
