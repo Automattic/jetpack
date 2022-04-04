@@ -108,6 +108,7 @@ class Jetpack_Plan {
 				'ecommerce-bundle',
 				'ecommerce-bundle-monthly',
 				'ecommerce-bundle-2y',
+				'pro-plan',
 			),
 			'supports' => array(),
 		),

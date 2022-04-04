@@ -541,7 +541,7 @@
                 "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
-                "automattic/jetpack-status": "^1.12",
+                "automattic/jetpack-status": "^1.13",
                 "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
@@ -894,7 +894,7 @@
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.15",
-                "automattic/jetpack-status": "^1.12",
+                "automattic/jetpack-status": "^1.13",
                 "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
@@ -971,7 +971,7 @@
                 "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-partner": "^1.7",
                 "automattic/jetpack-redirect": "^1.7",
-                "automattic/jetpack-status": "^1.12",
+                "automattic/jetpack-status": "^1.13",
                 "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
@@ -1323,7 +1323,7 @@
             "require": {
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-options": "^1.15",
-                "automattic/jetpack-status": "^1.12"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1478,10 +1478,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "836b8d65ec609ce93ae22f3b653dfa62aa35b770"
+                "reference": "6f4d901d139ae90d55cb772c0cdbe8d08d202792"
             },
             "require": {
-                "automattic/jetpack-status": "^1.12"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1585,7 +1585,7 @@
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.15",
-                "automattic/jetpack-status": "^1.12",
+                "automattic/jetpack-status": "^1.13",
                 "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
@@ -1658,7 +1658,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "7fb5b33bd6dac429ff6976d9f2996cb9f96ba680"
+                "reference": "818ba9c80f04d1c68607832d91a3e5286662dd12"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -1676,7 +1676,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.12.x-dev"
+                    "dev-master": "1.13.x-dev"
                 }
             },
             "autoload": {
@@ -1719,7 +1719,7 @@
                 "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-password-checker": "^0.2",
                 "automattic/jetpack-roles": "^1.4",
-                "automattic/jetpack-status": "^1.12"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1779,7 +1779,7 @@
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-options": "^1.15",
-                "automattic/jetpack-status": "^1.12"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1829,7 +1829,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "c64f994de535ce6d4d78dbd120ae95b3eb0cffd7"
+                "reference": "8a7b20f20a0927d28f1f3baeda050f6c4e779ccb"
             },
             "require": {
                 "wikimedia/aho-corasick": "^1.0"
@@ -1838,20 +1838,22 @@
                 "automattic/jetpack-changelogger": "^3.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
-            "type": "library",
+            "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-waf",
+                "textdomain": "jetpack-waf",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 }
             },
             "autoload": {
                 "files": [
-                    "actions.php"
+                    "actions.php",
+                    "cli.php"
                 ],
                 "classmap": [
                     "src/"
@@ -1863,6 +1865,9 @@
                 ],
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-coverage-html": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage"
                 ],
                 "test-php": [
                     "@composer phpunit"

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "42da1ec620263b6bd1f5c9ea8e370609",
+    "content-hash": "4cd008fcb535d521aee6c5c8ddcb4752",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -395,7 +395,7 @@
                 "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
-                "automattic/jetpack-status": "^1.12",
+                "automattic/jetpack-status": "^1.13",
                 "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
@@ -652,7 +652,7 @@
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.15",
-                "automattic/jetpack-status": "^1.12",
+                "automattic/jetpack-status": "^1.13",
                 "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
@@ -991,10 +991,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "836b8d65ec609ce93ae22f3b653dfa62aa35b770"
+                "reference": "6f4d901d139ae90d55cb772c0cdbe8d08d202792"
             },
             "require": {
-                "automattic/jetpack-status": "^1.12"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1090,7 +1090,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "7fb5b33bd6dac429ff6976d9f2996cb9f96ba680"
+                "reference": "818ba9c80f04d1c68607832d91a3e5286662dd12"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -1108,7 +1108,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.12.x-dev"
+                    "dev-master": "1.13.x-dev"
                 }
             },
             "autoload": {
@@ -1151,7 +1151,7 @@
                 "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-password-checker": "^0.2",
                 "automattic/jetpack-roles": "^1.4",
-                "automattic/jetpack-status": "^1.12"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1211,7 +1211,7 @@
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-options": "^1.15",
-                "automattic/jetpack-status": "^1.12"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",

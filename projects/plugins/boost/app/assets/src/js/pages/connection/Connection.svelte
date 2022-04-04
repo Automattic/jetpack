@@ -12,14 +12,7 @@
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 	import { connection } from '../../stores/connection';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
-	import config from '../../stores/config';
-
-	function jetpackURL( url ) {
-		if ( config.site.url ) {
-			url = url + '&site=' + encodeURIComponent( config.site.url );
-		}
-		return url;
-	}
+	import { jetpackURL } from '../../utils/jetpack-url';
 
 	const benefits = [
 		__( 'Speed up your site load time', 'jetpack-boost' ),

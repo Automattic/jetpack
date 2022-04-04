@@ -113,7 +113,7 @@ class Admin {
 		wp_register_script(
 			$admin_js_handle,
 			plugins_url( $internal_path . 'jetpack-boost.js', JETPACK_BOOST_PATH ),
-			array(),
+			array( 'wp-i18n', 'wp-components' ),
 			JETPACK_BOOST_VERSION,
 			true
 		);
@@ -136,6 +136,7 @@ class Admin {
 			'shownAdminNoticeIds' => $this->get_shown_admin_notice_ids(),
 			'preferences'         => array(
 				'showRatingPrompt' => $this->get_show_rating_prompt(),
+				'paidPlan'         => ( defined( 'JETPACK_BOOST_CLOUD_CSS' ) && true === JETPACK_BOOST_CLOUD_CSS ),
 			),
 
 			/**

@@ -39,10 +39,10 @@
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
 		"automattic/jetpack-search": "0.12.x-dev",
-		"automattic/jetpack-status": "1.12.x-dev",
+		"automattic/jetpack-status": "1.13.x-dev",
 		"automattic/jetpack-sync": "1.30.x-dev",
 		"automattic/jetpack-tracking": "1.14.x-dev",
-		"automattic/jetpack-waf": "0.1.x-dev",
+		"automattic/jetpack-waf": "0.2.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"
 	},
 	"require-dev": {
@@ -98,7 +98,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_8_a_12",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_9_a_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
