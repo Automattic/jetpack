@@ -311,7 +311,11 @@ if [[ -z "$BIN" ]]; then
 	failure "no node found" 'nodejs'
 else
 	VER="$(node --version 2>/dev/null | sed -n -E 's/^v([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+)$/\1/p')"
-	VM="$(jq -r '.engines.node | sub( "^\\^"; "" )' package.json)"
+	# We have multiple allowed major versions of node. Pick the right one for the version of node installed.
+	VM="$(jq -r --arg ver "${VER%%.*}" '.engines.node | split( " || " )[] | sub( "^\\^"; "" ) | select( sub( "\\..*"; "" ) == $ver )' package.json)"
+	if [[ -z "$VM" ]]; then
+		VM="$(jq -r --arg ver "${NODE_VERSION%%.*}" '.engines.node | split( " || " )[] | sub( "^\\^"; "" ) | select( sub( "\\..*"; "" ) == $ver )' package.json)"
+	fi
 	VX="$(sed -E 's/^([0-9]+)\..*/\1/' <<<"$NODE_VERSION")"
 	version_range 'Node' "$BIN" 'nodejs' "$VER" "$VM" "$NODE_VERSION" "$VX.9999999"
 fi
