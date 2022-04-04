@@ -283,7 +283,7 @@ class Site_Logo {
 
 		// Have we got anything fun to work with?
 		if ( is_array( $intermediate ) && ! empty( $intermediate ) ) {
-			foreach ( $intermediate as $key => $size ) {
+			foreach ( $intermediate as $key => $size ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				// If the size isn't already in the $sizes array, add it.
 				if ( ! array_key_exists( $size, $sizes ) ) {
 					$sizes[ $size ] = $size;
@@ -366,17 +366,17 @@ class Site_Logo {
 	 * Sanitize our header text Customizer setting.
 	 *
 	 * @param any $input The input value to sanitize.
-	 * @return mixed 1 if checked, empty string if not checked.
+	 * @return bool|string 1 if checked, empty string if not checked.
 	 */
 	public function sanitize_checkbox( $input ) {
-		return ( 1 == $input ) ? 1 : '';
+		return ( 1 === (int) $input ) ? 1 : '';
 	}
 
 	/**
 	 * Validate and sanitize a new site logo setting.
 	 *
 	 * @param any $input Logo setting value to sanitize.
-	 * @return mixed 1 if checked, empty string if not checked.
+	 * @return bool|string 1 if checked, empty string if not checked.
 	 */
 	public function sanitize_logo_setting( $input ) {
 		$input = absint( $input );
