@@ -216,6 +216,10 @@ class Jetpack_Recommendations {
 	 * @param array   $commentdata Comment data.
 	 */
 	public static function comment_added( $comment_id, $comment_approved, $commentdata ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . '/wp-admin/includes/plugin.php';
+		}
+
 		if ( is_plugin_active( 'akismet/akismet.php' ) || self::is_conditional_recommendation_enabled( self::ANTI_SPAM_RECOMMENDATION ) ) {
 			return;
 		}
