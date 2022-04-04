@@ -32,12 +32,7 @@ export default function RecordMeter( {
 	// TODO: use setRecordInfo var
 	// eslint-disable-next-line no-unused-vars
 	const [ recordInfo, setRecordInfo ] = useState(
-		getRecordInfo( {
-			post_count: postCount,
-			post_type_breakdown: postTypeBreakdown,
-			tier: tierMaximumRecords,
-			last_indexed_date: lastIndexedDate,
-		} )
+		getRecordInfo( postCount, postTypeBreakdown, tierMaximumRecords, lastIndexedDate )
 	);
 
 	return (

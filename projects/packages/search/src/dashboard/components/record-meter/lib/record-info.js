@@ -6,10 +6,13 @@ const PALETTE = require( '@automattic/color-studio' );
 /**
  * converts provided information into a chart consumable data form
  *
- * @param {object} data - contains record type breakdown, post count, last indexed date, and tierMaximumRecords
+ * @param {number} post_count - The total count of indexed post records
+ * @param {object} post_type_breakdown - Post type breakdown (post type => number of posts)
+ * @param {number} tier - Max number of records allowed in user's current tier
+ * @param {string} last_indexed_date - The date on which the site was last indexed as a string
  * @returns {object} data in correct form to use in chart and notice-box
  */
-export default function getRecordInfo( data ) {
+export default function getRecordInfo( post_count, post_type_breakdown, tier, last_indexed_date ) {
 	const maxPostTypeCount = 5; // this value determines when to cut off displaying post times & compound into an 'other'
 	const recordInfo = [];
 	const postTypeBreakdown = [];
@@ -21,22 +24,20 @@ export default function getRecordInfo( data ) {
 
 	//check for valid data coming in and catch it before it goes to far
 	if (
-		'object' !== typeof data ||
-		'object' !== typeof data.post_type_breakdown ||
-		'number' !== typeof data.tier ||
-		'string' !== typeof data.last_indexed_date
+		'object' !== typeof post_type_breakdown ||
+		'number' !== typeof tier ||
+		'string' !== typeof last_indexed_date
 	) {
 		hasValidData = false;
 	}
 
 	//check if site has likely been indexed.
-	if ( 'undefined' === typeof data.last_indexed_date || 'undefined' === typeof data.post_count ) {
+	if ( 'undefined' === typeof last_indexed_date || 'undefined' === typeof post_count ) {
 		hasBeenIndexed = false;
 	}
 
 	// make sure there are items there before going any further
-	const numItems =
-		hasValidData && hasBeenIndexed ? Object.keys( data.post_type_breakdown ).length : 0;
+	const numItems = hasValidData && hasBeenIndexed ? Object.keys( post_type_breakdown ).length : 0;
 
 	if ( numItems === 0 ) {
 		hasItems = false;
@@ -52,8 +53,8 @@ export default function getRecordInfo( data ) {
 
 	if ( numItems > 0 && hasValidData && hasBeenIndexed ) {
 		for ( let i = 0; i < numItems; i++ ) {
-			const theData = Object.values( data.post_type_breakdown )[ i ];
-			const name = capitalizeFirstLetter( Object.keys( data.post_type_breakdown )[ i ] );
+			const theData = Object.values( post_type_breakdown )[ i ];
+			const name = capitalizeFirstLetter( Object.keys( post_type_breakdown )[ i ] );
 
 			postTypeBreakdown.push( {
 				data: createData( theData, colors[ i ], name ),
@@ -87,9 +88,9 @@ export default function getRecordInfo( data ) {
 		}
 
 		// if there is remaining unused space in tier, add filler spacing to chart
-		if ( data.tier - currentCount > 0 ) {
+		if ( tier - currentCount > 0 ) {
 			recordInfo.push( {
-				data: createData( data.tier - currentCount, PALETTE.colors[ 'Gray 0' ], 'Remaining' ),
+				data: createData( tier - currentCount, PALETTE.colors[ 'Gray 0' ], 'Remaining' ),
 			} );
 		}
 	}
@@ -99,7 +100,7 @@ export default function getRecordInfo( data ) {
 
 	return {
 		data: recordInfo,
-		tier: data.tier,
+		tier: tier,
 		recordCount: currentCount,
 		hasBeenIndexed,
 		hasValidData,
