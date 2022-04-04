@@ -44,12 +44,12 @@ function jetpack_matt_random_redirect() {
 	}
 
 	// Acceptable URL formats: /[...]/?random=[post type], /?random, /&random, /&random=1
-	if ( ! isset( $_GET['random'] ) && ! in_array( strtolower( $_SERVER['REQUEST_URI'] ), array( '/&random', '/&random=1' ), true ) ) {
+	if ( ! isset( $_GET['random'] ) && ! in_array( strtolower( $_SERVER['REQUEST_URI'] ), array( '/&random', '/&random=1' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return;
 	}
 
 	// Ignore POST requests.
-	if ( ! empty( $_POST ) ) {
+	if ( ! empty( $_POST ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		return;
 	}
 
@@ -59,17 +59,17 @@ function jetpack_matt_random_redirect() {
 	}
 
 	// Set the category ID if the parameter is set.
-	if ( isset( $_GET['random_cat_id'] ) ) {
-		$random_cat_id = (int) $_GET['random_cat_id'];
+	if ( isset( $_GET['random_cat_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$random_cat_id = (int) $_GET['random_cat_id']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
 	// Change the post type if the parameter is set.
-	if ( isset( $_GET['random_post_type'] ) && post_type_exists( $_GET['random_post_type'] ) ) {
-		$post_type = $_GET['random_post_type'];
+	if ( isset( $_GET['random_post_type'] ) && post_type_exists( $_GET['random_post_type'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$post_type = $_GET['random_post_type']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
 	// Don't show a random page if 'page' isn't specified as the post type specifically.
-	if ( 'page' === $post_type && is_front_page() && ! isset( $_GET['random_post_type'] ) ) {
+	if ( 'page' === $post_type && is_front_page() && ! isset( $_GET['random_post_type'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$post_type = 'post';
 	}
 
