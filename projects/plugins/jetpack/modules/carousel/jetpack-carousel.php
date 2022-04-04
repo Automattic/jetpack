@@ -930,12 +930,10 @@ class Jetpack_Carousel {
 		 */
 		do_action( 'jp_carousel_check_blog_user_privileges' );
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- we do not need to verify the nonce for this public request for publicly accessible data (as checked below).
 		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0;
 		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
-
-		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) {
-			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
-		}
+		// phpcs:enable
 
 		if ( ! $attachment_id ) {
 			wp_send_json_error(

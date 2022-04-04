@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Search: fix the Search is never returned for benefits API

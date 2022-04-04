@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Re-added the jetpack-waf package to update the autoloader files in the composer.lock. This was necessary after adding the cli.php file.
