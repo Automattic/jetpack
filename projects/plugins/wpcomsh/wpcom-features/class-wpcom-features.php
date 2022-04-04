@@ -214,6 +214,7 @@ class WPCOM_Features {
 	public const DONATIONS                     = 'donations';
 	public const ECOMMERCE_MANAGED_PLUGINS     = 'ecommerce-managed-plugins';
 	public const EMAIL_SUBSCRIPTION            = 'email-subscription';
+	public const EMAIL_UNLIMITED_FORWARDS      = 'email-unlimited-forwards';
 	public const FREE_BLOG                     = 'free-blog';
 	public const FULL_ACTIVITY_LOG             = 'full-activity-log';
 	public const GOOGLE_ANALYTICS              = 'google-analytics';
@@ -359,9 +360,14 @@ class WPCOM_Features {
 		self::ECOMMERCE_MANAGED_PLUGINS     => array(
 			self::WPCOM_ECOMMERCE_PLANS,
 		),
-		// EMAIL_SUBSCRIPTION - Represents having at least one product providing email
+		// EMAIL_SUBSCRIPTION - Represents having at least one product providing email.
 		self::EMAIL_SUBSCRIPTION            => array(
 			self::WPCOM_EMAIL_PRODUCTS,
+		),
+		self::EMAIL_UNLIMITED_FORWARDS      => array(
+			self::BUNDLE_ENTERPRISE,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::FREE_BLOG                     => array(
 			self::WPCOM_ALL_SITES,
