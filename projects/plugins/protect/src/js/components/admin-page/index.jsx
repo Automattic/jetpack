@@ -61,7 +61,7 @@ const ConnectionSection = () => {
 				'jetpack-protect'
 			) }
 			buttonLabel={ __( 'Set up Jetpack Protect', 'jetpack-protect' ) }
-			redirectUri="admin.php?page=jetpack-protect"
+			//redirectUri="admin.php?page=jetpack-protect"
 			skipUserConnection
 		>
 			<h3>{ __( 'Jetpack’s security features include', 'jetpack-protect' ) }</h3>
