@@ -603,7 +603,6 @@ class csstidy { // phpcs:ignore
 		// PHP bug? Settings need to be refreshed in PHP4.
 		$this->print = new csstidy_print( $this );
 
-		$all_properties           = & $GLOBALS['csstidy']['all_properties']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$at_rules                 = & $GLOBALS['csstidy']['at_rules'];
 		$quoted_string_properties = & $GLOBALS['csstidy']['quoted_string_properties'];
 
