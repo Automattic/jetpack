@@ -11,7 +11,7 @@
 		"automattic/jetpack-my-jetpack": "0.6.x-dev",
 		"automattic/jetpack-options": "^1.14",
 		"automattic/jetpack-search": "0.12.x-dev",
-		"automattic/jetpack-status": "^1.12",
+		"automattic/jetpack-status": "^1.13",
 		"automattic/jetpack-sync": "1.30.x-dev",
 		"automattic/jetpack-tracking": "^1.14"
 	},

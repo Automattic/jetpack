@@ -207,10 +207,7 @@ ConnectionStatusCard.propTypes = {
 
 ConnectionStatusCard.defaultProps = {
 	title: __( 'Connection', 'jetpack' ),
-	connectionInfoText: __(
-		'Leverages the Jetpack Cloud for more features on your side.',
-		'jetpack'
-	),
+	connectionInfoText: __( 'Leverages the cloud for more powerful Jetpack features.', 'jetpack' ),
 	redirectUri: null,
 	onConnectUser: null,
 	requiresUserConnection: true,
