@@ -422,7 +422,7 @@ class csstidy_optimise { // phpcs:ignore
 	 */
 	public function analyse_css_number( $string ) {
 		// most simple checks first
-		if ( strlen( $string ) === 0 || ctype_alpha( $string[0] ) ) {
+		if ( $string === '' || ctype_alpha( $string[0] ) ) {
 			return false;
 		}
 
