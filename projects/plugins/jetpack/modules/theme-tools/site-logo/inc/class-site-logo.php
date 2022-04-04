@@ -242,7 +242,7 @@ class Site_Logo {
 			?>
 			<!-- Site Logo: hide header text -->
 			<style type="text/css">
-			<?php echo jetpack_sanitize_header_text_classes( $classes ); ?> {
+			<?php echo jetpack_sanitize_header_text_classes( $classes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> {
 				position: absolute;
 				clip: rect(1px, 1px, 1px, 1px);
 			}
