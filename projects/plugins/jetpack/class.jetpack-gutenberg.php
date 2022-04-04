@@ -701,6 +701,16 @@ class Jetpack_Gutenberg {
 					 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 					 */
 					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
+					/**
+					 * Enable PocketCasts block variation in block editor context.
+					 *
+					 * @module pocketcasts
+					 *
+					 * @since 12.9.0
+					 *
+					 * @param bool true Enable PocketCasts block variation in block editor context. Defaults to false.
+					 */
+					'pocket_casts_enabled'      => apply_filters( 'jetpack_block_editor_pocket_casts_feature', false ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
