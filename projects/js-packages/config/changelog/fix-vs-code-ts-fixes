@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Added "main" entry to package.json to correctly resolve root directory
