@@ -1,6 +1,6 @@
 <?php
 /**
- * Functions and template tags for using site logos.
+ * Functions and template tags for Site Logo theme tool.
  *
  * @package automattic/jetpack
  */
@@ -11,6 +11,7 @@
  * @uses get_option()
  * @uses esc_url_raw()
  * @uses set_url_scheme()
+ * @param string $show 'url' or 'id' for site logo.
  * @return mixed The URL or ID of our site logo, false if not set
  * @since 1.0
  */
@@ -197,6 +198,7 @@ function jetpack_is_customize_preview() {
  * Sanitize the string of classes used for header text.
  * Limit to A-Z,a-z,0-9,(space),(comma),_,-
  *
+ * @param string $classes Unsanitized string of CSS classes.
  * @return string Sanitized string of CSS classes.
  */
 function jetpack_sanitize_header_text_classes( $classes ) {
