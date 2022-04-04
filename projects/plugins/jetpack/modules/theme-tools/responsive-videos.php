@@ -1,4 +1,9 @@
 <?php
+/**
+ * Theme Tools: Responsive videos enhancements.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Load the Responsive videos plugin
@@ -34,6 +39,7 @@ add_action( 'after_setup_theme', 'jetpack_responsive_videos_init', 99 );
 /**
  * Adds a wrapper to videos and enqueue script
  *
+ * @param string $html The video embed HTML.
  * @return string
  */
 function jetpack_responsive_videos_embed_html( $html ) {
@@ -98,7 +104,7 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
 	}
 
 	/**
-	 * oEmbed Video Providers.
+	 * The oEmbed video providers.
 	 *
 	 * An allowed list of oEmbed video provider Regex patterns to check against before wrapping the output.
 	 *
