@@ -71,7 +71,12 @@ function jetpack_responsive_videos_embed_html( $html ) {
 	}
 
 	// Enqueue CSS to ensure compatibility with all themes
-	wp_enqueue_style( 'jetpack-responsive-videos-style', plugins_url( 'responsive-videos/responsive-videos.css', __FILE__ ) );
+	wp_enqueue_style(
+		'jetpack-responsive-videos-style',
+		plugins_url( 'responsive-videos/responsive-videos.css', __FILE__ ),
+		array(),
+		JETPACK__VERSION
+	);
 
 	return '<div class="jetpack-video-wrapper">' . $html . '</div>';
 }
