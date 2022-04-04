@@ -323,7 +323,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d33deccae8fe053f1a0fe35b3e1100ea0486f23f"
+                "reference": "85013c06e9be1c21550e41cc4e3247a9a4e1c83b"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -480,7 +480,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "eb93c767ff0f0800d35f6fd94f16e04d4b882d60"
+                "reference": "7ce3d2c1b9abd847cd90d390e04e0a73d485bef3"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -926,7 +926,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "7871f92e3cbf4d98b53e1b637e92098ed18baede"
+                "reference": "91399c51cb6afcaa5a1706788338711e4ebb15f2"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1058,7 +1058,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "4f4d43aac8229b3ddcb164edfb401aed35a5a56c"
+                "reference": "d7a63fce3d992f24450a3e0fd5252e21bc643302"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.38",
