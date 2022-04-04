@@ -261,7 +261,7 @@ class csstidy_print { // phpcs:ignore
 
 				case SEL_END:
 					$out .= $template[7];
-					if ( $this->seeknocomment( $key, 1 ) !== AT_END ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+					if ( $this->seeknocomment( $key, 1 ) !== AT_END ) {
 						$out .= $template[8];
 					}
 					break;
