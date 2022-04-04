@@ -422,7 +422,7 @@ class csstidy_optimise { // phpcs:ignore
 	 */
 	public function analyse_css_number( $string ) {
 		// most simple checks first
-		if ( strlen( $string ) === 0 || ctype_alpha( $string[0] ) ) {
+		if ( $string === '' || ctype_alpha( $string[0] ) ) {
 			return false;
 		}
 
@@ -814,7 +814,7 @@ class csstidy_optimise { // phpcs:ignore
 			}
 
 			$new_bg_value = trim( $new_bg_value );
-			if ( $i !== $number_of_values - 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+			if ( $i !== $number_of_values - 1 ) {
 				$new_bg_value .= ',';
 			}
 		}

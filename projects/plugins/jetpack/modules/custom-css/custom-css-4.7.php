@@ -566,7 +566,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			}
 
 			// Some people put weird stuff in their CSS, KSES tends to be greedy.
-			$css = str_replace( '<=', '&lt;=', $css ); // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found
+			$css = str_replace( '<=', '&lt;=', $css );
 
 			// Test for some kses stuff.
 			$prev = $css;
