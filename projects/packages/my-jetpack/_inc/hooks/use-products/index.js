@@ -7,7 +7,7 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../state/stor e';
+import { STORE_ID } from '../../state/store';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 /**
