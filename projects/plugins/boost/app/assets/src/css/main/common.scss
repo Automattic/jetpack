@@ -1,0 +1,29 @@
+/**
+ * Defines .m-1, .ml-2, .mx-3, .p-1, .pr-2, .py-3 type classes for spacing.
+ */
+
+@use 'sass:math';
+
+$definition-combinations: (
+		'' : ['top', 'left', 'bottom', 'right'],
+		'x': ['left', 'right'],
+		'y': ['top', 'bottom'],
+		't': ['top'],
+		'r': ['right'],
+		'b': ['bottom'],
+		'l': ['left'],
+);
+
+@each $acronym, $property in ( 'm': 'margin', 'p': 'padding' ) {
+  @each $postfixes, $properties in $definition-combinations {
+	@for $i from 1 to 5 {
+	  $spacing: math.pow(2, $i - 1) * $spacing-unit !important;
+
+	  .#{$acronym}#{$postfixes}-#{$i} {
+		@each $property-suffix in $properties {
+		  #{$property}-#{$property-suffix}: $spacing;
+		}
+	  }
+	}
+  }
+}
