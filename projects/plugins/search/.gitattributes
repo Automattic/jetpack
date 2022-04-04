@@ -7,7 +7,7 @@ vendor/automattic/**                            production-include
 vendor/composer/**                              production-include
 vendor/jetpack-autoloader/**                    production-include
 
-# Files to exclude from mirror repo: Automattic/jetpack-backup-plugin
+# Files to exclude from mirror repo: Automattic/jetpack-search-plugin
 .babelrc                                        production-exclude
 .eslintrc.js                                    production-exclude
 .gitattributes                                  production-exclude

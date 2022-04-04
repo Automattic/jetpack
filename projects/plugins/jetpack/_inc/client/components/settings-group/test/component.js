@@ -48,7 +48,6 @@ describe( 'SettingsGroup', () => {
 			'comments',
 			'json-api',
 			'photon',
-			'google-fonts',
 		],
 		allGroupsForNonAdmin = [ 'post-by-email' ];
 

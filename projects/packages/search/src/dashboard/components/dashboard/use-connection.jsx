@@ -4,6 +4,7 @@
 import React from 'react';
 import { useSelect } from '@wordpress/data';
 import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -87,10 +88,10 @@ export default function useConnection() {
 						'jetpack-search-pkg'
 					) }
 					<a
-						href="https://jetpack.com/support/search/product-pricing/"
+						href={ getRedirectUrl( 'search-product-pricing' ) }
 						className="jp-search-dashboard-connection-footer__link"
 					>
-						Learn more
+						{ __( 'Learn more', 'jetpack-search-pkg' ) }
 					</a>
 				</p>
 			</div>

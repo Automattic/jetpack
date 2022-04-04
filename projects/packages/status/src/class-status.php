@@ -299,6 +299,21 @@ class Status {
 	}
 
 	/**
+	 * Whether the site is currently onboarding or not.
+	 * A site is considered as being onboarded if it currently has an onboarding token.
+	 *
+	 * @since-jetpack 5.8
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool True if the site is currently onboarding, false otherwise
+	 */
+	public function is_onboarding() {
+		return \Jetpack_Options::get_option( 'onboarding' ) !== false;
+	}
+
+	/**
 	 * Returns the site slug suffix to be used as part of Calypso URLs.
 	 *
 	 * Strips http:// or https:// from a url, replaces forward slash with ::.

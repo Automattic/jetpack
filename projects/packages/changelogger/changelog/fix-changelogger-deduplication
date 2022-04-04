@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Deduplicate input entries. Even when `--deduplicate=0`. This may be disabled by setting `--deduplicate=-1`.
