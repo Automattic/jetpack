@@ -702,13 +702,13 @@ class Jetpack_Gutenberg {
 					 */
 					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 					/**
-					 * Enable PocketCasts block variation in block editor context.
+					 * Enable Pocket Casts block variation in block editor context.
 					 *
 					 * @module pocketcasts
 					 *
 					 * @since 12.9.0
 					 *
-					 * @param bool true Enable PocketCasts block variation in block editor context. Defaults to false.
+					 * @param bool true Enable Pocket Casts block variation in block editor context. Defaults to false.
 					 */
 					'pocket_casts_enabled'      => apply_filters( 'jetpack_block_editor_pocket_casts_feature', false ),
 				),
