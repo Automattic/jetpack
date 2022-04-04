@@ -77,8 +77,7 @@ class Keyring_Service_Helper {
 	private function __construct() {
 		// TODO: Determine how to handle the sharing page properly. See https://github.com/Automattic/jetpack/pull/23767/files#r841596977. Do we even need the menu item?
 		// add_action( 'admin_menu', array( __CLASS__, 'register_sharing_page' ) );
-
-		add_action( 'load-settings_page_sharing', array( __CLASS__, 'admin_page_load' ), 9 );
+		// add_action( 'load-settings_page_sharing', array( __CLASS__, 'admin_page_load' ), 9 );
 	}
 
 	/**
@@ -248,6 +247,7 @@ class Keyring_Service_Helper {
 
 					$verification = ( new Secrets() )->generate( 'publicize' );
 					if ( ! $verification ) {
+						// TODO: If we decide to keep the Sharing page, we'll need to update this to account for no Jetpack plugin. See https://github.com/Automattic/jetpack/pull/23767/files#r841599569
 						$url = Jetpack::admin_url( 'jetpack#/settings' );
 						wp_die(
 							sprintf(
