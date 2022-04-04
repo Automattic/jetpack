@@ -323,7 +323,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "bf300e82c55a6913e083c24c2461f72cfed23309"
+                "reference": "d60612abed78db6aa449217196952bae7e66c445"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -913,7 +913,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "31fa4f51112aa634a5c2c7aa787a5d2491bdc3fa"
+                "reference": "59d981740e8e94edc332111355fbd008117ffb80"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
