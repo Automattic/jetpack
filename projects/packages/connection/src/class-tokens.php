@@ -645,7 +645,7 @@ class Tokens {
 	 */
 	public function is_site_locked() {
 		$locked_site_url = Jetpack_Options::get_option( 'token_site_lock' );
-		if ( ! $locked_site_url || Urls::site_url() === $locked_site_url ) {
+		if ( ! $locked_site_url ) {
 			// Not locked, or the site URL matches.
 			return false;
 		}
@@ -657,10 +657,13 @@ class Tokens {
 			return false;
 		}
 
-		if ( new DateTime() > DateTime::createFromFormat( DateTimeInterface::ATOM, $expires ) && Urls::site_url() === $locked_site_url ) {
-			// Site lock expired.
-			// Site URL matches, removing the lock.
-			$this->remove_site_lock();
+		if ( Urls::site_url() === $locked_site_url ) {
+			if ( new DateTime() > DateTime::createFromFormat( DateTimeInterface::ATOM, $expires ) ) {
+				// Site lock expired.
+				// Site URL matches, removing the lock.
+				$this->remove_site_lock();
+			}
+
 			return false;
 		}
 

@@ -8,6 +8,9 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use DateTime;
+use DateTimeInterface;
+use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use Requests_Utility_CaseInsensitiveDictionary;
 use WP_Error;
@@ -16,6 +19,14 @@ use WP_Error;
  * Tokens functionality testing.
  */
 class TokensTest extends TestCase {
+
+	/**
+	 * Used by filters to set the current `site_url`.
+	 *
+	 * @var string
+	 */
+	private $site_url;
+
 	/**
 	 * Initialize the object before running the test method.
 	 *
@@ -237,5 +248,89 @@ class TokensTest extends TestCase {
 				'message' => 'OK',
 			),
 		);
+	}
+
+	/**
+	 * Test the locking/unlocking tokens functionality.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Tokens::set_site_lock
+	 * @covers Automattic\Jetpack\Connection\Tokens::is_site_locked
+	 * @covers Automattic\Jetpack\Connection\Tokens::remove_site_lock
+	 */
+	public function test_set_site_lock() {
+		$tokens = new Tokens();
+
+		$this->site_url = 'https://test1.example.org';
+
+		add_filter( 'jetpack_sync_site_url', array( $this, 'filter_site_url' ), 10 );
+
+		$lock_set = $tokens->set_site_lock( DAY_IN_SECONDS );
+
+		$lock_site_url   = Jetpack_Options::get_option( 'token_site_lock' );
+		$lock_expiration = Jetpack_Options::get_option( 'token_site_lock_expires' );
+		$is_locked       = $tokens->is_site_locked();
+
+		$this->site_url  = 'https://test2.example.org';
+		$is_locked_site2 = $tokens->is_site_locked();
+
+		$tokens->remove_site_lock();
+		$is_locked_still = $tokens->is_site_locked();
+
+		static::assertTrue( $lock_set );
+		static::assertFalse( $is_locked );
+		static::assertTrue( $is_locked_site2 );
+		static::assertFalse( $is_locked_still );
+		static::assertSame( 'https://test1.example.org', $lock_site_url );
+
+		$date = $lock_expiration ? DateTime::createFromFormat( DateTimeInterface::ATOM, $lock_expiration )->format( 'Y-m-d' ) : false;
+		static::assertSame( gmdate( 'Y-m-d', strtotime( 'tomorrow' ) ), $date );
+
+		remove_filter( 'jetpack_sync_site_url', array( $this, 'filter_site_url' ), 10 );
+	}
+
+	/**
+	 * Test the auto-unlocking tokens functionality.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Tokens::set_site_lock
+	 * @covers Automattic\Jetpack\Connection\Tokens::is_site_locked
+	 * @covers Automattic\Jetpack\Connection\Tokens::remove_site_lock
+	 */
+	public function test_site_unlock() {
+		$tokens = new Tokens();
+
+		$this->site_url = 'https://test1.example.org';
+
+		add_filter( 'jetpack_sync_site_url', array( $this, 'filter_site_url' ), 10 );
+
+		$tokens->set_site_lock( 1 );
+
+		$this->site_url = 'https://test2.example.org';
+		$is_locked      = $tokens->is_site_locked();
+
+		sleep( 1 );
+
+		$is_locked_expired_non_matching = $tokens->is_site_locked();
+		$still_locked                   = (bool) Jetpack_Options::get_option( 'token_site_lock' );
+
+		$this->site_url             = 'https://test1.example.org';
+		$is_locked_expired_matching = $tokens->is_site_locked();
+		$no_longer_locked           = (bool) Jetpack_Options::get_option( 'token_site_lock' );
+
+		static::assertTrue( $is_locked );
+		static::assertTrue( $still_locked );
+		static::assertTrue( $is_locked_expired_non_matching );
+		static::assertFalse( $is_locked_expired_matching );
+		static::assertFalse( $no_longer_locked );
+
+		remove_filter( 'jetpack_sync_site_url', array( $this, 'filter_site_url' ), 10 );
+	}
+
+	/**
+	 * Filter to get the current site URL.
+	 *
+	 * @return string
+	 */
+	public function filter_site_url() {
+		return $this->site_url;
 	}
 }
