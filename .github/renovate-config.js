@@ -30,6 +30,7 @@ module.exports = {
 	timezone: 'UTC',
 	schedule: [ 'before 3am on the first day of the month' ],
 	updateNotScheduled: false,
+	semanticCommits: 'disabled',
 	packageRules: [
 		// Monorepo packages shouldn't be processed by renovate.
 		{
@@ -99,6 +100,11 @@ module.exports = {
 		{
 			groupName: 'Size-limit',
 			matchPackageNames: [ 'size-limit', '@size-limit/preset-app' ],
+		},
+		// These aren't a monorepo, but we may as well do them all together anyway.
+		{
+			groupName: 'GitHub API packages',
+			matchPackagePatterns: [ '^@actions/', '^@octokit/' ],
 		},
 
 		// 🤷
