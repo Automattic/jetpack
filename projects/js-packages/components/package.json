@@ -10,6 +10,7 @@
 		"@wordpress/components": "19.7.0",
 		"@wordpress/date": "4.5.0",
 		"@wordpress/i18n": "4.5.0",
+		"@wordpress/icons": "8.1.0",
 		"classnames": "2.3.1",
 		"lodash": "4.17.21",
 		"prop-types": "^15.7.2",
