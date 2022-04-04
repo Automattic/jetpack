@@ -357,7 +357,7 @@ class Jetpack_Redux_State_Helper {
 		$connect_urls = array();
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 		// phpcs:disable
-		foreach ( Jetpack_Keyring_Service_Helper::$SERVICES as $service_name => $service_info ) {
+		foreach ( Jetpack_Keyring_Service_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable
 			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name, $service_info['for'] );
 		}
