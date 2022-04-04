@@ -75,7 +75,8 @@ class Keyring_Service_Helper {
 	 * @since $$next-version$$
 	 */
 	private function __construct() {
-		add_action( 'admin_menu', array( __CLASS__, 'register_sharing_page' ) );
+		// TODO: Determine how to handle the sharing page properly. See https://github.com/Automattic/jetpack/pull/23767/files#r841596977. Do we even need the menu item?
+		// add_action( 'admin_menu', array( __CLASS__, 'register_sharing_page' ) );
 
 		add_action( 'load-settings_page_sharing', array( __CLASS__, 'admin_page_load' ), 9 );
 	}
