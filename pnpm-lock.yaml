@@ -1339,6 +1339,7 @@ importers:
       '@wordpress/element': 4.3.0
       '@wordpress/i18n': 4.5.0
       '@wordpress/icons': 8.1.0
+      classnames: 2.3.1
       concurrently: 6.0.2
       react: 17.0.2
       react-dom: 17.0.2
@@ -1355,6 +1356,7 @@ importers:
       '@wordpress/element': 4.3.0
       '@wordpress/i18n': 4.5.0
       '@wordpress/icons': 8.1.0
+      classnames: 2.3.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:
@@ -23296,7 +23298,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.12.1
-      webpack: 5.65.0
+      webpack: 5.65.0_webpack-cli@4.9.1
 
   /terser/5.12.0:
     resolution: {integrity: sha512-R3AUhNBGWiFc77HXag+1fXpAxTAFRQTJemlJKjAgD9r8xXTpjNKqIXwHM/o7Rh+O0kUJtS3WQVdBeMKFk5sw9A==}
