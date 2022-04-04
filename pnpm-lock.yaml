@@ -2,6 +2,7 @@ lockfileVersion: 5.3
 
 importers:
 
+  dummy:
   .:
     specifiers:
       husky: 7.0.4
