@@ -19,7 +19,7 @@ class Keyring_Service_Helper {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @var Jetpack_Keyring_Service_Helper
+	 * @var Keyring_Service_Helper
 	 */
 	private static $instance = null;
 
@@ -39,7 +39,7 @@ class Keyring_Service_Helper {
 	 */
 	public static function init() {
 		if ( self::$instance === null ) {
-			self::$instance = new Jetpack_Keyring_Service_Helper();
+			self::$instance = new Keyring_Service_Helper();
 		}
 
 		return self::$instance;
