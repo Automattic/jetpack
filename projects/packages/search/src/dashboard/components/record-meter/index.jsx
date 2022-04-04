@@ -61,16 +61,6 @@ export default function RecordMeter( {
 							></NoticeBox>
 						</div>
 					) }
-					{ lastIndexedDate && (
-						<p>
-							Last indexed date: <strong>{ lastIndexedDate }</strong>
-						</p>
-					) }
-					{ postCount && (
-						<p>
-							Post count: <strong>{ postCount }</strong>
-						</p>
-					) }
 				</div>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 			</div>
