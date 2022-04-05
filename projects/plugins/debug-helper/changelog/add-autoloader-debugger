@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added the Autoloader debugger helper to the Debug tool.

@@ -123,11 +123,12 @@ export default Text;
  * Heading component - Medium size.
  *
  * @param {object} props                   - Component props.
+ * @param {object} props.componentProps    - Component props.
  * @param {React.Component} props.children - Heading component children.
  * @returns {React.Component}                Headline Medium size instance.
  */
-export const H2 = ( { children } ) => (
-	<Text variant="headline-medium" mb={ 3 }>
+export const H2 = ( { children, ...componentProps } ) => (
+	<Text variant="headline-medium" mb={ 3 } { ...componentProps }>
 		{ children }
 	</Text>
 );
@@ -147,14 +148,19 @@ H2.defaultProps = {
  *
  * @param {object} props                   - Component props.
  * @param {string} props.weight            - Font weight: 'bold' (default) | 'regular'.
+ * @param {object} props.componentProps    - Component props.
  * @param {React.Component} props.children - Heading component children.
  * @returns {React.Component}                Headline Small size instance.
  */
-export const H3 = ( { children, weight = 'bold' } ) => {
+export const H3 = ( { children, weight = 'bold', ...componentProps } ) => {
 	weight = weight === 'bold' ? '' : weight;
 
 	return (
-		<Text variant={ `headline-small${ weight?.length ? `-${ weight }` : '' }` } mb={ 3 }>
+		<Text
+			variant={ `headline-small${ weight?.length ? `-${ weight }` : '' }` }
+			mb={ 3 }
+			{ ...componentProps }
+		>
 			{ children }
 		</Text>
 	);
@@ -177,11 +183,12 @@ H3.defaultProps = {
  *
  * @param {object} props                   - Component props.
  * @param {React.Component} props.size     - Heading size: 'medium' (default) | 'small'.
+ * @param {object} props.componentProps    - Component props.
  * @param {React.Component} props.children - Heading component children.
  * @returns {React.Component}                Headline level 2 component instance.
  */
-export const Title = ( { children, size = 'medium' } ) => (
-	<Text variant={ `title-${ size }` } mb={ 1 }>
+export const Title = ( { children, size = 'medium', ...componentProps } ) => (
+	<Text variant={ `title-${ size }` } mb={ 1 } { ...componentProps }>
 		{ children }
 	</Text>
 );
