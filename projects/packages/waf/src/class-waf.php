@@ -114,6 +114,22 @@ class Waf {
 	}
 
 	/**
+	 * Initializes the WP filesystem.
+	 *
+	 * @return void
+	 * @throws \Exception If filesystem is unavailable.
+	 */
+	protected static function initialize_filesystem() {
+		if ( ! function_exists( '\\WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		if ( ! \WP_Filesystem() ) {
+			throw new \Exception( 'No filesystem available.' );
+		}
+	}
+
+	/**
 	 * Activates the WAF by generating the rules script and setting the version
 	 *
 	 * @return void
@@ -157,13 +173,7 @@ class Waf {
 	public static function generate_rules() {
 		global $wp_filesystem;
 
-		if ( ! function_exists( '\\WP_Filesystem' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-
-		if ( ! \WP_Filesystem() ) {
-			throw new \Exception( 'No filesystem available' );
-		}
+		self::initialize_filesystem();
 
 		// Ensure that the folder exists.
 		if ( ! $wp_filesystem->is_writable( dirname( self::RULES_FILE ) ) ) {
