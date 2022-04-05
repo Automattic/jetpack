@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d2dcd371957ed895a0ad348ae896a220",
+    "content-hash": "2b0cb7fdcb87c06c8278b79be165d7e2",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -323,7 +323,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "0c636d1e4e96e1eb97c8b7d0d03a8ebb677fb820"
+                "reference": "8197ef999bf0765f0ed57a630c4ae277071e7cc2"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -333,8 +333,7 @@
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
-                "automattic/jetpack-status": "^1.13",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -589,15 +588,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "61cece555e629bcf8814af1b6aa5ce47dac5b5df"
+                "reference": "9318131739827c45d04ec4d3a20ca90086ae6d00"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-plugins-installer": "^0.1",
-                "automattic/jetpack-redirect": "^1.7",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-redirect": "^1.7"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -903,61 +901,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/tracking",
-                "reference": "2f1c18439c5149ec1619ed1b8bd58fe3f16b317f"
-            },
-            "require": {
-                "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-status": "^1.13"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
-                "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.0.3"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-tracking",
-                "textdomain": "jetpack-tracking",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-tracking/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-master": "1.14.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "legacy",
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Tracking for Jetpack",
             "transport-options": {
                 "relative": true
             }
@@ -4586,8 +4529,7 @@
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-device-detection": 20,
-        "automattic/jetpack-lazy-images": 20,
-        "automattic/jetpack-tracking": 20
+        "automattic/jetpack-lazy-images": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
