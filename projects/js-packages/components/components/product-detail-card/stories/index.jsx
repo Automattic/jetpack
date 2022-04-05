@@ -38,5 +38,6 @@ Default.args = {
 		available: true,
 		is_free: true,
 	},
+	isBundle: true,
 	supportedProducts: [ 'backup', 'scan', 'anti-spam' ],
 };

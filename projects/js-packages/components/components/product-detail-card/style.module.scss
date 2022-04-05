@@ -3,7 +3,7 @@
 	height: 100%;
 	padding: calc( var( --spacing-base ) * 8 );
 	position: relative;
-	min-width: calc( var( --spacing-base ) * 32 );
+	min-width: calc( var( --spacing-base ) * 48 );
 }
 
 .card-header {
@@ -37,4 +37,10 @@
 	align-items: center;
 	height: calc( var( --spacing-base ) * 4 );
 	margin-bottom: calc( var( --spacing-base ) * 4 );
+}
+
+.plus-icon {
+	fill: rgb(140, 143, 148);
+	height: 24px;
+	line-height: 24px;
 }
