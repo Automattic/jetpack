@@ -174,13 +174,15 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 				</ul>
 
 				{ needsPurchase && (
-					<div className={ styles[ 'price-container' ] }>
-						<Price value={ price } currency={ currencyCode } isOld={ true } />
-						<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
+					<>
+						<div className={ styles[ 'price-container' ] }>
+							<Price value={ price } currency={ currencyCode } isOld={ true } />
+							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
+						</div>
 						<Text className={ styles[ 'price-description' ] }>
 							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
 						</Text>
-					</div>
+					</>
 				) }
 
 				{ isFree && <H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3> }
