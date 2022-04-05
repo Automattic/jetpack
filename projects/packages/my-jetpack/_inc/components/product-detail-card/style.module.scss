@@ -87,7 +87,7 @@
 
 	svg {
 		fill: var( --jp-green-primary);
-                margin-right: var( --spacing-base );
+		margin-right: var( --spacing-base );
 		flex-shrink: 0;
 	}
 }
@@ -97,14 +97,13 @@
 	flex-wrap: wrap;
 	align-items: flex-end;
 	color: var( --jp-text-color);
-	margin-bottom: calc( var( --spacing-base ) * 3 );
 }
 
 .price {
 	position: relative;
 
 	&:first-child {
-		margin-right: var( --spacing-base );
+		margin-right: calc( var( --spacing-base ) * 2 );
 	}
 
 	&.is-old {
@@ -126,6 +125,6 @@
 }
 
 .price-description {
-	flex-grow: 2;
-	color: var( --jp-gray-40);
+	color: var( --jp-gray-40 );
+	margin-bottom: calc( var( --spacing-base ) * 3 );
 }
