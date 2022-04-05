@@ -15,6 +15,9 @@
  * @package automattic/jetpack
  */
 use Automattic\Jetpack\Config;
+use Automattic\Jetpack\Publicize\Publicize;
+use Automattic\Jetpack\Publicize\Publicize_UI;
+
 /**
  * Class Jetpack_Publicize
  */
