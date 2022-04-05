@@ -8,7 +8,7 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import ProductDetailCard from '../index.jsx';
+import ProductDetailCard from '../';
 
 export default {
 	title: 'JS Packages/Components/Product Detail Card',

@@ -6,13 +6,13 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-import Text, { H3 } from '../text';
+import Text, { H3 } from '../text/index.jsx';
 
 /**
  * Internal dependencies
  */
+import { getIconBySlug } from '../product-icons/index.jsx';
 import styles from './style.module.scss';
-import { getIconBySlug } from '../product-icons';
 
 /**
  * Product Detail Card Header component.
