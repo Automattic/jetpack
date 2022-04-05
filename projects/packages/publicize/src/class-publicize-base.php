@@ -971,9 +971,9 @@ abstract class Publicize_Base {
 		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
 
 		if ( $this->current_user_can_access_publicize_data() ) {
-			Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
+			\Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
 		} else {
-			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
+			\Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
 		}
 	}
 

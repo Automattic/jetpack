@@ -849,6 +849,7 @@ class Jetpack {
 
 		$config->ensure( 'search' );
 		$config->ensure( 'wordads' );
+		$config->ensure( 'publicize' );
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );

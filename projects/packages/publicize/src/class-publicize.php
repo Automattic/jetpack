@@ -53,9 +53,7 @@ class Publicize extends Publicize_Base {
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
 		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
-
-		include_once __DIR__ . '/enhanced-open-graph.php';
-
+		include_once __DIR__ . '../../../../plugins/jetpack/modules/publicize/enhanced-open-graph.php';
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 	}
 
@@ -177,7 +175,7 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_all_connections() {
 		$this->refresh_connections();
-		$connections = Jetpack_Options::get_option( 'publicize_connections' );
+		$connections = \Jetpack_Options::get_option( 'publicize_connections' );
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
 		}
@@ -431,7 +429,7 @@ class Publicize extends Publicize_Base {
 		if ( get_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT ) ) {
 			return;
 		}
-		$xml = new Jetpack_IXR_Client();
+		$xml = new \Jetpack_IXR_Client();
 		$xml->query( 'jetpack.fetchPublicizeConnections' );
 		$wait_time = HOUR_IN_SECONDS * 24;
 

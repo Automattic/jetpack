@@ -42,9 +42,6 @@ class Jetpack_Publicize {
 			Jetpack::enable_module_configurable( __FILE__ );
 		}
 
-		$config = new Config();
-		$config->ensure( 'publicize' );
-
 		if ( ! $this->in_jetpack ) {
 			require_once dirname( __DIR__ ) . '/mu-plugins/keyring/keyring.php';
 			require_once __DIR__ . '/publicize/publicize-wpcom.php';
