@@ -27,7 +27,7 @@ const Summary = () => {
 			<Col lg={ 6 }>
 				<Title size="small" className={ styles.title }>
 					<Icon icon={ shield } size={ 32 } className={ styles.icon } />
-					Latest check
+					Last check
 				</Title>
 				<Text variant="headline-small" component="h1">
 					Today, 4:43PM
