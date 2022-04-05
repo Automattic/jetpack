@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Icon, starFilled as star, plus } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-import Text from '../text';
+import Text, { H3 } from '../text';
 
 /**
  * Internal dependencies
@@ -53,7 +53,7 @@ function BundleProductIcons( { supportedProducts } ) {
 								className={ styles[ 'plus-icon' ] }
 								key={ `icon-plugs${ index * 2 + 1 }` }
 								icon={ plus }
-								size={ 14 }
+								size={ 16 }
 							/>
 						) }
 					</>
@@ -68,12 +68,21 @@ function BundleProductIcons( { supportedProducts } ) {
  *
  * @param {object} props                  - Component props.
  * @param {string} props.slug             - Product slug.
+ * @param {string} props.title 			 - Product title.
+ * @param {string} props.description     - Product description.
  * @param {boolean} props.isBundle        - Whether or not the product is a bundle.
  * @param {Array} props.supportedProducts - List of supported products (for bundles).
  * @param {string} props.className        - A className to be concat with default ones
  * @returns {React.Component}              ProductDetailCard react component.
  */
-const ProductDetailCard = ( { className, slug, isBundle, supportedProducts } ) => {
+const ProductDetailCard = ( {
+	className,
+	slug,
+	title,
+	description,
+	isBundle,
+	supportedProducts,
+} ) => {
 	return (
 		<div
 			className={ classnames( styles.wrapper, className, {
@@ -84,6 +93,8 @@ const ProductDetailCard = ( { className, slug, isBundle, supportedProducts } ) =
 
 			<div className={ styles[ 'card-container' ] }>
 				{ isBundle && <BundleProductIcons slug={ slug } supportedProducts={ supportedProducts } /> }
+				<H3>{ title }</H3>
+				<Text mb={ 3 }>{ description }</Text>
 			</div>
 		</div>
 	);
