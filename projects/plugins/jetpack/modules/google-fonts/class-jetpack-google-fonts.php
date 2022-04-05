@@ -31,6 +31,7 @@ class Jetpack_Google_Fonts {
 		 * so we only need to scan for webfonts when browsing as a guest.
 		 */
 		if ( ! is_admin() ) {
+			add_action( 'wp_loaded', array( $this, 'scan_global_styles_for_google_fonts' ) );
 			add_filter( 'pre_render_block', array( $this, 'scan_block_for_google_fonts' ), 10, 2 );
 		}
 	}
@@ -125,5 +126,72 @@ class Jetpack_Google_Fonts {
 		}
 
 		wp_enqueue_webfont( $font_family_slug );
+	}
+
+	/**
+	 * Scan global styles for Google fonts.
+	 */
+	public function scan_global_styles_for_google_fonts() {
+		$global_styles = gutenberg_get_global_styles();
+
+		// Look for fonts in block presets...
+		if ( isset( $global_styles['blocks'] ) ) {
+			foreach ( $global_styles['blocks'] as $setting ) {
+				$font_slug = $this->extract_font_slug_from_setting( $setting );
+
+				if ( $font_slug ) {
+					$this->maybe_enqueue_font_family( $font_slug );
+				}
+			}
+		}
+
+		// Look for fonts in HTML element presets...
+		if ( isset( $global_styles['elements'] ) ) {
+			foreach ( $global_styles['elements'] as $setting ) {
+				$font_slug = $this->extract_font_slug_from_setting( $setting );
+
+				if ( $font_slug ) {
+					$this->maybe_enqueue_font_family( $font_slug );
+				}
+			}
+		}
+
+		// Check if a global typography setting was defined.
+		$font_slug = $this->extract_font_slug_from_setting( $global_styles );
+
+		if ( $font_slug ) {
+			$this->maybe_enqueue_font_family( $font_slug );
+		}
+	}
+
+	/**
+	 * Extract the font family slug from a settings object.
+	 *
+	 * @param object $setting The setting object.
+	 *
+	 * @return string|void
+	 */
+	private function extract_font_slug_from_setting( $setting ) {
+		if ( isset( $setting['typography'] ) && isset( $setting['typography']['fontFamily'] ) ) {
+			$font_family = $setting['typography']['fontFamily'];
+
+			// Full string: var(--wp--preset--font-family--slug).
+			// We do not care about the origin of the font, only its slug.
+			preg_match( '/font-family--(?P<slug>.+)\)$/', $font_family, $matches );
+
+			if ( isset( $matches['slug'] ) ) {
+				return $matches['slug'];
+			}
+
+			// Full string: var:preset|font-family|slug
+			// We do not care about the origin of the font, only its slug.
+			preg_match( '/font-family\|(?P<slug>.+)$/', $font_family, $matches );
+
+			if ( isset( $matches['slug'] ) ) {
+				return $matches['slug'];
+			}
+
+			return $font_family;
+		}
 	}
 }
