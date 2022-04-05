@@ -100,6 +100,8 @@ class WPCOM_Features {
 	private const JETPACK_SCAN_MONTHLY                        = 'jetpack_scan_monthly'; // 2107
 	private const JETPACK_SCAN_REALTIME                       = 'jetpack_scan_realtime'; // 2108
 	private const JETPACK_SCAN_REALTIME_MONTHLY               = 'jetpack_scan_realtime_monthly'; // 2109
+	private const JETPACK_ANTI_SPAM                           = 'jetpack_anti_spam'; // 2110
+	private const JETPACK_ANTI_SPAM_MONTHLY                   = 'jetpack_anti_spam_monthly'; // 2111
 	private const JETPACK_BACKUP_T1_YEARLY                    = 'jetpack_backup_t1_yearly'; // 2112
 	private const JETPACK_BACKUP_T1_MONTHLY                   = 'jetpack_backup_t1_monthly'; // 2113
 	private const JETPACK_BACKUP_T2_YEARLY                    = 'jetpack_backup_t2_yearly'; // 2114
@@ -199,8 +201,12 @@ class WPCOM_Features {
 	 */
 	public const ADVANCED_SEO                  = 'advanced-seo';
 	public const AKISMET                       = 'akismet';
+	public const ANTISPAM                      = 'antispam';
 	public const ATOMIC                        = 'atomic';
 	public const BACKUPS                       = 'backups';
+	public const BACKUPS_DAILY                 = 'backups-daily';
+	public const BACKUPS_RESTORE               = 'restore';
+	public const BACKUP_ONE_TIME               = 'backup-one-time';
 	public const CALENDLY                      = 'calendly';
 	public const CLASSIC_SEARCH                = 'classic-search';
 	public const CONCIERGE                     = 'concierge';
@@ -237,6 +243,7 @@ class WPCOM_Features {
 	public const RECURRING_PAYMENTS            = 'recurring-payments';
 	public const REPUBLICIZE                   = 'republicize';
 	public const SCAN                          = 'scan';
+	public const SCAN_MANAGED                  = 'scan-managed';
 	public const SEARCH                        = 'search';
 	public const SECURITY_SETTINGS             = 'security-settings';
 	public const SEND_A_MESSAGE                = 'send-a-message';
@@ -283,6 +290,13 @@ class WPCOM_Features {
 		self::AKISMET                       => array(
 			self::JETPACK_ALL_SITES,
 		),
+		self::ANTISPAM                        => array(
+			self::JETPACK_ANTI_SPAM,
+			self::JETPACK_ANTI_SPAM_MONTHLY,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
 		self::ATOMIC                        => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -298,6 +312,24 @@ class WPCOM_Features {
 			self::JETPACK_PERSONAL_AND_HIGHER,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+		// BACKUPS_DAILY - Site has product that includes daily backups.
+		self::BACKUPS_DAILY                 => array(
+			self::JETPACK_BACKUP_DAILY_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::JETPACK_SECURITY_DAILY_PLANS,
+		),
+		self::BACKUPS_RESTORE               => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+		/*
+		 * BACKUP_ONE_TIME - Site has purchased a one-time backup.
+		 * Note the jetpack_backup_one_time product never expires. So any feature gated with BACKUP_ONE_TIME will
+		 * likewise, never expire.
+		 */
+		self::BACKUP_ONE_TIME               => array(
+			self::JETPACK_BACKUP_ONE_TIME,
 		),
 		self::CALENDLY                      => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -486,6 +518,14 @@ class WPCOM_Features {
 		self::SCAN                        => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::JETPACK_SCAN_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+		/*
+		 * SCAN_MANAGED - Scan results are managed internally by Atomic guild HEs and not shown in user UI.
+		 * See D57207-code.
+		 */
+		self::SCAN_MANAGED                   => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
