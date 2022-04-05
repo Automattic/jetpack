@@ -61,17 +61,16 @@ class Dashboard {
 	}
 
 	/**
-	 * Initialise hooks
+	 * Initialise hooks.
+	 *
+	 * We use the `config` package to initialize the search package, which ensures the package is
+	 * only initialized once. However earlier versions of Jetpack would still forcely initialize the
+	 * dashboard. As a result, there would be two `Search` submenus if we don't ensure the dashboard
+	 * is initialized only once. So we use `$initialized` to ensure the class is only initialized once.
+	 *
+	 * Ref: https://github.com/Automattic/jetpack/pull/21888/files#diff-aae7d66951585fc55053a4d53b68552a41864d2c69aee900574ef4404b7ad5f7L42
 	 */
 	public function init_hooks() {
-		/**
-		 * We use the `config` package to initialize the search package, which ensures the package is
-		 * only initialized once. However earlier versions of Jetpack would still forcely initialize the
-		 * dashboard. As a result, there would be two `Search` submenus if we don't ensure the dashboard
-		 * is initialized only once.
-		 *
-		 * Ref: https://github.com/Automattic/jetpack/pull/21888/files#diff-aae7d66951585fc55053a4d53b68552a41864d2c69aee900574ef4404b7ad5f7L42
-		 */
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
 			// Jetpack uses 998 and 'Admin_Menu' uses 1000.
