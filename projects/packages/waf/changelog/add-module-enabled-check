@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a check to only run the firewall when the Jetpack module is enabled.
