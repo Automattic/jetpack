@@ -7,7 +7,6 @@
  */
 import {
 	splitUsablePostTypes,
-	capitalizeFirstLetter,
 	combineOtherCount,
 	createData,
 } from 'components/record-meter/lib/record-info';
@@ -71,13 +70,6 @@ describe( 'API data is converted into record info ', () => {
 			label: 'Testing',
 			backgroundColor: 'rgb(245,245,245)',
 		} );
-	} );
-
-	test( 'first letter of string is capitalized', () => {
-		const stringToTest = 'i am a string';
-		const capitalizedString = capitalizeFirstLetter( stringToTest );
-
-		expect( capitalizedString ).toBe( 'I am a string' );
 	} );
 
 	test( 'combine count of remaining items sums', () => {

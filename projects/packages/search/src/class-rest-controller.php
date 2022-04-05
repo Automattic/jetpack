@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -169,7 +170,7 @@ class REST_Controller {
 
 		$errors = array();
 		if ( $module_active !== null ) {
-			$module_active_updated = $this->search_module->update_status( $module_active );
+			$module_active_updated = ( new Modules() )->update_status( Package::SLUG, $module_active, false, false );
 			if ( is_wp_error( $module_active_updated ) ) {
 				$errors['module_active'] = $module_active_updated;
 			}
