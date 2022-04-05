@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Removed eslint dependency which will now be loaded from root directory
