@@ -2209,9 +2209,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'headers' => array(
 					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
-			),
-			null,
-			'wpcom'
+			)
 		);
 
 		$response_code = wp_remote_retrieve_response_code( $response );
@@ -2267,9 +2265,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'headers' => array(
 					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
-			),
-			null,
-			'wpcom'
+			)
 		);
 
 		$response_code = wp_remote_retrieve_response_code( $response );
