@@ -29,7 +29,7 @@
 		"@wordpress/i18n": "4.5.0",
 		"babel-loader": "^8.2.4",
 		"eslint-plugin-import": "2.25.4",
-		"eslint-plugin-svelte3": "3.2.1",
+		"eslint-plugin-svelte3": "3.4.1",
 		"node-wp-i18n": "1.2.6",
 		"npm-run-all": "4.1.5",
 		"postcss": "^8.4.12",
