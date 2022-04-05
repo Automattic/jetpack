@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix normalizing nested array targets, like with query strings
