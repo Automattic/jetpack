@@ -77,4 +77,81 @@ class CLI extends WP_CLI_Command {
 			)
 		);
 	}
+
+	/**
+	 * Setup the WAF to run.
+	 * ## OPTIONS
+	 *
+	 * [<mode>]
+	 * : The new mode to be set.
+	 * ---
+	 * options:
+	 *   - silent
+	 *   - normal
+	 * ---
+	 *
+	 * @param array $args Arguments passed to CLI.
+	 * @return void|null
+	 * @throws WP_CLI\ExitException If there is an error switching the mode.
+	 */
+	public function setup( $args ) {
+		if ( ! WafRunner::is_allowed_mode( $args[0] ) ) {
+
+			return WP_CLI::error(
+				sprintf(
+					/* translators: %1$s is the mode that was actually found. Also note that the expected "silent" and "normal" are hard-coded strings and must therefore stay the same in any translation. */
+					__( 'Invalid mode: %1$s. Expected "silent" or "normal".', 'jetpack-waf' ),
+					$args[0]
+				)
+			);
+		}
+		// Add the option or update if already exists.
+		if ( ! add_option( WafRunner::MODE_OPTION_NAME, $args[0] ) ) {
+			$this->mode( array( $args[0] ) );
+		}
+
+		try {
+			WafRunner::activate();
+		} catch ( \Exception $e ) {
+
+			return WP_CLI::error(
+				sprintf(
+					/* translators: %1$s is the unexpected error message. */
+					__( 'Jetpack WAF rules file failed to generate: %1$s', 'jetpack-waf' ),
+					$e->getMessage()
+				)
+			);
+		}
+
+		return WP_CLI::success( __( 'Jetpack WAF has successfully been setup.', 'jetpack-waf' ) );
+	}
+
+	/**
+	 * Generate the rules.php file with latest rules for the WAF.
+	 *
+	 * @return void|null
+	 * @throws WP_CLI\ExitException If there is an error switching the mode.
+	 */
+	public function generate_rules() {
+		try {
+			WafRunner::generate_rules();
+		} catch ( \Exception $e ) {
+
+			return WP_CLI::error(
+				sprintf(
+					/* translators: %1$s is the unexpected error message. */
+					__( 'Jetpack WAF rules file failed to generate: %1$s', 'jetpack-waf' ),
+					$e->getMessage()
+				)
+			);
+		}
+
+		return WP_CLI::success(
+			sprintf(
+				/* translators: %1$s is the name of the mode that was just switched to. */
+				__( 'Jetpack WAF rules successfully created to: "%1$s".', 'jetpack-waf' ),
+				WafRunner::RULES_FILE
+			)
+		);
+	}
 }
