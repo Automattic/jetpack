@@ -88,6 +88,9 @@ class Dashboard {
 			return;
 		}
 
+		// Jetpack of version <= 10.5 would register `jetpack-search` submenu with its built-in search module.
+		$this->remove_search_submenu_if_exists();
+
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Search Settings', 'jetpack-search-pkg' ),
 			_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
@@ -125,6 +128,13 @@ class Dashboard {
 		 * @param boolean $should_add_search_submenu Default value is true.
 		 */
 		return apply_filters( 'jetpack_search_should_add_search_submenu', current_user_can( 'manage_options' ) );
+	}
+
+	/**
+	 * Remove `jetpack-search` submenu page
+	 */
+	protected function remove_search_submenu_if_exists() {
+		remove_submenu_page( 'jetpack', 'jetpack-search' );
 	}
 
 	/**
