@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Made changes to use the publicize package instead of the publicize code from the jetpack plugin's modules directory.
