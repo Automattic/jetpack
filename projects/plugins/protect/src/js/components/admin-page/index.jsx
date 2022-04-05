@@ -110,8 +110,8 @@ const Admin = () => {
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
 	);
-	const { isUserConnected, isRegistered } = connectionStatus;
-	const showConnectionCard = ! isRegistered || ! isUserConnected;
+	const { isRegistered } = connectionStatus;
+	const showConnectionCard = ! isRegistered;
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
 			{ showConnectionCard ? (
@@ -167,7 +167,8 @@ const ConnectionSection = () => {
 				'jetpack-protect'
 			) }
 			buttonLabel={ __( 'Set up Jetpack Protect', 'jetpack-protect' ) }
-			redirectUri="admin.php?page=jetpack-protect"
+			//redirectUri="admin.php?page=jetpack-protect"
+			skipUserConnection
 		>
 			<h3>{ __( 'Jetpack’s security features include', 'jetpack-protect' ) }</h3>
 			<ul>
