@@ -3,6 +3,10 @@
 		font-size: 16px;
 	}
 
+  	p {
+	  	margin: 1em 0;
+	}
+
   	&--main {
 	  background-color: $primary-white;
 	}
@@ -74,6 +78,7 @@
 	justify-content: space-between;
 	align-items: center;
 	margin-top: $padding;
+	margin-bottom: $padding;
 	@include breakpoint( xs ) {
 		flex-direction: column;
 		justify-content: flex-start;

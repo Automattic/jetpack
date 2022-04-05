@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dedicated Sync: Only try to run the sender once if Dedicated Sync is enabled as it has its own requeueing mechanism.
