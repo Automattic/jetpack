@@ -93,6 +93,36 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 }
 
 /**
+ * Checks whether the given product contains the passed feature.
+ *
+ * This function converts atomic supported plan slugs and other product alias to wpcom plan slug. It then uses
+ * WPCOM_Features to check if product include the requested $feature.
+ *
+ * @param string $product_slug     The product slug.
+ * @param string $feature          The name of the feature to check.
+ * @param bool   $is_wpcom_product Optional. Whether it's a wpcom product. Defaults to true.
+ *
+ * @return bool
+ */
+function wpcom_product_has_feature( $product_slug, $feature, $is_wpcom_product = true ) {
+	$atomic_plan_aliases = array(
+		'business'  => 'business-bundle',
+		'ecommerce' => 'ecommerce-bundle',
+		'pro'       => 'pro-plan',
+	);
+
+	/*
+	 * Convert atomic plan slug to wpcom yearly plan in order to check against WPCOM_Features. This conversion is meant
+	 * to be only for atomic plan slugs and should not affect other product checks.
+	 */
+	if ( ! empty( $atomic_plan_aliases[ $product_slug ] ) ) {
+		$product_slug = $atomic_plan_aliases[ $product_slug ];
+	}
+
+	return WPCOM_Features::has_feature( $feature, array( $product_slug ), $is_wpcom_product );
+}
+
+/**
  * Checks whether the given feature exists in WordPress.com.
  *
  * @param string $feature The name of the feature to check.
