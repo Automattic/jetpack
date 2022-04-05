@@ -6,6 +6,7 @@ import {
 	enableDedicatedSync,
 	disableDedicatedSync,
 	waitTillSyncQueueIsEmpty,
+	isSyncQueueEmpty,
 } from '../../helpers/sync-helper.js';
 import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
