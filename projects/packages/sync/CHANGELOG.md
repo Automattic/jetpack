@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.30.5] - 2022-03-29
+### Changed
+- Microperformance: Use === null instead of is_null
+
+## [1.30.4] - 2022-03-23
+### Changed
+- Enable syncing of dedicated_sync_enabled Sync setting
+
+### Fixed
+- Dedicated Sync: Allow spawning request with expired Retry-After
+
+## [1.30.3] - 2022-03-15
+### Changed
+- Search Sync Settings :: Add ETB taxonomy to allow list.
+
 ## [1.30.2] - 2022-03-08
 ### Changed
 - Disallow syncing of _term_meta post_type
@@ -588,6 +603,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.30.5]: https://github.com/Automattic/jetpack-sync/compare/v1.30.4...v1.30.5
+[1.30.4]: https://github.com/Automattic/jetpack-sync/compare/v1.30.3...v1.30.4
+[1.30.3]: https://github.com/Automattic/jetpack-sync/compare/v1.30.2...v1.30.3
 [1.30.2]: https://github.com/Automattic/jetpack-sync/compare/v1.30.1...v1.30.2
 [1.30.1]: https://github.com/Automattic/jetpack-sync/compare/v1.30.0...v1.30.1
 [1.30.0]: https://github.com/Automattic/jetpack-sync/compare/v1.29.2...v1.30.0

@@ -346,7 +346,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_available_extensions( $allowed_extensions = null ) {
 		$exclusions         = get_option( 'jetpack_excluded_extensions', array() );
-		$allowed_extensions = is_null( $allowed_extensions ) ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
+		$allowed_extensions = $allowed_extensions === null ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
 
 		return array_diff( $allowed_extensions, $exclusions );
 	}
@@ -460,6 +460,10 @@ class Jetpack_Gutenberg {
 	 */
 	public static function should_load() {
 		if ( ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+
+		if ( get_option( 'jetpack_blocks_disabled', false ) ) {
 			return false;
 		}
 
@@ -686,6 +690,7 @@ class Jetpack_Gutenberg {
 					/** This filter is documented in class.jetpack-gutenberg.php */
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 					'is_private_site'           => '-1' === get_option( 'blog_public' ),
+					'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
 					'is_offline_mode'           => $status->is_offline_mode(),
 					/**
 					 * Enable the RePublicize UI in the block editor context.
@@ -703,6 +708,7 @@ class Jetpack_Gutenberg {
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
 				'allowedMimeTypes' => wp_get_mime_types(),
+				'siteLocale'       => str_replace( '_', '-', get_locale() ),
 			)
 		);
 	}
@@ -1103,16 +1109,20 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the block.
 	 */
 	public static function set_availability_for_plan( $slug ) {
-		$is_available   = true;
+		$slug = self::remove_extension_prefix( $slug );
+
+		if ( Jetpack_Plan::supports( $slug ) ) {
+			self::set_extension_available( $slug );
+			return;
+		}
+
+		// Check what's the minimum plan where the feature is available.
 		$plan           = '';
-		$slug           = self::remove_extension_prefix( $slug );
 		$features_data  = array();
 		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		$is_atomic_site = ( new Host() )->is_woa_site();
 
-		// Check feature availability for Simple and Atomic sites.
 		if ( $is_simple_site || $is_atomic_site ) {
-
 			// Simple sites.
 			if ( $is_simple_site ) {
 				$features_data = self::get_site_specific_features();
@@ -1124,28 +1134,22 @@ class Jetpack_Gutenberg {
 				}
 			}
 
-			$is_available = isset( $features_data['active'] ) && in_array( $slug, $features_data['active'], true );
 			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
 			}
 		} else {
 			// Jetpack sites.
-			$is_available = Jetpack_Plan::supports( $slug );
-			$plan         = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
+			$plan = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
 		}
 
-		if ( $is_available ) {
-			self::set_extension_available( $slug );
-		} else {
-			self::set_extension_unavailable(
-				$slug,
-				'missing_plan',
-				array(
-					'required_feature' => $slug,
-					'required_plan'    => $plan,
-				)
-			);
-		}
+		self::set_extension_unavailable(
+			$slug,
+			'missing_plan',
+			array(
+				'required_feature' => $slug,
+				'required_plan'    => $plan,
+			)
+		);
 	}
 
 	/**

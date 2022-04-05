@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.13] - 2022-03-31
+### Added
+- Added tracking events to Plans section external links
+
+### Changed
+- My Jetpack: tweak plans section typography and descriptive text
+
+## [0.6.12] - 2022-03-29
+### Added
+- Add missing JS peer dependencies.
+
+### Changed
+- Microperformance: Use === null instead of is_null
+- My Jetpack: Moved in product icon components
+- My Jetpack: Tweak plan sections styles/sizes
+- My Jetpack: Update ProductDetailCard to use components and theme variables
+- My Jetpack: Use components to render headers elements
+- Use different URLs for manage and purchase links in plans section
+
+### Fixed
+- My Jetpack: Connect Screen logos quality
+
+## [0.6.11] - 2022-03-23
+### Added
+- My Jetpack: add error styles to the whole Product card component
+- My Jetpack: Make whole Product card clickable
+
+### Changed
+- Changed opacity of product icons to 40%
+- Changed title
+- Improved should_initialize method
+- My Jetpack: remove dropdown from CTA button in Product cards
+- My Jetpack: Use Text and CSS vars on ProductCard
+- Updated Boost product icon for clarity
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated styles for each product card status
+- Update organization and copy of the Plans section
+
+### Removed
+- My Jetpack: Remove client code that allows to deactivate a product
+
+### Fixed
+- Fix Plans section top margin for plan list
+- My Jetpack: jetpack_my_jetpack_should_initialize filter now respected when set to true.
+
+## [0.6.10] - 2022-03-15
+### Changed
+- Make Backup go through the purchase flow after activation
+- My Jetpack: Use ThemeProvider instead base-styles
+- Updated package dependencies
+
+### Removed
+- Removed Beta badge from menu item
+
 ## [0.6.9] - 2022-03-09
 ### Changed
 - Updated package dependencies.
@@ -352,6 +407,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[0.6.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.12...0.6.13
+[0.6.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.11...0.6.12
+[0.6.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.10...0.6.11
+[0.6.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.9...0.6.10
 [0.6.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.8...0.6.9
 [0.6.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.7...0.6.8
 [0.6.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.6...0.6.7

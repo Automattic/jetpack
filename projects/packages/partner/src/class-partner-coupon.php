@@ -91,7 +91,7 @@ class Partner_Coupon {
 	 * @return Partner_Coupon
 	 */
 	public static function get_instance() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Partner_Coupon( array( Connection_Client::class, 'wpcom_json_api_request_as_blog' ) );
 		}
 

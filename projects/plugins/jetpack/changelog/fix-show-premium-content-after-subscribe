@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-When a user subscribes to premium content he now sees the premium content without needing to reload the page.

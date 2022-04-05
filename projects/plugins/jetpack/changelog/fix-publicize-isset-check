@@ -1,5 +1,0 @@
-Significance: patch
-Type: bugfix
-Comment: Bug only caused a warning with WP_DEBUG enabled
-
-

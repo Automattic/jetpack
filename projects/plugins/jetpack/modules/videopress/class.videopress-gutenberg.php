@@ -70,58 +70,30 @@ class VideoPress_Gutenberg {
 	 * unavailable (key `unavailable_reason`)
 	 */
 	public function check_videopress_availability() {
-		if (
-			defined( 'IS_WPCOM' ) && IS_WPCOM &&
-			function_exists( 'require_lib' )
-		) {
-			require_lib( 'wpforteams' );
-
-			if ( WPForTeams\Workspace\is_part_of_active_workspace( self::get_blog_id() ) ) {
-				return array( 'available' => true );
-			}
+		if ( ! Jetpack_Plan::supports( 'videopress' ) ) {
+			return array(
+				'available'          => false,
+				'unavailable_reason' => 'missing_plan',
+			);
 		}
 
-		// It is available on Simple Sites having the appropriate a plan.
-		if (
-			defined( 'IS_WPCOM' ) && IS_WPCOM
-			&& method_exists( 'Store_Product_List', 'get_site_specific_features_data' )
-		) {
-			$features = Store_Product_List::get_site_specific_features_data();
-			if ( in_array( 'videopress', $features['active'], true ) ) {
-				return array( 'available' => true );
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			if ( Jetpack::is_connection_ready() ) {
+				if ( ! Jetpack::is_module_active( 'videopress' ) ) {
+					return array(
+						'available'          => false,
+						'unavailable_reason' => 'missing_module',
+					);
+				}
 			} else {
 				return array(
 					'available'          => false,
-					'unavailable_reason' => 'missing_plan',
+					'unavailable_reason' => 'unknown',
 				);
 			}
 		}
 
-		// It is available on Jetpack Sites having the module active.
-		if (
-			method_exists( 'Jetpack', 'is_connection_ready' ) && Jetpack::is_connection_ready()
-			&& method_exists( 'Jetpack', 'is_module_active' )
-			&& method_exists( 'Jetpack_Plan', 'supports' )
-		) {
-			if ( Jetpack::is_module_active( 'videopress' ) ) {
-				return array( 'available' => true );
-			} elseif ( ! Jetpack_Plan::supports( 'videopress' ) ) {
-				return array(
-					'available'          => false,
-					'unavailable_reason' => 'missing_plan',
-				);
-			} else {
-				return array(
-					'available'          => false,
-					'unavailable_reason' => 'missing_module',
-				);
-			}
-		}
-
-		return array(
-			'available'          => false,
-			'unavailable_reason' => 'unknown',
-		);
+		return array( 'available' => true );
 	}
 
 	/**

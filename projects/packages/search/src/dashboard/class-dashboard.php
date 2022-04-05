@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
@@ -100,16 +101,14 @@ class Dashboard {
 	 * @return {boolean} Show search sub menu or not.
 	 */
 	protected function should_add_search_submenu() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return false;
-		}
-
-		// If site is in Offline Mode or not connected yet.
-		if ( ( new Status() )->is_offline_mode() || ! $this->connection_manager->is_connected() ) {
-			return false;
-		}
-
-		return $this->plan->ever_supported_search();
+		/**
+		 * The filter allows to ommit adding a submenu item for Jetpack Search.
+		 *
+		 * @since 0.11.2
+		 *
+		 * @param boolean $should_add_search_submenu Default value is true.
+		 */
+		return apply_filters( 'jetpack_search_should_add_search_submenu', current_user_can( 'manage_options' ) );
 	}
 
 	/**
@@ -144,6 +143,13 @@ class Dashboard {
 		wp_add_inline_script(
 			'jp-search-dashboard',
 			( new Initial_State() )->render(),
+			'before'
+		);
+
+		// Connection initial state.
+		wp_add_inline_script(
+			'jp-search-dashboard',
+			Connection_Initial_State::render(),
 			'before'
 		);
 	}

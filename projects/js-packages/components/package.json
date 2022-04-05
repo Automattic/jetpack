@@ -1,24 +1,25 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.10.10-alpha",
+	"version": "0.11.0-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
 		"@automattic/format-currency": "1.0.0-alpha.0",
-		"@wordpress/browserslist-config": "4.1.1",
-		"@wordpress/components": "19.5.0",
-		"@wordpress/date": "4.3.1",
-		"@wordpress/i18n": "4.3.1",
+		"@wordpress/browserslist-config": "4.1.2",
+		"@wordpress/components": "19.7.0",
+		"@wordpress/date": "4.5.0",
+		"@wordpress/i18n": "4.5.0",
+		"@wordpress/icons": "8.1.0",
 		"classnames": "2.3.1",
 		"lodash": "4.17.21",
 		"prop-types": "^15.7.2",
 		"qrcode.react": "2.0.0"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
-		"@babel/core": "7.16.0",
-		"@babel/preset-react": "7.16.0",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.1",
+		"@babel/core": "7.17.8",
+		"@babel/preset-react": "7.16.7",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
 		"react": "17.0.2",
@@ -42,7 +43,7 @@
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

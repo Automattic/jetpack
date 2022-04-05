@@ -62,7 +62,11 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 
 * ### Developing and contributing code to Jetpack from a Windows machine
 
-	When working on a Windows machine, you can use [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
+	When working on a Windows machine, you will need to use [Windows Subsystem for Linux version 2](https://docs.microsoft.com/en-us/windows/wsl/install). If you are currently using WSL version 1, you will need to update to version 2 first.
+
+	If you use VS Code, you can use [their Remote Development extension pack](https://code.visualstudio.com/docs/remote/wsl) to develop in WSL.
+
+	You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
 
 ## Get started with development
 

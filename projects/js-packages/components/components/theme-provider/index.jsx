@@ -4,16 +4,20 @@
 import React, { useLayoutEffect } from 'react';
 
 export const typography = {
-	// Typography
-	'--font-title-large': '36px',
-	'--font-title-small': '24px',
+	// Headline
+	'--font-headline-medium': '48px',
+	'--font-headline-small': '36px',
+	'--font-title-medium': '24px',
+	'--font-title-small': '20px',
 	'--font-body': '16px',
 	'--font-body-small': '14px',
-	'--font-label': '12px',
+	'--font-body-extra-small': '12px',
+	// Deprecated
+	'--font-title-large': 'var(--font-headline-small)',
+	'--font-label': 'var(--font-body-extra-small)',
 };
 
 export const colors = {
-	// Colors
 	'--jp-black': '#000000',
 	'--jp-black-80': '#2c3338',
 	// White
@@ -33,7 +37,8 @@ export const colors = {
 	'--jp-red-0': '#F7EBEC',
 	'--jp-red-50': '#D63638',
 	'--jp-red-60': '#B32D2E',
-	'--jp-red-80': '#8A2424',
+	'--jp-red-70': '#8A2424',
+	'--jp-red-80': '#691C1C',
 	'--jp-red': '#d63639',
 	// Pink
 	'--jp-pink': '#C9356E',
@@ -56,7 +61,6 @@ export const colors = {
 };
 
 export const borders = {
-	// Borders
 	'--jp-border-radius': '4px',
 	'--jp-menu-border-height': '1px',
 	'--jp-underline-thickness': '2px',

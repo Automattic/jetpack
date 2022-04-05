@@ -140,6 +140,8 @@ jobs:
       continue-on-error: true
       run: |
         pnpm run tunnel:down
+        # Update permissions to workaround https://github.com/actions/cache/issues/753
+        sudo chown -R runner:docker "$GITHUB_WORKSPACE/tools/docker"
 
     - name: Upload test artifacts
       if: ${{ always() }}

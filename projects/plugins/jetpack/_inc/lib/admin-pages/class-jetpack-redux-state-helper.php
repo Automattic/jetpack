@@ -13,6 +13,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
@@ -56,6 +57,10 @@ class Jetpack_Redux_State_Helper {
 			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'] );
 			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'] );
 		}
+
+		// "mock" a block module in order to get it searchable in the settings.
+		$modules['blocks']['module']                    = 'blocks';
+		$modules['blocks']['additional_search_queries'] = esc_html_x( 'blocks, block, gutenberg', 'Search terms', 'jetpack' );
 
 		// Collecting roles that can view site stats.
 		$stats_roles   = array();
@@ -168,6 +173,8 @@ class Jetpack_Redux_State_Helper {
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
+				/** This filter is documented in my-jetpack/src/class-initializer.php */
+				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
 			),
@@ -350,7 +357,7 @@ class Jetpack_Redux_State_Helper {
 		$connect_urls = array();
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 		// phpcs:disable
-		foreach ( Jetpack_Keyring_Service_Helper::$SERVICES as $service_name => $service_info ) {
+		foreach ( Jetpack_Keyring_Service_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable
 			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name, $service_info['for'] );
 		}

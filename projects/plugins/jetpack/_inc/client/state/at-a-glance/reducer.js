@@ -303,3 +303,24 @@ export function isFetchingPluginUpdates( state ) {
 export function getPluginUpdates( state ) {
 	return state.jetpack.dashboard.pluginUpdates;
 }
+
+/**
+ * Returns true if currently requesting plugins data.
+ *
+ * @param  {object}  state -  Global state tree
+ * @returns {boolean}        Whether plugins data is being requested
+ */
+export function isFetchingPluginsData( state ) {
+	return !! state.jetpack.pluginsData.requests.isFetchingPluginsData;
+}
+
+/**
+ * Returns the plugins data items object, with key being the plugin basepath
+ * and value being an object containing plugin details
+ *
+ * @param  {object}  state -  Global state tree
+ * @returns {object} The plugins data items
+ */
+export function getPluginItems( state ) {
+	return state.jetpack.pluginsData.items || {};
+}

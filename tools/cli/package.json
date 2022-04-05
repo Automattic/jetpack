@@ -40,7 +40,6 @@
 		"pluralize": "8.0.0",
 		"process": "0.11.10",
 		"semver": "7.3.5",
-		"simple-git": "2.37.0",
 		"sprintf-js": "1.1.2",
 		"yargs": "16.2.0"
 	},
@@ -53,7 +52,7 @@
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

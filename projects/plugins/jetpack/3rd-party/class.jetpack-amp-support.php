@@ -438,7 +438,8 @@ class Jetpack_AMP_Support {
 	 */
 	public static function amp_enqueue_sharing_css() {
 		if (
-			self::is_amp_request()
+			Jetpack::is_module_active( 'sharedaddy' )
+			&& self::is_amp_request()
 			&& ! self::is_amp_legacy()
 		) {
 			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( __DIR__ ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );

@@ -7,7 +7,6 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import inquirer from 'inquirer';
-import simpleGit from 'simple-git';
 
 /**
  * Internal dependencies
@@ -308,6 +307,16 @@ async function changelogAdd( argv ) {
 
 		const promptType = await changelogAddPrompt( argv, needChangelog, uniqueProjects );
 
+		// Bail if user doesn't want to auto-add.
+		if ( ! promptType.autoAdd && ! promptType.autoPrompt ) {
+			console.log(
+				chalk.green(
+					`Auto changelog cancelled. You can run 'jetpack changelog add [project-type/project]' to add changelogs individually.`
+				)
+			);
+			return;
+		}
+
 		// Auto add the changelog files for the projects that we can:
 		if ( promptType.autoAdd ) {
 			console.log(
@@ -460,6 +469,7 @@ async function changeloggerSquash( argv, file ) {
 			console.log( 'Updating readme...' );
 			await runCommand( 'tools/plugin-changelog-to-readme.sh', [ `${ argv.project }` ] );
 		}
+		console.log( chalk.green( 'Squash complete!' ) );
 	} finally {
 		if ( changelogContents !== null ) {
 			fs.writeFileSync( `projects/${ argv.project }/CHANGELOG.md`, changelogContents );
@@ -508,11 +518,19 @@ export async function changeloggerCli( argv ) {
  */
 async function gitAdd( argv ) {
 	const changelogPath = `projects/${ argv.project }/changelog`;
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	for ( const file of gitStatus.not_added ) {
+	const addedFiles = await child_process
+		.spawnSync( 'git', [
+			'-c',
+			'core.quotepath=off',
+			'ls-files',
+			'--others',
+			'--exclude-standard',
+		] )
+		.stdout.toString()
+		.trim();
+	for ( const file of addedFiles.split( '\n' ) ) {
 		if ( path.dirname( file ) === changelogPath ) {
-			git.add( file );
+			await runCommand( 'git', [ 'add', file ] );
 		}
 	}
 }
@@ -689,10 +707,12 @@ async function promptVersion( argv ) {
  * @returns {argv}.
  */
 async function promptChangelog( argv, needChangelog ) {
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	const gitBranch = gitStatus.current.replace( /\//g, '-' );
-
+	const gitBranch = child_process
+		.spawnSync( 'git', [ 'branch', '--show-current' ] )
+		.stdout.toString()
+		.trim()
+		.replace( /\//g, '-' );
+	console.log( gitBranch );
 	const commands = await inquirer.prompt( [
 		{
 			type: 'string',

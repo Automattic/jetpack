@@ -18,7 +18,7 @@ usage() {
 	exit 1
 }
 
-BASE_CMD='jetpack docker --type e2e --name t1'
+BASE_CMD='pnpx jetpack docker --type e2e --name t1'
 
 start_env() {
 	$BASE_CMD up -d
@@ -31,7 +31,7 @@ stop_env() {
 }
 
 reset_env() {
-	$BASE_CMD uninstall || true
+	$BASE_CMD wp -- db reset --yes
 	$BASE_CMD install || true
 	configure_wp_env "$@"
 }

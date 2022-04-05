@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Moved with-has-warning-is-interactive-class-names folder to js-package/shared-extension-utils and updated imports

@@ -263,7 +263,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: jetpack-build
-        timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+        timeout-minutes: 2  # 2022-03-15: Successful runs normally take a few seconds, but on occasion they've been taking 60+ recently.
       - name: Extract build archive
         run: tar --xz -xvvf build.tar.xz
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
