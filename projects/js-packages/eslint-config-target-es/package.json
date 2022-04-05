@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-config-target-es",
-	"version": "1.0.2-alpha",
+	"version": "1.0.2",
 	"description": "ESLint sharable config to activate eslint-plugin-es checks based on browserslist targets.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-config-target-es/README.md#readme",
 	"bugs": {
@@ -24,7 +24,6 @@
 	},
 	"devDependencies": {
 		"@wordpress/browserslist-config": "4.1.2",
-		"eslint": "8.8.0",
 		"eslint-plugin-es": "4.1.0",
 		"jest": "27.3.1"
 	},
