@@ -12,8 +12,22 @@ namespace Automattic\Jetpack\Waf;
  */
 class WafRunner {
 
-	const MODE_OPTION_NAME = 'jetpack_waf_mode';
-	const RULES_FILE       = __DIR__ . '/../rules/rules.php';
+	const JETPACK_WAF_VERSION = '1.0.0';
+	const MODE_OPTION_NAME    = 'jetpack_waf_mode';
+	const RULES_FILE          = __DIR__ . '/../rules/rules.php';
+	const VERSION_OPTION_NAME = 'jetpack_waf_version';
+
+	/**
+	 * Set the mode definition if it has not been set.
+	 *
+	 * @return void
+	 */
+	public static function define_mode() {
+		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
+			$mode_option = get_option( self::MODE_OPTION_NAME );
+			define( 'JETPACK_WAF_MODE', $mode_option );
+		}
+	}
 
 	/**
 	 * Did the WAF run yet or not?
@@ -97,5 +111,76 @@ class WafRunner {
 	 */
 	public static function errorHandler( $code, $message, $file, $line ) { // phpcs:ignore
 		// Intentionally doing nothing for now.
+	}
+
+	/**
+	 * Initializes the WP filesystem.
+	 *
+	 * @return void
+	 * @throws \Exception If filesystem is unavailable.
+	 */
+	protected static function initialize_filesystem() {
+		if ( ! function_exists( '\\WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		if ( ! \WP_Filesystem() ) {
+			throw new \Exception( 'No filesystem available.' );
+		}
+	}
+
+	/**
+	 * Activates the WAF by generating the rules script and setting the version
+	 *
+	 * @return void
+	 */
+	public static function activate() {
+		self::define_mode();
+		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+			return;
+		}
+		$version = get_option( self::VERSION_OPTION_NAME );
+		if ( ! $version ) {
+			add_option( self::VERSION_OPTION_NAME, self::JETPACK_WAF_VERSION );
+		}
+		self::generate_rules();
+	}
+
+	/**
+	 * Updates the rules.php if the version has been updated
+	 *
+	 * @return void
+	 */
+	public static function update() {
+		self::define_mode();
+		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+			return;
+		}
+		$version = get_option( self::VERSION_OPTION_NAME );
+		if ( self::JETPACK_WAF_VERSION !== $version ) {
+			update_option( self::VERSION_OPTION_NAME, self::JETPACK_WAF_VERSION );
+			self::generate_rules();
+		}
+	}
+
+	/**
+	 * Generates the rules.php script
+	 *
+	 * @throws \Exception If filesystem is not available.
+	 * @throws \Exception If file writing fails.
+	 * @return void
+	 */
+	public static function generate_rules() {
+		global $wp_filesystem;
+
+		self::initialize_filesystem();
+
+		// Ensure that the folder exists.
+		if ( ! $wp_filesystem->is_writable( dirname( self::RULES_FILE ) ) ) {
+			$wp_filesystem->mkdir( dirname( self::RULES_FILE ) );
+		}
+		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, "<?php\n" ) ) {
+			throw new \Exception( 'Failed writing to: ' . self::RULES_FILE );
+		}
 	}
 }

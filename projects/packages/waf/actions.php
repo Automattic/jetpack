@@ -13,6 +13,14 @@ if ( ! function_exists( 'add_action' ) ) {
 }
 
 /**
+ * Triggers when the Jetpack plugin is activated
+ */
+register_activation_hook(
+	JETPACK__PLUGIN_FILE,
+	array( __NAMESPACE__ . '\WafRunner', 'activate' )
+);
+
+/**
  * Runs the WAF in the WP context.
  *
  * @return void
@@ -20,6 +28,7 @@ if ( ! function_exists( 'add_action' ) ) {
 add_action(
 	'plugin_loaded',
 	function () {
+		WafRunner::update();
 		require_once __DIR__ . '/run.php';
 	}
 );
