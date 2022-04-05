@@ -536,7 +536,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function pre_comment_on_post() {
 		$post_array = stripslashes_deep( $_POST );
 
-		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! wp_verify_nonce( $post_array['jetpack_comments_nonce'], "jetpack_comments_nonce-{$post_array['postid']}" ) ) {
+		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! wp_verify_nonce( $post_array['jetpack_comments_nonce'], "jetpack_comments_nonce-{$post_array['comment_post_ID']}" ) ) {
 			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
 		}
 		// Bail if missing the Jetpack token.
