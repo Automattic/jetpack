@@ -599,7 +599,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "9318131739827c45d04ec4d3a20ca90086ae6d00"
+                "reference": "00317beca5b0da4519ed72b8cdd443c1fe16b6a0"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
