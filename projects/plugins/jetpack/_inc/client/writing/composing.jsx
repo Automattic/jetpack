@@ -198,6 +198,14 @@ export class Composing extends React.Component {
 										'jetpack'
 									) }
 								</span>
+								{ ! this.props.getOptionValue( 'jetpack_blocks_disabled' ) && (
+									<span className="jp-form-setting-explanation">
+										{ __(
+											'Caution: if there are Jetpack blocks used in existing posts or pages, disabling this setting will cause those blocks to stop working.',
+											'jetpack'
+										) }
+									</span>
+								) }
 							</CompactFormToggle>
 						</FormFieldset>
 					</SettingsGroup>
