@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Deleted Jetpack_plan and Jetpack_Plans classes. Updated their refs to use new Plans package

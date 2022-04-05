@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Deleted Jetpack_plan and Jetpack_Plans classes in Jetpack plugin directory. Updated their refs to use new Plans package
