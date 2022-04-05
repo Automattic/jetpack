@@ -1,5 +1,4 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-use Automattic\Jetpack\Config;
 /**
  * Module Name: Publicize
  * Module Description: Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.
@@ -15,7 +14,7 @@ use Automattic\Jetpack\Config;
  *
  * @package automattic/jetpack
  */
-
+use Automattic\Jetpack\Config;
 /**
  * Class Jetpack_Publicize
  */
