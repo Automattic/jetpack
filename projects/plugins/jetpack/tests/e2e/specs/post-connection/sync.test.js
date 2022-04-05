@@ -53,10 +53,7 @@ test.describe( 'Sync', () => {
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await expect(
-				waitTillSyncQueueIsEmpty(),
-				'Sync queue should be empty'
-			).resolves.toBeTruthy();
+			expect( waitTillSyncQueueIsEmpty(), 'Sync queue should be empty' ).resolves.toBeTruthy();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
@@ -115,7 +112,7 @@ test.describe( 'Sync', () => {
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await expect(
+			expect(
 				waitTillSyncQueueIsEmpty( 1000, 20 ),
 				'Sync queue should be empty'
 			).resolves.toBeTruthy();
