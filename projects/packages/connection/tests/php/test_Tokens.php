@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use DateTime;
-use DateTimeInterface;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use Requests_Utility_CaseInsensitiveDictionary;
@@ -282,7 +281,7 @@ class TokensTest extends TestCase {
 		static::assertFalse( $is_locked_still );
 		static::assertSame( 'https://test1.example.org', $lock_site_url );
 
-		$date = $lock_expiration ? DateTime::createFromFormat( DateTimeInterface::ATOM, $lock_expiration )->format( 'Y-m-d' ) : false;
+		$date = $lock_expiration ? DateTime::createFromFormat( Tokens::DATE_FORMAT_ATOM, $lock_expiration )->format( 'Y-m-d' ) : false;
 		static::assertSame( gmdate( 'Y-m-d', strtotime( 'tomorrow' ) ), $date );
 
 		remove_filter( 'jetpack_sync_site_url', array( $this, 'filter_site_url' ), 10 );
@@ -307,7 +306,7 @@ class TokensTest extends TestCase {
 		$this->site_url = 'https://test2.example.org';
 		$is_locked      = $tokens->is_site_locked();
 
-		sleep( 1 );
+		sleep( 2 );
 
 		$is_locked_expired_non_matching = $tokens->is_site_locked();
 		$still_locked                   = (bool) Jetpack_Options::get_option( 'token_site_lock' );

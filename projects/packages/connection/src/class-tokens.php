@@ -11,7 +11,6 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
 use DateInterval;
 use DateTime;
-use DateTimeInterface;
 use Exception;
 use Jetpack_Options;
 use WP_Error;
@@ -22,6 +21,11 @@ use WP_Error;
 class Tokens {
 
 	const MAGIC_NORMAL_TOKEN_KEY = ';normal;';
+
+	/**
+	 * Datetime format.
+	 */
+	const DATE_FORMAT_ATOM = 'Y-m-d\TH:i:sP';
 
 	/**
 	 * Deletes all connection tokens and transients from the local Jetpack site.
@@ -623,7 +627,7 @@ class Tokens {
 		}
 
 		return Jetpack_Options::update_option( 'token_site_lock', Urls::site_url() )
-			&& Jetpack_Options::update_option( 'token_site_lock_expires', $expires->format( DateTimeInterface::ATOM ) );
+			&& Jetpack_Options::update_option( 'token_site_lock_expires', $expires->format( static::DATE_FORMAT_ATOM ) );
 	}
 
 	/**
@@ -658,7 +662,7 @@ class Tokens {
 		}
 
 		if ( Urls::site_url() === $locked_site_url ) {
-			if ( new DateTime() > DateTime::createFromFormat( DateTimeInterface::ATOM, $expires ) ) {
+			if ( new DateTime() > DateTime::createFromFormat( static::DATE_FORMAT_ATOM, $expires ) ) {
 				// Site lock expired.
 				// Site URL matches, removing the lock.
 				$this->remove_site_lock();
