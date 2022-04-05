@@ -237,6 +237,7 @@ const stepToNextStep = {
 	'creative-mail': 'site-accelerator',
 	'site-accelerator': 'publicize',
 	publicize: 'summary',
+	videopress: 'summary',
 	summary: 'summary',
 };
 
@@ -250,6 +251,7 @@ const stepToRoute = {
 	'creative-mail': '#/recommendations/creative-mail',
 	'site-accelerator': '#/recommendations/site-accelerator',
 	publicize: '#/recommendations/publicize',
+	videopress: '#/recommendations/videopress',
 	summary: '#/recommendations/summary',
 };
 
@@ -270,6 +272,8 @@ export const isFeatureActive = ( state, featureSlug ) => {
 			return !! isPluginActive( state, 'woocommerce/woocommerce.php' );
 		case 'publicize':
 			return !! getSetting( state, 'publicize' );
+		case 'videopress':
+			return !! getSetting( state, 'videopress' );
 		default:
 			throw `Unknown featureSlug in isFeatureActive() in recommendations/reducer.js: ${ featureSlug }`;
 	}
@@ -314,6 +318,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'monitor':
 			return hasConnectedOwner( state ) && ! isFeatureActive( state, step );
 		case 'publicize':
+		case 'videopress':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		default:
 			return ! isFeatureActive( state, step );
@@ -400,6 +405,7 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 		case 'monitor':
 			return hasConnectedOwner( state );
 		case 'publicize':
+		case 'videopress':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		default:
 			return true;
@@ -414,6 +420,7 @@ export const getSummaryFeatureSlugs = state => {
 		'creative-mail',
 		'site-accelerator',
 		'publicize',
+		'videopress',
 	];
 
 	const featureSlugsEligibleToShow = featureSlugsInPreferenceOrder.filter( slug =>

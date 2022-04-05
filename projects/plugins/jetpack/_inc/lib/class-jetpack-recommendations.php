@@ -21,12 +21,16 @@ use Automattic\Jetpack\Status\Host;
  */
 class Jetpack_Recommendations {
 
-	const PUBLICIZE_RECOMMENDATION = 'publicize';
+	const PUBLICIZE_RECOMMENDATION  = 'publicize';
+	const VIDEOPRESS_RECOMMENDATION = 'videopress';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
 		self::PUBLICIZE_RECOMMENDATION,
+		self::VIDEOPRESS_RECOMMENDATION,
 	);
+
+	const VIDEOPRESS_TIMED_ACTION = 'jetpack_recommend_videopress';
 
 	/**
 	 * Returns a boolean indicating if the Jetpack Recommendations are enabled.
@@ -119,6 +123,10 @@ class Jetpack_Recommendations {
 		// Monitor for the publishing of a new post.
 		add_action( 'transition_post_status', array( get_called_class(), 'post_transition' ), 10, 3 );
 		add_action( 'jetpack_activate_module', array( get_called_class(), 'jetpack_module_activated' ), 10, 2 );
+
+		// Monitor for Jetpack connection success.
+		add_action( 'jetpack_authorize_ending_authorized', array( get_called_class(), 'jetpack_connected' ) );
+		add_action( self::VIDEOPRESS_TIMED_ACTION, array( get_called_class(), 'recommend_videopress' ) );
 	}
 
 	/**
@@ -130,6 +138,12 @@ class Jetpack_Recommendations {
 	public static function jetpack_module_activated( $module, $success ) {
 		if ( 'publicize' === $module && $success ) {
 			self::disable_conditional_recommendation( self::PUBLICIZE_RECOMMENDATION );
+		} elseif ( 'videopress' === $module && $success ) {
+			// If VideoPress is enabled and a recommendation for it is scheduled, cancel that recommendation.
+			$recommendation_timestamp = wp_next_scheduled( self::VIDEOPRESS_TIMED_ACTION );
+			if ( false !== $recommendation_timestamp ) {
+				wp_unschedule_event( $recommendation_timestamp, self::VIDEOPRESS_TIMED_ACTION );
+			}
 		}
 	}
 
@@ -147,6 +161,42 @@ class Jetpack_Recommendations {
 			// Set the publicize recommendation to have met criteria to be shown.
 			self::enable_conditional_recommendation( self::PUBLICIZE_RECOMMENDATION );
 		}
+	}
+
+	/**
+	 * Runs after a successful connection is made.
+	 */
+	public static function jetpack_connected() {
+		// Schedule a recommendation for VideoPress in 2 weeks.
+		if ( false === wp_next_scheduled( self::VIDEOPRESS_TIMED_ACTION ) ) {
+			$date = new DateTime();
+			$date->add( new DateInterval( 'P14D' ) );
+			wp_schedule_single_event( $date->getTimestamp(), self::VIDEOPRESS_TIMED_ACTION );
+		}
+	}
+
+	/**
+	 * Enable a recommendation for VideoPress.
+	 */
+	public static function recommend_videopress() {
+		// Check to see if the VideoPress recommendation is already enabled.
+		if ( self::is_conditional_recommendation_enabled( self::VIDEOPRESS_RECOMMENDATION ) ) {
+			return;
+		}
+
+		// Does the site have the VideoPress module enabled?
+		if ( Jetpack::is_module_active( 'videopress' ) ) {
+			return;
+		}
+
+		// Does this site already have a VideoPress product?
+		$site_products          = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+		$has_videopress_product = count( array_intersect( array( 'jetpack_videopress', 'jetpack_videopress_monthly' ), $site_products ) ) > 0;
+		if ( $has_videopress_product ) {
+			return;
+		}
+
+		self::enable_conditional_recommendation( self::VIDEOPRESS_RECOMMENDATION );
 	}
 
 	/**
@@ -185,6 +235,17 @@ class Jetpack_Recommendations {
 			array_splice( $conditional_recommendations, $recommendation_index, 1 );
 			Jetpack_Options::update_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, $conditional_recommendations );
 		}
+	}
+
+	/**
+	 * Check to see if a recommendation is enabled or not.
+	 *
+	 * @param string $recommendation_name The name of the recommendation to check for.
+	 * @return bool
+	 */
+	public static function is_conditional_recommendation_enabled( $recommendation_name ) {
+		$conditional_recommendations = Jetpack_Options::get_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, array() );
+		return in_array( $recommendation_name, $conditional_recommendations, true );
 	}
 
 	/**
