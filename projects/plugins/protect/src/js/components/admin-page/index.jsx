@@ -2,7 +2,13 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { AdminPage, AdminSectionHero, Container, Col, Text } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	AdminSectionHero,
+	AdminSection,
+	Container,
+	Col,
+} from '@automattic/jetpack-components';
 
 import { useSelect } from '@wordpress/data';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
@@ -11,35 +17,135 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import styles from './styles.module.scss';
+import Summary from '../summary';
+import VulnerabilitiesList from '../vulnerabilities-list';
+
+const coreListMock = [
+	{
+		name: 'WordPress',
+		version: '5.4.1',
+		vulnerabilities: [
+			{
+				risk: 'low',
+				description: 'Vulnerability Number 1',
+			},
+			{
+				risk: 'high',
+				description: 'Vulnerability Number 2',
+			},
+		],
+	},
+];
+
+const pluginsListMock = [
+	{
+		name: 'Jetpack Backup',
+		version: '1.0.1',
+		vulnerabilities: [
+			{
+				risk: 'low',
+				description: 'Vulnerability Number 1',
+			},
+			{
+				risk: 'high',
+				description: 'Vulnerability Number 2',
+			},
+			{
+				risk: 'medium',
+				description: 'Vulnerability Number 3',
+			},
+			{
+				risk: 'low',
+				description: 'Vulnerability Number 4',
+			},
+		],
+	},
+	{
+		name: 'Jetpack Boost',
+		version: '1.2.1',
+		vulnerabilities: [
+			{
+				risk: 'high',
+				description: 'Vulnerability Number 1',
+			},
+			{
+				risk: 'low',
+				description: 'Vulnerability Number 2',
+			},
+			{
+				risk: 'medium',
+				description: 'Vulnerability Number 3',
+			},
+			{
+				risk: 'low',
+				description: 'Vulnerability Number 4',
+			},
+		],
+	},
+];
+
+const themeListMock = [
+	{
+		name: 'Famous Theme',
+		version: '1.0.2',
+		vulnerabilities: [
+			{
+				risk: 'low',
+				description: 'Vulnerability Number 1',
+			},
+			{
+				risk: 'low',
+				description: 'Vulnerability Number 2',
+			},
+			{
+				risk: 'medium',
+				description: 'Vulnerability Number 3',
+			},
+		],
+	},
+];
 
 const Admin = () => {
 	const connectionStatus = useSelect(
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
 	);
-	const { isUserConnected, isRegistered } = connectionStatus;
-	const showConnectionCard = ! isRegistered || ! isUserConnected;
+	const { isRegistered } = connectionStatus;
+	const showConnectionCard = ! isRegistered;
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
-			<AdminSectionHero>
-				{ showConnectionCard ? (
+			{ showConnectionCard ? (
+				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
 							<ConnectionSection />
 						</Col>
 					</Container>
-				) : (
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col>
-							<Text variant="headline-small">{ __( 'Jetpack Protect', 'jetpack-protect' ) }</Text>
-							<Text variant="body" className={ styles[ 'expire-date' ] }>
-								{ __( 'The main Jetpack Protect Admin page', 'jetpack-protect' ) }
-							</Text>
-						</Col>
-					</Container>
-				) }
-			</AdminSectionHero>
+				</AdminSectionHero>
+			) : (
+				<>
+					<AdminSectionHero>
+						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+							<Col>
+								<Summary />
+							</Col>
+						</Container>
+					</AdminSectionHero>
+					<AdminSection>
+						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+							<Col>
+								<VulnerabilitiesList title="WordPress" list={ coreListMock } />
+							</Col>
+							<Col>
+								<VulnerabilitiesList title="Plugins" list={ pluginsListMock } />
+							</Col>
+							<Col>
+								<VulnerabilitiesList title="Themes" list={ themeListMock } />
+							</Col>
+						</Container>
+					</AdminSection>
+				</>
+			) }
 		</AdminPage>
 	);
 };
@@ -61,7 +167,8 @@ const ConnectionSection = () => {
 				'jetpack-protect'
 			) }
 			buttonLabel={ __( 'Set up Jetpack Protect', 'jetpack-protect' ) }
-			redirectUri="admin.php?page=jetpack-protect"
+			//redirectUri="admin.php?page=jetpack-protect"
+			skipUserConnection
 		>
 			<h3>{ __( 'Jetpack’s security features include', 'jetpack-protect' ) }</h3>
 			<ul>

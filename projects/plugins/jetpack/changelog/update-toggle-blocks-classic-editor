@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Dashboard: display block settings even when the Classic Editor plugin is active.
