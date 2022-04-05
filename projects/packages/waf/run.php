@@ -8,12 +8,12 @@
 
 namespace Automattic\Jetpack\Waf;
 
-WafRunner::define_mode();
+Waf_Runner::define_mode();
 
-if ( ! WafRunner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 	return;
 }
 
-if ( ! WafRunner::did_run() ) {
-	WafRunner::run();
+if ( ! Waf_Runner::did_run() ) {
+	Waf_Runner::run();
 }

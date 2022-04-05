@@ -17,7 +17,7 @@ if ( ! function_exists( 'add_action' ) ) {
  */
 register_activation_hook(
 	JETPACK__PLUGIN_FILE,
-	array( __NAMESPACE__ . '\WafRunner', 'activate' )
+	array( __NAMESPACE__ . '\Waf_Runner', 'activate' )
 );
 
 /**
@@ -28,7 +28,7 @@ register_activation_hook(
 add_action(
 	'plugin_loaded',
 	function () {
-		WafRunner::update();
+		Waf_Runner::update();
 		require_once __DIR__ . '/run.php';
 	}
 );

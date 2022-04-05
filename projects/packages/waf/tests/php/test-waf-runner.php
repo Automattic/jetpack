@@ -5,19 +5,19 @@
  * @package automattic/jetpack-waf
  */
 
-use Automattic\Jetpack\Waf\WafRunner;
+use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Runtime test suite.
  */
-final class WafTest extends PHPUnit\Framework\TestCase {
+final class WafRunnerTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test define mode
 	 */
 	public function testDefineModeSetsDefinition() {
-		add_test_option( WafRunner::MODE_OPTION_NAME, 'normal' );
-		WafRunner::define_mode();
+		add_test_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
+		Waf_Runner::define_mode();
 		$this->assertSame( 'normal', JETPACK_WAF_MODE );
 	}
 
@@ -25,10 +25,10 @@ final class WafTest extends PHPUnit\Framework\TestCase {
 	 * Test is_allowed_modes
 	 */
 	public function testIsAllowedModes() {
-		$this->assertFalse( WafRunner::is_allowed_mode( 'test' ) );
-		$this->assertFalse( WafRunner::is_allowed_mode( ' normal' ) );
-		$this->assertFalse( WafRunner::is_allowed_mode( '' ) );
-		$this->assertTrue( WafRunner::is_allowed_mode( 'normal' ) );
-		$this->assertTrue( WafRunner::is_allowed_mode( 'silent' ) );
+		$this->assertFalse( Waf_Runner::is_allowed_mode( 'test' ) );
+		$this->assertFalse( Waf_Runner::is_allowed_mode( ' normal' ) );
+		$this->assertFalse( Waf_Runner::is_allowed_mode( '' ) );
+		$this->assertTrue( Waf_Runner::is_allowed_mode( 'normal' ) );
+		$this->assertTrue( Waf_Runner::is_allowed_mode( 'silent' ) );
 	}
 }

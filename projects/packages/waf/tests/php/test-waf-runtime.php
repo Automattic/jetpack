@@ -5,9 +5,9 @@
  * @package automattic/jetpack-waf
  */
 
-use Automattic\Jetpack\Waf\WafOperators;
-use Automattic\Jetpack\Waf\WafRuntime;
-use Automattic\Jetpack\Waf\WafTransforms;
+use Automattic\Jetpack\Waf\Waf_Operators;
+use Automattic\Jetpack\Waf\Waf_Runtime;
+use Automattic\Jetpack\Waf\Waf_Transforms;
 
 /**
  * Runtime test suite.
@@ -16,7 +16,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Instance of the Runtime class
 	 *
-	 * @var WafRuntime
+	 * @var Waf_Runtime
 	 */
 	private $runtime;
 
@@ -26,7 +26,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	 * @before
 	 */
 	protected function before() {
-		$this->runtime = new WafRuntime( new WafTransforms(), new WafOperators() );
+		$this->runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 	}
 
 	/**

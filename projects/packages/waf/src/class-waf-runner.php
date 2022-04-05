@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Waf;
 /**
  * Executes the WAF.
  */
-class WafRunner {
+class Waf_Runner {
 
 	const JETPACK_WAF_VERSION = '1.0.0';
 	const MODE_OPTION_NAME    = 'jetpack_waf_mode';
@@ -85,7 +85,7 @@ class WafRunner {
 		try {
 
 			// phpcs:ignore
-			$waf = new WafRuntime( new WafTransforms(), new WafOperators() );
+			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
 			// execute waf rules.
 			// phpcs:ignore
