@@ -11,13 +11,13 @@ import { __ } from '@wordpress/i18n';
 import { Modal, TabPanel } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { withSelect } from '@wordpress/data';
+import { SocialServiceIcon } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import SocialPreviewsUpgrade from './upgrade';
 import { AVAILABLE_SERVICES } from './constants';
-import { SocialServiceIcon } from '../../shared/icons';
 import { getMediaSourceUrl } from './utils';
 import './modal.scss';
 

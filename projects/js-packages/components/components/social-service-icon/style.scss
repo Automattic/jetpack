@@ -1,0 +1,28 @@
+// TODO: @mkm119 replace these with gutenber-base-styles once that file is moved to js-packages/base-styles
+@import '@wordpress/base-styles/z-index';
+@import '@wordpress/base-styles/colors';
+@import '@wordpress/base-styles/variables';
+@import '@wordpress/base-styles/breakpoints';
+@import '@wordpress/base-styles/mixins';
+@import '@wordpress/base-styles/animations';
+
+
+.jetpack-gutenberg-social-icon {
+	fill: $gray-700;
+
+	&.is-facebook {
+		fill: var( --color-facebook );
+	}
+	&.is-twitter {
+		fill: var( --color-twitter );
+	}
+	&.is-linkedin {
+		fill: var( --color-linkedin );
+	}
+	&.is-tumblr {
+		fill: var( --color-tumblr );
+	}
+	&.is-google {
+		fill: var( --color-gplus );
+	}
+}
