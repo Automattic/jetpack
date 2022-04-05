@@ -38,7 +38,7 @@ class Update_Cloud_CSS implements Contracts\Endpoint {
 				$data = $result['data'];
 				if ( isset( $result['success'] ) && $result['success'] ) {
 					$state->set_source_success( $provider );
-					$storage->store_css( $provider, $result['css'] );
+					$storage->store_css( $provider, $data['css'] );
 				} elseif ( isset( $data['show_stopper'] ) && $data['show_stopper'] ) {
 					$state->set_as_failed( $data['error'] );
 				} else {
