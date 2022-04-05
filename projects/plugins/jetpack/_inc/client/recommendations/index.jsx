@@ -65,6 +65,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.PUBLICIZE:
 			redirectPath = '/publicize';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.VIDEOPRESS:
+			redirectPath = '/videopress';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
@@ -119,6 +122,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/publicize">
 						<FeaturePrompt stepSlug="publicize" isNew={ isNew( 'publicize' ) } />
+					</Route>
+					<Route path="/recommendations/videopress">
+						<FeaturePrompt stepSlug="videopress" isNew={ isNew( 'videopress' ) } />
 					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />
