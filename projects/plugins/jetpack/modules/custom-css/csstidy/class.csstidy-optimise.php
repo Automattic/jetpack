@@ -1,5 +1,4 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
 /**
  * CSSTidy - CSS Parser and Optimiser
  *

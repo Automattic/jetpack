@@ -1,5 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
+<?php
 /**
  * CSSTidy - CSS Parser and Optimiser
  *
@@ -27,6 +26,7 @@
  * @author Nikolay Matsievsky (speed at webo dot name) 2009-2010
  * @version 1.0
  */
+
 if ( ! function_exists( 'ctype_space' ) ) {
 
 	/**
