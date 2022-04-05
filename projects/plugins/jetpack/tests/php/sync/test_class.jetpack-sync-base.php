@@ -10,7 +10,6 @@ use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
 use Automattic\Jetpack\Sync\Modules\Posts;
-use Automattic\Jetpack\Publicize\Publicize;
 $sync_server_dir = dirname( __FILE__ ) . '/server/';
 
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
@@ -55,7 +54,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		// Stop triggering 'jetpack.fetchPublicizeConnection' remote XML-RPC call to
 		// WPCOM on every `save_post` action.
-		$publicize = new Publicize();
+		global $publicize;
 		$publicize->set_refresh_wait_transient( HOUR_IN_SECONDS );
 
 		// Bind the two storage systems to the server events.

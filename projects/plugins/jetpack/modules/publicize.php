@@ -14,9 +14,6 @@
  *
  * @package automattic/jetpack
  */
-use Automattic\Jetpack\Config;
-use Automattic\Jetpack\Publicize\Publicize;
-use Automattic\Jetpack\Publicize\Publicize_UI;
 
 /**
  * Class Jetpack_Publicize
@@ -47,7 +44,6 @@ class Jetpack_Publicize {
 			require_once __DIR__ . '/publicize/publicize-wpcom.php';
 		}
 
-		$publicize_ui             = new Publicize_UI();
 		$publicize_ui->in_jetpack = $this->in_jetpack;
 
 		// Jetpack specific checks / hooks.
@@ -108,12 +104,6 @@ if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! function_exists( 'publicize_in
 	 */
 	function publicize_init() {
 		global $publicize;
-
-		if ( ! class_exists( 'Publicize' ) ) {
-			$config = new Config();
-			$config->ensure( 'publicize' );
-		}
-
 		return $publicize;
 	}
 }

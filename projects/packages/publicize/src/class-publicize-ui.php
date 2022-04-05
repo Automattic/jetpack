@@ -48,8 +48,9 @@ class Publicize_UI {
 			return;
 		}
 
+		$in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
 		// Assets (css, js).
-		if ( $this->in_jetpack ) {
+		if ( $in_jetpack ) {
 			add_action( 'load-settings_page_sharing', array( $this, 'load_assets' ) );
 		}
 		add_action( 'admin_head-post.php', array( $this, 'post_page_metabox_assets' ) );
@@ -103,7 +104,7 @@ class Publicize_UI {
 	 * JS for the options and switching
 	 */
 	public function load_assets() {
-		Jetpack_Admin_Page::load_wrapper_styles();
+		\Jetpack_Admin_Page::load_wrapper_styles();
 	}
 
 	/**

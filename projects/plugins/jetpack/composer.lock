@@ -1474,9 +1474,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "997503ac7e097e2f4406f073fa4237eed39bb1c0"
+                "reference": "6d5ef301aa131c7f9dc385fd8b5b81f470264c5e"
             },
             "require-dev": {
+                "automattic/jetpack-autoloader": "2.11.x-dev",
                 "automattic/jetpack-changelogger": "^3.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },

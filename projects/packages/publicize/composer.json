@@ -3,9 +3,9 @@
 	"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
@@ -46,6 +46,11 @@
 		},
 		"branch-alias": {
 			"dev-master": "0.1.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true
 		}
 	}
 }
