@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Icon, starFilled as star, plus } from '@wordpress/icons';
+import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import Text, { H3 } from '../text';
 
@@ -70,6 +70,7 @@ function BundleProductIcons( { supportedProducts } ) {
  * @param {string} props.slug             - Product slug.
  * @param {string} props.title 			 - Product title.
  * @param {string} props.description     - Product description.
+ * @param {Array}  props.features        - Features list of the product.
  * @param {boolean} props.isBundle        - Whether or not the product is a bundle.
  * @param {Array} props.supportedProducts - List of supported products (for bundles).
  * @param {string} props.className        - A className to be concat with default ones
@@ -80,6 +81,7 @@ const ProductDetailCard = ( {
 	slug,
 	title,
 	description,
+	features,
 	isBundle,
 	supportedProducts,
 } ) => {
@@ -96,6 +98,15 @@ const ProductDetailCard = ( {
 				<H3>{ title }</H3>
 				<Text mb={ 3 }>{ description }</Text>
 			</div>
+
+			<ul className={ styles.features }>
+				{ features.map( ( feature, id ) => (
+					<Text component="li" key={ `feature-${ id }` } variant="body">
+						<Icon icon={ check } size={ 24 } className={ styles.check } />
+						{ feature }
+					</Text>
+				) ) }
+			</ul>
 		</div>
 	);
 };

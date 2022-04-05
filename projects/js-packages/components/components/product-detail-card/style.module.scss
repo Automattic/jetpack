@@ -44,3 +44,24 @@
 	height: 24px;
 	line-height: 24px;
 }
+
+.features {
+	margin: 0;
+	padding: 0;
+	flex-grow: 1;
+	margin-bottom: calc( var( --spacing-base ) * 2 );
+
+	li {
+		list-style: none;
+		display: flex;
+		align-items: start;
+		margin-bottom: var( --spacing-base );
+	}
+
+	.check {
+		fill: var( --jp-green-primary );
+		margin-right: var( --spacing-base );
+		flex-shrink: 0;
+	}
+}
+
