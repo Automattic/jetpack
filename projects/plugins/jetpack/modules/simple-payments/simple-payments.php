@@ -7,6 +7,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Current_Plan;
+
 /**
  * Jetpack_Simple_Payments
  */
@@ -220,7 +222,7 @@ class Jetpack_Simple_Payments {
 
 		return (
 			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
-			Jetpack_Plan::supports( 'simple-payments' )
+			Current_Plan::supports( 'simple-payments' )
 		);
 	}
 

@@ -209,7 +209,7 @@ class Current_Plan {
 	 */
 	public static function refresh_from_wpcom() {
 		// Make the API request.
-		$request  = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
+		$request  = sprintf( '/sites/%d', \Jetpack_Options::get_option( 'id' ) );
 		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
 		return self::update_from_sites_response( $response );
@@ -249,8 +249,8 @@ class Current_Plan {
 
 		// get available features if Jetpack is active.
 		if ( class_exists( 'Jetpack' ) ) {
-			foreach ( Jetpack::get_available_modules() as $module_slug ) {
-				$module = Jetpack::get_module( $module_slug );
+			foreach ( \Jetpack::get_available_modules() as $module_slug ) {
+				$module = \Jetpack::get_module( $module_slug );
 				if ( ! isset( $module ) || ! is_array( $module ) ) {
 					continue;
 				}
@@ -317,7 +317,7 @@ class Current_Plan {
 	/**
 	 * Determine whether the active plan supports a particular feature
 	 *
-	 * @uses Jetpack_Plan::get()
+	 * @uses Current_Plan::get()
 	 *
 	 * @access public
 	 * @static

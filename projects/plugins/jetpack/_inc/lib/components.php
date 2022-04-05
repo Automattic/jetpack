@@ -1,5 +1,6 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Plans;
 use Automattic\Jetpack\Status;
 
 /**
@@ -73,7 +74,7 @@ class Jetpack_Components {
 	public static function render_upgrade_nudge( $props ) {
 		$plan_slug = $props['plan'];
 		jetpack_require_lib( 'plans' );
-		$plan = Jetpack_Plans::get_plan( $plan_slug );
+		$plan = Plans::get_plan( $plan_slug );
 
 		if ( ! $plan ) {
 			return self::render_component(

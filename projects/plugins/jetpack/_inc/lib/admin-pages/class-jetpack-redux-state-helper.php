@@ -10,6 +10,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
@@ -170,7 +171,7 @@ class Jetpack_Redux_State_Helper {
 				'isAtomicSite'               => $host->is_woa_site(),
 				'isWoASite'                  => $host->is_woa_site(),
 				'isAtomicPlatform'           => $host->is_atomic_platform(),
-				'plan'                       => Jetpack_Plan::get(),
+				'plan'                       => Current_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
 				/** This filter is documented in my-jetpack/src/class-initializer.php */

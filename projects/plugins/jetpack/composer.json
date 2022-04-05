@@ -35,6 +35,7 @@
 		"automattic/jetpack-my-jetpack": "0.6.x-dev",
 		"automattic/jetpack-options": "1.14.x-dev",
 		"automattic/jetpack-partner": "1.7.x-dev",
+		"automattic/jetpack-plans": "0.1.x-dev",
 		"automattic/jetpack-plugins-installer": "0.1.x-dev",
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",

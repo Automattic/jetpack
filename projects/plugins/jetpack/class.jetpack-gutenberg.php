@@ -10,6 +10,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Plans\Current_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -1111,7 +1112,7 @@ class Jetpack_Gutenberg {
 	public static function set_availability_for_plan( $slug ) {
 		$slug = self::remove_extension_prefix( $slug );
 
-		if ( Jetpack_Plan::supports( $slug ) ) {
+		if ( Current_Plan::supports( $slug ) ) {
 			self::set_extension_available( $slug );
 			return;
 		}
@@ -1139,7 +1140,7 @@ class Jetpack_Gutenberg {
 			}
 		} else {
 			// Jetpack sites.
-			$plan = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
+			$plan = Current_Plan::get_minimum_plan_for_feature( $slug );
 		}
 
 		self::set_extension_unavailable(

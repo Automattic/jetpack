@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Plugins_Installer;
@@ -2106,7 +2107,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
 		}
 
-		Jetpack_Plan::update_from_sites_response( $response );
+		Current_Plan::update_from_sites_response( $response );
 
 		return $data;
 	}

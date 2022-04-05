@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 use WP_Error;
 
 /**
- * Contains the tests for the Jetpack_Plan class.
+ * Contains the tests for the Current_Plan class.
  */
 class WP_Test_Jetpack_Plan extends TestCase {
 

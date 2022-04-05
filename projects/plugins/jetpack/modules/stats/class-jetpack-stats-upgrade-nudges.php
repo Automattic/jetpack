@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Redirect;
@@ -104,7 +105,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return boolean
 	 */
 	private static function has_security_plan() {
-		$plan_data = Jetpack_Plan::get();
+		$plan_data = Current_Plan::get();
 		if ( is_array( $plan_data ) && isset( $plan_data['product_slug'] ) ) {
 			$has_plan = wp_startswith( $plan_data['product_slug'], 'jetpack_security' );
 			return (
@@ -124,7 +125,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return boolean
 	 */
 	private static function has_complete_plan() {
-		$plan_data = Jetpack_Plan::get();
+		$plan_data = Current_Plan::get();
 		if ( is_array( $plan_data ) && isset( $plan_data['product_slug'] ) ) {
 			return wp_startswith( $plan_data['product_slug'], 'jetpack_complete' );
 		}
@@ -139,7 +140,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 	 * @return boolean
 	 */
 	private static function has_product( $target_product_slug ) {
-		$site_products_slugs = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+		$site_products_slugs = array_column( Current_Plan::get_products(), 'product_slug' );
 
 		foreach ( $site_products_slugs as $product_slug ) {
 			if ( wp_startswith( $product_slug, $target_product_slug ) ) {
