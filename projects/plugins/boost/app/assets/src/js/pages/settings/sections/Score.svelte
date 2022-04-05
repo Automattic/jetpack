@@ -16,6 +16,7 @@
 	} from '../../../api/speed-scores';
 	import debounce from '../../../utils/debounce';
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
+	import { cloudCssStatus } from '../../../stores/cloud-css-status';
 	import { modules } from '../../../stores/modules';
 	import { derived, writable } from 'svelte/store';
 	import RatingCard from '../elements/RatingCard.svelte';
@@ -101,14 +102,15 @@
 
 	// noinspection JSUnusedLocalSymbols
 	/**
-	 * A store that checks the speed score needs a refresh.
+	 * A store that checks if the speed score needs a refresh.
 	 */
-	const needRefresh = derived(
-		[ criticalCssStatus, modulesInSync, scoreConfigString, scores ],
+	const needsRefresh = derived(
+		[ criticalCssStatus, cloudCssStatus, modulesInSync, scoreConfigString, scores ],
 		// eslint-disable-next-line no-shadow
-		( [ $criticalCssStatus, $modulesInSync, $scoreConfigString, $scores ] ) => {
+		( [ $criticalCssStatus, $cloudCssStatus, $modulesInSync, $scoreConfigString, $scores ] ) => {
 			return (
 				! $criticalCssStatus.generating &&
+				! $cloudCssStatus.pending &&
 				$modulesInSync &&
 				( $scoreConfigString !== currentScoreConfigString || $scores.isStale )
 			);
@@ -116,7 +118,7 @@
 	);
 
 	const debouncedRefreshScore = debounce( force => {
-		if ( $needRefresh ) {
+		if ( $needsRefresh ) {
 			refreshScore( force );
 		}
 	}, 2000 );
@@ -131,7 +133,7 @@
 			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading && ! $scores.isStale
 	);
 
-	$: if ( $needRefresh ) {
+	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
