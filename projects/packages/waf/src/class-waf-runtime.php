@@ -600,7 +600,6 @@ class WafRuntime {
 			}
 		}
 
-		// todo: normalize nested arrays in values??
 		if ( $count_only ) {
 			$results[] = array(
 				'name'   => $name,
@@ -609,15 +608,54 @@ class WafRuntime {
 			);
 		} else {
 			foreach ( $output as $tk => $tv ) {
-				$results[] = array(
-					'name'   => $tk,
-					'value'  => $tv,
-					'source' => "$name:$tk",
-				);
+				if ( is_array( $tv ) ) {
+					// flatten it so we get all the values considered
+					$flat_values = $this->array_flatten( $tv );
+					foreach ( $flat_values as $fv ) {
+						$results[] = array(
+							// force names to strings
+							// we don't care about the nested keys here, just the overall variable name
+							'name'   => '' . $tk,
+							'value'  => $fv,
+							'source' => "$name:$tk",
+						);
+					}
+				} else {
+					$results[] = array(
+						// force names to strings
+						'name'   => '' . $tk,
+						'value'  => $tv,
+						'source' => "$name:$tk",
+					);
+				}
 			}
 		}
 
 		return $results;
+	}
+
+	/**
+	 * Basic array flatten with array_merge; no-op on non-array targets.
+	 *
+	 * @param array $source Array to flatten.
+	 * @return array The flattened array.
+	 */
+	private function array_flatten( $source ) {
+		if ( ! is_array( $source ) ) {
+			return $source;
+		}
+
+		$return = array();
+
+		foreach ( $source as $v ) {
+			if ( is_array( $v ) ) {
+				$return = array_merge( $return, $this->array_flatten( $v ) );
+			} else {
+				$return[] = $v;
+			}
+		}
+
+		return $return;
 	}
 
 	/**
