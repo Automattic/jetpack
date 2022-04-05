@@ -34,7 +34,7 @@
 
 # The Backup team reviews changes to the VaultPress and Backup plugin,
 # and can add dependencies to the monorepo's lock file.
-- name: VaultPress & Backup, and Scan
+- name: VaultPress & Backup
   paths:
    - 'projects/packages/backup/**'
    - 'projects/plugins/vaultpress/**'
@@ -45,7 +45,7 @@
 
 # The Scan team reviews changes to the protect plugin, the WAF package, etc,
 # and can add dependencies to the monorepo's lock file.
-- name: VaultPress & Backup, and Scan
+- name: Scan
   paths:
     - 'projects/packages/waf/**'
     - 'projects/plugins/protect/**'
