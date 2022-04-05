@@ -40,6 +40,15 @@ class WafRunner {
 	}
 
 	/**
+	 * Determines if the WAF module is enabled on the site.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		return \Jetpack::is_module_active( 'firewall' );
+	}
+
+	/**
 	 * Runs the WAF and potentially stops the request if a problem is found.
 	 *
 	 * @return void
