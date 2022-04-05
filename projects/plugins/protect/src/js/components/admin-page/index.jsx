@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { AdminPage, AdminSectionHero, Container, Col, Text } from '@automattic/jetpack-components';
+import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 
 import { useSelect } from '@wordpress/data';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
@@ -11,7 +11,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import styles from './styles.module.scss';
+import Summary from '../summary';
 
 const Admin = () => {
 	const connectionStatus = useSelect(
@@ -32,10 +32,7 @@ const Admin = () => {
 				) : (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
-							<Text variant="headline-small">{ __( 'Jetpack Protect', 'jetpack-protect' ) }</Text>
-							<Text variant="body" className={ styles[ 'expire-date' ] }>
-								{ __( 'The main Jetpack Protect Admin page', 'jetpack-protect' ) }
-							</Text>
+							<Summary />
 						</Col>
 					</Container>
 				) }
