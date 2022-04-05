@@ -50,6 +50,7 @@ test.describe( 'Sync', () => {
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
+			expect( await isSyncQueueEmpty() ).toBeFalsy();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
@@ -112,6 +113,7 @@ test.describe( 'Sync', () => {
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
+			expect( await isSyncQueueEmpty() ).toBeFalsy();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
