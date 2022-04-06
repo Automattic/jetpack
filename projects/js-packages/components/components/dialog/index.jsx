@@ -25,20 +25,12 @@ export default function Dialog( { primary, secondary, split } ) {
 		[ styles.container ]: ! split,
 	} );
 
-	const primaryClassNames = classnames( styles.primary, {
-		[ styles.container ]: split,
-	} );
-
-	const secondaryClassNames = classnames( styles.secondary, {
-		[ styles.container ]: split,
-	} );
-
 	return (
 		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
-			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ primaryClassNames }>
+			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.primary }>
 				{ primary }
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ secondaryClassNames }>
+			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.secondary }>
 				{ secondary }
 			</Col>
 		</Container>
