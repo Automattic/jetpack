@@ -94,7 +94,7 @@ export const Protect = withModuleSettingsFormHelpers(
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
-					header={ _x( 'Protect', 'Settings header', 'jetpack' ) }
+					header={ _x( 'Brute force protection', 'Settings header', 'jetpack' ) }
 					saveDisabled={ this.props.isSavingAnyOption( 'jetpack_protect_global_whitelist' ) }
 				>
 					<SettingsGroup

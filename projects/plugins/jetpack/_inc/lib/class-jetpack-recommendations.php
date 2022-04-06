@@ -23,12 +23,16 @@ class Jetpack_Recommendations {
 
 	const PUBLICIZE_RECOMMENDATION     = 'publicize';
 	const SECURITY_PLAN_RECOMMENDATION = 'security-plan';
+	const VIDEOPRESS_RECOMMENDATION = 'videopress';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
 		self::PUBLICIZE_RECOMMENDATION,
 		self::SECURITY_PLAN_RECOMMENDATION,
+		self::VIDEOPRESS_RECOMMENDATION,
 	);
+
+	const VIDEOPRESS_TIMED_ACTION = 'jetpack_recommend_videopress';
 
 	/**
 	 * Returns a boolean indicating if the Jetpack Recommendations are enabled.
@@ -124,6 +128,10 @@ class Jetpack_Recommendations {
 
 		// Monitor for activating a new plugin.
 		add_action( 'activated_plugin', array( get_called_class(), 'plugin_activated' ), 10 );
+
+		// Monitor for Jetpack connection success.
+		add_action( 'jetpack_authorize_ending_authorized', array( get_called_class(), 'jetpack_connected' ) );
+		add_action( self::VIDEOPRESS_TIMED_ACTION, array( get_called_class(), 'recommend_videopress' ) );
 	}
 
 	/**
@@ -135,6 +143,12 @@ class Jetpack_Recommendations {
 	public static function jetpack_module_activated( $module, $success ) {
 		if ( 'publicize' === $module && $success ) {
 			self::disable_conditional_recommendation( self::PUBLICIZE_RECOMMENDATION );
+		} elseif ( 'videopress' === $module && $success ) {
+			// If VideoPress is enabled and a recommendation for it is scheduled, cancel that recommendation.
+			$recommendation_timestamp = wp_next_scheduled( self::VIDEOPRESS_TIMED_ACTION );
+			if ( false !== $recommendation_timestamp ) {
+				wp_unschedule_event( $recommendation_timestamp, self::VIDEOPRESS_TIMED_ACTION );
+			}
 		}
 	}
 
@@ -159,7 +173,8 @@ class Jetpack_Recommendations {
 	 *
 	 * @param string $plugin Path to the plugins file relative to the plugins directory.
 	 */
-	public static function plugin_activated( $plugin ) {
+	public static function plugin_activated( $plugin )
+	{
 		// If the plugin is in this list, don't enable the recommendation.
 		$plugin_whitelist = array(
 			'jetpack.php',
@@ -172,24 +187,24 @@ class Jetpack_Recommendations {
 			'woocommerce.php',
 		);
 
-		$path_parts  = explode( '/', $plugin );
-		$plugin_file = $path_parts ? array_pop( $path_parts ) : $plugin;
+		$path_parts = explode('/', $plugin);
+		$plugin_file = $path_parts ? array_pop($path_parts) : $plugin;
 
-		if ( ! in_array( $plugin_file, $plugin_whitelist, true ) ) {
-			$has_anti_spam = is_plugin_active( 'akismet/akismet.php' );
+		if (!in_array($plugin_file, $plugin_whitelist, true)) {
+			$has_anti_spam = is_plugin_active('akismet/akismet.php');
 
 			// Check the backup state.
-			$rewind_state = get_transient( 'jetpack_rewind_state' );
-			$has_backup   = $rewind_state && in_array( $rewind_state->state, array( 'awaiting_credentials', 'provisioning', 'active' ), true );
+			$rewind_state = get_transient('jetpack_rewind_state');
+			$has_backup = $rewind_state && in_array($rewind_state->state, array('awaiting_credentials', 'provisioning', 'active'), true);
 
 			// Check for a plan or product that enables scan.
-			$plan_supports_scan = \Jetpack_Plan::supports( 'scan' );
-			$products           = \Jetpack_Plan::get_products();
-			$has_scan_product   = false;
+			$plan_supports_scan = \Jetpack_Plan::supports('scan');
+			$products = \Jetpack_Plan::get_products();
+			$has_scan_product = false;
 
-			if ( is_array( $products ) ) {
-				foreach ( $products as $product ) {
-					if ( strpos( $product['product_slug'], 'jetpack_scan' ) === 0 ) {
+			if (is_array($products)) {
+				foreach ($products as $product) {
+					if (strpos($product['product_slug'], 'jetpack_scan') === 0) {
 						$has_scan_product = true;
 						break;
 					}
@@ -197,10 +212,46 @@ class Jetpack_Recommendations {
 			}
 			$has_scan = $plan_supports_scan || $has_scan_product;
 
-			if ( ! $has_scan || ! $has_backup || ! $has_anti_spam ) {
-				self::enable_conditional_recommendation( self::SECURITY_PLAN_RECOMMENDATION );
+			if (!$has_scan || !$has_backup || !$has_anti_spam) {
+				self::enable_conditional_recommendation(self::SECURITY_PLAN_RECOMMENDATION);
 			}
 		}
+	}
+
+	/**
+     * Runs after a successful connection is made.
+	 */
+	public static function jetpack_connected() {
+		// Schedule a recommendation for VideoPress in 2 weeks.
+		if ( false === wp_next_scheduled( self::VIDEOPRESS_TIMED_ACTION ) ) {
+			$date = new DateTime();
+			$date->add( new DateInterval( 'P14D' ) );
+			wp_schedule_single_event( $date->getTimestamp(), self::VIDEOPRESS_TIMED_ACTION );
+		}
+	}
+
+	/**
+	 * Enable a recommendation for VideoPress.
+	 */
+	public static function recommend_videopress() {
+		// Check to see if the VideoPress recommendation is already enabled.
+		if ( self::is_conditional_recommendation_enabled( self::VIDEOPRESS_RECOMMENDATION ) ) {
+			return;
+		}
+
+		// Does the site have the VideoPress module enabled?
+		if ( Jetpack::is_module_active( 'videopress' ) ) {
+			return;
+		}
+
+		// Does this site already have a VideoPress product?
+		$site_products          = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+		$has_videopress_product = count( array_intersect( array( 'jetpack_videopress', 'jetpack_videopress_monthly' ), $site_products ) ) > 0;
+		if ( $has_videopress_product ) {
+			return;
+		}
+
+		self::enable_conditional_recommendation( self::VIDEOPRESS_RECOMMENDATION );
 	}
 
 	/**
@@ -239,6 +290,17 @@ class Jetpack_Recommendations {
 			array_splice( $conditional_recommendations, $recommendation_index, 1 );
 			Jetpack_Options::update_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, $conditional_recommendations );
 		}
+	}
+
+	/**
+	 * Check to see if a recommendation is enabled or not.
+	 *
+	 * @param string $recommendation_name The name of the recommendation to check for.
+	 * @return bool
+	 */
+	public static function is_conditional_recommendation_enabled( $recommendation_name ) {
+		$conditional_recommendations = Jetpack_Options::get_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, array() );
+		return in_array( $recommendation_name, $conditional_recommendations, true );
 	}
 
 	/**

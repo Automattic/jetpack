@@ -51,6 +51,13 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 					site: getSiteRawUrl( state ),
 				} ),
 			};
+		case 'videopress':
+			return {
+				configureButtonLabel: __( 'How To', 'jetpack' ),
+				displayName: __( 'VideoPress', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
+			};
 		case 'woocommerce':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -117,6 +124,12 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 			return {
 				activateFeature: () => {
 					return dispatch( updateSettings( { publicize: true } ) );
+				},
+			};
+		case 'videopress':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { videopress: true } ) );
 				},
 			};
 		case 'woocommerce':
@@ -222,6 +235,21 @@ export const getStepContent = stepSlug => {
 				),
 				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
+			};
+		case 'videopress':
+			return {
+				question: __(
+					'Share videos on your site to increase engagement and purchases.',
+					'jetpack'
+				),
+				description: __(
+					'No matter your business, adding videos to your site is essential for success. Jetpack VideoPress offers HD, ad-free video hosting, so you can keep the focus on your content. Try it for free or upgrade for more space. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: getRedirectUrl( 'jetpack-videopress' ),
+				ctaText: __( 'Try VideoPress for free', 'jetpack' ),
 				illustrationPath: '/recommendations/general-illustration.png',
 				rnaIllustration: true,
 			};

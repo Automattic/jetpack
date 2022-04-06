@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1bada3d9539575c01741b2e35c0e2d44",
+    "content-hash": "0a2f4f801c4e2ad3035b8265ae76381c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -323,7 +323,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d60612abed78db6aa449217196952bae7e66c445"
+                "reference": "5538a8d906ed462f0e9db2ba5cebf0dc27e2c4ed"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -333,8 +333,7 @@
                 "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
-                "automattic/jetpack-status": "^1.13",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -480,7 +479,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "b5aacb10b5a8cf268b42ea72f13420ef864c7188"
+                "reference": "6388487c1f2d39b0ea4b4f0d7fa327e8f2499dd3"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -601,15 +600,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "ae1446eaf61c19907037bec2cff073c722781f59"
+                "reference": "09305aae3cc76552f9f1d4ba0e7b89f627f5d338"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-plugins-installer": "^0.1",
-                "automattic/jetpack-redirect": "^1.7",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-redirect": "^1.7"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -627,7 +625,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.6.x-dev"
+                    "dev-master": "1.0.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1123,17 +1121,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "59d981740e8e94edc332111355fbd008117ffb80"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
+                "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
-                "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.0.3"
+                "automattic/jetpack-changelogger": "^3.0"
             },
             "type": "jetpack-library",
             "extra": {
@@ -1153,21 +1149,11 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "Tracking for Jetpack",
+            "abandoned": "automattic/jetpack-connection",
             "transport-options": {
                 "relative": true
             }
