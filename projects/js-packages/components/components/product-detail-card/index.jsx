@@ -112,45 +112,45 @@ const ProductDetailCard = ( {
 				<ProductIcons slug={ slug } supportedProducts={ supportedProducts || [ slug ] } />
 				<H3>{ title }</H3>
 				<Text mb={ 3 }>{ description }</Text>
+
+				<ul className={ styles.features }>
+					{ features.map( ( feature, id ) => (
+						<Text component="li" key={ `feature-${ id }` } variant="body">
+							<Icon icon={ check } size={ 24 } className={ styles.check } />
+							{ feature }
+						</Text>
+					) ) }
+				</ul>
+
+				{ needsPurchase && (
+					<ProductPrice price={ price } offPrice={ offPrice } currency={ currency } />
+				) }
+
+				{ isFree && <H3>{ __( 'Free', 'jetpack' ) }</H3> }
+
+				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+					<Button
+						onClick={ onAdd }
+						isLoading={ isLoading }
+						disabled={ isLoading }
+						variant={ isLoading || ! isBundle ? 'primary' : 'secondary' }
+						href={ onAdd ? undefined : href }
+						className={ styles[ 'add-button' ] }
+					>
+						{
+							/* translators: placeholder is product name. */
+							sprintf( __( 'Add %s', 'jetpack' ), title )
+						}
+					</Button>
+				) }
+
+				{ isBundle && hasRequiredPlan && (
+					<div className={ styles[ 'product-has-required-plan' ] }>
+						<CheckmarkIcon size={ 36 } />
+						<Text>{ __( 'Active on your site', 'jetpack' ) }</Text>
+					</div>
+				) }
 			</div>
-
-			<ul className={ styles.features }>
-				{ features.map( ( feature, id ) => (
-					<Text component="li" key={ `feature-${ id }` } variant="body">
-						<Icon icon={ check } size={ 24 } className={ styles.check } />
-						{ feature }
-					</Text>
-				) ) }
-			</ul>
-
-			{ needsPurchase && (
-				<ProductPrice price={ price } offPrice={ offPrice } currency={ currency } />
-			) }
-
-			{ isFree && <H3>{ __( 'Free', 'jetpack' ) }</H3> }
-
-			{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
-				<Button
-					onClick={ onAdd }
-					isLoading={ isLoading }
-					disabled={ isLoading }
-					variant={ isBundle ? 'secondary' : 'primary' }
-					href={ onAdd ? undefined : href }
-					className={ styles[ 'add-button' ] }
-				>
-					{
-						/* translators: placeholder is product name. */
-						sprintf( __( 'Add %s', 'jetpack' ), title )
-					}
-				</Button>
-			) }
-
-			{ isBundle && hasRequiredPlan && (
-				<div className={ styles[ 'product-has-required-plan' ] }>
-					<CheckmarkIcon size={ 36 } />
-					<Text>{ __( 'Active on your site', 'jetpack' ) }</Text>
-				</div>
-			) }
 		</div>
 	);
 };

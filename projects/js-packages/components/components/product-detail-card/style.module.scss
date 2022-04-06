@@ -78,4 +78,9 @@
 .add-button {
 	width: 100%;
 	display: block;
+	
+	&:global(.is-primary):disabled {
+		opacity: 1;
+		background-color: var( --jp-black );
+	}
 }
