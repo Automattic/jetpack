@@ -5,7 +5,6 @@
 	"license": "GPL-2.0-or-later",
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-changelogger": "^3.0"
 	},
 	"autoload": {
@@ -52,5 +51,11 @@
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true
 		}
+	},
+	"require": {
+		"automattic/jetpack-options": "1.15.x-dev",
+		"automattic/jetpack-connection": "1.37.x-dev",
+		"automattic/jetpack-autoloader": "2.11.x-dev",
+		"automattic/jetpack-config": "1.7.x-dev"
 	}
 }
