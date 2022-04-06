@@ -157,7 +157,7 @@ const ProductDetailCard = ( {
 
 ProductDetailCard.propTypes = {
 	slug: PropTypes.string.isRequired,
-	name: PropTypes.string.isRequired,
+	name: PropTypes.string,
 	title: PropTypes.string,
 	description: PropTypes.string,
 	features: PropTypes.arrayOf( PropTypes.string ),
