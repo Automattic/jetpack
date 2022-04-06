@@ -323,7 +323,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d60612abed78db6aa449217196952bae7e66c445"
+                "reference": "5538a8d906ed462f0e9db2ba5cebf0dc27e2c4ed"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -588,7 +588,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "c8c76294bca480aa22efa392d08e1d33580367aa"
+                "reference": "09305aae3cc76552f9f1d4ba0e7b89f627f5d338"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -901,61 +901,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/tracking",
-                "reference": "59d981740e8e94edc332111355fbd008117ffb80"
-            },
-            "require": {
-                "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-options": "^1.15",
-                "automattic/jetpack-status": "^1.13"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
-                "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.0.3"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-tracking",
-                "textdomain": "jetpack-tracking",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-tracking/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-master": "1.14.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "legacy",
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Tracking for Jetpack",
             "transport-options": {
                 "relative": true
             }
