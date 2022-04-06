@@ -120,6 +120,8 @@ const ProductDetailCard = ( {
 			{ needsPurchase && (
 				<ProductPrice price={ price } offPrice={ offPrice } currency={ currency } />
 			) }
+
+			{ isFree && <H3>{ __( 'Free', 'jetpack' ) }</H3> }
 		</div>
 	);
 };
