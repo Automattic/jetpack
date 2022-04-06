@@ -6,6 +6,7 @@ import playwrightConfig from '../../playwright.config.cjs';
 test.beforeAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
 	await prerequisitesBuilder( page )
+		.withCleanEnv()
 		.withLoggedIn( true )
 		.withWpComLoggedIn( true )
 		.withConnection( true )
