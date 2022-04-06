@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import { Container, Col, Text, H3 } from '@automattic/jetpack-components';
 import classNames from 'classnames';
 
@@ -47,7 +48,15 @@ const VulnerabilityItem = ( { name, version, vulnerabilities } ) => {
 				{ vulnerabilities.map( vulnerability => (
 					<div className={ styles.vulnerability }>
 						<VulnerabilityRisk risk={ vulnerability.risk } />
-						<Text>{ vulnerability.description }</Text>
+						<div>
+							<Text>{ vulnerability.description }</Text>
+							<Text variant="body-extra-small">
+								{
+									/* translators: placeholder is version. */
+									sprintf( __( 'Fixed in %s', 'jetpack-protect' ), vulnerability.fixedIn )
+								}
+							</Text>
+						</div>
 					</div>
 				) ) }
 			</Col>

@@ -25,18 +25,22 @@ Default.args = {
 				{
 					risk: 'low',
 					description: 'Vulnerability Number 1',
+					fixedIn: '1.1.0',
 				},
 				{
 					risk: 'high',
 					description: 'Vulnerability Number 2',
+					fixedIn: '1.1.0',
 				},
 				{
 					risk: 'medium',
 					description: 'Vulnerability Number 3',
+					fixedIn: '1.1.0',
 				},
 				{
 					risk: 'low',
 					description: 'Vulnerability Number 4',
+					fixedIn: '1.1.0',
 				},
 			],
 		},
@@ -47,18 +51,22 @@ Default.args = {
 				{
 					risk: 'high',
 					description: 'Vulnerability Number 1',
+					fixedIn: '1.2.2',
 				},
 				{
 					risk: 'low',
 					description: 'Vulnerability Number 2',
+					fixedIn: '1.2.2',
 				},
 				{
 					risk: 'medium',
 					description: 'Vulnerability Number 3',
+					fixedIn: '1.2.2',
 				},
 				{
 					risk: 'low',
 					description: 'Vulnerability Number 4',
+					fixedIn: '1.2.2',
 				},
 			],
 		},
