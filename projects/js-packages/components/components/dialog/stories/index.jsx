@@ -7,7 +7,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import ProductDetailCard from '../../product-detail-card';
+import ProductDetail from '../../product-detail';
 import Dialog from '../';
 import BoostImage from '../boost.png';
 
@@ -43,7 +43,7 @@ export const InterstitialJetpackBoost = Template.bind( {} );
 InterstitialJetpackBoost.parameters = {};
 InterstitialJetpackBoost.args = {
 	primary: (
-		<ProductDetailCard
+		<ProductDetail
 			slug="boost"
 			name="Boost"
 			title="Jepack Boost"
@@ -66,7 +66,7 @@ export const InterstitialJetpackBackup = Template.bind( {} );
 InterstitialJetpackBackup.parameters = {};
 InterstitialJetpackBackup.args = {
 	primary: (
-		<ProductDetailCard
+		<ProductDetail
 			slug="boost"
 			name="Boost"
 			title="Jepack Boost"
@@ -82,7 +82,7 @@ InterstitialJetpackBackup.args = {
 		/>
 	),
 	secondary: (
-		<ProductDetailCard
+		<ProductDetail
 			slug="security"
 			name="Security"
 			title="Security"
