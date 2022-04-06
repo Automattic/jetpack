@@ -16,7 +16,6 @@ import { isModuleFound as _isModuleFound } from 'state/search';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModule } from 'state/modules';
-import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
@@ -198,6 +197,14 @@ export class Composing extends React.Component {
 										'jetpack'
 									) }
 								</span>
+								{ ! this.props.getOptionValue( 'jetpack_blocks_disabled' ) && (
+									<span className="jp-form-setting-explanation">
+										{ __(
+											'Caution: if there are Jetpack blocks used in existing posts or pages, disabling this setting will cause those blocks to stop working.',
+											'jetpack'
+										) }
+									</span>
+								) }
 							</CompactFormToggle>
 						</FormFieldset>
 					</SettingsGroup>
@@ -221,10 +228,7 @@ export class Composing extends React.Component {
 				{ foundMarkdown && markdownSettings }
 				{ foundLatex && latexSettings }
 				{ foundShortcodes && shortcodeSettings }
-				{ ! this.props.isFetchingPluginsData &&
-					! this.props.isPluginActive( 'classic-editor/classic-editor.php' ) &&
-					foundBlocks &&
-					blocksSettings }
+				{ foundBlocks && blocksSettings }
 			</SettingsCard>
 		);
 	}
@@ -234,7 +238,5 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
-		isFetchingPluginsData: isFetchingPluginsData( state ),
-		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 	};
 } )( withModuleSettingsFormHelpers( Composing ) );
