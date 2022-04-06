@@ -1,9 +1,14 @@
-/* eslint-disable wpcalypso/import-docblock */
+/**
+ * External dependencies
+ */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { __, _x } from '@wordpress/i18n';
 import { get } from 'lodash';
 
+/**
+ * Internal dependencies
+ */
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel } from 'components/forms';
 import {
@@ -45,17 +50,13 @@ export const Firewall = class extends Component {
 		this.updateOptions( 'jetpack_firewall_share_data' );
 	};
 
-	handleIpBlockListChange = event => {
-		this.setState( {
-			jetpack_firewall_ip_block_list: event.target.value,
-		} );
+	handleIpListChange = event => {
+		const {
+			target: { name, value },
+		} = event;
 
-		this.props.onOptionChange( event );
-	};
-
-	handleIpAllowListChange = event => {
 		this.setState( {
-			jetpack_firewall_ip_allow_list: event.target.value,
+			[ name ]: value,
 		} );
 
 		this.props.onOptionChange( event );
@@ -71,7 +72,7 @@ export const Firewall = class extends Component {
 			{
 				[ optionName ]: ! this.state[ optionName ],
 			},
-			this.props.updateFormStateModuleOption( 'sso', optionName )
+			this.props.updateFormStateModuleOption( 'firewall', optionName )
 		);
 	};
 
@@ -155,9 +156,9 @@ export const Firewall = class extends Component {
 													] )
 												}
 												name="jetpack_firewall_ip_block_list"
-												placeholder="Example: 12.12.12.1-12.12.12.100"
+												placeholder={ __( 'Example: 12.12.12.1-12.12.12.100', 'jetpack' ) }
 												value={ this.state.jetpack_firewall_ip_block_list }
-												onChange={ this.handleIpBlockListChange }
+												onChange={ this.handleIpListChange }
 											/>
 										</div>
 										<div className="firewall__settings__ips">
@@ -173,9 +174,9 @@ export const Firewall = class extends Component {
 													] )
 												}
 												name="jetpack_firewall_ip_allow_list"
-												placeholder="Example: 12.12.12.1-12.12.12.100"
+												placeholder={ __( 'Example: 12.12.12.1-12.12.12.100', 'jetpack' ) }
 												value={ this.state.jetpack_firewall_ip_allow_list }
-												onChange={ this.handleIpAllowListChange }
+												onChange={ this.handleIpListChange }
 											/>
 										</div>
 									</>
