@@ -9,7 +9,7 @@
 		"automattic/jetpack-config": "1.7.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
 		"automattic/jetpack-my-jetpack": "1.0.x-dev",
-		"automattic/jetpack-options": "^1.14",
+		"automattic/jetpack-options": "^1.15",
 		"automattic/jetpack-search": "0.12.x-dev",
 		"automattic/jetpack-status": "^1.13",
 		"automattic/jetpack-sync": "1.30.x-dev",
