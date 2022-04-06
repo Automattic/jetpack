@@ -244,6 +244,7 @@ class WPCOM_Features {
 	public const ADVANCED_SEO                  = 'advanced-seo';
 	public const AKISMET                       = 'akismet';
 	public const ANTISPAM                      = 'antispam';
+	public const ARTIFICIAL_50GB_STORAGE_LIMIT = 'artificial-50gb-storage-limit';
 	public const ATOMIC                        = 'atomic';
 	public const BACKUPS                       = 'backups';
 	public const BACKUPS_DAILY                 = 'backups-daily';
@@ -294,6 +295,7 @@ class WPCOM_Features {
 	public const SIMPLE_PAYMENTS               = 'simple-payments';
 	public const SOCIAL_PREVIEWS               = 'social-previews';
 	public const SPACE                         = 'space';
+	public const SPACE_UPGRADED_STORAGE        = 'space-upgraded-storage';
 	public const SUPPORT                       = 'support';
 	public const UPGRADED_UPLOAD_FILETYPES     = 'upgraded_upload_filetypes';
 	public const UNLIMITED_THEMES              = 'unlimited_themes';
@@ -334,11 +336,18 @@ class WPCOM_Features {
 		self::AKISMET                       => array(
 			self::JETPACK_ALL_SITES,
 		),
-		self::ANTISPAM                        => array(
+		self::ANTISPAM                      => array(
 			self::JETPACK_ANTI_SPAM,
 			self::JETPACK_ANTI_SPAM_MONTHLY,
 			self::JETPACK_PERSONAL_AND_HIGHER,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+		/*
+		 * Temporary limit until the Pro plan storage is ready to be fully
+		 * implemented.
+		 */
+		self::ARTIFICIAL_50GB_STORAGE_LIMIT => array(
 			self::WPCOM_PRO_PLANS,
 		),
 		self::ATOMIC                        => array(
@@ -629,6 +638,24 @@ class WPCOM_Features {
 		),
 		self::SPACE                         => array(
 			self::WPCOM_ALL_SITES,
+		),
+		/*
+		 * Products that have upgraded storage space on WordPress.com, beyond
+		 * the bare minimum advertised for free sites. This list includes all
+		 * WordPress.com plans and space upgrade products.
+		 */
+		self::SPACE_UPGRADED_STORAGE        => array(
+			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
+			self::BUNDLE_SUPER,
+			self::BUNDLE_ENTERPRISE,
+			self::WP_P2_PLUS_MONTHLY,
+			self::SPACE_3GB,
+			self::SPACE_10GB,
+			self::SPACE_25GB,
+			self::SPACE_50GB,
+			self::SPACE_100GB,
+			self::SPACE_200GB,
+			self::SPACE_UNLIMITED,
 		),
 		// SUPPORT - Everybody needs somebody.
 		self::SUPPORT                       => array(
