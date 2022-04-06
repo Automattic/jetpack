@@ -1,8 +1,0 @@
-// Tells typescript and vscode where to look for projects within the monorepo.
-// Each project should have a jsconfig.json or tsconfig.json with config specific to that project.
-{
-	"compilerOptions": {
-		"composite": true
-	},
-	"references": [ "./projects/js-packages/*" ]
-}
