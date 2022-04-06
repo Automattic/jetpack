@@ -1,5 +1,4 @@
-<?php
-
+<?php // phpcs:disable
 /**
  * lessphp v0.5.0
  * https://leafo.net/lessphp

@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable
 /**
  * SCSS compiler written in PHP
  *
