@@ -57,9 +57,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-starter-plugin-plugin",
+		"mirror-repo": "Automattic/jetpack-starter-plugin",
 		"release-branch-prefix": "starter-plugin",
-		"wp-plugin-slug": "jetpack-starter-plugin"
+		"beta-plugin-slug": "jetpack-starter-plugin"
 	},
 	"config": {
 		"allow-plugins": {
