@@ -79,6 +79,7 @@ InterstitialJetpackBackup.args = {
 			pricing={ {
 				isFree: true,
 			} }
+			isCard={ true }
 		/>
 	),
 	secondary: (
