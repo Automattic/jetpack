@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"jsx": "react",
+		"baseUrl": ".",
+		"paths": {
+			// fallback to resolving imports relative to _inc/client
+			"*": [ "*", "./_inc/client/*" ],
+			// Since we are overriding paths here,
+			// we need to add root paths as well
+			"@automattic/jetpack-*": [ "../../js-packages/*" ]
+		}
+	},
+	"include": [ "./_inc" ],
+	"exclude": [
+		// internal directories to exclude
+		"**/build/*",
+		// exclude large (auto-generated) files
+		"_inc/blocks/*"
+	]
+}

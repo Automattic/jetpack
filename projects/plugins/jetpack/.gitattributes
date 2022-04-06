@@ -22,6 +22,7 @@
 # Remember to end all directories with `/**` to properly tag every file.
 .eslintrc.js                                             production-exclude
 .eslintignore                                            production-exclude
+jsconfig.json                                            production-exclude
 /.gitattributes                                          production-exclude
 /.gitignore                                              production-exclude
 /.phpcsignore                                            production-exclude
