@@ -15,21 +15,21 @@ import styles from './style.module.scss';
 /**
  * React component to render the price.
  *
- * @param {object} props          - Component props.
- * @param {string} props.value    - Product price
- * @param {string} props.currency - Product current code
- * @param {string} props.isOld    - True when the product price is old
- * @returns {object}                Price react component.
+ * @param {object} props                  - Component props.
+ * @param {string} props.price            - Product price.
+ * @param {string} props.currency         - Product current code.
+ * @param {boolean} props.showNotOffPrice - Show the not off price.
+ * @returns {object}                        Price react component.
  */
-export default function Price( { value, currency, isOld } ) {
-	if ( ! value || ! currency ) {
+export default function Price( { price, currency, showNotOffPrice } ) {
+	if ( ! price || ! currency ) {
 		return null;
 	}
 
-	const priceObject = getCurrencyObject( value, currency );
+	const priceObject = getCurrencyObject( price, currency );
 
 	const classNames = classnames( styles.price, {
-		[ styles[ 'is-old' ] ]: isOld,
+		[ styles[ 'is-off-price' ] ]: showNotOffPrice,
 	} );
 
 	return (
@@ -46,13 +46,15 @@ export default function Price( { value, currency, isOld } ) {
 }
 
 Price.propTypes = {
-	value: PropTypes.string,
 	currency: PropTypes.string,
-	isOld: PropTypes.bool,
+	price: PropTypes.string,
+	offPrice: PropTypes.string,
+	showNotOffPrice: PropTypes.bool,
 };
 
 Price.defaultProps = {
-	value: '',
 	currency: '',
-	isOld: false,
+	price: '',
+	offPrice: '',
+	showNotOffPrice: false,
 };
