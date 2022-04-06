@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
@@ -40,16 +40,15 @@ function ProductDetailCardHeader( { title = __( 'Popular upgrade', 'jetpack' ) }
  * @param {Array} props.supportedProducts - List of supported products.
  * @returns {React.Component}               Bundle product icons react component.
  */
-function BundleProductIcons( { supportedProducts } ) {
+function ProductIcons( { supportedProducts } ) {
 	return (
 		<div className={ styles[ 'product-bundle-icons' ] }>
 			{ supportedProducts.map( ( product, index ) => {
 				const ProductIcon = getIconBySlug( product );
 				return (
-					<>
-						<div key={ index * 2 }>
-							<ProductIcon size={ 24 } />
-						</div>
+					<Fragment key={ index }>
+						<ProductIcon size={ 24 } />
+
 						{ index !== supportedProducts.length - 1 && (
 							<Icon
 								className={ styles[ 'plus-icon' ] }
@@ -58,7 +57,7 @@ function BundleProductIcons( { supportedProducts } ) {
 								size={ 16 }
 							/>
 						) }
-					</>
+					</Fragment>
 				);
 			} ) }
 		</div>
@@ -110,7 +109,7 @@ const ProductDetailCard = ( {
 			{ isBundle && <ProductDetailCardHeader /> }
 
 			<div className={ styles[ 'card-container' ] }>
-				{ isBundle && <BundleProductIcons slug={ slug } supportedProducts={ supportedProducts } /> }
+				<ProductIcons slug={ slug } supportedProducts={ supportedProducts || [ slug ] } />
 				<H3>{ title }</H3>
 				<Text mb={ 3 }>{ description }</Text>
 			</div>
