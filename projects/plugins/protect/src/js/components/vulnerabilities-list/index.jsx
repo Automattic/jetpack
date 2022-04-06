@@ -42,7 +42,12 @@ const VulnerabilityItem = ( { name, version, vulnerabilities } ) => {
 		<Container fluid className={ styles.item }>
 			<Col lg={ 4 } className={ styles.name }>
 				<Text variant="title-small">{ name }</Text>
-				<Text variant="body-small">Version { version }</Text>
+				<Text variant="body-small">
+					{
+						/* translators: placeholder is version. */
+						sprintf( __( 'Version %s', 'jetpack-protect' ), version )
+					}
+				</Text>
 			</Col>
 			<Col lg={ 8 }>
 				{ vulnerabilities.map( vulnerability => (
