@@ -8,11 +8,11 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import ProductDetailCard from '../';
+import ProductDetail from '..';
 
 export default {
-	title: 'JS Packages/Components/Product Detail Card',
-	component: ProductDetailCard,
+	title: 'JS Packages/Components/Product Detail',
+	component: ProductDetail,
 	decorators: [ withMock ],
 	parameters: {
 		actions: { argTypesRegex: '^on.*' },
@@ -20,7 +20,7 @@ export default {
 	},
 };
 
-const Template = args => <ProductDetailCard { ...args } />;
+const Template = args => <ProductDetail { ...args } />;
 
 export const SecurityBundle = Template.bind( {} );
 SecurityBundle.parameters = {};

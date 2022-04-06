@@ -21,9 +21,9 @@ import Button from '../button/index.jsx';
  *
  * @param {object} props       - Component props.
  * @param {string} props.title - Product title.
- * @returns {React.Component}  ProductDetailCardHeader react component.
+ * @returns {React.Component}  ProductDetailHeader react component.
  */
-function ProductDetailCardHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
+function ProductDetailHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
 	return (
 		<div className={ styles[ 'card-header' ] }>
 			<Icon icon={ star } className={ styles[ 'product-bundle-icon' ] } size={ 24 } />
@@ -82,9 +82,9 @@ function ProductIcons( { products } ) {
  * @param {string} props.className        - A className to be concat with default ones.
  * @param {Function} props.onAdd          - Callback function to be executed on click on Add button.
  * @param {string} props.addProductUrl    - The checkout URL to add/buy the product.
- * @returns {React.Component}               ProductDetailCard react component. Optional.
+ * @returns {React.Component}               ProductDetail react component. Optional.
  */
-const ProductDetailCard = ( {
+const ProductDetail = ( {
 	className,
 	slug,
 	title,
@@ -107,7 +107,7 @@ const ProductDetailCard = ( {
 				[ styles[ 'is-bundle-card' ] ]: isBundle,
 			} ) }
 		>
-			{ isBundle && <ProductDetailCardHeader /> }
+			{ isBundle && <ProductDetailHeader /> }
 
 			<div className={ styles[ 'card-container' ] }>
 				<ProductIcons
@@ -159,7 +159,7 @@ const ProductDetailCard = ( {
 	);
 };
 
-ProductDetailCard.propTypes = {
+ProductDetail.propTypes = {
 	slug: PropTypes.string.isRequired,
 	name: PropTypes.string,
 	title: PropTypes.string,
@@ -176,7 +176,7 @@ ProductDetailCard.propTypes = {
 	addProductUrl: PropTypes.string,
 };
 
-ProductDetailCard.defaultProps = {
+ProductDetail.defaultProps = {
 	trackButtonClick: () => {},
 	isBundle: false,
 	pricing: {},
@@ -184,4 +184,4 @@ ProductDetailCard.defaultProps = {
 	isLoading: false,
 };
 
-export default ProductDetailCard;
+export default ProductDetail;
