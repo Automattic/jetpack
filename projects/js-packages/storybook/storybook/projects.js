@@ -7,6 +7,7 @@ const projects = [
 	'../../connection/components',
 	'../../idc/components',
 	'../../../packages/my-jetpack/_inc/components',
+	'../../../plugins/protect/src/js/components',
 ];
 
 module.exports = projects.map( project => path.join( __dirname, project ) );

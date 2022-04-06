@@ -35,7 +35,7 @@ class DashProtect extends Component {
 	connect = () => this.props.connectUser();
 
 	getContent() {
-		const labelName = __( 'Protect', 'jetpack' );
+		const labelName = __( 'Brute force protection', 'jetpack' );
 		const support = {
 			text: __(
 				'Protects your site from traditional and distributed brute force login attacks.',

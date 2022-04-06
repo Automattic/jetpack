@@ -3,11 +3,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import restApi from '@automattic/jetpack-api';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import { getSiteAdminUrl } from 'state/initial-state';
+import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
 
@@ -40,6 +41,22 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				displayName: __( 'Site Accelerator', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=cdn',
+			};
+		case 'publicize':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Social Media Sharing', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: getRedirectUrl( 'calypso-marketing-connections', {
+					site: getSiteRawUrl( state ),
+				} ),
+			};
+		case 'videopress':
+			return {
+				configureButtonLabel: __( 'How To', 'jetpack' ),
+				displayName: __( 'VideoPress', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
 			};
 		case 'woocommerce':
 			return {
@@ -88,6 +105,18 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 							'tiled-gallery': true,
 						} )
 					);
+				},
+			};
+		case 'publicize':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { publicize: true } ) );
+				},
+			};
+		case 'videopress':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { videopress: true } ) );
 				},
 			};
 		case 'woocommerce':
@@ -159,6 +188,36 @@ export const getStepContent = stepSlug => {
 				descriptionLink: 'https://jetpack.com/support/site-accelerator/',
 				ctaText: __( 'Enable Site Accelerator', 'jetpack' ),
 				illustrationPath: '/recommendations/site-accelerator-illustration.svg',
+			};
+		case 'publicize':
+			return {
+				question: __(
+					'Automatically share your posts to social media to grow your audience.',
+					'jetpack'
+				),
+				description: __(
+					'It’s easy to share your content to a wider audience by connecting your social media accounts to Jetpack. When you publish a post, it will automatically appear on all your favorite platforms. Best of all, it’s free. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: getRedirectUrl( 'jetpack-blog-social-sharing' ),
+				ctaText: __( 'Enable Social Media Sharing', 'jetpack' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
+			};
+		case 'videopress':
+			return {
+				question: __(
+					'Share videos on your site to increase engagement and purchases.',
+					'jetpack'
+				),
+				description: __(
+					'No matter your business, adding videos to your site is essential for success. Jetpack VideoPress offers HD, ad-free video hosting, so you can keep the focus on your content. Try it for free or upgrade for more space. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: getRedirectUrl( 'jetpack-videopress' ),
+				ctaText: __( 'Try VideoPress for free', 'jetpack' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
 			};
 		case 'woocommerce':
 			return {
