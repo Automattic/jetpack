@@ -39,6 +39,7 @@ declare global {
 		showRatingPromptNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
+			domain: string;
 			url: string;
 			online: boolean;
 			assetPath: string;
