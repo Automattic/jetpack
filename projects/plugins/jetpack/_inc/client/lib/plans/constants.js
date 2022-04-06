@@ -16,6 +16,7 @@ export const PLAN_PREMIUM_MONTHLY = 'value_bundle-monthly';
 export const PLAN_PERSONAL = 'personal-bundle';
 export const PLAN_PERSONAL_2_YEARS = 'personal-bundle-2y';
 export const PLAN_PERSONAL_MONTHLY = 'personal-bundle-monthly';
+export const PLAN_PRO = 'pro-plan';
 export const PLAN_FREE = 'free_plan';
 export const PLAN_JETPACK_FREE = 'jetpack_free';
 export const PLAN_JETPACK_PREMIUM = 'jetpack_premium';
@@ -124,6 +125,7 @@ export const JETPACK_SECURITY_BUNDLES = [
 	PLAN_ECOMMERCE,
 	PLAN_ECOMMERCE_2_YEARS,
 	PLAN_ECOMMERCE_MONTHLY,
+	PLAN_PRO,
 
 	// VIP.
 	PLAN_VIP,
@@ -356,6 +358,7 @@ export function getPlanClass( plan ) {
 		case PLAN_ECOMMERCE:
 		case PLAN_ECOMMERCE_2_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
+		case PLAN_PRO:
 			return 'is-business-plan';
 		case PLAN_JETPACK_SECURITY_T1_YEARLY:
 		case PLAN_JETPACK_SECURITY_T1_MONTHLY:

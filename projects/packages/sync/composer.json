@@ -11,7 +11,7 @@
 		"automattic/jetpack-options": "^1.14",
 		"automattic/jetpack-password-checker": "^0.2",
 		"automattic/jetpack-roles": "^1.4",
-		"automattic/jetpack-status": "^1.12"
+		"automattic/jetpack-status": "^1.13"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0",

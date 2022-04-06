@@ -107,16 +107,14 @@ class ThemeEnhancements extends React.Component {
 
 	render() {
 		const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
-			foundCustomCSS = this.props.isModuleFound( 'custom-css' ),
-			foundGoogleFonts = this.props.isModuleFound( 'google-fonts' );
+			foundCustomCSS = this.props.isModuleFound( 'custom-css' );
 
-		if ( ! foundInfiniteScroll && ! foundCustomCSS && ! foundGoogleFonts ) {
+		if ( ! foundInfiniteScroll && ! foundCustomCSS ) {
 			return null;
 		}
 
 		const infScr = this.props.getModule( 'infinite-scroll' );
 		const customCSS = this.props.getModule( 'custom-css' );
-		const googleFonts = this.props.getModule( 'google-fonts' );
 
 		const infiniteScrollDisabledByOverride =
 			'inactive' === this.props.getModuleOverride( 'infinite-scroll' );
@@ -216,27 +214,6 @@ class ThemeEnhancements extends React.Component {
 						</ModuleToggle>
 					</SettingsGroup>
 				) }
-				{ foundGoogleFonts && this.props.isWebfontsSupported && (
-					<SettingsGroup
-						module={ { module: googleFonts.module } }
-						support={ {
-							text: googleFonts.description,
-							link: getRedirectUrl( 'jetpack-support-google-fonts' ),
-						} }
-					>
-						<ModuleToggle
-							slug="google-fonts"
-							activated={ !! this.props.getOptionValue( 'google-fonts' ) }
-							toggling={ this.props.isSavingAnyOption( [ 'google-fonts' ] ) }
-							disabled={ this.props.isSavingAnyOption( [ 'google-fonts' ] ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Use Google Fonts in your block enabled theme', 'jetpack' ) }
-							</span>
-						</ModuleToggle>
-					</SettingsGroup>
-				) }
 			</SettingsCard>
 		);
 	}
@@ -247,6 +224,5 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		isInfiniteScrollSupported: currentThemeSupports( state, 'infinite-scroll' ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
-		isWebfontsSupported: currentThemeSupports( state, 'webfonts' ),
 	};
 } )( withModuleSettingsFormHelpers( ThemeEnhancements ) );
