@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Status;
 
 /**
@@ -112,6 +113,7 @@ class Jetpack_Protect {
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'status'            => Status::get_status(),
+			'installedPlugins'  => Plugins_Installer::get_plugins(),
 		);
 	}
 
