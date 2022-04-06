@@ -31,6 +31,7 @@ const Button = ( {
 	isLoading,
 	className: propsClassName,
 	text,
+	...componentProps
 } ) => {
 	const className = classNames( styles.button, {
 		[ styles.normal ]: size === BUTTON_SIZES.NORMAL,
@@ -42,9 +43,11 @@ const Button = ( {
 	const isExternalLink = variant === BUTTON_VARIANTS.EXTERNAL_LINK;
 	const externalIconSize = size === BUTTON_SIZES.NORMAL ? 20 : 16;
 	const externalIcon = isExternalLink && <Icon size={ externalIconSize } icon={ external } />;
+	const externalTarget = isExternalLink ? '_blank' : undefined;
 
 	return (
 		<WPButton
+			target={ externalTarget }
 			variant={ isExternalLink ? 'link' : variant }
 			className={ className }
 			icon={ icon }
@@ -52,6 +55,7 @@ const Button = ( {
 			disabled={ disabled }
 			isDestructive={ isDestructive }
 			text={ text }
+			{ ...componentProps }
 		>
 			{ isLoading ? (
 				<Spinner />
