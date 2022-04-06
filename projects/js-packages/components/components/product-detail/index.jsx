@@ -74,6 +74,7 @@ function ProductIcons( { products } ) {
  * @param {string} props.title 			  - Product title.
  * @param {string} props.description      - Product description.
  * @param {Array}  props.features         - Features list of the product.
+ * @param {boolean} props.isCard          - Add the styles to look like a card.
  * @param {boolean} props.isBundle        - Whether or not the product is a bundle.
  * @param {Array} props.supportedProducts - List of supported products (for bundles).
  * @param {Object} props.pricing 	      - Product Pricing object.
@@ -90,6 +91,7 @@ const ProductDetail = ( {
 	title,
 	description,
 	features,
+	isCard,
 	isBundle,
 	supportedProducts,
 	pricing,
@@ -105,6 +107,7 @@ const ProductDetail = ( {
 		<div
 			className={ classnames( styles.wrapper, className, {
 				[ styles[ 'is-bundle-card' ] ]: isBundle,
+				[ styles[ 'is-card' ] ]: isCard || isBundle, // is card when is bundle.
 			} ) }
 		>
 			{ isBundle && <ProductDetailHeader /> }
@@ -166,6 +169,7 @@ ProductDetail.propTypes = {
 	description: PropTypes.string,
 	features: PropTypes.arrayOf( PropTypes.string ),
 	pricing: PropTypes.object,
+	isCard: PropTypes.bool,
 	isBundle: PropTypes.bool,
 	supportedProducts: PropTypes.arrayOf( PropTypes.string ),
 	className: PropTypes.string,
