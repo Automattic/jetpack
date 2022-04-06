@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import { Container, Col } from '@automattic/jetpack-components';
 
 /**
@@ -16,15 +17,28 @@ import styles from './style.module.scss';
  * @param {object} props                    - Component props.
  * @param {React.Component} props.primary   - Primary content.
  * @param {React.Component} props.secondary - Secondary content.
+ * @param {boolean} props.split			    - Split the sections.
  * @returns {object}                          Dialog react component.
  */
-export default function Dialog( { primary, secondary } ) {
+export default function Dialog( { primary, secondary, split } ) {
+	const classNames = classnames( {
+		[ styles.container ]: ! split,
+	} );
+
+	const primaryClassNames = classnames( styles.primary, {
+		[ styles.container ]: split,
+	} );
+
+	const secondaryClassNames = classnames( styles.secondary, {
+		[ styles.container ]: split,
+	} );
+
 	return (
-		<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
-			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.primary }>
+		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
+			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ primaryClassNames }>
 				{ primary }
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.secondary }>
+			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ secondaryClassNames }>
 				{ secondary }
 			</Col>
 		</Container>
@@ -34,9 +48,11 @@ export default function Dialog( { primary, secondary } ) {
 Dialog.propTypes = {
 	primary: PropTypes.ReactNode,
 	secondary: PropTypes.ReactNode,
+	split: PropTypes.bool,
 };
 
 Dialog.defaultProps = {
 	primary: null,
 	secondary: null,
+	split: false,
 };
