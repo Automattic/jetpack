@@ -11,6 +11,10 @@ window._tkq = window._tkq || [];
 var _user;
 var debug = console.error; // eslint-disable-line no-console
 
+/**
+ * @param group
+ * @param name
+ */
 function buildQuerystring( group, name ) {
 	var uriComponent = '';
 

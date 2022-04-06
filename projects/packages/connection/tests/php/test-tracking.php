@@ -2,7 +2,7 @@
 /**
  * Tests for Automattic\Jetpack\Tracking methods
  *
- * @package automattic/jetpack-tracking
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack;

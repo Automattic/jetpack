@@ -8,7 +8,6 @@
 		"automattic/jetpack-assets": "^1.17",
 		"automattic/jetpack-connection": "^1.37",
 		"automattic/jetpack-plugins-installer": "^0.1",
-		"automattic/jetpack-tracking": "^1.14",
 		"automattic/jetpack-redirect": "^1.7"
 	},
 	"require-dev": {
