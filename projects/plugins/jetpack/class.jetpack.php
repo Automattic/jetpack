@@ -18,11 +18,16 @@ use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Errors;
+use Automattic\Jetpack\Files;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -588,69 +593,7 @@ class Jetpack {
 	 * @return $success bool true for success, false for failure.
 	 */
 	public static function update_active_modules( $modules ) {
-		$current_modules      = Jetpack_Options::get_option( 'active_modules', array() );
-		$active_modules       = self::get_active_modules();
-		$new_active_modules   = array_diff( $modules, $current_modules );
-		$new_inactive_modules = array_diff( $active_modules, $modules );
-		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_inactive_modules );
-		$reindexed_modules    = array_values( $new_current_modules );
-		$success              = Jetpack_Options::update_option( 'active_modules', array_unique( $reindexed_modules ) );
-		// Let's take `pre_update_option_jetpack_active_modules` filter into account
-		// and actually decide for which modules we need to fire hooks by comparing
-		// the 'active_modules' option before and after the update.
-		$current_modules_post_update = Jetpack_Options::get_option( 'active_modules', array() );
-
-		$new_inactive_modules = array_diff( $current_modules, $current_modules_post_update );
-		$new_inactive_modules = array_unique( $new_inactive_modules );
-		$new_inactive_modules = array_values( $new_inactive_modules );
-
-		$new_active_modules = array_diff( $current_modules_post_update, $current_modules );
-		$new_active_modules = array_unique( $new_active_modules );
-		$new_active_modules = array_values( $new_active_modules );
-
-		foreach ( $new_active_modules as $module ) {
-			/**
-			 * Fires when a specific module is activated.
-			 *
-			 * @since 1.9.0
-			 *
-			 * @param string $module Module slug.
-			 * @param boolean $success whether the module was activated. @since 4.2
-			 */
-			do_action( 'jetpack_activate_module', $module, $success );
-			/**
-			 * Fires when a module is activated.
-			 * The dynamic part of the filter, $module, is the module slug.
-			 *
-			 * @since 1.9.0
-			 *
-			 * @param string $module Module slug.
-			 */
-			do_action( "jetpack_activate_module_$module", $module );
-		}
-
-		foreach ( $new_inactive_modules as $module ) {
-			/**
-			 * Fired after a module has been deactivated.
-			 *
-			 * @since 4.2.0
-			 *
-			 * @param string $module Module slug.
-			 * @param boolean $success whether the module was deactivated.
-			 */
-			do_action( 'jetpack_deactivate_module', $module, $success );
-			/**
-			 * Fires when a module is deactivated.
-			 * The dynamic part of the filter, $module, is the module slug.
-			 *
-			 * @since 1.9.0
-			 *
-			 * @param string $module Module slug.
-			 */
-			do_action( "jetpack_deactivate_module_$module", $module );
-		}
-
-		return $success;
+		return ( new Modules() )->update_active( $modules );
 	}
 
 	/**
@@ -902,6 +845,7 @@ class Jetpack {
 		);
 
 		$config->ensure( 'search' );
+		$config->ensure( 'wordads' );
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
@@ -1674,7 +1618,7 @@ class Jetpack {
 	 * @return bool True if the site is currently onboarding, false otherwise
 	 */
 	public static function is_onboarding() {
-		return Jetpack_Options::get_option( 'onboarding' ) !== false;
+		return ( new Status() )->is_onboarding();
 	}
 
 	/**
@@ -1828,11 +1772,11 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
-		$is_offline_mode = ( new Status() )->is_offline_mode();
+		$status = new Status();
 		if (
 			! self::is_connection_ready()
-			&& ! $is_offline_mode
-			&& ! self::is_onboarding()
+			&& ! $status->is_offline_mode()
+			&& ! $status->is_onboarding()
 			&& (
 				! is_multisite()
 				|| ! get_site_option( 'jetpack_protect_active' )
@@ -1882,13 +1826,13 @@ class Jetpack {
 
 		foreach ( $modules as $index => $module ) {
 			// If we're in offline/site-connection mode, disable modules requiring a connection/user connection.
-			if ( $is_offline_mode || $is_site_connection ) {
+			if ( $status->is_offline_mode() || $is_site_connection ) {
 				// Prime the pump if we need to.
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = self::get_module( $module );
 				}
 				// If the module requires a connection, but we're in local mode, don't include it.
-				if ( $is_offline_mode && $modules_data[ $module ]['requires_connection'] ) {
+				if ( $status->is_offline_mode() && $modules_data[ $module ]['requires_connection'] ) {
 					continue;
 				}
 
@@ -2144,34 +2088,7 @@ class Jetpack {
 	 * @return array Array of absolute paths to the PHP files.
 	 */
 	public static function glob_php( $absolute_path ) {
-		if ( function_exists( 'glob' ) ) {
-			return glob( "$absolute_path/*.php" );
-		}
-
-		$absolute_path = untrailingslashit( $absolute_path );
-		$files         = array();
-		$dir           = @opendir( $absolute_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		if ( ! $dir ) {
-			return $files;
-		}
-
-		while ( false !== $file = readdir( $dir ) ) {
-			if ( '.' == substr( $file, 0, 1 ) || '.php' != substr( $file, -4 ) ) {
-				continue;
-			}
-
-			$file = "$absolute_path/$file";
-
-			if ( ! is_file( $file ) ) {
-				continue;
-			}
-
-			$files[] = $file;
-		}
-
-		closedir( $dir );
-
-		return $files;
+		return ( new Files() )->glob_php( $absolute_path );
 	}
 
 	/**
@@ -2255,79 +2172,7 @@ class Jetpack {
 	 * @return array $modules Array of module slugs
 	 */
 	public static function get_available_modules( $min_version = false, $max_version = false, $requires_connection = null, $requires_user_connection = null ) {
-		static $modules = null;
-
-		if ( ! isset( $modules ) ) {
-			$available_modules_option = Jetpack_Options::get_option( 'available_modules', array() );
-			// Use the cache if we're on the front-end and it's available...
-			if ( ! is_admin() && ! empty( $available_modules_option[ JETPACK__VERSION ] ) ) {
-				$modules = $available_modules_option[ JETPACK__VERSION ];
-			} else {
-				$files = self::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
-
-				$modules = array();
-
-				foreach ( $files as $file ) {
-					$slug    = self::get_module_slug( $file );
-					$headers = self::get_module( $slug );
-
-					if ( ! $headers ) {
-						continue;
-					}
-
-					$modules[ $slug ] = $headers['introduced'];
-				}
-
-				Jetpack_Options::update_option(
-					'available_modules',
-					array(
-						JETPACK__VERSION => $modules,
-					)
-				);
-			}
-		}
-
-		/**
-		 * Filters the array of modules available to be activated.
-		 *
-		 * @since 2.4.0
-		 *
-		 * @param array $modules Array of available modules.
-		 * @param string $min_version Minimum version number required to use modules.
-		 * @param string $max_version Maximum version number required to use modules.
-		 * @param bool|null $requires_connection Value of the Requires Connection filter.
-		 * @param bool|null $requires_user_connection Value of the Requires User Connection filter.
-		 */
-		$mods = apply_filters( 'jetpack_get_available_modules', $modules, $min_version, $max_version, $requires_connection, $requires_user_connection );
-
-		if ( ! $min_version && ! $max_version && is_null( $requires_connection ) && is_null( $requires_user_connection ) ) {
-			return array_keys( $mods );
-		}
-
-		$r = array();
-		foreach ( $mods as $slug => $introduced ) {
-			if ( $min_version && version_compare( $min_version, $introduced, '>=' ) ) {
-				continue;
-			}
-
-			if ( $max_version && version_compare( $max_version, $introduced, '<' ) ) {
-				continue;
-			}
-
-			$mod_details = self::get_module( $slug );
-
-			if ( null !== $requires_connection && (bool) $requires_connection !== $mod_details['requires_connection'] ) {
-				continue;
-			}
-
-			if ( null !== $requires_user_connection && (bool) $requires_user_connection !== $mod_details['requires_user_connection'] ) {
-				continue;
-			}
-
-			$r[] = $slug;
-		}
-
-		return $r;
+		return ( new Modules() )->get_available( $min_version, $max_version, $requires_connection, $requires_user_connection );
 	}
 
 	/**
@@ -2463,7 +2308,7 @@ class Jetpack {
 	 * @return string Module slug.
 	 */
 	public static function get_module_slug( $file ) {
-		return str_replace( '.php', '', basename( $file ) );
+		return ( new Modules() )->get_slug( $file );
 	}
 
 	/**
@@ -2472,15 +2317,7 @@ class Jetpack {
 	 * @param string $slug Module slug.
 	 */
 	public static function get_module_path( $slug ) {
-		/**
-		 * Filters the path of a modules.
-		 *
-		 * @since 7.4.0
-		 *
-		 * @param array $return The absolute path to a module's root php file
-		 * @param string $slug The module slug
-		 */
-		return apply_filters( 'jetpack_get_module_path', JETPACK__PLUGIN_DIR . "modules/$slug.php", $slug );
+		return ( new Modules() )->get_path( $slug );
 	}
 
 	/**
@@ -2491,97 +2328,7 @@ class Jetpack {
 	 * @param string $module The module slug.
 	 */
 	public static function get_module( $module ) {
-		static $modules_details;
-
-		if ( jetpack_has_no_module_info( $module ) ) {
-			return false;
-		}
-
-		$file = self::get_module_path( self::get_module_slug( $module ) );
-
-		if ( isset( $modules_details[ $module ] ) ) {
-			$mod = $modules_details[ $module ];
-		} else {
-			$mod = jetpack_get_module_info( $module );
-
-			if ( null === $mod ) {
-				// Try to get the module info from the file as a fallback.
-				$mod = self::get_file_data( $file, jetpack_get_all_module_header_names() );
-
-				if ( empty( $mod['name'] ) ) {
-					// No info for this module.
-					return false;
-				}
-			}
-
-			$mod['sort']                     = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
-			$mod['recommendation_order']     = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
-			$mod['deactivate']               = empty( $mod['deactivate'] );
-			$mod['free']                     = empty( $mod['free'] );
-			$mod['requires_connection']      = ( ! empty( $mod['requires_connection'] ) && 'No' === $mod['requires_connection'] ) ? false : true;
-			$mod['requires_user_connection'] = ( empty( $mod['requires_user_connection'] ) || 'No' === $mod['requires_user_connection'] ) ? false : true;
-
-			if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ), true ) ) {
-				$mod['auto_activate'] = 'No';
-			} else {
-				$mod['auto_activate'] = (string) $mod['auto_activate'];
-			}
-
-			if ( $mod['module_tags'] ) {
-				$mod['module_tags'] = explode( ',', $mod['module_tags'] );
-				$mod['module_tags'] = array_map( 'trim', $mod['module_tags'] );
-				$mod['module_tags'] = array_map( array( __CLASS__, 'translate_module_tag' ), $mod['module_tags'] );
-			} else {
-				$mod['module_tags'] = array( self::translate_module_tag( 'Other' ) );
-			}
-
-			if ( $mod['plan_classes'] ) {
-				$mod['plan_classes'] = explode( ',', $mod['plan_classes'] );
-				$mod['plan_classes'] = array_map( 'strtolower', array_map( 'trim', $mod['plan_classes'] ) );
-			} else {
-				$mod['plan_classes'] = array( 'free' );
-			}
-
-			if ( $mod['feature'] ) {
-				$mod['feature'] = explode( ',', $mod['feature'] );
-				$mod['feature'] = array_map( 'trim', $mod['feature'] );
-			} else {
-				$mod['feature'] = array( self::translate_module_tag( 'Other' ) );
-			}
-
-			$modules_details[ $module ] = $mod;
-
-		}
-
-		/**
-		 * Filters the feature array on a module.
-		 *
-		 * This filter allows you to control where each module is filtered: Recommended,
-		 * and the default "Other" listing.
-		 *
-		 * @since 3.5.0
-		 *
-		 * @param array   $mod['feature'] The areas to feature this module:
-		 *     'Recommended' shows on the main Jetpack admin screen.
-		 *     'Other' should be the default if no other value is in the array.
-		 * @param string  $module The slug of the module, e.g. sharedaddy.
-		 * @param array   $mod All the currently assembled module data.
-		 */
-		$mod['feature'] = apply_filters( 'jetpack_module_feature', $mod['feature'], $module, $mod );
-
-		/**
-		 * Filter the returned data about a module.
-		 *
-		 * This filter allows overriding any info about Jetpack modules. It is dangerous,
-		 * so please be careful.
-		 *
-		 * @since 3.6.0
-		 *
-		 * @param array   $mod    The details of the requested module.
-		 * @param string  $module The slug of the module, e.g. sharedaddy
-		 * @param string  $file   The path to the module source file.
-		 */
-		return apply_filters( 'jetpack_get_module', $mod, $module, $file );
+		return ( new Modules() )->get( $module );
 	}
 
 	/**
@@ -2591,37 +2338,7 @@ class Jetpack {
 	 * @param array  $headers List of headers, in the format array( 'HeaderKey' => 'Header Name' ).
 	 */
 	public static function get_file_data( $file, $headers ) {
-		// Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated.
-		$file_name = basename( $file );
-
-		$cache_key = 'jetpack_file_data_' . JETPACK__VERSION;
-
-		$file_data_option = get_transient( $cache_key );
-
-		if ( ! is_array( $file_data_option ) ) {
-			delete_transient( $cache_key );
-			$file_data_option = false;
-		}
-
-		if ( false === $file_data_option ) {
-			$file_data_option = array();
-		}
-
-		$key           = md5( $file_name . serialize( $headers ) );
-		$refresh_cache = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
-
-		// If we don't need to refresh the cache, and already have the value, short-circuit!
-		if ( ! $refresh_cache && isset( $file_data_option[ $key ] ) ) {
-			return $file_data_option[ $key ];
-		}
-
-		$data = get_file_data( $file, $headers );
-
-		$file_data_option[ $key ] = $data;
-
-		set_transient( $cache_key, $file_data_option, 29 * DAY_IN_SECONDS );
-
-		return $data;
+		return ( new Modules() )->get_file_data( $file, $headers );
 	}
 
 	/**
@@ -2662,36 +2379,7 @@ class Jetpack {
 	 * Get a list of activated modules as an array of module slugs.
 	 */
 	public static function get_active_modules() {
-		$active = Jetpack_Options::get_option( 'active_modules' );
-
-		if ( ! is_array( $active ) ) {
-			$active = array();
-		}
-
-		if ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) {
-			$active[] = 'vaultpress';
-		} else {
-			$active = array_diff( $active, array( 'vaultpress' ) );
-		}
-
-		// If protect is active on the main site of a multisite, it should be active on all sites.
-		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
-			$active[] = 'protect';
-		}
-
-		/**
-		 * Allow filtering of the active modules.
-		 *
-		 * Gives theme and plugin developers the power to alter the modules that
-		 * are activated on the fly.
-		 *
-		 * @since 5.8.0
-		 *
-		 * @param array $active Array of active module slugs.
-		 */
-		$active = apply_filters( 'jetpack_active_modules', $active );
-
-		return array_unique( $active );
+		return ( new Modules() )->get_active();
 	}
 
 	/**
@@ -2703,7 +2391,7 @@ class Jetpack {
 	 * @static
 	 */
 	public static function is_module_active( $module ) {
-		return in_array( $module, self::get_active_modules() );
+		return ( new Modules() )->is_active( $module );
 	}
 
 	/**
@@ -2714,7 +2402,7 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function is_module( $module ) {
-		return ! empty( $module ) && ! validate_file( $module, self::get_available_modules() );
+		return ( new Modules() )->is_module( $module );
 	}
 
 	/**
@@ -2725,17 +2413,7 @@ class Jetpack {
 	 * @static
 	 */
 	public static function catch_errors( $catch ) {
-		static $display_errors, $error_reporting;
-
-		if ( $catch ) {
-			$display_errors  = @ini_set( 'display_errors', 1 );
-			$error_reporting = @error_reporting( E_ALL );
-			add_action( 'shutdown', array( 'Jetpack', 'catch_errors_on_shutdown' ), 0 );
-		} else {
-			@ini_set( 'display_errors', $display_errors );
-			@error_reporting( $error_reporting );
-			remove_action( 'shutdown', array( 'Jetpack', 'catch_errors_on_shutdown' ), 0 );
-		}
+		return ( new Errors() )->catch_errors( $catch );
 	}
 
 	/**
@@ -2961,96 +2639,7 @@ class Jetpack {
 	 * @return bool|void
 	 */
 	public static function activate_module( $module, $exit = true, $redirect = true ) {
-		/**
-		 * Fires before a module is activated.
-		 *
-		 * @since 2.6.0
-		 *
-		 * @param string $module Module slug.
-		 * @param bool $exit Should we exit after the module has been activated. Default to true.
-		 * @param bool $redirect Should the user be redirected after module activation? Default to true.
-		 */
-		do_action( 'jetpack_pre_activate_module', $module, $exit, $redirect );
-
-		$jetpack = self::init();
-
-		if ( ! strlen( $module ) ) {
-			return false;
-		}
-
-		if ( ! self::is_module( $module ) ) {
-			return false;
-		}
-
-		// If it's already active, then don't do it again.
-		$active = self::get_active_modules();
-		foreach ( $active as $act ) {
-			if ( $act == $module ) {
-				return true;
-			}
-		}
-
-		$module_data = self::get_module( $module );
-
-		$is_offline_mode = ( new Status() )->is_offline_mode();
-		if ( ! self::is_connection_ready() ) {
-			if ( ! $is_offline_mode && ! self::is_onboarding() ) {
-				return false;
-			}
-
-			// If we're not connected but in offline mode, make sure the module doesn't require a connection.
-			if ( $is_offline_mode && $module_data['requires_connection'] ) {
-				return false;
-			}
-		}
-
-		// Check and see if the old plugin is active.
-		if ( isset( $jetpack->plugins_to_deactivate[ $module ] ) ) {
-			// Deactivate the old plugin.
-			if ( Jetpack_Client_Server::deactivate_plugin( $jetpack->plugins_to_deactivate[ $module ][0], $jetpack->plugins_to_deactivate[ $module ][1] ) ) {
-				// If we deactivated the old plugin, remembere that with ::state() and redirect back to this page to activate the module
-				// We can't activate the module on this page load since the newly deactivated old plugin is still loaded on this page load.
-				self::state( 'deactivated_plugins', $module );
-				wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
-				exit;
-			}
-		}
-
-		// Protect won't work with mis-configured IPs.
-		if ( 'protect' === $module ) {
-			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-			if ( ! jetpack_protect_get_ip() ) {
-				self::state( 'message', 'protect_misconfigured_ip' );
-				return false;
-			}
-		}
-
-		if ( ! Jetpack_Plan::supports( $module ) ) {
-			return false;
-		}
-
-		// Check the file for fatal errors, a la wp-admin/plugins.php::activate.
-		self::state( 'module', $module );
-		self::state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error.
-
-		self::catch_errors( true );
-		ob_start();
-		require self::get_module_path( $module ); // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-
-		$active[] = $module;
-		self::update_active_modules( $active );
-
-		self::state( 'error', false ); // the override.
-		ob_end_clean();
-		self::catch_errors( false );
-
-		if ( $redirect ) {
-			wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
-		}
-		if ( $exit ) {
-			exit;
-		}
-		return true;
+		return ( new Modules() )->activate( $module, $exit, $redirect );
 	}
 
 	/**
@@ -3061,22 +2650,7 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function deactivate_module( $module ) {
-		/**
-		 * Fires when a module is deactivated.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param string $module Module slug.
-		 * @param bool $redirect Should there be a redirection after deactivation.
-		 */
-		do_action( 'jetpack_pre_deactivate_module', $module, true );
-
-		$jetpack = self::init();
-
-		$active = self::get_active_modules();
-		$new    = array_filter( array_diff( $active, (array) $module ) );
-
-		return self::update_active_modules( $new );
+		return ( new Modules() )->deactivate( $module );
 	}
 
 	/**
@@ -5139,9 +4713,7 @@ endif;
 	 * @return string Jetpack admin URL.
 	 */
 	public static function admin_url( $args = null ) {
-		$args = wp_parse_args( $args, array( 'page' => 'jetpack' ) );
-		$url  = add_query_arg( $args, admin_url( 'admin.php' ) );
-		return $url;
+		return ( new Paths() )->admin_url( $args );
 	}
 
 	/**
@@ -5571,61 +5143,7 @@ endif;
 	 * @param bool   $restate Reset the cookie (private).
 	 */
 	public static function state( $key = null, $value = null, $restate = false ) {
-		static $state = array();
-		static $path, $domain;
-		if ( ! isset( $path ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			$admin_url = self::admin_url();
-			$bits      = wp_parse_url( $admin_url );
-
-			if ( is_array( $bits ) ) {
-				$path   = ( isset( $bits['path'] ) ) ? dirname( $bits['path'] ) : null;
-				$domain = ( isset( $bits['host'] ) ) ? $bits['host'] : null;
-			} else {
-				$path   = null;
-				$domain = null;
-			}
-		}
-
-		// Extract state from cookies and delete cookies.
-		if ( isset( $_COOKIE['jetpackState'] ) && is_array( $_COOKIE['jetpackState'] ) ) {
-			$yum = wp_unslash( $_COOKIE['jetpackState'] );
-			unset( $_COOKIE['jetpackState'] );
-			foreach ( $yum as $k => $v ) {
-				if ( strlen( $v ) ) {
-					$state[ $k ] = $v;
-				}
-				setcookie( "jetpackState[$k]", false, 0, $path, $domain );
-			}
-		}
-
-		if ( $restate ) {
-			foreach ( $state as $k => $v ) {
-				setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
-			}
-			return;
-		}
-
-		// Get a state variable.
-		if ( isset( $key ) && ! isset( $value ) ) {
-			if ( array_key_exists( $key, $state ) ) {
-				return $state[ $key ];
-			}
-			return null;
-		}
-
-		// Set a state variable.
-		if ( isset( $key ) && isset( $value ) ) {
-			if ( is_array( $value ) && isset( $value[0] ) ) {
-				$value = $value[0];
-			}
-			$state[ $key ] = $value;
-			if ( ! headers_sent() ) {
-				if ( self::should_set_cookie( $key ) ) {
-					setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
-				}
-			}
-		}
+		return ( new CookieState() )->state( $key, $value, $restate );
 	}
 
 	/**
@@ -5646,14 +5164,7 @@ endif;
 	 * @return boolean Whether the value should be added to the cookie.
 	 */
 	public static function should_set_cookie( $key ) {
-		global $current_screen;
-		$page = isset( $current_screen->base ) ? $current_screen->base : null;
-
-		if ( 'toplevel_page_jetpack' === $page && 'display_update_modal' === $key ) {
-			return false;
-		}
-
-		return true;
+		return ( new CookieState() )->should_set_cookie( $key );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: ensure the form's input fields inherit a default font size.
