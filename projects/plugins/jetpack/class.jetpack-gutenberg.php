@@ -705,7 +705,7 @@ class Jetpack_Gutenberg {
 					/**
 					 * Enable Pocket Casts block variation in block editor context.
 					 *
-					 * @since $$next-version$$
+					 * @since 10.9
 					 *
 					 * @param bool true Enable Pocket Casts block variation in block editor context. Defaults to false.
 					 */
