@@ -28,7 +28,9 @@ register_activation_hook(
 add_action(
 	'plugin_loaded',
 	function () {
-		Waf_Runner::update();
+		if ( Waf_Runner::has_version_changed() ) {
+			Waf_Runner::update();
+		}
 		require_once __DIR__ . '/run.php';
 	}
 );

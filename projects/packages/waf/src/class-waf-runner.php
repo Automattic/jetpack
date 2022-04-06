@@ -147,7 +147,7 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Updates the rules.php if the version has been updated
+	 * Updates the rules.php and the version in site DB
 	 *
 	 * @return void
 	 */
@@ -156,11 +156,18 @@ class Waf_Runner {
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
+		update_option( self::VERSION_OPTION_NAME, self::JETPACK_WAF_VERSION );
+		self::generate_rules();
+	}
+
+	/**
+	 * Checks if the version has been changed.
+	 *
+	 * @return boolean
+	 */
+	public static function has_version_changed() {
 		$version = get_option( self::VERSION_OPTION_NAME );
-		if ( self::JETPACK_WAF_VERSION !== $version ) {
-			update_option( self::VERSION_OPTION_NAME, self::JETPACK_WAF_VERSION );
-			self::generate_rules();
-		}
+		return self::JETPACK_WAF_VERSION !== $version ? true : false;
 	}
 
 	/**
