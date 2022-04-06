@@ -3,7 +3,6 @@
 	"private": true,
 	"description": "Avoid cluttering the monorepo root with random JS script deps by putting them in a workspace. This is intended for simple scripts and third-party scripts that we will only run directly or from the monorepo root.",
 	"bin": {
-		"eslint": "eslint",
 		"eslint-changed": "eslint-changed",
 		"prettier": "prettier",
 		"semver": "semver",
@@ -24,7 +23,6 @@
 		"@wordpress/eslint-plugin": "11.1.0",
 		"chalk": "4.1.2",
 		"debug": "4.3.3",
-		"eslint": "8.8.0",
 		"eslint-config-prettier": "8.3.0",
 		"eslint-config-wpcalypso": "6.1.0",
 		"eslint-plugin-es": "4.1.0",

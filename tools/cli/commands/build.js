@@ -483,6 +483,49 @@ async function copyDirectory( src, dest ) {
 }
 
 /**
+ * Write a file atomically.
+ *
+ * Writes to a temporary file then renames, on the assumption that the latter is an atomic operation.
+ *
+ * @param {string} file - File name.
+ * @param {string} data - Contents to write.
+ * @param {object} options - Options.
+ */
+async function writeFileAtomic( file, data, options = {} ) {
+	// Note there doesn't seem to be any need for managing ownership or flag 'wx' here,
+	// if some attacker could take advantage they could do worse more directly.
+	const tmpfile = npath.join( npath.dirname( file ), `.${ npath.basename( file ) }.tmp` );
+	await fs.writeFile( tmpfile, data, options );
+	try {
+		await fs.rename( tmpfile, file );
+	} catch ( e ) {
+		await fs.rm( tmpfile ).catch( () => null );
+		throw e;
+	}
+}
+
+/**
+ * Copy a file atomically.
+ *
+ * Copies to a temporary file then renames, on the assumption that the latter is an atomic operation.
+ *
+ * @param {string} src - Source file.
+ * @param {string} dest - Dest file.
+ */
+async function copyFileAtomic( src, dest ) {
+	// Note there doesn't seem to be any need for managing ownership or flag 'wx' here,
+	// if some attacker could take advantage they could do worse more directly.
+	const tmpfile = npath.join( npath.dirname( dest ), `.${ npath.basename( dest ) }.tmp` );
+	await fs.copyFile( src, tmpfile );
+	try {
+		await fs.rename( tmpfile, dest );
+	} catch ( e ) {
+		await fs.rm( tmpfile ).catch( () => null );
+		throw e;
+	}
+}
+
+/**
  * Build a project.
  *
  * @param {object} t - Task object.
@@ -508,7 +551,7 @@ async function buildProject( t ) {
 						versions: t.ctx.versions,
 					},
 				} );
-				await fs.writeFile(
+				await writeFileAtomic(
 					`${ t.cwd }/composer.json`,
 					JSON.stringify( composerJson, null, '\t' ) + '\n',
 					{ encoding: 'utf8' }
@@ -680,7 +723,11 @@ async function buildProject( t ) {
 		const srcfile = npath.join( t.cwd, file );
 		const destfile = npath.join( buildDir, file );
 		await fs.mkdir( npath.dirname( destfile ), { recursive: true } );
-		await fs.copyFile( srcfile, destfile );
+		if ( destfile.endsWith( '/composer.json' ) || destfile.endsWith( '/package.json' ) ) {
+			await copyFileAtomic( srcfile, destfile );
+		} else {
+			await fs.copyFile( srcfile, destfile );
+		}
 	}
 
 	// HACK: Create stubs to avoid upgrade errors. See https://github.com/Automattic/jetpack/pull/22431.
@@ -722,7 +769,7 @@ async function buildProject( t ) {
 		if ( composerJson.repositories.length === 0 ) {
 			delete composerJson.repositories;
 		}
-		await fs.writeFile(
+		await writeFileAtomic(
 			`${ buildDir }/composer.json`,
 			JSON.stringify( composerJson, null, '\t' ) + '\n',
 			{ encoding: 'utf8' }
@@ -756,7 +803,7 @@ async function buildProject( t ) {
 			}
 		}
 
-		await fs.writeFile(
+		await writeFileAtomic(
 			`${ buildDir }/package.json`,
 			JSON.stringify( packageJson, null, '\t' ) + '\n',
 			{ encoding: 'utf8' }
