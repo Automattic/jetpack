@@ -37,7 +37,7 @@ const Button = ( {
 		[ styles.normal ]: size === BUTTON_SIZES.NORMAL,
 		[ styles.small ]: size === BUTTON_SIZES.SMALL,
 		[ styles.icon ]: Boolean( icon ),
-		propsClassName,
+		[ propsClassName ]: Boolean( propsClassName ),
 	} );
 
 	const isExternalLink = variant === BUTTON_VARIANTS.EXTERNAL_LINK;
