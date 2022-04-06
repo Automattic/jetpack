@@ -1,4 +1,4 @@
-<?php // phpcs:disable
+<?php // phpcs:disable -- Copy-pasted library. Not reformatting to facilitate identification of actual changes.
 /**
  * SCSS compiler written in PHP
  *
