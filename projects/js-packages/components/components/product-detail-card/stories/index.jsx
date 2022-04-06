@@ -41,4 +41,5 @@ Default.args = {
 		price: '24.92',
 		offPrice: '12.42',
 	},
+	hasRequiredPlan: true,
 };

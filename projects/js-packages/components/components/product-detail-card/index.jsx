@@ -6,12 +6,12 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-import Text, { H3 } from '../text/index.jsx';
 
 /**
  * Internal dependencies
  */
-import { getIconBySlug } from '../product-icons/index.jsx';
+import Text, { H3 } from '../text/index.jsx';
+import { getIconBySlug, CheckmarkIcon } from '../product-icons/index.jsx';
 import ProductPrice from '../product-price/index.jsx';
 import styles from './style.module.scss';
 
@@ -122,6 +122,13 @@ const ProductDetailCard = ( {
 			) }
 
 			{ isFree && <H3>{ __( 'Free', 'jetpack' ) }</H3> }
+
+			{ isBundle && hasRequiredPlan && (
+				<div className={ styles[ 'product-has-required-plan' ] }>
+					<CheckmarkIcon size={ 36 } />
+					<Text>{ __( 'Active on your site', 'jetpack' ) }</Text>
+				</div>
+			) }
 		</div>
 	);
 };
