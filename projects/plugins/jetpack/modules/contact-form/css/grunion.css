@@ -2,6 +2,10 @@
 	clear: both;
 }
 
+.contact-form input {
+	font: inherit;
+}
+
 .contact-form input::placeholder {
 	transition: opacity 0.3s ease-out;
 }
