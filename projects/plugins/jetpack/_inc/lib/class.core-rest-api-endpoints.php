@@ -669,6 +669,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		register_rest_route(
+			'jetpack/v4',
+			'/recommendations/conditional',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_conditional_recommendations',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+			)
+		);
+
 		/*
 		 * Get and update the last licensing error message.
 		 */
@@ -968,6 +980,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array( 'status' => $response_code )
 			);
 		}
+	}
+
+	/**
+	 * Get conditional recommendations data.
+	 *
+	 * @return array Conditional recommendations data.
+	 */
+	public static function get_conditional_recommendations() {
+		return Jetpack_Recommendations::get_conditional_recommendations();
 	}
 
 	/**

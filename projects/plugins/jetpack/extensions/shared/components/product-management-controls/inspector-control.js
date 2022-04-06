@@ -25,11 +25,7 @@ import { getMessageByProductType } from './utils';
 import { CURRENCY_OPTIONS } from '../../currencies';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 
-export default function ProductManagementInspectorControl( {
-	allowCreateOneTimeInterval,
-	productType,
-	setSelectedProductId,
-} ) {
+export default function ProductManagementInspectorControl( { productType, setSelectedProductId } ) {
 	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
 	const { saveProduct } = useDispatch( membershipProductsStore );
 
@@ -44,10 +40,8 @@ export default function ProductManagementInspectorControl( {
 	const intervalOptions = [
 		{ label: __( 'Month', 'jetpack' ), value: '1 month' },
 		{ label: __( 'Year', 'jetpack' ), value: '1 year' },
+		{ label: __( 'One-Time Payment', 'jetpack' ), value: 'one-time' },
 	];
-	if ( allowCreateOneTimeInterval ) {
-		intervalOptions.push( { label: __( 'One-Time Payment', 'jetpack' ), value: 'one-time' } );
-	}
 
 	const handleSubmit = event => {
 		event.preventDefault();
