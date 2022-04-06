@@ -72,6 +72,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.ANTI_SPAM:
 			redirectPath = '/anti-spam';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.VIDEOPRESS:
+			redirectPath = '/videopress';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
@@ -132,6 +135,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/anti-spam">
 						<ResourcePrompt stepSlug="anti-spam" isNew={ isNew( 'anti-spam' ) } />
+					</Route>
+					<Route path="/recommendations/videopress">
+						<FeaturePrompt stepSlug="videopress" isNew={ isNew( 'videopress' ) } />
 					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />

@@ -24,13 +24,17 @@ class Jetpack_Recommendations {
 	const PUBLICIZE_RECOMMENDATION     = 'publicize';
 	const SECURITY_PLAN_RECOMMENDATION = 'security-plan';
 	const ANTI_SPAM_RECOMMENDATION     = 'anti-spam';
+	const VIDEOPRESS_RECOMMENDATION    = 'videopress';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
 		self::PUBLICIZE_RECOMMENDATION,
 		self::SECURITY_PLAN_RECOMMENDATION,
 		self::ANTI_SPAM_RECOMMENDATION,
+		self::VIDEOPRESS_RECOMMENDATION,
 	);
+
+	const VIDEOPRESS_TIMED_ACTION = 'jetpack_recommend_videopress';
 
 	/**
 	 * Returns a boolean indicating if the Jetpack Recommendations are enabled.
@@ -129,6 +133,10 @@ class Jetpack_Recommendations {
 
 		// Monitor for the addition of a new comment.
 		add_action( 'comment_post', array( get_called_class(), 'comment_added' ), 10, 3 );
+
+		// Monitor for Jetpack connection success.
+		add_action( 'jetpack_authorize_ending_authorized', array( get_called_class(), 'jetpack_connected' ) );
+		add_action( self::VIDEOPRESS_TIMED_ACTION, array( get_called_class(), 'recommend_videopress' ) );
 	}
 
 	/**
@@ -140,6 +148,12 @@ class Jetpack_Recommendations {
 	public static function jetpack_module_activated( $module, $success ) {
 		if ( 'publicize' === $module && $success ) {
 			self::disable_conditional_recommendation( self::PUBLICIZE_RECOMMENDATION );
+		} elseif ( 'videopress' === $module && $success ) {
+			// If VideoPress is enabled and a recommendation for it is scheduled, cancel that recommendation.
+			$recommendation_timestamp = wp_next_scheduled( self::VIDEOPRESS_TIMED_ACTION );
+			if ( false !== $recommendation_timestamp ) {
+				wp_unschedule_event( $recommendation_timestamp, self::VIDEOPRESS_TIMED_ACTION );
+			}
 		}
 	}
 
@@ -215,26 +229,63 @@ class Jetpack_Recommendations {
 	 * @param bool    $comment_approved Whether or not the comment is approved.
 	 * @param array   $commentdata Comment data.
 	 */
-	public static function comment_added( $comment_id, $comment_approved, $commentdata ) {
-		if ( ! function_exists( 'is_plugin_active' ) ) {
+	public static function comment_added( $comment_id, $comment_approved, $commentdata )
+	{
+		if (!function_exists('is_plugin_active')) {
 			require_once ABSPATH . '/wp-admin/includes/plugin.php';
 		}
 
-		if ( is_plugin_active( 'akismet/akismet.php' ) || self::is_conditional_recommendation_enabled( self::ANTI_SPAM_RECOMMENDATION ) ) {
+		if (is_plugin_active('akismet/akismet.php') || self::is_conditional_recommendation_enabled(self::ANTI_SPAM_RECOMMENDATION)) {
 			return;
 		}
 
-		if ( isset( $commentdata['comment_post_ID'] ) ) {
+		if (isset($commentdata['comment_post_ID'])) {
 			$post_id = $commentdata['comment_post_ID'];
 		} else {
-			$comment = get_comment( $comment_id );
+			$comment = get_comment($comment_id);
 			$post_id = $comment->comment_post_ID;
 		}
-		$comment_count = get_comments_number( $post_id );
+		$comment_count = get_comments_number($post_id);
 
-		if ( intval( $comment_count ) >= 5 ) {
-			self::enable_conditional_recommendation( self::ANTI_SPAM_RECOMMENDATION );
+		if (intval($comment_count) >= 5) {
+			self::enable_conditional_recommendation(self::ANTI_SPAM_RECOMMENDATION);
 		}
+	}
+
+	/**
+	 * Runs after a successful connection is made.
+	 */
+	public static function jetpack_connected() {
+		// Schedule a recommendation for VideoPress in 2 weeks.
+		if ( false === wp_next_scheduled( self::VIDEOPRESS_TIMED_ACTION ) ) {
+			$date = new DateTime();
+			$date->add( new DateInterval( 'P14D' ) );
+			wp_schedule_single_event( $date->getTimestamp(), self::VIDEOPRESS_TIMED_ACTION );
+		}
+	}
+
+	/**
+	 * Enable a recommendation for VideoPress.
+	 */
+	public static function recommend_videopress() {
+		// Check to see if the VideoPress recommendation is already enabled.
+		if ( self::is_conditional_recommendation_enabled( self::VIDEOPRESS_RECOMMENDATION ) ) {
+			return;
+		}
+
+		// Does the site have the VideoPress module enabled?
+		if ( Jetpack::is_module_active( 'videopress' ) ) {
+			return;
+		}
+
+		// Does this site already have a VideoPress product?
+		$site_products          = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+		$has_videopress_product = count( array_intersect( array( 'jetpack_videopress', 'jetpack_videopress_monthly' ), $site_products ) ) > 0;
+		if ( $has_videopress_product ) {
+			return;
+		}
+
+		self::enable_conditional_recommendation( self::VIDEOPRESS_RECOMMENDATION );
 	}
 
 	/**

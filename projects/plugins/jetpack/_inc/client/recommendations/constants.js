@@ -11,5 +11,6 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	PUBLICIZE: 'publicize',
 	SECURITY_PLAN: 'security-plan',
 	ANTI_SPAM: 'anti-spam',
+	VIDEOPRESS: 'videopress',
 	SUMMARY: 'summary',
 };

@@ -239,6 +239,7 @@ const stepToNextStep = {
 	publicize: 'summary',
 	'security-plan': 'summary',
 	'anti-spam': 'summary',
+	videopress: 'summary',
 	summary: 'summary',
 };
 
@@ -254,6 +255,7 @@ const stepToRoute = {
 	publicize: '#/recommendations/publicize',
 	'security-plan': '#/recommendations/security-plan',
 	'anti-spam': '#/recommendations/anti-spam',
+	videopress: '#/recommendations/videopress',
 	summary: '#/recommendations/summary',
 };
 
@@ -274,6 +276,8 @@ export const isFeatureActive = ( state, featureSlug ) => {
 			return !! isPluginActive( state, 'woocommerce/woocommerce.php' );
 		case 'publicize':
 			return !! getSetting( state, 'publicize' );
+		case 'videopress':
+			return !! getSetting( state, 'videopress' );
 		default:
 			throw `Unknown featureSlug in isFeatureActive() in recommendations/reducer.js: ${ featureSlug }`;
 	}
@@ -322,6 +326,8 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'security-plan':
 		case 'anti-spam':
 			return isConditionalRecommendationEnabled( state, step );
+		case 'videopress':
+			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		default:
 			return ! isFeatureActive( state, step );
 	}
@@ -411,6 +417,8 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 		case 'security-plan':
 		case 'anti-spam':
 			return isConditionalRecommendationEnabled( state, slug );
+		case 'videopress':
+			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		default:
 			return true;
 	}
@@ -424,6 +432,7 @@ export const getSummaryFeatureSlugs = state => {
 		'creative-mail',
 		'site-accelerator',
 		'publicize',
+		'videopress',
 	];
 
 	const featureSlugsEligibleToShow = featureSlugsInPreferenceOrder.filter( slug =>
