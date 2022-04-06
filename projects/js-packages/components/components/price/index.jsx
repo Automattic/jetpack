@@ -5,6 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { getCurrencyObject } from '@automattic/format-currency';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -22,8 +23,12 @@ import styles from './style.module.scss';
  * @returns {React.Component}       Price react component.
  */
 export function Price( { value, currency, isOff } ) {
+	if ( ! value?.length ) {
+		return null;
+	}
+
 	const classNames = classnames( styles.price, {
-		[ styles[ 'is-off-price' ] ]: isOff,
+		[ styles[ 'is-not-off-price' ] ]: ! isOff,
 	} );
 
 	const { symbol, integer, fraction } = getCurrencyObject( value, currency );
@@ -47,22 +52,33 @@ export function Price( { value, currency, isOff } ) {
  * @param {string} props.price            - Product price.
  * @param {string} props.offPrice         - Product with discount.
  * @param {string} props.currency         - Product current code.
+ * @param {string} props.leyend           - Product leytend.
  * @param {boolean} props.showNotOffPrice - Show the not off price.
+ * @param {boolean} props.isNotConvenientPrice   - Force the price as a not off price.
  * @returns {object}                        Price react component.
  */
-export default function ProductPrice( { price, offPrice, currency, showNotOffPrice } ) {
-	if ( ! price || ! currency ) {
+export default function ProductPrice( {
+	price,
+	offPrice,
+	currency,
+	showNotOffPrice,
+	leyend,
+	isNotConvenientPrice,
+} ) {
+	if ( ! ( price || offPrice ) || ! currency ) {
 		return null;
 	}
 
-	// Show off-price only when off Price is defined.
 	showNotOffPrice = showNotOffPrice && Boolean( offPrice );
 
 	return (
-		<div className={ styles[ 'price-container' ] }>
-			{ showNotOffPrice && <Price value={ price } currency={ currency } isOff={ true } /> }
-			<Price value={ offPrice || price } currency={ currency } />
-		</div>
+		<>
+			<div className={ styles.container }>
+				{ showNotOffPrice && <Price value={ price } currency={ currency } isOff={ false } /> }
+				<Price value={ offPrice || price } currency={ currency } isOff={ ! isNotConvenientPrice } />
+			</div>
+			{ leyend && <Text className={ styles.leyend }>{ leyend }</Text> }
+		</>
 	);
 }
 
@@ -70,6 +86,8 @@ ProductPrice.propTypes = {
 	currency: PropTypes.string,
 	price: PropTypes.string,
 	offPrice: PropTypes.string,
+	isNotConvenientPrice: PropTypes.bool,
+	leyend: PropTypes.string,
 	showNotOffPrice: PropTypes.bool,
 };
 
@@ -77,5 +95,7 @@ ProductPrice.defaultProps = {
 	currency: '',
 	price: '',
 	offPrice: '',
+	isNotConvenientPrice: false,
+	leyend: __( '/month, paid yearly', 'jetpack' ),
 	showNotOffPrice: true,
 };
