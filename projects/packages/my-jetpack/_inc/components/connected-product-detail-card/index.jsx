@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useCallback } from 'react';
-import { ProductDetailCard } from '@automattic/jetpack-components';
+import { ProductDetail } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -19,7 +19,7 @@ import { useProduct } from '../../hooks/use-product';
  * @param {Function} props.onClick          - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
  * @param {string} props.className	        - A className to be concat with default ones
- * @returns {object}                          ProductDetailCard react component.
+ * @returns {object}                          ConnectedProductDetail react component.
  */
 const ConnectedProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => {
 	const { detail, isFetching } = useProduct( slug );
@@ -62,7 +62,7 @@ const ConnectedProductDetailCard = ( { slug, onClick, trackButtonClick, classNam
 	}, [ onClick, trackButtonClick ] );
 
 	return (
-		<ProductDetailCard
+		<ProductDetail
 			slug={ slug }
 			className={ className }
 			title={ title }
