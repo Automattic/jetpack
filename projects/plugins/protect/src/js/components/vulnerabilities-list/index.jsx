@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { Container, Col, Text, H3 } from '@automattic/jetpack-components';
+import { Container, Col, Text, H3, Button, getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -25,6 +25,12 @@ const VulnerabilityItem = ( { name, version, vulnerabilities } ) => {
 			<Col lg={ 8 }>
 				{ vulnerabilities.map( vulnerability => (
 					<div className={ styles.vulnerability }>
+						<Button
+							href={ getRedirectUrl( 'wpscan-vul', { vul: vulnerability.id } ) }
+							variant="external-link"
+						>
+							{ vulnerability.title }
+						</Button>
 						<Text>{ vulnerability.description }</Text>
 						<Text variant="body-extra-small">
 							{
