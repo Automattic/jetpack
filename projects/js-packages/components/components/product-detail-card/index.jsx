@@ -12,6 +12,7 @@ import Text, { H3 } from '../text/index.jsx';
  * Internal dependencies
  */
 import { getIconBySlug } from '../product-icons/index.jsx';
+import ProductPrice from '../product-price/index.jsx';
 import styles from './style.module.scss';
 
 /**
@@ -68,13 +69,15 @@ function BundleProductIcons( { supportedProducts } ) {
  *
  * @param {object} props                  - Component props.
  * @param {string} props.slug             - Product slug.
- * @param {string} props.title 			 - Product title.
- * @param {string} props.description     - Product description.
- * @param {Array}  props.features        - Features list of the product.
+ * @param {string} props.title 			  - Product title.
+ * @param {string} props.description      - Product description.
+ * @param {Array}  props.features         - Features list of the product.
  * @param {boolean} props.isBundle        - Whether or not the product is a bundle.
  * @param {Array} props.supportedProducts - List of supported products (for bundles).
- * @param {string} props.className        - A className to be concat with default ones
- * @returns {React.Component}              ProductDetailCard react component.
+ * @param {string} props.className        - A className to be concat with default ones.
+ * @param {Object} props.pricing 	      - Product Pricing object.
+ * @param {boolean} props.hasRequiredPlan - Whether or not the product has the required plan.
+ * @returns {React.Component}               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
 	className,
@@ -84,7 +87,13 @@ const ProductDetailCard = ( {
 	features,
 	isBundle,
 	supportedProducts,
+	pricing,
+	hasRequiredPlan,
 } ) => {
+	const { isFree, price, currency, offPrice } = pricing;
+
+	const needsPurchase = ! isFree && ! hasRequiredPlan;
+
 	return (
 		<div
 			className={ classnames( styles.wrapper, className, {
@@ -107,6 +116,10 @@ const ProductDetailCard = ( {
 					</Text>
 				) ) }
 			</ul>
+
+			{ needsPurchase && (
+				<ProductPrice price={ price } offPrice={ offPrice } currency={ currency } />
+			) }
 		</div>
 	);
 };
@@ -117,7 +130,7 @@ ProductDetailCard.propTypes = {
 	title: PropTypes.string,
 	description: PropTypes.string,
 	features: PropTypes.arrayOf( PropTypes.string ),
-	pricingForUi: PropTypes.object,
+	pricing: PropTypes.object,
 	isBundle: PropTypes.bool,
 	supportedProducts: PropTypes.arrayOf( PropTypes.string ),
 	className: PropTypes.string,
@@ -129,6 +142,7 @@ ProductDetailCard.defaultProps = {
 	trackButtonClick: () => {},
 	isBundle: false,
 	supportedProducts: [],
+	pricing: {},
 };
 
 export default ProductDetailCard;

@@ -36,9 +36,9 @@ Default.args = {
 		'One-click fixes for most threats',
 		'Comment & form spam protection',
 	],
-	pricingForUi: {
-		currency_code: 'USD',
-		full_price: 299,
-		discount_price: 149,
+	pricing: {
+		currency: 'USD',
+		price: '24.92',
+		offPrice: '12.42',
 	},
 };
