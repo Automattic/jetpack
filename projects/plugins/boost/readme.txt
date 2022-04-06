@@ -165,10 +165,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 1. Manage your Jetpack Boost settings
 
 == Changelog ==
-### 1.4.1-beta - 2022-03-08
-#### Added
-- Critical CSS: Added internal support for Cloud Critical CSS.
-- Critical CSS: Added suggested steps when Critical CSS fails due to page errors.
+### 1.4.1 - 2022-04-06
 
 #### Changed
 - Critical CSS: Tidied up Critical CSS class structure.
@@ -177,6 +174,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - General: Tested compatibility with WordPress 5.9.
 - General: Updated Boost Dashboard heading logo.
 - Lazy Loading: Updated Image Lazy Loading to reflect Jetpack's Lazy Loading setting.
+
+#### Fixed
+- General: Clean up use of FILTER_SANITIZE_STRING as it is deprecated in PHP 8.1
 
 --------
 
