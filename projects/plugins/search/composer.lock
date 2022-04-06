@@ -323,7 +323,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "0c636d1e4e96e1eb97c8b7d0d03a8ebb677fb820"
+                "reference": "8197ef999bf0765f0ed57a630c4ae277071e7cc2"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -333,8 +333,7 @@
                 "automattic/jetpack-options": "^1.14",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
-                "automattic/jetpack-status": "^1.13",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -480,7 +479,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "15144436c1118b73062a23d189deee3f60e35fa7"
+                "reference": "440d69a3150a664ef30c578f23fa5a5a030744b6"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -488,8 +487,7 @@
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-status": "^1.13",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -601,15 +599,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "d41271fef907f3e11c742cf5e59f67a480094a12"
+                "reference": "00317beca5b0da4519ed72b8cdd443c1fe16b6a0"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-plugins-installer": "^0.1",
-                "automattic/jetpack-redirect": "^1.7",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-redirect": "^1.7"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -926,7 +923,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "1610f1e145a0f362fa6a7fd08a944e901ba00b87"
+                "reference": "4b3c6d643d841407ea8a25763df1b7de6af2e90e"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -934,8 +931,7 @@
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-status": "^1.13",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -1123,17 +1119,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "2f1c18439c5149ec1619ed1b8bd58fe3f16b317f"
+                "reference": "52304f2788812cf815c681131406329da5ca6ba4"
             },
             "require": {
-                "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-options": "^1.14",
-                "automattic/jetpack-status": "^1.13"
+                "automattic/jetpack-connection": "^1.37"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
-                "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.0.3"
+                "automattic/jetpack-changelogger": "^3.0"
             },
             "type": "jetpack-library",
             "extra": {
@@ -1153,21 +1145,11 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "Tracking for Jetpack",
+            "abandoned": "automattic/jetpack-connection",
             "transport-options": {
                 "relative": true
             }
