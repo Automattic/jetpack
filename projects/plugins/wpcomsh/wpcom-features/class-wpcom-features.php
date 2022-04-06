@@ -32,6 +32,7 @@ class WPCOM_Features {
 	private const WPCOM_SEARCH                                = 'wpcom_search'; // 800
 	private const WPCOM_SEARCH_MONTHLY                        = 'wpcom_search_monthly'; // 801
 	private const YOAST_PREMIUM                               = 'yoast_premium'; // 900
+	private const WOOCOMMERCE_SHIPPING_UPS                    = 'woocommerce-shipping-ups'; // 901
 	private const WOOCOMMERCE_SUBSCRIPTIONS                   = 'woocommerce_subscriptions_yearly'; // 902
 	private const WOOCOMMERCE_SUBSCRIPTIONS_MONTHLY           = 'woocommerce_subscriptions_monthly'; // 903
 	private const WOOCOMMERCE_BOOKINGS                        = 'woocommerce_bookings_yearly'; // 904
@@ -54,6 +55,25 @@ class WPCOM_Features {
 	private const WOOCOMMERCE_ONE_PAGE_CHECKOUT_MONTHLY       = 'woocommerce_one_page_checkout_monthly'; // 921
 	private const WOOTHEMES_SENSEI                            = 'woothemes_sensei_yearly'; // 924
 	private const WOOTHEMES_SENSEI_MONTHLY                    = 'woothemes_sensei_monthly'; // 925
+	private const WOOCOMMERCE_SHIPPING_FEDEX_YEARLY           = 'woocommerce_shipping_fedex_yearly'; // 926
+	private const WOOCOMMERCE_SHIPPING_FEDEX_MONTHLY          = 'woocommerce_shipping_fedex_monthly'; // 927
+	private const WOOCOMMERCE_PRE_ORDERS_YEARLY               = 'woocommerce_pre_orders_yearly'; // 928
+	private const WOOCOMMERCE_PRE_ORDERS_MONTHLY              = 'woocommerce_pre_orders_monthly'; // 929
+	private const WOOCOMMERCE_SHIPPING_UPS_MONTHLY            = 'woocommerce_shipping_ups_monthly'; // 930
+	private const WOOCOMMERCE_MIN_MAX_QUANTITIES_YEARLY       = 'woocommerce_min_max_quantities_yearly'; // 931
+	private const WOOCOMMERCE_MIN_MAX_QUANTITIES_MONTHLY      = 'woocommerce_min_max_quantities_monthly'; // 932
+	private const WOOCOMMERCE_PRODUCT_VENDORS_YEARLY          = 'woocommerce_product_vendors_yearly'; // 933
+	private const WOOCOMMERCE_PRODUCT_VENDORS_MONTHLY         = 'woocommerce_product_vendors_monthly'; // 934
+	private const WOOCOMMERCE_SHIPPING_USPS_YEARLY            = 'woocommerce_shipping_usps_yearly'; // 935
+	private const WOOCOMMERCE_SHIPPING_USPS_MONTHLY           = 'woocommerce_shipping_usps_monthly'; // 936
+	private const WOOCOMMERCE_SHIPPING_CANADA_POST_YEARLY     = 'woocommerce-shipping-canada-post-yearly'; // 937
+	private const WOOCOMMERCE_SHIPPING_CANADA_POST_MONTHLY    = 'woocommerce_shipping_canada_post_monthly'; // 938
+	private const WOOCOMMERCE_PRODUCT_ADDONS_YEARLY           = 'woocommerce_product_addons_yearly'; // 939
+	private const WOOCOMMERCE_PRODUCT_ADDONS_MONTHLY          = 'woocommerce_product_addons_monthly'; // 940
+	private const WOOCOMMERCE_ROYALMAIL_YEARLY                = 'woocommerce_shipping_royalmail_yearly'; // 941
+	private const WOOCOMMERCE_ROYALMAIL_MONTHLY               = 'woocommerce_shipping_royalmail_monthly'; // 942
+	private const WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_YEARLY  = 'woocommerce_shipping_australia_post_yearly'; // 943
+	private const WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_MONTHLY = 'woocommerce_shipping_australia_post_monthly'; // 944
 	private const VALUE_BUNDLE                                = 'value_bundle'; // 1003
 	private const BUNDLE_PRO                                  = 'bundle_pro'; // 1004
 	private const BUNDLE_SUPER                                = 'bundle_super'; // 1005
@@ -109,8 +129,10 @@ class WPCOM_Features {
 	private const JETPACK_VIDEOPRESS                          = 'jetpack_videopress'; // 2116
 	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
 	private const JETPACK_BACKUP_ONE_TIME                     = 'jetpack_backup_one_time'; // 2201
+	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
+	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
 
-	// WPCOM "Level 2": Groups of level 1s
+	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS       = [ self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y ];
 	private const WPCOM_PERSONAL_PLANS      = [ self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y ];
 	private const WPCOM_PREMIUM_PLANS       = [ self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y ];
@@ -119,6 +141,7 @@ class WPCOM_Features {
 	private const WPCOM_ECOMMERCE_PLANS     = [ self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y ];
 	private const WPCOM_MARKETPLACE_PLANS   = [
 		self::YOAST_PREMIUM,
+		self::WOOCOMMERCE_SHIPPING_UPS,
 		self::WOOCOMMERCE_SUBSCRIPTIONS,
 		self::WOOCOMMERCE_SUBSCRIPTIONS_MONTHLY,
 		self::WOOCOMMERCE_BOOKINGS,
@@ -141,19 +164,38 @@ class WPCOM_Features {
 		self::WOOCOMMERCE_ONE_PAGE_CHECKOUT_MONTHLY,
 		self::WOOTHEMES_SENSEI,
 		self::WOOTHEMES_SENSEI_MONTHLY,
+		self::WOOCOMMERCE_SHIPPING_FEDEX_YEARLY,
+		self::WOOCOMMERCE_SHIPPING_FEDEX_MONTHLY,
+		self::WOOCOMMERCE_PRE_ORDERS_YEARLY,
+		self::WOOCOMMERCE_PRE_ORDERS_MONTHLY,
+		self::WOOCOMMERCE_SHIPPING_UPS_MONTHLY,
+		self::WOOCOMMERCE_MIN_MAX_QUANTITIES_YEARLY,
+		self::WOOCOMMERCE_MIN_MAX_QUANTITIES_MONTHLY,
+		self::WOOCOMMERCE_PRODUCT_VENDORS_YEARLY,
+		self::WOOCOMMERCE_PRODUCT_VENDORS_MONTHLY,
+		self::WOOCOMMERCE_SHIPPING_USPS_YEARLY,
+		self::WOOCOMMERCE_SHIPPING_USPS_MONTHLY,
+		self::WOOCOMMERCE_SHIPPING_CANADA_POST_YEARLY,
+		self::WOOCOMMERCE_SHIPPING_CANADA_POST_MONTHLY,
+		self::WOOCOMMERCE_PRODUCT_ADDONS_YEARLY,
+		self::WOOCOMMERCE_PRODUCT_ADDONS_MONTHLY,
+		self::WOOCOMMERCE_ROYALMAIL_YEARLY,
+		self::WOOCOMMERCE_ROYALMAIL_MONTHLY,
+		self::WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_YEARLY,
+		self::WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_MONTHLY,
 	];
 	private const GOOGLE_WORKSPACE_PRODUCTS = [ self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY ];
 	private const GSUITE_PRODUCTS           = [ self::GAPPS, self::GAPPS_UNLIMITED ];
 	private const WPCOM_TITAN_MAIL_PRODUCTS = [ self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY ];
 
-	// WPCOM "Level 3": Groups of level 2s
+	// WPCOM "Level 3": Groups of level 2s.
 	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = [ self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = [ self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = [ self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = [ self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS ];
 	private const WPCOM_EMAIL_PRODUCTS            = [ self::GOOGLE_WORKSPACE_PRODUCTS, self::GSUITE_PRODUCTS, self::WPCOM_TITAN_MAIL_PRODUCTS ];
 
-	// Jetpack "Level 2": Groups of level 1s:
+	// Jetpack "Level 2": Groups of level 1s.
 	private const JETPACK_BUSINESS_PLANS = [ self::JETPACK_BUSINESS, self::JETPACK_BUSINESS_MONTHLY ];
 	private const JETPACK_PREMIUM_PLANS  = [ self::JETPACK_PREMIUM, self::JETPACK_PREMIUM_MONTHLY ];
 	private const JETPACK_PERSONAL_PLANS = [ self::JETPACK_PERSONAL, self::JETPACK_PERSONAL_MONTHLY ];
@@ -171,7 +213,7 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_T1_PLANS       = [ self::JETPACK_BACKUP_T1_MONTHLY, self::JETPACK_BACKUP_T1_YEARLY ];
 	private const JETPACK_BACKUP_T2_PLANS       = [ self::JETPACK_BACKUP_T2_MONTHLY, self::JETPACK_BACKUP_T2_YEARLY ];
 
-	// Jetpack "Level 3": Groups of level 2:
+	// Jetpack "Level 3": Groups of level 2.
 	private const JETPACK_PERSONAL_AND_HIGHER = [
 		self::JETPACK_PERSONAL_PLANS,
 		self::JETPACK_PREMIUM_PLANS,
@@ -209,6 +251,7 @@ class WPCOM_Features {
 	public const BACKUP_ONE_TIME               = 'backup-one-time';
 	public const CALENDLY                      = 'calendly';
 	public const CLASSIC_SEARCH                = 'classic-search';
+	public const CLOUD_CRITICAL_CSS            = 'cloud-critical-css';
 	public const CONCIERGE                     = 'concierge';
 	public const CONCIERGE_BUSINESS            = 'concierge-business';
 	public const CORE_AUDIO                    = 'core/audio';
@@ -273,6 +316,7 @@ class WPCOM_Features {
 	 * Private const array of features with sub-array of purchases that include that feature. Sorted alphabetically.
 	 */
 	private const FEATURES_MAP = array(
+
 		/*
 		 * ADVANCED_SEO - Called seo-tools in Jetpack.
 		 *
@@ -323,6 +367,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
+
 		/*
 		 * BACKUP_ONE_TIME - Site has purchased a one-time backup.
 		 * Note the jetpack_backup_one_time product never expires. So any feature gated with BACKUP_ONE_TIME will
@@ -434,6 +479,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
+
 		/*
 		 * LEGACY_UNLIMITED_SPACE_2019 - Provides unlimited upload space if initially purchased
 		 * before 2019-08-01. See mu-plugins/legacy-unlimited-space-plans.php
@@ -503,6 +549,7 @@ class WPCOM_Features {
 		self::RECURRING_PAYMENTS            => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
+
 		/*
 		 * REPUBLICIZE
 		 *
@@ -521,6 +568,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
+
 		/*
 		 * SCAN_MANAGED - Scan results are managed internally by Atomic guild HEs and not shown in user UI.
 		 * See D57207-code.
@@ -534,6 +582,7 @@ class WPCOM_Features {
 			self::WPCOM_SEARCH_MONTHLY,
 			self::WP_P2_PLUS_MONTHLY,
 		),
+
 		/*
 		 * SECURITY_SETTINGS - Initially added to determine whether to show /settings/security.
 		 * More info: https://github.com/Automattic/wp-calypso/issues/51820
@@ -551,6 +600,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
+
 		/*
 		 * SET_PRIMARY_CUSTOM_DOMAIN - Set custom domain as primary.
 		 * It allows to set a custom domain of the site as primary.
@@ -580,7 +630,7 @@ class WPCOM_Features {
 		self::SPACE                         => array(
 			self::WPCOM_ALL_SITES,
 		),
-		// SUPPORT - Everybody needs somebody
+		// SUPPORT - Everybody needs somebody.
 		self::SUPPORT                       => array(
 			self::WPCOM_ALL_SITES,
 			self::JETPACK_PERSONAL_AND_HIGHER,
@@ -607,6 +657,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
+
 		/*
 		 * UPLOAD_VIDEO_FILES - This feature is linked to the ability to upload video files to the website.
 		 *
@@ -637,6 +688,7 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 		),
+
 		/*
 		 * VIDEO_HOSTING - Host video effortlessly and deliver it at high speeds to your viewers.
 		 * https://jetpack.com/features/design/video-hosting/
@@ -662,6 +714,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
+
 		/*
 		 * WOOP - WooCommerce on all Plans is available to install.
 		 *
@@ -677,6 +730,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
+
 		/*
 		 * WORDADS_JETPACK - `wordads-jetpack` is maintained as a legacy alias of `wordads` which was used to gate
 		 * the feature in old versions of Jetpack.
@@ -686,12 +740,16 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
+		self::CLOUD_CRITICAL_CSS            => array(
+			self::JETPACK_BOOST,
+			self::JETPACK_BOOST_MONTHLY,
+		),
 	);
 
 	/**
 	 * Checks whether the given feature is declared in our map.
 	 *
-	 * @param string $feature The featue to check.
+	 * @param string $feature The feature to check.
 	 *
 	 * @return bool Whether the given feature exists.
 	 */
@@ -704,8 +762,8 @@ class WPCOM_Features {
 	 * search $haystack for an instance of $needle. If arrays are encountered,
 	 * they will also be searched. Only strict comparisons are used.
 	 *
-	 * @param mixed $needle   - What to look for
-	 * @param array $haystack - Array of items to check, may contain other arrays
+	 * @param mixed $needle   What to look for.
+	 * @param array $haystack Array of items to check, may contain other arrays.
 	 *
 	 * @return bool Is the needle in the haystack somewhere?
 	 */
@@ -743,8 +801,8 @@ class WPCOM_Features {
 
 		// Automatically grant features that don't require any purchase.
 		if (
-			( $is_wpcom_site && in_array( self::WPCOM_ALL_SITES, $eligible_purchases ) ) ||
-			( ! $is_wpcom_site && in_array( self::JETPACK_ALL_SITES, $eligible_purchases ) )
+			( $is_wpcom_site && in_array( self::WPCOM_ALL_SITES, $eligible_purchases, true ) ) ||
+			( ! $is_wpcom_site && in_array( self::JETPACK_ALL_SITES, $eligible_purchases, true ) )
 		) {
 			return true;
 		}
