@@ -67,7 +67,7 @@ class Jetpack_Google_Fonts {
 		$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
 
 		foreach ( $fonts_to_register as $font_family ) {
-			wp_register_webfonts(
+			$font_family_slugs = wp_register_webfonts(
 				array(
 					array(
 						'font-family'  => $font_family,
@@ -86,7 +86,16 @@ class Jetpack_Google_Fonts {
 				)
 			);
 
-			$slug = wp_webfonts()->get_font_slug( $font_family );
+			if ( empty( $font_family_slugs ) ) {
+				// Fonts were not registered.
+				continue;
+			}
+
+			/**
+			 * As we're registering faces for the same font family,
+			 * let's just pick the first one as they must be equal.
+			 */
+			$font_family_slug = $font_family_slugs[0];
 
 			/**
 			 * When introspecting, all we have is the slug,
@@ -94,7 +103,7 @@ class Jetpack_Google_Fonts {
 			 * to check whether the font was filtered after
 			 * running the `jetpack_google_fonts_list` hook.
 			 */
-			$this->registered_google_fonts[ $slug ] = $font_family;
+			$this->registered_google_fonts[ $font_family_slug ] = $font_family;
 		}
 	}
 
