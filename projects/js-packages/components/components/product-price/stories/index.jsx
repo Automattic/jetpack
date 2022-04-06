@@ -25,8 +25,8 @@ const Template = args => <ProductPrice { ...args } />;
 
 const DefaultArgs = {
 	currency: 'USD',
-	price: '24.92',
-	offPrice: '12.42',
+	price: 24.92,
+	offPrice: 12.42,
 	showNotOffPrice: true,
 	isNotConvenientPrice: false,
 };

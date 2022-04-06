@@ -17,16 +17,12 @@ import styles from './style.module.scss';
  * React component to render a Price composition.
  *
  * @param {object} props          - Component props.
- * @param {string} props.value    - Price valuerice.
- * @param {string} props.currency - Price current code.
+ * @param {number} props.value    - Price valuerice.
+ * @param {number} props.currency - Price current code.
  * @param {string} props.isOff    - True when it is an off- price.
  * @returns {React.Component}       Price react component.
  */
 export function Price( { value, currency, isOff } ) {
-	if ( ! value?.length ) {
-		return null;
-	}
-
 	const classNames = classnames( styles.price, {
 		[ styles[ 'is-not-off-price' ] ]: ! isOff,
 	} );
@@ -84,8 +80,8 @@ export default function ProductPrice( {
 
 ProductPrice.propTypes = {
 	currency: PropTypes.string,
-	price: PropTypes.string,
-	offPrice: PropTypes.string,
+	price: PropTypes.number,
+	offPrice: PropTypes.number,
 	isNotConvenientPrice: PropTypes.bool,
 	leyend: PropTypes.string,
 	showNotOffPrice: PropTypes.bool,
@@ -93,8 +89,6 @@ ProductPrice.propTypes = {
 
 ProductPrice.defaultProps = {
 	currency: '',
-	price: '',
-	offPrice: '',
 	isNotConvenientPrice: false,
 	leyend: __( '/month, paid yearly', 'jetpack' ),
 	showNotOffPrice: true,
