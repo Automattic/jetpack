@@ -47,3 +47,29 @@ SecurityBundle.args = {
 	hasRequiredPlan: false,
 	isLoading: false,
 };
+
+export const JetpackBackup = Template.bind( {} );
+JetpackBackup.parameters = {};
+JetpackBackup.args = {
+	slug: 'backup',
+	name: 'Backup',
+	title: 'Jepack Backup',
+	description:
+		'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.',
+	features: [
+		'Real-time cloud backups',
+		'10GB of backup storage',
+		'30-day archive & activity log',
+		'One-click restores',
+	],
+	isBundle: false,
+	isCard: true,
+	pricing: {
+		currency: 'USD',
+		price: 9.66,
+		offPrice: 3.95,
+	},
+	addProductUrl: '',
+	hasRequiredPlan: false,
+	isLoading: false,
+};
