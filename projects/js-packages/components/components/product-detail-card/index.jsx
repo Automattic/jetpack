@@ -36,20 +36,22 @@ function ProductDetailCardHeader( { title = __( 'Popular upgrade', 'jetpack' ) }
  * Icons composition for a bundle product,
  * based on the list of supported products.
  *
- * @param {object} props                  - Component props.
- * @param {Array} props.supportedProducts - List of supported products.
- * @returns {React.Component}               Bundle product icons react component.
+ * @param {object} props         - Component props.
+ * @param {Array} props.products - List of supported products.
+ * @returns {React.Component}    Bundle product icons react component.
  */
-function ProductIcons( { supportedProducts } ) {
+function ProductIcons( { products } ) {
 	return (
 		<div className={ styles[ 'product-bundle-icons' ] }>
-			{ supportedProducts.map( ( product, index ) => {
+			{ products.map( ( product, index ) => {
 				const ProductIcon = getIconBySlug( product );
+				const ProIcon = ProductIcon ? ProductIcon : () => null;
+
 				return (
 					<Fragment key={ index }>
-						<ProductIcon size={ 24 } />
+						<ProIcon size={ 24 } />
 
-						{ index !== supportedProducts.length - 1 && (
+						{ index !== products.length - 1 && (
 							<Icon
 								className={ styles[ 'plus-icon' ] }
 								key={ `icon-plugs${ index * 2 + 1 }` }
@@ -97,7 +99,6 @@ const ProductDetailCard = ( {
 	isLoading,
 } ) => {
 	const { isFree, price, currency, offPrice } = pricing;
-
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
 	return (
@@ -109,7 +110,10 @@ const ProductDetailCard = ( {
 			{ isBundle && <ProductDetailCardHeader /> }
 
 			<div className={ styles[ 'card-container' ] }>
-				<ProductIcons slug={ slug } supportedProducts={ supportedProducts || [ slug ] } />
+				<ProductIcons
+					slug={ slug }
+					products={ supportedProducts?.length ? supportedProducts : [ slug ] }
+				/>
 				<H3>{ title }</H3>
 				<Text mb={ 3 }>{ description }</Text>
 
@@ -175,7 +179,6 @@ ProductDetailCard.propTypes = {
 ProductDetailCard.defaultProps = {
 	trackButtonClick: () => {},
 	isBundle: false,
-	supportedProducts: [],
 	pricing: {},
 	onAdd: () => {},
 	isLoading: false,
