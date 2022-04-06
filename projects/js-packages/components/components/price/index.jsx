@@ -26,16 +26,16 @@ export function Price( { value, currency, isOff } ) {
 		[ styles[ 'is-off-price' ] ]: isOff,
 	} );
 
-	const priceObject = getCurrencyObject( value, currency );
+	const { symbol, integer, fraction } = getCurrencyObject( value, currency );
 
 	return (
 		<Text className={ classNames } variant="headline-medium" component="p">
 			<Text component="sup" variant="title-medium">
-				{ priceObject.symbol }
+				{ symbol }
 			</Text>
-			{ priceObject.integer }
+			{ integer }
 			<Text component="sup" variant="title-medium">
-				{ priceObject.fraction }
+				{ fraction }
 			</Text>
 		</Text>
 	);
@@ -45,18 +45,23 @@ export function Price( { value, currency, isOff } ) {
  *
  * @param {object} props                  - Component props.
  * @param {string} props.price            - Product price.
+ * @param {string} props.offPrice         - Product with discount.
  * @param {string} props.currency         - Product current code.
  * @param {boolean} props.showNotOffPrice - Show the not off price.
  * @returns {object}                        Price react component.
  */
-export default function ProductPrice( { price, currency, showNotOffPrice } ) {
+export default function ProductPrice( { price, offPrice, currency, showNotOffPrice } ) {
 	if ( ! price || ! currency ) {
 		return null;
 	}
 
+	// Show off-price only when off Price is defined.
+	showNotOffPrice = showNotOffPrice && Boolean( offPrice );
+
 	return (
 		<div className={ styles[ 'price-container' ] }>
-			<Price value={ price } currency={ currency } isOff={ showNotOffPrice } />
+			{ showNotOffPrice && <Price value={ price } currency={ currency } isOff={ true } /> }
+			<Price value={ offPrice || price } currency={ currency } />
 		</div>
 	);
 }
@@ -64,11 +69,13 @@ export default function ProductPrice( { price, currency, showNotOffPrice } ) {
 ProductPrice.propTypes = {
 	currency: PropTypes.string,
 	price: PropTypes.string,
+	offPrice: PropTypes.string,
 	showNotOffPrice: PropTypes.bool,
 };
 
 ProductPrice.defaultProps = {
 	currency: '',
 	price: '',
-	showNotOffPrice: false,
+	offPrice: '',
+	showNotOffPrice: true,
 };

@@ -25,8 +25,9 @@ const Template = args => <ProductPrice { ...args } />;
 
 const DefaultArgs = {
 	currency: 'USD',
-	price: 299.99,
-	showNotOffPrice: false,
+	price: 24.92,
+	offPrice: 12.42,
+	showNotOffPrice: true,
 };
 
 // Export Default story
