@@ -54,7 +54,7 @@ class Publicize extends Publicize_Base {
 
 		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
 
-		// TODO: Add the media package later.
+		// TODO: Move enhanced Open Graph to the Jetpack plugin.
 		// include_once __DIR__ . '/enhanced-open-graph.php';
 	}
 
@@ -138,8 +138,15 @@ class Publicize extends Publicize_Base {
 	 * @param bool      $force_delete Whether to skip permissions checks.
 	 * @return false|void False on failure. Void on success.
 	 */
-	public function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) {
-		return Jetpack_Keyring_Service_Helper::disconnect( $service_name, $connection_id, $_blog_id, $_user_id, $force_delete );
+	public function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$xml = new Jetpack_IXR_Client();
+		$xml->query( 'jetpack.deletePublicizeConnection', $connection_id );
+
+		if ( ! $xml->isError() ) {
+			Jetpack_Options::update_option( 'publicize_connections', $xml->getResponse() );
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -458,34 +465,74 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get the Publicize connect URL from Keyring.
 	 *
+	 * NOTE: This is a direct copy of Jetpack_Keyring_Service_Helper::connect_url. It's most likely unused code and will
+	 * be completely removed soon.
+	 * Path: /projects/plugins/jetpack/_inc/lib/class.jetpack-keyring-service-helper.php
+	 *
 	 * @param string $service_name Name of the service to get connect URL for.
 	 * @param string $for What the URL is for. Default 'publicize'.
 	 * @return string
 	 */
 	public function connect_url( $service_name, $for = 'publicize' ) {
-		return Jetpack_Keyring_Service_Helper::connect_url( $service_name, $for );
+		return add_query_arg(
+			array(
+				'action'   => 'request',
+				'service'  => $service_name,
+				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
+				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
+				'for'      => $for,
+			),
+			admin_url( 'options-general.php?page=sharing' )
+		);
 	}
 
 	/**
 	 * Get the Publicize refresh URL from Keyring.
+	 *
+	 * NOTE: This is a direct copy of Jetpack_Keyring_Service_Helper::refresh_url. It's most likely unused code and will
+	 * be completely removed soon.
+	 * Path: /projects/plugins/jetpack/_inc/lib/class.jetpack-keyring-service-helper.php
 	 *
 	 * @param string $service_name Name of the service to get refresh URL for.
 	 * @param string $for What the URL is for. Default 'publicize'.
 	 * @return string
 	 */
 	public function refresh_url( $service_name, $for = 'publicize' ) {
-		return Jetpack_Keyring_Service_Helper::refresh_url( $service_name, $for );
+		return add_query_arg(
+			array(
+				'action'   => 'request',
+				'service'  => $service_name,
+				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
+				'refresh'  => 1,
+				'for'      => $for,
+				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
+			),
+			admin_url( 'options-general.php?page=sharing' )
+		);
 	}
 
 	/**
 	 * Get the Publicize disconnect URL from Keyring.
+	 *
+	 * NOTE: This is a direct copy of Jetpack_Keyring_Service_Helper::disconnect_url. It's most likely unused code and will
+	 * be completely removed soon.
+	 * Path: /projects/plugins/jetpack/_inc/lib/class.jetpack-keyring-service-helper.php
 	 *
 	 * @param string $service_name Name of the service to get disconnect URL for.
 	 * @param mixed  $id ID of the conenction to disconnect.
 	 * @return string
 	 */
 	public function disconnect_url( $service_name, $id ) {
-		return Jetpack_Keyring_Service_Helper::disconnect_url( $service_name, $id );
+		return add_query_arg(
+			array(
+				'action'   => 'delete',
+				'service'  => $service_name,
+				'id'       => $id,
+				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
+				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
+			),
+			admin_url( 'options-general.php?page=sharing' )
+		);
 	}
 
 	/**
