@@ -1,0 +1,42 @@
+/**
+ * External dependencies
+ */
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Container, Col } from '@automattic/jetpack-components';
+
+/**
+ * Internal dependencies
+ */
+import styles from './style.module.scss';
+
+/**
+ * Dialog component.
+ *
+ * @param {object} props                    - Component props.
+ * @param {React.Component} props.primary   - Primary content.
+ * @param {React.Component} props.secondary - Secondary content.
+ * @returns {object}                          Dialog react component.
+ */
+export default function Dialog( { primary, secondary } ) {
+	return (
+		<Container className={ styles.container } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
+			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.primary }>
+				{ primary }
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.secondary }>
+				{ secondary }
+			</Col>
+		</Container>
+	);
+}
+
+Dialog.propTypes = {
+	primary: PropTypes.ReactNode,
+	secondary: PropTypes.ReactNode,
+};
+
+Dialog.defaultProps = {
+	primary: null,
+	secondary: null,
+};
