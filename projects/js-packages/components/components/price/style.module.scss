@@ -1,3 +1,9 @@
+.price-container {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+}
+
 .price {
 	position: relative;
 	display: inline-flex;
@@ -22,6 +28,11 @@
 			pointer-events: none;
 		}
 	}
+}
+
+.price-description {
+	color: var( --jp-gray-40 );
+	margin-bottom: calc( var( --spacing-base ) * 3 );
 }
 
 .price-description {

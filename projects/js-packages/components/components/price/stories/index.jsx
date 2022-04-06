@@ -8,11 +8,11 @@ import { CURRENCIES } from '@automattic/format-currency';
 /**
  * Internal dependencies
  */
-import Price from '../';
+import ProductPrice from '../';
 
 export default {
-	title: 'JS Packages/Components/Price',
-	component: Price,
+	title: 'JS Packages/Components/Product Price',
+	component: ProductPrice,
 	argTypes: {
 		currency: {
 			control: { type: 'select', options: Object.keys( CURRENCIES ) },
@@ -21,7 +21,7 @@ export default {
 };
 
 // Export additional stories using pre-defined values
-const Template = args => <Price { ...args } />;
+const Template = args => <ProductPrice { ...args } />;
 
 const DefaultArgs = {
 	currency: 'USD',

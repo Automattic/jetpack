@@ -13,24 +13,20 @@ import Text from '../text/index.jsx';
 import styles from './style.module.scss';
 
 /**
- * React component to render the price.
+ * React component to render a Price composition.
  *
- * @param {object} props                  - Component props.
- * @param {string} props.price            - Product price.
- * @param {string} props.currency         - Product current code.
- * @param {boolean} props.showNotOffPrice - Show the not off price.
- * @returns {object}                        Price react component.
+ * @param {object} props          - Component props.
+ * @param {string} props.value    - Price valuerice.
+ * @param {string} props.currency - Price current code.
+ * @param {string} props.isOff    - True when it is an off- price.
+ * @returns {React.Component}       Price react component.
  */
-export default function Price( { price, currency, showNotOffPrice } ) {
-	if ( ! price || ! currency ) {
-		return null;
-	}
-
-	const priceObject = getCurrencyObject( price, currency );
-
+export function Price( { value, currency, isOff } ) {
 	const classNames = classnames( styles.price, {
-		[ styles[ 'is-off-price' ] ]: showNotOffPrice,
+		[ styles[ 'is-off-price' ] ]: isOff,
 	} );
+
+	const priceObject = getCurrencyObject( value, currency );
 
 	return (
 		<Text className={ classNames } variant="headline-medium" component="p">
@@ -44,17 +40,35 @@ export default function Price( { price, currency, showNotOffPrice } ) {
 		</Text>
 	);
 }
+/**
+ * React component to render the price.
+ *
+ * @param {object} props                  - Component props.
+ * @param {string} props.price            - Product price.
+ * @param {string} props.currency         - Product current code.
+ * @param {boolean} props.showNotOffPrice - Show the not off price.
+ * @returns {object}                        Price react component.
+ */
+export default function ProductPrice( { price, currency, showNotOffPrice } ) {
+	if ( ! price || ! currency ) {
+		return null;
+	}
 
-Price.propTypes = {
+	return (
+		<div className={ styles[ 'price-container' ] }>
+			<Price value={ price } currency={ currency } isOff={ showNotOffPrice } />
+		</div>
+	);
+}
+
+ProductPrice.propTypes = {
 	currency: PropTypes.string,
 	price: PropTypes.string,
-	offPrice: PropTypes.string,
 	showNotOffPrice: PropTypes.bool,
 };
 
-Price.defaultProps = {
+ProductPrice.defaultProps = {
 	currency: '',
 	price: '',
-	offPrice: '',
 	showNotOffPrice: false,
 };
