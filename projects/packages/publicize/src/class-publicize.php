@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
+use Jetpack_IXR_Client as Jetpack_IXR_Client;
+use Jetpack_Options as Jetpack_Options;
 
 /**
  * Extend the base class with Jetpack-specific functionality.
