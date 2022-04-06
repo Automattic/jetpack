@@ -479,7 +479,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "b5aacb10b5a8cf268b42ea72f13420ef864c7188"
+                "reference": "6388487c1f2d39b0ea4b4f0d7fa327e8f2499dd3"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -487,8 +487,7 @@
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.15",
-                "automattic/jetpack-status": "^1.13",
-                "automattic/jetpack-tracking": "^1.14"
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -600,7 +599,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "ae1446eaf61c19907037bec2cff073c722781f59"
+                "reference": "09305aae3cc76552f9f1d4ba0e7b89f627f5d338"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
