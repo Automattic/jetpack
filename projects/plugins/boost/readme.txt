@@ -166,7 +166,6 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 
 == Changelog ==
 ### 1.4.1 - 2022-04-06
-
 #### Changed
 - Critical CSS: Tidied up Critical CSS class structure.
 - Critical CSS: Updated Critical CSS generation to exclude animation keyframes.
