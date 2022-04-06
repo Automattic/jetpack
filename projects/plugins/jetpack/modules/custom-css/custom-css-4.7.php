@@ -1,6 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Blocks;
+
 
 /**
  * Alternate Custom CSS source for 4.7 compat.
@@ -46,7 +48,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'admin_init', array( __CLASS__, 'set_content_width' ) );
 
 		// Remove the Customizer link from the menu to avoid additional confusion if the site is a FSE themed site.
-		if ( wp_is_block_theme() ) {
+		if ( wp_is_block_theme() || Blocks::is_fse_theme() ) {
 			add_action(
 				'admin_menu',
 				function () {
