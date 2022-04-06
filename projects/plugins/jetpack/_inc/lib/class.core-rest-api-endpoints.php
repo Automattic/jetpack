@@ -2425,6 +2425,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'firewall',
 			),
+			'jetpack_firewall_ip_block_list'       => array(
+				'description'       => esc_html__( 'Blocked IP addresses', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_string',
+				'sanitize_callback' => 'esc_textarea',
+				'jp_group'          => 'firewall',
+			),
+			'jetpack_firewall_ip_allow_list'       => array(
+				'description'       => esc_html__( 'Always allowed IP addresses', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_string',
+				'sanitize_callback' => 'esc_textarea',
+				'jp_group'          => 'firewall',
+			),
 			'jetpack_firewall_share_data'          => array(
 				'description'       => esc_html__( 'Share data with Jetpack.', 'jetpack' ),
 				'type'              => 'boolean',

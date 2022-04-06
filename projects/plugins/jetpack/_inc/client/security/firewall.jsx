@@ -31,8 +31,10 @@ export const Firewall = class extends Component {
 	 * @returns {{jetpack_firewall_ip_list: *, jetpack_firewall_share_data: *}}
 	 */
 	state = {
-		jetpack_firewall_ip_list: this.props.getOptionValue( 'jetpack_firewall_ip_list', 'sso' ),
-		jetpack_firewall_share_data: this.props.getOptionValue( 'jetpack_firewall_share_data', 'sso' ),
+		jetpack_firewall_ip_list: this.props.getOptionValue( 'jetpack_firewall_ip_list' ),
+		jetpack_firewall_ip_allow_list: this.props.getOptionValue( 'jetpack_firewall_ip_allow_list' ),
+		jetpack_firewall_ip_block_list: this.props.getOptionValue( 'jetpack_firewall_ip_block_list' ),
+		jetpack_firewall_share_data: this.props.getOptionValue( 'jetpack_firewall_share_data' ),
 	};
 
 	handleIpListToggleChange = () => {
@@ -41,6 +43,22 @@ export const Firewall = class extends Component {
 
 	handleShareDataToggleChange = () => {
 		this.updateOptions( 'jetpack_firewall_share_data' );
+	};
+
+	handleIpBlockListChange = event => {
+		this.setState( {
+			jetpack_firewall_ip_block_list: event.target.value,
+		} );
+
+		this.props.onOptionChange( event );
+	};
+
+	handleIpAllowListChange = event => {
+		this.setState( {
+			jetpack_firewall_ip_allow_list: event.target.value,
+		} );
+
+		this.props.onOptionChange( event );
 	};
 
 	/**
@@ -83,7 +101,15 @@ export const Firewall = class extends Component {
 			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'firewall' );
 
 		return (
-			<SettingsCard { ...this.props } header={ moduleHeader } hideButton module="firewall">
+			<SettingsCard
+				{ ...this.props }
+				header={ moduleHeader }
+				module="firewall"
+				saveDisabled={ this.props.isSavingAnyOption( [
+					'jetpack_firewall_ip_allow_list',
+					'jetpack_firewall_ip_block_list',
+				] ) }
+			>
 				<SettingsGroup disableInOfflineMode module={ this.props.getModule( 'firewall' ) }>
 					<ModuleToggle
 						slug="firewall"
@@ -118,11 +144,39 @@ export const Firewall = class extends Component {
 									<>
 										<div className="firewall__settings__ips">
 											<FormLabel>{ __( 'Blocked IP addresses', 'jetpack' ) }</FormLabel>
-											<Textarea placeholder="Example: 12.12.12.1-12.12.12.100" />
+											<Textarea
+												disabled={
+													! isFirewallActive ||
+													unavailableInOfflineMode ||
+													this.props.isSavingAnyOption( [
+														'firewall',
+														'jetpack_firewall_ip_list',
+														'jetpack_firewall_ip_block_list',
+													] )
+												}
+												name="jetpack_firewall_ip_block_list"
+												placeholder="Example: 12.12.12.1-12.12.12.100"
+												value={ this.state.jetpack_firewall_ip_block_list }
+												onChange={ this.handleIpBlockListChange }
+											/>
 										</div>
 										<div className="firewall__settings__ips">
-											<FormLabel>{ __( 'Blocked IP addresses', 'jetpack' ) }</FormLabel>
-											<Textarea placeholder="Example: 12.12.12.1-12.12.12.100" />
+											<FormLabel>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLabel>
+											<Textarea
+												disabled={
+													! isFirewallActive ||
+													unavailableInOfflineMode ||
+													this.props.isSavingAnyOption( [
+														'firewall',
+														'jetpack_firewall_ip_list',
+														'jetpack_firewall_ip_allow_list',
+													] )
+												}
+												name="jetpack_firewall_ip_allow_list"
+												placeholder="Example: 12.12.12.1-12.12.12.100"
+												value={ this.state.jetpack_firewall_ip_allow_list }
+												onChange={ this.handleIpAllowListChange }
+											/>
 										</div>
 									</>
 								) }
