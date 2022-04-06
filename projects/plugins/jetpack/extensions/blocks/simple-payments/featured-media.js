@@ -25,7 +25,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 			<MediaPlaceholder
 				icon={ <BlockIcon icon={ 'format-image' } /> }
 				labels={ {
-					title: __( 'Product Image', 'jetpack' ),
+					title: __( 'Image2', 'jetpack' ),
 				} }
 				accept="image/*"
 				allowedTypes={ [ 'image' ] }
