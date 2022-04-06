@@ -1119,10 +1119,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "52304f2788812cf815c681131406329da5ca6ba4"
+                "reference": "56190360ea5c27b9260f2682462dc9946a9d6ef9"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.37"
+                "automattic/jetpack-connection": "^1.38"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
