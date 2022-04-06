@@ -8,7 +8,7 @@ import { select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import ProductDetailCard from '../product-detail-card';
+import ConnectedProductDetailCard from '../connected-product-detail-card';
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
@@ -103,7 +103,7 @@ export default function ProductInterstitial( {
 						fluid
 					>
 						<Col sm={ 4 } md={ 4 } lg={ 7 }>
-							<ProductDetailCard
+							<ConnectedProductDetailCard
 								slug={ slug }
 								trackButtonClick={ trackProductClick }
 								onClick={ installsPlugin ? clickHandler : undefined }
@@ -112,7 +112,7 @@ export default function ProductInterstitial( {
 						</Col>
 						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
 							{ bundle ? (
-								<ProductDetailCard
+								<ConnectedProductDetailCard
 									slug="security"
 									trackButtonClick={ trackBundleClick }
 									className={ isUpgradableByBundle ? styles.container : null }
