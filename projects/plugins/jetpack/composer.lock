@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "58e6ced6b5ab2c650ba00cb6d4838dc8",
+    "content-hash": "17c48db347e411b76fc2cd14903b7669",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -787,6 +787,49 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack Error - a wrapper around WP_Error.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-global-styles-webfonts-introspector",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/global-styles-webfonts-introspector",
+                "reference": "e5e98c025007d6398194cf268dad558650569d37"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-global-styles-webfonts-introspector"
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Looks for webfonts picked in global styles",
             "transport-options": {
                 "relative": true
             }
@@ -5249,6 +5292,7 @@
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,
+        "automattic/jetpack-global-styles-webfonts-introspector": 20,
         "automattic/jetpack-google-fonts-provider": 20,
         "automattic/jetpack-heartbeat": 20,
         "automattic/jetpack-identity-crisis": 20,
