@@ -2,6 +2,32 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.9-a.1 - 2022-04-06
+### Enhancements
+- Payments Block: Re-loading the page will not cause payment form to open again.
+
+### Improved compatibility
+- Dashboard: Display block settings even when the Classic Editor plugin is active.
+- Mailchimp Popup widget: Widget deprecation.
+
+### Bug fixes
+- Contact Form: Ensure the form's input fields inherit a default font size.
+- Subscribe Block: Fix default styles block setting selection to "Split".
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: Add Pocket Casts dev block (for internal use only).
+- Creating and verifying a nonce for the Jetpack comments form.
+- E2E tests - bumped dependencies versions.
+- E2E tests: added custom error messages to the expect functions.
+- Janitorial: Refactor classes into shared package.
+- Re-added the jetpack-waf package to update the autoloader files in the composer.lock.
+- Removed eslint dependency which will now be loaded from root directory.
+- Updated package dependencies.
+- PHPCS updates to bring in line with WordPress standards. Files affected include SAL, lib, Custom CSS, JSON endpoints.
+- SEO Tools: Use the new feature eligibility checks for WordPress.com sites.
+- Made changes updating WordPress.com Personal plans to Pro.
+
+
 ## 10.8 - 2022-04-05
 ### Enhancements
 - Blocks: make settings discoverable and toggleable, and add a card to highlight the blocks available from Jetpack on the dashboard.

@@ -402,6 +402,26 @@ export function showMyJetpack( state ) {
 }
 
 /**
+ * Get an array of new recommendations for this site
+ *
+ * @param {object} state - Global state tree
+ * @returns {Array} - Array of recommendation slugs
+ */
+export function getNewRecommendations( state ) {
+	return get( state.jetpack.initialState, 'newRecommendations', [] );
+}
+
+/**
+ * Get a count of new recommendations for this site
+ *
+ * @param {object} state - Global state tree
+ * @returns {number} - Count of recommendations
+ */
+export function getNewRecommendationsCount( state ) {
+	return getNewRecommendations( state ).length;
+}
+
+/**
  * Determines if the Jetpack Licensing UI should be displayed
  *
  * @param {object} state - Global state tree

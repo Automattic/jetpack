@@ -5,7 +5,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { _x } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { _x, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
@@ -22,6 +23,7 @@ import {
 	getSiteRawUrl,
 	showRecommendations,
 	showMyJetpack,
+	getNewRecommendationsCount,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
@@ -104,7 +106,23 @@ export class Navigation extends React.Component {
 							onClick={ this.trackRecommendationsClick }
 							selected={ this.props.location.pathname.startsWith( '/recommendations' ) }
 						>
-							{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
+							{ createInterpolateElement(
+								sprintf(
+									/* translators: %d is a count of how many new (unread) recommendations are available. */
+									_x( 'Recommendations <count>%d</count>', 'Navigation item.', 'jetpack' ),
+									this.props.newRecommendationsCount
+								),
+								{
+									count: (
+										<span
+											className={
+												'dops-section-nav-tab__update-badge count-' +
+												this.props.newRecommendationsCount
+											}
+										></span>
+									),
+								}
+							) }
 						</NavItem>
 					) }
 					{ this.props.showMyJetpack && (
@@ -153,6 +171,7 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		showRecommendations: showRecommendations( state ),
+		newRecommendationsCount: getNewRecommendationsCount( state ),
 		siteUrl: getSiteRawUrl( state ),
 		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),
