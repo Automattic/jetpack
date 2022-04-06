@@ -79,7 +79,7 @@ function ProductIcons( { supportedProducts } ) {
  * @param {boolean} props.isLoading       - Applies the isLoading style to the component.
  * @param {string} props.className        - A className to be concat with default ones.
  * @param {Function} props.onAdd          - Callback function to be executed on click on Add button.
- * @param {string} props.href             - The URL to be used for the Add button.
+ * @param {string} props.addProductUrl    - The checkout URL to add/buy the product.
  * @returns {React.Component}               ProductDetailCard react component. Optional.
  */
 const ProductDetailCard = ( {
@@ -93,7 +93,7 @@ const ProductDetailCard = ( {
 	pricing,
 	hasRequiredPlan,
 	onAdd,
-	href,
+	addProductUrl,
 	isLoading,
 } ) => {
 	const { isFree, price, currency, offPrice } = pricing;
@@ -130,12 +130,12 @@ const ProductDetailCard = ( {
 
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Button
-						onClick={ onAdd }
+						onClick={ addProductUrl ? null : onAdd }
 						isLoading={ isLoading }
 						disabled={ isLoading }
 						variant={ isLoading || ! isBundle ? 'primary' : 'secondary' }
-						href={ onAdd ? undefined : href }
 						className={ styles[ 'add-button' ] }
+						{ ...( addProductUrl ? { href: addProductUrl } : {} ) }
 					>
 						{
 							/* translators: placeholder is product name. */
@@ -169,7 +169,7 @@ ProductDetailCard.propTypes = {
 	isFree: PropTypes.bool,
 	isLoading: PropTypes.bool,
 	onAdd: PropTypes.func,
-	href: PropTypes.string,
+	addProductUrl: PropTypes.string,
 };
 
 ProductDetailCard.defaultProps = {

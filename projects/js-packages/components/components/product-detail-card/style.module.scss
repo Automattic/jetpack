@@ -78,6 +78,7 @@
 .add-button {
 	width: 100%;
 	display: block;
+	text-align: center;
 	
 	&:global(.is-primary):disabled {
 		opacity: 1;
