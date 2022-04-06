@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -14,6 +14,7 @@ import Text, { H3 } from '../text/index.jsx';
 import { getIconBySlug, CheckmarkIcon } from '../product-icons/index.jsx';
 import ProductPrice from '../product-price/index.jsx';
 import styles from './style.module.scss';
+import Button from '../button/index.jsx';
 
 /**
  * Product Detail Card Header component.
@@ -74,10 +75,13 @@ function BundleProductIcons( { supportedProducts } ) {
  * @param {Array}  props.features         - Features list of the product.
  * @param {boolean} props.isBundle        - Whether or not the product is a bundle.
  * @param {Array} props.supportedProducts - List of supported products (for bundles).
- * @param {string} props.className        - A className to be concat with default ones.
  * @param {Object} props.pricing 	      - Product Pricing object.
  * @param {boolean} props.hasRequiredPlan - Whether or not the product has the required plan.
- * @returns {React.Component}               ProductDetailCard react component.
+ * @param {boolean} props.isLoading       - Applies the isLoading style to the component.
+ * @param {string} props.className        - A className to be concat with default ones.
+ * @param {Function} props.onAdd          - Callback function to be executed on click on Add button.
+ * @param {string} props.href             - The URL to be used for the Add button.
+ * @returns {React.Component}               ProductDetailCard react component. Optional.
  */
 const ProductDetailCard = ( {
 	className,
@@ -89,6 +93,9 @@ const ProductDetailCard = ( {
 	supportedProducts,
 	pricing,
 	hasRequiredPlan,
+	onAdd,
+	href,
+	isLoading,
 } ) => {
 	const { isFree, price, currency, offPrice } = pricing;
 
@@ -123,6 +130,22 @@ const ProductDetailCard = ( {
 
 			{ isFree && <H3>{ __( 'Free', 'jetpack' ) }</H3> }
 
+			{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+				<Button
+					onClick={ onAdd }
+					isLoading={ isLoading }
+					disabled={ isLoading }
+					variant={ isBundle ? 'secondary' : 'primary' }
+					href={ onAdd ? undefined : href }
+					className={ styles[ 'add-button' ] }
+				>
+					{
+						/* translators: placeholder is product name. */
+						sprintf( __( 'Add %s', 'jetpack' ), title )
+					}
+				</Button>
+			) }
+
 			{ isBundle && hasRequiredPlan && (
 				<div className={ styles[ 'product-has-required-plan' ] }>
 					<CheckmarkIcon size={ 36 } />
@@ -145,6 +168,9 @@ ProductDetailCard.propTypes = {
 	className: PropTypes.string,
 	hasRequiredPlan: PropTypes.bool,
 	isFree: PropTypes.bool,
+	isLoading: PropTypes.bool,
+	onAdd: PropTypes.func,
+	href: PropTypes.string,
 };
 
 ProductDetailCard.defaultProps = {
@@ -152,6 +178,8 @@ ProductDetailCard.defaultProps = {
 	isBundle: false,
 	supportedProducts: [],
 	pricing: {},
+	onAdd: () => {},
+	isLoading: false,
 };
 
 export default ProductDetailCard;
