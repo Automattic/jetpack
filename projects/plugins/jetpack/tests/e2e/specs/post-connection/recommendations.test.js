@@ -1,14 +1,16 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { RecommendationsPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
+import { Plans, prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
 
 test.beforeAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
 	await prerequisitesBuilder( page )
+		.withCleanEnv()
 		.withLoggedIn( true )
 		.withWpComLoggedIn( true )
 		.withConnection( true )
+		.withPlan( Plans.Free )
 		.build();
 	await page.close();
 } );
@@ -47,8 +49,20 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 		).toBeFalsy();
 	} );
 
-	await test.step( 'Save answers and continue to the Monitor step', async () => {
+	await test.step( 'Save answers and continue to plan recommendations', async () => {
 		await recommendationsPage.saveSiteTypeAndContinue();
+		await recommendationsPage.reload();
+		await recommendationsPage.waitForNetworkIdle();
+		const isProductSuggestionsStep = await recommendationsPage.isSkipProductSuggestionsButtonVisible();
+		expect( isProductSuggestionsStep, 'Product Suggestions step should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'product-suggestions' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
+	} );
+
+	await test.step( 'Skip plan recommendations and continue to the Monitor step', async () => {
+		await recommendationsPage.skipProductSuggestionsAndContinue();
 		await recommendationsPage.reload();
 		await recommendationsPage.waitForNetworkIdle();
 		const isMonitorStep = await recommendationsPage.isEnableMonitoringButtonVisible();
