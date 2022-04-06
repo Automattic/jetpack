@@ -15,6 +15,7 @@ export default {
 	component: ProductDetailCard,
 	decorators: [ withMock ],
 	parameters: {
+		actions: { argTypesRegex: '^on.*' },
 		layout: 'centered',
 	},
 };
@@ -42,4 +43,5 @@ Default.args = {
 		offPrice: '12.42',
 	},
 	hasRequiredPlan: true,
+	isLoading: false,
 };
