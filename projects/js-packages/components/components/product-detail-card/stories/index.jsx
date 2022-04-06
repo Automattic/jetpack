@@ -20,11 +20,11 @@ export default {
 	},
 };
 
-const DefaultProductDetailCard = args => <ProductDetailCard { ...args } />;
+const Template = args => <ProductDetailCard { ...args } />;
 
-export const Default = DefaultProductDetailCard.bind( {} );
-Default.parameters = {};
-Default.args = {
+export const SecurityBundle = Template.bind( {} );
+SecurityBundle.parameters = {};
+SecurityBundle.args = {
 	slug: 'security',
 	name: 'Security',
 	title: 'Security',
