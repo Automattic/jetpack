@@ -19,7 +19,7 @@ export function RecordCount( props ) {
 		<div data-testid="record-count" className="jp-search-record-count">
 			<p>
 				{ sprintf(
-					// translators: %1$d: site's current record count, %2$d: record limit of the current plan
+					// translators: %1$s: site's current record count, %2$s: record limit of the current plan
 					__(
 						'%1$s records indexed out of the %2$s allotted for your current plan',
 						'jetpack-search-pkg'
@@ -28,8 +28,6 @@ export function RecordCount( props ) {
 					props.planRecordLimit.toLocaleString()
 				) }
 			</p>
-
-			{ /* { ( 1234.56789 ).toLocaleString( undefined, { maximumFractionDigits: 2 } ) } */ }
 		</div>
 	);
 }
