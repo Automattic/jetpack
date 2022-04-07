@@ -406,6 +406,41 @@ importers:
       nyc: 15.1.0
       react: 17.0.2
 
+  projects/js-packages/social:
+    specifiers:
+      '@babel/core': 7.17.8
+      '@wordpress/api-fetch': 6.2.0
+      '@wordpress/blocks': 11.4.0
+      '@wordpress/data': 6.5.0
+      '@wordpress/editor': 12.4.0
+      '@wordpress/i18n': 4.5.0
+      jest: 27.3.1
+      jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
+      nyc: 15.1.0
+      react: 17.0.2
+      react-dom: 17.0.2
+      react-test-renderer: 17.0.2
+      refx: 3.1.1
+      rememo: 3.0.0
+    dependencies:
+      '@wordpress/api-fetch': 6.2.0
+      '@wordpress/blocks': 11.4.0_react@17.0.2
+      '@wordpress/data': 6.5.0_react@17.0.2
+      '@wordpress/editor': 12.4.0_978f344c876a57c1143ffe356b90df31
+      '@wordpress/i18n': 4.5.0
+      lodash: 4.17.21
+      refx: 3.1.1
+      rememo: 3.0.0
+    devDependencies:
+      '@babel/core': 7.17.8
+      jest: 27.3.1
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-test-renderer: 17.0.2_react@17.0.2
+
   projects/js-packages/storybook:
     specifiers:
       '@automattic/jetpack-components': workspace:* || ^0.11
@@ -1967,7 +2002,7 @@ packages:
       convert-source-map: 1.8.0
       debug: 4.3.3
       gensync: 1.0.0-beta.2
-      json5: 2.2.0
+      json5: 2.2.1
       semver: 6.3.0
     transitivePeerDependencies:
       - supports-color
@@ -16859,7 +16894,6 @@ packages:
     resolution: {integrity: sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==}
     engines: {node: '>=6'}
     hasBin: true
-    dev: true
 
   /jsonfile/2.4.0:
     resolution: {integrity: sha1-NzaitCi4e72gzIO1P6PWM6NcKug=}
