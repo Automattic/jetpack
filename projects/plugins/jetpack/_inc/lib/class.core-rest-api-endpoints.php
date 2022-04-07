@@ -31,7 +31,7 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
 
 // Create discount after site has been successfully connected.
-add_action( 'jetpack_authorize_ending_authorized', array( 'Jetpack_Core_Json_Api_Endpoints', 'create_site_discount' ) );
+add_action( 'jetpack_site_registered', array( 'Jetpack_Core_Json_Api_Endpoints', 'create_site_discount' ) );
 
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
@@ -2075,7 +2075,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			"/sites/$site_id/discount",
 			'2',
 			array(
@@ -2083,7 +2083,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'headers' => array(
 					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
-			)
+			),
+			null,
+			'wpcom'
 		);
 
 		$response_code = wp_remote_retrieve_response_code( $response );
