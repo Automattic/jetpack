@@ -24,7 +24,7 @@ const VulnerabilityItem = ( { name, version, vulnerabilities } ) => {
 			</Col>
 			<Col lg={ 8 }>
 				{ vulnerabilities.map( vulnerability => (
-					<div className={ styles.vulnerability }>
+					<div className={ styles.vulnerability } key={ vulnerability.id }>
 						<Button
 							href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: vulnerability.id } ) }
 							variant="external-link"
@@ -51,6 +51,7 @@ const VulnerabilitiesList = ( { title, list } ) => {
 			<H3>{ title }</H3>
 			{ list.map( item => (
 				<VulnerabilityItem
+					key={ item.name }
 					name={ item.name }
 					version={ item.version }
 					vulnerabilities={ item.vulnerabilities }
