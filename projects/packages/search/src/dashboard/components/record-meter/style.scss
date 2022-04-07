@@ -2,16 +2,8 @@
 	max-height: 40px;
 }
 
-.jp-search-chart-legend__box {
-	margin-right: 3px;
-	margin-left: 6px;
-	width: 15px;
-	height: 15px;
-	border-radius: 100%;
-	display: inline-block;
-}
-
 .jp-search-chart-legend {
+	font-size: 0.9em;
 	list-style: none;
 	display: inline-block;
 }
@@ -35,6 +27,15 @@ ul.jp-search-chart-legend {
 	display: inherit;
 }
 
+.jp-search-chart-legend__box {
+	margin-right: 3px;
+	margin-left: 6px;
+	width: 15px;
+	height: 15px;
+	border-radius: 100%;
+	display: inline-block;
+}
+
 .jp-search-notice-box {
 	border: solid 0.5px lightgrey;
 	margin-left: 5px;
@@ -46,10 +47,6 @@ ul.jp-search-chart-legend {
 	color: red;
 	margin-left: 5px;
 	padding: 0 5px;
-}
-
-.jp-search-chart-legend {
-	font-size: 0.9em;
 }
 
 .jp-search-record-count p {
