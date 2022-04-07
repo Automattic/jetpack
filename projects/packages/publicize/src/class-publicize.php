@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
-use Jetpack_IXR_Client as Jetpack_IXR_Client;
+use Jetpack_IXR_Client;
 use Jetpack_Options as Jetpack_Options;
 
 /**
@@ -177,7 +177,7 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_all_connections() {
 		$this->refresh_connections();
-		$connections = \Jetpack_Options::get_option( 'publicize_connections' );
+		$connections = Jetpack_Options::get_option( 'publicize_connections' );
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
 		}
@@ -431,7 +431,7 @@ class Publicize extends Publicize_Base {
 		if ( get_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT ) ) {
 			return;
 		}
-		$xml = new \Jetpack_IXR_Client();
+		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.fetchPublicizeConnections' );
 		$wait_time = HOUR_IN_SECONDS * 24;
 
