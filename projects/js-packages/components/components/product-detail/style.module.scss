@@ -2,7 +2,6 @@
 	height: 100%;
 	padding: calc( var( --spacing-base ) * 8 );
 	position: relative;
-	min-width: calc( var( --spacing-base ) * 48 );
 
 	&.is-card {
 		background-color: var( --jp-white );
@@ -21,8 +20,8 @@
 	align-items: center;
 	background: var( --jp-black );
 	color: var( --jp-white );
-	padding: 0 var( --spacing-base );
-	height: calc( var( --spacing-base ) * 4 );
+	padding: calc( var( --spacing-base ) / 2 ) var( --spacing-base );
+	line-height: calc( var( --spacing-base ) * 3 );
 	position: absolute;
 	top: 0;
 	left: 0;
