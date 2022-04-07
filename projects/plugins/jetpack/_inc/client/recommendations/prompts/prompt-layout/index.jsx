@@ -17,30 +17,55 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const PromptLayout = props => {
-	const { answer, description, illustrationPath, progressBar, question } = props;
+	const {
+		answer,
+		description,
+		illustrationPath,
+		progressBar,
+		question,
+		content,
+		isNew,
+		rna,
+	} = props;
 
 	return (
 		<div
 			className={ classNames( 'jp-recommendations-question__main', {
 				'jp-recommendations-question__main--with-illustration': !! illustrationPath,
+				'jp-recommendations-question__main--with-illustration--rna': !! illustrationPath && !! rna,
 			} ) }
 		>
 			<div className="jp-recommendations-question__content">
-				<div className="jp-recommendations-question__progress-bar">{ progressBar }</div>
+				{ ( isNew || progressBar ) && (
+					<div className="jp-recommendations-question__progress-bar-wrap">
+						{ isNew && (
+							<span className="jp-recommendations__new-badge">{ __( 'New', 'jetpack' ) }</span>
+						) }
+						<div className="jp-recommendations-question__progress-bar">{ progressBar }</div>
+					</div>
+				) }
 				<h1 className="jp-recommendations-question__question">{ question }</h1>
 				<p className="jp-recommendations-question__description">{ description }</p>
+				{ content }
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>
 			{ illustrationPath && (
-				<div className="jp-recommendations-question__illustration-container">
-					<img
-						className="jp-recommendations-question__illustration-background"
-						src={ imagePath + 'recommendations/background.svg' }
-						alt={ __(
-							'An illustration of a browser window used as the container to visually represent the current question.',
-							'jetpack'
-						) }
-					/>
+				<div
+					className={
+						'jp-recommendations-question__illustration-container ' +
+						( rna ? 'jp-recommendations-question__illustration-container--rna' : '' )
+					}
+				>
+					{ ! rna && (
+						<img
+							className="jp-recommendations-question__illustration-background"
+							src={ imagePath + 'recommendations/background.svg' }
+							alt={ __(
+								'An illustration of a browser window used as the container to visually represent the current question.',
+								'jetpack'
+							) }
+						/>
+					) }
 					<img
 						className="jp-recommendations-question__illustration-foreground"
 						src={ imagePath + illustrationPath }

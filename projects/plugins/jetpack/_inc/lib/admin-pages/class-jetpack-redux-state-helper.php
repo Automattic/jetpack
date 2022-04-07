@@ -208,6 +208,7 @@ class Jetpack_Redux_State_Helper {
 				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
 			),
 			'hasSeenWCConnectionModal'    => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
+			'newRecommendations'          => Jetpack_Recommendations::get_new_conditional_recommendations(),
 			// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
 			'isWooCommerceActive'         => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
 		);
@@ -357,7 +358,7 @@ class Jetpack_Redux_State_Helper {
 		$connect_urls = array();
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 		// phpcs:disable
-		foreach ( Jetpack_Keyring_Service_Helper::$SERVICES as $service_name => $service_info ) {
+		foreach ( Jetpack_Keyring_Service_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable
 			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name, $service_info['for'] );
 		}
