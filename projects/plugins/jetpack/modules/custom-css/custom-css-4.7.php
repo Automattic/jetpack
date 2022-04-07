@@ -3,7 +3,6 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 
-
 /**
  * Alternate Custom CSS source for 4.7 compat.
  *
