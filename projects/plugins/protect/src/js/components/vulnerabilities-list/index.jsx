@@ -26,7 +26,7 @@ const VulnerabilityItem = ( { name, version, vulnerabilities } ) => {
 				{ vulnerabilities.map( vulnerability => (
 					<div className={ styles.vulnerability }>
 						<Button
-							href={ getRedirectUrl( 'wpscan-vul', { vul: vulnerability.id } ) }
+							href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: vulnerability.id } ) }
 							variant="external-link"
 						>
 							{ vulnerability.title }
