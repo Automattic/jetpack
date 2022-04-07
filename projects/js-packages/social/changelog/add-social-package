@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Created the shared-extension-utils library. Copied jetpack/extensions/plugins/publicize/store to src/store. Changed test assertions to use expect from 'chai'
