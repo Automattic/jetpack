@@ -51,14 +51,11 @@ test.describe( 'Sync', () => {
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
-			await expect(
-				await waitTillSyncQueueIsNotEmpty( 1000, 20 ),
-				'Sync queue should be not empty'
-			).toBeTruthy();
+			await expect( waitTillSyncQueueIsNotEmpty(), 'Sync queue should be not empty' ).toBeTruthy();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await expect( await waitTillSyncQueueIsEmpty(), 'Sync queue should be empty' ).toBeTruthy();
+			await expect( waitTillSyncQueueIsEmpty(), 'Sync queue should be empty' ).toBeTruthy();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
@@ -114,15 +111,15 @@ test.describe( 'Sync', () => {
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
-			expect(
-				await waitTillSyncQueueIsNotEmpty( 1000, 20 ),
+			await expect(
+				waitTillSyncQueueIsNotEmpty( 1000, 20 ),
 				'Sync queue should be not empty'
 			).toBeTruthy();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
 			await expect(
-				await waitTillSyncQueueIsEmpty( 1000, 20 ),
+				waitTillSyncQueueIsEmpty( 1000, 20 ),
 				'Sync queue should be empty'
 			).toBeTruthy();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
