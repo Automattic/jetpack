@@ -21,9 +21,9 @@ import Button from '../button/index.jsx';
  *
  * @param {object} props       - Component props.
  * @param {string} props.title - Product title.
- * @returns {React.Component}  ProductDetailHeader react component.
+ * @returns {React.Component}  ProductOfferHeader react component.
  */
-function ProductDetailHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
+function ProductOfferHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
 	return (
 		<div className={ styles[ 'card-header' ] }>
 			<Icon icon={ star } className={ styles[ 'product-bundle-icon' ] } size={ 24 } />
@@ -83,9 +83,9 @@ function ProductIcons( { products } ) {
  * @param {string} props.className        - A className to be concat with default ones.
  * @param {Function} props.onAdd          - Callback function to be executed on click on Add button.
  * @param {string} props.addProductUrl    - The checkout URL to add/buy the product.
- * @returns {React.Component}               ProductDetail react component. Optional.
+ * @returns {React.Component}               ProductOffer react component. Optional.
  */
-const ProductDetail = ( {
+const ProductOffer = ( {
 	className,
 	slug,
 	title,
@@ -110,7 +110,7 @@ const ProductDetail = ( {
 				[ styles[ 'is-card' ] ]: isCard || isBundle, // is card when is bundle.
 			} ) }
 		>
-			{ isBundle && <ProductDetailHeader /> }
+			{ isBundle && <ProductOfferHeader /> }
 
 			<div className={ styles[ 'card-container' ] }>
 				<ProductIcons
@@ -162,7 +162,7 @@ const ProductDetail = ( {
 	);
 };
 
-ProductDetail.propTypes = {
+ProductOffer.propTypes = {
 	slug: PropTypes.string.isRequired,
 	name: PropTypes.string,
 	title: PropTypes.string,
@@ -180,7 +180,7 @@ ProductDetail.propTypes = {
 	addProductUrl: PropTypes.string,
 };
 
-ProductDetail.defaultProps = {
+ProductOffer.defaultProps = {
 	trackButtonClick: () => {},
 	isBundle: false,
 	pricing: {},
@@ -188,4 +188,4 @@ ProductDetail.defaultProps = {
 	isLoading: false,
 };
 
-export default ProductDetail;
+export default ProductOffer;
