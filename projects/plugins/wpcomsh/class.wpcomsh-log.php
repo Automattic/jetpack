@@ -1,5 +1,11 @@
 <?php
 /**
+ * WPCOMSH Log file.
+ *
+ * @package wpcomsh
+ */
+
+/**
  * Class WPCOMSH_Log
  *
  * This is an interface for logging arbitrary data to wpcom logstash cluster.
@@ -8,17 +14,46 @@
  * do_action( 'wpcomsh_log', "test" );
  * ```
  *
- * You can see logs in Kibana, log2logstash index, `feature:automated_transfer`
+ * You can see logs in Kibana, log2logstash index, `feature:automated_transfer`.
  *
  * Note that logging must be enabled for the site for the logs to be sent,
  * which involves enabling the `at_options_logging_on` site option on the
  * Jetpack site.
  */
 class WPCOMSH_Log {
+	/**
+	 * Logging Endpoint URL.
+	 *
+	 * @var string
+	 */
 	protected static $log_endpoint = 'https://public-api.wordpress.com/rest/v1.1/automated-transfers/log';
+
+	/**
+	 * Class instance.
+	 *
+	 * @var WPCOMSH_Log
+	 */
 	private static $instance;
-	private $log_queue         = array();
+
+	/**
+	 * Queue of log messages.
+	 *
+	 * @var array
+	 */
+	private $log_queue = array();
+
+	/**
+	 * Whether it has a shutdown hook.
+	 *
+	 * @var bool
+	 */
 	private $has_shutdown_hook = false;
+
+	/**
+	 * Site URL.
+	 *
+	 * @var string
+	 */
 	private $siteurl;
 
 	/**
@@ -46,7 +81,8 @@ class WPCOMSH_Log {
 	 * we are sure that we don't fire it off frequently. Good example of when we want to use this
 	 * is during the site setup process
 	 *
-	 * @param $message
+	 * @param string $message Log message.
+	 * @param array  $extra   Optional. Additional log data. Defaults to empty array.
 	 */
 	public static function unsafe_direct_log( $message, $extra = array() ) {
 		if ( ! self::$instance ) {
@@ -55,14 +91,26 @@ class WPCOMSH_Log {
 		self::$instance->log( $message, $extra );
 	}
 
-
+	/**
+	 * Constructor.
+	 */
 	private function __construct() {
 		$this->siteurl = get_site_url();
 	}
+
+	/**
+	 * Adds the log action.
+	 */
 	private function add_hooks() {
 		add_action( 'wpcomsh_log', array( $this, 'log' ), 1 );
 	}
 
+	/**
+	 * Logs a log message.
+	 *
+	 * @param string $message Log message.
+	 * @param array  $extra   Optional. Additional log data. Defaults to empty array.
+	 */
 	public function log( $message, $extra = array() ) {
 		$this->log_queue[] = array(
 			'message' => $message,
@@ -74,6 +122,9 @@ class WPCOMSH_Log {
 		}
 	}
 
+	/**
+	 * Sends log messages to the API endpoint.
+	 */
 	public function send_to_api() {
 		if ( count( $this->log_queue ) > 0 ) {
 			$payload = array(
@@ -81,7 +132,7 @@ class WPCOMSH_Log {
 				'messages' => $this->log_queue,
 			);
 
-			wp_remote_post( self::$log_endpoint, array( 'body' => array( 'error' => json_encode( $payload ) ) ) );
+			wp_remote_post( self::$log_endpoint, array( 'body' => array( 'error' => wp_json_encode( $payload ) ) ) );
 		}
 	}
 }

@@ -8,4 +8,5 @@
  * @package WPCOMSH
  */
 
+// Require feature classes.
 require_once __DIR__ . '/class-manage-additional-css-feature.php';

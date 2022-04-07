@@ -1,12 +1,21 @@
 <?php
 /**
+ * Block theme footer credits file.
+ *
+ * @package block-theme-footer-credits
+ */
+
+/**
  * Inserts a footer credits bar on every free WPCOM Block-based theme site.
  * Explanatory post: pcjTuq-ff-p2
  */
 class WPCOM_Block_Theme_Footer_Credits {
-	// Update when we make changes to frontend assets to force a cache bust
+	// Update when we make changes to frontend assets to force a cache bust.
 	const FRONTEND_ASSETS_VERSION = '20210319';
 
+	/**
+	 * Initializes the plugin.
+	 */
 	public function init() {
 		$blog_id = get_current_blog_id();
 
@@ -89,7 +98,7 @@ class WPCOM_Block_Theme_Footer_Credits {
 		}
 
 		// If we're not using the site editor-capable theme, don't show.
-		if ( ! $this->is_fse_theme( $blog_id ) ) {
+		if ( ! $this->is_fse_theme() ) {
 			return false;
 		}
 
@@ -108,17 +117,17 @@ class WPCOM_Block_Theme_Footer_Credits {
 
 		return apply_filters( 'wpcom_should_show_block_theme_footer_credits', true );
 	}
+
 	/**
 	 * Determine if the site is running an FSE theme.
 	 *
-	 * @param  int $blog_id The blog_id
-	 * @return bool         True if the theme is a FSE/Site Editor theme
+	 * @return bool True if the theme is a FSE/Site Editor theme
 	 */
-	private function is_fse_theme( $blog_id ) {
+	private function is_fse_theme() {
 		/*
-		 The gutenberg_is_fse_theme method exists in Gutenberg core
-		 https://github.com/WordPress/gutenberg/blob/da8555d258edbe676fa079fb51252f918ae032e1/lib/full-site-editing/full-site-editing.php#L13
-		 so we need to load after the theme is load to ensure it's available.
+		 * The gutenberg_is_fse_theme method exists in Gutenberg core
+		 * https://github.com/WordPress/gutenberg/blob/da8555d258edbe676fa079fb51252f918ae032e1/lib/full-site-editing/full-site-editing.php#L13
+		 * so we need to load after the theme is load to ensure it's available.
 		 */
 		if ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) {
 			return true;

@@ -1,11 +1,16 @@
 <?php
+/**
+ * Migration helper functions.
+ *
+ * @package wpcom-migration-helpers
+ */
 
 /**
  * Checks if there's an active site migration happening for the current site.
  *
  * The current site is the destination site for the migration.
  *
- * @return mixed|void
+ * @return bool
  */
 function wpcomsh_is_migration_in_progress() {
 	return get_option( 'wpcomsh_site_migration_status', false ) === '1';
@@ -41,7 +46,7 @@ add_action( 'admin_init', 'wpcomsh_redirect_if_active_migration' );
 /**
  * Allow setting the `site_migration_status` from WPCOM to the target site through Jetpack.
  *
- * @param $options
+ * @param array $options List of allowed Jetpack options.
  *
  * @return array
  */

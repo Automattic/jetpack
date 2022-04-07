@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Plugin Name: Logo Tool
  * Plugin URI: http://wordpress.com
  * Description: Add a "Create Logo" button to the Customizer when the theme supports a logo. The button directs customers to LogoJoy.
@@ -7,13 +7,15 @@
  * Version: 1.4
  * Author URI: http://wordpress.com
  * License: GPL2 or later
+ *
+ * @package logo-tool
  */
 
 /**
  * IMPORTANT: All changes in this plugin should be synced between wpcom (Simple Sites) and wpcomsh (Atomic Sites).
  *
- * https://wpcom.trac.automattic.com/browser/trunk/wp-content/mu-plugins/logo-tool
- * https://github.com/Automattic/wpcomsh/tree/master/logo-tool
+ * @see https://wpcom.trac.automattic.com/browser/trunk/wp-content/mu-plugins/logo-tool
+ * @see https://github.com/Automattic/wpcomsh/tree/master/logo-tool
  */
 
 /**

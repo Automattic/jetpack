@@ -1,9 +1,14 @@
 <?php
+/**
+ * Storefront file.
+ *
+ * @package storefront
+ */
 
 /**
  * Checks for the WooCommerce plugin and symlink storefront themes, if not yet done.
  *
- * @return void
+ * @return void|bool|WP_Error
  */
 function wpcomsh_maybe_symlink_storefront() {
 	$is_storefront_installed = (bool) get_option( 'at_storefront_installed' );
@@ -20,10 +25,12 @@ function wpcomsh_maybe_symlink_storefront() {
 
 		// Exit early if storefront parent theme was not symlinked.
 		if ( is_wp_error( $was_storefront_symlinked ) ) {
+			// phpcs:disable WordPress.PHP.DevelopmentFunctions
 			error_log(
 				"Can't symlink storefront parent theme. Error: "
 				. print_r( $was_storefront_symlinked, true )
 			);
+			// phpcs:enable
 
 			return $was_storefront_symlinked;
 		}
@@ -45,6 +52,7 @@ function wpcomsh_site_has_woocommerce() {
 /**
  * Checks if the theme is the symlinked storefront theme.
  *
+ * @param string $theme_slug Theme slug.
  * @return bool
  */
 function wpcomsh_is_symlinked_storefront_theme( $theme_slug ) {
@@ -54,6 +62,8 @@ function wpcomsh_is_symlinked_storefront_theme( $theme_slug ) {
 /**
  * Handles deletion of the storefront parent theme.
  *
+ * @param bool   $result     Whether theme deletion was successful.
+ * @param string $theme_slug Theme slug.
  * @return bool|WP_Error
  */
 function wpcomsh_jetpack_storefront_theme_delete( $result, $theme_slug ) {
@@ -75,10 +85,12 @@ function wpcomsh_symlink_storefront_parent_theme() {
 		$storefront_theme_symlink_path = get_theme_root() . '/storefront';
 
 		if ( ! symlink( $storefront_theme_path, $storefront_theme_symlink_path ) ) {
-			$error_message = "Can't symlink the storefront parent theme." .
-							 'Make sure it exists in the ' . WPCOMSH_STOREFRONT_PATH . ' directory.';
+			$error_message = sprintf(
+				"Can't symlink the storefront parent theme. Make sure it exists in the %s directory.",
+				WPCOMSH_STOREFRONT_PATH
+			);
 
-			error_log( 'WPComSH: ' . $error_message );
+			error_log( 'WPComSH: ' . $error_message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
 
 			return new WP_Error( 'error_symlinking_theme', $error_message );
 		}

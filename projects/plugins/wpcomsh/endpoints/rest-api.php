@@ -1,5 +1,11 @@
 <?php
+/**
+ * Custom REST API endpoints for wpcomsh.
+ *
+ * @package endpoints
+ */
 
+// Require endpoint files.
 require_once 'rest-api-export.php';
 require_once 'rest-api-logout.php';
 require_once 'rest-api-reconnect.php';

@@ -13,9 +13,12 @@
  *
  * Team: View
  * Explanatory post: pcjTuq-ff-p2
+ *
+ * @package block-theme-footer-credits
  */
 
- require_once __DIR__ . '/class-wpcom-block-theme-footer-credits.php';
+// Include plugin class.
+require_once __DIR__ . '/class-wpcom-block-theme-footer-credits.php';
 
 $wpcom_block_theme_footer_credits = new WPCOM_Block_Theme_Footer_Credits();
 

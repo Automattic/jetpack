@@ -4,10 +4,15 @@
  *
  * CoBlocks is automatically installed as part of the WordPress.com on Atomic migration process.
  * We need to adjust some CoBlocks behaviors to provide tailored WordPress.com experience.
+ *
+ * @package coblocks
  */
 
+/**
+ * Makes coblock modifications once all plugins have been loaded.
+ */
 function wpcomsh_coblocks_plugins_loaded() {
-	// Disable CoBlocks block-patterns
+	// Disable CoBlocks block-patterns.
 	// See https://github.com/godaddy-wordpress/coblocks/pull/1659
 	if (
 		class_exists( 'CoBlocks_Block_Patterns' )
@@ -47,6 +52,6 @@ function wpcomsh_coblocks_there_can_be_only_one_opentable_block() {
 		SCRIPT
 	);
 }
-// Use later priority to give coblocks plenty of time to enqueue its scripts
+// Use later priority to give coblocks plenty of time to enqueue its scripts.
 add_action( 'enqueue_block_editor_assets', 'wpcomsh_coblocks_there_can_be_only_one_opentable_block', 99 );
 

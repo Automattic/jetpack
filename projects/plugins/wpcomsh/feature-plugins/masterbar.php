@@ -50,6 +50,7 @@ add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_masterbar_module_lis
  * @return bool
  */
 function wpcomsh_is_admin_menu_api_request() {
+	// phpcs:ignore WordPress.Security
 	return 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 }
 
@@ -101,7 +102,7 @@ function wpcomsh_hide_color_schemes() {
 		return false;
 	}
 	$connection_manager        = new Connection_Manager( 'jetpack' );
-	$user_id_from_query_string = isset( $_GET['user_id'] ) ? $_GET['user_id'] : false;
+	$user_id_from_query_string = isset( $_GET['user_id'] ) ? $_GET['user_id'] : false; // phpcs:ignore WordPress.Security
 
 	if ( ! $connection_manager->is_user_connected( $user_id_from_query_string ) ) {
 		// If this is a local user, show the default UX.
@@ -126,9 +127,8 @@ add_action( 'load-user-edit.php', 'wpcomsh_hide_color_schemes' );
  *
  * @param string $transient  The name of the transient.
  * @param mixed  $value      Transient value.
- * @param int    $expiration Time until expiration in seconds.
  */
-function wpcomsh_set_connected_user_data_as_user_options( $transient, $value, $expiration ) {
+function wpcomsh_set_connected_user_data_as_user_options( $transient, $value ) {
 	if ( 0 !== strpos( $transient, 'jetpack_connected_user_data_' . get_current_user_id() ) ) {
 		return;
 	}
@@ -149,7 +149,7 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value, $e
 		set_user_setting( 'mfold', $value['sidebar_collapsed'] ? 'f' : 'o' );
 	}
 }
-add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options', 10, 3 );
+add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options', 10, 2 );
 
 /**
  * Determines whether Nav Unification should be enabled (pbAPfg-Ou-p2).
@@ -168,7 +168,7 @@ function wpcomsh_activate_nav_unification() {
 	}
 
 	// Disable when explicitly requested. This is an escape hatch for HEs. See paYJgx-1p8-p2.
-	if ( isset( $_GET['disable-nav-unification'] ) ) {
+	if ( isset( $_GET['disable-nav-unification'] ) ) { // phpcs:ignore WordPress.Security
 		return false;
 	}
 
@@ -207,6 +207,7 @@ add_filter( 'jetpack_show_wpcom_upgrades_email_menu', '__return_true' );
  * Checks if site sticker is toggled on/off.
  * For further information/context on Atomic_Persistent_Data and site_stickers please also see this diff: D66496-code
  *
+ * @param string $sticker_name Name of the site sticker to check.
  * @return boolean
  */
 function wpcomsh_is_site_sticker_active( $sticker_name ) {
@@ -226,13 +227,12 @@ function wpcomsh_is_site_sticker_active( $sticker_name ) {
 /**
  * Forces the Add New (plugin install) link to be Calypso.
  *
- * @param string $url    The complete URL including scheme and path.
- * @param string $path   Path relative to the URL. Blank string if no path is specified.
- * @param string $scheme The scheme to use.
+ * @param string $url  The complete URL including scheme and path.
+ * @param string $path Path relative to the URL. Blank string if no path is specified.
  *
  * @return string
  */
-function wpcomsh_update_plugin_link_destination( $url, $path, $scheme ) {
+function wpcomsh_update_plugin_link_destination( $url, $path ) {
 	// Run only for plugin-install.php links.
 	if ( ! strpos( $url, '/plugin-install.php' ) ) {
 		return $url;
@@ -259,7 +259,7 @@ function wpcomsh_update_plugin_add_filter() {
 	}
 
 	// We also need to change the any plugin-install.php links appearing in /wp-admin/plugins.php or elsewhere.
-	add_filter( 'self_admin_url', 'wpcomsh_update_plugin_link_destination', 10, 3 );
+	add_filter( 'self_admin_url', 'wpcomsh_update_plugin_link_destination', 10, 2 );
 }
 add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
 

@@ -1,9 +1,19 @@
 <?php
+/**
+ * File for Customizer fixes.
+ *
+ * @package wpcomsh
+ */
 
+/**
+ * Enqueues the script with customizer fixes.
+ */
 function customizer_fixes_scripts() {
-	// Because we support private sites by default, we should override '_wpCustomizeControlsL10n' values set in script-loader.php
-	// This is to avoid confusion between saving site changes and publishing or launching a site
-	wp_register_script( 'customizer-labels-site-not-launched', plugin_dir_url( __FILE__ ) . 'customizer-labels-site-not-launched.js', array( 'customize-controls' ), '20210206' );
+	/*
+	 * Because we support private sites by default, we should override '_wpCustomizeControlsL10n' values set in script-loader.php
+	 * This is to avoid confusion between saving site changes and publishing or launching a site.
+	 */
+	wp_register_script( 'customizer-labels-site-not-launched', plugin_dir_url( __FILE__ ) . 'customizer-labels-site-not-launched.js', array( 'customize-controls' ), '20210206', false );
 	wp_localize_script(
 		'customizer-labels-site-not-launched',
 		'_wpCustomizeControlsL10nSitePrivate',

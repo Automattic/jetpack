@@ -1,4 +1,9 @@
 <?php
+/**
+ * Constants file.
+ *
+ * @package wpcomsh
+ */
 
 $current_dir = dirname( __FILE__ );
 

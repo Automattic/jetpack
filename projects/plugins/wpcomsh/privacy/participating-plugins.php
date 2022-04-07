@@ -1,4 +1,9 @@
 <?php
+/**
+ * Privacy Participating Plugins file.
+ *
+ * @package privacy
+ */
 
 if ( ! class_exists( 'WP_Privacy_Participating_Plugins' ) ) {
 	/**
@@ -8,28 +13,50 @@ if ( ! class_exists( 'WP_Privacy_Participating_Plugins' ) ) {
 	 * scope of the exporters, erasers and privacy policy guide.
 	 */
 	class WP_Privacy_Participating_Plugins {
+		/**
+		 * WP_Privacy_Participating_Plugins instance.
+		 *
+		 * @var WP_Privacy_Participating_Plugins
+		 */
 		private static $instance;
 
-		public static function getInstance() {
+		/**
+		 * Returns a class instance.
+		 *
+		 * @return WP_Privacy_Participating_Plugins
+		 */
+		public static function getInstance() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 			if ( null === self::$instance ) {
 				self::$instance = new self();
 			}
 			return self::$instance;
 		}
 
+		/**
+		 * Prevent cloning.
+		 */
 		private function __clone() {
 		}
 
+		/**
+		 * Prevent unserialization.
+		 */
 		public function __wakeup() {
 		}
 
+		/**
+		 * Constructor.
+		 */
 		protected function __construct() {
 			add_action( 'admin_footer', array( $this, 'maybe_add_erasers_info' ) );
 			add_action( 'admin_footer', array( $this, 'maybe_add_exporters_info' ) );
 			add_action( 'admin_footer', array( $this, 'maybe_add_privacy_info' ) );
 		}
 
-		function maybe_add_erasers_info() {
+		/**
+		 * Determines if erasers info should be displayed and does so. Or not.
+		 */
+		public function maybe_add_erasers_info() {
 			if ( ! function_exists( 'get_current_screen' ) ) {
 				return;
 			}
@@ -57,8 +84,8 @@ time:',
 			?>
 				<script type="text/javascript">
 					jQuery( document ).ready( function( $ ) {
-						var prompt = <?php echo json_encode( $prompt ); ?>;
-						var erasers = <?php echo json_encode( $erasers ); ?>;
+						var prompt = <?php echo wp_json_encode( $prompt ); ?>;
+						var erasers = <?php echo wp_json_encode( $erasers ); ?>;
 						var isRemovePage = $( 'body' ).hasClass( 'tools_page_remove_personal_data' );
 
 						if ( isRemovePage ) {
@@ -68,9 +95,9 @@ time:',
 							$( '.wp-privacy-eraser-notice' ).html( '<p>' + prompt + '</p>' );
 							if ( erasers ) {
 								$( '.wp-privacy-eraser-notice' ).append( '<ul></ul>' );
-									$.map( erasers, function( val ) {
-										$( '.wp-privacy-eraser-notice ul' ).append( '<li>' + val.eraser_friendly_name + '</li>' );
-									} );
+								$.map( erasers, function( val ) {
+									$( '.wp-privacy-eraser-notice ul' ).append( '<li>' + val.eraser_friendly_name + '</li>' );
+								} );
 							}
 						}
 					} );
@@ -78,7 +105,10 @@ time:',
 			<?php
 		}
 
-		function maybe_add_exporters_info() {
+		/**
+		 * Determines if exporters info should be displayed and does so. Or not.
+		 */
+		public function maybe_add_exporters_info() {
 			if ( ! function_exists( 'get_current_screen' ) ) {
 				return;
 			}
@@ -105,8 +135,8 @@ includes only the following items at this time:',
 			?>
 				<script type="text/javascript">
 					jQuery( document ).ready( function( $ ) {
-						var prompt = <?php echo json_encode( $prompt ); ?>;
-						var exporters = <?php echo json_encode( $exporters ); ?>;
+						var prompt = <?php echo wp_json_encode( $prompt ); ?>;
+						var exporters = <?php echo wp_json_encode( $exporters ); ?>;
 						var isExportPage = $( 'body' ).hasClass( 'tools_page_export_personal_data' );
 
 						if ( isExportPage ) {
@@ -116,9 +146,9 @@ includes only the following items at this time:',
 							$( '.wp-privacy-exporter-notice' ).html( '<p>' + prompt + '</p>' );
 							if ( exporters ) {
 								$( '.wp-privacy-exporter-notice' ).append( '<ul></ul>' );
-									$.map( exporters, function( val ) {
-										$( '.wp-privacy-exporter-notice ul' ).append( '<li>' + val.exporter_friendly_name + '</li>' );
-									} );
+								$.map( exporters, function( val ) {
+									$( '.wp-privacy-exporter-notice ul' ).append( '<li>' + val.exporter_friendly_name + '</li>' );
+								} );
 							}
 						}
 					} );
@@ -126,7 +156,10 @@ includes only the following items at this time:',
 			<?php
 		}
 
-		function maybe_add_privacy_info() {
+		/**
+		 * Determines if privacy info should be displayed and does so. Or not.
+		 */
+		public function maybe_add_privacy_info() {
 			if ( ! function_exists( 'get_current_screen' ) ) {
 				return;
 			}
@@ -140,7 +173,7 @@ includes only the following items at this time:',
 				return;
 			}
 
-			if ( ! isset( $_GET['wp-privacy-policy-guide'] ) ) {
+			if ( ! isset( $_GET['wp-privacy-policy-guide'] ) ) { // phpcs:ignore WordPress.Security
 				return;
 			}
 
@@ -155,7 +188,7 @@ obtain privacy policy information for non-participating plugins separately.',
 				<script type="text/javascript">
 					jQuery( document ).ready( function( $ ) {
 						var hasPrivacyDiv = 0 < $( 'div.wp-privacy-policy-guide' ).length;
-						var prompt = <?php echo json_encode( $prompt ); ?>;
+						var prompt = <?php echo wp_json_encode( $prompt ); ?>;
 						if ( hasPrivacyDiv ) {
 							$( 'h1' ).after(
 								"<div class='notice notice-info wp-privacy-policy-notice'></div>"
@@ -166,7 +199,6 @@ obtain privacy policy information for non-participating plugins separately.',
 				</script>
 			<?php
 		}
-
 	}
 
 	WP_Privacy_Participating_Plugins::getInstance();

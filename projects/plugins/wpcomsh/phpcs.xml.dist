@@ -11,6 +11,12 @@
 	<exclude-pattern>/custom-colors</exclude-pattern>
 	<exclude-pattern>/footer-credit</exclude-pattern>
 
+	<!-- Exclude folders that have not been fixed yet -->
+	<exclude-pattern>/private-site</exclude-pattern>
+	<exclude-pattern>/widgets</exclude-pattern>
+	<exclude-pattern>/support-session.php</exclude-pattern>
+	<exclude-pattern>/feature-plugins/jetpack-data.php</exclude-pattern>
+
 	<arg value="ps"/>
 	<arg name="basepath" value="."/><!-- Strip the file paths down to the relevant bit -->
 	<arg name="colors"/>

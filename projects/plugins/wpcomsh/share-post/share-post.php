@@ -1,21 +1,32 @@
 <?php
 /**
  * Adds fallback behavior for non-Gutenframed sites to be able to use the 'Share Post' functionality from WPCOM Reader.
+ *
+ * @package share-post
  */
 
-add_action( 'wp_insert_post', 'wpcomsh_insert_shared_post_data', 10, 3 );
-function wpcomsh_insert_shared_post_data( $target_post_id, $post, $update ) {
+/**
+ * Saves shared post data.
+ *
+ * @param int     $target_post_id Post ID.
+ * @param WP_Post $post           Post object.
+ * @param bool    $update         Whether this is an update.
+ *
+ * @return int|void|WP_Error
+ */
+function wpcomsh_insert_shared_post_data( $target_post_id, $post, $update ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 	// This `$update` check avoids infinite loops of trying to update our updated post.
 	if ( $update ) {
 		return;
 	}
 
 	// Abort this function if we are not in a post sharing context.
-	$is_post_share = isset( $_GET['is_post_share'] ) && $_GET['is_post_share'];
+	$is_post_share = isset( $_GET['is_post_share'] ) && $_GET['is_post_share']; // phpcs:ignore WordPress.Security
 	if ( ! $is_post_share ) {
 		return;
 	}
 
+	// phpcs:disable WordPress.Security
 	$title   = $_GET['title'];
 	$image   = $_GET['image'];
 	$text    = $_GET['text'];
@@ -27,6 +38,7 @@ function wpcomsh_insert_shared_post_data( $target_post_id, $post, $update ) {
 		sanitize_text_field( $title )
 	);
 	$content = '';
+	// phpcs:enable
 
 	if ( $embed ) {
 		$content .= wpcomsh_get_embed_content( $embed );
@@ -52,12 +64,13 @@ function wpcomsh_insert_shared_post_data( $target_post_id, $post, $update ) {
 
 	return wp_update_post( $data );
 }
+add_action( 'wp_insert_post', 'wpcomsh_insert_shared_post_data', 10, 3 );
 
 /**
  * Generate the embed content for our sharing post.
  *
  * @param string $embed URL of our embed.
- * @return string        Generated content for the sharing post.
+ * @return string Generated content for the sharing post.
  */
 function wpcomsh_get_embed_content( $embed ) {
 	return sprintf(
@@ -73,7 +86,7 @@ function wpcomsh_get_embed_content( $embed ) {
  * @param string $image URL of our image.
  * @param string $text  Content of the shared post.
  * @param string $link  Permalink to the shared post.
- * @return string        Generated content for the sharing post.
+ * @return string Generated content for the sharing post.
  */
 function wpcomsh_get_image_content( $image, $text, $link ) {
 	return sprintf(
@@ -88,13 +101,13 @@ function wpcomsh_get_image_content( $image, $text, $link ) {
  *
  * @param string $text Content of the shared post.
  * @param string $link Permalink to the shared post.
- * @return string       Generated content for the sharing post.
+ * @return string Generated content for the sharing post.
  */
 function wpcomsh_get_text_content( $text, $link ) {
 	return sprintf(
 		'<!-- wp:quote --><blockquote class="wp-block-quote"><p>%1$s</p><cite>%2$s</cite></blockquote><!-- /wp:quote -->',
 		wp_kses_post( $text ),
-		$link // escaped on initialization
+		$link // Escaped on initialization.
 	);
 }
 
@@ -103,9 +116,9 @@ function wpcomsh_get_text_content( $text, $link ) {
  *
  * @param string  $post_title Post title determined by `get_default_post_to_edit()`.
  * @param WP_Post $post       Post object of newly-inserted post.
- * @return string             Updated post title from source post.
+ * @return string Updated post title from source post.
  */
-function wpcomsh_filter_title( $post_title, $post ) {
+function wpcomsh_filter_title( $post_title, $post ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 	return $post->post_title;
 }
 
@@ -114,8 +127,8 @@ function wpcomsh_filter_title( $post_title, $post ) {
  *
  * @param string  $post_content Post content determined by `get_default_post_to_edit()`.
  * @param WP_Post $post         Post object of newly-inserted post.
- * @return string               Updated post content from source post.
+ * @return string Updated post content from source post.
  */
-function wpcomsh_filter_content( $post_content, $post ) {
+function wpcomsh_filter_content( $post_content, $post ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 	return $post->post_content;
 }

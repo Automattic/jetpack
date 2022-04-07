@@ -1,13 +1,18 @@
 <?php
 /**
+ * WPCOMSH functions file.
+ *
+ * @package wpcomsh
+ */
+
+/**
  * Whether the theme is a wpcom theme.
  *
  * @param string $theme_slug Theme slug.
  * @return bool
  */
 function wpcomsh_is_wpcom_theme( $theme_slug ) {
-	return wpcomsh_is_wpcom_premium_theme( $theme_slug ) ||
-		   wpcomsh_is_wpcom_pub_theme( $theme_slug );
+	return wpcomsh_is_wpcom_premium_theme( $theme_slug ) || wpcomsh_is_wpcom_pub_theme( $theme_slug );
 }
 
 /**
@@ -21,6 +26,7 @@ function wpcomsh_is_wpcom_premium_theme( $theme_slug ) {
 		! defined( 'WPCOMSH_PREMIUM_THEMES_PATH' ) ||
 		! file_exists( WPCOMSH_PREMIUM_THEMES_PATH )
 	) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
 		error_log(
 			"WPComSH: WPCom premium themes folder couldn't be located. " .
 			'Check whether the ' . WPCOMSH_PREMIUM_THEMES_PATH . ' constant points to the correct directory.'
@@ -45,6 +51,7 @@ function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
 		! defined( 'WPCOMSH_PUB_THEMES_PATH' ) ||
 		! file_exists( WPCOMSH_PUB_THEMES_PATH )
 	) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
 		error_log(
 			"WPComSH: WPCom pub themes folder couldn't be located. " .
 			'Check whether the ' . WPCOMSH_PUB_THEMES_PATH . ' constant points to the correct directory.'
@@ -61,8 +68,8 @@ function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
 /**
  * Symlinks a wpcom theme.
  *
- * @param string $theme_slug
- * @param string $theme_type
+ * @param string $theme_slug Theme slug.
+ * @param string $theme_type Type of theme.
  * @return bool|WP_Error
  */
 function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
@@ -80,7 +87,7 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	if ( ! file_exists( $abs_theme_path ) ) {
 		$error_message = "Source theme directory doesn't exists at: ${abs_theme_path}";
 
-		error_log( 'WPComSH: ' . $error_message );
+		error_log( 'WPComSH: ' . $error_message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
 
 		return new WP_Error( 'error_symlinking_theme', $error_message );
 	}
@@ -90,10 +97,13 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 			? WPCOMSH_PUB_THEMES_PATH
 			: WPCOMSH_PREMIUM_THEMES_PATH;
 
-		$error_message = "Can't symlink theme with slug: ${theme_slug}." .
-						 'Make sure it exists in the ' . $theme_source_folder_path . ' directory.';
+		$error_message = sprintf(
+			'Can\'t symlink theme with slug: %1$s. Make sure it exists in the %2$s directory.',
+			$theme_slug,
+			$theme_source_folder_path
+		);
 
-		error_log( 'WPComSH: ' . $error_message );
+		error_log( 'WPComSH: ' . $error_message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
 
 		return new WP_Error( 'error_symlinking_theme', $error_message );
 	}
@@ -126,7 +136,7 @@ function wpcomsh_is_theme_symlinked( $theme_slug ) {
 	$theme_dir   = "$theme_root/$theme_slug";
 	$site_themes = scandir( $theme_root );
 
-	return in_array( $theme_slug, $site_themes ) && is_link( $theme_dir );
+	return in_array( $theme_slug, $site_themes, true ) && is_link( $theme_dir );
 }
 
 /**
@@ -144,6 +154,7 @@ function wpcomsh_delete_symlinked_theme( $theme_slug ) {
 		return true;
 	}
 
+	// phpcs:ignore WordPress.PHP.DevelopmentFunctions
 	error_log(
 		"WPComSH: Can't delete the specified symlinked theme: the path or symlink doesn't exist."
 	);
@@ -223,38 +234,54 @@ function wpcomsh_symlink_parent_theme( $stylesheet ) {
 	$template = $theme->get_template();
 
 	if ( $template === $stylesheet ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
 		error_log( "WPComSH: Can't symlink parent theme. Current theme is not a child theme." );
 
 		return false;
 	}
 
+	// phpcs:ignore WordPress.PHP.DevelopmentFunctions
 	error_log( 'WPComSH: Symlinking parent theme.' );
 
 	return wpcomsh_symlink_theme( $template, wpcomsh_get_wpcom_theme_type( $template ) );
 }
 
+/**
+ * Deletes the symlink to the parent theme.
+ *
+ * @param string $stylesheet Theme slug.
+ * @return bool|WP_Error
+ */
 function wpcomsh_delete_symlinked_parent_theme( $stylesheet ) {
 	$theme    = wp_get_theme( $stylesheet );
 	$template = $theme->get_template();
 
 	if ( $template === $stylesheet ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
 		error_log( "WPComSH: Can't unsymlink parent theme. $stylesheet is not a child theme." );
 
 		return false;
 	}
 
 	if ( wpcomsh_do_other_themes_have_same_parent( $stylesheet ) ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
 		error_log(
 			"WPComSH: Can't unsymlink parent theme $template. There are other installed child themes that depend on it."
 		);
 		return false;
 	}
 
+	// phpcs:ignore WordPress.PHP.DevelopmentFunctions
 	error_log( 'WPComSH: Unsymlinking parent theme.' );
 
 	return wpcomsh_delete_symlinked_theme( $template );
 }
 
+/**
+ * Returns the Atomic site ID.
+ *
+ * @return int
+ */
 function wpcomsh_get_atomic_site_id() {
 	if ( defined( 'ATOMIC_SITE_ID' ) ) {
 		return (int) ATOMIC_SITE_ID;
@@ -268,6 +295,11 @@ function wpcomsh_get_atomic_site_id() {
 	return 0;
 }
 
+/**
+ * Returns the Atomic client ID.
+ *
+ * @return int
+ */
 function wpcomsh_get_atomic_client_id() {
 	if ( defined( 'ATOMIC_CLIENT_ID' ) ) {
 		return (int) ATOMIC_CLIENT_ID;

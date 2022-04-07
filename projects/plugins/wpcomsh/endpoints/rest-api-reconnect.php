@@ -1,4 +1,9 @@
 <?php
+/**
+ * Reconnect endpoint.
+ *
+ * @package endpoints
+ */
 
 define(
 	'JETPACK_RECONNECT_PUBLIC_KEY',
@@ -15,20 +20,35 @@ ywIDAQAB
 ENCODED_DER
 );
 
-
+/**
+ * Unpacks Jetpack reconnect data.
+ *
+ * @param string $data Jetpack reconnect data.
+ *
+ * @return object
+ */
 function unpack_jetpack_reconnect_data( $data ) {
-	return json_decode( base64_decode( $data ) );
+	return json_decode( base64_decode( $data ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 }
 
+/**
+ * Verifies Jetpack reconnect data.
+ *
+ * @param string $data Jetpack reconnect data.
+ * @param string $sig  Signature.
+ *
+ * @return bool|WP_Error
+ */
 function verify_jetpack_reconnect_data( $data, $sig ) {
 	if ( ! openssl_verify(
 		$data,
-		base64_decode( $sig ),
+		base64_decode( $sig ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		JETPACK_RECONNECT_PUBLIC_KEY,
 		OPENSSL_ALGO_SHA256
 	) ) {
 		return new WP_Error( 'verify_jetpack_reconnect_data_error', openssl_error_string() );
 	}
+
 	return true;
 }
 
@@ -37,13 +57,15 @@ function verify_jetpack_reconnect_data( $data, $sig ) {
  *
  * Response is a JSON object with following fields:
  *
- * @param WP_REST_Request $request
- * @return WP_Error|WP_REST_Response
+ * @param WP_REST_Request $request Request object.
+ * @return WP_REST_Response
  */
-function wpcomsh_rest_api_reconnect( $request = null ) {
+function wpcomsh_rest_api_reconnect( $request = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	// phpcs:disable WordPress.Security
 	$package     = $_POST['package'];
 	$package_sig = $_POST['sig'];
 	$package_ts  = $_POST['ts'];
+	// phpcs:enable
 
 	if ( empty( $package ) ) {
 		return new WP_REST_Response(
@@ -99,7 +121,7 @@ function wpcomsh_rest_api_reconnect( $request = null ) {
 	}
 
 	$_blog_id = (int) Jetpack_Options::get_option( 'id' );
-	if ( $_blog_id != $package->blog_id ) {
+	if ( $_blog_id != $package->blog_id ) { // phpcs:ignore WordPress.PHP.StrictComparisons
 		return new WP_REST_Response(
 			array(
 				'error' => 'reconnect package blog_id invalid',
@@ -108,12 +130,12 @@ function wpcomsh_rest_api_reconnect( $request = null ) {
 		);
 	}
 
-	// restore blog_token if necessary
+	// Restore blog_token if necessary.
 	if ( isset( $package->blog_token ) ) {
 		Jetpack_Options::update_option( 'blog_token', $package->blog_token );
 	}
 
-	// restore user_tokens if missing
+	// Restore user_tokens if missing.
 	if ( isset( $package->user_tokens ) ) {
 		$user_tokens = [];
 		foreach ( $package->user_tokens as $user_id => $user_token ) {
@@ -130,13 +152,8 @@ function wpcomsh_rest_api_reconnect( $request = null ) {
 	);
 }
 
-// Declare privileages this plugin needs
-function wpcomsh_rest_api_reconnect_permission_callback() {
-	return true; // current_user_can( 'export' );
-}
-
 /**
- * Initialize API
+ * Initialize API.
  */
 function wpcomsh_rest_api_reconnect_init() {
 	register_rest_route(

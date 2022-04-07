@@ -1,12 +1,19 @@
 <?php
 /**
  * Updates PHP versions to match package.json.
+ *
+ * @package bin
  */
 
-$package_json = file_get_contents( 'package.json' );
+$package_json = file_get_contents( 'package.json' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 $package      = json_decode( $package_json );
 $version      = $package->version;
 
+/**
+ * Updates the WPCOMSH version in the files that keep them.
+ *
+ * @param string $filename File name.
+ */
 function replace_version( $filename ) {
 	global $version;
 
@@ -24,7 +31,7 @@ function replace_version( $filename ) {
 		$lines[] = $line;
 	}
 
-	file_put_contents( $filename, $lines );
+	file_put_contents( $filename, $lines ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 }
 
 replace_version( 'wpcomsh.php' );

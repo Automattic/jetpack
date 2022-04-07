@@ -1,4 +1,9 @@
 <?php
+/**
+ * Logout endpoint.
+ *
+ * @package endpoints
+ */
 
 /**
  * Logs the current user out.
@@ -18,7 +23,7 @@ function wpcomsh_rest_api_logout() {
 }
 
 /**
- * Initialize API
+ * Initialize API.
  */
 function wpcomsh_rest_api_logout_init() {
 	register_rest_route(

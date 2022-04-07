@@ -1,4 +1,9 @@
 <?php
+/**
+ * CLI commands for wpcomsh.
+ *
+ * @package wpcomsh
+ */
 
 /**
  * Plugins that shouldn't be deactivated by the deactivate-user-plugins command.
@@ -14,7 +19,7 @@ define(
 );
 
 /**
- * eCommerce plan plugins that shouldn't be deactivated by deactivate-user-plugins
+ * ECommerce plan plugins that shouldn't be deactivated by deactivate-user-plugins
  * when the site has an eCommerce plan.
  */
 define(
@@ -48,10 +53,10 @@ define( 'WPCOMSH_CLI_DEACTIVATED_PLUGIN_RECORD_CLEANUP_JOB', 'wpcomsh_cli_cleanu
  * Ask the user to confirm a yes/no question.
  *
  * @param  string $question The yes/no question to ask the user.
- * @return boolean          Whether the user confirmed or not.
+ * @return boolean Whether the user confirmed or not.
  */
 function wpcomsh_cli_confirm( $question ) {
-	fwrite( STDOUT, $question . ' [Y/n] ' );
+	fwrite( STDOUT, $question . ' [Y/n] ' ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 	$answer = strtolower( trim( fgets( STDIN ) ) );
 	return 'y' === $answer || ! $answer;
 }
@@ -59,9 +64,9 @@ function wpcomsh_cli_confirm( $question ) {
 /**
  * Get the names of plugins with the specified status.
  *
- * @param string $status The plugin status to match
+ * @param string $status The plugin status to match.
  *
- * @return string[]|false An array of plugin names. `false` if there is an error
+ * @return string[]|false An array of plugin names. `false` if there is an error.
  */
 function wpcomsh_cli_get_plugins_with_status( $status ) {
 	$list_result = WP_CLI::runcommand(
@@ -93,6 +98,8 @@ function wpcomsh_cli_get_plugins_with_status( $status ) {
 
 /**
  * Save the latest record of deactivated plugins.
+ *
+ * @param array $deactivated_plugins Plugins to deactivate.
  */
 function wpcomsh_cli_save_deactivated_plugins_record( $deactivated_plugins ) {
 	if ( empty( $deactivated_plugins ) ) {
@@ -141,18 +148,17 @@ function wpcomsh_cli_reschedule_deactivated_list_cleanup() {
 			false !== wp_next_scheduled( WPCOMSH_CLI_DEACTIVATED_PLUGIN_RECORD_CLEANUP_JOB ) &&
 			false === wp_unschedule_hook( WPCOMSH_CLI_DEACTIVATED_PLUGIN_RECORD_CLEANUP_JOB )
 		) {
-			// Avoid scheduling cleanup if we cannot unschedule existing cleanup
-			// because scheduled jobs could accumulate
+			// Avoid scheduling cleanup if we can't unschedule existing cleanup because scheduled jobs could accumulate.
 			return false;
 		}
 
 		if ( false === get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS ) ) {
-			// No need to clean up a nonexistent option
+			// No need to clean up a nonexistent option.
 			return true;
 		}
 
 		$rescheduled_cleanup = wp_schedule_single_event(
-			// Pad scheduled time to give everything time to expire
+			// Pad scheduled time to give everything time to expire.
 			time() + WPCOMSH_CLI_PLUGIN_REACTIVATION_MAX_AGE + 15 * MINUTE_IN_SECONDS,
 			WPCOMSH_CLI_DEACTIVATED_PLUGIN_RECORD_CLEANUP_JOB
 		);
@@ -167,7 +173,7 @@ function wpcomsh_cli_reschedule_deactivated_list_cleanup() {
  * This allows us to maintain the deactivated plugin record in response to both
  * the `wp plugin deactivate` and `wp wpcomsh deactivate-user-plugins` commands.
  *
- * @param string $file Plugin file
+ * @param string $file Plugin file.
  */
 function wpcomsh_cli_remember_plugin_deactivation( $file ) {
 	$deactivated_plugins                 = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS );
@@ -192,6 +198,7 @@ function wpcomsh_cli_forget_plugin_deactivation( $file ) {
 	wpcomsh_cli_save_deactivated_plugins_record( $deactivated_plugins );
 }
 
+// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamTag
 if ( class_exists( 'WP_CLI_Command' ) ) {
 	/**
 	 * Wordpress.com Site Helper (= Atomic) specific CLI commands
@@ -209,7 +216,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand deactivate-user-plugins
 		 */
-		function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
+		public function deactivate_user_installed_plugins( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 			$active_plugins = wpcomsh_cli_get_plugins_with_status( 'active' );
 			if ( false === $active_plugins ) {
 				WP_CLI::log( 'Failed to list active plugins.' );
@@ -263,19 +270,19 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		}
 
 		/**
-		 * Bulk re-activate user installed plugins
+		 * Bulk re-activate user installed plugins.
 		 *
 		 * If previously user installed plugins had been deactivated, this re-activates these plugins.
 		 *
 		 * ## OPTIONS
 		 *
 		 * [--interactive]
-		 * : Ask for each previously deactivated plugin whether to activate
+		 * : Ask for each previously deactivated plugin whether to activate.
 		 *
 		 * @subcommand reactivate-user-plugins
 		 */
-		function reactivate_user_installed_plugins( $args, $assoc_args = array() ) {
-			// Clean up before getting the deactivation list so there are only current entries
+		public function reactivate_user_installed_plugins( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			// Clean up before getting the deactivation list so there are only current entries.
 			wpcomsh_cli_remove_expired_from_deactivation_record();
 
 			$inactive_plugins = wpcomsh_cli_get_plugins_with_status( 'inactive' );
@@ -291,7 +298,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			}
 
 			// TODO: Should we reactivate these in the reverse order that they were deactivated?
-			// Only try to reactivate plugins that exist and are inactive
+			// Only try to reactivate plugins that exist and are inactive.
 			$plugins_to_reactivate = array_keys( $deactivation_records );
 			$plugins_to_reactivate = array_intersect( $plugins_to_reactivate, $inactive_plugins );
 
@@ -356,7 +363,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 *
 		 * @subcommand domain-name-changed
 		 */
-		function domain_name_changed( $args, $assoc_args = array() ) {
+		public function domain_name_changed( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 			$old_domain = WP_CLI\Utils\get_flag_value( $assoc_args, 'old_url', false );
 			if ( false === $old_domain ) {
 				WP_CLI::error( 'Missing required --old_url=url value.' );
@@ -383,7 +390,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		}
 
 		/**
-		 * Proxies wp language plugin install --all using the active site language
+		 * Proxies wp language plugin install --all using the active site language.
 		 *
 		 * After switching the site language, language packs for plugins are not automatically downloaded and the user
 		 * has to manually check for and install updates, this command installs language packs for all plugins,
@@ -392,11 +399,12 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * @subcommand install-plugin-language-packs
 		 */
 		public function install_plugin_language_packs() {
-			/**
+			/*
 			 * Query the database directly as we previously hooked into pre_option_WPLANG to always return en_US,
-			 * but now we need the actual site language to figure out what language packs to install
+			 * but now we need the actual site language to figure out what language packs to install.
 			 */
 			global $wpdb;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$lang = $wpdb->get_var( 'SELECT option_value FROM ' . $wpdb->options . " WHERE option_name = 'WPLANG'" );
 			if ( empty( $lang ) ) {
 				$lang = 'en_US';
@@ -414,12 +422,19 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 }
 
 if ( class_exists( 'Checksum_Plugin_Command' ) ) {
-	/*
-	* This works just like plugin verify-checksums except it filters language translation files.
-	* Language files are not part of WordPress.org's checksums so they are listed as added and
-	* they obfuscate the output. This makes it hard to spot actual checksum verification errors.
-	*/
-	class Checksum_Plugin_Command_WPCOMSH extends Checksum_Plugin_Command {
+	/**
+	 * This works just like plugin verify-checksums except it filters language translation files.
+	 * Language files are not part of WordPress.org's checksums so they are listed as added and
+	 * they obfuscate the output. This makes it hard to spot actual checksum verification errors.
+	 */
+	class Checksum_Plugin_Command_WPCOMSH extends Checksum_Plugin_Command { // phpcs:ignore Generic
+		/**
+		 * Filters the passed file path.
+		 *
+		 * @param string $filepath File path.
+		 *
+		 * @return bool
+		 */
 		protected function filter_file( $filepath ) {
 			return ! preg_match( '#^(languages/)?[a-z0-9-]+-[a-z]{2}_[A-Z]{2}(_[a-z]+)?([.](mo|po)|-[a-f0-9]{32}[.]json)$#', $filepath );
 		}
@@ -447,8 +462,7 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 	$plugin_to_symlink = $args[0];
 
 	if ( 'wpcomsh' === $plugin_to_symlink ) {
-		// wpcomsh is in the managed plugins directory,
-		// but it should not be symlinked into the plugins directory
+		// wpcomsh is in the managed plugins directory, but it should not be symlinked into the plugins directory.
 		WP_CLI::error( 'Cannot symlink wpcomsh' );
 	}
 
@@ -542,7 +556,7 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 	}
 
 	$candidate_managed_theme_paths = array(
-		// NOTE: pub and premium themes don't have nested `latest`and version directories
+		// NOTE: pub and premium themes don't have nested `latest`and version directories.
 		"../../../../wordpress/themes/pub/$theme_to_symlink",
 		"../../../../wordpress/themes/premium/$theme_to_symlink",
 		// Consider root themes dir last because we want to favor WPCOM-managed things on WPCOM
@@ -558,7 +572,7 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 		}
 	}
 
-	if ( false == $managed_theme_path ) {
+	if ( false === $managed_theme_path ) {
 		WP_CLI::error( "'$theme_to_symlink' is not a managed theme" );
 	}
 
@@ -617,7 +631,7 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 	exit( 0 );
 }
 
-// Cleanup via WP-Cron event
+// Cleanup via WP-Cron event.
 add_action( WPCOMSH_CLI_DEACTIVATED_PLUGIN_RECORD_CLEANUP_JOB, 'wpcomsh_cli_remove_expired_from_deactivation_record' );
 
 if ( ! defined( 'WP_CLI' ) || true !== WP_CLI ) {
@@ -633,8 +647,7 @@ WP_CLI::add_wp_hook(
 	}
 );
 
-// Maintain a record of deactivated plugins so that they can be reactivated
-// by the reactivate-user-plugins command
+// Maintain a record of deactivated plugins so that they can be reactivated by the reactivate-user-plugins command.
 add_action( 'deactivated_plugin', 'wpcomsh_cli_remember_plugin_deactivation' );
 add_action( 'activated_plugin', 'wpcomsh_cli_forget_plugin_deactivation' );
 

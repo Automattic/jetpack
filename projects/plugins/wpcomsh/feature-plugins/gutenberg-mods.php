@@ -4,13 +4,19 @@
  *
  * Since we'll be trying to keep up with latest Gutenberg versions both on Simple and Atomic sites,
  * we need to ensure that some experimental functionality is not exposed yet.
+ *
+ * @package wpcomsh
  */
 
-// Disable all Gutenberg experiments.
-// See: https://github.com/WordPress/gutenberg/blob/e6d8284b03799136915495654e821ca6212ae6d8/lib/load.php#L22
+/*
+ * Disable all Gutenberg experiments.
+ * @see https://github.com/WordPress/gutenberg/blob/e6d8284b03799136915495654e821ca6212ae6d8/lib/load.php#L22
+ */
 add_filter( 'option_gutenberg-experiments', '__return_false' );
 
-// Remove Gutenberg's Experiments submenu item.
+/**
+ * Remove Gutenberg's Experiments submenu item.
+ */
 function wpcomsh_remove_gutenberg_experimental_menu() {
 	remove_submenu_page( 'gutenberg', 'gutenberg-experiments' );
 }
@@ -35,9 +41,11 @@ function wpcomsh_add_dom_rect_polyfill( $scripts ) {
 		return;
 	}
 
-	// Only register polyfill if not already registered. This prevents handling
-	// in an environment where core has updated to manage the polyfill. This
-	// depends on the action being handled after default script registration.
+	/*
+	 * Only register polyfill if not already registered. This prevents handling
+	 * in an environment where core has updated to manage the polyfill. This
+	 * depends on the action being handled after default script registration.
+	 */
 	$is_polyfill_script_registered = (bool) $scripts->query( 'wp-polyfill-dom-rect', 'registered' );
 	if ( $is_polyfill_script_registered ) {
 		return;
@@ -60,7 +68,6 @@ function wpcomsh_add_dom_rect_polyfill( $scripts ) {
 		)
 	);
 }
-
 add_action( 'wp_default_scripts', 'wpcomsh_add_dom_rect_polyfill', 30 );
 
 /**
@@ -118,14 +125,15 @@ function wpcomsh_remove_site_editor_reset_styles() {
 		return;
 	}
 
-	// Remove wp-reset-editor-styles css in the Site Editor, as it's not needed with an iframed editor,
-	// and can interfer with Global Styles if concatenated with other scripts.
+	/*
+	 * Remove wp-reset-editor-styles css in the Site Editor, as it's not needed with an iframed editor,
+	 * and can interfere with Global Styles if concatenated with other scripts.
+	 */
 	if ( isset( wp_styles()->registered['wp-edit-blocks'] ) ) {
 		$wp_edit_blocks_dependencies                    = array_diff( wp_styles()->registered['wp-edit-blocks']->deps, array( 'wp-reset-editor-styles' ) );
 		wp_styles()->registered['wp-edit-blocks']->deps = $wp_edit_blocks_dependencies;
 	}
 }
-
 add_action( 'admin_enqueue_scripts', 'wpcomsh_remove_site_editor_reset_styles' );
 
 /**
