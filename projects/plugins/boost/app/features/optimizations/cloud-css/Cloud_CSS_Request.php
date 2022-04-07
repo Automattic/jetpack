@@ -44,7 +44,7 @@ class Cloud_CSS_Request {
 		foreach ( $providers as $key => $urls ) {
 			$generate_urls = array();
 			foreach ( $urls as $url ) {
-				$generate_urls[] = $url . ( wp_parse_url( $url, PHP_URL_QUERY ) ? '&' : '?' ) . 'jb-generate-critical-css=true';
+				$generate_urls[] = add_query_arg( 'jb-generate-critical-css', 'true', $url );
 			}
 			$formatted[ $key ] = $generate_urls;
 		}
