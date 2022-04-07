@@ -8,24 +8,7 @@ import { spawn } from 'child_process';
 /**
  * Internal dependencies
  */
-import frontendcss, {
-	frontendCSSSeparateFilesList,
-	frontendCSSConcatFilesList,
-} from './tools/builder/frontend-css';
-import admincss, { adminCSSFiles } from './tools/builder/admin-css';
 import { watch as react_watch, build as react_build } from './tools/builder/react';
-
-gulp.task( 'old-styles:watch', function () {
-	return gulp.watch(
-		[
-			'scss/**/*.scss',
-			...adminCSSFiles,
-			...frontendCSSSeparateFilesList,
-			...frontendCSSConcatFilesList,
-		],
-		gulp.parallel( 'old-styles' )
-	);
-} );
 
 gulp.task( 'blocks:watch', function () {
 	const child = require( 'child_process' ).execFile( 'pnpm', [
@@ -61,17 +44,9 @@ gulp.task( 'php:module-headings', function () {
 	return process;
 } );
 
-gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss ) );
-
 // Default task
-gulp.task(
-	'default',
-	gulp.series( gulp.parallel( react_build, 'old-styles', 'php:module-headings' ) )
-);
-gulp.task(
-	'watch',
-	gulp.parallel( react_watch, 'old-styles:watch', 'blocks:watch', 'widget-visibility:watch' )
-);
+gulp.task( 'default', gulp.series( gulp.parallel( react_build, 'php:module-headings' ) ) );
+gulp.task( 'watch', gulp.parallel( react_watch, 'blocks:watch', 'widget-visibility:watch' ) );
 
 // Keeping explicit task names to allow for individual runs
 gulp.task( 'react:build', react_build );

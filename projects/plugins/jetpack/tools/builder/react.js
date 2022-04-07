@@ -7,7 +7,11 @@ import PluginError from 'plugin-error';
 import webpack from 'webpack';
 
 function getWebpackConfig() {
-	return require( './../webpack.config.js' );
+	return [
+		...require( './../webpack.config.js' ),
+		...require( './../webpack.config.css.js' ),
+		require( './../webpack.config.masterbar.js' ),
+	];
 }
 
 export const watch = function () {
