@@ -53,6 +53,7 @@ test.describe( 'Sync', () => {
 			await blockEditor.viewPost();
 			const result = await waitTillSyncQueueIsNotEmpty();
 			expect( result, 'Sync queue should be not empty' ).toBeTruthy();
+			await blockEditor.reload();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
@@ -117,6 +118,7 @@ test.describe( 'Sync', () => {
 			const result = await waitTillSyncQueueIsNotEmpty();
 
 			expect( result, 'Sync queue should be not empty' ).toBeTruthy();
+			await blockEditor.reload();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
