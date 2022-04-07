@@ -178,13 +178,6 @@ class Dashboard {
 			Connection_Initial_State::render(),
 			'before'
 		);
-
-		// TODO: Remove before shipping! Below is exclusively for testing.
-		wp_add_inline_script(
-			'jp-search-dashboard',
-			'console.log( "Count estimate is: " + JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Stats::estimate_count() ) ) . '")));',
-			'before'
-		);
 	}
 
 	/**
