@@ -5,8 +5,7 @@ import {
 	disableSync,
 	enableDedicatedSync,
 	disableDedicatedSync,
-	waitTillSyncQueueIsEmpty,
-	waitTillSyncQueueIsNotEmpty,
+	isSyncQueueEmpty,
 } from '../../helpers/sync-helper.js';
 import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
@@ -51,11 +50,11 @@ test.describe( 'Sync', () => {
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
-			await expect( waitTillSyncQueueIsNotEmpty(), 'Sync queue should be not empty' ).toBeTruthy();
+			await expect( isSyncQueueEmpty(), 'Sync queue should be not empty' ).toBeFalsy();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await expect( waitTillSyncQueueIsEmpty(), 'Sync queue should be empty' ).toBeTruthy();
+			await expect( isSyncQueueEmpty(), 'Sync queue should be empty' ).toBeTruthy();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
@@ -111,17 +110,11 @@ test.describe( 'Sync', () => {
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
-			await expect(
-				waitTillSyncQueueIsNotEmpty( 1000, 20 ),
-				'Sync queue should be not empty'
-			).toBeTruthy();
+			await expect( isSyncQueueEmpty(), 'Sync queue should be not empty' ).toBeFalsy();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await expect(
-				waitTillSyncQueueIsEmpty( 1000, 20 ),
-				'Sync queue should be empty'
-			).toBeTruthy();
+			await expect( isSyncQueueEmpty(), 'Sync queue should be empty' ).toBeTruthy();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
