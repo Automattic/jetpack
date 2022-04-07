@@ -101,6 +101,7 @@ const recommendationsRoutes = [
 	'/recommendations/creative-mail',
 	'/recommendations/site-accelerator',
 	'/recommendations/publicize',
+	'/recommendations/security-plan',
 	'/recommendations/videopress',
 	'/recommendations/summary',
 ];
@@ -499,6 +500,7 @@ class Main extends React.Component {
 			case '/recommendations/creative-mail':
 			case '/recommendations/site-accelerator':
 			case '/recommendations/publicize':
+			case '/recommendations/security-plan':
 			case '/recommendations/videopress':
 			case '/recommendations/summary':
 				if ( this.props.showRecommendations ) {

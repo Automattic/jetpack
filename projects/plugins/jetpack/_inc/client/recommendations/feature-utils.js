@@ -70,6 +70,19 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	}
 };
 
+export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
+	switch ( resourceSlug ) {
+		case 'security-plan':
+			return {
+				displayName: __( 'Site Security', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+			};
+		default:
+			throw `Unknown resource slug in mapStateToSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
+	}
+};
+
 export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 	switch ( featureSlug ) {
 		case 'creative-mail':
@@ -201,6 +214,27 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-blog-social-sharing' ),
 				ctaText: __( 'Enable Social Media Sharing', 'jetpack' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
+			};
+		case 'security-plan':
+			return {
+				question: __( 'With more plugins comes more responsibility.', 'jetpack' ),
+				description: __(
+					'As you add plugins to your site, you have to start thinking about vulnerabilities, failed updates, and incompatible plugins. You should ensure that the plugins you install:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Have good user ratings', 'jetpack' ),
+					__( 'Are compatible with the most recent version of WordPress', 'jetpack' ),
+					__( 'Are developed by teams that respond to support requests promptly', 'jetpack' ),
+				],
+				descriptionSecondary: __(
+					'Or let Jetpack handle your security and backups so you can focus on your business.',
+					'jetpack'
+				),
+				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
 				illustrationPath: '/recommendations/general-illustration.png',
 				rnaIllustration: true,
 			};

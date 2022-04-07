@@ -17,7 +17,16 @@ import { imagePath } from 'constants/urls';
 import './style.scss';
 
 const PromptLayout = props => {
-	const { answer, description, illustrationPath, progressBar, question, isNew, rna } = props;
+	const {
+		answer,
+		description,
+		illustrationPath,
+		progressBar,
+		question,
+		content,
+		isNew,
+		rna,
+	} = props;
 
 	return (
 		<div
@@ -37,6 +46,7 @@ const PromptLayout = props => {
 				) }
 				<h1 className="jp-recommendations-question__question">{ question }</h1>
 				<p className="jp-recommendations-question__description">{ description }</p>
+				{ content }
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>
 			{ illustrationPath && (
