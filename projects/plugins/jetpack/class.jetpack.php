@@ -1614,6 +1614,7 @@ class Jetpack {
 	 * A site is considered as being onboarded if it currently has an onboarding token.
 	 *
 	 * @since 5.8
+	 * @deprecated Use \Automattic\Jetpack\Status()->is_onboarding()
 	 *
 	 * @access public
 	 * @static
@@ -1621,6 +1622,11 @@ class Jetpack {
 	 * @return bool True if the site is currently onboarding, false otherwise
 	 */
 	public static function is_onboarding() {
+		_deprecated_function( __METHOD__, 'jetpack-10.9', 'Automattic\\Jetpack\\Status\\is_onboarding' );
+
+		if ( ! method_exists( 'Automattic\Jetpack\Status', 'is_onboarding' ) ) {
+			return Jetpack_Options::get_option( 'onboarding' ) !== false;
+		}
 		return ( new Status() )->is_onboarding();
 	}
 
@@ -1779,7 +1785,7 @@ class Jetpack {
 		if (
 			! self::is_connection_ready()
 			&& ! $status->is_offline_mode()
-			&& ! $status->is_onboarding()
+			&& ! self::is_onboarding()
 			&& (
 				! is_multisite()
 				|| ! get_site_option( 'jetpack_protect_active' )
