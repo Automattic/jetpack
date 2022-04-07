@@ -16,6 +16,7 @@ export default {
 	component: ProductDetailCard,
 	decorators: [ withMock ],
 	parameters: {
+		actions: { argTypesRegex: '^[on|track].*' },
 		layout: 'centered',
 	},
 	argTypes: {
@@ -25,13 +26,21 @@ export default {
 		isCard: {
 			control: { type: 'boolean' },
 		},
+		onClick: {
+			table: {
+				disable: true,
+			},
+		},
+		trackButtonClick: {
+			table: {
+				disable: true,
+			},
+		},
 	},
 };
-
-const mockData = getAllMockData();
 
 const DefaultProductDetailCard = args => <ProductDetailCard { ...args } />;
 
 export const Default = DefaultProductDetailCard.bind( {} );
-Default.parameters = { mockData };
-Default.args = {};
+Default.parameters = { mockData: getAllMockData() };
+Default.args = { slug: 'backup', isCard: true };
