@@ -17,6 +17,8 @@ class VideoPress_AJAX {
 	private function __construct() {
 		add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
 		add_action( 'wp_ajax_videopress-get-upload-jwt', array( $this, 'wp_ajax_videopress_get_upload_jwt' ) );
+		add_action( 'wp_ajax_nopriv_videopress-get-playback-jwt', array( $this, 'wp_ajax_videopress_get_playback_jwt' ) );
+		add_action( 'wp_ajax_videopress-get-playback-jwt', array( $this, 'wp_ajax_videopress_get_playback_jwt' ) );
 
 		add_action(
 			'wp_ajax_videopress-update-transcoding-status',
@@ -39,6 +41,139 @@ class VideoPress_AJAX {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Validate a guid.
+	 *
+	 * @param string $guid The guid to validate.
+	 *
+	 * @return bool
+	 **/
+	private function is_valid_guid( $guid ) {
+		if ( empty( $guid ) ) {
+			return false;
+		}
+
+		preg_match( '/^[a-z0-9]+$/i', $guid, $matches );
+
+		if ( empty( $matches ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Ajax method that is used by the VideoPress player to get a token to play a video.
+	 *
+	 * This is used for both logged in and logged out users.
+	 *
+	 * @return void
+	 */
+	public function wp_ajax_videopress_get_playback_jwt() {
+		$guid = filter_input( INPUT_POST, 'guid' );
+		if ( ! $this->is_valid_guid( $guid ) ) {
+			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack' ) ) );
+			return;
+		}
+
+		if ( ! $this->is_current_user_authed_for_video( $guid ) ) {
+			return;
+		}
+
+		$token = $this->request_jwt_from_wpcom( $guid );
+
+		if ( empty( $token ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress playback JWT. Please try again later. (empty upload token)', 'jetpack' ) ) );
+			return;
+		}
+
+		if ( is_wp_error( $token ) ) {
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack' ) ) );
+			return;
+		}
+
+		wp_send_json_success( array( 'jwt' => $token ) );
+	}
+
+	/**
+	 * Determines if the current user can view the provided video.
+	 *
+	 * Filterable for 3rd party plugins.
+	 *
+	 * @param string $guid The video id being checked.
+	 */
+	private function is_current_user_authed_for_video( $guid ) {
+		$attachment = videopress_get_post_by_guid( $guid );
+		if ( ! $attachment ) {
+			return false;
+		}
+
+		$video_info = video_get_info_by_blogpostid( get_current_blog_id(), $attachment->ID );
+		if ( null === $video_info->guid ) {
+			return false;
+		}
+
+		$is_user_authed = false;
+		// Determine if video is public, private or use site default.
+		switch ( $video_info->privacy_setting ) {
+			case VIDEOPRESS_PRIVACY::IS_PUBLIC:
+				$is_user_authed = true;
+				break;
+			case VIDEOPRESS_PRIVACY::IS_PRIVATE:
+				$is_user_authed = current_user_can( 'read' );
+				break;
+			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
+			default:
+				$is_videopress_private_for_site = get_option( 'videopress_private_enabled_for_site', false );
+				$is_user_authed                 = false === $is_videopress_private_for_site || ( $is_videopress_private_for_site && current_user_can( 'read' ) );
+				break;
+		}
+
+		/**
+		 * Overrides video view authorization for current user.
+		 *
+		 * Example of making all videos public:
+		 *
+		 * function jp_example_override_video_auth( $is_user_authed, $guid ) {
+		 *  return true
+		 * };
+		 * add_filter( 'videopress_is_current_user_authed_for_video', 'jp_example_override_video_auth', 10, 2 );
+		 *
+		 * @param bool   $is_user_authed The current user authorization state.
+		 * @param string $guid           The video's unique identifier.
+		 *
+		 * @return bool
+		 */
+		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid );
+	}
+
+	/**
+	 * Requests JWT from wpcom.
+	 *
+	 * @param string $guid The video id being checked.
+	 */
+	private function request_jwt_from_wpcom( $guid ) {
+		$options = VideoPress_Options::get_options();
+
+		$args = array(
+			'method' => 'POST',
+		);
+
+		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-playback-jwt/{$guid}";
+		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$response = json_decode( $result['body'], true );
+
+		if ( empty( $response['metadata_token'] ) ) {
+			return false;
+		}
+
+		return $response['metadata_token'];
 	}
 
 	/**
