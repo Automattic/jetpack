@@ -1,4 +1,4 @@
-# Query Site Discount
+# Query Intro Offers
 
 `<QueryIntroOffers />` is a React component used to fetch Jetpack introduction offers.
 
