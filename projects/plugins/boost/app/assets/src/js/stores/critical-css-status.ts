@@ -19,9 +19,8 @@ export type CriticalCssErrorDetails = {
 
 /* eslint-disable camelcase */
 export interface CriticalCssStatus {
-	generating: boolean;
 	progress: number;
-	retried_show_stopper: boolean;
+	retried_show_stopper?: boolean;
 	callback_passthrough?: JSONObject;
 	generation_nonce?: string;
 	proxy_nonce?: string;
@@ -39,7 +38,6 @@ export interface CriticalCssStatus {
 	provider_key_labels?: { [ name: string ]: string };
 	success_count?: number;
 	created?: number;
-	percent_complete?: number;
 	viewports?: Viewport[];
 }
 /* eslint-enable camelcase */
@@ -47,13 +45,15 @@ export interface CriticalCssStatus {
 const success = 'success';
 const fail = 'fail';
 
-// eslint-disable-next-line camelcase
-const initialState = Jetpack_Boost.criticalCssStatus || {
-	generating: false,
+const resetState = {
 	progress: 0,
-	status: 'not_generated',
+	success_count: 0,
 	retried_show_stopper: false,
+	status: 'not_generated',
 };
+
+// eslint-disable-next-line camelcase
+const initialState = Jetpack_Boost.criticalCssStatus || resetState;
 
 const { subscribe, update } = writable< CriticalCssStatus >( initialState );
 
@@ -128,24 +128,9 @@ async function callCriticalCssEndpoint(
 /**
  * Helper method to update Critical CSS generation progress status.
  *
- * @param {boolean} generating True if generation process is running.
- * @param {number}  progress   Progress expressed as a %.
+ * @param {CriticalCssStatus} cssStatus Critical CSS generation status.
  */
-export function updateGenerateStatus( generating: boolean, progress: number ): void {
-	return update( state => ( {
-		...state,
-		generating,
-		progress,
-		status: generating ? 'requesting' : state.status,
-	} ) );
-}
-
-/**
- * Helper method to update Cloud CSS generation progress status.
- *
- * @param {CriticalCssStatus} cssStatus Cloud CSS generation status.
- */
-export function updateCloudStatus( cssStatus: CriticalCssStatus ): void {
+export function updateGenerateStatus( cssStatus: CriticalCssStatus ): void {
 	return update( state => ( {
 		...state,
 		...cssStatus,
@@ -188,13 +173,11 @@ export function storeGenerateError( error: Error ): void {
 	} ) );
 }
 
-export function resetCloudStatus(): void {
+export function resetGenerateStatus( forceRequest = true ): void {
 	return update( state => ( {
 		...state,
-		progress: 0,
-		success_count: 0,
-		percent_complete: 0,
-		status: 'requesting',
+		...resetState,
+		status: forceRequest ? 'requesting' : resetState.status,
 	} ) );
 }
 

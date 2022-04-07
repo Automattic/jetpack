@@ -61,7 +61,7 @@
 						showSuggestion={true}
 						showClosingParagraph={false}
 						foldRawErrors={false}
-						on:retry={() => dispatch( 'retry' )}
+						on:retry={retryShowstopper}
 					/>
 				{:else}
 					{$criticalCssStatus.status_error}

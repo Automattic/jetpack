@@ -57,7 +57,7 @@ class Generator {
 		if ( $this->state->is_pending() ) {
 			return array(
 				'status'                 => Critical_CSS_State::REQUESTING,
-				'percent_complete'       => $this->state->get_percent_complete(),
+				'progress'               => $this->state->get_percent_complete(),
 				'success_count'          => $this->state->get_providers_success_count(),
 				'pending_provider_keys'  => $this->state->get_provider_urls(),
 				'provider_success_ratio' => $this->state->get_provider_success_ratios(),
@@ -74,7 +74,7 @@ class Generator {
 
 		return array(
 			'status'                => Critical_CSS_State::SUCCESS,
-			'percent_complete'      => $this->state->get_percent_complete(),
+			'progress'              => $this->state->get_percent_complete(),
 			'success_count'         => $this->state->get_providers_success_count(),
 			'core_providers'        => self::CORE_PROVIDER_KEYS,
 			'core_providers_status' => $this->state->get_core_providers_status( self::CORE_PROVIDER_KEYS ),

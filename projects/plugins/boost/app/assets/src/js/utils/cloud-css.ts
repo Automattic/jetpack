@@ -4,15 +4,15 @@
 import api from '../api/api';
 import {
 	getStatus,
-	updateCloudStatus,
-	resetCloudStatus,
+	updateGenerateStatus,
+	resetGenerateStatus,
 	setError,
 	CriticalCssStatus,
 } from '../stores/critical-css-status';
 
 export async function requestCloudCss(): Promise< void > {
 	// Todo: Debounce request.
-	resetCloudStatus();
+	resetGenerateStatus( true );
 	try {
 		await api.post( '/cloud-css/request-generate' );
 	} catch ( e ) {
@@ -28,7 +28,7 @@ export async function requestCloudCss(): Promise< void > {
 let statusIntervalId = null;
 
 function pollIntervalForStatus( status: CriticalCssStatus ) {
-	return status.percent_complete < 100 ? 5 * 1000 : 2 * 60 * 1000;
+	return status.progress < 100 ? 5 * 1000 : 2 * 60 * 1000;
 }
 
 /**
@@ -50,7 +50,7 @@ export function pollCloudCssStatus() {
 
 	statusIntervalId = setInterval( async () => {
 		status = await api.get< CriticalCssStatus >( '/cloud-css/status' );
-		updateCloudStatus( status );
+		updateGenerateStatus( status );
 
 		if ( interval !== pollIntervalForStatus( status ) ) {
 			pollCloudCssStatus();

@@ -40,7 +40,7 @@
 					$criticalCssStatus.success_count
 				)}
 				<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
-				{#if $criticalCssStatus.percent_complete < 100}
+				{#if $criticalCssStatus.progress < 100}
 					{__( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' )}
 				{/if}
 			{/if}
