@@ -2,26 +2,25 @@
  * External dependencies
  */
 import React, { useCallback, useEffect } from 'react';
-import { Container, Col, AdminPage } from '@automattic/jetpack-components';
+import { Container, Col, AdminPage, Dialog } from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
+import { STORE_ID } from '../../state/store';
 import ConnectedProductDetailCard from '../connected-product-detail-card';
-import styles from './style.module.scss';
+import GoBackLink from '../go-back-link';
 import useAnalytics from '../../hooks/use-analytics';
+import { useProduct } from '../../hooks/use-product';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import boostImage from './boost.png';
 import searchImage from './search.png';
 import videoPressImage from './videopress.png';
 import extrasImage from './extras.png';
 import crmImage from './crm.png';
-import { useProduct } from '../../hooks/use-product';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import { STORE_ID } from '../../state/store';
-import GoBackLink from '../go-back-link';
 
 /**
  * Product Interstitial component.
@@ -96,32 +95,24 @@ export default function ProductInterstitial( {
 					<GoBackLink onClick={ onClickGoBack } />
 				</Col>
 				<Col>
-					<Container
-						className={ ! isUpgradableByBundle ? styles.container : null }
-						horizontalSpacing={ 0 }
-						horizontalGap={ 0 }
-						fluid
-					>
-						<Col sm={ 4 } md={ 4 } lg={ 7 }>
+					<Dialog
+						primary={
 							<ConnectedProductDetailCard
 								slug={ slug }
 								trackButtonClick={ trackProductClick }
 								onClick={ installsPlugin ? clickHandler : undefined }
-								className={ isUpgradableByBundle ? styles.container : null }
+								isCard={ isUpgradableByBundle }
 							/>
-						</Col>
-						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
-							{ bundle ? (
-								<ConnectedProductDetailCard
-									slug="security"
-									trackButtonClick={ trackBundleClick }
-									className={ isUpgradableByBundle ? styles.container : null }
-								/>
+						}
+						secondary={
+							bundle ? (
+								<ConnectedProductDetailCard slug="security" trackButtonClick={ trackBundleClick } />
 							) : (
 								children
-							) }
-						</Col>
-					</Container>
+							)
+						}
+						split={ isUpgradableByBundle }
+					/>
 				</Col>
 			</Container>
 		</AdminPage>
