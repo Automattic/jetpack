@@ -902,7 +902,7 @@ importers:
 
   projects/plugins/boost:
     specifiers:
-      '@automattic/jetpack-base-styles': workspace:* || ^0.1
+      '@automattic/jetpack-base-styles': workspace:* || ^0.2
       '@automattic/jetpack-components': workspace:* || ^0.11
       '@babel/core': 7.17.8
       '@babel/preset-env': 7.16.11
