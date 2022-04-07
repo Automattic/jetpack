@@ -22,6 +22,7 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { InspectorControls } from '@wordpress/block-editor';
+import { getWidgetIdFromBlock } from '@wordpress/widgets';
 
 /**
  * Internal dependencies
@@ -76,6 +77,22 @@ export class SimplePaymentsEdit extends Component {
 				} ),
 			} );
 		}
+
+		window.wp?.customize?.bind( 'change', setting => {
+			let widgetId;
+			const matches = setting.id.match( /^widget_(.+)(?:\[(\d+)\])$/ );
+			if ( matches ) {
+				const idBase = matches[ 1 ];
+				const number = parseInt( matches[ 2 ], 10 );
+				widgetId = `${ idBase }-${ number }`;
+			} else {
+				widgetId = setting.id;
+			}
+
+			if ( widgetId === getWidgetIdFromBlock( this.props.block ) && this.validateAttributes() ) {
+				this.saveProduct();
+			}
+		} );
 	}
 
 	componentDidUpdate( prevProps ) {
@@ -616,6 +633,7 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 	const post = getCurrentPost();
 
 	return {
+		block: select( 'core/block-editor' ).getBlock( props.clientId ),
 		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
 		isSaving: getDirtyEntityRecords().some( record =>
 			isSavingEntityRecord( record.kind, record.name, record.key )
