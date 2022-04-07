@@ -38,8 +38,6 @@ export default function Dialog( { primary, secondary, split } ) {
 }
 
 Dialog.propTypes = {
-	primary: PropTypes.ReactNode,
-	secondary: PropTypes.ReactNode,
 	split: PropTypes.bool,
 };
 
