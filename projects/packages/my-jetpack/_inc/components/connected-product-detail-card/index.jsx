@@ -18,10 +18,9 @@ import { useProduct } from '../../hooks/use-product';
  * @param {string} props.slug               - Product slug
  * @param {Function} props.onClick          - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @param {string} props.className	        - A className to be concat with default ones
  * @returns {object}                          ConnectedProductDetail react component.
  */
-const ConnectedProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => {
+const ConnectedProductDetailCard = ( { slug, onClick, trackButtonClick, ...rest } ) => {
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
@@ -64,7 +63,6 @@ const ConnectedProductDetailCard = ( { slug, onClick, trackButtonClick, classNam
 	return (
 		<ProductDetail
 			slug={ slug }
-			className={ className }
 			title={ title }
 			description={ longDescription }
 			features={ features }
@@ -75,6 +73,7 @@ const ConnectedProductDetailCard = ( { slug, onClick, trackButtonClick, classNam
 			onAdd={ clickHandler }
 			addProductUrl={ addProductUrl }
 			isLoading={ isFetching }
+			{ ...rest }
 		/>
 	);
 };
