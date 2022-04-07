@@ -19,14 +19,14 @@ class Publicize_Main {
 	public $publicize;
 
 	/**
-	 * Hooks into WordPress to display the various pieces of UI and load our assets
+	 * To configure the publicize package, when called via the Config package.
 	 */
 	public static function configure() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded' ) );
 	}
 
 	/**
-	 * Hooks into WordPress to display the various pieces of UI and load our assets
+	 * To configure the publicize package, when called via the Config package.
 	 */
 	public static function on_plugins_loaded() {
 		global $publicize;
