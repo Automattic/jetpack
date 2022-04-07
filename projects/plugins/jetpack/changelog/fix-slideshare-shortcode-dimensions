@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Slideshare shortcode: Fix dimensions that caused unwanted page autoscroll

@@ -26,7 +26,6 @@
  * @param array $atts Shortcode attributes.
  */
 function slideshare_shortcode( $atts ) {
-	global $content_width;
 
 	$params = shortcode_new_to_old_params( $atts );
 	parse_str( $params, $arguments );
@@ -59,12 +58,10 @@ function slideshare_shortcode( $atts ) {
 	// check the width/height.
 	$w = (int) $attr['w'];
 
-	// If no width was specified (or uses the wrong format), and if we have a $content_width, use that.
-	if ( empty( $w ) && ! empty( $content_width ) ) {
-		$w = (int) $content_width;
-	} elseif ( $w < 300 || $w > 1600 ) { // If width was specified, but is too small/large, set default value.
-		$w = 425;
-	} else {
+	// If no width was specified or if it is out of range, use the default with
+	if ( empty( $w ) || ( $w < 300 || $w > 1600 ) ) {
+		$w = 427;
+	} else { // otherwise use the width specified
 		$w = (int) $w;
 	}
 
@@ -89,6 +86,8 @@ function slideshare_shortcode( $atts ) {
 	// check the frameborder.
 	if ( ! empty( $attr['fb'] ) || '0' === $attr['fb'] ) {
 		$player .= " frameborder='" . (int) $attr['fb'] . "'";
+	} else {
+		$player .= " frameborder='0'";
 	}
 
 	$is_amp = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
