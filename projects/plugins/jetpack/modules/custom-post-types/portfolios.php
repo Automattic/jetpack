@@ -164,7 +164,7 @@ class Jetpack_Portfolio {
 				esc_attr( self::OPTION_READING_SETTING ),
 				sprintf(
 					/* translators: %1$s is replaced with an input field for numbers */
-					esc_html__( 'Portfolio pages display at most %1$s projects', 'jetpack' ),
+					__( 'Portfolio pages display at most %1$s projects', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the placeholder contains HTML.
 					sprintf(
 						'<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
 						esc_attr( self::OPTION_READING_SETTING ),
