@@ -1474,14 +1474,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "6e911d8d6c1cadf3f33195ac19cb5900c477f379"
+                "reference": "f22ce81b8cd387959efeb57b6ffc079e9a14951f"
             },
             "require": {
-                "automattic/jetpack-connection": "1.37.x-dev",
-                "automattic/jetpack-options": "1.15.x-dev"
+                "automattic/jetpack-autoloader": "^2.11",
+                "automattic/jetpack-config": "^1.7",
+                "automattic/jetpack-connection": "^1.37",
+                "automattic/jetpack-options": "^1.15"
             },
             "require-dev": {
-                "automattic/jetpack-autoloader": "2.11.x-dev",
                 "automattic/jetpack-changelogger": "^3.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
