@@ -17,14 +17,10 @@
 	}
 }
 
-<<<<<<< HEAD
 .jp-recommendations-question__progress-bar-wrap {
 	display: flex;
 	align-items: center;
 	margin: 32px 32px 0 32px;
-=======
-	margin: 40px 40px 0 40px;
->>>>>>> [not verified] Add discount card component for the assistant flow
 
 	@include breakpoint( '<480px' ) {
 		margin: 16px 16px 32px 16px;
@@ -66,7 +62,6 @@
 	}
 }
 
-<<<<<<< HEAD
 .jp-recommendations-question__description-list {
 	color: var( --jp-gray-100 );
 	font-size: 16px;
@@ -79,8 +74,6 @@
 	}
 }
 
-=======
->>>>>>> [not verified] Add discount card component for the assistant flow
 .jp-recommendations-question__main--with-sidebar .jp-recommendations-question__description {
 	margin-right: 0;
 
@@ -110,7 +103,6 @@
 	}
 }
 
-<<<<<<< HEAD
 .jp-recommendations-question__illustration-container--rna {
 	background: radial-gradient(
 			circle at 70%,
@@ -137,8 +129,6 @@
 	}
 }
 
-=======
->>>>>>> [not verified] Add discount card component for the assistant flow
 .jp-recommendations-question__sidebar-card {
 	width: 100%;
 }
