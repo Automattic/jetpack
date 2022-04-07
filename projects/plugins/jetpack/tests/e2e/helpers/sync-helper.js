@@ -25,6 +25,8 @@ export async function isSyncQueueEmpty() {
 	try {
 		const status = await getSyncStatus();
 
+		logger.info( `isSyncQueueEmpty: ${ status }` );
+
 		return status.includes( 'queue_size' ) && status.includes( 'queue_size	0' );
 	} catch ( e ) {
 		logger.error( `isSyncQueueEmpty: ${ e }` );
