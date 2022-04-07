@@ -16,31 +16,36 @@ import { useProduct } from '../../hooks/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+
+// Interstitial images
 import boostImage from './boost.png';
 import searchImage from './search.png';
 import videoPressImage from './videopress.png';
 import extrasImage from './extras.png';
 import crmImage from './crm.png';
 
+const imagesBySlug = {
+	boost: boostImage,
+	crm: crmImage,
+	extras: extrasImage,
+	search: searchImage,
+	videopress: videoPressImage,
+};
+
 /**
  * Product Interstitial component.
  *
  * @param {object} props                 - Component props.
  * @param {string} props.slug            - Product slug
- * @param {string} props.bundle          - Bundle including this product
- * @param {object} props.children        - Product additional content
- * @param {boolean} props.installsPlugin - Whether the interstitial button installs a plugin*
+ * @param {boolean} props.installsPlugin - Whether install product plugin.
  * @returns {object}                       ProductInterstitial react component.
  */
-export default function ProductInterstitial( {
-	bundle,
-	installsPlugin = false,
-	slug,
-	children = null,
-} ) {
+export default function ProductInterstitial( { slug, installsPlugin = true } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle } = detail;
 
+	// If the product is not upgradable by bundle, take the first one.
+	const bundleSlug = isUpgradableByBundle?.length ? isUpgradableByBundle[ 0 ] : null;
 	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
@@ -52,8 +57,8 @@ export default function ProductInterstitial( {
 	}, [ recordEvent, slug ] );
 
 	const trackBundleClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
-	}, [ recordEvent, bundle ] );
+		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundleSlug } );
+	}, [ recordEvent, bundleSlug ] );
 
 	const { isUserConnected } = useMyJetpackConnection();
 
@@ -88,6 +93,13 @@ export default function ProductInterstitial( {
 		}
 	}, [ recordEvent, slug ] );
 
+	const Secondary = () =>
+		bundleSlug ? (
+			<ConnectedProductDetailCard slug={ bundleSlug } trackButtonClick={ trackBundleClick } />
+		) : (
+			<img src={ imagesBySlug?.[ slug ] } alt="" />
+		);
+
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -101,112 +113,14 @@ export default function ProductInterstitial( {
 								slug={ slug }
 								trackButtonClick={ trackProductClick }
 								onClick={ installsPlugin ? clickHandler : undefined }
-								isCard={ isUpgradableByBundle }
+								isCard={ !! bundleSlug }
 							/>
 						}
-						secondary={
-							bundle ? (
-								<ConnectedProductDetailCard slug="security" trackButtonClick={ trackBundleClick } />
-							) : (
-								children
-							)
-						}
-						split={ isUpgradableByBundle }
+						secondary={ <Secondary /> }
+						split={ !! bundleSlug }
 					/>
 				</Col>
 			</Container>
 		</AdminPage>
-	);
-}
-
-/**
- * AntiSpamInterstitial component
- *
- * @returns {object} AntiSpamInterstitial react component.
- */
-export function AntiSpamInterstitial() {
-	return <ProductInterstitial slug="anti-spam" installsPlugin={ true } bundle="security" />;
-}
-
-/**
- * BackupInterstitial component
- *
- * @returns {object} BackupInterstitial react component.
- */
-export function BackupInterstitial() {
-	return <ProductInterstitial slug="backup" installsPlugin={ true } bundle="security" />;
-}
-
-/**
- * BoostInterstitial component
- *
- * @returns {object} BoostInterstitial react component.
- */
-export function BoostInterstitial() {
-	return (
-		<ProductInterstitial slug="boost" installsPlugin={ true }>
-			<img src={ boostImage } alt="Boost" />
-		</ProductInterstitial>
-	);
-}
-
-/**
- * CRMInterstitial component
- *
- * @returns {object} CRMInterstitial react component.
- */
-export function CRMInterstitial() {
-	return (
-		<ProductInterstitial slug="crm" installsPlugin={ true }>
-			<img src={ crmImage } alt="CRM" />
-		</ProductInterstitial>
-	);
-}
-
-/**
- * ExtrasInterstitial component
- *
- * @returns {object} ExtrasInterstitial react component.
- */
-export function ExtrasInterstitial() {
-	return (
-		<ProductInterstitial slug="extras" installsPlugin={ true }>
-			<img src={ extrasImage } alt="Extras" />
-		</ProductInterstitial>
-	);
-}
-
-/**
- * ScanInterstitial component
- *
- * @returns {object} ScanInterstitial react component.
- */
-export function ScanInterstitial() {
-	return <ProductInterstitial slug="scan" installsPlugin={ true } bundle="security" />;
-}
-
-/**
- * SearchInterstitial component
- *
- * @returns {object} SearchInterstitial react component.
- */
-export function SearchInterstitial() {
-	return (
-		<ProductInterstitial slug="search" installsPlugin={ true }>
-			<img src={ searchImage } alt="Search" />
-		</ProductInterstitial>
-	);
-}
-
-/**
- * VideoPressInterstitial component
- *
- * @returns {object} VideoPressInterstitial react component.
- */
-export function VideoPressInterstitial() {
-	return (
-		<ProductInterstitial slug="videopress" installsPlugin={ true }>
-			<img src={ videoPressImage } alt="VideoPress" />
-		</ProductInterstitial>
 	);
 }
