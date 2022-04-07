@@ -20,7 +20,7 @@ import { useProduct } from '../../hooks/use-product';
  * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
  * @returns {object}                          ConnectedProductDetail react component.
  */
-const ConnectedProductDetailCard = ( { slug, onClick, trackButtonClick, ...rest } ) => {
+const ConnectedProductDetail = ( { slug, onClick, trackButtonClick, ...rest } ) => {
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
@@ -78,8 +78,8 @@ const ConnectedProductDetailCard = ( { slug, onClick, trackButtonClick, ...rest 
 	);
 };
 
-ConnectedProductDetailCard.defaultProps = {
+ConnectedProductDetail.defaultProps = {
 	trackButtonClick: () => {},
 };
 
-export default ConnectedProductDetailCard;
+export default ConnectedProductDetail;

@@ -9,7 +9,7 @@ import { select } from '@wordpress/data';
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
-import ConnectedProductDetailCard from '../connected-product-detail-card';
+import ConnectedProductDetail from '../connected-product-detail';
 import GoBackLink from '../go-back-link';
 import useAnalytics from '../../hooks/use-analytics';
 import { useProduct } from '../../hooks/use-product';
@@ -95,7 +95,7 @@ export default function ProductInterstitial( { slug, installsPlugin = true } ) {
 
 	const Secondary = () =>
 		bundleSlug ? (
-			<ConnectedProductDetailCard slug={ bundleSlug } trackButtonClick={ trackBundleClick } />
+			<ConnectedProductDetail slug={ bundleSlug } trackButtonClick={ trackBundleClick } />
 		) : (
 			<img src={ imagesBySlug?.[ slug ] } alt="" />
 		);
@@ -109,7 +109,7 @@ export default function ProductInterstitial( { slug, installsPlugin = true } ) {
 				<Col>
 					<Dialog
 						primary={
-							<ConnectedProductDetailCard
+							<ConnectedProductDetail
 								slug={ slug }
 								trackButtonClick={ trackProductClick }
 								onClick={ installsPlugin ? clickHandler : undefined }

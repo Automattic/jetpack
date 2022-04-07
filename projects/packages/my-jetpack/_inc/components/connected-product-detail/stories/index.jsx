@@ -12,7 +12,7 @@ import ProductDetailCard from '../index.jsx';
 import { getAllMockData, getProductSlugs } from './utils.js';
 
 export default {
-	title: 'Packages/My Jetpack/Connected Product Detail Card',
+	title: 'Packages/My Jetpack/Connected Product Detail',
 	component: ProductDetailCard,
 	decorators: [ withMock ],
 	parameters: {
