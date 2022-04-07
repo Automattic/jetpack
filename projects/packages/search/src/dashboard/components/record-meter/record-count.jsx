@@ -21,13 +21,15 @@ export function RecordCount( props ) {
 				{ sprintf(
 					// translators: %1$d: site's current record count, %2$d: record limit of the current plan
 					__(
-						'%1$d records indexed out of the %2$d allotted for your current plan',
+						'%1$s records indexed out of the %2$s allotted for your current plan',
 						'jetpack-search-pkg'
 					),
-					props.recordCount,
-					props.planRecordLimit
+					props.recordCount.toLocaleString(),
+					props.planRecordLimit.toLocaleString()
 				) }
 			</p>
+
+			{ /* { ( 1234.56789 ).toLocaleString( undefined, { maximumFractionDigits: 2 } ) } */ }
 		</div>
 	);
 }
