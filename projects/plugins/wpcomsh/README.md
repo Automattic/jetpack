@@ -1,5 +1,7 @@
 # WordPress.com Site Helper
 
+![PHP Lint](https://github.com/Automattic/wpcomsh/actions/workflows/linting.yml/badge.svg) ![CircleCI](https://circleci.com/gh/Automattic/wpcomsh.svg?style=shield&circle-token=37baa9fa1a0fa74ad04f30ce58084d2d353a1342)
+
 With the help of this mu-plugin, an Atomic site is transformed into a WP.com site. It lives in `wp-content/mu-plugins/wpcomsh` and is loaded with `wp-content/mu-plugins/wpcomsh-loader.php`.
 
 ## Development
@@ -114,7 +116,7 @@ In order for WordPress to load the test site correctly, you'll need to access th
 - Tag the release with the command `make tag`.
 - Run the git push command suggested by make tag.
 - Run `bin/create-github-release.sh` to build a new release zip and create a GitHub release. This reads the version number to use for the build from `wpcomsh.php`, which is set in the first step.
-  - Note: This command may ask for a GitHub password. Use a [Personal Access Token](https://github.com/settings/tokens/) (with at least repo scope) instead. If your previous token has expired, update it locally in `~/.config/hub`. 
+  - Note: This command may ask for a GitHub password. Use a [Personal Access Token](https://github.com/settings/tokens/) (with at least repo scope) instead. If your previous token has expired, update it locally in `~/.config/hub`.
 - You can view your [successful release here](https://github.com/Automattic/wpcomsh/releases).
 - New versions are deployed when our monitoring detects its release.
 
