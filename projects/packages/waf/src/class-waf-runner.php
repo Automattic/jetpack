@@ -12,10 +12,10 @@ namespace Automattic\Jetpack\Waf;
  */
 class Waf_Runner {
 
-	const JETPACK_WAF_VERSION = '1.0.0';
+	const WAF_RULES_VERSION   = '1.0.0';
 	const MODE_OPTION_NAME    = 'jetpack_waf_mode';
 	const RULES_FILE          = __DIR__ . '/../rules/rules.php';
-	const VERSION_OPTION_NAME = 'jetpack_waf_version';
+	const VERSION_OPTION_NAME = 'jetpack_waf_rules_version';
 
 	/**
 	 * Set the mode definition if it has not been set.
@@ -141,33 +141,26 @@ class Waf_Runner {
 		}
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( ! $version ) {
-			add_option( self::VERSION_OPTION_NAME, self::JETPACK_WAF_VERSION );
+			add_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 		}
 		self::generate_rules();
 	}
 
 	/**
-	 * Updates the rules.php and the version in site DB
+	 * Updates the rule set if rules version has changed
 	 *
 	 * @return void
 	 */
-	public static function update() {
+	public static function update_rules_if_changed() {
 		self::define_mode();
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
-		update_option( self::VERSION_OPTION_NAME, self::JETPACK_WAF_VERSION );
-		self::generate_rules();
-	}
-
-	/**
-	 * Checks if the version has been changed.
-	 *
-	 * @return boolean
-	 */
-	public static function has_version_changed() {
 		$version = get_option( self::VERSION_OPTION_NAME );
-		return self::JETPACK_WAF_VERSION !== $version ? true : false;
+		if ( self::WAF_RULES_VERSION !== $version ) {
+			update_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
+			self::generate_rules();
+		}
 	}
 
 	/**
@@ -183,7 +176,7 @@ class Waf_Runner {
 		self::initialize_filesystem();
 
 		// Ensure that the folder exists.
-		if ( ! $wp_filesystem->is_writable( dirname( self::RULES_FILE ) ) ) {
+		if ( ! $wp_filesystem->is_dir( dirname( self::RULES_FILE ) ) ) {
 			$wp_filesystem->mkdir( dirname( self::RULES_FILE ) );
 		}
 		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, "<?php\n" ) ) {

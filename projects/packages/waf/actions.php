@@ -21,6 +21,14 @@ register_activation_hook(
 );
 
 /**
+ * Testing
+ */
+add_action(
+	'upgrader_process_complete',
+	array( __NAMESPACE__ . '\Waf_Runner', 'update_rules_if_changed' )
+);
+
+/**
  * Runs the WAF in the WP context.
  *
  * @return void
@@ -28,9 +36,6 @@ register_activation_hook(
 add_action(
 	'plugin_loaded',
 	function () {
-		if ( Waf_Runner::has_version_changed() ) {
-			Waf_Runner::update();
-		}
 		require_once __DIR__ . '/run.php';
 	}
 );
