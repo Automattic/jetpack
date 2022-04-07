@@ -40,8 +40,8 @@ SecurityBundle.args = {
 	],
 	pricing: {
 		currency: 'USD',
-		price: '24.92',
-		offPrice: '12.42',
+		price: 24.92,
+		offPrice: 12.42,
 	},
 	addProductUrl: '',
 	hasRequiredPlan: false,
