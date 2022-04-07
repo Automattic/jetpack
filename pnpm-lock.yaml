@@ -1091,8 +1091,6 @@ importers:
       gulp-modify-css-urls: 2.0.0
       gulp-rename: 2.0.0
       gulp-rtlcss: 1.4.1
-      gulp-sass: 5.0.0
-      gulp-sourcemaps: 3.0.0
       jest: 27.3.1
       jest-environment-jsdom: 27.3.1
       jest-enzyme: 7.1.2
@@ -1207,8 +1205,6 @@ importers:
       gulp-modify-css-urls: 2.0.0
       gulp-rename: 2.0.0
       gulp-rtlcss: 1.4.1
-      gulp-sass: 5.0.0
-      gulp-sourcemaps: 3.0.0
       jsdom: 19.0.0
       mapbox-gl: 1.13.0
       markdown-it: 12.3.2
@@ -4761,25 +4757,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /@gulp-sourcemaps/identity-map/2.0.1:
-    resolution: {integrity: sha512-Tb+nSISZku+eQ4X1lAkevcQa+jknn/OVUgZ3XCxEKIsLsqYuPoJwJOPQeaOk75X3WPftb29GWY1eqE7GLsXb1Q==}
-    engines: {node: '>= 0.10'}
-    dependencies:
-      acorn: 6.4.2
-      normalize-path: 3.0.0
-      postcss: 7.0.39
-      source-map: 0.6.1
-      through2: 3.0.2
-    dev: false
-
-  /@gulp-sourcemaps/map-sources/1.0.0:
-    resolution: {integrity: sha1-iQrnxdjId/bThIYCFazp1+yUW9o=}
-    engines: {node: '>= 0.10'}
-    dependencies:
-      normalize-path: 2.1.1
-      through2: 2.0.5
-    dev: false
 
   /@humanwhocodes/config-array/0.9.5:
     resolution: {integrity: sha512-ObyMyWxZiCu/yTisA7uzx81s40xR2fD5Cg/2Kq7G02ajkNubJf6BopgDTmDyc3U7sXpNKM8cYOw7s7Tyr+DnCw==}
@@ -9237,12 +9214,6 @@ packages:
     hasBin: true
     dev: true
 
-  /acorn/6.4.2:
-    resolution: {integrity: sha512-XtGIhXwF8YM8bJhGxG5kXgjkEuNGLTkoYqVE+KMR+aspr4KGYmKYg7yUe3KghyQ9yheNwLnjmzh/7+gfDBmHCQ==}
-    engines: {node: '>=0.4.0'}
-    hasBin: true
-    dev: false
-
   /acorn/7.4.1:
     resolution: {integrity: sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==}
     engines: {node: '>=0.4.0'}
@@ -11650,6 +11621,7 @@ packages:
       inherits: 2.0.4
       source-map: 0.6.1
       source-map-resolve: 0.6.0
+    dev: true
 
   /csscolorparser/1.0.3:
     resolution: {integrity: sha1-s085HupNqPPpgjHizNjfnAQfFxs=}
@@ -11860,14 +11832,6 @@ packages:
     resolution: {integrity: sha512-3VmRXEtw7RZKAf+4Tv1Ym9AGeo8r8+CjDi26x+7SYQil1UqtqdaokhzoEJohqlzt0m5kacJSDhJQkG/LWhpRBw==}
     dev: true
 
-  /debug-fabulous/1.1.0:
-    resolution: {integrity: sha512-GZqvGIgKNlUnHUPQhepnUZFIMoi3dgZKQBzKDeL2g7oJF9SNAji/AAu36dusFUas0O+pae74lNeoIPHqXWDkLg==}
-    dependencies:
-      debug: 3.2.7
-      memoizee: 0.4.15
-      object-assign: 4.1.1
-    dev: false
-
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     dependencies:
@@ -11877,6 +11841,7 @@ packages:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
     dependencies:
       ms: 2.1.3
+    dev: true
 
   /debug/4.3.1_supports-color@8.1.1:
     resolution: {integrity: sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==}
@@ -12083,11 +12048,6 @@ packages:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
     dev: true
-
-  /detect-newline/2.1.0:
-    resolution: {integrity: sha1-9B8cEL5LAOh7XxPaaAdZ8sW/0+I=}
-    engines: {node: '>=0.10.0'}
-    dev: false
 
   /detect-newline/3.1.0:
     resolution: {integrity: sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==}
@@ -13350,13 +13310,6 @@ packages:
     engines: {node: '>= 0.8'}
     dependencies:
       require-like: 0.1.2
-    dev: false
-
-  /event-emitter/0.3.5:
-    resolution: {integrity: sha1-34xp7vFkeSPHFXuc6DhAYQsCzDk=}
-    dependencies:
-      d: 1.0.1
-      es5-ext: 0.10.57
     dev: false
 
   /eventemitter2/0.4.14:
@@ -14717,36 +14670,6 @@ packages:
       rtlcss: 2.6.2
       through2: 2.0.5
       vinyl-sourcemaps-apply: 0.2.1
-    dev: false
-
-  /gulp-sass/5.0.0:
-    resolution: {integrity: sha512-J0aH0/2N4+2szGCeut0ktGHK0Wg8L9uWivuigrl7xv+nhxozBQRAKLrhnDDaTa3FeUWYtgT8w4RlgdhRy5v16w==}
-    engines: {node: '>=12'}
-    dependencies:
-      chalk: 4.1.2
-      lodash: 4.17.21
-      plugin-error: 1.0.1
-      replace-ext: 2.0.0
-      strip-ansi: 6.0.1
-      transfob: 1.0.0
-      vinyl-sourcemaps-apply: 0.2.1
-    dev: false
-
-  /gulp-sourcemaps/3.0.0:
-    resolution: {integrity: sha512-RqvUckJkuYqy4VaIH60RMal4ZtG0IbQ6PXMNkNsshEGJ9cldUPRb/YCgboYae+CLAs1HQNb4ADTKCx65HInquQ==}
-    engines: {node: '>= 6'}
-    dependencies:
-      '@gulp-sourcemaps/identity-map': 2.0.1
-      '@gulp-sourcemaps/map-sources': 1.0.0
-      acorn: 6.4.2
-      convert-source-map: 1.8.0
-      css: 3.0.0
-      debug-fabulous: 1.1.0
-      detect-newline: 2.1.0
-      graceful-fs: 4.2.9
-      source-map: 0.6.1
-      strip-bom-string: 1.0.0
-      through2: 2.0.5
     dev: false
 
   /gulp/4.0.2:
@@ -17344,12 +17267,6 @@ packages:
     dependencies:
       yallist: 4.0.0
 
-  /lru-queue/0.1.0:
-    resolution: {integrity: sha1-Jzi9nw089PhEkMVzbEhpmsYyzaM=}
-    dependencies:
-      es5-ext: 0.10.57
-    dev: false
-
   /lru/3.1.0:
     resolution: {integrity: sha1-6n+4VG2DczOWoTCR12z+tMBoN9U=}
     engines: {node: '>= 0.4.0'}
@@ -17555,19 +17472,6 @@ packages:
 
   /memize/1.1.0:
     resolution: {integrity: sha512-K4FcPETOMTwe7KL2LK0orMhpOmWD2wRGwWWpbZy0fyArwsyIKR8YJVz8+efBAh3BO4zPqlSICu4vsLTRRqtFAg==}
-
-  /memoizee/0.4.15:
-    resolution: {integrity: sha512-UBWmJpLZd5STPm7PMUlOw/TSy972M+z8gcyQ5veOnSDRREz/0bmpyTfKt3/51DhEBqCZQn1udM/5flcSPYhkdQ==}
-    dependencies:
-      d: 1.0.1
-      es5-ext: 0.10.57
-      es6-weak-map: 2.0.3
-      event-emitter: 0.3.5
-      is-promise: 2.2.2
-      lru-queue: 0.1.0
-      next-tick: 1.1.0
-      timers-ext: 0.1.7
-    dev: false
 
   /memoizerific/1.11.3:
     resolution: {integrity: sha1-fIekZGREwy11Q4VwkF8tvRsagFo=}
@@ -21286,11 +21190,6 @@ packages:
     engines: {node: '>= 0.10'}
     dev: false
 
-  /replace-ext/2.0.0:
-    resolution: {integrity: sha512-UszKE5KVK6JvyD92nzMn9cDapSk6w/CaFZ96CnmDMUqH9oowfxF/ZjRITD25H4DnOQClLA4/j7jLGXXLVKxAug==}
-    engines: {node: '>= 10'}
-    dev: false
-
   /replace-homedir/1.0.0:
     resolution: {integrity: sha1-6H9tUTuSjd6AgmDBK+f+xv9ueYw=}
     engines: {node: '>= 0.10'}
@@ -22250,6 +22149,7 @@ packages:
     dependencies:
       atob: 2.1.2
       decode-uri-component: 0.2.0
+    dev: true
 
   /source-map-support/0.4.18:
     resolution: {integrity: sha512-try0/JqxPLF9nOjvSta7tVondkP5dwgyLDjVoyMDlmjugT2lRZ1OfsrYTkCd2hkDnJTKRbO/Rl3orm8vlsUzbA==}
@@ -22603,11 +22503,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       ansi-regex: 5.0.1
-
-  /strip-bom-string/1.0.0:
-    resolution: {integrity: sha1-5SEekiQ2n7uB1jOi8ABE3IztrZI=}
-    engines: {node: '>=0.10.0'}
-    dev: false
 
   /strip-bom/2.0.0:
     resolution: {integrity: sha1-YhmoVhZSBJHzV4i9vxRHqZx+aw4=}
@@ -23105,13 +23000,6 @@ packages:
       setimmediate: 1.0.5
     dev: true
 
-  /timers-ext/0.1.7:
-    resolution: {integrity: sha512-b85NUNzTSdodShTIbky6ZF02e8STtVVfD+fu4aXXShEELpozH+bCpJLYMPZbsABN2wDH7fJpqIoXxJpzbf0NqQ==}
-    dependencies:
-      es5-ext: 0.10.57
-      next-tick: 1.1.0
-    dev: false
-
   /timsort/0.3.0:
     resolution: {integrity: sha1-QFQRqOfmM5/mTbmiNN4R3DHgK9Q=}
 
@@ -23239,10 +23127,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       punycode: 2.1.1
-    dev: false
-
-  /transfob/1.0.0:
-    resolution: {integrity: sha1-x/wnpbVDCtSGJnrmZtkj90oKsyA=}
     dev: false
 
   /traverse/0.6.6:
