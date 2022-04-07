@@ -36,7 +36,7 @@
  *
  * @version 1.0
  */
-require_once __DIR__ . '/class.csstidy_ctype.php';
+require_once __DIR__ . '/class.csstidy-ctype.php';
 
 /**
  * Various CSS data needed for correct optimisations etc.
@@ -50,14 +50,14 @@ require __DIR__ . '/data.inc.php';
  *
  * @version 1.0
  */
-require __DIR__ . '/class.csstidy_print.php';
+require __DIR__ . '/class.csstidy-print.php';
 
 /**
  * Contains a class for optimising CSS code
  *
  * @version 1.0
  */
-require __DIR__ . '/class.csstidy_optimise.php';
+require __DIR__ . '/class.csstidy-optimise.php';
 
 /**
  * CSS Parser class

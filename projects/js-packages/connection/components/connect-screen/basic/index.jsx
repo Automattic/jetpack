@@ -31,6 +31,7 @@ const ConnectScreen = props => {
 		assetBaseUrl,
 		autoTrigger,
 		footer,
+		skipUserConnection,
 	} = props;
 
 	const {
@@ -47,6 +48,7 @@ const ConnectScreen = props => {
 		apiNonce,
 		autoTrigger,
 		from,
+		skipUserConnection,
 	} );
 
 	const showConnectButton = ! isRegistered || ! isUserConnected;
@@ -91,6 +93,8 @@ ConnectScreen.propTypes = {
 	images: PropTypes.arrayOf( PropTypes.string ),
 	/** The assets base URL. */
 	assetBaseUrl: PropTypes.string,
+	/** Whether to not require a user connection and just redirect after site connection. */
+	skipUserConnection: PropTypes.bool,
 };
 
 ConnectScreen.defaultProps = {
@@ -99,6 +103,7 @@ ConnectScreen.defaultProps = {
 	images: [],
 	redirectUri: null,
 	autoTrigger: false,
+	skipUserConnection: false,
 };
 
 export default ConnectScreen;
