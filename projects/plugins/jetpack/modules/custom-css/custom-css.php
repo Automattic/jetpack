@@ -1359,7 +1359,7 @@ class Jetpack_Custom_CSS {
 
 								printf(
 									// translators: the theme's stylesheet URL.
-									__( 'Replace <a href="%s">theme\'s CSS</a> <b>(Advanced)</b>', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									wp_kses_post( __( 'Replace <a href="%s">theme\'s CSS</a> <b>(Advanced)</b>', 'jetpack' ) ),
 									/**
 									 * Filter the theme's stylesheet URL.
 									 *
