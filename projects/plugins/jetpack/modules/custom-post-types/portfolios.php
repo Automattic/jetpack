@@ -655,7 +655,7 @@ class Jetpack_Portfolio {
 	/**
 	 * Add to REST API post type allowed list.
 	 *
-	 * @param array $post_types Array of whitelisted post types. Default to `array( 'post', 'page', 'revision' )`.
+	 * @param array $post_types Array of post types to add to the allowed list. Default to `array( 'post', 'page', 'revision' )`.
 	 */
 	public function allow_portfolio_rest_api_type( $post_types ) {
 		$post_types[] = self::CUSTOM_POST_TYPE;
