@@ -1454,7 +1454,7 @@ class Jetpack_Custom_CSS {
 				?>
 				<li>
 					<?php
-						echo wp_post_revision_title( $post ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo wp_post_revision_title( $post ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 					if ( ! empty( $post->post_excerpt ) ) {
 						echo ' (' . esc_html( $post->post_excerpt ) . ')';
