@@ -3,7 +3,7 @@
  */
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { ProductDetail } from '@automattic/jetpack-components';
+import { ProductOffer } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -20,9 +20,9 @@ import { useProduct } from '../../hooks/use-product';
  * @param {string} props.slug               - Product slug
  * @param {Function} props.onClick          - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @returns {object}                          ConnectedProductDetail react component.
+ * @returns {object}                          ConnetedProductOffer react component.
  */
-const ConnectedProductDetail = ( { slug, onClick, trackButtonClick, ...rest } ) => {
+const ConnetedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) => {
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
@@ -63,7 +63,7 @@ const ConnectedProductDetail = ( { slug, onClick, trackButtonClick, ...rest } ) 
 	}, [ onClick, trackButtonClick ] );
 
 	return (
-		<ProductDetail
+		<ProductOffer
 			slug={ slug }
 			title={ title }
 			description={ longDescription }
@@ -80,12 +80,12 @@ const ConnectedProductDetail = ( { slug, onClick, trackButtonClick, ...rest } ) 
 	);
 };
 
-ConnectedProductDetail.propTypes = {
+ConnetedProductOffer.propTypes = {
 	slug: PropTypes.string.isRequired,
 };
 
-ConnectedProductDetail.defaultProps = {
+ConnetedProductOffer.defaultProps = {
 	trackButtonClick: () => {},
 };
 
-export default ConnectedProductDetail;
+export default ConnetedProductOffer;

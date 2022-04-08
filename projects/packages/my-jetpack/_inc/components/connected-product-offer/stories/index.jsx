@@ -8,12 +8,12 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import ProductDetailCard from '../index.jsx';
+import ConnectedProductOffer from '../index.jsx';
 import { getAllMockData, getProductSlugs } from './utils.js';
 
 export default {
-	title: 'Packages/My Jetpack/Connected Product Detail',
-	component: ProductDetailCard,
+	title: 'Packages/My Jetpack/Connected Product Offer',
+	component: ConnectedProductOffer,
 	decorators: [ withMock ],
 	parameters: {
 		layout: 'centered',
@@ -30,9 +30,9 @@ export default {
 
 const mockData = getAllMockData();
 
-const DefaultProductDetailCard = args => <ProductDetailCard { ...args } />;
+const DefaultDefaultProductOffer = args => <ConnectedProductOffer { ...args } />;
 
-export const Default = DefaultProductDetailCard.bind( {} );
+export const Default = DefaultDefaultProductOffer.bind( {} );
 Default.parameters = { mockData };
 Default.args = {
 	slug: 'backup',
