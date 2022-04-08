@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery Block: Fix block crashing when updating high-volume gallery (> 50 images).
