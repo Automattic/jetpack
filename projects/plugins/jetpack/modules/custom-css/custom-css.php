@@ -1132,7 +1132,8 @@ class Jetpack_Custom_CSS {
 								<textarea id="safecss" name="safecss"
 								<?php
 								if ( SAFECSS_USE_ACE ) {
-									echo ' class="hide-if-js"';}
+									echo ' class="hide-if-js"';
+								}
 								?>
 								><?php echo esc_textarea( self::get_css() ); ?></textarea>
 								<div class="clear"></div>
