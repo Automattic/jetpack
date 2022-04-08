@@ -6,9 +6,9 @@ import formatCurrency from '@automattic/format-currency';
 /**
  * WordPress dependencies
  */
-import { BlockControls } from '@wordpress/block-editor';
+import { BlockControls, store as blockEditorStore } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, update, warning } from '@wordpress/icons';
 
@@ -69,11 +69,15 @@ function Product( { onClose, product } ) {
 }
 
 function NewProduct( { onClose } ) {
-	const { productType } = useProductManagementContext();
+	const { clientId, productType } = useProductManagementContext();
 	const openBlockSidebar = useOpenBlockSidebar();
+	const { selectBlock } = useDispatch( blockEditorStore );
 
 	const handleClick = event => {
 		event.preventDefault();
+		if ( clientId ) {
+			selectBlock( clientId );
+		}
 		openBlockSidebar();
 		setTimeout( () => {
 			const input = document.getElementById( 'new-product-title' );

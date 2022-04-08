@@ -19,6 +19,7 @@ import './style.scss';
 
 export default function ProductManagementControls( {
 	blockName,
+	clientId,
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
 	setSelectedProductId = () => {},
@@ -52,6 +53,7 @@ export default function ProductManagementControls( {
 
 	const context = {
 		blockName,
+		clientId,
 		products,
 		productType,
 		selectedProductId,
