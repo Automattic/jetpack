@@ -29,9 +29,6 @@ class Publicize_Main {
 	 * To configure the publicize package, when called via the Config package.
 	 */
 	public static function on_plugins_loaded() {
-		global $publicize;
-		$publicize = new Publicize();
-
 		global $publicize_ui;
 		$publicize_ui = new Publicize_UI();
 	}
