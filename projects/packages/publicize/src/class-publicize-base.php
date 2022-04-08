@@ -983,12 +983,12 @@ abstract class Publicize_Base {
 		if ( 'publish_posts' === $capability && $post_id ) {
 			// Hardcoding to  true temporarily.
 			//phpcs:disable Squiz.PHP.CommentedOutCode.Found
-			return true; // current_user_can( 'publish_post', $post_id );
+			return current_user_can( 'publish_post', $post_id );
 		}
 
 		// Hardcoding to  true temporarily.
 		//phpcs:disable Squiz.PHP.CommentedOutCode.Found
-		return true; // current_user_can( $capability );
+		return current_user_can( $capability );
 	}
 
 	/**
