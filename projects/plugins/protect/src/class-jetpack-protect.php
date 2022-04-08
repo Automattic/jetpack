@@ -15,6 +15,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status;
 
 /**
@@ -63,6 +64,7 @@ class Jetpack_Protect {
 		);
 
 		My_Jetpack_Initializer::init();
+		Site_Health::init();
 	}
 
 	/**
