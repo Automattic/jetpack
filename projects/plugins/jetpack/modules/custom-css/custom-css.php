@@ -570,6 +570,8 @@ class Jetpack_Custom_CSS {
 
 	/**
 	 * Checks if we're in a preview mode.
+	 *
+	 * @return bool
 	 */
 	public static function is_preview() {
 		return isset( $_GET['csspreview'] ) && $_GET['csspreview'] === 'true'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
