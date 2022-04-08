@@ -174,7 +174,6 @@ ProductOffer.propTypes = {
 	supportedProducts: PropTypes.arrayOf( PropTypes.string ),
 	className: PropTypes.string,
 	hasRequiredPlan: PropTypes.bool,
-	isFree: PropTypes.bool,
 	isLoading: PropTypes.bool,
 	onAdd: PropTypes.func,
 	addProductUrl: PropTypes.string,
