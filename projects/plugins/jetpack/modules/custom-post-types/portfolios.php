@@ -841,7 +841,7 @@ class Jetpack_Portfolio {
 
 		/*
 		 * If we have posts, create the html
-		 * with hportfolio markup
+		 * with portfolio markup
 		 */
 		if ( $query->have_posts() ) {
 			/*
