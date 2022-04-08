@@ -33,10 +33,20 @@ class GalleryImageEdit extends Component {
 		}
 	};
 
+	lastImageId = null;
+
+	hasUpdatedAttributesFromImage = false;
+
 	componentDidUpdate() {
 		const { alt, height, image, link, url, width } = this.props;
 
-		if ( image ) {
+		// If image has changed, reset updated state to allow new attributes to update.
+		if ( this.lastImageId !== null && image.id !== this.lastImageId ) {
+			this.hasUpdatedAttributesFromImage = false;
+		}
+
+		if ( image && image.id !== this.lastImageId && ! this.hasUpdatedAttributesFromImage ) {
+			this.lastImageId = image.id;
 			const nextAtts = {};
 
 			if ( ! alt && image.alt_text ) {
@@ -56,6 +66,7 @@ class GalleryImageEdit extends Component {
 			}
 
 			if ( Object.keys( nextAtts ).length ) {
+				this.hasUpdatedAttributesFromImage = true;
 				this.props.setAttributes( nextAtts );
 			}
 		}
