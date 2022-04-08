@@ -763,7 +763,7 @@ class Jetpack_Custom_CSS {
 			return;
 		}
 
-		if ( ! is_super_admin() && isset( $current_blog ) && ( 1 == $current_blog->spam || 1 == $current_blog->deleted ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		if ( ! is_super_admin() && isset( $current_blog ) && ( $current_blog->spam || $current_blog->deleted ) ) {
 			return;
 		}
 
