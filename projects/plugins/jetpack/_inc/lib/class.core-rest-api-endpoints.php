@@ -2333,7 +2333,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_updateable_data_list( $selector = '' ) {
 
 		$options = array(
-
 			// Blocks.
 			'jetpack_blocks_disabled'              => array(
 				'description'       => esc_html__( 'Jetpack Blocks disabled.', 'jetpack' ),
@@ -3001,6 +3000,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'seo-tools',
 				'validate_callback' => 'Jetpack_SEO_Titles::are_valid_title_formats',
 				'sanitize_callback' => 'Jetpack_SEO_Titles::sanitize_title_formats',
+			),
+
+			// VideoPress.
+			'videopress_private_enabled_for_site'  => array(
+				'description'       => esc_html__( 'Video Privacy: Restrict views to members of this site', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'videopress',
 			),
 
 		);

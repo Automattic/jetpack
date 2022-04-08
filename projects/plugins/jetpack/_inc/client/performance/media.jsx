@@ -18,7 +18,7 @@ import {
 	FEATURE_VIDEOPRESS,
 	FEATURE_VIDEO_HOSTING_JETPACK,
 } from 'lib/plans/constants';
-import { FormLegend } from 'components/forms';
+import { FormLegend, FormFieldset } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
 import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -35,8 +35,17 @@ import {
 	hasActiveVideoPressPurchase,
 	isFetchingSitePurchases,
 } from 'state/site';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 class Media extends React.Component {
+	togglePrivacySetting = () => {
+		this.props.updateOptions( {
+			videopress_private_enabled_for_site: ! this.props.getOptionValue(
+				'videopress_private_enabled_for_site'
+			),
+		} );
+	};
+
 	render() {
 		const foundVideoPress = this.props.isModuleFound( 'videopress' );
 
@@ -99,17 +108,31 @@ class Media extends React.Component {
 					</div>
 				) }
 				{ hasConnectedOwner && (
-					<ModuleToggle
-						slug="videopress"
-						disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
-						activated={ this.props.getOptionValue( 'videopress' ) }
-						toggling={ this.props.isSavingAnyOption( 'videopress' ) }
-						toggleModule={ this.props.toggleModuleNow }
-					>
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Enable VideoPress', 'jetpack' ) }
-						</span>
-					</ModuleToggle>
+					<>
+						<ModuleToggle
+							slug="videopress"
+							disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
+							activated={ this.props.getOptionValue( 'videopress' ) }
+							toggling={ this.props.isSavingAnyOption( 'videopress' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enable VideoPress', 'jetpack' ) }
+							</span>
+						</ModuleToggle>
+						<FormFieldset>
+							<CompactFormToggle
+								id="videopress-site-privacy"
+								disabled={ ! this.props.getOptionValue( 'videopress' ) }
+								checked={ this.props.getOptionValue( 'videopress_private_enabled_for_site' ) }
+								onChange={ this.togglePrivacySetting }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
+								</span>
+							</CompactFormToggle>
+						</FormFieldset>
+					</>
 				) }
 			</SettingsGroup>
 		);

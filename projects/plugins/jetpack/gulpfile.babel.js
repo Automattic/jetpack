@@ -14,7 +14,6 @@ import frontendcss, {
 } from './tools/builder/frontend-css';
 import admincss, { adminCSSFiles } from './tools/builder/admin-css';
 import { watch as react_watch, build as react_build } from './tools/builder/react';
-import { watch as sass_watch, build as sass_build } from './tools/builder/sass';
 
 gulp.task( 'old-styles:watch', function () {
 	return gulp.watch(
@@ -62,26 +61,18 @@ gulp.task( 'php:module-headings', function () {
 	return process;
 } );
 
-gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old' ) );
+gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss ) );
 
 // Default task
 gulp.task(
 	'default',
-	gulp.series( gulp.parallel( react_build, 'old-styles', 'php:module-headings' ), sass_build )
+	gulp.series( gulp.parallel( react_build, 'old-styles', 'php:module-headings' ) )
 );
 gulp.task(
 	'watch',
-	gulp.parallel(
-		react_watch,
-		sass_watch,
-		'old-styles:watch',
-		'blocks:watch',
-		'widget-visibility:watch'
-	)
+	gulp.parallel( react_watch, 'old-styles:watch', 'blocks:watch', 'widget-visibility:watch' )
 );
 
 // Keeping explicit task names to allow for individual runs
-gulp.task( 'sass:build', sass_build );
 gulp.task( 'react:build', react_build );
-gulp.task( 'sass:watch', sass_watch );
 gulp.task( 'react:watch', react_watch );
