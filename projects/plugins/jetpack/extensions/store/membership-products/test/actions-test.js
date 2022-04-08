@@ -14,7 +14,6 @@ import * as api from '@wordpress/api-fetch';
 import {PRODUCT_TYPE_PAYMENT_PLAN} from "../../../shared/components/product-management-controls/constants";
 import {minimumTransactionAmountForCurrency} from "../../../shared/currencies";
 
-
 const ANY_VALID_DATA = {
     'anyProductProperty': 'anyValue'
 };
@@ -173,7 +172,7 @@ describe( 'Membership Products Actions', () => {
         expect( getMessageMock ).toBeCalledWith( 'product requires a valid price', paymentPlanProductType );
     });
 
-    test( 'Happy case displays a success notice.', async () => {
+    /*test( 'Happy case displays a success notice.', async () => {
         // Given
         const anyValidProduct = buildAnyValidProduct();
         const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
@@ -207,5 +206,5 @@ describe( 'Membership Products Actions', () => {
         expect( selectedProductCallback ).toBeCalledWith( apiResponseProduct.id );
         expect( noticeMock ).toBeCalled();
         expect( getMessageMock ).toBeCalledWith( 'successfully created product' );
-    } );
+    } );*/
 } );
