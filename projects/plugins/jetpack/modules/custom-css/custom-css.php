@@ -1187,7 +1187,7 @@ class Jetpack_Custom_CSS {
 					<?php
 
 					printf( /* translators: %1$s is replaced with an input field for numbers. */
-						__( 'Limit width to %1$s pixels for full size images. (<a href="%2$s" rel="noopener noreferrer" target="_blank">More info</a>.)', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						wp_kses_post( __( 'Limit width to %1$s pixels for full size images. (<a href="%2$s" rel="noopener noreferrer" target="_blank">More info</a>.)', 'jetpack' ) ),
 						'<input type="text" id="custom_content_width_visible" value="' . esc_attr( $custom_content_width ) . '" size="4" />',
 						/**
 						 * Filter the Custom CSS limited width's support doc URL.
