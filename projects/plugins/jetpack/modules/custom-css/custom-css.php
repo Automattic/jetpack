@@ -1369,7 +1369,7 @@ class Jetpack_Custom_CSS {
 									 *
 									 * @param string $url Active theme's stylesheet URL. Default to get_stylesheet_uri().
 									 */
-									apply_filters( 'safecss_theme_stylesheet_url', get_stylesheet_uri() ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									esc_url( apply_filters( 'safecss_theme_stylesheet_url', get_stylesheet_uri() ) )
 								);
 								?>
 							</label>
