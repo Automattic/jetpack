@@ -468,8 +468,9 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::GOOGLE_ANALYTICS              => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::GOOGLE_MY_BUSINESS            => array(
 			self::WPCOM_PRO_PLANS,
@@ -529,11 +530,10 @@ class WPCOM_Features {
 		self::POLLDADDY                     => array(
 			self::JETPACK_BUSINESS_PLANS,
 		),
-		// PREMIUM_CONTENT_CONTAINER - premium-content requires a paid plan.
+		// PREMIUM_CONTENT_CONTAINER - premium-content requires a paid wpcom plan.
 		self::PREMIUM_CONTENT_CONTAINER     => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
-			self::JETPACK_PERSONAL_AND_HIGHER,
 		),
 		self::PREMIUM_THEMES                => array(
 			self::WPCOM_PRO_PLANS,
@@ -557,6 +557,7 @@ class WPCOM_Features {
 		),
 		self::RECURRING_PAYMENTS            => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
 		),
 
 		/*
@@ -571,7 +572,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
-		self::SCAN                          => array(
+		self::SCAN                        => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::JETPACK_SCAN_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -582,7 +583,7 @@ class WPCOM_Features {
 		 * SCAN_MANAGED - Scan results are managed internally by Atomic guild HEs and not shown in user UI.
 		 * See D57207-code.
 		 */
-		self::SCAN_MANAGED                  => array(
+		self::SCAN_MANAGED                   => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
