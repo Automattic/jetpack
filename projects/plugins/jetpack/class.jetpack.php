@@ -1783,7 +1783,7 @@ class Jetpack {
 	public static function load_modules() {
 		$status = new Status();
 
-		if ( method_exists( 'is_onboarding', $status ) ) {
+		if ( method_exists( $status, 'is_onboarding' ) ) {
 			$is_onboarding = $status->is_onboarding();
 		} else {
 			$is_onboarding = self::is_onboarding();
