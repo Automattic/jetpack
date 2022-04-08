@@ -243,7 +243,7 @@ class Jetpack_Custom_CSS {
 		$csstidy->set_cfg( 'template', __DIR__ . '/csstidy/wordpress-standard.tpl' );
 
 		$prev = $args['css'];
-		$css = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $prev );
+		$css  = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $prev );
 		// prevent content: '\3434' from turning into '\\3434'
 		$css = str_replace( array( '\'\\\\', '"\\\\' ), array( '\'\\', '"\\' ), $css );
 
@@ -523,6 +523,8 @@ class Jetpack_Custom_CSS {
 
 	/**
 	 * Prevent the stylesheet from being enqued.
+	 *
+	 * @return bool
 	 */
 	public static function skip_stylesheet() {
 		/**
@@ -595,6 +597,7 @@ class Jetpack_Custom_CSS {
 	 * False when the site has the Custom Design upgrade.
 	 * Used only on WordPress.com.
 	 *
+	 * @return bool
 	 * @todo see if we can remove this, I don't believe WordPress.com uses free trials anymore.
 	 */
 	public static function is_freetrial() {
@@ -613,6 +616,8 @@ class Jetpack_Custom_CSS {
 
 	/**
 	 * Get the preprocessor key.
+	 *
+	 * @return int
 	 */
 	public static function get_preprocessor_key() {
 		$safecss_post = self::get_current_revision();
@@ -621,6 +626,8 @@ class Jetpack_Custom_CSS {
 
 	/**
 	 * Get the prepocessor.
+	 *
+	 * @return string
 	 */
 	public static function get_preprocessor() {
 		/** This filter is documented in modules/custom-css/custom-css.php */
@@ -634,6 +641,8 @@ class Jetpack_Custom_CSS {
 	 * Get the CSS.
 	 *
 	 * @param boolean $compressed - if the CSS is compressed.
+	 *
+	 * @return string
 	 */
 	public static function get_css( $compressed = false ) {
 		/**
@@ -704,6 +713,8 @@ class Jetpack_Custom_CSS {
 	 * Replace insecure URLs.
 	 *
 	 * @param string $css - the CSS.
+	 *
+	 * @return string
 	 */
 	public static function replace_insecure_urls( $css ) {
 		if ( ! function_exists( '_sa_get_frontend_https_url_replacement_map' ) ) {
@@ -736,6 +747,8 @@ class Jetpack_Custom_CSS {
 	 *
 	 * @param bool   $should_we if we should inline the CSS.
 	 * @param string $css - the CSS object.
+	 *
+	 * @return bool
 	 */
 	public static function should_we_inline_custom_css( $should_we, $css ) {
 		return ( strlen( $css ) < 2000 ) ? true : $should_we;
@@ -872,6 +885,8 @@ class Jetpack_Custom_CSS {
 	 * Filter the default blank Custom CSS URL.
 	 *
 	 * @param string $current - the current CSS.
+	 *
+	 * @return string
 	 */
 	public static function style_filter( $current ) {
 		if ( self::is_freetrial() && ( ! self::is_preview() || ! current_user_can( 'switch_themes' ) ) ) {
@@ -896,6 +911,8 @@ class Jetpack_Custom_CSS {
 	 * Buffer the HTML.
 	 *
 	 * @param string $html - the HTML.
+	 *
+	 * @return string
 	 */
 	public static function buffer( $html ) {
 		$html = str_replace( '</body>', self::preview_flag(), $html );
@@ -906,6 +923,8 @@ class Jetpack_Custom_CSS {
 	 * Preview links.
 	 *
 	 * @param array $matches - the matches.
+	 *
+	 * @return string
 	 */
 	public static function preview_links( $matches ) {
 		if ( 0 !== strpos( $matches[2], get_option( 'home' ) ) ) {
@@ -1003,6 +1022,8 @@ class Jetpack_Custom_CSS {
 	 *
 	 * @param string $title - the post title.
 	 * @param int    $post_id - the post ID.
+	 *
+	 * @return string
 	 */
 	public static function post_title( $title, $post_id ) {
 		$post_id = (int) $post_id;
@@ -1514,6 +1535,8 @@ class Jetpack_Custom_CSS {
 
 	/**
 	 * Checks of we're in the customizer.
+	 *
+	 * @return bool
 	 */
 	public static function is_customizer_preview() {
 		if ( isset( $GLOBALS['wp_customize'] ) ) {
@@ -1528,6 +1551,8 @@ class Jetpack_Custom_CSS {
 	 *
 	 * @param string $css - the CSS.
 	 * @param string $preprocessor - the preprocessor we want to use.
+	 *
+	 * @return string
 	 */
 	public static function minify( $css, $preprocessor = '' ) {
 		if ( ! $css ) {
@@ -1712,6 +1737,8 @@ class Jetpack_Custom_CSS {
 	 * @param string $post_link - the post link.
 	 * @param int    $post_id - the post ID.
 	 * @param string $context - the context.
+	 *
+	 * @return string
 	 */
 	public static function revision_post_link( $post_link, $post_id, $context ) {
 		$post_id = (int) $post_id;
@@ -1744,6 +1771,8 @@ class Jetpack_Custom_CSS {
 	 * @param array  $dims - the width and height dimensions.
 	 * @param string $size - the size.
 	 * @param string $context - the context in which we're applying dimensions.
+	 *
+	 * @return array
 	 */
 	public static function editor_max_image_size( $dims, $size = 'medium', $context = null ) {
 		list( $width, $height ) = $dims;
@@ -1759,6 +1788,8 @@ class Jetpack_Custom_CSS {
 	 * Override the content_width with a custom value if one is set.
 	 *
 	 * @param int $content_width - the content width in pixels.
+	 *
+	 * @return int
 	 */
 	public static function jetpack_content_width( $content_width ) {
 		$custom_content_width = 0;
@@ -1790,6 +1821,8 @@ class Jetpack_Safe_CSS { // phpcs:ignore
 	 *
 	 * @param string $css - the CSS.
 	 * @param string $element - the HTML element.
+	 *
+	 * @return string
 	 */
 	public static function filter_attr( $css, $element = 'div' ) {
 		safecss_class();
