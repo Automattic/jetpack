@@ -202,7 +202,7 @@ class Module_Control {
 	public function get_active_modules() {
 		_deprecated_function(
 			__METHOD__,
-			'jetpack-search-$next-version$',
+			'jetpack-search-$$next-version$$',
 			'Automattic\\Jetpack\\Modules\\get_active'
 		);
 
