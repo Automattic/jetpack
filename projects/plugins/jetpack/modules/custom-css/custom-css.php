@@ -1067,7 +1067,7 @@ class Jetpack_Custom_CSS {
 	 * Render the saved message.
 	 */
 	public static function saved_message() {
-		echo '<div id="message" class="updated fade"><p><strong>' . __( 'Stylesheet saved.', 'jetpack' ) . '</strong></p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<div id="message" class="updated fade"><p><strong>' . esc_html__( 'Stylesheet saved.', 'jetpack' ) . '</strong></p></div>';
 	}
 
 	/**
