@@ -2,7 +2,7 @@
 /**
  * Jetpack Heartbeat package.
  *
- * @package  automattic/jetpack-heartbeat
+ * @package  automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack;
@@ -227,7 +227,7 @@ class Heartbeat {
 
 		if ( isset( $args[0] ) && ! in_array( $args[0], $allowed_args, true ) ) {
 			/* translators: %s is a command like "prompt" */
-			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack-heartbeat' ), $args[0] ) );
+			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack-connection' ), $args[0] ) );
 		}
 
 		$stats           = self::generate_stats_array();
@@ -247,7 +247,7 @@ class Heartbeat {
 		if ( $last_heartbeat ) {
 			$last_date = gmdate( 'Y-m-d H:i:s', $last_heartbeat );
 			/* translators: %s is the full datetime of the last heart beat e.g. 2020-01-01 12:21:23 */
-			WP_CLI::line( sprintf( __( 'Last heartbeat sent at: %s', 'jetpack-heartbeat' ), $last_date ) );
+			WP_CLI::line( sprintf( __( 'Last heartbeat sent at: %s', 'jetpack-connection' ), $last_date ) );
 		}
 	}
 
