@@ -1026,7 +1026,7 @@ class Jetpack_Portfolio {
 
 		$html = '<div class="project-tags"><span>' . __( 'Tags:', 'jetpack' ) . '</span>';
 		$tags = array();
-		// Loop thorugh all the tags.
+		// Loop through all the tags.
 		foreach ( $project_tags as $project_tag ) {
 			$project_tag_link = get_term_link( $project_tag, self::CUSTOM_TAXONOMY_TYPE );
 
