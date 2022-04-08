@@ -1177,7 +1177,7 @@ class Jetpack_Custom_CSS {
 				">
 				<?php
 					// translators: the custom content width.
-					echo $custom_content_width ? sprintf( esc_html__( '%s px', 'jetpack' ), $custom_content_width ) : esc_html_e( 'Default', 'jetpack' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo esc_html( $custom_content_width ? sprintf( __( '%s px', 'jetpack' ), $custom_content_width ) : __( 'Default', 'jetpack' ) );
 				?>
 			</span>
 			<a class="edit-content-width hide-if-no-js" href="#content-width"><?php echo esc_html_e( 'Edit', 'jetpack' ); ?></a>
