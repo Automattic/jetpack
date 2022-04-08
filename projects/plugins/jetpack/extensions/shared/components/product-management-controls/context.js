@@ -1,0 +1,19 @@
+/**
+ * WordPress dependencies
+ */
+import { createContext, useContext } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import { PRODUCT_TYPE_PAYMENT_PLAN } from './constants';
+
+export const ProductManagementContext = createContext( {
+	blockName: undefined,
+	products: [],
+	productType: PRODUCT_TYPE_PAYMENT_PLAN,
+	selectedProductId: 0,
+	setSelectedProductId: () => {},
+} );
+
+export const useProductManagementContext = () => useContext( ProductManagementContext );
