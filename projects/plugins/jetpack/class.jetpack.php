@@ -1782,10 +1782,17 @@ class Jetpack {
 	 */
 	public static function load_modules() {
 		$status = new Status();
+
+		if ( method_exists( 'is_onboarding', $status ) ) {
+			$is_onboarding = $status->is_onboarding();
+		} else {
+			$is_onboarding = self::is_onboarding();
+		}
+
 		if (
 			! self::is_connection_ready()
 			&& ! $status->is_offline_mode()
-			&& ! self::is_onboarding()
+			&& ! $is_onboarding
 			&& (
 				! is_multisite()
 				|| ! get_site_option( 'jetpack_protect_active' )
