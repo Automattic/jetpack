@@ -77,7 +77,7 @@ class Jetpack {
 	/**
 	 * The handles of styles that are concatenated into jetpack.css.
 	 *
-	 * When making changes to that list, you must also update concat_list in tools/builder/frontend-css.js.
+	 * When making changes to that list, you must also update concat_list in tools/webpack.config.css.js.
 	 *
 	 * @var array The handles of styles that are concatenated into jetpack.css.
 	 */
