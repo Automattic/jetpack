@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove indirect dependency on an obselete version of the `core-js` package.

@@ -1064,7 +1064,6 @@ importers:
       chai: 4.3.4
       chalk: 4.1.2
       classnames: 2.3.1
-      click-outside: 2.0.2
       clipboard: 2.0.6
       commander: 7.2.0
       component-uid: 0.0.2
@@ -1176,7 +1175,6 @@ importers:
       '@wordpress/widgets': 2.3.0_978f344c876a57c1143ffe356b90df31
       bounding-client-rect: 1.0.5
       classnames: 2.3.1
-      click-outside: 2.0.2
       clipboard: 2.0.6
       component-uid: 0.0.2
       cookie: 0.4.1
@@ -10033,13 +10031,6 @@ packages:
       babel-plugin-jest-hoist: 27.5.1
       babel-preset-current-node-syntax: 1.0.1_@babel+core@7.17.8
 
-  /babel-runtime/6.26.0:
-    resolution: {integrity: sha1-llxwWGaOgrVde/4E/yM3vItWR/4=}
-    dependencies:
-      core-js: 2.6.12
-      regenerator-runtime: 0.11.1
-    dev: false
-
   /bail/1.0.5:
     resolution: {integrity: sha512-xFbRxM1tahm08yHBP16MMjVUAvDaBMD38zsM9EMAUN61omwLmKlOpB/Zku5QkjZ8TZ4vn53pj+t518cH0S03RQ==}
     dev: true
@@ -10743,14 +10734,6 @@ packages:
     resolution: {integrity: sha512-FxqpkPPwu1HjuN93Omfm4h8uIanXofW0RxVEW3k5RKx+mJJYSthzNhp32Kzxxy3YAEZ/Dc/EWN1vZRY0+kOhbw==}
     engines: {node: '>= 10'}
 
-  /click-outside/2.0.2:
-    resolution: {integrity: sha1-tT9zWwanxdo0Wr8X1BmAlHaXk6Y=}
-    dependencies:
-      babel-runtime: 6.26.0
-      component-event: 0.1.4
-      node-contains: 1.0.0
-    dev: false
-
   /clipboard/2.0.10:
     resolution: {integrity: sha512-cz3m2YVwFz95qSEbCDi2fzLN/epEN9zXBvfgAoGkvGOJZATMl9gtTDVOtBYkx2ODUJl2kvmud7n32sV2BpYR4g==}
     dependencies:
@@ -10950,10 +10933,6 @@ packages:
     resolution: {integrity: sha512-Rd3se6QB+sO1TwqZjscQrurpEPIfO0/yYnSin6Q/rD3mOutHvUrCAhJub3r90uNb+SESBuE0QYoB90YdfatsRg==}
     dev: true
 
-  /component-event/0.1.4:
-    resolution: {integrity: sha1-PeePwoeCOBeH4kvyp8U2vwFCybQ=}
-    dev: false
-
   /component-uid/0.0.2:
     resolution: {integrity: sha1-ydeJPUsEmtMMa4qkwB1tGv1WlZY=}
     dev: false
@@ -11144,12 +11123,6 @@ packages:
   /core-js-pure/3.21.1:
     resolution: {integrity: sha512-12VZfFIu+wyVbBebyHmRTuEE/tZrB4tJToWcwAMcsp3h4+sHR+fMJWbKpYiCRWlhFBq+KNyO8rIV9rTkeVmznQ==}
     requiresBuild: true
-
-  /core-js/2.6.12:
-    resolution: {integrity: sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==}
-    deprecated: core-js@<3.4 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Please, upgrade your dependencies to the actual version of core-js.
-    requiresBuild: true
-    dev: false
 
   /core-js/3.11.1:
     resolution: {integrity: sha512-k93Isqg7e4txZWMGNYwevZL9MiogLk8pd1PtwrmFmi8IBq4GXqUaVW/a33Llt6amSI36uSjd0GWwc9pTT9ALlQ==}
@@ -17207,10 +17180,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /node-contains/1.0.0:
-    resolution: {integrity: sha1-0sJzUkU22jtWGvBTnjM0T3yQLLg=}
-    dev: false
-
   /node-dir/0.1.17:
     resolution: {integrity: sha1-X1Zl2TNRM1yqvvjxxVRRbPXx5OU=}
     engines: {node: '>= 0.10.5'}
@@ -20178,10 +20147,6 @@ packages:
 
   /regenerate/1.4.2:
     resolution: {integrity: sha512-zrceR/XhGYU/d/opr2EKO7aRHUeiBI8qjtfHqADTwZd6Szfy16la6kqD0MIUs5z5hx6AaKa+PixpPrR289+I0A==}
-
-  /regenerator-runtime/0.11.1:
-    resolution: {integrity: sha512-MguG95oij0fC3QV3URf4V2SDYGJhJnJGqvIIgdECeODCT98wSWDAJ94SSuVpYQUoTcGUIL6L4yNB7j1DFFHSBg==}
-    dev: false
 
   /regenerator-runtime/0.13.9:
     resolution: {integrity: sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==}
