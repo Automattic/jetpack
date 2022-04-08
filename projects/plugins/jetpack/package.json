@@ -74,6 +74,7 @@
 		"@wordpress/icons": "8.1.0",
 		"@wordpress/url": "3.6.0",
 		"@wordpress/viewport": "4.3.0",
+		"@wordpress/widgets": "2.3.0",
 		"bounding-client-rect": "1.0.5",
 		"classnames": "2.3.1",
 		"click-outside": "2.0.2",
