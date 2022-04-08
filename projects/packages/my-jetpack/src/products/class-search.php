@@ -33,6 +33,13 @@ class Search extends Hybrid_Product {
 	public static $module_name = 'search';
 
 	/**
+	 * The slug of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_slug = 'jetpack-search';
+
+	/**
 	 * The filename (id) of the plugin associated with this product.
 	 *
 	 * @var string
@@ -193,5 +200,20 @@ class Search extends Hybrid_Product {
 	 */
 	public static function is_active() {
 		return parent::is_active() && static::has_required_plan();
+	}
+
+	/**
+	 * Get the plugin slug - Since Search stand-alone plugin is not yet released in the wporg directory, let's fallback to Jetpack if none of the two plugins are installed.
+	 *
+	 * @TODO: Remove this method when Jetpack Search plugin is released.
+	 *
+	 * @return ?string
+	 */
+	public static function get_plugin_slug() {
+		if ( ! static::is_plugin_installed() ) {
+			return self::JETPACK_PLUGIN_SLUG;
+		} else {
+			return parent::get_plugin_slug();
+		}
 	}
 }
