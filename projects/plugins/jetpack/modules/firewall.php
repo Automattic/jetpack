@@ -41,7 +41,11 @@ class Jetpack_Firewall {
 	 */
 	public static function get_bootstrap_path() {
 		$bootstrap = new WafStandaloneBootstrap();
-		return rest_ensure_response( $bootstrap->get_bootstrap_file_path() );
+		return rest_ensure_response(
+			array(
+				'bootstrapPath' => $bootstrap->get_bootstrap_file_path(),
+			)
+		);
 	}
 
 }

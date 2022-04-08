@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { __, _x } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { get } from 'lodash';
 
 /**
@@ -28,6 +28,8 @@ import Textarea from '../components/textarea';
 import { createInterpolateElement } from '@wordpress/element';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getSitePlan } from 'state/site';
+import { getBootstrapPath } from '../state/firewall/reducer';
+import QueryWafBootstrapPath from '../components/data/query-waf-bootstrap-path';
 
 export const Firewall = class extends Component {
 	/**
@@ -111,6 +113,7 @@ export const Firewall = class extends Component {
 					'jetpack_firewall_ip_block_list',
 				] ) }
 			>
+				<QueryWafBootstrapPath />
 				<SettingsGroup disableInOfflineMode module={ this.props.getModule( 'firewall' ) }>
 					<ModuleToggle
 						slug="firewall"
@@ -239,9 +242,13 @@ export const Firewall = class extends Component {
 							<ul>
 								<li>
 									{ createInterpolateElement(
-										__(
-											'To ensure the firewall can best protect your site, please update: <code>auto_prepend_file</code> PHP directive to point to <code>/path/to/bootstrap.php</code> Typically this is set either in an .htaccess file or in the global PHP configuration; contact your host for further assistance.',
-											'jetpack'
+										sprintf(
+											/* translators: Placeholder is the file path to the Firewall's bootstrap file. */
+											__(
+												'To ensure the firewall can best protect your site, please update: <code>auto_prepend_file</code> PHP directive to point to <code>%s</code> Typically this is set either in an .htaccess file or in the global PHP configuration; contact your host for further assistance.',
+												'jetpack'
+											),
+											this.props.bootstrapPath
 										),
 										{
 											code: <code />,
@@ -281,5 +288,6 @@ export default connect( state => {
 		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		sitePlan,
+		bootstrapPath: getBootstrapPath( state ),
 	};
 } )( withModuleSettingsFormHelpers( Firewall ) );
