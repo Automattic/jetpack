@@ -79,6 +79,8 @@ export class SimplePaymentsEdit extends Component {
 		}
 
 		window.wp?.customize?.bind( 'change', setting => {
+			// See if the widget that has changed is our block.
+			// Code inspired by https://github.com/WordPress/gutenberg/blob/dbeebb9985e8112689d1143fbe18c12d7cb5eb53/packages/customize-widgets/src/utils.js#L19.
 			let widgetId;
 			const matches = setting.id.match( /^widget_(.+)(?:\[(\d+)\])$/ );
 			if ( matches ) {

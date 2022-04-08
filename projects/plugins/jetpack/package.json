@@ -65,7 +65,6 @@
 		"@wordpress/blocks": "11.4.0",
 		"@wordpress/browserslist-config": "4.1.2",
 		"@wordpress/compose": "5.3.0",
-		"@wordpress/customize-widgets": "3.2.0",
 		"@wordpress/data": "6.5.0",
 		"@wordpress/date": "4.5.0",
 		"@wordpress/edit-post": "6.2.0",

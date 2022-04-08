@@ -1046,7 +1046,6 @@ importers:
       '@wordpress/components': 19.7.0
       '@wordpress/compose': 5.3.0
       '@wordpress/core-data': 4.3.0
-      '@wordpress/customize-widgets': 3.2.0
       '@wordpress/data': 6.5.0
       '@wordpress/date': 4.5.0
       '@wordpress/dependency-extraction-webpack-plugin': 3.4.1
@@ -1174,7 +1173,6 @@ importers:
       '@wordpress/blocks': 11.4.0_react@17.0.2
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/compose': 5.3.0_react@17.0.2
-      '@wordpress/customize-widgets': 3.2.0_978f344c876a57c1143ffe356b90df31
       '@wordpress/data': 6.5.0_react@17.0.2
       '@wordpress/date': 4.5.0
       '@wordpress/edit-post': 6.2.0_978f344c876a57c1143ffe356b90df31
@@ -8501,42 +8499,6 @@ packages:
       react: 17.0.2
       rememo: 3.0.0
       uuid: 8.3.2
-
-  /@wordpress/customize-widgets/3.2.0_978f344c876a57c1143ffe356b90df31:
-    resolution: {integrity: sha512-0pp8HPEcCsi7IBzSZpQ5J1bOwObqnHjDldHB1rydJy7hcyvSFvMn+n/V8IdjKk6TtUntwtUeuA82clitb3QcMw==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^17.0.0
-      react-dom: ^17.0.0
-    dependencies:
-      '@babel/runtime': 7.17.8
-      '@wordpress/block-editor': 8.4.0_978f344c876a57c1143ffe356b90df31
-      '@wordpress/block-library': 7.2.0_978f344c876a57c1143ffe356b90df31
-      '@wordpress/blocks': 11.4.0_react@17.0.2
-      '@wordpress/components': 19.7.0_978f344c876a57c1143ffe356b90df31
-      '@wordpress/compose': 5.3.0_react@17.0.2
-      '@wordpress/core-data': 4.3.0_react@17.0.2
-      '@wordpress/data': 6.5.0_react@17.0.2
-      '@wordpress/dom': 3.5.0
-      '@wordpress/element': 4.3.0
-      '@wordpress/hooks': 3.5.0
-      '@wordpress/i18n': 4.5.0
-      '@wordpress/icons': 8.1.0
-      '@wordpress/interface': 4.4.0_978f344c876a57c1143ffe356b90df31
-      '@wordpress/is-shallow-equal': 4.5.0
-      '@wordpress/keyboard-shortcuts': 3.3.0_react@17.0.2
-      '@wordpress/keycodes': 3.5.0
-      '@wordpress/media-utils': 3.3.0
-      '@wordpress/preferences': 1.1.0_978f344c876a57c1143ffe356b90df31
-      '@wordpress/widgets': 2.3.0_978f344c876a57c1143ffe356b90df31
-      classnames: 2.3.1
-      lodash: 4.17.21
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@types/react'
-    dev: false
 
   /@wordpress/data/6.5.0_react@17.0.2:
     resolution: {integrity: sha512-cWXIP6GGOWAcwERU7x5IfGpZLEGFhez75EEWDkHcWkGjunUx3Tjw64mEVnTaC57JIfWbywi6IFO7NFLfQ0bayw==}
