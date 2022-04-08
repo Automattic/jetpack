@@ -24,4 +24,8 @@ class Premium_Features {
 
 		return $features;
 	}
+
+	public static function clear_cache() {
+		Transient::delete( self::TRANSIENT_KEY );
+	}
 }
