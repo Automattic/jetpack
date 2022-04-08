@@ -52,7 +52,8 @@ class Jetpack_Custom_CSS {
 		register_post_type(
 			'safecss',
 			array(
-				/**These are the defaults
+				/**
+				 * These are the defaults
 				* 'exclude_from_search' => true,
 				* 'public' => false,
 				* 'publicly_queryable' => false,
