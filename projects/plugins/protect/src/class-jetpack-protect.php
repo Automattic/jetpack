@@ -63,6 +63,10 @@ class Jetpack_Protect {
 		);
 
 		My_Jetpack_Initializer::init();
+
+		if ( Status::has_vulnerabilities() ) {
+			add_action( 'admin_notices', array( $this, 'jetpack_protect_detect_vuls_notice' ) );
+		}
 	}
 
 	/**
@@ -70,6 +74,25 @@ class Jetpack_Protect {
 	 */
 	public function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+	}
+
+	/**
+	 * Show a notice (warning) if the Jetpack Protect plugin
+	 * is active and has vulnerabilities.
+	 */
+	public function jetpack_protect_detect_vuls_notice() {
+		echo '<div class="notice notice-warning"><p>';
+		printf(
+			wp_kses(
+				/* translators: Link to Jetpack Protect. */
+				__( 'Jetpack Protect has found vulnerabilities in your site. Please consider upgrading or removing affected plugins or themes. See <a href="%s">Protect overview page</a> for more information.', 'jetpack-protect' ),
+				array(
+					'a' => array( 'href' => array() ),
+				)
+			),
+			esc_url( admin_url( 'admin.php?page=jetpack-protect' ) )
+		);
+		echo "</p></div>\n";
 	}
 
 	/**
