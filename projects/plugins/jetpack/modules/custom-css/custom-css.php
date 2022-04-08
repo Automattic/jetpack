@@ -242,10 +242,8 @@ class Jetpack_Custom_CSS {
 		$csstidy->set_cfg( 'preserve_css', true );
 		$csstidy->set_cfg( 'template', __DIR__ . '/csstidy/wordpress-standard.tpl' );
 
-		$orig = $args['css'];
-		$css  = $orig;
-
-		$css = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $prev = $css );
+		$prev = $args['css'];
+		$css = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $prev );
 		// prevent content: '\3434' from turning into '\\3434'
 		$css = str_replace( array( '\'\\\\', '"\\\\' ), array( '\'\\', '"\\' ), $css );
 
