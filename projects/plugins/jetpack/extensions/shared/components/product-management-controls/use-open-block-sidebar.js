@@ -1,22 +1,19 @@
 /**
  * WordPress dependencies
  */
-import { useDispatch, select } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
+import { getEditorType, SITE_EDITOR, WIDGET_EDITOR } from '../../get-editor-type';
 
 export default function useOpenBlockSidebar() {
+	const editorType = getEditorType();
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
-	const isSiteEditor = !! select( 'core/edit-site' );
-	const isWidgetsEditor = !! select( 'core/edit-widgets' );
 
-	return () => {
-		if ( isSiteEditor ) {
-			enableComplementaryArea( 'core/edit-site', 'edit-site/block-inspector' );
-			return;
-		}
-		if ( isWidgetsEditor ) {
-			enableComplementaryArea( 'core/edit-widgets', 'edit-widgets/block-inspector' );
-			return;
-		}
-		enableComplementaryArea( 'core/edit-post', 'edit-post/block' );
-	};
+	switch ( editorType ) {
+		case SITE_EDITOR:
+			return () => enableComplementaryArea( 'core/edit-site', 'edit-site/block-inspector' );
+		case WIDGET_EDITOR:
+			return () => enableComplementaryArea( 'core/edit-widgets', 'edit-widgets/block-inspector' );
+		default:
+			return () => enableComplementaryArea( 'core/edit-post', 'edit-post/block' );
+	}
 }

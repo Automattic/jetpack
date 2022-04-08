@@ -83,11 +83,12 @@ class VideoPress_Edit_Attachment {
 			return $post;
 		}
 
-		$post_title     = isset( $_POST['post_title'] ) ? $_POST['post_title'] : null;
-		$post_excerpt   = isset( $_POST['post_excerpt'] ) ? $_POST['post_excerpt'] : null;
-		$rating         = isset( $attachment['rating'] ) ? $attachment['rating'] : null;
-		$display_embed  = isset( $attachment['display_embed'] ) ? $attachment['display_embed'] : 0;
-		$allow_download = isset( $attachment['allow_download'] ) ? $attachment['allow_download'] : 0;
+		$post_title      = isset( $_POST['post_title'] ) ? $_POST['post_title'] : null;
+		$post_excerpt    = isset( $_POST['post_excerpt'] ) ? $_POST['post_excerpt'] : null;
+		$rating          = isset( $attachment['rating'] ) ? $attachment['rating'] : null;
+		$display_embed   = isset( $attachment['display_embed'] ) ? $attachment['display_embed'] : 0;
+		$allow_download  = isset( $attachment['allow_download'] ) ? $attachment['allow_download'] : 0;
+		$privacy_setting = isset( $attachment['privacy_setting'] ) ? $attachment['privacy_setting'] : VIDEOPRESS_PRIVACY::SITE_DEFAULT;
 
 		$result = Videopress_Attachment_Metadata::persist_metadata(
 			$post['ID'],
@@ -97,7 +98,8 @@ class VideoPress_Edit_Attachment {
 			$post_excerpt,
 			$rating,
 			$this->normalize_checkbox_value( $display_embed ),
-			$this->normalize_checkbox_value( $allow_download )
+			$this->normalize_checkbox_value( $allow_download ),
+			$privacy_setting
 		);
 
 		if ( is_wp_error( $result ) ) {
@@ -210,6 +212,12 @@ class VideoPress_Edit_Attachment {
 			'html'  => $this->display_rating( $info ),
 		);
 
+		$fields['privacy_setting'] = array(
+			'label' => _x( 'Privacy Setting', 'A header for the video privacy setting area.', 'jetpack' ),
+			'input' => 'html',
+			'html'  => $this->display_privacy_setting( $info ),
+		);
+
 		return $fields;
 	}
 
@@ -310,6 +318,37 @@ HTML;
 			__( 'Display download option and allow viewers to download this video', 'jetpack' ),
 			isset( $info->allow_download ) && $info->allow_download
 		);
+	}
+
+	/**
+	 * Build HTML to display a form input radio button for video ratings
+	 *
+	 * @param object $info Database row from the videos table.
+	 *
+	 * @return string Input Elements of type radio with existing stored value selected.
+	 */
+	protected function display_privacy_setting( $info ) {
+		$privacy_settings = array(
+			VIDEOPRESS_PRIVACY::SITE_DEFAULT => __( 'Site Default', 'jetpack' ),
+			VIDEOPRESS_PRIVACY::IS_PUBLIC    => __( 'Public', 'jetpack' ),
+			VIDEOPRESS_PRIVACY::IS_PRIVATE   => __( 'Private', 'jetpack' ),
+		);
+
+		$displayed_privacy_setting = intval( isset( $info->privacy_setting ) ? $info->privacy_setting : VIDEOPRESS_PRIVACY::SITE_DEFAULT );
+
+		$out = "<select name='attachments[{$info->post_id}][privacy_setting]'>";
+		foreach ( $privacy_settings as $r => $label ) {
+			$out .= "<option value=\"$r\"";
+			if ( intval( $r ) === $displayed_privacy_setting ) {
+				$out .= ' selected';
+			}
+
+			$out .= ">$label</option>";
+		}
+
+		$out .= '</select>';
+
+		return $out;
 	}
 
 	/**

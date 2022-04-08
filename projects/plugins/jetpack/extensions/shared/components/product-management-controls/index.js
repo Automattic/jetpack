@@ -17,7 +17,6 @@ import { store as membershipProductsStore } from '../../../store/membership-prod
 import './style.scss';
 
 export default function ProductManagementControls( {
-	allowCreateOneTimeInterval = true,
 	blockName,
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
@@ -60,7 +59,6 @@ export default function ProductManagementControls( {
 			{ isApiConnected && (
 				<>
 					<ProductManagementInspectorControl
-						allowCreateOneTimeInterval={ allowCreateOneTimeInterval }
 						productType={ productType }
 						setSelectedProductId={ setSelectedProductId }
 					/>
@@ -72,7 +70,9 @@ export default function ProductManagementControls( {
 					/>
 				</>
 			) }
-			{ isApiConnected && isSelectedProductInvalid && <InvalidProductWarning /> }
+			{ isApiConnected && isSelectedProductInvalid && (
+				<InvalidProductWarning productType={ productType } />
+			) }
 		</>
 	);
 }

@@ -24,6 +24,7 @@ import { isFeatureActive } from 'state/recommendations';
  * Style dependencies
  */
 import './style.scss';
+import { __ } from '@wordpress/i18n';
 
 const FeatureSummaryComponent = props => {
 	const {
@@ -34,6 +35,7 @@ const FeatureSummaryComponent = props => {
 		featureSlug,
 		learnMoreLink,
 		summaryActivateButtonLabel,
+		isNew,
 	} = props;
 
 	const [ isInstalling, setIsInstalling ] = useState( false );
@@ -89,6 +91,10 @@ const FeatureSummaryComponent = props => {
 				<ExternalLink href={ learnMoreLink } onClick={ onLearnMoreClick } rel="noopener noreferrer">
 					{ displayName }
 				</ExternalLink>
+				{ isNew && (
+					/* translators: 'New' is shown as a badge to indicate that this content has not been viewed before. */
+					<span className="jp-recommendations__new-badge">{ __( 'New', 'jetpack' ) }</span>
+				) }
 			</div>
 			<div className="jp-recommendations-feature-summary__actions">{ ctaButton }</div>
 		</div>
