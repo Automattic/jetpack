@@ -993,7 +993,7 @@ class Jetpack_Portfolio {
 
 		$html  = '<div class="project-types"><span>' . __( 'Types:', 'jetpack' ) . '</span>';
 		$types = array();
-		// Loop thorugh all the types.
+		// Loop through all the types.
 		foreach ( $project_types as $project_type ) {
 			$project_type_link = get_term_link( $project_type, self::CUSTOM_TAXONOMY_TYPE );
 
