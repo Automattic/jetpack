@@ -8,7 +8,7 @@
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
- * Additional Search Queries: comments, comment, facebook, twitter, google+, social
+ * Additional Search Queries: comments, comment, facebook, twitter, google, social
  *
  * @package automattic/jetpack
  */
