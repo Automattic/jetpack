@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Health;
@@ -9,7 +9,12 @@ use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Settings;
 
-// POST /sites/%s/sync
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+/**
+ * Sync endpoint class.
+ *
+ * POST /sites/%s/sync
+ */
 class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	/**
@@ -20,12 +25,22 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 */
 	protected $needed_capabilities = 'manage_options';
 
-	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
+	/**
+	 * Validate the call.
+	 *
+	 * @param int    $_blog_id - the blog ID.
+	 * @param string $capability - the capability.
+	 * @param bool   $check_manage_active - unused.
+	 */
+	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return parent::validate_call( $_blog_id, $capability, false );
 	}
 
+	/**
+	 * The result.
+	 */
 	protected function result() {
-		$args = $this->input();
+		$args    = $this->input();
 		$modules = null;
 
 		// convert list of modules in comma-delimited format into an array
@@ -36,7 +51,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		foreach ( array( 'posts', 'comments', 'users' ) as $module_name ) {
 			if ( 'users' === $module_name && isset( $args[ $module_name ] ) && 'initial' === $args[ $module_name ] ) {
-				$modules[ 'users' ] = 'initial';
+				$modules['users'] = 'initial';
 			} elseif ( isset( $args[ $module_name ] ) ) {
 				$ids = explode( ',', $args[ $module_name ] );
 				if ( count( $ids ) > 0 ) {
@@ -51,20 +66,32 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		return array( 'scheduled' => Actions::do_full_sync( $modules ) );
 	}
 
+	/**
+	 * Validate the queue.
+	 *
+	 * @param array $query - the query.
+	 */
 	protected function validate_queue( $query ) {
 		if ( ! isset( $query ) ) {
 			return new WP_Error( 'invalid_queue', 'Queue name is required', 400 );
 		}
 
-		if ( ! in_array( $query, array( 'sync', 'full_sync', 'immediate' ) ) ) {
+		if ( ! in_array( $query, array( 'sync', 'full_sync', 'immediate' ), true ) ) {
 			return new WP_Error( 'invalid_queue', 'Queue name should be sync, full_sync or immediate', 400 );
 		}
 		return $query;
 	}
 }
 
-// GET /sites/%s/sync/status
+/**
+ * Sync status endpoint class.
+ *
+ * GET /sites/%s/sync/status
+ */
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Callback for the endpoint.
+	 */
 	protected function result() {
 		$args   = $this->query_args();
 		$fields = isset( $args['fields'] ) ? $args['fields'] : array();
@@ -72,8 +99,14 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 	}
 }
 
-// GET /sites/%s/data-check
+/**
+ * Sync Check Endpoint class.
+ * GET /sites/%s/data-check
+ */
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Callback for the endpoint.
+	 */
 	protected function result() {
 		Actions::mark_sync_read_only();
 		$store = new Replicastore();
@@ -81,8 +114,14 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 	}
 }
 
-// GET /sites/%s/data-histogram
+/**
+ * Sync histogram endpoint.
+ * GET /sites/%s/data-histogram
+ */
 class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Callback for endpoint.
+	 */
 	protected function result() {
 		$args = $this->query_args();
 
@@ -118,11 +157,13 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 		// Hack to disable Sync during this call, so we can resolve faster.
 		Actions::mark_sync_read_only();
 
-		return array( 'histogram' => $histogram, 'type' => $store->get_checksum_type() );
+		return array(
+			'histogram' => $histogram,
+			'type'      => $store->get_checksum_type(),
+		);
 	}
 }
 
-// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 /**
  * POST /sites/%s/sync/health
  */
@@ -151,10 +192,14 @@ class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync
 		);
 	}
 }
-// phpcs:enable
 
-// POST /sites/%s/sync/settings
+/**
+ * POST /sites/%s/sync/settings
+ */
 class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * The endpoing callback.
+	 */
 	protected function result() {
 		$args = $this->input();
 
@@ -182,22 +227,33 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 	}
 }
 
-// GET /sites/%s/sync/settings
+/**
+ * GET /sites/%s/sync/settings
+ */
 class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Endpoint callback.
+	 */
 	protected function result() {
 
 		return Settings::get_settings();
 	}
 }
 
-// GET /sites/%s/sync/object
+/**
+ * GET /sites/%s/sync/object
+ */
 class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Endpoint callback.
+	 */
 	protected function result() {
 		$args = $this->query_args();
 
 		$module_name = $args['module_name'];
 
-		if ( ! $sync_module = Modules::get_module( $module_name ) ) {
+		$sync_module = Modules::get_module( $module_name );
+		if ( ! $sync_module ) {
 			return new WP_Error( 'invalid_module', 'You specified an invalid sync module' );
 		}
 
@@ -213,30 +269,42 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 
 		return array(
 			'objects' => $objects,
-			'codec' => $codec->name(),
+			'codec'   => $codec->name(),
 		);
 	}
 }
 
+/**
+ * Sync Now endpoint class.
+ */
 class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Endpoint callback.
+	 */
 	protected function result() {
-		$args = $this->input();
+		$args       = $this->input();
 		$queue_name = $this->validate_queue( $args['queue'] );
 
-		if ( is_wp_error( $queue_name ) ){
+		if ( is_wp_error( $queue_name ) ) {
 			return $queue_name;
 		}
 
-		$sender = Sender::get_instance();
+		$sender   = Sender::get_instance();
 		$response = $sender->do_sync_for_queue( new Queue( $args['queue'] ) );
 
 		return array(
-			'response' => $response
+			'response' => $response,
 		);
 	}
 }
 
+/**
+ * Sync checkout endpoint.
+ */
 class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Endpoint callback.
+	 */
 	protected function result() {
 		$args       = $this->input();
 		$queue_name = $this->validate_queue( $args['queue'] );
@@ -258,7 +326,14 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		return $this->queue_pull( $queue_name, $number_of_items, $args );
 	}
 
-	function queue_pull( $queue_name, $number_of_items, $args ){
+	/**
+	 * Create a queue.
+	 *
+	 * @param string $queue_name - the queue name.
+	 * @param int    $number_of_items - the number of items.
+	 * @param array  $args - the arguments.
+	 */
+	public function queue_pull( $queue_name, $number_of_items, $args ) {
 		$queue = new Queue( $queue_name );
 
 		if ( 0 === $queue->size() ) {
@@ -301,8 +376,16 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		);
 	}
 
-	public $items = [];
+	/**
+	 * The items.
+	 *
+	 * @var array
+	 */
+	public $items = array();
 
+	/**
+	 * Send the data listener.
+	 */
 	public function jetpack_sync_send_data_listener() {
 		foreach ( func_get_args()[0] as $key => $item ) {
 			$this->items[ $key ] = $item;
@@ -316,7 +399,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 	 *
 	 * @return array Sync Actions to be returned to requestor
 	 */
-	public function immediate_full_sync_pull( $number_of_items = null ) {
+	public function immediate_full_sync_pull( $number_of_items = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// try to give ourselves as much time as possible.
 		set_time_limit( 0 );
 
@@ -338,17 +421,23 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		);
 	}
 
+	/**
+	 * Get the queue buffer.
+	 *
+	 * @param object $queue - the queue.
+	 * @param int    $number_of_items - the number of items.
+	 */
 	protected function get_buffer( $queue, $number_of_items ) {
-		$start = time();
+		$start        = time();
 		$max_duration = 5; // this will try to get the buffer
 
-		$buffer = $queue->checkout( $number_of_items );
+		$buffer   = $queue->checkout( $number_of_items );
 		$duration = time() - $start;
 
-		while( is_wp_error( $buffer ) && $duration < $max_duration ) {
+		while ( is_wp_error( $buffer ) && $duration < $max_duration ) {
 			sleep( 2 );
 			$duration = time() - $start;
-			$buffer = $queue->checkout( $number_of_items );
+			$buffer   = $queue->checkout( $number_of_items );
 		}
 
 		if ( $buffer === false ) {
@@ -359,11 +448,17 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 	}
 }
 
+/**
+ * Close endpoint class.
+ */
 class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Endpoint callback.
+	 */
 	protected function result() {
 
 		$request_body = $this->input();
-		$queue_name = $this->validate_queue( $request_body['queue'] );
+		$queue_name   = $this->validate_queue( $request_body['queue'] );
 
 		if ( is_wp_error( $queue_name ) ) {
 			return $queue_name;
@@ -377,9 +472,9 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 			return new WP_Error( 'missing_item_ids', 'Please provide a list of item ids in the item_ids argument', 400 );
 		}
 
-		//Limit to A-Z,a-z,0-9,_,-
+		// Limit to A-Z,a-z,0-9,_,-
 		$request_body ['buffer_id'] = preg_replace( '/[^A-Za-z0-9]/', '', $request_body['buffer_id'] );
-		$request_body['item_ids'] = array_filter( array_map( array( 'Jetpack_JSON_API_Sync_Close_Endpoint', 'sanitize_item_ids' ), $request_body['item_ids'] ) );
+		$request_body['item_ids']   = array_filter( array_map( array( 'Jetpack_JSON_API_Sync_Close_Endpoint', 'sanitize_item_ids' ), $request_body['item_ids'] ) );
 
 		$queue = new Queue( $queue_name );
 
@@ -392,7 +487,7 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 			$full_sync_module->update_sent_progress_action( $items );
 		}
 
-		$buffer = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
+		$buffer   = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
 
 		// Perform another checkout?
@@ -414,21 +509,32 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 
 		return array(
 			'success' => $response,
-			'status' => Actions::get_sync_status(),
+			'status'  => Actions::get_sync_status(),
 		);
 	}
 
+	/**
+	 * Sanitize item IDs.
+	 *
+	 * @param string $item - the item we're sanitizing.
+	 */
 	protected static function sanitize_item_ids( $item ) {
 		// lets not delete any options that don't start with jpsq_sync-
 		if ( ! is_string( $item ) || substr( $item, 0, 5 ) !== 'jpsq_' ) {
 			return null;
 		}
-		//Limit to A-Z,a-z,0-9,_,-,.
+		// Limit to A-Z,a-z,0-9,_,-,.
 		return preg_replace( '/[^A-Za-z0-9-_.]/', '', $item );
 	}
 }
 
+/**
+ * Unlock ednpoint class.
+ */
 class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Endpoint callback.
+	 */
 	protected function result() {
 		$args = $this->input();
 
@@ -436,7 +542,7 @@ class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 			return new WP_Error( 'invalid_queue', 'Queue name is required', 400 );
 		}
 
-		if ( ! in_array( $args['queue'], array( 'sync', 'full_sync' ) ) ) {
+		if ( ! in_array( $args['queue'], array( 'sync', 'full_sync' ), true ) ) {
 			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', 400 );
 		}
 
@@ -445,12 +551,18 @@ class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 		// False means that there was no lock to delete.
 		$response = $queue->unlock();
 		return array(
-			'success' => $response
+			'success' => $response,
 		);
 	}
 }
 
+/**
+ * Object ID range class.
+ */
 class Jetpack_JSON_API_Sync_Object_Id_Range extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Endpoint callback.
+	 */
 	protected function result() {
 		$args = $this->query_args();
 
@@ -468,6 +580,11 @@ class Jetpack_JSON_API_Sync_Object_Id_Range extends Jetpack_JSON_API_Sync_Endpoi
 		);
 	}
 
+	/**
+	 * Check if sync module is valid.
+	 *
+	 * @param string $module_name - the module name.
+	 */
 	protected function is_valid_sync_module( $module_name ) {
 		return in_array(
 			$module_name,
