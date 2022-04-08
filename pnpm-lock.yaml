@@ -1059,6 +1059,7 @@ importers:
       '@wordpress/url': 3.6.0
       '@wordpress/viewport': 4.3.0
       '@wordpress/widgets': 2.3.0
+      autoprefixer: 10.4.2
       bounding-client-rect: 1.0.5
       chai: 4.3.4
       chalk: 4.1.2
@@ -1253,6 +1254,7 @@ importers:
       '@wordpress/dependency-extraction-webpack-plugin': 3.4.1_webpack@5.65.0
       '@wordpress/editor': 12.4.0_978f344c876a57c1143ffe356b90df31
       '@wordpress/server-side-render': 3.3.0_978f344c876a57c1143ffe356b90df31
+      autoprefixer: 10.4.2_postcss@8.3.11
       chai: 4.3.4
       chalk: 4.1.2
       commander: 7.2.0
