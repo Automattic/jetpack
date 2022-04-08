@@ -19,21 +19,23 @@ import { __ } from '@wordpress/i18n';
 import { icon, title } from './';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { store as membershipProductsStore } from '../../store/membership-products';
+import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
 
 export default function Edit( { attributes, clientId, context, setAttributes } ) {
 	const { planId } = attributes;
 	const { isPremiumContentChild } = context;
+	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 	const upgradeUrl = useSelect( select => select( membershipProductsStore ).getUpgradeUrl() );
 
 	const resolvePaymentUrl = newPlanId => {
-		if ( postLink ) {
-			const postUrl = new URL( postLink );
-			postUrl.searchParams.set( 'recurring_payments', newPlanId );
-			return postUrl.toString();
+		if ( POST_EDITOR !== editorType ) {
+			return '#';
 		}
-		// When we aren't in an editing post context.
-		return '#';
+
+		const postUrl = new URL( postLink );
+		postUrl.searchParams.set( 'recurring_payments', newPlanId );
+		return postUrl.toString();
 	};
 
 	const updateSubscriptionPlan = newPlanId =>
