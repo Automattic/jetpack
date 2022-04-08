@@ -71,7 +71,7 @@ class Site_Health {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( 'Vulnerabilities can be exploited by hackers and cause harm to your website.', 'jetpack-protect' )
+				__( 'Jetpack Protect did not find any known vulnerabilities in your site. Vulnerabilities can be exploited by hackers and cause harm to your website.', 'jetpack-protect' )
 			),
 			'actions'     => '',
 			'test'        => 'jetpack_protect_checks',
