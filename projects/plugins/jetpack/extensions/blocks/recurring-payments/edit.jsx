@@ -19,20 +19,17 @@ import { __ } from '@wordpress/i18n';
 import { icon, title } from './';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import {
-	getGutenbergContext,
-	POST_EDITOR_CONTEXT,
-} from '../../shared/components/gutenberg/context/resolver';
+import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
 
 export default function Edit( { attributes, clientId, context, setAttributes } ) {
 	const { planId } = attributes;
 	const { isPremiumContentChild } = context;
-	const gutenbergContext = getGutenbergContext();
+	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 	const upgradeUrl = useSelect( select => select( membershipProductsStore ).getUpgradeUrl() );
 
 	const resolvePaymentUrl = newPlanId => {
-		if ( POST_EDITOR_CONTEXT !== gutenbergContext ) {
+		if ( POST_EDITOR !== editorType ) {
 			return '#';
 		}
 
