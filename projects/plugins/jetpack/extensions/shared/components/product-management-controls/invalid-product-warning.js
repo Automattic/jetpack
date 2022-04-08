@@ -7,9 +7,11 @@ import { Icon, warning } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { useProductManagementContext } from './context';
 import { getMessageByProductType } from './utils';
 
-export default function InvalidProductWarning( { productType } ) {
+export default function InvalidProductWarning() {
+	const { productType } = useProductManagementContext();
 	return (
 		<Warning className="product-management-control-nudge">
 			<span className="product-management-control-nudge__info">
