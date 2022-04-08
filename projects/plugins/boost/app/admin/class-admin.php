@@ -15,6 +15,7 @@ use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 class Admin {
@@ -137,7 +138,7 @@ class Admin {
 			'shownAdminNoticeIds' => $this->get_shown_admin_notice_ids(),
 			'preferences'         => array(
 				'showRatingPrompt' => $this->get_show_rating_prompt(),
-				'paidPlan'         => ( defined( 'JETPACK_BOOST_CLOUD_CSS' ) && true === JETPACK_BOOST_CLOUD_CSS ),
+				'prioritySupport'  => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
 
 			/**

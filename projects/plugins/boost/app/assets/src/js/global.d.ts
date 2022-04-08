@@ -25,7 +25,7 @@ declare global {
 	const Jetpack_Boost: {
 		preferences: {
 			showRatingPrompt: boolean;
-			paidPlan: boolean;
+			prioritySupport: boolean;
 		};
 		version: string;
 		api: {
