@@ -1,5 +1,4 @@
 Significance: patch
 Type: compat
-Comment: I already mentioned the change in another changelog.
 
-
+Added several removed methods back in order to ensure backwards compatibility with other Jetpack plugins.
