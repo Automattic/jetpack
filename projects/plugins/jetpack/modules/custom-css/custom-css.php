@@ -473,7 +473,7 @@ class Jetpack_Custom_CSS {
 		$compressed_css = self::minify( $css, $preprocessor );
 
 		// If null, there was no original safecss record, so create one
-		if ( null == $safecss_post ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		if ( ! $safecss_post ) {
 			if ( ! $css ) {
 				return false;
 			}
