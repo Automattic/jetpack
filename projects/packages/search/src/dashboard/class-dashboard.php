@@ -20,6 +20,12 @@ use Automattic\Jetpack\Tracking;
  */
 class Dashboard {
 	/**
+	 * Whether the class has been initialized
+	 *
+	 * @var boolean
+	 */
+	private static $initialized = false;
+	/**
 	 * Plan instance
 	 *
 	 * @var Automattic\Jetpack\Search\Plan
@@ -55,10 +61,23 @@ class Dashboard {
 	}
 
 	/**
-	 * Initialise hooks
+	 * Initialise hooks.
+	 *
+	 * We use the `config` package to initialize the search package, which ensures the package is
+	 * only initialized once. However earlier versions of Jetpack would still forcely initialize the
+	 * dashboard. As a result, there would be two `Search` submenus if we don't ensure the dashboard
+	 * is initialized only once. So we use `$initialized` to ensure the class is only initialized once.
+	 *
+	 * Ref: https://github.com/Automattic/jetpack/pull/21888/files#diff-aae7d66951585fc55053a4d53b68552a41864d2c69aee900574ef4404b7ad5f7L42
 	 */
 	public function init_hooks() {
-		add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), 999 );
+		if ( ! self::$initialized ) {
+			self::$initialized = true;
+			// Jetpack uses 998 and 'Admin_Menu' uses 1000.
+			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), 999 );
+			// Check if the site plan changed and deactivate module accordingly.
+			add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
+		}
 	}
 
 	/**
@@ -69,8 +88,8 @@ class Dashboard {
 			return;
 		}
 
-		// Check if the site plan changed and deactivate module accordingly.
-		add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
+		// Jetpack of version <= 10.5 would register `jetpack-search` submenu with its built-in search module.
+		$this->remove_search_submenu_if_exists();
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Search Settings', 'jetpack-search-pkg' ),
@@ -109,6 +128,13 @@ class Dashboard {
 		 * @param boolean $should_add_search_submenu Default value is true.
 		 */
 		return apply_filters( 'jetpack_search_should_add_search_submenu', current_user_can( 'manage_options' ) );
+	}
+
+	/**
+	 * Remove `jetpack-search` submenu page
+	 */
+	protected function remove_search_submenu_if_exists() {
+		remove_submenu_page( 'jetpack', 'jetpack-search' );
 	}
 
 	/**
@@ -156,9 +182,17 @@ class Dashboard {
 
 	/**
 	 * Deactivate search module if plan doesn't support search.
+	 *
+	 * @param WP_Screen $current_screen Creent screen object.
 	 */
-	public function check_plan_deactivate_search_module() {
-		if ( ! $this->plan->supports_search() ) {
+	public function check_plan_deactivate_search_module( $current_screen ) {
+		// Only run on Jetpack admin pages.
+		// The first two checks for current screen are cheap to run on every page.
+		if (
+			property_exists( $current_screen, 'base' ) &&
+			strpos( $current_screen->base, 'jetpack_page_' ) !== false &&
+			! $this->plan->supports_search()
+		) {
 			$this->module_control->deactivate();
 		}
 	}

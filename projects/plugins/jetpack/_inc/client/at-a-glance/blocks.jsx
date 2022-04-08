@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
@@ -14,9 +13,8 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import DashItem from 'components/dash-item';
-import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 
-const DashBlocks = props => {
+const DashBlocks = () => {
 	const labelName = __( 'Jetpack blocks', 'jetpack' );
 	const support = {
 		text: __(
@@ -25,13 +23,6 @@ const DashBlocks = props => {
 		),
 		link: getRedirectUrl( 'jetpack-support-blocks' ),
 	};
-
-	if (
-		props.isFetchingPluginsData ||
-		props.isPluginActive( 'classic-editor/classic-editor.php' )
-	) {
-		return null;
-	}
 
 	return (
 		<DashItem label={ labelName } support={ support }>
@@ -45,10 +36,4 @@ const DashBlocks = props => {
 	);
 };
 
-export default connect( state => {
-	return {
-		state,
-		isFetchingPluginsData: isFetchingPluginsData( state ),
-		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
-	};
-} )( DashBlocks );
+export default DashBlocks;

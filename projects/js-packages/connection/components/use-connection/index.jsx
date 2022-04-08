@@ -10,7 +10,15 @@ import restApi from '@automattic/jetpack-api';
  */
 import { STORE_ID } from '../../state/store';
 
-export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigger, from } ) => {
+export default ( {
+	registrationNonce,
+	redirectUri,
+	apiRoot,
+	apiNonce,
+	autoTrigger,
+	from,
+	skipUserConnection,
+} ) => {
 	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( STORE_ID );
 
 	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError() );
@@ -30,7 +38,13 @@ export default ( { registrationNonce, redirectUri, apiRoot, apiNonce, autoTrigge
 		...select( STORE_ID ).getConnectionStatus(),
 	} ) );
 
-	const handleConnectUser = () => connectUser( { from, redirectUri } );
+	const handleConnectUser = () => {
+		if ( ! skipUserConnection ) {
+			connectUser( { from, redirectUri } );
+		} else if ( redirectUri ) {
+			window.location = redirectUri;
+		}
+	};
 
 	/**
 	 * Initialize the site registration process.

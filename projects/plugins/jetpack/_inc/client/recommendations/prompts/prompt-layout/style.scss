@@ -15,11 +15,19 @@
 	.progress-bar {
 		width: 70px;
 	}
+}
 
+.jp-recommendations-question__progress-bar-wrap {
+	display: flex;
+	align-items: center;
 	margin: 32px 32px 0 32px;
 
 	@include breakpoint( '<480px' ) {
 		margin: 16px 16px 32px 16px;
+	}
+
+	.jp-recommendations__new-badge {
+		margin-right: 1rem;
 	}
 }
 
@@ -54,6 +62,18 @@
 	}
 }
 
+.jp-recommendations-question__description-list {
+	color: var( --jp-gray-100 );
+	font-size: 16px;
+	margin: 0 32px 0 32px;
+	list-style: disc;
+	padding-left: 16px;
+
+	@include breakpoint( '<480px' ) {
+		margin: 0 16px 0 16px;
+	}
+}
+
 .jp-recommendations-question__main--with-illustration .jp-recommendations-question__description {
 	margin-right: 0;
 
@@ -80,6 +100,23 @@
 
 	@include breakpoint( '<660px' ) {
 		display: none;
+	}
+}
+
+.jp-recommendations-question__illustration-container--rna {
+	background: radial-gradient( circle at 70%, rgba(6, 158, 8, 0.15) 0%, rgba( 255, 255, 255, 0) 56%), radial-gradient( circle at 35% 80%, rgba( 206, 217, 242, 0.5) 5%, rgba(255, 256, 255, 0) 25% );
+	display: flex;
+	align-items: center;
+	justify-content: right;
+
+	img {
+		position: relative;
+		bottom: auto;
+		right: auto;
+	}
+
+	.jp-recommendations-question__illustration-foreground {
+		margin: auto 0;
 	}
 }
 

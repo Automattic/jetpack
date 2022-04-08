@@ -77,7 +77,7 @@ class Jetpack {
 	/**
 	 * The handles of styles that are concatenated into jetpack.css.
 	 *
-	 * When making changes to that list, you must also update concat_list in tools/builder/frontend-css.js.
+	 * When making changes to that list, you must also update concat_list in tools/webpack.config.css.js.
 	 *
 	 * @var array The handles of styles that are concatenated into jetpack.css.
 	 */
@@ -808,6 +808,9 @@ class Jetpack {
 
 		// Register product descriptions for partner coupon usage.
 		add_filter( 'jetpack_partner_coupon_products', array( $this, 'get_partner_coupon_product_descriptions' ) );
+
+		// Actions for conditional recommendations.
+		add_action( 'plugins_loaded', array( 'Jetpack_Recommendations', 'init_conditional_recommendation_actions' ) );
 	}
 
 	/**
