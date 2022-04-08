@@ -196,7 +196,7 @@ class Module_Control {
 	/**
 	 * Get a list of activated modules as an array of module slugs.
 	 *
-	 * @deprecated $next-version$
+	 * @deprecated $$next-version$$
 	 * @return Array $active_modules
 	 */
 	public function get_active_modules() {
