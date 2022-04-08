@@ -9,6 +9,7 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	CREATIVE_MAIL: 'creative-mail',
 	SITE_ACCELERATOR: 'site-accelerator',
 	PUBLICIZE: 'publicize',
+	SECURITY_PLAN: 'security-plan',
 	VIDEOPRESS: 'videopress',
 	SUMMARY: 'summary',
 };

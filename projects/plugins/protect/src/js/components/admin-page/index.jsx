@@ -26,12 +26,10 @@ const coreListMock = [
 		version: '5.4.1',
 		vulnerabilities: [
 			{
-				risk: 'low',
-				description: 'Vulnerability Number 1',
-			},
-			{
-				risk: 'high',
-				description: 'Vulnerability Number 2',
+				id: '1fd6742e-1a32-446d-be3d-7cce44f8f416',
+				title: 'Vulnerability Title 1',
+				description: 'Vulnerability Description 1',
+				fixedIn: '5.4.2',
 			},
 		],
 	},
@@ -43,42 +41,28 @@ const pluginsListMock = [
 		version: '1.0.1',
 		vulnerabilities: [
 			{
-				risk: 'low',
-				description: 'Vulnerability Number 1',
+				id: '1fd6742e-1a32-446d-be3d-7cce44f8f420',
+				title: 'Vulnerability Title 1',
+				description: 'Vulnerability Description 1',
+				fixedIn: '1.1.0',
 			},
 			{
-				risk: 'high',
-				description: 'Vulnerability Number 2',
+				id: '1fd6742e-1a32-446d-be3d-7cce44f8f410',
+				title: 'Vulnerability Title 2',
+				description: 'Vulnerability Description 2',
+				fixedIn: '1.1.0',
 			},
 			{
-				risk: 'medium',
-				description: 'Vulnerability Number 3',
+				id: '1fd6742e-1a32-446d-be3d-7cce44f8f411',
+				title: 'Vulnerability Title 3',
+				description: 'Vulnerability Description 3',
+				fixedIn: '1.1.0',
 			},
 			{
-				risk: 'low',
-				description: 'Vulnerability Number 4',
-			},
-		],
-	},
-	{
-		name: 'Jetpack Boost',
-		version: '1.2.1',
-		vulnerabilities: [
-			{
-				risk: 'high',
-				description: 'Vulnerability Number 1',
-			},
-			{
-				risk: 'low',
-				description: 'Vulnerability Number 2',
-			},
-			{
-				risk: 'medium',
-				description: 'Vulnerability Number 3',
-			},
-			{
-				risk: 'low',
-				description: 'Vulnerability Number 4',
+				id: '1fd6742e-1a32-446d-be3d-7cce44f8f412',
+				title: 'Vulnerability Title 4',
+				description: 'Vulnerability Description 4',
+				fixedIn: '1.1.0',
 			},
 		],
 	},
@@ -90,16 +74,16 @@ const themeListMock = [
 		version: '1.0.2',
 		vulnerabilities: [
 			{
-				risk: 'low',
-				description: 'Vulnerability Number 1',
+				id: '1fd6742e-1a32-446d-be3d-7cce44f8f413',
+				title: 'Vulnerability Title 1',
+				description: 'Vulnerability Description 1',
+				fixedIn: '1.1.0',
 			},
 			{
-				risk: 'low',
-				description: 'Vulnerability Number 2',
-			},
-			{
-				risk: 'medium',
-				description: 'Vulnerability Number 3',
+				id: '1fd6742e-1a32-446d-be3d-7cce44f8f414',
+				title: 'Vulnerability Title 2',
+				description: 'Vulnerability Description 2',
+				fixedIn: '1.1.0',
 			},
 		],
 	},

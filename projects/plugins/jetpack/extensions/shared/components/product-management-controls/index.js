@@ -70,7 +70,9 @@ export default function ProductManagementControls( {
 					/>
 				</>
 			) }
-			{ isApiConnected && isSelectedProductInvalid && <InvalidProductWarning /> }
+			{ isApiConnected && isSelectedProductInvalid && (
+				<InvalidProductWarning productType={ productType } />
+			) }
 		</>
 	);
 }

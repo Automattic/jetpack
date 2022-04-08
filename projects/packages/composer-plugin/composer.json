@@ -39,6 +39,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"plugin-modifies-install-path": true,
 		"class": "Automattic\\Jetpack\\Composer\\Plugin",
 		"mirror-repo": "Automattic/jetpack-composer-plugin",
 		"changelogger": {
