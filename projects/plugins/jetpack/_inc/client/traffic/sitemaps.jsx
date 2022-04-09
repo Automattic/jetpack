@@ -69,7 +69,7 @@ export class Sitemaps extends React.Component {
 				>
 					<p>
 						{ __(
-							'Sitemaps are files that search engines like Google or Bing use to index your website. They can help improve your ranking in search results. When you enable this feature, Jetpack will create sitemaps for you and update them automatically when the content on your site changes.',
+							'Sitemaps are files that search engines like Google or Bing use to index your site. They can help improve your ranking in search results. When you enable this feature, Jetpack will create sitemaps for you and update them automatically when the content on your site changes.',
 							'jetpack'
 						) }
 					</p>
