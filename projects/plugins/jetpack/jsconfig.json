@@ -1,6 +1,6 @@
 {
+	"extends": "../../../tsconfig.json",
 	"compilerOptions": {
-		"jsx": "react",
 		"baseUrl": ".",
 		"paths": {
 			// fallback to resolving imports relative to _inc/client
