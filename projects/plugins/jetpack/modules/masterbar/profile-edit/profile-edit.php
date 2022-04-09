@@ -33,7 +33,7 @@ function jetpack_masterbar_hide_profile_fields( $user ) {
 	);
 	$contact_info_wpcom_link_message = sprintf(
 		/* translators: 1 link */
-		__( 'WordPress.com users can change their profile’s email & website address in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Account settings.</a>', 'jetpack' ),
+		__( 'WordPress.com users can change their profile’s email & site address in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Account settings.</a>', 'jetpack' ),
 		'https://wordpress.com/me/account'
 	);
 	?>
