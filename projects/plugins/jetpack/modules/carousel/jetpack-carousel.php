@@ -607,7 +607,7 @@ class Jetpack_Carousel {
 																<input type="text" name="author" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-author-field" />
 															</fieldset>
 															<fieldset>
-																<label for="jp-carousel-comment-form-url-field"><?php esc_html_e( 'Website', 'jetpack' ); ?></label>
+																<label for="jp-carousel-comment-form-url-field"><?php esc_html_e( 'Site', 'jetpack' ); ?></label>
 																<input type="text" name="url" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-url-field" />
 															</fieldset>
 														<?php endif ?>
