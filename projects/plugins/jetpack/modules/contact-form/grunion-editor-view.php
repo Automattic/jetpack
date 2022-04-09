@@ -86,7 +86,7 @@ class Grunion_Editor_View {
 				'dashicons_css_url'        => includes_url( 'css/dashicons.css' ),
 				'default_form'             => '[contact-field label="' . __( 'Name', 'jetpack' ) . '" type="name"  required="true" /]' .
 									'[contact-field label="' . __( 'Email', 'jetpack' ) . '" type="email" required="true" /]' .
-									'[contact-field label="' . __( 'Website', 'jetpack' ) . '" type="url" /]' .
+									'[contact-field label="' . __( 'Site', 'jetpack' ) . '" type="url" /]' .
 									'[contact-field label="' . __( 'Message', 'jetpack' ) . '" type="textarea" /]',
 				'labels'                   => array(
 					'submit_button_text'  => __( 'Submit', 'jetpack' ),
@@ -218,7 +218,7 @@ class Grunion_Editor_View {
 			'text'              => __( 'Text', 'jetpack' ),
 			'name'              => __( 'Name', 'jetpack' ),
 			'email'             => __( 'Email', 'jetpack' ),
-			'url'               => __( 'Website', 'jetpack' ),
+			'url'               => __( 'Site', 'jetpack' ),
 			'textarea'          => __( 'Textarea', 'jetpack' ),
 			'checkbox'          => __( 'Checkbox', 'jetpack' ),
 			'checkbox-multiple' => __( 'Checkbox with Multiple Items', 'jetpack' ),
