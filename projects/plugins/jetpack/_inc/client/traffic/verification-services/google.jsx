@@ -266,7 +266,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 									{ createInterpolateElement(
 										/* translators: placeholders are links to Google support documents. */
 										__(
-											'Google will email about certain events that occur with your site, including indications that your website has been <a1>hacked</a1>, or problems <a2>crawling or indexing</a2> your site.',
+											'Google will email about certain events that occur with your site, including indications that your site has been <a1>hacked</a1>, or problems <a2>crawling or indexing</a2> your site.',
 											'jetpack'
 										),
 										{
