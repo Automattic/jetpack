@@ -5,4 +5,3 @@ node_modules      export-ignore
 # Files to exclude from the mirror repo
 /changelog/**     production-exclude
 /.eslintrc.cjs    production-exclude
-/tsconfig.json    production-exclude
