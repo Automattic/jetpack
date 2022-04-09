@@ -84,7 +84,7 @@ export class CustomContentTypes extends React.Component {
 					<p>
 						{ createInterpolateElement(
 							__(
-								'Add <testimonialLink>testimonials</testimonialLink> to your website to attract new customers. If your theme doesn’t support Jetpack Testimonials, you can still use a simple shortcode to display them on your site.',
+								'Add <testimonialLink>testimonials</testimonialLink> to your site to attract new customers. If your theme doesn’t support Jetpack Testimonials, you can still use a simple shortcode to display them on your site.',
 								'jetpack'
 							),
 							{
