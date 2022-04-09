@@ -21,14 +21,14 @@ importers:
       '@vercel/ncc': 0.28.5
       compare-versions: 3.6.0
       glob: 7.1.6
-      moment: 2.29.1
+      moment: 2.29.2
       node-fetch: 2.6.7
     dependencies:
       '@actions/core': 1.6.0
       '@actions/github': 5.0.1
       compare-versions: 3.6.0
       glob: 7.1.6
-      moment: 2.29.1
+      moment: 2.29.2
       node-fetch: 2.6.7
     devDependencies:
       '@vercel/ncc': 0.28.5
@@ -17077,6 +17077,10 @@ packages:
 
   /moment/2.29.1:
     resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
+
+  /moment/2.29.2:
+    resolution: {integrity: sha512-UgzG4rvxYpN15jgCmVJwac49h9ly9NurikMWGPdVxm8GZD6XjkKPxDTjQQ43gtGgnV3X0cAyWDdP2Wexoquifg==}
+    dev: false
 
   /moo/0.5.1:
     resolution: {integrity: sha512-I1mnb5xn4fO80BH9BLcF0yLypy2UKl+Cb01Fu0hJRkJjlCRtxZMWkTdAtDd5ZqCOxtCkhmRwyI57vWT+1iZ67w==}
