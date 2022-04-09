@@ -80,7 +80,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						>
 							<p>
 								{ __(
-									'Connect your website to the social media networks you use and share your content across all your social accounts with a single click. When you publish a post, it will appear on all connected accounts.',
+									'Connect your site to the social media networks you use and share your content across all your social accounts with a single click. When you publish a post, it will appear on all connected accounts.',
 									'jetpack'
 								) }
 							</p>
