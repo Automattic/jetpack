@@ -512,7 +512,7 @@ class Jetpack_Connection_Banner {
 					</div>
 				</div>
 
-				<h2 class="jp-connect-full__testimonial"><?php esc_html_e( 'More than 5 million WordPress sites trust Jetpack for their website security and performance.', 'jetpack' ); ?></h2>
+				<h2 class="jp-connect-full__testimonial"><?php esc_html_e( 'More than 5 million WordPress sites trust Jetpack for their site security and performance.', 'jetpack' ); ?></h2>
 
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 
