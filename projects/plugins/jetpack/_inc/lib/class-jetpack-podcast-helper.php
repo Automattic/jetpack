@@ -437,7 +437,7 @@ class Jetpack_Podcast_Helper {
 					'type'        => 'string',
 				),
 				'link'    => array(
-					'description' => __( 'The URL of the podcast website.', 'jetpack' ),
+					'description' => __( 'The URL of the podcast site.', 'jetpack' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 				),
