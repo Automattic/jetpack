@@ -94,8 +94,8 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 		case 'trackback':
 			/* translators: 1: Post title */
 			$notify_message = sprintf( __( 'New trackback on your post "%s"' ), $post->post_title ) . "\r\n";
-			/* translators: 1: Trackback/pingback website name, 2: website IP address, 3: website hostname */
-			$notify_message .= sprintf( __( 'Website: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+			/* translators: 1: Trackback/pingback site name, 2: site IP address, 3: site hostname */
+			$notify_message .= sprintf( __( 'Site: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 			/* translators: %s: Site URL */
 			$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
 			/* translators: %s: Comment Content */
@@ -107,8 +107,8 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 		case 'pingback':
 			/* translators: 1: Post title */
 			$notify_message = sprintf( __( 'New pingback on your post "%s"' ), $post->post_title ) . "\r\n";
-			/* translators: 1: Trackback/pingback website name, 2: website IP address, 3: website hostname */
-			$notify_message .= sprintf( __( 'Website: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+			/* translators: 1: Trackback/pingback site name, 2: site IP address, 3: site hostname */
+			$notify_message .= sprintf( __( 'Site: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 			/* translators: %s: Site URL */
 			$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
 			/* translators: %s: Comment Content */
@@ -293,8 +293,8 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
 			/* translators: 1: Post title */
 			$notify_message  = sprintf( __( 'A new trackback on the post "%s" is waiting for your approval' ), $post->post_title ) . "\r\n";
 			$notify_message .= get_permalink( $comment->comment_post_ID ) . "\r\n\r\n";
-			/* translators: 1: Trackback/pingback website name, 2: website IP address, 3: website hostname */
-			$notify_message .= sprintf( __( 'Website: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+			/* translators: 1: Trackback/pingback site name, 2: site IP address, 3: site hostname */
+			$notify_message .= sprintf( __( 'Site: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 			/* translators: 1: Trackback/pingback/comment author URL */
 			$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
 			$notify_message .= __( 'Trackback excerpt: ' ) . "\r\n" . $comment_content . "\r\n\r\n";
@@ -303,8 +303,8 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
 			/* translators: 1: Post title */
 			$notify_message  = sprintf( __( 'A new pingback on the post "%s" is waiting for your approval' ), $post->post_title ) . "\r\n";
 			$notify_message .= get_permalink( $comment->comment_post_ID ) . "\r\n\r\n";
-			/* translators: 1: Trackback/pingback website name, 2: website IP address, 3: website hostname */
-			$notify_message .= sprintf( __( 'Website: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
+			/* translators: 1: Trackback/pingback site name, 2: site IP address, 3: site hostname */
+			$notify_message .= sprintf( __( 'Site: %1$s (IP address: %2$s, %3$s)' ), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
 			/* translators: 1: Trackback/pingback/comment author URL */
 			$notify_message .= sprintf( __( 'URL: %s' ), $comment->comment_author_url ) . "\r\n";
 			$notify_message .= __( 'Pingback excerpt: ' ) . "\r\n" . $comment_content . "\r\n\r\n";
