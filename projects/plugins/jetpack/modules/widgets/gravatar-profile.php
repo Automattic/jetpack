@@ -352,7 +352,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'show_personal_links' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'show_personal_links' ) ); ?>" <?php checked( $show_personal_links ); ?> />
 				<?php esc_html_e( 'Show Personal Links', 'jetpack' ); ?>
 				<br />
-				<small><?php esc_html_e( 'Links to your websites, blogs, or any other sites that help describe who you are.', 'jetpack' ); ?></small>
+				<small><?php esc_html_e( 'Links to your sites, blogs, or any other sites that help describe who you are.', 'jetpack' ); ?></small>
 			</label>
 		</p>
 
