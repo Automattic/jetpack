@@ -229,7 +229,7 @@ class MyPlanBody extends React.Component {
 			jetpackBackupCard = getJetpackBackupCard( {
 				title: __( 'Automated Daily Backups', 'jetpack' ),
 				description: __(
-					'We back up your website every day, so you never have to worry about your data again.',
+					'We back up your site every day, so you never have to worry about your data again.',
 					'jetpack'
 				),
 			} );
@@ -248,7 +248,7 @@ class MyPlanBody extends React.Component {
 			jetpackBackupCard = getJetpackBackupCard( {
 				title: __( 'Automated real-time backups', 'jetpack' ),
 				description: __(
-					'We back up your website with every change you make, making it easy to fix your mistakes.',
+					'We back up your site with every change you make, making it easy to fix your mistakes.',
 					'jetpack'
 				),
 			} );
@@ -307,7 +307,7 @@ class MyPlanBody extends React.Component {
 								<img
 									src={ imagePath + '/jetpack-speed-icon.svg' }
 									className="jp-landing__plan-features-icon"
-									alt={ __( 'A fast and performant website', 'jetpack' ) }
+									alt={ __( 'A fast and performant site', 'jetpack' ) }
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
@@ -610,7 +610,7 @@ class MyPlanBody extends React.Component {
 								<img
 									src={ imagePath + '/jetpack-speed-icon.svg' }
 									className="jp-landing__plan-features-icon"
-									alt={ __( 'A fast and performant website', 'jetpack' ) }
+									alt={ __( 'A fast and performant site', 'jetpack' ) }
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
@@ -642,7 +642,7 @@ class MyPlanBody extends React.Component {
 							</div>
 							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Design the perfect website', 'jetpack' ) }
+									{ __( 'Design the perfect site', 'jetpack' ) }
 								</h3>
 								<p>
 									{ __(
