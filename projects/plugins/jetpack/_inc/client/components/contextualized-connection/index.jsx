@@ -161,7 +161,7 @@ const ContextualizedConnection = props => {
 				</div>
 				<div className="jp-contextualized-connection__footer-bottom-title">
 					{ __(
-						'More than 5 million WordPress sites trust Jetpack for their website security and performance.',
+						'More than 5 million WordPress sites trust Jetpack for their site security and performance.',
 						'jetpack'
 					) }
 				</div>
