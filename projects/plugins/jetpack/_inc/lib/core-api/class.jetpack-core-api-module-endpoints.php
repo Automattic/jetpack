@@ -1104,7 +1104,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						array(
 							'post_type'    => 'page',
 							/* translators: this references the home page of a site, also called front page. */
-							'post_title'   => esc_html_x( 'Home Page', 'The home page of a website.', 'jetpack' ),
+							'post_title'   => esc_html_x( 'Home Page', 'The home page of a site.', 'jetpack' ),
 							'post_content' => sprintf(
 								/* Translators: placeholder is the site title. */
 								esc_html__( 'Welcome to %s.', 'jetpack' ),
