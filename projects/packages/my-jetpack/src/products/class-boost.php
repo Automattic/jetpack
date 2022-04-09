@@ -78,7 +78,7 @@ class Boost extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Jetpack Boost gives your site the same performance advantages as the world’s leading websites, no developer required.', 'jetpack-my-jetpack' );
+		return __( 'Jetpack Boost gives your site the same performance advantages as the world’s leading sites, no developer required.', 'jetpack-my-jetpack' );
 	}
 
 	/**
