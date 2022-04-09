@@ -28,7 +28,7 @@ const DashBlocks = () => {
 		<DashItem label={ labelName } support={ support }>
 			<p className="jp-dash-item__description">
 				{ __(
-					'Jetpack blocks give you the power to deliver quality content that hooks website visitors without needing to hire a developer or learn a single line of code.',
+					'Jetpack blocks give you the power to deliver quality content that hooks your site visitors without needing to hire a developer or learn a single line of code.',
 					'jetpack'
 				) }
 			</p>
