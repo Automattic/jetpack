@@ -84,7 +84,7 @@ class JetpackStateNotices extends React.Component {
 			case 'site_requires_authorization':
 				message = sprintf(
 					/* translators: placeholder is an error code and message. */
-					__( 'Your website needs to be publicly accessible to use Jetpack: %s', 'jetpack' ),
+					__( 'Your site needs to be publicly accessible to use Jetpack: %s', 'jetpack' ),
 					key
 				);
 				break;
