@@ -34,4 +34,13 @@ class Stats {
 
 		return $response;
 	}
+
+	/**
+	 * Mock
+	 *
+	 * Waiting for https://github.com/Automattic/jetpack/pull/23809 to be merged.
+	 */
+	public function estimate_count() {
+		return 999;
+	}
 }
