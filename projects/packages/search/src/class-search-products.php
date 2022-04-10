@@ -42,7 +42,7 @@ class Search_Products {
 		$record_count = $record_count > 0 ? $record_count : Stats::estimate_count();
 		$product      = static::get_promoted_product();
 		if ( ! $record_count || ! isset( $product['price_tier_list'] ) ) {
-			return static::DEFAULT_PROMOTED_PRODCT;
+			return static::DEFAULT_TIER_INFO;
 		}
 		$price_tier_list = $product['price_tier_list'];
 		array_multisort( array_column( $price_tier_list, 'maximum_units' ), SOTR_ASC, $price_tier_list );
@@ -57,7 +57,7 @@ class Search_Products {
 			}
 		}
 
-		return static::DEFAULT_PROMOTED_PRODCT;
+		return static::DEFAULT_TIER_INFO;
 	}
 
 	/**
