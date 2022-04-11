@@ -73,6 +73,8 @@ class Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint extends Jetpack_JSON_
 	 * Validate input.
 	 *
 	 * @param object $object - unused.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function validate_input( $object ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$query_args = $this->query_args();
@@ -93,6 +95,8 @@ class Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint extends Jetpack_JSON_
 
 	/**
 	 * The result.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		global $wpdb;
