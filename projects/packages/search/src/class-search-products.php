@@ -13,8 +13,8 @@ namespace Automattic\Jetpack\Search;
  * @package Automattic\Jetpack\Search
  */
 class Search_Products {
-	const DEFAULT_PROMOTED_PRODCT = 'jetpack_search';
-	const DEFAULT_TIER_INFO       = array(
+	const DEFAULT_PROMOTED_PRODUCT = 'jetpack_search';
+	const DEFAULT_TIER_INFO        = array(
 		'currency_code'  => 'USD',
 		'discount_price' => '0',
 		'full_price'     => '0',
@@ -27,10 +27,10 @@ class Search_Products {
 	 */
 	public static function get_promoted_product() {
 		$search_products = static::get_products();
-		if ( ! is_array( $search_products ) || ! isset( $search_products[ self::DEFAULT_PROMOTED_PRODCT ] ) ) {
+		if ( ! is_array( $search_products ) || ! isset( $search_products[ self::DEFAULT_PROMOTED_PRODUCT ] ) ) {
 			return false;
 		}
-		return $search_products[ self::DEFAULT_PROMOTED_PRODCT ];
+		return $search_products[ self::DEFAULT_PROMOTED_PRODUCT ];
 	}
 
 	/**
@@ -45,7 +45,7 @@ class Search_Products {
 			return static::DEFAULT_TIER_INFO;
 		}
 		$price_tier_list = $product['price_tier_list'];
-		array_multisort( array_column( $price_tier_list, 'maximum_units' ), SOTR_ASC, $price_tier_list );
+		array_multisort( array_column( $price_tier_list, 'maximum_units' ), SORT_ASC, $price_tier_list );
 
 		foreach ( $product['price_tier_list'] as $price_tier ) {
 			if ( $record_count <= $price_tier['maximum_units'] ) {
@@ -83,7 +83,7 @@ class Search_Products {
 			ARRAY_FILTER_USE_BOTH
 		);
 		// We don't want to cache error response for too long.
-		$time_to_cache = ! empty( $search_products ) ? DAY_IN_SECONDS : 5 * MIMUTES_IN_SECONDS;
+		$time_to_cache = ! empty( $search_products ) ? DAY_IN_SECONDS : 5 * MINUTES_IN_SECONDS;
 		wp_cache_set( 'search_products', $search_products, Package::SLUG, $time_to_cache );
 		return $search_products;
 	}
