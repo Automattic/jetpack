@@ -94,7 +94,7 @@ use Automattic\Jetpack\Redirect;
 						echo sprintf(
 							wp_kses(
 								/* Translators: %s is the URL to a Jetpack support article. */
-								__( 'For GDPR compliance, please make sure your policy contains <a href="%s" target="_blank">privacy information relating to Jetpack Ads</a>.', 'jetpack' ),
+								__( 'For GDPR compliance, please make sure your policy contains <a href="%s" target="_blank">privacy information relating to WordAds</a>.', 'jetpack' ),
 								array(
 									'a' => array(
 										'href'   => array(),
@@ -198,7 +198,7 @@ use Automattic\Jetpack\Redirect;
 	<?php if ( Jetpack::is_module_active( 'wordads' ) ) : ?>
 		<span class="notice notice-warning" style="display: block;">
 			<span style="display: block; margin: .5em 0;">
-				<?php esc_html_e( 'Visitors must provide consent by clicking the dismiss button when Jetpack Ads is turned on.', 'jetpack' ); ?>
+				<?php esc_html_e( 'Visitors must provide consent by clicking the dismiss button when WordAds is turned on.', 'jetpack' ); ?>
 			</span>
 		</span>
 	<?php endif; ?>
