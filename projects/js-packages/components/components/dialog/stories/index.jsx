@@ -91,10 +91,10 @@ InterstitialJetpackBackup.args = {
 			isBundle={ true }
 			supportedProducts={ [ 'backup', 'scan', 'anti-spam' ] }
 			features={ [
-				'Real=time cloud backups with 10GB storage',
-				'Automated=real-time malware scan',
-				'One=click fixes for most threats',
-				'Comment=& form spam protection',
+				'Real time cloud backups with 10GB storage',
+				'Automated real-time malware scan',
+				'One click fixes for most threats',
+				'Comment & form spam protection',
 			] }
 			pricing={ {
 				currency: 'USD',
