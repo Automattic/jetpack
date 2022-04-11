@@ -51,6 +51,8 @@ class Jetpack_JSON_API_Core_Modify_Endpoint extends Jetpack_JSON_API_Core_Endpoi
 
 	/**
 	 * Update the version.
+	 *
+	 * @return string|false|WP_Error New WordPress version on success, false or WP_Error on failure.
 	 */
 	protected function update() {
 		$args    = $this->input();
@@ -94,6 +96,8 @@ class Jetpack_JSON_API_Core_Modify_Endpoint extends Jetpack_JSON_API_Core_Endpoi
 	/**
 	 * Select the latest update.
 	 * Remove filters to bypass automattic updates.
+	 *
+	 * @return object|false The core update offering on success, false on failure.
 	 */
 	protected function find_latest_update_offer() {
 		// Select the latest update.
