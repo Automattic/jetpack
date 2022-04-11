@@ -26,6 +26,8 @@ class VideoPress_Options {
 
 	/**
 	 * Get VideoPress options
+	 *
+	 * @return array An array of VideoPress options.
 	 */
 	public static function get_options() {
 		// Make sure we only get options from the database and services once per connection.
