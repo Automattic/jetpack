@@ -22,7 +22,7 @@ class QueryWafSettings extends Component {
 		isOfflineMode: false,
 	};
 
-	UNSAFE_componentWillMount() {
+	componentDidMount() {
 		if ( ! this.props.isFetchingWafSettings && ! this.props.isOfflineMode ) {
 			this.props.fetchWafSettings();
 		}
