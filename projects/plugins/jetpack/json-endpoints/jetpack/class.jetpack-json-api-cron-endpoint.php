@@ -228,7 +228,7 @@ class Jetpack_JSON_API_Cron_Schedule_Endpoint extends Jetpack_JSON_API_Cron_Endp
 	/**
 	 * The result.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 		$args = $this->input();
