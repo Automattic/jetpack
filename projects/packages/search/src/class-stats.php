@@ -50,7 +50,7 @@ class Stats {
 		}
 
 		global $wpdb;
-		$indexable_stati        = get_post_stati( array( 'public' => true ) );
+		$indexable_statuses     = get_post_stati( array( 'public' => true ) );
 		$unindexable_post_types = array_merge(
 			// Explicitly exclude various post types registered by plugins.
 			array(
@@ -76,12 +76,12 @@ class Stats {
 			return $wpdb->prepare( "'%s'", $string );
 		};
 
-		$stati_list      = implode( ',', array_map( $prep_for_query, $indexable_stati ) );
+		$statuses_list   = implode( ',', array_map( $prep_for_query, $indexable_statuses ) );
 		$post_types_list = implode( ',', array_map( $prep_for_query, $unindexable_post_types ) );
 
 		$count = (int) $wpdb->get_var(
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- This is properly prepared, but the query is constructed using variables.
-			"SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_status IN ($stati_list) AND post_type NOT IN ($post_types_list)"
+			"SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_status IN ($statuses_list) AND post_type NOT IN ($post_types_list)"
 		);
 
 		wp_cache_set( self::COUNT_ESTIMATE_CACHE_KEY, $count, self::CACHE_GROUP, self::CACHE_EXPIRY );
