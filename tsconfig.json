@@ -4,20 +4,11 @@
 		"esModuleInterop": true,
 		"isolatedModules": true,
 		"jsx": "react-jsx",
-		"lib": [ "dom", "esnext" ],
 		"module": "esnext",
 		"moduleResolution": "node",
 		"noEmit": true,
-		"noFallthroughCasesInSwitch": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		"strict": false,
-		"target": "ES6",
-		"paths": {
-			// e.g. "@automattic/jetpack-components"
-			// will resolve to "projects/js-packages/components"
-			"@automattic/jetpack-*": [ "./projects/js-packages/*" ]
-		}
-	},
-	"include": [ "projects/**/*", "tools/**/*" ]
+		"strict": false
+	}
 }
