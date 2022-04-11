@@ -153,7 +153,7 @@ class Jetpack_JSON_API_Cron_Post_Endpoint extends Jetpack_JSON_API_Cron_Endpoint
 	/**
 	 * The result.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 		define( 'DOING_CRON', true );
