@@ -157,7 +157,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		switch ( $this->action ) {
 			case 'delete':
 				$this->needed_capabilities = 'delete_plugins';
-				// Allowing fallthrough.
+				break;
 			case 'update_translations':
 			case 'update':
 				$this->needed_capabilities = 'update_plugins';
