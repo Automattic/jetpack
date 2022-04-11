@@ -199,7 +199,7 @@ class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync
  */
 class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
-	 * The endpoing callback.
+	 * The endpoint callback.
 	 */
 	protected function result() {
 		$args = $this->input();
