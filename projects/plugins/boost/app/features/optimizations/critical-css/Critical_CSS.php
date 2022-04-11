@@ -43,8 +43,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	public function __construct() {
 		$this->storage = new Critical_CSS_Storage();
 		$this->paths   = new Source_Providers();
-
-		CSS_Proxy::init();
 	}
 
 	/**
@@ -66,6 +64,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		}
 
 		Critical_CSS_Invalidator::init();
+		CSS_Proxy::init();
 
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 		add_filter( 'jetpack_boost_admin_notices', array( $this, 'add_admin_notices' ) );
