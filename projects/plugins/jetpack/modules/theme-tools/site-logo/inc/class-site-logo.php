@@ -283,7 +283,7 @@ class Site_Logo {
 
 		// Have we got anything fun to work with?
 		if ( is_array( $intermediate ) && ! empty( $intermediate ) ) {
-			foreach ( $intermediate as $key => $size ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			foreach ( $intermediate as $size ) {
 				// If the size isn't already in the $sizes array, add it.
 				if ( ! array_key_exists( $size, $sizes ) ) {
 					$sizes[ $size ] = $size;
