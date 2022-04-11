@@ -94,6 +94,8 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @param int   $_blog_id - the blog ID.
 	 * @param array $capability - the capabilities of the user.
 	 * @param bool  $check_validation - if we're checking the validation.
+	 *
+	 * @return bool|WP_Error a WP_Error object or true if things are good.
 	 */
 	protected function validate_call( $_blog_id, $capability, $check_validation = true ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
