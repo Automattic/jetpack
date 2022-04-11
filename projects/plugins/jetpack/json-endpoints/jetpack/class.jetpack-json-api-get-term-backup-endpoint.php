@@ -25,6 +25,8 @@ class Jetpack_JSON_API_Get_Term_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 	 * Validate input.
 	 *
 	 * @param int $term_id - the term ID.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function validate_input( $term_id ) {
 		if ( empty( $term_id ) || ! is_numeric( $term_id ) ) {
@@ -38,6 +40,8 @@ class Jetpack_JSON_API_Get_Term_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 
 	/**
 	 * Return the result.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		// Disable Sync as this is a read-only operation and triggered by sync activity.

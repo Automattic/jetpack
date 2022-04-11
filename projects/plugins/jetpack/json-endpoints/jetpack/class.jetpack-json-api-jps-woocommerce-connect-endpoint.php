@@ -14,6 +14,8 @@ class Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint extends Jetpack_JSON_API
 
 	/**
 	 * The result.
+	 *
+	 * @return array|WP_Error
 	 */
 	public function result() {
 		$input       = $this->input();
@@ -49,6 +51,8 @@ class Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint extends Jetpack_JSON_API
 	 * Validate input.
 	 *
 	 * @param object $object - the object we're validating.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function validate_input( $object ) {
 		$input = $this->input();

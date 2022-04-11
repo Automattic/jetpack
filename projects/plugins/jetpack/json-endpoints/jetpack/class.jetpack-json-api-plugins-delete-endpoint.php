@@ -71,6 +71,8 @@ class Jetpack_JSON_API_Plugins_Delete_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	/**
 	 * The delete function.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function delete() {
 

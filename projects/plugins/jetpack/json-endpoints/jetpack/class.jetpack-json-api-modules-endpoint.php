@@ -39,6 +39,8 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	/**
 	 * The result.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 
@@ -57,7 +59,7 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 	 *
 	 * @param string $module - the modules.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	protected function validate_input( $module ) {
 		$args = $this->input();
@@ -104,6 +106,8 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 	 * Format the module.
 	 *
 	 * @param string $module_slug - the module slug.
+	 *
+	 * @return array
 	 */
 	protected static function format_module( $module_slug ) {
 		$module_data = Jetpack::get_module( $module_slug );

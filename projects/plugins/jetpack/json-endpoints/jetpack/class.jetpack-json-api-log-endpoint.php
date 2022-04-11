@@ -15,6 +15,8 @@ class Jetpack_JSON_API_Jetpack_Log_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	/**
 	 * The result.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		$args  = $this->input();

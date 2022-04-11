@@ -40,6 +40,8 @@ class Jetpack_JSON_API_Modules_Modify_Endpoint extends Jetpack_JSON_API_Modules_
 
 	/**
 	 * Activate module.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function activate_module() {
 		foreach ( $this->modules as $module ) {
@@ -64,6 +66,8 @@ class Jetpack_JSON_API_Modules_Modify_Endpoint extends Jetpack_JSON_API_Modules_
 
 	/**
 	 * Deactivate module.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function deactivate_module() {
 		foreach ( $this->modules as $module ) {

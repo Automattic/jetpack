@@ -25,6 +25,8 @@ class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 	 * Validate input.
 	 *
 	 * @param int $user_id - the user ID.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function validate_input( $user_id ) {
 		if ( empty( $user_id ) || ! is_numeric( $user_id ) ) {
@@ -38,6 +40,8 @@ class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 
 	/**
 	 * The result.
+	 *
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 		// Disable Sync as this is a read-only operation and triggered by sync activity.

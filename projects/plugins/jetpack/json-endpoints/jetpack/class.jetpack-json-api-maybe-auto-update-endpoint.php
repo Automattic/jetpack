@@ -23,6 +23,8 @@ class Jetpack_JSON_API_Maybe_Auto_Update_Endpoint extends Jetpack_JSON_API_Endpo
 
 	/**
 	 * The result.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		add_action( 'automatic_updates_complete', array( $this, 'get_update_results' ), 100, 1 );

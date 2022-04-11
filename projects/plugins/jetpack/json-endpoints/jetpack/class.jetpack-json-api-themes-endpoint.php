@@ -71,7 +71,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 	 *
 	 * @param string $theme - the theme URL.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	protected function validate_input( $theme ) {
 		$args = $this->input();
