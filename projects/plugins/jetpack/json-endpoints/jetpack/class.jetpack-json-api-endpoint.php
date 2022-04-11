@@ -127,8 +127,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 *
-	 * Check compatabilit.
+	 * Check capability.
 	 *
 	 * @param array $capability - the compatability.
 	 *
