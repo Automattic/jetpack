@@ -305,7 +305,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	}
 
 	/**
-	 * Check if the currenty user has capabilities.
+	 * Check if the current user has capabilities.
 	 *
 	 * @param string $capability - the capability we're checking.
 	 * @param string $plugin - the plugin we're checking.
