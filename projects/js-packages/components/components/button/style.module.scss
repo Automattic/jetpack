@@ -82,8 +82,7 @@
 		// Normal & Small Spacing
 		&.normal,
 		&.small {
-			padding-right: calc( var(--spacing-base) / 2 ); // 4px
-			padding-left: calc( var(--spacing-base) / 2 ); // 4px
+			padding: 0;
 		}
 
 		// Hover State
