@@ -487,8 +487,8 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
-		fetchWafBootstrapPath: () =>
-			getRequest( `${ apiRoot }jetpack/v4/waf_bootstrap_path` )
+		fetchWafSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/waf`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 	};

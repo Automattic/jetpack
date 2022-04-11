@@ -8,23 +8,23 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { fetchWafBootstrapPath, isFetchingBootstrapPath } from 'state/firewall';
+import { fetchWafSettings, isFetchingWafSettings } from 'state/firewall';
 import { isOfflineMode } from 'state/connection';
 
-class QueryBootstrapPath extends Component {
+class QueryWafSettings extends Component {
 	static propTypes = {
-		isFetchingBootstrapPath: PropTypes.bool,
+		isFetchingWafSettings: PropTypes.bool,
 		isOfflineMode: PropTypes.bool,
 	};
 
 	static defaultProps = {
-		isFetchingBootstrapPath: false,
+		isFetchingWafSettings: false,
 		isOfflineMode: false,
 	};
 
 	UNSAFE_componentWillMount() {
-		if ( ! this.props.isFetchingBootstrapPath && ! this.props.isOfflineMode ) {
-			this.props.fetchWafBootstrapPath();
+		if ( ! this.props.isFetchingWafSettings && ! this.props.isOfflineMode ) {
+			this.props.fetchWafSettings();
 		}
 	}
 
@@ -36,13 +36,13 @@ class QueryBootstrapPath extends Component {
 export default connect(
 	state => {
 		return {
-			isFetchingBootstrapPath: isFetchingBootstrapPath( state ),
+			isFetchingWafSettings: isFetchingWafSettings( state ),
 			isOfflineMode: isOfflineMode( state ),
 		};
 	},
 	dispatch => {
 		return {
-			fetchWafBootstrapPath: () => dispatch( fetchWafBootstrapPath() ),
+			fetchWafSettings: () => dispatch( fetchWafSettings() ),
 		};
 	}
-)( QueryBootstrapPath );
+)( QueryWafSettings );

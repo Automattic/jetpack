@@ -2,29 +2,29 @@
  * Internal dependencies
  */
 import {
-	WAF_BOOTSTRAP_PATH_FETCH,
-	WAF_BOOTSTRAP_PATH_FETCH_RECEIVE,
-	WAF_BOOTSTRAP_PATH_FETCH_FAIL,
+	WAF_SETTINGS_FETCH,
+	WAF_SETTINGS_FETCH_RECEIVE,
+	WAF_SETTINGS_FETCH_FAIL,
 } from 'state/action-types';
 import restApi from '@automattic/jetpack-api';
 
-export const fetchWafBootstrapPath = () => {
+export const fetchWafSettings = () => {
 	return dispatch => {
 		dispatch( {
-			type: WAF_BOOTSTRAP_PATH_FETCH,
+			type: WAF_SETTINGS_FETCH,
 		} );
 		return restApi
-			.fetchWafBootstrapPath()
-			.then( response => {
+			.fetchWafSettings()
+			.then( settings => {
 				dispatch( {
-					type: WAF_BOOTSTRAP_PATH_FETCH_RECEIVE,
-					bootstrapPath: response.bootstrapPath,
+					type: WAF_SETTINGS_FETCH_RECEIVE,
+					settings,
 				} );
-				return response.bootstrapPath;
+				return settings;
 			} )
 			.catch( error => {
 				dispatch( {
-					type: WAF_BOOTSTRAP_PATH_FETCH_FAIL,
+					type: WAF_SETTINGS_FETCH_FAIL,
 					error: error,
 				} );
 			} );

@@ -13,7 +13,6 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel } from 'components/forms';
 import {
 	getPlanClass,
-	containsScan,
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 } from 'lib/plans/constants';
@@ -28,8 +27,8 @@ import Textarea from '../components/textarea';
 import { createInterpolateElement } from '@wordpress/element';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getSitePlan } from 'state/site';
-import { getBootstrapPath } from '../state/firewall/reducer';
-import QueryWafBootstrapPath from '../components/data/query-waf-bootstrap-path';
+import { getWafBootstrapPath, getWafHasRulesAccess } from '../state/firewall/reducer';
+import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 
 export const Firewall = class extends Component {
 	/**
@@ -79,8 +78,6 @@ export const Firewall = class extends Component {
 	};
 
 	render() {
-		const showUpgradeBanner = ! containsScan( this.props.planClass );
-
 		const moduleHeader = (
 			<div className="firewall__header">
 				<span>{ _x( 'Firewall', 'Settings header', 'jetpack' ) }</span>
@@ -113,7 +110,7 @@ export const Firewall = class extends Component {
 					'jetpack_firewall_ip_block_list',
 				] ) }
 			>
-				<QueryWafBootstrapPath />
+				<QueryWafSettings />
 				<SettingsGroup disableInOfflineMode module={ this.props.getModule( 'firewall' ) }>
 					<ModuleToggle
 						slug="firewall"
@@ -266,7 +263,7 @@ export const Firewall = class extends Component {
 					</FoldableCard>
 				) }
 
-				{ showUpgradeBanner && (
+				{ ! this.props.hasRulesAccess && (
 					<JetpackBanner
 						callToAction={ __( 'Upgrade', 'jetpack' ) }
 						title={ __( 'Upgrade your protection for latest rules access', 'jetpack' ) }
@@ -285,9 +282,10 @@ export default connect( state => {
 	const sitePlan = getSitePlan( state );
 
 	return {
-		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
+		bootstrapPath: getWafBootstrapPath( state ),
+		hasRulesAccess: getWafHasRulesAccess( state ),
 		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
+		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 		sitePlan,
-		bootstrapPath: getBootstrapPath( state ),
 	};
 } )( withModuleSettingsFormHelpers( Firewall ) );

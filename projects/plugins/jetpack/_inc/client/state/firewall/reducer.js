@@ -8,34 +8,37 @@ import { assign, get } from 'lodash';
  * Internal dependencies
  */
 import {
-	WAF_BOOTSTRAP_PATH_FETCH,
-	WAF_BOOTSTRAP_PATH_FETCH_RECEIVE,
-	WAF_BOOTSTRAP_PATH_FETCH_FAIL,
+	WAF_SETTINGS_FETCH,
+	WAF_SETTINGS_FETCH_RECEIVE,
+	WAF_SETTINGS_FETCH_FAIL,
 } from 'state/action-types';
 
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
-		case WAF_BOOTSTRAP_PATH_FETCH_RECEIVE:
-			return assign( {}, state, { bootstrapPath: action.bootstrapPath } );
+		case WAF_SETTINGS_FETCH_RECEIVE:
+			return assign( {}, state, {
+				bootstrapPath: action.settings?.bootstrapPath,
+				hasRulesAccess: action.settings?.hasRulesAccess,
+			} );
 		default:
 			return state;
 	}
 };
 
 export const initialRequestsState = {
-	isFetchingBootstrapPath: false,
+	isFetchingWafSettings: false,
 };
 
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
-		case WAF_BOOTSTRAP_PATH_FETCH:
+		case WAF_SETTINGS_FETCH:
 			return assign( {}, state, {
-				isFetchingBootstrapPath: true,
+				isFetchingWafSettings: true,
 			} );
-		case WAF_BOOTSTRAP_PATH_FETCH_RECEIVE:
-		case WAF_BOOTSTRAP_PATH_FETCH_FAIL:
+		case WAF_SETTINGS_FETCH_RECEIVE:
+		case WAF_SETTINGS_FETCH_FAIL:
 			return assign( {}, state, {
-				isFetchingBootstrapPath: false,
+				isFetchingWafSettings: false,
 			} );
 		default:
 			return state;
@@ -53,16 +56,26 @@ export const reducer = combineReducers( {
  * @param  {object}  state - Global state tree
  * @returns {boolean}      Whether the bootstrap path is being requested
  */
-export function isFetchingBootstrapPath( state ) {
-	return !! state.jetpack.waf.requests.isFetchingBootstrapPath;
+export function isFetchingWafSettings( state ) {
+	return !! state.jetpack.waf.requests.isFetchingWafSettings;
 }
 
 /**
  * Returns the firewall's bootstrap.php file path.
  *
  * @param  {object}  state - Global state tree
- * @returns {object}  Object containing the bootstrapPath
+ * @returns {string}  File path to bootstrap.php
  */
-export function getBootstrapPath( state ) {
-	return get( state.jetpack.waf, [ 'data', 'bootstrapPath' ], {} );
+export function getWafBootstrapPath( state ) {
+	return get( state.jetpack.waf, [ 'data', 'bootstrapPath' ], '' );
+}
+
+/**
+ * Returns whether the site has access to latest firewall rules.
+ *
+ * @param {object}  state - Global state tree
+ * @returns {boolean}  True when the site has access to latest firewall rules.
+ */
+export function getWafHasRulesAccess( state ) {
+	return get( state.jetpack.waf, [ 'data', 'hasRulesAccess' ], false );
 }

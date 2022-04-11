@@ -438,27 +438,6 @@ export function getMonthlyPlanByYearly( plan ) {
 }
 
 /**
- * Determines if the plan class contains scanning.
- *
- * @param {string} planClass - A plan class.
- * @returns {boolean} True if the plan class contains scanning, false otherwise.
- */
-export function containsScan( planClass ) {
-	return [
-		'is-premium-plan',
-		'is-business-plan',
-		'is-security-t1-plan',
-		'is-security-t2-plan',
-		'is-complete-plan',
-		'is-scan-plan',
-
-		// DEPRECATED: Daily and Real-time variations will soon be retired.
-		// Remove after all customers are migrated to new products.
-		'is-realtime-security-plan',
-	].includes( planClass );
-}
-
-/**
  * Determines if the plan class contains backup daily.
  *
  * @param {string} planClass - A plan class.
