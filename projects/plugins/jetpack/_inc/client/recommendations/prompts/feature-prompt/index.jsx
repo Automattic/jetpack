@@ -18,8 +18,11 @@ import analytics from 'lib/analytics';
 import {
 	addSelectedRecommendation as addSelectedRecommendationAction,
 	addSkippedRecommendation as addSkippedRecommendationAction,
-	getNextRoute,
+	addViewedRecommendation as addViewedRecommendationAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	getNextRoute,
+	getStep,
+	isUpdatingRecommendationsStep,
 } from 'state/recommendations';
 
 const FeaturePromptComponent = props => {
@@ -27,20 +30,37 @@ const FeaturePromptComponent = props => {
 		activateFeature,
 		addSelectedRecommendation,
 		addSkippedRecommendation,
+		addViewedRecommendation,
 		ctaText,
 		description,
 		descriptionLink,
 		illustrationPath,
+		rnaIllustration,
 		nextRoute,
 		progressValue,
 		question,
 		stepSlug,
+		stateStepSlug,
+		updatingStep,
 		updateRecommendationsStep,
+		isNew,
 	} = props;
 
 	useEffect( () => {
-		updateRecommendationsStep( stepSlug );
-	}, [ stepSlug, updateRecommendationsStep ] );
+		// Both addViewedRecommendation and updateRecommendationsStep update the same option under the hood.
+		// These actions run with mutually exclusive conditions so they do not over-write one another.
+		if ( stepSlug !== stateStepSlug ) {
+			updateRecommendationsStep( stepSlug );
+		} else if ( stepSlug === stateStepSlug && ! updatingStep ) {
+			addViewedRecommendation( stepSlug );
+		}
+	}, [
+		stepSlug,
+		stateStepSlug,
+		updatingStep,
+		updateRecommendationsStep,
+		addViewedRecommendation,
+	] );
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_learn_more_click', {
@@ -65,7 +85,10 @@ const FeaturePromptComponent = props => {
 
 	return (
 		<PromptLayout
-			progressBar={ <ProgressBar color={ '#00A32A' } value={ progressValue } /> }
+			progressBar={
+				progressValue ? <ProgressBar color={ '#00A32A' } value={ progressValue } /> : null
+			}
+			isNew={ isNew }
 			question={ question }
 			description={ createInterpolateElement( description, {
 				strong: <strong />,
@@ -82,6 +105,7 @@ const FeaturePromptComponent = props => {
 				</div>
 			}
 			illustrationPath={ illustrationPath }
+			rna={ rnaIllustration }
 		/>
 	);
 };
@@ -90,10 +114,13 @@ const FeaturePrompt = connect(
 	( state, ownProps ) => ( {
 		nextRoute: getNextRoute( state ),
 		...getStepContent( ownProps.stepSlug ),
+		stateStepSlug: getStep( state ),
+		updatingStep: isUpdatingRecommendationsStep( state ),
 	} ),
 	( dispatch, ownProps ) => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
 		addSkippedRecommendation: stepSlug => dispatch( addSkippedRecommendationAction( stepSlug ) ),
+		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
 		...mapDispatchToProps( dispatch, ownProps.stepSlug ),
 	} )
