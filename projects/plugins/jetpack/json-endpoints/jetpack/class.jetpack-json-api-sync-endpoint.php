@@ -10,6 +10,7 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Settings;
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+
 /**
  * Sync endpoint class.
  *
