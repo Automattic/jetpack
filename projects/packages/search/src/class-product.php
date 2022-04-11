@@ -7,12 +7,14 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Class to fetch Search product pricing
  *
  * @package Automattic\Jetpack\Search
  */
-class Search_Products {
+class Product {
 	const DEFAULT_PROMOTED_PRODUCT = 'jetpack_search';
 	const DEFAULT_TIER_INFO        = array(
 		'currency_code'  => 'USD',
@@ -38,8 +40,8 @@ class Search_Products {
 	 *
 	 * @param int $record_count The number of record to estimate the tier.
 	 */
-	public function get_site_tier( $record_count = 0 ) {
-		$record_count = $record_count > 0 ? $record_count : Stats::estimate_count();
+	public static function get_site_tier( $record_count = 0 ) {
+		$record_count = $record_count > 0 ? $record_count : ( new Stats() )->estimate_count();
 		$product      = static::get_promoted_product();
 		if ( ! $record_count || ! isset( $product['price_tier_list'] ) ) {
 			return static::DEFAULT_TIER_INFO;
@@ -50,31 +52,36 @@ class Search_Products {
 		foreach ( $product['price_tier_list'] as $price_tier ) {
 			if ( $record_count <= $price_tier['maximum_units'] ) {
 				return array(
-					'currency_code'  => $price_tier->currency_code,
-					'discount_price' => $price_tier->minimum_price_monthly_display,
-					'full_price'     => $price_tier->maximum_price_monthly_display,
+					'currency_code'  => $product['currency_code'],
+					'discount_price' => $price_tier['minimum_price_monthly_display'],
+					'full_price'     => $price_tier['maximum_price_monthly_display'],
 				);
 			}
 		}
 
-		return static::DEFAULT_TIER_INFO;
+		// Highest tier doesn't have `maximum_price_monthly_display`.
+		return array(
+			'currency_code'  => $product['currency_code'],
+			'discount_price' => $price_tier['minimum_price_monthly_display'],
+			'full_price'     => $price_tier['minimum_price_monthly_display'],
+		);
 	}
 
 	/**
 	 * Get all search products
 	 */
-	public function get_products() {
+	public static function get_products() {
 		$search_products = wp_cache_get( 'search_products', Package::SLUG );
 		if ( false !== $search_products ) {
 			return $search_products;
 		}
-		$request_url   = JETPACK__WPCOM_JSON_API_BASE . '/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
-		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		$request_url    = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
+		$wpcom_response = wp_remote_get( esc_url_raw( $request_url ) );
+		$response_code  = wp_remote_retrieve_response_code( $wpcom_response );
 		if ( 200 !== $response_code ) {
 			return false;
 		}
-		$products        = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+		$products        = json_decode( wp_remote_retrieve_body( $wpcom_response ), true );
 		$search_products = array_filter(
 			$products,
 			function ( $product, $key ) {
