@@ -116,15 +116,6 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
-		register_rest_route(
-			'jetpack/v4',
-			'/search/product_pricing',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'site_tier_pricing' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-			)
-		);
 	}
 
 	/**
@@ -336,13 +327,6 @@ class REST_Controller {
 				'code' => 'success',
 			)
 		);
-	}
-
-	/**
-	 * Get tier pricing for the site
-	 */
-	public function site_tier_pricing() {
-		return rest_ensure_response( Product::get_site_tier_pricing() );
 	}
 
 	/**
