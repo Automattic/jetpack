@@ -14,7 +14,8 @@ use Jetpack_Options;
  * Search stats (e.g. post count, post type breakdown)
  */
 class Stats {
-	const CACHE_EXPIRY             = 5 * 60; // Five minutes in seconds.
+	const MINUTES_IN_SECONDS       = 60;
+	const CACHE_EXPIRY             = 5 * self::MINUTES_IN_SECONDS;
 	const CACHE_GROUP              = 'jetpack_search';
 	const COUNT_ESTIMATE_CACHE_KEY = 'count_estimate';
 
