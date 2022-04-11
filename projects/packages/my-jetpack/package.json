@@ -41,10 +41,10 @@
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.2",
 		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
-		"@babel/core": "7.17.8",
+		"@babel/core": "7.17.9",
 		"@babel/preset-env": "7.16.11",
 		"@babel/register": "7.17.7",
-		"@babel/runtime": "7.17.8",
+		"@babel/runtime": "7.17.9",
 		"@storybook/addons": "6.4.10",
 		"@storybook/client-api": "6.4.10",
 		"@storybook/preview-web": "6.4.10",

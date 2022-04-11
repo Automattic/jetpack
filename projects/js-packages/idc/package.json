@@ -19,7 +19,7 @@
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
-		"@babel/core": "7.17.8",
+		"@babel/core": "7.17.9",
 		"@babel/preset-react": "7.16.7",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
