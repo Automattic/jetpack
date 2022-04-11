@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Constants;
+use WP_Error;
 
 /**
  * Class to fetch Search product pricing
@@ -18,19 +19,19 @@ class Product {
 	const DEFAULT_PROMOTED_PRODUCT = 'jetpack_search';
 	const DEFAULT_TIER_INFO        = array(
 		'currency_code'  => 'USD',
-		'discount_price' => '0',
-		'full_price'     => '0',
+		'discount_price' => 0,
+		'full_price'     => 0,
 	);
 
 	/**
 	 * Gets information about the currently promoted search product.
 	 *
-	 * @return object A object of the current search product being promoted if the request was successful, or a false otherwise.
+	 * @return object A object of the current search product being promoted if the request was successful, or a WP_Error otherwise.
 	 */
 	public static function get_promoted_product() {
 		$search_products = static::get_products();
 		if ( ! is_array( $search_products ) || ! isset( $search_products[ self::DEFAULT_PROMOTED_PRODUCT ] ) ) {
-			return false;
+			return new WP_Error( 500, __( 'error fetching products', 'jetpack-search-pkg' ) );
 		}
 		return $search_products[ self::DEFAULT_PROMOTED_PRODUCT ];
 	}
@@ -41,9 +42,9 @@ class Product {
 	 * @param int $record_count The number of record to estimate the tier.
 	 */
 	public static function get_site_tier_pricing( $record_count = 0 ) {
-		$record_count = $record_count > 0 ? $record_count : ( new Stats() )->estimate_count();
+		$record_count = intval( $record_count > 0 ? $record_count : ( new Stats() )->estimate_count() );
 		$product      = static::get_promoted_product();
-		if ( ! $record_count || ! isset( $product['price_tier_list'] ) ) {
+		if ( is_wp_error( $product ) || ! isset( $product['price_tier_list'] ) ) {
 			return static::DEFAULT_TIER_INFO;
 		}
 		$price_tier_list = $product['price_tier_list'];
@@ -51,19 +52,26 @@ class Product {
 
 		foreach ( $product['price_tier_list'] as $price_tier ) {
 			if ( $record_count <= $price_tier['maximum_units'] ) {
-				return array(
-					'currency_code'  => $product['currency_code'],
-					'discount_price' => $price_tier['minimum_price_monthly_display'],
-					'full_price'     => $price_tier['maximum_price_monthly_display'],
-				);
+				break;
 			}
 		}
 
-		// Highest tier doesn't have `maximum_price_monthly_display`.
+		// minimum_price and maximum_price are integers.
+		$minimum_price = $price_tier['minimum_price'] / 100;
+		// Calculate discount price.
+		$discount_price = $minimum_price;
+		if ( isset( $product['sale_coupon']['discount'] ) ) {
+			$discount        = intval( $product['sale_coupon']['discount'] );
+			$discount        = $discount > 0 && $discount <= 100 ? $discount : 0;
+			$discount_price *= 1 - $discount / 100;
+		}
+
+		// 1. Flat fee in the same tier, so for search, `minimum_price == maximum_price`.
+		// 2. `maximum_units` is empty on the highest tier, so the logic displays the highest or the highest matching tier.
 		return array(
 			'currency_code'  => $product['currency_code'],
-			'discount_price' => $price_tier['minimum_price_monthly_display'],
-			'full_price'     => $price_tier['minimum_price_monthly_display'],
+			'discount_price' => $discount_price,
+			'full_price'     => $minimum_price,
 		);
 	}
 
@@ -79,7 +87,7 @@ class Product {
 		$wpcom_response = wp_remote_get( esc_url_raw( $request_url ) );
 		$response_code  = wp_remote_retrieve_response_code( $wpcom_response );
 		if ( 200 !== $response_code ) {
-			return false;
+			return new WP_Error( $response_code, __( 'error fetching products', 'jetpack-search-pkg' ) );
 		}
 		$products        = json_decode( wp_remote_retrieve_body( $wpcom_response ), true );
 		$search_products = array_filter(
