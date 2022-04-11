@@ -38,6 +38,8 @@ class Jetpack_JSON_API_Get_Post_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 
 	/**
 	 * The result.
+	 *
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 		global $wpdb;
