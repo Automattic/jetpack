@@ -17,7 +17,7 @@
  */
 function jetpack_load_infinite_scroll_annotation() {
 	if ( is_admin() && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Function loads theme specific IS file provided by Jetpack if possible.
-			$theme = wp_get_theme();
+		$theme = wp_get_theme();
 
 		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) ) {
 			return;
