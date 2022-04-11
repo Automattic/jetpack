@@ -265,9 +265,8 @@ class TokensTest extends TestCase {
 
 		$lock_set = $tokens->set_lock( DAY_IN_SECONDS );
 
-		$lock_site_url   = Jetpack_Options::get_option( 'token_site_lock' );
-		$lock_expiration = Jetpack_Options::get_option( 'token_site_lock_expires' );
-		$is_locked       = $tokens->is_locked();
+		list( $lock_expiration, $lock_site_url ) = explode( '|||', Jetpack_Options::get_option( 'token_lock' ), 2 );
+		$is_locked                               = $tokens->is_locked();
 
 		$this->site_url  = 'https://test2.example.org';
 		$is_locked_site2 = $tokens->is_locked();
@@ -308,11 +307,11 @@ class TokensTest extends TestCase {
 		sleep( 2 );
 
 		$is_locked_expired_non_matching = $tokens->is_locked();
-		$still_locked                   = (bool) Jetpack_Options::get_option( 'token_site_lock' );
+		$still_locked                   = (bool) Jetpack_Options::get_option( 'token_lock' );
 
 		$this->site_url             = 'https://test1.example.org';
 		$is_locked_expired_matching = $tokens->is_locked();
-		$no_longer_locked           = (bool) Jetpack_Options::get_option( 'token_site_lock' );
+		$no_longer_locked           = (bool) Jetpack_Options::get_option( 'token_lock' );
 
 		static::assertTrue( $is_locked );
 		static::assertTrue( $still_locked );

@@ -82,8 +82,7 @@ class Jetpack_Options {
 					'user_token',  // (string) The User Token of this site. (deprecated)
 					'user_tokens',  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
 					'purchase_token', // (string) Token for logged out user purchases.
-					'token_site_lock', // (string) Domain name the tokens are locked for.
-					'token_site_lock_expires', // (string) Domain lock expiration date-time in `DateTimeInterface::ATOM` format (e.g. 2005-08-15T15:52:01+00:00)
+					'token_lock', // (string) Token lock in format `expiration_date|||site_url`.
 				);
 
 			case 'network':
