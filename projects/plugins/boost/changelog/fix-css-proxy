@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed critical CSS generation failure while using a CDN to serve CSS
