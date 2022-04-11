@@ -61,7 +61,7 @@ class Jetpack_JSON_API_Cron_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 *
 	 * @param float $gmt_time - the time in GMT.
 	 *
-	 * @return int
+	 * @return string|int|WP_Error WP_Error if cron was locked in the `WP_CRON_LOCK_TIMEOUT` seconds before `gmt_time`, int or string otherwise.
 	 */
 	protected function is_cron_locked( $gmt_time ) {
 		// The cron lock: a unix timestamp from when the cron was spawned.
