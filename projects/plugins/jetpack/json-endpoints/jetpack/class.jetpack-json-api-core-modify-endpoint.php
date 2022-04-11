@@ -38,6 +38,8 @@ class Jetpack_JSON_API_Core_Modify_Endpoint extends Jetpack_JSON_API_Core_Endpoi
 
 	/**
 	 * The default action.
+	 *
+	 * @return bool
 	 */
 	public function default_action() {
 		$args = $this->input();
