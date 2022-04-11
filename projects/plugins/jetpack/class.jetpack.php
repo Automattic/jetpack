@@ -1999,6 +1999,7 @@ class Jetpack {
 	 */
 	public function check_open_graph() {
 		if ( in_array( 'publicize', self::get_active_modules() ) || in_array( 'sharedaddy', self::get_active_modules() ) ) {
+			include_once JETPACK__PLUGIN_DIR . 'modules/enhanced-open-graph.php';
 			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
 		}
 
