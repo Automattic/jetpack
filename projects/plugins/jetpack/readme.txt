@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.7
+Stable tag: 10.8
 Requires at least: 5.8
 Requires PHP: 5.6
 Tested up to: 5.9
@@ -242,27 +242,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.8-a.9 - 2022-03-23
-#### Major Enhancements
-- QR Post: add new feature which automatically generates QR codes for published posts. When scanned, the QR code will link visitors to the post. If a site has a custom logo set, it will be shown in the generated QR code image.
-
+### 10.9-a.1 - 2022-04-06
 #### Enhancements
-- External Media: add Openverse as an external Media provider.
-- Payment Block: clicking on payment links from email or WordPress.com Notifications/Reader will correctly open the corresponding payment form.
-- Dashboard: show Search benefits on the Jetpack disconnection screen.
+- Payments Block: Re-loading the page will not cause payment form to open again.
 
 #### Improved compatibility
-- Sharing: avoid warnings when the feature is not active on a site that uses the AMP plugin.
+- Dashboard: Display block settings even when the Classic Editor plugin is active.
+- Mailchimp Popup widget: Widget deprecation.
 
 #### Bug fixes
-- Calendly Block: ensure it can be displayed inline when using a block enabled theme.
-- VideoPress: fix broken styles on resumable uploader component.
-- Pay with Paypal Block: fix inconsistent currency formatting.
-- WordAds: fix defaulting to "house ad" mode for new activations.
-- Publicize: prevent newlines from being stripped from a custom Publicize message in the classic editor.
-- QR Post: improve the inner logo sizing.
-- Shortlinks: display the shortlinks interface in the block editor for all post types that support shortlinks.
-- Top Posts Widget: display a fallback list of posts to admins when there are no popular posts to display.
+- Contact Form: Ensure the form's input fields inherit a default font size.
+- Subscribe Block: Fix default styles block setting selection to "Split".
 
 --------
 

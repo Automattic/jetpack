@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import { Icon, check, plus } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
+import { CheckmarkIcon, getIconBySlug, StarIcon, Text, H3 } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -13,39 +14,8 @@ import { __, sprintf } from '@wordpress/i18n';
 import styles from './style.module.scss';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import { useProduct } from '../../hooks/use-product';
-import {
-	BackupIcon,
-	ScanIcon,
-	StarIcon,
-	getIconBySlug,
-	AntiSpamIcon,
-	CheckmarkIcon,
-} from '../icons';
 import ProductDetailButton from '../product-detail-button';
-
-/**
- * Simple react component to render the product icon,
- * depending on the product slug.
- *
- * @param {string} slug - The product slug.
- * @returns {object}    ProductDetailCard react component.
- */
-function ProductIcon( { slug } ) {
-	switch ( slug ) {
-		case 'anti-spam':
-			return <AntiSpamIcon size={ 24 } />;
-
-		case 'backup':
-			return <BackupIcon size={ 24 } />;
-
-		case 'scan':
-			return <ScanIcon size={ 24 } />;
-
-		default:
-			return null;
-	}
-}
+import { useProduct } from '../../hooks/use-product';
 
 /**
  * React component to render the price.
@@ -68,11 +38,15 @@ function Price( { value, currency, isOld } ) {
 	} );
 
 	return (
-		<div className={ classNames }>
-			<sup className={ styles[ 'price-symbol' ] }>{ priceObject.symbol }</sup>
-			<span className={ styles[ 'price-number' ] }>{ priceObject.integer }</span>
-			<sup className={ styles[ 'price-fraction' ] }>{ priceObject.fraction }</sup>
-		</div>
+		<Text className={ classNames } variant="headline-medium" component="p">
+			<Text component="sup" variant="title-medium">
+				{ priceObject.symbol }
+			</Text>
+			{ priceObject.integer }
+			<Text component="sup" variant="title-medium">
+				{ priceObject.fraction }
+			</Text>
+		</Text>
 	);
 }
 
@@ -83,9 +57,10 @@ function Price( { value, currency, isOld } ) {
  * @param {string} props.slug               - Product slug
  * @param {Function} props.onClick          - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
+ * @param {string} props.className					- A className to be concat with default ones
  * @returns {object}                          ProductDetailCard react component.
  */
-const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
+const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => {
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
@@ -147,91 +122,101 @@ const ProductDetail = ( { slug, onClick, trackButtonClick } ) => {
 		}
 	}, [ onClick, trackButtonClick ] );
 
+	/**
+	 * Temporary ProductIcon component.
+	 * Todo: Fix in product-icons component.
+	 * https://github.com/Automattic/jetpack/issues/23640
+	 *
+	 * @param {object} props      - Component props.
+	 * @param {string} props.slug - Product icon slug
+	 * @returns {object}            Icon Product component.
+	 */
+	function ProductIcon( { slug: iconSlug } ) {
+		const ProIcon = getIconBySlug( iconSlug );
+		if ( ! ProIcon ) {
+			return () => null;
+		}
+
+		return (
+			<div className={ styles[ 'product-icon' ] }>
+				<ProIcon />
+			</div>
+		);
+	}
+
 	return (
-		<>
+		<div
+			className={ classnames( styles.card, className, {
+				[ styles[ 'is-bundle-card' ] ]: isBundle,
+			} ) }
+		>
 			{ isBundle && (
 				<div className={ styles[ 'card-header' ] }>
 					<StarIcon className={ styles[ 'product-bundle-icon' ] } size={ 16 } />
-					{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }
+					<Text variant="label">{ __( 'Popular upgrade', 'jetpack-my-jetpack' ) }</Text>
 				</div>
 			) }
 
 			<div className={ styles.container }>
-				{ isBundle && <div className={ styles[ 'product-icons' ] }>{ icons }</div> }
-
+				{ isBundle && <div className={ styles[ 'product-bundle-icons' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />
 
-				<h3>{ title }</h3>
-				<p className={ styles.name }>{ longDescription }</p>
+				<H3>{ title }</H3>
+				<Text mb={ 3 }>{ longDescription }</Text>
+
 				<ul className={ styles.features }>
 					{ features.map( ( feature, id ) => (
-						<li key={ `feature-${ id }` }>
-							<Icon icon={ check } size={ 30 } />
+						<Text component="li" key={ `feature-${ id }` } variant="body">
+							<Icon icon={ check } size={ 24 } />
 							{ feature }
-						</li>
+						</Text>
 					) ) }
 				</ul>
 
 				{ needsPurchase && (
-					<div className={ styles[ 'price-container' ] }>
-						<Price value={ price } currency={ currencyCode } isOld={ true } />
-						<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
-						<div className={ styles[ 'price-description' ] }>
-							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+					<>
+						<div className={ styles[ 'price-container' ] }>
+							<Price value={ price } currency={ currencyCode } isOld={ true } />
+							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						</div>
+						<Text className={ styles[ 'price-description' ] }>
+							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
+						</Text>
+					</>
+				) }
+
+				{ isFree && <H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3> }
+
+				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
+					<Text
+						component={ ProductDetailButton }
+						onClick={ clickHandler }
+						isLoading={ isFetching }
+						isPrimary={ ! isBundle }
+						href={ onClick ? undefined : addProductUrl }
+						className={ styles[ 'checkout-button' ] }
+						variant="body"
+					>
+						{
+							/* translators: placeholder is product name. */
+							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+						}
+					</Text>
+				) }
+
+				{ isBundle && hasRequiredPlan && (
+					<div className={ styles[ 'product-has-required-plan' ] }>
+						<CheckmarkIcon size={ 36 } />
+						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
 					</div>
 				) }
-
-				{ isFree && (
-					<h3 className={ styles[ 'product-free' ] }>{ __( 'Free', 'jetpack-my-jetpack' ) }</h3>
-				) }
-
-				<div className={ styles[ 'cta-container' ] }>
-					{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
-						<ProductDetailButton
-							onClick={ clickHandler }
-							isLoading={ isFetching }
-							isPrimary={ ! isBundle }
-							href={ onClick ? undefined : addProductUrl }
-							className={ `${ styles[ 'checkout-button' ] } ${
-								isBundle ? styles[ 'is-bundle' ] : ''
-							}` }
-						>
-							{
-								/* translators: placeholder is product name. */
-								sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
-							}
-						</ProductDetailButton>
-					) }
-
-					{ isBundle && hasRequiredPlan && (
-						<div className={ styles[ 'product-has-required-plan' ] }>
-							<CheckmarkIcon size={ 36 } />
-							{ __( 'Active on your site', 'jetpack-my-jetpack' ) }
-						</div>
-					) }
-				</div>
 			</div>
-		</>
+		</div>
 	);
 };
 
-ProductDetail.defaultProps = {
+ProductDetailCard.defaultProps = {
 	trackButtonClick: () => {},
 };
 
-export { ProductDetail };
-
-/**
- * ProductDetailCard component.
- *
- * @param {object}   props - Component props.
- * @returns {object}         ProductDetailCard react component.
- */
-export default function ProductDetailCard( props ) {
-	return (
-		<div className={ styles.card }>
-			<ProductDetail { ...props } />
-		</div>
-	);
-}
+export default ProductDetailCard;

@@ -7,6 +7,8 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { PRODUCT_TYPE_PAYMENT_PLAN } from './constants';
+import { ProductManagementContext } from './context';
 import ProductManagementInspectorControl from './inspector-control';
 import ProductManagementToolbarControl from './toolbar-control';
 import InvalidProductWarning from './invalid-product-warning';
@@ -16,14 +18,19 @@ import { store as membershipProductsStore } from '../../../store/membership-prod
 import './style.scss';
 
 export default function ProductManagementControls( {
-	allowCreateOneTimeInterval = true,
 	blockName,
+	clientId,
+	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
 	setSelectedProductId = () => {},
 } ) {
 	const products = useSelect(
 		select =>
-			select( membershipProductsStore ).getProducts( selectedProductId, setSelectedProductId ),
+			select( membershipProductsStore ).getProducts(
+				productType,
+				selectedProductId,
+				setSelectedProductId
+			),
 		[]
 	);
 	const { connectUrl, isApiConnected, isSelectedProductInvalid, shouldUpgrade } = useSelect(
@@ -44,27 +51,29 @@ export default function ProductManagementControls( {
 		return null;
 	}
 
+	const context = {
+		blockName,
+		clientId,
+		products,
+		productType,
+		selectedProductId,
+		setSelectedProductId,
+	};
+
 	return (
-		<>
+		<ProductManagementContext.Provider value={ context }>
 			{ ! isApiConnected && !! connectUrl && (
-				<BlockControls group="block">
+				<BlockControls __experimentalShareWithChildBlocks group="block">
 					<StripeConnectToolbarButton blockName={ blockName } connectUrl={ connectUrl } />
 				</BlockControls>
 			) }
 			{ isApiConnected && (
 				<>
-					<ProductManagementInspectorControl
-						allowCreateOneTimeInterval={ allowCreateOneTimeInterval }
-						setSelectedProductId={ setSelectedProductId }
-					/>
-					<ProductManagementToolbarControl
-						products={ products }
-						selectedProductId={ selectedProductId }
-						setSelectedProductId={ setSelectedProductId }
-					/>
+					<ProductManagementInspectorControl />
+					<ProductManagementToolbarControl />
 				</>
 			) }
 			{ isApiConnected && isSelectedProductInvalid && <InvalidProductWarning /> }
-		</>
+		</ProductManagementContext.Provider>
 	);
 }

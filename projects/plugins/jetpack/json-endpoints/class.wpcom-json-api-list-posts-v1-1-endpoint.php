@@ -1,23 +1,26 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+/**
+ * List posts v1_1 endpoint.
+ */
 new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 	array(
-		'description'      => 'Get a list of matching posts.',
-		'min_version'      => '1.1',
-		'max_version'      => '1.1',
+		'description'                          => 'Get a list of matching posts.',
+		'min_version'                          => '1.1',
+		'max_version'                          => '1.1',
 
-		'group'            => 'posts',
-		'stat'             => 'posts',
+		'group'                                => 'posts',
+		'stat'                                 => 'posts',
 
-		'method'           => 'GET',
-		'path'             => '/sites/%s/posts/',
-		'path_labels'      => array(
+		'method'                               => 'GET',
+		'path'                                 => '/sites/%s/posts/',
+		'path_labels'                          => array(
 			'$site' => '(int|string) Site ID or domain',
 		),
 
 		'allow_fallback_to_jetpack_blog_token' => true,
 
-		'query_parameters' => array(
+		'query_parameters'                     => array(
 			'number'          => '(int=20) The number of posts to return. Limit: 100.',
 			'offset'          => '(int=0) 0-indexed offset.',
 			'page'            => '(int) Return the Nth 1-indexed page of posts. Takes precedence over the <code>offset</code> parameter.',
@@ -56,24 +59,62 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 			'meta_value'      => '(string) Metadata value that the post should contain. Will only be applied if a `meta_key` is also given',
 		),
 
-		'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/?number=2',
+		'example_request'                      => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/?number=2',
 	)
 );
 
-class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
-	public $date_range      = array();
-	public $modified_range  = array();
-	public $page_handle     = array();
+/**
+ * List Posts v1_1 Endpoint class.
+ *
+ * /sites/%s/posts/ -> $blog_id
+ */
+class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint { // phpcs:ignore
+	/**
+	 * Date range
+	 *
+	 * @var array
+	 */
+	public $date_range = array();
+
+	/**
+	 * Modified range
+	 *
+	 * @var array
+	 */
+	public $modified_range = array();
+
+	/**
+	 * Page handle
+	 *
+	 * @var array
+	 */
+	public $page_handle = array();
+
+	/**
+	 * Performed query
+	 *
+	 * @var array
+	 */
 	public $performed_query = null;
 
+	/**
+	 * Response format.
+	 *
+	 * @var array
+	 */
 	public $response_format = array(
 		'found' => '(int) The total number of posts found that match the request (ignoring limits, offsets, and pagination).',
 		'posts' => '(array:post) An array of post objects.',
 		'meta'  => '(object) Meta data',
 	);
 
-	// /sites/%s/posts/ -> $blog_id
-	function callback( $path = '', $blog_id = 0 ) {
+	/**
+	 * API callback.
+	 *
+	 * @param string $path - the path.
+	 * @param string $blog_id - the blog ID.
+	 */
+	public function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -90,8 +131,8 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		if ( isset( $args['type'] ) &&
-			   ! in_array( $args['type'], array( 'post', 'revision', 'page', 'any' ) ) &&
-			   defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			! in_array( $args['type'], array( 'post', 'revision', 'page', 'any' ), true ) &&
+			defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->load_theme_functions();
 		}
 
@@ -99,8 +140,8 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 		}
 
-		// Normalize post_type
-		if ( isset( $args['type'] ) && 'any' == $args['type'] ) {
+		// Normalize post_type.
+		if ( isset( $args['type'] ) && 'any' === $args['type'] ) {
 			if ( version_compare( $this->api->version, '1.1', '<' ) ) {
 				$args['type'] = array( 'post', 'page' );
 			} else { // 1.1+
@@ -108,7 +149,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			}
 		}
 
-		// determine statuses
+		// determine statuses.
 		$status = ( ! empty( $args['status'] ) ) ? explode( ',', $args['status'] ) : array( 'publish' );
 		if ( is_user_logged_in() ) {
 			$statuses_whitelist = array(
@@ -122,25 +163,25 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			);
 			$status             = array_intersect( $status, $statuses_whitelist );
 		} else {
-			// logged-out users can see only published posts
+			// logged-out users can see only published posts.
 			$statuses_whitelist = array( 'publish', 'any' );
 			$status             = array_intersect( $status, $statuses_whitelist );
 
 			if ( empty( $status ) ) {
-				// requested only protected statuses? nothing for you here
+				// requested only protected statuses? nothing for you here.
 				return array(
 					'found' => 0,
 					'posts' => array(),
 				);
 			}
-			// clear it (AKA published only) because "any" includes protected
+			// clear it (AKA published only) because "any" includes protected.
 			$status = array();
 		}
 
-		// let's be explicit about defaulting to 'post'
+		// let's be explicit about defaulting to 'post'.
 		$args['type'] = isset( $args['type'] ) ? $args['type'] : 'post';
 
-		// make sure the user can read or edit the requested post type(s)
+		// make sure the user can read or edit the requested post type(s).
 		if ( is_array( $args['type'] ) ) {
 			$allowed_types = array();
 			foreach ( $args['type'] as $post_type ) {
@@ -202,19 +243,19 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$query['meta_query'] = array( $meta );
 		}
 
-		if ( $args['sticky'] === 'include' ) {
+		if ( 'include' === $args['sticky'] ) {
 			$query['ignore_sticky_posts'] = 1;
-		} elseif ( $args['sticky'] === 'exclude' ) {
+		} elseif ( 'exclude' === $args['sticky'] ) {
 			$sticky = get_option( 'sticky_posts' );
 			if ( is_array( $sticky ) ) {
 				$query['post__not_in'] = $sticky;
 			}
-		} elseif ( $args['sticky'] === 'require' ) {
+		} elseif ( 'require' === $args['sticky'] ) {
 			$sticky = get_option( 'sticky_posts' );
 			if ( is_array( $sticky ) && ! empty( $sticky ) ) {
 				$query['post__in'] = $sticky;
 			} else {
-				// no sticky posts exist
+				// no sticky posts exist.
 				return array(
 					'found' => 0,
 					'posts' => array(),
@@ -228,11 +269,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		if ( isset( $args['exclude_tree'] ) && is_post_type_hierarchical( $args['type'] ) ) {
-			// get_page_children is a misnomer; it supports all hierarchical post types
+			// get_page_children is a misnomer; it supports all hierarchical post types.
 			$page_args        = array(
 				'child_of'    => $args['exclude_tree'],
 				'post_type'   => $args['type'],
-				// since we're looking for things to exclude, be aggressive
+				// since we're looking for things to exclude, be aggressive.
 				'post_status' => 'publish,draft,pending,private,future,trash',
 			);
 			$post_descendants = get_pages( $page_args );
@@ -247,7 +288,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 
 		if ( isset( $args['category'] ) ) {
 			$category = get_term_by( 'slug', $args['category'], 'category' );
-			if ( $category === false ) {
+			if ( false === $category ) {
 				$query['category_name'] = $args['category'];
 			} else {
 				$query['cat'] = $category->term_id;
@@ -281,7 +322,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			}
 
 			$query['paged'] = $args['page'];
-			if ( $query['paged'] !== 1 ) {
+			if ( 1 !== $query['paged'] ) {
 				$is_eligible_for_page_handle = false;
 			}
 		} else {
@@ -290,7 +331,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			}
 
 			$query['offset'] = $args['offset'];
-			if ( $query['offset'] !== 0 ) {
+			if ( 0 !== $query['offset'] ) {
 				$is_eligible_for_page_handle = false;
 			}
 		}
@@ -320,7 +361,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		if ( isset( $args['page_handle'] ) ) {
 			$page_handle = wp_parse_args( $args['page_handle'] );
 			if ( isset( $page_handle['value'] ) && isset( $page_handle['id'] ) ) {
-				// we have a valid looking page handle
+				// we have a valid looking page handle.
 				$this->page_handle = $page_handle;
 				add_filter( 'posts_where', array( $this, 'handle_where_for_page_handle' ) );
 			}
@@ -332,7 +373,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		 * use it there.
 		 */
 		$column_whitelist = array( 'post_modified_gmt' );
-		if ( isset( $args['column'] ) && in_array( $args['column'], $column_whitelist ) ) {
+		if ( isset( $args['column'] ) && in_array( $args['column'], $column_whitelist, true ) ) {
 			$query['column'] = $args['column'];
 		}
 
@@ -422,26 +463,39 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		return $return;
 	}
 
-	function build_page_handle( $post, $query ) {
+	/**
+	 * Build the page handle.
+	 *
+	 * @param array $post - the post.
+	 * @param array $query - the query.
+	 */
+	public function build_page_handle( $post, $query ) {
 		$column = $query['orderby'];
 		if ( ! $column ) {
 			$column = 'date';
 		}
 		return build_query(
 			array(
-				'value' => urlencode( $post[ $column ] ),
+				'value' => rawurlencode( $post[ $column ] ),
 				'id'    => $post['ID'],
 			)
 		);
 	}
 
-	function _build_date_range_query( $column, $range, $where ) {
+	/**
+	 * Build the date range query.
+	 *
+	 * @param string $column - the database column.
+	 * @param array  $range - the date range.
+	 * @param string $where - sql where clause.
+	 */
+	public function build_date_range_query( $column, $range, $where ) {
 		global $wpdb;
 
 		switch ( count( $range ) ) {
 			case 2:
 				$where .= $wpdb->prepare(
-					" AND `$wpdb->posts`.$column >= CAST( %s AS DATETIME ) AND `$wpdb->posts`.$column < CAST( %s AS DATETIME ) ",
+					" AND `$wpdb->posts`.$column >= CAST( %s AS DATETIME ) AND `$wpdb->posts`.$column < CAST( %s AS DATETIME ) ", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$range['after'],
 					$range['before']
 				);
@@ -449,12 +503,12 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			case 1:
 				if ( isset( $range['before'] ) ) {
 					$where .= $wpdb->prepare(
-						" AND `$wpdb->posts`.$column < CAST( %s AS DATETIME ) ",
+						" AND `$wpdb->posts`.$column < CAST( %s AS DATETIME ) ", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 						$range['before']
 					);
 				} else {
 					$where .= $wpdb->prepare(
-						" AND `$wpdb->posts`.$column > CAST( %s AS DATETIME ) ",
+						" AND `$wpdb->posts`.$column > CAST( %s AS DATETIME ) ", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 						$range['after']
 					);
 				}
@@ -464,15 +518,30 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		return $where;
 	}
 
-	function handle_date_range( $where ) {
-		return $this->_build_date_range_query( 'post_date_gmt', $this->date_range, $where );
+	/**
+	 * Handle date range.
+	 *
+	 * @param string $where - sql where clause.
+	 */
+	public function handle_date_range( $where ) {
+		return $this->build_date_range_query( 'post_date_gmt', $this->date_range, $where );
 	}
 
-	function handle_modified_range( $where ) {
-		return $this->_build_date_range_query( 'post_modified_gmt', $this->modified_range, $where );
+	/**
+	 * Handle modified date range.
+	 *
+	 * @param string $where - sql where clause.
+	 */
+	public function handle_modified_range( $where ) {
+		return $this->build_date_range_query( 'post_modified_gmt', $this->modified_range, $where );
 	}
 
-	function handle_where_for_page_handle( $where ) {
+	/**
+	 * Handle where clause for page handle.
+	 *
+	 * @param string $where - sql where clause.
+	 */
+	public function handle_where_for_page_handle( $where ) {
 		global $wpdb;
 
 		$column = $this->performed_query['orderby'];
@@ -484,11 +553,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$order = 'DESC';
 		}
 
-		if ( ! in_array( $column, array( 'ID', 'title', 'date', 'modified', 'comment_count' ) ) ) {
+		if ( ! in_array( $column, array( 'ID', 'title', 'date', 'modified', 'comment_count' ), true ) ) {
 			return $where;
 		}
 
-		if ( ! in_array( $order, array( 'DESC', 'ASC' ) ) ) {
+		if ( ! in_array( $order, array( 'DESC', 'ASC' ), true ) ) {
 			return $where;
 		}
 
@@ -526,19 +595,24 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		// Add a clause that limits the results to items beyond the passed item, or equivalent to the passed item
 		// but with an ID beyond the passed item. When we're ordering by the ID already, we only ask for items
 		// beyond the passed item.
-		$where .= $wpdb->prepare( " AND ( ( `$wpdb->posts`.`$db_column` $db_order $db_value ) ", $this->page_handle['value'] );
-		if ( $db_column !== 'ID' ) {
-			$where .= $wpdb->prepare( "OR ( `$wpdb->posts`.`$db_column` = $db_value AND `$wpdb->posts`.ID $db_order %d )", $this->page_handle['value'], $this->page_handle['id'] );
+		$where .= $wpdb->prepare( " AND ( ( `$wpdb->posts`.`$db_column` $db_order $db_value ) ", $this->page_handle['value'] ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		if ( 'ID' !== $db_column ) {
+			$where .= $wpdb->prepare( "OR ( `$wpdb->posts`.`$db_column` = $db_value AND `$wpdb->posts`.ID $db_order %d )", $this->page_handle['value'], $this->page_handle['id'] ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		}
 		$where .= ' )';
 
 		return $where;
 	}
 
-	function handle_orderby_for_page_handle( $orderby ) {
+	/**
+	 * Handle how the page handle is ordered.
+	 *
+	 * @param string $orderby - what we're ordering by.
+	 */
+	public function handle_orderby_for_page_handle( $orderby ) {
 		global $wpdb;
-		if ( $this->performed_query['orderby'] === 'ID' ) {
-			// bail if we're already ordering by ID
+		if ( 'ID' === $this->performed_query['orderby'] ) {
+			// bail if we're already ordering by ID.
 			return $orderby;
 		}
 

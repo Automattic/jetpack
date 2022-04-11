@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Build sass files with Webpack.

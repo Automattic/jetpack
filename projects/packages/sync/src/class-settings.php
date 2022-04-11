@@ -444,7 +444,7 @@ class Settings {
 	 * @return boolean Whether WordPress is currently importing.
 	 */
 	public static function is_importing() {
-		if ( ! is_null( self::$is_importing ) ) {
+		if ( self::$is_importing !== null ) {
 			return self::$is_importing;
 		}
 
@@ -485,7 +485,7 @@ class Settings {
 	 * @return boolean Whether WordPress is currently doing WP cron.
 	 */
 	public static function is_doing_cron() {
-		if ( ! is_null( self::$is_doing_cron ) ) {
+		if ( self::$is_doing_cron !== null ) {
 			return self::$is_doing_cron;
 		}
 

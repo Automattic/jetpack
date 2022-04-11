@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Module Name: Protect
+ * Module Name: Brute force protection
  * Module Description: Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.
  * Sort Order: 1
  * Recommendation Order: 4
@@ -285,7 +285,7 @@ class Jetpack_Protect_Module {
 						{
 							_wpnonce: $( event.delegateTarget ).data( 'dismiss-nonce' ),
 						}
-					).fail( function( error ) { 
+					).fail( function( error ) {
 					<?php
 						// A failure here is really strange, and there's not really anything a site owner can do to fix one.
 						// Just log the error for now to help debugging.

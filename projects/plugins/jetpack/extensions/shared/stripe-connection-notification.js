@@ -10,7 +10,7 @@ import { parse as parseUrl } from 'url';
  * Shows a notification when a Stripe has been connected or
  * connection has been cancelled after redirection from WPCOM.
  */
-if ( undefined !== typeof window && window.location ) {
+if ( 'undefined' !== typeof window && window.location ) {
 	const { query } = parseUrl( window.location.href, true );
 
 	if ( query.stripe_connect_success ) {

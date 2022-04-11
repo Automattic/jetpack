@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed bug in checkout URLs for sites installed in subdirs

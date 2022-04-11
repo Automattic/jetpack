@@ -16,6 +16,7 @@ import Context from './_inc/context';
 import './editor.scss';
 import ViewSelector from './_inc/view-selector';
 import ProductManagementControls from '../../shared/components/product-management-controls';
+import { PRODUCT_TYPE_SUBSCRIPTION } from '../../shared/components/product-management-controls/constants';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
 /**
@@ -118,8 +119,9 @@ function Edit( props ) {
 						</Placeholder>
 					) }
 					<ProductManagementControls
-						allowCreateOneTimeInterval={ false }
 						blockName="premium-content"
+						clientId={ clientId }
+						productType={ PRODUCT_TYPE_SUBSCRIPTION }
 						selectedProductId={ selectedPlanId }
 						setSelectedProductId={ setSelectedProductId }
 					/>

@@ -1319,7 +1319,7 @@ class Replicastore implements Replicastore_Interface {
 		}
 
 		// Validate / Determine Buckets.
-		if ( is_null( $buckets ) || $buckets < 1 ) {
+		if ( $buckets === null || $buckets < 1 ) {
 			$buckets = $this->calculate_buckets( $table, $start_id, $end_id );
 		}
 		if ( is_wp_error( $buckets ) ) {

@@ -80,6 +80,18 @@ class Critical_CSS_State {
 		$this->state       = $state['state'];
 		$this->state_error = empty( $state['state_error'] ) ? null : $state['state_error'];
 		$this->sources     = $this->verify_sources( $state['sources'] );
+
+		$this->check_for_timeout();
+	}
+
+	/**
+	 * Check to see if the request is stuck at an unfinished state and mark it as failed if so.
+	 * @return void
+	 */
+	private function check_for_timeout() {
+		if ( self::REQUESTING === $this->state && ( microtime( true ) - $this->created ) > HOUR_IN_SECONDS ) {
+			$this->set_as_failed( 'timeout' );
+		}
 	}
 
 	private function get_state_transient() {
@@ -95,37 +107,11 @@ class Critical_CSS_State {
 		);
 	}
 
-	public function get_generation_status() {
-		// Todo: created time may be different in browser.
-		$state  = $this->get_state_transient();
-		$status = $this->get_providers_status( $state['sources'] );
-
-		return array(
-			'created'   => $state['created'],
-			'updated'   => $state['updated'],
-			'completed' => $status['completed'],
-			'total'     => $status['total'],
-			'pending'   => $status['pending'],
-		);
-	}
-
-	private function get_providers_status( $providers ) {
-		$completed = 0;
-		$pending   = false;
-
-		foreach ( $providers as $provider ) {
-			if ( self::SUCCESS === $provider['status'] ) {
-				$completed++;
-			} elseif ( self::REQUESTING === $provider['status'] ) {
-				$pending = true;
-			}
+	public function maybe_set_status() {
+		if ( $this->get_total_providers_count() === $this->get_processed_providers_count() ) {
+			$this->state = self::SUCCESS;
+			$this->save();
 		}
-
-		return array(
-			'total'     => count( $providers ),
-			'completed' => $completed,
-			'pending'   => $pending,
-		);
 	}
 
 	/**
@@ -297,7 +283,11 @@ class Critical_CSS_State {
 		return $sources;
 	}
 
-	public function has_pending_provider( $providers ) {
+	public function has_pending_provider( $providers = array() ) {
+		if ( empty( $providers ) ) {
+			$providers = array_keys( $this->sources );
+		}
+
 		$state   = $this->get_state_transient();
 		$pending = false;
 		foreach ( $state['sources'] as $name => $source_state ) {
@@ -327,6 +317,11 @@ class Critical_CSS_State {
 	 */
 	public function get_created_time() {
 		return $this->created;
+	}
+
+	public function get_updated_time() {
+		$state = $this->get_state_transient();
+		return $state['updated'];
 	}
 
 	/**
@@ -401,6 +396,10 @@ class Critical_CSS_State {
 	 */
 	public function get_provider_success_ratios() {
 		return $this->collate_column( 'success_ratio' );
+	}
+
+	public function get_total_providers_count() {
+		return count( $this->sources );
 	}
 
 	/**

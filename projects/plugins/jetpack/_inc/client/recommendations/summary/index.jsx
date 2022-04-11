@@ -18,10 +18,12 @@ import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
 import { ProductCardUpsell } from '../product-card-upsell';
-import { getUpgradeUrl, getSiteTitle } from 'state/initial-state';
+import { generateCheckoutLink } from '../utils';
+import { getSiteTitle, getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getSidebarCardSlug,
 	getSummaryFeatureSlugs,
+	getSummaryResourceSlugs,
 	getUpsell,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
@@ -32,6 +34,7 @@ import { getPluginsData } from 'state/site/plugins';
  * Style dependencies
  */
 import './style.scss';
+import { ResourceSummary } from '../feature-summary/resource';
 
 const SummaryComponent = props => {
 	const {
@@ -39,15 +42,26 @@ const SummaryComponent = props => {
 		isFetchingSidebarData,
 		sidebarCardSlug,
 		siteTitle,
+		siteRawUrl,
+		siteAdminUrl,
 		summaryFeatureSlugs,
+		summaryResourceSlugs,
 		updateRecommendationsStep,
-		upgradeUrl,
 		upsell,
+		newRecommendations,
 	} = props;
 
 	useEffect( () => {
 		updateRecommendationsStep( 'summary' );
 	}, [ updateRecommendationsStep ] );
+
+	const upgradeUrl = upsell.product_slug
+		? generateCheckoutLink( upsell.product_slug, siteAdminUrl, siteRawUrl )
+		: null;
+
+	const isNew = stepSlug => {
+		return newRecommendations.includes( stepSlug );
+	};
 
 	const mainContent = isFetchingMainData ? (
 		<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
@@ -66,7 +80,7 @@ const SummaryComponent = props => {
 					<div>
 						{ summaryFeatureSlugs.selected.length > 0 ? (
 							summaryFeatureSlugs.selected.map( slug => (
-								<FeatureSummary key={ slug } featureSlug={ slug } />
+								<FeatureSummary key={ slug } featureSlug={ slug } isNew={ isNew( slug ) } />
 							) )
 						) : (
 							<p className="jp-recommendations-summary__recommendation-notice">
@@ -85,7 +99,17 @@ const SummaryComponent = props => {
 						<h2 id="skipped-recommendations">{ __( 'Recommendations skipped', 'jetpack' ) }</h2>
 						<div>
 							{ summaryFeatureSlugs.skipped.map( slug => (
-								<FeatureSummary key={ slug } featureSlug={ slug } />
+								<FeatureSummary key={ slug } featureSlug={ slug } isNew={ isNew( slug ) } />
+							) ) }
+						</div>
+					</section>
+				) }
+				{ summaryResourceSlugs.length > 0 && (
+					<section aria-labelledby="resources-summary-title">
+						<h2 id="resources-summary-title">{ __( 'Resources', 'jetpack' ) }</h2>
+						<div>
+							{ summaryResourceSlugs.map( slug => (
+								<ResourceSummary key={ slug } resourceSlug={ slug } isNew={ isNew( slug ) } />
 							) ) }
 						</div>
 					</section>
@@ -151,6 +175,10 @@ const SummaryComponent = props => {
 	);
 };
 
+SummaryComponent.defaultProps = {
+	newRecommendations: [],
+};
+
 const Summary = connect(
 	state => {
 		const pluginsData = getPluginsData( state );
@@ -164,8 +192,10 @@ const Summary = connect(
 			isFetchingSidebarData,
 			sidebarCardSlug: getSidebarCardSlug( state ),
 			siteTitle: getSiteTitle( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
-			upgradeUrl: getUpgradeUrl( state, 'jetpack-recommendations-backups' ),
+			summaryResourceSlugs: getSummaryResourceSlugs( state ),
 			upsell,
 		};
 	},

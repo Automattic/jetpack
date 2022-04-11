@@ -8,14 +8,16 @@ import formatCurrency from '@automattic/format-currency';
  */
 import { BlockControls } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { store as editPostStore } from '@wordpress/edit-post';
+import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, update, warning } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
+import { useProductManagementContext } from './context';
+import useOpenBlockSidebar from './use-open-block-sidebar';
+import { getMessageByProductType } from './utils';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 
 function getProductDescription( product ) {
@@ -45,7 +47,9 @@ function getProductDescription( product ) {
 	);
 }
 
-function Product( { onClose, product, selectedProductId, setSelectedProductId } ) {
+function Product( { onClose, product } ) {
+	const { selectedProductId, setSelectedProductId } = useProductManagementContext();
+
 	const { id, title } = product;
 	const isSelected = selectedProductId && selectedProductId === id;
 	const icon = isSelected ? check : undefined;
@@ -65,33 +69,32 @@ function Product( { onClose, product, selectedProductId, setSelectedProductId } 
 }
 
 function NewProduct( { onClose } ) {
-	const isEditorSidebarOpened = useSelect( select =>
-		select( editPostStore ).isEditorSidebarOpened()
-	);
-	const { openGeneralSidebar } = useDispatch( editPostStore );
+	const { clientId, productType } = useProductManagementContext();
+	const openBlockSidebar = useOpenBlockSidebar( clientId );
 
 	const handleClick = event => {
 		event.preventDefault();
-		// Open the sidebar if not open
-		if ( ! isEditorSidebarOpened ) {
-			openGeneralSidebar( 'edit-post/block' );
-		}
-		const input = document.getElementById( 'new-product-title' );
-		if ( input !== null ) {
-			//Focus on the new product title input
-			input.focus();
-		}
+		openBlockSidebar();
+		setTimeout( () => {
+			const input = document.getElementById( 'new-product-title' );
+			if ( input !== null ) {
+				//Focus on the new product title input
+				input.focus();
+			}
+		}, 100 );
 		onClose();
 	};
 
-	return <MenuItem onClick={ handleClick }>{ __( 'Add a new subscription', 'jetpack' ) }</MenuItem>;
+	return (
+		<MenuItem onClick={ handleClick }>
+			{ getMessageByProductType( 'add a new product', productType ) }
+		</MenuItem>
+	);
 }
 
-export default function ProductManagementToolbarControl( {
-	products,
-	selectedProductId,
-	setSelectedProductId,
-} ) {
+export default function ProductManagementToolbarControl() {
+	const { products, productType, selectedProductId } = useProductManagementContext();
+
 	const selectedProduct = useSelect( select =>
 		select( membershipProductsStore ).getProduct( selectedProductId )
 	);
@@ -103,29 +106,23 @@ export default function ProductManagementToolbarControl( {
 		productDescription = getProductDescription( selectedProduct );
 	}
 	if ( selectedProductId && ! selectedProduct ) {
-		productDescription = __( 'Subscription not found', 'jetpack' );
+		productDescription = getMessageByProductType( 'product not found', productType );
 		subscriptionIcon = warning;
 	}
 
 	return (
-		<BlockControls group="block">
+		<BlockControls __experimentalShareWithChildBlocks group="block">
 			<ToolbarDropdownMenu
 				className="product-management-control-toolbar__dropdown-button"
 				icon={ subscriptionIcon }
-				label={ __( 'Select a plan', 'jetpack' ) }
+				label={ getMessageByProductType( 'select a product', productType ) }
 				text={ productDescription }
 			>
 				{ ( { onClose } ) => (
 					<>
 						<MenuGroup>
 							{ products.map( product => (
-								<Product
-									key={ product.id }
-									onClose={ onClose }
-									product={ product }
-									selectedProductId={ selectedProductId }
-									setSelectedProductId={ setSelectedProductId }
-								/>
+								<Product key={ product.id } onClose={ onClose } product={ product } />
 							) ) }
 						</MenuGroup>
 						<MenuGroup>

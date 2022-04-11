@@ -41,6 +41,7 @@ import ResumableUpload from './resumable-upload';
 import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
 import { VideoPressBlockProvider } from './components';
+import { VIDEO_PRIVACY } from './constants';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -57,8 +58,10 @@ const VideoPressEdit = CoreVideoEdit =>
 				lastRequestedMediaId: null,
 				isUpdatingRating: false,
 				allowDownload: null,
+				privacySetting: VIDEO_PRIVACY.SITE_DEFAULT,
 				isUpdatingAllowDownload: false,
 				fileForUpload: props.fileForImmediateUpload,
+				isUpdatingIsPrivate: false,
 			};
 			this.posterImageButton = createRef();
 			this.previewCacheReloadTimer = null;
@@ -101,6 +104,11 @@ const VideoPressEdit = CoreVideoEdit =>
 			const media = await this.requestMedia( id );
 			let rating = get( media, 'jetpack_videopress.rating' );
 			const allowDownload = get( media, 'jetpack_videopress.allow_download' );
+			const privacySetting = get(
+				media,
+				'jetpack_videopress.privacy_setting',
+				VIDEO_PRIVACY.SITE_DEFAULT
+			);
 
 			if ( rating ) {
 				// X-18 was previously supported but is now removed to better comply with our TOS.
@@ -112,6 +120,10 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			if ( 'undefined' !== typeof allowDownload ) {
 				this.setState( { allowDownload: !! allowDownload } );
+			}
+
+			if ( 'undefined' !== typeof privacySetting ) {
+				this.setState( { privacySetting } );
 			}
 		};
 
@@ -232,6 +244,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			this.setState( { media, lastRequestedMediaId: id } );
+
 			return media;
 		};
 
@@ -346,6 +359,17 @@ const VideoPressEdit = CoreVideoEdit =>
 			);
 		};
 
+		onChangePrivacySetting = privacySetting => {
+			const originalValue = this.state.privacySetting;
+
+			this.updateMetaApiCall(
+				{ privacy_setting: privacySetting },
+				() => this.setState( { isUpdatingPrivacySetting: true, privacySetting } ),
+				() => this.setState( { privacySetting: originalValue } ),
+				() => this.setState( { isUpdatingPrivacySetting: false } )
+			);
+		};
+
 		updateMetaApiCall = ( requestData, onBeforeApiCall, onRevert, onAfterApiCall ) => {
 			const { invalidateCachedEmbedPreview, url } = this.props;
 			const { id } = this.props.attributes;
@@ -397,7 +421,9 @@ const VideoPressEdit = CoreVideoEdit =>
 				interactive,
 				rating,
 				allowDownload,
+				privacySetting,
 				isUpdatingAllowDownload,
+				isUpdatingPrivacySetting,
 			} = this.state;
 
 			const {
@@ -596,6 +622,27 @@ const VideoPressEdit = CoreVideoEdit =>
 								checked={ allowDownload }
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
 							/>
+							<SelectControl
+								label={ __( 'Privacy', 'jetpack' ) }
+								help={ __( 'Restrict views to members of this site', 'jetpack' ) }
+								onChange={ this.onChangePrivacySetting }
+								value={ privacySetting }
+								options={ [
+									{
+										value: VIDEO_PRIVACY.SITE_DEFAULT,
+										label: _x( 'Site Default', 'VideoPress privacy setting', 'jetpack' ),
+									},
+									{
+										value: VIDEO_PRIVACY.PUBLIC,
+										label: _x( 'Public', 'VideoPress privacy setting', 'jetpack' ),
+									},
+									{
+										value: VIDEO_PRIVACY.PRIVATE,
+										label: _x( 'Private', 'VideoPress privacy setting', 'jetpack' ),
+									},
+								] }
+								disabled={ isFetchingMedia || isUpdatingPrivacySetting }
+							/>
 						</PanelBody>
 					</InspectorControls>
 				</Fragment>
@@ -736,16 +783,8 @@ const VideoPressEdit = CoreVideoEdit =>
 // The actual, final rendered video player markup
 // In a separate function component so that `useBlockProps` could be called.
 const VpBlock = props => {
-	const {
-		html,
-		scripts,
-		interactive,
-		caption,
-		isSelected,
-		hideOverlay,
-		attributes,
-		setAttributes,
-	} = props;
+	let { scripts } = props;
+	const { html, interactive, caption, isSelected, hideOverlay, attributes, setAttributes } = props;
 
 	const { align, className, videoPressClassNames, maxWidth } = attributes;
 
@@ -767,6 +806,19 @@ const VpBlock = props => {
 
 		setAttributes( { maxWidth: newMaxWidth } );
 	};
+
+	if ( typeof scripts !== 'object' ) {
+		scripts = [];
+	}
+
+	const videopresAjaxURLBlob = new Blob(
+		[ `var videopressAjax = { ajaxUrl: '${ window.videopressAjax.ajaxUrl }' };` ],
+		{
+			type: 'text/javascript',
+		}
+	);
+
+	scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
 
 	return (
 		<figure { ...blockProps }>
@@ -844,6 +896,7 @@ export default createHigherOrderComponent(
 				seekbarPlayedColor,
 				useAverageColor,
 			} );
+
 			const preview = !! url && getEmbedPreview( url );
 
 			const isFetchingEmbedPreview = !! url && isRequestingEmbedPreview( url );

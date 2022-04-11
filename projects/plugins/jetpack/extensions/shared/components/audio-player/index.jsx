@@ -98,7 +98,7 @@ function AudioPlayer( {
 		// Insert player into the DOM.
 		const mediaElement = new MediaElementPlayer( audio, {
 			...meJsSettings,
-			success: () => loadWhenReady && audio?.load()
+			success: () => loadWhenReady && audio?.load(),
 		} );
 
 		// Add the skip and jump buttons if needed

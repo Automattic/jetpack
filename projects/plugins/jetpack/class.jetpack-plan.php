@@ -63,6 +63,7 @@ class Jetpack_Plan {
 			),
 			'supports' => array(
 				'akismet',
+				'payments',
 				'recurring-payments',
 				'premium-content/container',
 				'videopress',
@@ -107,6 +108,7 @@ class Jetpack_Plan {
 				'ecommerce-bundle',
 				'ecommerce-bundle-monthly',
 				'ecommerce-bundle-2y',
+				'pro-plan',
 			),
 			'supports' => array(),
 		),
