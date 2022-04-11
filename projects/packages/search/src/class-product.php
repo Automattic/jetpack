@@ -40,7 +40,7 @@ class Product {
 	 *
 	 * @param int $record_count The number of record to estimate the tier.
 	 */
-	public static function get_site_tier( $record_count = 0 ) {
+	public static function get_site_tier_pricing( $record_count = 0 ) {
 		$record_count = $record_count > 0 ? $record_count : ( new Stats() )->estimate_count();
 		$product      = static::get_promoted_product();
 		if ( ! $record_count || ! isset( $product['price_tier_list'] ) ) {

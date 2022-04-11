@@ -492,6 +492,10 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		fetchSiteTierPricing: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/site_tier_pricing`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**
