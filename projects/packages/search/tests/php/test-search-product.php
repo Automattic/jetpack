@@ -39,8 +39,9 @@ class Test_Search_Product extends Search_Test_Case {
 	public function test_get_site_tier_10() {
 		$tier = Product::get_site_tier_pricing( 10 );
 		$this->assertEquals( 'AUD', $tier['currency_code'] );
-		$this->assertPriceEqual( 83.4, $tier['full_price'] );
-		$this->assertPriceEqual( 41.7, $tier['discount_price'] );
+		$this->assertPriceEquals( 83.4, $tier['full_price'] );
+		$this->assertPriceEquals( 41.7, $tier['discount_price'] );
+		$this->assertEquals( 100, $tier['maximum_units'] );
 	}
 
 	/**
@@ -49,8 +50,9 @@ class Test_Search_Product extends Search_Test_Case {
 	public function test_get_site_tier_120() {
 		$tier = Product::get_site_tier_pricing( 120 );
 		$this->assertEquals( 'AUD', $tier['currency_code'] );
-		$this->assertPriceEqual( 166.8, $tier['full_price'] );
-		$this->assertPriceEqual( 83.4, $tier['discount_price'] );
+		$this->assertPriceEquals( 166.8, $tier['full_price'] );
+		$this->assertPriceEquals( 83.4, $tier['discount_price'] );
+		$this->assertEquals( 1000, $tier['maximum_units'] );
 	}
 
 	/**
@@ -59,8 +61,9 @@ class Test_Search_Product extends Search_Test_Case {
 	public function test_get_site_tier_1000() {
 		$tier = Product::get_site_tier_pricing( 1000 );
 		$this->assertEquals( 'AUD', $tier['currency_code'] );
-		$this->assertPriceEqual( 166.8, $tier['full_price'] );
-		$this->assertPriceEqual( 83.4, $tier['discount_price'] );
+		$this->assertPriceEquals( 166.8, $tier['full_price'] );
+		$this->assertPriceEquals( 83.4, $tier['discount_price'] );
+		$this->assertEquals( 1000, $tier['maximum_units'] );
 	}
 
 	/**
@@ -69,8 +72,9 @@ class Test_Search_Product extends Search_Test_Case {
 	public function test_get_site_tier_1001() {
 		$tier = Product::get_site_tier_pricing( 1001 );
 		$this->assertEquals( 'AUD', $tier['currency_code'] );
-		$this->assertPriceEqual( 417, $tier['full_price'] );
-		$this->assertPriceEqual( 208.5, $tier['discount_price'] );
+		$this->assertPriceEquals( 417, $tier['full_price'] );
+		$this->assertPriceEquals( 208.5, $tier['discount_price'] );
+		$this->assertEquals( 10000, $tier['maximum_units'] );
 	}
 
 	/**
@@ -79,8 +83,9 @@ class Test_Search_Product extends Search_Test_Case {
 	public function test_get_site_tier_1000000() {
 		$tier = Product::get_site_tier_pricing( 1000000 );
 		$this->assertEquals( 'AUD', $tier['currency_code'] );
-		$this->assertPriceEqual( 3336, $tier['full_price'] );
-		$this->assertPriceEqual( 1668, $tier['discount_price'] );
+		$this->assertPriceEquals( 3336, $tier['full_price'] );
+		$this->assertPriceEquals( 1668, $tier['discount_price'] );
+		$this->assertEquals( 1000000, $tier['maximum_units'] );
 	}
 
 	/**
@@ -89,8 +94,9 @@ class Test_Search_Product extends Search_Test_Case {
 	public function test_get_site_tier_1000010() {
 		$tier = Product::get_site_tier_pricing( 1000010 );
 		$this->assertEquals( 'AUD', $tier['currency_code'] );
-		$this->assertPriceEqual( 6672, $tier['full_price'] );
-		$this->assertPriceEqual( 3336, $tier['discount_price'] );
+		$this->assertPriceEquals( 6672, $tier['full_price'] );
+		$this->assertPriceEquals( 3336, $tier['discount_price'] );
+		$this->assertEquals( 1000001, $tier['minimum_units'] );
 	}
 
 	/**
@@ -99,7 +105,7 @@ class Test_Search_Product extends Search_Test_Case {
 	 * @param float $expected Expected float number.
 	 * @param float $actual   The actual float number.
 	 */
-	public function assertPriceEqual( $expected, $actual ) {
+	public function assertPriceEquals( $expected, $actual ) {
 		return $this->assertEqualsWithDelta( $expected, $actual, 0.0001 );
 	}
 }

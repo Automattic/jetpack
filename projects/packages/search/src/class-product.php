@@ -57,13 +57,10 @@ class Product {
 		}
 
 		// minimum_price and maximum_price are integers.
-		$minimum_price = $price_tier['minimum_price'] / 100;
-		// Calculate discount price.
+		$minimum_price  = $price_tier['minimum_price'] / 100;
 		$discount_price = $minimum_price;
 		if ( isset( $product['sale_coupon']['discount'] ) ) {
-			$discount        = intval( $product['sale_coupon']['discount'] );
-			$discount        = $discount > 0 && $discount <= 100 ? $discount : 0;
-			$discount_price *= 1 - $discount / 100;
+			$discount_price = static::get_discount_price( $minimum_price, $product['sale_coupon'] );
 		}
 
 		// 1. Flat fee in the same tier, so for search, `minimum_price == maximum_price`.
@@ -72,6 +69,8 @@ class Product {
 			'currency_code'  => $product['currency_code'],
 			'discount_price' => $discount_price,
 			'full_price'     => $minimum_price,
+			'minimum_units'  => $price_tier['minimum_units'],
+			'maximum_units'  => $price_tier['maximum_units'],
 		);
 	}
 
@@ -101,6 +100,26 @@ class Product {
 		$time_to_cache = ! empty( $search_products ) ? DAY_IN_SECONDS : 5 * MINUTES_IN_SECONDS;
 		wp_cache_set( 'search_products', $search_products, Package::SLUG, $time_to_cache );
 		return $search_products;
+	}
+
+	/**
+	 * Return discount price
+	 *
+	 * @param decimal $full_price Full price.
+	 * @param array   $sale_coupon  Sale coupon.
+	 */
+	protected static function get_discount_price( $full_price, $sale_coupon ) {
+		$discount_price = $full_price;
+		if ( isset( $sale_coupon['discount'] ) ) {
+			$coupon_start_date = strtotime( $sale_coupon['start_date'] );
+			$coupon_expires    = strtotime( $sale_coupon['expires'] );
+			if ( $coupon_start_date <= time() && $coupon_expires > time() ) {
+				$discount        = intval( $sale_coupon['discount'] );
+				$discount        = $discount > 0 && $discount <= 100 ? $discount : 0;
+				$discount_price *= 1 - $discount / 100;
+			}
+		}
+		return $discount_price;
 	}
 
 }
