@@ -39,6 +39,8 @@ class Jetpack_JSON_API_Cron_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 * Sanitize the hook.
 	 *
 	 * @param string $hook - the hook.
+	 *
+	 * @return string
 	 */
 	protected function sanitize_hook( $hook ) {
 		return preg_replace( '/[^A-Za-z0-9-_]/', '', $hook );
@@ -46,6 +48,8 @@ class Jetpack_JSON_API_Cron_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	/**
 	 * Resolve arguments.
+	 *
+	 * @return array
 	 */
 	protected function resolve_arguments() {
 		$args = $this->input();
@@ -56,6 +60,8 @@ class Jetpack_JSON_API_Cron_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 * Check the cron lock.
 	 *
 	 * @param float $gmt_time - the time in GMT.
+	 *
+	 * @return int
 	 */
 	protected function is_cron_locked( $gmt_time ) {
 		// The cron lock: a unix timestamp from when the cron was spawned.
@@ -79,6 +85,8 @@ class Jetpack_JSON_API_Cron_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	/**
 	 * Set the cron lock.
+	 *
+	 * @return string
 	 */
 	protected function lock_cron() {
 		$lock = sprintf( '%.22F', microtime( true ) );
@@ -91,6 +99,8 @@ class Jetpack_JSON_API_Cron_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 *
 	 * @param string $hook - the hook.
 	 * @param array  $args - the arguments.
+	 *
+	 * @return array
 	 */
 	protected function get_schedules( $hook, $args ) {
 		$crons = _get_cron_array();
@@ -142,6 +152,8 @@ class Jetpack_JSON_API_Cron_Post_Endpoint extends Jetpack_JSON_API_Cron_Endpoint
 
 	/**
 	 * The result.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		define( 'DOING_CRON', true );
@@ -215,6 +227,8 @@ class Jetpack_JSON_API_Cron_Schedule_Endpoint extends Jetpack_JSON_API_Cron_Endp
 
 	/**
 	 * The result.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		$args = $this->input();
@@ -276,6 +290,8 @@ class Jetpack_JSON_API_Cron_Unschedule_Endpoint extends Jetpack_JSON_API_Cron_En
 
 	/**
 	 * The result.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		$args = $this->input();
