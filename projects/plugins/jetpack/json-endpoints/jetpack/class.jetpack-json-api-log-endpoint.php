@@ -18,8 +18,8 @@ class Jetpack_JSON_API_Jetpack_Log_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 */
 	protected function result() {
 		$args  = $this->input();
-		$event = ( isset( $args['event'] ) && is_string( $args['event'] ) ) ? $code : false; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-		$num   = ( isset( $args['num'] ) ) ? (int) $num : false;
+		$event = ( isset( $args['event'] ) && is_string( $args['event'] ) ) ? $args['event'] : false;
+		$num   = ( isset( $args['num'] ) ) ? (int) $args['num'] : false;
 
 		return array(
 			'log' => Jetpack::get_log( $event, $num ),
