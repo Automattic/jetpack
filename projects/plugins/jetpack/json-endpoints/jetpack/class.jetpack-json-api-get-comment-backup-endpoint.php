@@ -25,6 +25,8 @@ class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endp
 	 * Validate input
 	 *
 	 * @param int $comment_id - the comment ID.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function validate_input( $comment_id ) {
 		if ( empty( $comment_id ) || ! is_numeric( $comment_id ) ) {
@@ -38,6 +40,8 @@ class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endp
 
 	/**
 	 * The result.
+	 *
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 		// Disable Sync as this is a read-only operation and triggered by sync activity.
