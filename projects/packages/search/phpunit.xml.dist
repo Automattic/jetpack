@@ -8,7 +8,6 @@
   <testsuites>
     <testsuite name="main">
       <directory prefix="test" suffix=".php">tests/php</directory>
-			<directory prefix="class-test" suffix=".php">tests/php</directory>
     </testsuite>
   </testsuites>
 </phpunit>
