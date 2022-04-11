@@ -39,7 +39,7 @@ class Tokens {
 			)
 		);
 
-		$this->remove_site_lock();
+		$this->remove_lock();
 	}
 
 	/**
@@ -367,7 +367,7 @@ class Tokens {
 	 * @return object|false
 	 */
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
-		if ( $this->is_site_locked() ) {
+		if ( $this->is_locked() ) {
 			$this->delete_all();
 			return false;
 		}
@@ -615,7 +615,7 @@ class Tokens {
 	 *
 	 * @return bool
 	 */
-	public function set_site_lock( $timespan = HOUR_IN_SECONDS ) {
+	public function set_lock( $timespan = HOUR_IN_SECONDS ) {
 		try {
 			$expires = ( new DateTime() )->add( DateInterval::createFromDateString( (int) $timespan . ' seconds' ) );
 		} catch ( Exception $e ) {
@@ -635,7 +635,7 @@ class Tokens {
 	 *
 	 * @return bool
 	 */
-	public function remove_site_lock() {
+	public function remove_lock() {
 		Jetpack_Options::delete_option( 'token_site_lock' );
 		Jetpack_Options::delete_option( 'token_site_lock_expires' );
 
@@ -647,7 +647,7 @@ class Tokens {
 	 *
 	 * @return bool
 	 */
-	public function is_site_locked() {
+	public function is_locked() {
 		$locked_site_url = Jetpack_Options::get_option( 'token_site_lock' );
 		if ( ! $locked_site_url ) {
 			// Not locked, or the site URL matches.
@@ -657,7 +657,7 @@ class Tokens {
 		$expires = Jetpack_Options::get_option( 'token_site_lock_expires' );
 		if ( ! $expires ) {
 			// Expiration date/time not set, lock is invalid.
-			$this->remove_site_lock();
+			$this->remove_lock();
 			return false;
 		}
 
@@ -665,7 +665,7 @@ class Tokens {
 			if ( new DateTime() > DateTime::createFromFormat( static::DATE_FORMAT_ATOM, $expires ) ) {
 				// Site lock expired.
 				// Site URL matches, removing the lock.
-				$this->remove_site_lock();
+				$this->remove_lock();
 			}
 
 			return false;
