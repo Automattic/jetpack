@@ -341,7 +341,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			$settings = self::get_setting();
 
 			// Bail if the user wants featured posts always displayed.
-			if ( true == $settings['show-all'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			if ( $settings['show-all'] ) {
 				return;
 			}
 
