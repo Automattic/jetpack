@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b40c0ae5e1f0af328b26f3043e308011",
+    "content-hash": "cd42bfd454a6c06272bd7bc45dc7923f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -496,7 +496,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "7ed065622e06c9992d7f659458c42b85a9864c8d"
+                "reference": "990b87542a104209e1228a441346eaee82ef95a6"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -510,7 +510,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.7.x-dev"
+                    "dev-master": "1.8.x-dev"
                 }
             },
             "autoload": {
@@ -1475,11 +1475,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "f22ce81b8cd387959efeb57b6ffc079e9a14951f"
+                "reference": "98f5e0cba80e81aaf49263fe9400874c61c3492a"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",
-                "automattic/jetpack-config": "^1.7",
+                "automattic/jetpack-config": "^1.8",
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-options": "^1.15"
             },
@@ -1634,11 +1634,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "5abd8339a7d43630e6d0c48e9d4e3d256b4f8825"
+                "reference": "8d21b5be794d950f958e9de89305b64661d51300"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-config": "^1.7",
+                "automattic/jetpack-config": "^1.8",
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.15",
