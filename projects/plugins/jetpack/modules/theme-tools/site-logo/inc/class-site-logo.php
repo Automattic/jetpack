@@ -376,7 +376,7 @@ class Site_Logo {
 	 * Validate and sanitize a new site logo setting.
 	 *
 	 * @param any $input Logo setting value to sanitize.
-	 * @return bool|string 1 if checked, empty string if not checked.
+	 * @return int Attachment post ID, or 0 if invalid.
 	 */
 	public function sanitize_logo_setting( $input ) {
 		$input = absint( $input );
