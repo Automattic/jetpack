@@ -24,6 +24,8 @@ class Jetpack_JSON_API_Get_Option_Backup_Endpoint extends Jetpack_JSON_API_Endpo
 	 * Validate input.
 	 *
 	 * @param object $object - unused.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function validate_input( $object ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$query_args = $this->query_args();
@@ -56,6 +58,8 @@ class Jetpack_JSON_API_Get_Option_Backup_Endpoint extends Jetpack_JSON_API_Endpo
 	 * Get options row.
 	 *
 	 * @param string $name - name of the row.
+	 *
+	 * @return object|null Database query result or null on failure.
 	 */
 	private function get_option_row( $name ) {
 		global $wpdb;
