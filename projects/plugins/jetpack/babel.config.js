@@ -29,16 +29,6 @@ const config = {
 				],
 			],
 		},
-		{
-			// Transpile ES Modules syntax (`import`) in config files (but not elsewhere)
-			test: [ './gulpfile.babel.js', './tools/webpack.config.js', './tools/builder/' ],
-			presets: [
-				[
-					'@automattic/jetpack-webpack-config/babel/preset',
-					{ presetEnv: { modules: 'commonjs' } },
-				],
-			],
-		},
 	],
 	env: {
 		test: {

@@ -21,11 +21,13 @@ import { lock } from '@wordpress/icons';
  * Internal dependencies
  */
 import { API_STATE_NOT_REQUESTING, API_STATE_REQUESTING } from './constants';
+import { useProductManagementContext } from './context';
 import { getMessageByProductType } from './utils';
 import { CURRENCY_OPTIONS } from '../../currencies';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 
-export default function ProductManagementInspectorControl( { productType, setSelectedProductId } ) {
+export default function ProductManagementInspectorControl() {
+	const { productType, setSelectedProductId } = useProductManagementContext();
 	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
 	const { saveProduct } = useDispatch( membershipProductsStore );
 
