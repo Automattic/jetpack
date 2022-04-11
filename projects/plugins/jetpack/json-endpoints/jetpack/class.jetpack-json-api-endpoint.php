@@ -65,6 +65,8 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * Validate input.
 	 *
 	 * @param object $object - unused, for parent class compatability.
+	 *
+	 * @return bool
 	 */
 	protected function validate_input( $object ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$args = $this->input();
