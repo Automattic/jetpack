@@ -345,6 +345,28 @@
 	}
 }
 
+// Mimic style of WP plugin update badge
+.dops-section-nav-tab__update-badge {
+	display: inline-block;
+	vertical-align: middle;
+	box-sizing: border-box;
+	margin-block-start: 2px;
+	margin-top: -1px;
+	padding: 0 5px;
+	min-width: 18px;
+	height: 18px;
+	border-radius: 9px;
+	background-color: $orange-fire;
+	color: #fff;
+	font-size: 11px;
+	line-height: 1.6;
+	text-align: center;
+
+	&.count-0 {
+		display: none;
+	}
+}
+
 .dops-section-nav-tab__text {
 	display: block;
 	flex: 1 0 auto;

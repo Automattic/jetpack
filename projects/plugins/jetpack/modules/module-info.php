@@ -191,7 +191,7 @@ add_filter( 'jetpack_learn_more_button_sharedaddy', 'sharedaddy_load_more_link' 
  */
 function sharedaddy_more_info() {
 	esc_html_e(
-		'Visitors can share your posts with Twitter, Facebook, Reddit, Digg, LinkedIn, Google+, print,
+		'Visitors can share your posts with Twitter, Facebook, Reddit, Digg, LinkedIn, print,
 		and email. You can configure services to appear as icons, text, or both and some services like Twitter
 		have additional options.',
 		'jetpack'

@@ -2,6 +2,10 @@
 	clear: both;
 }
 
+.contact-form input {
+	font: inherit;
+}
+
 .contact-form input::placeholder {
 	transition: opacity 0.3s ease-out;
 }
@@ -129,12 +133,6 @@
 .wp-block-jetpack-contact-form .grunion-field-wrap,
 .wp-block-jetpack-button {
 	flex: 0 0 100%;
-}
-
-.wp-block-jetpack-button button {
-	padding: 20px 30px;
-	border: inherit;
-	font: inherit;
 }
 
 .wp-block-jetpack-button.alignright button {

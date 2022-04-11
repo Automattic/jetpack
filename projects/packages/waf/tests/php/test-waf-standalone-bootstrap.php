@@ -5,7 +5,7 @@
  * @package automattic/jetpack-waf
  */
 
-use Automattic\Jetpack\Waf\WafStandaloneBootstrap;
+use Automattic\Jetpack\Waf\Waf_Standalone_Bootstrap;
 
 /**
  * Runtime test suite.
@@ -18,7 +18,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 	public function testConstructingTheBootstrapWithoutAbspathConstantThrowsException() {
 		$this->assertFalse( defined( 'ABSPATH' ) );
 		$this->expectExceptionMessage( 'Cannot generate the WAF bootstrap if we are not running in WordPress context.' );
-		new WafStandaloneBootstrap();
+		new Waf_Standalone_Bootstrap();
 	}
 
 	/**
@@ -32,7 +32,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 
 		$this->assertFalse( defined( 'JETPACK_WAF_DIR' ) );
 
-		new WafStandaloneBootstrap();
+		new Waf_Standalone_Bootstrap();
 
 		$this->assertSame( '/pseudo/dir/jetpack-waf', JETPACK_WAF_DIR );
 	}
@@ -46,7 +46,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'ABSPATH', '/pseudo' );
 		define( 'WP_CONTENT_DIR', '/pseudo/dir' );
 
-		$mock_builder = $this->getMockBuilder( WafStandaloneBootstrap::class );
+		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
 		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
@@ -93,7 +93,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		global $wp_filesystem;
 		$wp_filesystem = $filesystem_mock;
 
-		$mock_builder = $this->getMockBuilder( WafStandaloneBootstrap::class );
+		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
 		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
@@ -131,7 +131,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		global $wp_filesystem;
 		$wp_filesystem = $filesystem_mock;
 
-		$mock_builder = $this->getMockBuilder( WafStandaloneBootstrap::class );
+		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
 		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
@@ -170,7 +170,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		global $wp_filesystem;
 		$wp_filesystem = $filesystem_mock;
 
-		$mock_builder = $this->getMockBuilder( WafStandaloneBootstrap::class );
+		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
 		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
@@ -205,7 +205,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		global $wp_filesystem;
 		$wp_filesystem = $filesystem_mock;
 
-		$mock_builder = $this->getMockBuilder( WafStandaloneBootstrap::class );
+		$mock_builder = $this->getMockBuilder( Waf_Standalone_Bootstrap::class );
 		$mock_builder->setMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Slideshow block: Fix grid blowout when Slideshow block is inserted inside a Layout Grid Block.
