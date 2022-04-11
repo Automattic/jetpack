@@ -2,7 +2,7 @@
 /**
  * Publicize_Base class.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName
@@ -970,10 +970,15 @@ abstract class Publicize_Base {
 		// TODO: The `gutenberg/available-extensions` endpoint currently doesn't accept a post ID,
 		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
 
+		// TODO: We should move this registration to the Jetpack plugin.
+		if ( ! class_exists( 'Jetpack_Gutenberg' ) ) {
+			return;
+		}
+
 		if ( $this->current_user_can_access_publicize_data() ) {
-			Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
+			\Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
 		} else {
-			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
+			\Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
 		}
 	}
 
@@ -1301,7 +1306,7 @@ abstract class Publicize_Base {
 		) . $view_post_link_html;
 
 		if ( 'post' === $post_type && class_exists( 'Jetpack_Subscriptions' ) ) {
-			$subscription = Jetpack_Subscriptions::init();
+			$subscription = \Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
 					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */

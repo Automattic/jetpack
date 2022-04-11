@@ -2,7 +2,7 @@
 /**
  * Publicize class.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
 namespace Automattic\Jetpack\Publicize;
@@ -139,14 +139,7 @@ class Publicize extends Publicize_Base {
 	 * @return false|void False on failure. Void on success.
 	 */
 	public function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.deletePublicizeConnection', $connection_id );
-
-		if ( ! $xml->isError() ) {
-			Jetpack_Options::update_option( 'publicize_connections', $xml->getResponse() );
-		} else {
-			return false;
-		}
+		return Keyring_Helper::disconnect( $service_name, $connection_id, $_blog_id, $_user_id, $force_delete );
 	}
 
 	/**
@@ -156,7 +149,7 @@ class Publicize extends Publicize_Base {
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
-		Jetpack_Options::update_option( 'publicize_connections', $publicize_connections );
+		\Jetpack_Options::update_option( 'publicize_connections', $publicize_connections );
 
 		return true;
 	}
@@ -183,7 +176,7 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_all_connections() {
 		$this->refresh_connections();
-		$connections = Jetpack_Options::get_option( 'publicize_connections' );
+		$connections = \Jetpack_Options::get_option( 'publicize_connections' );
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
 		}
@@ -393,7 +386,7 @@ class Publicize extends Publicize_Base {
 	 * @param string $connection_id Connection ID.
 	 */
 	public function globalize_connection( $connection_id ) {
-		$xml = new Jetpack_IXR_Client();
+		$xml = new \Jetpack_IXR_Client();
 		$xml->query( 'jetpack.globalizePublicizeConnection', $connection_id, 'globalize' );
 
 		if ( ! $xml->isError() ) {
@@ -408,7 +401,7 @@ class Publicize extends Publicize_Base {
 	 * @param string $connection_id Connection ID.
 	 */
 	public function unglobalize_connection( $connection_id ) {
-		$xml = new Jetpack_IXR_Client();
+		$xml = new \Jetpack_IXR_Client();
 		$xml->query( 'jetpack.globalizePublicizeConnection', $connection_id, 'unglobalize' );
 
 		if ( ! $xml->isError() ) {
@@ -437,7 +430,7 @@ class Publicize extends Publicize_Base {
 		if ( get_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT ) ) {
 			return;
 		}
-		$xml = new Jetpack_IXR_Client();
+		$xml = new \Jetpack_IXR_Client();
 		$xml->query( 'jetpack.fetchPublicizeConnections' );
 		$wait_time = HOUR_IN_SECONDS * 24;
 
@@ -465,74 +458,34 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get the Publicize connect URL from Keyring.
 	 *
-	 * NOTE: This is a direct copy of Jetpack_Keyring_Service_Helper::connect_url. It's most likely unused code and will
-	 * be completely removed soon.
-	 * Path: /projects/plugins/jetpack/_inc/lib/class.jetpack-keyring-service-helper.php
-	 *
 	 * @param string $service_name Name of the service to get connect URL for.
 	 * @param string $for What the URL is for. Default 'publicize'.
 	 * @return string
 	 */
 	public function connect_url( $service_name, $for = 'publicize' ) {
-		return add_query_arg(
-			array(
-				'action'   => 'request',
-				'service'  => $service_name,
-				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
-				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
-				'for'      => $for,
-			),
-			admin_url( 'options-general.php?page=sharing' )
-		);
+		return Keyring_Helper::connect_url( $service_name, $for );
 	}
 
 	/**
 	 * Get the Publicize refresh URL from Keyring.
-	 *
-	 * NOTE: This is a direct copy of Jetpack_Keyring_Service_Helper::refresh_url. It's most likely unused code and will
-	 * be completely removed soon.
-	 * Path: /projects/plugins/jetpack/_inc/lib/class.jetpack-keyring-service-helper.php
 	 *
 	 * @param string $service_name Name of the service to get refresh URL for.
 	 * @param string $for What the URL is for. Default 'publicize'.
 	 * @return string
 	 */
 	public function refresh_url( $service_name, $for = 'publicize' ) {
-		return add_query_arg(
-			array(
-				'action'   => 'request',
-				'service'  => $service_name,
-				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
-				'refresh'  => 1,
-				'for'      => $for,
-				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
-			),
-			admin_url( 'options-general.php?page=sharing' )
-		);
+		return Keyring_Helper::refresh_url( $service_name, $for );
 	}
 
 	/**
 	 * Get the Publicize disconnect URL from Keyring.
-	 *
-	 * NOTE: This is a direct copy of Jetpack_Keyring_Service_Helper::disconnect_url. It's most likely unused code and will
-	 * be completely removed soon.
-	 * Path: /projects/plugins/jetpack/_inc/lib/class.jetpack-keyring-service-helper.php
 	 *
 	 * @param string $service_name Name of the service to get disconnect URL for.
 	 * @param mixed  $id ID of the conenction to disconnect.
 	 * @return string
 	 */
 	public function disconnect_url( $service_name, $id ) {
-		return add_query_arg(
-			array(
-				'action'   => 'delete',
-				'service'  => $service_name,
-				'id'       => $id,
-				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
-				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
-			),
-			admin_url( 'options-general.php?page=sharing' )
-		);
+		return Keyring_Helper::disconnect_url( $service_name, $id );
 	}
 
 	/**
@@ -623,7 +576,7 @@ class Publicize extends Publicize_Base {
 	public function test_connection( $service_name, $connection ) {
 		$id = $this->get_connection_id( $connection );
 
-		$xml = new Jetpack_IXR_Client();
+		$xml = new \Jetpack_IXR_Client();
 		$xml->query( 'jetpack.testPublicizeConnection', $id );
 
 		// Bail if all is well.
@@ -648,7 +601,7 @@ class Publicize extends Publicize_Base {
 			'refresh_url'      => $refresh_url,
 		);
 
-		return new WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
+		return new \WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
 	}
 
 	/**
@@ -980,12 +933,12 @@ class Publicize extends Publicize_Base {
 	 * @param array $options Options to set.
 	 */
 	public function set_remote_publicize_options( $id, $options ) {
-		$xml = new Jetpack_IXR_Client();
+		$xml = new \Jetpack_IXR_Client();
 		$xml->query( 'jetpack.setPublicizeOptions', $id, $options );
 
 		if ( ! $xml->isError() ) {
 			$response = $xml->getResponse();
-			Jetpack_Options::update_option( 'publicize_connections', $response );
+			\Jetpack_Options::update_option( 'publicize_connections', $response );
 			$this->globalization( $id );
 		}
 	}
