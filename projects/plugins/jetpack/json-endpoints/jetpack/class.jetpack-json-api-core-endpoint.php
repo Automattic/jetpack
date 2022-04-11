@@ -31,6 +31,8 @@ class Jetpack_JSON_API_Core_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	/**
 	 * Return the result of the wp_version.
+	 *
+	 * @return array
 	 */
 	public function result() {
 		global $wp_version;
