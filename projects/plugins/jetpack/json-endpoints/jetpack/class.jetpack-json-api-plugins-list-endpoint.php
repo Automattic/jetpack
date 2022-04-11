@@ -43,6 +43,8 @@ class Jetpack_JSON_API_Plugins_List_Endpoint extends Jetpack_JSON_API_Plugins_En
 	 * Validate the input.
 	 *
 	 * @param string $plugin - the plugin.
+	 *
+	 * @return bool
 	 */
 	public function validate_input( $plugin ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		wp_update_plugins();

@@ -32,6 +32,8 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 * @param int    $_blog_id - the blog ID.
 	 * @param string $capability - the capability.
 	 * @param bool   $check_manage_active - unused.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return parent::validate_call( $_blog_id, $capability, false );
@@ -39,6 +41,8 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	/**
 	 * The result.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		$args    = $this->input();
@@ -71,6 +75,8 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 * Validate the queue.
 	 *
 	 * @param array $query - the query.
+	 *
+	 * @return string|WP_Error
 	 */
 	protected function validate_queue( $query ) {
 		if ( ! isset( $query ) ) {
@@ -92,6 +98,8 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * Callback for the endpoint.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		$args   = $this->query_args();
@@ -107,6 +115,8 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * Callback for the endpoint.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		Actions::mark_sync_read_only();
@@ -122,6 +132,8 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * Callback for endpoint.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		$args = $this->query_args();
@@ -200,6 +212,8 @@ class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync
 class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * The endpoint callback.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		$args = $this->input();
@@ -234,6 +248,8 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * Endpoint callback.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 
@@ -247,6 +263,8 @@ class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_
 class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * Endpoint callback.
+	 *
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 		$args = $this->query_args();
@@ -281,6 +299,8 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * Endpoint callback.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 		$args       = $this->input();
@@ -305,6 +325,8 @@ class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint 
 class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * Endpoint callback.
+	 *
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 		$args       = $this->input();
@@ -333,6 +355,8 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 	 * @param string $queue_name - the queue name.
 	 * @param int    $number_of_items - the number of items.
 	 * @param array  $args - the arguments.
+	 *
+	 * @return array|WP_Error
 	 */
 	public function queue_pull( $queue_name, $number_of_items, $args ) {
 		$queue = new Queue( $queue_name );
@@ -427,6 +451,8 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 	 *
 	 * @param object $queue - the queue.
 	 * @param int    $number_of_items - the number of items.
+	 *
+	 * @return Automattic\Jetpack\Sync\Queue_Buffer|bool|int|\WP_Error
 	 */
 	protected function get_buffer( $queue, $number_of_items ) {
 		$start        = time();
@@ -455,6 +481,8 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * Endpoint callback.
+	 *
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 
@@ -517,6 +545,8 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 	 * Sanitize item IDs.
 	 *
 	 * @param string $item - the item we're sanitizing.
+	 *
+	 * @return string|null
 	 */
 	protected static function sanitize_item_ids( $item ) {
 		// lets not delete any options that don't start with jpsq_sync-
@@ -534,6 +564,8 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * Endpoint callback.
+	 *
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 		$args = $this->input();
@@ -562,6 +594,8 @@ class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 class Jetpack_JSON_API_Sync_Object_Id_Range extends Jetpack_JSON_API_Sync_Endpoint {
 	/**
 	 * Endpoint callback.
+	 *
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 		$args = $this->query_args();
@@ -584,6 +618,8 @@ class Jetpack_JSON_API_Sync_Object_Id_Range extends Jetpack_JSON_API_Sync_Endpoi
 	 * Check if sync module is valid.
 	 *
 	 * @param string $module_name - the module name.
+	 *
+	 * @return bool
 	 */
 	protected function is_valid_sync_module( $module_name ) {
 		return in_array(

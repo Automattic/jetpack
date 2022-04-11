@@ -87,6 +87,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	/**
 	 * The result.
+	 *
+	 * @return array
 	 */
 	protected function result() {
 
@@ -104,6 +106,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 * Validate the input.
 	 *
 	 * @param string $plugin - the plugin we're validating.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function validate_input( $plugin ) {
 
@@ -170,6 +174,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 *
 	 * @param string $plugin_file - the plugin file.
 	 * @param array  $plugin_data - the plugin data.
+	 *
+	 * @return array
 	 */
 	protected function format_plugin( $plugin_file, $plugin_data ) {
 		if ( version_compare( $this->min_version, '1.2', '>=' ) ) {
@@ -220,6 +226,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 *
 	 * @param string $plugin_file - the plugin file.
 	 * @param array  $plugin_data - the plugin data.
+	 *
+	 * @return array
 	 */
 	protected function format_plugin_v1_2( $plugin_file, $plugin_data ) {
 		$plugin                 = array();
@@ -265,6 +273,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 * Check if plugin has autoupdates for translations enabled.
 	 *
 	 * @param string $plugin_file - the plugin file.
+	 *
+	 * @return bool
 	 */
 	protected function plugin_has_translations_autoupdates_enabled( $plugin_file ) {
 		return (bool) in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ), true );
@@ -320,6 +330,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	/**
 	 * Get plugins.
+	 *
+	 * @return array
 	 */
 	protected function get_plugins() {
 		$plugins = array();
@@ -367,6 +379,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	/**
 	 * Validate network wide.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function validate_network_wide() {
 		$args = $this->input();
@@ -391,6 +405,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 * Validate the plugin.
 	 *
 	 * @param string $plugin - the plugin we're validating.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function validate_plugin( $plugin ) {
 		if ( ! isset( $plugin ) || empty( $plugin ) ) {
@@ -409,6 +425,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 * Get plugin updates.
 	 *
 	 * @param string $plugin_file - the plugin file.
+	 *
+	 * @return object|null
 	 */
 	protected function get_plugin_updates( $plugin_file ) {
 		$plugin_updates = get_plugin_updates();
@@ -439,6 +457,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 * Get plugin action links.
 	 *
 	 * @param string $plugin_file - the plugin file.
+	 *
+	 * @return array
 	 */
 	protected function get_plugin_action_links( $plugin_file ) {
 		return Functions::get_plugins_action_links( $plugin_file );

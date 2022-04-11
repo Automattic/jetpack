@@ -12,6 +12,8 @@ class Jetpack_JSON_API_Themes_Active_Endpoint extends Jetpack_JSON_API_Themes_En
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
 	 * @param object $object - The unused $object parameter is for making the method signature compatible with its parent class method.
+	 *
+	 * @return array|bool|WP_Error
 	 */
 	public function callback( $path = '', $blog_id = 0, $object = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$error = $this->validate_call( $blog_id, 'switch_themes', true );
@@ -28,6 +30,8 @@ class Jetpack_JSON_API_Themes_Active_Endpoint extends Jetpack_JSON_API_Themes_En
 
 	/**
 	 * Switch the theme.
+	 *
+	 * @return array|WP_Error
 	 */
 	protected function switch_theme() {
 		$args = $this->input();
@@ -59,6 +63,8 @@ class Jetpack_JSON_API_Themes_Active_Endpoint extends Jetpack_JSON_API_Themes_En
 
 	/**
 	 * Get the current theme.
+	 *
+	 * @return array
 	 */
 	protected function get_current_theme() {
 		return $this->format_theme( wp_get_theme() );

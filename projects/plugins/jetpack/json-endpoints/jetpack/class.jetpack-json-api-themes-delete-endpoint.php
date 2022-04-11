@@ -22,6 +22,8 @@ class Jetpack_JSON_API_Themes_Delete_Endpoint extends Jetpack_JSON_API_Themes_En
 
 	/**
 	 * Delete the theme.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function delete() {
 

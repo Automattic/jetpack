@@ -75,6 +75,8 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 
 	/**
 	 * Installation.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function install() {
 		$result = '';
@@ -100,6 +102,8 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 
 	/**
 	 * Validate the plugins.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function validate_plugins() {
 		if ( empty( $this->plugins ) || ! is_array( $this->plugins ) ) {

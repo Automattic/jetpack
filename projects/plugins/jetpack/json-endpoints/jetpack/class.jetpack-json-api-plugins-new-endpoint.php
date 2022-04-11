@@ -84,6 +84,8 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 	 * @param int    $_blog_id - the blog ID.
 	 * @param string $capability - the capability.
 	 * @param bool   $check_manage_active - check if manage is active.
+	 *
+	 * @return bool|WP_Error a WP_Error object or true if things are good.
 	 */
 	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
 		$validate = parent::validate_call( $_blog_id, $capability, $check_manage_active );
@@ -111,6 +113,8 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 
 	/**
 	 * Install the plugin.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function install() {
 		$args = $this->input();

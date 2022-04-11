@@ -149,6 +149,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
 	 * @param object $object - the object.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function callback( $path = '', $blog_id = 0, $object = null ) {
 		Jetpack_JSON_API_Endpoint::validate_input( $object );
@@ -174,6 +176,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	/**
 	 * The default action.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function default_action() {
 		$args = $this->input();
@@ -249,6 +253,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	/**
 	 * Activate the plugin.
+	 *
+	 * @return null|WP_Error null if the activation was successful.
 	 */
 	protected function activate() {
 		$permission_error = false;
@@ -309,6 +315,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 *
 	 * @param string $capability - the capability we're checking.
 	 * @param string $plugin - the plugin we're checking.
+	 *
+	 * @return bool
 	 */
 	protected function current_user_can( $capability, $plugin = null ) {
 		// If this endpoint accepts site based authentication and a blog token is used, skip capabilities check.
@@ -324,6 +332,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	/**
 	 * Deactivate the plugin.
+	 *
+	 * @return null|WP_Error null if the deactivation was successful
 	 */
 	protected function deactivate() {
 		$permission_error = false;
@@ -366,6 +376,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	/**
 	 * Update the plugin.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function update() {
 
@@ -467,6 +479,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	/**
 	 * Update translations.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function update_translations() {
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -526,6 +540,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 * Get translations.
 	 *
 	 * @param array $translation - the translation.
+	 *
+	 * @return string
 	 */
 	protected function get_translation( $translation ) {
 		return ( $translation['slug'] === $this->slug );
