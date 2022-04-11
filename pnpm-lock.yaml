@@ -1795,7 +1795,7 @@ packages:
       '@wordpress/i18n': 3.20.0
       classnames: 2.3.1
       lodash: 4.17.21
-      moment: 2.29.1
+      moment: 2.29.2
       prop-types: 15.7.2
       react: 17.0.2
     transitivePeerDependencies:
@@ -8311,7 +8311,7 @@ packages:
       lodash: 4.17.21
       memize: 1.1.0
       micromodal: 0.4.10
-      moment: 2.29.1
+      moment: 2.29.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     transitivePeerDependencies:
@@ -8397,11 +8397,11 @@ packages:
       highlight-words-core: 1.2.2
       lodash: 4.17.21
       memize: 1.1.0
-      moment: 2.29.1
+      moment: 2.29.2
       re-resizable: 6.9.2_react-dom@17.0.2+react@17.0.2
       react: 17.0.2
       react-colorful: 5.5.1_react-dom@17.0.2+react@17.0.2
-      react-dates: 17.2.0_d0804d3726ad84366bcc42e494508e1e
+      react-dates: 17.2.0_2fefbb4a12a8a030ca98a4b47bad0d78
       react-dom: 17.0.2_react@17.0.2
       react-resize-aware: 3.1.1_react@17.0.2
       reakit: 1.3.11_react-dom@17.0.2+react@17.0.2
@@ -8501,7 +8501,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.17.8
-      moment: 2.29.1
+      moment: 2.29.2
       moment-timezone: 0.5.34
 
   /@wordpress/dependency-extraction-webpack-plugin/3.4.1_webpack@5.65.0:
@@ -17073,14 +17073,10 @@ packages:
   /moment-timezone/0.5.34:
     resolution: {integrity: sha512-3zAEHh2hKUs3EXLESx/wsgw6IQdusOT8Bxm3D9UrHPQR7zlMmzwybC8zHEM1tQ4LJwP7fcxrWr8tuBg05fFCbg==}
     dependencies:
-      moment: 2.29.1
-
-  /moment/2.29.1:
-    resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
+      moment: 2.29.2
 
   /moment/2.29.2:
     resolution: {integrity: sha512-UgzG4rvxYpN15jgCmVJwac49h9ly9NurikMWGPdVxm8GZD6XjkKPxDTjQQ43gtGgnV3X0cAyWDdP2Wexoquifg==}
-    dev: false
 
   /moo/0.5.1:
     resolution: {integrity: sha512-I1mnb5xn4fO80BH9BLcF0yLypy2UKl+Cb01Fu0hJRkJjlCRtxZMWkTdAtDd5ZqCOxtCkhmRwyI57vWT+1iZ67w==}
@@ -19492,7 +19488,7 @@ packages:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
 
-  /react-dates/17.2.0_d0804d3726ad84366bcc42e494508e1e:
+  /react-dates/17.2.0_2fefbb4a12a8a030ca98a4b47bad0d78:
     resolution: {integrity: sha512-RDlerU8DdRRrlYS0MQ7Z9igPWABGLDwz6+ykBNff67RM3Sset2TDqeuOr+R5o00Ggn5U47GeLsGcSDxlZd9cHw==}
     peerDependencies:
       moment: ^2.18.1
@@ -19503,7 +19499,7 @@ packages:
       consolidated-events: 2.0.2
       is-touch-device: 1.0.1
       lodash: 4.17.21
-      moment: 2.29.1
+      moment: 2.29.2
       object.assign: 4.1.2
       object.values: 1.1.5
       prop-types: 15.8.1
@@ -19704,7 +19700,7 @@ packages:
   /react-moment-proptypes/1.8.1:
     resolution: {integrity: sha512-Er940DxWoObfIqPrZNfwXKugjxMIuk1LAuEzn23gytzV6hKS/sw108wibi9QubfMN4h+nrlje8eUCSbQRJo2fQ==}
     dependencies:
-      moment: 2.29.1
+      moment: 2.29.2
 
   /react-outside-click-handler/1.3.0_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-Te/7zFU0oHpAnctl//pP3hEAeobfeHMyygHB8MnjP6sX5OR8KHT1G3jmLsV3U9RnIYo+Yn+peJYWu+D5tUS8qQ==}
