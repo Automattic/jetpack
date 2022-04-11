@@ -86,7 +86,7 @@ class Status {
 	 */
 	public static function has_vulnerabilities() {
 		$status = self::get_status();
-		return isset( $status['num_vulnerabilities'] ) && is_int( $status['num_vulnerabilities'] ) && 0 < $status['num_vulnerabilities'];
+		return isset( $status->num_vulnerabilities ) && is_int( $status->num_vulnerabilities ) && 0 < $status->num_vulnerabilities;
 	}
 
 	/**
