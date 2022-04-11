@@ -64,7 +64,7 @@ function jetpack_responsive_videos_embed_html( $html ) {
 		return $html;
 	}
 
-	if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 		wp_enqueue_script( 'jetpack-responsive-videos-script', plugins_url( 'responsive-videos/responsive-videos.js', __FILE__ ), array( 'jquery' ), '1.3', true );
 	} else {
 		wp_enqueue_script( 'jetpack-responsive-videos-min-script', plugins_url( 'responsive-videos/responsive-videos.min.js', __FILE__ ), array( 'jquery' ), '1.3', true );
