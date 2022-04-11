@@ -8,18 +8,18 @@
 	border: 1px solid $gray-lighten-20;
 	background: var( --jp-white );
 
-	a:not([type="button"]) {
+	a:not( [type='button'] ) {
 		@include rna-link;
 	}
 }
 
-.jp-recommendations-question__main--with-illustration {
+.jp-recommendations-question__main--with-sidebar {
 	display: grid;
 	grid-template-columns: repeat( 2, 1fr );
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( '<782px' ) {
+		grid-template-columns: auto;
 		background: var( --jp-white );
-		grid-template-columns: 100% 0%;
 	}
 }
 
