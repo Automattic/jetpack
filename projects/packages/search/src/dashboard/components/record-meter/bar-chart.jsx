@@ -146,7 +146,7 @@ export class BarChart extends React.Component {
 									/>
 									<span className="jp-search-chart-legend__label" children={ item.text } />
 									<span className="jp-search-chart-legend__count">
-										({ this.props.data[ item.datasetIndex ].data.data.toLocaleString() })
+										({ this.props.data[ item.datasetIndex ].data.data?.toLocaleString() })
 									</span>
 								</li>
 							);

@@ -27,8 +27,8 @@ export function RecordCount( props ) {
 				'<s>%1$s</s> records indexed out of the <s>%2$s</s> allotted for your current plan',
 				'jetpack-search-pkg'
 			),
-			props.recordCount.toLocaleString(),
-			props.planRecordLimit.toLocaleString()
+			props.recordCount?.toLocaleString(),
+			props.planRecordLimit?.toLocaleString()
 		),
 		{
 			s: <strong />,
