@@ -342,6 +342,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchRecommendationsConditional: () =>
+			getRequest( `${ apiRoot }jetpack/v4/recommendations/conditional`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		saveRecommendationsData: data =>
 			postRequest( `${ apiRoot }jetpack/v4/recommendations/data`, postParams, {
 				body: JSON.stringify( { data } ),

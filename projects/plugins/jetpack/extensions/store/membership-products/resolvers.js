@@ -64,7 +64,8 @@ export const getProducts = (
 		if (
 			! response?.products?.length &&
 			! response.should_upgrade_to_access_memberships &&
-			response.connected_account_id
+			response.connected_account_id &&
+			! selectedProductId
 		) {
 			// Is ready to use and has no product set up yet. Let's create one!
 			await dispatch(

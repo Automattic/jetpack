@@ -276,9 +276,9 @@ class Publicize extends Publicize_Base {
 	 * Show error on settings page if applicable.
 	 */
 	public function admin_page_load() {
-		$action = sanitize_text_field( wp_unslash( $_GET['action'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( ! empty( $action ) && 'error' === $action ) {
+		if ( 'error' === $action ) {
 			add_action( 'pre_admin_screen_sharing', array( $this, 'display_connection_error' ), 9 );
 		}
 	}
