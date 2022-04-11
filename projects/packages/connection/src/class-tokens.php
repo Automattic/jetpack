@@ -642,6 +642,10 @@ class Tokens {
 
 	/**
 	 * Check if the domain is locked, remove the lock if needed.
+	 * Possible scenarios:
+	 * - lock expired, site URL matches the lock URL: remove the lock, return false.
+	 * - lock not expired, site URL matches the lock URL: return false.
+	 * - site URL does not match the lock URL (expiration date is ignored): return true, do not remove the lock.
 	 *
 	 * @return bool
 	 */
