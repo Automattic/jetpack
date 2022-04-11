@@ -3,7 +3,7 @@
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"version": "1.4.1",
+	"version": "1.4.2-beta",
 	"authors": [
 		{
 			"name": "Automattic, Inc.",
@@ -14,7 +14,7 @@
 	"prefer-stable": true,
 	"require": {
 		"ext-json": "*",
-		"automattic/jetpack-admin-ui": "^0.2.5",
+		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-assets": "^1.17",
 		"automattic/jetpack-autoloader": "^2.11",
 		"automattic/jetpack-composer-plugin": "^1.1",
@@ -22,7 +22,7 @@
 		"automattic/jetpack-connection": "^1.37",
 		"automattic/jetpack-device-detection": "^1.4",
 		"automattic/jetpack-lazy-images": "^2.1",
-		"automattic/jetpack-my-jetpack": "^0.6.9",
+		"automattic/jetpack-my-jetpack": "^0.6",
 		"automattic/jetpack-tracking": "^1.14",
 		"tedivm/jshrink": "1.4.0"
 	},
@@ -69,7 +69,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ1_4_1",
+		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ1_4_2_beta",
 		"allow-plugins": {
 			"roots/wordpress-core-installer": true,
 			"automattic/jetpack-autoloader": true,

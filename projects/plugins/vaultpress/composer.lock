@@ -58,6 +58,7 @@
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
@@ -105,6 +106,7 @@
             ],
             "description": "A logo for Jetpack",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         }
@@ -179,6 +181,7 @@
             ],
             "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
