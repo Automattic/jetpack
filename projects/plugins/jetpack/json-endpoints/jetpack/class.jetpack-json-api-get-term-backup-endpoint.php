@@ -41,7 +41,7 @@ class Jetpack_JSON_API_Get_Term_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 	/**
 	 * Return the result.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 		// Disable Sync as this is a read-only operation and triggered by sync activity.
