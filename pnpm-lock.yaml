@@ -13560,7 +13560,7 @@ packages:
       lru: 3.1.0
       react: 17.0.2
       tannin: 1.2.0
-      use-subscription: 1.6.0_react@17.0.2
+      use-subscription: 1.5.1_react@17.0.2
     transitivePeerDependencies:
       - '@types/react'
       - supports-color
@@ -21230,11 +21230,12 @@ packages:
     dependencies:
       react: 17.0.2
 
-  /use-subscription/1.6.0_react@17.0.2:
-    resolution: {integrity: sha512-0Y/cTLlZfw547tJhJMoRA16OUbVqRm6DmvGpiGbmLST6BIA5KU5cKlvlz8DVMrACnWpyEjCkgmhLatthP4jUbA==}
+  /use-subscription/1.5.1_react@17.0.2:
+    resolution: {integrity: sha512-Xv2a1P/yReAjAbhylMfFplFKj9GssgTwN7RlcTxBujFQcloStWNDQdc4g4NRWH9xS4i/FDk04vQBptAXoF3VcA==}
     peerDependencies:
-      react: ^18.0.0
+      react: ^16.8.0 || ^17.0.0
     dependencies:
+      object-assign: 4.1.1
       react: 17.0.2
     dev: false
 
