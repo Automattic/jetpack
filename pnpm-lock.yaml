@@ -1647,7 +1647,7 @@ importers:
       semver: 7.3.5
       sort-package-json: 1.50.0
       svelte: 3.42.4
-      tweetsodium: 0.0.5
+      tweetsodium: 0.0.6
       typescript: 4.3.5
       yaml: 1.10.2
     devDependencies:
@@ -1689,7 +1689,7 @@ importers:
       semver: 7.3.5
       sort-package-json: 1.50.0
       svelte: 3.42.4
-      tweetsodium: 0.0.5
+      tweetsodium: 0.0.6
       typescript: 4.3.5
       yaml: 1.10.2
 
@@ -22256,8 +22256,9 @@ packages:
     resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
     dev: true
 
-  /tweetsodium/0.0.5:
-    resolution: {integrity: sha512-T3aXZtx7KqQbutTtBfn+P5By3HdBuB1eCoGviIrRJV2sXeToxv2X2cv5RvYqgG26PSnN5m3fYixds22Gkfd11w==}
+  /tweetsodium/0.0.6:
+    resolution: {integrity: sha512-vMglGijHoottUKHWaEFjgzHias6Rl+2h/qljRoebJH9GXjBmB5/C+rttmFo8bw6F0aokguV9QTWTR4P2m5vUvg==}
+    deprecated: 'tweetsodium is deprecated and unmaintained. Please consider using libsodium.js, maintained by the same author as libsodium: https://github.com/jedisct1/libsodium.js'
     dependencies:
       blakejs: 1.1.1
       tweetnacl: 1.0.3
