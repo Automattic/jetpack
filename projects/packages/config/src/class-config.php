@@ -17,7 +17,7 @@ use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Post_List\Post_List as Post_List;
-use Automattic\Jetpack\Publicize\Publicize_Main as Publicize_Main;
+use Automattic\Jetpack\Publicize\Publicize_Setup as Publicize_Setup;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 
@@ -244,7 +244,7 @@ class Config {
 	 * Enables the Publicize feature.
 	 */
 	protected function enable_publicize() {
-		Publicize_Main::configure();
+		Publicize_Setup::configure();
 
 		return true;
 	}

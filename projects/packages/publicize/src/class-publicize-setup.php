@@ -10,14 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 /**
  * The class to configure and initialize the publicize package.
  */
-class Publicize_Main {
-	/**
-	 * Contains an instance of class 'Publicize' which loads Keyring, sets up services, etc.
-	 *
-	 * @var Publicize Instance of Publicize
-	 */
-	public $publicize;
-
+class Publicize_Setup {
 	/**
 	 * To configure the publicize package, when called via the Config package.
 	 */
@@ -30,6 +23,9 @@ class Publicize_Main {
 	 */
 	public static function on_plugins_loaded() {
 		global $publicize_ui;
-		$publicize_ui = new Publicize_UI();
+		if ( ! isset( $publicize_ui ) ) {
+			$publicize_ui = new Publicize_UI();
+
+		}
 	}
 }
