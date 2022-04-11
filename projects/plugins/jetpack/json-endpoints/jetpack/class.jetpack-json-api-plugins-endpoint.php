@@ -193,12 +193,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['action_links'] = $action_link;
 		}
 
-		/**
-		 * Format the plugin.
-		 *
-		 * @param string $plugin_file - the plugin file.
-		 * @param array  $plugin_data - the plugin data.
-		 */
 		$plugin['plugin'] = $plugin_file;
 		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
