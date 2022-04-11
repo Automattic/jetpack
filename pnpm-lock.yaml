@@ -12016,10 +12016,11 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
-  /eval/0.1.6:
-    resolution: {integrity: sha512-o0XUw+5OGkXw4pJZzQoXUk+H87DHuC+7ZE//oSrRGtatTmr12oTnLfg6QOq9DyTt0c/p4TwzgmkKrBzWTSizyQ==}
+  /eval/0.1.8:
+    resolution: {integrity: sha512-EzV94NYKoO09GLXGjXj9JIlXijVck4ONSr5wiCWDvhsvj5jxSrzTmRU/9C1DyB6uToszLs8aifA6NQ7lEQdvFw==}
     engines: {node: '>= 0.8'}
     dependencies:
+      '@types/node': 17.0.23
       require-like: 0.1.2
     dev: false
 
@@ -20053,7 +20054,7 @@ packages:
     dependencies:
       bluebird: 3.7.2
       cheerio: 0.22.0
-      eval: 0.1.6
+      eval: 0.1.8
       url: 0.11.0
       webpack-sources: 0.2.3
     dev: false

@@ -253,6 +253,7 @@ module.exports = [
 					CSS: {
 						supports: () => false,
 					},
+					MessageChannel: null, // React <17.1 is broken on Node 16 if this is set. https://github.com/facebook/react/issues/20756#issuecomment-780927519
 				},
 			} ),
 			new RemoveAssetWebpackPlugin( {
