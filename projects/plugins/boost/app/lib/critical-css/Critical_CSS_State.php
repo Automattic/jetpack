@@ -21,7 +21,7 @@ class Critical_CSS_State {
 	const FAIL          = 'error';
 	const REQUESTING    = 'requesting';
 
-	const KEY_PREFIX = 'critical_css_state:';
+	const KEY_PREFIX = 'critical_css_state-';
 
 	/**
 	 * Critical CSS state.
