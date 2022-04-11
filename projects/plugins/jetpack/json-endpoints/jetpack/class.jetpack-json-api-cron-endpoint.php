@@ -78,7 +78,7 @@ class Jetpack_JSON_API_Cron_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 * @param string $doing_wp_cron - if we're doing the wp_cron.
 	 */
 	protected function maybe_unlock_cron( $doing_wp_cron ) {
-		if ( $this->get_cron_lock() == $doing_wp_cron ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- get_cron_lock() returns an int, $doing_wp_cron is a string.
+		if ( $this->get_cron_lock() === $doing_wp_cron ) {
 			delete_transient( 'doing_cron' );
 		}
 	}
@@ -205,7 +205,7 @@ class Jetpack_JSON_API_Cron_Post_Endpoint extends Jetpack_JSON_API_Cron_Endpoint
 
 					// If the hook ran too long and another cron process stole the lock,
 					// or if we things are taking longer then 20 seconds then quit.
-					if ( ( $this->get_cron_lock() != $lock ) || ( $gmt_time + 20 > microtime( true ) ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- get_cron_lock is an int, $lock is a string.
+					if ( ( $this->get_cron_lock() !== $lock ) || ( $gmt_time + 20 > microtime( true ) ) ) {
 						$this->maybe_unlock_cron( $lock );
 						return array( 'success' => $processed_events );
 					}
