@@ -31,6 +31,10 @@
 			outline: 3px solid transparent;
 		}
 	}
+
+	&.has-error {
+		box-shadow: 0 0 0 1.5px var( --jp-red-60 );
+	}
 }
 
 .name {
@@ -64,20 +68,6 @@
 
 .action-link-button{
 	text-decoration: underline;
-}
-
-.group {
-	display: flex;
-	height: var(--actions-size);
-	border-radius: var(--jp-border-radius);
-
-	& > .button:first-child {
-		border-radius: var(--jp-border-radius) 0 0 var(--jp-border-radius);
-	}
-
-	& > :global(.components-dropdown) > .button {
-		border-radius: 0 var(--jp-border-radius) var(--jp-border-radius) 0;
-	}
 }
 
 .status {

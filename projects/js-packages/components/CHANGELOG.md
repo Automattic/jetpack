@@ -2,6 +2,34 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.11.0 - 2022-04-05
+### Added
+- Components: add Button component.
+- JS Components: add spacing props to Text component.
+- JS Components: add story doc to Text components.
+- My Jetpack: improve Product and Interstitial components.
+
+### Changed
+- Updated package dependencies.
+
+## 0.10.12 - 2022-03-29
+### Added
+- Jetpack components: Add ThemeProvider stories for typographies and colors
+- JS Components: add H2, H3 and Title components
+
+### Changed
+- JS Components: Minor Product Icons story and doc improvements
+- Moved in product icon components from My Jetpack
+- Updated package dependencies.
+
+## 0.10.11 - 2022-03-23
+### Added
+- Components: Add Text component
+- Introduced SplitButton component
+
+### Changed
+- Updated package dependencies
+
 ## 0.10.10 - 2022-03-15
 ### Added
 - My Jetpack: Add new values to ThemeProvider

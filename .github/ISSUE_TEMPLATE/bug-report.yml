@@ -18,6 +18,9 @@ body:
         - Boost
         - Beta
         - Debug Helper
+        - Protect
+        - Search
+        - Social
         - VaultPress
         - None / Other
       multiple: true

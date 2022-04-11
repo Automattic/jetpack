@@ -31,7 +31,8 @@ class Initial_State {
 			),
 			'connectedPlugins' => Connection_Plugin_Storage::get_all(),
 			'siteData'         => array(
-				'id' => \Jetpack_Options::get_option( 'id' ),
+				'id'    => \Jetpack_Options::get_option( 'id' ),
+				'title' => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
 			),
 			'assets'           => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),

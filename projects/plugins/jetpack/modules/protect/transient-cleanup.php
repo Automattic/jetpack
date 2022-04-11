@@ -1,8 +1,11 @@
 <?php
-/*
-Adapted from Purge Transients by Seebz
-https://github.com/Seebz/Snippets/tree/master/Wordpress/plugins/purge-transients
-*/
+/**
+ * Adapted from Purge Transients by Seebz
+ * https://github.com/Seebz/Snippets/tree/master/Wordpress/plugins/purge-transients
+ *
+ * @package automattic/jetpack
+ */
+
 if ( ! function_exists( 'jp_purge_transients' ) ) {
 
 	/**
@@ -10,7 +13,6 @@ if ( ! function_exists( 'jp_purge_transients' ) ) {
 	 *
 	 * @access public
 	 * @param string $older_than (default: '1 hour') Older Than.
-	 * @return void
 	 */
 	function jp_purge_transients( $older_than = '1 hour' ) {
 		global $wpdb;
@@ -18,13 +20,12 @@ if ( ! function_exists( 'jp_purge_transients' ) ) {
 		if ( $older_than_time > time() || $older_than_time < 1 ) {
 			return false;
 		}
-		$sql = $wpdb->prepare( "
-		SELECT REPLACE(option_name, '_transient_timeout_jpp_', '') AS transient_name
-		FROM {$wpdb->options}
-		WHERE option_name LIKE '\_transient\_timeout\_jpp\__%%'
-		AND option_value < %d
-		", $older_than_time );
-		$transients = $wpdb->get_col( $sql );
+		$sql = $wpdb->prepare(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.LikeWildcardsInQuery
+			"SELECT REPLACE(option_name, '_transient_timeout_jpp_', '') AS transient_name FROM {$wpdb->options} WHERE option_name LIKE '\_transient\_timeout\_jpp\__%%' AND option_value < %d",
+			$older_than_time
+		);
+		$transients    = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is prepared above.
 		$options_names = array();
 		foreach ( $transients as $transient ) {
 			$options_names[] = '_transient_jpp_' . $transient;
@@ -42,7 +43,6 @@ if ( ! function_exists( 'jp_purge_transients' ) ) {
 				return false;
 			}
 		}
-		return;
 	}
 }
 

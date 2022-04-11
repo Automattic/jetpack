@@ -8,27 +8,33 @@ import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lod
 /**
  * Internal dependencies
  */
-import { getInitialRecommendationsStep } from '../initial-state/reducer';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
+	JETPACK_RECOMMENDATIONS_DATA_ADD_VIEWED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_DATA_UPDATE,
 	JETPACK_RECOMMENDATIONS_STEP_UPDATE,
+	JETPACK_RECOMMENDATIONS_STEP_UPDATE_SUCCESS,
+	JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL,
 	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH,
 	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL,
+	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH,
+	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE,
+	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
 } from 'state/action-types';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
 import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
+import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
 
 const mergeArrays = ( x, y ) => {
 	if ( Array.isArray( x ) && Array.isArray( y ) ) {
@@ -48,6 +54,7 @@ const data = ( state = {}, action ) => {
 				{
 					selectedRecommendations: [ action.slug ],
 					skippedRecommendations: [],
+					viewedRecommendations: [],
 				},
 				mergeArrays
 			);
@@ -63,6 +70,7 @@ const data = ( state = {}, action ) => {
 				{
 					selectedRecommendations: [],
 					skippedRecommendations: [ action.slug ],
+					viewedRecommendations: [],
 				},
 				mergeArrays
 			);
@@ -70,6 +78,20 @@ const data = ( state = {}, action ) => {
 				action.slug,
 			] );
 			return skippedState;
+		}
+		case JETPACK_RECOMMENDATIONS_DATA_ADD_VIEWED_RECOMMENDATION: {
+			const viewedState = mergeWith(
+				{},
+				state,
+				{
+					selectedRecommendations: [],
+					skippedRecommendations: [],
+					viewedRecommendations: [ action.slug ],
+				},
+				mergeArrays
+			);
+
+			return viewedState;
 		}
 		default:
 			return state;
@@ -97,6 +119,20 @@ const requests = ( state = {}, action ) => {
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL:
 			return assign( {}, state, { isFetchingRecommendationsUpsell: false } );
+		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH:
+			return assign( {}, state, { isFetchingRecommendationsConditional: true } );
+		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE:
+			return assign( {}, state, {
+				isRecommendationsConditionalLoaded: true,
+				isFetchingRecommendationsConditional: false,
+			} );
+		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL:
+			return assign( {}, state, { isFetchingRecommendationsConditional: false } );
+		case JETPACK_RECOMMENDATIONS_STEP_UPDATE:
+			return assign( {}, state, { isUpdatingRecommendationsStep: true } );
+		case JETPACK_RECOMMENDATIONS_STEP_UPDATE_SUCCESS:
+		case JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL:
+			return assign( {}, state, { isUpdatingRecommendationsStep: false } );
 		default:
 			return state;
 	}
@@ -134,12 +170,27 @@ const upsell = ( state = {}, action ) => {
 	}
 };
 
+const conditional = ( state = [], action ) => {
+	switch ( action.type ) {
+		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE:
+		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL:
+			return action.data;
+		default:
+			return state;
+	}
+};
+
+const getConditionalRecommendations = state => {
+	return get( state.jetpack, [ 'recommendations', 'conditional' ] );
+};
+
 export const reducer = combineReducers( {
 	data,
 	requests,
 	step: stepReducer,
 	upsell,
 	productSuggestions,
+	conditional,
 } );
 
 export const isFetchingRecommendationsData = state => {
@@ -158,6 +209,18 @@ export const isFetchingRecommendationsUpsell = state => {
 	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsUpsell;
 };
 
+export const isFetchingRecommendationsConditional = state => {
+	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsConditional;
+};
+
+export const isRecommendationsConditionalLoaded = state => {
+	return !! state.jetpack.recommendations.requests.isRecommendationsConditionalLoaded;
+};
+
+export const isUpdatingRecommendationsStep = state => {
+	return !! state.jetpack.recommendations.requests.isUpdatingRecommendationsStep;
+};
+
 export const getDataByKey = ( state, key ) => {
 	return get( state.jetpack, [ 'recommendations', 'data', key ], false );
 };
@@ -172,7 +235,10 @@ const stepToNextStep = {
 	monitor: 'related-posts',
 	'related-posts': 'creative-mail',
 	'creative-mail': 'site-accelerator',
-	'site-accelerator': 'summary',
+	'site-accelerator': 'publicize',
+	publicize: 'summary',
+	'security-plan': 'summary',
+	videopress: 'summary',
 	summary: 'summary',
 };
 
@@ -185,6 +251,9 @@ const stepToRoute = {
 	'related-posts': '#/recommendations/related-posts',
 	'creative-mail': '#/recommendations/creative-mail',
 	'site-accelerator': '#/recommendations/site-accelerator',
+	publicize: '#/recommendations/publicize',
+	'security-plan': '#/recommendations/security-plan',
+	videopress: '#/recommendations/videopress',
 	summary: '#/recommendations/summary',
 };
 
@@ -203,6 +272,10 @@ export const isFeatureActive = ( state, featureSlug ) => {
 			return !! getSetting( state, 'photon' ) && getSetting( state, 'photon-cdn' );
 		case 'woocommerce':
 			return !! isPluginActive( state, 'woocommerce/woocommerce.php' );
+		case 'publicize':
+			return !! getSetting( state, 'publicize' );
+		case 'videopress':
+			return !! getSetting( state, 'videopress' );
 		default:
 			throw `Unknown featureSlug in isFeatureActive() in recommendations/reducer.js: ${ featureSlug }`;
 	}
@@ -224,6 +297,13 @@ export const isProductSuggestionsAvailable = state => {
 	return isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
 };
 
+const isConditionalRecommendationEnabled = ( state, step ) => {
+	const conditionalRecommendations = getConditionalRecommendations( state );
+	return (
+		Array.isArray( conditionalRecommendations ) && conditionalRecommendations.indexOf( step ) > -1
+	);
+};
+
 const isStepEligibleToShow = ( state, step ) => {
 	switch ( step ) {
 		case 'setup-wizard-completed':
@@ -239,6 +319,12 @@ const isStepEligibleToShow = ( state, step ) => {
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
 		case 'monitor':
 			return hasConnectedOwner( state ) && ! isFeatureActive( state, step );
+		case 'publicize':
+			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
+		case 'security-plan':
+			return isConditionalRecommendationEnabled( state, step );
+		case 'videopress':
+			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		default:
 			return ! isFeatureActive( state, step );
 	}
@@ -252,10 +338,24 @@ const getNextEligibleStep = ( state, step ) => {
 	return nextStep;
 };
 
+// Gets the step to show when one has not been set in the state yet.
+const getInitialStep = state => {
+	// Gets new recommendations from initial state.
+	const newRecommendations = getNewRecommendations( state );
+
+	// Jump to a new recommendation if there is one to show.
+	if ( newRecommendations.length > 0 ) {
+		return newRecommendations[ 0 ];
+	}
+
+	// Return the step from the initial React state.
+	return getInitialRecommendationsStep( state );
+};
+
 export const getStep = state => {
 	const step =
 		'' === get( state.jetpack, [ 'recommendations', 'step' ], '' )
-			? getInitialRecommendationsStep( state )
+			? getInitialStep( state )
 			: state.jetpack.recommendations.step;
 
 	// These steps are special cases set on the server. There is technically no
@@ -309,6 +409,12 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 			return true === getDataByKey( state, 'site-type-store' );
 		case 'monitor':
 			return hasConnectedOwner( state );
+		case 'publicize':
+			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
+		case 'security-plan':
+			return isConditionalRecommendationEnabled( state, slug );
+		case 'videopress':
+			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		default:
 			return true;
 	}
@@ -321,6 +427,8 @@ export const getSummaryFeatureSlugs = state => {
 		'related-posts',
 		'creative-mail',
 		'site-accelerator',
+		'publicize',
+		'videopress',
 	];
 
 	const featureSlugsEligibleToShow = featureSlugsInPreferenceOrder.filter( slug =>
@@ -342,6 +450,12 @@ export const getSummaryFeatureSlugs = state => {
 		selected,
 		skipped,
 	};
+};
+
+export const getSummaryResourceSlugs = state => {
+	const resourceSlugs = [ 'security-plan' ];
+
+	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
 };
 
 export const getSidebarCardSlug = state => {

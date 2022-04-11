@@ -14,13 +14,24 @@
 // };
 // ```
 
+/**
+ * This is a workaround for a feature not available in ESLint, yet.
+ *
+ * @see https://github.com/eslint/eslint/issues/3458
+ * @todo Remove this when the above feature is natively available in ESLint
+ */
+require( '@rushstack/eslint-patch/modern-module-resolution' );
+
+/**
+ * @type {import("eslint").Linter.Config}
+ */
 module.exports = {
 	parser: '@babel/eslint-parser',
 	extends: [
 		'wpcalypso',
 		'plugin:@wordpress/eslint-plugin/i18n',
 		'plugin:jsx-a11y/recommended',
-		'prettier',
+		'plugin:prettier/recommended',
 	],
 	env: {
 		browser: true,
@@ -37,8 +48,12 @@ module.exports = {
 		},
 		requireConfigFile: false,
 	},
-	settings: {},
-	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc' ],
+	settings: {
+		jsdoc: {
+			mode: 'typescript',
+		},
+	},
+	plugins: [ 'prettier', 'jsx-a11y', 'lodash', 'jsdoc' ],
 	rules: {
 		// REST API objects include underscores
 		camelcase: 0,

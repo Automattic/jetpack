@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.3.0-alpha",
+	"version": "0.4.2-alpha",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -16,21 +16,22 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
 	},
 	"dependencies": {
-		"@wordpress/compose": "5.1.2",
-		"@wordpress/i18n": "4.3.0",
-		"@wordpress/plugins": "4.1.1",
-		"@wordpress/url": "3.4.0",
+		"@wordpress/compose": "5.3.0",
+		"@wordpress/i18n": "4.5.0",
+		"@wordpress/plugins": "4.3.0",
+		"@wordpress/url": "3.6.0",
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
-		"@babel/core": "7.16.0",
-		"@babel/preset-react": "7.16.0",
+		"@babel/core": "7.17.8",
+		"@babel/preset-react": "7.16.7",
 		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0"
+		"nyc": "15.1.0",
+		"react": "17.0.2"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {

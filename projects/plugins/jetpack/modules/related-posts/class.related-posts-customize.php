@@ -1,8 +1,8 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
 
-// Exit if file is accessed directly
+// Exit if file is accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -19,19 +19,21 @@ class Jetpack_Related_Posts_Customize {
 	 *
 	 * @var string
 	 */
-	var $prefix = 'jetpack_relatedposts';
+	public $prefix = 'jetpack_relatedposts';
 
 	/**
-	 * @var string Control to focus when customizer loads.
+	 * Control to focus when customizer loads
+	 *
+	 * @var string
 	 */
-	var $focus = '';
+	public $focus = '';
 
 	/**
 	 * Class initialization.
 	 *
 	 * @since 4.4.0
 	 */
-	function __construct() {
+	public function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'customize_controls_enqueue_scripts' ) );
 	}
@@ -43,37 +45,39 @@ class Jetpack_Related_Posts_Customize {
 	 *
 	 * @param WP_Customize_Manager $wp_customize Customizer instance.
 	 */
-	function customize_register( $wp_customize ) {
+	public function customize_register( $wp_customize ) {
 
-		$wp_customize->add_section( $this->prefix,
+		$wp_customize->add_section(
+			$this->prefix,
 			array(
-				'title' 	  => esc_html__( 'Related Posts', 'jetpack' ),
+				'title'       => esc_html__( 'Related Posts', 'jetpack' ),
 				'description' => '',
 				'capability'  => 'edit_theme_options',
-				'priority' 	  => 200,
+				'priority'    => 200,
 			)
 		);
 
 		$selective_options = array();
 
 		foreach ( $this->get_options( $wp_customize ) as $key => $field ) {
-			$control_id = "$this->prefix[$key]";
+			$control_id          = "$this->prefix[$key]";
 			$selective_options[] = $control_id;
-			$wp_customize->add_setting( $control_id,
+			$wp_customize->add_setting(
+				$control_id,
 				array(
-					'default' 	 => isset( $field['default'] ) ? $field['default'] : '',
-					'type' 		 => isset( $field['setting_type'] ) ? $field['setting_type'] : 'option',
+					'default'    => isset( $field['default'] ) ? $field['default'] : '',
+					'type'       => isset( $field['setting_type'] ) ? $field['setting_type'] : 'option',
 					'capability' => isset( $field['capability'] ) ? $field['capability'] : 'edit_theme_options',
 					'transport'  => isset( $field['transport'] ) ? $field['transport'] : 'postMessage',
 				)
 			);
 			$control_settings = array(
-				'label' 	  => isset( $field['label'] ) ? $field['label'] : '',
-				'description' => isset( $field['description'] ) ? $field['description'] : '',
-				'settings' 	  => $control_id,
-				'type' 	      => isset( $field['control_type'] ) ? $field['control_type'] : 'text',
-				'section' 	  => $this->prefix,
-				'priority' 	  => 10,
+				'label'           => isset( $field['label'] ) ? $field['label'] : '',
+				'description'     => isset( $field['description'] ) ? $field['description'] : '',
+				'settings'        => $control_id,
+				'type'            => isset( $field['control_type'] ) ? $field['control_type'] : 'text',
+				'section'         => $this->prefix,
+				'priority'        => 10,
 				'active_callback' => isset( $field['active_callback'] ) ? $field['active_callback'] : __CLASS__ . '::is_single',
 			);
 			switch ( $field['control_type'] ) {
@@ -96,12 +100,15 @@ class Jetpack_Related_Posts_Customize {
 
 		// If selective refresh is available, implement it.
 		if ( isset( $wp_customize->selective_refresh ) ) {
-			$wp_customize->selective_refresh->add_partial( "$this->prefix", array(
-				'selector'            => '.jp-relatedposts:not(.jp-relatedposts-block)',
-				'settings'            => $selective_options,
-				'render_callback'     => __CLASS__ . '::render_callback',
-				'container_inclusive' => false,
-			) );
+			$wp_customize->selective_refresh->add_partial(
+				"$this->prefix",
+				array(
+					'selector'            => '.jp-relatedposts:not(.jp-relatedposts-block)',
+					'settings'            => $selective_options,
+					'render_callback'     => __CLASS__ . '::render_callback',
+					'container_inclusive' => false,
+				)
+			);
 		}
 
 	}
@@ -112,7 +119,7 @@ class Jetpack_Related_Posts_Customize {
 	 * @since 4.4.0
 	 */
 	public static function render_callback() {
-		echo Jetpack_RelatedPosts::init()->get_headline();
+		echo Jetpack_RelatedPosts::init()->get_headline(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- content escaped in get_headline method
 	}
 
 	/**
@@ -167,15 +174,15 @@ class Jetpack_Related_Posts_Customize {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param object $wp_customize Instance of WP Customizer
+	 * @param object $wp_customize Instance of WP Customizer.
 	 *
 	 * @return mixed|void
 	 */
-	function get_options( $wp_customize ) {
+	public function get_options( $wp_customize ) {
 		$transport = isset( $wp_customize->selective_refresh ) ? 'postMessage' : 'refresh';
 
 		$switched_locale = switch_to_locale( get_user_locale() );
-		$headline = __( 'Related', 'jetpack' );
+		$headline        = __( 'Related', 'jetpack' );
 		if ( $switched_locale ) {
 			restore_previous_locale();
 		}
@@ -190,14 +197,15 @@ class Jetpack_Related_Posts_Customize {
 		 * @param array $options Array of options used to display Related Posts in the Customizer.
 		 */
 		return apply_filters(
-			'jetpack_related_posts_customize_options', array(
-				'enabled'       => array(
+			'jetpack_related_posts_customize_options',
+			array(
+				'enabled'          => array(
 					'control_type' => 'hidden',
 					'default'      => 1,
 					'setting_type' => 'option',
 					'transport'    => $transport,
 				),
-				'show_headline'       => array(
+				'show_headline'    => array(
 					'label'        => esc_html__( 'Show a headline', 'jetpack' ),
 					'description'  => esc_html__( 'This helps to clearly separate the related posts from post content.', 'jetpack' ),
 					'control_type' => 'checkbox',
@@ -205,7 +213,7 @@ class Jetpack_Related_Posts_Customize {
 					'setting_type' => 'option',
 					'transport'    => $transport,
 				),
-				'headline'       => array(
+				'headline'         => array(
 					'label'        => '',
 					'description'  => esc_html__( 'Enter text to use as headline.', 'jetpack' ),
 					'control_type' => 'text',
@@ -213,7 +221,7 @@ class Jetpack_Related_Posts_Customize {
 					'setting_type' => 'option',
 					'transport'    => $transport,
 				),
-				'show_thumbnails'     => array(
+				'show_thumbnails'  => array(
 					'label'        => esc_html__( 'Show thumbnails', 'jetpack' ),
 					'description'  => esc_html__( 'Show a thumbnail image where available.', 'jetpack' ),
 					'control_type' => 'checkbox',
@@ -221,7 +229,7 @@ class Jetpack_Related_Posts_Customize {
 					'setting_type' => 'option',
 					'transport'    => $transport,
 				),
-				'show_date'           => array(
+				'show_date'        => array(
 					'label'        => esc_html__( 'Show date', 'jetpack' ),
 					'description'  => esc_html__( 'Display date when entry was published.', 'jetpack' ),
 					'control_type' => 'checkbox',
@@ -229,7 +237,7 @@ class Jetpack_Related_Posts_Customize {
 					'setting_type' => 'option',
 					'transport'    => $transport,
 				),
-				'show_context'        => array(
+				'show_context'     => array(
 					'label'        => esc_html__( 'Show context', 'jetpack' ),
 					'description'  => esc_html__( "Display entry's category or tag.", 'jetpack' ),
 					'control_type' => 'checkbox',
@@ -237,11 +245,11 @@ class Jetpack_Related_Posts_Customize {
 					'setting_type' => 'option',
 					'transport'    => $transport,
 				),
-				'layout'        => array(
+				'layout'           => array(
 					'label'        => esc_html__( 'Layout', 'jetpack' ),
 					'description'  => esc_html__( 'Arrange entries in different layouts.', 'jetpack' ),
 					'control_type' => 'select',
-					'choices'	   => array(
+					'choices'      => array(
 						'grid' => esc_html__( 'Grid', 'jetpack' ),
 						'list' => esc_html__( 'List', 'jetpack' ),
 					),
@@ -267,7 +275,7 @@ class Jetpack_Related_Posts_Customize {
 	 *
 	 * @since 4.4.0
 	 */
-	function customize_controls_enqueue_scripts() {
+	public function customize_controls_enqueue_scripts() {
 		wp_enqueue_script(
 			'jetpack_related-posts-customizer',
 			Assets::get_file_url_for_environment(
@@ -275,7 +283,8 @@ class Jetpack_Related_Posts_Customize {
 				'modules/related-posts/related-posts-customizer.js'
 			),
 			array( 'customize-controls' ),
-			JETPACK__VERSION
+			JETPACK__VERSION,
+			false
 		);
 	}
 
@@ -285,8 +294,9 @@ class Jetpack_Related_Posts_Customize {
  * Control that displays a message in Customizer.
  *
  * @since 4.4.0
+ * @todo break this out into its own file.
  */
-class Jetpack_Message_Control extends WP_Customize_Control {
+class Jetpack_Message_Control extends WP_Customize_Control { // phpcs:ignore
 
 	/**
 	 * Render the message.
@@ -298,5 +308,5 @@ class Jetpack_Message_Control extends WP_Customize_Control {
 	}
 } // class end
 
-// Initialize controls
+// Initialize controls.
 new Jetpack_Related_Posts_Customize();

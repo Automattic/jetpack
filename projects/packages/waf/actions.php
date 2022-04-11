@@ -7,25 +7,28 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\Constants as Jetpack_Constants;
+
 // We don't want to be anything in here outside WP context.
 if ( ! function_exists( 'add_action' ) ) {
 	return;
 }
 
 /**
- * Determines if the passed $option is one of the allowed WAF operation modes.
- *
- * @param  string $option The mode option.
- * @return bool
+ * Triggers when the Jetpack plugin is activated
  */
-function is_allowed_mode( $option ) {
-	$allowed_modes = array(
-		'normal',
-		'silent',
-	);
+register_activation_hook(
+	Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ),
+	array( __NAMESPACE__ . '\Waf_Runner', 'activate' )
+);
 
-	return in_array( $option, $allowed_modes, true );
-}
+/**
+ * Triggers when the Jetpack plugin is updated
+ */
+add_action(
+	'upgrader_process_complete',
+	array( __NAMESPACE__ . '\Waf_Runner', 'update_rules_if_changed' )
+);
 
 /**
  * Runs the WAF in the WP context.
@@ -35,23 +38,6 @@ function is_allowed_mode( $option ) {
 add_action(
 	'plugin_loaded',
 	function () {
-
-		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
-			$mode_option = get_option( 'jetpack_waf_mode' );
-
-			if ( ! is_allowed_mode( $mode_option ) ) {
-				return;
-			}
-
-			define( 'JETPACK_WAF_MODE', $mode_option );
-		}
-
-		if ( ! is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return;
-		}
-
-		if ( ! WafRunner::did_run() ) {
-			WafRunner::run();
-		}
+		require_once __DIR__ . '/run.php';
 	}
 );

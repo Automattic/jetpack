@@ -50,7 +50,7 @@ First time working with the monorepo? We got you covered.
 
 For the first time only:
 
-* From the root of the repo, run `pnpm cli-setup` (if you want the `jetpack` CLI tool installed globally) or `pnpm install` (if you don't).
+* From the root of the repo, run `pnpm install && pnpx jetpack cli link` (if you want the `jetpack` CLI tool installed globally) or `pnpm install` (if you don't).
 * That’s it. You won’t need to do that again unless you nuke your node_modules directory.
 
 Once you’ve done that, it’s easy: run `jetpack` (or `pnpx jetpack`) while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
