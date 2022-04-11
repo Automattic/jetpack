@@ -1641,13 +1641,13 @@ importers:
       glob: 7.1.6
       ignore: 5.1.8
       inquirer: 7.3.3
+      libsodium-wrappers: 0.7.10
       parse-diff: 0.8.1
       prettier: npm:wp-prettier@2.2.1-beta-1
       prettier-plugin-svelte: 2.4.0
       semver: 7.3.5
       sort-package-json: 1.50.0
       svelte: 3.42.4
-      tweetsodium: 0.0.6
       typescript: 4.3.5
       yaml: 1.10.2
     devDependencies:
@@ -1683,13 +1683,13 @@ importers:
       glob: 7.1.6
       ignore: 5.1.8
       inquirer: 7.3.3
+      libsodium-wrappers: 0.7.10
       parse-diff: 0.8.1
       prettier: /wp-prettier/2.2.1-beta-1
       prettier-plugin-svelte: 2.4.0_1a6896c9e989b07996f6fb4022366990
       semver: 7.3.5
       sort-package-json: 1.50.0
       svelte: 3.42.4
-      tweetsodium: 0.0.6
       typescript: 4.3.5
       yaml: 1.10.2
 
@@ -9149,10 +9149,6 @@ packages:
       readable-stream: 3.6.0
     dev: true
 
-  /blakejs/1.1.1:
-    resolution: {integrity: sha512-bLG6PHOCZJKNshTjGRBvET0vTciwQE6zFKOKKXPDJfwFBd4Ac0yBfPZqcGvGJap50l7ktvlpFqc2jGVaUgbJgg==}
-    dev: true
-
   /blessed/0.1.81:
     resolution: {integrity: sha1-+WLWh+wsNpVwrnGvhDJW5tDKESk=}
     engines: {node: '>= 0.8.0'}
@@ -15282,6 +15278,16 @@ packages:
     resolution: {integrity: sha1-IsWbyu+qmo7zWc91l4TkvxBq6hs=}
     dev: true
 
+  /libsodium-wrappers/0.7.10:
+    resolution: {integrity: sha512-pO3F1Q9NPLB/MWIhehim42b/Fwb30JNScCNh8TcQ/kIc+qGLQch8ag8wb0keK3EP5kbGakk1H8Wwo7v+36rNQg==}
+    dependencies:
+      libsodium: 0.7.10
+    dev: true
+
+  /libsodium/0.7.10:
+    resolution: {integrity: sha512-eY+z7hDrDKxkAK+QKZVNv92A5KYkxfvIshtBJkmg5TSiCnYqZP3i9OO9whE79Pwgm4jGaoHgkM4ao/b9Cyu4zQ==}
+    dev: true
+
   /lilconfig/2.0.4:
     resolution: {integrity: sha512-bfTIN7lEsiooCocSISTWXkiWJkRqtL9wYtYy+8EK3Y41qh3mpwPU0ycTOgjdY9ErwXCc8QyrQp82bdL0Xkm9yA==}
     engines: {node: '>=10'}
@@ -21294,18 +21300,6 @@ packages:
   /tv4/1.3.0:
     resolution: {integrity: sha1-0CDIRvrdUMhVq7JeuuzGj8EPeWM=}
     engines: {node: '>= 0.8.0'}
-    dev: true
-
-  /tweetnacl/1.0.3:
-    resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
-    dev: true
-
-  /tweetsodium/0.0.6:
-    resolution: {integrity: sha512-vMglGijHoottUKHWaEFjgzHias6Rl+2h/qljRoebJH9GXjBmB5/C+rttmFo8bw6F0aokguV9QTWTR4P2m5vUvg==}
-    deprecated: 'tweetsodium is deprecated and unmaintained. Please consider using libsodium.js, maintained by the same author as libsodium: https://github.com/jedisct1/libsodium.js'
-    dependencies:
-      blakejs: 1.1.1
-      tweetnacl: 1.0.3
     dev: true
 
   /tx2/1.0.5:
