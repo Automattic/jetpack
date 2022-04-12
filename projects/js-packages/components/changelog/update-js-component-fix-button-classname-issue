@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+JS Components: fix className prop in Button component

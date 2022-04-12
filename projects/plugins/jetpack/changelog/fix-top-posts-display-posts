@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Top Posts Widget: ensure hooks retain existing behavior when adding extra data before or after each post.

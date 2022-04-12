@@ -50,16 +50,18 @@ const DisableIcon = {
 	},
 };
 
+const disableClassName = {
+	className: {
+		table: {
+			disable: true,
+		},
+	},
+};
+
 export default {
 	title: 'JS Packages/Components/Button',
 	component: Button,
-	argTypes: {
-		className: {
-			table: {
-				disable: true,
-			},
-		},
-	},
+	argTypes: {},
 	parameters: {
 		backgrounds: {
 			default: 'Light',
@@ -93,6 +95,7 @@ ButtonSecondary.argTypes = {
 	...DisableIcon,
 	...DisableIsLoading,
 	...DisableIsDestructive,
+	...disableClassName,
 };
 ButtonSecondary.args = {
 	size: 'normal',
@@ -107,6 +110,7 @@ ButtonLink.argTypes = {
 	...DisableIcon,
 	...DisableIsLoading,
 	...DisableIsDestructive,
+	...disableClassName,
 };
 ButtonLink.args = {
 	size: 'normal',
@@ -121,6 +125,7 @@ ButtonExternalLink.argTypes = {
 	...DisableIcon,
 	...DisableIsLoading,
 	...DisableIsDestructive,
+	...disableClassName,
 };
 ButtonExternalLink.args = {
 	size: 'normal',
@@ -134,6 +139,7 @@ Icon.argTypes = {
 	...DisableDisabled,
 	...DisableIsLoading,
 	...DisableIsDestructive,
+	...disableClassName,
 };
 Icon.args = {
 	size: 'normal',
@@ -147,6 +153,7 @@ Disabled.argTypes = {
 	...DisableDisabled,
 	...DisableIsDestructive,
 	...DisableIsLoading,
+	...disableClassName,
 };
 Disabled.args = {
 	size: 'normal',
@@ -160,6 +167,7 @@ Destructive.argTypes = {
 	...DisableIsDestructive,
 	...DisableIsLoading,
 	...DisableDisabled,
+	...disableClassName,
 };
 Destructive.args = {
 	size: 'normal',
@@ -173,6 +181,7 @@ Loading.argTypes = {
 	...DisableIsDestructive,
 	...DisableIsLoading,
 	...DisableDisabled,
+	...disableClassName,
 };
 Loading.args = {
 	size: 'normal',

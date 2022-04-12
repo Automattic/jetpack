@@ -1,6 +1,25 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 
+const monorepoBase = '/tmp/monorepo/';
+
+const composerLibraryFiles = [];
+{
+	const libtypes = new Set( [ 'jetpack-library', 'phpcodesniffer-standard' ] );
+	const basedir = monorepoBase + 'projects/packages';
+	for ( const d of fs.readdirSync( basedir, { withFileTypes: true } ) ) {
+		const filepath = path.join( basedir, d.name, 'composer.json' );
+		if ( ! fs.existsSync( filepath ) ) {
+			continue;
+		}
+		const json = JSON.parse( fs.readFileSync( filepath, 'utf8' ) );
+		if ( libtypes.has( json.type ) ) {
+			composerLibraryFiles.push( filepath.substring( monorepoBase.length ) );
+		}
+	}
+	composerLibraryFiles.sort();
+}
+
 module.exports = {
 	branchPrefix: 'renovate/',
 	allowPlugins: true,
@@ -15,9 +34,9 @@ module.exports = {
 
 	// Extra code to run before creating a commit.
 	allowPostUpgradeCommandTemplating: true,
-	allowedPostUpgradeCommands: [ '/tmp/monorepo/.github/files/renovate-post-upgrade-run.sh' ],
+	allowedPostUpgradeCommands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh' ],
 	postUpgradeTasks: {
-		commands: [ '/tmp/monorepo/.github/files/renovate-post-upgrade-run.sh {{{branchName}}}' ],
+		commands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh {{{branchName}}}' ],
 		// Anything might change thanks to version bumping.
 		fileFilters: [ '**' ],
 		executionMode: 'branch',
@@ -42,7 +61,7 @@ module.exports = {
 					'js-packages': 'package.json',
 				};
 				for ( const [ dir, file ] of Object.entries( files ) ) {
-					const basedir = path.resolve( '/tmp/monorepo/projects/', dir );
+					const basedir = path.resolve( monorepoBase, 'projects/', dir );
 					for ( const d of fs.readdirSync( basedir, { withFileTypes: true } ) ) {
 						if ( ! d.isDirectory() ) {
 							continue;
@@ -62,13 +81,21 @@ module.exports = {
 			enabled: false,
 		},
 
-		// Renovate doesn't detect this as a library, but it should be treated as one.
+		// Renovate doesn't detect some of our PHP packages as libraries, so we need to override `rangeStrategy`.
 		{
-			matchPaths: [ 'projects/packages/codesniffer/composer.json' ],
+			matchPaths: composerLibraryFiles,
+			matchDepTypes: [ 'require' ],
 			rangeStrategy: 'replace',
+		},
+		{
+			matchPaths: composerLibraryFiles,
+			matchDepTypes: [ 'require' ],
+			matchCurrentVersion: '/ \\|\\| /',
+			rangeStrategy: 'widen',
 		},
 
 		// We need to keep a wide version range to support PHP 5.6.
+		// Note for libraries used in plugins this will only work right for require-dev deps, not require.
 		{
 			matchPackageNames: [
 				'johnkary/phpunit-speedtrap',

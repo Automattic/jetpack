@@ -172,6 +172,7 @@ class Defaults {
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
+		'videopress_private_enabled_for_site',
 	);
 
 	/**

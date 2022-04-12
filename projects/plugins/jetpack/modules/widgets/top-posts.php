@@ -372,22 +372,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$posts = $this->get_fallback_posts( $count, $types );
 		}
 
-		// Display our posts.
-		echo $this->display_posts( $posts, $display, $get_image_options ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		/*
+		 * Display our posts.
+		 */
 
-		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * Display the posts in the widget.
-	 *
-	 * @param array $posts             IDs of the posts to be displayed.
-	 * @param array $display           Display option from widget form.
-	 * @param array $get_image_options Array of Image options.
-	 *
-	 * @return string $layout
-	 */
-	private static function display_posts( $posts, $display, $get_image_options ) {
 		/**
 		 * Filter the layout of the Top Posts Widget
 		 *
@@ -401,7 +389,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 */
 		$layout = apply_filters( 'jetpack_top_posts_widget_layout', '', $posts, $display );
 		if ( ! empty( $layout ) ) {
-			return $layout; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $layout; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		switch ( $display ) {
@@ -439,9 +427,9 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				unset( $post );
 
 				if ( 'grid' === $display ) {
-					$layout .= "<div class='widgets-grid-layout no-grav'>\n";
+					echo "<div class='widgets-grid-layout no-grav'>\n";
 					foreach ( $posts as $post ) {
-						$layout .= '<div class="widget-grid-view-image">';
+						echo '<div class="widget-grid-view-image">';
 
 						/**
 						 * Fires before each Top Post result, inside <li>.
@@ -466,7 +454,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						 */
 						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 
-						$layout .= sprintf(
+						printf(
 							'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true"/></a>',
 							esc_url( $filtered_permalink ),
 							esc_attr( wp_kses( $post['title'], array() ) ),
@@ -487,13 +475,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						 */
 						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
 
-						$layout .= '</div>';
+						echo '</div>';
 					}
-					$layout .= "</div>\n";
+					echo "</div>\n";
 				} else {
-					$layout .= "<ul class='widgets-list-layout no-grav'>\n";
+					echo "<ul class='widgets-list-layout no-grav'>\n";
 					foreach ( $posts as $post ) {
-						$layout .= '<li>';
+						echo '<li>';
 
 						/** This action is documented in modules/widgets/top-posts.php */
 						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
@@ -501,7 +489,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						/** This filter is documented in modules/widgets/top-posts.php */
 						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 
-						$layout .= sprintf(
+						printf(
 							'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s>
 								<img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true" class="widgets-list-layout-blavatar"/>
 							</a>
@@ -521,16 +509,16 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						/** This action is documented in modules/widgets/top-posts.php */
 						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
 
-						$layout .= '</li>';
+						echo '</li>';
 					}
-					$layout .= "</ul>\n";
+					echo "</ul>\n";
 				}
 				break;
 			default:
-				$layout .= '<ul>';
+				echo '<ul>';
 
 				foreach ( $posts as $post ) {
-					$layout .= '<li>';
+					echo '<li>';
 
 					/** This action is documented in modules/widgets/top-posts.php */
 					do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
@@ -538,7 +526,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 					/** This filter is documented in modules/widgets/top-posts.php */
 					$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 
-					$layout .= sprintf(
+					printf(
 						'<a href="%1$s" class="bump-view" data-bump-view="tp"%2$s>%3$s</a>',
 						esc_url( $filtered_permalink ),
 						( get_queried_object_id() === $post['post_id'] ? ' aria-current="page"' : '' ),
@@ -548,13 +536,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 					/** This action is documented in modules/widgets/top-posts.php */
 					do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
 
-					$layout .= '</li>';
+					echo '</li>';
 				}
 
-				$layout .= '</ul>';
+				echo '</ul>';
+				break;
 		}
 
-		return $layout;
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
