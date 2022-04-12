@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Publicize\Publicize_UI;
 
 /**
  * Class Jetpack_Social
@@ -56,11 +57,16 @@ class Jetpack_Social {
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
+
+				// Publicize package.
+				$config->ensure( 'publicize' );
 			},
 			1
 		);
 
 		My_Jetpack_Initializer::init();
+
+		new Publicize_UI();
 	}
 
 	/**

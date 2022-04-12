@@ -120,6 +120,7 @@ function Edit( props ) {
 					) }
 					<ProductManagementControls
 						blockName="premium-content"
+						clientId={ clientId }
 						productType={ PRODUCT_TYPE_SUBSCRIPTION }
 						selectedProductId={ selectedPlanId }
 						setSelectedProductId={ setSelectedProductId }
