@@ -2,14 +2,14 @@
  * External dependencies
  */
 import React, { useMemo } from 'react';
-import { select as syncSelect } from '@wordpress/data';
+import { useSelect, select as syncSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
+import { AdminSectionHero, Container, Col, Spinner } from '@automattic/jetpack-components';
 import useConnection from './use-connection';
 import SearchDashboard from './index';
 import { STORE_ID } from 'store';
@@ -20,7 +20,14 @@ import { STORE_ID } from 'store';
  * @returns {React.Component} SearchDashboardWithConnection component.
  */
 export default function SearchDashboardWithConnection() {
+	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const { connectionStatus, renderConnectScreen, renderConnectionFooter } = useConnection();
+
+	const isLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' )
+	);
 
 	const isFullyConnected =
 		Object.keys( connectionStatus ).length &&
@@ -48,6 +55,12 @@ export default function SearchDashboardWithConnection() {
 			current_version: syncSelect( STORE_ID ).getVersion(),
 		} );
 	}, [] );
+
+	if ( isLoading ) {
+		return (
+			<Spinner className="jp-search-dashboard-page-loading-spinner" color="#000" size={ 32 } />
+		);
+	}
 
 	if ( ! isFullyConnected ) {
 		return (

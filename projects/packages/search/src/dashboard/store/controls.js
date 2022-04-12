@@ -2,11 +2,13 @@
  * Internal dependencies
  */
 import restApi from '@automattic/jetpack-api';
+import apiFetch from '@wordpress/api-fetch';
 
 export const FETCH_JETPACK_SETTINGS = 'FETCH_JETPACK_SETTINGS';
 export const UPDATE_JETPACK_SETTINGS = 'UPDATE_JETPACK_SETTINGS';
 export const FETCH_SEARCH_PLAN_INFO = 'FETCH_SEARCH_PLAN_INFO';
 export const FETCH_SEARCH_STATS = 'FETCH_SEARCH_STATS';
+export const FETCH_SEARCH_PRICING = 'FETCH_SEARCH_PRICING';
 
 /**
  * fetchJetpackSettings action
@@ -54,6 +56,17 @@ export const fetchSearchStats = () => {
 	};
 };
 
+/**
+ * fetchSearchPricing action
+ *
+ * @returns {object} - an action object.
+ */
+export const fetchSearchPricing = () => {
+	return {
+		type: FETCH_SEARCH_PRICING,
+	};
+};
+
 export default {
 	[ FETCH_JETPACK_SETTINGS ]: function () {
 		return restApi.fetchSearchSettings();
@@ -66,5 +79,8 @@ export default {
 	},
 	[ FETCH_SEARCH_STATS ]: function () {
 		return restApi.fetchSearchStats();
+	},
+	[ FETCH_SEARCH_PRICING ]: function () {
+		return apiFetch( { path: '/jetpack/v4/search/pricing' } );
 	},
 };
