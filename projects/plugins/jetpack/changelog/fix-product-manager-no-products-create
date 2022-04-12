@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Avoid creating a new product for payment blocks if the site has no products and the block as an invalid product ID.

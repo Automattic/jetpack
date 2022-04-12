@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fa938d8b32dcc0bddda883e9b28502af",
+    "content-hash": "c954bfeb43bafaf15bb28a9639aaa147",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -815,6 +815,65 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Handle installation of plugins from WP.org",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-publicize",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/publicize",
+                "reference": "76b7008c08789cf7b587b638fe92d50eee4b1e16"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.37",
+                "automattic/jetpack-options": "^1.15",
+                "automattic/jetpack-status": "^1.13"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-publicize",
+                "textdomain": "jetpack-publicize-pkg",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
             "transport-options": {
                 "relative": true
             }
@@ -4359,6 +4418,9 @@
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-identity-crisis": 20,
+        "automattic/jetpack-publicize": 20,
+        "automattic/jetpack-options": 20,
+        "automattic/jetpack-connection": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-sync": 20
     },
