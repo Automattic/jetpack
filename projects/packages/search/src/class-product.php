@@ -42,8 +42,7 @@ class Product {
 	 * @param int $record_count The number of record to estimate the tier.
 	 */
 	public static function get_site_tier_pricing( $record_count = 0 ) {
-		$record_count = intval( $record_count > 0 ? $record_count : ( new Stats() )->estimate_count() );
-		$product      = static::get_promoted_product();
+		$product = static::get_promoted_product();
 		if ( is_wp_error( $product ) || ! isset( $product['price_tier_list'] ) ) {
 			return static::DEFAULT_TIER_INFO;
 		}
