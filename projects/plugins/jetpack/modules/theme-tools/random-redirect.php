@@ -11,7 +11,7 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- No changes to the site here, it just redirects.
+// phpcs:disable WordPress.Security.NonceVerification -- No changes to the site here, it just redirects.
 
 /**
  * Redirects to a random post on the site.
