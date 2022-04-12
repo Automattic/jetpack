@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import restApi from '@automattic/jetpack-api';
-import apiFetch from '@wordpress/api-fetch';
 
 export const FETCH_JETPACK_SETTINGS = 'FETCH_JETPACK_SETTINGS';
 export const UPDATE_JETPACK_SETTINGS = 'UPDATE_JETPACK_SETTINGS';
@@ -81,6 +80,6 @@ export default {
 		return restApi.fetchSearchStats();
 	},
 	[ FETCH_SEARCH_PRICING ]: function () {
-		return apiFetch( { path: '/jetpack/v4/search/pricing' } );
+		return restApi.fetchSearchPricing();
 	},
 };
