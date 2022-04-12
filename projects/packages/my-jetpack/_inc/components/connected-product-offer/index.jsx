@@ -20,9 +20,9 @@ import { useProduct } from '../../hooks/use-product';
  * @param {string} props.slug               - Product slug
  * @param {Function} props.onClick          - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @returns {object}                          ConnetedProductOffer react component.
+ * @returns {object}                          ConnectedProductOffer react component.
  */
-const ConnetedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) => {
+const ConnectedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) => {
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
@@ -80,12 +80,12 @@ const ConnetedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) =>
 	);
 };
 
-ConnetedProductOffer.propTypes = {
+ConnectedProductOffer.propTypes = {
 	slug: PropTypes.string.isRequired,
 };
 
-ConnetedProductOffer.defaultProps = {
+ConnectedProductOffer.defaultProps = {
 	trackButtonClick: () => {},
 };
 
-export default ConnetedProductOffer;
+export default ConnectedProductOffer;

@@ -21,7 +21,7 @@ import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { STORE_ID } from '../../state/store';
 import GoBackLink from '../go-back-link';
-import ConnetedProductOffer from '../connected-product-offer';
+import ConnectedProductOffer from '../connected-product-offer';
 
 /**
  * Product Interstitial component.
@@ -103,7 +103,7 @@ export default function ProductInterstitial( {
 						fluid
 					>
 						<Col sm={ 4 } md={ 4 } lg={ 7 }>
-							<ConnetedProductOffer
+							<ConnectedProductOffer
 								slug={ slug }
 								trackButtonClick={ trackProductClick }
 								onClick={ installsPlugin ? clickHandler : undefined }
@@ -112,7 +112,7 @@ export default function ProductInterstitial( {
 						</Col>
 						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
 							{ bundle ? (
-								<ConnetedProductOffer
+								<ConnectedProductOffer
 									slug="security"
 									trackButtonClick={ trackBundleClick }
 									className={ isUpgradableByBundle ? styles.container : null }
