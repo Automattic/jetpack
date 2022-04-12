@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { Spinner } from '@wordpress/components';
 import PropTypes from 'prop-types';
 
 /**
@@ -33,9 +32,9 @@ const ActionButton = props => {
 					label={ label }
 					onClick={ onClick }
 					variant="primary"
-					disabled={ isLoading }
+					isLoading={ isLoading }
 				>
-					{ isLoading ? <Spinner /> : label }
+					{ label }
 				</Button>
 			}
 
