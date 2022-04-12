@@ -1,5 +1,5 @@
 <?php
-/** @var $waf \Automattic\Jetpack\Waf\WafRuntime */
+/** @var $waf \Automattic\Jetpack\Waf\Waf_Runtime */
 $rule = (object) array( 'id' => 1337, 'reason' => '', 'tags' => array (
 	0 => 'stuff',
 ) );
