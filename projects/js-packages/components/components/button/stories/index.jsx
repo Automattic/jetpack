@@ -2,13 +2,16 @@
  * External dependencies
  */
 import React from 'react';
-import { Icon as WPIcon, check } from '@wordpress/icons';
+import * as allIcons from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import Button from '../index.jsx';
 import Doc from './Button.mdx';
+
+const { Icon: WPIcon, ...icons } = allIcons;
+const { check } = icons;
 
 const DisableVariant = {
 	variant: {
@@ -61,7 +64,11 @@ const disableClassName = {
 export default {
 	title: 'JS Packages/Components/Button',
 	component: Button,
-	argTypes: {},
+	argTypes: {
+		icon: {
+			control: { type: 'select', options: Object.keys( icons ) },
+		},
+	},
 	parameters: {
 		backgrounds: {
 			default: 'Jetpack Dashboard',
@@ -72,17 +79,23 @@ export default {
 	},
 };
 
-const Template = args => <Button { ...args } />;
+const DefaultTemplate = args => {
+	const icon = args?.icon ? <WPIcon icon={ icons[ args.icon ] } /> : null;
+	return <Button { ...args } icon={ icon } />;
+};
 
-export const Default = Template.bind( {} );
+export const Default = DefaultTemplate.bind( {} );
 Default.args = {
 	size: 'normal',
-	children: 'Default Button Story',
+	children: 'Once upon a time… a button story',
 	variant: 'primary',
 	isLoading: false,
 	disabled: false,
 	isDestructive: false,
+	icon: 'cloud',
 };
+
+const Template = args => <Button { ...args } />;
 
 export const ButtonPrimary = Template.bind( {} );
 ButtonPrimary.argTypes = {
