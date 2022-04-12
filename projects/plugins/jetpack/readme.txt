@@ -242,17 +242,26 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.9-a.1 - 2022-04-06
+### 10.9-a.3 - 2022-04-12
 #### Enhancements
-- Payments Block: Re-loading the page will not cause payment form to open again.
+- Dashboard: Various improvements to recommendations.
+- Payments block: Improves block selection behavior.
+- Protect: Renamed to "Brute Force Protection" in the UI.
+- VideoPress: Adds settings for controlling VideoPress video privacy.
+- VideoPress: Enable the resumable uploader.
 
 #### Improved compatibility
-- Dashboard: Display block settings even when the Classic Editor plugin is active.
-- Mailchimp Popup widget: Widget deprecation.
+- Custom CSS: Improve saving for legacy Custom CSS.
+- Improvements to backwards compatibility with other Jetpack plugins.
+
 
 #### Bug fixes
-- Contact Form: Ensure the form's input fields inherit a default font size.
-- Subscribe Block: Fix default styles block setting selection to "Split".
+- Button block: Removes default CSS that would overwrite core and theme styles.
+- Payments block: Makes the ‘one time’ subscription recurrence always available.
+- Payments block: Fixes bug regarding creation of new Payment blocks.
+- Pay with PayPal: Fixes issue with saving widget in Customizer.
+- Slideshow block: Fix grid blowout when Slideshow block is inserted inside a Layout Grid block (in editor).
+- Top Posts Widget: ensure hooks retain existing behavior when adding extra data before or after each post.
 
 --------
 
