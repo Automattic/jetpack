@@ -163,7 +163,7 @@ class Jetpack_Admin {
 	 *
 	 * You can modify the return url via $args.
 	 *
-	 * This method is also located in custom-css-4.7.php to cover legacy scenarios - duplicated here in $$next-version$$
+	 * @since $$next-version$$ in this file. This method is also located in custom-css-4.7.php to cover legacy scenarios.
 	 *
 	 * @param array $args Array of parameters.
 	 * @return string
