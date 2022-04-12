@@ -342,7 +342,7 @@ class REST_Controller {
 	 * Pricing for record count of the site
 	 */
 	public function product_pricing() {
-		$record_count = Stats::estimate_count();
+		$record_count = intval( Stats::estimate_count() );
 		$tier_pricing = Product::get_site_tier_pricing( $record_count );
 		return rest_ensure_response( $tier_pricing );
 	}
