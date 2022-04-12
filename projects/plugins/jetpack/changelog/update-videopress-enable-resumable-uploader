@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Enabled resumable uploader for the /video block when VideoPress is enabled
