@@ -114,7 +114,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 	Composer is a PHP package manager and it's used to install packages that are required to run development tools and build projects.
 
-	The monorepo requires version 2.2.x.
+	The monorepo requires version 2.3.x.
 
 	 * ##### Installing Composer on macOS
 
