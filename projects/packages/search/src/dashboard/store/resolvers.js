@@ -70,7 +70,7 @@ export function* getSearchStats() {
 }
 
 /**
- * Yield actions to get search stats
+ * Yield actions to get search pricing
  *
  * @yields {object} - an action object.
  * @returns {object} - an action object.
