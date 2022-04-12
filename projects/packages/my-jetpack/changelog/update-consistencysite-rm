@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+Comment: Janitorial: consistent use of the term site everywhere instead of a combo of website & site.
+Fixes: #21662
