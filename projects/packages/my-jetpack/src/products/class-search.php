@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Jetpack_Options;
 use WP_Error;
@@ -16,7 +16,7 @@ use WP_Error;
 /**
  * Class responsible for handling the Search product
  */
-class Search extends Module_Product {
+class Search extends Hybrid_Product {
 
 	/**
 	 * The product slug
@@ -31,6 +31,24 @@ class Search extends Module_Product {
 	 * @var string
 	 */
 	public static $module_name = 'search';
+
+	/**
+	 * The slug of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_slug = 'jetpack-search';
+
+	/**
+	 * The filename (id) of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_filename = array(
+		'jetpack-search/jetpack-search.php',
+		'search/jetpack-search.php',
+		'jetpack-search-dev/jetpack-search.php',
+	);
 
 	/**
 	 * Get the internationalized product name
@@ -168,8 +186,30 @@ class Search extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_active() ) {
-			return admin_url( 'admin.php?page=jetpack-search-configure' );
+		return admin_url( 'admin.php?page=jetpack-search' );
+	}
+
+	/**
+	 * Checks whether the Product is active
+	 *
+	 * @return boolean
+	 */
+	public static function is_active() {
+		return parent::is_active() && static::has_required_plan();
+	}
+
+	/**
+	 * Get the plugin slug - Since Search stand-alone plugin is not yet released in the wporg directory, let's fallback to Jetpack if none of the two plugins are installed.
+	 *
+	 * @TODO: Remove this method when Jetpack Search plugin is released.
+	 *
+	 * @return ?string
+	 */
+	public static function get_plugin_slug() {
+		if ( ! static::is_plugin_installed() ) {
+			return self::JETPACK_PLUGIN_SLUG;
+		} else {
+			return parent::get_plugin_slug();
 		}
 	}
 }
