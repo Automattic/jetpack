@@ -10,7 +10,6 @@ use Automattic\Jetpack_Boost\Lib\Nonce;
 class Generator {
 
 	const GENERATE_QUERY_ACTION = 'jb-generate-critical-css';
-	const GENERATE_PROXY_NONCE  = 'jb-generate-proxy-nonce';
 	const CSS_CALLBACK_ACTION   = 'jb-critical-css-callback';
 
 	/**
@@ -32,10 +31,6 @@ class Generator {
 		$this->paths = new Source_Providers();
 		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
 			$this->state->create_request( $this->paths->get_providers() );
-		}
-
-		if ( is_admin() ) {
-			add_action( 'wp_ajax_boost_proxy_css', array( $this, 'handle_css_proxy' ) );
 		}
 	}
 
@@ -161,46 +156,6 @@ class Generator {
 	}
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-	/**
-	 * AJAX handler to handle proxying of external CSS resources.
-	 */
-	public function handle_css_proxy() {
-		// Verify valid nonce.
-		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::GENERATE_PROXY_NONCE ) ) {
-			wp_die( '', 400 );
-		}
-
-		// Make sure currently logged in as admin.
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( '', 400 );
-		}
-
-		// Reject any request made when not generating.
-		if ( ! $this->state->is_pending() ) {
-			wp_die( '', 400 );
-		}
-
-		// Validate URL and fetch.
-		$proxy_url = filter_var( wp_unslash( $_POST['proxy_url'] ), FILTER_VALIDATE_URL );
-		if ( ! wp_http_validate_url( $proxy_url ) ) {
-			die( 'Invalid URL' );
-		}
-
-		$response = wp_remote_get( $proxy_url );
-		if ( is_wp_error( $response ) ) {
-			// TODO: Nicer error handling.
-			die( 'error' );
-		}
-
-		header( 'Content-type: text/css' );
-
-		// Outputting proxied CSS contents unescaped.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo wp_strip_all_tags( $response['body'] );
-
-		die();
-	}
-
 	public function make_generation_request() {
 		$this->state->create_request( $this->paths->get_providers() );
 	}
@@ -236,7 +191,7 @@ class Generator {
 		$status['generation_nonce'] = Nonce::create( self::GENERATE_QUERY_ACTION );
 
 		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
-		$status['proxy_nonce'] = wp_create_nonce( self::GENERATE_PROXY_NONCE );
+		$status['proxy_nonce'] = wp_create_nonce( CSS_Proxy::NONCE_ACTION );
 
 		// Add a passthrough block to include in all response callbacks.
 		$status['callback_passthrough'] = array(

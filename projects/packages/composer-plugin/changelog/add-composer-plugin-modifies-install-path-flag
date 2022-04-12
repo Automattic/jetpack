@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Set `.extra.plugin-modifies-install-path` in composer.json for Composer 2.2.9+.

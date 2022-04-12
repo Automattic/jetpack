@@ -64,8 +64,8 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 		<div className="wp-block-jetpack-recurring-payments">
 			{ showControls && (
 				<ProductManagementControls
-					allowCreateOneTimeInterval={ true }
 					blockName="recurring-payments"
+					clientId={ clientId }
 					selectedProductId={ planId }
 					setSelectedProductId={ updateSubscriptionPlan }
 				/>

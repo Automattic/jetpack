@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.17.8 - 2022-04-12
+### Changed
+- Updated package dependencies.
+
 ## 0.17.7 - 2022-04-05
 ### Added
 - Add skipUserConnection option to connectScreen component
