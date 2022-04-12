@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\Connection\Client;
+use Jetpack_Options;
+
 /**
  * Executes the WAF.
  */
@@ -168,18 +171,38 @@ class Waf_Runner {
 	 *
 	 * @throws \Exception If filesystem is not available.
 	 * @throws \Exception If file writing fails.
-	 * @return void
+	 * @return void|WP_Error
 	 */
 	public static function generate_rules() {
 		global $wp_filesystem;
 
 		self::initialize_filesystem();
 
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/waf-rules',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
+			throw new \Exception( 'Failure to connect to api.' );
+		}
+
+		$rules_json = wp_remote_retrieve_body( $response );
+		$rules      = json_decode( $rules_json, true );
+
 		// Ensure that the folder exists.
 		if ( ! $wp_filesystem->is_dir( dirname( self::RULES_FILE ) ) ) {
 			$wp_filesystem->mkdir( dirname( self::RULES_FILE ) );
 		}
-		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, "<?php\n" ) ) {
+		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, $rules['data'] ) ) {
 			throw new \Exception( 'Failed writing to: ' . self::RULES_FILE );
 		}
 	}
