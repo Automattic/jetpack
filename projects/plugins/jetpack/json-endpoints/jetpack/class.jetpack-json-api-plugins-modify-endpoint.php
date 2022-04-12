@@ -537,11 +537,11 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	}
 
 	/**
-	 * Get translations.
+	 * Test whether the translation matches `$this->slug`.
 	 *
 	 * @param array $translation - the translation.
 	 *
-	 * @return string
+	 * @return bool
 	 */
 	protected function get_translation( $translation ) {
 		return ( $translation['slug'] === $this->slug );
