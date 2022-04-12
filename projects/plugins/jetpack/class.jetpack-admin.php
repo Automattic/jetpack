@@ -141,7 +141,7 @@ class Jetpack_Admin {
 	 * Handle the redirect for the customizer.  This is necessary because
 	 * we can't directly add customizer links to the admin menu.
 	 *
-	 * This method was originally located in custom-css-4.7.php until $$next-version$$
+	 * @since $$next-version$$ . Prior to that, this function was located in custom-css-4.7.php.
 	 *
 	 * There is a core patch in trac that would make this unnecessary.
 	 *
