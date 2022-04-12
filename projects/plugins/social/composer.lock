@@ -825,12 +825,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "5fb6db953742fcd3e082b0d34a45d4160a69dab9"
+                "reference": "76b7008c08789cf7b587b638fe92d50eee4b1e16"
             },
             "require": {
-                "automattic/jetpack-connection": "1.37.x-dev",
-                "automattic/jetpack-options": "1.15.x-dev",
-                "automattic/jetpack-status": "1.13.x-dev"
+                "automattic/jetpack-connection": "^1.37",
+                "automattic/jetpack-options": "^1.15",
+                "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -4428,5 +4428,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }
