@@ -1,3 +1,3 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 Comment: Janitorial: consistent use of the term site everywhere instead of a combo of website & site.
