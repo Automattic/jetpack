@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-starter-plugin",
-	"description": "Social plugin",
+	"description": "Starter Plugin",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
