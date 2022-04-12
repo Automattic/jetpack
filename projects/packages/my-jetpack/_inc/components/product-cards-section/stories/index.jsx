@@ -4,7 +4,7 @@
 import React from 'react';
 import withMock from 'storybook-addon-mock';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import { getAllMockData } from '../../product-detail-card/stories/utils.js';
+import { getAllMockData } from '../../connected-product-offer/stories/utils.js';
 
 /**
  * Internal dependencies

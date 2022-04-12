@@ -11,7 +11,7 @@ class Jetpack_VideoPress {
 	public $module = 'videopress';
 
 	/** @var int */
-	public $version = 5;
+	public $version = 6;
 
 	/**
 	 * Singleton
@@ -62,6 +62,27 @@ class Jetpack_VideoPress {
 
 		if ( $this->is_videopress_enabled() ) {
 			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );
+			$bridge_url = Assets::get_file_url_for_environment(
+				'modules/videopress/js/videopress-token-bridge.js',
+				'modules/videopress/js/videopress-token-bridge.js'
+			);
+
+			wp_enqueue_script(
+				'media-video-jwt-bridge',
+				$bridge_url,
+				array(),
+				$this->version,
+				false
+			);
+
+			wp_localize_script(
+				'media-video-jwt-bridge',
+				'videopressAjax',
+				array(
+					'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+					'bridgeUrl' => $bridge_url,
+				)
+			);
 		}
 	}
 

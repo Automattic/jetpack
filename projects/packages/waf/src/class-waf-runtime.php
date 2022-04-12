@@ -14,9 +14,9 @@ namespace Automattic\Jetpack\Waf;
  */
 
 /**
- * WafRuntime class
+ * Waf_Runtime class
  */
-class WafRuntime {
+class Waf_Runtime {
 
 	/**
 	 * Last rule.
@@ -65,13 +65,13 @@ class WafRuntime {
 	/**
 	 * Transforms.
 	 *
-	 * @var WafTransforms[]
+	 * @var Waf_Transforms[]
 	 */
 	private $transforms;
 	/**
 	 * Operators.
 	 *
-	 * @var WafOperators[]
+	 * @var Waf_Operators[]
 	 */
 	private $operators;
 
@@ -98,8 +98,8 @@ class WafRuntime {
 	/**
 	 * Constructor method.
 	 *
-	 * @param WafTransforms $transforms Transforms.
-	 * @param WafOperators  $operators Operators.
+	 * @param Waf_Transforms $transforms Transforms.
+	 * @param Waf_Operators  $operators Operators.
 	 */
 	public function __construct( $transforms, $operators ) {
 		$this->transforms = $transforms;
@@ -170,7 +170,7 @@ class WafRuntime {
 	/**
 	 * Return TRUE if at least one of the targets matches the rule.
 	 *
-	 * @param string[] $transforms One of the transform methods defined in the JetpackWafTransforms class.
+	 * @param string[] $transforms One of the transform methods defined in the Jetpack Waf_Transforms class.
 	 * @param mixed    $targets Targets.
 	 * @param string   $match_operator Match operator.
 	 * @param mixed    $match_value Match value.

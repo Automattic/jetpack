@@ -242,45 +242,26 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.8 - 2022-04-05
-#### Major Enhancements
-- QR Post: add new feature which automatically generates QR codes for published posts. When scanned, the QR code will link visitors to the post. If a site has a custom logo set, it will be shown in the generated QR code image.
-
+### 10.9-a.3 - 2022-04-12
 #### Enhancements
-- Blocks: make settings discoverable and toggleable, and add a card to highlight the blocks available from Jetpack on the dashboard.
-- Dashboard: show Search benefits on the Jetpack disconnection screen.
-- External Media: add Openverse as an external Media provider.
-- Form Block: offer option to install/activate the Jetpack CRM plugin from the Form block settings panel.
-- Payment Block: clicking on payment links from email or WordPress.com Notifications/Reader will correctly open the corresponding payment form. Also add a unified Payment Block selector and introduce a post-publish panel for Payment Blocks.
-- Subscribe Block: block setting updates including name change, display of current subscribers, and a new style option. Also add pre/post-publish notices.
-- Tiled Gallery: add background color block setting.
-- Various Blocks: update Contact Info, Markdown, and Tiled Gallery blocks to include margin design tools.
-- VideoPress: added support for the `muted`, `controls` and `playsinline` properties on the 'wpvideo' and VideoPress shortcodes.
+- Dashboard: Various improvements to recommendations.
+- Payments block: Improves block selection behavior.
+- Protect: Renamed to "Brute Force Protection" in the UI.
+- VideoPress: Adds settings for controlling VideoPress video privacy.
+- VideoPress: Enable the resumable uploader.
 
 #### Improved compatibility
-- Sharing: avoid warnings when the feature is not active on a site that uses the AMP plugin.
-- Shortcodes: adds the Jetpack namespace to slideshow shortcode CSS class names.
-- Various Blocks: remove deprecated attributes from Button components.
+- Custom CSS: Improve saving for legacy Custom CSS.
+- Improvements to backwards compatibility with other Jetpack plugins.
+
 
 #### Bug fixes
-- Calendly Block: ensure it can be displayed inline when using a block enabled theme.
-- Carousel: fix nonce check issue with Carousel comments
-- CLI Tools: ensure WP CLI is present before extending the class.
-- Form Block: do not display the CRM integration option to non-admins.
-- Google Analytics: fix showing an upgrade button with the latest Jetpack security plans.
-- Jetpack: fix missing "Connect User" button after restoring a connection.
-- Jetpack: remove the duplicated `jetpack_relatedposts_returned_results filter`.
-- Payment Blocks: fixes an issue with the upgrade banner being obscured from all payment blocks.
-- Pay with Paypal Block: fix inconsistent currency formatting.
-- Pay with PayPal widget: enable widget to work in block-based widget editor and full site editor.
-- Publicize: prevent newlines from being stripped from a custom Publicize message in the classic editor.
-- QR Post: improve the inner logo sizing.
-- SEO Tools: ensure Twitter cards get correct description when a site has a blank tagline.
-- Shortlinks: display the shortlinks interface in the block editor for all post types that support shortlinks.
-- Subscribe Block: ensure subscription panels are not shown in the page editor, or when the site is private.
-- Top Posts Widget: display a fallback list of posts to admins when there are no popular posts to display.
-- WooCommerce: fix an issue preventing upgrading to version 6.3.0.
-- WordAds: fix defaulting to "house ad" mode for new activations.
+- Button block: Removes default CSS that would overwrite core and theme styles.
+- Payments block: Makes the ‘one time’ subscription recurrence always available.
+- Payments block: Fixes bug regarding creation of new Payment blocks.
+- Pay with PayPal: Fixes issue with saving widget in Customizer.
+- Slideshow block: Fix grid blowout when Slideshow block is inserted inside a Layout Grid block (in editor).
+- Top Posts Widget: ensure hooks retain existing behavior when adding extra data before or after each post.
 
 --------
 
