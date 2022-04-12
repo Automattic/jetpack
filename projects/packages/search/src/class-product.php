@@ -65,11 +65,12 @@ class Product {
 		// 1. Flat fee in the same tier, so for search, `minimum_price == maximum_price`.
 		// 2. `maximum_units` is empty on the highest tier, so the logic displays the highest or the highest matching tier.
 		return array(
-			'currency_code'  => $product['currency_code'],
-			'discount_price' => $discount_price,
-			'full_price'     => $minimum_price,
-			'minimum_units'  => $price_tier['minimum_units'],
-			'maximum_units'  => $price_tier['maximum_units'],
+			'currency_code'   => $product['currency_code'],
+			'discount_price'  => $discount_price,
+			'full_price'      => $minimum_price,
+			'minimum_units'   => $price_tier['minimum_units'],
+			'maximum_units'   => $price_tier['maximum_units'],
+			'estimated_count' => $record_count,
 		);
 	}
 
