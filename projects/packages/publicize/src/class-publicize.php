@@ -140,7 +140,7 @@ class Publicize extends Publicize_Base {
 	 * @param bool      $force_delete Whether to skip permissions checks.
 	 * @return false|void False on failure. Void on success.
 	 */
-	public function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) {
 		return Keyring_Helper::disconnect( $service_name, $connection_id, $_blog_id, $_user_id, $force_delete );
 	}
 
