@@ -46,7 +46,7 @@ function jetpack_matt_random_redirect() {
 	}
 
 	// Acceptable URL formats: /[...]/?random=[post type], /?random, /&random, /&random=1
-	if ( ! isset( $_GET['random'] ) && ! in_array( strtolower( $_SERVER['REQUEST_URI'] ), array( '/&random', '/&random=1' ), true ) ) {
+	if ( ! isset( $_GET['random'] ) && ! ( isset( $_SERVER['REQUEST_URI'] ) && in_array( strtolower( $_SERVER['REQUEST_URI'] ), array( '/&random', '/&random=1' ), true ) ) ) {
 		return;
 	}
 
