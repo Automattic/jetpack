@@ -6,19 +6,29 @@
 	& > :global(.components-spinner) {
 		margin: 0;
 		position: absolute;
-		width: calc( var(--spacing-base) * 2 );
-		height: calc( var(--spacing-base) * 2 );
+		width: calc( var(--spacing-base) * 3 );
+		height: calc( var(--spacing-base) * 3 );
 		top: 50%;
 		left: 50%;
-		margin-top: -8px;
+		margin-top: -12px;
 		margin-left: calc( var(--spacing-base) * -1 );
 		color: var(--jp-black);
+		border-radius: 50%;
+		padding: 4px;
 	}
 
 	& > :global(.components-button).is-loading {
 		.button-content,
 		> * {
-			opacity: 0.1;
+			opacity: 0.2;
+		}
+
+		&:global(.is-secondary) {
+			box-shadow: inset 0 0 0 1px var(--jp-gray-10);
+		}
+
+		&:global(.is-link) .button-content {
+			opacity: 0.05;
 		}
 	}
 }
