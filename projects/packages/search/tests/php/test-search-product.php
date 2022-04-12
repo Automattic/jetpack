@@ -106,6 +106,6 @@ class Test_Search_Product extends Search_Test_Case {
 	 * @param float $actual   The actual float number.
 	 */
 	public function assertPriceEquals( $expected, $actual ) {
-		return $this->assertEqualsWithDelta( $expected, $actual, 0.0001 );
+		return $this->assertEquals( $expected, $actual, '', 0.0001 );
 	}
 }
