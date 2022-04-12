@@ -125,7 +125,7 @@ class Jetpack_Admin {
 	/**
 	 * Handle our Additional CSS menu item and legacy page declaration.
 	 *
-	 * This method was originally located in custom-css-4.7.php until $$next-version$$
+	 * @since $$next-version$$ . Prior to that, this function was located in custom-css-4.7.php.
 	 */
 	public static function additional_css_menu() {
 		// Add in our legacy page to support old bookmarks and such.
