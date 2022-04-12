@@ -82,7 +82,7 @@ function setIsFetchingProduct( productId, isFetching ) {
  * @param {object}   store          - Redux store.
  * @param {object}   store.select   - Redux store select.
  * @param {Function} store.dispatch - Redux store dispatch.
- * @param store.registry
+ * @param {object}   store.registry - Redux registry.
  * @returns {Promise}               - Promise which resolves when the product status is updated.
  */
 function requestProductStatus( productId, data, { select, dispatch, registry } ) {
