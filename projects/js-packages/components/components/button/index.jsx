@@ -37,6 +37,7 @@ const Button = ( {
 		[ styles.normal ]: size === BUTTON_SIZES.NORMAL,
 		[ styles.small ]: size === BUTTON_SIZES.SMALL,
 		[ styles.icon ]: Boolean( icon ),
+		[ styles[ 'is-loading' ] ]: isLoading,
 	} );
 
 	const isExternalLink = variant === BUTTON_VARIANTS.EXTERNAL_LINK;
@@ -45,26 +46,23 @@ const Button = ( {
 	const externalTarget = isExternalLink ? '_blank' : undefined;
 
 	return (
-		<WPButton
-			target={ externalTarget }
-			variant={ isExternalLink ? 'link' : variant }
-			className={ className }
-			icon={ icon }
-			iconSize={ iconSize }
-			disabled={ disabled }
-			isDestructive={ isDestructive }
-			text={ text }
-			{ ...componentProps }
-		>
-			{ isLoading ? (
-				<Spinner />
-			) : (
-				<>
-					{ children }
-					{ externalIcon }
-				</>
-			) }
-		</WPButton>
+		<div className={ styles[ 'button-wrapper' ] }>
+			<WPButton
+				target={ externalTarget }
+				variant={ isExternalLink ? 'link' : variant }
+				className={ className }
+				icon={ icon }
+				iconSize={ iconSize }
+				disabled={ disabled }
+				isDestructive={ isDestructive }
+				text={ text }
+				{ ...componentProps }
+			>
+				<span className={ styles[ 'button-content' ] }>{ children }</span>
+				{ externalIcon }
+			</WPButton>
+			{ isLoading && <Spinner /> }
+		</div>
 	);
 };
 
