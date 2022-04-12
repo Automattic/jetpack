@@ -48,6 +48,11 @@ class Waf_Runner {
 	 * @return bool
 	 */
 	public static function is_allowed_mode( $option ) {
+		// Normal constants are defined prior to WP_CLI running causing problems for activation
+		if ( defined( 'WAF_CLI_MODE' ) ) {
+			$option = WAF_CLI_MODE;
+		}
+
 		$allowed_modes = array(
 			'normal',
 			'silent',
@@ -122,7 +127,7 @@ class Waf_Runner {
 	 * @return void
 	 * @throws \Exception If filesystem is unavailable.
 	 */
-	protected static function initialize_filesystem() {
+	public static function initialize_filesystem() {
 		if ( ! function_exists( '\\WP_Filesystem' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
@@ -150,6 +155,25 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Deactivates the WAF by deleting the relevant options and emptying rules file.
+	 *
+	 * @return void
+	 * @throws \Exception If file writing fails.
+	 */
+	public static function deactivate() {
+		delete_option( self::MODE_OPTION_NAME );
+		delete_option( self::VERSION_OPTION_NAME );
+
+		global $wp_filesystem;
+
+		self::initialize_filesystem();
+
+		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, "<?php\n" ) ) {
+			throw new \Exception( 'Failed to empty rules.php file.' );
+		}
+	}
+
+	/**
 	 * Updates the rule set if rules version has changed
 	 *
 	 * @return void
@@ -167,11 +191,42 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Retrieve rules from the API
+	 *
+	 * @throws \Exception If site is not registered.
+	 * @throws \Exception If API did not respond 200.
+	 * @throws \Exception If data is missing from response.
+	 * @return array
+	 */
+	public static function get_rules_from_api() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			throw new \Exception( 'Site is not registered' );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%s/waf-rules', $blog_id )
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			throw new \Exception( 'API connection failed.' );
+		}
+
+		$rules_json = wp_remote_retrieve_body( $response );
+		$rules      = json_decode( $rules_json, true );
+
+		if ( empty( $rules['data'] ) ) {
+			throw new \Exception( 'Data missing from response.' );
+		}
+
+		return $rules;
+	}
+
+	/**
 	 * Generates the rules.php script
 	 *
-	 * @throws \Exception If filesystem is not available.
 	 * @throws \Exception If file writing fails.
-	 * @return void|WP_Error
+	 * @return void
 	 */
 	public static function generate_rules() {
 		global $wp_filesystem;
@@ -180,19 +235,15 @@ class Waf_Runner {
 
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
-			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+			throw new \Exception( 'Site is not registered' );
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/waf-rules',
-			'v2',
-			array(),
-			null,
-			'wpcom'
+			sprintf( '/sites/%s/waf-rules', $blog_id )
 		);
 
-		if ( is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
-			throw new \Exception( 'Failure to connect to api.' );
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			throw new \Exception( 'API connection failed. ' );
 		}
 
 		$rules_json = wp_remote_retrieve_body( $response );

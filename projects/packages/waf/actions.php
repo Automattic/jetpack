@@ -31,17 +31,3 @@ add_action(
 		require_once __DIR__ . '/run.php';
 	}
 );
-
-/**
- * Will update the rules.php file on every page load; temporarily replaces the
- * register_activation_hook since on activation the user hasn't yet connected
- * their site to Jetpack and may not have a wpcom user id.
- *
- * @return void
- */
-add_action(
-	'wp_loaded',
-	function () {
-		Waf_Runner::activate();
-	}
-);
