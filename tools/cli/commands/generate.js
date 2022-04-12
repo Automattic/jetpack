@@ -312,6 +312,7 @@ async function generatePluginFromStarter( projDir, answers ) {
 
 	// Replace strings.
 	await searchReplaceInFolder( projDir, 'jetpack-starter-plugin', normalizeSlug( answers.name ) );
+	await searchReplaceInFolder( projDir, 'starter-plugin', normalizeSlug( answers.name, false ) );
 	await searchReplaceInFolder(
 		projDir,
 		'starter_plugin',
