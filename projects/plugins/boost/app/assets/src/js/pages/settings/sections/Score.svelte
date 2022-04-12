@@ -15,8 +15,7 @@
 		getScoreImprovementPercentage,
 	} from '../../../api/speed-scores';
 	import debounce from '../../../utils/debounce';
-	import { criticalCssStatus } from '../../../stores/critical-css-status';
-	import { cloudCssStatus } from '../../../stores/cloud-css-status';
+	import { criticalCssStatus, isGenerating } from '../../../stores/critical-css-status';
 	import { modules } from '../../../stores/modules';
 	import { derived, writable } from 'svelte/store';
 	import RatingCard from '../elements/RatingCard.svelte';
@@ -105,12 +104,11 @@
 	 * A store that checks if the speed score needs a refresh.
 	 */
 	const needsRefresh = derived(
-		[ criticalCssStatus, cloudCssStatus, modulesInSync, scoreConfigString, scores ],
+		[ isGenerating, modulesInSync, scoreConfigString, scores ],
 		// eslint-disable-next-line no-shadow
-		( [ $criticalCssStatus, $cloudCssStatus, $modulesInSync, $scoreConfigString, $scores ] ) => {
+		( [ $isGenerating, $modulesInSync, $scoreConfigString, $scores ] ) => {
 			return (
-				! $criticalCssStatus.generating &&
-				! $cloudCssStatus.pending &&
+				! $isGenerating &&
 				$modulesInSync &&
 				( $scoreConfigString !== currentScoreConfigString || $scores.isStale )
 			);
