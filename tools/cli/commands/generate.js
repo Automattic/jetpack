@@ -290,7 +290,7 @@ export async function generateProject(
  * Generates a new plugin using the Starter plugin as a template
  *
  * @param {string} projDir - The project dir path.
- * @param {object} answers - The anwers got from the CLI prompt.
+ * @param {object} answers - Answers from the CLI prompt.
  * @returns {void}
  */
 async function generatePluginFromStarter( projDir, answers ) {
