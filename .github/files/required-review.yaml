@@ -10,6 +10,8 @@
 - name: pnpm lockfile
   paths:
    - 'pnpm-lock.yaml'
+   - 'projects/plugins/**/composer.lock'
+   - 'projects/plugins/**/composer.json'
   teams:
    # Unfortunately this list need to be maintaned manually...
    # yamato-backup-and-security is the group that consists of both yamato-scan and yamato-backup teams.
@@ -29,6 +31,8 @@
    - '!projects/packages/search/**'
    - '!projects/packages/publicize/**'
    - '!projects/packages/waf/**'
+   - '!projects/plugins/**/composer.lock'
+   - '!projects/plugins/**/composer.json'
   teams:
    - jetpack-approvers
 
@@ -39,6 +43,8 @@
    - 'projects/packages/backup/**'
    - 'projects/plugins/vaultpress/**'
    - 'projects/plugins/backup/**'
+   - '!projects/plugins/**/composer.lock'
+   - '!projects/plugins/**/composer.json'
   teams:
    - yamato-backup
    - jetpack-approvers
@@ -49,6 +55,8 @@
   paths:
     - 'projects/packages/waf/**'
     - 'projects/plugins/protect/**'
+    - '!projects/plugins/**/composer.lock'
+    - '!projects/plugins/**/composer.json'
   teams:
     - yamato-scan
     - jetpack-approvers
@@ -58,6 +66,8 @@
 - name: Boost
   paths:
    - 'projects/plugins/boost/**'
+   - '!projects/plugins/**/composer.lock'
+   - '!projects/plugins/**/composer.json'
   teams:
    - heart-of-gold
    - jetpack-approvers
@@ -67,6 +77,8 @@
   paths:
    - 'projects/plugins/search/**'
    - 'projects/packages/search/**'
+   - '!projects/plugins/**/composer.lock'
+   - '!projects/plugins/**/composer.json'
   teams:
    - jetpack-search
    - jetpack-approvers
@@ -76,6 +88,8 @@
   paths:
    - 'projects/plugins/social/**'
    - 'projects/packages/publicize/**'
+   - '!projects/plugins/**/composer.lock'
+   - '!projects/plugins/**/composer.json'
   teams:
    - jetpack-reach
    - jetpack-approvers
