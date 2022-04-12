@@ -64,7 +64,7 @@ export default {
 	argTypes: {},
 	parameters: {
 		backgrounds: {
-			default: 'Light',
+			default: 'Jetpack Dashboard',
 		},
 		docs: {
 			page: Doc,
@@ -73,6 +73,16 @@ export default {
 };
 
 const Template = args => <Button { ...args } />;
+
+export const Default = Template.bind( {} );
+Default.args = {
+	size: 'normal',
+	children: 'Default Button Story',
+	variant: 'primary',
+	isLoading: false,
+	disabled: false,
+	isDestructive: false,
+};
 
 export const ButtonPrimary = Template.bind( {} );
 ButtonPrimary.argTypes = {
