@@ -10,7 +10,6 @@ import { BarChart } from './bar-chart';
 import { RecordCount } from './record-count';
 import { NoticeBox } from './notice-box';
 import getRecordInfo from './lib/record-info';
-import createData from './lib/create-data';
 
 import './style.scss';
 
@@ -33,7 +32,7 @@ export default function RecordMeter( {
 	// TODO: use setRecordInfo var
 	// eslint-disable-next-line no-unused-vars
 	const [ recordInfo, setRecordInfo ] = useState(
-		getRecordInfo( createData().data, createData().planInfo )
+		getRecordInfo( postCount, postTypeBreakdown, tierMaximumRecords, lastIndexedDate )
 	);
 
 	return (
@@ -61,16 +60,6 @@ export default function RecordMeter( {
 								hasItems={ recordInfo.hasItems }
 							></NoticeBox>
 						</div>
-					) }
-					{ lastIndexedDate && (
-						<p>
-							Last indexed date: <strong>{ lastIndexedDate }</strong>
-						</p>
-					) }
-					{ postCount && (
-						<p>
-							Post count: <strong>{ postCount }</strong>
-						</p>
 					) }
 				</div>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
