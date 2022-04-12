@@ -20,19 +20,28 @@ import { STORE_ID } from 'store';
  * @returns {React.Component} SearchDashboardWithConnection component.
  */
 export default function SearchDashboardWithConnection() {
+	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
+	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
+	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const { connectionStatus, renderConnectScreen, renderConnectionFooter } = useConnection();
-
-	const isLoading = useSelect(
-		select =>
-			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' )
-	);
 
 	const isFullyConnected =
 		Object.keys( connectionStatus ).length &&
 		connectionStatus.isUserConnected &&
 		connectionStatus.isRegistered;
+
+	const isLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
+			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' ) ||
+			select( STORE_ID ).isResolving( 'getSearchStats' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' ) ||
+			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' )
+	);
 
 	const initializeAnalytics = () => {
 		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
