@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
+use Jetpack_IXR_Client;
+use Jetpack_Options;
 
 /**
  * Extend the base class with Jetpack-specific functionality.
@@ -149,7 +151,7 @@ class Publicize extends Publicize_Base {
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
-		\Jetpack_Options::update_option( 'publicize_connections', $publicize_connections );
+		Jetpack_Options::update_option( 'publicize_connections', $publicize_connections );
 
 		return true;
 	}
@@ -176,7 +178,7 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_all_connections() {
 		$this->refresh_connections();
-		$connections = \Jetpack_Options::get_option( 'publicize_connections' );
+		$connections = Jetpack_Options::get_option( 'publicize_connections' );
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
 		}
@@ -386,7 +388,7 @@ class Publicize extends Publicize_Base {
 	 * @param string $connection_id Connection ID.
 	 */
 	public function globalize_connection( $connection_id ) {
-		$xml = new \Jetpack_IXR_Client();
+		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.globalizePublicizeConnection', $connection_id, 'globalize' );
 
 		if ( ! $xml->isError() ) {
@@ -401,7 +403,7 @@ class Publicize extends Publicize_Base {
 	 * @param string $connection_id Connection ID.
 	 */
 	public function unglobalize_connection( $connection_id ) {
-		$xml = new \Jetpack_IXR_Client();
+		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.globalizePublicizeConnection', $connection_id, 'unglobalize' );
 
 		if ( ! $xml->isError() ) {
@@ -430,7 +432,7 @@ class Publicize extends Publicize_Base {
 		if ( get_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT ) ) {
 			return;
 		}
-		$xml = new \Jetpack_IXR_Client();
+		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.fetchPublicizeConnections' );
 		$wait_time = HOUR_IN_SECONDS * 24;
 
@@ -576,7 +578,7 @@ class Publicize extends Publicize_Base {
 	public function test_connection( $service_name, $connection ) {
 		$id = $this->get_connection_id( $connection );
 
-		$xml = new \Jetpack_IXR_Client();
+		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.testPublicizeConnection', $id );
 
 		// Bail if all is well.
@@ -933,12 +935,12 @@ class Publicize extends Publicize_Base {
 	 * @param array $options Options to set.
 	 */
 	public function set_remote_publicize_options( $id, $options ) {
-		$xml = new \Jetpack_IXR_Client();
+		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.setPublicizeOptions', $id, $options );
 
 		if ( ! $xml->isError() ) {
 			$response = $xml->getResponse();
-			\Jetpack_Options::update_option( 'publicize_connections', $response );
+			Jetpack_Options::update_option( 'publicize_connections', $response );
 			$this->globalization( $id );
 		}
 	}
