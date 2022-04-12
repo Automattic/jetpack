@@ -70,6 +70,7 @@ class Product {
 			'full_price'     => $minimum_price,
 			'minimum_units'  => $price_tier['minimum_units'],
 			'maximum_units'  => $price_tier['maximum_units'],
+			'record_count'   => $record_count,
 		);
 	}
 
