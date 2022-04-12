@@ -125,7 +125,7 @@ class Search extends Module_Product {
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
 			'2',
-			array(),
+			array( 'timeout' => 2 ),
 			null,
 			'wpcom'
 		);
