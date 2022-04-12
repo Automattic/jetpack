@@ -9,7 +9,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import { getMockData } from '../../product-detail-card/stories/utils.js';
+import { getMockData } from '../../connected-product-offer/stories/utils.js';
 import ProductInterstitial, {
 	AntiSpamInterstitial,
 	BackupInterstitial,
