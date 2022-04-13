@@ -8,6 +8,7 @@ use Automattic\Jetpack\Redirect;
  * Custom CSS class.
  */
 class Jetpack_Custom_CSS {
+
 	/**
 	 * Initialize the class.
 	 */
@@ -54,11 +55,11 @@ class Jetpack_Custom_CSS {
 			array(
 				/**
 				 * These are the defaults
-				* 'exclude_from_search' => true,
-				* 'public' => false,
-				* 'publicly_queryable' => false,
-				* 'show_ui' => false,
-				*/
+				 * 'exclude_from_search' => true,
+				 * 'public' => false,
+				 * 'publicly_queryable' => false,
+				 * 'show_ui' => false,
+				 */
 				'supports'     => array( 'revisions' ),
 				'label'        => 'Custom CSS',
 				'can_export'   => false,
@@ -143,17 +144,6 @@ class Jetpack_Custom_CSS {
 
 			if ( $save_result ) {
 				add_action( 'admin_notices', array( 'Jetpack_Custom_CSS', 'saved_message' ) );
-			}
-		}
-
-		// Prevent content filters running on CSS when restoring revisions
-		if ( isset( $_REQUEST['action'] ) && 'restore' === $_REQUEST['action'] && false !== strstr( $_SERVER['REQUEST_URI'], 'revision.php' ) ) {
-			$parent_post = get_post( wp_get_post_parent_id( (int) $_REQUEST['revision'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			if ( $parent_post && ! is_wp_error( $parent_post ) && 'safecss' === $parent_post->post_type ) {
-				// Remove wp_filter_post_kses, this causes CSS escaping issues
-				remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
-				remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' );
-				remove_all_filters( 'content_save_pre' );
 			}
 		}
 
@@ -459,6 +449,7 @@ class Jetpack_Custom_CSS {
 	 * @param string $css - the CSS.
 	 * @param bool   $is_preview - if we're in preview mode.
 	 * @param string $preprocessor - what preprocessor we're using.
+	 *
 	 * @return bool|int If nothing was saved, returns false. If a post
 	 *                  or revision was saved, returns the post ID.
 	 */
@@ -510,11 +501,42 @@ class Jetpack_Custom_CSS {
 		if ( false === $is_preview ) {
 			$safecss_post['post_content']          = wp_slash( $safecss_post['post_content'] );
 			$safecss_post['post_content_filtered'] = wp_slash( $safecss_post['post_content_filtered'] );
-			$post_id                               = wp_update_post( $safecss_post );
+			add_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9, 3 );
+			$post_id = wp_update_post( $safecss_post );
+			remove_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9 );
 			wp_cache_set( 'custom_css_post_id', $post_id );
 			return $post_id;
 		} elseif ( ! defined( 'DOING_MIGRATE' ) ) {
-			return _wp_put_post_revision( $safecss_post );
+			add_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9, 3 );
+			$revision = _wp_put_post_revision( $safecss_post );
+			remove_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9 );
+			return $revision;
+		}
+	}
+
+	/**
+	 * Restore Unsafe Post CSS Content.
+	 *
+	 * @param array $data The post data to be restored.
+	 * @param array $postarray Unused.
+	 * @param array $unsanitized The unsanitized post data.
+	 *
+	 * @return array Post data.
+	 */
+	public static function restore_unsafe_postcss_content( $data, $postarray, $unsanitized ) {
+		$replace_content =
+				isset( $data['post_type'] ) &&
+				isset( $unsanitized['post_content'] ) &&
+				(
+						'safecss' === $data['post_type'] ||
+						(
+								'revision' === $data['post_type'] &&
+								! empty( $data['post_parent'] ) &&
+								'safecss' === get_post_type( $data['post_parent'] )
+						)
+				);
+		if ( $replace_content ) {
+			$data['post_content'] = $unsanitized['post_content'];
 		}
 		return $data;
 	}
@@ -615,7 +637,7 @@ class Jetpack_Custom_CSS {
 	/**
 	 * Get the preprocessor key.
 	 *
-	 * @return int
+	 * @return string|false
 	 */
 	public static function get_preprocessor_key() {
 		$safecss_post = self::get_current_revision();
@@ -1151,8 +1173,7 @@ class Jetpack_Custom_CSS {
 								<textarea id="safecss" name="safecss"
 								<?php
 								if ( SAFECSS_USE_ACE ) {
-									echo ' class="hide-if-js"';
-								}
+									echo ' class="hide-if-js"';}
 								?>
 								><?php echo esc_textarea( self::get_css() ); ?></textarea>
 								<div class="clear"></div>
@@ -1370,13 +1391,12 @@ class Jetpack_Custom_CSS {
 						<p>
 							<label>
 								<input type="radio" name="add_to_existing_display" value="true" <?php checked( $add_css ); ?>/>
-								<?php echo wp_kses( __( 'Add-on CSS <b>(Recommended)</b>', 'jetpack' ), array( 'b' => array() ) ); ?>
+								<?php echo wp_kses( __( 'Add-on CSS <b>(Recommended)</b>', 'jetpack' ), array( 'b' => array() ) ); ?><?php echo wp_kses( __( 'Add-on CSS <b>(Recommended)</b>', 'jetpack' ), array( 'b' => array() ) ); ?>
 							</label>
 							<br />
 							<label>
 								<input type="radio" name="add_to_existing_display" value="false" <?php checked( ! $add_css ); ?>/>
 								<?php
-
 								printf(
 									// translators: the theme's stylesheet URL.
 									wp_kses_post( __( 'Replace <a href="%s">theme\'s CSS</a> <b>(Advanced)</b>', 'jetpack' ) ),
@@ -1439,7 +1459,7 @@ class Jetpack_Custom_CSS {
 	 */
 	public static function revisions_meta_box( $safecss_post ) {
 
-		$show_all_revisions = isset( $_GET['show_all_rev'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nothing on the site is changing.
+		$show_all_revisions = isset( $_GET['show_all_rev'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nothing on the site is changing
 
 		if ( function_exists( 'wp_revisions_to_keep' ) ) {
 			$max_revisions = wp_revisions_to_keep( (object) $safecss_post );
@@ -1473,7 +1493,7 @@ class Jetpack_Custom_CSS {
 				?>
 				<li>
 					<?php
-					echo wp_post_revision_title( $post ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo wp_post_revision_title( $post ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 					if ( ! empty( $post->post_excerpt ) ) {
 						echo ' (' . esc_html( $post->post_excerpt ) . ')';
@@ -1813,7 +1833,7 @@ class Jetpack_Custom_CSS {
 /**
  * The Safe CSS Class.
  */
-class Jetpack_Safe_CSS { // phpcs:ignore
+class Jetpack_Safe_CSS { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
 	/**
 	 * Filter attriburtes.
 	 *
@@ -1871,7 +1891,10 @@ if ( ! function_exists( 'safecss_class' ) ) :
 
 		require_once __DIR__ . '/csstidy/class.csstidy.php';
 
-		class safecss extends csstidy_optimise { // phpcs:ignore
+		/**
+		 * Safe CSS Class.
+		 */
+		class safecss extends csstidy_optimise { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace, PEAR.NamingConventions.ValidClassName.StartWithCapital
 
 			/**
 			 * Add action to fire after parsing CSS.
@@ -1915,6 +1938,7 @@ if ( ! function_exists( 'safecss_class' ) ) :
 endif;
 
 if ( ! function_exists( 'safecss_filter_attr' ) ) {
+
 	/**
 	 * Filter safecss attriburtes.
 	 *
