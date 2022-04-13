@@ -151,6 +151,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			}
 
 			$params     = (object) array( 'slug' => $theme );
+			// @todo Switch to https://api.wordpress.org/themes/info/1.1/, which uses JSON rather than PHP serialization.
 			$url        = 'https://api.wordpress.org/themes/info/1.0/';
 			$args       = array(
 				'body' => array(
