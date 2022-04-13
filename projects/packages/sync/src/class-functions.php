@@ -644,8 +644,10 @@ class Functions {
 			foreach ( $synced_headers as $header ) {
 				$themes[ $stylesheet ][ $header ] = $theme->get( $header );
 			}
-			$themes[ $stylesheet ]['active']         = $stylesheet === $current_stylesheet;
-			$themes[ $stylesheet ]['is_block_theme'] = $theme->is_block_theme();
+			$themes[ $stylesheet ]['active'] = $stylesheet === $current_stylesheet;
+			if ( method_exists( $theme, 'is_block_theme' ) ) {
+				$themes[ $stylesheet ]['is_block_theme'] = $theme->is_block_theme();
+			}
 		}
 		return $themes;
 	}
