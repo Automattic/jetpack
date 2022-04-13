@@ -279,7 +279,7 @@ if [[ -z "$BIN" ]]; then
 else
 	VER="$(composer --version 2>/dev/null | sed -n -E 's/^Composer( version)? ([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*/\2/p')"
 	VX="$(sed -E 's/^([0-9]+\.[0-9]+)\..*/\1/' <<<"$COMPOSER_VERSION")"
-	version_range 'Composer' "$BIN" 'composer' "$VER" "$COMPOSER_VERSION" "$COMPOSER_VERSION" "$VX.9999999" true
+	version_range 'Composer' "$BIN" 'composer' "$VER" "$VX.0" "$COMPOSER_VERSION" "$VX.9999999" true
 fi
 
 checking 'Required extensions are installed'
