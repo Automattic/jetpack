@@ -157,7 +157,7 @@ class Jetpack_Connection_Banner {
 		}
 
 		// Only fires immediately after plugin activation.
-		if ( true || get_transient( 'activated_jetpack' ) ) {
+		if ( get_transient( 'activated_jetpack' ) ) {
 			if (
 				! \Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false )
 				&& in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true )
