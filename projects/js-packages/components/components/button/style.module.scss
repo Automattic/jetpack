@@ -89,11 +89,6 @@
 		&:focus:not(:disabled) {
 			text-decoration-line: none;
 		}
-
-		// External Link icon
-		.button-content + svg {
-			margin-left: calc( var(--spacing-base) / 2 ); // 4px
-		}
 	}
 
 	// DESTRUCTIVE
