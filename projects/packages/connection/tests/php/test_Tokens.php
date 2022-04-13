@@ -278,7 +278,9 @@ class TokensTest extends TestCase {
 		static::assertFalse( $is_locked );
 		static::assertTrue( $is_locked_site2 );
 		static::assertFalse( $is_locked_still );
-		static::assertSame( 'https://test1.example.org', $lock_site_url );
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		static::assertSame( 'https://test1.example.org', base64_decode( $lock_site_url ) );
 
 		$date = $lock_expiration ? DateTime::createFromFormat( Tokens::DATE_FORMAT_ATOM, $lock_expiration )->format( 'Y-m-d' ) : false;
 		static::assertSame( gmdate( 'Y-m-d', strtotime( 'tomorrow' ) ), $date );
