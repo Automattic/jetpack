@@ -34,6 +34,8 @@ final class WafRunnerTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test run
+	 *
+	 * @runInSeparateProcess
 	 */
 	public function testRunSetsConstants() {
 		define( 'ABSPATH', '/pseudo' );
