@@ -40,7 +40,7 @@ class Jetpack_JSON_API_Themes_New_Endpoint extends Jetpack_JSON_API_Themes_Endpo
 	 * @param string $capability - the capability we're checking.
 	 * @param bool   $check_manage_active - if managing capabilities is active.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
 		$validate = parent::validate_call( $_blog_id, $capability, $check_manage_active );
