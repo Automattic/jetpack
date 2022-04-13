@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.8.105
+ * Version: 2.8.106
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.8.105' );
+define( 'WPCOMSH_VERSION', '2.8.106' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -1270,6 +1270,26 @@ function wpcomsh_get_at_site_info() {
 }
 
 /**
+ * Override the storage limit for Pro plans
+ *
+ * @param string $space_allowed The storage limit.
+ *
+ * @return string The potentially updated storage limit.
+ */
+function wpcomsh_pro_plan_storage_override( $space_allowed ) {
+	if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) {
+		// Do not run this for non-atomic sites
+		return $space_allowed;
+	}
+
+	if ( wpcom_site_has_feature( WPCOM_Features::ARTIFICIAL_50GB_STORAGE_LIMIT ) ) {
+		$space_allowed = strval( 50 * 1024 * 1024 * 1024 );
+	}
+
+	return $space_allowed;
+}
+
+/**
  * Display disk space usage
  */
 function wpcomsh_display_disk_space_usage() {
@@ -1280,7 +1300,7 @@ function wpcomsh_display_disk_space_usage() {
 	}
 
 	$space_used  = $site_info['space_used'];
-	$space_quota = $site_info['space_quota'];
+	$space_quota = wpcomsh_pro_plan_storage_override( $site_info['space_quota'] );
 
 	$message = sprintf(
 		/* translators: Space usage message */
