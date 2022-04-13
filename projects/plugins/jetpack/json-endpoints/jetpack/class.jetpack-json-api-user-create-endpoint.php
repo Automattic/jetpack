@@ -94,7 +94,7 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 *
 	 * @param int $user_id - the user ID.
 	 *
-	 * @return object
+	 * @return object|WP_Error
 	 */
 	public function get_user( $user_id ) {
 		$the_user = $this->get_author( $user_id, true );
