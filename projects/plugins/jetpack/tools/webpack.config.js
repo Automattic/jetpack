@@ -122,8 +122,8 @@ for ( const module of moduleSources ) {
 	}
 }
 
-// We export three configuration files: One for modules, one for admin.js, and one for static.jsx (which produces pre-rendered HTML).
 module.exports = [
+	// Build all the modules.
 	{
 		...sharedWebpackConfig,
 		entry: moduleEntries,
@@ -136,6 +136,7 @@ module.exports = [
 			filename: '[name].min.js', // @todo: Fix this.
 		},
 	},
+	// Build admin page JS.
 	{
 		...sharedWebpackConfig,
 		entry: {
@@ -162,6 +163,7 @@ module.exports = [
 			} ),
 		},
 	},
+	// Build static.jsx (which produces pre-rendered HTML).
 	{
 		...sharedWebpackConfig,
 		entry: { static: path.join( __dirname, '../_inc/client', 'static.jsx' ) },

@@ -168,18 +168,13 @@ class VideoPress_Gutenberg {
 	 * Temporary method to enable resumable uploads for testing by Automatticians
 	 */
 	public function add_resumable_upload_support() {
-		if (
-			defined( 'IS_WPCOM' ) && IS_WPCOM &&
-			function_exists( 'is_automattician' ) && is_automattician()
-		) {
-			wp_enqueue_script(
-				'videopress-add-resumable-upload-support',
-				plugins_url( 'js/videopress-add-resumable-upload-support.js', __FILE__ ),
-				null,
-				'1',
-				false
-			);
-		}
+		wp_enqueue_script(
+			'videopress-add-resumable-upload-support',
+			plugins_url( 'js/videopress-add-resumable-upload-support.js', __FILE__ ),
+			null,
+			'1',
+			false
+		);
 	}
 
 	/**
@@ -201,6 +196,17 @@ class VideoPress_Gutenberg {
 				'modules/videopress/js/gutenberg-video-upload.js'
 			),
 			array( 'wp-api-fetch', 'wp-polyfill', 'lodash' ),
+			JETPACK__VERSION,
+			false
+		);
+
+		wp_enqueue_script(
+			'jetpack-videopress-gutenberg-playback-jwt',
+			Assets::get_file_url_for_environment(
+				'modules/videopress/js/videopress-token-bridge.js',
+				'modules/videopress/js/videopress-token-bridge.js'
+			),
+			array(),
 			JETPACK__VERSION,
 			false
 		);

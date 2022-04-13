@@ -116,6 +116,15 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
+		register_rest_route(
+			'jetpack/v4',
+			'/search/pricing',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'product_pricing' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
 	}
 
 	/**
@@ -327,6 +336,15 @@ class REST_Controller {
 				'code' => 'success',
 			)
 		);
+	}
+
+	/**
+	 * Pricing for record count of the site
+	 */
+	public function product_pricing() {
+		$record_count = intval( Stats::estimate_count() );
+		$tier_pricing = Product::get_site_tier_pricing( $record_count );
+		return rest_ensure_response( $tier_pricing );
 	}
 
 	/**
