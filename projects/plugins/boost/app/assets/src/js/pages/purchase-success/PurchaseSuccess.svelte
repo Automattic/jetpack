@@ -3,13 +3,14 @@
 	 * External dependencies.
 	 */
 	import { onMount } from 'svelte';
-	import { updateModuleState } from '../../stores/modules';
 
 	/**
 	 * Internal dependencies
 	 */
 	import BackButton from '../../elements/BackButton.svelte';
 	import { Button } from '@wordpress/components';
+	import { updateModuleState } from '../../stores/modules';
+	import { requestCloudCss } from '../../utils/cloud-css';
 
 	import Logo from '../../svg/jetpack-green.svg';
 
@@ -22,9 +23,10 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 
-	onMount( () => {
+	onMount( async () => {
 		// Enable cloud-css on a successful upgrade.
-		updateModuleState( 'cloud-css', true );
+		await updateModuleState( 'cloud-css', true );
+		await requestCloudCss();
 	} );
 </script>
 
