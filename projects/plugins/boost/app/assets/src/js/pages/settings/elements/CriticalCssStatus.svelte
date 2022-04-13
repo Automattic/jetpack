@@ -8,7 +8,11 @@
 	/**
 	 * Internal dependencies
 	 */
-	import { criticalCssStatus, failedProviderKeyCount } from '../../../stores/critical-css-status';
+	import {
+		criticalCssStatus,
+		failedProviderKeyCount,
+		cssModuleName,
+	} from '../../../stores/critical-css-status';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
 	import InfoIcon from '../../../svg/info.svg';
@@ -27,7 +31,7 @@
 		( $criticalCssStatus.status === 'success' && $criticalCssStatus.success_count === 0 );
 </script>
 
-{#if $criticalCssStatus.status === 'requesting'}
+{#if $cssModuleName === 'critical-css' && $criticalCssStatus.status === 'requesting'}
 	<slot name="progress" />
 {:else if showError}
 	<CriticalCssShowStopperError on:retry={() => dispatch( 'retryShowStopper' )} />

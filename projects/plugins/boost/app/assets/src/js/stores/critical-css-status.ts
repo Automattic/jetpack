@@ -83,6 +83,10 @@ export const isFinished = derived( { subscribe }, state =>
 	[ SUCCESS, FAIL ].includes( state.status )
 );
 
+export const cssModuleName = derived( [ modules ], ( [ $modules ] ) => {
+	return Object.keys( $modules ).includes( 'cloud-css' ) ? 'cloud-css' : 'critical-css';
+} );
+
 export const isGenerating = derived( [ store, modules ], ( [ $store, $modules ] ) => {
 	const statusIsRequesting = REQUESTING === $store.status;
 	const criticalCssIsEnabled = $modules[ 'critical-css' ] && $modules[ 'critical-css' ].enabled;

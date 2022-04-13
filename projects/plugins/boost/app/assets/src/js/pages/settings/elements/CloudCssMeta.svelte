@@ -7,15 +7,15 @@
 	/**
 	 * Internal dependencies
 	 */
-	import { CriticalCssStatus } from './CriticalCssStatus.svelte';
+	import CriticalCssStatus from './CriticalCssStatus.svelte';
 	import { requestCloudCss } from '../../../utils/cloud-css';
 </script>
 
 <CriticalCssStatus on:retry={requestCloudCss} on:retryShowStopper={requestCloudCss}>
-	<p slot="generating">
+	<svelte:fragment slot="generating">
 		{__( 'Jetpack Boost will generate Critical CSS for you automatically.', 'jetpack-boost' )}
-	</p>
-	<p slot="generating-more">
+	</svelte:fragment>
+	<svelte:fragment slot="generating-more">
 		{__( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' )}
-	</p>
+	</svelte:fragment>
 </CriticalCssStatus>
