@@ -90,7 +90,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								{ isAdsActive &&
 									createInterpolateElement(
 										__(
-											'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
+											'WordAds automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
 											'jetpack'
 										),
 										{

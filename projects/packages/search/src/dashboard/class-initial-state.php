@@ -71,11 +71,6 @@ class Initial_State {
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
 				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
-				'pricing'           => array(
-					'currency_code'  => 'USD',
-					'discount_price' => '30',
-					'full_price'     => '60',
-				),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
