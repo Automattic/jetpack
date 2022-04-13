@@ -626,7 +626,8 @@ class Tokens {
 			return false;
 		}
 
-		return Jetpack_Options::update_option( 'token_lock', $expires->format( static::DATE_FORMAT_ATOM ) . '|||' . Urls::site_url() );
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		return Jetpack_Options::update_option( 'token_lock', $expires->format( static::DATE_FORMAT_ATOM ) . '|||' . base64_encode( Urls::site_url() ) );
 	}
 
 	/**
@@ -663,7 +664,9 @@ class Tokens {
 			return false;
 		}
 
-		list( $expires, $locked_site_url ) = $the_lock;
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		$locked_site_url = base64_decode( $the_lock[1] );
+		$expires         = $the_lock[0];
 
 		$expiration_date = DateTime::createFromFormat( static::DATE_FORMAT_ATOM, $expires );
 		if ( false === $expiration_date || ! $locked_site_url ) {
