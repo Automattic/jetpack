@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed bug in checkout URLs for sites installed in subdirs.
+
+## [1.0.1] - 2022-04-06
+### Removed
+- Removed tracking dependency.
+
+## [1.0.0] - 2022-04-05
+### Added
+- My Jetpack: improve Product and Interstitial components.
+
+### Changed
+- Bump My Jetpack package to major version 1.0.0.
+- My Jetpack: align price boxes in the interstitial product page.
+- Updated package dependencies.
+
 ## [0.6.13] - 2022-03-31
 ### Added
 - Added tracking events to Plans section external links
@@ -407,6 +427,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[1.0.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.0...1.0.1
+[1.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.13...1.0.0
 [0.6.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.12...0.6.13
 [0.6.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.11...0.6.12
 [0.6.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.10...0.6.11

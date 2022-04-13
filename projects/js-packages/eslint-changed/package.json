@@ -25,7 +25,6 @@
 		"parse-diff": "0.8.1"
 	},
 	"devDependencies": {
-		"eslint": "8.8.0",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0"
 	},
@@ -33,7 +32,7 @@
 		"eslint": ">=7.0.0"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
+		"node": "^14.18.3 || ^17.7.1",
 		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

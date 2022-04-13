@@ -23,7 +23,7 @@
 		"node-wp-i18n": "1.2.6"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
+		"node": "^14.18.3 || ^17.7.1",
 		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

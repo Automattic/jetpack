@@ -26,7 +26,6 @@
 		"axios": "0.26.1",
 		"chalk": "5.0.1",
 		"config": "3.3.7",
-		"eslint-plugin-playwright": "0.8.0",
 		"localtunnel": "2.0.2",
 		"lodash": "4.17.21",
 		"pm2": "5.2.0",
@@ -36,7 +35,7 @@
 		"yargs": "17.4.0"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
+		"node": "^14.18.3 || ^17.7.1",
 		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},

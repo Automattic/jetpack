@@ -119,8 +119,8 @@ function Edit( props ) {
 						</Placeholder>
 					) }
 					<ProductManagementControls
-						allowCreateOneTimeInterval={ false }
 						blockName="premium-content"
+						clientId={ clientId }
 						productType={ PRODUCT_TYPE_SUBSCRIPTION }
 						selectedProductId={ selectedPlanId }
 						setSelectedProductId={ setSelectedProductId }

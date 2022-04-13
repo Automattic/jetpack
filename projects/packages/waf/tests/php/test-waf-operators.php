@@ -5,16 +5,16 @@
  * @package automattic/jetpack-waf
  */
 
-use Automattic\Jetpack\Waf\WafOperators;
+use Automattic\Jetpack\Waf\Waf_Operators;
 
 /**
  * Operators test suite.
  */
 final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 	/**
-	 * Instance of WafOperators
+	 * Instance of Waf_Operators
 	 *
-	 * @var WafOperators
+	 * @var Waf_Operators
 	 */
 	private $o;
 
@@ -24,7 +24,7 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 	 * @before
 	 */
 	protected function before() {
-		$this->o = new WafOperators();
+		$this->o = new Waf_Operators();
 	}
 
 	/**

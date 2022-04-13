@@ -1,11 +1,11 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.10.2-alpha",
+	"version": "0.12.0-alpha",
 	"description": "Jetpack Api Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@wordpress/url": "3.4.1",
+		"@wordpress/url": "3.7.0",
 		"@automattic/jetpack-config": "workspace:* || ^0.1",
 		"lodash": "4.17.21"
 	},
@@ -22,7 +22,7 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./test/*.jsx'"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
+		"node": "^14.18.3 || ^17.7.1",
 		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

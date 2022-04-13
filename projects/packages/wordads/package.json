@@ -32,8 +32,8 @@
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:^0.1.8",
-		"@automattic/jetpack-api": "workspace:^0.10.0-alpha",
-		"@automattic/jetpack-components": "workspace:^0.10.11-alpha",
+		"@automattic/jetpack-api": "workspace:* || ^0.12",
+		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@wordpress/base-styles": "4.1.1",
 		"@wordpress/block-editor": "8.2.0",
 		"@wordpress/data": "6.3.0",
@@ -81,7 +81,7 @@
 		"webpack": "5.65.0"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
+		"node": "^14.18.3 || ^17.7.1",
 		"pnpm": "^6.23.6",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},

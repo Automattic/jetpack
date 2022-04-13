@@ -69,6 +69,26 @@ const messages = {
 			'jetpack'
 		),
 	},
+	'invalid product configured for this block': {
+		[ PRODUCT_TYPE_PAYMENT_PLAN ]: __(
+			'Invalid payment plan configured for this block.',
+			'jetpack'
+		),
+		[ PRODUCT_TYPE_SUBSCRIPTION ]: __(
+			'Invalid subscription configured for this block.',
+			'jetpack'
+		),
+	},
+	'the button will be hidden from your visitors until you select a valid product': {
+		[ PRODUCT_TYPE_PAYMENT_PLAN ]: __(
+			'The button will be hidden from your visitors until you select a valid payment plan.',
+			'jetpack'
+		),
+		[ PRODUCT_TYPE_SUBSCRIPTION ]: __(
+			'The subscribe button will be hidden from your visitors until you select a valid subscription.',
+			'jetpack'
+		),
+	},
 };
 
 export function getMessageByProductType( message, productType = PRODUCT_TYPE_PAYMENT_PLAN ) {

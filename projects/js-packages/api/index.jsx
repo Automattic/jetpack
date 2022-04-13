@@ -342,6 +342,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchRecommendationsConditional: () =>
+			getRequest( `${ apiRoot }jetpack/v4/recommendations/conditional`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		saveRecommendationsData: data =>
 			postRequest( `${ apiRoot }jetpack/v4/recommendations/data`, postParams, {
 				body: JSON.stringify( { data } ),
@@ -494,7 +499,9 @@ function JetpackRestApiClient( root, nonce ) {
 		updateWordAdsSettings: newSettings =>
 			postRequest( `${ apiRoot }jetpack/v4/wordads/settings`, postParams, {
 				body: JSON.stringify( newSettings ),
-			} )
+			} ),
+		fetchSearchPricing: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/pricing`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 	};
