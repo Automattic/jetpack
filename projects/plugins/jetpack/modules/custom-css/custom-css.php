@@ -625,7 +625,7 @@ class Jetpack_Custom_CSS {
 	/**
 	 * Get the prepocessor.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public static function get_preprocessor() {
 		/** This filter is documented in modules/custom-css/custom-css.php */
