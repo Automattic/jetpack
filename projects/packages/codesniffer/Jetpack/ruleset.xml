@@ -64,4 +64,9 @@
 		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
 	</rule>
 
+	<!-- This rule seems too prone to false-positives and false-negatives to be worthwhile. -->
+	<rule ref="WordPress.DB.SlowDBQuery">
+		<exclude name="WordPress.DB.SlowDBQuery"/>
+	</rule>
+
 </ruleset>
