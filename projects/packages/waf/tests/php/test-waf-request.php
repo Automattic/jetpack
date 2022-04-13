@@ -98,7 +98,7 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Test for ignoring commong forwarding headers from untrusted proxies by default.
+	 * Test for ignoring common forwarding headers from untrusted proxies by default.
 	 */
 	public function testIpIgnoresDefaultIpForwardingHeadersFromUntrustedProxies() {
 		$_SERVER['REMOTE_ADDR']              = '192.168.2.2';
