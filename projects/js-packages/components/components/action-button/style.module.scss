@@ -1,8 +1,4 @@
 .container {
-	min-width: 264px;
-	height: 40px;
-	display: block;
-
 	.error {
 		color: var( --jp-red );
 		line-height: 25px;
@@ -11,6 +7,6 @@
 	}
 
 	.button {
-		width: 264px;
+		width: calc( var( --spacing-base ) * 33 );
 	}
 }
