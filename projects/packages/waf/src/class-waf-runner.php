@@ -64,6 +64,8 @@ class Waf_Runner {
 			return;
 		}
 
+		Waf_constants::initialize_constants();
+
 		// if ABSPATH is defined, then WordPress has already been instantiated,
 		// and we're running as a plugin (meh). Otherwise, we're running via something
 		// like PHP's prepend_file setting (yay!).
@@ -143,7 +145,32 @@ class Waf_Runner {
 		if ( ! $version ) {
 			add_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 		}
+		self::create_blocklog_table();
 		self::generate_rules();
+	}
+
+	/**
+	 * Create the log table when plugin is activated.
+	 *
+	 * @return void
+	 */
+	public static function create_blocklog_table() {
+		global $wpdb;
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		$sql = "
+		CREATE TABLE {$wpdb->prefix}jetpack_waf_blocklog (
+			log_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			timestamp datetime NOT NULL,
+			rule_id BIGINT NOT NULL,
+			reason longtext NOT NULL,
+			PRIMARY KEY (log_id),
+			KEY timestamp (timestamp)
+		)
+	";
+
+		dbDelta( $sql );
 	}
 
 	/**
