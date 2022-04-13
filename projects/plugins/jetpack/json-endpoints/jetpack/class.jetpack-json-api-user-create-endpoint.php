@@ -33,7 +33,7 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 *
 	 * @param object $object - the object.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public function validate_input( $object ) {
 		$this->user_data = $this->input();
