@@ -59,16 +59,7 @@ module.exports = {
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [
-					// see: https://github.com/Automattic/jetpack/pull/23587#discussion_r833871786
-					// {
-					// 	loader: 'postcss-loader',
-					// 	options: {
-					// 		postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
-					// 	},
-					// },
-					'sass-loader',
-				],
+				extraLoaders: [ 'sass-loader' ],
 			} ),
 
 			// Handle images.

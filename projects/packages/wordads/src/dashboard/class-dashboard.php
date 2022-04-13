@@ -13,7 +13,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 /**
- * Responsible for adding a search dashboard to wp-admin.
+ * Responsible for adding a WordAds dashboard to wp-admin.
  *
  * @package Automattic\Jetpack\WordAds
  */

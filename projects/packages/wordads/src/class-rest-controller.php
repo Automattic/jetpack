@@ -3,7 +3,7 @@
  * The WordAds Rest Controller class.
  * Registers the REST routes for WordAds.
  *
- * @package automattic/jetpack-search
+ * @package automattic/jetpack-wordads
  */
 
 namespace Automattic\Jetpack\WordAds;
@@ -90,7 +90,7 @@ class REST_Controller {
 		$module_active = isset( $request_body['module_active'] ) ? (bool) $request_body['module_active'] : null;
 
 		$errors = array();
-		if ( ! is_null( $module_active ) ) {
+		if ( $module_active !== null ) {
 			$module_active_updated = ( new Modules() )->update_status( Package::SLUG, $module_active, false, false );
 			if ( is_wp_error( $module_active_updated ) ) {
 				$errors['module_active'] = $module_active_updated;
@@ -116,7 +116,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * GET `jetpack/v4/search/settings`
+	 * GET `jetpack/v4/wordads/settings`
 	 */
 	public function get_settings() {
 		return rest_ensure_response(

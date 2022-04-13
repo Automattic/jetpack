@@ -1,4 +1,4 @@
-# wordads
+# WordAds
 
 Earn income by allowing Jetpack to display high quality ads.
 
@@ -11,6 +11,14 @@ jetpack watch packages/wordads
 Reload whenever you make changes.
 
 ## How to install wordads
+
+This new UI is currently disabled by default. To enable, add the following to your wp-config.php:
+
+```php
+define( 'ENABLE_WORDADS_SHARED_UI', true );
+```
+
+You will see a new menu item nested under Jetpack called "WordAds". This new UI lives there.
 
 ### Installation From Git Repo
 
