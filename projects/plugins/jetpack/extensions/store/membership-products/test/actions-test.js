@@ -10,7 +10,7 @@ import {
 import * as utils from "../utils";
 import * as message from '../../../shared/components/product-management-controls/utils';
 import * as currencies from '../../../shared/currencies';
-import * as api from '@wordpress/api-fetch';
+import api from '@wordpress/api-fetch';
 import {PRODUCT_TYPE_PAYMENT_PLAN} from "../../../shared/components/product-management-controls/constants";
 import {minimumTransactionAmountForCurrency} from "../../../shared/currencies";
 
@@ -21,10 +21,21 @@ const ANY_VALID_DATA = {
 const buildAnyValidProduct = () => ({
     title: 'anyTitle',
     price: '123',
-    currency: 'anyCurrency'
+	currency: 'USD'
 });
 
+const apiResponseProduct = {
+	id: 1,
+	title: 'anyTitle',
+	interval: 'anyInterval',
+	price: '12',
+	currency: 'anyCurrency',
+}
+jest.mock('@wordpress/api-fetch', () => jest.fn(() => apiResponseProduct))
+
 describe( 'Membership Products Actions', () => {
+
+	beforeEach(() => jest.clearAllMocks());
 
     test( 'Set products works as expected', () => {
         // Given
@@ -172,39 +183,31 @@ describe( 'Membership Products Actions', () => {
         expect( getMessageMock ).toBeCalledWith( 'product requires a valid price', paymentPlanProductType );
     });
 
-    /*test( 'Happy case displays a success notice.', async () => {
+	test( 'Happy case displays a success notice.', async () => {
         // Given
         const anyValidProduct = buildAnyValidProduct();
         const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
         const selectedProductCallback = jest.fn(() => {} );
-        const apiResponseProduct = {
-            id: 1,
-            title: 'anyTitle',
-            interval: 'anyInterval',
-            price: '12',
-            currency: 'anyCurrency',
-        }
         const registryProductList = [ apiResponseProduct, apiResponseProduct ];
         const registry = {
             select: () => ( { getProducts: () => registryProductList } )
         };
         const dispatch = jest.fn( () => {} );
-        const apiFetchMock = jest.spyOn( api, 'apiFetch' ).mockImplementation( () => apiResponseProduct );
         const noticeMock = jest.spyOn( utils, 'onSuccess' ).mockImplementation( () => {} );
-        const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation(() => {});
+		const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation((foo, bar) => {console.log(foo);console.log(bar);});
 
         // When
         await saveProduct( anyValidProduct, paymentPlanProductType, selectedProductCallback )( { dispatch, registry } );
 
         // Then
-        expect( apiFetchMock ).toBeCalledWith({
-            path: '/wpcom/v2/memberships/product',
-            method: 'POST',
-            data: anyValidProduct,
-        } );
-        expect( dispatch ).toBeCalledWith( registryProductList + apiResponseProduct );
+		expect( api ).toBeCalledWith({
+			path: '/wpcom/v2/memberships/product',
+			method: 'POST',
+			data: anyValidProduct,
+		} );
+		expect( dispatch ).toBeCalledWith( {products: registryProductList.concat([apiResponseProduct]), type:'SET_PRODUCTS'});
         expect( selectedProductCallback ).toBeCalledWith( apiResponseProduct.id );
         expect( noticeMock ).toBeCalled();
-        expect( getMessageMock ).toBeCalledWith( 'successfully created product' );
-    } );*/
+		expect( getMessageMock ).toBeCalledWith( 'successfully created product', PRODUCT_TYPE_PAYMENT_PLAN );
+    } );
 } );
