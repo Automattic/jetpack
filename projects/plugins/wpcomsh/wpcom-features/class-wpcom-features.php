@@ -264,6 +264,7 @@ class WPCOM_Features {
 	public const DOMAIN_MAPPING                = 'domain-mapping';
 	public const DONATIONS                     = 'donations';
 	public const ECOMMERCE_MANAGED_PLUGINS     = 'ecommerce-managed-plugins';
+	public const EMAIL_PROFESSIONAL            = 'email-professional';
 	public const EMAIL_SUBSCRIPTION            = 'email-subscription';
 	public const EMAIL_UNLIMITED_FORWARDS      = 'email-unlimited-forwards';
 	public const FREE_BLOG                     = 'free-blog';
@@ -452,6 +453,10 @@ class WPCOM_Features {
 		// ECOMMERCE_MANAGED_PLUGINS - Can install the plugin bundle that comes with eCommerce plans.
 		self::ECOMMERCE_MANAGED_PLUGINS     => array(
 			self::WPCOM_ECOMMERCE_PLANS,
+		),
+		// EMAIL_PROFESSIONAL - Access to Titan email hosting, often referred to as WordPress.com "Professional Email".
+		self::EMAIL_PROFESSIONAL            => array(
+			self::WPCOM_TITAN_MAIL_PRODUCTS,
 		),
 		// EMAIL_SUBSCRIPTION - Represents having at least one product providing email.
 		self::EMAIL_SUBSCRIPTION            => array(
