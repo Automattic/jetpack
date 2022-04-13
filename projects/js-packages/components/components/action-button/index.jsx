@@ -3,13 +3,13 @@
  */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
+import { Button, Spinner } from '@wordpress/components';
 import PropTypes from 'prop-types';
 
 /**
  * Internal dependencies
  */
-import Button from '../button';
-import styles from './style.module.scss';
+import './style.scss';
 
 /**
  * The Jetpack Action button.
@@ -25,21 +25,21 @@ const ActionButton = props => {
 	const { label, onClick, isLoading, displayError, errorMessage } = props;
 
 	return (
-		<>
+		<div className="jp-action-button">
 			{
 				<Button
-					className={ styles.button }
+					className="jp-action-button--button"
 					label={ label }
 					onClick={ onClick }
 					variant="primary"
-					isLoading={ isLoading }
+					disabled={ isLoading }
 				>
-					{ label }
+					{ isLoading ? <Spinner /> : label }
 				</Button>
 			}
 
-			{ displayError && <p className={ styles.error }>{ errorMessage }</p> }
-		</>
+			{ displayError && <p className="jp-action-button__error">{ errorMessage }</p> }
+		</div>
 	);
 };
 
