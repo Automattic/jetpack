@@ -266,7 +266,7 @@ class Admin {
 	 */
 	public function handle_get_parameters() {
 		if ( is_admin() && ! empty( $_GET['jb-dismiss-notice'] ) ) {
-			$slug = sanitize_title( $_GET['jb-dismiss-notice'] );
+			$slug = sanitize_title( wp_unslash( $_GET['jb-dismiss-notice'] ) );
 
 			$dismissed_notices = \get_option( self::DISMISSED_NOTICE_OPTION, array() );
 
@@ -288,7 +288,7 @@ class Admin {
 				'status' => 'ok',
 			);
 
-			$is_enabled = 'true' === $_POST['value'] ? '1' : '0';
+			$is_enabled = isset( $_POST['value'] ) && 'true' === $_POST['value'] ? '1' : '0';
 			\update_option( self::SHOW_RATING_PROMPT_OPTION, $is_enabled );
 
 			wp_send_json( $response );

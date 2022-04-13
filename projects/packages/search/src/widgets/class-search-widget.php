@@ -605,11 +605,11 @@ class Search_Widget extends \WP_Widget {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$parts   = explode( '|', $sort );
 		$orderby = isset( $_GET['orderby'] )
-			? $_GET['orderby']
+			? sanitize_sql_orderby( wp_unslash( $_GET['orderby'] ) )
 			: $parts[0];
 
 		$order = isset( $_GET['order'] )
-			? strtoupper( $_GET['order'] )
+			? ( strtoupper( $_GET['order'] ) === 'ASC' ? 'ASC' : 'DESC' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			: ( ( isset( $parts[1] ) && 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
 
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
