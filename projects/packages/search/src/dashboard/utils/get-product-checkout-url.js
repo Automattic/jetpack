@@ -15,7 +15,7 @@
 export default function getProductCheckoutUrl( {
 	product = 'jetpack_search',
 	isUserConnected = true,
-	siteSuffix = '',
+	siteSuffix,
 	redirectUrl = '',
 } ) {
 	const checkoutUrl = new URL( 'https://wordpress.com/checkout/' );
