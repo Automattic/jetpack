@@ -239,7 +239,6 @@ class Jetpack_Connection_Banner {
 				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpack_api_url['scheme'] . '://' . $jetpack_api_url['host'],
-				'forceVariation'        => 'original',
 				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
 				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),
