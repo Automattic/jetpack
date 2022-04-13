@@ -84,8 +84,8 @@ const DefaultTemplate = args => {
 	return <Button { ...args } icon={ icon } />;
 };
 
-export const Default = DefaultTemplate.bind( {} );
-Default.args = {
+export const _default = DefaultTemplate.bind( {} );
+_default.args = {
 	size: 'normal',
 	children: 'Once upon a time… a button story',
 	variant: 'primary',
