@@ -13,7 +13,7 @@ module.exports = {
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: 'jetpack-wordads-pkg',
+				allowedTextDomain: 'jetpack-wordads',
 			},
 		],
 	},
