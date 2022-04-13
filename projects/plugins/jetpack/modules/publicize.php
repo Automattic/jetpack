@@ -40,6 +40,7 @@ class Jetpack_Publicize {
 		}
 
 		if ( ! $this->in_jetpack ) {
+			require_once __DIR__ . '/publicize/publicize.php';
 			require_once dirname( __DIR__ ) . '/mu-plugins/keyring/keyring.php';
 			require_once __DIR__ . '/publicize/publicize-wpcom.php';
 		}
