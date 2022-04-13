@@ -17,7 +17,8 @@ import { compareComposerVersion } from '../helpers/checkEnvironment.js';
 try {
 	compareComposerVersion();
 } catch ( error ) {
-	console.log( error );
+	console.error( error );
+	console.error( 'Something unexpected happened. See error above.' );
 	process.exit( 1 );
 }
 

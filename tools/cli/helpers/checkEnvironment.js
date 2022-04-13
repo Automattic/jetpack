@@ -7,9 +7,9 @@ import * as envfile from 'envfile';
 import chalk from 'chalk';
 
 /**
- * Get a list of environt variables to check which versions we need.
+ * Get a list of monorepo tooling version requirements to check which versions we need.
  *
- * @returns {object} - a list of versions.
+ * @returns {object} - a list of monorepo version requirements.
  */
 export function getVersions() {
 	const versions = envfile.parse( fs.readFileSync( `./.github/versions.sh`, 'utf8' ) );
