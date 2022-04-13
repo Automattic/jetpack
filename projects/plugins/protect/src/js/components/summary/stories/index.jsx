@@ -13,4 +13,18 @@ export default {
 	component: Summary,
 };
 
-export const Default = () => <Summary />;
+const Template = args => <Summary { ...args } />;
+
+export const Default = Template.bind( {} );
+Default.args = {
+	wordpressVuls: 1,
+	themesVuls: 2,
+	pluginsVuls: 3,
+};
+
+export const Empty = Template.bind( {} );
+Empty.args = {
+	wordpressVuls: 0,
+	themesVuls: 0,
+	pluginsVuls: 0,
+};

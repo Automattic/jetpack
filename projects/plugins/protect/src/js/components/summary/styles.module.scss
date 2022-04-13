@@ -6,6 +6,12 @@
 	border-radius: var(--jp-border-radius);
 }
 
+.latest {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+}
+
 .title {
 	display: flex;
 	align-items: center;
@@ -15,4 +21,15 @@
 .icon {
 	fill: var(--jp-green);
 	margin-right: var(--spacing-base);
+}
+
+.no-vul {
+	min-height: 135px;
+
+	&-text {
+		display: flex;
+		align-items: center;
+		height: 100%;
+		justify-content: center;
+	}
 }
