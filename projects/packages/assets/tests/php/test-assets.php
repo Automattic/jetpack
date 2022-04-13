@@ -216,6 +216,48 @@ class AssetsTest extends TestCase {
 	}
 
 	/**
+	 * Test that the `defer` attribute is properly added to the script tags for async scripts.
+	 */
+	public function test_defer_attribute_properly_added() {
+		Functions\expect( 'wp_enqueue_script' )
+			->once()
+			->with( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true );
+		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
+
+		$asset_instance = Assets::instance();
+
+		$tag      = '<script src="/minpath.js" id="handle"></script>';
+		$actual   = $asset_instance->script_add_async( $tag, 'handle' );
+		$expected = '<script defer src="/minpath.js" id="handle"></script>';
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Test that the `defer` attribute is properly added to the script tags for async scripts with translations.
+	 */
+	public function test_defer_attribute_properly_added_with_translations() {
+		Functions\expect( 'wp_enqueue_script' )
+			->once()
+			->with( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true );
+		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
+
+		$asset_instance = Assets::instance();
+
+		$translations =
+			'<script id="handle-js-translations">
+			( function( domain, translations ) {
+				var localeData = translations.locale_data[ domain ] || translations.locale_data.messages;
+				localeData[""].domain = domain;
+				wp.i18n.setLocaleData( localeData, domain );
+			} )( "default", { "locale_data": { "messages": { "": {} } } } );
+			</script>';
+		$tag          = $translations . '<script src="/minpath.js" id="handle"></script>';
+		$actual       = $asset_instance->script_add_async( $tag, 'handle' );
+		$expected     = $translations . '<script defer src="/minpath.js" id="handle"></script>';
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
 	 * Test whether static resources are properly updated to use a WordPress.com static domain.
 	 *
 	 * @covers Automattic\Jetpack\Assets::staticize_subdomain
