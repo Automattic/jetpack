@@ -22,6 +22,7 @@ use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
+use Automattic\Jetpack_Boost\Lib\Transient;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimization_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -192,5 +193,7 @@ class Jetpack_Boost {
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();
+		// Delete all transients created by boost.
+		Transient::delete_by_prefix( '' );
 	}
 }

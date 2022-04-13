@@ -1,15 +1,30 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
  * Base class for working with Jetpack Modules.
  */
 abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoint {
 
+	/**
+	 * The modules.
+	 *
+	 * @var array
+	 */
 	protected $modules = array();
 
+	/**
+	 * If we're working in bulk.
+	 *
+	 * @var boolean
+	 */
 	protected $bulk = true;
 
-	static $_response_format = array(
+	/**
+	 * Response format.
+	 *
+	 * @var array
+	 */
+	public static $_response_format = array( // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 		'id'          => '(string)   The module\'s ID',
 		'active'      => '(boolean)  The module\'s status.',
 		'name'        => '(string)   The module\'s name.',
@@ -22,6 +37,11 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 		'override'    => '(string)   The module\'s override. Empty if no override, otherwise \'active\' or \'inactive\'',
 	);
 
+	/**
+	 * The result.
+	 *
+	 * @return array
+	 */
 	protected function result() {
 
 		$modules = $this->get_modules();
@@ -35,12 +55,13 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	/**
-	 * Walks through either the submitted modules or list of themes and creates the global array
-	 * @param $theme
+	 * Walks through either the submitted modules or list of themes and creates the global array.
 	 *
-	 * @return bool
+	 * @param string $module - the modules.
+	 *
+	 * @return bool|WP_Error
 	 */
-	protected function validate_input( $module) {
+	protected function validate_input( $module ) {
 		$args = $this->input();
 		// lets set what modules were requested, and validate them
 		if ( ! isset( $module ) || empty( $module ) ) {
@@ -55,10 +76,11 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 			}
 		} else {
 			$this->modules[] = urldecode( $module );
-			$this->bulk = false;
+			$this->bulk      = false;
 		}
 
-		if ( is_wp_error( $error = $this->validate_modules() ) ) {
+		$error = $this->validate_modules();
+		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
 
@@ -67,21 +89,30 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	/**
 	 * Walks through submitted themes to make sure they are valid
+	 *
 	 * @return bool|WP_Error
 	 */
 	protected function validate_modules() {
 		foreach ( $this->modules as $module ) {
 			if ( ! Jetpack::is_module( $module ) ) {
+				// Translators: the module that's not found.
 				return new WP_Error( 'unknown_jetpack_module', sprintf( __( 'Module not found: `%s`.', 'jetpack' ), $module ), 404 );
 			}
 		}
 		return true;
 	}
 
+	/**
+	 * Format the module.
+	 *
+	 * @param string $module_slug - the module slug.
+	 *
+	 * @return array
+	 */
 	protected static function format_module( $module_slug ) {
 		$module_data = Jetpack::get_module( $module_slug );
 
-		$module = array();
+		$module                      = array();
 		$module['id']                = $module_slug;
 		$module['active']            = Jetpack::is_module_active( $module_slug );
 		$module['name']              = $module_data['name'];
@@ -93,19 +124,20 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 		$module['module_tags']       = $module_data['module_tags'];
 
 		$overrides_instance = Jetpack_Modules_Overrides::instance();
-		$module['override']         = $overrides_instance->get_module_override( $module_slug );
+		$module['override'] = $overrides_instance->get_module_override( $module_slug );
 
 		// Fetch the HTML formatted long description
 		ob_start();
 		/** This action is documented in class.jetpack-modules-list-table.php */
 		do_action( 'jetpack_module_more_info_' . $module_slug );
-		$module['description']  = ob_get_clean();
+		$module['description'] = ob_get_clean();
 
 		return $module;
 	}
 
 	/**
 	 * Format a list of modules for public display, using the supplied offset and limit args
+	 *
 	 * @uses   WPCOM_JSON_API_Endpoint::query_args()
 	 * @return array         Public API modules objects
 	 */
@@ -114,10 +146,12 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 		// do offset & limit - we've already returned a 400 error if they're bad numbers
 		$args = $this->query_args();
 
-		if ( isset( $args['offset'] ) )
+		if ( isset( $args['offset'] ) ) {
 			$modules = array_slice( $modules, (int) $args['offset'] );
-		if ( isset( $args['limit'] ) )
+		}
+		if ( isset( $args['limit'] ) ) {
 			$modules = array_slice( $modules, 0, (int) $args['limit'] );
+		}
 
 		return array_map( array( $this, 'format_module' ), $modules );
 	}

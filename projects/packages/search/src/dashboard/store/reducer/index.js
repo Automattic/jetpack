@@ -13,6 +13,7 @@ import sitePlan from './site-plan';
 import siteStats from './site-stats';
 import features from './feature';
 import notices from 'components/global-notices/store/reducer';
+import searchPricing from './search-pricing';
 
 const reducer = combineReducers( {
 	siteData,
@@ -22,6 +23,7 @@ const reducer = combineReducers( {
 	userData,
 	features,
 	notices,
+	searchPricing,
 } );
 
 export default reducer;

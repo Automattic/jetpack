@@ -199,11 +199,6 @@ class Jetpack_Custom_CSS {
 			$args['content_width'] = false;
 		}
 
-		// Remove wp_filter_post_kses, this causes CSS escaping issues
-		remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
-		remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' );
-		remove_all_filters( 'content_save_pre' );
-
 		/**
 		 * Fires prior to saving custom css values. Necessitated because the
 		 * core WordPress save_pre filters were removed:
@@ -489,8 +484,10 @@ class Jetpack_Custom_CSS {
 			$current_theme        = wp_get_theme();
 			$post['post_excerpt'] = $current_theme->Name; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
+			add_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9, 3 );
 			// Insert the CSS into wp_posts
 			$post_id = wp_insert_post( $post );
+			remove_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9 );
 			wp_cache_set( 'custom_css_post_id', $post_id );
 			return $post_id;
 		}
@@ -519,6 +516,7 @@ class Jetpack_Custom_CSS {
 		} elseif ( ! defined( 'DOING_MIGRATE' ) ) {
 			return _wp_put_post_revision( $safecss_post );
 		}
+		return $data;
 	}
 
 	/**

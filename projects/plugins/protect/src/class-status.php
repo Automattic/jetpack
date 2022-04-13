@@ -85,8 +85,81 @@ class Status {
 	 * @return boolean
 	 */
 	public static function has_vulnerabilities() {
+		return 0 < self::get_total_vulnerabilities();
+	}
+
+	/**
+	 * Gets the total number of vulnerabilities found
+	 *
+	 * @return integer
+	 */
+	public static function get_total_vulnerabilities() {
 		$status = self::get_status();
-		return isset( $status['num_vulnerabilities'] ) && is_int( $status['num_vulnerabilities'] ) && 0 < $status['num_vulnerabilities'];
+		return isset( $status->num_vulnerabilities ) && is_int( $status->num_vulnerabilities ) ? $status->num_vulnerabilities : 0;
+	}
+
+	/**
+	 * Get all vulnerabilities combined
+	 *
+	 * @return array
+	 */
+	public static function get_all_vulnerabilities() {
+		return array_merge(
+			self::get_wordpress_vulnerabilities(),
+			self::get_themes_vulnerabilities(),
+			self::get_plugins_vulnerabilities()
+		);
+	}
+
+	/**
+	 * Get vulnerabilities found for WordPress core
+	 *
+	 * @return array
+	 */
+	public static function get_wordpress_vulnerabilities() {
+		return self::get_vulnerabilities( 'WordPress' );
+	}
+
+	/**
+	 * Get vulnerabilities found for themes
+	 *
+	 * @return array
+	 */
+	public static function get_themes_vulnerabilities() {
+		return self::get_vulnerabilities( 'themes' );
+	}
+
+	/**
+	 * Get vulnerabilities found for plugins
+	 *
+	 * @return array
+	 */
+	public static function get_plugins_vulnerabilities() {
+		return self::get_vulnerabilities( 'plugins' );
+	}
+
+	/**
+	 * Get the vulnerabilities for one type of extension or core
+	 *
+	 * @param string $type What vulnerabilities you want to get. Possible values are 'WordPress', 'themes' and 'plugins'.
+	 *
+	 * @return array
+	 */
+	public static function get_vulnerabilities( $type ) {
+		$status = self::get_status();
+		if ( 'WordPress' === $type ) {
+			return isset( $status->$type ) && ! empty( $status->$type->vulnerabilities ) ? $status->$type->vulnerabilities : array();
+		}
+
+		$vuls = array();
+		if ( isset( $status->$type ) ) {
+			foreach ( (array) $status->$type as $item ) {
+				if ( ! empty( $item->vulnerabilities ) ) {
+					$vuls = array_merge( $vuls, $item->vulnerabilities );
+				}
+			}
+		}
+		return $vuls;
 	}
 
 	/**

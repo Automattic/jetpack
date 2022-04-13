@@ -237,6 +237,8 @@ const stepToNextStep = {
 	'creative-mail': 'site-accelerator',
 	'site-accelerator': 'publicize',
 	publicize: 'summary',
+	'security-plan': 'summary',
+	'anti-spam': 'summary',
 	videopress: 'summary',
 	summary: 'summary',
 };
@@ -251,6 +253,8 @@ const stepToRoute = {
 	'creative-mail': '#/recommendations/creative-mail',
 	'site-accelerator': '#/recommendations/site-accelerator',
 	publicize: '#/recommendations/publicize',
+	'security-plan': '#/recommendations/security-plan',
+	'anti-spam': '#/recommendations/anti-spam',
 	videopress: '#/recommendations/videopress',
 	summary: '#/recommendations/summary',
 };
@@ -318,6 +322,10 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'monitor':
 			return hasConnectedOwner( state ) && ! isFeatureActive( state, step );
 		case 'publicize':
+			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
+		case 'security-plan':
+		case 'anti-spam':
+			return isConditionalRecommendationEnabled( state, step );
 		case 'videopress':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		default:
@@ -405,6 +413,10 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 		case 'monitor':
 			return hasConnectedOwner( state );
 		case 'publicize':
+			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
+		case 'security-plan':
+		case 'anti-spam':
+			return isConditionalRecommendationEnabled( state, slug );
 		case 'videopress':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		default:
@@ -442,6 +454,12 @@ export const getSummaryFeatureSlugs = state => {
 		selected,
 		skipped,
 	};
+};
+
+export const getSummaryResourceSlugs = state => {
+	const resourceSlugs = [ 'security-plan', 'anti-spam' ];
+
+	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
 };
 
 export const getSidebarCardSlug = state => {
