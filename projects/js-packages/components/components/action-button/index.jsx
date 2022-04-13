@@ -27,7 +27,7 @@ const ActionButton = props => {
 		<div className={ styles.container }>
 			{
 				<Button
-					className="jp-action-button--button"
+					className={ styles.button }
 					label={ label }
 					onClick={ onClick }
 					variant="primary"
