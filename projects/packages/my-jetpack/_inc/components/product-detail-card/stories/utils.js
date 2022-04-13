@@ -71,14 +71,8 @@ export function getAllMockData() {
 /**
  * Return product slugs list
  *
- * @param {boolean} includeBundles - Whether to include product bundles
  * @returns {Array} product slugs list.
  */
-export function getProductSlugs( includeBundles = false ) {
-	const slugs = Object.keys( mapResponse );
-	if ( includeBundles ) {
-		return slugs;
-	}
-
-	return slugs.filter( slug => ! mapResponse[ slug ].is_bundle );
+export function getProductSlugs() {
+	return [ 'anti-spam', 'backup', 'boost', 'crm', 'extras', 'scan', 'search', 'videopress' ];
 }
