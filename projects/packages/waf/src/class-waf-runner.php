@@ -233,27 +233,13 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			throw new \Exception( 'Site is not registered' );
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%s/waf-rules', $blog_id )
-		);
-
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			throw new \Exception( 'API connection failed. ' );
-		}
-
-		$rules_json = wp_remote_retrieve_body( $response );
-		$rules      = json_decode( $rules_json, true );
+		$rules = self::get_rules_from_api();
 
 		// Ensure that the folder exists.
 		if ( ! $wp_filesystem->is_dir( dirname( self::RULES_FILE ) ) ) {
 			$wp_filesystem->mkdir( dirname( self::RULES_FILE ) );
 		}
-		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, $rules['data'] ) ) {
+		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, $rules ) ) {
 			throw new \Exception( 'Failed writing to: ' . self::RULES_FILE );
 		}
 	}
