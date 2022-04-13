@@ -43,6 +43,8 @@ class Jetpack_Publicize {
 			require_once __DIR__ . '/publicize/publicize.php';
 			require_once dirname( __DIR__ ) . '/mu-plugins/keyring/keyring.php';
 			require_once __DIR__ . '/publicize/publicize-wpcom.php';
+			require_once __DIR__ . '/publicize/ui.php';
+			$publicize_ui = new Publicize_UI();
 		}
 
 		$publicize_ui->in_jetpack = $this->in_jetpack;
@@ -89,17 +91,19 @@ class Jetpack_Publicize {
 				}
 			);
 
-			add_action(
-				'jetpack_register_gutenberg_extensions',
-				function () {
-					global $publicize;
-					if ( $publicize->current_user_can_access_publicize_data() ) {
-						Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
-					} else {
-						Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
+			if ( $this->in_jetpack ) {
+				add_action(
+					'jetpack_register_gutenberg_extensions',
+					function () {
+						global $publicize;
+						if ( $publicize->current_user_can_access_publicize_data() ) {
+							Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
+						} else {
+							Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
+						}
 					}
-				}
-			);
+				);
+			}
 		}
 	}
 }
@@ -117,6 +121,12 @@ if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! function_exists( 'publicize_in
 	 */
 	function publicize_init() {
 		global $publicize;
+
+		$in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
+
+		if ( ! $in_jetpack && ! class_exists( 'Publicize' ) ) {
+			require_once __DIR__ . '/publicize/publicize.php';
+		}
 		return $publicize;
 	}
 }
