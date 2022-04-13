@@ -55,7 +55,9 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 			),
 			'author'          => "(int) Author's user ID",
 			'search'          => '(string) Search query',
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- False positive
 			'meta_key'        => '(string) Metadata key that the post should contain',
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- False positive
 			'meta_value'      => '(string) Metadata value that the post should contain. Will only be applied if a `meta_key` is also given',
 		),
 
@@ -240,6 +242,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 				$meta['value'] = $args['meta_value'];
 			}
 
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			$query['meta_query'] = array( $meta );
 		}
 
@@ -300,6 +303,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		if ( ! empty( $args['term'] ) ) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			$query['tax_query'] = array();
 			foreach ( $args['term'] as $taxonomy => $slug ) {
 				$taxonomy_object = get_taxonomy( $taxonomy );

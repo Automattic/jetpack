@@ -54,6 +54,7 @@ class Meta extends Module {
 			if ( isset( $item['id'] ) && isset( $item['meta_key'] ) ) {
 				$meta = $this->get_object_by_id( $object_type, (int) $item['id'], (string) $item['meta_key'] );
 			}
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- False positive
 			$meta_objects[ $item['id'] . '-' . $item['meta_key'] ] = $meta;
 		}
 
@@ -95,12 +96,15 @@ class Meta extends Module {
 		if ( ! is_wp_error( $meta ) && ! empty( $meta ) ) {
 			foreach ( $meta as $meta_entry ) {
 				if ( 'post' === $object_type && strlen( $meta_entry['meta_value'] ) >= Posts::MAX_POST_META_LENGTH ) {
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- False positive
 					$meta_entry['meta_value'] = '';
 				}
 				$meta_objects[] = array(
 					'meta_type'  => $object_type,
 					'meta_id'    => $meta_entry['meta_id'],
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- False positive
 					'meta_key'   => $meta_key,
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- False positive
 					'meta_value' => $meta_entry['meta_value'],
 					'object_id'  => $meta_entry[ $object_id_column ],
 				);

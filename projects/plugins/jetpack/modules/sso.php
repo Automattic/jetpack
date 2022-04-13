@@ -115,7 +115,9 @@ class Jetpack_SSO {
 	public function xmlrpc_user_disconnect( $user_id ) {
 		$user_query = new WP_User_Query(
 			array(
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_key'   => 'wpcom_user_id',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				'meta_value' => $user_id,
 			)
 		);
@@ -1109,7 +1111,9 @@ class Jetpack_SSO {
 	public static function get_user_by_wpcom_id( $wpcom_user_id ) {
 		$user_query = new WP_User_Query(
 			array(
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_key'   => 'wpcom_user_id',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				'meta_value' => (int) $wpcom_user_id,
 				'number'     => 1,
 			)

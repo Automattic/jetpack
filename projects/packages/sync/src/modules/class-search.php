@@ -319,7 +319,9 @@ class Search extends Module {
 		'meta_description'                   => array( 'searchable_in_all_content' => true ),
 		'meta_id'                            => array(),
 		'meta_index'                         => array(),
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- False positive
 		'meta_key'                           => array(),
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- False positive
 		'meta_value'                         => array(),
 		'modal-dialog-id'                    => array(),
 		'name'                               => array( 'searchable_in_all_content' => true ),

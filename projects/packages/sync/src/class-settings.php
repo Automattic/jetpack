@@ -293,6 +293,7 @@ class Settings {
 	 */
 	public static function get_allowed_post_meta_structured() {
 		return array(
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_key' => array(
 				'operator' => 'IN',
 				'values'   => array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ),
@@ -361,6 +362,7 @@ class Settings {
 	 */
 	public static function get_allowed_comment_meta_structured() {
 		return array(
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_key' => array(
 				'operator' => 'IN',
 				'values'   => array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ),
@@ -385,6 +387,7 @@ class Settings {
 		$values = \Automattic\Jetpack\Sync\Modules\WooCommerce::$order_item_meta_whitelist;
 
 		return array(
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_key' => array(
 				'operator' => 'IN',
 				'values'   => array_map( 'esc_sql', $values ),

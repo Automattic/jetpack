@@ -117,6 +117,7 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint { 
 			'order'          => isset( $args['order'] ) ? $args['order'] : 'DESC',
 			'orderby'        => isset( $args['order_by'] ) ? $args['order_by'] : 'date',
 			's'              => isset( $args['search'] ) ? $args['search'] : null,
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			'meta_query'     => array(
 				array(
 					'key'     => 'videopress_poster_image',

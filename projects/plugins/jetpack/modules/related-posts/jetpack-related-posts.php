@@ -1221,6 +1221,7 @@ EOT;
 					'posts_per_page'   => $options['size'],
 					'post__not_in'     => $excluded_posts,
 					'post_type'        => $current_post->post_type,
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 					'meta_key'         => '_thumbnail_id',
 					'suppress_filters' => false,
 				)
@@ -1234,6 +1235,7 @@ EOT;
 						'posts_per_page'   => $more,
 						'post__not_in'     => $excluded_posts,
 						'post_type'        => $current_post->post_type,
+						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 						'meta_query'       => array(
 							array(
 								'key'     => '_thumbnail_id',

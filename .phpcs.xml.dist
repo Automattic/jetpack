@@ -32,11 +32,6 @@
 	</rule>
 
 	<!-- Temporarily disable this until it passes. -->
-	<rule ref="WordPress.DB.SlowDBQuery">
-		<exclude name="WordPress.DB.SlowDBQuery"/>
-	</rule>
-
-	<!-- Temporarily disable this until it passes. -->
 	<rule ref="WordPress.Security.ValidatedSanitizedInput">
 		<exclude name="WordPress.Security.ValidatedSanitizedInput"/>
 	</rule>

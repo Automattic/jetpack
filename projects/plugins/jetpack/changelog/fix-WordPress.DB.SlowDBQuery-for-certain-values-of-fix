@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Ignore all hits on `WordPress.DB.SlowDBQuery`
+
+

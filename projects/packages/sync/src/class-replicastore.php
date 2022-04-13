@@ -637,7 +637,9 @@ class Replicastore implements Replicastore_Interface {
 			$wpdb->update(
 				$table,
 				array(
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- False positive
 					'meta_key'   => $meta_key,
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- False positive
 					'meta_value' => maybe_serialize( $meta_value ),
 				),
 				array( 'meta_id' => $meta_id )
@@ -649,7 +651,9 @@ class Replicastore implements Replicastore_Interface {
 				array(
 					'meta_id'        => $meta_id,
 					$object_id_field => $object_id,
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- False positive
 					'meta_key'       => $meta_key,
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- False positive
 					'meta_value'     => maybe_serialize( $meta_value ),
 				)
 			);

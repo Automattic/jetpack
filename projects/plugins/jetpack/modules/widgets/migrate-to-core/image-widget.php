@@ -132,6 +132,7 @@ function jetpack_migrate_image_widget() {
 		$attachment_ids = get_posts(
 			array(
 				'fields'           => 'ids',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				'meta_query'       => array(
 					array(
 						'value'   => basename( $image_basename ),

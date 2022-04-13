@@ -430,7 +430,9 @@ class Jetpack_Widget_Conditions {
 			'hierarchical' => 1,
 			'exclude'      => array(),
 			'include'      => array(),
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- False positive
 			'meta_key'     => '',
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- False positive
 			'meta_value'   => '',
 			'authors'      => '',
 			'parent'       => -1,
