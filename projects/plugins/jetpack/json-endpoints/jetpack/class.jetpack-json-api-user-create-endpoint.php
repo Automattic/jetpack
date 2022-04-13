@@ -53,7 +53,7 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**
 	 * Create or get the user.
 	 *
-	 * @return object
+	 * @return object|false
 	 */
 	public function create_or_get_user() {
 		require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
