@@ -198,7 +198,7 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
-	 * Enqueues JavaScript and CSS for new connect-in-place flow.
+	 * Enqueues JavaScript and CSS for the connection button.
 	 *
 	 * @since 7.7
 	 */
