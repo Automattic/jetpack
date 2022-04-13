@@ -62,6 +62,12 @@ const ConnectedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) =
 		}
 	}, [ onClick, trackButtonClick ] );
 
+	/**
+	 * When onClick prop is defined,
+	 * the checkout page will be set as undefined.
+	 */
+	const checkoutPage = onClick ? undefined : addProductUrl;
+
 	return (
 		<ProductOffer
 			slug={ slug }
@@ -73,7 +79,7 @@ const ConnectedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) =
 			supportedProducts={ supportedProducts }
 			hasRequiredPlan={ hasRequiredPlan }
 			onAdd={ clickHandler }
-			addProductUrl={ addProductUrl }
+			addProductUrl={ checkoutPage }
 			isLoading={ isFetching }
 			{ ...rest }
 		/>
