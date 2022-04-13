@@ -219,7 +219,7 @@ class Waf_Runner {
 			throw new \Exception( 'Data missing from response.' );
 		}
 
-		return $rules;
+		return $rules['data'];
 	}
 
 	/**
