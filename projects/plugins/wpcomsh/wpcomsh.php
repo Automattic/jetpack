@@ -1547,11 +1547,12 @@ function wpcomsh_footer_rum_js() {
 
 		$service = 'atomic-wpadmin';
 
-		$is_editor_page = in_array( $pagenow, [ 'post.php', 'post-new.php' ], true );
-		$is_iframed     = wpcom_framing_allowed();
-		if ( $is_editor_page && $is_iframed ) {
-			$service      = 'atomic-gutenframe';
-			$allow_iframe = 'data-allow-iframe="true"';
+		if ( method_exists( 'Jetpack_WPCOM_Block_Editor', 'init' ) ) {
+			$block_editor = Jetpack_WPCOM_Block_Editor::init();
+			if ( $block_editor->is_iframed_block_editor() ) {
+				$service      = 'atomic-gutenframe';
+				$allow_iframe = 'data-allow-iframe="true"';
+			}
 		}
 	}
 
