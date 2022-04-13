@@ -13,6 +13,7 @@ import { AdminSectionHero, Container, Col, Spinner } from '@automattic/jetpack-c
 import useConnection from './use-connection';
 import SearchDashboard from './index';
 import { STORE_ID } from 'store';
+import { UpsellPage } from './upsell-page';
 
 /**
  * Return Search Dashboard if connected, otherwise the connection screen.
@@ -25,6 +26,8 @@ export default function SearchDashboardWithConnection() {
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const { connectionStatus, renderConnectScreen, renderConnectionFooter } = useConnection();
+
+	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
 
 	const isFullyConnected =
 		Object.keys( connectionStatus ).length &&
@@ -86,6 +89,10 @@ export default function SearchDashboardWithConnection() {
 				</AdminSectionHero>
 			</div>
 		);
+	}
+
+	if ( ! supportsSearch ) {
+		return <UpsellPage />;
 	}
 
 	return <SearchDashboard />;
