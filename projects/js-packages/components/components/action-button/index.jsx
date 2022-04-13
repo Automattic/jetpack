@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import Button from '../button';
-import './style.scss';
+import styles from './style.module.scss';
 
 /**
  * The Jetpack Action button.
@@ -25,7 +25,7 @@ const ActionButton = props => {
 	const { label, onClick, isLoading, displayError, errorMessage } = props;
 
 	return (
-		<div className="jp-action-button">
+		<div className={ styles.container }>
 			{
 				<Button
 					className="jp-action-button--button"
@@ -38,7 +38,7 @@ const ActionButton = props => {
 				</Button>
 			}
 
-			{ displayError && <p className="jp-action-button__error">{ errorMessage }</p> }
+			{ displayError && <p className={ styles.error }>{ errorMessage }</p> }
 		</div>
 	);
 };
