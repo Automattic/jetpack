@@ -100,7 +100,7 @@ class Initializer {
 	}
 
 	/**
-	 * Check if search is supported by current plan.
+	 * Check if wordads is supported by current plan.
 	 * TODO.
 	 */
 	protected static function is_wordads_supported() {
@@ -108,7 +108,7 @@ class Initializer {
 	}
 
 	/**
-	 * Perform necessary initialization steps for classic and instant search in the constructor.
+	 * Perform necessary initialization steps
 	 *
 	 * @deprecated
 	 */

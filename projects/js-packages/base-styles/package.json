@@ -22,7 +22,7 @@
 		"@wordpress/base-styles": "4.3.0"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^17.7.1",
+		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}

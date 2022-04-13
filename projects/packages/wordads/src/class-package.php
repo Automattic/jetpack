@@ -26,7 +26,7 @@ class Package {
 	 *
 	 * @param array $package_versions The package version array.
 	 *
-	 * @return array The packge version array.
+	 * @return array The package version array.
 	 */
 	public static function send_version_to_tracker( $package_versions ) {
 		// Multiple versions could co-exist, we want to send the version which is in use.
@@ -54,7 +54,7 @@ class Package {
 	 * @return string
 	 */
 	public static function get_installed_path() {
-		if ( is_null( static::$installed_path ) ) {
+		if ( static::$installed_path === null ) {
 			static::$installed_path = dirname( __DIR__ ) . DIRECTORY_SEPARATOR;
 		}
 		return apply_filters( 'jetpack_wordads_installed_path', static::$installed_path );
