@@ -5,6 +5,7 @@ import child_process from 'child_process';
 import fs from 'fs';
 import * as envfile from 'envfile';
 import chalk from 'chalk';
+import semver from 'semver';
 
 /**
  * Get a list of monorepo tooling version requirements to check which versions we need.
@@ -36,10 +37,10 @@ export async function getComposerVersion() {
 export async function compareComposerVersion() {
 	const currentComposerVersion = await getComposerVersion();
 	const monorepoComposerVersion = getVersions().COMPOSER_VERSION;
-	if ( currentComposerVersion !== monorepoComposerVersion ) {
+	if ( ! semver.satisfies( currentComposerVersion, '~' + monorepoComposerVersion ) ) {
 		console.log(
 			chalk.yellow(
-				`Composer version ${ currentComposerVersion } does not match monorepo required version of ${ monorepoComposerVersion }! This may cause issues when working with monorepo tooling.`
+				`Composer version ${ currentComposerVersion } does not satisfy the monorepo's required version of ~${ monorepoComposerVersion }! This may cause issues when working with monorepo tooling.`
 			)
 		);
 		console.log(
