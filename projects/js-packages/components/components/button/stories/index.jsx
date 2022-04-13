@@ -66,7 +66,10 @@ export default {
 	component: Button,
 	argTypes: {
 		icon: {
-			control: { type: 'select', options: Object.keys( icons ) },
+			control: {
+				type: 'select',
+				options: [ 'none', ...Object.keys( icons ) ],
+			},
 		},
 	},
 	parameters: {
@@ -80,7 +83,7 @@ export default {
 };
 
 const DefaultTemplate = args => {
-	const icon = args?.icon ? <WPIcon icon={ icons[ args.icon ] } /> : null;
+	const icon = args?.icon && args?.icon !== 'none' ? <WPIcon icon={ icons[ args.icon ] } /> : null;
 	return <Button { ...args } icon={ icon } />;
 };
 
