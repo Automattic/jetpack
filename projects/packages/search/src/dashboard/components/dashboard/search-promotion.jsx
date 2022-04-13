@@ -5,20 +5,25 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 
 /**
+ * Internal dependencies
+ */
+import './search-promotion.scss';
+
+/**
  * SearchPromotionBlock component definition.
  *
  * @returns {React.Component} SearchPromotionBlock component.
  */
 export default function SearchPromotionBlock() {
 	return (
-		<>
+		<div className="jp-search-dashboard-promotion-block">
 			<h3>
 				{ __(
 					"Allow viewers to search through your site's records, lightning fast.",
 					'jetpack-search-pkg'
 				) }
 			</h3>
-			<ul>
+			<ul className="jp-product-promote">
 				<li>{ __( 'Customizable filtering', 'jetpack-search-pkg' ) }</li>
 				<li>{ __( 'Support for 29 languages', 'jetpack-search-pkg' ) }</li>
 				<li>
@@ -30,7 +35,8 @@ export default function SearchPromotionBlock() {
 						'jetpack-search-pkg'
 					) }
 				</li>
+				<li>{ __( 'Best-in-class support', 'jetpack-search-pkg' ) }</li>
 			</ul>
-		</>
+		</div>
 	);
 }
