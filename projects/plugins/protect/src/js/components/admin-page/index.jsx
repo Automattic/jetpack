@@ -111,7 +111,7 @@ const Admin = () => {
 					<AdminSectionHero>
 						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 							<Col>
-								<Summary />
+								<Summary wordpressVuls={ 1 } themesVuls={ 2 } pluginsVuls={ 4 } />
 							</Col>
 						</Container>
 					</AdminSectionHero>
