@@ -41,7 +41,7 @@
 		"automattic/jetpack-search": "0.12.x-dev",
 		"automattic/jetpack-status": "1.13.x-dev",
 		"automattic/jetpack-sync": "1.30.x-dev",
-		"automattic/jetpack-waf": "0.3.x-dev",
+		"automattic/jetpack-waf": "0.4.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"
 	},
 	"require-dev": {
