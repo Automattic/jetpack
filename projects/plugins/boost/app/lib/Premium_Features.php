@@ -15,9 +15,9 @@ class Premium_Features {
 	}
 
 	public static function get_features() {
-		$features = Transient::get( self::TRANSIENT_KEY, null );
+		$features = Transient::get( self::TRANSIENT_KEY, array() );
 
-		if ( ! $features ) {
+		if ( empty( $features ) ) {
 			$features = Boost_API::get( 'features' );
 			Transient::set( self::TRANSIENT_KEY, $features, 3 * DAY_IN_SECONDS );
 		}
