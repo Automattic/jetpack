@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Sync\Data_Settings;
 
 /**
  * Class Jetpack_Starter_Plugin
@@ -52,7 +53,7 @@ class Jetpack_Starter_Plugin {
 					)
 				);
 				// Sync package.
-				$config->ensure( 'sync' );
+				$config->ensure( 'sync', Data_Settings::MUST_SYNC_DATA_SETTINGS );
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );

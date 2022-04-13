@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Refactored the logic that determines the Gutenberg context to its own file, added more context checks and refactored some usages to use the new context resolver.
