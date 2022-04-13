@@ -6,7 +6,6 @@ import {
 	enableDedicatedSync,
 	disableDedicatedSync,
 	waitTillSyncQueueIsEmpty,
-	waitTillSyncQueueIsNotEmpty,
 } from '../../helpers/sync-helper.js';
 import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
@@ -51,10 +50,6 @@ test.describe( 'Sync', () => {
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
-			await expect(
-				waitTillSyncQueueIsNotEmpty(),
-				'Sync queue should be not empty'
-			).resolves.toBeTruthy();
 			await blockEditor.reload();
 		} );
 
@@ -118,16 +113,12 @@ test.describe( 'Sync', () => {
 			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
-			await expect(
-				waitTillSyncQueueIsNotEmpty(),
-				'Sync queue should be not empty'
-			).resolves.toBeTruthy();
 			await blockEditor.reload();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
 			await expect(
-				waitTillSyncQueueIsEmpty( 1000, 20 ),
+				waitTillSyncQueueIsEmpty( 3000, 30 ),
 				'Sync queue should be empty'
 			).resolves.toBeTruthy();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
