@@ -92,7 +92,7 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 	/**
 	 * Update the theme.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error True on success, WP_Error on failure.
 	 */
 	public function update() {
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
