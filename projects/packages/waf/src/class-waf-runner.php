@@ -64,7 +64,7 @@ class Waf_Runner {
 			return;
 		}
 
-		Waf_constants::initialize_constants();
+		Waf_Constants::initialize_constants();
 
 		// if ABSPATH is defined, then WordPress has already been instantiated,
 		// and we're running as a plugin (meh). Otherwise, we're running via something
@@ -145,8 +145,31 @@ class Waf_Runner {
 		if ( ! $version ) {
 			add_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 		}
+		self::create_waf_directory();
 		self::create_blocklog_table();
 		self::generate_rules();
+	}
+
+	/**
+	 * Created the waf directory on activation.
+	 *
+	 * @return void
+	 * @throws \Exception In case there's a problem when creating the directory.
+	 */
+	public static function create_waf_directory() {
+		WP_Filesystem();
+		Waf_Constants::initialize_constants();
+
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			throw new \Exception( 'Can not work without the file system being initialized.' );
+		}
+
+		if ( ! $wp_filesystem->is_dir( JETPACK_WAF_DIR ) ) {
+			if ( ! $wp_filesystem->mkdir( JETPACK_WAF_DIR ) ) {
+				throw new \Exception( 'Failed creating WAF standalone bootstrap file directory: ' . JETPACK_WAF_DIR );
+			}
+		}
 	}
 
 	/**
