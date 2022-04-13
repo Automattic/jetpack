@@ -7,8 +7,6 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
-use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Redirect;
 
@@ -159,7 +157,7 @@ class Jetpack_Connection_Banner {
 		}
 
 		// Only fires immediately after plugin activation.
-		if ( get_transient( 'activated_jetpack' ) ) {
+		if ( true || get_transient( 'activated_jetpack' ) ) {
 			if (
 				! \Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false )
 				&& in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true )
@@ -205,8 +203,6 @@ class Jetpack_Connection_Banner {
 	 * @since 7.7
 	 */
 	public static function enqueue_connect_button_scripts() {
-		global $is_safari;
-
 		wp_enqueue_script(
 			'jetpack-connect-button',
 			Assets::get_file_url_for_environment(
@@ -230,14 +226,6 @@ class Jetpack_Connection_Banner {
 
 		$jetpack_api_url = wp_parse_url( Jetpack::connection()->api_url( '' ) );
 
-		// Due to the limitation in how 3rd party cookies are handled in Safari and Opera,
-		// we're falling back to the original flow.
-		if ( $is_safari || User_Agent_Info::is_opera_desktop() || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
-			$force_variation = 'original';
-		} else {
-			$force_variation = 'in_place';
-		}
-
 		$tracking = new Automattic\Jetpack\Tracking();
 		$identity = $tracking->tracks_get_identity( get_current_user_id() );
 
@@ -251,7 +239,7 @@ class Jetpack_Connection_Banner {
 				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpack_api_url['scheme'] . '://' . $jetpack_api_url['host'],
-				'forceVariation'        => $force_variation,
+				'forceVariation'        => 'original',
 				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
 				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),
