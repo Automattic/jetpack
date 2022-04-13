@@ -13,10 +13,19 @@ function die {
 	exit 1
 }
 
+# Renovate may get confused if we leave installed node_modules or the like behind.
+# So delete everything that's git-ignored on exit.
+function cleanup {
+	cd "$BASE"
+	git config --unset core.hooksPath || true
+	git clean -qfdX || true
+}
+trap "cleanup" EXIT
+
 # Renovate puts some cache dirs in different places.
 if [[ "$HOME" == "/" ]]; then
-    mkdir /var/tmp/home
-    export HOME=/var/tmp/home
+	mkdir /var/tmp/home
+	export HOME=/var/tmp/home
 fi
 pnpm config set --location=user store-dir /tmp/renovate/cache/others/pnpm
 composer config --global cache-dir /tmp/renovate/cache/others/composer
