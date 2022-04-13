@@ -122,11 +122,6 @@ if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! function_exists( 'publicize_in
 	function publicize_init() {
 		global $publicize;
 
-		$in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
-
-		if ( ! $in_jetpack && ! class_exists( 'Publicize' ) ) {
-			require_once __DIR__ . '/publicize/publicize.php';
-		}
 		return $publicize;
 	}
 }
