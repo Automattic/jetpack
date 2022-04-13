@@ -2,13 +2,15 @@
 /**
  * Publicize class.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
+use Jetpack_IXR_Client;
+use Jetpack_Options;
 
 /**
  * Extend the base class with Jetpack-specific functionality.
@@ -54,9 +56,8 @@ class Publicize extends Publicize_Base {
 
 		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
 
-		include_once __DIR__ . '/enhanced-open-graph.php';
-
-		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
+		// TODO: Move enhanced Open Graph to the Jetpack plugin.
+		// include_once __DIR__ . '/enhanced-open-graph.php';
 	}
 
 	/**
@@ -140,7 +141,7 @@ class Publicize extends Publicize_Base {
 	 * @return false|void False on failure. Void on success.
 	 */
 	public function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) {
-		return Jetpack_Keyring_Service_Helper::disconnect( $service_name, $connection_id, $_blog_id, $_user_id, $force_delete );
+		return Keyring_Helper::disconnect( $service_name, $connection_id, $_blog_id, $_user_id, $force_delete );
 	}
 
 	/**
@@ -464,7 +465,7 @@ class Publicize extends Publicize_Base {
 	 * @return string
 	 */
 	public function connect_url( $service_name, $for = 'publicize' ) {
-		return Jetpack_Keyring_Service_Helper::connect_url( $service_name, $for );
+		return Keyring_Helper::connect_url( $service_name, $for );
 	}
 
 	/**
@@ -475,7 +476,7 @@ class Publicize extends Publicize_Base {
 	 * @return string
 	 */
 	public function refresh_url( $service_name, $for = 'publicize' ) {
-		return Jetpack_Keyring_Service_Helper::refresh_url( $service_name, $for );
+		return Keyring_Helper::refresh_url( $service_name, $for );
 	}
 
 	/**
@@ -486,7 +487,7 @@ class Publicize extends Publicize_Base {
 	 * @return string
 	 */
 	public function disconnect_url( $service_name, $id ) {
-		return Jetpack_Keyring_Service_Helper::disconnect_url( $service_name, $id );
+		return Keyring_Helper::disconnect_url( $service_name, $id );
 	}
 
 	/**
@@ -602,7 +603,7 @@ class Publicize extends Publicize_Base {
 			'refresh_url'      => $refresh_url,
 		);
 
-		return new WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
+		return new \WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
 	}
 
 	/**
