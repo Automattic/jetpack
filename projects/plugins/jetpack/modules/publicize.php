@@ -43,6 +43,8 @@ class Jetpack_Publicize {
 			require_once __DIR__ . '/publicize/publicize.php';
 			require_once dirname( __DIR__ ) . '/mu-plugins/keyring/keyring.php';
 			require_once __DIR__ . '/publicize/publicize-wpcom.php';
+			require_once __DIR__ . '/publicize/ui.php';
+			$publicize_ui = new Publicize_UI();
 		}
 
 		$publicize_ui->in_jetpack = $this->in_jetpack;
