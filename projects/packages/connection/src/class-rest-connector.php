@@ -145,7 +145,7 @@ class REST_Connector {
 			'/connection/plugins',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_connection_plugins' ),
+				'callback'            => array( __CLASS__, 'get_connection_plugins' ),
 				'permission_callback' => __CLASS__ . '::connection_plugins_permission_check',
 			)
 		);
@@ -347,12 +347,15 @@ class REST_Connector {
 	/**
 	 * Get plugins connected to the Jetpack.
 	 *
+	 * @param bool $rest_response Should we return a rest response or a simple array. Default to rest response.
+	 *
 	 * @since 1.13.1
+	 * @since $$next-version$$ Added $rest_response param.
 	 *
 	 * @return WP_REST_Response|WP_Error Response or error object, depending on the request result.
 	 */
-	public function get_connection_plugins() {
-		$plugins = $this->connection->get_connected_plugins();
+	public static function get_connection_plugins( $rest_response = true ) {
+		$plugins = ( new Manager() )->get_connected_plugins();
 
 		if ( is_wp_error( $plugins ) ) {
 			return $plugins;
@@ -365,7 +368,12 @@ class REST_Connector {
 			}
 		);
 
-		return rest_ensure_response( array_values( $plugins ) );
+		if ( $rest_response ) {
+			return rest_ensure_response( array_values( $plugins ) );
+		}
+
+		return array_values( $plugins );
+
 	}
 
 	/**
