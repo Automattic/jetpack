@@ -25,7 +25,7 @@ import getProductCheckoutUrl from 'utils/get-product-checkout-url';
  *
  * @returns {React.Component} UpsellPage component.
  */
-export function UpsellPage() {
+export default function UpsellPage() {
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );

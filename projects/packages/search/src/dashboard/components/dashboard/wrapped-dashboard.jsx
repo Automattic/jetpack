@@ -11,10 +11,10 @@ import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Spinner } from '@automattic/jetpack-components';
 import useConnection from './use-connection';
-import SearchDashboard from './index';
 import { STORE_ID } from 'store';
-import { UpsellPage } from './upsell-page';
+import UpsellPage from './upsell-page';
 import SearchConnectionPage from './connection-page';
+import SearchDashboard from './index';
 
 /**
  * Return approperiate components.
