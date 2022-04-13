@@ -16,8 +16,4 @@ export default {
 const Template = args => <ConnectedButton { ...args } />;
 
 export const Default = Template.bind( {} );
-Default.args = {
-	size: 'normal',
-	children: 'Jetpack Button',
-	variant: 'primary',
-};
+Default.args = {};
