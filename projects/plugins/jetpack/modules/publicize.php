@@ -33,7 +33,7 @@ class Jetpack_Publicize {
 	public function __construct() {
 		global $publicize_ui;
 
-		$this->in_jetpack = class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' );
+		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
 
 		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( __FILE__ );
