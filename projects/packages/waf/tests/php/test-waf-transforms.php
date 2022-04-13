@@ -5,7 +5,7 @@
  * @package automattic/jetpack-waf
  */
 
-use Automattic\Jetpack\Waf\WafTransforms as GlobalWafTransforms;
+use Automattic\Jetpack\Waf\Waf_Transforms as GlobalWafTransforms;
 
 /**
  * Transforms test suite.
@@ -13,7 +13,7 @@ use Automattic\Jetpack\Waf\WafTransforms as GlobalWafTransforms;
 final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 
 	/**
-	 * Instance of WafTransforms
+	 * Instance of Waf_Transforms
 	 *
 	 * @var GlobalWafTransforms
 	 */

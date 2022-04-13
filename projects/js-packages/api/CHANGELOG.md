@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.11.0 - 2022-04-12
+### Added
+- Add endpoint for conditional recommendations
+
 ## 0.10.2 - 2022-04-05
 ### Changed
 - Updated package dependencies

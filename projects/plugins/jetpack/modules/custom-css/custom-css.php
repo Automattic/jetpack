@@ -128,17 +128,6 @@ class Jetpack_Custom_CSS {
 				add_action( 'admin_notices', array( 'Jetpack_Custom_CSS', 'saved_message' ) );
 		}
 
-		// Prevent content filters running on CSS when restoring revisions
-		if ( isset( $_REQUEST[ 'action' ] ) && 'restore' === $_REQUEST[ 'action' ] && false !== strstr( $_SERVER[ 'REQUEST_URI' ], 'revision.php' ) ) {
-			$parent_post = get_post( wp_get_post_parent_id( (int) $_REQUEST['revision'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			if ( $parent_post && ! is_wp_error( $parent_post ) && 'safecss' === $parent_post->post_type ) {
-				// Remove wp_filter_post_kses, this causes CSS escaping issues
-				remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
-				remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' );
-				remove_all_filters( 'content_save_pre' );
-			}
-		}
-
 		// Modify all internal links so that preview state persists
 		if ( Jetpack_Custom_CSS::is_preview() )
 			ob_start( array( 'Jetpack_Custom_CSS', 'buffer' ) );
@@ -179,11 +168,6 @@ class Jetpack_Custom_CSS {
 		} else {
 			$args['content_width'] = false;
 		}
-
-		// Remove wp_filter_post_kses, this causes CSS escaping issues
-		remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
-		remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' );
-		remove_all_filters( 'content_save_pre' );
 
 		/**
 		 * Fires prior to saving custom css values. Necessitated because the
@@ -453,8 +437,10 @@ class Jetpack_Custom_CSS {
 			$current_theme = wp_get_theme();
 			$post['post_excerpt'] = $current_theme->Name;
 
+			add_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9, 3 );
 			// Insert the CSS into wp_posts
 			$post_id = wp_insert_post( $post );
+			remove_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9 );
 			wp_cache_set( 'custom_css_post_id', $post_id );
 			return $post_id;
 		}
@@ -477,13 +463,45 @@ class Jetpack_Custom_CSS {
 		if ( false === $is_preview ) {
 			$safecss_post['post_content'] = wp_slash( $safecss_post['post_content'] );
 			$safecss_post['post_content_filtered'] = wp_slash( $safecss_post['post_content_filtered'] );
+			add_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9, 3 );
 			$post_id = wp_update_post( $safecss_post );
+			remove_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9 );
 			wp_cache_set( 'custom_css_post_id', $post_id );
 			return $post_id;
 		}
 		else if ( ! defined( 'DOING_MIGRATE' ) ) {
-			return _wp_put_post_revision( $safecss_post );
+			add_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9, 3 );
+			$revision = _wp_put_post_revision( $safecss_post );
+			remove_filter( 'wp_insert_post_data', array( __CLASS__, 'restore_unsafe_postcss_content' ), 9 );
+			return $revision;
 		}
+	}
+
+	/**
+	 * Restore Unsafe Post CSS Content.
+	 *
+	 * @param array $data The post data to be restored.
+	 * @param array $postarray Unused.
+	 * @param array $unsanitized The unsanitized post data.
+	 *
+	 * @return array Post data.
+	 */
+	public static function restore_unsafe_postcss_content( $data, $postarray, $unsanitized ) {
+		$replace_content =
+				isset( $data['post_type'] ) &&
+				isset( $unsanitized['post_content'] ) &&
+				(
+						'safecss' === $data['post_type'] ||
+						(
+								'revision' === $data['post_type'] &&
+								! empty( $data['post_parent'] ) &&
+								'safecss' === get_post_type( $data['post_parent'] )
+						)
+				);
+		if ( $replace_content ) {
+			$data['post_content'] = $unsanitized['post_content'];
+		}
+		return $data;
 	}
 
 	static function skip_stylesheet() {

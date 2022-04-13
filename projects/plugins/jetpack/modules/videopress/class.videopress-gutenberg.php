@@ -168,18 +168,13 @@ class VideoPress_Gutenberg {
 	 * Temporary method to enable resumable uploads for testing by Automatticians
 	 */
 	public function add_resumable_upload_support() {
-		if (
-			defined( 'IS_WPCOM' ) && IS_WPCOM &&
-			function_exists( 'is_automattician' ) && is_automattician()
-		) {
-			wp_enqueue_script(
-				'videopress-add-resumable-upload-support',
-				plugins_url( 'js/videopress-add-resumable-upload-support.js', __FILE__ ),
-				null,
-				'1',
-				false
-			);
-		}
+		wp_enqueue_script(
+			'videopress-add-resumable-upload-support',
+			plugins_url( 'js/videopress-add-resumable-upload-support.js', __FILE__ ),
+			null,
+			'1',
+			false
+		);
 	}
 
 	/**
