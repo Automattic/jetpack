@@ -112,6 +112,9 @@ class Autoloader_Debug_Helper {
 								<?php if ( ! $entry['is_readable'] ) : ?>
 									<br /><strong style="color:red;">FILE UNREADABLE</strong>
 								<?php endif; ?>
+								<?php if ( $entry['is_included'] ) : ?>
+									<br /><strong style="color:green;">Currently loaded</strong>
+								<?php endif; ?>
 							</td>
 						<?php else : ?>
 							<td>
@@ -119,6 +122,9 @@ class Autoloader_Debug_Helper {
 								(in <?php echo esc_html( $entry['manifest'] ); ?>)
 								<?php if ( ! $entry['is_readable'] ) : ?>
 									<br /><strong style="color:red;">FILE UNREADABLE</strong>
+								<?php endif; ?>
+								<?php if ( $entry['is_included'] ) : ?>
+									<br /><strong style="color:green;">Currently loaded</strong>
 								<?php endif; ?>
 							</td>
 						<?php endif; ?>
@@ -210,6 +216,7 @@ class Autoloader_Debug_Helper {
 			);
 		}
 
+		$included_files           = get_included_files();
 		$manifest_by_classname    = array();
 		$data['unreadable_found'] = false;
 		foreach ( $manifest as $plugin_manifest_type => $manifest_data ) {
@@ -219,6 +226,12 @@ class Autoloader_Debug_Helper {
 
 				if ( ! $is_readable ) {
 					$data['unreadable_found'] = true;
+				}
+
+				if ( in_array( $entry['path'], $included_files, true ) ) {
+					$entry['is_included'] = true;
+				} else {
+					$entry['is_included'] = false;
 				}
 
 				$manifest_by_classname[ $classname ][] = array_merge(
