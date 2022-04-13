@@ -13,6 +13,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
@@ -204,7 +205,7 @@ class Jetpack_Redux_State_Helper {
 			'licensing'                   => array(
 				'error'                   => Licensing::instance()->last_error(),
 				'showLicensingUi'         => Licensing::instance()->is_licensing_input_enabled(),
-				'userCounts'              => Jetpack_Core_Json_Api_Endpoints::get_user_license_counts(),
+				'userCounts'              => Licensing_Endpoints::get_user_license_counts(),
 				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
 			),
 			'hasSeenWCConnectionModal'    => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
