@@ -73,7 +73,7 @@ class REST_Controller {
 
 		$error_msg = esc_html__(
 			'You are not allowed to perform this action.',
-			'jetpack-wordads-pkg'
+			'jetpack-wordads'
 		);
 
 		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
@@ -102,7 +102,7 @@ class REST_Controller {
 				'some_updated',
 				sprintf(
 					/* translators: %s are the setting name that not updated. */
-					__( 'Some settings ( %s ) not updated.', 'jetpack-wordads-pkg' ),
+					__( 'Some settings ( %s ) not updated.', 'jetpack-wordads' ),
 					implode(
 						',',
 						array_keys( $errors )

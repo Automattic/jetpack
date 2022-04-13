@@ -10,7 +10,7 @@ module.exports = api => {
 						modules: false,
 						useBuiltIns: 'usage',
 					},
-					pluginReplaceTextdomain: { textdomain: 'jetpack-wordads-pkg' },
+					pluginReplaceTextdomain: { textdomain: 'jetpack-wordads' },
 				},
 			],
 		],

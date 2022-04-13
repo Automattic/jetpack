@@ -51,8 +51,8 @@ class Dashboard {
 		}
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'WordAds Settings', 'jetpack-wordads-pkg' ),
-			_x( 'WordAds', 'product name shown in menu', 'jetpack-wordads-pkg' ),
+			__( 'WordAds Settings', 'jetpack-wordads' ),
+			_x( 'WordAds', 'product name shown in menu', 'jetpack-wordads' ),
 			'manage_options',
 			'jetpack-wordads',
 			array( $this, 'render' ),
@@ -68,7 +68,7 @@ class Dashboard {
 	public function render() {
 		?>
 		<div id="jp-wordads-dashboard" class="jp-wordads-dashboard">
-			<div class="hide-if-js"><?php esc_html_e( 'Your WordAds dashboard requires JavaScript to function properly.', 'jetpack-wordads-pkg' ); ?></div>
+			<div class="hide-if-js"><?php esc_html_e( 'Your WordAds dashboard requires JavaScript to function properly.', 'jetpack-wordads' ); ?></div>
 		</div>
 		<?php
 	}
@@ -111,7 +111,7 @@ class Dashboard {
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-wordads-pkg',
+				'textdomain' => 'jetpack-wordads',
 			)
 		);
 		Assets::enqueue_script( 'jp-wordads-dashboard' );

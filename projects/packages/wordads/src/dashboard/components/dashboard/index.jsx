@@ -102,7 +102,7 @@ export default function WordAdsDashboard() {
 				<div className="jp-wordads-dashboard-row">
 					<JetpackFooter
 						a8cLogoHref={ aboutPageUrl }
-						moduleName={ __( 'WordAds', 'jetpack-wordads-pkg' ) }
+						moduleName={ __( 'WordAds', 'jetpack-wordads' ) }
 						className="lg-col-span-12 md-col-span-8 sm-col-span-4"
 					/>
 				</div>

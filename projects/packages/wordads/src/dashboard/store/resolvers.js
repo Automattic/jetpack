@@ -23,7 +23,7 @@ export function* getWordAdsModuleStatus() {
 			return setJetpackSettings( settings );
 		}
 	} catch ( e ) {
-		return errorNotice( __( 'Error fetching settings…', 'jetpack-wordads-pkg' ) );
+		return errorNotice( __( 'Error fetching settings…', 'jetpack-wordads' ) );
 	}
 }
 

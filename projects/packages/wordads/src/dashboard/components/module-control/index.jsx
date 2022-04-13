@@ -21,7 +21,7 @@ import './style.scss';
 
 const SEARCH_DESCRIPTION = __(
 	'Earn income by allowing Jetpack to display high quality ads.',
-	'jetpack-wordads-pkg'
+	'jetpack-wordads'
 );
 
 /**
@@ -61,9 +61,9 @@ export default function WordAdsModuleControl( {
 						className="is-wordads-admin"
 						switchClassNames="lg-col-span-1 md-col-span-1 sm-col-span-1"
 						labelClassNames=" lg-col-span-7 md-col-span-5 sm-col-span-3"
-						aria-label={ __( 'Enable WordAds', 'jetpack-wordads-pkg' ) }
+						aria-label={ __( 'Enable WordAds', 'jetpack-wordads' ) }
 					>
-						{ __( 'Enable WordAds', 'jetpack-wordads-pkg' ) }
+						{ __( 'Enable WordAds', 'jetpack-wordads' ) }
 					</CompactFormToggle>
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>

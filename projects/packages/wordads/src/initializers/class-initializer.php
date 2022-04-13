@@ -116,7 +116,7 @@ class Initializer {
 		return new WP_Error(
 			'invalid-method',
 			/* translators: %s: Method name. */
-			sprintf( __( "Method '%s' not implemented. Must be overridden in subclass.", 'jetpack-wordads-pkg' ), __METHOD__ ),
+			sprintf( __( "Method '%s' not implemented. Must be overridden in subclass.", 'jetpack-wordads' ), __METHOD__ ),
 			array( 'status' => 405 )
 		);
 	}

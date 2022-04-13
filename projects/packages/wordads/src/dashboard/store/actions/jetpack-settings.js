@@ -39,14 +39,14 @@ export function* updateJetpackSettings( settings ) {
 		yield updateJetpackSettingsControl( settings );
 		const updatedSettings = yield fetchWordAdsSettings();
 		yield setJetpackSettings( updatedSettings );
-		return successNotice( __( 'Updated settings.', 'jetpack-wordads-pkg' ) );
+		return successNotice( __( 'Updated settings.', 'jetpack-wordads' ) );
 	} catch ( e ) {
 		const oldSettings = pick( select( STORE_ID ).getWordAdsModuleStatus(), [
 			'module_active',
 			'instant_search_enabled',
 		] );
 		yield setJetpackSettings( oldSettings );
-		return errorNotice( __( 'Error Update settings…', 'jetpack-wordads-pkg' ) );
+		return errorNotice( __( 'Error Update settings…', 'jetpack-wordads' ) );
 	} finally {
 		yield removeUpdatingNotice();
 		yield setUpdatingJetpackSettingsDone();
