@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../store';
+import { STORE_ID } from 'store';
 import SearchPromotionBlock from './search-promotion';
 
 /**

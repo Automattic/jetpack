@@ -8,14 +8,14 @@ import { Container, Col, AdminSectionHero } from '@automattic/jetpack-components
  * Internal dependencies
  */
 import useConnection from './use-connection';
-import './connection-screen.scss';
+import './connection-page.scss';
 
 /**
  * defines SearchConnectionScreen.
  *
  * @returns {React.Component} SearchConnectionScreen component.
  */
-export default function SearchConnectionScreen() {
+export default function SearchConnectionPage() {
 	const { renderConnectScreen, renderConnectionFooter } = useConnection();
 
 	return (

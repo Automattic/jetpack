@@ -14,7 +14,7 @@ import useConnection from './use-connection';
 import SearchDashboard from './index';
 import { STORE_ID } from 'store';
 import { UpsellPage } from './upsell-page';
-import SearchConnectionScreen from './connection-screen';
+import SearchConnectionPage from './connection-page';
 
 /**
  * Return approperiate components.
@@ -76,7 +76,7 @@ export default function WrappedDashboard() {
 	}
 
 	if ( ! isFullyConnected ) {
-		return <SearchConnectionScreen />;
+		return <SearchConnectionPage />;
 	}
 
 	if ( ! supportsSearch ) {
