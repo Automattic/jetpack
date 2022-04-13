@@ -26,7 +26,7 @@ export async function getComposerVersion() {
 		.spawnSync( 'composer', [ '--version' ] )
 		.stdout.toString()
 		.trim();
-	const composerVersion = composerString.match( /\d+.\d+.\d+/ );
+	const composerVersion = composerString.match( /\d+\.\d+\.\d+/ );
 	return composerVersion[ 0 ];
 }
 
