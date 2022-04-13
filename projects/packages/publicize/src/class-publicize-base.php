@@ -2,7 +2,7 @@
 /**
  * Publicize_Base class.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName
@@ -1290,7 +1290,7 @@ abstract class Publicize_Base {
 		) . $view_post_link_html;
 
 		if ( 'post' === $post_type && class_exists( 'Jetpack_Subscriptions' ) ) {
-			$subscription = Jetpack_Subscriptions::init();
+			$subscription = \Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
 					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
