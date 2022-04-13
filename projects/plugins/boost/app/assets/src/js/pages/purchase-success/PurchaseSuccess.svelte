@@ -1,5 +1,11 @@
 <script>
 	/**
+	 * External dependencies.
+	 */
+	import { onMount } from 'svelte';
+	import { updateModuleState } from '../../stores/modules';
+
+	/**
 	 * Internal dependencies
 	 */
 	import BackButton from '../../elements/BackButton.svelte';
@@ -15,6 +21,11 @@
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
+
+	onMount( () => {
+		// Enable cloud-css on a successful upgrade.
+		updateModuleState( 'cloud-css', true );
+	} );
 </script>
 
 <div id="jb-settings" class="jb-settings">
