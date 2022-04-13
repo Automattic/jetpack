@@ -127,6 +127,8 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 
 	/**
 	 * Update translations.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function update_translations() {
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';

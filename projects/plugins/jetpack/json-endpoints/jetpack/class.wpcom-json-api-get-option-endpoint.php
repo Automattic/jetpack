@@ -30,6 +30,8 @@ class WPCOM_JSON_API_Get_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	/**
 	 * Endpoint callback.
+	 *
+	 * @return array
 	 */
 	public function result() {
 		if ( $this->site_option ) {
@@ -42,6 +44,8 @@ class WPCOM_JSON_API_Get_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 * Validate the input.
 	 *
 	 * @param object $object - unused, for parent class compatability.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function validate_input( $object ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$query_args        = $this->query_args();

@@ -17,6 +17,8 @@ class Jetpack_JSON_API_Themes_List_Endpoint extends Jetpack_JSON_API_Themes_Endp
 	 * Validate the input.
 	 *
 	 * @param string $theme - the theme we're validating (unused, for keeping in sync with parent class).
+	 *
+	 * @return bool
 	 */
 	public function validate_input( $theme ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->themes = wp_get_themes( array( 'allowed' => true ) );

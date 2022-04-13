@@ -29,6 +29,8 @@ class WPCOM_JSON_API_Update_Option_Endpoint extends WPCOM_JSON_API_Get_Option_En
 	 * Validate the input.
 	 *
 	 * @param object $object - the object we're validating.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function validate_input( $object ) {
 		$input      = $this->input();

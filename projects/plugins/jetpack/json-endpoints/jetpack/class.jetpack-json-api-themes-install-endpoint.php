@@ -103,6 +103,8 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 	/**
 	 * Validate the themes.
+	 *
+	 * @return bool|WP_Error
 	 */
 	protected function validate_themes() {
 		if ( empty( $this->themes ) || ! is_array( $this->themes ) ) {
@@ -151,8 +153,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			}
 
 			$params     = (object) array( 'slug' => $theme );
-			// @todo Switch to https://api.wordpress.org/themes/info/1.1/, which uses JSON rather than PHP serialization.
-			$url        = 'https://api.wordpress.org/themes/info/1.0/';
+			$url        = 'https://api.wordpress.org/themes/info/1.0/'; // @todo Switch to https://api.wordpress.org/themes/info/1.1/, which uses JSON rather than PHP serialization.
 			$args       = array(
 				'body' => array(
 					'action'  => 'theme_information',
@@ -191,6 +192,8 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 	 * Download the wpcom theme.
 	 *
 	 * @param string $theme - the theme to download.
+	 *
+	 * @return string
 	 */
 	protected static function download_wpcom_theme_to_file( $theme ) {
 

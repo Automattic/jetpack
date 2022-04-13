@@ -31,6 +31,8 @@ class Jetpack_JSON_API_User_Connect_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	/**
 	 * The endpoint callback.
+	 *
+	 * @return array
 	 */
 	public function result() {
 		( new Tokens() )->update_user_token( $this->user_id, sprintf( '%s.%d', $this->user_token, $this->user_id ), false );
@@ -41,6 +43,8 @@ class Jetpack_JSON_API_User_Connect_Endpoint extends Jetpack_JSON_API_Endpoint {
 	 * Validate input.
 	 *
 	 * @param int $user_id - the User ID.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function validate_input( $user_id ) {
 		$input = $this->input();

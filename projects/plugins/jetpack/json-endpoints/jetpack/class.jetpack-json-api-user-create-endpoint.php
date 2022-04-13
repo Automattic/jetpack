@@ -23,6 +23,8 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	/**
 	 * Endpoint callback.
+	 *
+	 * @return object|false
 	 */
 	public function result() {
 		return $this->create_or_get_user();

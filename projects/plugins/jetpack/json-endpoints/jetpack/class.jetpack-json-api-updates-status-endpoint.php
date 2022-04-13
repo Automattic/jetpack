@@ -15,6 +15,8 @@ class Jetpack_JSON_API_Updates_Status extends Jetpack_JSON_API_Endpoint {
 
 	/**
 	 * Endpoint callback.
+	 *
+	 * @return array|WP_Error
 	 */
 	protected function result() {
 
