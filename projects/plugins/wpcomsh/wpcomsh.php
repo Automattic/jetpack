@@ -1540,9 +1540,25 @@ add_filter( 'rest_post_dispatch', 'wpcom_hide_scan_threats_from_api' );
  * p9o2xV-XY-p2
  */
 function wpcomsh_footer_rum_js() {
-	echo "<script defer id='bilmur' data-provider='wordpress.com' data-service='atomic' src='https://s0.wp.com/wp-content/js/bilmur.min.js?m=" . gmdate( 'YW' ) . "'></script>\n"; //phpcs:ignore
+	$service      = 'atomic';
+	$allow_iframe = '';
+	if ( 'admin_footer' === current_action() ) {
+		global $pagenow;
+
+		$service = 'atomic-wpadmin';
+
+		$is_editor_page = in_array( $pagenow, [ 'post.php', 'post-new.php' ], true );
+		$is_iframed     = wpcom_framing_allowed();
+		if ( $is_editor_page && $is_iframed ) {
+			$service      = 'atomic-gutenframe';
+			$allow_iframe = 'data-allow-iframe="true"';
+		}
+	}
+
+	echo "<script defer id='bilmur' data-provider='wordpress.com' data-service='" . esc_attr( $service ) . "' " . $allow_iframe . " src='https://s0.wp.com/wp-content/js/bilmur.min.js?m=" . gmdate( 'YW' ) . "'></script>\n"; //phpcs:ignore
 }
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
+add_action( 'admin_footer', 'wpcomsh_footer_rum_js' );
 
 /**
  * Upgrade transferred db
