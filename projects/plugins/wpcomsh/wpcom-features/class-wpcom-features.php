@@ -261,6 +261,7 @@ class WPCOM_Features {
 	public const CREDIT_VOUCHERS               = 'credit-vouchers';
 	public const CUSTOM_DESIGN                 = 'custom-design';
 	public const CUSTOM_DOMAIN                 = 'custom-domain';
+	public const DOMAIN_MAPPING                = 'domain-mapping';
 	public const DONATIONS                     = 'donations';
 	public const ECOMMERCE_MANAGED_PLUGINS     = 'ecommerce-managed-plugins';
 	public const EMAIL_SUBSCRIPTION            = 'email-subscription';
@@ -438,6 +439,12 @@ class WPCOM_Features {
 		self::CUSTOM_DOMAIN                 => array(
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 		),
+		self::DOMAIN_MAPPING                => array(
+			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WP_P2_PLUS_MONTHLY,
+			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
 		self::DONATIONS                     => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
@@ -507,7 +514,8 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::NO_ADVERTS_NO_ADVERTS_PHP     => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		// NO_WPCOM_BRANDING - Enable the ability to hide the WP.com branding in the site footer.
 		self::NO_WPCOM_BRANDING             => array(
@@ -591,6 +599,9 @@ class WPCOM_Features {
 			self::WPCOM_SEARCH,
 			self::WPCOM_SEARCH_MONTHLY,
 			self::WP_P2_PLUS_MONTHLY,
+			self::JETPACK_SEARCH,
+			self::JETPACK_SEARCH_MONTHLY,
+			self::JETPACK_COMPLETE_PLANS,
 		),
 
 		/*
