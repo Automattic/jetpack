@@ -25,7 +25,7 @@ const ActionButton = props => {
 	const { label, onClick, isLoading, displayError, errorMessage } = props;
 
 	return (
-		<div className={ styles.container }>
+		<>
 			{
 				<Button
 					className={ styles.button }
@@ -39,7 +39,7 @@ const ActionButton = props => {
 			}
 
 			{ displayError && <p className={ styles.error }>{ errorMessage }</p> }
-		</div>
+		</>
 	);
 };
 
