@@ -8,7 +8,6 @@ import {
 	AdminPage,
 	Container,
 	Col,
-	getRedirectUrl,
 	PricingCard,
 	AdminSectionHero,
 } from '@automattic/jetpack-components';
@@ -19,6 +18,7 @@ import SearchPromotionBlock from './search-promotion';
  */
 import { STORE_ID } from 'store';
 import './upsell-page.scss';
+import getProductCheckoutUrl from 'utils/get-product-checkout-url';
 
 /**
  * defines UpsellPage.
@@ -30,10 +30,14 @@ export function UpsellPage() {
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 
 	const sendToCart = useCallback( () => {
-		window.location.href = getRedirectUrl( 'jetpack-search', { site: domain } );
-	}, [ domain ] );
+		window.location.href = getProductCheckoutUrl( {
+			siteSuffix: domain,
+			redirectUrl: `${ adminUrl }/admin.php?page=jetpack-search`,
+		} );
+	}, [ domain, adminUrl ] );
 
 	const basicInfoText = __( '14 day money back guarantee.', 'jetpack-search-pkg' );
 	const onSaleInfoText = __(
