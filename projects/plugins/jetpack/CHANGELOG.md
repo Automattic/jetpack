@@ -14,7 +14,7 @@
 - VideoPress: Adds settings for controlling VideoPress video privacy.
 - VideoPress: Enable the resumable uploader.
 
-### Improved compatibility
+### Improved compatibility test
 - Custom CSS: Improve saving for legacy Custom CSS.
 - Improvements to backwards compatibility with other Jetpack plugins.
 
