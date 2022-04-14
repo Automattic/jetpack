@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: This fix does not affect the functionality, just avoid double requests on WP endpoint.
+
+
