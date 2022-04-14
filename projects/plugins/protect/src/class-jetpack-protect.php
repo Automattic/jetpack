@@ -17,6 +17,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status;
+use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 
 /**
  * Class Jetpack_Protect
@@ -133,6 +134,7 @@ class Jetpack_Protect {
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'status'            => Status::get_status(),
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
+			'installedThemes'   => Sync_Functions::get_themes(),
 		);
 	}
 

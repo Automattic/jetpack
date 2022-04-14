@@ -4,7 +4,8 @@
 	 */
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-
+	import { jetpackURL } from '../../utils/jetpack-url';
+	import { getUpgradeURL } from '../../utils/upgrade';
 	import Logo from '../../svg/jetpack-green.svg';
 
 	/**
@@ -16,14 +17,12 @@
 	 * WordPress dependencies
 	 */
 	import { __ } from '@wordpress/i18n';
-	import { jetpackURL } from '../../utils/jetpack-url';
 	import { createInterpolateElement } from '@wordpress/element';
 
 	import React from 'react';
 
 	function onCtaClick() {
-		/* eslint-disable no-console */
-		console.log( 'CTA clicked' );
+		window.location.href = getUpgradeURL();
 	}
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
