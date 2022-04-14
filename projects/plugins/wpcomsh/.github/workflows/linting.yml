@@ -30,7 +30,7 @@ jobs:
         run: |
           CHANGED_FILES=$(git diff --name-only origin/master | grep '\.php' | xargs)
           if [[ ! -z "$CHANGED_FILES" ]]; then
-            ~/.composer/vendor/bin/phpcs -q --report=checkstyle $CHANGED_FILES | cs2pr --graceful-warnings
+            ~/.composer/vendor/bin/phpcs -q --report=checkstyle | cs2pr --graceful-warnings
           else 
             echo "Skipping the check. PHP files not changed! $CHANGED_FILES"
           fi

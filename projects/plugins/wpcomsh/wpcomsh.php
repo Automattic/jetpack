@@ -39,9 +39,6 @@ require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
 
-require_once __DIR__ . '/class.atomic-plan-manager.php';
-add_action( 'muplugins_loaded', array( 'Atomic_Plan_Manager', 'init' ) );
-
 require_once __DIR__ . '/plugin-hotfixes.php';
 
 require_once __DIR__ . '/footer-credit/footer-credit.php';

@@ -30,8 +30,11 @@ class PlanNoticesTest extends WP_UnitTestCase {
 	 * Test with data set.
 	 */
 	public function test_plan_notices() {
-		Atomic_Persistent_Data::set( 'WPCOM_PLAN', Atomic_Plan_Manager::BUSINESS_PLAN_SLUG );
-		Atomic_Persistent_Data::set( 'WPCOM_PLAN_EXPIRATION', time() + WEEK_IN_SECONDS );
+		$business_plan_purchase = array(
+			'product_slug' => 'business-bundle',
+			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P7D' ) )->format( 'c' ),
+		);
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
 
 		$plan_date = gmdate( 'F j, Y', time() + WEEK_IN_SECONDS );
 

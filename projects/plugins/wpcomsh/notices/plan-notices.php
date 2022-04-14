@@ -17,23 +17,60 @@ function wpcomsh_plan_notices() {
 	}
 
 	$persistent_data = new Atomic_Persistent_Data();
-	// phpcs:disable WordPress.NamingConventions.ValidVariableName
-	$plan                  = $persistent_data->WPCOM_PLAN;
-	$plan_date             = $persistent_data->WPCOM_PLAN_EXPIRATION;
-	$seconds_to_expiration = $persistent_data->WPCOM_PLAN_EXPIRATION - time();
-	// phpcs:enable
+	$purchases       = json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
 
-	if ( empty( $plan ) || empty( $plan_date ) ) {
+	if ( empty( $purchases ) ) {
 		return;
 	}
+
+	$atomic_supported_purchases = array_filter(
+		$purchases,
+		function( $purchase ) {
+			return wpcom_product_has_feature( $purchase->product_slug, WPCOM_Features::ATOMIC );
+		}
+	);
+
+	if ( empty( $atomic_supported_purchases ) ) {
+		return;
+	}
+
+	// For the off chance that there are more than one purchase, pick the one with the latest expiration.
+	usort(
+		$atomic_supported_purchases,
+		function( $purchase1, $purchase2 ) {
+			if ( strtotime( $purchase1->expiry_date ) === strtotime( $purchase2->expiry_date ) ) {
+				return 0;
+			}
+			return ( strtotime( $purchase1->expiry_date ) > strtotime( $purchase2->expiry_date ) ) ? -1 : 1;
+		}
+	);
+	$atomic_supported_purchase = $atomic_supported_purchases[0];
+	$slug                      = $atomic_supported_purchase->product_slug;
+	$expiration                = strtotime( $atomic_supported_purchase->expiry_date );
+	$seconds_to_expiration     = $expiration - time();
 
 	if ( $seconds_to_expiration > 29 * DAY_IN_SECONDS ) {
 		return;
 	}
 
+	if ( strpos( $slug, 'personal' ) !== false ) {
+		$plan_level = 'personal';
+	} elseif ( strpos( $slug, 'value_bundle' ) !== false || 'bundle_pro' === $slug ) {
+		$plan_level = 'premium';
+	} elseif ( strpos( $slug, 'business' ) !== false ) {
+		$plan_level = 'business';
+	} elseif ( strpos( $slug, 'ecommerce' ) !== false ) {
+		$plan_level = 'ecommerce';
+	} elseif ( strpos( $slug, 'pro' ) !== false ) {
+		$plan_level = 'pro';
+	}
+
+	if ( empty( $plan_level ) ) {
+		return;
+	}
+
 	$domain      = preg_replace( '#^https?://#', '', network_site_url() );
-	$plan_slug   = 'pro-plan' === $plan ? $plan : "{$plan}-bundle";
-	$renewal_url = sprintf( 'https://wordpress.com/checkout/%1$s/%2$s', $plan_slug, $domain );
+	$renewal_url = sprintf( 'https://wordpress.com/checkout/%1$s/%2$s', $slug, $domain );
 
 	// Pre-expiration message for annual plans.
 	$plan_messages = array(
@@ -95,21 +132,21 @@ function wpcomsh_plan_notices() {
 		);
 	}
 
-	if ( empty( $plan_messages[ $plan ] ) ) {
+	if ( empty( $plan_messages[ $plan_level ] ) ) {
 		return;
 	}
 
 	wpcomsh_record_tracks_event(
 		'atomic_wpcomsh_renewal_notice',
 		array(
-			'plan_slug' => $plan,
+			'plan_slug' => $plan_level,
 		)
 	);
 
 	$message = sprintf(
-		$plan_messages[ $plan ],
+		$plan_messages[ $plan_level ],
 		esc_url( $renewal_url ),
-		date_i18n( get_option( 'date_format' ), $plan_date ),
+		date_i18n( get_option( 'date_format' ), $expiration ),
 		$domain
 	);
 
