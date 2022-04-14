@@ -112,6 +112,9 @@ class Autoloader_Debug_Helper {
 								<?php if ( ! $entry['is_readable'] ) : ?>
 									<br /><strong style="color:red;">FILE UNREADABLE</strong>
 								<?php endif; ?>
+								<?php if ( $entry['is_included'] ) : ?>
+									<br /><strong style="color:green;">Currently loaded</strong>
+								<?php endif; ?>
 							</td>
 						<?php else : ?>
 							<td>
@@ -119,6 +122,9 @@ class Autoloader_Debug_Helper {
 								(in <?php echo esc_html( $entry['manifest'] ); ?>)
 								<?php if ( ! $entry['is_readable'] ) : ?>
 									<br /><strong style="color:red;">FILE UNREADABLE</strong>
+								<?php endif; ?>
+								<?php if ( $entry['is_included'] ) : ?>
+									<br /><strong style="color:green;">Currently loaded</strong>
 								<?php endif; ?>
 							</td>
 						<?php endif; ?>
@@ -135,24 +141,6 @@ class Autoloader_Debug_Helper {
 	}
 
 	/**
-	 * Finds and returns Automattic classes that are available in the global scope.
-	 *
-	 * @return Array $classes
-	 */
-	public function get_a8c_classes() {
-		$classes = array();
-
-		foreach ( get_declared_classes() as $class ) {
-
-			if ( 0 === strpos( $class, 'Automattic' ) ) {
-				$classes [] = $class;
-			}
-		}
-
-		return $classes;
-	}
-
-	/**
 	 * Based on the existing defined Automattic classes finds the namespace that
 	 * is currently in use. We can't do it statically because the namespace is
 	 * randomized for each version of the build.
@@ -160,25 +148,14 @@ class Autoloader_Debug_Helper {
 	 * @return String $namespace
 	 * */
 	public function get_autoloader_namespace() {
-		$classes = $this->get_a8c_classes();
+		global $jetpack_autoloader_loader;
 
-		foreach ( $classes as $class ) {
+		$classname = get_class( $jetpack_autoloader_loader );
 
-			if ( 0 === strpos( $class, 'Automattic\Jetpack\Autoloader' ) ) {
+		$parts = explode( '\\', $classname );
+		array_pop( $parts );
 
-				$parts = explode( '\\', $class );
-				array_pop( $parts );
-
-				$candidate = join( '\\', $parts );
-
-				// Older autoloaders also have namespaces, but don't have the Container.
-				if ( ! class_exists( $candidate . '\Container' ) ) {
-					continue;
-				}
-
-				return $candidate;
-			}
-		}
+		return join( '\\', $parts );
 	}
 
 	/**
@@ -239,6 +216,7 @@ class Autoloader_Debug_Helper {
 			);
 		}
 
+		$included_files           = get_included_files();
 		$manifest_by_classname    = array();
 		$data['unreadable_found'] = false;
 		foreach ( $manifest as $plugin_manifest_type => $manifest_data ) {
@@ -248,6 +226,12 @@ class Autoloader_Debug_Helper {
 
 				if ( ! $is_readable ) {
 					$data['unreadable_found'] = true;
+				}
+
+				if ( in_array( $entry['path'], $included_files, true ) ) {
+					$entry['is_included'] = true;
+				} else {
+					$entry['is_included'] = false;
 				}
 
 				$manifest_by_classname[ $classname ][] = array_merge(
