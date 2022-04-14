@@ -264,10 +264,13 @@ class Waf_Runtime {
 
 		if ( ! $file_exists || filesize( $file_path ) < ( 100 * 1024 * 1024 ) ) {
 			$fp = fopen( $file_path, 'a+' );
-			try {
-				fwrite( $fp, json_encode( $log_data ) . "\n" );
-			} finally {
-				fclose( $fp );
+
+			if ( $fp ) {
+				try {
+					fwrite( $fp, json_encode( $log_data ) . "\n" );
+				} finally {
+					fclose( $fp );
+				}
 			}
 		}
 
