@@ -536,6 +536,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function pre_comment_on_post() {
 		$post_array = stripslashes_deep( $_POST );
 
+		/** This filter is documented in modules/comments/comments.php */
+		if ( ! apply_filters( 'jetpack_comment_form_enabled_for_' . get_post_type( $post_array['comment_post_ID'] ), true ) ) {
+			return;
+		}
+
 		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! wp_verify_nonce( $post_array['jetpack_comments_nonce'], "jetpack_comments_nonce-{$post_array['comment_post_ID']}" ) ) {
 			wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
