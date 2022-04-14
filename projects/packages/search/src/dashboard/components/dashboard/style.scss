@@ -23,11 +23,17 @@ body {
 }
 
 #jp-search-dashboard {
-	min-height: 100vh;
-
-	color: $black;
-	font-size: 16px;
 	background-color: $white;
+	color: $black;
+	display: flex;
+	font-size: 16px;
+	// 32px = wpadminbar height
+	// 65px = wpfooter height
+	min-height: calc(100vh - 65px - 32px);
+
+	.jp-search-dashboard-page {
+		width: 100%;
+	}
 
 	.jp-search-dashboard-page-loading-spinner {
 		position: absolute;
