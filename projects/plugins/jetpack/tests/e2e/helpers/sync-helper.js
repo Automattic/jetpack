@@ -25,8 +25,6 @@ export async function isSyncQueueEmpty() {
 	try {
 		const status = await getSyncStatus();
 
-		logger.info( `isSyncQueueEmpty: ${ status }` );
-
 		return status.includes( 'queue_size' ) && status.includes( 'queue_size	0' );
 	} catch ( e ) {
 		logger.error( `isSyncQueueEmpty: ${ e }` );
@@ -56,38 +54,6 @@ export async function waitTillSyncQueueIsEmpty( interval = 1000, maxAttempts = 1
 			return resolve( true );
 		} else if ( maxAttempts && attempts === maxAttempts ) {
 			logger.warn( `waitTillSyncQueueisEmpty: Exceeded max attempts ( ${ maxAttempts } )` );
-			return reject( false );
-		}
-		setTimeout( executeWait, interval, resolve, reject );
-	};
-
-	return new Promise( executeWait );
-}
-
-/**
- * Wait till the Sync Queue is not empty.
- *
- * @param {number} [interval=1000]  - The time we want to wait between
- *                                  checking if the Sync Queue is empty.
- * @param {number} [maxAttempts=10] - An upper bound for the number of
- *                                  attempts to check if the Sync Queue is empty.
- */
-export async function waitTillSyncQueueIsNotEmpty( interval = 1000, maxAttempts = 10 ) {
-	logger.action( `Waiting for Sync Queue to not empty [maxAttempts: ${ maxAttempts }]` );
-
-	let attempts = 0;
-
-	const executeWait = async ( resolve, reject ) => {
-		const isEmpty = await isSyncQueueEmpty();
-		attempts++;
-
-		if ( false === isEmpty ) {
-			logger.info(
-				`waitTillSyncQueueIsNotEmpty: Sync Queue is not empty after ${ attempts } attempts`
-			);
-			return resolve( true );
-		} else if ( maxAttempts && attempts === maxAttempts ) {
-			logger.warn( `waitTillSyncQueueIsNotEmpty: Exceeded max attempts ( ${ maxAttempts } )` );
 			return reject( false );
 		}
 		setTimeout( executeWait, interval, resolve, reject );
