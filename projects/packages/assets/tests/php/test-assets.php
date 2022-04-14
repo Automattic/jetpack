@@ -226,8 +226,10 @@ class AssetsTest extends TestCase {
 
 		$asset_instance = Assets::instance();
 
-		$tag      = '<script src="/minpath.js" id="handle"></script>';
-		$actual   = $asset_instance->script_add_async( $tag, 'handle' );
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$tag    = '<script src="/minpath.js" id="handle"></script>';
+		$actual = $asset_instance->script_add_async( $tag, 'handle' );
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		$expected = '<script defer src="/minpath.js" id="handle"></script>';
 		$this->assertEquals( $expected, $actual );
 	}
@@ -244,6 +246,7 @@ class AssetsTest extends TestCase {
 		$asset_instance = Assets::instance();
 
 		$translations =
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			'<script id="handle-js-translations">
 			( function( domain, translations ) {
 				var localeData = translations.locale_data[ domain ] || translations.locale_data.messages;
@@ -251,9 +254,11 @@ class AssetsTest extends TestCase {
 				wp.i18n.setLocaleData( localeData, domain );
 			} )( "default", { "locale_data": { "messages": { "": {} } } } );
 			</script>';
-		$tag          = $translations . '<script src="/minpath.js" id="handle"></script>';
-		$actual       = $asset_instance->script_add_async( $tag, 'handle' );
-		$expected     = $translations . '<script defer src="/minpath.js" id="handle"></script>';
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$tag    = $translations . '<script src="/minpath.js" id="handle"></script>';
+		$actual = $asset_instance->script_add_async( $tag, 'handle' );
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$expected = $translations . '<script defer src="/minpath.js" id="handle"></script>';
 		$this->assertEquals( $expected, $actual );
 	}
 
@@ -267,9 +272,11 @@ class AssetsTest extends TestCase {
 		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
 
 		$asset_instance = Assets::instance();
-		$tag            = '<scriptfoo src="/minpath.js" id="handle"></scriptfoo>';
-		$actual         = $asset_instance->script_add_async( $tag, 'handle' );
-		$expected       = '<scriptfoo src="/minpath.js" id="handle"></scriptfoo>';
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$tag    = '<scriptfoo src="/minpath.js" id="handle"></scriptfoo>';
+		$actual = $asset_instance->script_add_async( $tag, 'handle' );
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$expected = '<scriptfoo src="/minpath.js" id="handle"></scriptfoo>';
 		$this->assertEquals( $expected, $actual );
 	}
 

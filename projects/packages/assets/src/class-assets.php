@@ -92,6 +92,7 @@ class Assets {
 		}
 
 		if ( in_array( $handle, $this->defer_script_handles, true ) ) {
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			return preg_replace( '/<script( [^>]*)? src=/i', '<script defer$1 src=', $tag );
 		}
 
