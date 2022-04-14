@@ -21,11 +21,13 @@ for SLUG in $(jq -r 'keys[]' <<<"$CHANGED"); do
 	FLAG=$(tr / _ <<<"$SLUG")
 	if [[ -d "./coverage/$SLUG" ]]; then
 		echo "::group::Send $SLUG coverage to codecov.io"
-		if ! ./codecov -Z -s "./coverage/$SLUG" -F "$FLAG"; then
+		if ./codecov -Z -s "./coverage/$SLUG" -F "$FLAG"; then
+			echo "::endgroup::"
+		else
+			echo "::endgroup::"
 			echo "::error::Codecov failed to upload $SLUG"
 			EXIT=1
 		fi
-		echo "::endgroup::"
 	fi
 done
 exit $EXIT

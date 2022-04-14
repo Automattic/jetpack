@@ -156,6 +156,15 @@ class Module_Control {
 	}
 
 	/**
+	 * Update module status
+	 *
+	 * @param boolean $active - true to activate, false to deactivate.
+	 */
+	public function update_status( $active ) {
+		return $active ? $this->activate() : $this->deactivate();
+	}
+
+	/**
 	 * Disable Instant Search Experience
 	 */
 	public function disable_instant_search() {
@@ -182,5 +191,21 @@ class Module_Control {
 	 */
 	public function update_instant_search_status( $enabled ) {
 		return $enabled ? $this->enable_instant_search() : $this->disable_instant_search();
+	}
+
+	/**
+	 * Get a list of activated modules as an array of module slugs.
+	 *
+	 * @deprecated 0.12.3
+	 * @return Array $active_modules
+	 */
+	public function get_active_modules() {
+		_deprecated_function(
+			__METHOD__,
+			'jetpack-search-0.12.3',
+			'Automattic\\Jetpack\\Modules\\get_active'
+		);
+
+		return ( new Modules() )->get_active();
 	}
 }

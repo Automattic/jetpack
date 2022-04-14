@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Form Block: do not display the CRM integration option to non-admins.

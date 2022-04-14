@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Better error handling for when the WPCOM server is unreachable
