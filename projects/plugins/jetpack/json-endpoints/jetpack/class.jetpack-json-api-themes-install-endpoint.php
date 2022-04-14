@@ -193,7 +193,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 	 *
 	 * @param string $theme - the theme to download.
 	 *
-	 * @return string
+	 * @return string|WP_Error
 	 */
 	protected static function download_wpcom_theme_to_file( $theme ) {
 
