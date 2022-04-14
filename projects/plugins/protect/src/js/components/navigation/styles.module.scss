@@ -1,0 +1,74 @@
+.navigation {
+	background-color: var(--jp-white);
+	padding: var(--spacing-base) 0; // 8px
+	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
+	border-radius: var(--jp-border-radius);
+}
+
+.navigation-item {
+	display: flex;
+	padding: calc( var(--spacing-base) * 2 ); // 16px;
+	align-items: center;
+	justify-content: space-between;
+
+	// States
+
+	&.clickable {
+		cursor: pointer;
+
+		&:hover:not(.selected),
+		&:focus:not(.selected) {
+			background-color: var(--jp-gray-0);
+		}
+	}
+
+	&.selected {
+		background-color: var(--jp-black);
+
+		& .navigation-item-label {
+			color: var(--jp-white)
+		}
+
+		& .navigation-item-icon {
+			fill: var(--jp-white);
+		}
+
+		& .navigation-item-badge {
+			border: none;
+			background-color: var(--jp-red);
+			color: var(--jp-white);
+		}
+	}
+
+	// Childrens
+
+	// .navigation-item-label
+	&-label {
+		display: flex;
+		align-items: center;
+
+		&.sub-item {
+			--icon-size: 28px;
+			// this number is a combination between icon size + 2 spaces
+			margin-left: calc( ( var(--spacing-base) * 2 ) + var(--icon-size) );
+		}
+	}
+
+	// .navigation-item-icon
+	&-icon {
+		margin-right: calc( var(--spacing-base) * 2); // 16px;
+	}
+
+	// .navigation-item-badge
+	&-badge {
+		border: 1px solid var(--jp-red-60);
+		color: var(--jp-red-60);
+		border-radius: 50%;
+		padding: calc( var(--spacing-base) / 2 ) var(--spacing-base);
+		min-width: 30px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+}
+
