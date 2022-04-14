@@ -429,7 +429,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 		$file_content = file_get_contents( $waf_log_path );
 
 		$this->assertTrue( file_exists( $waf_log_path ) );
-		$this->assertStringContainsString( '{"rule_id":1337,"reason":"test block"', $file_content );
+		$this->assertTrue( strpos( $file_content, '{"rule_id":1337,"reason":"test block"' ) !== true );
 
 		unlink( $waf_log_path );
 	}
