@@ -25,9 +25,22 @@
 .jp-recommendations-feature-summary__display-name {
 	display: flex;
 	align-items: center;
-	padding-left: 12px;
+	justify-content: flex-start;
+	flex-grow: 1;
+	background: none;
 
 	font-size: $font-body;
+
+	// These names are managed as borderless buttons that link back to the respective steps
+	&.is-borderless {
+		color: #000;
+
+		&:hover,
+		&:focus {
+			background: none;
+			text-decoration: underline;
+		}
+	}
 
 	.jp-recommendations__new-badge {
 		margin-left: 1rem;
@@ -51,6 +64,6 @@
 
 .jp-recommendations-feature-summary__actions {
 	margin-inline-start: auto;
-	padding: 8px;
+	padding: 8px 0 8px 8px;
 }
 
