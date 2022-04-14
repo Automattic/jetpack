@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Navigation from '..';
+import { Navigation, NavigationItem } from '..';
 
 export default {
 	title: 'Plugins/Protect/Navigation',
@@ -25,40 +25,37 @@ export default {
 	],
 };
 
-const Template = args => <Navigation { ...args } />;
-export const Default = Template.bind( {} );
-Default.args = {
-	items: [
-		{
-			id: 'all',
-			label: __( 'All vulnerabilities', 'jetpack-protect' ),
-			icon: warning,
-			vuls: 3,
-			initial: true,
-		},
-		{
-			id: 'wordpress',
-			label: __( 'WordPress', 'jetpack-protect' ),
-			icon: wordpress,
-			vuls: 10,
-		},
-		{
-			id: 'plugins',
-			label: __( 'Plugins', 'jetpack-protect' ),
-			icon: plugins,
-			disabled: true,
-		},
-		{
-			id: 'themes',
-			label: __( 'Themes', 'jetpack-protect' ),
-			icon: color,
-			disabled: true,
-		},
-		{
-			id: 'wordpress-2',
-			label: __( 'WordPress', 'jetpack-protect' ),
-			icon: wordpress,
-			vuls: 10,
-		},
-	],
-};
+export const Default = () => (
+	<Navigation>
+		<NavigationItem
+			id="all"
+			label={ __( 'All vulnerabilities', 'jetpack-protect' ) }
+			icon={ warning }
+			vuls={ 10 }
+		/>
+		<NavigationItem
+			id="wordpress"
+			label={ __( 'WordPress', 'jetpack-protect' ) }
+			icon={ wordpress }
+			vuls={ 12 }
+		/>
+		<NavigationItem
+			id="plugins"
+			label={ __( 'Plugins', 'jetpack-protect' ) }
+			icon={ plugins }
+			disabled
+		/>
+		<NavigationItem
+			id="themes"
+			label={ __( 'Themes', 'jetpack-protect' ) }
+			icon={ color }
+			disabled
+		/>
+		<NavigationItem
+			id="wordpress-2"
+			label={ __( 'WordPress', 'jetpack-protect' ) }
+			icon={ wordpress }
+			vuls={ 9 }
+		/>
+	</Navigation>
+);

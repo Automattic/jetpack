@@ -47,12 +47,6 @@
 	&-label {
 		display: flex;
 		align-items: center;
-
-		&.sub-item {
-			--icon-size: 28px;
-			// this number is a combination between icon size + 2 spaces
-			margin-left: calc( ( var(--spacing-base) * 2 ) + var(--icon-size) );
-		}
 	}
 
 	// .navigation-item-icon
