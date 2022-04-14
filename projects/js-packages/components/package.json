@@ -20,11 +20,18 @@
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.2",
 		"@babel/core": "7.17.9",
 		"@babel/preset-react": "7.16.7",
+		"@types/chai": "4.3.0",
+		"@types/enzyme": "3.10.11",
+		"@types/jest": "27.4.1",
+		"@types/react": "17.0.40",
+		"@types/react-dom": "17.0.13",
+		"@types/react-test-renderer": "17.0.1",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
-		"react-test-renderer": "17.0.2"
+		"react-test-renderer": "17.0.2",
+		"typescript": "4.3.5"
 	},
 	"peerDependencies": {
 		"react": "^17.0.2",
@@ -39,7 +46,7 @@
 		"*.scss"
 	],
 	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
+		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.[jt]sx'"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
