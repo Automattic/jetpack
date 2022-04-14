@@ -11,7 +11,9 @@ class Premium_Features {
 
 	public static function has_feature( $feature ) {
 		$features = self::get_features();
-		return in_array( $feature, $features, true );
+		$result   = in_array( $feature, $features, true );
+
+		return apply_filters( "jetpack_boost_has_feature_$feature", $result );
 	}
 
 	public static function get_features() {
