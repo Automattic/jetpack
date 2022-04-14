@@ -16,7 +16,6 @@ module.exports = {
 	moduleNameMapper: {
 		'tiny-lru/lib/tiny-lru.esm$': '<rootDir>/src/instant-search/lib/test-helpers/tiny-lru.mock.js',
 		jetpackConfig: '<rootDir>/tests/jest-jetpack-config.js',
-		'@automattic/jetpack-components': '<rootDir>/src/@automattic/jetpack-components/index.jsx',
 	},
 	moduleDirectories: [ 'node_modules', '<rootDir>/src/dashboard' ],
 };

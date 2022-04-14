@@ -21,11 +21,11 @@ import {
 } from 'components/global-notices/store/actions';
 import { STORE_ID } from '../../store';
 
-export const SET_JETPACK_SETTINGS = 'SET_JETPACK_SETTINGS';
-export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';
+export const SET_WORDADS_SETTINGS = 'SET_WORDADS_SETTINGS';
+export const TOGGLE_WORDADS_MODULE = 'TOGGLE_WORDADS_MODULE';
 
 /**
- * Yield actions to update Search Settings
+ * Yield actions to update WordAds Settings
  *
  * @param {object} settings - settings to apply.
  * @yields {object} - an action object.
@@ -41,10 +41,7 @@ export function* updateJetpackSettings( settings ) {
 		yield setJetpackSettings( updatedSettings );
 		return successNotice( __( 'Updated settings.', 'jetpack-wordads' ) );
 	} catch ( e ) {
-		const oldSettings = pick( select( STORE_ID ).getWordAdsModuleStatus(), [
-			'module_active',
-			'instant_search_enabled',
-		] );
+		const oldSettings = pick( select( STORE_ID ).getWordAdsModuleStatus(), [ 'module_active' ] );
 		yield setJetpackSettings( oldSettings );
 		return errorNotice( __( 'Error Update settings…', 'jetpack-wordads' ) );
 	} finally {
@@ -78,7 +75,7 @@ export function setUpdatingJetpackSettingsDone() {
  * @returns {object} - an action object.
  */
 export function setJetpackSettings( options ) {
-	return { type: SET_JETPACK_SETTINGS, options };
+	return { type: SET_WORDADS_SETTINGS, options };
 }
 
 export default { updateJetpackSettings, setJetpackSettings };

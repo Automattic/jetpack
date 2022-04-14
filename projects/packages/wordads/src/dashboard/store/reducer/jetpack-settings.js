@@ -1,11 +1,11 @@
 /**
  * Internal dependencies
  */
-import { SET_JETPACK_SETTINGS } from '../actions/jetpack-settings';
+import { SET_WORDADS_SETTINGS } from '../actions/jetpack-settings';
 
 const jetpackSettings = ( state = {}, action ) => {
 	switch ( action.type ) {
-		case SET_JETPACK_SETTINGS:
+		case SET_WORDADS_SETTINGS:
 			return {
 				...state,
 				...action.options,
