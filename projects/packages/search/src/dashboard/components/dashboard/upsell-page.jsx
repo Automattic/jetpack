@@ -56,7 +56,7 @@ export default function UpsellPage() {
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col lg={ 6 } md={ 6 } sm={ 4 }>
-							<h1>The best WordPress search experience</h1>
+							<h1>{ __( 'The best WordPress search experience', 'jetpack-search-pkg' ) }</h1>
 							<SearchPromotionBlock />
 						</Col>
 						<Col lg={ 1 } md={ 1 } sm={ 0 } />
