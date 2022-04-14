@@ -66,9 +66,10 @@ In order to test features that require a WordPress.com connection and other netw
 **Warning: This creates a tunnel to your local machine which should not be trusted as secure. If it is compromised, so is your computer and everything it has access to. Only `jetpack docker jt-up` when needed for testing things that require the site to be publicly accessible, and `jetpack docker jt-down` when completed.**
 
 - Visit the [jurassic.tube](https://jurassic.tube/) homepage to create a subdomain
-- Make sure you've run `pnpm install && pnpm cli-link`
+- Make sure you've run `pnpm install && pnpx jetpack cli link`
 - Make sure Docker is running `jetpack docker up -d`
 - Stand on the monorepo root in your terminal and run `mkdir tools/docker/bin/jt`
+- Stop and restart the docker env: `jetpack docker stop && jetpack docker up -d`
 - Download and run the installation script: `curl "https://jurassic.tube/get-installer.php?env=jetpack" -o tools/docker/bin/jt/installer.sh && chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh`
 - Set your username: `jetpack docker jt-config username [your-username-here e.g david]`
 - Set your subdomain: `jetpack docker jt-config subdomain [your-subdomain-here e.g. spaceman]` 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+use connected plugin list from the connection store and ask for an update after activating a product

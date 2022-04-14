@@ -2,13 +2,16 @@
  * External dependencies
  */
 import React from 'react';
-import { Icon as WPIcon, check } from '@wordpress/icons';
+import * as allIcons from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import Button from '../index.jsx';
 import Doc from './Button.mdx';
+
+const { Icon: WPIcon, ...icons } = allIcons;
+const { check } = icons;
 
 const DisableVariant = {
 	variant: {
@@ -50,24 +53,49 @@ const DisableIcon = {
 	},
 };
 
+const disableClassName = {
+	className: {
+		table: {
+			disable: true,
+		},
+	},
+};
+
 export default {
 	title: 'JS Packages/Components/Button',
 	component: Button,
 	argTypes: {
-		className: {
-			table: {
-				disable: true,
+		icon: {
+			control: {
+				type: 'select',
+				options: [ 'none', ...Object.keys( icons ) ],
 			},
 		},
 	},
 	parameters: {
 		backgrounds: {
-			default: 'Light',
+			default: 'Jetpack Dashboard',
 		},
 		docs: {
 			page: Doc,
 		},
 	},
+};
+
+const DefaultTemplate = args => {
+	const icon = args?.icon && args?.icon !== 'none' ? <WPIcon icon={ icons[ args.icon ] } /> : null;
+	return <Button { ...args } icon={ icon } />;
+};
+
+export const _default = DefaultTemplate.bind( {} );
+_default.args = {
+	size: 'normal',
+	children: 'Once upon a time… a button story',
+	variant: 'primary',
+	isLoading: false,
+	disabled: false,
+	isDestructive: false,
+	icon: 'cloud',
 };
 
 const Template = args => <Button { ...args } />;
@@ -93,6 +121,7 @@ ButtonSecondary.argTypes = {
 	...DisableIcon,
 	...DisableIsLoading,
 	...DisableIsDestructive,
+	...disableClassName,
 };
 ButtonSecondary.args = {
 	size: 'normal',
@@ -107,6 +136,7 @@ ButtonLink.argTypes = {
 	...DisableIcon,
 	...DisableIsLoading,
 	...DisableIsDestructive,
+	...disableClassName,
 };
 ButtonLink.args = {
 	size: 'normal',
@@ -121,6 +151,7 @@ ButtonExternalLink.argTypes = {
 	...DisableIcon,
 	...DisableIsLoading,
 	...DisableIsDestructive,
+	...disableClassName,
 };
 ButtonExternalLink.args = {
 	size: 'normal',
@@ -134,6 +165,7 @@ Icon.argTypes = {
 	...DisableDisabled,
 	...DisableIsLoading,
 	...DisableIsDestructive,
+	...disableClassName,
 };
 Icon.args = {
 	size: 'normal',
@@ -147,6 +179,7 @@ Disabled.argTypes = {
 	...DisableDisabled,
 	...DisableIsDestructive,
 	...DisableIsLoading,
+	...disableClassName,
 };
 Disabled.args = {
 	size: 'normal',
@@ -160,6 +193,7 @@ Destructive.argTypes = {
 	...DisableIsDestructive,
 	...DisableIsLoading,
 	...DisableDisabled,
+	...disableClassName,
 };
 Destructive.args = {
 	size: 'normal',
@@ -173,6 +207,7 @@ Loading.argTypes = {
 	...DisableIsDestructive,
 	...DisableIsLoading,
 	...DisableDisabled,
+	...disableClassName,
 };
 Loading.args = {
 	size: 'normal',

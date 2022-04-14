@@ -224,6 +224,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_sync_settings_taxonomies_blacklist'   => array( 'jetpack', 'pineapple' ),
 			'ce4wp_referred_by'                            => array(),
 			'wpcom_is_fse_activated'                       => '1',
+			'videopress_private_enabled_for_site'          => false,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

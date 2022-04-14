@@ -13,6 +13,14 @@ if ( ! function_exists( 'add_action' ) ) {
 }
 
 /**
+ * Triggers when the Jetpack plugin is updated
+ */
+add_action(
+	'upgrader_process_complete',
+	array( __NAMESPACE__ . '\Waf_Runner', 'update_rules_if_changed' )
+);
+
+/**
  * Runs the WAF in the WP context.
  *
  * @return void

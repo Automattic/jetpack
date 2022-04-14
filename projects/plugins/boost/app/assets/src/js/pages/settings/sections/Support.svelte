@@ -2,7 +2,7 @@
 	/**
 	 * Internal dependencies
 	 */
-	import { isPaidPlan, openPaidSupport } from '../../../utils/paid-plan';
+	import { hasPrioritySupport, openPaidSupport } from '../../../utils/paid-plan';
 
 	/**
 	 * WordPress dependencies
@@ -10,7 +10,7 @@
 	import { __ } from '@wordpress/i18n';
 </script>
 
-{#if isPaidPlan}
+{#if hasPrioritySupport}
 	<div class="jb-section">
 		<div class="jb-container--narrow">
 			<div class="jb-support">
