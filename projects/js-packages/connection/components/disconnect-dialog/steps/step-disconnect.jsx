@@ -182,7 +182,7 @@ StepDisconnect.propTypes = {
 	/** A component to be rendered as part of this step */
 	disconnectStepComponent: PropTypes.elementType,
 	/** Plugins that are using the Jetpack connection. */
-	connectedPlugins: PropTypes.object,
+	connectedPlugins: PropTypes.array,
 	/** The slug of the plugin that is initiating the disconnection. */
 	disconnectingPlugin: PropTypes.string,
 	/** Callback function that closes the modal. */
