@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Added a check to only run the firewall when the Jetpack module is enabled.
+Added a check to only run the firewall when the Jetpack module is enabled, and a method to provide the bootstrap.php path.
