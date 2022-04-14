@@ -2,7 +2,7 @@
 /**
  * Publicize_UI class.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
 namespace Automattic\Jetpack\Publicize;
@@ -78,7 +78,9 @@ class Publicize_UI {
 	 * Add admin page with wrapper.
 	 */
 	public function wrapper_admin_page() {
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ) );
+		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
+			\Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ) );
+		}
 	}
 
 	/**
@@ -103,7 +105,9 @@ class Publicize_UI {
 	 * JS for the options and switching
 	 */
 	public function load_assets() {
-		Jetpack_Admin_Page::load_wrapper_styles();
+		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
+			\Jetpack_Admin_Page::load_wrapper_styles();
+		}
 	}
 
 	/**

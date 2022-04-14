@@ -21,6 +21,7 @@ if ( ! initialState ) {
 }
 
 storeHolder.mayBeInit( STORE_ID, {
+	__experimentalUseThunks: true,
 	reducer,
 	actions,
 	selectors,

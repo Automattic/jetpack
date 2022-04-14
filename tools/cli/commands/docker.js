@@ -385,6 +385,15 @@ const buildExecCmd = argv => {
 		);
 	} else if ( cmd === 'run-extras' ) {
 		opts.push( '/var/scripts/run-extras.sh' );
+	} else if ( cmd === 'link-plugin' ) {
+		opts.push(
+			'ln',
+			'-s',
+			`/usr/local/src/jetpack-monorepo/projects/plugins/${ argv.plugin_slug }`,
+			`/var/www/html/wp-content/plugins/${ argv.plugin_slug }`
+		);
+	} else if ( cmd === 'unlink-plugin' ) {
+		opts.push( 'rm', `/var/www/html/wp-content/plugins/${ argv.plugin_slug }` );
 	}
 
 	return buildComposeFiles().concat( opts );
@@ -614,6 +623,30 @@ export function dockerDefine( yargs ) {
 					command: 'run-extras',
 					description: 'Run run-extras.sh bin script',
 					builder: yargExec => defaultOpts( yargExec ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'link-plugin <plugin_slug>',
+					description:
+						'Links a monorepo plugin folder with the plugin folder of your Docker env. Plugin will be considered installed.',
+					builder: yargCmd => {
+						yargCmd.positional( 'plugin_slug', {
+							describe: 'The plugin slug',
+							type: 'string',
+						} );
+					},
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'unlink-plugin <plugin_slug>',
+					description:
+						'Uninks a monorepo plugin folder from the plugin folder of your Docker env. Plugin will be considered not installed.',
+					builder: yargCmd => {
+						yargCmd.positional( 'plugin_slug', {
+							describe: 'The plugin slug',
+							type: 'string',
+						} );
+					},
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				// JT commands

@@ -1,9 +1,22 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+/**
+ * Update option endpoint.
+ */
 class WPCOM_JSON_API_Update_Option_Endpoint extends WPCOM_JSON_API_Get_Option_Endpoint {
+	/**
+	 * The option value.
+	 *
+	 * @var string
+	 */
 	public $option_value;
 
-	function result() {
+	/**
+	 * Endpoint callback.
+	 *
+	 * @return array
+	 */
+	public function result() {
 		if ( $this->site_option ) {
 			update_site_option( $this->option_name, $this->option_value );
 		} else {
@@ -12,8 +25,15 @@ class WPCOM_JSON_API_Update_Option_Endpoint extends WPCOM_JSON_API_Get_Option_En
 		return parent::result();
 	}
 
-	function validate_input( $object ) {
-		$input = $this->input();
+	/**
+	 * Validate the input.
+	 *
+	 * @param object $object - the object we're validating.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function validate_input( $object ) {
+		$input      = $this->input();
 		$query_args = $this->query_args();
 		if ( ! isset( $input['option_value'] ) || is_array( $input['option_value'] ) ) {
 			return new WP_Error( 'option_value_not_set', __( 'You must specify an option_value', 'jetpack' ) );
