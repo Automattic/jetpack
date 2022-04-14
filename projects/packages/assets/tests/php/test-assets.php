@@ -258,6 +258,22 @@ class AssetsTest extends TestCase {
 	}
 
 	/**
+	 * Test that the `defer` attribute is not added to incorrect script tags.
+	 */
+	public function test_defer_attribute_with_incorrect_tag() {
+		Functions\expect( 'wp_enqueue_script' )
+			->once()
+			->with( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true );
+		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
+
+		$asset_instance = Assets::instance();
+		$tag            = '<scriptfoo src="/minpath.js" id="handle"></scriptfoo>';
+		$actual         = $asset_instance->script_add_async( $tag, 'handle' );
+		$expected       = '<scriptfoo src="/minpath.js" id="handle"></scriptfoo>';
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
 	 * Test whether static resources are properly updated to use a WordPress.com static domain.
 	 *
 	 * @covers Automattic\Jetpack\Assets::staticize_subdomain
