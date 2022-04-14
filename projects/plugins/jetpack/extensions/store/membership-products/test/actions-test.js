@@ -194,7 +194,7 @@ describe( 'Membership Products Actions', () => {
         };
         const dispatch = jest.fn( () => {} );
         const noticeMock = jest.spyOn( utils, 'onSuccess' ).mockImplementation( () => {} );
-		const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation((foo, bar) => {console.log(foo);console.log(bar);});
+		const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation( () => {} );
 
         // When
         await saveProduct( anyValidProduct, paymentPlanProductType, selectedProductCallback )( { dispatch, registry } );
