@@ -26,6 +26,7 @@ export function getUpgradeURL() {
 
 	// Add site to query string.
 	checkoutProductUrl.searchParams.set( 'site', siteSuffix );
+	checkoutProductUrl.searchParams.set( 'unlinked', '1' );
 
 	return checkoutProductUrl.toString();
 }
