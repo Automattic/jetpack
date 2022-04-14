@@ -26,7 +26,10 @@ export default {
 	decorators: [ withMock ],
 };
 
-const DefaultArgs = {};
+const DefaultArgs = {
+	slug: 'backup',
+	installPlugins: false,
+};
 
 const DefaultBackupDetailCard = args => (
 	<HashRouter>

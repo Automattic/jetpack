@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Container, Col, AdminPage } from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
 
@@ -33,12 +34,7 @@ import ConnectedProductOffer from '../connected-product-offer';
  * @param {boolean} props.installsPlugin - Whether the interstitial button installs a plugin*
  * @returns {object}                       ProductInterstitial react component.
  */
-export default function ProductInterstitial( {
-	bundle,
-	installsPlugin = false,
-	slug,
-	children = null,
-} ) {
+export default function ProductInterstitial( { bundle, installsPlugin, slug, children } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle } = detail;
 
@@ -127,6 +123,23 @@ export default function ProductInterstitial( {
 		</AdminPage>
 	);
 }
+
+ProductInterstitial.propTypes = {
+	// Product slug. Required.
+	slug: PropTypes.string.isRequired,
+	// The bundle name including this product, eg. 'security'
+	bundle: PropTypes.string,
+	// Whether the interstitial button installs a plugin. Defaults to false.
+	installsPlugin: PropTypes.bool,
+	// Component children.
+	children: PropTypes.node,
+};
+
+ProductInterstitial.defaultProps = {
+	bundle: null,
+	installsPlugin: false,
+	children: null,
+};
 
 /**
  * AntiSpamInterstitial component
