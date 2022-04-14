@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Comments: Don't require nonce verification on post types not supporting comment forms.
