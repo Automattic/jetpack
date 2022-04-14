@@ -62,28 +62,41 @@ class Jetpack_VideoPress {
 
 		if ( $this->is_videopress_enabled() ) {
 			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );
-			$bridge_url = Assets::get_file_url_for_environment(
-				'modules/videopress/js/videopress-token-bridge.js',
-				'modules/videopress/js/videopress-token-bridge.js'
-			);
-
-			wp_enqueue_script(
-				'media-video-jwt-bridge',
-				$bridge_url,
-				array(),
-				$this->version,
-				false
-			);
-
-			wp_localize_script(
-				'media-video-jwt-bridge',
-				'videopressAjax',
-				array(
-					'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-					'bridgeUrl' => $bridge_url,
-				)
-			);
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_jwt_token_bridge' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_jwt_token_bridge' ), 1 );
 		}
+	}
+
+	/**
+	 * Enqueues the jwt bridge script.
+	 **/
+	public function enqueue_jwt_token_bridge() {
+		global $post;
+		$post_id = isset( $post->ID ) ? absint( $post->ID ) : 0;
+
+		$bridge_url = Assets::get_file_url_for_environment(
+			'modules/videopress/js/videopress-token-bridge.js',
+			'modules/videopress/js/videopress-token-bridge.js'
+		);
+
+		wp_enqueue_script(
+			'media-video-jwt-bridge',
+			$bridge_url,
+			array(),
+			$this->version,
+			false
+		);
+
+		wp_localize_script(
+			'media-video-jwt-bridge',
+			'videopressAjax',
+			array(
+				'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+				'bridgeUrl' => $bridge_url,
+				'post_id'   => $post_id,
+				'nonce'     => wp_create_nonce( 'videopress-get-playback-jwt' ),
+			)
+		);
 	}
 
 	/**

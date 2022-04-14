@@ -72,13 +72,21 @@ class VideoPress_AJAX {
 	 * @return void
 	 */
 	public function wp_ajax_videopress_get_playback_jwt() {
-		$guid = filter_input( INPUT_POST, 'guid' );
+		$guid             = filter_input( INPUT_POST, 'guid' );
+		$embedded_post_id = filter_input( INPUT_POST, 'post_id', FILTER_VALIDATE_INT );
+
+		if ( false === $embedded_post_id ) {
+			$embedded_post_id = 0;
+		}
+
+		check_ajax_referer( 'videopress-get-playback-jwt', 'nonce' );
+
 		if ( ! $this->is_valid_guid( $guid ) ) {
 			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack' ) ) );
 			return;
 		}
 
-		if ( ! $this->is_current_user_authed_for_video( $guid ) ) {
+		if ( ! $this->is_current_user_authed_for_video( $guid, $embedded_post_id ) ) {
 			return;
 		}
 
@@ -98,13 +106,14 @@ class VideoPress_AJAX {
 	}
 
 	/**
-	 * Determines if the current user can view the provided video.
+	 * Determines if the current user can view the provided video. Only ever gets fired if site-wide privace videos are enabled.
 	 *
 	 * Filterable for 3rd party plugins.
 	 *
-	 * @param string $guid The video id being checked.
+	 * @param string $guid             The video id being checked.
+	 * @param int    $embedded_post_id The post id the video is embedded in or 0.
 	 */
-	private function is_current_user_authed_for_video( $guid ) {
+	private function is_current_user_authed_for_video( $guid, $embedded_post_id ) {
 		$attachment = videopress_get_post_by_guid( $guid );
 		if ( ! $attachment ) {
 			return false;
@@ -141,12 +150,13 @@ class VideoPress_AJAX {
 		 * };
 		 * add_filter( 'videopress_is_current_user_authed_for_video', 'jp_example_override_video_auth', 10, 2 );
 		 *
-		 * @param bool   $is_user_authed The current user authorization state.
-		 * @param string $guid           The video's unique identifier.
+		 * @param bool     $is_user_authed   The current user authorization state.
+		 * @param string   $guid             The video's unique identifier.
+		 * @param int|null $embedded_post_id The post the video is embedded..
 		 *
 		 * @return bool
 		 */
-		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid );
+		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid, $embedded_post_id );
 	}
 
 	/**
