@@ -1090,7 +1090,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "69940932317ad932d8f26042e87fa1451d940a94"
+                "reference": "2e1683c42f0a3bdd819ca071d039c5d009202788"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.37",
@@ -1110,7 +1110,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-licensing/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.6.x-dev"
+                    "dev-master": "1.7.x-dev"
                 }
             },
             "autoload": {
