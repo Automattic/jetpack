@@ -9,7 +9,11 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import { getMockData } from '../../connected-product-offer/stories/utils.js';
+import {
+	getMockData,
+	getAllMockData,
+	getProductSlugs,
+} from '../../connected-product-offer/stories/utils.js';
 import ProductInterstitial, {
 	AntiSpamInterstitial,
 	BackupInterstitial,
@@ -24,24 +28,29 @@ export default {
 	title: 'Packages/My Jetpack/Product Interstitial',
 	component: ProductInterstitial,
 	decorators: [ withMock ],
+	argTypes: {
+		slug: {
+			control: { type: 'select', options: getProductSlugs( true ) },
+		},
+	},
 };
 
-const DefaultArgs = {
-	slug: 'backup',
-	installPlugins: false,
-};
+const mockData = getAllMockData();
 
-const DefaultBackupDetailCard = args => (
+const DefaultTemplate = args => (
 	<HashRouter>
 		<Routes>
-			<Route path="/" element={ <BackupInterstitial { ...args } /> } />
+			<Route path="/" element={ <ProductInterstitial { ...args } /> } />
 		</Routes>
 	</HashRouter>
 );
 
-export const _default = DefaultBackupDetailCard.bind( {} );
-_default.parameters = {};
-_default.args = DefaultArgs;
+export const _default = DefaultTemplate.bind( {} );
+_default.parameters = { mockData };
+_default.args = {
+	slug: 'backup',
+	installPlugins: false,
+};
 
 const AntiSpamTemplate = args => (
 	<HashRouter>
