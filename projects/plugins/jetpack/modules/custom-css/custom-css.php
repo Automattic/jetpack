@@ -517,7 +517,7 @@ class Jetpack_Custom_CSS {
 	/**
 	 * Restore Unsafe Post CSS Content.
 	 *
-	 * @param array $data The post data to be restored.
+	 * @param array $data The post data being filtered.
 	 * @param array $postarray Unused.
 	 * @param array $unsanitized The unsanitized post data.
 	 *
