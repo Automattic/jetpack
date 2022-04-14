@@ -13,6 +13,8 @@
 
 namespace Automattic\Jetpack\Device_Detection;
 
+require_once __DIR__ . '/functions.php';
+
 /**
  * A class providing device properties detection.
  */

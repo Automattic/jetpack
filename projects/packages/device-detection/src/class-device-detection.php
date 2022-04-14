@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack;
 
+require_once __DIR__ . '/functions.php';
+
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use function Automattic\Jetpack\Device_Detection\wp_unslash;
 
 /**
  * Class Device_Detection
