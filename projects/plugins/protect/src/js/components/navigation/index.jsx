@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import styles from './styles.module.scss';
 import NavigationItem from './item';
 
-const Navigation = ( { items = [] } ) => {
+const useMenuNavigation = items => {
 	const initial = items.find( item => item?.initial )?.id || items[ 0 ]?.id;
 	const [ selectedItem, setSelectedItem ] = useState( initial );
 	const [ refs, setRef ] = useState( [] );
@@ -54,6 +54,24 @@ const Navigation = ( { items = [] } ) => {
 			return allRefs;
 		} );
 	};
+
+	return {
+		selectedItem,
+		handleSelectedItem,
+		handleKeyNav,
+		handleFocus,
+		handleRefs,
+	};
+};
+
+const Navigation = ( { items = [] } ) => {
+	const {
+		handleSelectedItem,
+		handleKeyNav,
+		handleFocus,
+		handleRefs,
+		selectedItem,
+	} = useMenuNavigation( items );
 
 	return (
 		<ul className={ styles.navigation } role="menu">
