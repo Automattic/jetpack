@@ -11,11 +11,11 @@ import useConnection from './use-connection';
 import './connection-page.scss';
 
 /**
- * defines SearchConnectionScreen.
+ * defines ConnectionScreen.
  *
- * @returns {React.Component} SearchConnectionScreen component.
+ * @returns {React.Component} ConnectionScreen component.
  */
-export default function SearchConnectionPage() {
+export default function ConnectionScreen() {
 	const { renderConnectScreen, renderConnectionFooter } = useConnection();
 
 	return (

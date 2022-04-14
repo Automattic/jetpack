@@ -10,13 +10,13 @@ import { __ } from '@wordpress/i18n';
 import './search-promotion.scss';
 
 /**
- * SearchPromotionBlock component definition.
+ * SearchPromotion component definition.
  *
- * @returns {React.Component} SearchPromotionBlock component.
+ * @returns {React.Component} SearchPromotion component.
  */
-export default function SearchPromotionBlock() {
+export default function SearchPromotion() {
 	return (
-		<div className="jp-search-dashboard-promotion-block">
+		<div className="jp-search-dashboard-promotion">
 			<h3>
 				{ __(
 					"Allow viewers to search through your site's records, lightning fast.",
