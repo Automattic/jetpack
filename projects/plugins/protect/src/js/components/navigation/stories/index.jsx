@@ -46,13 +46,19 @@ Default.args = {
 			id: 'plugins',
 			label: __( 'Plugins', 'jetpack-protect' ),
 			icon: plugins,
-			vuls: 12,
+			disabled: true,
 		},
 		{
 			id: 'themes',
 			label: __( 'Themes', 'jetpack-protect' ),
 			icon: color,
-			vuls: 8,
+			disabled: true,
+		},
+		{
+			id: 'wordpress-2',
+			label: __( 'WordPress', 'jetpack-protect' ),
+			icon: wordpress,
+			vuls: 10,
 		},
 	],
 };

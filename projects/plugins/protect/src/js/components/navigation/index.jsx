@@ -19,18 +19,32 @@ const useMenuNavigation = items => {
 		setSelectedItem( id );
 	};
 
+	const getNexItem = startIndex => {
+		const lastIndex = items.length - 1;
+		const startPlusOne = startIndex + 1;
+		const nextIndex = startPlusOne > lastIndex ? 0 : startPlusOne;
+		const nextItem = items[ nextIndex ];
+		return nextItem?.disabled ? getNexItem( nextIndex ) : nextItem?.id;
+	};
+
+	const getPrevItem = startIndex => {
+		const lastIndex = items.length - 1;
+		const startMinusOne = startIndex - 1;
+		const nextIndex = startMinusOne < 0 ? lastIndex : startMinusOne;
+		const nextItem = items[ nextIndex ];
+		return nextItem?.disabled ? getPrevItem( nextIndex ) : nextItem?.id;
+	};
+
 	const handleKeyNav = () => input => {
 		const key = input?.key;
 		const current = items.findIndex( item => item?.id === selectedItem );
-		const first = items[ 0 ]?.id;
-		const last = items[ items.length - 1 ]?.id;
 
 		let nextId;
 
 		if ( key === 'ArrowUp' ) {
-			nextId = items[ current - 1 ]?.id || last;
+			nextId = getPrevItem( current );
 		} else if ( key === 'ArrowDown' ) {
-			nextId = items[ current + 1 ]?.id || first;
+			nextId = getNexItem( current );
 		} else if ( key === 'Enter' && focusedItem ) {
 			nextId = focusedItem;
 		}
@@ -75,18 +89,21 @@ const Navigation = ( { items = [] } ) => {
 
 	return (
 		<ul className={ styles.navigation } role="menu">
-			{ items.map( item => (
-				<NavigationItem
-					icon={ item?.icon }
-					label={ item?.label }
-					vuls={ item?.vuls }
-					selected={ item?.id === selectedItem }
-					onClick={ handleSelectedItem( item?.id ) }
-					onKeyDown={ handleKeyNav() }
-					onFocus={ handleFocus( item?.id ) }
-					ref={ handleRefs( item?.id ) }
-				/>
-			) ) }
+			{ items.map( item => {
+				return (
+					<NavigationItem
+						icon={ item?.icon }
+						label={ item?.label }
+						vuls={ item?.vuls }
+						selected={ item?.id === selectedItem }
+						disabled={ item?.disabled }
+						onClick={ handleSelectedItem( item?.id ) }
+						onKeyDown={ handleKeyNav() }
+						onFocus={ handleFocus( item?.id ) }
+						ref={ handleRefs( item?.id ) }
+					/>
+				);
+			} ) }
 		</ul>
 	);
 };

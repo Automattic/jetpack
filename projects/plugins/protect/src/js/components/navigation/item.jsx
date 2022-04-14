@@ -12,9 +12,9 @@ import classNames from 'classnames';
 import styles from './styles.module.scss';
 
 const NavigationItem = React.forwardRef(
-	( { onClick, onKeyDown, onFocus, selected, label, icon, vuls, isSubItem }, ref ) => {
+	( { onClick, onKeyDown, onFocus, selected, label, icon, vuls, isSubItem, disabled }, ref ) => {
 		const wrapperClassName = classNames( styles[ 'navigation-item' ], {
-			[ styles.clickable ]: Boolean( onClick ),
+			[ styles.clickable ]: ! disabled,
 			[ styles.selected ]: selected,
 		} );
 
@@ -25,11 +25,11 @@ const NavigationItem = React.forwardRef(
 		return (
 			<li
 				className={ wrapperClassName }
-				onClick={ onClick }
+				onClick={ disabled ? null : onClick }
 				onKeyDown={ onKeyDown }
 				onFocus={ onFocus }
 				role="menuitem"
-				tabIndex={ 0 }
+				tabIndex={ disabled ? -1 : 0 }
 				ref={ ref }
 			>
 				<Text className={ labelClassname }>
