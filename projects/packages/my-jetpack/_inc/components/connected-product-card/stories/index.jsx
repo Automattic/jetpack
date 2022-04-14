@@ -14,7 +14,7 @@ import withMock from 'storybook-addon-mock';
 import ConnectedProductCard from '../';
 import { initStore } from '../../../state/store';
 import { PRODUCT_STATUSES } from '../../product-card';
-import { getAllMockData, getProductSlugs } from '../../product-detail-card/stories/utils.js';
+import { getAllMockData, getProductSlugs } from '../../connected-product-offer/stories/utils.js';
 
 // Set myJetpackRest global var.
 window.myJetpackRest = {};
