@@ -1392,7 +1392,7 @@ class Jetpack_Custom_CSS {
 						<p>
 							<label>
 								<input type="radio" name="add_to_existing_display" value="true" <?php checked( $add_css ); ?>/>
-								<?php echo wp_kses( __( 'Add-on CSS <b>(Recommended)</b>', 'jetpack' ), array( 'b' => array() ) ); ?><?php echo wp_kses( __( 'Add-on CSS <b>(Recommended)</b>', 'jetpack' ), array( 'b' => array() ) ); ?>
+								<?php echo wp_kses( __( 'Add-on CSS <b>(Recommended)</b>', 'jetpack' ), array( 'b' => array() ) ); ?>
 							</label>
 							<br />
 							<label>
