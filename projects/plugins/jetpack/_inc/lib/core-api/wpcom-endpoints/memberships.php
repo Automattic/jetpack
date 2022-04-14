@@ -53,7 +53,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							},
 						),
 						'is_editable' => array(
-							'type' => 'boolean',
+							'type'     => 'boolean',
+							'required' => false,
 						),
 					),
 				),
@@ -85,7 +86,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'required' => true,
 						),
 						'is_editable'             => array(
-							'type' => 'boolean',
+							'type'     => 'boolean',
+							'required' => false,
 						),
 						'buyer_can_change_amount' => array(
 							'type' => 'boolean',
@@ -119,11 +121,11 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	/**
 	 * Do create a product based on data, or pass request to wpcom.
 	 *
-	 * @param object $request - request passed from WP.
+	 * @param WP_REST_Request $request - request passed from WP.
 	 *
 	 * @return array|WP_Error
 	 */
-	public function create_product( $request ) {
+	public function create_product( WP_REST_Request $request ) {
 		$is_editable             = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 		$type                    = isset( $request['type'] ) ? $request['type'] : null;
 		$buyer_can_change_amount = isset( $request['buyer_can_change_amount'] ) && (bool) $request['buyer_can_change_amount'];
@@ -135,8 +137,12 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			'buyer_can_change_amount' => $buyer_can_change_amount,
 			'interval'                => $request['interval'],
 			'type'                    => $type,
-			'is_editable'             => $is_editable,
 		);
+
+		// If we pass directly the value "null", it will break the argument validation.
+		if ( null !== $is_editable ) {
+			$payload['is_editable'] = $is_editable;
+		}
 
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			jetpack_require_lib( 'memberships' );
@@ -204,6 +210,16 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			}
 			return $result;
 		} else {
+			$payload = array(
+				'type'     => $request['type'],
+				'currency' => $request['currency'],
+			);
+
+			// If we pass directly is_editable as null, it would break API argument validation.
+			if ( null !== $is_editable ) {
+				$payload['is_editable'] = $is_editable;
+			}
+
 			$blog_id  = Jetpack_Options::get_option( 'id' );
 			$response = Client::wpcom_json_api_request_as_user(
 				"/sites/$blog_id/{$this->rest_base}/products",
@@ -211,11 +227,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				array(
 					'method' => 'POST',
 				),
-				array(
-					'type'        => $request['type'],
-					'currency'    => $request['currency'],
-					'is_editable' => $is_editable,
-				)
+				$payload
 			);
 			if ( is_wp_error( $response ) ) {
 				if ( $response->get_error_code() === 'missing_token' ) {
@@ -251,15 +263,21 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			$blog_id = get_current_blog_id();
 			return (array) get_memberships_settings_for_site( $blog_id, $product_type, $is_editable );
 		} else {
+			$payload = array(
+				'type'   => $request['type'],
+				'source' => $source,
+			);
+
+			// If we pass directly is_editable as null, it would break API argument validation.
+			if ( null !== $is_editable ) {
+				$payload['is_editable'] = $is_editable;
+			}
+
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$path    = "/sites/$blog_id/{$this->rest_base}/status";
 			if ( $product_type ) {
 				$path = add_query_arg(
-					array(
-						'type'        => $product_type,
-						'source'      => $source,
-						'is_editable' => $is_editable,
-					),
+					$payload,
 					$path
 				);
 			}
