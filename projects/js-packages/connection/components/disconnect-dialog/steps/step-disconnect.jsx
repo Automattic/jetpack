@@ -159,7 +159,7 @@ const StepDisconnect = props => {
 						>
 							{ context === 'plugins'
 								? __( 'Cancel', 'jetpack' )
-								: __( 'Stay connected', 'jetpack' ) }
+								: __( 'Stay connected', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 						</Button>
 						{ renderDisconnectButton() }
 					</div>
