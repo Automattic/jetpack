@@ -13,6 +13,16 @@ import Navigation from '..';
 export default {
 	title: 'Plugins/Protect/Navigation',
 	component: Navigation,
+	parameters: {
+		layout: 'centered',
+	},
+	decorators: [
+		Story => (
+			<div style={ { width: 800 } }>
+				<Story />
+			</div>
+		),
+	],
 };
 
 const Template = args => <Navigation { ...args } />;
