@@ -58,8 +58,8 @@
   paths:
     - 'projects/packages/waf/**'
     - 'projects/plugins/protect/**'
-    - '!projects/plugins/**/composer.lock'
-    - '!projects/plugins/**/composer.json'
+    - '!projects/plugins/*/composer.lock'
+    - '!projects/plugins/*/composer.json'
     - '!projects/plugins/*/changelog/*'
   teams:
     - yamato-scan
@@ -70,8 +70,8 @@
 - name: Boost
   paths:
    - 'projects/plugins/boost/**'
-   - '!projects/plugins/**/composer.lock'
-   - '!projects/plugins/**/composer.json'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
    - '!projects/plugins/*/changelog/*'
   teams:
    - heart-of-gold
@@ -82,8 +82,8 @@
   paths:
    - 'projects/plugins/search/**'
    - 'projects/packages/search/**'
-   - '!projects/plugins/**/composer.lock'
-   - '!projects/plugins/**/composer.json'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
    - '!projects/plugins/*/changelog/*'
   teams:
    - jetpack-search
@@ -94,8 +94,8 @@
   paths:
    - 'projects/plugins/social/**'
    - 'projects/packages/publicize/**'
-   - '!projects/plugins/**/composer.lock'
-   - '!projects/plugins/**/composer.json'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
    - '!projects/plugins/*/changelog/*'
   teams:
    - jetpack-reach
