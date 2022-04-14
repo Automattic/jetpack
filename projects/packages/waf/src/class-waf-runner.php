@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Waf;
 
-use Jetpack;
-
 /**
  * Executes the WAF.
  */
@@ -61,7 +59,11 @@ class Waf_Runner {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		return Jetpack::is_module_active( 'firewall' );
+		if ( class_exists( 'Jetpack' ) ) {
+			return \Jetpack::is_module_active( 'firewall' );
+		}
+
+		return true;
 	}
 
 	/**
