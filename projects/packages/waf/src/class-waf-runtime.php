@@ -248,7 +248,7 @@ class Waf_Runtime {
 	}
 
 	/**
-	 * Write block logs.
+	 * Write block logs. We won't write to the file if it exceeds 100 mb.
 	 *
 	 * @param string $rule_id Rule id.
 	 * @param string $reason Block reason.
@@ -261,11 +261,15 @@ class Waf_Runtime {
 
 		$file_path = JETPACK_WAF_DIR . '/waf-blocklog';
 
-		$fp = fopen( $file_path, 'a+' );
-		try {
-			fwrite( $fp, json_encode( $log_data ) . "\n" );
-		} finally {
-			fclose( $fp );
+		$file_size = filesize( $file_path );
+
+		if ( $file_size < ( 100 * 1024 * 1024 ) ) {
+			$fp = fopen( $file_path, 'a+' );
+			try {
+				fwrite( $fp, json_encode( $log_data ) . "\n" );
+			} finally {
+				fclose( $fp );
+			}
 		}
 
 		$this->write_blocklog_row( $log_data );
