@@ -13,7 +13,7 @@
  */
 
 use Automattic\Jetpack\Connection\REST_Connector;
-use Automattic\Jetpack\Waf\WafStandaloneBootstrap;
+use Automattic\Jetpack\Waf\Waf_Standalone_Bootstrap;
 
 // Register endpoints when WP REST API is initialized.
 add_action( 'rest_api_init', array( 'Jetpack_Firewall', 'register_endpoints' ) );
@@ -29,7 +29,7 @@ class Jetpack_Firewall {
 	 * @return string The path to the Jetpack Firewall's bootstrap.php file.
 	 */
 	private static function get_bootstrap_file_path() {
-		$bootstrap = new WafStandaloneBootstrap();
+		$bootstrap = new Waf_Standalone_Bootstrap();
 		return $bootstrap->get_bootstrap_file_path();
 	}
 
