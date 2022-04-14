@@ -30,9 +30,6 @@ add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register
 // Each of these is a class that will register its own routes on 'rest_api_init'.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
 
-// Create discount after site has been successfully connected.
-add_action( 'jetpack_site_registered', array( 'Jetpack_Core_Json_Api_Endpoints', 'create_site_discount' ) );
-
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
  *
@@ -680,6 +677,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'callback'            => __CLASS__ . '::get_conditional_recommendations',
 					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 				),
+			)
+		);
+
+		// Get Jetpack introduction offers
+		register_rest_route(
+			'jetpack/v4',
+			'/site/discount',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_discount',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
 
@@ -2055,49 +2063,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'data' => $data,
 			)
 		);
-	}
-
-	/**
-	 * Create the discount for this site.
-	 *
-	 * @since 10.8
-	 *
-	 * @return array|WP_Error
-	 */
-	public static function create_site_discount() {
-		$site_id = Jetpack_Options::get_option( 'id' );
-
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'site_id_missing',
-				esc_html__( 'Site ID is missing.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		$response = Client::wpcom_json_api_request_as_blog(
-			"/sites/$site_id/discount",
-			'2',
-			array(
-				'method'  => 'POST',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			),
-			null,
-			'wpcom'
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		$data          = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( 200 !== $response_code ) {
-			return new WP_Error(
-				'discount_creation_failed',
-				is_object( $data ) && property_exists( $data, 'error' ) ? $data->error : esc_html__( 'Could not create site discount.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
 	}
 
 	/**
