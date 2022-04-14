@@ -680,7 +680,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		// Get Jetpack introduction offers
+		// Get site discount.
 		register_rest_route(
 			'jetpack/v4',
 			'/site/discount',
