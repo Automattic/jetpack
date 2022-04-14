@@ -10,9 +10,9 @@
 - name: pnpm lockfile, composer files
   paths:
    - 'pnpm-lock.yaml'
-   - 'projects/plugins/**/composer.lock'
-   - 'projects/plugins/**/composer.json'
-   - 'projects/plugins/**/changelog/**'
+   - 'projects/plugins/*/composer.lock'
+   - 'projects/plugins/*/composer.json'
+   - 'projects/plugins/*/changelog/*'
   teams:
    # Unfortunately this list need to be maintaned manually...
    # yamato-backup-and-security is the group that consists of both yamato-scan and yamato-backup teams.
@@ -32,9 +32,9 @@
    - '!projects/packages/search/**'
    - '!projects/packages/publicize/**'
    - '!projects/packages/waf/**'
-   - '!projects/plugins/**/composer.lock'
-   - '!projects/plugins/**/composer.json'
-   - '!projects/plugins/**/changelog/**'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
+   - '!projects/plugins/*/changelog/*'
   teams:
    - jetpack-approvers
 
@@ -45,9 +45,9 @@
    - 'projects/packages/backup/**'
    - 'projects/plugins/vaultpress/**'
    - 'projects/plugins/backup/**'
-   - '!projects/plugins/**/composer.lock'
-   - '!projects/plugins/**/composer.json'
-   - '!projects/plugins/**/changelog/**'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
+   - '!projects/plugins/*/changelog/*'
   teams:
    - yamato-backup
    - jetpack-approvers
@@ -60,7 +60,7 @@
     - 'projects/plugins/protect/**'
     - '!projects/plugins/**/composer.lock'
     - '!projects/plugins/**/composer.json'
-    - '!projects/plugins/**/changelog/**'
+    - '!projects/plugins/*/changelog/*'
   teams:
     - yamato-scan
     - jetpack-approvers
@@ -72,7 +72,7 @@
    - 'projects/plugins/boost/**'
    - '!projects/plugins/**/composer.lock'
    - '!projects/plugins/**/composer.json'
-   - '!projects/plugins/**/changelog/**'
+   - '!projects/plugins/*/changelog/*'
   teams:
    - heart-of-gold
    - jetpack-approvers
@@ -84,7 +84,7 @@
    - 'projects/packages/search/**'
    - '!projects/plugins/**/composer.lock'
    - '!projects/plugins/**/composer.json'
-   - '!projects/plugins/**/changelog/**'
+   - '!projects/plugins/*/changelog/*'
   teams:
    - jetpack-search
    - jetpack-approvers
@@ -96,7 +96,7 @@
    - 'projects/packages/publicize/**'
    - '!projects/plugins/**/composer.lock'
    - '!projects/plugins/**/composer.json'
-   - '!projects/plugins/**/changelog/**'
+   - '!projects/plugins/*/changelog/*'
   teams:
    - jetpack-reach
    - jetpack-approvers
