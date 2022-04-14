@@ -36,16 +36,16 @@ const useMenuNavigation = items => {
 	};
 
 	const handleKeyNav = () => input => {
-		const key = input?.key;
+		const code = input?.code;
 		const current = items.findIndex( item => item?.id === selectedItem );
 
 		let nextId;
 
-		if ( key === 'ArrowUp' ) {
+		if ( code === 'ArrowUp' ) {
 			nextId = getPrevItem( current );
-		} else if ( key === 'ArrowDown' ) {
+		} else if ( code === 'ArrowDown' ) {
 			nextId = getNexItem( current );
-		} else if ( key === 'Enter' && focusedItem ) {
+		} else if ( ( code === 'Enter' || code === 'Space' ) && focusedItem ) {
 			nextId = focusedItem;
 		}
 
