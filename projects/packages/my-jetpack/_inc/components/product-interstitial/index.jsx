@@ -11,11 +11,6 @@ import { select } from '@wordpress/data';
  */
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
-import boostImage from './boost.png';
-import searchImage from './search.png';
-import videoPressImage from './videopress.png';
-import extrasImage from './extras.png';
-import crmImage from './crm.png';
 import { useProduct } from '../../hooks/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
@@ -23,6 +18,30 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { STORE_ID } from '../../state/store';
 import GoBackLink from '../go-back-link';
 import ConnectedProductOffer from '../connected-product-offer';
+
+import boostImage from './boost.png';
+import searchImage from './search.png';
+import videoPressImage from './videopress.png';
+import extrasImage from './extras.png';
+import crmImage from './crm.png';
+
+const PRODUCT_IMAGES = {
+	boost: boostImage,
+	search: searchImage,
+	videopress: videoPressImage,
+	extras: extrasImage,
+	crm: crmImage,
+};
+
+/**
+ * Returns the product image for the given product slug.
+ *
+ * @param {string} productSlug - The product slug.
+ * @returns {HTMLElement} The product image.
+ */
+function getImageByProductSlug( productSlug ) {
+	return PRODUCT_IMAGES[ productSlug ] || null;
+}
 
 /**
  * Product Interstitial component.
@@ -35,7 +54,7 @@ import ConnectedProductOffer from '../connected-product-offer';
  */
 export default function ProductInterstitial( { installsPlugin, slug, children } ) {
 	const { activate, detail } = useProduct( slug );
-	const { isUpgradableByBundle } = detail;
+	const { name, isUpgradableByBundle } = detail;
 
 	/*
 	 * isUpgradableByBundle is an array that provides
@@ -44,6 +63,16 @@ export default function ProductInterstitial( { installsPlugin, slug, children } 
 	 * so let's pick the first when it's defined.
 	 */
 	const bundle = isUpgradableByBundle?.length > 0 ? isUpgradableByBundle[ 0 ] : null;
+
+	/*
+	 * Children prop (optional) is rendered in
+	 * the secondary section of the product interstitial page.
+	 * When it is not defined, it renders the product image,
+	 * as long as it is not upgradable by a bundle.
+	 */
+	const secondarySection = ! isUpgradableByBundle?.length ? (
+		<img src={ getImageByProductSlug( slug ) } alt={ name } />
+	) : null;
 
 	const { recordEvent } = useAnalytics();
 
@@ -121,7 +150,7 @@ export default function ProductInterstitial( { installsPlugin, slug, children } 
 									className={ isUpgradableByBundle ? styles.container : null }
 								/>
 							) : (
-								children
+								children || secondarySection
 							) }
 						</Col>
 					</Container>

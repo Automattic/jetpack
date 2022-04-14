@@ -5,6 +5,7 @@
 import React from 'react';
 import withMock from 'storybook-addon-mock';
 import { HashRouter, Routes, Route } from 'react-router-dom';
+import { QRCode } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -30,26 +31,35 @@ export default {
 	decorators: [ withMock ],
 	argTypes: {
 		slug: {
-			control: { type: 'select', options: getProductSlugs( true ) },
+			control: { type: 'select', options: getProductSlugs( false ) },
+		},
+		[ 'Add Custom children content' ]: {
+			control: { type: 'boolean', options: [ true, false ], defaultValue: false },
 		},
 	},
 };
 
 const mockData = getAllMockData();
 
-const DefaultTemplate = args => (
-	<HashRouter>
-		<Routes>
-			<Route path="/" element={ <ProductInterstitial { ...args } /> } />
-		</Routes>
-	</HashRouter>
-);
+const DefaultTemplate = args => {
+	const children = args[ 'Add Custom children content' ] ? <QRCode /> : null;
+
+	return (
+		<HashRouter>
+			<Routes>
+				<Route path="/" element={ <ProductInterstitial { ...args } children={ children } /> } />
+			</Routes>
+		</HashRouter>
+	);
+};
 
 export const _default = DefaultTemplate.bind( {} );
 _default.parameters = { mockData };
 _default.args = {
 	slug: 'backup',
 	installPlugins: false,
+	children: null,
+	[ 'Add Custom children content' ]: false,
 };
 
 const AntiSpamTemplate = args => (
