@@ -17,11 +17,8 @@ export function getUpgradeURL() {
 	const redirectUrl = new URL( window.location.href );
 	redirectUrl.hash = '#/purchase-successful';
 
-	// Prepare the redirect url
-	// url.searchParams.set( 'purchase', 'success' );
-
 	const checkoutUrl = new URL( 'https://wordpress.com/checkout/' );
-	const checkoutProductUrl = new URL( `${ config.site.domain }/${ product }`, checkoutUrl );
+	const checkoutProductUrl = new URL( `${ checkoutUrl }${ siteSuffix }/${ product }` );
 
 	// Add redirect_to parameter
 	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl.toString() );
