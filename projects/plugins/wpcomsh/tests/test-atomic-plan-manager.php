@@ -13,7 +13,7 @@ class AtomicPlanManagerTest extends WP_UnitTestCase {
 	 * Tear down after tests
 	 */
 	public function tearDown() {
-		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
+		Atomic_Persistent_Data::delete( 'WPCOM_PLAN' );
 		remove_filter( 'wpcomsh_get_atomic_site_id', array( $this, 'atomic_site_id_after_cutoff' ) );
 
 		parent::tearDown();
@@ -49,11 +49,11 @@ class AtomicPlanManagerTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Post cutoff return correct WPCOM_PURCHASES
+	 * Post cutoff return correct WPCOM_PLAN
 	 */
 	public function test_current_plan_slug_after_cutoff_persistent_data() {
 		$this->set_atomic_site_id_after_cutoff();
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( array( 'product_slug' => 'ecommerce-bundle-monthly' ) ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PLAN', Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG );
 
 		$this->assertEquals( Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG, Atomic_Plan_Manager::current_plan_slug() );
 	}
@@ -78,7 +78,7 @@ class AtomicPlanManagerTest extends WP_UnitTestCase {
 	 */
 	public function test_has_atomic_supported_plan_after_cutoff_personal_plan() {
 		$this->set_atomic_site_id_after_cutoff();
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( array( 'product_slug' => 'personal-bundle-2y' ) ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PLAN', Atomic_Plan_Manager::PERSONAL_PLAN_SLUG );
 		$this->assertFalse( Atomic_Plan_Manager::has_atomic_supported_plan() );
 	}
 
@@ -87,7 +87,7 @@ class AtomicPlanManagerTest extends WP_UnitTestCase {
 	 */
 	public function test_has_atomic_supported_plan_after_cutoff_pro_plan() {
 		$this->set_atomic_site_id_after_cutoff();
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( array( 'product_slug' => 'pro-plan' ) ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PLAN', Atomic_Plan_Manager::PRO_PLAN_SLUG );
 		$this->assertTrue( Atomic_Plan_Manager::has_atomic_supported_plan() );
 	}
 
@@ -96,7 +96,7 @@ class AtomicPlanManagerTest extends WP_UnitTestCase {
 	 */
 	public function test_has_atomic_supported_plan_after_cutoff_business_plan() {
 		$this->set_atomic_site_id_after_cutoff();
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( array( 'product_slug' => 'business-bundle' ) ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PLAN', Atomic_Plan_Manager::BUSINESS_PLAN_SLUG );
 		$this->assertTrue( Atomic_Plan_Manager::has_atomic_supported_plan() );
 	}
 
@@ -105,7 +105,7 @@ class AtomicPlanManagerTest extends WP_UnitTestCase {
 	 */
 	public function test_has_atomic_supported_plan_after_cutoff_ecommerce_plan() {
 		$this->set_atomic_site_id_after_cutoff();
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( array( 'product_slug' => 'ecommerce-bundle-monthly' ) ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PLAN', Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG );
 		$this->assertTrue( Atomic_Plan_Manager::has_atomic_supported_plan() );
 	}
 }

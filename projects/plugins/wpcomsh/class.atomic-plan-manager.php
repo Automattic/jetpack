@@ -74,7 +74,7 @@ class Atomic_Plan_Manager {
 	/**
 	 * Return the local plan slug
 	 * If a local plan slug can't be found it will
-	 * return FREE_PLAN_SLUG by default
+	 * return BUSINESS_PLAN_SLUG by default
 	 *
 	 * @return string
 	 */
@@ -95,38 +95,12 @@ class Atomic_Plan_Manager {
 
 		// Otherwise, persistent data.
 		$persistent_data = new Atomic_Persistent_Data();
-		$purchases       = json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
-
-		if ( null !== $purchases ) {
-			// Each purchase has several fields, but we only want the product slug.
-			$purchases = wp_list_pluck( $purchases, 'product_slug' );
-		} else {
-			// Fallback to old CSV format if the string cannot be JSON decoded.
-			$purchases = str_getcsv( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+		$wpcom_plan      = $persistent_data->WPCOM_PLAN;
+		if ( empty( $wpcom_plan ) ) {
+			return self::FREE_PLAN_SLUG;
 		}
 
-		$atomic_supported_purchases = array_filter(
-			$purchases,
-			function( $purchase ) {
-				return wpcom_product_has_feature( $purchase, WPCOM_Features::ATOMIC );
-			}
-		);
-
-		if ( ! empty( $atomic_supported_purchases ) ) {
-			foreach ( $atomic_supported_purchases as $purchase ) {
-				if ( strpos( $purchase, 'personal' ) !== false ) {
-					return self::PERSONAL_PLAN_SLUG;
-				} elseif ( strpos( $purchase, 'business' ) !== false ) {
-					return self::BUSINESS_PLAN_SLUG;
-				} elseif ( strpos( $purchase, 'ecommerce' ) !== false ) {
-					return self::ECOMMERCE_PLAN_SLUG;
-				} elseif ( strpos( $purchase, 'pro' ) !== false ) {
-					return self::PRO_PLAN_SLUG;
-				}
-			}
-		}
-
-		return self::FREE_PLAN_SLUG;
+		return $wpcom_plan;
 	}
 
 	/**
