@@ -29,14 +29,21 @@ import ConnectedProductOffer from '../connected-product-offer';
  *
  * @param {object} props                 - Component props.
  * @param {string} props.slug            - Product slug
- * @param {string} props.bundle          - Bundle including this product
  * @param {object} props.children        - Product additional content
  * @param {boolean} props.installsPlugin - Whether the interstitial button installs a plugin*
  * @returns {object}                       ProductInterstitial react component.
  */
-export default function ProductInterstitial( { bundle, installsPlugin, slug, children } ) {
+export default function ProductInterstitial( { installsPlugin, slug, children } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle } = detail;
+
+	/*
+	 * isUpgradableByBundle is an array that provides
+	 * the bundles that can get this product when upgrading.
+	 * For now, `security` is the onle product bundle
+	 * so let's pick the first when it's defined.
+	 */
+	const bundle = isUpgradableByBundle?.length > 0 ? isUpgradableByBundle[ 0 ] : null;
 
 	const { recordEvent } = useAnalytics();
 
@@ -128,15 +135,12 @@ ProductInterstitial.propTypes = {
 	// Product slug. Required.
 	slug: PropTypes.string.isRequired,
 	// The bundle name including this product, eg. 'security'
-	bundle: PropTypes.string,
-	// Whether the interstitial button installs a plugin. Defaults to false.
 	installsPlugin: PropTypes.bool,
 	// Component children.
 	children: PropTypes.node,
 };
 
 ProductInterstitial.defaultProps = {
-	bundle: null,
 	installsPlugin: false,
 	children: null,
 };
