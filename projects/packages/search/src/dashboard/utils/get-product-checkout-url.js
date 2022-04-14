@@ -24,7 +24,7 @@ export default function getProductCheckoutUrl( {
 	// Add redirect_to parameter
 	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl );
 
-	// Add unlimited when user is not connected to Jetpack.
+	// Add "unlinked" search parameter if site is not connected to Jetpack.
 	if ( ! isUserConnected ) {
 		checkoutProductUrl.searchParams.set( 'unlinked', 1 );
 	}
