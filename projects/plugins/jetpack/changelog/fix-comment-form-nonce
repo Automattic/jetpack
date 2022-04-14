@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Comments: Checking that Jetpack comments are supported before requiring nonce verification.
