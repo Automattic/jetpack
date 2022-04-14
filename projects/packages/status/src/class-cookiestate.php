@@ -42,6 +42,7 @@ class CookieState {
 
 		// Extract state from cookies and delete cookies.
 		if ( isset( $_COOKIE['jetpackState'] ) && is_array( $_COOKIE['jetpackState'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- User should sanitize if necessary.
 			$yum = wp_unslash( $_COOKIE['jetpackState'] );
 			unset( $_COOKIE['jetpackState'] );
 			foreach ( $yum as $k => $v ) {
