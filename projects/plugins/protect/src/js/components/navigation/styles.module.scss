@@ -15,6 +15,7 @@
 
 	&.clickable {
 		cursor: pointer;
+		outline-color: var(--jp-black);
 
 		&:hover:not(.selected),
 		&:focus:not(.selected) {
@@ -34,7 +35,7 @@
 		}
 
 		& .navigation-item-badge {
-			border: none;
+			border: 1px solid var(--jp-red);
 			background-color: var(--jp-red);
 			color: var(--jp-white);
 		}
