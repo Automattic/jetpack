@@ -91,6 +91,9 @@ class Jetpack_Social {
 				);
 			}
 		);
+
+		// Priority >10 to run this filter after the Jetpack plugin runs this filter.
+		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ), 11, 1 );
 	}
 
 	/**
@@ -153,6 +156,24 @@ class Jetpack_Social {
 		?>
 			<div id="jetpack-social-root"></div>
 		<?php
+	}
+
+	/**
+	 * Whitelist the `active_modules` option for Jetpack Sync if necessary.
+	 *
+	 * @param array $callables Array of callables to sync.
+	 * @return array
+	 */
+	public function filter_sync_callable_whitelist( $callables ) {
+		if ( array_key_exists( 'active_modules', $callables ) ) {
+			return $callables;
+		}
+
+		$callables['active_modules'] = function () {
+			return array( 'publicize' );
+		};
+
+		return $callables;
 	}
 
 	/**
