@@ -49,7 +49,9 @@ export const data = ( state = {}, action ) => {
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { benefits: action.siteBenefits } } );
 		case JETPACK_SITE_DISCOUNT_FETCH_RECEIVE:
-			return merge( {}, state, { site: { discount: action.siteDiscount } } );
+			if ( action.siteDiscount?.code ) {
+				return merge( {}, state, { site: { discount: action.siteDiscount } } );
+			}
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { connectedPlugins: action.connectedPlugins } } );
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
