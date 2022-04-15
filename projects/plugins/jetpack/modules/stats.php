@@ -283,7 +283,7 @@ function stats_footer() {
 		 *
 		 * @param array $data Array of options about the site and page you're on.
 		 */
-		$data = (array) apply_filters( 'stats_footer_amp_data', $data );
+		$data = (array) apply_filters( 'jetpack_stats_footer_amp_data', $data );
 		stats_render_amp_footer( $data );
 	} else {
 
@@ -296,7 +296,7 @@ function stats_footer() {
 		 *
 		 * @param array $data Array of options about the site and page you're on.
 		 */
-		$data = (array) apply_filters( 'stats_footer_js_data', $data );
+		$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
 		stats_render_footer( $data );
 	}
 
