@@ -20,6 +20,7 @@ use Automattic\Jetpack\Post_List\Post_List as Post_List;
 use Automattic\Jetpack\Publicize\Publicize_Setup as Publicize_Setup;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
+use Automattic\Jetpack\WordAds\Initializer as Jetpack_WordAds_Main;
 
 /**
  * The configuration class.
@@ -43,6 +44,7 @@ class Config {
 		'identity_crisis' => false,
 		'search'          => false,
 		'publicize'       => false,
+		'wordads'         => false,
 	);
 
 	/**
@@ -61,7 +63,6 @@ class Config {
 		 * being constructed on priority 1.
 		 */
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 2 );
-
 	}
 
 	/**
@@ -119,6 +120,11 @@ class Config {
 		if ( $this->config['publicize'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Publicize\Publicize_UI' ) && $this->ensure_class( 'Automattic\Jetpack\Publicize\Publicize' )
 				&& $this->ensure_feature( 'publicize' );
+		}
+
+		if ( $this->config['wordads'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\WordAds\Initializer' )
+				&& $this->ensure_feature( 'wordads' );
 		}
 	}
 
@@ -247,6 +253,13 @@ class Config {
 		Publicize_Setup::configure();
 
 		return true;
+	}
+
+	/**
+	 * Enables WordAds.
+	 */
+	protected function enable_wordads() {
+		Jetpack_WordAds_Main::init();
 	}
 
 	/**
