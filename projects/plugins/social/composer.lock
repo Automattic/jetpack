@@ -825,7 +825,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "506c53f3c353cef2a08b9dbe23af85b0c3e4b591"
+                "reference": "5229b7e94f26005c32ec02ee12a633650fac9672"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",

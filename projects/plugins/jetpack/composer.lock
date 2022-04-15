@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cedab362a7415ead6552fcb024cb1246",
+    "content-hash": "f4fe82118b707852a83f4ce4382b98c4",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1475,7 +1475,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "506c53f3c353cef2a08b9dbe23af85b0c3e4b591"
+                "reference": "5229b7e94f26005c32ec02ee12a633650fac9672"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",
@@ -1634,7 +1634,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "4108988d17e86d7722ba8aee96d9896eda826ccb"
+                "reference": "5ebbb3c1b53c0919fa6d3e216a77fa089a87ac12"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1933,11 +1933,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wordads",
-                "reference": "ab3f46c7c584e0123ca17c2f32de1c091288f2d6"
+                "reference": "5fae096d66da17daaada4b79d6719b1b525f01c5"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-config": "^1.7",
+                "automattic/jetpack-config": "^1.8",
                 "automattic/jetpack-connection": "^1.37",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.15",
