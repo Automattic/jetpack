@@ -65,6 +65,7 @@ class Jetpack_Protect {
 						),
 						'jetpack_sync_callable_whitelist'  => array(
 							'get_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+							'get_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 							'wp_version'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
 						),
 						'jetpack_sync_options_contentless' => array(),
