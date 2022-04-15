@@ -1,13 +1,21 @@
 <?php
-/*
-Plugin Name: Random Redirect
-Plugin URI: https://wordpress.org/extend/plugins/random-redirect/
-Description: Allows you to create a link to yourblog.example.com/?random which will redirect someone to a random post on your blog, in a StumbleUpon-like fashion.
-Version: 1.2-wpcom
-Author: Matt Mullenweg
-Author URI: https://ma.tt/
-*/
+/**
+ * Plugin Name: Random Redirect
+ * Plugin URI: https://wordpress.org/extend/plugins/random-redirect/
+ * Description: Allows you to create a link to yourblog.example.com/?random which will redirect someone to a random post on your blog, in a StumbleUpon-like fashion.
+ * Version: 1.2-wpcom
+ * Author: Matt Mullenweg
+ * Author URI: https://ma.tt/
+ * Text Domain: jetpack
+ *
+ * @package automattic/jetpack
+ */
 
+// phpcs:disable WordPress.Security.NonceVerification -- No changes to the site here, it just redirects.
+
+/**
+ * Redirects to a random post on the site.
+ */
 function jetpack_matt_random_redirect() {
 	// Verify that the Random Redirect plugin this code is from is not active
 	// See https://plugins.trac.wordpress.org/ticket/1898
@@ -38,7 +46,7 @@ function jetpack_matt_random_redirect() {
 	}
 
 	// Acceptable URL formats: /[...]/?random=[post type], /?random, /&random, /&random=1
-	if ( ! isset( $_GET['random'] ) && ! in_array( strtolower( $_SERVER['REQUEST_URI'] ), array( '/&random', '/&random=1' ) ) ) {
+	if ( ! isset( $_GET['random'] ) && ! ( isset( $_SERVER['REQUEST_URI'] ) && in_array( strtolower( $_SERVER['REQUEST_URI'] ), array( '/&random', '/&random=1' ), true ) ) ) {
 		return;
 	}
 

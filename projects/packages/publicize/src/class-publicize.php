@@ -373,7 +373,7 @@ class Publicize extends Publicize_Base {
 	 * @param string $connection_id Connection ID.
 	 */
 	public function globalization( $connection_id ) {
-		if ( 'on' === $_REQUEST['global'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce check happens earlier in the process before we get here
+		if ( isset( $_REQUEST['global'] ) && 'on' === $_REQUEST['global'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce check happens earlier in the process before we get here
 			if ( ! current_user_can( $this->GLOBAL_CAP ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				return;
 			}
@@ -681,11 +681,13 @@ class Publicize extends Publicize_Base {
 	 * Render Facebook options.
 	 */
 	public function options_page_facebook() {
+		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : null;
+
 		// Nonce check.
-		check_admin_referer( 'options_page_facebook_' . $_REQUEST['connection'] );
+		check_admin_referer( 'options_page_facebook_' . $connection_name );
 
 		$connected_services = $this->get_all_connections();
-		$connection         = $connected_services['facebook'][ $_REQUEST['connection'] ];
+		$connection         = $connected_services['facebook'][ $connection_name ];
 		$options_to_show    = ( ! empty( $connection['connection_data']['meta']['options_responses'] ) ? $connection['connection_data']['meta']['options_responses'] : false );
 
 		$pages = ( ! empty( $options_to_show[1]['data'] ) ? $options_to_show[1]['data'] : false );
@@ -770,12 +772,12 @@ class Publicize extends Publicize_Base {
 					</tbody>
 				</table>
 
-				<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
+				<?php Publicize_UI::global_checkbox( 'facebook', $connection_name ); ?>
 				<p style="text-align: center;">
 					<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack-publicize-pkg' ); ?>"
 						class="button fb-options save-options" name="save"
-						data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
-						rel="<?php echo esc_attr( wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ); ?>"/>
+						data-connection="<?php echo esc_attr( $connection_name ); ?>"
+						rel="<?php echo esc_attr( wp_create_nonce( 'save_fb_token_' . $connection_name ) ); ?>"/>
 				</p><br/>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<p><?php echo $page_info_message; ?></p>
@@ -806,17 +808,19 @@ class Publicize extends Publicize_Base {
 	 * Save Facebook options.
 	 */
 	public function options_save_facebook() {
-		// Nonce check.
-		check_admin_referer( 'save_fb_token_' . $_REQUEST['connection'] );
+		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : null;
 
-		// Check for a numeric page ID.
-		$page_id = $_POST['selected_id'];
-		if ( ! ctype_digit( $page_id ) ) {
-			die( 'Security check' );
+		// Nonce check.
+		check_admin_referer( 'save_fb_token_' . $connection_name );
+
+		if ( ! isset( $_POST['type'] ) || 'page' !== $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
+			return;
 		}
 
-		if ( 'page' !== $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
-			return;
+		// Check for a numeric page ID.
+		$page_id = $_POST['selected_id']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Manually validated just below
+		if ( ! ctype_digit( $page_id ) ) {
+			die( 'Security check' );
 		}
 
 		// Publish to Page.
@@ -825,18 +829,20 @@ class Publicize extends Publicize_Base {
 			'facebook_profile' => null,
 		);
 
-		$this->set_remote_publicize_options( $_POST['connection'], $options );
+		$this->set_remote_publicize_options( $connection_name, $options );
 	}
 
 	/**
 	 * Render Tumblr options.
 	 */
 	public function options_page_tumblr() {
+		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : null;
+
 		// Nonce check.
-		check_admin_referer( 'options_page_tumblr_' . $_REQUEST['connection'] );
+		check_admin_referer( 'options_page_tumblr_' . $connection_name );
 
 		$connected_services = $this->get_all_connections();
-		$connection         = $connected_services['tumblr'][ $_POST['connection'] ];
+		$connection         = $connected_services['tumblr'][ $connection_name ];
 		$options_to_show    = $connection['connection_data']['meta']['options_responses'];
 		$request            = $options_to_show[0];
 
@@ -893,13 +899,13 @@ class Publicize extends Publicize_Base {
 
 			</ul>
 
-			<?php Publicize_UI::global_checkbox( 'tumblr', $_REQUEST['connection'] ); ?>
+			<?php Publicize_UI::global_checkbox( 'tumblr', $connection_name ); ?>
 
 			<p style="text-align: center;">
 				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack-publicize-pkg' ); ?>"
 					class="button tumblr-options save-options" name="save"
-					data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
-					rel="<?php echo esc_attr( wp_create_nonce( 'save_tumblr_blog_' . $_REQUEST['connection'] ) ); ?>"/>
+					data-connection="<?php echo esc_attr( $connection_name ); ?>"
+					rel="<?php echo esc_attr( wp_create_nonce( 'save_tumblr_blog_' . $connection_name ) ); ?>"/>
 			</p> <br/>
 		</div>
 
@@ -920,11 +926,13 @@ class Publicize extends Publicize_Base {
 	 * Save Tumblr options.
 	 */
 	public function options_save_tumblr() {
-		// Nonce check.
-		check_admin_referer( 'save_tumblr_blog_' . $_REQUEST['connection'] );
-		$options = array( 'tumblr_base_hostname' => $_POST['selected_id'] );
+		$connection_name = isset( $_POST['connection'] ) ? filter_var( wp_unslash( $_POST['connection'] ) ) : null;
 
-		$this->set_remote_publicize_options( $_POST['connection'], $options );
+		// Nonce check.
+		check_admin_referer( 'save_tumblr_blog_' . $connection_name );
+		$options = array( 'tumblr_base_hostname' => isset( $_POST['selected_id'] ) ? sanitize_text_field( wp_unslash( $_POST['selected_id'] ) ) : null );
+
+		$this->set_remote_publicize_options( $connection_name, $options );
 
 	}
 
@@ -979,10 +987,12 @@ class Publicize extends Publicize_Base {
 	 * @param string $service_name Name of the service to save options for.
 	 */
 	public function options_save_other( $service_name ) {
-		// Nonce check.
-		check_admin_referer( 'save_' . $service_name . '_token_' . $_REQUEST['connection'] );
+		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : '';
 
-		$this->globalization( $_REQUEST['connection'] );
+		// Nonce check.
+		check_admin_referer( 'save_' . $service_name . '_token_' . $connection_name );
+
+		$this->globalization( $connection_name );
 	}
 
 	/**

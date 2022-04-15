@@ -390,7 +390,7 @@ DisconnectDialog.propTypes = {
 	/** The context in which this component is being used. */
 	context: PropTypes.string,
 	/** Plugins that are using the Jetpack connection. */
-	connectedPlugins: PropTypes.array,
+	connectedPlugins: PropTypes.oneOfType( [ PropTypes.array, PropTypes.object ] ),
 	/** Callback function that is called just before the request to disconnect is made when the context is "plugins". */
 	pluginScreenDisconnectCallback: PropTypes.func,
 	/** A component to render as part of the disconnect step. */
