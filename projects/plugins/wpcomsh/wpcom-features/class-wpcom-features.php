@@ -251,7 +251,7 @@ class WPCOM_Features {
 	public const BACKUPS_RESTORE               = 'restore';
 	public const BACKUP_ONE_TIME               = 'backup-one-time';
 	public const CALENDLY                      = 'calendly';
-	public const CLASSIC_SEARCH                = 'classic-search';
+	public const CLASSIC_SEARCH                = 'search';
 	public const CLOUD_CRITICAL_CSS            = 'cloud-critical-css';
 	public const CONCIERGE                     = 'concierge';
 	public const CONCIERGE_BUSINESS            = 'concierge-business';
@@ -273,6 +273,7 @@ class WPCOM_Features {
 	public const GOOGLE_MY_BUSINESS            = 'google-my-business';
 	public const INSTALL_PLUGINS               = 'install-plugins';
 	public const INSTALL_THEMES                = 'install-themes';
+	public const INSTANT_SEARCH                = 'instant-search';
 	public const LEGACY_UNLIMITED_SPACE_2019   = 'legacy-unlimited-space-2019';
 	public const LIVE_SUPPORT                  = 'live_support';
 	public const MANAGE_PLUGINS                = 'manage-plugins';
@@ -290,7 +291,7 @@ class WPCOM_Features {
 	public const REPUBLICIZE                   = 'republicize';
 	public const SCAN                          = 'scan';
 	public const SCAN_MANAGED                  = 'scan-managed';
-	public const SEARCH                        = 'search';
+	public const SEARCH                        = 'temp-instant-search';
 	public const SECURITY_SETTINGS             = 'security-settings';
 	public const SEND_A_MESSAGE                = 'send-a-message';
 	public const SET_PRIMARY_CUSTOM_DOMAIN     = 'set-primary-custom-domain';
@@ -441,8 +442,6 @@ class WPCOM_Features {
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 		),
 		self::DOMAIN_MAPPING                => array(
-			self::JETPACK_PERSONAL_AND_HIGHER,
-			self::WP_P2_PLUS_MONTHLY,
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
@@ -500,6 +499,14 @@ class WPCOM_Features {
 		self::INSTALL_THEMES                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+		self::INSTANT_SEARCH                => array(
+			self::WPCOM_SEARCH,
+			self::WPCOM_SEARCH_MONTHLY,
+			self::WP_P2_PLUS_MONTHLY,
+			self::JETPACK_SEARCH,
+			self::JETPACK_SEARCH_MONTHLY,
+			self::JETPACK_COMPLETE_PLANS,
 		),
 
 		/*
@@ -585,7 +592,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
-		self::SCAN                        => array(
+		self::SCAN                          => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::JETPACK_SCAN_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -596,7 +603,7 @@ class WPCOM_Features {
 		 * SCAN_MANAGED - Scan results are managed internally by Atomic guild HEs and not shown in user UI.
 		 * See D57207-code.
 		 */
-		self::SCAN_MANAGED                   => array(
+		self::SCAN_MANAGED                  => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
