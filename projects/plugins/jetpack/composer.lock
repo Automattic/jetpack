@@ -1634,11 +1634,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-<<<<<<< HEAD
-                "reference": "8d21b5be794d950f958e9de89305b64661d51300"
-=======
                 "reference": "4108988d17e86d7722ba8aee96d9896eda826ccb"
->>>>>>> 9579e72d806fa4d2088648282cd0d926dd461de5
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
