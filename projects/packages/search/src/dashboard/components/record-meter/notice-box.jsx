@@ -19,6 +19,10 @@ const CLOSE_TO_LIMIT_PERCENT = 0.8; //TODO: currently 'close' is defined as 80%.
  */
 export function NoticeBox( props ) {
 	const notices = [];
+	const recordLimitAsString =
+		typeof props.planRecordLimit === 'number'
+			? props.planRecordLimit?.toLocaleString()
+			: props.planRecordLimit;
 
 	// check data is valid
 	if ( props.hasValidData === false ) {
@@ -51,12 +55,12 @@ export function NoticeBox( props ) {
 	if ( props.recordCount > props.planRecordLimit ) {
 		notices.push( {
 			message: sprintf(
-				// translators: %d: site's current plan record limit
+				// translators: %s: site's current plan record limit
 				__(
-					'You recently surpassed %d records and will be automatically upgraded to the next billing tier', //TODO: add a link to the tier pricing/upgrade info page
+					'You recently surpassed %s records and will be automatically upgraded to the next billing tier', //TODO: add a link to the tier pricing/upgrade info page
 					'jetpack-search-pkg'
 				),
-				props.planRecordLimit
+				recordLimitAsString
 			),
 		} );
 	}
@@ -67,12 +71,12 @@ export function NoticeBox( props ) {
 	) {
 		notices.push( {
 			message: sprintf(
-				// translators: %d: site's current plan record limit
+				// translators: %s: site's current plan record limit
 				__(
-					"You're close to the max amount of records for this billing tier. Once you hit %d indexed records, you'll automatically be billed for the next tier",
+					"You're close to the max amount of records for this billing tier. Once you hit %s indexed records, you'll automatically be billed for the next tier",
 					'jetpack-search-pkg'
 				),
-				props.planRecordLimit
+				recordLimitAsString
 			),
 		} );
 	}
