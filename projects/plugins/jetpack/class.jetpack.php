@@ -848,7 +848,10 @@ class Jetpack {
 		);
 
 		$config->ensure( 'search' );
-		$config->ensure( 'wordads' );
+
+		if ( defined( 'ENABLE_WORDADS_SHARED_UI' ) && ENABLE_WORDADS_SHARED_UI ) {
+			$config->ensure( 'wordads' );
+		}
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
@@ -2012,6 +2015,7 @@ class Jetpack {
 	 */
 	public function check_open_graph() {
 		if ( in_array( 'publicize', self::get_active_modules() ) || in_array( 'sharedaddy', self::get_active_modules() ) ) {
+			include_once JETPACK__PLUGIN_DIR . 'enhanced-open-graph.php';
 			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
 		}
 
