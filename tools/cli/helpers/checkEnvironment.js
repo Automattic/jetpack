@@ -23,10 +23,12 @@ export function getVersions() {
  * @returns {string} - the composer version of the current dev environment.
  */
 export async function getComposerVersion() {
-	const composerString = await child_process
-		.spawnSync( 'composer', [ '--version' ] )
-		.stdout.toString()
-		.trim();
+	let composerString = await child_process.spawnSync( 'composer', [ '--version' ] ).stdout;
+	// Bail if we don't detect composer is installed.
+	if ( ! composerString ) {
+		return;
+	}
+	composerString = composerString.toString().trim();
 	const composerVersion = composerString.match( /\d+\.\d+\.\d+/ );
 	return composerVersion[ 0 ];
 }
@@ -37,7 +39,10 @@ export async function getComposerVersion() {
 export async function compareComposerVersion() {
 	const currentComposerVersion = await getComposerVersion();
 	const monorepoComposerVersion = getVersions().COMPOSER_VERSION;
-	if ( ! semver.satisfies( currentComposerVersion, '~' + monorepoComposerVersion ) ) {
+	if (
+		currentComposerVersion &&
+		! semver.satisfies( currentComposerVersion, '~' + monorepoComposerVersion )
+	) {
 		console.log(
 			chalk.yellow(
 				`Composer version ${ currentComposerVersion } does not satisfy the monorepo's required version of ~${ monorepoComposerVersion }! This may cause issues when working with monorepo tooling.`
