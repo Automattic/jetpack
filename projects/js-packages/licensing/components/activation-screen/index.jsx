@@ -53,7 +53,6 @@ const parseAttachLicensesResult = result => {
  * The Activation Screen component.
  *
  * @param {object} props -- The properties.
- * @param {string} props.assetBaseUrl -- The assets base URL.
  * @param {Function?} props.onActivationSuccess -- A function to call on success.
  * @param {string} props.siteRawUrl -- url of the Jetpack Site
  * @param {string?} props.startingLicense -- pre-fill the license value
