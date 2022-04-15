@@ -8,6 +8,7 @@ import { useSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import { PRODUCT_TYPE_PAYMENT_PLAN } from './constants';
+import { ProductManagementContext } from './context';
 import ProductManagementInspectorControl from './inspector-control';
 import ProductManagementToolbarControl from './toolbar-control';
 import InvalidProductWarning from './invalid-product-warning';
@@ -17,8 +18,8 @@ import { store as membershipProductsStore } from '../../../store/membership-prod
 import './style.scss';
 
 export default function ProductManagementControls( {
-	allowCreateOneTimeInterval = true,
 	blockName,
+	clientId,
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
 	setSelectedProductId = () => {},
@@ -50,8 +51,17 @@ export default function ProductManagementControls( {
 		return null;
 	}
 
+	const context = {
+		blockName,
+		clientId,
+		products,
+		productType,
+		selectedProductId,
+		setSelectedProductId,
+	};
+
 	return (
-		<>
+		<ProductManagementContext.Provider value={ context }>
 			{ ! isApiConnected && !! connectUrl && (
 				<BlockControls __experimentalShareWithChildBlocks group="block">
 					<StripeConnectToolbarButton blockName={ blockName } connectUrl={ connectUrl } />
@@ -59,20 +69,11 @@ export default function ProductManagementControls( {
 			) }
 			{ isApiConnected && (
 				<>
-					<ProductManagementInspectorControl
-						allowCreateOneTimeInterval={ allowCreateOneTimeInterval }
-						productType={ productType }
-						setSelectedProductId={ setSelectedProductId }
-					/>
-					<ProductManagementToolbarControl
-						products={ products }
-						productType={ productType }
-						selectedProductId={ selectedProductId }
-						setSelectedProductId={ setSelectedProductId }
-					/>
+					<ProductManagementInspectorControl />
+					<ProductManagementToolbarControl />
 				</>
 			) }
 			{ isApiConnected && isSelectedProductInvalid && <InvalidProductWarning /> }
-		</>
+		</ProductManagementContext.Provider>
 	);
 }

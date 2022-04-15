@@ -36,7 +36,7 @@ class CLI extends WP_CLI_Command {
 			return WP_CLI::error( __( 'Only one mode may be specified.', 'jetpack-waf' ) );
 		}
 		if ( count( $args ) === 1 ) {
-			if ( ! WafRunner::is_allowed_mode( $args[0] ) ) {
+			if ( ! Waf_Runner::is_allowed_mode( $args[0] ) ) {
 
 				return WP_CLI::error(
 					sprintf(
@@ -47,10 +47,10 @@ class CLI extends WP_CLI_Command {
 				);
 			}
 
-			update_option( WafRunner::MODE_OPTION_NAME, $args[0] );
+			update_option( Waf_Runner::MODE_OPTION_NAME, $args[0] );
 
 			try {
-				( new WafStandaloneBootstrap() )->generate();
+				( new Waf_Standalone_Bootstrap() )->generate();
 			} catch ( \Exception $e ) {
 				WP_CLI::warning(
 					sprintf(
@@ -65,7 +65,7 @@ class CLI extends WP_CLI_Command {
 				sprintf(
 					/* translators: %1$s is the name of the mode that was just switched to. */
 					__( 'Jetpack WAF mode switched to "%1$s".', 'jetpack-waf' ),
-					get_option( WafRunner::MODE_OPTION_NAME )
+					get_option( Waf_Runner::MODE_OPTION_NAME )
 				)
 			);
 		}
@@ -73,7 +73,92 @@ class CLI extends WP_CLI_Command {
 			sprintf(
 				/* translators: %1$s is the name of the mode that the waf is currently running in. */
 				__( 'Jetpack WAF is running in "%1$s" mode.', 'jetpack-waf' ),
-				get_option( WafRunner::MODE_OPTION_NAME )
+				get_option( Waf_Runner::MODE_OPTION_NAME )
+			)
+		);
+	}
+
+	/**
+	 * Setup the WAF to run.
+	 * ## OPTIONS
+	 *
+	 * [<mode>]
+	 * : The new mode to be set.
+	 * ---
+	 * options:
+	 *   - silent
+	 *   - normal
+	 * ---
+	 *
+	 * @param array $args Arguments passed to CLI.
+	 * @return void|null
+	 * @throws WP_CLI\ExitException If there is an error switching the mode.
+	 */
+	public function setup( $args ) {
+		// Let is_allowed_mode know we are running from the CLI
+		define( 'WAF_CLI_MODE', $args[0] );
+
+		// Set the mode and generate the bootstrap
+		$this->mode( array( $args[0] ) );
+
+		try {
+			// Add relevant options and generate the rules.php file
+			Waf_Runner::activate();
+		} catch ( \Exception $e ) {
+
+			return WP_CLI::error(
+				sprintf(
+					/* translators: %1$s is the unexpected error message. */
+					__( 'Jetpack WAF rules file failed to generate: %1$s', 'jetpack-waf' ),
+					$e->getMessage()
+				)
+			);
+		}
+
+		return WP_CLI::success( __( 'Jetpack WAF has successfully been setup.', 'jetpack-waf' ) );
+	}
+
+	/**
+	 * Delete the WAF options.
+	 *
+	 * @return void|null
+	 * @throws WP_CLI\ExitException If deactivating has failures.
+	 */
+	public function teardown() {
+		try {
+			Waf_Runner::deactivate();
+		} catch ( \Exception $e ) {
+			WP_CLI::error( __( 'Jetpack WAF failed to fully deactivate.', 'jetpack-waf' ) );
+		}
+
+		return WP_CLI::success( __( 'Jetpack WAF has been deactivated.', 'jetpack-waf' ) );
+	}
+
+	/**
+	 * Generate the rules.php file with latest rules for the WAF.
+	 *
+	 * @return void|null
+	 * @throws WP_CLI\ExitException If there is an error switching the mode.
+	 */
+	public function generate_rules() {
+		try {
+			Waf_Runner::generate_rules();
+		} catch ( \Exception $e ) {
+
+			return WP_CLI::error(
+				sprintf(
+					/* translators: %1$s is the unexpected error message. */
+					__( 'Jetpack WAF rules file failed to generate: %1$s', 'jetpack-waf' ),
+					$e->getMessage()
+				)
+			);
+		}
+
+		return WP_CLI::success(
+			sprintf(
+				/* translators: %1$s is the name of the mode that was just switched to. */
+				__( 'Jetpack WAF rules successfully created to: "%1$s".', 'jetpack-waf' ),
+				Waf_Runner::RULES_FILE
 			)
 		);
 	}

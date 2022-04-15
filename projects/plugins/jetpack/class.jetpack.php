@@ -77,7 +77,7 @@ class Jetpack {
 	/**
 	 * The handles of styles that are concatenated into jetpack.css.
 	 *
-	 * When making changes to that list, you must also update concat_list in tools/builder/frontend-css.js.
+	 * When making changes to that list, you must also update concat_list in tools/webpack.config.css.js.
 	 *
 	 * @var array The handles of styles that are concatenated into jetpack.css.
 	 */
@@ -808,6 +808,9 @@ class Jetpack {
 
 		// Register product descriptions for partner coupon usage.
 		add_filter( 'jetpack_partner_coupon_products', array( $this, 'get_partner_coupon_product_descriptions' ) );
+
+		// Actions for conditional recommendations.
+		add_action( 'plugins_loaded', array( 'Jetpack_Recommendations', 'init_conditional_recommendation_actions' ) );
 	}
 
 	/**
@@ -845,7 +848,10 @@ class Jetpack {
 		);
 
 		$config->ensure( 'search' );
-		$config->ensure( 'wordads' );
+
+		if ( defined( 'ENABLE_WORDADS_SHARED_UI' ) && ENABLE_WORDADS_SHARED_UI ) {
+			$config->ensure( 'wordads' );
+		}
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
@@ -1611,6 +1617,7 @@ class Jetpack {
 	 * A site is considered as being onboarded if it currently has an onboarding token.
 	 *
 	 * @since 5.8
+	 * @deprecated Use \Automattic\Jetpack\Status()->is_onboarding()
 	 *
 	 * @access public
 	 * @static
@@ -1618,6 +1625,11 @@ class Jetpack {
 	 * @return bool True if the site is currently onboarding, false otherwise
 	 */
 	public static function is_onboarding() {
+		_deprecated_function( __METHOD__, 'jetpack-10.9', 'Automattic\\Jetpack\\Status\\is_onboarding' );
+
+		if ( ! method_exists( 'Automattic\Jetpack\Status', 'is_onboarding' ) ) {
+			return Jetpack_Options::get_option( 'onboarding' ) !== false;
+		}
 		return ( new Status() )->is_onboarding();
 	}
 
@@ -1773,10 +1785,17 @@ class Jetpack {
 	 */
 	public static function load_modules() {
 		$status = new Status();
+
+		if ( method_exists( $status, 'is_onboarding' ) ) {
+			$is_onboarding = $status->is_onboarding();
+		} else {
+			$is_onboarding = self::is_onboarding();
+		}
+
 		if (
 			! self::is_connection_ready()
 			&& ! $status->is_offline_mode()
-			&& ! $status->is_onboarding()
+			&& ! $is_onboarding
 			&& (
 				! is_multisite()
 				|| ! get_site_option( 'jetpack_protect_active' )
@@ -1996,6 +2015,7 @@ class Jetpack {
 	 */
 	public function check_open_graph() {
 		if ( in_array( 'publicize', self::get_active_modules() ) || in_array( 'sharedaddy', self::get_active_modules() ) ) {
+			include_once JETPACK__PLUGIN_DIR . 'enhanced-open-graph.php';
 			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
 		}
 
@@ -2953,7 +2973,10 @@ p {
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
-		$connection->disconnect_site( ! Identity_Crisis::validate_sync_error_idc_option() );
+		if ( ! Identity_Crisis::validate_sync_error_idc_option() ) {
+			$connection->disconnect_site_wpcom();
+		}
+		$connection->delete_all_connection_tokens();
 	}
 
 	/**

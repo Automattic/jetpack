@@ -2,9 +2,72 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 10.8-beta - 2022-03-29
-### Enhancements
+## 10.9-a.5 - 2022-04-14
+### Bug fixes
+- Comments: Checking that Jetpack comments are supported before requiring nonce verification.
 
+## 10.9-a.3 - 2022-04-12
+### Enhancements
+- Dashboard: Various improvements to recommendations.
+- Payments block: Improves block selection behavior.
+- Protect: Renamed to "Brute Force Protection" in the UI.
+- VideoPress: Adds settings for controlling VideoPress video privacy.
+- VideoPress: Enable the resumable uploader.
+
+### Improved compatibility
+- Custom CSS: Improve saving for legacy Custom CSS.
+- Improvements to backwards compatibility with other Jetpack plugins.
+
+### Bug fixes
+- Button block: Removes default CSS that would overwrite core and theme styles.
+- Payments block: Makes the ‘one time’ subscription recurrence always available.
+- Payments block: Fixes bug regarding creation of new Payment blocks.
+- Pay with PayPal: Fixes issue with saving widget in Customizer.
+- Slideshow block: Fix grid blowout when Slideshow block is inserted inside a Layout Grid block (in editor).
+- Top Posts Widget: ensure hooks retain existing behavior when adding extra data before or after each post.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Assistant: add timed discount card.
+- Build sass files with Webpack.
+- Customizer messages: adjust messaging for new plan.
+- Fix an invalid JavaScript `typeof` check.
+- Fix e2e tests.
+- Init 10.9-a.2
+- Minifiy non-sass css with Webpack.
+- Move and update postcss config.
+- PHPCS changes for JSON endpoint.
+- Remove indirect dependency on an obselete version of the `core-js` package.
+- Remove use of `gulp` for the build.
+- Updated a composer package version.
+- Updated package dependencies.
+
+## 10.9-a.1 - 2022-04-06
+### Enhancements
+- Payments Block: Re-loading the page will not cause payment form to open again.
+
+### Improved compatibility
+- Dashboard: Display block settings even when the Classic Editor plugin is active.
+- Mailchimp Popup widget: Widget deprecation.
+
+### Bug fixes
+- Contact Form: Ensure the form's input fields inherit a default font size.
+- Subscribe Block: Fix default styles block setting selection to "Split".
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: Add Pocket Casts dev block (for internal use only).
+- Creating and verifying a nonce for the Jetpack comments form.
+- E2E tests - bumped dependencies versions.
+- E2E tests: added custom error messages to the expect functions.
+- Janitorial: Refactor classes into shared package.
+- Re-added the jetpack-waf package to update the autoloader files in the composer.lock.
+- Removed eslint dependency which will now be loaded from root directory.
+- Updated package dependencies.
+- PHPCS updates to bring in line with WordPress standards. Files affected include SAL, lib, Custom CSS, JSON endpoints.
+- SEO Tools: Use the new feature eligibility checks for WordPress.com sites.
+- Made changes updating WordPress.com Personal plans to Pro.
+
+## 10.8 - 2022-04-05
+### Enhancements
 - Blocks: make settings discoverable and toggleable, and add a card to highlight the blocks available from Jetpack on the dashboard.
 - Form Block: offer option to install/activate the Jetpack CRM plugin from the Form block settings panel.
 - Payments Block: introduce new post-publish panel to highlight the options available with Payments blocks.
@@ -13,28 +76,35 @@
 ### Improved compatibility
 - Shortcodes: adds the Jetpack namespace to slideshow shortcode CSS class names.
 
+### Bug fixes
+- Carousel: fix nonce check issue with Carousel comments
+- Form Block: do not display the CRM integration option to non-admins.
+- Subscribe Block: ensure subscription panels are not shown in the page editor, or when the site is private.
+
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Subscriptions Block: make the block messages clearer.
-- Payments Block: we now provide a way in which we can propagate the controls to the child blocks.
-- Payment Blocks: Added links to manage subscriptions and fees to the Product Management controls.
-- Payments Button Block: add back the upgrade nudge.
-- Fix ProductManagementControls not being able to open the block settings sidebar on site and widgets editor.
 - Adding language attributes to code blocks.
-- Search: Add search feature to benefits API.
-- Fix VS Code ESLint and prettier config.
-- Removed unneeded calls to Atomic_Plan_Manager.
+- Add support for WordPress.com Pro plan.
 - Add uloggedin parameter for reporting.
+- Assistant: make call-to-actions point to checkout page.
 - Block Form: update required Jetpack CRM version.
 - Documented the `rna` prop of the Button component.
 - E2E tests: improve assertions for sync tests.
+- Fix ProductManagementControls not being able to open the block settings sidebar on site and widgets editor.
+- Fix VS Code ESLint and prettier config.
+- Google Fonts: mark the feature as Beta, and remove toggle from dashboard.
 - Jetpack CRM: adjust banner's wording.
-- Various PHPCS updates.
-- Search: removed migrated tests.
-- Updated package dependencies.
-- Assistant: make call-to-actions point to checkout page.
-- WordPress.com Toolbar: check if function exists before to use it.
-- WordPress.com Toolbar: avoid PHP notices when locale is not defined.
+- Payment Blocks: Added links to manage subscriptions and fees to the Product Management controls.
 - Payments Block: use the product management controls to manage subscriptions. Migrated the Payments Block to a functional component and cleaned up code.
+- Payments Block: we now provide a way in which we can propagate the controls to the child blocks.
+- Payments Button Block: add back the upgrade nudge.
+- Removed unneeded calls to Atomic_Plan_Manager.
+- Search: Add search feature to benefits API.
+- Search: removed migrated tests.
+- Subscriptions Block: make the block messages clearer.
+- Updated package dependencies.
+- Various PHPCS updates.
+- WordPress.com Toolbar: avoid PHP notices when locale is not defined.
+- WordPress.com Toolbar: check if function exists before use.
 
 ## 10.8-a.11 - 2022-03-25
 
