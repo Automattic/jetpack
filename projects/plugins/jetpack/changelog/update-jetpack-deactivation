@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Connection: when deactivating Jetpack from the Plugins screen, do not disconnect other Jetpack-connected plugins.

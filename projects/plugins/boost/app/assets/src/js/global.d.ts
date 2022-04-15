@@ -25,7 +25,7 @@ declare global {
 	const Jetpack_Boost: {
 		preferences: {
 			showRatingPrompt: boolean;
-			paidPlan: boolean;
+			prioritySupport: boolean;
 		};
 		version: string;
 		api: {
@@ -38,6 +38,7 @@ declare global {
 		showRatingPromptNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
+			domain: string;
 			url: string;
 			online: boolean;
 			assetPath: string;
