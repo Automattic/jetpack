@@ -22,6 +22,7 @@ import {
 	SearchInterstitial,
 	VideoPressInterstitial,
 } from './components/product-interstitial';
+import AddLicenseScreen from './components/add-license-screen';
 import './style.module.scss';
 
 initStore();
@@ -40,6 +41,7 @@ const MyJetpack = () => (
 				<Route path="/add-scan" element={ <ScanInterstitial /> } />
 				<Route path="/add-search" element={ <SearchInterstitial /> } />
 				<Route path="/add-videopress" element={ <VideoPressInterstitial /> } />
+				<Route path="/add-license" element={ <AddLicenseScreen /> } />
 			</Routes>
 		</HashRouter>
 	</ThemeProvider>
