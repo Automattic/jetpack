@@ -1,6 +1,6 @@
 {
 	"extends": "@tsconfig/svelte/tsconfig.json",
-	"include": [ "app/assets/src/js/**/*", "../../js-packages/components/**/*" ],
+	"include": [ "app/assets/src/js/**/*" ],
 	"exclude": [ "node_modules/*", "app/assets/dist/*", "tests/e2e/*" ],
 	"compilerOptions": {
 		"types": [ "svelte" ],

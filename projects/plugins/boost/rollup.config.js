@@ -16,7 +16,6 @@ import path from 'path';
 import { babel } from '@rollup/plugin-babel';
 import replace from '@rollup/plugin-replace';
 import json from '@rollup/plugin-json';
-import tsconfig from './tsconfig.json';
 
 const cssGenPath = path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) );
 
@@ -131,8 +130,6 @@ export default {
 		typescript( {
 			sourceMap: ! production,
 			inlineSources: ! production,
-			include: tsconfig.include,
-			jsx: 'react-jsx', // to correctly parse JSX inside tsx filess
 		} ),
 
 		copy( {
