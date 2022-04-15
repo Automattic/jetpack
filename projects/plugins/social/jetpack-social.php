@@ -86,5 +86,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	return;
 }
 
+add_action( 'activated_plugin', array( 'Jetpack_Social', 'plugin_activation' ) );
+
 // Main plugin class.
 new Jetpack_Social();

@@ -13,6 +13,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Publicize\Publicize_UI;
 
@@ -20,6 +21,7 @@ use Automattic\Jetpack\Publicize\Publicize_UI;
  * Class Jetpack_Social
  */
 class Jetpack_Social {
+	const JETPACK_PUBLICIZE_MODULE_SLUG = 'publicize';
 
 	/**
 	 * Constructor.
@@ -67,6 +69,28 @@ class Jetpack_Social {
 		My_Jetpack_Initializer::init();
 
 		new Publicize_UI();
+
+		add_action(
+			'rest_api_init',
+			function () {
+				register_rest_route(
+					'jetpack/v4',
+					'/module/all',
+					array(
+						'methods'  => WP_REST_Server::READABLE,
+						'callback' => function () {
+							return rest_ensure_response(
+								array(
+									'publicize' => array(
+										'activated' => true,
+									),
+								)
+							);
+						},
+					)
+				);
+			}
+		);
 	}
 
 	/**
@@ -129,5 +153,31 @@ class Jetpack_Social {
 		?>
 			<div id="jetpack-social-root"></div>
 		<?php
+	}
+
+	/**
+	 * Activate the Publicize module if necessary.
+	 */
+	public static function activate_publicize_module() {
+		$modules = new Modules();
+
+		if ( $modules->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ) {
+			return;
+		}
+
+		$modules->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG );
+	}
+
+	/**
+	 * Plugin activation.
+	 *
+	 * @static
+	 *
+	 * @param string $plugin Path to the plugin file relative to the plugins directory.
+	 */
+	public static function plugin_activation( $plugin ) {
+		if ( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
+			self::activate_publicize_module();
+		}
 	}
 }
