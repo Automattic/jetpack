@@ -41,7 +41,9 @@ const MyJetpack = () => (
 				<Route path="/add-scan" element={ <ScanInterstitial /> } />
 				<Route path="/add-search" element={ <SearchInterstitial /> } />
 				<Route path="/add-videopress" element={ <VideoPressInterstitial /> } />
-				<Route path="/add-license" element={ <AddLicenseScreen /> } />
+				{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
+					<Route path="/add-license" element={ <AddLicenseScreen /> } />
+				) }
 			</Routes>
 		</HashRouter>
 	</ThemeProvider>
