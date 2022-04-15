@@ -15,7 +15,9 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status;
+use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 
 /**
  * Class Jetpack_Protect
@@ -54,7 +56,25 @@ class Jetpack_Protect {
 					)
 				);
 				// Sync package.
-				$config->ensure( 'sync' );
+				$config->ensure(
+					'sync',
+					array(
+						'jetpack_sync_modules'             => array(
+							'Automattic\\Jetpack\\Sync\\Modules\\Options',
+							'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+						),
+						'jetpack_sync_callable_whitelist'  => array(
+							'get_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+							'get_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
+							'wp_version'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+						),
+						'jetpack_sync_options_contentless' => array(),
+						'jetpack_sync_options_whitelist'   => array(
+							'active_plugins',
+							'stylesheet',
+						),
+					)
+				);
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
@@ -63,6 +83,7 @@ class Jetpack_Protect {
 		);
 
 		My_Jetpack_Initializer::init();
+		Site_Health::init();
 	}
 
 	/**
@@ -114,6 +135,7 @@ class Jetpack_Protect {
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'status'            => Status::get_status(),
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
+			'installedThemes'   => Sync_Functions::get_themes(),
 		);
 	}
 

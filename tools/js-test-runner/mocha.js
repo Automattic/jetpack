@@ -25,10 +25,12 @@ require( '@babel/register' )( {
 		},
 	],
 	presets: [
-		require.resolve( '@babel/preset-react' ),
+		[ require.resolve( '@babel/preset-react' ), { runtime: 'automatic' } ],
 		[ require.resolve( '@babel/preset-env' ), { targets: { node: 'current' } } ],
+		require.resolve( '@babel/preset-typescript' ),
 	],
 	plugins: [ require.resolve( '@babel/plugin-transform-runtime' ) ],
+	extensions: [ '.mjs', '.es', '.es6', '.js', '.jsx', '.ts', '.tsx' ],
 } );
 
 const program = require( 'commander' ),

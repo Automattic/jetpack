@@ -1,7 +1,7 @@
 /**
  * Podcast Player block shared styles (editor & front-end).
  */
-@import '../../shared/styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 $gutter-s: 10px;
 $gutter-m: 15px;

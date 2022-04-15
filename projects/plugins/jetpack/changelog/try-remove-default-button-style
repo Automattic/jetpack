@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Button block: remove default CSS that is overriding core + theme styles.
