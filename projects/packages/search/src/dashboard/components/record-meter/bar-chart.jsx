@@ -52,7 +52,7 @@ const CHART_OPTIONS = {
 
 				labels: {
 					filter: function ( legendItem ) {
-						return ! legendItem.text.includes( __( 'Remaining', 'jetpack-search-pkg' ) );
+						return ! legendItem.text.includes( __( 'remaining', 'jetpack-search-pkg' ) );
 					},
 				},
 			},
