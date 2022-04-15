@@ -37,20 +37,19 @@ class Jetpack_Publicize {
 
 		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( __FILE__ );
-		}
 
-		if ( ! $this->in_jetpack ) {
-			require_once __DIR__ . '/publicize/publicize.php';
-			require_once dirname( __DIR__ ) . '/mu-plugins/keyring/keyring.php';
-			require_once __DIR__ . '/publicize/publicize-wpcom.php';
-			require_once __DIR__ . '/publicize/ui.php';
-			$publicize_ui = new Publicize_UI();
-		}
+			add_action(
+				'jetpack_register_gutenberg_extensions',
+				function () {
+					global $publicize;
+					if ( $publicize->current_user_can_access_publicize_data() ) {
+						Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
+					} else {
+						Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
+					}
+				}
+			);
 
-		$publicize_ui->in_jetpack = $this->in_jetpack;
-
-		// Jetpack specific checks / hooks.
-		if ( $this->in_jetpack ) {
 			// if sharedaddy isn't active, the sharing menu hasn't been added yet.
 			$active = Jetpack::get_active_modules();
 			if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
@@ -90,21 +89,16 @@ class Jetpack_Publicize {
 					}
 				}
 			);
-
-			if ( $this->in_jetpack ) {
-				add_action(
-					'jetpack_register_gutenberg_extensions',
-					function () {
-						global $publicize;
-						if ( $publicize->current_user_can_access_publicize_data() ) {
-							Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
-						} else {
-							Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
-						}
-					}
-				);
-			}
+		} else {
+			require_once __DIR__ . '/publicize/publicize.php';
+			require_once dirname( __DIR__ ) . '/mu-plugins/keyring/keyring.php';
+			require_once __DIR__ . '/publicize/publicize-wpcom.php';
+			require_once __DIR__ . '/publicize/ui.php';
+			$publicize_ui = new Publicize_UI();
 		}
+
+		$publicize_ui->in_jetpack = $this->in_jetpack;
+
 	}
 }
 
