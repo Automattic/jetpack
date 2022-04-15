@@ -182,25 +182,29 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 			$options['active_modules'] = (array) array_values( $active_modules );
 		}
 
-		$options['software_version'] = (string) $this->wp_version();
-		$options['max_upload_size']  = $this->max_upload_size();
-		$options['wp_memory_limit']  = $this->wp_memory_limit();
-		$options['wp_max_memory_limit']  = $this->wp_max_memory_limit();
+		$options['software_version']    = (string) $this->wp_version();
+		$options['max_upload_size']     = $this->max_upload_size();
+		$options['wp_memory_limit']     = $this->wp_memory_limit();
+		$options['wp_max_memory_limit'] = $this->wp_max_memory_limit();
 
 		// Sites have to prove that they are not main_network site.
 		// If the sync happends right then we should be able to see that we are not dealing with a network site.
 		$options['is_multi_network'] = (bool) $this->is_main_network();
 		$options['is_multi_site']    = (bool) $this->is_multisite();
 
-		$file_mod_disabled_reasons = array_keys( array_filter( array(
-			'automatic_updater_disabled'      => (bool) $this->get_constant( 'AUTOMATIC_UPDATER_DISABLED' ),
-			// WP AUTO UPDATE CORE defaults to minor, '1' if true and '0' if set to false.
-			'wp_auto_update_core_disabled'    => ! ( (bool)  $this->get_constant( 'WP_AUTO_UPDATE_CORE' ) ),
-			'is_version_controlled'           => (bool) $this->is_version_controlled(),
-			// By default we assume that site does have system write access if the value is not set yet.
-			'has_no_file_system_write_access' => ! (bool) $this->file_system_write_access(),
-			'disallow_file_mods'              => (bool)  $this->get_constant( 'DISALLOW_FILE_MODS' ),
-		) ) );
+		$file_mod_disabled_reasons = array_keys(
+			array_filter(
+				array(
+					'automatic_updater_disabled'      => (bool) $this->get_constant( 'AUTOMATIC_UPDATER_DISABLED' ),
+					// WP AUTO UPDATE CORE defaults to minor, '1' if true and '0' if set to false.
+					'wp_auto_update_core_disabled'    => ! ( (bool) $this->get_constant( 'WP_AUTO_UPDATE_CORE' ) ),
+					'is_version_controlled'           => (bool) $this->is_version_controlled(),
+					// By default we assume that site does have system write access if the value is not set yet.
+					'has_no_file_system_write_access' => ! (bool) $this->file_system_write_access(),
+					'disallow_file_mods'              => (bool) $this->get_constant( 'DISALLOW_FILE_MODS' ),
+				)
+			)
+		);
 
 		$options['file_mod_disabled'] = empty( $file_mod_disabled_reasons ) ? false : $file_mod_disabled_reasons;
 
@@ -224,7 +228,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 * @return bool
 	 */
 	function is_module_active( $module ) {
-		return in_array ( $module, Jetpack_Options::get_option( 'active_modules', array() ), true );
+		return in_array( $module, Jetpack_Options::get_option( 'active_modules', array() ), true );
 	}
 
 	/**
@@ -281,10 +285,12 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 			return null;
 		}
 
-		$icon = array_filter( array(
-			'img' => wp_get_attachment_image_url( $icon_id, 'full' ),
-			'ico' => wp_get_attachment_image_url( $icon_id, array( 16, 16 ) )
-		) );
+		$icon = array_filter(
+			array(
+				'img' => wp_get_attachment_image_url( $icon_id, 'full' ),
+				'ico' => wp_get_attachment_image_url( $icon_id, array( 16, 16 ) ),
+			)
+		);
 
 		if ( empty( $icon ) ) {
 			return null;
