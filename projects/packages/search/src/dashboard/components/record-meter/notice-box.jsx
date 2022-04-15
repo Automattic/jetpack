@@ -82,18 +82,10 @@ const getNotices = ( planRecordLimit = null ) => {
 export function NoticeBox( props ) {
 	const activeNoticeIds = [];
 	const NOTICES = getNotices( props.planRecordLimit );
-	let notice = activeNoticeIds[ 0 ] ? NOTICES[ activeNoticeIds[ 0 ] ] : [];
 	const [ showNotice, setShowNotice ] = useState( true );
 
 	// deal with localStorage for ensuring dismissed notice boxs are not re-displayed
 	const dismissedNoticesString = localStorage.getItem( DISMISSED_NOTICES ) ?? '';
-
-	const dismissNoticeBox = () => {
-		setShowNotice( false );
-		if ( ! dismissedNoticesString.includes( notice.id ) ) {
-			localStorage.setItem( DISMISSED_NOTICES, dismissedNoticesString + ',' + notice.id );
-		}
-	};
 
 	// check if data is valid
 	props.hasValidData === false &&
@@ -125,11 +117,18 @@ export function NoticeBox( props ) {
 		return null;
 	}
 
-	notice = NOTICES[ activeNoticeIds[ 0 ] ];
+	const notice = NOTICES[ activeNoticeIds[ 0 ] ];
 
 	const noticeBoxClassName = notice.isImportant
 		? 'jp-search-notice-box jp-search-notice-box__important'
 		: 'jp-search-notice-box';
+
+	const dismissNoticeBox = () => {
+		setShowNotice( false );
+		if ( ! dismissedNoticesString.includes( notice.id ) ) {
+			localStorage.setItem( DISMISSED_NOTICES, dismissedNoticesString + notice.id );
+		}
+	};
 
 	return (
 		<SimpleNotice
