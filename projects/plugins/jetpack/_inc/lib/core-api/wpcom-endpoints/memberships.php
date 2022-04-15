@@ -269,8 +269,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			);
 
 			// If we pass directly is_editable as null, it would break API argument validation.
+			// This also needs to be converted to int because boolean false is ignored by add_query_arg.
 			if ( null !== $is_editable ) {
-				$payload['is_editable'] = $is_editable;
+				$payload['is_editable'] = (int) $is_editable;
 			}
 
 			$blog_id = Jetpack_Options::get_option( 'id' );
