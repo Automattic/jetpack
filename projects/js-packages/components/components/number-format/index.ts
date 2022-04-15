@@ -9,7 +9,7 @@ import { getUserLocale } from '../../lib/locale';
  * @param {number} number - The number to format.
  * @returns {string} Formatted number.
  */
-const numberFormat = number => {
+const numberFormat = ( number: number ): string => {
 	const locale = getUserLocale();
 
 	return new Intl.NumberFormat( locale ).format( number );

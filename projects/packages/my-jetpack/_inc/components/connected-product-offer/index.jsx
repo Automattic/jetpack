@@ -73,7 +73,7 @@ const ConnectedProductOffer = ( { slug, onClick, trackButtonClick, ...rest } ) =
 			supportedProducts={ supportedProducts }
 			hasRequiredPlan={ hasRequiredPlan }
 			onAdd={ clickHandler }
-			addProductUrl={ addProductUrl }
+			addProductUrl={ onClick ? undefined : addProductUrl }
 			isLoading={ isFetching }
 			{ ...rest }
 		/>

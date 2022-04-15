@@ -1,0 +1,71 @@
+@import 'scss/_variables';
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	min-height: 100%;
+	margin: 0;
+	padding: 0;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu',
+		'Cantarell', 'Helvetica Neue', sans-serif;
+}
+
+#wpcontent {
+	padding-left: 0 !important;
+}
+
+#screen-meta,
+#screen-meta-links {
+	display: none;
+}
+
+#jp-wordads-dashboard {
+	min-height: 100vh;
+
+	color: $black;
+	font-size: 16px;
+	background-color: $white;
+
+	.jp-wordads-dashboard-page-loading-spinner {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate( -50%, -50% );
+	}
+
+	.jp-masthead__logo-link {
+		pointer-events: none;
+	}
+
+	.jp-wordads-dashboard-top {
+		background-color: #f9f9f6;
+
+		overflow: hidden;
+	}
+
+	.jp-wordads-dashboard-top__title {
+		padding: 2.5em 0;
+		h1 {
+			line-height: 1.111;
+			font-size: 2.25em;
+			margin: 0;
+		}
+	}
+
+	.jp-wordads-dashboard-bottom {
+		background-color: $white;
+	}
+
+	.jp-wordads-dashboard-header,
+	.jp-wordads-dashboard-footer {
+		padding: 2.5em 0;
+
+		background-color: $white;
+	}
+
+	@include for-phone-down {
+		font-size: 14px;
+	}
+}
