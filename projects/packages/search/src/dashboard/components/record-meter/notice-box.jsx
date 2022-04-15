@@ -87,31 +87,37 @@ export function NoticeBox( props ) {
 	// deal with localStorage for ensuring dismissed notice boxs are not re-displayed
 	const dismissedNoticesString = localStorage.getItem( DISMISSED_NOTICES ) ?? '';
 
+	const DATA_NOT_VALID = '1',
+		HAS_NOT_BEEN_INDEXED = '2',
+		NO_INDEXABLE_ITEMS = '3',
+		OVER_RECORD_LIMIT = '4',
+		CLOSE_TO_LIMIT = '5';
+
 	// check if data is valid
 	props.hasValidData === false &&
-		! dismissedNoticesString.includes( '1' ) &&
-		activeNoticeIds.push( '1' );
+		! dismissedNoticesString.includes( DATA_NOT_VALID ) &&
+		activeNoticeIds.push( DATA_NOT_VALID );
 
 	// check site has been indexed
 	props.hasBeenIndexed === false &&
-		! dismissedNoticesString.includes( '2' ) &&
-		activeNoticeIds.push( '2' );
+		! dismissedNoticesString.includes( HAS_NOT_BEEN_INDEXED ) &&
+		activeNoticeIds.push( HAS_NOT_BEEN_INDEXED );
 
 	// check at least one indexable item
 	props.hasItems === false &&
-		! dismissedNoticesString.includes( '3' ) &&
-		activeNoticeIds.push( '3' );
+		! dismissedNoticesString.includes( NO_INDEXABLE_ITEMS ) &&
+		activeNoticeIds.push( NO_INDEXABLE_ITEMS );
 
 	// check if over limit
 	props.recordCount > props.planRecordLimit &&
-		! dismissedNoticesString.includes( '4' ) &&
-		activeNoticeIds.push( '4' );
+		! dismissedNoticesString.includes( OVER_RECORD_LIMIT ) &&
+		activeNoticeIds.push( OVER_RECORD_LIMIT );
 
 	// check if close to reaching limit
 	props.recordCount > props.planRecordLimit * CLOSE_TO_LIMIT_PERCENT &&
 		props.recordCount < props.planRecordLimit &&
-		! dismissedNoticesString.includes( '5' ) &&
-		activeNoticeIds.push( '5' );
+		! dismissedNoticesString.includes( CLOSE_TO_LIMIT ) &&
+		activeNoticeIds.push( CLOSE_TO_LIMIT );
 
 	if ( ! activeNoticeIds || activeNoticeIds.length < 1 || ! showNotice ) {
 		return null;
