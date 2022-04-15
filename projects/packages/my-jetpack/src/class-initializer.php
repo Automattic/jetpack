@@ -126,7 +126,6 @@ class Initializer {
 					'jetpack_my_jetpack_should_enable_add_license_screen',
 					defined( 'JETPACK_ENABLE_MY_JETPACK_LICENSE' ) && JETPACK_ENABLE_MY_JETPACK_LICENSE
 				),
-				'pluginBaseUrl'         => plugins_url( '', __FILE__ ),
 				'rawUrl'                => ( new Status() )->get_site_suffix(),
 				'adminUrl'              => esc_url( admin_url() ),
 			)
