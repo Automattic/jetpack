@@ -36,6 +36,7 @@ const NavigationItem = ( {
 	const hasBadge = Number.isFinite( badge );
 
 	const wrapperClassName = classNames( styles[ 'navigation-item' ], {
+		[ styles.clickable ]: ! disabled,
 		[ styles.selected ]: selected,
 	} );
 
