@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useEffect } from 'react';
-import { AdminSectionHero, AdminPage, Container, Col } from '@automattic/jetpack-components';
+import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -24,22 +24,20 @@ export default function AddLicenseScreen() {
 	}, [] );
 
 	return (
-		<AdminPage showHeader={ false } showBackground={ false } showFooter={ false }>
-			<AdminSectionHero>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col>
-						<GoBackLink onClick={ null } />
-					</Col>
-					<Col>
-						<ActivationScreen
-							siteRawUrl={ window?.myJetpackInitialState?.rawUrl }
-							onActivationSuccess={ undefined }
-							siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
-							currentRecommendationsStep={ null }
-						/>
-					</Col>
-				</Container>
-			</AdminSectionHero>
+		<AdminPage showHeader={ false } showBackground={ false }>
+			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+				<Col>
+					<GoBackLink onClick={ null } />
+				</Col>
+				<Col>
+					<ActivationScreen
+						siteRawUrl={ window?.myJetpackInitialState?.rawUrl }
+						onActivationSuccess={ undefined }
+						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
+						currentRecommendationsStep={ null }
+					/>
+				</Col>
+			</Container>
 		</AdminPage>
 	);
 }
