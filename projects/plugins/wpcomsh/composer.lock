@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "94c2283d1bcb2c16ad1c9347f2629036",
+    "content-hash": "35bc7fb727a7eeb2bf335876fa77dd03",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -81,16 +81,16 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "v1.12.0",
+            "version": "v1.17.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "61d49116e1008be9de29f7079acb8b84fcee7f50"
+                "reference": "0913a0f465ce48926d320322f61a38b0affa11f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/61d49116e1008be9de29f7079acb8b84fcee7f50",
-                "reference": "61d49116e1008be9de29f7079acb8b84fcee7f50",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/0913a0f465ce48926d320322f61a38b0affa11f4",
+                "reference": "0913a0f465ce48926d320322f61a38b0affa11f4",
                 "shasum": ""
             },
             "require": {
@@ -98,21 +98,26 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.2"
+                "brain/monkey": "2.6.1",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
+                "yoast/phpunit-polyfills": "1.0.3"
             },
-            "type": "library",
+            "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-assets",
+                "textdomain": "jetpack-assets",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.12.x-dev"
+                    "dev-master": "1.17.x-dev"
                 }
             },
             "autoload": {
+                "files": [
+                    "actions.php"
+                ],
                 "classmap": [
                     "src/"
                 ]
@@ -123,36 +128,37 @@
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-assets/tree/v1.12.0"
+                "source": "https://github.com/Automattic/jetpack-assets/tree/v1.17.9"
             },
-            "time": "2021-11-15T18:50:31+00:00"
+            "time": "2022-04-05T19:39:05+00:00"
         },
         {
             "name": "automattic/jetpack-config",
-            "version": "v1.5.3",
+            "version": "v1.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-config.git",
-                "reference": "3526c284d3b845d57275fe1f64fbb2c71649b16e"
+                "reference": "6739dd43cb67dbb3456cae5299a2266e08197ec3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-config/zipball/3526c284d3b845d57275fe1f64fbb2c71649b16e",
-                "reference": "3526c284d3b845d57275fe1f64fbb2c71649b16e",
+                "url": "https://api.github.com/repos/Automattic/jetpack-config/zipball/6739dd43cb67dbb3456cae5299a2266e08197ec3",
+                "reference": "6739dd43cb67dbb3456cae5299a2266e08197ec3",
                 "shasum": ""
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
             },
-            "type": "library",
+            "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-config",
+                "textdomain": "jetpack-config",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "1.7.x-dev"
                 }
             },
             "autoload": {
@@ -166,30 +172,30 @@
             ],
             "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-config/tree/v1.5.3"
+                "source": "https://github.com/Automattic/jetpack-config/tree/v1.7.1"
             },
-            "time": "2021-10-13T17:10:55+00:00"
+            "time": "2022-04-06T14:17:07+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "v1.6.11",
+            "version": "v1.6.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-constants.git",
-                "reference": "96edcfa7e81d30a72e6c7f926dec37874821f963"
+                "reference": "f203b7c8ce89760ff8a70abcfbd1308765038fc9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/96edcfa7e81d30a72e6c7f926dec37874821f963",
-                "reference": "96edcfa7e81d30a72e6c7f926dec37874821f963",
+                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/f203b7c8ce89760ff8a70abcfbd1308765038fc9",
+                "reference": "f203b7c8ce89760ff8a70abcfbd1308765038fc9",
                 "shasum": ""
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "brain/monkey": "2.6.0",
-                "yoast/phpunit-polyfills": "1.0.2"
+                "brain/monkey": "2.6.1",
+                "yoast/phpunit-polyfills": "1.0.3"
             },
-            "type": "library",
+            "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-constants",
@@ -211,9 +217,9 @@
             ],
             "description": "A wrapper for defining constants in a more testable way.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-constants/tree/v1.6.11"
+                "source": "https://github.com/Automattic/jetpack-constants/tree/v1.6.15"
             },
-            "time": "2021-11-02T14:07:02+00:00"
+            "time": "2022-01-25T17:38:30+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
@@ -290,16 +296,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v1.8.7",
+            "version": "v1.8.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "291ffd1d9613356332b931a6500688c1c53ea33c"
+                "reference": "f13d7c45b402945003f4f94efa6b09cada9ee616"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/291ffd1d9613356332b931a6500688c1c53ea33c",
-                "reference": "291ffd1d9613356332b931a6500688c1c53ea33c",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/f13d7c45b402945003f4f94efa6b09cada9ee616",
+                "reference": "f13d7c45b402945003f4f94efa6b09cada9ee616",
                 "shasum": ""
             },
             "require": {
@@ -338,7 +344,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2022-02-18T11:01:08+00:00"
+            "time": "2022-04-18T18:29:16+00:00"
         },
         {
             "name": "composer/installers",
@@ -519,5 +525,5 @@
     "platform-dev": {
         "php": ">=7.0.0"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.3.0"
 }
