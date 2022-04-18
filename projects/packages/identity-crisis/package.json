@@ -3,7 +3,11 @@
 	"version": "0.8.7-alpha",
 	"description": "Jetpack Identity Crisis",
 	"main": "_inc/admin.jsx",
-	"repository": "https://github.com/Automattic/jetpack-identity-crisis",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack",
+		"directory": "projects/packages/identity-crisis"
+	},
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
