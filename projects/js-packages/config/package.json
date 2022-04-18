@@ -7,7 +7,11 @@
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Config"
 	},
-	"repository": {},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack",
+		"directory": "projects/js-packages/config"
+	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
