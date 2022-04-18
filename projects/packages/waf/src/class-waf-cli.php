@@ -95,22 +95,14 @@ class CLI extends WP_CLI_Command {
 	 * @throws WP_CLI\ExitException If there is an error switching the mode.
 	 */
 	public function setup( $args ) {
-		if ( ! Waf_Runner::is_allowed_mode( $args[0] ) ) {
+		// Let is_allowed_mode know we are running from the CLI
+		define( 'WAF_CLI_MODE', $args[0] );
 
-			return WP_CLI::error(
-				sprintf(
-					/* translators: %1$s is the mode that was actually found. Also note that the expected "silent" and "normal" are hard-coded strings and must therefore stay the same in any translation. */
-					__( 'Invalid mode: %1$s. Expected "silent" or "normal".', 'jetpack-waf' ),
-					$args[0]
-				)
-			);
-		}
-		// Add the option or update if already exists.
-		if ( ! add_option( Waf_Runner::MODE_OPTION_NAME, $args[0] ) ) {
-			$this->mode( array( $args[0] ) );
-		}
+		// Set the mode and generate the bootstrap
+		$this->mode( array( $args[0] ) );
 
 		try {
+			// Add relevant options and generate the rules.php file
 			Waf_Runner::activate();
 		} catch ( \Exception $e ) {
 
@@ -124,6 +116,22 @@ class CLI extends WP_CLI_Command {
 		}
 
 		return WP_CLI::success( __( 'Jetpack WAF has successfully been setup.', 'jetpack-waf' ) );
+	}
+
+	/**
+	 * Delete the WAF options.
+	 *
+	 * @return void|null
+	 * @throws WP_CLI\ExitException If deactivating has failures.
+	 */
+	public function teardown() {
+		try {
+			Waf_Runner::deactivate();
+		} catch ( \Exception $e ) {
+			WP_CLI::error( __( 'Jetpack WAF failed to fully deactivate.', 'jetpack-waf' ) );
+		}
+
+		return WP_CLI::success( __( 'Jetpack WAF has been deactivated.', 'jetpack-waf' ) );
 	}
 
 	/**

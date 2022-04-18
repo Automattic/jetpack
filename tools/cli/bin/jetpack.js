@@ -7,6 +7,22 @@ import process from 'process';
 import { fileURLToPath } from 'url';
 
 /**
+ * Internal dependencies
+ */
+import { compareComposerVersion } from '../helpers/checkEnvironment.js';
+
+/**
+ * Checks to make sure we're on the right version of composer.
+ */
+try {
+	compareComposerVersion();
+} catch ( error ) {
+	console.error( error );
+	console.error( 'Something unexpected happened. See error above.' );
+	process.exit( 1 );
+}
+
+/**
  * Standardizes the cwd for the process. Allows `jetpack` cli to run correctly from any location in the repo.
  */
 

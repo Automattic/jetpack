@@ -2,6 +2,20 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.11.1 - 2022-04-12
+### Added
+- JS Components: Add Dialog component.
+- JS Components: Add ProductDetailCard component.
+- JS Components: Add ProductPrice component.
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Button: Fix export, external link target and padding.
+- JS Components: fix className prop in Button component.
+- RNA: fix ProductOffer button loading state issue.
+
 ## 0.11.0 - 2022-04-05
 ### Added
 - Components: add Button component.

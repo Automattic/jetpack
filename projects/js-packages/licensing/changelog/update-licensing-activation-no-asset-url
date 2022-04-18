@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Moved licensing images into licensing package to minimize external dependencies.

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added hooks for generating the rules.php file. Combined new functionality with the waf runner. Updated class names to Snake_Case.

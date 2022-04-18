@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-licensing",
-	"version": "0.4.14-alpha",
+	"version": "0.4.15-alpha",
 	"description": "Jetpack licensing flow",
 	"homepage": "https://jetpack.com",
 	"bugs": {
@@ -24,7 +24,7 @@
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-test-renderer": "17.0.2",
-		"@automattic/jetpack-base-styles": "workspace:* || ^0.2"
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.3"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
@@ -37,7 +37,7 @@
 		"./action-types": "./src/state/action-types"
 	},
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:* || ^0.11",
+		"@automattic/jetpack-api": "workspace:* || ^0.12",
 		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@wordpress/i18n": "4.6.0",
 		"@wordpress/element": "4.4.0",

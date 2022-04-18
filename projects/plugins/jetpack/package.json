@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "10.9.0-a.2",
+	"version": "10.9.0-a.6",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -49,7 +49,7 @@
 		"@automattic/components": "1.0.0-alpha.3",
 		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
-		"@automattic/jetpack-api": "workspace:* || ^0.11",
+		"@automattic/jetpack-api": "workspace:* || ^0.12",
 		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@automattic/jetpack-connection": "workspace:* || ^0.17",
 		"@automattic/jetpack-licensing": "workspace:* || ^0.4",
@@ -77,7 +77,6 @@
 		"@wordpress/widgets": "2.4.0",
 		"bounding-client-rect": "1.0.5",
 		"classnames": "2.3.1",
-		"click-outside": "2.0.2",
 		"clipboard": "2.0.6",
 		"component-uid": "0.0.2",
 		"cookie": "0.4.1",
@@ -128,7 +127,7 @@
 	},
 	"devDependencies": {
 		"@automattic/color-studio": "2.5.0",
-		"@automattic/jetpack-base-styles": "workspace:* || ^0.2",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
 		"@automattic/remove-asset-webpack-plugin": "workspace:* || ^1.0",
 		"@babel/core": "7.17.9",
@@ -147,6 +146,8 @@
 		"@testing-library/react": "11.2.7",
 		"@testing-library/react-hooks": "4.0.1",
 		"@testing-library/user-event": "12.8.3",
+		"@types/react": "17.0.40",
+		"@types/react-redux": "7.1.23",
 		"@wordpress/babel-plugin-import-jsx-pragma": "3.1.2",
 		"@wordpress/components": "19.8.0",
 		"@wordpress/core-data": "4.4.0",
@@ -184,6 +185,7 @@
 		"sinon-chai": "3.7.0",
 		"size-limit": "5.0.5",
 		"style-loader": "2.0.0",
+		"typescript": "4.3.5",
 		"url-loader": "4.1.1"
 	},
 	"optionalDependencies": {
