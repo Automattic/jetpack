@@ -105,8 +105,8 @@ importers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@babel/core': 7.17.9
       '@babel/preset-react': 7.16.7
+      '@testing-library/react': 11.2.7
       '@types/chai': 4.3.0
-      '@types/enzyme': 3.10.11
       '@types/jest': 27.4.1
       '@types/react': 17.0.40
       '@types/react-dom': 17.0.13
@@ -141,8 +141,8 @@ importers:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.17.9
       '@babel/preset-react': 7.16.7_@babel+core@7.17.9
+      '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@types/chai': 4.3.0
-      '@types/enzyme': 3.10.11
       '@types/jest': 27.4.1
       '@types/react': 17.0.40
       '@types/react-dom': 17.0.13
@@ -7877,13 +7877,6 @@ packages:
 
   /@types/color-name/1.1.1:
     resolution: {integrity: sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==}
-    dev: true
-
-  /@types/enzyme/3.10.11:
-    resolution: {integrity: sha512-LEtC7zXsQlbGXWGcnnmOI7rTyP+i1QzQv4Va91RKXDEukLDaNyxu0rXlfMiGEhJwfgTPCTb0R+Pnlj//oM9e/w==}
-    dependencies:
-      '@types/cheerio': 0.22.31
-      '@types/react': 18.0.1
     dev: true
 
   /@types/eslint-scope/3.7.3:

@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import ShallowRenderer from 'react-test-renderer/shallow';
+import { render } from '@testing-library/react';
 
 /**
  * Internal dependencies
@@ -19,48 +18,43 @@ describe( 'RecordMeterBar', () => {
 			{ count: 24, label: 'Authors', backgroundColor: '#3859BA' },
 		],
 	};
-
-	const renderer = ShallowRenderer.createRenderer();
-
 	it( 'renders nothing when no items are passed', () => {
-		renderer.render( <RecordMeterBar items={ [] } /> );
+		const { container } = render( <RecordMeterBar items={ [] } /> );
 
-		expect( renderer.getRenderOutput() ).to.be.equal( null );
+		expect( container.querySelector( '.record-meter-bar__items' ).children.length ).to.be.equal(
+			0
+		);
 	} );
 
 	it( 'renders the bar when NO totalCount is passed', () => {
-		renderer.render( <RecordMeterBar { ...testProps } /> );
-		const wrapper = shallow( renderer.getRenderOutput() );
+		const { container } = render( <RecordMeterBar { ...testProps } /> );
 
-		expect( wrapper.find( '.record-meter-bar__items' ).render().children().length ).to.be.equal(
+		expect( container.querySelector( '.record-meter-bar__items' ).children.length ).to.be.equal(
 			4
 		);
 	} );
 
 	it( 'renders the bar when totalCount IS passed', () => {
-		renderer.render( <RecordMeterBar { ...testProps } totalCount={ 200 } /> );
-		const wrapper = shallow( renderer.getRenderOutput() );
+		const { container } = render( <RecordMeterBar { ...testProps } totalCount={ 200 } /> );
 
-		expect( wrapper.find( '.record-meter-bar__items' ).render().children().length ).to.be.equal(
+		expect( container.querySelector( '.record-meter-bar__items' ).children.length ).to.be.equal(
 			4
 		);
 	} );
 
 	it( 'renders the legend when NO totalCount is passed', () => {
-		renderer.render( <RecordMeterBar { ...testProps } /> );
-		const wrapper = shallow( renderer.getRenderOutput() );
+		const { container } = render( <RecordMeterBar { ...testProps } /> );
 
 		expect(
-			wrapper.find( '.record-meter-bar__legend--items' ).render().children().length
+			container.querySelector( '.record-meter-bar__legend--items' ).children.length
 		).to.be.equal( 4 );
 	} );
 
 	it( 'renders the legend when totalCount IS passed', () => {
-		renderer.render( <RecordMeterBar { ...testProps } totalCount={ 200 } /> );
-		const wrapper = shallow( renderer.getRenderOutput() );
+		const { container } = render( <RecordMeterBar { ...testProps } totalCount={ 200 } /> );
 
 		expect(
-			wrapper.find( '.record-meter-bar__legend--items' ).render().children().length
+			container.querySelector( '.record-meter-bar__legend--items' ).children.length
 		).to.be.equal( 4 );
 	} );
 } );
