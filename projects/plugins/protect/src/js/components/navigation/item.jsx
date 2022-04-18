@@ -2,8 +2,6 @@
  * External dependencies
  */
 import React, { useContext, useEffect, useCallback } from 'react';
-import { Text } from '@automattic/jetpack-components';
-import { Icon } from '@wordpress/icons';
 import classNames from 'classnames';
 
 /**
@@ -11,6 +9,8 @@ import classNames from 'classnames';
  */
 import styles from './styles.module.scss';
 import { NavigationContext } from './use-menu-navigation';
+import ItemLabel from './label';
+import ItemBadge from './badge';
 
 const NavigationItem = ( {
 	id,
@@ -80,21 +80,8 @@ const NavigationItem = ( {
 			tabIndex={ disabled ? -1 : 0 }
 			ref={ handleRef }
 		>
-			<Text className={ styles[ 'navigation-item-label' ] }>
-				{ icon && (
-					<Icon icon={ icon } className={ styles[ 'navigation-item-icon' ] } size={ 28 } />
-				) }
-				{ label }
-			</Text>
-			{ Boolean( vuls ) && (
-				<Text
-					variant="body-extra-small"
-					className={ styles[ 'navigation-item-badge' ] }
-					component="div"
-				>
-					{ vuls }
-				</Text>
-			) }
+			<ItemLabel icon={ icon }>{ label }</ItemLabel>
+			{ Boolean( vuls ) && <ItemBadge>{ vuls }</ItemBadge> }
 		</li>
 	);
 };
