@@ -140,6 +140,11 @@ for PROJECT in projects/*/*; do
 			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["homepage"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
 			echo "::error file=$PROJECT/package.json$LINE::Homepage should be set to somewhere within the package. Something like \"https://github.com/Automattic/jetpack/tree/HEAD/$PROJECT/#readme\" would make more sense."
 		fi
+		if [[ "$HP" == "https://github.com/Automattic/"* && ! "$HP" =~ ^https://github.com/Automattic/jetpack($|[/?#]) ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["homepage"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json$LINE::Homepage should probably not point to a mirror repo. Pointing to the monorepo, like \"https://github.com/Automattic/jetpack/tree/HEAD/$PROJECT/#readme\", would make navigation from npmjs.com easier."
+		fi
 	fi
 
 	# - package.json bugs.url, if set, should make sense.
@@ -160,6 +165,11 @@ for PROJECT in projects/*/*; do
 			else
 				echo "::error file=$PROJECT/package.json$LINE::The \`.bugs.url\` appears to be pointing to the wrong label. Try \"$URL2\" instead."
 			fi
+		fi
+		if [[ "$URL" == "https://github.com/Automattic/"* && "$URL" != "https://github.com/Automattic/jetpack/"* ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["homepage"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json$LINE::Bug tracking is disabled in the mirror repos. Point to the monorepo label \"$URL2\" instead."
 		fi
 	fi
 
