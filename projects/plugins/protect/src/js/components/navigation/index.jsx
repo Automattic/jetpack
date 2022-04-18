@@ -8,6 +8,7 @@ import React from 'react';
  */
 import styles from './styles.module.scss';
 import NavigationItem from './item';
+import NavigationGroup from './group';
 import useMenuNavigation, { NavigationContext } from './use-menu-navigation';
 
 const Navigation = ( { children } ) => {
@@ -22,4 +23,4 @@ const Navigation = ( { children } ) => {
 	);
 };
 
-export { Navigation, NavigationItem };
+export { Navigation, NavigationItem, NavigationGroup };

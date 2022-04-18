@@ -2,18 +2,19 @@
  * External dependencies
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Text } from '@automattic/jetpack-components';
 import { Icon } from '@wordpress/icons';
-import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
 import styles from './styles.module.scss';
 
-const ItemLabel = ( { icon, children } ) => {
+const ItemLabel = ( { icon, children, className } ) => {
 	return (
-		<Text className={ styles[ 'navigation-item-label' ] }>
+		<Text className={ classNames( styles[ 'navigation-item-label' ], className ) }>
 			{ icon && <Icon icon={ icon } className={ styles[ 'navigation-item-icon' ] } size={ 28 } /> }
 			{ children }
 		</Text>

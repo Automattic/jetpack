@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Navigation, NavigationItem } from '..';
+import { Navigation, NavigationItem, NavigationGroup } from '..';
 
 export default {
 	title: 'Plugins/Protect/Navigation',
@@ -39,12 +39,19 @@ export const Default = () => (
 			icon={ wordpress }
 			vuls={ 12 }
 		/>
-		<NavigationItem
+		<NavigationGroup
 			id="plugins"
 			label={ __( 'Plugins', 'jetpack-protect' ) }
 			icon={ plugins }
 			disabled
-		/>
+		>
+			<NavigationItem id="jetpack" label={ __( 'Jetpack', 'jetpack-protect' ) } vuls={ 9 } />
+			<NavigationItem
+				id="jetpack-backup"
+				label={ __( 'Jetpack Backup', 'jetpack-protect' ) }
+				vuls={ 9 }
+			/>
+		</NavigationGroup>
 		<NavigationItem
 			id="themes"
 			label={ __( 'Themes', 'jetpack-protect' ) }
