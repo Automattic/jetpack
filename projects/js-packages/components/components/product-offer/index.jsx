@@ -40,7 +40,7 @@ function ProductOfferHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
  * @param {Array} props.products - List of supported products.
  * @returns {React.Component}    Bundle product icons react component.
  */
-function ProductIcons( { products } ) {
+function CardIcons( { products } ) {
 	return (
 		<div className={ styles[ 'product-bundle-icons' ] }>
 			{ products.map( ( product, index ) => {
@@ -120,7 +120,7 @@ const ProductOffer = ( {
 			{ isBundle && <ProductOfferHeader /> }
 
 			<div className={ styles[ 'card-container' ] }>
-				<ProductIcons
+				<CardIcons
 					slug={ slug }
 					products={ supportedProducts?.length ? supportedProducts : [ slug ] }
 				/>
