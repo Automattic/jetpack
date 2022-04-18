@@ -10,7 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Text, { H3 } from '../text/index.jsx';
+import Text, { H3, Title } from '../text/index.jsx';
 import { getIconBySlug, CheckmarkIcon } from '../product-icons/index.jsx';
 import ProductPrice from '../product-price/index.jsx';
 import styles from './style.module.scss';
@@ -72,6 +72,7 @@ function ProductIcons( { products } ) {
  * @param {object} props                  - Component props.
  * @param {string} props.slug             - Product slug.
  * @param {string} props.title 			  - Product title.
+ * @param {string} props.subTitle 		  - Product sub-title.
  * @param {string} props.description      - Product description.
  * @param {Array}  props.features         - Features list of the product.
  * @param {boolean} props.isCard          - Add the styles to look like a card.
@@ -90,6 +91,7 @@ const ProductOffer = ( {
 	className,
 	slug,
 	title,
+	subTitle,
 	description,
 	features,
 	isCard,
@@ -123,7 +125,8 @@ const ProductOffer = ( {
 					products={ supportedProducts?.length ? supportedProducts : [ slug ] }
 				/>
 				<H3>{ title }</H3>
-				<Text mb={ 3 }>{ description }</Text>
+				{ subTitle && <Title mb={ 3 }>{ subTitle }</Title> }
+				{ description && <Text mb={ 3 }>{ description }</Text> }
 
 				<ul className={ styles.features }>
 					{ features.map( ( feature, id ) => (
@@ -168,6 +171,7 @@ ProductOffer.propTypes = {
 	slug: PropTypes.string.isRequired,
 	name: PropTypes.string,
 	title: PropTypes.string,
+	subTitle: PropTypes.string,
 	description: PropTypes.string,
 	features: PropTypes.arrayOf( PropTypes.string ),
 	pricing: PropTypes.object,
