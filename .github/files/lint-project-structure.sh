@@ -288,7 +288,7 @@ for PROJECT in projects/*/*; do
 		if ! jq -e '.homepage' "$PROJECT/package.json" >/dev/null; then
 			EXIT=1
 			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-			echo "::error file=$PROJECT/package.json::Package $SLUG is published to npmjs but does not specify \`.homepage\`.%0A\`\`\`\"homepage\": \"https://github.com/Automattic/jetpack/tree/HEAD/$PROJECT/#readme\",%0A\`\`\`"
+			echo "::error file=$PROJECT/package.json::Package $SLUG is published to npmjs but does not specify \`.homepage\`.%0A\`\`\`%0A\"homepage\": \"https://github.com/Automattic/jetpack/tree/HEAD/$PROJECT/#readme\",%0A\`\`\`"
 			echo "---"
 		fi
 		if ! jq -e '.bugs.url' "$PROJECT/package.json" >/dev/null; then
