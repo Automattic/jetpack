@@ -70,7 +70,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.12.x-dev"
+			"dev-master": "0.13.x-dev"
 		},
 		"version-constants": {
 			"::VERSION": "src/class-package.php"

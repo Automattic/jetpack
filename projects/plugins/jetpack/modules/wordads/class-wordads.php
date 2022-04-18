@@ -212,7 +212,8 @@ class WordAds {
 			$ads_txt_transient = get_transient( 'wordads_ads_txt' );
 
 			if ( false === ( $ads_txt_transient ) ) {
-				$ads_txt_transient = ! is_wp_error( WordAds_API::get_wordads_ads_txt() ) ? WordAds_API::get_wordads_ads_txt() : '';
+				$wordads_ads_txt   = WordAds_API::get_wordads_ads_txt();
+				$ads_txt_transient = is_wp_error( $wordads_ads_txt ) ? '' : $wordads_ads_txt;
 				set_transient( 'wordads_ads_txt', $ads_txt_transient, DAY_IN_SECONDS );
 			}
 

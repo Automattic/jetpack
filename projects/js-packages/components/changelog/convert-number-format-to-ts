@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Converted numberFormat to TypeScript

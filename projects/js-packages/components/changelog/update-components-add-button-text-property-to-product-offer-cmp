@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+RNA: Add buttonText property to the ProductOffer component

@@ -1,5 +1,11 @@
 <?php
 /**
+ * Theme Tools: functions for Featured Images fallback.
+ *
+ * @package automattic/jetpack
+ */
+
+/**
  * Get one image from a specified post in the following order:
  * Featured Image then first image from the_content HTML
  * and filter the post_thumbnail_html
@@ -12,7 +18,7 @@
  *
  * @return string      $html              Thumbnail image with markup.
  */
-function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
+function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thumbnail_id, $size, $attr ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	$opts = jetpack_featured_images_get_settings();
 
 	if ( ! empty( $html ) || (bool) 1 !== (bool) $opts['fallback-option'] ) {
@@ -54,10 +60,10 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 
 			$image_src = Jetpack_PostImages::fit_image_url( $image['src'], $image['width'], $image['height'] );
 
-			// Use the theme's crop setting rather than forcing to true
+			// Use the theme's crop setting rather than forcing to true.
 			$image_src = add_query_arg( 'crop', $image['crop'], $image_src );
 
-			$html = '<img src="' . esc_url( $image_src ) . '" title="' . esc_attr( strip_tags( get_the_title() ) ) . '" class="attachment-' . esc_attr( $size ) . ' wp-post-image" />';
+			$html = '<img src="' . esc_url( $image_src ) . '" title="' . esc_attr( wp_strip_all_tags( get_the_title() ) ) . '" class="attachment-' . esc_attr( $size ) . ' wp-post-image" />';
 
 			return trim( $html );
 		}
@@ -118,7 +124,7 @@ function jetpack_featured_images_fallback_get_image_src( $post_id, $post_thumbna
 
 			$image_src = Jetpack_PostImages::fit_image_url( $image['src'], $image['width'], $image['height'] );
 
-			// Use the theme's crop setting rather than forcing to true
+			// Use the theme's crop setting rather than forcing to true.
 			$image_src = add_query_arg( 'crop', $image['crop'], $image_src );
 
 			return esc_url( $image_src );
@@ -144,7 +150,7 @@ function jetpack_has_featured_image( $post = null ) {
  *
  * @param array $classes Classes for the post element.
  * @param array $class   Optional. Comma separated list of additional classes.
- * @param array $post_id Unique The post ID to check
+ * @param array $post_id Unique The post ID to check.
  *
  * @return array $classes
  */
