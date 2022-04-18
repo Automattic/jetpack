@@ -4,16 +4,17 @@
 	"version": "0.1.0-alpha",
 	"description": "Earn income by allowing Jetpack to display high quality ads.",
 	"main": "main.js",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wordads/#readme",
 	"directories": {
 		"test": "tests"
 	},
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Wordads"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/wordads"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

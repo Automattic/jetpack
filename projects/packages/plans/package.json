@@ -5,11 +5,12 @@
 	"description": "Fetch information about Jetpack Plans from wpcom",
 	"homepage": "https://jetpack.com/pricing",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Plans"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/plans"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
