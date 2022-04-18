@@ -37,10 +37,20 @@ function ProductOfferHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
  * based on the list of supported products.
  *
  * @param {object} props         - Component props.
+ * @param {Array} props.icon     - Custom icon slug.
  * @param {Array} props.products - List of supported products.
- * @returns {React.Component}    Bundle product icons react component.
+ * @returns {React.Component}      Bundle product icons react component.
  */
-function CardIcons( { products } ) {
+function CardIcons( { products, icon } ) {
+	if ( icon ) {
+		const CustomIcon = getIconBySlug( icon );
+		return (
+			<div className={ styles[ 'product-bundle-icons' ] }>
+				<CustomIcon size={ 32 } />
+			</div>
+		);
+	}
+
 	return (
 		<div className={ styles[ 'product-bundle-icons' ] }>
 			{ products.map( ( product, index ) => {
@@ -71,6 +81,7 @@ function CardIcons( { products } ) {
  *
  * @param {object} props                  - Component props.
  * @param {string} props.slug             - Product slug.
+ * @param {string} props.icon 			  - Custom Icon slug.
  * @param {string} props.title 			  - Product title.
  * @param {string} props.subTitle 		  - Product sub-title.
  * @param {string} props.description      - Product description.
@@ -91,6 +102,7 @@ const ProductOffer = ( {
 	className,
 	slug,
 	title,
+	icon,
 	subTitle,
 	description,
 	features,
@@ -122,6 +134,7 @@ const ProductOffer = ( {
 			<div className={ styles[ 'card-container' ] }>
 				<CardIcons
 					slug={ slug }
+					icon={ icon }
 					products={ supportedProducts?.length ? supportedProducts : [ slug ] }
 				/>
 				<H3>{ title }</H3>
@@ -170,6 +183,9 @@ const ProductOffer = ( {
 ProductOffer.propTypes = {
 	slug: PropTypes.string.isRequired,
 	name: PropTypes.string,
+
+	/** Custom icon slug */
+	icon: PropTypes.string,
 	/** Product title. Primary heading */
 	title: PropTypes.string,
 

@@ -26,6 +26,7 @@ export const SecurityBundle = Template.bind( {} );
 SecurityBundle.parameters = {};
 SecurityBundle.args = {
 	slug: 'security',
+	icon: '',
 	name: 'Security',
 	title: 'Security',
 	subTitle: '',
@@ -54,6 +55,7 @@ export const JetpackBackup = Template.bind( {} );
 JetpackBackup.parameters = {};
 JetpackBackup.args = {
 	slug: 'backup',
+	icon: '',
 	name: 'Backup',
 	title: 'Jepack Backup',
 	subTitle: '',
@@ -81,6 +83,7 @@ export const JetpackProtect = Template.bind( {} );
 JetpackProtect.parameters = {};
 JetpackProtect.args = {
 	slug: 'protect',
+	icon: 'jetpack',
 	title: 'Protect',
 	subTitle: 'Protect your site and scan for security vulnerabilities listed in our database.',
 	features: [
