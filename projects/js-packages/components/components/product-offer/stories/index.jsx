@@ -82,7 +82,7 @@ JetpackProtect.parameters = {};
 JetpackProtect.args = {
 	slug: 'protect',
 	title: 'Protect',
-	description: 'Protect your site and scan for security vulnerabilities listed in our database.',
+	subTitle: 'Protect your site and scan for security vulnerabilities listed in our database.',
 	features: [
 		'Over 20,000 listed vulnerabilities',
 		'Daily automatic scans',
