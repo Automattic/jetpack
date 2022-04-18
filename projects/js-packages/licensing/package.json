@@ -5,11 +5,12 @@
 	"description": "Jetpack licensing flow",
 	"homepage": "https://jetpack.com",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/%5BJS%20Package%5D%20Licensing"
 	},
 	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"type": "notgit",
+		"url": "https://github.com/Automattic/jetpack-licensing",
+		"directory": "???"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

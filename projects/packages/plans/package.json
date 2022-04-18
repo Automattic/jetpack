@@ -3,7 +3,7 @@
 	"name": "@automattic/jetpack-plans",
 	"version": "0.1.0-alpha",
 	"description": "Fetch information about Jetpack Plans from wpcom",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://jetpack.com/pricing",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},

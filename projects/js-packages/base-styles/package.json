@@ -2,14 +2,11 @@
 	"name": "@automattic/jetpack-base-styles",
 	"version": "0.3.0-alpha",
 	"description": "Jetpack components base styles",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack.git",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
-	},
+	"repository": "https://github.com/Automattic/jetpack",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {

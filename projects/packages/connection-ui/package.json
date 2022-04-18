@@ -3,7 +3,7 @@
 	"version": "2.4.0-alpha",
 	"description": "Jetpack Connection Manager UI",
 	"main": "_inc/admin.jsx",
-	"repository": "https://github.com/Automattic/jetpack-connection-ui",
+	"repository": "https://github.com/Automattic/jetpack",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
