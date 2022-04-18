@@ -60,6 +60,7 @@ class Jetpack_Social {
 
 				// Publicize package.
 				$config->ensure( 'publicize' );
+
 			},
 			1
 		);
@@ -94,7 +95,7 @@ class Jetpack_Social {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-social', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-social', $this->render_initial_state(), 'before' );
-
+		$this->load_publicize_connections();
 	}
 
 	/**
@@ -123,8 +124,26 @@ class Jetpack_Social {
 	 * Main plugin settings page.
 	 */
 	public function plugin_settings_page() {
+		$connections = $this->load_publicize_connections();
+		// TODO: Build a UI to list the connections.
+		foreach ( $connections as $connection ) {
+			// phpcs:ignore
+			if ( $connection ) {
+
+			}
+		}
 		?>
 			<div id="jetpack-social-root"></div>
 		<?php
 	}
+
+	/**
+	 * Function to list the publicize connections.
+	 */
+	public function load_publicize_connections() {
+		global $publicize;
+
+		return $publicize->get_all_connections_for_user();
+	}
+
 }
