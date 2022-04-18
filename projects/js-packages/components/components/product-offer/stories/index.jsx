@@ -28,6 +28,7 @@ SecurityBundle.args = {
 	slug: 'security',
 	name: 'Security',
 	title: 'Security',
+	subTitle: '',
 	description: 'Comprehensive site security, including Backup, Scan, and Anti-spam.',
 	isBundle: true,
 	isCard: true,
@@ -43,10 +44,10 @@ SecurityBundle.args = {
 		price: 24.92,
 		offPrice: 12.42,
 	},
+	buttonText: '',
 	addProductUrl: '',
 	hasRequiredPlan: false,
 	isLoading: false,
-	buttonText: '',
 };
 
 export const JetpackBackup = Template.bind( {} );
@@ -55,6 +56,7 @@ JetpackBackup.args = {
 	slug: 'backup',
 	name: 'Backup',
 	title: 'Jepack Backup',
+	subTitle: '',
 	description:
 		'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.',
 	features: [

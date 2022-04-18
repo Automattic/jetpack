@@ -188,6 +188,8 @@ ProductOffer.propTypes = {
 
 ProductOffer.defaultProps = {
 	trackButtonClick: () => {},
+	title: '',
+	subTitle: '',
 	isBundle: false,
 	pricing: {},
 	onAdd: () => {},
