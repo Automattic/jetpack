@@ -70,14 +70,14 @@ const DefaultArgs = {};
 export const Default = Template.bind( {} );
 Default.args = DefaultArgs;
 
-export const HeadlineMedium = TemplateH2.bind( {} );
-HeadlineMedium.storyName = 'H2';
-HeadlineMedium.args = {
+export const HeadlineH2 = TemplateH2.bind( {} );
+HeadlineH2.storyName = 'H2';
+HeadlineH2.args = {
 	weight: 'bold',
 };
 
-export const HeadlineSmall = TemplateH3.bind( {} );
-HeadlineSmall.storyName = 'H3';
-HeadlineSmall.args = {
+export const HeadlineH3 = TemplateH3.bind( {} );
+HeadlineH3.storyName = 'H3';
+HeadlineH3.args = {
 	weight: 'bold',
 };

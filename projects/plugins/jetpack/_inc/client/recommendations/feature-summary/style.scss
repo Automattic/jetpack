@@ -28,6 +28,10 @@
 	padding-left: 12px;
 
 	font-size: $font-body;
+
+	.jp-recommendations__new-badge {
+		margin-left: 1rem;
+	}
 }
 
 .jp-recommendations-summary .jp-recommendations-feature-summary__display-name a {

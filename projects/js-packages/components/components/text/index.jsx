@@ -32,11 +32,43 @@ export const TIPOGRAPHY_SIZES = {
 	small: 'small',
 };
 
+export const BOX_MODEL_VALUES = [
+	'mt',
+	'mr',
+	'mb',
+	'ml',
+	'mx',
+	'my',
+	'm',
+	'pt',
+	'pr',
+	'pb',
+	'pl',
+	'px',
+	'py',
+	'p',
+];
+
+export const SPACING_VALUES = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
+
 const Text = ( { variant, children, component, className, ...componentProps } ) => {
 	const Component = component || VARIANTS_MAPPING[ variant ] || 'span';
-	const componentClassName = classNames( styles[ variant ], className );
+
+	// Build Styles module CSS classnames.
+	const boxModelClasses = BOX_MODEL_VALUES.reduce( ( acc, value ) => {
+		if ( typeof componentProps[ value ] !== 'undefined' ) {
+			acc += styles[ `${ value }-${ componentProps[ value ] }` ] + ' ';
+			// pick spacing prop. Do not pass down to Component.
+			delete componentProps[ value ];
+		}
+		return acc;
+	}, '' );
+
 	return (
-		<Component className={ componentClassName } { ...componentProps }>
+		<Component
+			className={ classNames( styles[ variant ], className, boxModelClasses ) }
+			{ ...componentProps }
+		>
 			{ children }
 		</Component>
 	);
@@ -45,6 +77,34 @@ const Text = ( { variant, children, component, className, ...componentProps } ) 
 Text.propTypes = {
 	/** Variant name, based on our pre-defined names and design names. */
 	variant: PropTypes.oneOf( Object.keys( VARIANTS_MAPPING ) ),
+	/** margin */
+	m: PropTypes.oneOf( SPACING_VALUES ),
+	/** margin-top */
+	mt: PropTypes.oneOf( SPACING_VALUES ),
+	/** margin-right */
+	mr: PropTypes.oneOf( SPACING_VALUES ),
+	/** margin-bottom */
+	mb: PropTypes.oneOf( SPACING_VALUES ),
+	/** margin-left */
+	ml: PropTypes.oneOf( SPACING_VALUES ),
+	/** margin left and right */
+	mx: PropTypes.oneOf( SPACING_VALUES ),
+	/** margin top and bottom */
+	my: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding */
+	p: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding-top */
+	pt: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding-right */
+	pr: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding-bottom */
+	pb: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding-left */
+	pl: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding left and right */
+	px: PropTypes.oneOf( SPACING_VALUES ),
+	/** padding top and bottom */
+	py: PropTypes.oneOf( SPACING_VALUES ),
 	/** The text itself that will be rendered. */
 	children: PropTypes.node,
 	/** Force an specific tag (span, div) or use a custom component that will receive className and children */
@@ -63,10 +123,15 @@ export default Text;
  * Heading component - Medium size.
  *
  * @param {object} props                   - Component props.
+ * @param {object} props.componentProps    - Component props.
  * @param {React.Component} props.children - Heading component children.
  * @returns {React.Component}                Headline Medium size instance.
  */
-export const H2 = ( { children } ) => <Text variant="headline-medium">{ children }</Text>;
+export const H2 = ( { children, ...componentProps } ) => (
+	<Text variant="headline-medium" mb={ 3 } { ...componentProps }>
+		{ children }
+	</Text>
+);
 
 H2.propTypes = {
 	/** The text itself that will be rendered. */
@@ -83,16 +148,18 @@ H2.defaultProps = {
  *
  * @param {object} props                   - Component props.
  * @param {string} props.weight            - Font weight: 'bold' (default) | 'regular'.
+ * @param {object} props.componentProps    - Component props.
  * @param {React.Component} props.children - Heading component children.
  * @returns {React.Component}                Headline Small size instance.
  */
-export const H3 = ( { children, weight = 'bold' } ) => {
+export const H3 = ( { children, weight = 'bold', ...componentProps } ) => {
 	weight = weight === 'bold' ? '' : weight;
 
 	return (
 		<Text
 			variant={ `headline-small${ weight?.length ? `-${ weight }` : '' }` }
-			className={ styles[ 'headline-small' ] }
+			mb={ 3 }
+			{ ...componentProps }
 		>
 			{ children }
 		</Text>
@@ -116,11 +183,12 @@ H3.defaultProps = {
  *
  * @param {object} props                   - Component props.
  * @param {React.Component} props.size     - Heading size: 'medium' (default) | 'small'.
+ * @param {object} props.componentProps    - Component props.
  * @param {React.Component} props.children - Heading component children.
  * @returns {React.Component}                Headline level 2 component instance.
  */
-export const Title = ( { children, size = 'medium' } ) => (
-	<Text variant={ `title-${ size }` } className={ styles[ `title-${ size }` ] }>
+export const Title = ( { children, size = 'medium', ...componentProps } ) => (
+	<Text variant={ `title-${ size }` } mb={ 1 } { ...componentProps }>
 		{ children }
 	</Text>
 );

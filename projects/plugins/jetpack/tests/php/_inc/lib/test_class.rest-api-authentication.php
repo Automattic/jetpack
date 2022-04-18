@@ -189,7 +189,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$response          = $this->server->dispatch( $this->request );
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
-		$this->assertEquals( 'Protect', $data['name'] );
+		$this->assertEquals( 'Brute force protection', $data['name'] );
 		$this->assertEquals( self::$admin_id, get_current_user_id() );
 	}
 

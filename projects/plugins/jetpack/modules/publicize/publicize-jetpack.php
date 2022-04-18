@@ -52,8 +52,6 @@ class Publicize extends Publicize_Base {
 
 		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
 
-		include_once __DIR__ . '/enhanced-open-graph.php';
-
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 	}
 

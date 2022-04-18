@@ -15,6 +15,7 @@ import { check, update, warning } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { useProductManagementContext } from './context';
 import useOpenBlockSidebar from './use-open-block-sidebar';
 import { getMessageByProductType } from './utils';
 import { store as membershipProductsStore } from '../../../store/membership-products';
@@ -55,7 +56,9 @@ function getProductDescription( product ) {
 	);
 }
 
-function Product( { onClose, product, selectedProductId, setSelectedProductId } ) {
+function Product( { onClose, product } ) {
+	const { selectedProductId, setSelectedProductId } = useProductManagementContext();
+
 	const { id, title } = product;
 	const isSelected = selectedProductId && selectedProductId === id;
 	const icon = isSelected ? check : undefined;
@@ -74,9 +77,10 @@ function Product( { onClose, product, selectedProductId, setSelectedProductId } 
 	);
 }
 
-function NewProduct( { onClose, productType } ) {
+function NewProduct( { onClose } ) {
+	const { clientId, productType } = useProductManagementContext();
 	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
-	const openBlockSidebar = useOpenBlockSidebar();
+	const openBlockSidebar = useOpenBlockSidebar( clientId );
 
 	const isPublishOpen = useSelect(
 		select => select( 'core/edit-post' ).isPublishSidebarOpened(),
@@ -119,12 +123,9 @@ function NewProduct( { onClose, productType } ) {
 	);
 }
 
-export default function ProductManagementToolbarControl( {
-	products,
-	productType,
-	selectedProductId,
-	setSelectedProductId,
-} ) {
+export default function ProductManagementToolbarControl() {
+	const { products, productType, selectedProductId } = useProductManagementContext();
+
 	const selectedProduct = useSelect( select =>
 		select( membershipProductsStore ).getProduct( selectedProductId )
 	);
@@ -152,17 +153,11 @@ export default function ProductManagementToolbarControl( {
 					<>
 						<MenuGroup>
 							{ products.map( product => (
-								<Product
-									key={ product.id }
-									onClose={ onClose }
-									product={ product }
-									selectedProductId={ selectedProductId }
-									setSelectedProductId={ setSelectedProductId }
-								/>
+								<Product key={ product.id } onClose={ onClose } product={ product } />
 							) ) }
 						</MenuGroup>
 						<MenuGroup>
-							<NewProduct onClose={ onClose } productType={ productType } />
+							<NewProduct onClose={ onClose } />
 						</MenuGroup>
 					</>
 				) }
