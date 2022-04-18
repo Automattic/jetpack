@@ -291,7 +291,6 @@ class WPCOM_Features {
 	public const REPUBLICIZE                   = 'republicize';
 	public const SCAN                          = 'scan';
 	public const SCAN_MANAGED                  = 'scan-managed';
-	public const SEARCH                        = 'temp-instant-search';
 	public const SECURITY_SETTINGS             = 'security-settings';
 	public const SEND_A_MESSAGE                = 'send-a-message';
 	public const SET_PRIMARY_CUSTOM_DOMAIN     = 'set-primary-custom-domain';
@@ -346,6 +345,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
+
 		/*
 		 * Temporary limit until the Pro plan storage is ready to be fully
 		 * implemented.
@@ -607,14 +607,6 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
-		self::SEARCH                        => array(
-			self::WPCOM_SEARCH,
-			self::WPCOM_SEARCH_MONTHLY,
-			self::WP_P2_PLUS_MONTHLY,
-			self::JETPACK_SEARCH,
-			self::JETPACK_SEARCH_MONTHLY,
-			self::JETPACK_COMPLETE_PLANS,
-		),
 
 		/*
 		 * SECURITY_SETTINGS - Initially added to determine whether to show /settings/security.
@@ -663,6 +655,7 @@ class WPCOM_Features {
 		self::SPACE                         => array(
 			self::WPCOM_ALL_SITES,
 		),
+
 		/*
 		 * Products that have upgraded storage space on WordPress.com, beyond
 		 * the bare minimum advertised for free sites. This list includes all
