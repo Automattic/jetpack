@@ -39,7 +39,7 @@ export const Default = () => (
 			icon={ wordpress }
 			badge={ 12 }
 		/>
-		<NavigationGroup id="plugins" label={ __( 'Plugins', 'jetpack-protect' ) } icon={ plugins }>
+		<NavigationGroup label={ __( 'Plugins', 'jetpack-protect' ) } icon={ plugins }>
 			<NavigationItem id="jetpack" label={ __( 'Jetpack', 'jetpack-protect' ) } badge={ 9 } />
 			<NavigationItem
 				id="jetpack-backup"
@@ -47,12 +47,8 @@ export const Default = () => (
 				badge={ 9 }
 			/>
 		</NavigationGroup>
-		<NavigationItem id="themes" label={ __( 'Themes', 'jetpack-protect' ) } icon={ color } />
-		<NavigationItem
-			id="wordpress-2"
-			label={ __( 'WordPress', 'jetpack-protect' ) }
-			icon={ wordpress }
-			badge={ 9 }
-		/>
+		<NavigationGroup label={ __( 'Themes', 'jetpack-protect' ) } icon={ color }>
+			<NavigationItem id="nichetable" label={ __( 'Nichetable', 'jetpack-protect' ) } badge={ 2 } />
+		</NavigationGroup>
 	</Navigation>
 );
