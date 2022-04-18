@@ -119,7 +119,7 @@ export function NoticeBox( props ) {
 		! dismissedNoticesString.includes( CLOSE_TO_LIMIT ) &&
 		activeNoticeIds.push( CLOSE_TO_LIMIT );
 
-	if ( ! activeNoticeIds || activeNoticeIds.length < 1 || ! showNotice ) {
+	if ( activeNoticeIds.length < 1 || ! showNotice ) {
 		return null;
 	}
 
