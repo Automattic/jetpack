@@ -31,20 +31,20 @@ export const Default = () => (
 			id="all"
 			label={ __( 'All vulnerabilities', 'jetpack-protect' ) }
 			icon={ warning }
-			vuls={ 10 }
+			badge={ 10 }
 		/>
 		<NavigationItem
 			id="wordpress"
 			label={ __( 'WordPress', 'jetpack-protect' ) }
 			icon={ wordpress }
-			vuls={ 12 }
+			badge={ 12 }
 		/>
 		<NavigationGroup id="plugins" label={ __( 'Plugins', 'jetpack-protect' ) } icon={ plugins }>
-			<NavigationItem id="jetpack" label={ __( 'Jetpack', 'jetpack-protect' ) } vuls={ 9 } />
+			<NavigationItem id="jetpack" label={ __( 'Jetpack', 'jetpack-protect' ) } badge={ 9 } />
 			<NavigationItem
 				id="jetpack-backup"
 				label={ __( 'Jetpack Backup', 'jetpack-protect' ) }
-				vuls={ 9 }
+				badge={ 9 }
 			/>
 		</NavigationGroup>
 		<NavigationItem id="themes" label={ __( 'Themes', 'jetpack-protect' ) } icon={ color } />
@@ -52,7 +52,7 @@ export const Default = () => (
 			id="wordpress-2"
 			label={ __( 'WordPress', 'jetpack-protect' ) }
 			icon={ wordpress }
-			vuls={ 9 }
+			badge={ 9 }
 		/>
 	</Navigation>
 );
