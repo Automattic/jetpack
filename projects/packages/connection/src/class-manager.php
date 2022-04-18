@@ -348,7 +348,7 @@ class Manager {
 	 * @todo Refactor to use proper nonce verification.
 	 */
 	private function internal_verify_xml_rpc_signature() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// It's not for us.
 		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
 			return false;
@@ -359,14 +359,14 @@ class Manager {
 			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',
 			'nonce'     => isset( $_GET['nonce'] ) ? wp_unslash( $_GET['nonce'] ) : '',
 			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
-			'method'    => wp_unslash( $_SERVER['REQUEST_METHOD'] ),
-			'url'       => wp_unslash( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ), // Temp - will get real signature URL later.
+			'method'    => isset( $_SERVER['REQUEST_METHOD'] ) ? wp_unslash( $_SERVER['REQUEST_METHOD'] ) : null,
+			'url'       => wp_unslash( ( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : null ) . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null ) ), // Temp - will get real signature URL later.
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
 
@@ -459,7 +459,7 @@ class Manager {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$timestamp = (int) $_GET['timestamp'];
-		$nonce     = stripslashes( (string) $_GET['nonce'] );
+		$nonce     = wp_unslash( (string) $_GET['nonce'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- WP Core doesn't sanitize nonces either.
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Use up the nonce regardless of whether the signature matches.
@@ -477,7 +477,7 @@ class Manager {
 		$signature_details['expected'] = $signature;
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+		if ( ! hash_equals( $signature, wp_unslash( $_GET['signature'] ) ) ) {
 			return new \WP_Error(
 				'signature_mismatch',
 				'Signature mismatch',

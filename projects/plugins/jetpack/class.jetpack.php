@@ -2015,6 +2015,7 @@ class Jetpack {
 	 */
 	public function check_open_graph() {
 		if ( in_array( 'publicize', self::get_active_modules() ) || in_array( 'sharedaddy', self::get_active_modules() ) ) {
+			include_once JETPACK__PLUGIN_DIR . 'enhanced-open-graph.php';
 			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
 		}
 
@@ -2972,7 +2973,10 @@ p {
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
-		$connection->disconnect_site( ! Identity_Crisis::validate_sync_error_idc_option() );
+		if ( ! Identity_Crisis::validate_sync_error_idc_option() ) {
+			$connection->disconnect_site_wpcom();
+		}
+		$connection->delete_all_connection_tokens();
 	}
 
 	/**

@@ -56,9 +56,9 @@ function l( $stuff = null ) {
 	if ( ! isset( $pageload ) ) {
 		$pageload = substr( md5( wp_rand() ), 0, 4 );
 		if ( ! empty( $_SERVER['argv'] ) ) {
-			$hint = implode( ' ', $_SERVER['argv'] );
+			$hint = implode( ' ', array_map( 'filter_var', wp_unslash( $_SERVER['argv'] ) ) );
 		} elseif ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-			$hint = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$hint = filter_var( wp_unslash( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
 		} else {
 			$hint = php_sapi_name();
 		}

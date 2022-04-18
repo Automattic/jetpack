@@ -156,7 +156,7 @@ const ConnectionStatusCard = props => {
 					</li>
 				) }
 
-				{ ! hasConnectedOwner && (
+				{ ( ! isUserConnected || ! hasConnectedOwner ) && (
 					<li
 						className={ `jp-connection-status-card--list-item-${
 							requiresUserConnection ? 'error' : 'info'
