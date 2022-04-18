@@ -1155,7 +1155,7 @@ abstract class Publicize_Base {
 			return;
 		}
 
-		$submit_post = $this->should_submit_post_pre_checks( $post_id, $post );
+		$submit_post = $this->should_submit_post_pre_checks( $post );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- We're only checking if a value is set
 		$admin_page = isset( $_POST[ $this->ADMIN_PAGE ] ) ? $_POST[ $this->ADMIN_PAGE ] : null;
