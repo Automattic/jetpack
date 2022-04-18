@@ -48,7 +48,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( { totalCount, items = 
 		);
 	}, [ items, totalCount ] );
 
-	return items.length ? (
+	return (
 		<div className="record-meter-bar">
 			<div className="record-meter-bar__items">
 				{ items.map( ( { count, label, backgroundColor } ) => {
@@ -75,7 +75,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( { totalCount, items = 
 				</ul>
 			</div>
 		</div>
-	) : null;
+	);
 };
 
 export default RecordMeterBar;
