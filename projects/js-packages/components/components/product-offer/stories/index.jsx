@@ -32,7 +32,7 @@ SecurityBundle.args = {
 	description: 'Comprehensive site security, including Backup, Scan, and Anti-spam.',
 	isBundle: true,
 	isCard: true,
-	supportedProducts: [ 'jetpack', 'backup', 'scan', 'anti-spam' ],
+	supportedProducts: [ 'backup', 'scan', 'anti-spam' ],
 	features: [
 		'Real-time cloud backups with 10GB storage',
 		'Automated real-time malware scan',
