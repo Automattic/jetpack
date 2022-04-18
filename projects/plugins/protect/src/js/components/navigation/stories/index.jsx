@@ -48,7 +48,13 @@ export const Default = () => (
 			/>
 		</NavigationGroup>
 		<NavigationGroup label={ __( 'Themes', 'jetpack-protect' ) } icon={ color }>
-			<NavigationItem id="nichetable" label={ __( 'Nichetable', 'jetpack-protect' ) } badge={ 0 } />
+			<NavigationItem
+				id="nichetable"
+				label={ __( 'Nichetable', 'jetpack-protect' ) }
+				badge={ 0 }
+				disabled
+			/>
+			<NavigationItem id="twenty-two" label={ __( 'Twenty Two', 'jetpack-protect' ) } badge={ 2 } />
 		</NavigationGroup>
 	</Navigation>
 );

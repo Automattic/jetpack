@@ -20,20 +20,32 @@ const useMenuNavigation = () => {
 		setFocusedItem( id );
 	};
 
+	const getPrevItem = ( current, last ) => {
+		const startMinusOne = current - 1;
+		const prevIndex = startMinusOne < 0 ? last : startMinusOne;
+		const prevItem = items[ prevIndex ];
+		return prevItem?.disabled ? getPrevItem( prevIndex, last ) : prevItem;
+	};
+
+	const getNextItem = ( current, last ) => {
+		const startPlusOne = current + 1;
+		const nextIndex = startPlusOne > last ? 0 : startPlusOne;
+		const nextItem = items[ nextIndex ];
+		return nextItem?.disabled ? getNextItem( nextIndex, last ) : nextItem;
+	};
+
 	const handleKeyDownItem = input => {
 		const code = input?.code;
 		const current = items.findIndex( item => item?.id === selectedItem );
 		const lastIndex = items.length - 1;
-		const startPlusOne = current + 1;
-		const startMinusOne = current - 1;
-		const nextItem = items[ startPlusOne > lastIndex ? 0 : startPlusOne ];
-		const prevItem = items[ startMinusOne < 0 ? lastIndex : startMinusOne ];
 
 		let nextId;
 
 		if ( code === 'ArrowUp' ) {
+			const prevItem = getPrevItem( current, lastIndex );
 			nextId = prevItem?.id;
 		} else if ( code === 'ArrowDown' ) {
+			const nextItem = getNextItem( current, lastIndex );
 			nextId = nextItem?.id;
 		} else if ( ( code === 'Enter' || code === 'Space' ) && focusedItem ) {
 			nextId = focusedItem;

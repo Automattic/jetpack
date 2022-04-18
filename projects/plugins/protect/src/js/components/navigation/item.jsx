@@ -13,7 +13,17 @@ import { NavigationContext } from './use-menu-navigation';
 import ItemLabel from './label';
 import ItemBadge from './badge';
 
-const NavigationItem = ( { id, initial, label, icon, badge, onClick, onKeyDown, onFocus } ) => {
+const NavigationItem = ( {
+	id,
+	initial,
+	label,
+	icon,
+	badge,
+	disabled,
+	onClick,
+	onKeyDown,
+	onFocus,
+} ) => {
 	const context = useContext( NavigationContext );
 
 	const selected = context?.selectedItem === id;
@@ -61,7 +71,7 @@ const NavigationItem = ( { id, initial, label, icon, badge, onClick, onKeyDown, 
 	);
 
 	useEffect( () => {
-		registerItem( { id, initial } );
+		registerItem( { id, initial, disabled } );
 		// eslint-disable-next-line
 	}, [] );
 
@@ -78,11 +88,11 @@ const NavigationItem = ( { id, initial, label, icon, badge, onClick, onKeyDown, 
 	return (
 		<li
 			className={ wrapperClassName }
-			onClick={ handleClick }
+			onClick={ disabled ? null : handleClick }
 			onKeyDown={ handleKeyDown }
-			onFocus={ handleFocus }
+			onFocus={ disabled ? null : handleFocus }
 			role="menuitem"
-			tabIndex={ 0 }
+			tabIndex={ disabled ? -1 : 0 }
 			ref={ handleRef }
 		>
 			<ItemLabel icon={ icon }>{ label }</ItemLabel>
