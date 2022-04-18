@@ -135,6 +135,7 @@ const iconsMap = {
 	search: SearchIcon,
 	star: StarIcon,
 	videopress: VideopressIcon,
+	jetpack: JetpackIcon,
 };
 
 /**
