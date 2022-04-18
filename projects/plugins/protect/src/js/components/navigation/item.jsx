@@ -18,9 +18,9 @@ const NavigationItem = ( { id, initial, label, icon, vuls, onClick, onKeyDown, o
 	const selected = context?.selectedItem === id;
 	const registerItem = context?.registerItem;
 	const registerRef = context?.registerRef;
-	const handleSelectedItem = context?.handleSelectedItem;
-	const handleKeyNav = context?.handleKeyNav;
-	const handleFocusNav = context?.handleFocus;
+	const handleClickItem = context?.handleClickItem;
+	const handleKeyDownItem = context?.handleKeyDownItem;
+	const handleFocusItem = context?.handleFocusItem;
 
 	const wrapperClassName = classNames( styles[ 'navigation-item' ], {
 		[ styles.selected ]: selected,
@@ -29,17 +29,17 @@ const NavigationItem = ( { id, initial, label, icon, vuls, onClick, onKeyDown, o
 	const handleClick = useCallback(
 		evt => {
 			onClick?.( evt );
-			handleSelectedItem?.( id );
+			handleClickItem?.( id );
 		},
-		[ handleSelectedItem, id, onClick ]
+		[ handleClickItem, id, onClick ]
 	);
 
 	const handleKeyDown = useCallback(
 		evt => {
 			onKeyDown?.( evt );
-			handleKeyNav?.( evt );
+			handleKeyDownItem?.( evt );
 		},
-		[ handleKeyNav, onKeyDown ]
+		[ handleKeyDownItem, onKeyDown ]
 	);
 
 	const handleRef = useCallback(
@@ -52,9 +52,9 @@ const NavigationItem = ( { id, initial, label, icon, vuls, onClick, onKeyDown, o
 	const handleFocus = useCallback(
 		evt => {
 			onFocus?.( evt );
-			handleFocusNav?.( id );
+			handleFocusItem?.( id );
 		},
-		[ handleFocusNav, id, onFocus ]
+		[ handleFocusItem, id, onFocus ]
 	);
 
 	useEffect( () => {

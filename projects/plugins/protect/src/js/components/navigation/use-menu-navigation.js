@@ -12,15 +12,15 @@ const useMenuNavigation = () => {
 	const [ focusedItem, setFocusedItem ] = useState();
 	const defaultItem = items.find( item => item?.initial )?.id || items[ 0 ]?.id;
 
-	const handleSelectedItem = id => {
+	const handleClickItem = id => {
 		setSelectedItem( id );
 	};
 
-	const handleFocus = id => {
+	const handleFocusItem = id => {
 		setFocusedItem( id );
 	};
 
-	const handleKeyNav = input => {
+	const handleKeyDownItem = input => {
 		const code = input?.code;
 		const current = items.findIndex( item => item?.id === selectedItem );
 		const lastIndex = items.length - 1;
@@ -73,9 +73,9 @@ const useMenuNavigation = () => {
 
 	return {
 		selectedItem: selectedItem || defaultItem,
-		handleSelectedItem,
-		handleKeyNav,
-		handleFocus,
+		handleClickItem,
+		handleKeyDownItem,
+		handleFocusItem,
 		registerRef,
 		registerItem,
 	};
