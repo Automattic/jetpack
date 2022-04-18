@@ -19,6 +19,7 @@ export const data = ( state = {}, action ) => {
 			return assign( {}, state, {
 				bootstrapPath: action.settings?.bootstrapPath,
 				hasRulesAccess: action.settings?.hasRulesAccess,
+				uiEnabled: action.settings?.uiEnabled,
 			} );
 		default:
 			return state;
@@ -78,4 +79,14 @@ export function getWafBootstrapPath( state ) {
  */
 export function getWafHasRulesAccess( state ) {
 	return get( state.jetpack.waf, [ 'data', 'hasRulesAccess' ], false );
+}
+
+/**
+ * Returns whether the firewall UI should be displayed.
+ *
+ * @param {object}  state - Global state tree
+ * @returns {boolean}  True when the site has JETPACK_WAF_UI enabled.
+ */
+export function getWafUiEnabled( state ) {
+	return get( state.jetpack.waf, [ 'data', 'uiEnabled' ], false );
 }

@@ -13,6 +13,7 @@
  */
 
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Waf\Waf_Standalone_Bootstrap;
 
 // Register endpoints when WP REST API is initialized.
@@ -44,6 +45,15 @@ class Jetpack_Firewall {
 	}
 
 	/**
+	 * UI Enabled
+	 *
+	 * @return bool True when the WAF settings UI should be displayed.
+	 */
+	private static function ui_enabled() {
+		return Constants::is_true( 'JETPACK_WAF_UI' );
+	}
+
+	/**
 	 * Register REST API endpoints.
 	 */
 	public static function register_endpoints() {
@@ -66,6 +76,7 @@ class Jetpack_Firewall {
 			array(
 				'bootstrapPath'  => self::get_bootstrap_file_path(),
 				'hasRulesAccess' => self::has_rules_access(),
+				'uiEnabled'      => self::ui_enabled(),
 			)
 		);
 	}

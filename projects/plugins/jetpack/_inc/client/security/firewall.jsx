@@ -30,6 +30,7 @@ import { getSitePlan } from 'state/site';
 import {
 	getWafBootstrapPath,
 	getWafHasRulesAccess,
+	getWafUiEnabled,
 	isFetchingWafSettings,
 } from '../state/firewall/reducer';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
@@ -82,6 +83,10 @@ export const Firewall = class extends Component {
 	};
 
 	render() {
+		if ( ! this.props.uiEnabled ) {
+			return <QueryWafSettings />;
+		}
+
 		const isFirewallActive = this.props.getOptionValue( 'firewall' ),
 			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'firewall' );
 
@@ -291,6 +296,7 @@ export default connect( state => {
 	return {
 		bootstrapPath: getWafBootstrapPath( state ),
 		hasRulesAccess: getWafHasRulesAccess( state ),
+		uiEnabled: getWafUiEnabled( state ),
 		isFetchingWafSettings: isFetchingWafSettings( state ),
 		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
