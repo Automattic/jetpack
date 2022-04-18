@@ -83,6 +83,7 @@ function ProductIcons( { products } ) {
  * @param {string} props.className        - A className to be concat with default ones.
  * @param {Function} props.onAdd          - Callback function to be executed on click on Add button.
  * @param {string} props.addProductUrl    - The checkout URL to add/buy the product.
+ * @param {string} props.buttonText	      - The text to be displayed on the Add button.
  * @returns {React.Component}               ProductOffer react component. Optional.
  */
 const ProductOffer = ( {
@@ -99,9 +100,13 @@ const ProductOffer = ( {
 	onAdd,
 	addProductUrl,
 	isLoading,
+	buttonText,
 } ) => {
 	const { isFree, price, currency, offPrice } = pricing;
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
+
+	/* translators: placeholder is product name. */
+	const defautlButtonText = sprintf( __( 'Add %s', 'jetpack' ), title );
 
 	return (
 		<div
@@ -144,10 +149,7 @@ const ProductOffer = ( {
 						className={ styles[ 'add-button' ] }
 						{ ...( addProductUrl ? { href: addProductUrl } : {} ) }
 					>
-						{
-							/* translators: placeholder is product name. */
-							sprintf( __( 'Add %s', 'jetpack' ), title )
-						}
+						{ buttonText || defautlButtonText }
 					</Button>
 				) }
 
@@ -177,6 +179,7 @@ ProductOffer.propTypes = {
 	isLoading: PropTypes.bool,
 	onAdd: PropTypes.func,
 	addProductUrl: PropTypes.string,
+	buttonText: PropTypes.string,
 };
 
 ProductOffer.defaultProps = {
@@ -185,6 +188,7 @@ ProductOffer.defaultProps = {
 	pricing: {},
 	onAdd: () => {},
 	isLoading: false,
+	buttonText: '',
 };
 
 export default ProductOffer;
