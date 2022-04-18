@@ -17,16 +17,46 @@
 require_once __DIR__ . '/class-wpcom-features.php';
 
 /**
- * This function checks if we're on an Atomic (WPCOMSH) or Simple (WPCOM) site, and pulls the purchases for that current
- * site. It then uses WPCOM_Features to check if any of those purchases include the requested $feature.
+ * Whether a given feature is available to the current (or specified) site.
+ *
+ * This function pulls the purchases for a given site and uses WPCOM_Features to check if any of those purchases
+ * include the requested $feature.
  *
  * @param string $feature A singular feature.
- * @param int    $blog_id Optional blog_id. Default is the current_blog_id.
+ * @param int    $blog_id Optional. Blog ID. Defaults to current blog.
  *
  * @return bool Does the site have the feature?
- * @throws Error If $blog_id !== current_blog_id on Atomic sites.
  */
 function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
+	if ( ! $blog_id ) {
+		$blog_id = get_current_blog_id();
+	}
+
+	$purchases = wpcom_get_site_purchases( $blog_id );
+
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		$is_wpcom_site = true;
+	} else {
+		$blog          = get_blog_details( $blog_id, false );
+		$is_wpcom_site = is_blog_wpcom( $blog ) || is_blog_atomic( $blog );
+	}
+
+	return WPCOM_Features::has_feature( $feature, $purchases, $is_wpcom_site );
+}
+
+/**
+ * Returns a list of purchased product slugs.
+ *
+ * This function checks if we're on an Atomic (WPCOMSH) or Simple (WPCOM) site, and pulls the purchases for that current
+ * site.
+ *
+ * @throws Error If $blog_id !== current_blog_id on Atomic sites.
+ *
+ * @param int $blog_id Optional. Blog ID. Defaults to current blog.
+ *
+ * @return string[] An array of product slugs.
+ */
+function wpcom_get_site_purchases( $blog_id = 0 ) {
 	if ( ! $blog_id ) {
 		$blog_id = get_current_blog_id();
 	}
@@ -48,8 +78,6 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 			// Fallback to old CSV format if the string cannot be JSON decoded.
 			$purchases = str_getcsv( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
 		}
-
-		$is_wpcom_site = true;
 	} else {
 		global $wpdb;
 
@@ -84,12 +112,9 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 			 */
 			wp_cache_set( $blog_id, $purchases, $wp_cache_group, 60 * 60 * 3 );
 		}
-
-		$blog          = get_blog_details( $blog_id, false );
-		$is_wpcom_site = is_blog_wpcom( $blog ) || is_blog_atomic( $blog );
 	}
 
-	return WPCOM_Features::has_feature( $feature, $purchases, $is_wpcom_site );
+	return $purchases;
 }
 
 /**
