@@ -71,7 +71,7 @@ class Tracking {
 		// Check for nonce.
 		if (
 			empty( $_REQUEST['tracksNonce'] )
-			|| ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' )
+			|| ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 		) {
 			wp_send_json_error(
 				__( 'You aren’t authorized to do that.', 'jetpack-connection' ),
@@ -89,13 +89,13 @@ class Tracking {
 		$tracks_data = array();
 		if ( 'click' === $_REQUEST['tracksEventType'] && isset( $_REQUEST['tracksEventProp'] ) ) {
 			if ( is_array( $_REQUEST['tracksEventProp'] ) ) {
-				$tracks_data = $_REQUEST['tracksEventProp'];
+				$tracks_data = array_map( 'filter_var', wp_unslash( $_REQUEST['tracksEventProp'] ) );
 			} else {
-				$tracks_data = array( 'clicked' => $_REQUEST['tracksEventProp'] );
+				$tracks_data = array( 'clicked' => filter_var( wp_unslash( $_REQUEST['tracksEventProp'] ) ) );
 			}
 		}
 
-		$this->record_user_event( $_REQUEST['tracksEventName'], $tracks_data, null, false );
+		$this->record_user_event( filter_var( wp_unslash( $_REQUEST['tracksEventName'] ) ), $tracks_data, null, false );
 
 		wp_send_json_success();
 	}
@@ -175,9 +175,9 @@ class Tracking {
 		}
 		$site_url = get_option( 'siteurl' );
 
-		$data['_via_ua']  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
-		$data['_via_ip']  = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
-		$data['_lg']      = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '';
+		$data['_via_ua']  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$data['_via_ip']  = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$data['_lg']      = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) : '';
 		$data['blog_url'] = $site_url;
 		$data['blog_id']  = \Jetpack_Options::get_option( 'id' );
 
