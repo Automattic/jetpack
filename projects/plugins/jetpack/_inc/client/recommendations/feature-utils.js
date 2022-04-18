@@ -8,9 +8,11 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
+import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
+
+import { PLAN_JETPACK_SECURITY_T1_YEARLY } from 'lib/plans/constants';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
@@ -286,4 +288,43 @@ export const getStepContent = stepSlug => {
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;
 	}
+};
+
+// Gets data for the product suggestion card that can show on a recommendation step.
+export const getProductCardData = ( state, productSlug ) => {
+	const siteRawUrl = getSiteRawUrl( state );
+	const products = getStaticProductsForPurchase( state );
+
+	switch ( productSlug ) {
+		// Security Plan
+		case PLAN_JETPACK_SECURITY_T1_YEARLY:
+			return {
+				productCardTitle: __( 'Increase your site security!', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get Jetpack Security', 'jetpack' ),
+				productCardList: products.security.features,
+				productCardIcon: '/recommendations/cloud-icon.svg',
+			};
+		default:
+			throw `Unknown product slug for getProductCardData: ${ productSlug }`;
+	}
+};
+
+// Sets step-specific props for when products are shown on different recommendation steps
+// Important that this be called after getProductCardData when setting up props
+export const getProductCardDataStepOverrides = ( state, productSlug, stepSlug ) => {
+	switch ( productSlug ) {
+		case PLAN_JETPACK_SECURITY_T1_YEARLY:
+			if ( stepSlug === 'publicize' ) {
+				return {
+					productCardTitle: __( 'Your site is growing. It’s time for a security plan.', 'jetpack' ),
+				};
+			}
+			break;
+	}
+
+	return {};
 };

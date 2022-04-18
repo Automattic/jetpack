@@ -29,9 +29,16 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
 } from 'state/action-types';
+import { PLAN_JETPACK_SECURITY_T1_YEARLY } from 'lib/plans/constants';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
-import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
+import {
+	getSitePlan,
+	hasActiveProductPurchase,
+	hasActiveScanPurchase,
+	hasActiveSecurityPurchase,
+	hasSecurityComparableLegacyPlan,
+} from 'state/site';
 import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
 import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
@@ -297,6 +304,23 @@ export const isProductSuggestionsAvailable = state => {
 	const suggestionsResult = getProductSuggestions( state );
 
 	return isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
+};
+
+export const getProductSlugForStep = ( state, step ) => {
+	switch ( step ) {
+		case 'site-type':
+			if ( isSiteEligibleForUpsell( state ) ) {
+				return PLAN_JETPACK_SECURITY_T1_YEARLY;
+			}
+			break;
+		case 'publicize':
+			if ( ! hasActiveSecurityPurchase( state ) && ! hasSecurityComparableLegacyPlan( state ) ) {
+				return PLAN_JETPACK_SECURITY_T1_YEARLY;
+			}
+			break;
+	}
+
+	return false;
 };
 
 const isConditionalRecommendationEnabled = ( state, step ) => {

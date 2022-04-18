@@ -84,6 +84,12 @@ export const JETPACK_LEGACY_PLANS = [
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
 ];
+export const JETPACK_LEGACY_PLANS_WITH_SECURITY_FEATURES = [
+	PLAN_JETPACK_PREMIUM,
+	PLAN_JETPACK_BUSINESS,
+	PLAN_JETPACK_PREMIUM_MONTHLY,
+	PLAN_JETPACK_BUSINESS_MONTHLY,
+];
 export const JETPACK_BUNDLES = [
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
@@ -327,6 +333,16 @@ export function isJetpackSecurityBundle( product ) {
 
 export function isJetpackLegacyPlan( product ) {
 	return JETPACK_LEGACY_PLANS.includes( product );
+}
+
+/**
+ * Identify legacy plans that contain features comparable to a security bundle
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is a legacy Jetpack plan with security features, false otherwise.
+ */
+export function isSecurityComparableJetpackLegacyPlan( product ) {
+	return JETPACK_LEGACY_PLANS_WITH_SECURITY_FEATURES.includes( product );
 }
 
 export function getJetpackProductUpsellByFeature( feature ) {

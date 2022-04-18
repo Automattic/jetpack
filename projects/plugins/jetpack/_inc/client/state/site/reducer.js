@@ -17,6 +17,7 @@ import {
 	isJetpackSearch,
 	isJetpackSecurityBundle,
 	isJetpackVideoPress,
+	isSecurityComparableJetpackLegacyPlan,
 } from 'lib/plans/constants';
 import {
 	JETPACK_SITE_DATA_FETCH,
@@ -416,6 +417,28 @@ export function getActiveVideoPressPurchase( state ) {
  */
 export function hasActiveVideoPressPurchase( state ) {
 	return !! getActiveVideoPressPurchase( state );
+}
+
+/**
+ * Searches active products for a legacy Jetpack plan with security features.
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if an active legacy plan with security features was found, false otherwise.
+ */
+export function getSecurityComparableLegacyPlan( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isSecurityComparableJetpackLegacyPlan( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active Jetpack legacy plan with security features
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has a legacy Jetpack plan with security features, false otherwise.
+ */
+export function hasSecurityComparableLegacyPlan( state ) {
+	return !! getSecurityComparableLegacyPlan( state );
 }
 
 export function getSiteID( state ) {
