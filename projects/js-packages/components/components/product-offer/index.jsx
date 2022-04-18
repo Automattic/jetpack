@@ -83,7 +83,7 @@ function ProductIcons( { products } ) {
  * @param {string} props.className        - A className to be concat with default ones.
  * @param {Function} props.onAdd          - Callback function to be executed on click on Add button.
  * @param {string} props.addProductUrl    - The checkout URL to add/buy the product.
- * @param {string} props.buttonText	      - The text to be displayed on the Add button.
+ * @param {string} props.buttonText       - The text to be displayed on the Add button.
  * @returns {React.Component}               ProductOffer react component. Optional.
  */
 const ProductOffer = ( {
