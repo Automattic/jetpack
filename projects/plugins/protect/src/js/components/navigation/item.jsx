@@ -12,17 +12,7 @@ import { NavigationContext } from './use-menu-navigation';
 import ItemLabel from './label';
 import ItemBadge from './badge';
 
-const NavigationItem = ( {
-	id,
-	disabled,
-	initial,
-	label,
-	icon,
-	vuls,
-	onClick,
-	onKeyDown,
-	onFocus,
-} ) => {
+const NavigationItem = ( { id, initial, label, icon, vuls, onClick, onKeyDown, onFocus } ) => {
 	const context = useContext( NavigationContext );
 
 	const selected = context?.selectedItem === id;
@@ -33,14 +23,16 @@ const NavigationItem = ( {
 	const handleFocusNav = context?.handleFocus;
 
 	const wrapperClassName = classNames( styles[ 'navigation-item' ], {
-		[ styles.clickable ]: ! disabled,
 		[ styles.selected ]: selected,
 	} );
 
-	const handleClick = evt => {
-		onClick?.( evt );
-		handleSelectedItem?.( id );
-	};
+	const handleClick = useCallback(
+		evt => {
+			onClick?.( evt );
+			handleSelectedItem?.( id );
+		},
+		[ handleSelectedItem, id, onClick ]
+	);
 
 	const handleKeyDown = useCallback(
 		evt => {
@@ -66,18 +58,18 @@ const NavigationItem = ( {
 	);
 
 	useEffect( () => {
-		registerItem( { id, disabled, initial } );
+		registerItem( { id, initial } );
 		// eslint-disable-next-line
 	}, [] );
 
 	return (
 		<li
 			className={ wrapperClassName }
-			onClick={ disabled ? null : handleClick }
+			onClick={ handleClick }
 			onKeyDown={ handleKeyDown }
 			onFocus={ handleFocus }
 			role="menuitem"
-			tabIndex={ disabled ? -1 : 0 }
+			tabIndex={ 0 }
 			ref={ handleRef }
 		>
 			<ItemLabel icon={ icon }>{ label }</ItemLabel>

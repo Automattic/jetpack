@@ -39,12 +39,7 @@ export const Default = () => (
 			icon={ wordpress }
 			vuls={ 12 }
 		/>
-		<NavigationGroup
-			id="plugins"
-			label={ __( 'Plugins', 'jetpack-protect' ) }
-			icon={ plugins }
-			disabled
-		>
+		<NavigationGroup id="plugins" label={ __( 'Plugins', 'jetpack-protect' ) } icon={ plugins }>
 			<NavigationItem id="jetpack" label={ __( 'Jetpack', 'jetpack-protect' ) } vuls={ 9 } />
 			<NavigationItem
 				id="jetpack-backup"
@@ -52,12 +47,7 @@ export const Default = () => (
 				vuls={ 9 }
 			/>
 		</NavigationGroup>
-		<NavigationItem
-			id="themes"
-			label={ __( 'Themes', 'jetpack-protect' ) }
-			icon={ color }
-			disabled
-		/>
+		<NavigationItem id="themes" label={ __( 'Themes', 'jetpack-protect' ) } icon={ color } />
 		<NavigationItem
 			id="wordpress-2"
 			label={ __( 'WordPress', 'jetpack-protect' ) }
