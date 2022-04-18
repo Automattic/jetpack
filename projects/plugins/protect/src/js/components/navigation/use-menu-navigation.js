@@ -10,7 +10,7 @@ const useMenuNavigation = () => {
 	const [ selectedItem, setSelectedItem ] = useState();
 	const [ refs, setRef ] = useState( [] );
 	const [ focusedItem, setFocusedItem ] = useState();
-	const initial = items.find( item => item?.initial )?.id || items[ 0 ]?.id;
+	const defaultItem = items.find( item => item?.initial )?.id || items[ 0 ]?.id;
 
 	const handleSelectedItem = id => {
 		setSelectedItem( id );
@@ -83,7 +83,7 @@ const useMenuNavigation = () => {
 	};
 
 	return {
-		selectedItem: selectedItem || initial,
+		selectedItem: selectedItem || defaultItem,
 		handleSelectedItem,
 		handleKeyNav,
 		handleFocus,
