@@ -76,11 +76,12 @@ class Jetpack_Signature {
 
 		$port = $this->get_current_request_port();
 
-		$this->current_request_url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- Sniff misses the esc_url_raw wrapper.
+		$this->current_request_url = esc_url_raw( wp_unslash( "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' ) ) );
 
 		if ( array_key_exists( 'body', $override ) && ! empty( $override['body'] ) ) {
 			$body = $override['body'];
-		} elseif ( 'POST' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
+		} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			$body = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
 
 			// Convert the $_POST to the body, if the body was empty. This is how arrays are hashed
@@ -91,7 +92,7 @@ class Jetpack_Signature {
 					$body = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				}
 			}
-		} elseif ( 'PUT' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
+		} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'PUT' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			// This is a little strange-looking, but there doesn't seem to be another way to get the PUT body.
 			$raw_put_data = file_get_contents( 'php://input' );
 			parse_str( $raw_put_data, $body );
@@ -116,11 +117,11 @@ class Jetpack_Signature {
 				$a[ $parameter ] = $override[ $parameter ];
 			} else {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$a[ $parameter ] = isset( $_GET[ $parameter ] ) ? stripslashes( $_GET[ $parameter ] ) : '';
+				$a[ $parameter ] = isset( $_GET[ $parameter ] ) ? filter_var( wp_unslash( $_GET[ $parameter ] ) ) : '';
 			}
 		}
 
-		$method = isset( $override['method'] ) ? $override['method'] : $_SERVER['REQUEST_METHOD'];
+		$method = isset( $override['method'] ) ? $override['method'] : ( isset( $_SERVER['REQUEST_METHOD'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : null );
 		return $this->sign_request( $a['token'], $a['timestamp'], $a['nonce'], $a['body-hash'], $method, $this->current_request_url, $body, true );
 	}
 
@@ -346,9 +347,9 @@ class Jetpack_Signature {
 	 * @return string The port to be used in the signature
 	 */
 	public function get_current_request_port() {
-		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $this->sanitize_host_post( $_SERVER['HTTP_X_FORWARDED_PORT'] ) : '';
+		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $this->sanitize_host_post( $_SERVER['HTTP_X_FORWARDED_PORT'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 		if ( '' === $host_port && isset( $_SERVER['SERVER_PORT'] ) ) {
-			$host_port = $this->sanitize_host_post( $_SERVER['SERVER_PORT'] );
+			$host_port = $this->sanitize_host_post( $_SERVER['SERVER_PORT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 		}
 
 		/**
