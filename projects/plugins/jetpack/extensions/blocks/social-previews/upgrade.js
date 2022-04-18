@@ -35,7 +35,7 @@ export default function SocialPreviewsUpgrade() {
 			/>
 			<div className="jetpack-social-previews__upgrade-description">
 				<h2 className="jetpack-social-previews__upgrade-heading">
-					{ __( 'Upgrade to a Business plan to unlock the power of our SEO tools', 'jetpack' ) }
+					{ __( 'Upgrade to a Pro plan to unlock the power of our SEO tools', 'jetpack' ) }
 				</h2>
 				<ul className="jetpack-social-previews__upgrade-feature-list">
 					<li>
