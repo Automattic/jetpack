@@ -170,7 +170,10 @@ const ProductOffer = ( {
 ProductOffer.propTypes = {
 	slug: PropTypes.string.isRequired,
 	name: PropTypes.string,
+	/** Product title. Primary heading */
 	title: PropTypes.string,
+
+	/** Product subtitle. Secondary heading */
 	subTitle: PropTypes.string,
 	description: PropTypes.string,
 	features: PropTypes.arrayOf( PropTypes.string ),
@@ -183,6 +186,8 @@ ProductOffer.propTypes = {
 	isLoading: PropTypes.bool,
 	onAdd: PropTypes.func,
 	addProductUrl: PropTypes.string,
+
+	/** Custom text for the onAdd product button. */
 	buttonText: PropTypes.string,
 };
 
