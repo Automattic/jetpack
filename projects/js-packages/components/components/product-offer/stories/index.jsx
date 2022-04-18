@@ -32,7 +32,7 @@ SecurityBundle.args = {
 	description: 'Comprehensive site security, including Backup, Scan, and Anti-spam.',
 	isBundle: true,
 	isCard: true,
-	supportedProducts: [ 'backup', 'scan', 'anti-spam' ],
+	supportedProducts: [ 'jetpack', 'backup', 'scan', 'anti-spam' ],
 	features: [
 		'Real-time cloud backups with 10GB storage',
 		'Automated real-time malware scan',
@@ -71,6 +71,28 @@ JetpackBackup.args = {
 		currency: 'USD',
 		price: 9.66,
 		offPrice: 3.95,
+	},
+	addProductUrl: '',
+	hasRequiredPlan: false,
+	isLoading: false,
+};
+
+export const JetpackProtect = Template.bind( {} );
+JetpackProtect.parameters = {};
+JetpackProtect.args = {
+	slug: 'protect',
+	title: 'Protect',
+	description: 'Protect your site and scan for security vulnerabilities listed in our database.',
+	features: [
+		'Over 20,000 listed vulnerabilities',
+		'Daily automatic scans',
+		'Check plugin and theme version status',
+		'Easy to navigate and use',
+	],
+	isBundle: false,
+	isCard: true,
+	pricing: {
+		isFree: true,
 	},
 	addProductUrl: '',
 	hasRequiredPlan: false,
