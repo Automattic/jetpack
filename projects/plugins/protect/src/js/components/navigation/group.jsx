@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 
 const NavigationGroup = ( { icon, label, children } ) => {
 	return (
-		<li tabIndex={ -1 }>
+		<li tabIndex={ -1 } role="menuitem" className={ styles[ 'navigation-group' ] }>
 			<ItemLabel icon={ icon } className={ styles[ 'navigation-group-label' ] }>
 				{ label }
 			</ItemLabel>
