@@ -4446,12 +4446,13 @@ endif;
 	 * Create the Jetpack authorization URL.
 	 *
 	 * @param bool|string $redirect URL to redirect to.
+	 * @param null        $deprecated Deprecated since Jetpack 10.9.
 	 *
 	 * @todo Update default value for redirect since the called function expects a string.
 	 *
 	 * @return mixed|void
 	 */
-	public static function build_authorize_url( $redirect = false ) {
+	public static function build_authorize_url( $redirect = false, $deprecated = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
