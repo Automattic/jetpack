@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Generating rules now fetches them from the API. Also adds a few CLI commands.

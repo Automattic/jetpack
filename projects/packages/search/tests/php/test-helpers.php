@@ -70,7 +70,7 @@ class Test_Helpers extends TestCase {
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$GLOBALS['wp_customize'] = new Test_Helpers_Customize();
 		// phpcs:disable WordPress.Security.NonceVerification
-		$this->request_uri        = $_SERVER['REQUEST_URI'];
+		$this->request_uri        = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : null;
 		$this->get                = $_GET;
 		$this->get                = $_POST;
 		$this->registered_widgets = $GLOBALS['wp_registered_widgets'];

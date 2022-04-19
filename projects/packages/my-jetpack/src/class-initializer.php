@@ -27,7 +27,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '1.0.3-alpha';
+	const PACKAGE_VERSION = '1.1.0-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -122,6 +122,10 @@ class Initializer {
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
+				'loadAddLicenseScreen'  => apply_filters(
+					'jetpack_my_jetpack_should_enable_add_license_screen',
+					defined( 'JETPACK_ENABLE_MY_JETPACK_LICENSE' ) && JETPACK_ENABLE_MY_JETPACK_LICENSE
+				),
 			)
 		);
 
