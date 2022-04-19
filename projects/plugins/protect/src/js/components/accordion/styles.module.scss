@@ -9,10 +9,10 @@
 
 .accordion-item {
 	background-color: var(--jp-white);
-	padding: calc( var(--spacing-base) * 2) calc( var(--spacing-base) * 3); // 16px | 24px
 }
 
 .accordion-header {
+	margin: 0;
 	display: flex;
 	cursor: pointer;
 	justify-content: space-between;
@@ -20,16 +20,21 @@
 	background: none;
 	border: none;
 	width: 100%;
-	padding: 0;
-	margin: 0;
 	align-items: center;
 	outline-color: var(--jp-black);
+	padding: calc( var(--spacing-base) * 2) calc( var(--spacing-base) * 3); // 16px | 24px
+
+	&:hover {
+		background: var(--jp-gray-0);
+	}
 }
 
 .accordion-header-title {
 	display: flex;
-		align-items: center;
-	}
+	align-items: center;
+	// include this at Text
+	font-weight: 600;
+}
 
 .accordion-header-title-icon {
 	margin-right: var(--spacing-base); // 8px
@@ -53,7 +58,7 @@
 
 	&-open {
 		transition: max-height .3s, transform .2s;
-		padding: calc( var(--spacing-base) * 4 );
+		padding: calc( var(--spacing-base) * 4 ) calc( var(--spacing-base) * 7 ); // 32 px | 56px
 		max-height: 1000px;
 		transform: scaleY(1);
 	}
