@@ -348,11 +348,11 @@ class IDC_Simulator {
 		update_option(
 			self::STORED_OPTIONS_KEY,
 			array(
-				'idc_siteurl'       => $_POST['idc_siteurl'],
-				'idc_simulation'    => $_POST['idc_simulation'],
+				'idc_siteurl'       => isset( $_POST['idc_siteurl'] ) ? filter_var( wp_unslash( $_POST['idc_siteurl'] ) ) : null,
+				'idc_simulation'    => isset( $_POST['idc_simulation'] ) ? filter_var( wp_unslash( $_POST['idc_simulation'] ) ) : null,
 				'idc_spoof_siteurl' => isset( $_POST['idc_spoof_siteurl'] ) ? true : false,
 				'idc_spoof_home'    => isset( $_POST['idc_spoof_home'] ) ? true : false,
-				'idc_sync_status'   => $_POST['idc_sync_status'],
+				'idc_sync_status'   => isset( $_POST['idc_sync_status'] ) ? filter_var( wp_unslash( $_POST['idc_sync_status'] ) ) : null,
 			)
 		);
 
@@ -432,7 +432,7 @@ class IDC_Simulator {
 	 * Display a notice if necessary.
 	 */
 	public function display_notice() {
-		switch ( $_GET['idc_notice'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		switch ( isset( $_GET['idc_notice'] ) ? $_GET['idc_notice'] : null ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			case self::STORED_SUCCESS_NOTICE_TYPE:
 				return $this->admin_notice__stored_success();
 

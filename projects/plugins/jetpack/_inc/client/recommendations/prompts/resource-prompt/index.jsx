@@ -77,7 +77,9 @@ const ResourcePromptComponent = props => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_resource_read_click', {
 			feature: stepSlug,
 		} );
-	}, [ stepSlug ] );
+		// Resource link opens a new window, go ahead and navigate to the next step in the flow.
+		window.location.href = nextRoute;
+	}, [ stepSlug, nextRoute ] );
 
 	const onResourceSkipClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_resource_skip_click', {

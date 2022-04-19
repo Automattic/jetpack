@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Disable WordPress.Security.ValidatedSanitizedInput temporarily.
+
+

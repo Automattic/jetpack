@@ -56,7 +56,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "2.5.x-dev"
+			"dev-master": "2.6.x-dev"
 		}
 	},
 	"config": {
