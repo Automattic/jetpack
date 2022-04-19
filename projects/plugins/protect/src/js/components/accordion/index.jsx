@@ -37,7 +37,7 @@ export const AccordionItem = ( { id, title, label, icon, children } ) => {
 						<Icon icon={ icon } className={ styles[ 'accordion-header-label-icon' ] } />
 						{ label }
 					</Text>
-					<Text>{ title }</Text>
+					<Text variant={ open ? 'title-small' : 'body' }>{ title }</Text>
 				</div>
 				<div className={ styles[ 'accordion-header-button' ] }>
 					<Icon icon={ open ? chevronUp : chevronDown } size={ 38 } />
