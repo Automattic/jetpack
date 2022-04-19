@@ -300,7 +300,7 @@ class Waf_Runner {
 		$ip_block_rules = self::BLOCK_IP_FILE;
 
 		$ip_list_code = "if ( require('$ip_allow_rules') ) { return; }\n" .
-			"if ( require('$ip_block_rules') ) { \$waf->block('block', -1, 'ip block list'); }\n";
+			"if ( require('$ip_block_rules') ) { return \$waf->block('block', -1, 'ip block list'); }\n";
 
 		$rules_divided_by_line = explode( "\n", $rules );
 		array_splice( $rules_divided_by_line, 1, 0, $ip_list_code );
@@ -365,8 +365,8 @@ class Waf_Runner {
 				throw new \Exception( 'Failed writing block list file to: ' . self::BLOCK_IP_FILE );
 			}
 		} else {
-			if ( ! $wp_filesystem->put_contents( self::ALLOW_IP_FILE, '<?php return false;' ) ) {
-				throw new \Exception( 'Failed writing empty block list file to: ' . self::ALLOW_IP_FILE );
+			if ( ! $wp_filesystem->put_contents( self::BLOCK_IP_FILE, '<?php return false;' ) ) {
+				throw new \Exception( 'Failed writing empty block list file to: ' . self::BLOCK_IP_FILE );
 			}
 		}
 	}
