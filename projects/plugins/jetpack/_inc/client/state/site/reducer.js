@@ -17,6 +17,7 @@ import {
 	isJetpackSearch,
 	isJetpackSecurityBundle,
 	isJetpackVideoPress,
+	isJetpackAntiSpam,
 	isSecurityComparableJetpackLegacyPlan,
 } from 'lib/plans/constants';
 import {
@@ -417,6 +418,28 @@ export function getActiveVideoPressPurchase( state ) {
  */
 export function hasActiveVideoPressPurchase( state ) {
 	return !! getActiveVideoPressPurchase( state );
+}
+
+/**
+ * Searches active products for an active Anti-Spam product.
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if an active Anti-Spam product was found, false otherwise.
+ */
+export function getActiveAntiSpamPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackAntiSpam( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active Anti-Spam product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active Anti-Spam product purchase, false otherwise.
+ */
+export function hasActiveAntiSpamPurchase( state ) {
+	return !! getActiveAntiSpamPurchase( state );
 }
 
 /**

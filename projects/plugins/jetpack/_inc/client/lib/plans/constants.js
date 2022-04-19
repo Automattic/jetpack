@@ -118,6 +118,28 @@ export const JETPACK_PLANS_WITH_BACKUP = [
 	PLAN_JETPACK_COMPLETE_MONTHLY,
 ];
 
+export const JETPACK_PLANS_WITH_ANTI_SPAM = [
+	PLAN_JETPACK_PREMIUM,
+	PLAN_JETPACK_BUSINESS,
+	PLAN_JETPACK_PERSONAL,
+	PLAN_JETPACK_PREMIUM_MONTHLY,
+	PLAN_JETPACK_BUSINESS_MONTHLY,
+	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_SECURITY_T1_MONTHLY,
+	PLAN_JETPACK_SECURITY_T2_YEARLY,
+	PLAN_JETPACK_SECURITY_T2_MONTHLY,
+	PLAN_JETPACK_COMPLETE,
+	PLAN_JETPACK_COMPLETE_MONTHLY,
+
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
+	// Remove after all customers are migrated to new products.
+	PLAN_JETPACK_SECURITY_DAILY,
+	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
+	PLAN_JETPACK_SECURITY_REALTIME,
+	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
+];
+
 export const JETPACK_SECURITY_BUNDLES = [
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
@@ -274,6 +296,16 @@ export function isNew( plan ) {
  */
 export function isJetpackPlanWithBackup( plan ) {
 	return includes( JETPACK_PLANS_WITH_BACKUP, plan );
+}
+
+/**
+ * Determines if a plan includes Jetpack Anti-Spam.
+ *
+ * @param {string} plan - The plan slug
+ * @returns {boolean} True if the plan includes Jetpack Anti-Spam
+ */
+export function isJetpackPlanWithAntiSpam( plan ) {
+	return includes( JETPACK_PLANS_WITH_ANTI_SPAM, plan );
 }
 
 /**

@@ -29,7 +29,11 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
 } from 'state/action-types';
-import { PLAN_JETPACK_SECURITY_T1_YEARLY } from 'lib/plans/constants';
+import {
+	isJetpackPlanWithAntiSpam,
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_ANTI_SPAM,
+} from 'lib/plans/constants';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import {
@@ -37,6 +41,7 @@ import {
 	hasActiveProductPurchase,
 	hasActiveScanPurchase,
 	hasActiveSecurityPurchase,
+	hasActiveAntiSpamPurchase,
 	hasSecurityComparableLegacyPlan,
 } from 'state/site';
 import { hasConnectedOwner } from 'state/connection';
@@ -317,6 +322,15 @@ export const getProductSlugForStep = ( state, step ) => {
 		case 'security-plan':
 			if ( ! hasActiveSecurityPurchase( state ) && ! hasSecurityComparableLegacyPlan( state ) ) {
 				return PLAN_JETPACK_SECURITY_T1_YEARLY;
+			}
+			break;
+		case 'anti-spam':
+			if (
+				! isPluginActive( state, 'akismet/akismet.php' ) &&
+				! hasActiveAntiSpamPurchase( state ) &&
+				! isJetpackPlanWithAntiSpam( getSitePlan( state ) )
+			) {
+				return PLAN_JETPACK_ANTI_SPAM;
 			}
 			break;
 	}
