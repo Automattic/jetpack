@@ -18,7 +18,7 @@ use WP_Error;
  * Class Endpoints.
  * Helper class that is responsible for registering and responding to licensing endpoint requests.
  *
- * @since $$next-version$$
+ * @since 1.7.0
  */
 class Endpoints {
 	/**
@@ -42,7 +42,7 @@ class Endpoints {
 	/**
 	 * Declare the endpoints for the licensing package.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 10.9.0
 	 */
@@ -170,7 +170,7 @@ class Endpoints {
 	/**
 	 * Verify that the user can set a Jetpack license key
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 9.5.0
 	 *
@@ -188,7 +188,7 @@ class Endpoints {
 	/**
 	 * Verify that user can view and update user-licensing data.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @return bool Whether the user is currently connected and they are the connection owner.
 	 */
@@ -205,7 +205,7 @@ class Endpoints {
 	/**
 	 * Verify that user can manage_options
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @return bool Whether user has the capability 'manage_options'.
 	 */
@@ -220,7 +220,7 @@ class Endpoints {
 	/**
 	 * Validates that the parameter is a string.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 4.3.0
 	 *
@@ -241,7 +241,7 @@ class Endpoints {
 	/**
 	 * Validates that the parameter is a non-negative integer (includes 0).
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 10.4.0
 	 *
@@ -265,7 +265,7 @@ class Endpoints {
 	/**
 	 * Update the last licensing error message.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 9.0.0
 	 *
@@ -282,7 +282,7 @@ class Endpoints {
 	/**
 	 * Get the last licensing error message, if any.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 9.0.0
 	 *
@@ -295,7 +295,7 @@ class Endpoints {
 	/**
 	 * Set a Jetpack license
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 9.6.0
 	 *
@@ -320,7 +320,7 @@ class Endpoints {
 	/**
 	 * Gets the users licenses.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 10.4.0
 	 *
@@ -355,7 +355,7 @@ class Endpoints {
 	/**
 	 * Gets the users licenses counts.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 10.4.0
 	 *
@@ -390,7 +390,7 @@ class Endpoints {
 	/**
 	 * Update the user-licenses activation notice dismissal data.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 10.4.0
 	 *
@@ -428,7 +428,7 @@ class Endpoints {
 	/**
 	 * Attach Jetpack licenses
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @since-jetpack 10.4.0
 	 *

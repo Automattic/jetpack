@@ -1712,7 +1712,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return rest_ensure_response(
 			array(
-				'authorizeUrl' => Jetpack::build_authorize_url( false, true ),
+				'authorizeUrl' => Jetpack::build_authorize_url( false ),
 			)
 		);
 	}

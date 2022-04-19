@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 const PALETTE = require( '@automattic/color-studio' );
 
 /**
@@ -90,7 +91,11 @@ export default function getRecordInfo( post_count, post_type_breakdown, tier, la
 		// if there is remaining unused space in tier, add filler spacing to chart
 		if ( tier - currentCount > 0 ) {
 			recordInfo.push( {
-				data: createData( tier - currentCount, PALETTE.colors[ 'Gray 0' ], 'Remaining' ),
+				data: createData(
+					tier - currentCount,
+					PALETTE.colors[ 'Gray 0' ],
+					__( 'remaining', 'jetpack-search-pkg' )
+				),
 			} );
 		}
 	}
