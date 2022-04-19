@@ -16,7 +16,7 @@ fi
 
 EXIT=0
 declare -A OKFILES
-for F in README.md .gitkeep .gitignore; do
+for F in README.md .gitkeep .gitignore tsconfig.json jsconfig.json; do
 	OKFILES[$F]=1
 done
 
