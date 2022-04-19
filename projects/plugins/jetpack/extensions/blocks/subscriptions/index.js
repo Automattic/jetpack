@@ -65,11 +65,11 @@ export const settings = {
 		{
 			name: 'compact',
 			label: __( 'Compact', 'jetpack' ),
-			isDefault: true,
 		},
 		{
 			name: 'split',
 			label: __( 'Split', 'jetpack' ),
+			isDefault: true,
 		},
 	],
 	transforms: {

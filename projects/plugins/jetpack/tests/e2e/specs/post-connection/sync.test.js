@@ -53,12 +53,18 @@ test.describe( 'Sync', () => {
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await expect( waitTillSyncQueueIsEmpty() ).resolves.toBeTruthy();
+			await expect(
+				waitTillSyncQueueIsEmpty(),
+				'Sync queue should be empty'
+			).resolves.toBeTruthy();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
-			expect( wpcomPostsResponse.ok() ).toBeTruthy();
+			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
 			wpcomPosts = await wpcomPostsResponse.json();
-			expect( wpcomPosts.posts ).toContainEqual(
+			expect(
+				wpcomPosts.posts,
+				'Previously created post should be present in the synced posts'
+			).toContainEqual(
 				expect.objectContaining( {
 					title: 'Testing Sync',
 				} )
@@ -81,10 +87,13 @@ test.describe( 'Sync', () => {
 
 		await test.step( 'Assert post is not synced', async () => {
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
-			expect( wpcomPostsResponse.ok() ).toBeTruthy();
+			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
 			wpcomPosts = await wpcomPostsResponse.json();
-			expect( wpcomPosts.posts ).toContainEqual(
+			expect(
+				wpcomPosts.posts,
+				'Previously created post should NOT be present in the synced posts'
+			).toContainEqual(
 				expect.not.objectContaining( {
 					title: 'Disabled Sync',
 				} )
@@ -106,12 +115,18 @@ test.describe( 'Sync', () => {
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await expect( waitTillSyncQueueIsEmpty( 1000, 20 ) ).resolves.toBeTruthy();
+			await expect(
+				waitTillSyncQueueIsEmpty( 3000, 30 ),
+				'Sync queue should be empty'
+			).resolves.toBeTruthy();
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
-			expect( wpcomPostsResponse.ok() ).toBeTruthy();
+			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
 			wpcomPosts = await wpcomPostsResponse.json();
-			expect( wpcomPosts.posts ).toContainEqual(
+			expect(
+				wpcomPosts.posts,
+				'Previously created post should be present in the synced posts'
+			).toContainEqual(
 				expect.objectContaining( {
 					title: 'Dedicated Sync',
 				} )

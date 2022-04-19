@@ -29,6 +29,7 @@ function buildInitialState( { recommendationsStep } = {} ) {
 			},
 			recommendations: {
 				data: {},
+				requests: {},
 				step: recommendationsStep,
 			},
 			settings: {
@@ -41,15 +42,21 @@ function buildInitialState( { recommendationsStep } = {} ) {
 describe( 'Recommendations – Feature Prompt', () => {
 	const DUMMY_ACTION = { type: 'dummy' };
 	let updateRecommendationsStepStub;
+	let addViewedRecommendationStub;
 
 	before( function () {
 		updateRecommendationsStepStub = sinon
 			.stub( recommendationsActions, 'updateRecommendationsStep' )
 			.returns( DUMMY_ACTION );
+
+		addViewedRecommendationStub = sinon
+			.stub( recommendationsActions, 'addViewedRecommendation' )
+			.returns( DUMMY_ACTION );
 	} );
 
 	after( function () {
 		updateRecommendationsStepStub.restore();
+		addViewedRecommendationStub.restore();
 	} );
 
 	describe( 'Monitor', () => {
