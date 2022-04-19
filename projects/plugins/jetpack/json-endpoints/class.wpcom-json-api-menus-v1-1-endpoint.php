@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+
 /**
  * Menus abstract endpoint class.
  */
@@ -30,7 +32,7 @@ abstract class WPCOM_JSON_API_Menus_Abstract_Endpoint extends WPCOM_JSON_API_End
 	}
 
 	/**
-	 * Get 
+	 * Get the locations of the menus.
 	 */
 	protected function get_locations() {
 		$locations = array();
@@ -48,33 +50,66 @@ abstract class WPCOM_JSON_API_Menus_Abstract_Endpoint extends WPCOM_JSON_API_End
 
 		// Primary (first) location should have defaultState -> default,
 		// all other locations (including widgets) should have defaultState -> empty.
-		for ( $i = 0; $i < count( $locations ); $i++ ) {
+		for ( $i = 0, $l = count( $locations ); $i < $l; $i++ ) {
 			$locations[ $i ]['defaultState'] = $i ? 'empty' : 'default';
 		}
 		return $locations;
 	}
 
+	/**
+	 * Simplify the data.
+	 *
+	 * @param object $data - the data we're simplifying.
+	 */
 	protected function simplify( $data ) {
 		$simplifier = new WPCOM_JSON_API_Menus_Simplifier( $data );
 		return $simplifier->translate();
 	}
 
+	/**
+	 * Complexify the data.
+	 *
+	 * @param object $data - the data we're complexifying.
+	 */
 	protected function complexify( $data ) {
 		$complexifier = new WPCOM_JSON_API_Menus_Complexify( $data );
 		return $complexifier->translate();
 	}
 }
 
+/**
+ * The menu translator class.
+ */
 abstract class WPCOM_JSON_API_Menus_Translator {
+	/**
+	 * The filter.
+	 *
+	 * @var string
+	 */
 	protected $filter = '';
 
+	/**
+	 * List of filters.
+	 *
+	 * @var array
+	 */
 	protected $filters = array();
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param array $menus - a list of menus.
+	 */
 	public function __construct( $menus ) {
 		$this->is_single_menu = ! is_array( $menus );
 		$this->menus          = is_array( $menus ) ? $menus : array( $menus );
 	}
 
+	/**
+	 * Translate the menus.
+	 *
+	 * @return mixed|WP_Error
+	 */
 	public function translate() {
 		$result = $this->menus;
 		foreach ( $this->filters as $f ) {
@@ -86,15 +121,30 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 		return $this->maybe_extract( $result );
 	}
 
+	/**
+	 * Return a single menu or an array of menus.
+	 *
+	 * @param array $menus - the menu list.
+	 *
+	 * @return string|array
+	 */
 	protected function maybe_extract( $menus ) {
 		return $this->is_single_menu ? $menus[0] : $menus;
 	}
 
+	/**
+	 * See if we need to whitelist and rename.
+	 *
+	 * @param object $object - the object we're checking.
+	 * @param array  $dict - the...dictionary? I have no idea.
+	 *
+	 * @return array
+	 */
 	public function whitelist_and_rename_with( $object, $dict ) {
 		$keys   = array_keys( $dict );
 		$return = array();
 		foreach ( (array) $object as $k => $v ) {
-			if ( in_array( $k, $keys ) ) {
+			if ( in_array( $k, $keys, true ) ) {
 				if ( is_array( $dict[ $k ] ) ) {
 					settype( $v, $dict[ $k ]['type'] );
 					$return[ $dict[ $k ]['name'] ] = $v;
@@ -108,9 +158,23 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 	}
 }
 
+/**
+ * The simplifier class.
+ */
 class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
+
+	/**
+	 * The simplify translator class.
+	 *
+	 * @var string
+	 */
 	protected $filter = 'wpcom_menu_api_translator_simplify';
 
+	/**
+	 * The simplify filters.
+	 *
+	 * @var array
+	 */
 	protected $filters = array(
 		'whitelist_and_rename_keys',
 		'add_locations',
@@ -118,6 +182,11 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 		'add_widget_locations',
 	);
 
+	/**
+	 * The menu whitelist.
+	 *
+	 * @var array
+	 */
 	protected $menu_whitelist = array(
 		'term_id'     => array(
 			'name' => 'id',
@@ -137,6 +206,11 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 		),
 	);
 
+	/**
+	 * The menu item whitelist.
+	 *
+	 * @var array
+	 */
 	protected $menu_item_whitelist = array(
 		'db_id'            => array(
 			'name' => 'id',
@@ -200,11 +274,24 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 	 * Filters methods
 	 **************************/
 
+	/**
+	 * Treeify the menus.
+	 *
+	 * @param array $menus - the menu list.
+	 *
+	 * @return array
+	 */
 	public function treeify( $menus ) {
 		return array_map( array( $this, 'treeify_menu' ), $menus );
 	}
 
-	// turn the flat item list into a tree of items
+	/**
+	 * Turn the flat item list into a tree of items.
+	 *
+	 * @param array $menu - the menu.
+	 *
+	 * @return array
+	 */
 	protected function treeify_menu( $menu ) {
 		$indexed_nodes = array();
 		$tree          = array();
@@ -232,7 +319,11 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 		return $menu;
 	}
 
-	// recursively ensure item lists are contiguous
+	/**
+	 * Recursively ensure item lists are contiguous.
+	 *
+	 * @param array $item - the item list.
+	 */
 	protected function remove_item_keys( &$item ) {
 		if ( ! isset( $item['items'] ) || ! is_array( $item['items'] ) ) {
 			return;
@@ -245,6 +336,13 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 		$item['items'] = array_values( $item['items'] );
 	}
 
+	/**
+	 * Whitelist and rename keys.
+	 *
+	 * @param array $menus - the menu list.
+	 *
+	 * @return array
+	 */
 	protected function whitelist_and_rename_keys( $menus ) {
 		$transformed_menus = array();
 
@@ -263,17 +361,31 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 		return $transformed_menus;
 	}
 
+	/**
+	 * Add menu locations.
+	 *
+	 * @param array $menus - the menu list.
+	 *
+	 * @return array
+	 */
 	protected function add_locations( $menus ) {
 		$menus_with_locations = array();
 
 		foreach ( $menus as $menu ) {
-			$menu['locations']      = array_keys( get_nav_menu_locations(), $menu['id'] );
+			$menu['locations']      = array_keys( get_nav_menu_locations(), $menu['id'], true );
 			$menus_with_locations[] = $menu;
 		}
 
 		return $menus_with_locations;
 	}
 
+	/**
+	 * Add widget locations.
+	 *
+	 * @param array $menus - the menu list.
+	 *
+	 * @return array
+	 */
 	protected function add_widget_locations( $menus ) {
 		$nav_menu_widgets = WPCOM_JSON_API_Menus_Widgets::get();
 
@@ -297,15 +409,34 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 	}
 }
 
+/**
+ * Complexify menu class.
+ */
 class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
+
+	/**
+	 * The complexify filter.
+	 *
+	 * @var string
+	 */
 	protected $filter = 'wpcom_menu_api_translator_complexify';
 
+	/**
+	 * The filters.
+	 *
+	 * @var array
+	 */
 	protected $filters = array(
 		'untreeify',
 		'set_locations',
 		'whitelist_and_rename_keys',
 	);
 
+	/**
+	 * The menu whitelist.
+	 *
+	 * @var array
+	 */
 	protected $menu_whitelist = array(
 		'id'          => 'term_id',
 		'name'        => 'menu-name',
@@ -313,6 +444,11 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 		'items'       => 'items',
 	);
 
+	/**
+	 * The item whitelist.
+	 *
+	 * @var array
+	 */
 	protected $menu_item_whitelist = array(
 		'id'          => 'menu-item-db-id',
 		'content_id'  => 'menu-item-object-id',
@@ -337,12 +473,24 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 	 * Filters methods
 	 **************************/
 
+	/**
+	 * Untreeify the menu.
+	 *
+	 * @param array $menus - the list of menus.
+	 *
+	 * @return array
+	 */
 	public function untreeify( $menus ) {
 		return array_map( array( $this, 'untreeify_menu' ), $menus );
 	}
 
-	// convert the tree of menu items to a flat list suitable for
-	// the nav_menu APIs
+	/**
+	 * Convert the tree of menu items to a flat list suitable for the nav_menu APIs.
+	 *
+	 * @param array $menu - the menu we're untreeifying.
+	 *
+	 * @return array
+	 */
 	protected function untreeify_menu( $menu ) {
 		if ( empty( $menu['items'] ) ) {
 			return $menu;
@@ -363,9 +511,9 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 	 * Recurse the items tree adding each item to a flat list and restoring
 	 * `order` and `parent` fields.
 	 *
-	 * @param array $items item tree
-	 * @param array &$items_list output flat list of items
-	 * @param int   &$counter for creating temporary IDs
+	 * @param array $items item tree.
+	 * @param array $items_list output flat list of items.
+	 * @param int   $counter for creating temporary IDs.
 	 */
 	protected function untreeify_items( $items, &$items_list, &$counter ) {
 		foreach ( $items as $index => $item ) {
@@ -392,6 +540,9 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 	 * for all its children, to maintain the hierarchy.
 	 * These fields will be used when creating
 	 * new items with wp_update_nav_menu_item().
+	 *
+	 * @param array  $item - the item tree.
+	 * @param string $tmp_id - the tmp ID.
 	 */
 	private function set_tmp_id( &$item, $tmp_id ) {
 		$item['tmp_id'] = $tmp_id;
@@ -403,6 +554,13 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 		}
 	}
 
+	/**
+	 * Whitelist and rename keys.
+	 *
+	 * @param array $menus - the menus.
+	 *
+	 * @return array
+	 */
 	protected function whitelist_and_rename_keys( $menus ) {
 		$transformed_menus = array();
 		foreach ( $menus as $menu ) {
@@ -416,17 +574,35 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 		return $transformed_menus;
 	}
 
+	/**
+	 * Whitelist and rename item keys.
+	 *
+	 * @param array $item - the item.
+	 *
+	 * @return array
+	 */
 	protected function whitelist_and_rename_item_keys( $item ) {
 		$item = $this->implode_array_fields( $item );
 		$item = $this->whitelist_and_rename_with( $item, $this->menu_item_whitelist );
 		return $item;
 	}
 
-	// all item fields are set as strings
+	/**
+	 * All item fields are set as strings.
+	 *
+	 * @param array $menu_item - the menu item.
+	 */
 	protected function implode_array_fields( $menu_item ) {
 		return array_map( array( $this, 'implode_array_field' ), $menu_item );
 	}
 
+	/**
+	 * Implode an array field.
+	 *
+	 * @param array $field - the field we're imploding.
+	 *
+	 * @return string
+	 */
 	protected function implode_array_field( $field ) {
 		if ( is_array( $field ) ) {
 			return implode( ' ', $field );
@@ -434,6 +610,13 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 		return $field;
 	}
 
+	/**
+	 * Set the menu locations.
+	 *
+	 * @param array $menus - the menu list.
+	 *
+	 * @return array
+	 */
 	protected function set_locations( $menus ) {
 		foreach ( $menus as $menu ) {
 			if ( isset( $menu['locations'] ) ) {
@@ -446,11 +629,24 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 		return array_map( array( $this, 'set_location' ), $menus );
 	}
 
+	/**
+	 * Set the menu locations.
+	 *
+	 * @param array $menu - the menu.
+	 *
+	 * @return array
+	 */
 	protected function set_location( $menu ) {
 		$this->set_menu_at_locations( $menu['locations'], $menu['id'] );
 		return $menu;
 	}
 
+	/**
+	 * Set the menu at locations.
+	 *
+	 * @param array $locations - the locations.
+	 * @param int   $menu_id - the menu ID.
+	 */
 	protected function set_menu_at_locations( $locations, $menu_id ) {
 		$location_map = get_nav_menu_locations();
 		$this->remove_menu_from_all_locations( $menu_id, $location_map );
@@ -466,14 +662,26 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 		$this->set_widget_menu_at_locations( $locations, $menu_id );
 	}
 
+	/**
+	 * Remove from all locations.
+	 *
+	 * @param int   $menu_id - the menu ID.
+	 * @param array $location_map - the location map.
+	 */
 	protected function remove_menu_from_all_locations( $menu_id, &$location_map ) {
 		foreach ( get_nav_menu_locations() as $existing_location => $existing_menu_id ) {
-			if ( $existing_menu_id == $menu_id ) {
+			if ( $existing_menu_id === $menu_id ) {
 				unset( $location_map[ $existing_location ] );
 			}
 		}
 	}
 
+	/**
+	 * Set widget menu at locations.
+	 *
+	 * @param array $locations - the locations.
+	 * @param int   $menu_id - the menu ID.
+	 */
 	protected function set_widget_menu_at_locations( $locations, $menu_id ) {
 		$nav_menu_widgets = get_option( 'widget_nav_menu' );
 
@@ -483,7 +691,7 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 
 		// Remove menus from all custom menu widget locations
 		foreach ( $nav_menu_widgets as &$widget ) {
-			if ( is_array( $widget ) && isset( $widget['nav_menu'] ) && $widget['nav_menu'] == $menu_id ) {
+			if ( is_array( $widget ) && isset( $widget['nav_menu'] ) && $widget['nav_menu'] === $menu_id ) {
 				$widget['nav_menu'] = 0;
 			}
 		}
@@ -501,9 +709,16 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 		update_option( 'widget_nav_menu', $nav_menu_widgets );
 	}
 
+	/**
+	 * Check if the locations are valid.
+	 *
+	 * @param int|array $locations - the location we're checking.
+	 *
+	 * @return bool|WP_Error
+	 */
 	protected function locations_are_valid( $locations ) {
 		if ( is_int( $locations ) ) {
-			if ( $locations != 0 ) {
+			if ( $locations !== 0 ) {
 				return new WP_Error( 'locations-int', 'Locations int must be 0.', 400 );
 			} else {
 				return true;
@@ -523,6 +738,13 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 		return new WP_Error( 'locations', 'Locations must be array or integer.', 400 );
 	}
 
+	/**
+	 * Check if the location name exists.
+	 *
+	 * @param string $location_name - the location name.
+	 *
+	 * @return bool
+	 */
 	protected function location_name_exists( $location_name ) {
 		$widget_location_names = wp_list_pluck( WPCOM_JSON_API_Menus_Widgets::get(), 'name' );
 
@@ -534,7 +756,7 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 
 		return array_key_exists( $location_name, get_registered_nav_menus() ) ||
 			array_key_exists( $location_name, $existing_locations ) ||
-			in_array( $location_name, $widget_location_names );
+			in_array( $location_name, $widget_location_names, true );
 	}
 
 }
@@ -565,8 +787,20 @@ new WPCOM_JSON_API_Menus_New_Menu_Endpoint(
 	)
 );
 
+/**
+ * New menu endpoint class.
+ */
 class WPCOM_JSON_API_Menus_New_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
-	function callback( $path = '', $site = 0 ) {
+
+	/**
+	 * The API Callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $site - the site ID.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function callback( $path = '', $site = 0 ) {
 		$site_id = $this->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site ) );
 
 		if ( is_wp_error( $site_id ) ) {
@@ -617,8 +851,21 @@ new WPCOM_JSON_API_Menus_Update_Menu_Endpoint(
 	)
 );
 
+/**
+ * Update menu endpoint class.
+ */
 class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
-	function callback( $path = '', $site = 0, $menu_id = 0 ) {
+
+	/**
+	 * The API Callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $site - the site ID.
+	 * @param int    $menu_id - the menu ID.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function callback( $path = '', $site = 0, $menu_id = 0 ) {
 		$site_id = $this->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site ) );
 
 		if ( is_wp_error( $site_id ) ) {
@@ -680,8 +927,11 @@ class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abs
 	 * This function will create items that have a 'tmp_id' set, and
 	 * update any items with a 'tmp_parent' to use the
 	 * newly created item as a parent.
+	 *
+	 * @param array $data - the data we're checking.
+	 * @param int   $menu_id - the menu ID.
 	 */
-	function create_new_items( $data, $menu_id ) {
+	public function create_new_items( $data, $menu_id ) {
 		$tmp_to_actual_ids = array();
 		foreach ( $data['items'] as &$item ) {
 			if ( isset( $item['tmp_id'] ) ) {
@@ -703,10 +953,15 @@ class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abs
 	}
 
 	/**
-	 * remove any existing menu items not present in the supplied array.
+	 * Remove any existing menu items not present in the supplied array.
 	 * returns wp_error if an item cannot be deleted.
+	 *
+	 * @param int   $menu_id - the menu ID.
+	 * @param array $menu_items - the menu items.
+	 *
+	 * @return bool|WP_Error
 	 */
-	function delete_items_not_present( $menu_id, $menu_items ) {
+	public function delete_items_not_present( $menu_id, $menu_items ) {
 
 		$existing_items = wp_get_nav_menu_items( $menu_id, array( 'update_post_term_cache' => false ) );
 		if ( ! is_array( $existing_items ) ) {
@@ -758,8 +1013,20 @@ new WPCOM_JSON_API_Menus_List_Menus_Endpoint(
 	)
 );
 
+/**
+ * List menus endpoint class.
+ */
 class WPCOM_JSON_API_Menus_List_Menus_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
-	function callback( $path = '', $site = 0 ) {
+
+	/**
+	 * The API Callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $site - the site ID.
+	 *
+	 * @return array
+	 */
+	public function callback( $path = '', $site = 0 ) {
 		$site_id = $this->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site ) );
 
 		if ( is_wp_error( $site_id ) ) {
@@ -820,8 +1087,21 @@ new WPCOM_JSON_API_Menus_Get_Menu_Endpoint(
 	)
 );
 
+/**
+ * Get menu endpoint class.
+ */
 class WPCOM_JSON_API_Menus_Get_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
-	function callback( $path = '', $site = 0, $menu_id = 0 ) {
+
+	/**
+	 * The API Callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $site - the site ID.
+	 * @param int    $menu_id - the menu ID.
+	 *
+	 * @return array
+	 */
+	public function callback( $path = '', $site = 0, $menu_id = 0 ) {
 		$site_id = $this->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site ) );
 
 		if ( is_wp_error( $site_id ) ) {
@@ -871,8 +1151,21 @@ new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint(
 	)
 );
 
+/**
+ * Delete menu endpoint class.
+ */
 class WPCOM_JSON_API_Menus_Delete_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstract_Endpoint {
-	function callback( $path = '', $site = 0, $menu_id = 0 ) {
+
+	/**
+	 * The API Callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $site - the site ID.
+	 * @param int    $menu_id - the menu ID.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function callback( $path = '', $site = 0, $menu_id = 0 ) {
 		$site_id = $this->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site ) );
 
 		if ( is_wp_error( $site_id ) ) {
@@ -892,8 +1185,16 @@ class WPCOM_JSON_API_Menus_Delete_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abs
 	}
 }
 
+/**
+ * API Menus widgets class.
+ */
 class WPCOM_JSON_API_Menus_Widgets {
-	static function get() {
+	/**
+	 * Get the menu locations.
+	 *
+	 * @return array
+	 */
+	public static function get() {
 		$locations        = array();
 		$nav_menu_widgets = get_option( 'widget_nav_menu' );
 
