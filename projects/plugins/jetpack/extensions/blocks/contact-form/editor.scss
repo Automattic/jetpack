@@ -1,4 +1,4 @@
-@import '../../shared/styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
@@ -107,6 +107,12 @@
 
 .jetpack-contact-form__thankyou-redirect-url__suggestions {
 	width: 260px;
+}
+
+.jetpack-contact-form__integration-panel {
+	button {
+		margin-top: 1em;
+	}
 }
 
 .jetpack-field-label {

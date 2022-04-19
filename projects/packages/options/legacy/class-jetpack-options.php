@@ -82,6 +82,7 @@ class Jetpack_Options {
 					'user_token',  // (string) The User Token of this site. (deprecated)
 					'user_tokens',  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
 					'purchase_token', // (string) Token for logged out user purchases.
+					'token_lock', // (string) Token lock in format `expiration_date|||site_url`.
 				);
 
 			case 'network':
@@ -120,6 +121,7 @@ class Jetpack_Options {
 			'recommendations_banner_enabled',      // (bool)   Whether the recommendations are enabled or not.
 			'recommendations_data',                // (array)  The user choice and other data for the recommendations.
 			'recommendations_step',                // (string) The current step of the recommendations.
+			'recommendations_conditional',         // (array)  An array of action-based recommendations.
 			'licensing_activation_notice_dismiss', // (array) The `last_detached_count` and the `last_dismissed_time` for the user-license activation notice.
 			'has_seen_wc_connection_modal',        // (bool) Whether the site has displayed the WooCommerce Connection modal
 			'partner_coupon',                      // (string) A Jetpack partner issued coupon to promote a sale together with Jetpack.

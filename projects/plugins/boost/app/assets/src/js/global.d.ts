@@ -11,7 +11,7 @@ import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-
  * Internal dependencies
  */
 import type { ConnectionStatus } from './stores/connection';
-import type { CriticalCssStatus, CloudCssStatus } from './stores/critical-css-status';
+import type { CriticalCssStatus } from './stores/critical-css-status';
 import type { Optimizations } from './stores/modules';
 
 declare global {
@@ -25,6 +25,7 @@ declare global {
 	const Jetpack_Boost: {
 		preferences: {
 			showRatingPrompt: boolean;
+			prioritySupport: boolean;
 		};
 		version: string;
 		api: {
@@ -34,10 +35,10 @@ declare global {
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
-		cloudCssStatus?: CloudCssStatus;
 		showRatingPromptNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		site: {
+			domain: string;
 			url: string;
 			online: boolean;
 			assetPath: string;

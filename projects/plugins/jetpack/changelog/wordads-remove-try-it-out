@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Remove call to use ad widget - which will be deprecated at some point.

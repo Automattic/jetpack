@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-starter-plugin",
-	"description": "Social plugin",
+	"description": "plugin--description",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -10,7 +10,7 @@
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.7.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "0.6.x-dev",
+		"automattic/jetpack-my-jetpack": "1.1.x-dev",
 		"automattic/jetpack-sync": "1.30.x-dev"
 	},
 	"require-dev": {
@@ -57,8 +57,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-starter-plugin-plugin",
+		"mirror-repo": "Automattic/jetpack-starter-plugin",
 		"release-branch-prefix": "starter-plugin",
+		"beta-plugin-slug": "jetpack-starter-plugin",
 		"wp-plugin-slug": "jetpack-starter-plugin"
 	},
 	"config": {
