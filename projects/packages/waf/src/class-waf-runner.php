@@ -17,6 +17,8 @@ class Waf_Runner {
 
 	const WAF_RULES_VERSION   = '1.0.0';
 	const MODE_OPTION_NAME    = 'jetpack_waf_mode';
+	const IP_ALLOW_LIST_NAME  = 'jetpack_waf_ip_allow_list';
+	const IP_BLOCK_LIST_NAME  = 'jetpack_waf_ip_block_list';
 	const RULES_FILE          = __DIR__ . '/../rules/rules.php';
 	const ALLOW_IP_FILE       = __DIR__ . '/../rules/allow-ip.php';
 	const BLOCK_IP_FILE       = __DIR__ . '/../rules/block-ip.php';
@@ -247,12 +249,12 @@ class Waf_Runner {
 		$ip_block_rules = self::BLOCK_IP_FILE;
 
 		$rules_divided_by_line = explode( "\n", $rules );
-		array_splice( $rules_divided_by_line, 1, 0, "if ( require_once('$ip_allow_rules') ) { return; }\nif ( require_once('$ip_block_rules') ) { \$waf->block('block', -1, 'ip block list'); }\n" );
+		array_splice( $rules_divided_by_line, 1, 0, "if ( require('$ip_allow_rules') ) { return; }\nif ( require('$ip_block_rules') ) { \$waf->block('block', -1, 'ip block list'); }\n" );
 
 		$rules = implode( "\n", $rules_divided_by_line );
 
-		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, "$rules" ) ) {
-			throw new \Exception( 'Failed writing to: ' . self::RULES_FILE );
+		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, $rules ) ) {
+			throw new \Exception( 'Failed writing rules file to: ' . self::RULES_FILE );
 		}
 	}
 
@@ -273,29 +275,31 @@ class Waf_Runner {
 			$wp_filesystem->mkdir( dirname( self::RULES_FILE ) );
 		}
 
-		$allow_list = get_option( 'jetpack_firewall_ip_allow_list' );
-		$block_list = get_option( 'jetpack_firewall_ip_block_list' );
+		$allow_list = get_option( self::IP_ALLOW_LIST_NAME );
+		$block_list = get_option( self::IP_BLOCK_LIST_NAME );
 
 		$allow_rules_content = '';
 		$block_rules_content = '';
 
 		if ( $allow_list && is_array( $allow_list ) ) {
+			// phpcs:disable WordPress.PHP.DevelopmentFunctions
 			$allow_rules_content .= '$waf_allow_list = ' . var_export( $allow_list, true ) . ";\n";
-			$allow_rules_content .= 'if ( $waf->is_ip_in_array( $waf_allow_list ) ) { return true; }' . "\n";
-			$allow_rules_content .= 'return false;' . "\n";
+			// phpcs:enable
+			$allow_rules_content .= 'return $waf->is_ip_in_array( $waf_allow_list );' . "\n";
 
 			if ( ! $wp_filesystem->put_contents( self::ALLOW_IP_FILE, "<?php\n$allow_rules_content" ) ) {
-				throw new \Exception( 'Failed writing to: ' . self::ALLOW_IP_FILE );
+				throw new \Exception( 'Failed writing allow list file to: ' . self::ALLOW_IP_FILE );
 			}
 		}
 
 		if ( $block_list && is_array( $block_list ) ) {
+			// phpcs:disable WordPress.PHP.DevelopmentFunctions
 			$block_rules_content .= '$waf_block_list = ' . var_export( $block_list, true ) . ";\n";
-			$block_rules_content .= 'if ( $waf->is_ip_in_array( $waf_block_list ) ) { return true; }' . "\n";
-			$block_rules_content .= 'return false;' . "\n";
+			// phpcs:enable
+			$block_rules_content .= 'return $waf->is_ip_in_array( $waf_block_list );' . "\n";
 
 			if ( ! $wp_filesystem->put_contents( self::BLOCK_IP_FILE, "<?php\n$block_rules_content" ) ) {
-				throw new \Exception( 'Failed writing to: ' . self::BLOCK_IP_FILE );
+				throw new \Exception( 'Failed writing block list file to: ' . self::BLOCK_IP_FILE );
 			}
 		}
 	}
