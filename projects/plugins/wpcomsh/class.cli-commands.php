@@ -418,6 +418,27 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				)
 			);
 		}
+
+		/**
+		 * Retrieves an Atomic persistent data field.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <name>
+		 * : The name of the data field to retrieve
+		 *
+		 * @subcommand persistent-data
+		 */
+		public function persistent_data( $args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			if ( empty( $args[0] ) ) {
+				WP_CLI::error( 'Missing required field name.' );
+			}
+
+			$name            = $args[0];
+			$persistent_data = new Atomic_Persistent_Data();
+
+			WP_CLI::log( $persistent_data->{ $name } );
+		}
 	}
 }
 
