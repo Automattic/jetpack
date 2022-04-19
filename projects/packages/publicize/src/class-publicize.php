@@ -558,7 +558,7 @@ class Publicize extends Publicize_Base {
 			 *
 			 * @module publicize
 			 *
-			 * @since 10.9.0 No longer defaults to true. Adds checks to not publicize based on different contexts.
+			 * @since $$next-version$$ No longer defaults to true. Adds checks to not publicize based on different contexts.
 			 * @since 4.1.0
 			 *
 			 * @param bool $should_publicize Should the post be publicized? Default to true.
