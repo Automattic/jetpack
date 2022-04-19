@@ -123,13 +123,32 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
  * This function converts atomic supported plan slugs and other product alias to wpcom plan slug. It then uses
  * WPCOM_Features to check if product include the requested $feature.
  *
- * @param string $product_slug     The product slug.
- * @param string $feature          The name of the feature to check.
- * @param bool   $is_wpcom_product Optional. Whether it's a wpcom product. Defaults to true.
+ * @param string|int $product_slug     The product slug or ID.
+ * @param string     $feature          The name of the feature to check.
+ * @param bool       $is_wpcom_product Optional. Whether it's a wpcom product. Defaults to true.
  *
  * @return bool
  */
 function wpcom_product_has_feature( $product_slug, $feature, $is_wpcom_product = true ) {
+	if ( is_numeric( $product_slug ) ) {
+		if ( ! function_exists( 'get_store_product' ) ) {
+			_doing_it_wrong(
+				__FUNCTION__,
+				'Support for product IDs is only available in contexts where WP.com store functions are defined.',
+				false // No version.
+			);
+
+			return false;
+		}
+
+		$product = get_store_product( $product_slug );
+		if ( ! $product instanceof Store_Product ) {
+			return false;
+		}
+
+		$product_slug = $product->product_slug;
+	}
+
 	$atomic_plan_aliases = array(
 		'business'  => 'business-bundle',
 		'ecommerce' => 'ecommerce-bundle',
