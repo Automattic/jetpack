@@ -977,21 +977,6 @@ class Manager {
 		$api_version = '/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/';
 
 		/**
-		 * Filters whether the connection manager should use the iframe authorization
-		 * flow instead of the regular redirect-based flow.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to false.
-		 */
-		$iframe_flow = apply_filters( 'jetpack_use_iframe_authorization_flow', false );
-
-		// Do not modify anything that is not related to authorize requests.
-		if ( 'authorize' === $relative_url && $iframe_flow ) {
-			$relative_url = 'authorize_iframe';
-		}
-
-		/**
 		 * Filters the API URL that Jetpack uses for server communication.
 		 *
 		 * @since 1.7.0
@@ -1160,19 +1145,12 @@ class Manager {
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
-		$allow_inplace_authorization = isset( $registration_details->allow_inplace_authorization ) ? $registration_details->allow_inplace_authorization : false;
 		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
-
-		if ( ! $allow_inplace_authorization ) {
-			// Forces register_site REST endpoint to return the Calypso authorization URL.
-			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
-		}
 
 		add_filter(
 			'jetpack_register_site_rest_response',
-			function ( $response ) use ( $allow_inplace_authorization, $alternate_authorization_url ) {
-				$response['allowInplaceAuthorization'] = $allow_inplace_authorization;
-				$response['alternateAuthorizeUrl']     = $alternate_authorization_url;
+			function ( $response ) use ( $alternate_authorization_url ) {
+				$response['alternateAuthorizeUrl'] = $alternate_authorization_url;
 				return $response;
 			}
 		);
