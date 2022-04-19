@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Ensure that all LinkedIn Publicize connections are checked for the need to re-authenticate
