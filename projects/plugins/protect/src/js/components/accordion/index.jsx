@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { Text } from '@automattic/jetpack-components';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -11,15 +11,27 @@ import classNames from 'classnames';
  */
 import styles from './styles.module.scss';
 
-export const AccordionItem = ( { title, label, icon, children } ) => {
-	const open = false;
+const AccordionContext = React.createContext();
+
+export const AccordionItem = ( { id, title, label, icon, children } ) => {
+	const accordionData = useContext( AccordionContext );
+	const open = accordionData?.open === id;
+	const setOpen = accordionData?.setOpen;
+
 	const bodyClassNames = classNames( styles[ 'accordion-body' ], {
 		[ styles[ 'accordion-body-open' ] ]: open,
+		[ styles[ 'accordion-body-close' ] ]: ! open,
 	} );
+
+	const handleClick = useCallback( () => {
+		setOpen( current => {
+			return current === id ? null : id;
+		} );
+	}, [ setOpen, id ] );
 
 	return (
 		<div className={ styles[ 'accordion-item' ] }>
-			<div className={ styles[ 'accordion-header' ] } role="button">
+			<button className={ styles[ 'accordion-header' ] } onClick={ handleClick }>
 				<div>
 					<Text className={ styles[ 'accordion-header-title' ] } mb={ 1 }>
 						<Icon icon={ icon } className={ styles[ 'accordion-header-title-icon' ] } />
@@ -30,14 +42,22 @@ export const AccordionItem = ( { title, label, icon, children } ) => {
 				<div className={ styles[ 'accordion-header-button' ] }>
 					<Icon icon={ open ? chevronUp : chevronDown } size={ 38 } />
 				</div>
+			</button>
+			<div className={ bodyClassNames } aria-hidden={ open ? 'false' : 'true' }>
+				{ children }
 			</div>
-			<div className={ bodyClassNames }>{ children }</div>
 		</div>
 	);
 };
 
 const Accordion = ( { children } ) => {
-	return <div className={ styles.accordion }>{ children }</div>;
+	const [ open, setOpen ] = useState();
+
+	return (
+		<AccordionContext.Provider value={ { open, setOpen } }>
+			<div className={ styles.accordion }>{ children }</div>
+		</AccordionContext.Provider>
+	);
 };
 
 export default Accordion;

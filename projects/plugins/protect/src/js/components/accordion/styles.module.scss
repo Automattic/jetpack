@@ -14,8 +14,16 @@
 
 .accordion-header {
 	display: flex;
-	justify-content: space-between;
 	cursor: pointer;
+	justify-content: space-between;
+	box-sizing: border-box;
+	background: none;
+	border: none;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	align-items: center;
+	outline-color: var(--jp-black);
 }
 
 .accordion-header-title {
@@ -33,14 +41,20 @@
 }
 
 .accordion-body {
-	transform: scaleY(0);
-	transform-origin: center;
-	transition: all .3s;
-	max-height: 0;
+	transform-origin: top center;
+	overflow: hidden;
+
+	&-close {
+		transition: all .1s;
+		max-height: 0;
+		padding: 0;
+		transform: scaleY(0);
+	}
 
 	&-open {
+		transition: max-height .3s, transform .2s;
 		padding: calc( var(--spacing-base) * 4 );
-		transform: scaleY(1);
 		max-height: 1000px;
+		transform: scaleY(1);
 	}
 }
