@@ -242,26 +242,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.9-a.3 - 2022-04-12
+### 10.9-a.7 - 2022-04-19
 #### Enhancements
-- Dashboard: Various improvements to recommendations.
-- Payments block: Improves block selection behavior.
-- Protect: Renamed to "Brute Force Protection" in the UI.
-- VideoPress: Adds settings for controlling VideoPress video privacy.
-- VideoPress: Enable the resumable uploader.
+- Add individual filters for JS and AMP stat footer data.
+- Add recommendation for anti-spam
+- Connection: when deactivating Jetpack from the Plugins screen, do not disconnect other Jetpack-connected plugins.
+- Moved gutenberg-base-styles.scss file to js-packages/base-styles and updated its imports in the Jetpack plugin directory
 
 #### Improved compatibility
-- Custom CSS: Improve saving for legacy Custom CSS.
-- Improvements to backwards compatibility with other Jetpack plugins.
-
+- Moved licensing images into licensing package to minimize external dependencies.
+- Updated Sync tests
+- update sync tests callables whitelist
 
 #### Bug fixes
-- Button block: Removes default CSS that would overwrite core and theme styles.
-- Payments block: Makes the ‘one time’ subscription recurrence always available.
-- Payments block: Fixes bug regarding creation of new Payment blocks.
-- Pay with PayPal: Fixes issue with saving widget in Customizer.
-- Slideshow block: Fix grid blowout when Slideshow block is inserted inside a Layout Grid block (in editor).
-- Top Posts Widget: ensure hooks retain existing behavior when adding extra data before or after each post.
+- Applied legacy Publicize filters to flag setting for Publicize
+- Fixing issue adding video descriptions and metadata via the WordPress.com dashboard.
+- Random Redirect: Fix functionality on author archives.
+- Update copy to reflect the actual plan that's needed
 
 --------
 
