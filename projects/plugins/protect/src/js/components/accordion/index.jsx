@@ -37,7 +37,7 @@ export const AccordionItem = ( { title, label, icon, children } ) => {
 };
 
 const Accordion = ( { children } ) => {
-	return <div>{ children }</div>;
+	return <div className={ styles.accordion }>{ children }</div>;
 };
 
 export default Accordion;
