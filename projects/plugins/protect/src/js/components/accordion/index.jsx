@@ -33,8 +33,8 @@ export const AccordionItem = ( { id, title, label, icon, children } ) => {
 		<div className={ styles[ 'accordion-item' ] }>
 			<button className={ styles[ 'accordion-header' ] } onClick={ handleClick }>
 				<div>
-					<Text className={ styles[ 'accordion-header-title' ] } mb={ 1 }>
-						<Icon icon={ icon } className={ styles[ 'accordion-header-title-icon' ] } />
+					<Text className={ styles[ 'accordion-header-label' ] } mb={ 1 }>
+						<Icon icon={ icon } className={ styles[ 'accordion-header-label-icon' ] } />
 						{ label }
 					</Text>
 					<Text>{ title }</Text>
