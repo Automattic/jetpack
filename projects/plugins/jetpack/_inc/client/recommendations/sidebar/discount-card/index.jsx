@@ -29,17 +29,23 @@ const DiscountCardComponent = props => {
 		productCardCtaText,
 		productCardList,
 		productCardIcon,
+		stepSlug,
 	} = props;
 
 	const onViewDiscountClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick(
-			'jetpack_recommendations_view_discounted_plans_button_click'
+			'jetpack_recommendations_view_discounted_plans_button_click',
+			{
+				feature: stepSlug,
+			}
 		);
-	}, [] );
+	}, [ stepSlug ] );
 
 	const onProductCtaClick = useCallback( () => {
-		analytics.tracks.recordJetpackClick( 'jetpack_recommendations_step_product_card_button_click' );
-	}, [] );
+		analytics.tracks.recordJetpackClick( 'jetpack_recommendations_step_product_card_button_click', {
+			feature: stepSlug,
+		} );
+	}, [ stepSlug ] );
 
 	return (
 		<div className="jp-recommendations-discount-card">
