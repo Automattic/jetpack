@@ -3,11 +3,12 @@
 	"description": "Share your site’s posts on several social media networks automatically when you publish a new post.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Social"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/social"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
