@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Assets: Defer the enqueued script instead of its translations
