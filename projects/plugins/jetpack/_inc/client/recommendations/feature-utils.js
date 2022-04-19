@@ -305,7 +305,7 @@ export const getProductCardData = ( state, productSlug ) => {
 					path: productSlug,
 				} ),
 				productCardCtaText: __( 'Get Jetpack Security', 'jetpack' ),
-				productCardList: products.security.features,
+				productCardList: products.security ? products.security.features : [],
 				productCardIcon: '/recommendations/cloud-icon.svg',
 			};
 		default:
@@ -321,6 +321,13 @@ export const getProductCardDataStepOverrides = ( state, productSlug, stepSlug ) 
 			if ( stepSlug === 'publicize' ) {
 				return {
 					productCardTitle: __( 'Your site is growing. It’s time for a security plan.', 'jetpack' ),
+				};
+			} else if ( stepSlug === 'security-plan' ) {
+				return {
+					productCardTitle: __(
+						'Jetpack Security gives you complete site protection and backups.',
+						'jetpack'
+					),
 				};
 			}
 			break;

@@ -314,6 +314,7 @@ export const getProductSlugForStep = ( state, step ) => {
 			}
 			break;
 		case 'publicize':
+		case 'security-plan':
 			if ( ! hasActiveSecurityPurchase( state ) && ! hasSecurityComparableLegacyPlan( state ) ) {
 				return PLAN_JETPACK_SECURITY_T1_YEARLY;
 			}
