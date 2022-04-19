@@ -10,7 +10,7 @@ import {
 import * as utils from "../utils";
 import * as message from '../../../shared/components/product-management-controls/utils';
 import * as currencies from '../../../shared/currencies';
-import api from '@wordpress/api-fetch';
+import apiFetch from '@wordpress/api-fetch';
 import {PRODUCT_TYPE_PAYMENT_PLAN} from "../../../shared/components/product-management-controls/constants";
 import {minimumTransactionAmountForCurrency} from "../../../shared/currencies";
 
@@ -24,14 +24,9 @@ const buildAnyValidProduct = () => ({
 	currency: 'USD'
 });
 
-const apiResponseProduct = {
-	id: 1,
-	title: 'anyTitle',
-	interval: 'anyInterval',
-	price: '12',
-	currency: 'anyCurrency',
-}
-jest.mock('@wordpress/api-fetch', () => jest.fn(() => apiResponseProduct))
+const anyFunction = () => {}
+
+jest.mock('@wordpress/api-fetch' );
 
 describe( 'Membership Products Actions', () => {
 
@@ -136,13 +131,13 @@ describe( 'Membership Products Actions', () => {
     productsForTitleTesting.forEach( testCase => {
         test( testCase.name, async () => {
             // Given
-            const selectedProductIdCallback = () => {};
+            const selectedProductIdCallback = anyFunction;
             const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
-            const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( () => {} );
-            const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation(() => {});
+            const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( anyFunction );
+            const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation(anyFunction);
 
             // When
-            await saveProduct( testCase.product, paymentPlanProductType, selectedProductIdCallback )(() => {}, () => {});
+            await saveProduct( testCase.product, paymentPlanProductType, selectedProductIdCallback )(anyFunction, anyFunction);
 
             // Then
             expect( noticeMock ).toBeCalled();
@@ -156,12 +151,12 @@ describe( 'Membership Products Actions', () => {
         const productWithValueBelowMin = buildAnyValidProduct();
         const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
         productWithValueBelowMin.price = ANY_MINIMUM_CURRENCY_AMOUNT - 1;
-        const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( () => {} );
+        const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( anyFunction );
         jest.spyOn( currencies, 'minimumTransactionAmountForCurrency' )
             .mockImplementation( () => ANY_MINIMUM_CURRENCY_AMOUNT );
 
         // When
-        await saveProduct( productWithValueBelowMin, paymentPlanProductType, () => {} )(() => {}, () => {});
+        await saveProduct( productWithValueBelowMin, paymentPlanProductType, anyFunction )(anyFunction, anyFunction);
 
         // Then
         expect( noticeMock ).toBeCalled();
@@ -172,11 +167,11 @@ describe( 'Membership Products Actions', () => {
         const productWithInvalidPrice = buildAnyValidProduct();
         productWithInvalidPrice.price = 'anyInvalidPrice';
         const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
-        const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( () => {} );
-        const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation(() => {});
+        const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( anyFunction );
+        const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation(anyFunction);
 
         // When
-        await saveProduct( productWithInvalidPrice, paymentPlanProductType, () => {} )(() => {}, () => {});
+        await saveProduct( productWithInvalidPrice, paymentPlanProductType, anyFunction )(anyFunction, anyFunction);
 
         // Then
         expect( noticeMock ).toBeCalled();
@@ -187,20 +182,28 @@ describe( 'Membership Products Actions', () => {
         // Given
         const anyValidProduct = buildAnyValidProduct();
         const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
-        const selectedProductCallback = jest.fn(() => {} );
+        const selectedProductCallback = jest.fn(anyFunction );
+        const apiResponseProduct = {
+            id: 1,
+            title: 'anyTitle',
+            interval: 'anyInterval',
+            price: '12',
+            currency: 'anyCurrency',
+        }
         const registryProductList = [ apiResponseProduct, apiResponseProduct ];
         const registry = {
             select: () => ( { getProducts: () => registryProductList } )
         };
-        const dispatch = jest.fn( () => {} );
-        const noticeMock = jest.spyOn( utils, 'onSuccess' ).mockImplementation( () => {} );
-		const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation( () => {} );
+        const dispatch = jest.fn( anyFunction );
+        const noticeMock = jest.spyOn( utils, 'onSuccess' ).mockImplementation( anyFunction );
+		const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation( anyFunction );
+        apiFetch.mockReturnValue( Promise.resolve( apiResponseProduct ) );
 
         // When
         await saveProduct( anyValidProduct, paymentPlanProductType, selectedProductCallback )( { dispatch, registry } );
 
         // Then
-		expect( api ).toBeCalledWith({
+		expect( apiFetch ).toBeCalledWith({
 			path: '/wpcom/v2/memberships/product',
 			method: 'POST',
 			data: anyValidProduct,
@@ -209,5 +212,21 @@ describe( 'Membership Products Actions', () => {
         expect( selectedProductCallback ).toBeCalledWith( apiResponseProduct.id );
         expect( noticeMock ).toBeCalled();
 		expect( getMessageMock ).toBeCalledWith( 'successfully created product', PRODUCT_TYPE_PAYMENT_PLAN );
+    } );
+
+    test( 'If we fail to retrieve data from the memberships API we display an error notice.', async () => {
+        // Given
+        const anyValidProduct = buildAnyValidProduct();
+        const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
+        const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( anyFunction );
+        const getMessageMock = jest.spyOn( message, 'getMessageByProductType' ).mockImplementation( anyFunction );
+        apiFetch.mockReturnValue( Promise.reject( 'anyErrorMessage' ) );
+
+        // When
+        await saveProduct( anyValidProduct, paymentPlanProductType, anyFunction )( anyFunction, anyFunction );
+
+        // Then
+        expect( noticeMock ).toBeCalled();
+        expect( getMessageMock ).toBeCalledWith( 'there was an error when adding the product', PRODUCT_TYPE_PAYMENT_PLAN );
     } );
 } );
