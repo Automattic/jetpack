@@ -17,7 +17,6 @@
 			action: 'videopress-get-playback-jwt',
 			guid: event.data.guid,
 			post_id: window.videopressAjax.post_id || 0,
-			nonce: window.videopressAjax.nonce || '',
 		};
 
 		fetch( window.videopressAjax.ajaxUrl, {

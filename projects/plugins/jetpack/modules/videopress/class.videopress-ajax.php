@@ -79,8 +79,6 @@ class VideoPress_AJAX {
 			$embedded_post_id = 0;
 		}
 
-		check_ajax_referer( 'videopress-get-playback-jwt', 'nonce' );
-
 		if ( ! $this->is_valid_guid( $guid ) ) {
 			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack' ) ) );
 			return;

@@ -94,7 +94,6 @@ class Jetpack_VideoPress {
 				'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
 				'bridgeUrl' => $bridge_url,
 				'post_id'   => $post_id,
-				'nonce'     => wp_create_nonce( 'videopress-get-playback-jwt' ),
 			)
 		);
 	}
