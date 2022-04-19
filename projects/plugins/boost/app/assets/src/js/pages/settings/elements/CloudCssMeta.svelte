@@ -8,14 +8,20 @@
 	 * Internal dependencies
 	 */
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
+	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
+	import { showError } from '../../../stores/critical-css-status';
 	import { requestCloudCss } from '../../../utils/cloud-css';
 </script>
 
-<CriticalCssStatus on:retry={requestCloudCss} on:retryShowStopper={requestCloudCss}>
-	<svelte:fragment slot="generating">
-		{__( 'Jetpack Boost will generate Critical CSS for you automatically.', 'jetpack-boost' )}
-	</svelte:fragment>
-	<svelte:fragment slot="generating-more">
-		{__( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' )}
-	</svelte:fragment>
-</CriticalCssStatus>
+{#if $showError}
+	<CriticalCssShowStopperError on:retry={requestCloudCss} />
+{:else}
+	<CriticalCssStatus
+		on:retry={requestCloudCss}
+		generateText={__(
+			'Jetpack Boost will generate Critical CSS for you automatically.',
+			'jetpack-boost'
+		)}
+		generateMoreText={__( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' )}
+	/>
+{/if}

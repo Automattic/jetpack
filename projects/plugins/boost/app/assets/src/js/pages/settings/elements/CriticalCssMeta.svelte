@@ -7,16 +7,14 @@
 	/**
 	 * Internal dependencies
 	 */
-	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
+	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
+	import { criticalCssStatus, showError } from '../../../stores/critical-css-status';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
 </script>
 
-<CriticalCssStatus
-	on:retry={generateCriticalCss}
-	on:retryShowStopper={() => generateCriticalCss( true, true )}
->
-	<div class="jb-critical-css-progress" slot="progress">
+{#if $criticalCssStatus.status === 'requesting'}
+	<div class="jb-critical-css-progress">
 		<span class="jb-critical-css-progress__label">
 			{__( 'Generating Critical CSS…', 'jetpack-boost' )}
 		</span>
@@ -34,4 +32,8 @@
 			/>
 		</div>
 	</div>
-</CriticalCssStatus>
+{:else if $showError}
+	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
+{:else}
+	<CriticalCssStatus on:retry={generateCriticalCss} />
+{/if}

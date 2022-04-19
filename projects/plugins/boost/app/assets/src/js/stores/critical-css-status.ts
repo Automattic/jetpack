@@ -83,9 +83,14 @@ export const isFinished = derived( { subscribe }, state =>
 	[ SUCCESS, FAIL ].includes( state.status )
 );
 
-export const cssModuleName = derived( [ modules ], ( [ $modules ] ) => {
-	return Object.keys( $modules ).includes( 'cloud-css' ) ? 'cloud-css' : 'critical-css';
-} );
+/**
+ * Derived datastore: Returns whether to show an error.
+ * Show an error if in error state, or if a success has 0 results.
+ */
+export const showError = derived(
+	{ subscribe },
+	state => state.status === 'error' || ( state.status === 'success' && state.success_count === 0 )
+);
 
 export const isGenerating = derived( [ store, modules ], ( [ $store, $modules ] ) => {
 	const statusIsRequesting = REQUESTING === $store.status;
