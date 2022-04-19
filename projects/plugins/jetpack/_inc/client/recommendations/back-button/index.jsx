@@ -20,7 +20,10 @@ const BackButton = () => {
 	return (
 		<button className="jp-recommendations-back-btn" onClick={ onBackClick }>
 			<Gridicon size={ 18 } icon="arrow-left" />
-			{ __( 'Back', 'jetpack' ) }
+			{
+				/* translators: As in go back to the previous page. */
+				__( 'Back', 'jetpack' )
+			}
 		</button>
 	);
 };
