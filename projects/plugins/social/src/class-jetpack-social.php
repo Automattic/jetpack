@@ -70,28 +70,7 @@ class Jetpack_Social {
 
 		new Publicize_UI();
 
-		add_action(
-			'rest_api_init',
-			function () {
-				register_rest_route(
-					'jetpack/v4',
-					'/module/all',
-					array(
-						'methods'  => WP_REST_Server::READABLE,
-						'callback' => function () {
-							return rest_ensure_response(
-								array(
-									'publicize' => array(
-										'activated' => true,
-									),
-								)
-							);
-						},
-					)
-				);
-			}
-		);
-
+		add_action( 'rest_api_init', array( $this, 'register_rest_route' ) );
 		// Priority >10 to run this filter after the Jetpack plugin runs this filter.
 		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ), 11, 1 );
 	}
@@ -159,7 +138,40 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Whitelist the `active_modules` option for Jetpack Sync if necessary.
+	 * Calypso and Jetpack Cloud use this endpoint to check if the connections
+	 * screen should be shown. If the Jetpack plugin isn't active, we use this
+	 * endpoint to communicate the status of the Publicize module.
+	 */
+	public function register_rest_route() {
+		// The Jetpack plugin provides its own version of this endpoint.
+		// See: Jetpack_Core_Json_Api_Endpoints
+		if ( class_exists( 'Jetpack' ) ) {
+			return;
+		}
+
+		register_rest_route(
+			'jetpack/v4',
+			'/module/all',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => function () {
+					return rest_ensure_response(
+						array(
+							'publicize' => array(
+								'activated' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
+							),
+						)
+					);
+				},
+			)
+		);
+	}
+
+	/**
+	 * Whitelist the `active_modules` option for Jetpack Sync.
+	 *
+	 * If the Jetpack plugin is active, this filter won't run (because it has
+	 * a lower priority and checks for the existence of `active_modules`).
 	 *
 	 * @param array $callables Array of callables to sync.
 	 * @return array
@@ -170,27 +182,16 @@ class Jetpack_Social {
 		}
 
 		$callables['active_modules'] = function () {
-			return array( 'publicize' );
+			$publicize_is_active = ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG );
+
+			return $publicize_is_active ? array( 'publicize' ) : array();
 		};
 
 		return $callables;
 	}
 
 	/**
-	 * Activate the Publicize module if necessary.
-	 */
-	public static function activate_publicize_module() {
-		$modules = new Modules();
-
-		if ( $modules->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ) {
-			return;
-		}
-
-		$modules->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG );
-	}
-
-	/**
-	 * Plugin activation.
+	 * Activate the Publicize module on plugin activation.
 	 *
 	 * @static
 	 *
@@ -198,7 +199,7 @@ class Jetpack_Social {
 	 */
 	public static function plugin_activation( $plugin ) {
 		if ( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
-			self::activate_publicize_module();
+			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG );
 		}
 	}
 }
