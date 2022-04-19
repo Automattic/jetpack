@@ -1,14 +1,14 @@
 <?php
 
 /**
-* Jetpack_Google_Analytics_Options provides a single interface to module options
-*
-* @author allendav 
-*/
+ * Jetpack_Google_Analytics_Options provides a single interface to module options
+ *
+ * @author allendav
+ */
 
 /**
-* Bail if accessed directly
-*/
+ * Bail if accessed directly
+ */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

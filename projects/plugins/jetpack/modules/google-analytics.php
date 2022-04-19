@@ -12,4 +12,4 @@
  * Plans: business, premium, security, complete
  */
 
-include dirname( __FILE__ ) . "/google-analytics/wp-google-analytics.php";
+require __DIR__ . '/google-analytics/wp-google-analytics.php';

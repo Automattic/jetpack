@@ -1,16 +1,16 @@
 <?php
 
 /**
-* Jetpack_Google_Analytics_Universal hooks and and enqueues support for analytics.js
-* https://developers.google.com/analytics/devguides/collection/analyticsjs/
-* https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce
-*
-* @author allendav
-*/
+ * Jetpack_Google_Analytics_Universal hooks and and enqueues support for analytics.js
+ * https://developers.google.com/analytics/devguides/collection/analyticsjs/
+ * https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce
+ *
+ * @author allendav
+ */
 
 /**
-* Bail if accessed directly
-*/
+ * Bail if accessed directly
+ */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -80,7 +80,7 @@ class Jetpack_Google_Analytics_Universal {
 		$async_code = str_replace( '%tracking_id%', $tracking_code, $async_code );
 
 		$universal_commands_string = implode( "\r\n", $universal_commands );
-		$async_code = str_replace( '%universal_commands%', $universal_commands_string, $async_code );
+		$async_code                = str_replace( '%universal_commands%', $universal_commands_string, $async_code );
 
 		echo "$async_code\r\n";
 	}
@@ -123,38 +123,38 @@ class Jetpack_Google_Analytics_Universal {
 			return $command_array;
 		}
 
-		$order = new WC_Order( $order_id );
+		$order          = new WC_Order( $order_id );
 		$order_currency = $order->get_currency();
-		$command = "ga( 'set', '&cu', '" . esc_js( $order_currency ) . "' );";
+		$command        = "ga( 'set', '&cu', '" . esc_js( $order_currency ) . "' );";
 		array_push( $command_array, $command );
 
 		// Order items
 		if ( $order->get_items() ) {
 			foreach ( $order->get_items() as $item ) {
-				$product = $order->get_product_from_item( $item );
+				$product           = $order->get_product_from_item( $item );
 				$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 				$item_details = array(
-					'id' => $product_sku_or_id,
-					'name' => $item['name'],
+					'id'       => $product_sku_or_id,
+					'name'     => $item['name'],
 					'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
-					'price' => $order->get_item_total( $item ),
+					'price'    => $order->get_item_total( $item ),
 					'quantity' => $item['qty'],
 				);
-				$command = "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );";
+				$command      = "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );';
 				array_push( $command_array, $command );
 			}
 		}
 
 		// Order summary
 		$summary = array(
-			'id' => $order->get_order_number(),
+			'id'          => $order->get_order_number(),
 			'affiliation' => get_bloginfo( 'name' ),
-			'revenue' => $order->get_total(),
-			'tax' => $order->get_total_tax(),
-			'shipping' => $order->get_total_shipping()
+			'revenue'     => $order->get_total(),
+			'tax'         => $order->get_total_tax(),
+			'shipping'    => $order->get_total_shipping(),
 		);
-		$command = "ga( 'ec:setAction', 'purchase', " . wp_json_encode( $summary ) . " );";
+		$command = "ga( 'ec:setAction', 'purchase', " . wp_json_encode( $summary ) . ' );';
 		array_push( $command_array, $command );
 
 		update_post_meta( $order_id, '_ga_tracked', 1 );
@@ -174,7 +174,7 @@ class Jetpack_Google_Analytics_Universal {
 		global $product;
 
 		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
-		$selector = ".single_add_to_cart_button";
+		$selector          = '.single_add_to_cart_button';
 
 		wc_enqueue_js(
 			"$( '" . esc_js( $selector ) . "' ).click( function() {
@@ -204,7 +204,7 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		$selector = ".add_to_cart_button:not(.product_type_variable, .product_type_grouped)";
+		$selector = '.add_to_cart_button:not(.product_type_variable, .product_type_grouped)';
 
 		wc_enqueue_js(
 			"$( '" . esc_js( $selector ) . "' ).click( function() {
@@ -283,22 +283,22 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		if ( isset( $_GET['s'] ) ) {
-			$list = "Search Results";
+			$list = 'Search Results';
 		} else {
-			$list = "Product List";
+			$list = 'Product List';
 		}
 
 		global $product, $woocommerce_loop;
 		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 		$item_details = array(
-			'id' => $product_sku_or_id,
-			'name' => $product->get_title(),
+			'id'       => $product_sku_or_id,
+			'name'     => $product->get_title(),
 			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
-			'list' => $list,
-			'position' => $woocommerce_loop['loop']
+			'list'     => $list,
+			'position' => $woocommerce_loop['loop'],
 		);
-		wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details ) . " );" );
+		wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details ) . ' );' );
 	}
 
 	public function listing_click() {
@@ -311,21 +311,21 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		if ( isset( $_GET['s'] ) ) {
-			$list = "Search Results";
+			$list = 'Search Results';
 		} else {
-			$list = "Product List";
+			$list = 'Product List';
 		}
 
 		global $product, $woocommerce_loop;
 		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
-		$selector = ".products .post-" . esc_js( $product->get_id() ) . " a";
+		$selector = '.products .post-' . esc_js( $product->get_id() ) . ' a';
 
 		$item_details = array(
-			'id' => $product_sku_or_id,
-			'name' => $product->get_title(),
+			'id'       => $product_sku_or_id,
+			'name'     => $product->get_title(),
 			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
-			'position' => $woocommerce_loop['loop']
+			'position' => $woocommerce_loop['loop'],
 		);
 
 		wc_enqueue_js(
@@ -354,13 +354,13 @@ class Jetpack_Google_Analytics_Universal {
 		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 		$item_details = array(
-			'id' => $product_sku_or_id,
-			'name' => $product->get_title(),
+			'id'       => $product_sku_or_id,
+			'name'     => $product->get_title(),
 			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
-			'price' => $product->get_price()
+			'price'    => $product->get_price(),
 		);
 		wc_enqueue_js(
-			"ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );" .
+			"ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );' .
 			"ga( 'ec:setAction', 'detail' );"
 		);
 	}
@@ -375,24 +375,24 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		$universal_commands = array();
-		$cart = WC()->cart->get_cart();
+		$cart               = WC()->cart->get_cart();
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
 			* This filter is already documented in woocommerce/templates/cart/cart.php
 			*/
-			$product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+			$product           = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 			$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 			$item_details = array(
-				'id' => $product_sku_or_id,
-				'name' => $product->get_title(),
+				'id'       => $product_sku_or_id,
+				'name'     => $product->get_title(),
 				'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
-				'price' => $product->get_price(),
-				'quantity' => $cart_item[ 'quantity' ]
+				'price'    => $product->get_price(),
+				'quantity' => $cart_item['quantity'],
 			);
 
-			array_push( $universal_commands, "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );" );
+			array_push( $universal_commands, "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );' );
 		}
 
 		array_push( $universal_commands, "ga( 'ec:setAction','checkout' );" );
