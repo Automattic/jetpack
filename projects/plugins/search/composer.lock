@@ -924,11 +924,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "a239505e310f4a1631854bf32e7e4a1c40755201"
+                "reference": "2f9333fed7c3931d54a2ba6283f8dd7979b7fc06"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-config": "^1.7",
+                "automattic/jetpack-config": "^1.8",
                 "automattic/jetpack-connection": "^1.38",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.15",
