@@ -16,6 +16,7 @@ import { ProductPurchased } from './product-purchased';
 import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
+import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryRecommendationsProductSuggestions from 'components/data/query-recommendations-product-suggestions';
 import QueryRecommendationsUpsell from 'components/data/query-recommendations-upsell';
 import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
@@ -98,6 +99,7 @@ const RecommendationsComponent = props => {
 			<QuerySite />
 			<QuerySitePlugins />
 			<QuerySiteDiscount />
+			<QueryIntroOffers />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
 					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
