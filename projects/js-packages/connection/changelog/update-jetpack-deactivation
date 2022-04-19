@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Do not hard disconnect Jetpack on deactivation

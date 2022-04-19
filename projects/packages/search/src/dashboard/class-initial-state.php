@@ -81,8 +81,8 @@ class Initial_State {
 			),
 			'features'        => array_map(
 				'sanitize_text_field',
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				isset( $_GET['features'] ) ? explode( ',', $_GET['features'] ) : array()
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
 			),
 		);
 	}

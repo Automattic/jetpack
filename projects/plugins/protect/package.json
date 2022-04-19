@@ -24,7 +24,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/jetpack-base-styles": "workspace:* || ^0.2",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@automattic/jetpack-connection": "workspace:* || ^0.17",
 		"@wordpress/data": "6.6.0",

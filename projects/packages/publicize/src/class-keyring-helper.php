@@ -192,7 +192,7 @@ class Keyring_Helper {
 	public static function admin_page_load() {
 		if ( isset( $_GET['action'] ) ) {
 			if ( isset( $_GET['service'] ) ) {
-				$service_name = $_GET['service']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We verify below.
+				$service_name = filter_var( wp_unslash( $_GET['service'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We verify below.
 			}
 
 			switch ( $_GET['action'] ) {
@@ -262,7 +262,7 @@ class Keyring_Helper {
 					break;
 
 				case 'delete':
-					$id = $_GET['id'];
+					$id = isset( $_GET['id'] ) ? filter_var( wp_unslash( $_GET['id'] ) ) : null;
 
 					check_admin_referer( 'keyring-request', 'kr_nonce' );
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );

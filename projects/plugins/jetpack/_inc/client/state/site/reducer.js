@@ -296,6 +296,19 @@ export function getActiveFeatures( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'site', 'features', 'active' ], [] );
 }
 
+/**
+ * Check if the feature is active on the site.
+ *
+ * @param  {object}  state     - Global state tree
+ * @param  {string}  featureId - The feature to check.
+ * @returns {boolean} True if the feature is active. Otherwise, False.
+ */
+export function hasActiveSiteFeature( state, featureId ) {
+	const siteFeatures = getActiveFeatures( state );
+
+	return siteFeatures && siteFeatures.indexOf( featureId ) >= 0;
+}
+
 export function getSitePurchases( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'sitePurchases' ], [] );
 }

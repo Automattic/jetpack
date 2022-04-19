@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added get_themes Callable to sync the list of installed themes on a site
