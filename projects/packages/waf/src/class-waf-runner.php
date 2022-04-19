@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\Connection\Client;
+use Jetpack_Options;
+
 /**
  * Executes the WAF.
  */
@@ -45,6 +48,11 @@ class Waf_Runner {
 	 * @return bool
 	 */
 	public static function is_allowed_mode( $option ) {
+		// Normal constants are defined prior to WP_CLI running causing problems for activation
+		if ( defined( 'WAF_CLI_MODE' ) ) {
+			$option = WAF_CLI_MODE;
+		}
+
 		$allowed_modes = array(
 			'normal',
 			'silent',
@@ -63,6 +71,8 @@ class Waf_Runner {
 		if ( self::did_run() ) {
 			return;
 		}
+
+		Waf_Constants::initialize_constants();
 
 		// if ABSPATH is defined, then WordPress has already been instantiated,
 		// and we're running as a plugin (meh). Otherwise, we're running via something
@@ -119,7 +129,7 @@ class Waf_Runner {
 	 * @return void
 	 * @throws \Exception If filesystem is unavailable.
 	 */
-	protected static function initialize_filesystem() {
+	public static function initialize_filesystem() {
 		if ( ! function_exists( '\\WP_Filesystem' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
@@ -143,7 +153,74 @@ class Waf_Runner {
 		if ( ! $version ) {
 			add_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 		}
+		self::create_waf_directory();
+		self::create_blocklog_table();
 		self::generate_rules();
+	}
+
+	/**
+	 * Created the waf directory on activation.
+	 *
+	 * @return void
+	 * @throws \Exception In case there's a problem when creating the directory.
+	 */
+	public static function create_waf_directory() {
+		WP_Filesystem();
+		Waf_Constants::initialize_constants();
+
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			throw new \Exception( 'Can not work without the file system being initialized.' );
+		}
+
+		if ( ! $wp_filesystem->is_dir( JETPACK_WAF_DIR ) ) {
+			if ( ! $wp_filesystem->mkdir( JETPACK_WAF_DIR ) ) {
+				throw new \Exception( 'Failed creating WAF standalone bootstrap file directory: ' . JETPACK_WAF_DIR );
+			}
+		}
+	}
+
+	/**
+	 * Create the log table when plugin is activated.
+	 *
+	 * @return void
+	 */
+	public static function create_blocklog_table() {
+		global $wpdb;
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		$sql = "
+		CREATE TABLE {$wpdb->prefix}jetpack_waf_blocklog (
+			log_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			timestamp datetime NOT NULL,
+			rule_id BIGINT NOT NULL,
+			reason longtext NOT NULL,
+			PRIMARY KEY (log_id),
+			KEY timestamp (timestamp)
+		)
+	";
+
+		dbDelta( $sql );
+	}
+
+	/**
+	 * Deactivates the WAF by deleting the relevant options and emptying rules file.
+	 *
+	 * @return void
+	 * @throws \Exception If file writing fails.
+	 */
+	public static function deactivate() {
+		delete_option( self::MODE_OPTION_NAME );
+		delete_option( self::VERSION_OPTION_NAME );
+
+		global $wp_filesystem;
+
+		self::initialize_filesystem();
+
+		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, "<?php\n" ) ) {
+			throw new \Exception( 'Failed to empty rules.php file.' );
+		}
 	}
 
 	/**
@@ -164,9 +241,40 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Retrieve rules from the API
+	 *
+	 * @throws \Exception If site is not registered.
+	 * @throws \Exception If API did not respond 200.
+	 * @throws \Exception If data is missing from response.
+	 * @return array
+	 */
+	public static function get_rules_from_api() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			throw new \Exception( 'Site is not registered' );
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%s/waf-rules', $blog_id )
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			throw new \Exception( 'API connection failed.' );
+		}
+
+		$rules_json = wp_remote_retrieve_body( $response );
+		$rules      = json_decode( $rules_json, true );
+
+		if ( empty( $rules['data'] ) ) {
+			throw new \Exception( 'Data missing from response.' );
+		}
+
+		return $rules['data'];
+	}
+
+	/**
 	 * Generates the rules.php script
 	 *
-	 * @throws \Exception If filesystem is not available.
 	 * @throws \Exception If file writing fails.
 	 * @return void
 	 */
@@ -175,11 +283,13 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
+		$rules = self::get_rules_from_api();
+
 		// Ensure that the folder exists.
 		if ( ! $wp_filesystem->is_dir( dirname( self::RULES_FILE ) ) ) {
 			$wp_filesystem->mkdir( dirname( self::RULES_FILE ) );
 		}
-		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, "<?php\n" ) ) {
+		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, $rules ) ) {
 			throw new \Exception( 'Failed writing to: ' . self::RULES_FILE );
 		}
 	}

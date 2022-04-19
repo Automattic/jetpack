@@ -14,6 +14,8 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test guarding against running outside of WP context.
+	 *
+	 * @runInSeparateProcess
 	 */
 	public function testConstructingTheBootstrapWithoutAbspathConstantThrowsException() {
 		$this->assertFalse( defined( 'ABSPATH' ) );
@@ -31,10 +33,12 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		define( 'WP_CONTENT_DIR', '/pseudo/dir' );
 
 		$this->assertFalse( defined( 'JETPACK_WAF_DIR' ) );
+		$this->assertFalse( defined( 'JETPACK_WAF_WPCONFIG' ) );
 
 		new Waf_Standalone_Bootstrap();
 
 		$this->assertSame( '/pseudo/dir/jetpack-waf', JETPACK_WAF_DIR );
+		$this->assertSame( '/pseudo/dir/../wp-config.php', JETPACK_WAF_WPCONFIG );
 	}
 
 	/**

@@ -7,8 +7,6 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
-use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Redirect;
 
@@ -200,13 +198,11 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
-	 * Enqueues JavaScript and CSS for new connect-in-place flow.
+	 * Enqueues JavaScript and CSS for the connection button.
 	 *
 	 * @since 7.7
 	 */
 	public static function enqueue_connect_button_scripts() {
-		global $is_safari;
-
 		wp_enqueue_script(
 			'jetpack-connect-button',
 			Assets::get_file_url_for_environment(
@@ -230,14 +226,6 @@ class Jetpack_Connection_Banner {
 
 		$jetpack_api_url = wp_parse_url( Jetpack::connection()->api_url( '' ) );
 
-		// Due to the limitation in how 3rd party cookies are handled in Safari and Opera,
-		// we're falling back to the original flow.
-		if ( $is_safari || User_Agent_Info::is_opera_desktop() || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
-			$force_variation = 'original';
-		} else {
-			$force_variation = 'in_place';
-		}
-
 		$tracking = new Automattic\Jetpack\Tracking();
 		$identity = $tracking->tracks_get_identity( get_current_user_id() );
 
@@ -251,7 +239,6 @@ class Jetpack_Connection_Banner {
 				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpack_api_url['scheme'] . '://' . $jetpack_api_url['host'],
-				'forceVariation'        => $force_variation,
 				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
 				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),

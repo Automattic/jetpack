@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-wordads",
-	"version": "0.1.0-alpha",
+	"version": "0.1.1-alpha",
 	"description": "Earn income by allowing Jetpack to display high quality ads.",
 	"main": "main.js",
 	"homepage": "https://jetpack.com",
@@ -32,7 +32,7 @@
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
-		"@automattic/jetpack-api": "workspace:* || ^0.12",
+		"@automattic/jetpack-api": "workspace:* || ^0.13",
 		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@wordpress/base-styles": "4.1.1",
 		"@wordpress/block-editor": "8.2.0",
