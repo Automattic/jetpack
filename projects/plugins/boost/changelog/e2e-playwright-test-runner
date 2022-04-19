@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-E2E tests: migrate from Jest to Playwright test runner

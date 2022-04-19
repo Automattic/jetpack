@@ -14,6 +14,7 @@ import {
 	isAtomicSite,
 	isSimpleSite,
 	getJetpackExtensionAvailability,
+	withHasWarningIsInteractiveClassNames,
 } from '@automattic/jetpack-shared-extension-utils';
 import { every } from 'lodash';
 
@@ -27,7 +28,6 @@ import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
-import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
 
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
@@ -48,7 +48,7 @@ const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 				<Button
 					disabled={ true }
 					className="components-button no-videopress-disabled-button"
-					isSecondary
+					variant="secondary"
 				>
 					{ __( 'Media Library', 'jetpack' ) }
 				</Button>
@@ -56,7 +56,7 @@ const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 				<Button
 					disabled={ true }
 					className="components-button no-videopress-disabled-button"
-					isSecondary
+					variant="secondary"
 				>
 					{ __( 'Upload', 'jetpack' ) }
 				</Button>

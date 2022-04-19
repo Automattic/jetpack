@@ -1,0 +1,114 @@
+// as soon start to use Text,
+// we reset all text elements
+:global {
+	p, h1, h2, h3, h4, h5, h6 {
+		margin: 0;
+		padding: 0;
+	}
+}
+
+/* Emerald Typography/Headline Medium */
+.headline-medium {
+	font-size: var(--font-headline-medium);
+	font-weight: 700;
+	line-height: 52px;
+}
+
+/* Emerald Typography/Headline Small */
+.headline-small {
+	font-size: var(--font-headline-small);
+	font-weight: 700;
+	line-height: 40px;
+}
+
+/* Emerald Typography/Headline Small Regular */
+.headline-small-regular {
+	font-size: var(--font-headline-small);
+	font-weight: 400;
+	line-height: 40px;
+}
+
+/* Emerald Typography/Title Medium */
+.title-medium {
+	font-size: var(--font-title-medium);
+	font-weight: 500;
+	line-height: 32px;
+}
+
+/* Emerald Typography/Title Small */
+.title-small {
+	font-size: var(--font-title-small);
+	font-weight: 500;
+	line-height: 30px;
+}
+
+/* Emerald Typography/Body */
+.body {
+	font-size: var(--font-body);
+	font-weight: 400;
+	line-height: 24px;
+}
+
+/* Emerald Typography/Body Small */
+.body-small {
+	font-size: var(--font-body-small);
+	font-weight: 400;
+	line-height: 24px;
+}
+
+/* Emerald Typography/Body Extra Small */
+.body-extra-small {
+	font-size: var(--font-body-extra-small);
+	font-weight: 400;
+	line-height: 20px;
+}
+
+/* Emerald Typography/Body Extra Small Label */
+.label {
+	font-size: var(--font-body-extra-small);
+	font-weight: 600;
+	line-height: 16px;
+}
+
+/** Box-Model: Spacing (margin) */
+$props: (
+	"margin": "m",
+	"padding": "p",
+);
+
+$sides: (
+	"top": "t",
+	"right": "r",
+	"bottom": "b",
+	"left": "l",
+);
+
+@each $prop, $p in $props {
+	$sizes: ( 0, 1, 2, 3, 4, 5, 6, 7, 8 );
+
+	@each $size in $sizes {
+		/* m, p */
+		.#{$p}-#{$size} {
+			#{$prop}: calc( var( --spacing-base ) * #{$size} );
+		}
+
+		/* mx, px */
+		.#{$p}x-#{$size} {
+			#{$prop}-left: calc( var( --spacing-base ) * #{$size} );
+			#{$prop}-right: calc( var( --spacing-base ) * #{$size} );
+		}	
+
+		.#{$p}y-#{$size} {
+			#{$prop}-top: calc( var( --spacing-base ) * #{$size} );
+			#{$prop}-bottom: calc( var( --spacing-base ) * #{$size} );
+		}
+
+		/* mt, mr, mb, ml */
+		/* pt, pr, pb, pl */
+		@each $side, $s in $sides {
+			.#{$p}#{$s}-#{$size} {
+				#{$prop}-#{$side}: calc( var( --spacing-base ) * #{$size} );
+			}
+		}
+	}
+}

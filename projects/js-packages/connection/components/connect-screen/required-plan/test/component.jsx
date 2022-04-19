@@ -83,7 +83,7 @@ describe( 'ConnectScreenRequiredPlan', () => {
 		render(
 			<ConnectScreenRequiredPlan { ...requiredProps } handleButtonClick={ handleButtonClick } />
 		);
-		const button = screen.getByRole( 'button', { name: 'Log in' } );
+		const button = screen.getByRole( 'button', { name: 'Log in to get started' } );
 		userEvent.click( button );
 		expect( handleButtonClick.called ).to.be.true;
 	} );

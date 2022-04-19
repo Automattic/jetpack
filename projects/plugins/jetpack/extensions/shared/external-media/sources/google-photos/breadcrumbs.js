@@ -13,7 +13,7 @@ import { PATH_ROOT } from '../../constants';
 function Breadcrumbs( { path, setPath } ) {
 	return (
 		<Fragment>
-			<Button isTertiary onClick={ () => setPath( PATH_ROOT ) }>
+			<Button variant="tertiary" onClick={ () => setPath( PATH_ROOT ) }>
 				{ __( 'Albums', 'jetpack' ) }
 			</Button>
 			→ &nbsp; { path.name }

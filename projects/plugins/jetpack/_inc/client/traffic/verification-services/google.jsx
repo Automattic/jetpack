@@ -10,12 +10,12 @@ import { connect } from 'react-redux';
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import ExternalLink from 'components/external-link';
 import TextInput from 'components/text-input';
 import { isFetchingSiteData } from 'state/site';
 import { FormLabel } from 'components/forms';
@@ -257,9 +257,6 @@ class GoogleVerificationServiceComponent extends React.Component {
 										{
 											a: (
 												<ExternalLink
-													icon
-													iconSize={ 16 }
-													target="_blank"
 													rel="noopener noreferrer"
 													href={ this.props.googleSearchConsoleUrl }
 												/>
@@ -275,18 +272,12 @@ class GoogleVerificationServiceComponent extends React.Component {
 										{
 											a1: (
 												<ExternalLink
-													icon
-													iconSize={ 16 }
-													target="_blank"
 													rel="noopener noreferrer"
 													href={ 'https://developers.google.com/web/fundamentals/security/hacked/' }
 												/>
 											),
 											a2: (
 												<ExternalLink
-													icon
-													iconSize={ 16 }
-													target="_blank"
 													rel="noopener noreferrer"
 													href={
 														'https://www.google.com/insidesearch/howsearchworks/crawling-indexing.html'

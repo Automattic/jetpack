@@ -13,6 +13,7 @@ import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
+import SubscribePanels from './panel';
 import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'subscriptions';
@@ -64,11 +65,11 @@ export const settings = {
 		{
 			name: 'compact',
 			label: __( 'Compact', 'jetpack' ),
-			isDefault: true,
 		},
 		{
 			name: 'split',
 			label: __( 'Split', 'jetpack' ),
+			isDefault: true,
 		},
 	],
 	transforms: {
@@ -105,4 +106,8 @@ export const settings = {
 		align: [ 'wide', 'full' ],
 	},
 	deprecated,
+};
+
+export const pluginSettings = {
+	render: SubscribePanels,
 };

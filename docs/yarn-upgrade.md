@@ -26,7 +26,7 @@ Before checking out a branch using pnpm, you'll likely want to remove any `node_
 rm -rf node_modules projects/*/*/node_modules projects/plugins/jetpack/tests/e2e/node_modules tools/cli/node_modules
 ```
 You may also want to uninstall the Jetpack CLI from yarn with `yarn cli-unlink`.
-Then, after checking out the branch, execute `pnpm install` or `pnpm cli-setup`.
+Then, after checking out the branch, execute `pnpm install`.
 
 If you forget to do this, you'll most like get the following message when checking out the branch:
 ```

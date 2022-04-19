@@ -11,6 +11,7 @@ import {
 	AdminPage,
 	Container,
 	Col,
+	Text,
 } from '@automattic/jetpack-components';
 
 /**
@@ -70,12 +71,9 @@ export default function MyJetpackScreen() {
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 7 } lg={ 6 }>
-						<h1 className={ styles.heading }>
-							{ __(
-								'Manage your Jetpack plan and products all in one place',
-								'jetpack-my-jetpack'
-							) }
-						</h1>
+						<Text variant="headline-small">
+							{ __( 'Manage your Jetpack products', 'jetpack-my-jetpack' ) }
+						</Text>
 					</Col>
 					{ message && (
 						<Col>

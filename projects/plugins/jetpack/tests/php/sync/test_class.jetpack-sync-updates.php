@@ -29,15 +29,18 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		wp_update_plugins();
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+
 		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
 
 		$this->assertFalse( isset( $updates->no_update ) );
-		$this->assertTrue( isset( $updates->response ) );
-
 		$this->assertTrue( is_int( $updates->last_checked ) );
+
+		$this->assertArrayHasKey( 'hello', $updates->response );
 	}
 
 	public function test_update_plugins_is_synced_once() {
@@ -89,14 +92,16 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
-
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		wp_update_themes();
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+
 		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
 		$theme = reset( $updates->response );
 
-		$this->assertTrue( (bool) $theme['name'] );
+		$this->assertSame( 'hello', $theme['name'] );
 		$this->assertTrue( is_int( $updates->last_checked ) );
 	}
 
@@ -155,11 +160,10 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		delete_site_transient( 'update_core' );
 		$this->server_event_storage->reset();
 
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		_maybe_update_core();
-		$core_transiant = get_site_transient( 'update_core' );
-		if ( sizeof( $core_transiant->updates ) === 1 && $core_transiant->updates[0]->response === 'latest' ) {
-			$this->markTestSkipped( 'No new updates!' );
-		}
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'core' );
 		$this->assertTrue( is_int( $updates->last_checked ) );
@@ -167,7 +171,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		// Since the transient gets updates twice and we only care about the
 		// last update we only want to see 1 sync event.
 		$events = $this->server_event_storage->get_all_events( 'jetpack_update_core_change' );
-		$this->assertEquals( count( $events ) , 1 );
+		$this->assertEquals( 1, count( $events ) );
 
 	}
 
@@ -178,10 +182,16 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
 
 		// Lets pretend that we updated the wp_version to bar.
+
 		$wp_version = 'bar';
+
+		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 		do_action( 'upgrader_process_complete', null, array( 'action' => 'update', 'type' => 'core' ) );
+		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
+
 		$this->sender->do_sync();
 		$wp_version = $previous_version;
+
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_callable( 'wp_version' ) );
 	}
 

@@ -33,7 +33,7 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgra
 				) }
 			</p>
 
-			{ showUpgradeNudge && <p>{ __( 'Business or eCommerce plan required.', 'jetpack' ) }</p> }
+			{ showUpgradeNudge && <p>{ __( 'Pro plan required.', 'jetpack' ) }</p> }
 
 			<div className="jetpack-gutenberg-social-icons">
 				{ AVAILABLE_SERVICES.map( service => (
@@ -45,7 +45,7 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgra
 				) ) }
 			</div>
 
-			<Button isSecondary onClick={ openModal } label={ buttonLabel }>
+			<Button variant="secondary" onClick={ openModal } label={ buttonLabel }>
 				{ buttonText }
 			</Button>
 		</div>

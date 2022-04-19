@@ -315,7 +315,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @param string $id is the specific id that will appear in the redirect fragment. If none is provided self::$instance_count will be used.
 	 */
 	protected static function get_redirect_fragment( $id = null ) {
-		if ( is_null( $id ) ) {
+		if ( $id === null ) {
 			return 'subscribe-blog' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' );
 		}
 

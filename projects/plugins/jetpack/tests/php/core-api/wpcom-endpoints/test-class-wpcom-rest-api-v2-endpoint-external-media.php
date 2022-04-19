@@ -209,14 +209,14 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		$this->assertArrayHasKey( 'pexels_object', $meta );
 		$this->assertArrayHasKey( 'orientations', $meta );
 		$this->assertArrayNotHasKey( 'not_allowed_key', $meta );
-		$this->assertEquals( $meta['vertical_id'][0], 'v1234' );
+		$this->assertEquals( 'v1234', $meta['vertical_id'][0] );
 
 		$orientations = maybe_unserialize( $meta['orientations'][0] );
-		$this->assertEquals( $orientations[0], 'landscape' );
-		$this->assertEquals( $orientations[1], 'square' );
+		$this->assertEquals( 'landscape', $orientations[0] );
+		$this->assertEquals( 'square', $orientations[1] );
 
 		$pexels_object = maybe_unserialize( $meta['pexels_object'][0] );
-		$this->assertEquals( $pexels_object['information'], 'goes here' );
+		$this->assertEquals( 'goes here', $pexels_object['information'] );
 	}
 
 	/**
@@ -265,8 +265,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
 		remove_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
 
-		$this->assertEquals( $response->status, 400 );
-		$this->assertEquals( $response->data['data']['params']['media'], 'this_meta_key is not a valid property of Object.' );
+		$this->assertEquals( 400, $response->status );
+		$this->assertEquals( 'this_meta_key is not a valid property of Object.', $response->data['data']['params']['media'] );
 	}
 
 	/**
@@ -315,8 +315,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
 		remove_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
 
-		$this->assertEquals( $response->status, 400 );
-		$this->assertEquals( $response->data['data']['params']['media'], 'media[0][meta][orientations][2] is not one of landscape, portrait, and square.' );
+		$this->assertEquals( 400, $response->status );
+		$this->assertEquals( 'media[0][meta][orientations][2] is not one of landscape, portrait, and square.', $response->data['data']['params']['media'] );
 	}
 
 	/**

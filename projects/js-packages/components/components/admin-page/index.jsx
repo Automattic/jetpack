@@ -24,7 +24,15 @@ import Col from '../layout/col';
  * @returns {React.Component} AdminPage component.
  */
 const AdminPage = props => {
-	const { children, moduleName, a8cLogoHref, showHeader, showFooter, showBackground } = props;
+	const {
+		children,
+		moduleName,
+		moduleNameHref,
+		a8cLogoHref,
+		showHeader,
+		showFooter,
+		showBackground,
+	} = props;
 	const rootClassName = classNames( styles[ 'admin-page' ], {
 		[ styles.background ]: showBackground,
 	} );
@@ -44,7 +52,11 @@ const AdminPage = props => {
 			{ showFooter && (
 				<Container horizontalSpacing={ 5 }>
 					<Col>
-						<JetpackFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
+						<JetpackFooter
+							moduleName={ moduleName }
+							a8cLogoHref={ a8cLogoHref }
+							moduleNameHref={ moduleNameHref }
+						/>
 					</Col>
 				</Container>
 			) }
@@ -53,7 +65,6 @@ const AdminPage = props => {
 };
 
 AdminPage.defaultProps = {
-	a8cLogoHref: 'https://jetpack.com',
 	moduleName: __( 'Jetpack', 'jetpack' ),
 	showHeader: true,
 	showFooter: true,
@@ -69,6 +80,8 @@ AdminPage.propTypes = {
 	showHeader: PropTypes.bool,
 	/** Whether or not to display the Footer */
 	showFooter: PropTypes.bool,
+	/** Link that the Footer Module name will link to (optional). */
+	moduleNameHref: PropTypes.string,
 	/** Whether or not to display the Background Color */
 	showBackground: PropTypes.bool,
 };

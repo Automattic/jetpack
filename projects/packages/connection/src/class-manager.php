@@ -116,6 +116,7 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
+
 	}
 
 	/**
@@ -315,7 +316,7 @@ class Manager {
 	 * @return false|array
 	 */
 	public function verify_xml_rpc_signature() {
-		if ( is_null( $this->xmlrpc_verification ) ) {
+		if ( $this->xmlrpc_verification === null ) {
 			$this->xmlrpc_verification = $this->internal_verify_xml_rpc_signature();
 
 			if ( is_wp_error( $this->xmlrpc_verification ) ) {
@@ -347,7 +348,7 @@ class Manager {
 	 * @todo Refactor to use proper nonce verification.
 	 */
 	private function internal_verify_xml_rpc_signature() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// It's not for us.
 		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
 			return false;
@@ -358,14 +359,14 @@ class Manager {
 			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',
 			'nonce'     => isset( $_GET['nonce'] ) ? wp_unslash( $_GET['nonce'] ) : '',
 			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
-			'method'    => wp_unslash( $_SERVER['REQUEST_METHOD'] ),
-			'url'       => wp_unslash( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ), // Temp - will get real signature URL later.
+			'method'    => isset( $_SERVER['REQUEST_METHOD'] ) ? wp_unslash( $_SERVER['REQUEST_METHOD'] ) : null,
+			'url'       => wp_unslash( ( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : null ) . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null ) ), // Temp - will get real signature URL later.
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
 
@@ -433,7 +434,7 @@ class Manager {
 			ksort( $post_data );
 
 			$body = http_build_query( stripslashes_deep( $post_data ) );
-		} elseif ( is_null( $this->raw_post_data ) ) {
+		} elseif ( $this->raw_post_data === null ) {
 			$body = file_get_contents( 'php://input' );
 		} else {
 			$body = null;
@@ -441,7 +442,7 @@ class Manager {
 		// phpcs:enable
 
 		$signature = $jetpack_signature->sign_current_request(
-			array( 'body' => is_null( $body ) ? $this->raw_post_data : $body )
+			array( 'body' => $body === null ? $this->raw_post_data : $body )
 		);
 
 		$signature_details['url'] = $jetpack_signature->current_request_url;
@@ -458,7 +459,7 @@ class Manager {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$timestamp = (int) $_GET['timestamp'];
-		$nonce     = stripslashes( (string) $_GET['nonce'] );
+		$nonce     = wp_unslash( (string) $_GET['nonce'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- WP Core doesn't sanitize nonces either.
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Use up the nonce regardless of whether the signature matches.
@@ -476,7 +477,7 @@ class Manager {
 		$signature_details['expected'] = $signature;
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+		if ( ! hash_equals( $signature, wp_unslash( $_GET['signature'] ) ) ) {
 			return new \WP_Error(
 				'signature_mismatch',
 				'Signature mismatch',
@@ -976,21 +977,6 @@ class Manager {
 		$api_version = '/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/';
 
 		/**
-		 * Filters whether the connection manager should use the iframe authorization
-		 * flow instead of the regular redirect-based flow.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to false.
-		 */
-		$iframe_flow = apply_filters( 'jetpack_use_iframe_authorization_flow', false );
-
-		// Do not modify anything that is not related to authorize requests.
-		if ( 'authorize' === $relative_url && $iframe_flow ) {
-			$relative_url = 'authorize_iframe';
-		}
-
-		/**
 		 * Filters the API URL that Jetpack uses for server communication.
 		 *
 		 * @since 1.7.0
@@ -1159,19 +1145,12 @@ class Manager {
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
-		$allow_inplace_authorization = isset( $registration_details->allow_inplace_authorization ) ? $registration_details->allow_inplace_authorization : false;
 		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
-
-		if ( ! $allow_inplace_authorization ) {
-			// Forces register_site REST endpoint to return the Calypso authorization URL.
-			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
-		}
 
 		add_filter(
 			'jetpack_register_site_rest_response',
-			function ( $response ) use ( $allow_inplace_authorization, $alternate_authorization_url ) {
-				$response['allowInplaceAuthorization'] = $allow_inplace_authorization;
-				$response['alternateAuthorizeUrl']     = $alternate_authorization_url;
+			function ( $response ) use ( $alternate_authorization_url ) {
+				$response['alternateAuthorizeUrl'] = $alternate_authorization_url;
 				return $response;
 			}
 		);
@@ -2488,4 +2467,5 @@ class Manager {
 		}
 		return $stats;
 	}
+
 }

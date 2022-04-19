@@ -1,0 +1,87 @@
+.jp-search-bar-chart__container {
+	max-height: 40px;
+}
+
+.jp-search-chart-legend__box {
+	margin-right: 3px;
+	margin-left: 6px;
+	width: 15px;
+	height: 15px;
+	border-radius: 100%;
+	display: inline-block;
+}
+
+.jp-search-chart-legend {
+	list-style: none;
+	display: inline-block;
+}
+
+ul.jp-search-chart-legend {
+	padding-left: 0;
+}
+
+.jp-search-chart-legend li {
+	display: inherit;
+	padding-bottom: 15px;
+}
+
+.jp-search-chart-legend li .jp-search-chart-legend__label,
+.jp-search-chart-legend li .jp-search-chart-legend__count {
+	max-width: 200px;
+	padding-right: 3px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: inherit;
+}
+
+.jp-search-notice-box {
+	background-color: white;
+	color: black;
+	border: lightgray 0.5px solid;
+	border-radius: 5px;
+}
+
+.jp-search-notice-box__important {
+	border: red 0.5px solid;
+}
+
+.jp-search-notice-box span.dops-notice__icon-wrapper,
+.jp-search-notice-box__important span.dops-notice__icon-wrapper {
+	background-color: white;
+}
+
+.jp-search-notice-box a.dops-notice__action {
+	display: inline;
+	color: black;
+	padding: 0 0 0 5px;
+	font-weight: bold;
+}
+
+.jp-search-notice-box span.dops-notice__dismiss > svg {
+	color: darkgrey;
+}
+
+.jp-search-notice-box span.dops-notice__dismiss > svg:hover {
+	color: black;
+}
+
+.jp-search-notice-box .dops-notice__icon-wrapper {
+	align-items: center;
+	color: grey;
+}
+
+.jp-search-notice-box__important a.dops-notice__action,
+.jp-search-notice-box__important .dops-notice__icon-wrapper,
+.jp-search-notice-box__important,
+.jp-search-notice-box__important a.dops-notice__action {
+	color: red;
+}
+
+.jp-search-notice-box > span.dops-notice__icon-wrapper > svg {
+	margin: 0;
+}
+
+.jp-search-record-meter .jp-search-notice-box > span.dops-notice__icon-wrapper {
+	background-color: rgba( 255, 255, 255, 0 );
+}

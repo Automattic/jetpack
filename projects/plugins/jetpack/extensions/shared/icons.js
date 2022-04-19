@@ -51,6 +51,32 @@ export const GooglePhotosIcon = props => (
 	</SVG>
 );
 
+export const OpenverseIcon = props => (
+	<SVG
+		style={ {
+			fill: '#30272e',
+			background: '#ffe033',
+			padding: '3px',
+			width: '22px',
+			height: '24px',
+		} }
+		width="46"
+		height="42"
+		viewBox="0 0 46 42"
+		xmlns="http://www.w3.org/2000/svg"
+		{ ...props }
+	>
+		<G>
+			<Path d="M0 9.3975C0 14.5687 4.1722 18.795 9.3353 18.795V0C4.1722 0 0 4.2 0 9.3975Z" />
+			<Path d="M13.6118 9.3975C13.6118 14.5687 17.784 18.795 22.9471 18.795V0C17.8101 0 13.6118 4.2 13.6118 9.3975Z" />
+			<Path d="M36.5589 18.795C41.7147 18.795 45.8942 14.5876 45.8942 9.3975C45.8942 4.2074 41.7147 0 36.5589 0C31.4032 0 27.2236 4.2074 27.2236 9.3975C27.2236 14.5876 31.4032 18.795 36.5589 18.795Z" />
+			<Path d="M0 32.6025C0 37.8 4.1722 42 9.3353 42V23.2312C4.1722 23.2312 0 27.4312 0 32.6025Z" />
+			<Path d="M13.6118 32.5238C13.6118 37.695 17.784 41.9213 22.9471 41.9213V23.1525C17.8101 23.1525 13.6118 27.3525 13.6118 32.5238Z" />
+			<Path d="M36.5589 41.9212C41.7147 41.9212 45.8942 37.7138 45.8942 32.5238C45.8942 27.3337 41.7147 23.1263 36.5589 23.1263C31.4032 23.1263 27.2236 27.3337 27.2236 32.5238C27.2236 37.7138 31.4032 41.9212 36.5589 41.9212Z" />
+		</G>
+	</SVG>
+);
+
 export const PexelsIcon = props => (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" { ...props }>
 		<Path d="M14 7H9v10h3.9v-3.8H14c1.7 0 3.1-1.4 3.1-3.1C17.2 8.4 15.8 7 14 7z" />
@@ -184,22 +210,38 @@ export const GooglePhotosLogo = () => {
 	);
 };
 
-export const JetpackLogo = ( { size = 24, className } ) => (
-	<SVG
-		className={ classNames( 'jetpack-logo', className ) }
-		width={ size }
-		height={ size }
-		viewBox="0 0 32 32"
-	>
-		<Path
-			className="jetpack-logo__icon-circle"
-			fill={ COLOR_JETPACK }
-			d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z"
-		/>
-		<Polygon className="jetpack-logo__icon-triangle" fill="#fff" points="15,19 7,19 15,3 " />
-		<Polygon className="jetpack-logo__icon-triangle" fill="#fff" points="17,29 17,13 25,13 " />
-	</SVG>
-);
+export const JetpackLogo = ( { size = 24, border = 0, className, color = COLOR_JETPACK } ) => {
+	const borderOffset = border ? ( -border / size ) * 32 : 0;
+
+	return (
+		<SVG
+			className={ classNames( 'jetpack-logo', className ) }
+			width={ size }
+			height={ size }
+			viewBox={ `${ borderOffset } ${ borderOffset } ${ 32 - borderOffset * 2 } ${
+				32 - borderOffset * 2
+			}` }
+		>
+			<Path
+				className="jetpack-logo__icon-circle"
+				fill={ color }
+				stroke={ border ? '#fff' : 'transparent' }
+				strokeWidth={ border }
+				d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z"
+			/>
+			<Polygon
+				className="jetpack-logo__icon-triangle"
+				fill="#fff"
+				points={ `15,19 ${ 7 - borderOffset * 0.5 },19 15,${ 3 - borderOffset }` }
+			/>
+			<Polygon
+				className="jetpack-logo__icon-triangle"
+				fill="#fff"
+				points={ `17,${ 29 + borderOffset } 17,13 ${ 25 + borderOffset * 0.5 },13` }
+			/>
+		</SVG>
+	);
+};
 
 // @TODO: Import those from https://github.com/Automattic/social-logos when that's possible.
 // Currently we can't directly import icons from there, because all icons are bundled in a single file.
@@ -284,6 +326,20 @@ export const DescriptIcon = {
 				fillRule="evenodd"
 				d="M37 31.908c0 1.376.893 2.268 2.27 2.268H45.9c3.956 0 7.192-1.337 9.392-3.68H37v1.412zM45.901 9H39.27C37.893 9 37 9.893 37 11.269v1.411h18.294C53.093 10.338 49.857 9 45.9 9zm5.787 16.176c0 1.113.726 1.835 1.845 1.835h3.973c.45-1.117.753-2.345.894-3.671h-4.867c-1.119 0-1.845.722-1.845 1.836zm-5.507-7.166c0 1.113.725 1.836 1.844 1.836H58.4a13.644 13.644 0 00-.894-3.672h-9.481c-1.119 0-1.844.723-1.844 1.836zm1.843 7.166c0-1.114-.726-1.836-1.845-1.836H37v3.671h9.18c1.118 0 1.843-.722 1.843-1.835zm-5.508-7.166c0-1.113-.726-1.836-1.844-1.836H37v3.672h3.672c1.118 0 1.844-.723 1.844-1.836zM83.667 21.209c.296-1.437"
 				clipRule="evenodd"
+			/>
+		</SVG>
+	),
+};
+export const PocketCastsIcon = {
+	foreground: getIconColor(),
+	src: (
+		<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<Path fillRule="evenodd" clipRule="evenodd" d="M24,12A12,12,0,1,1,12,0,12,12,0,0,1,24,12Z" />
+			<Path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M2.67,12a9.33,9.33,0,0,1,18.66,0H19a7,7,0,1,0-7,7v2.33A9.33,9.33,0,0,1,2.67,12ZM12,17.6A5.6,5.6,0,1,1,17.6,12h-2A3.56,3.56,0,1,0,12,15.56Z"
+				fill="#fff"
 			/>
 		</SVG>
 	),

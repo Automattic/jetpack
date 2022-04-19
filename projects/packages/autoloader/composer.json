@@ -49,7 +49,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "2.10.x-dev"
+			"dev-master": "2.11.x-dev"
 		}
 	}
 }

@@ -32,7 +32,7 @@ class Jetpack_Admin {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
 		}
 
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Admin();
 		}
 		return self::$instance;
@@ -60,9 +60,6 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class-jetpack-about-page' );
 		$this->jetpack_about = new Jetpack_About_Page();
 
-		// The dashboard has to be initialized outside the module, otherwise which wouldn't load if module disabled.
-		( new Automattic\Jetpack\Search\Dashboard() )->init_hooks();
-
 		add_action( 'admin_init', array( $this->jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
@@ -73,7 +70,7 @@ class Jetpack_Admin {
 
 		// Add redirect to current page for activation/deactivation of modules.
 		add_action( 'jetpack_pre_activate_module', array( $this, 'fix_redirect' ), 10, 2 );
-		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ) );
+		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ), 10, 2 );
 
 		// Add module bulk actions handler.
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );

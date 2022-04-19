@@ -6,7 +6,6 @@
 	"projects/plugins/jetpack/_inc/client/components/chart/legend.jsx",
 	"projects/plugins/jetpack/_inc/client/components/count/docs/example.jsx",
 	"projects/plugins/jetpack/_inc/client/components/count/index.jsx",
-	"projects/plugins/jetpack/_inc/client/components/external-link/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/form/counter.js",
 	"projects/plugins/jetpack/_inc/client/components/form/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/form/input-checkbox-multiple.jsx",
@@ -91,7 +90,6 @@
 	"projects/plugins/jetpack/_inc/lib/debugger/jetpack-debugger-site-health.js",
 	"projects/plugins/jetpack/_inc/polldaddy-shortcode.js",
 	"projects/plugins/jetpack/_inc/twitter-timeline.js",
-	"projects/plugins/jetpack/extensions/blocks/contact-form/components/jetpack-newsletter-integration-settings-creativemail.js",
 	"projects/plugins/jetpack/extensions/blocks/donations/edit.js",
 	"projects/plugins/jetpack/extensions/blocks/eventbrite/index.js",
 	"projects/plugins/jetpack/extensions/blocks/eventbrite/utils.js",
@@ -142,6 +140,5 @@
 	"projects/plugins/jetpack/modules/widgets/customizer-utils.js",
 	"projects/plugins/jetpack/modules/widgets/milestone/admin.js",
 	"projects/plugins/jetpack/modules/widgets/simple-payments/customizer.js",
-	"projects/plugins/jetpack/modules/wpgroho.js",
-	"projects/plugins/jetpack/tools/builder/react.js"
+	"projects/plugins/jetpack/modules/wpgroho.js"
 ]

@@ -20,6 +20,34 @@ for F in README.md .gitkeep .gitignore; do
 	OKFILES[$F]=1
 done
 
+PACKAGES=$(jq -nc 'reduce inputs as $in ({}; .[ $in.name ] |= true)' "$BASE"/projects/packages/*/composer.json)
+
+# Check that `@dev`, `dev-foo`, and `1.2.x-dev` style deps are used appropraitely.
+#
+# - $1: What is being checked.
+# - $2: Path to the composer.json to check.
+# - $3: 'require' or 'require-dev', which to check.
+# - $4: true or false, whether explicit git refs are allowed.
+function check_composer_no_dev_deps {
+	local SLUG="$1" FILE="$2" WHICH="$3" GITREFOK="$4"
+	local RE WHAT
+	if $GITREFOK; then
+		RE='^(@dev|dev-[^#]*|[^@# ]*-dev([@ ][^#]*)?)$'
+		WHAT="a release version or specific git commit"
+	else
+		RE='^(@dev(#.*)?|dev-.*|[^@# ]*-dev([@# ].*)?)$'
+		WHAT="a release version"
+	fi
+	local PKG VER
+	local TMP="$(jq -r --arg which "$WHICH" --arg re "$RE" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( $packages[.key] | not ) | select( .value | test( $re ) ) | [ .key, .value ] | @tsv' "$FILE")"
+	[[ -n "$TMP" ]] || return 0
+	while IFS=$'\t' read -r PKG VER; do
+		local LINE=$(jq --stream --arg which "$WHICH" --arg pkg "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$which,$pkg] then input_line_number else empty end' "$FILE" | head -n 1)
+		EXIT=1
+		echo "::error file=$FILE,line=$LINE::$SLUG must depend on $WHAT of \`$PKG\`, not \`$VER\`, to avoid lock file errors every time $PKG is updated."
+	done <<<"$TMP"
+}
+
 # - projects/ should generally contain directories. But certain files are ok.
 for PROJECT in projects/*; do
 	if [[ ! -d "$PROJECT" ]]; then
@@ -156,7 +184,30 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
+	# - `@dev`, `dev-foo`, or `1.x-dev` type deps are only allowed in certain cases.
+	git ls-files --error-unmatch "$PROJECT/composer.lock" &>/dev/null && HAS_LOCK=true || HAS_LOCK=false
+	if [[ "$TYPE" == "packages" ]]; then
+		check_composer_no_dev_deps "Project $SLUG" "$PROJECT/composer.json" require false
+	elif $HAS_LOCK; then
+		check_composer_no_dev_deps "Project $SLUG" "$PROJECT/composer.json" require true
+	fi
+	if $HAS_LOCK; then
+		check_composer_no_dev_deps "Project $SLUG" "$PROJECT/composer.json" require-dev true
+	fi
+
+	# - Packages setting textdomain must have type set to "jetpack-library".
+	if [[ "$TYPE" == "packages" ]] && jq -e '.extra["textdomain"] and .type != "jetpack-library"' "$PROJECT/composer.json" >/dev/null; then
+		EXIT=1
+		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["type"] then ",line=\( input_line_number )" else empty end' "$PROJECT/composer.json")
+		echo "::error file=$PROJECT/composer.json$LINE::Package $SLUG uses i18n (i.e. it sets \`.extra.textdomain\`), but does not set \`.type\` to \`jetpack-library\` in composer.json.%0AThis will prevent it from being translated when used in plugins."
+	fi
+
 done
+
+# - Monorepo root composer.json must also use dev deps appropriately.
+debug "Checking monorepo root composer.json"
+check_composer_no_dev_deps "Monorepo root" "composer.json" require true
+check_composer_no_dev_deps "Monorepo root" "composer.json" require-dev true
 
 # - Composer name fields should not be repeated.
 debug "Checking for duplicate composer.json names"
@@ -239,12 +290,6 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.eslintrc
 	fi
 done
 
-# - Renovate should ignore all monorepo packages.
-debug "Checking renovate ignore list"
-if ! tools/js-tools/check-renovate-ignore-list.js; then
-	EXIT=1
-fi
-
 # - .nvmrc should match .github/versions.sh.
 . .github/versions.sh
 debug "Checking .nvmrc vs versions.sh"
@@ -256,13 +301,13 @@ fi
 # - package.json engines should be satisfied by .github/versions.sh.
 debug "Checking .github/versions.sh vs package.json engines"
 RANGE="$(jq -r '.engines.node' package.json)"
-if ! pnpx semver --range "$RANGE" "$NODE_VERSION" &>/dev/null; then
+if ! pnpx --no-install semver --range "$RANGE" "$NODE_VERSION" &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","node"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Node version $NODE_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 fi
 RANGE="$(jq -r '.engines.pnpm' package.json)"
-if ! pnpx semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
+if ! pnpx --no-install semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","pnpm"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"

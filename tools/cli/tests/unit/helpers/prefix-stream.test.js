@@ -24,7 +24,7 @@ describe( 'PrefixStream', () => {
 		ts.write( 'line 1\nline 2' );
 		chai.expect( ts.read() ).to.match( /^\[foobar 0\.0\d\d\] line 1\n$/ );
 		await new Promise( r => {
-			setTimeout( r, 100 );
+			setTimeout( r, 110 );
 		} );
 		ts.end();
 		chai.expect( ts.read() ).to.match( /^\[foobar 0\.1\d\d\] line 2$/ );

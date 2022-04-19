@@ -1,50 +1,59 @@
 .container {
-	// all css variables used down in product-card
-	--product-card-shadow: rgba(0, 0, 0, 0.08);
-	--product-card-shadow-size: 40px;
-	--product-card-name-font-size: 24px;
-	--product-card-description-font-size: 14px;
-	--product-card-actions-font-size: 12px;
-	--product-card-margin-base: 4px;
-	--product-card-actions-size: 36px;
-	--jp-black: #000;
+	--actions-size: 28px;
 	--status-size: 8px;
-	--status-active: #008710;
-	--status-inactive: #646970;
-	--status-error: #B32D2E;
-	--status-plugin_absent: #C3C4C7;
-	--jp-underline-thickness: 2px;
 
-	padding: 24px;
+	padding: calc( var( --spacing-base ) * 3 ); // 24px
 	background: var( --jp-white );
 	border-radius: var( --jp-border-radius );
-	box-shadow: 0 0 var(--product-card-shadow-size) var(--product-card-shadow);
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
+	box-shadow: 0 0 0 1px var( --jp-gray-10 ) inset;
 
-	&.is-purchase-required,
-	&.plugin_absent {
+	&.is-link {
 		background: none;
-		box-shadow: none;
-		box-shadow: 0 0 0 1px var( --status-plugin_absent ) inset;
+		text-decoration: none;
+		background-color: var( --jp-white-off );
+		color: var( --jp-black-80 );
+
+		&:hover {
+			background-color: var( --jp-white );
+
+			.action-link-button {
+				text-decoration-thickness: var(--jp-underline-thickness);
+			}
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 1.5px var( --jp-black );
+			background-color: var( --jp-white );
+			outline: 3px solid transparent;
+		}
+	}
+
+	&.has-error {
+		box-shadow: 0 0 0 1.5px var( --jp-red-60 );
 	}
 }
 
 .name {
+	width: 100%;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	width: 100%;
-	font-size: var(--product-card-name-font-size);
-	font-weight: 700;
-	margin-bottom: var(--product-card-margin-base);
+	margin-bottom: var(--spacing-base); // 8px
 }
 
 .description {
-	font-size: var(--product-card-description-font-size);
-	margin:0;
+	flex-grow: 1;
+}
+
+.button {
+	font-size: var(--font-body-extra-small);
+	border-radius: var(--jp-border-radius);
+	height: var(--actions-size);
+	line-height: var(--actions-size);
 }
 
 .actions {
@@ -52,43 +61,40 @@
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
-	min-height: var(--product-card-actions-size);
-	margin-top: calc(var(--product-card-margin-base) * 4); // 16px
-	font-size: var(--product-card-actions-font-size);
-	font-weight: 600;
+	margin-top: calc( var(--spacing-base) * 2 ); // 16px
+	min-height: var(--actions-size);
 	flex-wrap: wrap;
 }
 
-.action-link-button:hover {
-	color: var(--jp-black);
-	text-decoration-thickness: var(--jp-underline-thickness);
-}
-
-.group {
-	display: flex;
-	height: var(--product-card-actions-size);
+.action-link-button{
+	text-decoration: underline;
 }
 
 .status {
-	margin-left: var(--product-card-margin-base);
+	margin-left: var(--spacing-base); // 8px
 	white-space: nowrap;
-	height: var(--product-card-actions-size);
-	line-height: var(--product-card-actions-size);
+	height: var(--actions-size);
+	display: flex;
+	align-items: center;
 
 	&:before {
 		content: "";
 		display: inline-block;
 		width: var(--status-size);
 		height: var(--status-size);
-		margin-right: var(--product-card-margin-base);
+		margin-right: var(--spacing-base);
 		border-radius: 50%;
 	}
 
 	// in plugin absent case, there's not status flag
-	$statuses: active, inactive, error;
+	$statuses: (
+		"active": "--jp-green-50",
+		"inactive": "--jp-gray-50",
+		"error": "--jp-red-60"
+	);
 
-	@each $status in $statuses {
-		$color: var(--status-#{$status});
+	@each $status, $var in $statuses {
+		$color: var(#{$var});
 
 		&.#{$status} {
 			color: $color;
@@ -116,4 +122,3 @@
 		opacity: 0;
 	}
 }
-

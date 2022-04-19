@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 const useAnalytics = () => {
-	const { isUserConnected, userConnectionData = {} } = useMyJetpackConnection();
+	const { isUserConnected, connectedPlugins, userConnectionData = {} } = useMyJetpackConnection();
 	const { login, ID } = userConnectionData.currentUser?.wpcomUser || {};
 
 	/**
@@ -18,6 +18,12 @@ const useAnalytics = () => {
 			jetpackAnalytics.initialize( ID, login );
 		}
 	}, [ ID, isUserConnected, login ] );
+
+	// Concatenated plugins slugs in alphabetical order
+	const connectedPluginsSlugs = Object.keys( connectedPlugins || {} )
+		.sort()
+		.join( ',' )
+		.replaceAll( 'jetpack-', '' );
 
 	const {
 		clearedIdentity,
@@ -37,12 +43,14 @@ const useAnalytics = () => {
 	 * @param {string} event       - event name
 	 * @param {object} properties  - event propeties
 	 */
-	const recordMyJetpackEvent = ( event, properties ) => {
+	const recordMyJetpackEvent = useCallback( ( event, properties ) => {
 		tracks.recordEvent( event, {
 			...properties,
 			version: window?.myJetpackInitialState?.myJetpackVersion,
+			referring_plugins: connectedPluginsSlugs,
 		} );
-	};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	return {
 		clearedIdentity,

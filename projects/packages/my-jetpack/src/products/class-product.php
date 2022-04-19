@@ -107,7 +107,7 @@ abstract class Product {
 	 * @return array
 	 */
 	public static function get_info() {
-		if ( is_null( static::$slug ) ) {
+		if ( static::$slug === null ) {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 		return array(
@@ -345,7 +345,7 @@ abstract class Product {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
-		return is_null( $result );
+		return $result === null;
 	}
 
 	/**
@@ -357,4 +357,45 @@ abstract class Product {
 		deactivate_plugins( static::get_installed_plugin_filename() );
 		return true;
 	}
+
+	/**
+	 * Returns filtered Jetpack plugin actions links.
+	 *
+	 * @param array $actions - Jetpack plugin action links.
+	 * @return array           Filtered Jetpack plugin actions links.
+	 */
+	public static function get_plugin_actions_links( $actions ) {
+		// My Jetpack action link.
+		$my_jetpack_home_link = array(
+			'jetpack-home' => sprintf(
+				'<a href="%1$s" title="%3$s">%2$s</a>',
+				admin_url( 'admin.php?page=my-jetpack' ),
+				__( 'My Jetpack', 'jetpack-my-jetpack' ),
+				__( 'My Jetpack dashboard', 'jetpack-my-jetpack' )
+			),
+		);
+
+		// Otherwise, add it to the beginning of the array.
+		return array_merge( $my_jetpack_home_link, $actions );
+	}
+
+	/**
+	 * Extend the plugin action links.
+	 */
+	public static function extend_plugin_action_links() {
+
+		$filenames = static::get_plugin_filename();
+		if ( ! is_array( $filenames ) ) {
+			$filenames = array( $filenames );
+		}
+
+		foreach ( $filenames as $filename ) {
+			$hook     = 'plugin_action_links_' . $filename;
+			$callback = array( static::class, 'get_plugin_actions_links' );
+			if ( ! has_filter( $hook, $callback ) ) {
+				add_filter( $hook, $callback, 20, 2 );
+			}
+		}
+	}
+
 }

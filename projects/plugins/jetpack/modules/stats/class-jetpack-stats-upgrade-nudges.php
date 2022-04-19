@@ -363,7 +363,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$additional_classes = $subitem ? 'jp-stats-report-upgrade-subitem' : '';
 		$button_class       = $subitem ? 'is-secondary' : 'is-primary';
 		$icon_url           = plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/products/' . $icon;
-		$button_label       = is_null( $button_label ) ? __( 'Upgrade', 'jetpack' ) : $button_label;
+		$button_label       = $button_label === null ? __( 'Upgrade', 'jetpack' ) : $button_label;
 		$view_event         = "stats_nudges_view_$tracks_id";
 		$click_event        = "stats_nudges_click_$tracks_id";
 		$learn_more_event   = "stats_nudges_learn_more_$tracks_id";
@@ -528,7 +528,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		}
 		if ( $print ) {
 			$learn_link = self::get_upgrade_link( 'stats-nudges-crm-learn' );
-			$text       = __( 'Sell more and get more leads with the Jetpack CRM plugin built specifically for WordPress.', 'jetpack' );
+			$text       = __( 'Sell more and get more leads with the free Jetpack CRM plugin built specifically for WordPress.', 'jetpack' );
 			self::print_item( __( 'CRM', 'jetpack' ), $text, 'product-jetpack-crm.svg', $link, 'crm', $learn_link, false, $label );
 		}
 		return true;

@@ -3,7 +3,6 @@
  */
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
-import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { TextControl, withFallbackStyles } from '@wordpress/components';
 import {
@@ -19,6 +18,7 @@ import { compose, usePrevious } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
+import { getSubscriberCount } from './api';
 import './view.scss';
 import defaultAttributes from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
@@ -170,25 +170,6 @@ export function SubscriptionEdit( props ) {
 		width: buttonWidth,
 	};
 
-	const getSubscriberCount = () => {
-		apiFetch( { path: '/wpcom/v2/subscribers/count' } ).then( count => {
-			// Handle error condition
-			if ( ! count.hasOwnProperty( 'count' ) ) {
-				setSubscriberCountString( __( 'Subscriber count unavailable', 'jetpack' ) );
-				setSubscriberCount( 0 );
-			} else {
-				setSubscriberCountString(
-					sprintf(
-						/* translators: Placeholder is a number of subscribers. */
-						_n( 'Join %s other subscriber', 'Join %s other subscribers', count.count, 'jetpack' ),
-						count.count
-					)
-				);
-				setSubscriberCount( count.count );
-			}
-		} );
-	};
-
 	const getBlockClassName = () => {
 		return classnames(
 			className,
@@ -199,7 +180,22 @@ export function SubscriptionEdit( props ) {
 	};
 
 	useEffect( () => {
-		getSubscriberCount();
+		getSubscriberCount(
+			count => {
+				setSubscriberCountString(
+					sprintf(
+						/* translators: Placeholder is a number of subscribers. */
+						_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
+						count
+					)
+				);
+				setSubscriberCount( count );
+			},
+			() => {
+				setSubscriberCountString( __( 'Subscriber count unavailable', 'jetpack' ) );
+				setSubscriberCount( 0 );
+			}
+		);
 	}, [] );
 
 	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );

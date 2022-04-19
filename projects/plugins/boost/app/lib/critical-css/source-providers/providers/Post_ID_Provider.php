@@ -30,16 +30,19 @@ class Post_ID_Provider extends Provider {
 
 	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
 	/** @inheritdoc */
-	public static function get_critical_source_urls() {
-		$results = array();
-		$query   = self::get_posts();
+	public static function get_critical_source_urls( $context_posts = array() ) {
+		$results          = array();
+		$query            = self::get_posts();
+		$context_post_ids = wp_list_pluck( $context_posts, 'ID' );
 
 		if ( false === $query ) {
 			return array();
 		}
 
 		foreach ( $query->posts as $post ) {
-			$results[ $post->ID ] = array( get_permalink( $post ) );
+			if ( empty( $context_post_ids ) || in_array( $post->ID, $context_post_ids, true ) ) {
+				$results[ $post->ID ] = array( get_permalink( $post ) );
+			}
 		}
 
 		return $results;

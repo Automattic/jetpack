@@ -83,22 +83,26 @@ const ProductSuggestionsComponent = props => {
 		<div className="jp-recommendations-product-suggestion__container">
 			<div className="jp-recommendations-product-suggestion__items">
 				{ suggestions.map( ( item, key ) => (
-					<ProductSuggestion key={ key } product={ item } />
+					<div className="jp-recommendations-product-suggestion__item" key={ key }>
+						<ProductSuggestion product={ item } />
+					</div>
 				) ) }
-			</div>
-			<div className="jp-recommendations-product-suggestion__introductory-pricing">
-				{ __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
 			</div>
 			<div className="jp-recommendations-product-suggestion__money-back-guarantee">
 				<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
 			</div>
-			<a
-				className="jp-recommendations-product-suggestion__skip"
-				href={ nextRoute }
-				onClick={ onContinueClick }
-			>
-				{ __( 'Decide later', 'jetpack' ) }
-			</a>
+			<div className="jp-recommendations-product-suggestion__skip-container">
+				<a
+					className="jp-recommendations-product-suggestion__skip"
+					href={ nextRoute }
+					onClick={ onContinueClick }
+				>
+					{ __( 'Decide later', 'jetpack' ) }
+				</a>
+			</div>
+			<div className="jp-recommendations-product-suggestion__footer">
+				{ __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
+			</div>
 		</div>
 	);
 

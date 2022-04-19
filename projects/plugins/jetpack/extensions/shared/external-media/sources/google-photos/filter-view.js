@@ -66,7 +66,7 @@ function GoogleFilterView( props ) {
 				onChange={ setCurrentFilter }
 			/>
 
-			<Button disabled={ isLoading || isCopying } isSecondary isSmall onClick={ setFilter }>
+			<Button disabled={ isLoading || isCopying } variant="secondary" isSmall onClick={ setFilter }>
 				{ __( 'Add Filter', 'jetpack' ) }
 			</Button>
 		</Fragment>

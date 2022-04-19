@@ -3,6 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -19,7 +20,6 @@ const SET_IS_FETCHING_PRODUCT = 'SET_IS_FETCHING_PRODUCT';
 const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
-const DEACTIVATE_PRODUCT = 'DEACTIVATE_PRODUCT';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
@@ -82,9 +82,10 @@ function setIsFetchingProduct( productId, isFetching ) {
  * @param {object}   store          - Redux store.
  * @param {object}   store.select   - Redux store select.
  * @param {Function} store.dispatch - Redux store dispatch.
+ * @param {object}   store.registry - Redux registry.
  * @returns {Promise}               - Promise which resolves when the product status is updated.
  */
-function requestProductStatus( productId, data, { select, dispatch } ) {
+function requestProductStatus( productId, data, { select, dispatch, registry } ) {
 	return new Promise( ( resolve, reject ) => {
 		// Check valid product.
 		const isValid = select.isValidProduct( productId );
@@ -102,7 +103,7 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 		const method = data.activate ? 'POST' : 'DELETE';
 		dispatch( setIsFetchingProduct( productId, true ) );
 
-		// Activate/deactivate product.
+		// Activate product.
 		return apiFetch( {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 			method,
@@ -110,21 +111,16 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			.then( freshProduct => {
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setProduct( freshProduct ) );
+				registry.dispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
 				resolve( freshProduct?.status );
 			} )
 			.catch( error => {
 				const { name } = select.getProduct( productId );
-				const message = data.activate
-					? sprintf(
-							// translators: %$1s: Jetpack Product name
-							__( 'Failed to activate %1$s. Please try again', 'jetpack-my-jetpack' ),
-							name
-					  )
-					: sprintf(
-							// translators: %$1s: Jetpack Product name
-							__( 'Failed to deactivate %1$s. Please try again', 'jetpack-my-jetpack' ),
-							name
-					  );
+				const message = sprintf(
+					// translators: %$1s: Jetpack Product name
+					__( 'Failed to activate %1$s. Please try again', 'jetpack-my-jetpack' ),
+					name
+				);
 
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setRequestProductError( productId, error ) );
@@ -145,21 +141,9 @@ const activateProduct = productId => async store => {
 	return await requestProductStatus( productId, { activate: true }, store );
 };
 
-/**
- * Side effect action which will sync
- * the `deactivate` state of the product with the server.
- *
- * @param {string} productId - My Jetpack product ID.
- * @returns {Promise}        - Promise which resolves when the product status is deactivated.
- */
-const deactivateProduct = productId => async store => {
-	return await requestProductStatus( productId, { activate: false }, store );
-};
-
 const productActions = {
 	setProduct,
 	activateProduct,
-	deactivateProduct,
 	setIsFetchingProduct,
 	setRequestProductError,
 	setProductStatus,
@@ -185,7 +169,6 @@ export {
 	SET_PRODUCT,
 	SET_PRODUCT_REQUEST_ERROR,
 	ACTIVATE_PRODUCT,
-	DEACTIVATE_PRODUCT,
 	SET_IS_FETCHING_PRODUCT,
 	SET_PRODUCT_STATUS,
 	SET_GLOBAL_NOTICE,

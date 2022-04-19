@@ -10,14 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 50  # 2021-12-13: Successful runs seem to take 40 minutes
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup tools for G
         uses: ./.github/actions/tool-setup
         with:
           node: 14
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           repository: 'WordPress/gutenberg'
           path: 'gutenberg'
@@ -28,7 +28,7 @@ jobs:
           npm ci
           npm run build
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
@@ -69,11 +69,13 @@ jobs:
         continue-on-error: true
         run: |
           pnpm run tunnel:off
+          # Update permissions to workaround https://github.com/actions/cache/issues/753
+          sudo chown -R runner:docker "$GITHUB_WORKSPACE/tools/docker"
 
       - name: Upload test artifacts
         if: ${{ always() }}
         continue-on-error: true
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-output-block-perf
           path: tools/e2e-commons/results

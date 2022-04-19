@@ -81,6 +81,11 @@ export const settings = {
 		html: false,
 		spacing: {
 			padding: true,
+			margin: true,
+			__experimentalDefaultControls: {
+				padding: true,
+				margin: true,
+			},
 		},
 	},
 

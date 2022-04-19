@@ -293,7 +293,7 @@ class MapEdit extends Component {
 							onChange={ this.updateAPIKeyControl }
 						/>
 						<Button
-							isSecondary
+							variant="secondary"
 							disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
 							onClick={ this.updateAPIKey }
 						>

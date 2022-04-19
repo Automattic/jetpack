@@ -68,13 +68,19 @@ export const settings = {
 	keywords: [
 		_x( 'buy', 'block search term', 'jetpack' ),
 		_x( 'commerce', 'block search term', 'jetpack' ),
+		_x( 'credit card', 'block search term', 'jetpack' ),
+		_x( 'debit card', 'block search term', 'jetpack' ),
+		_x( 'earn', 'block search term', 'jetpack' ),
+		_x( 'ecommerce', 'block search term', 'jetpack' ),
+		_x( 'money', 'block search term', 'jetpack' ),
+		_x( 'paid', 'block search term', 'jetpack' ),
+		_x( 'payments', 'block search term', 'jetpack' ),
 		_x( 'products', 'block search term', 'jetpack' ),
 		_x( 'purchase', 'block search term', 'jetpack' ),
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'shop', 'block search term', 'jetpack' ),
-		_x( 'simple', 'block search term', 'jetpack' ),
+		'square',
 		_x( 'payments', 'block search term', 'jetpack' ),
-		'PayPal',
 	],
 
 	attributes: {

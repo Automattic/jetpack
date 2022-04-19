@@ -52,8 +52,6 @@ class Publicize extends Publicize_Base {
 
 		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
 
-		include_once __DIR__ . '/enhanced-open-graph.php';
-
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 	}
 
@@ -274,9 +272,9 @@ class Publicize extends Publicize_Base {
 	 * Show error on settings page if applicable.
 	 */
 	public function admin_page_load() {
-		$action = sanitize_text_field( wp_unslash( $_GET['action'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( ! empty( $action ) && 'error' === $action ) {
+		if ( 'error' === $action ) {
 			add_action( 'pre_admin_screen_sharing', array( $this, 'display_connection_error' ), 9 );
 		}
 	}
@@ -619,7 +617,7 @@ class Publicize extends Publicize_Base {
 	public function post_is_done_sharing( $post_id = null ) {
 		// Defaults to current post if $post_id is null.
 		$post = get_post( $post_id );
-		if ( is_null( $post ) ) {
+		if ( $post === null ) {
 			return false;
 		}
 
@@ -634,7 +632,7 @@ class Publicize extends Publicize_Base {
 	 * @param \WP_Post $post Post object.
 	 */
 	public function save_publicized( $post_ID, $post = null ) {
-		if ( is_null( $post ) ) {
+		if ( $post === null ) {
 			return;
 		}
 		// Only do this when a post transitions to being published.

@@ -95,6 +95,7 @@ class Defaults {
 		'jetpack_sync_settings_post_meta_whitelist',
 		'jetpack_sync_settings_post_types_blacklist',
 		'jetpack_sync_settings_taxonomies_blacklist',
+		'jetpack_sync_settings_dedicated_sync_enabled', // is Dedicated Sync flow enabled.
 		'jetpack_testimonial',
 		'jetpack_testimonial_posts_per_page',
 		'jetpack_wga',
@@ -171,6 +172,7 @@ class Defaults {
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
+		'videopress_private_enabled_for_site',
 	);
 
 	/**
@@ -282,6 +284,7 @@ class Defaults {
 	 */
 	public static $default_callable_whitelist = array(
 		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+		'get_themes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
 		'has_file_system_write_access'     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'file_system_write_access' ),
 		'home_url'                         => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
@@ -375,6 +378,7 @@ class Defaults {
 	 * @var array Blacklisted post types.
 	 */
 	public static $blacklisted_post_types = array(
+		'_term_meta',
 		'ai1ec_event',
 		'ai_log', // Logger - https://github.com/alleyinteractive/logger.
 		'amp_validated_url', // AMP Validation Errors.

@@ -207,7 +207,7 @@ const VisibilityRule = props => {
 				</div>
 			) }
 			<div className="widget-vis__delete-rule">
-				<Button onClick={ onDelete } isSmall isSecondary>
+				<Button onClick={ onDelete } isSmall variant="secondary">
 					{ _x( 'Remove', 'Delete this visibility rule', 'jetpack' ) }
 				</Button>
 			</div>
@@ -354,7 +354,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 						'jetpack'
 					) }
 				>
-					<Button isSecondary onClick={ addNewRule } className="widget-vis__add-new-rule">
+					<Button variant="secondary" onClick={ addNewRule } className="widget-vis__add-new-rule">
 						{ __( 'Add new rule', 'jetpack' ) }
 					</Button>
 				</BaseControl>
@@ -395,7 +395,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 							onChange={ toggleMatchAll }
 						/>
 					) }
-					<Button isSecondary onClick={ addNewRule }>
+					<Button variant="secondary" onClick={ addNewRule }>
 						{ __( 'Add new rule', 'jetpack' ) }
 					</Button>
 				</BaseControl>

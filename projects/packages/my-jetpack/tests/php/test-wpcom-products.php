@@ -31,6 +31,11 @@ class Test_Wpcom_Products extends TestCase {
 	 */
 	public function set_up() {
 
+		// See https://stackoverflow.com/a/41611876.
+		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
+			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
+		}
+
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );

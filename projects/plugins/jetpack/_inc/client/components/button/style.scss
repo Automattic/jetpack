@@ -204,3 +204,67 @@
 		}
 	}
 }
+
+// ==========================================================================
+// RNA buttons
+// See https://wp.me/PbJqbW-5g
+// ==========================================================================
+
+.dops-button.is-rna {
+	padding: 0.625rem 1.5rem;
+
+	font-weight: 600;
+	text-align: center;
+
+	transition: all 150ms ease-in-out;
+
+	&:disabled,
+	&.disabled {
+		background: var( --jp-gray ) !important;
+		border-color: transparent !important;
+		color: var( --jp-gray-20 ) !important;
+
+		pointer-events: none;
+	}
+
+	.gridicon {
+		margin-inline-start: 0.25rem;
+	}
+}
+
+.dops-button:not(.is-primary).is-rna {
+	background-color: var( --jp-white );
+	border-color: var( --jp-black );
+	color: var( --jp-black );
+
+	&:hover,
+	&:active {
+		background: var( --jp-gray-0 );
+	}
+
+	&:focus {
+		box-shadow: none;
+		outline: solid 2px var( --jp-black );
+		outline-offset: -1px;
+	}
+}
+
+.dops-button.is-primary.is-rna {
+	background-color: var( --jp-black );
+	border-color: var( --jp-black );
+
+	-webkit-font-smoothing: antialiased;
+
+	&:hover,
+	&:active {
+		background: var( --jp-gray-80 );
+		border-color: var( --jp-gray-80 );
+		color: var( --jp-white );
+	}
+
+	&:focus {
+		box-shadow: none;
+		outline: solid 1px var( --jp-black );
+		outline-offset: 1px;
+	}
+}

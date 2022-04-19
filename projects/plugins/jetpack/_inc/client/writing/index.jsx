@@ -54,6 +54,7 @@ export class Writing extends React.Component {
 			'infinite-scroll',
 			'widgets',
 			'widget-visibility',
+			'blocks',
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {

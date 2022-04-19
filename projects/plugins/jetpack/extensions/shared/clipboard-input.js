@@ -33,7 +33,7 @@ class ClipboardInput extends Component {
 			<div className="jetpack-clipboard-input">
 				<TextControl readOnly onFocus={ this.onFocus } value={ link } />
 				<ClipboardButton
-					isDefault
+					variant="secondary"
 					onCopy={ this.onCopy }
 					onFinishCopy={ this.onFinishCopy }
 					text={ link }

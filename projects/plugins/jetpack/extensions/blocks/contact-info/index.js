@@ -57,6 +57,7 @@ export const settings = {
 		},
 		spacing: {
 			padding: true,
+			margin: true,
 		},
 		typography: {
 			fontSize: true,

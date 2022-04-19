@@ -10,7 +10,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  * @param {object} partnerCoupon - Partner coupon details.
  * @param {string} siteRawUrl - Site's raw URL.
  * @param {object} connectionStatus - Connection status.
- * @param {object} tracksUserData - Tracks user data.
+ * @param {boolean} tracksUserData - Should we track user data.
  * @param {object} analytics - Analytics.
  * @returns {Function} Click handler for coupon redemption.
  */

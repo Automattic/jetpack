@@ -60,7 +60,7 @@ function DateOption( { value, updateFilter } ) {
 						onChange={ setYear }
 					/>
 					<Button
-						isSecondary
+						variant="secondary"
 						disabled={ value?.month === month && value?.year === year }
 						onClick={ () => {
 							updateFilter( { range: selectedRange, month, year } );

@@ -3,11 +3,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import restApi from '@automattic/jetpack-api';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import { getSiteAdminUrl } from 'state/initial-state';
+import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
 
@@ -41,6 +42,22 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=cdn',
 			};
+		case 'publicize':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Social Media Sharing', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: getRedirectUrl( 'calypso-marketing-connections', {
+					site: getSiteRawUrl( state ),
+				} ),
+			};
+		case 'videopress':
+			return {
+				configureButtonLabel: __( 'How To', 'jetpack' ),
+				displayName: __( 'VideoPress', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
+			};
 		case 'woocommerce':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -50,6 +67,25 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		default:
 			throw `Unknown feature slug in mapStateToSummaryFeatureProps() recommendations/feature-utils.js: ${ featureSlug }`;
+	}
+};
+
+export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
+	switch ( resourceSlug ) {
+		case 'security-plan':
+			return {
+				displayName: __( 'Site Security', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+			};
+		case 'anti-spam':
+			return {
+				displayName: __( 'Spam Management', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+			};
+		default:
+			throw `Unknown resource slug in mapStateToSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
 	}
 };
 
@@ -90,6 +126,18 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 					);
 				},
 			};
+		case 'publicize':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { publicize: true } ) );
+				},
+			};
+		case 'videopress':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { videopress: true } ) );
+				},
+			};
 		case 'woocommerce':
 			return {
 				activateFeature: () => {
@@ -108,12 +156,9 @@ export const getStepContent = stepSlug => {
 		case 'creative-mail':
 			return {
 				progressValue: '83',
-				question: __(
-					'Would you like to turn site visitors into subscribers with Creative Mail?',
-					'jetpack'
-				),
+				question: __( 'Would you like to turn site visitors into subscribers?', 'jetpack' ),
 				description: __(
-					'The Jetpack <strong>Newsletter Form</strong> combined with <strong>Creative Mail</strong> by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
+					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
 				descriptionLink:
@@ -129,7 +174,7 @@ export const getStepContent = stepSlug => {
 					'jetpack'
 				),
 				description: __(
-					'If your site ever goes down, <strong>Downtime Monitoring</strong> will send you an email or push notitification to let you know. <ExternalLink>Learn more</ExternalLink>',
+					'If your site ever goes down, Downtime Monitoring will send you an email or push notitification to let you know. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
 				descriptionLink: 'https://jetpack.com/support/monitor/',
@@ -144,7 +189,7 @@ export const getStepContent = stepSlug => {
 					'jetpack'
 				),
 				description: __(
-					'Displaying <strong>Related Posts</strong> at the end of your content keeps visitors engaged and on your site longer. <ExternalLink>Learn more</ExternalLink>',
+					'Displaying Related Posts at the end of your content keeps visitors engaged and on your site. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
 				descriptionLink: 'https://jetpack.com/support/related-posts/',
@@ -154,14 +199,77 @@ export const getStepContent = stepSlug => {
 		case 'site-accelerator':
 			return {
 				progressValue: '99',
-				question: __( 'Would you like Site Accelerator to help your site load faster?', 'jetpack' ),
+				question: __( 'Would you like your site to load faster?', 'jetpack' ),
 				description: __(
-					'Faster sites get better ranking in search engines and help keep visitors on your site longer. <strong>Site Accelerator</strong> will automatically optimize your image and files. <ExternalLink>Learn more</ExternalLink>',
+					'Faster sites get better ranking in search engines and help keep visitors on your site longer. Jetpack will automatically optimize and load your images and files from our global Content Delivery Network (CDN). <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
 				descriptionLink: 'https://jetpack.com/support/site-accelerator/',
 				ctaText: __( 'Enable Site Accelerator', 'jetpack' ),
 				illustrationPath: '/recommendations/site-accelerator-illustration.svg',
+			};
+		case 'publicize':
+			return {
+				question: __(
+					'Automatically share your posts to social media to grow your audience.',
+					'jetpack'
+				),
+				description: __(
+					'It’s easy to share your content to a wider audience by connecting your social media accounts to Jetpack. When you publish a post, it will automatically appear on all your favorite platforms. Best of all, it’s free. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: getRedirectUrl( 'jetpack-blog-social-sharing' ),
+				ctaText: __( 'Enable Social Media Sharing', 'jetpack' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
+			};
+		case 'security-plan':
+			return {
+				question: __( 'With more plugins comes more responsibility.', 'jetpack' ),
+				description: __(
+					'As you add plugins to your site, you have to start thinking about vulnerabilities, failed updates, and incompatible plugins. You should ensure that the plugins you install:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Have good user ratings', 'jetpack' ),
+					__( 'Are compatible with the most recent version of WordPress', 'jetpack' ),
+					__( 'Are developed by teams that respond to support requests promptly', 'jetpack' ),
+				],
+				descriptionSecondary: __(
+					'Or let Jetpack handle your security and backups so you can focus on your business.',
+					'jetpack'
+				),
+				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
+			};
+		case 'anti-spam':
+			return {
+				question: __( 'It’s time to block spam comments.', 'jetpack' ),
+				description: __(
+					'Congratulations! Your content is getting traction and receiving comments. The more popular your content is, the more likely it is you will be a target for spam comments. To ensure a great experience for your readers, we recommend manually moderating spam or using an automated product like Jetpack Anti-spam.',
+					'jetpack'
+				),
+				ctaText: __( 'Learn how to block spam', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
+			};
+		case 'videopress':
+			return {
+				question: __(
+					'Share videos on your site to increase engagement and purchases.',
+					'jetpack'
+				),
+				description: __(
+					'No matter your business, adding videos to your site is essential for success. Jetpack VideoPress offers HD, ad-free video hosting, so you can keep the focus on your content. Try it for free or upgrade for more space. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: getRedirectUrl( 'jetpack-videopress' ),
+				ctaText: __( 'Try VideoPress for free', 'jetpack' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
 			};
 		case 'woocommerce':
 			return {

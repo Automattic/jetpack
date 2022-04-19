@@ -24,6 +24,7 @@ function init_repo {
 	echo "::group::Initializing repo"
 	git init -q .
 	git remote add origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+	git config --local gc.auto 0
 	echo "::endgroup::"
 
 	echo "::group::Fetching tags"
@@ -131,20 +132,34 @@ function fetch_prs {
 # Inputs:
 #  $1: PR number to test.
 #  $BRANCH: Base branch, e.g. master.
+#  $DEEPENBY: How much to deepen by if we're having to deepen $BRANCH. If empty, it'll deepen by just enough to find the merge base.
 #  ${PATHS[@]}: Paths that must be touched.
 # Returns: 0 if the PR should be processed, non-zero otherwise.
 function should_process_pr {
-	local MB, PR=$1
+	local MB PR=$1
 	if [[ ${#PATHS[@]} -gt 0 ]]; then
 		git rev-parse --verify "pulls/$PR" &>/dev/null || die "PR #$PR has not been fetched"
 		MB="$(git merge-base "pulls/$PR" "origin/$BRANCH")"
 		# We need to find the merge base in order to diff. If there wasn't one, fetch the needed revs and try again.
 		if [[ -z "$MB" ]]; then
-			# We need to fetch $BRANCH down to the PR, and then deepen the PR by 1 to get the actual merge base.
-			gitfetch --shallow-exclude="refs/pull/$PR/head" origin "$BRANCH" || die "should_process_pr: Failed to fetch $BRANCH to PR #$PR"
-			gitfetch --deepen=1 origin "+refs/pull/$PR/head:refs/remotes/pulls/$PR" || die "should_process_pr: Failed to fetch next revision for PR #$PR"
-			MB="$(git merge-base "pulls/$PR" "origin/$BRANCH")"
-			[[ -z "$MB" ]] && die "Failed to determine merge base for pulls/$PR and origin/$BRANCH"
+			if [[ -z "$DEEPENBY" || $DEEPENBY -lt 1 ]]; then
+				echo "::group::Fetching $BRANCH to PR #$PR"
+				# We need to fetch $BRANCH down to the PR, and then deepen the PR by 1 to get the actual merge base.
+				gitfetch --shallow-exclude="refs/pull/$PR/head" origin "$BRANCH" || die "should_process_pr: Failed to fetch $BRANCH to PR #$PR"
+				gitfetch --deepen=1 origin "+refs/pull/$PR/head:refs/remotes/pulls/$PR" || die "should_process_pr: Failed to fetch next revision for PR #$PR"
+				echo "::endgroup::"
+				MB="$(git merge-base "pulls/$PR" "origin/$BRANCH")"
+				[[ -z "$MB" ]] && die "Failed to determine merge base for pulls/$PR and origin/$BRANCH"
+			else
+				# Keep deepening until we find the merge base. Double the DEEPENBY each time to try to adapt to busier repos.
+				while [[ -z "$MB" ]]; do
+					echo "::group::Fetching next $DEEPENBY revisions for $BRANCH"
+					gitfetch --deepen="$DEEPENBY" origin "$BRANCH" || die "should_process_pr: Failed to fetch next $DEEPENBY revisions for $BRANCH"
+					DEEPENBY=$(( DEEPENBY * 2 ))
+					echo "::endgroup::"
+					MB="$(git merge-base "pulls/$PR" "origin/$BRANCH")"
+				done
+			fi
 		fi
 		! git diff --name-only --exit-code "$MB..pulls/$PR" -- "${PATHS[@]}"
 		return

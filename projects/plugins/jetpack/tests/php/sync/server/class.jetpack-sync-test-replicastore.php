@@ -98,7 +98,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	function get_post( $id ) {
-		return isset( $this->posts[ get_current_blog_id() ][ $id ] ) ? $this->posts[ get_current_blog_id() ][ $id ] : false;
+		return isset( $this->posts[ get_current_blog_id() ][ $id ] ) ? $this->posts[ get_current_blog_id() ][ $id ] : null;
 	}
 
 	function upsert_post( $post, $silent = false ) {

@@ -9,6 +9,7 @@ import React from 'react';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -16,7 +17,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import ExternalLink from 'components/external-link';
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import { FormFieldset, FormLegend } from 'components/forms';
 import Textarea from 'components/textarea';
@@ -90,7 +90,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								{ isAdsActive &&
 									createInterpolateElement(
 										__(
-											'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
+											'WordAds automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
 											'jetpack'
 										),
 										{
@@ -347,13 +347,11 @@ export const Ads = withModuleSettingsFormHelpers(
 												br: <br />,
 												link: (
 													<ExternalLink
-														icon={ true }
 														href={
 															this.props.isAtomicSite
 																? getRedirectUrl( 'wpcom-support-ccpa' )
 																: getRedirectUrl( 'jetpack-support-ads' )
 														}
-														target="_blank"
 														rel="noopener noreferrer"
 													/>
 												),

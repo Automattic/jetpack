@@ -16,6 +16,10 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Settings;
 
+if ( ! class_exists( 'WP_CLI_Command' ) ) {
+	return;
+}
+
 WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 /**

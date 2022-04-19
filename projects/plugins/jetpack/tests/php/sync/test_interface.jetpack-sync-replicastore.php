@@ -1,5 +1,7 @@
 <?php
 
+// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
+
 use Automattic\Jetpack\Sync\Replicastore;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
@@ -114,29 +116,29 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		// find unique checksums - if all checksums are the same, there should be only one element
 		$unique_checksums_count = count( array_unique( array_map( 'serialize', array_values( $checksums ) ) ) );
 
-		$this->assertEquals( 1, $unique_checksums_count, 'Checksums do not match: ' . print_r( $labelled_checksums, 1 ) );
+		$this->assertSame( 1, $unique_checksums_count, 'Checksums do not match: ' . print_r( $labelled_checksums, 1 ) );
 
 		// compare post histograms
 		$histograms              = array_map( array( $this, 'get_all_post_histograms' ), $all_replicastores );
 		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
 		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
-		$this->assertEquals( 1, $unique_histograms_count, 'Post histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
+		$this->assertSame( 1, $unique_histograms_count, 'Post histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 
 		$histograms              = array_map( array( $this, 'get_all_post_meta_histograms' ), $all_replicastores );
 		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
 		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
-		$this->assertEquals( 1, $unique_histograms_count, 'Post meta histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
+		$this->assertSame( 1, $unique_histograms_count, 'Post meta histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 
 		// compare comment histograms
 		$histograms              = array_map( array( $this, 'get_all_comment_histograms' ), $all_replicastores );
 		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
 		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
-		$this->assertEquals( 1, $unique_histograms_count, 'Comment histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
+		$this->assertSame( 1, $unique_histograms_count, 'Comment histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 
 		$histograms              = array_map( array( $this, 'get_all_comment_meta_histograms' ), $all_replicastores );
 		$labelled_histograms     = array_combine( array_map( 'get_class', $all_replicastores ), $histograms );
 		$unique_histograms_count = count( array_unique( array_map( 'serialize', $histograms ) ) );
-		$this->assertEquals( 1, $unique_histograms_count, 'Comment meta histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
+		$this->assertSame( 1, $unique_histograms_count, 'Comment meta histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 	}
 
 	function get_all_checksums( $replicastore ) {
@@ -233,24 +235,31 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 * @dataProvider store_provider
 	 */
 	function test_strips_non_ascii_chars_for_checksum( $store ) {
-		$utf8_post = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
-		$ascii_post = self::$factory->post( 1, array( 'post_content' => 'Panam' ) );
-		$utf8_comment = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panamá' ) );
+		$utf8_post     = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
+		$ascii_post    = self::$factory->post( 1, array( 'post_content' => 'Panam' ) );
+		$utf8_comment  = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panamá' ) );
 		$ascii_comment = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panam' ) );
 
-		// generate checksums just for utf8 content
+		// Generate checksums just for utf8 content.
 		$store->upsert_post( $utf8_post );
 		$store->upsert_comment( $utf8_comment );
 
-		$utf8_post_checksum = $store->posts_checksum();
+		$utf8_post_checksum    = $store->posts_checksum();
 		$utf8_comment_checksum = $store->comments_checksum();
 
-		// generate checksums just for ascii content
+		// Generate checksums just for ascii content.
+		// We need to set the $ascii_post post_modified field
+		// same as the $utf8_post post_modified, as post checksums take it into account, in order
+		// to avoid any flakiness caused by those two posts having different post_modified fields (defaults to now).
+		$ascii_post->post_modified = $utf8_post->post_modified;
 		$store->upsert_post( $ascii_post );
 		$store->upsert_comment( $ascii_comment );
 
-		$this->assertEquals( $utf8_post_checksum, $store->posts_checksum() );
-		$this->assertEquals( $utf8_comment_checksum, $store->comments_checksum() );
+		$ascii_post_checksum    = $store->posts_checksum();
+		$ascii_comment_checksum = $store->comments_checksum();
+
+		$this->assertEquals( $utf8_post_checksum, $ascii_post_checksum );
+		$this->assertEquals( $utf8_comment_checksum, $ascii_comment_checksum );
 	}
 
 	/**
@@ -269,10 +278,10 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$generated_post_ids    = array();
 		$generated_comment_ids = array();
 
-		for ( $i = 1; $i <= 20; $i += 1 ) {
+		for ( $i = 1; $i <= 20; $i++ ) {
 			do {
-				$post_id = rand( 1, 1000000 );
-			} while ( in_array( $post_id, $generated_post_ids ) );
+				$post_id = wp_rand( 1, 1000000 );
+			} while ( in_array( $post_id, $generated_post_ids, true ) );
 
 			$generated_post_ids[] = $post_id;
 
@@ -287,8 +296,8 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 			}
 
 			do {
-				$comment_id = rand( 1, 1000000 );
-			} while ( in_array( $post_id, $generated_comment_ids ) );
+				$comment_id = wp_rand( 1, 1000000 );
+			} while ( in_array( $comment_id, $generated_comment_ids, true ) );
 
 			$generated_comment_ids[] = $comment_id;
 
@@ -302,12 +311,11 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 			if ( $max_comment_id < $comment_id ) {
 				$max_comment_id = $comment_id;
 			}
-
 		}
 
 		foreach ( array( 'posts', 'comments' ) as $object_type ) {
 			$histogram = $store->checksum_histogram( $object_type, 10, 0, 0 );
-			$this->assertEquals( 10, count( $histogram ) );
+			$this->assertCount( 10, $histogram );
 
 			// histogram bucket should equal entire histogram of just the ID range for that bucket
 			foreach ( $histogram as $range => $checksum ) {
@@ -405,7 +413,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 * @dataProvider store_provider
 	 */
 	function test_replica_upsert_post( $store ) {
-		$this->assertEquals( 0, $store->post_count() );
+		$this->assertSame( 0, $store->post_count() );
 
 		$post = self::$factory->post( 5 );
 
@@ -420,7 +428,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$this->assertEquals( $post, $retrieved_post );
 
 		// assert the DB has one post
-		$this->assertEquals( 1, $store->post_count() );
+		$this->assertSame( 1, $store->post_count() );
 
 		// test that re-upserting doesn't add a new post, but modifies existing one
 		$post->post_title = "A whole new title";
@@ -439,19 +447,19 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$store->upsert_post( self::$factory->post( 3, array( 'post_status' => 'trash' ) ) );
 		$store->upsert_post( self::$factory->post( 4, array( 'post_status' => 'trash' ) ) );
 
-		$this->assertEquals( 1, $store->post_count( 'draft' ) );
-		$this->assertEquals( 1, $store->post_count( 'publish' ) );
+		$this->assertSame( 1, $store->post_count( 'draft' ) );
+		$this->assertSame( 1, $store->post_count( 'publish' ) );
 		$this->assertEquals( 2, $store->post_count( 'trash' ) );
 
 		$trash_posts = $store->get_posts( 'trash' );
 
-		$this->assertEquals( 2, count( $trash_posts ) );
+		$this->assertCount( 2, $trash_posts );
 
 		// now let's delete a post
 		$store->delete_post( 3 );
 
-		$this->assertEquals( null, $store->get_post( 3 ) );
-		$this->assertEquals( 1, $store->post_count( 'trash' ) );
+		$this->assertNull( $store->get_post( 3 ) );
+		$this->assertSame( 1, $store->post_count( 'trash' ) );
 	}
 
 	/**
@@ -475,13 +483,13 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 * @dataProvider store_provider
 	 */
 	function test_replica_upsert_comment( $store ) {
-		$this->assertEquals( 0, $store->comment_count() );
+		$this->assertSame( 0, $store->comment_count() );
 
 		$comment = self::$factory->comment( 3, 2 );
 
 		$store->upsert_comment( $comment );
 
-		$this->assertEquals( 1, $store->comment_count() );
+		$this->assertSame( 1, $store->comment_count() );
 
 		$retrieved_comment = $store->get_comment( $comment->comment_ID );
 
@@ -523,9 +531,9 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$store->upsert_comment( self::$factory->comment( 4, $post_id, array( 'comment_approved' => 'spam' ) ) );
 		$store->upsert_comment( self::$factory->comment( 5, $post_id, array( 'comment_approved' => 'trash' ) ) );
 
-		$this->assertEquals( 1, $store->comment_count( 'hold' ) );
-		$this->assertEquals( 1, $store->comment_count( 'approve' ) );
-		$this->assertEquals( 1, $store->comment_count( 'trash' ) );
+		$this->assertSame( 1, $store->comment_count( 'hold' ) );
+		$this->assertSame( 1, $store->comment_count( 'approve' ) );
+		$this->assertSame( 1, $store->comment_count( 'trash' ) );
 		$this->assertEquals( 2, $store->comment_count( 'spam' ) );
 	}
 
@@ -686,7 +694,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		// but not bulk-cache-invalidating it
 		wp_cache_delete( 1, 'post_meta' );
 
-		$this->assertEquals( null, $store->get_metadata( 'post', 1, 'foo', true ) );
+		$this->assertNull( $store->get_metadata( 'post', 1, 'foo', true ) );
 		$this->assertEquals( 'baz', $store->get_metadata( 'post', 1, '_fee', true ) );
 	}
 
@@ -746,7 +754,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 
 		$store->set_updates( 'core', 1 );
 
-		$this->assertEquals( 1, $store->get_updates( 'core' ) );
+		$this->assertSame( 1, $store->get_updates( 'core' ) );
 	}
 
 	/**
@@ -765,7 +773,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 
 		$store->set_callable( 'is_main_network', '1' );
 
-		$this->assertEquals( '1', $store->get_callable( 'is_main_network' ) );
+		$this->assertSame( '1', $store->get_callable( 'is_main_network' ) );
 	}
 
 	/**
@@ -793,7 +801,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 
 		$store->delete_site_option( 'to_delete' );
 
-		$this->assertEquals( false, $store->get_site_option( 'to_delete' ), 'Site option was NOT deleted.' );
+		$this->assertFalse( $store->get_site_option( 'to_delete' ), 'Site option was NOT deleted.' );
 	}
 
 	/**
@@ -937,7 +945,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 
 		$terms = $store->get_the_terms( $replica_post->ID, $taxonomy );
 
-		$this->assertEquals( 1, $terms[0]->count );
+		$this->assertSame( 1, $terms[0]->count );
 		$this->assertEquals( 22, $terms[0]->term_id );
 		$this->assertEquals( 22, $terms[0]->term_taxonomy_id );
 		$this->assertEquals( 'female', $terms[0]->slug );
@@ -976,14 +984,14 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$store->update_object_terms( $replica_post->ID, $taxonomy, array( 22 ), true );
 
 		$terms = get_the_terms( $replica_post->ID, $taxonomy );
-		$this->assertEquals( 1, $terms[0]->count );
+		$this->assertSame( 1, $terms[0]->count );
 
 		$store->delete_object_terms( $replica_post->ID, array( 22 ) );
 
-		$this->assertEquals( null, $wpdb->get_row( "SELECT * FROM $wpdb->term_relationships WHERE object_id = 5 " ) );
+		$this->assertNull( $wpdb->get_row( "SELECT * FROM $wpdb->term_relationships WHERE object_id = 5 " ) );
 
 		$terms = get_the_terms( $replica_post->ID, $taxonomy );
-		$this->assertEquals( 0, $terms[0]->count );
+		$this->assertSame( 0, $terms[0]->count );
 	}
 
 	public function store_provider( $name ) {

@@ -27,7 +27,7 @@ export const StripeNudge = ( { autosaveAndRedirect, stripeConnectUrl } ) => (
 					href={ stripeConnectUrl } // Only for server-side rendering, since onClick doesn't work there.
 					onClick={ autosaveAndRedirect }
 					target="_top"
-					isDefault
+					variant="secondary"
 					className="premium-content-block-nudge__button stripe-nudge__button"
 				>
 					{ __( 'Connect', 'jetpack' ) }

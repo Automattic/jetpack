@@ -23,6 +23,7 @@ export default class Button extends React.Component {
 		href: PropTypes.string,
 		onClick: PropTypes.func,
 		borderless: PropTypes.bool,
+		rna: PropTypes.bool,
 		className: PropTypes.string,
 	};
 
@@ -35,7 +36,7 @@ export default class Button extends React.Component {
 
 	render() {
 		const element = this.props.href ? 'a' : 'button';
-		const { primary, compact, scary, borderless, className, ...props } = this.props;
+		const { primary, compact, scary, borderless, rna, className, ...props } = this.props;
 
 		const buttonClasses = classNames( {
 			'dops-button': true,
@@ -43,6 +44,7 @@ export default class Button extends React.Component {
 			'is-primary': primary,
 			'is-scary': scary,
 			'is-borderless': borderless,
+			'is-rna': rna,
 		} );
 
 		props.className = classNames( className, buttonClasses );

@@ -78,7 +78,7 @@ class Speed_Score_Request extends Cacheable {
 
 		$this->url            = $url;
 		$this->active_modules = $active_modules;
-		$this->created        = is_null( $created ) ? microtime( true ) : $created;
+		$this->created        = $created === null ? microtime( true ) : $created;
 		$this->status         = $status;
 		$this->error          = $error;
 		$this->retry_count    = 0;
@@ -167,6 +167,10 @@ class Speed_Score_Request extends Cacheable {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			$this->status = 'error';
+			$this->error  = $response->get_error_message();
+			$this->store();
+
 			return $response;
 		}
 
@@ -222,7 +226,7 @@ class Speed_Score_Request extends Cacheable {
 
 		switch ( $response->status ) {
 			case 'pending':
-				// The initial job probalby failed, dispatch again if so.
+				// The initial job probably failed, dispatch again if so.
 				if ( $this->created <= strtotime( '-15 mins' ) ) {
 					return $this->restart();
 				}

@@ -87,7 +87,7 @@ export class EventbriteEdit extends Component {
 		noticeOperations.createErrorNotice(
 			<>
 				{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }{ ' ' }
-				<Button isLink onClick={ () => convertToLink( editedUrl, onReplace ) }>
+				<Button variant="link" onClick={ () => convertToLink( editedUrl, onReplace ) }>
 					{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
 				</Button>
 			</>
@@ -188,7 +188,7 @@ export class EventbriteEdit extends Component {
 							placeholder={ __( 'Enter an event URL to embed here…', 'jetpack' ) }
 							onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 						/>
-						<Button isSecondary type="submit">
+						<Button variant="secondary" type="submit">
 							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
 						</Button>
 					</form>

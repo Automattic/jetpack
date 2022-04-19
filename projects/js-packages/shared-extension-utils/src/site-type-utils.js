@@ -41,3 +41,14 @@ export function isPrivateSite() {
 	const jetpackData = getJetpackData();
 	return jetpackData?.jetpack?.is_private_site ?? false;
 }
+
+/**
+ * Return whether the current site is coming soon (i.e. not launched yet).
+ * This is only available for WordPress.com sites so far.
+ *
+ * @returns {boolean} whether the current site is coming soon.
+ */
+export function isComingSoon() {
+	const jetpackData = getJetpackData();
+	return jetpackData?.jetpack?.is_coming_soon ?? false;
+}

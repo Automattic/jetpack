@@ -22,6 +22,7 @@ import { castToNumber } from './cast-to-number';
 import { recordBoostEvent } from './analytics';
 import { isSameOrigin } from './is-same-origin';
 import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
+import { logPreCriticalCSSGeneration } from './console';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -79,7 +80,7 @@ export default async function generateCriticalCss(
 	try {
 		if ( reset ) {
 			await clearDismissedRecommendations();
-			updateGenerateStatus( true, 0 );
+			updateGenerateStatus( { status: 'requesting', progress: 0 } );
 		}
 
 		// Fetch a list of provider keys and URLs while loading the Critical CSS lib.
@@ -92,7 +93,7 @@ export default async function generateCriticalCss(
 
 		removeShownAdminNotices( 'critical-css' );
 
-		updateGenerateStatus( true, 0 );
+		updateGenerateStatus( { status: 'requesting', progress: 0 } );
 
 		// Load Critical CSS gen library if not already loaded.
 		await loadCriticalCssLibrary();
@@ -106,7 +107,7 @@ export default async function generateCriticalCss(
 				throw new Error( __( 'Operation cancelled', 'jetpack-boost' ) );
 			}
 
-			updateGenerateStatus( true, percent );
+			updateGenerateStatus( { status: 'requesting', progress: percent } );
 		} );
 
 		// Prepare GET parameters to include with each request.
@@ -115,7 +116,8 @@ export default async function generateCriticalCss(
 		};
 
 		// Run generator on each configuration.
-		updateGenerateStatus( true, 0 );
+		updateGenerateStatus( { status: 'requesting', progress: 0 } );
+		logPreCriticalCSSGeneration();
 		await generateForKeys(
 			cssStatus.pending_provider_keys,
 			requestGetParameters,
@@ -133,7 +135,7 @@ export default async function generateCriticalCss(
 		}
 	} finally {
 		// Always update generate status to not generating at the end.
-		updateGenerateStatus( false, 0 );
+		updateGenerateStatus( { status: 'success', progress: 0 } );
 	}
 }
 
@@ -306,7 +308,7 @@ async function generateForKeys(
 		recordBoostEvent( 'critical_css_success', 'click', eventProps );
 	}
 
-	updateGenerateStatus( false, 0 );
+	updateGenerateStatus( { status: 'success', progress: 0 } );
 }
 
 /**

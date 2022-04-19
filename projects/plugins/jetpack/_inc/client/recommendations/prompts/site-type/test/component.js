@@ -88,8 +88,10 @@ describe( 'Recommendations – Site Type', () => {
 
 		const personalCheckbox = screen.getByLabelText( 'Personal' );
 		expect( personalCheckbox.checked ).to.be.false;
+
 		fireEvent.click( personalCheckbox );
-		expect( personalCheckbox.checked ).to.be.true;
+
+		expect( updateRecommendationsDataStub.callCount ).to.be.equal( 1 );
 
 		updateRecommendationsDataStub.restore();
 	} );

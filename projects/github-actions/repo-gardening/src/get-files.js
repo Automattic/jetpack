@@ -31,6 +31,9 @@ async function getFiles( octokit, owner, repo, number ) {
 	} ) ) {
 		response.data.map( file => {
 			fileList.push( file.filename );
+			if ( file.previous_filename ) {
+				fileList.push( file.previous_filename );
+			}
 		} );
 	}
 

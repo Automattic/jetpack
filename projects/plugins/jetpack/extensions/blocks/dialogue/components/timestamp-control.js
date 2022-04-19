@@ -167,7 +167,7 @@ function TimestampButton( { className, onPlayback, value } ) {
 	return (
 		<Button
 			className={ className }
-			isTertiary
+			variant="tertiary"
 			onClick={ () => onPlayback( convertTimeCodeToSeconds( value ) ) }
 		>
 			{ value }
@@ -187,7 +187,7 @@ function ToggleButton( {
 		<Button
 			className={ className }
 			isSmall
-			isTertiary
+			variant="tertiary"
 			onClick={ () => {
 				onToggle( ! isTimestampButtonVisible );
 				if ( ! isTimestampButtonVisible ) {

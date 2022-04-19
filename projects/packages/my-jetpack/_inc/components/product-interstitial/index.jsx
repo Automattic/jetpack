@@ -2,22 +2,26 @@
  * External dependencies
  */
 import React, { useCallback, useEffect } from 'react';
-import { Container, Col } from '@automattic/jetpack-components';
+import { Container, Col, AdminPage } from '@automattic/jetpack-components';
+import { select } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import ProductDetailCard, { ProductDetail } from '../product-detail-card';
+import ProductDetailCard from '../product-detail-card';
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 import boostImage from './boost.png';
 import searchImage from './search.png';
 import videoPressImage from './videopress.png';
+import extrasImage from './extras.png';
 import crmImage from './crm.png';
 import { useProduct } from '../../hooks/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import { STORE_ID } from '../../state/store';
+import GoBackLink from '../go-back-link';
 
 /**
  * Product Interstitial component.
@@ -36,12 +40,7 @@ export default function ProductInterstitial( {
 	children = null,
 } ) {
 	const { activate, detail } = useProduct( slug );
-	const {
-		isUpgradableByBundle,
-		pricingForUi: { isFree, wpcomProductSlug },
-		hasRequiredPlan,
-		postActivationUrl,
-	} = detail;
+	const { isUpgradableByBundle } = detail;
 
 	const { recordEvent } = useAnalytics();
 
@@ -57,19 +56,19 @@ export default function ProductInterstitial( {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
 	}, [ recordEvent, bundle ] );
 
-	const Product = isUpgradableByBundle ? ProductDetailCard : ProductDetail;
 	const { isUserConnected } = useMyJetpackConnection();
-
-	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
 	const clickHandler = useCallback( () => {
-		if ( ! installsPlugin ) {
-			return;
-		}
+		activate().finally( () => {
+			const product = select( STORE_ID ).getProduct( slug );
+			const postActivationUrl = product?.postActivationUrl;
+			const hasRequiredPlan = product?.hasRequiredPlan;
+			const isFree = product?.pricingForUi?.isFree;
+			const wpcomProductSlug = product?.pricingForUi?.wpcomProductSlug;
+			const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-		activate().finally( function () {
 			if ( postActivationUrl ) {
 				window.location.href = postActivationUrl;
 				return;
@@ -82,38 +81,50 @@ export default function ProductInterstitial( {
 			// Redirect to the checkout page.
 			window.location.href = getProductCheckoutUrl( wpcomProductSlug, isUserConnected );
 		} );
-	}, [
-		installsPlugin,
-		activate,
-		needsPurchase,
-		navigateToMyJetpackOverviewPage,
-		wpcomProductSlug,
-		isUserConnected,
-		postActivationUrl,
-	] );
+	}, [ navigateToMyJetpackOverviewPage, activate, isUserConnected, slug ] );
+
+	const onClickGoBack = useCallback( () => {
+		if ( slug ) {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
+		}
+	}, [ recordEvent, slug ] );
 
 	return (
-		<Container
-			className={ ! isUpgradableByBundle ? styles.container : null }
-			horizontalSpacing={ 0 }
-			horizontalGap={ 0 }
-			fluid
-		>
-			<Col sm={ 4 } md={ 4 } lg={ 7 }>
-				<Product
-					slug={ slug }
-					trackButtonClick={ trackProductClick }
-					onClick={ installsPlugin ? clickHandler : undefined }
-				/>
-			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
-				{ bundle ? (
-					<ProductDetailCard slug="security" trackButtonClick={ trackBundleClick } />
-				) : (
-					children
-				) }
-			</Col>
-		</Container>
+		<AdminPage showHeader={ false } showBackground={ false }>
+			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+				<Col>
+					<GoBackLink onClick={ onClickGoBack } />
+				</Col>
+				<Col>
+					<Container
+						className={ ! isUpgradableByBundle ? styles.container : null }
+						horizontalSpacing={ 0 }
+						horizontalGap={ 0 }
+						fluid
+					>
+						<Col sm={ 4 } md={ 4 } lg={ 7 }>
+							<ProductDetailCard
+								slug={ slug }
+								trackButtonClick={ trackProductClick }
+								onClick={ installsPlugin ? clickHandler : undefined }
+								className={ isUpgradableByBundle ? styles.container : null }
+							/>
+						</Col>
+						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
+							{ bundle ? (
+								<ProductDetailCard
+									slug="security"
+									trackButtonClick={ trackBundleClick }
+									className={ isUpgradableByBundle ? styles.container : null }
+								/>
+							) : (
+								children
+							) }
+						</Col>
+					</Container>
+				</Col>
+			</Container>
+		</AdminPage>
 	);
 }
 
@@ -157,6 +168,19 @@ export function CRMInterstitial() {
 	return (
 		<ProductInterstitial slug="crm" installsPlugin={ true }>
 			<img src={ crmImage } alt="CRM" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * ExtrasInterstitial component
+ *
+ * @returns {object} ExtrasInterstitial react component.
+ */
+export function ExtrasInterstitial() {
+	return (
+		<ProductInterstitial slug="extras" installsPlugin={ true }>
+			<img src={ extrasImage } alt="Extras" />
 		</ProductInterstitial>
 	);
 }

@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.14] - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+## [2.3.13] - 2022-04-06
+### Changed
+- Updated package dependencies
+
+## [2.3.12] - 2022-03-29
+### Changed
+- Updated package dependencies.
+
+## [2.3.11] - 2022-03-23
+### Changed
+- Updated package dependencies
+
+## [2.3.10] - 2022-03-15
+### Changed
+- Updated package dependencies.
+
+## [2.3.9] - 2022-03-08
+### Changed
+- Updated package dependencies.
+
+## [2.3.8] - 2022-03-02
+### Changed
+- Updated package dependencies
+
 ## [2.3.7] - 2022-02-22
 ### Changed
 - Updated package dependencies.
@@ -193,6 +221,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Connection UI: Building the Framework
 
+[2.3.14]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.13...v2.3.14
+[2.3.13]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.12...v2.3.13
+[2.3.12]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.11...v2.3.12
+[2.3.11]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.10...v2.3.11
+[2.3.10]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.9...v2.3.10
+[2.3.9]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.8...v2.3.9
+[2.3.8]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.7...v2.3.8
 [2.3.7]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.6...v2.3.7
 [2.3.6]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.5...v2.3.6
 [2.3.5]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.4...v2.3.5

@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Disable direct access/execution to/of the widget code.
  */
@@ -17,6 +17,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 4.5.0
  */
 class Jetpack_Widget_Authors extends WP_Widget {
+	/**
+	 * Jetpack_Widget_Authors contructor.
+	 */
 	public function __construct() {
 		parent::__construct(
 			'authors',
@@ -43,22 +46,32 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	 *
 	 * @since 4.5.0
 	 */
-	function enqueue_style() {
+	public function enqueue_style() {
 		wp_register_style( 'jetpack-authors-widget', plugins_url( 'authors/style.css', __FILE__ ), array(), '20161228' );
 		wp_enqueue_style( 'jetpack-authors-widget' );
 	}
 
+	/**
+	 * Flush Authors widget cached data.
+	 */
 	public static function flush_cache() {
 		wp_cache_delete( 'widget_authors', 'widget' );
 		wp_cache_delete( 'widget_authors_ssl', 'widget' );
 	}
 
+	/**
+	 * Echoes the widget content.
+	 *
+	 * @param array $args Display arguments.
+	 * @param array $instance Widget settings for the instance.
+	 */
 	public function widget( $args, $instance ) {
 		$cache_bucket = is_ssl() ? 'widget_authors_ssl' : 'widget_authors';
 
-		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
-			if ( $output = wp_cache_get( $cache_bucket, 'widget' ) ) {
-				echo $output;
+		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {
+			$output = wp_cache_get( $cache_bucket, 'widget' );
+			if ( $output ) {
+				echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Cached widget display.
 				return;
 			}
 
@@ -66,7 +79,8 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		}
 
 		$instance           = wp_parse_args(
-			$instance, array(
+			$instance,
+			array(
 				'title'       => __( 'Authors', 'jetpack' ),
 				'all'         => false,
 				'number'      => 5,
@@ -75,7 +89,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		);
 		$instance['number'] = min( 10, max( 0, (int) $instance['number'] ) );
 
-		// We need to query at least one post to determine whether an author has written any posts or not
+		// We need to query at least one post to determine whether an author has written any posts or not.
 		$query_number = max( $instance['number'], 1 );
 
 		/**
@@ -120,7 +134,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 
 		$authors = get_users( $get_author_params );
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -156,9 +170,9 @@ class Jetpack_Widget_Authors extends WP_Widget {
 
 			echo '<li>';
 
-			// Display avatar and author name
+			// Display avatar and author name.
 			if ( $r->have_posts() ) {
-				echo '<a href="' . get_author_posts_url( $author->ID ) . '">';
+				echo '<a href="' . esc_url( get_author_posts_url( $author->ID ) ) . '">';
 
 				if ( $instance['avatar_size'] > 1 ) {
 					echo ' ' . get_avatar( $author->ID, $instance['avatar_size'], '', true ) . ' ';
@@ -174,7 +188,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 				echo '<strong>' . esc_html( $author->display_name ) . '</strong>';
 			}
 
-			if ( 0 == $instance['number'] ) {
+			if ( 0 === (int) $instance['number'] ) {
 				echo '</li>';
 				continue;
 			}
@@ -202,11 +216,11 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		}
 
 		echo '</ul>';
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		wp_reset_postdata();
 
-		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
+		if ( '%BEG_OF_TITLE%' !== $args['before_title'] ) {
 			wp_cache_add( $cache_bucket, ob_get_flush(), 'widget' );
 		}
 
@@ -214,9 +228,15 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		do_action( 'jetpack_stats_extra', 'widget_view', 'authors' );
 	}
 
+	/**
+	 * Outputs the widget settings form.
+	 *
+	 * @param array $instance Current settings.
+	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args(
-			$instance, array(
+			$instance,
+			array(
 				'title'       => '',
 				'all'         => false,
 				'avatar_size' => 48,
@@ -227,27 +247,27 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php _e( 'Title:', 'jetpack' ); ?>
-				<input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+				<?php esc_html_e( 'Title:', 'jetpack' ); ?>
+				<input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['all'] ); ?> name="<?php echo $this->get_field_name( 'all' ); ?>" />
-				<?php _e( 'Display all authors (including those who have not written any posts)', 'jetpack' ); ?>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['all'] ); ?> name="<?php echo esc_attr( $this->get_field_name( 'all' ) ); ?>" />
+				<?php esc_html_e( 'Display all authors (including those who have not written any posts)', 'jetpack' ); ?>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php _e( 'Number of posts to show for each author:', 'jetpack' ); ?>
-				<input style="width: 50px; text-align: center;" name="<?php echo $this->get_field_name( 'number' ); ?>" type="text" value="<?php echo esc_attr( $instance['number'] ); ?>" />
-				<?php _e( '(at most 10)', 'jetpack' ); ?>
+				<?php esc_html_e( 'Number of posts to show for each author:', 'jetpack' ); ?>
+				<input style="width: 50px; text-align: center;" name="<?php echo esc_attr( $this->get_field_name( 'number' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['number'] ); ?>" />
+				<?php esc_html_e( '(at most 10)', 'jetpack' ); ?>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php _e( 'Avatar Size (px):', 'jetpack' ); ?>
-				<select name="<?php echo $this->get_field_name( 'avatar_size' ); ?>">
+				<?php esc_html_e( 'Avatar Size (px):', 'jetpack' ); ?>
+				<select name="<?php echo esc_attr( $this->get_field_name( 'avatar_size' ) ); ?>">
 					<?php
 					foreach ( array(
 						'1'   => __( 'No Avatars', 'jetpack' ),
@@ -257,7 +277,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 						'96'  => '96x96',
 						'128' => '128x128',
 					) as $value => $label ) {
-?>
+						?>
 						<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $instance['avatar_size'] ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php } ?>
 				</select>
@@ -269,23 +289,26 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	/**
 	 * Updates the widget on save and flushes cache.
 	 *
-	 * @param array $new_instance
-	 * @param array $old_instance
+	 * @param array $new_instance New widget instance data.
+	 * @param array $old_instance Old widget instance data.
 	 * @return array
 	 */
-	public function update( $new_instance, $old_instance ) {
-		$new_instance['title']       = strip_tags( $new_instance['title'] );
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$new_instance['title']       = wp_strip_all_tags( $new_instance['title'] );
 		$new_instance['all']         = isset( $new_instance['all'] );
 		$new_instance['number']      = (int) $new_instance['number'];
 		$new_instance['avatar_size'] = (int) $new_instance['avatar_size'];
 
-		Jetpack_Widget_Authors::flush_cache();
+		self::flush_cache();
 
 		return $new_instance;
 	}
 }
 
 add_action( 'widgets_init', 'jetpack_register_widget_authors' );
+/**
+ * Register the Authors widget.
+ */
 function jetpack_register_widget_authors() {
 	register_widget( 'Jetpack_Widget_Authors' );
-};
+}

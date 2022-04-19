@@ -20,7 +20,7 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 						<Button
 							key={ widthValue }
 							isSmall
-							isPrimary={ widthValue === width }
+							variant={ widthValue === width ? 'primary' : undefined }
 							onClick={ () => setAttributes( { width: widthValue } ) }
 						>
 							{ widthValue }%

@@ -4,7 +4,7 @@
 import { setSearchPlanInfo } from '../../actions/site-plan';
 import reducer from '../site-plan';
 
-describe( 'Jetpack Settings Reducer', () => {
+describe( 'Site plan reducer', () => {
 	const initState = {
 		supports_search: false,
 	};
@@ -16,7 +16,8 @@ describe( 'Jetpack Settings Reducer', () => {
 		const state = reducer( undefined, setSearchPlanInfo( { supports_search: true } ) );
 		expect( state ).toEqual( { supports_search: true } );
 	} );
-	test( 'can update site plan', () => {} );
-	const state = reducer( initState, setSearchPlanInfo( { supports_search: true } ) );
-	expect( state ).toEqual( { supports_search: true } );
+	test( 'can update site plan', () => {
+		const state = reducer( initState, setSearchPlanInfo( { supports_search: true } ) );
+		expect( state ).toEqual( { supports_search: true } );
+	} );
 } );

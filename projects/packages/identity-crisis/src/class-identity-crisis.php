@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.7.4';
+	const PACKAGE_VERSION = '0.8.7-alpha';
 
 	/**
 	 * Instance of the object.
@@ -65,7 +65,7 @@ class Identity_Crisis {
 	 * @return object
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Identity_Crisis();
 		}
 
@@ -169,7 +169,7 @@ class Identity_Crisis {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			if (
 					isset( $_GET['jetpack_idc_clear_confirmation'], $_GET['_wpnonce'] ) &&
-					wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' )
+					wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
 			) {
 				Jetpack_Options::delete_option( 'safe_mode_confirmed' );
 				self::$is_safe_mode_confirmed = false;
@@ -193,7 +193,6 @@ class Identity_Crisis {
 		$status = new Status();
 		if ( ! is_string( $url )
 			|| $status->is_offline_mode()
-			|| $status->is_staging_site()
 			|| self::validate_sync_error_idc_option() ) {
 			return $url;
 		}
@@ -380,6 +379,8 @@ class Identity_Crisis {
 				'migrate_for_idc',
 			)
 		);
+
+		delete_transient( 'jetpack_idc_possible_dynamic_site_url_detected' );
 	}
 
 	/**
@@ -1220,5 +1221,69 @@ class Identity_Crisis {
 			'wpcom_url'   => $data['wpcom_home'],
 			'current_url' => $data['home'],
 		);
+	}
+
+	/**
+	 * Try to detect $_SERVER['HTTP_HOST'] being used within WP_SITEURL or WP_HOME definitions inside of wp-config.
+	 *
+	 * If `HTTP_HOST` usage is found, it's possbile (though not certain) that site URLs are dynamic.
+	 *
+	 * When a site URL is dynamic, it can lead to a Jetpack IDC. If potentially dynamic usage is detected,
+	 * helpful support info will be shown on the IDC UI about setting a static site/home URL.
+	 *
+	 * @return bool True if potentially dynamic site urls were detected in wp-config, false otherwise.
+	 */
+	public static function detect_possible_dynamic_site_url() {
+		$transient_key = 'jetpack_idc_possible_dynamic_site_url_detected';
+		$transient_val = get_transient( $transient_key );
+
+		if ( false !== $transient_val ) {
+			return (bool) $transient_val;
+		}
+
+		$path      = self::locate_wp_config();
+		$wp_config = $path ? file_get_contents( $path ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( $wp_config ) {
+			$matched = preg_match(
+				'/define ?\( ?[\'"](?:WP_SITEURL|WP_HOME).+(?:HTTP_HOST).+\);/',
+				$wp_config
+			);
+
+			if ( $matched ) {
+				set_transient( $transient_key, 1, HOUR_IN_SECONDS );
+				return true;
+			}
+		}
+
+		set_transient( $transient_key, 0, HOUR_IN_SECONDS );
+		return false;
+	}
+
+	/**
+	 * Gets path to WordPress configuration.
+	 * Source: https://github.com/wp-cli/wp-cli/blob/master/php/utils.php
+	 *
+	 * @return string
+	 */
+	public static function locate_wp_config() {
+		static $path;
+
+		if ( null === $path ) {
+			$path = false;
+
+			if ( getenv( 'WP_CONFIG_PATH' ) && file_exists( getenv( 'WP_CONFIG_PATH' ) ) ) {
+				$path = getenv( 'WP_CONFIG_PATH' );
+			} elseif ( file_exists( ABSPATH . 'wp-config.php' ) ) {
+				$path = ABSPATH . 'wp-config.php';
+			} elseif ( file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
+				$path = dirname( ABSPATH ) . '/wp-config.php';
+			}
+
+			if ( $path ) {
+				$path = realpath( $path );
+			}
+		}
+
+		return $path;
 	}
 }

@@ -22,8 +22,13 @@ class Host {
 	 * @return bool
 	 */
 	public function is_woa_site() {
-		$at_options = get_option( 'at_options', array() );
-		return $this->is_atomic_platform() && ( ! empty( $at_options ) || Constants::is_true( 'WPCOMSH__PLUGIN_FILE' ) );
+		$ret = Cache::get( 'is_woa_site' );
+		if ( null === $ret ) {
+			$at_options = get_option( 'at_options', array() );
+			$ret        = $this->is_atomic_platform() && ( ! empty( $at_options ) || Constants::is_true( 'WPCOMSH__PLUGIN_FILE' ) );
+			Cache::set( 'is_woa_site', $ret );
+		}
+		return $ret;
 	}
 
 	/**

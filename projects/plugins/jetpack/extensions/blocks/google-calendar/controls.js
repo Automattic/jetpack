@@ -4,7 +4,7 @@
 import { Button, PanelBody } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 
-export const GoogleCalendarInspectorControls = ( props ) => {
+export const GoogleCalendarInspectorControls = props => {
 	const { className, embedValue, onChange, onSubmit } = props;
 
 	return (
@@ -18,7 +18,7 @@ export const GoogleCalendarInspectorControls = ( props ) => {
 					placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
 					onChange={ onChange }
 				/>
-				<Button isSecondary type="submit">
+				<Button variant="secondary" type="submit">
 					{ _x( 'Embed', 'button label', 'jetpack' ) }
 				</Button>
 			</form>

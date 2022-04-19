@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Backup
  * Plugin URI: https://jetpack.com/jetpack-backup
  * Description: Easily restore or download a backup of your site from a specific moment in time.
- * Version: 1.2.0-beta
+ * Version: 1.2.1-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later

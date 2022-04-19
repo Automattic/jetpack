@@ -111,5 +111,6 @@ When needing to add a package version number inside a DocBlock, please use `$$ne
 - `@since $$next-version$$`
 - `@deprecated $$next-version$$`
 - `@deprecated since $$next-version$$`
+- `_deprecated_function( __METHOD__, 'package-$$next-version$$' );` (other WordPress deprecation functions also work, but note it must be all on one line).
 
 The `$$next-version$$` specifier will be automatically replaced with the correct package version number the next time a new version of that package is released.

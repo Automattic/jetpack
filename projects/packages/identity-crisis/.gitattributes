@@ -5,7 +5,6 @@ phpunit.xml.dist export-ignore
 tests/           export-ignore
 package.json      export-ignore
 webpack.config.js export-ignore
-gulpfile.babel.js export-ignore
 .babelrc          export-ignore
 
 # Files to include in the mirror repo
