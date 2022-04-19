@@ -8,7 +8,7 @@ import formatCurrency from '@automattic/format-currency';
  */
 import { BlockControls } from '@wordpress/block-editor';
 import { ExternalLink, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
-import { useSelect, dispatch } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, update, warning } from '@wordpress/icons';
 
@@ -19,15 +19,7 @@ import { useProductManagementContext } from './context';
 import useOpenBlockSidebar from './use-open-block-sidebar';
 import { getMessageByProductType } from './utils';
 import { store as membershipProductsStore } from '../../../store/membership-products';
-
-/**
- * Check if it's in the context of the customizer.
- *
- * @returns {boolean} if we are in the context of Customizer.
- */
-function isInCustomizer() {
-	return 'function' === typeof window?.wp?.customize;
-}
+import { CUSTOMIZER_EDITOR, getEditorType } from '../../get-editor-type';
 
 function getProductDescription( product ) {
 	const { currency, interval, price } = product;
@@ -82,12 +74,7 @@ function NewProduct( { onClose } ) {
 	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
 	const openBlockSidebar = useOpenBlockSidebar( clientId );
 
-	const isPublishOpen = useSelect(
-		select => select( 'core/edit-post' ).isPublishSidebarOpened(),
-		[]
-	);
-
-	if ( isInCustomizer() ) {
+	if ( CUSTOMIZER_EDITOR === getEditorType() ) {
 		return (
 			<MenuItem>
 				{ siteSlug && (
@@ -102,9 +89,6 @@ function NewProduct( { onClose } ) {
 	const handleClick = event => {
 		event.preventDefault();
 		openBlockSidebar();
-
-		// We need to close the publish sidebar when the user tries to add a new subscription otherwise the block panel is not visible.
-		isPublishOpen && dispatch( 'core/edit-post' ).closePublishSidebar();
 
 		setTimeout( () => {
 			const input = document.getElementById( 'new-product-title' );
