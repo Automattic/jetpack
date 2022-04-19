@@ -539,13 +539,13 @@ class REST_Connector {
 			return false;
 		}
 
-		$signature = base64_decode( $_GET['signature'] ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		$signature = base64_decode( filter_var( wp_unslash( $_GET['signature'] ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 
 		$signature_data = wp_json_encode(
 			array(
-				'rest_route' => $_GET['rest_route'],
+				'rest_route' => filter_var( wp_unslash( $_GET['rest_route'] ) ),
 				'timestamp'  => (int) $_GET['timestamp'],
-				'url'        => wp_unslash( $_GET['url'] ),
+				'url'        => filter_var( wp_unslash( $_GET['url'] ) ),
 			)
 		);
 

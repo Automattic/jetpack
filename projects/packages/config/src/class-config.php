@@ -19,6 +19,7 @@ use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Post_List\Post_List as Post_List;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
+use Automattic\Jetpack\WordAds\Initializer as Jetpack_WordAds_Main;
 
 /**
  * The configuration class.
@@ -41,6 +42,7 @@ class Config {
 		'post_list'       => false,
 		'identity_crisis' => false,
 		'search'          => false,
+		'wordads'         => false,
 	);
 
 	/**
@@ -59,7 +61,6 @@ class Config {
 		 * being constructed on priority 1.
 		 */
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 2 );
-
 	}
 
 	/**
@@ -112,6 +113,11 @@ class Config {
 		if ( $this->config['search'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Search\Initializer' )
 				&& $this->ensure_feature( 'search' );
+		}
+
+		if ( $this->config['wordads'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\WordAds\Initializer' )
+				&& $this->ensure_feature( 'wordads' );
 		}
 	}
 
@@ -231,6 +237,13 @@ class Config {
 	 */
 	protected function enable_search() {
 		Jetpack_Search_Main::init();
+	}
+
+	/**
+	 * Enables WordAds.
+	 */
+	protected function enable_wordads() {
+		Jetpack_WordAds_Main::init();
 	}
 
 	/**

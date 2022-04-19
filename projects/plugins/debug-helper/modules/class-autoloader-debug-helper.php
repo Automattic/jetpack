@@ -268,7 +268,7 @@ class Autoloader_Debug_Helper {
 	 * Display a notice if necessary.
 	 */
 	public function display_notice() {
-		switch ( $_GET['idc_notice'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		switch ( isset( $_GET['idc_notice'] ) ? $_GET['idc_notice'] : null ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			case self::STORED_SUCCESS_NOTICE_TYPE:
 				return $this->admin_notice__stored_success();
 
