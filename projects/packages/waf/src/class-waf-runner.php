@@ -157,8 +157,8 @@ class Waf_Runner {
 		if ( ! $version ) {
 			add_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 		}
-    
-    self::create_waf_directory();
+
+		self::create_waf_directory();
 		self::generate_ip_rules();
 		self::create_blocklog_table();
 		self::generate_rules();
