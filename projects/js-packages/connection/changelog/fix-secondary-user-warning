@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-do not display warning for secondary users if connection has an owner
