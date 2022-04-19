@@ -127,7 +127,7 @@ const FeaturePromptComponent = props => {
 								</div>
 								<span>Feature Enabled</span>
 							</div>
-							<Button primary rna href={ configLink } onClick={ onConfigureClick }>
+							<Button rna href={ configLink } onClick={ onConfigureClick }>
 								{ configureButtonLabel }
 							</Button>
 						</>
