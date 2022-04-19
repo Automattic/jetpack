@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-base-styles",
-	"version": "0.3.0-alpha",
+	"version": "0.3.0",
 	"description": "Jetpack components base styles",
 	"homepage": "https://jetpack.com",
 	"bugs": {
