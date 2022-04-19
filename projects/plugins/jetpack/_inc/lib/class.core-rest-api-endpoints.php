@@ -1412,13 +1412,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'] ) ) {
 			return false;
 		}
-		$signature = base64_decode( $_GET['signature'] ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		$signature = base64_decode( wp_unslash( $_GET['signature'] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$signature_data = wp_json_encode(
 			array(
-				'rest_route' => $_GET['rest_route'],
+				'rest_route' => isset( $_GET['rest_route'] ) ? filter_var( wp_unslash( $_GET['rest_route'] ) ) : null,
 				'timestamp'  => (int) $_GET['timestamp'],
-				'url'        => wp_unslash( $_GET['url'] ),
+				'url'        => esc_url_raw( wp_unslash( $_GET['url'] ) ),
 			)
 		);
 
@@ -1879,7 +1879,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
 		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
-			$secret                    = $_COOKIE['store_sandbox'];
+			$secret                    = filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) );
 			$args['headers']['Cookie'] = "store_sandbox=$secret;";
 		}
 
