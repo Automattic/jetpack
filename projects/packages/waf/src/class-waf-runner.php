@@ -15,14 +15,14 @@ use Jetpack_Options;
  */
 class Waf_Runner {
 
-	const WAF_RULES_VERSION   = '1.0.0';
-	const MODE_OPTION_NAME    = 'jetpack_waf_mode';
-	const IP_ALLOW_LIST_NAME  = 'jetpack_waf_ip_allow_list';
-	const IP_BLOCK_LIST_NAME  = 'jetpack_waf_ip_block_list';
-	const RULES_FILE          = __DIR__ . '/../rules/rules.php';
-	const ALLOW_IP_FILE       = __DIR__ . '/../rules/allow-ip.php';
-	const BLOCK_IP_FILE       = __DIR__ . '/../rules/block-ip.php';
-	const VERSION_OPTION_NAME = 'jetpack_waf_rules_version';
+	const WAF_RULES_VERSION         = '1.0.0';
+	const MODE_OPTION_NAME          = 'jetpack_waf_mode';
+	const IP_ALLOW_LIST_OPTION_NAME = 'jetpack_waf_ip_allow_list';
+	const IP_BLOCK_LIST_OPTION_NAME = 'jetpack_waf_ip_block_list';
+	const RULES_FILE                = __DIR__ . '/../rules/rules.php';
+	const ALLOW_IP_FILE             = __DIR__ . '/../rules/allow-ip.php';
+	const BLOCK_IP_FILE             = __DIR__ . '/../rules/block-ip.php';
+	const VERSION_OPTION_NAME       = 'jetpack_waf_rules_version';
 
 	/**
 	 * Set the mode definition if it has not been set.
@@ -275,8 +275,8 @@ class Waf_Runner {
 			$wp_filesystem->mkdir( dirname( self::RULES_FILE ) );
 		}
 
-		$allow_list = get_option( self::IP_ALLOW_LIST_NAME );
-		$block_list = get_option( self::IP_BLOCK_LIST_NAME );
+		$allow_list = get_option( self::IP_ALLOW_LIST_OPTION_NAME );
+		$block_list = get_option( self::IP_BLOCK_LIST_OPTION_NAME );
 
 		$allow_rules_content = '';
 		$block_rules_content = '';
