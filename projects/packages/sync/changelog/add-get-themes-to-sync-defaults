@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added get_themes to Sync defaults

@@ -26,25 +26,6 @@ function jetpack_matt_random_redirect() {
 		}
 	}
 
-	// Set default post type.
-	$post_type = get_post_type();
-
-	// Set default category type
-	if ( is_category() ) {
-		$category = get_the_category();
-		if ( isset( $category ) && ! empty( $category ) ) {
-			$random_cat_id = $category[0]->term_id;
-		}
-	}
-
-	// Set author name if we're on an author archive.
-	if ( is_author() ) {
-		$random_author_name  = get_the_author_meta( 'user_login' );
-		$random_author_query = 'AND user_login = "' . $random_author_name . '"';
-	} else {
-		$random_author_query = '';
-	}
-
 	// Acceptable URL formats: /[...]/?random=[post type], /?random, /&random, /&random=1
 	if ( ! isset( $_GET['random'] ) && ! ( isset( $_SERVER['REQUEST_URI'] ) && in_array( strtolower( $_SERVER['REQUEST_URI'] ), array( '/&random', '/&random=1' ), true ) ) ) {
 		return;
@@ -60,10 +41,14 @@ function jetpack_matt_random_redirect() {
 		wp_die( 'Please <a href="https://en.support.wordpress.com/contact/" rel="noopener noreferrer" target="_blank">contact support</a>' );
 	}
 
-	// Set the category ID if the parameter is set.
-	if ( isset( $_GET['random_cat_id'] ) ) {
-		$random_cat_id = (int) $_GET['random_cat_id'];
-	}
+	$where      = array(
+		"post_password = ''",
+		"post_status = 'publish'",
+	);
+	$where_args = array();
+
+	// Set default post type.
+	$post_type = get_post_type();
 
 	// Change the post type if the parameter is set.
 	if ( isset( $_GET['random_post_type'] ) && post_type_exists( $_GET['random_post_type'] ) ) {
@@ -75,12 +60,37 @@ function jetpack_matt_random_redirect() {
 		$post_type = 'post';
 	}
 
+	$where[]      = 'p.post_type = %s';
+	$where_args[] = $post_type;
+
+	// Set author name if we're on an author archive.
+	if ( is_author() ) {
+		$where[]      = 'post_author = %s';
+		$where_args[] = get_the_author_meta( 'ID' );
+	}
+
+	// Set default category type
+	if ( is_category() ) {
+		$category = get_the_category();
+		if ( isset( $category ) && ! empty( $category ) ) {
+			$random_cat_id = $category[0]->term_id;
+		}
+	}
+
+	// Set the category ID if the parameter is set.
+	if ( isset( $_GET['random_cat_id'] ) ) {
+		$random_cat_id = (int) $_GET['random_cat_id'];
+	}
+
 	global $wpdb;
 
+	$where = join( ' AND ', $where );
 	if ( isset( $random_cat_id ) ) {
-		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts AS p INNER JOIN $wpdb->term_relationships AS tr ON (p.ID = tr.object_id AND tr.term_taxonomy_id = %s) INNER JOIN  $wpdb->term_taxonomy AS tt ON(tr.term_taxonomy_id = tt.term_taxonomy_id AND taxonomy = 'category') WHERE p.post_type = %s AND post_password = '' AND post_status = 'publish' %s ORDER BY RAND() LIMIT 1", $random_cat_id, $post_type, $random_author_query ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts AS p INNER JOIN $wpdb->term_relationships AS tr ON (p.ID = tr.object_id AND tr.term_taxonomy_id = %s) INNER JOIN  $wpdb->term_taxonomy AS tt ON(tr.term_taxonomy_id = tt.term_taxonomy_id AND taxonomy = 'category') WHERE $where ORDER BY RAND() LIMIT 1", $random_cat_id, ...$where_args ) );
 	} else {
-		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_password = '' AND post_status = 'publish' %s ORDER BY RAND() LIMIT 1", $post_type, $random_author_query ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts AS p WHERE $where ORDER BY RAND() LIMIT 1", ...$where_args ) );
 	}
 
 	$permalink = get_permalink( $random_id );
