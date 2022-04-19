@@ -137,7 +137,7 @@ class Partner_Coupon {
 	 */
 	public function catch_coupon( $plugin_slug, $redirect_location ) {
 		// Accept and store a partner coupon if present, and redirect to Jetpack connection screen.
-		$partner_coupon = isset( $_GET['jetpack-partner-coupon'] ) ? sanitize_text_field( $_GET['jetpack-partner-coupon'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$partner_coupon = isset( $_GET['jetpack-partner-coupon'] ) ? sanitize_text_field( wp_unslash( $_GET['jetpack-partner-coupon'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $partner_coupon ) {
 			Jetpack_Options::update_options(
 				array(

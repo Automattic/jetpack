@@ -18,9 +18,11 @@ describe( 'record count', () => {
 	test( 'outputs correct record counts', () => {
 		render( <RecordCount recordCount={ 20 } planRecordLimit={ 100 } /> );
 
-		expect( screen.getByText( /20 records indexed/i ) ).toBeInTheDocument();
+		expect( screen.getByText( /20/i ) ).toBeInTheDocument();
 
-		expect( screen.getByText( /100 allotted/i ) ).toBeInTheDocument();
+		expect( screen.getByText( /records indexed/i ) ).toBeInTheDocument();
+
+		expect( screen.getByText( /100/i ) ).toBeInTheDocument();
 	} );
 
 	test( "doesn't output if there are no records", () => {

@@ -31,4 +31,21 @@ final class WafRunnerTest extends PHPUnit\Framework\TestCase {
 		$this->assertTrue( Waf_Runner::is_allowed_mode( 'normal' ) );
 		$this->assertTrue( Waf_Runner::is_allowed_mode( 'silent' ) );
 	}
+
+	/**
+	 * Test run
+	 *
+	 * @runInSeparateProcess
+	 */
+	public function testRunSetsConstants() {
+		define( 'ABSPATH', '/pseudo' );
+		define( 'WP_CONTENT_DIR', '/pseudo/dir' );
+
+		$this->assertFalse( defined( 'JETPACK_WAF_DIR' ) );
+		$this->assertFalse( defined( 'JETPACK_WAF_WPCONFIG' ) );
+
+		Waf_Runner::run();
+		$this->assertSame( '/pseudo/dir/jetpack-waf', JETPACK_WAF_DIR );
+		$this->assertSame( '/pseudo/dir/../wp-config.php', JETPACK_WAF_WPCONFIG );
+	}
 }

@@ -348,8 +348,8 @@ class Helper {
 			return false;
 		}
 
-		// WordPress search doesn't use nonces.
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- WordPress search doesn't use nonces.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- Sanitization happens at the end.
 		if ( empty( $_GET['post_type'] ) ) {
 			$post_types_from_query = array();
 		} elseif ( is_array( $_GET['post_type'] ) ) {
@@ -357,9 +357,9 @@ class Helper {
 		} else {
 			$post_types_from_query = (array) explode( ',', $_GET['post_type'] );
 		}
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 
-		$post_types_from_query = array_map( 'trim', $post_types_from_query );
+		$post_types_from_query = array_map( 'sanitize_key', $post_types_from_query );
 
 		$diff_query = self::array_diff( (array) $post_types, $post_types_from_query );
 

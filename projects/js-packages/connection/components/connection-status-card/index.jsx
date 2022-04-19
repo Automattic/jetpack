@@ -45,6 +45,7 @@ const ConnectionStatusCard = props => {
 		apiNonce,
 	} );
 
+	const missingConnectedOwner = requiresUserConnection && ! hasConnectedOwner;
 	const avatarRef = useRef();
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
@@ -156,13 +157,13 @@ const ConnectionStatusCard = props => {
 					</li>
 				) }
 
-				{ ! hasConnectedOwner && (
+				{ ( ! isUserConnected || ! hasConnectedOwner ) && (
 					<li
 						className={ `jp-connection-status-card--list-item-${
-							requiresUserConnection ? 'error' : 'info'
+							missingConnectedOwner ? 'error' : 'info'
 						}` }
 					>
-						{ requiresUserConnection && __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
+						{ missingConnectedOwner && __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
 						<Button
 							variant="link"
 							disabled={ userIsConnecting }
