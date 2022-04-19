@@ -110,6 +110,10 @@ export default function WordAdsDashboard() {
 		);
 	};
 
+	if ( ! isTogglingModule && ! isLoading && ! isSavingOptions && isModuleEnabled ) {
+		return <div>wordads module enabled :)</div>;
+	}
+
 	return (
 		<div className="jp-wordads-dashboard-page">
 			{ isLoading && (

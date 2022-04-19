@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\WordAds;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 use WP_Error;
@@ -56,6 +57,15 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_settings' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+		register_rest_route(
+			'jetpack/v4',
+			'/wordads/payments',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_payments' ),
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
@@ -124,6 +134,24 @@ class REST_Controller {
 				'module_active' => ( new Modules() )->is_active( Package::SLUG ),
 			)
 		);
+	}
+
+	/**
+	 * Payments Endpoint for private sites.
+	 *
+	 * GET `jetpack/v4/wordads/payments`
+	 *
+	 * @param WP_REST_Request $request - REST request.
+	 */
+	public function get_payments( $request ) {
+		$blog_id  = $this->get_blog_id();
+		$path     = sprintf( '/sites/%d/wordads/payments', absint( $blog_id ) );
+		$path     = add_query_arg(
+			$request->get_query_params(),
+			sprintf( '/sites/%d/wordads/payments', absint( $blog_id ) )
+		);
+		$response = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
+		return rest_ensure_response( $response );
 	}
 
 	/**
