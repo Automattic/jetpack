@@ -17,7 +17,7 @@ import SearchConnectionPage from './connection-page';
 import SearchDashboard from './index';
 
 /**
- * Return approperiate components.
+ * Return appropriate components.
  *
  * @returns {React.Component} WrappedDashboard component.
  */

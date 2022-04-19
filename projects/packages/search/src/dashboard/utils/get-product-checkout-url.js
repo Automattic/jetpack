@@ -1,7 +1,7 @@
 /**
  *
  * Return the checkout URL for the given product.
- * It checkes whether the user is connected to Jetpack.
+ * It checks whether the user is connected to Jetpack.
  * It doesn't use Jetpack redirect because
  * there is an issue with the `redirect_to` param.
  *
