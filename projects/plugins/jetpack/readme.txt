@@ -244,21 +244,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 10.9-a.7 - 2022-04-19
 #### Enhancements
-- Add individual filters for JS and AMP stat footer data.
-- Add recommendation for anti-spam
-- Connection: when deactivating Jetpack from the Plugins screen, do not disconnect other Jetpack-connected plugins.
-- Moved gutenberg-base-styles.scss file to js-packages/base-styles and updated its imports in the Jetpack plugin directory
+- Connection: Preventing other Jeptpack-connected plugins from disconnecting when deactivating Jetpack from the plugins screen.
+- Recommendations: Add recommendation for anti-spam.
 
 #### Improved compatibility
-- Moved licensing images into licensing package to minimize external dependencies.
-- Updated Sync tests
-- update sync tests callables whitelist
+- WordAds: Remove the suggestion to use the ad widget from the dashboard.
+- WordAds: Change Jetpack Ads wording to be WordAds.
 
 #### Bug fixes
-- Applied legacy Publicize filters to flag setting for Publicize
-- Fixing issue adding video descriptions and metadata via the WordPress.com dashboard.
-- Random Redirect: Fix functionality on author archives.
-- Update copy to reflect the actual plan that's needed
+- Publicize: Ensure bulk publishing posts won’t publicize those posts.
+- Random Redirect: Fixes 'set author name' functionality on author archives.
+- VideoPress: Fixes issue adding video descriptions and metadata via the WordPress.com dashboard.
 
 --------
 
