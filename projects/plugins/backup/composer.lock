@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "80023d1927cba4ebea6a6260c17f573d",
+    "content-hash": "cde9834a50858a1ac4f9dbe969b0a686",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -235,11 +235,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "78502e5546d6f1292832b98398eaaf61d99539e9"
+                "reference": "31fdcbae2b017ff6bdb37fb7d66a6adecc83f63a"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.38",
-                "automattic/jetpack-sync": "^1.30"
+                "automattic/jetpack-sync": "^1.31"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -386,13 +386,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "58967f97bcd012aa2389824c42ca1da24d9fc180"
+                "reference": "2604aa0938fd346057ef178fc4923f6454421b9e"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-heartbeat": "^1.4",
                 "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
@@ -594,46 +593,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A way to detect device types based on User-Agent header.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-heartbeat",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/heartbeat",
-                "reference": "89d4466f3ccf924afcbe3f6e80a15f2b39895def"
-            },
-            "require": {
-                "automattic/jetpack-a8c-mc-stats": "^1.4",
-                "automattic/jetpack-options": "^1.15"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-heartbeat",
-                "textdomain": "jetpack-heartbeat",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-heartbeat/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-master": "1.4.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day",
             "transport-options": {
                 "relative": true
             }
@@ -1139,12 +1098,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "ebda0afe1e63fe9d159beac10baa988ee965351c"
+                "reference": "f5579c677770a85cdf91015dab1065aa8fb8fc6c"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.38",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-heartbeat": "^1.4",
                 "automattic/jetpack-identity-crisis": "^0.8",
                 "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-password-checker": "^0.2",
@@ -1168,7 +1126,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.30.x-dev"
+                    "dev-master": "1.31.x-dev"
                 }
             },
             "autoload": {
