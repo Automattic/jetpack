@@ -299,8 +299,11 @@ class Waf_Runner {
 		$ip_allow_rules = self::ALLOW_IP_FILE;
 		$ip_block_rules = self::BLOCK_IP_FILE;
 
+		$ip_list_code = "if ( require('$ip_allow_rules') ) { return; }\n" .
+			"if ( require('$ip_block_rules') ) { \$waf->block('block', -1, 'ip block list'); }\n";
+
 		$rules_divided_by_line = explode( "\n", $rules );
-		array_splice( $rules_divided_by_line, 1, 0, "if ( require('$ip_allow_rules') ) { return; }\nif ( require('$ip_block_rules') ) { \$waf->block('block', -1, 'ip block list'); }\n" );
+		array_splice( $rules_divided_by_line, 1, 0, $ip_list_code );
 
 		$rules = implode( "\n", $rules_divided_by_line );
 
@@ -317,6 +320,11 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function generate_ip_rules() {
+		/**
+		 * WordPress filesystem abstraction.
+		 *
+		 * @var \WP_Filesystem_Base $wp_filesystem
+		 */
 		global $wp_filesystem;
 
 		self::initialize_filesystem();
@@ -341,6 +349,10 @@ class Waf_Runner {
 			if ( ! $wp_filesystem->put_contents( self::ALLOW_IP_FILE, "<?php\n$allow_rules_content" ) ) {
 				throw new \Exception( 'Failed writing allow list file to: ' . self::ALLOW_IP_FILE );
 			}
+		} else {
+			if ( ! $wp_filesystem->put_contents( self::ALLOW_IP_FILE, '<?php return false;' ) ) {
+				throw new \Exception( 'Failed writing empty allow list file to: ' . self::ALLOW_IP_FILE );
+			}
 		}
 
 		if ( $block_list && is_array( $block_list ) ) {
@@ -351,6 +363,10 @@ class Waf_Runner {
 
 			if ( ! $wp_filesystem->put_contents( self::BLOCK_IP_FILE, "<?php\n$block_rules_content" ) ) {
 				throw new \Exception( 'Failed writing block list file to: ' . self::BLOCK_IP_FILE );
+			}
+		} else {
+			if ( ! $wp_filesystem->put_contents( self::ALLOW_IP_FILE, '<?php return false;' ) ) {
+				throw new \Exception( 'Failed writing empty block list file to: ' . self::ALLOW_IP_FILE );
 			}
 		}
 	}
