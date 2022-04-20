@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "812bf1ce38723ed8839ee0c2823f496c",
+    "content-hash": "bdc8f723e56e5afcfdcdd579e3bfae8b",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1875,7 +1875,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "85ad1057ddda57dee8f4c230e423cb5808190fcd"
+                "reference": "96fe3bb76a62da0bc8101540e54c581bb67585e4"
             },
             "require": {
                 "wikimedia/aho-corasick": "^1.0"
@@ -1893,7 +1893,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.4.x-dev"
+                    "dev-master": "0.5.x-dev"
                 }
             },
             "autoload": {
