@@ -26,10 +26,10 @@ class Jetpack_Social_Test extends BaseTestCase {
 	 */
 	public function test_publicize_module_is_activated_on_plugin_activation() {
 		do_action( 'activated_plugin', 'hello-world.php' );
-		$this->assertFalse( ( new Modules() )->is_active( $this->social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
+		$this->assertFalse( ( new Modules() )->is_active( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
 
 		do_action( 'activated_plugin', JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH );
-		$this->assertTrue( ( new Modules() )->is_active( $this->social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
+		$this->assertTrue( ( new Modules() )->is_active( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
 	}
 
 	/**
@@ -41,13 +41,13 @@ class Jetpack_Social_Test extends BaseTestCase {
 		$this->assertEquals( $input, $this->social->filter_sync_callable_whitelist( $input ) );
 
 		// Test with Publicize enabled.
-		( new Modules() )->activate( $this->social::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+		( new Modules() )->activate( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		$callables = $this->social->filter_sync_callable_whitelist( array() );
 		$this->assertArrayHasKey( 'active_modules', $callables );
-		$this->assertEquals( $callables['active_modules'](), array( $this->social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
+		$this->assertEquals( $callables['active_modules'](), array( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
 
 		// Test with Publicize disabled.
-		( new Modules() )->deactivate( $this->social::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+		( new Modules() )->deactivate( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		$callables = $this->social->filter_sync_callable_whitelist( array() );
 		$this->assertArrayHasKey( 'active_modules', $callables );
 		$this->assertEquals( $callables['active_modules'](), array() );
