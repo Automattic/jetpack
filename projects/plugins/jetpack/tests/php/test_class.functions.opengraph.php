@@ -26,7 +26,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
 		// Restoring global variables.
 		global $wp_the_query;
-		$wp_the_query = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_the_query = new WP_Query();
 
 		wp_delete_attachment( $this->icon_id );
 	}

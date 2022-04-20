@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
-
 /**
  * Class WP_Test_Jetpack_Photon
  */
@@ -78,7 +76,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Restoring global variables.
 		global $content_width, $wp_the_query;
 		$content_width = $this->protected_globals['content_width'];
-		$wp_the_query  = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_the_query  = new WP_Query();
 
 		// ... see ::set_up()
 		// Unfortunately Jetpack_Photon::instance() won't run Jetpack_Photon->setup()
@@ -220,7 +218,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$full_filename = __DIR__ . '/modules/photon/sample-content/' . $filename;
 
 		// Local files only.
-		$file_contents = file_get_contents( $full_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$file_contents = file_get_contents( $full_filename );
 
 		return explode( "\n--RESULTS--\n", $file_contents, 2 );
 	}
@@ -1328,7 +1326,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$request->set_header( 'Content-Type', 'image/jpeg' );
 		$request->set_header( 'Content-Disposition', 'attachment; filename=test-image-large.png' );
 
-		$request->set_body( file_get_contents( $filename ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$request->set_body( file_get_contents( $filename ) );
 		// Make the REST API request.
 		$response = rest_get_server()->dispatch( $request );
 		// Pull the response from the API.
@@ -1430,7 +1428,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$filename      = '2004-07-22-DSC_0007-150x150.jpg';
 		$filepath      = DIR_TESTDATA . '/images/' . $orig_filename;
 		// Local file. Okay to file_get_contents.
-		$contents = file_get_contents( $filepath ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$contents = file_get_contents( $filepath );
 
 		$upload = wp_upload_bits( basename( $filepath ), null, $contents );
 

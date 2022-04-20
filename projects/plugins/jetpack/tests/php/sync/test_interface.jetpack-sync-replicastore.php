@@ -1,7 +1,5 @@
 <?php
 
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
-
 use Automattic\Jetpack\Sync\Replicastore;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 

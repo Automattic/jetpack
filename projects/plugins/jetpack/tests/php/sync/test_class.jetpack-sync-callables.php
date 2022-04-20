@@ -1075,14 +1075,14 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$_SERVER['REQUEST_URI']        = '/xmlrpc.php';
 		$_SERVER['HTTP_HOST']          = 'example.org';
 		$_GET['body']                  = 'abc';
-		$_GET['body-hash']             = base64_encode( sha1( 'abc', true ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$GLOBALS['HTTP_RAW_POST_DATA'] = 'abc'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$_GET['body-hash']             = base64_encode( sha1( 'abc', true ) );
+		$GLOBALS['HTTP_RAW_POST_DATA'] = 'abc';
 		$_SERVER['REQUEST_METHOD']     = 'POST';
 
 		$normalized_request_pieces = array(
 			$_GET['token'],
 			$_GET['timestamp'],
-			$_GET['nonce'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$_GET['nonce'],
 			$_GET['body-hash'],
 			'POST',
 			'example.org',
@@ -1091,7 +1091,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		);
 		$normalize                 = join( "\n", $normalized_request_pieces ) . "\n";
 
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', $normalize, 'secret', true ) );
 
 		// call one of the authenticated endpoints
@@ -1112,7 +1111,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Constants::clear_constants();
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10 );
 
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		unset( $_GET['token'] );
 		unset( $_GET['timestamp'] );
 		unset( $_GET['nonce'] );
@@ -1122,7 +1120,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_GET['body-hash'] );
 		unset( $GLOBALS['HTTP_RAW_POST_DATA'] );
 		unset( $_SERVER['REQUEST_METHOD'] );
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		Jetpack::connection()->reset_raw_post_data();

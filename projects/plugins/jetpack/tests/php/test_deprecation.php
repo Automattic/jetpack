@@ -69,7 +69,6 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		$class  = new ReflectionClass( $class );
 		$method = $class->getMethod( $method );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
 		set_error_handler( '__return_null' );
 		try {
 			$method->invokeArgs( null, $arguments );
