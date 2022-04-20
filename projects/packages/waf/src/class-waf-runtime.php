@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Waf;
 
+require_once __DIR__ . '/functions.php';
+
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about sanitizing input.
+
 /**
  * The environment variable that defined the WAF running mode.
  *
@@ -237,14 +241,88 @@ class Waf_Runtime {
 		if ( ! $reason ) {
 			$reason = "rule $rule_id";
 		}
-		// ToDo: This needs to be re-introduced.
-		// jpwaf_write_blocklog( $rule_id, $reason );.
+
+		$this->write_blocklog( $rule_id, $reason );
 		error_log( "Jetpack WAF Blocked Request\t$action\t$rule_id\t$status_code\t$reason" );
 		header( "X-JetpackWAF-Blocked: $status_code $reason" );
 		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE ) {
-			header( $_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, $status_code );
+			$protocol = isset( $_SERVER['SERVER_PROTOCOL'] ) ? wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) : 'HTTP';
+			header( $protocol . ' 403 Forbidden', true, $status_code );
 			die( "rule $rule_id" );
 		}
+	}
+
+	/**
+	 * Write block logs. We won't write to the file if it exceeds 100 mb.
+	 *
+	 * @param string $rule_id Rule id.
+	 * @param string $reason Block reason.
+	 */
+	public function write_blocklog( $rule_id, $reason ) {
+		$log_data              = array();
+		$log_data['rule_id']   = $rule_id;
+		$log_data['reason']    = $reason;
+		$log_data['timestamp'] = gmdate( 'Y-m-d H:i:s' );
+
+		$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';
+		$file_exists = file_exists( $file_path );
+
+		if ( ! $file_exists || filesize( $file_path ) < ( 100 * 1024 * 1024 ) ) {
+			$fp = fopen( $file_path, 'a+' );
+
+			if ( $fp ) {
+				try {
+					fwrite( $fp, json_encode( $log_data ) . "\n" );
+				} finally {
+					fclose( $fp );
+				}
+			}
+		}
+
+		$this->write_blocklog_row( $log_data );
+	}
+
+	/**
+	 * Write block logs to database.
+	 *
+	 * @param array $log_data Log data.
+	 */
+	private function write_blocklog_row( $log_data ) {
+		$conn = $this->connect_to_wordpress_db();
+
+		if ( ! $conn ) {
+			return;
+		}
+
+		global $table_prefix;
+
+		$statement = $conn->prepare( "INSERT INTO {$table_prefix}jetpack_waf_blocklog(reason,rule_id, timestamp) VALUES (?, ?, ?)" );
+		if ( false !== $statement ) {
+			$statement->bind_param( 'sis', $log_data['reason'], $log_data['rule_id'], $log_data['timestamp'] );
+
+			if ( $conn->insert_id > 100 ) {
+				$conn->query( "DELETE FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id LIMIT 1" );
+			}
+		}
+	}
+
+	/**
+	 * Connect to WordPress database.
+	 */
+	private function connect_to_wordpress_db() {
+		if ( ! file_exists( JETPACK_WAF_WPCONFIG ) ) {
+			return;
+		}
+
+		require_once JETPACK_WAF_WPCONFIG;
+		$conn = new \mysqli( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME ); // phpcs:ignore WordPress.DB.RestrictedClasses.mysql__mysqli
+
+		if ( $conn->connect_error ) {
+			error_log( 'Could not connect to the database:' . $conn->connect_error );
+			return null;
+		}
+
+		return $conn;
 	}
 
 	/**
@@ -385,35 +463,35 @@ class Waf_Runtime {
 				case 'remote_addr':
 					$value = '';
 					if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-						$value = $_SERVER['HTTP_CLIENT_IP'];
+						$value = wp_unslash( $_SERVER['HTTP_CLIENT_IP'] );
 					} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-						$value = $_SERVER['HTTP_X_FORWARDED_FOR'];
+						$value = wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] );
 					} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-						$value = $_SERVER['REMOTE_ADDR'];
+						$value = wp_unslash( $_SERVER['REMOTE_ADDR'] );
 					}
 					break;
 				case 'request_method':
 					$value = empty( $_SERVER['REQUEST_METHOD'] )
 						? 'GET'
-						: $_SERVER['REQUEST_METHOD'];
+						: wp_unslash( $_SERVER['REQUEST_METHOD'] );
 					break;
 				case 'request_protocol':
 					$value = empty( $_SERVER['SERVER_PROTOCOL'] )
 						? ( empty( $_SERVER['HTTPS'] ) ? 'HTTP' : 'HTTPS' )
-						: $_SERVER['SERVER_PROTOCOL'];
+						: wp_unslash( $_SERVER['SERVER_PROTOCOL'] );
 					break;
 				case 'request_uri':
 					$value = isset( $_SERVER['REQUEST_URI'] )
-						? $_SERVER['REQUEST_URI']
+						? wp_unslash( $_SERVER['REQUEST_URI'] )
 						: '';
 					break;
 				case 'request_uri_raw':
-					$value = ( isset( $_SERVER['https'] ) ? 'https://' : 'http://' ) . $_SERVER['SERVER_NAME'] . $this->meta( 'request_uri' );
+					$value = ( isset( $_SERVER['https'] ) ? 'https://' : 'http://' ) . ( isset( $_SERVER['SERVER_NAME'] ) ? wp_unslash( $_SERVER['SERVER_NAME'] ) : '' ) . $this->meta( 'request_uri' );
 					break;
 				case 'request_filename':
 					$value = strtok(
 						isset( $_SERVER['REQUEST_URI'] )
-							? $_SERVER['REQUEST_URI']
+							? wp_unslash( $_SERVER['REQUEST_URI'] )
 							: '',
 						'?'
 					);
@@ -433,7 +511,7 @@ class Waf_Runtime {
 					$value = file_get_contents( 'php://input' );
 					break;
 				case 'query_string':
-					$value = isset( $_SERVER['QUERY_STRING'] ) ? $_SERVER['QUERY_STRING'] : '';
+					$value = isset( $_SERVER['QUERY_STRING'] ) ? wp_unslash( $_SERVER['QUERY_STRING'] ) : '';
 			}
 			$this->metadata[ $key ] = $value;
 		}

@@ -6,7 +6,6 @@ export { default as SimplePaymentBlock } from './blocks/simple-payments.js';
 export { default as WordAdsBlock } from './blocks/word-ads.js';
 
 export { default as DashboardPage } from './dashboard.js';
-export { default as InPlaceAuthorizeFrame } from './in-place-authorize.js';
 export { default as InPlacePlansPage } from './in-place-plans.js';
 export { default as JetpackPage } from './jetpack.js';
 export { default as WPLoginPage } from './login.js';

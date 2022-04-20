@@ -381,6 +381,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchIntroOffers: () =>
+			getRequest( `${ apiRoot }jetpack/v4/intro-offers`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchVerifySiteGoogleStatus: keyringId => {
 			const request =
 				keyringId !== null
