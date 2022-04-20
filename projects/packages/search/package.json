@@ -22,14 +22,15 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Automattic/jetpack-search.git"
+		"url": "https://github.com/Automattic/jetpack",
+		"directory": "projects/packages/search"
 	},
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack-search/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Search"
 	},
-	"homepage": "https://github.com/Automattic/jetpack-search#readme",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/search/#readme",
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
 		"pnpm": "^6.32.3",
