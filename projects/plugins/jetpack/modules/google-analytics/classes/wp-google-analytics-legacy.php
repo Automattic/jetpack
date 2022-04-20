@@ -316,7 +316,7 @@ class Jetpack_Google_Analytics_Legacy {
 
 		if ( is_product() ) { // product page
 			global $product;
-			$product_sku_or_id = $product->get_sku() ? $product->get_sku() : '#' + $product->get_id();
+			$product_sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
 			wc_enqueue_js(
 				"$( '.single_add_to_cart_button' ).click( function() {
 					_gaq.push(['_trackEvent', 'Products', 'Add to Cart', '#" . esc_js( $product_sku_or_id ) . "']);
