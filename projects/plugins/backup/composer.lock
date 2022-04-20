@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cde9834a50858a1ac4f9dbe969b0a686",
+    "content-hash": "cae002c0d26ae0197df324bc1e5c36ec",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -235,10 +235,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "31fdcbae2b017ff6bdb37fb7d66a6adecc83f63a"
+                "reference": "418b1ff72a0f061625e63e3dca3c42a532a64476"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.38",
+                "automattic/jetpack-connection": "^1.39",
                 "automattic/jetpack-sync": "^1.31"
             },
             "require-dev": {
@@ -386,7 +386,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "2604aa0938fd346057ef178fc4923f6454421b9e"
+                "reference": "c4d5dabee7cef88b9f8296b590ebdecd26dcea55"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -415,7 +415,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.38.x-dev"
+                    "dev-master": "1.39.x-dev"
                 }
             },
             "autoload": {
@@ -453,11 +453,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "35bdbe11f1eea0a90d2005fb00c971964b2b4ba5"
+                "reference": "2ef686629c6446ac7938456943567b56b916d70c"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.38",
+                "automattic/jetpack-connection": "^1.39",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-identity-crisis": "^0.8"
@@ -603,11 +603,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "3c5fa5d4829eb86d387b727915c3b21928ace466"
+                "reference": "701cc524807d6416531689315fffea6174a7f950"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.38",
+                "automattic/jetpack-connection": "^1.39",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.15",
@@ -723,12 +723,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "6baa42d9f139fe8115cfedee1b7b649acad66b45"
+                "reference": "6b37fd296379e6327eadc9dd895e05e1a31af879"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.38",
+                "automattic/jetpack-connection": "^1.39",
                 "automattic/jetpack-plugins-installer": "^0.1",
                 "automattic/jetpack-redirect": "^1.7"
             },
@@ -1098,10 +1098,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "f5579c677770a85cdf91015dab1065aa8fb8fc6c"
+                "reference": "e42ee2623463d87f003f0451fa98ff8401e4accc"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.38",
+                "automattic/jetpack-connection": "^1.39",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-identity-crisis": "^0.8",
                 "automattic/jetpack-options": "^1.15",
