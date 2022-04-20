@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
  * Jetpack_Google_Analytics_Legacy hooks and enqueues support for ga.js
@@ -15,7 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Jetpack_Google_Analytics_Legacy hooks and enqueues support for ga.js
+ */
 class Jetpack_Google_Analytics_Legacy {
+	/**
+	 * Jetpack_Google_Analytics_Legacy constructor.
+	 */
 	public function __construct() {
 		add_filter( 'jetpack_wga_classic_custom_vars', array( $this, 'jetpack_wga_classic_anonymize_ip' ) );
 		add_filter( 'jetpack_wga_classic_custom_vars', array( $this, 'jetpack_wga_classic_track_purchases' ) );
@@ -194,8 +200,8 @@ class Jetpack_Google_Analytics_Legacy {
 	 * Used to filter in the anonymize IP snippet to the custom vars array for classic analytics
 	 * Ref https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApi_gat#_gat._anonymizelp
 	 *
-	 * @param array custom vars to be filtered
-	 * @return array possibly updated custom vars
+	 * @param array $custom_vars Custom vars to be filtered.
+	 * @return array Possibly updated custom vars.
 	 */
 	public function jetpack_wga_classic_anonymize_ip( $custom_vars ) {
 		if ( Jetpack_Google_Analytics_Options::anonymize_ip_is_enabled() ) {
@@ -208,8 +214,8 @@ class Jetpack_Google_Analytics_Legacy {
 	/**
 	 * Used to filter in the order details to the custom vars array for classic analytics
 	 *
-	 * @param array custom vars to be filtered
-	 * @return array possibly updated custom vars
+	 * @param array $custom_vars Custom vars to be filtered.
+	 * @return array Possibly updated custom vars.
 	 */
 	public function jetpack_wga_classic_track_purchases( $custom_vars ) {
 		global $wp;
@@ -233,7 +239,9 @@ class Jetpack_Google_Analytics_Legacy {
 			if ( 0 < $order_id && 1 != get_post_meta( $order_id, '_ga_tracked', true ) ) {
 				$order = new WC_Order( $order_id );
 
-				// [ '_add_Trans', '123', 'Site Title', '21.00', '1.00', '5.00', 'Snohomish', 'WA', 'USA' ]
+				/**
+				 * [ '_add_Trans', '123', 'Site Title', '21.00', '1.00', '5.00', 'Snohomish', 'WA', 'USA' ]
+				 */
 				array_push(
 					$custom_vars,
 					sprintf(
