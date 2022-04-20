@@ -37,8 +37,12 @@ function mergeInstalledAndCheckedLists( installed, checked ) {
  *
  * @returns {object} The information available in Protect's initial state.
  */
-export default function useProtectContext() {
+export default function useProtectData() {
 	const { installedPlugins, installedThemes, status } = jetpackProtectInitialState;
+
+	if ( status.error ) {
+		return {};
+	}
 
 	const plugins = mergeInstalledAndCheckedLists( installedPlugins, status.plugins );
 	const themes = mergeInstalledAndCheckedLists( installedThemes, status.themes );

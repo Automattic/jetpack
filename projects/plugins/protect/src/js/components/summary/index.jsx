@@ -9,7 +9,7 @@ import { Icon, wordpress, plugins, color, shield } from '@wordpress/icons';
  * Internal dependencies
  */
 import styles from './styles.module.scss';
-import useProtectContext from '../../hooks/use-protect-context';
+import useProtectData from '../../hooks/use-protect-context';
 
 const Cards = ( { name, vulnerabilities, icon } ) => {
 	return (
@@ -23,7 +23,7 @@ const Cards = ( { name, vulnerabilities, icon } ) => {
 };
 
 const Summary = () => {
-	const { core, numThemesVulnerabilities, numPluginsVulnerabilities } = useProtectContext();
+	const { core, numThemesVulnerabilities, numPluginsVulnerabilities } = useProtectData();
 	return (
 		<Container fluid>
 			<Col lg={ 6 }>

@@ -19,7 +19,7 @@ import React from 'react';
  */
 import Summary from '../summary';
 import VulnerabilitiesList from '../vulnerabilities-list';
-import useProtectContext from '../../hooks/use-protect-context';
+import useProtectData from '../../hooks/use-protect-context';
 
 const Admin = () => {
 	const connectionStatus = useSelect(
@@ -28,7 +28,7 @@ const Admin = () => {
 	);
 	const { isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered;
-	const { plugins, themes, core } = useProtectContext();
+	const { plugins, themes, core } = useProtectData();
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
 			{ showConnectionCard ? (
