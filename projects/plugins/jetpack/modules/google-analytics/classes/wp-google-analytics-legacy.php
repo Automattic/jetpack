@@ -144,7 +144,7 @@ class Jetpack_Google_Analytics_Legacy {
 				})();
 			</script>
 			<!-- End Jetpack Google Analytics -->\r\n",
-			implode( "\r\n", $custom_vars )
+			implode( "\r\n", $custom_vars ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Additional elements added to the classic Google Analytics script.
 		);
 	}
 
