@@ -130,7 +130,7 @@ export const Firewall = class extends Component {
 									] )
 								}
 								name="jetpack_waf_ip_block_list"
-								placeholder={ __( 'Example: 12.12.12.1-12.12.12.100', 'jetpack' ) }
+								placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
 								value={ this.state.jetpack_waf_ip_block_list }
 								onChange={ this.handleIpListChange }
 							/>
@@ -148,7 +148,7 @@ export const Firewall = class extends Component {
 									] )
 								}
 								name="jetpack_waf_ip_allow_list"
-								placeholder={ __( 'Example: 12.12.12.1-12.12.12.100', 'jetpack' ) }
+								placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
 								value={ this.state.jetpack_waf_ip_allow_list }
 								onChange={ this.handleIpListChange }
 							/>
