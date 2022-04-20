@@ -4,7 +4,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-jetpack-rest-testcase.php';
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server.php';
-// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+
 /**
  * Test class for Jetpack
  *
@@ -209,8 +209,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['timestamp'] = $timestamp;
 		$_GET['nonce']     = $nonce;
 		$_GET['body-hash'] = $body_hash;
-		// This is intentionally using base64_encode().
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		$_GET['signature'] = base64_encode(
 			hash_hmac(
 				'sha1',
