@@ -8,8 +8,8 @@ require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-te
  */
 class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_REST_Testcase {
 
-	static $editor_user_id;
-	static $subscriber_user_id;
+	public static $editor_user_id;
+	public static $subscriber_user_id;
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$editor_user_id     = $factory->user->create( array( 'role' => 'editor' ) );
 		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
