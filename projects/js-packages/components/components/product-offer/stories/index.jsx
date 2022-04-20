@@ -26,6 +26,7 @@ export const SecurityBundle = Template.bind( {} );
 SecurityBundle.parameters = {};
 SecurityBundle.args = {
 	slug: 'security',
+	icon: '',
 	name: 'Security',
 	title: 'Security',
 	subTitle: '',
@@ -54,6 +55,7 @@ export const JetpackBackup = Template.bind( {} );
 JetpackBackup.parameters = {};
 JetpackBackup.args = {
 	slug: 'backup',
+	icon: '',
 	name: 'Backup',
 	title: 'Jepack Backup',
 	subTitle: '',
@@ -71,6 +73,29 @@ JetpackBackup.args = {
 		currency: 'USD',
 		price: 9.66,
 		offPrice: 3.95,
+	},
+	addProductUrl: '',
+	hasRequiredPlan: false,
+	isLoading: false,
+};
+
+export const JetpackProtect = Template.bind( {} );
+JetpackProtect.parameters = {};
+JetpackProtect.args = {
+	slug: 'protect',
+	icon: 'jetpack',
+	title: 'Protect',
+	subTitle: 'Protect your site and scan for security vulnerabilities listed in our database.',
+	features: [
+		'Over 20,000 listed vulnerabilities',
+		'Daily automatic scans',
+		'Check plugin and theme version status',
+		'Easy to navigate and use',
+	],
+	isBundle: false,
+	isCard: true,
+	pricing: {
+		isFree: true,
 	},
 	addProductUrl: '',
 	hasRequiredPlan: false,

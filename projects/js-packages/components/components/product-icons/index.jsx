@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { Path, SVG, G } from '@wordpress/components';
+import { Path, SVG, G, Polygon } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -112,6 +112,19 @@ export const CheckmarkIcon = ( { size, className = styles[ 'checkmark-icon' ] } 
 	</IconWrapper>
 );
 
+export const JetpackIcon = ( { size, className = styles.jetpack } ) => {
+	return (
+		<IconWrapper className={ className } size={ size } viewBox="0 0 32 32">
+			<Path
+				className="jetpack-logo__icon-circle"
+				d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z"
+			/>
+			<Polygon fill="#fff" points="15,19 7,19 15,3" />
+			<Polygon fill="#fff" points="17,29 17,13 25,13" />
+		</IconWrapper>
+	);
+};
+
 const iconsMap = {
 	'anti-spam': AntiSpamIcon,
 	backup: BackupIcon,
@@ -122,6 +135,7 @@ const iconsMap = {
 	search: SearchIcon,
 	star: StarIcon,
 	videopress: VideopressIcon,
+	jetpack: JetpackIcon,
 };
 
 /**
