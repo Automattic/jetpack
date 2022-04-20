@@ -14,6 +14,7 @@
 .jp-search-chart-legend {
 	list-style: none;
 	display: inline-block;
+	font-size: 0.9em;
 }
 
 ul.jp-search-chart-legend {
@@ -84,4 +85,9 @@ ul.jp-search-chart-legend {
 
 .jp-search-record-meter .jp-search-notice-box > span.dops-notice__icon-wrapper {
 	background-color: rgba( 255, 255, 255, 0 );
+}
+
+.jp-search-record-meter {
+	border-bottom: 1px solid rgb( 225, 225, 225 );
+	padding: 30px 0;
 }
