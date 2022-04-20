@@ -25,7 +25,7 @@ class Initializer {
 		/**
 		 * The filter allows abortion of the WordAds package initialization.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param boolean $init_wordads_package Default value is true.
 		 */
@@ -66,7 +66,7 @@ class Initializer {
 		/**
 		 * Fires when the WordAds package has been initialized.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 */
 		do_action( 'jetpack_wordads_loaded' );
 	}

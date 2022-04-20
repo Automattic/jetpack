@@ -14,6 +14,7 @@ export default {
 	component: ConnectedProductOffer,
 	parameters: {
 		layout: 'centered',
+		actions: { argTypesRegex: '^on.*' },
 	},
 	argTypes: {
 		isCard: {

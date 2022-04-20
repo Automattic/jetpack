@@ -342,7 +342,7 @@ class REST_Connector {
 	 * @param bool $rest_response Should we return a rest response or a simple array. Default to rest response.
 	 *
 	 * @since 1.13.1
-	 * @since $$next-version$$ Added $rest_response param.
+	 * @since 1.38.0 Added $rest_response param.
 	 *
 	 * @return WP_REST_Response|WP_Error Response or error object, depending on the request result.
 	 */
