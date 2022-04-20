@@ -20,6 +20,8 @@ import { icon, title } from './';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
+import { useEffect } from '@wordpress/element';
+import { useCallback } from 'react';
 
 export default function Edit( { attributes, clientId, context, setAttributes } ) {
 	const { planId } = attributes;
@@ -28,22 +30,30 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 	const upgradeUrl = useSelect( select => select( membershipProductsStore ).getUpgradeUrl() );
 
-	const resolvePaymentUrl = newPlanId => {
-		if ( POST_EDITOR !== editorType ) {
-			return '#';
-		}
+	const updateSubscriptionPlan = useCallback(
+		newPlanId => {
+			const resolvePaymentUrl = paymentPlanId => {
+				if ( POST_EDITOR !== editorType ) {
+					return '#';
+				}
 
-		const postUrl = new URL( postLink );
-		postUrl.searchParams.set( 'recurring_payments', newPlanId );
-		return postUrl.toString();
-	};
+				const postUrl = new URL( postLink );
+				postUrl.searchParams.set( 'recurring_payments', paymentPlanId );
+				return postUrl.toString();
+			};
 
-	const updateSubscriptionPlan = newPlanId =>
-		setAttributes( {
-			planId: newPlanId,
-			url: resolvePaymentUrl( newPlanId ),
-			uniqueId: `recurring-payments-${ newPlanId }`,
-		} );
+			setAttributes( {
+				planId: newPlanId,
+				url: resolvePaymentUrl( newPlanId ),
+				uniqueId: `recurring-payments-${ newPlanId }`,
+			} );
+		},
+		[ editorType, postLink, setAttributes ]
+	);
+
+	useEffect( () => {
+		updateSubscriptionPlan( planId );
+	}, [ planId, updateSubscriptionPlan ] );
 
 	/**
 	 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.

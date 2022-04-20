@@ -418,6 +418,26 @@ function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
 	packageJson.name = `@automattic/jetpack-${ answers.name }`;
 	packageJson.version = '0.1.0-alpha';
+	packageJson.repository.directory = `projects/${ pluralize( answers.type ) }/${ answers.name }`;
+
+	if ( answers.type !== 'plugin' ) {
+		packageJson.homepage = `https://github.com/Automattic/jetpack/tree/HEAD/${ packageJson.repository.directory }/#readme`;
+	}
+
+	const prefix = {
+		'editor-extension': 'Block',
+		'github-action': 'Action',
+		package: 'Package',
+		plugin: 'Plugin',
+		'js-package': 'JS Package',
+	}[ answers.type ];
+	// Note we intentionally don't URI-encode here, because `npm bugs` will double-encode. Sigh.
+	packageJson.bugs.url =
+		`https://github.com/Automattic/jetpack/labels/[${ prefix }] ` +
+		answers.name
+			.split( '-' )
+			.map( word => `${ word[ 0 ].toUpperCase() }${ word.slice( 1 ) }` )
+			.join( ' ' );
 
 	if ( answers.type === 'js-package' ) {
 		packageJson.exports = {
