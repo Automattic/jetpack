@@ -236,7 +236,7 @@ class Jetpack_Google_Analytics_Legacy {
 		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( WC_VERSION, '3.0', '>=' );
 		if ( $minimum_woocommerce_active && is_order_received_page() ) {
 			$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
-			if ( 0 < $order_id && 1 != get_post_meta( $order_id, '_ga_tracked', true ) ) {
+			if ( 0 < $order_id && 1 !== (int) get_post_meta( $order_id, '_ga_tracked', true ) ) {
 				$order = new WC_Order( $order_id );
 
 				/**
