@@ -13,7 +13,7 @@ async function fetchReviewers() {
 	const repo = github.context.payload.repository.name;
 	const pr = github.context.payload.pull_request.number;
 
-	const reviewers = {};
+	const reviewers = new Set();
 	try {
 		for await ( const res of octokit.paginate.iterator( octokit.rest.pulls.listReviews, {
 			owner: owner,
@@ -22,8 +22,12 @@ async function fetchReviewers() {
 			per_page: 100,
 		} ) ) {
 			res.data.forEach( review => {
+				// Looks like GitHub may return more than one review per user, but only counts the last for each.
+				// "APPROVED" allows merging, while anything else (e.g. "CHANGED_REQUESTED" or "DISMISSED") doesn't.
 				if ( review.state === 'APPROVED' ) {
-					reviewers[ review.user.login ] = true;
+					reviewers.add( review.user.login );
+				} else {
+					reviewers.delete( review.user.login );
 				}
 			} );
 		}
@@ -35,7 +39,7 @@ async function fetchReviewers() {
 		);
 	}
 
-	return Object.keys( reviewers ).sort();
+	return [ ...reviewers ].sort();
 }
 
 module.exports = fetchReviewers;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+JS Components: add `icon` property to ProductOffer component
