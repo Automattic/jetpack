@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Close the publish sidebar when the user clicks on the Add new subscription from the Payments block and replace the Add new subscription with an external link in context of the Customizer.
