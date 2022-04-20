@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Waf;
 
+require_once __DIR__ . '/functions.php';
+
 /**
  * Request representation.
  */
@@ -67,7 +69,7 @@ class Waf_Request {
 	 * @return string|null
 	 */
 	public function get_real_user_ip_address() {
-		$remote_addr = ! empty( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null;
+		$remote_addr = ! empty( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		if ( in_array( $remote_addr, $this->trusted_proxies, true ) ) {
 			$ip_by_header = $this->get_ip_by_header( array_merge( $this->trusted_headers, array( 'REMOTE_ADDR' ) ) );
@@ -89,7 +91,7 @@ class Waf_Request {
 	private function get_ip_by_header( $headers ) {
 		foreach ( $headers as $key ) {
 			if ( isset( $_SERVER[ $key ] ) ) {
-				foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
+				foreach ( explode( ',', wp_unslash( $_SERVER[ $key ] ) ) as $ip ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- filter_var is applied below.
 					$ip = trim( $ip );
 
 					if ( filter_var( $ip, FILTER_VALIDATE_IP ) !== false ) {
