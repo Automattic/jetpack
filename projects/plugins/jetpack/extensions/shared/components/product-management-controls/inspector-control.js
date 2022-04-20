@@ -11,6 +11,7 @@ import {
 	ExternalLink,
 	Placeholder,
 	Spinner,
+	ToggleControl,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
@@ -38,6 +39,8 @@ export default function ProductManagementInspectorControl() {
 	const [ currency, setCurrency ] = useState( 'USD' );
 	const [ price, setPrice ] = useState( 5 );
 	const [ interval, setInterval ] = useState( '1 month' );
+	const [ isMarkedAsDonation, setIsMarkedAsDonation ] = useState( false );
+	const [ isCustomAmount, setIsCustomAmount ] = useState( false );
 
 	const intervalOptions = [
 		{ label: __( 'Month', 'jetpack' ), value: '1 month' },
@@ -49,7 +52,15 @@ export default function ProductManagementInspectorControl() {
 		event.preventDefault();
 		setApiState( API_STATE_REQUESTING );
 		saveProduct(
-			{ title, currency, price, interval },
+			{
+				title,
+				currency,
+				price,
+				interval,
+				type: isMarkedAsDonation ? 'donation' : null,
+				buyer_can_change_amount: isCustomAmount,
+				is_editable: true,
+			},
 			productType,
 			setSelectedProductId,
 			success => {
@@ -114,6 +125,20 @@ export default function ProductManagementInspectorControl() {
 								onChange={ value => setInterval( value ) }
 								options={ intervalOptions }
 								value={ interval }
+							/>
+						</PanelRow>
+						<PanelRow className="donation-subscription">
+							<ToggleControl
+								label={ __( 'Mark subscription as a donation', 'jetpack' ) }
+								onChange={ value => setIsMarkedAsDonation( value ) }
+								checked={ isMarkedAsDonation }
+							/>
+						</PanelRow>
+						<PanelRow className="custom-amount">
+							<ToggleControl
+								label={ __( 'Enable customers to pick their own amount', 'jetpack' ) }
+								onChange={ value => setIsCustomAmount( value ) }
+								checked={ isCustomAmount }
 							/>
 						</PanelRow>
 						<PanelRow>
