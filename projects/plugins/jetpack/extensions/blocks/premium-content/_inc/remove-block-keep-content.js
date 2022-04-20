@@ -12,7 +12,7 @@ import { transformToCoreGroup } from './transform-to-core-group';
 import { name } from '../index';
 
 function replaceBlockAndKeepContent() {
-	const block = select( 'core/editor' ).getSelectedBlock();
+	const block = select( 'core/block-editor' ).getSelectedBlock();
 	dispatch( 'core/block-editor' ).replaceBlock(
 		block.clientId,
 		transformToCoreGroup( block.innerBlocks )

@@ -82,9 +82,11 @@ while read -r GIT_SLUG; do
 	FORCE_COMMIT=
 	if git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin "$BRANCH"; then
 		git reset --soft FETCH_HEAD
+		echo "Fetched revision $(git rev-parse HEAD)"
 	elif [[ -n "$DEFAULT_BRANCH" ]] && git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin "$DEFAULT_BRANCH"; then
 		FORCE_COMMIT=--allow-empty
 		git reset --soft FETCH_HEAD
+		echo "Fetched revision $(git rev-parse HEAD)"
 	else
 		echo "Failed to find a branch to branch from, just creating an empty one."
 		FORCE_COMMIT=--allow-empty

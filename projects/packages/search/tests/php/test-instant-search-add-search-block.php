@@ -33,7 +33,7 @@ EOT;
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 
-<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->
+<!-- wp:search {"label":"","buttonText":"Search"} /-->
 <!-- wp:site-title {"level":0} /-->
 <!-- wp:paragraph {"align":"right"} -->
 <p class="has-text-align-right">Proudly powered by <a href="https://wordpress.org" rel="nofollow">WordPress</a></p>
@@ -65,7 +65,7 @@ EOT;
 <!-- wp:group -->
 <div class="wp-block-group">
 
-<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->
+<!-- wp:search {"label":"","buttonText":"Search"} /-->
 <!-- wp:site-title {"level":0} /-->
 <!-- wp:paragraph {"align":"right"} -->
 <p class="has-text-align-right">Proudly powered by <a href="https://wordpress.org" rel="nofollow">WordPress</a></p>
@@ -170,7 +170,7 @@ EOT;
 <p class="has-small-font-size">We provide excellent services and products that help you provide the best for your customers.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->
+<!-- wp:search {"label":"","buttonText":"Search"} /-->
 </div>
 <!-- /wp:column -->
 

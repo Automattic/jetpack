@@ -100,7 +100,7 @@ class Instant_Search extends Classic_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-		$this->load_assets_with_parameters( constant( 'JETPACK_SEARCH_PKG__DIR' ) );
+		$this->load_assets_with_parameters( Package::get_installed_path() );
 	}
 
 	/**
@@ -243,7 +243,7 @@ class Instant_Search extends Classic_Search {
 
 		$request_args = array(
 			'timeout'    => 10,
-			'user-agent' => "WordPress/{$wp_version} | Jetpack-Search/" . constant( 'JETPACK_SEARCH_PKG__VERSION' ),
+			'user-agent' => "WordPress/{$wp_version} | Jetpack-Search/" . Package::VERSION,
 		);
 
 		$request  = wp_remote_get( esc_url_raw( $service_url ), $request_args );
@@ -620,7 +620,10 @@ class Instant_Search extends Classic_Search {
 	 * @param {string} $block_content - the content to append the search block.
 	 */
 	public static function inject_search_widget_to_block( $block_content ) {
-		$search_block = '<!-- wp:search {"label":"Jetpack Search","buttonText":"Search"} /-->';
+		$search_block = sprintf(
+			'<!-- wp:search {"label":"","buttonText":"%s"} /-->',
+			__( 'Search', 'jetpack-search-pkg' )
+		);
 
 		// Place the search block on bottom of the first column if there's any.
 		$column_end_pattern = '/(<\s*\/div[^>]*>\s*<!--\s*\/wp:column\s+[^>]*-->)/';
@@ -718,6 +721,10 @@ class Instant_Search extends Classic_Search {
 	 * @since  8.8.0
 	 */
 	public function auto_config_excluded_post_types() {
+		// if `excluded_post_types` exists, then we do nothing.
+		if ( false !== get_option( Options::OPTION_PREFIX . 'excluded_post_types', false ) ) {
+			return;
+		}
 		$post_types         = get_post_types(
 			array(
 				'exclude_from_search' => false,
@@ -740,7 +747,8 @@ class Instant_Search extends Classic_Search {
 
 		if ( ! empty( $enabled_post_types ) ) {
 			$post_types_to_disable = array_diff( $post_types, $enabled_post_types );
-			update_option( Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
+			// better to use `add_option` which wouldn't override option value if exists.
+			add_option( Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
 		}
 	}
 
@@ -783,7 +791,7 @@ class Instant_Search extends Classic_Search {
 		// The function should only run before _wp_sidebars_changed which migrates the sidebars.
 		// So when _wp_sidebars_changed doesn't exist, we should skip the logic.
 		if ( has_filter( 'after_switch_theme', '_wp_sidebars_changed' ) !== false ) {
-			$this->old_sidebars_widgets = ! is_null( $old_sidebars_widgets ) ? $old_sidebars_widgets : wp_get_sidebars_widgets();
+			$this->old_sidebars_widgets = $old_sidebars_widgets !== null ? $old_sidebars_widgets : wp_get_sidebars_widgets();
 		}
 	}
 

@@ -7,6 +7,9 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "3.0.x-dev"
 	},
+	"scripts": {
+		"test-js": "tests/run-tests.sh"
+	},
 	"repositories": [
 		{
 			"type": "path",

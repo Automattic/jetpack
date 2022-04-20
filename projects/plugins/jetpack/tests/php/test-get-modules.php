@@ -5,6 +5,8 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
+
 /**
  * Test module related methods in Jetpack and Jetpack_Admin class.
  */
@@ -202,9 +204,11 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 
 		$this->assertSame( 'Not supported by current plan', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
 
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		$this->assertSame( 'Offline mode', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 
 		$dummy_module['module'] = 'woocommerce-analytics';
 		$this->assertSame( 'Requires WooCommerce 3+ plugin', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );

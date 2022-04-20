@@ -15,7 +15,7 @@ use Jetpack_Options;
 use WP_Error;
 
 /**
- * Class responsible for handling the CRM product
+ * Class responsible for handling the Backup product
  */
 class Backup extends Hybrid_Product {
 
@@ -113,7 +113,6 @@ class Backup extends Hybrid_Product {
 			array(
 				'available'          => true,
 				'wpcom_product_slug' => static::get_wpcom_product_slug(),
-				'discount'           => 50, // hardcoded - it could be overwritten by the wpcom product.
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
@@ -129,13 +128,13 @@ class Backup extends Hybrid_Product {
 	private static function get_state_from_wpcom() {
 		static $status = null;
 
-		if ( ! is_null( $status ) ) {
+		if ( $status !== null ) {
 			return $status;
 		}
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'rewind_state_fetch_failed' );
@@ -175,10 +174,7 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_post_activation_url() {
-		if ( static::is_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack-backup' );
-		}
-		return ''; // stay in My Jetpack page.
+		return ''; // stay in My Jetpack page or continue the purchase flow if needed.
 	}
 
 	/**
@@ -187,22 +183,19 @@ class Backup extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack-backup' );
-		} elseif ( static::is_jetpack_plugin_active() ) {
+		if ( static::is_jetpack_plugin_active() ) {
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
+		} elseif ( static::is_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
 		}
 	}
 
 	/**
-	 * Activates the plugin
+	 * Checks whether the Product is active
 	 *
-	 * @return null|WP_Error Null on success, WP_Error on invalid file.
+	 * @return boolean
 	 */
-	public static function activate_plugin() {
-		/*
-		 * Silent mode True to avoid redirect
-		 */
-		return activate_plugin( static::get_installed_plugin_filename(), '', false, true );
+	public static function is_active() {
+		return parent::is_active() && static::has_required_plan();
 	}
 }

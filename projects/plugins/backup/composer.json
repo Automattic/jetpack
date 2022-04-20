@@ -6,16 +6,16 @@
 	"require": {
 		"automattic/jetpack-assets": "1.17.x-dev",
 		"automattic/jetpack-admin-ui": "0.2.x-dev",
-		"automattic/jetpack-autoloader": "2.10.x-dev",
+		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-backup": "1.2.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.6.x-dev",
-		"automattic/jetpack-connection": "1.36.x-dev",
-		"automattic/jetpack-connection-ui": "2.3.x-dev",
-		"automattic/jetpack-identity-crisis": "0.7.x-dev",
-		"automattic/jetpack-my-jetpack": "0.6.x-dev",
+		"automattic/jetpack-config": "1.7.x-dev",
+		"automattic/jetpack-connection": "1.38.x-dev",
+		"automattic/jetpack-connection-ui": "2.4.x-dev",
+		"automattic/jetpack-identity-crisis": "0.8.x-dev",
+		"automattic/jetpack-my-jetpack": "1.1.x-dev",
 		"automattic/jetpack-sync": "1.30.x-dev",
-		"automattic/jetpack-status": "1.10.x-dev"
+		"automattic/jetpack-status": "1.13.x-dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
@@ -50,7 +50,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_1_1_alpha",
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_2_1_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

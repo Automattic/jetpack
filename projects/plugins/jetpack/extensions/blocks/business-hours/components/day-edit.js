@@ -46,7 +46,7 @@ class DayEdit extends Component {
 						{ day.hours.length > 1 && (
 							<Button
 								isSmall
-								isLink
+								variant="link"
 								icon="trash"
 								label={ __( 'Remove Hours', 'jetpack' ) }
 								onClick={ () => {
@@ -60,7 +60,11 @@ class DayEdit extends Component {
 					<div className="business-hours__row business-hours-row__add">
 						<div className={ classNames( day.name, 'business-hours__day' ) }>&nbsp;</div>
 						<div className={ classNames( day.name, 'business-hours__hours' ) }>
-							<Button isLink label={ __( 'Add Hours', 'jetpack' ) } onClick={ this.addInterval }>
+							<Button
+								variant="link"
+								label={ __( 'Add Hours', 'jetpack' ) }
+								onClick={ this.addInterval }
+							>
 								{ __( 'Add Hours', 'jetpack' ) }
 							</Button>
 						</div>

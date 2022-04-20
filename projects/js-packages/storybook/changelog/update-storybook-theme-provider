@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Storybook: Remove base-styles in favor of ThemeProvider

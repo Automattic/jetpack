@@ -117,10 +117,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_plugins_menu() {
 		global $submenu;
 
-		// Hide Add new plugin and plugin file editor menu.
-		if ( class_exists( 'Atomic_Plan_Manager' ) && ! \Atomic_Plan_Manager::has_atomic_supported_plan() ) {
-			parent::add_plugins_menu();
+		// Calypso plugins screens link.
+		$plugins_slug = 'https://wordpress.com/plugins/' . $this->domain;
 
+		// Link to the Marketplace on sites that can't manage plugins.
+		if (
+			function_exists( 'wpcom_site_has_feature' ) &&
+			! wpcom_site_has_feature( \WPCOM_Features::MANAGE_PLUGINS )
+		) {
+			add_menu_page( __( 'Plugins', 'jetpack' ), __( 'Plugins', 'jetpack' ), 'manage_options', $plugins_slug, null, 'dashicons-admin-plugins', '65' );
 			return;
 		}
 
@@ -138,7 +143,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			}
 		}
 
-		$submenus_to_update = array( 'plugin-install.php' => 'https://wordpress.com/plugins/' . $this->domain );
+		$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
 
 		$this->update_submenus( 'plugins.php', $submenus_to_update );
 	}
@@ -350,8 +355,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 				2
 			);
 		}
+
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
-		add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, null, 12 );
+
+		if (
+			function_exists( 'wpcom_site_has_feature' ) &&
+			wpcom_site_has_feature( \WPCOM_Features::ATOMIC )
+		) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, null, 12 );
+		}
 
 		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso

@@ -26,9 +26,10 @@ abstract class Provider {
 	/**
 	 * Each provider must return a list of URLs to generate CSS from.
 	 *
+	 * @param \WP_Post[] $context_posts The posts to generate CSS from.
 	 * @return array
 	 */
-	abstract public static function get_critical_source_urls();
+	abstract public static function get_critical_source_urls( $context_posts = array() );
 
 	/**
 	 * What key should this provider look for during the current request?

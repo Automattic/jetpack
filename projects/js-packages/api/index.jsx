@@ -342,6 +342,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchRecommendationsConditional: () =>
+			getRequest( `${ apiRoot }jetpack/v4/recommendations/conditional`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		saveRecommendationsData: data =>
 			postRequest( `${ apiRoot }jetpack/v4/recommendations/data`, postParams, {
 				body: JSON.stringify( { data } ),
@@ -373,6 +378,11 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchPluginsData: () =>
 			getRequest( `${ apiRoot }jetpack/v4/plugins`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchIntroOffers: () =>
+			getRequest( `${ apiRoot }jetpack/v4/intro-offers`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -430,6 +440,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		getUserLicenses: () =>
+			getRequest( `${ apiRoot }jetpack/v4/licensing/user/licenses`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		updateLicensingActivationNoticeDismiss: lastDetachedCount =>
 			postRequest( `${ apiRoot }jetpack/v4/licensing/user/activation-notice-dismiss`, postParams, {
 				body: JSON.stringify( { last_detached_count: lastDetachedCount } ),
@@ -480,6 +495,18 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 		fetchSearchStats: () =>
 			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchWordAdsSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/wordads/settings`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateWordAdsSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/wordads/settings`, postParams, {
+				body: JSON.stringify( newSettings ),
+			} ),
+		fetchSearchPricing: () =>
+			getRequest( `${ apiRoot }jetpack/v4/search/pricing`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 	};

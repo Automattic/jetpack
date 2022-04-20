@@ -65,7 +65,7 @@ const OneClickRestoresComponent = props => {
 					</p>
 					<div className="jp-recommendations-one-click-restores__cta">
 						<Button
-							primary
+							rna
 							href={ getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ) }
 							onClick={ onCtaClick }
 						>

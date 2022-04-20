@@ -237,17 +237,19 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		// Number of VideoPress videos on the site.
-		$videopress_attachments = wp_count_attachments( 'video/videopress' );
-		if (
-			isset( $videopress_attachments->{'video/videopress'} )
-			&& $videopress_attachments->{'video/videopress'} > 0
-		) {
-			$benefits[] = array(
-				'name'        => 'video-hosting',
-				'title'       => esc_html__( 'Video Hosting', 'jetpack' ),
-				'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack', 'jetpack' ),
-				'value'       => absint( $videopress_attachments->{'video/videopress'} ),
-			);
+		if ( Jetpack::is_module_active( 'videopress' ) ) {
+			$videopress_attachments = wp_count_attachments( 'video/videopress' );
+			if (
+				isset( $videopress_attachments->{'video/videopress'} )
+				&& $videopress_attachments->{'video/videopress'} > 0
+			) {
+				$benefits[] = array(
+					'name'        => 'video-hosting',
+					'title'       => esc_html__( 'Video Hosting', 'jetpack' ),
+					'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack', 'jetpack' ),
+					'value'       => absint( $videopress_attachments->{'video/videopress'} ),
+				);
+			}
 		}
 
 		// Number of active Publicize connections.
@@ -277,6 +279,14 @@ class Jetpack_Core_API_Site_Endpoint {
 				'title'       => esc_html__( 'Sharing', 'jetpack' ),
 				'description' => esc_html__( 'The number of times visitors have shared your posts with the world using Jetpack', 'jetpack' ),
 				'value'       => absint( $stats->stats->shares ),
+			);
+		}
+
+		if ( Jetpack::is_module_active( 'search' ) && ! class_exists( 'Automattic\\Jetpack\\Search_Plugin\\Jetpack_Search_Plugin' ) ) {
+			$benefits[] = array(
+				'name'        => 'search',
+				'title'       => esc_html__( 'Search', 'jetpack' ),
+				'description' => esc_html__( 'Help your visitors find exactly what they are looking for, fast', 'jetpack' ),
 			);
 		}
 

@@ -169,6 +169,7 @@ class SearchResults extends Component {
 						{ results.map( ( result, index ) => (
 							<SearchResult
 								index={ index }
+								key={ index }
 								staticFilters={ this.props.staticFilters }
 								isPhotonEnabled={ this.props.isPhotonEnabled }
 								locale={ this.props.locale }

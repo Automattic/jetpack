@@ -8,8 +8,11 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import Context from '../_inc/context';
+import { usePremiumContentAllowedBlocks } from '../_inc/premium';
 
 export default function Edit() {
+	const allowedInnerBlocks = usePremiumContentAllowedBlocks();
+
 	return (
 		<Context.Consumer>
 			{ ( { selectedTab, stripeNudge } ) => (
@@ -18,6 +21,7 @@ export default function Edit() {
 				<div hidden={ selectedTab.id === 'premium' } className={ selectedTab.className }>
 					{ stripeNudge }
 					<InnerBlocks
+						allowedBlocks={ allowedInnerBlocks }
 						templateLock={ false }
 						templateInsertUpdatesSelection={ false }
 						template={ [

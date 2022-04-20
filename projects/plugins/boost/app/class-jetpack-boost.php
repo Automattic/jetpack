@@ -22,6 +22,7 @@ use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
+use Automattic\Jetpack_Boost\Lib\Transient;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimization_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -96,7 +97,7 @@ class Jetpack_Boost {
 		$this->init_admin( $optimizations );
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
-		add_action( 'handle_theme_change', array( $this, 'handle_theme_change' ) );
+		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -117,7 +118,6 @@ class Jetpack_Boost {
 	 */
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
-		do_action( 'jetpack_boost_clear_cache' );
 		Analytics::record_user_event( 'clear_cache' );
 		Admin::clear_dismissed_notices();
 	}
@@ -168,7 +168,7 @@ class Jetpack_Boost {
 	 * This is done here so even if the Critical CSS module is switched off we can
 	 * still capture the change of environment event and flag Critical CSS for a rebuild.
 	 */
-	public function handle_theme_change() {
+	public function handle_environment_change() {
 		Admin::clear_dismissed_notice( Regenerate_Admin_Notice::SLUG );
 		\update_option( Critical_CSS::RESET_REASON_STORAGE_KEY, Regenerate_Admin_Notice::REASON_THEME_CHANGE, false );
 	}
@@ -193,5 +193,7 @@ class Jetpack_Boost {
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();
+		// Delete all transients created by boost.
+		Transient::delete_by_prefix( '' );
 	}
 }

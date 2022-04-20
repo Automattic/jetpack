@@ -50,7 +50,7 @@ const SecurityComponent = props => {
 						) }
 					</p>
 					<Button
-						primary
+						rna
 						href={ getRedirectUrl( 'jetpack-backup', { site: siteRawUrl } ) }
 						target="_blank"
 						rel="noopener noreferrer"

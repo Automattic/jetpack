@@ -428,7 +428,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'icon':
 				$icon = $this->site->get_icon();
 
-				if ( ! is_null( $icon ) ) {
+				if ( $icon !== null ) {
 					$response[ $key ] = $icon;
 				}
 				break;

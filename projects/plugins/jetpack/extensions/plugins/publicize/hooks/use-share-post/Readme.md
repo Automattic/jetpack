@@ -27,7 +27,7 @@ function MyComponent() {
 	}, [ isFetching, error, data ] );
 	
 	return (
-		<Button isSecondary onClick={ doPublicize }>
+		<Button variant="secondary" onClick={ doPublicize }>
 			{ __( 'Share post', 'jetpack' ) }
 		</Button>
 	);

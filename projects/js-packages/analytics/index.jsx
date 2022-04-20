@@ -89,10 +89,21 @@ const analytics = {
 		_superProps = superProps;
 	},
 
+	/**
+	 * Add global properties to be applied to all "tracks" events.
+	 * This function will add the new properties, overwrite the existing one.
+	 * Unlike `setSuperProps()`, it will not replace the whole object.
+	 *
+	 * @param {object} props - Super props to add.
+	 */
+	assignSuperProps: function ( props ) {
+		_superProps = assign( _superProps, props );
+	},
+
 	mc: {
 		bumpStat: function ( group, name ) {
 			const uriComponent = buildQuerystring( group, name ); // prints debug info
-			if ( this.mcAnalyticsEnabled ) {
+			if ( analytics.mcAnalyticsEnabled ) {
 				new Image().src =
 					document.location.protocol +
 					'//pixel.wp.com/g.gif?v=wpcom-no-pv' +
@@ -105,7 +116,7 @@ const analytics = {
 		bumpStatWithPageView: function ( group, name ) {
 			// this function is fairly dangerous, as it bumps page views for wpcom and should only be called in very specific cases.
 			const uriComponent = buildQuerystringNoPrefix( group, name ); // prints debug info
-			if ( this.mcAnalyticsEnabled ) {
+			if ( analytics.mcAnalyticsEnabled ) {
 				new Image().src =
 					document.location.protocol +
 					'//pixel.wp.com/g.gif?v=wpcom' +

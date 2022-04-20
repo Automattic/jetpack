@@ -13,10 +13,10 @@ const REGISTER_SITE = ( { registrationNonce, redirectUri } ) =>
 	restApi.registerSite( registrationNonce, redirectUri );
 
 const CONNECT_USER = createRegistryControl(
-	( { resolveSelect } ) => ( { from, redirectFunc } = {} ) => {
+	( { resolveSelect } ) => ( { from, redirectFunc, redirectUri } = {} ) => {
 		return new Promise( ( resolve, reject ) => {
 			resolveSelect( STORE_ID )
-				.getAuthorizationUrl()
+				.getAuthorizationUrl( redirectUri )
 				.then( authorizationUrl => {
 					const redirect = redirectFunc || ( url => window.location.assign( url ) );
 

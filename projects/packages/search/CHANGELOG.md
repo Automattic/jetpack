@@ -5,6 +5,127 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2022-04-19
+### Added
+- Search: add class to retrieve search product information
+- Search: Add count estimation function
+- Search: added API support for search product tier pricing
+
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+- Record meter: updates noticeboxes to be dismissable & styled
+- Search Record Meter updates formatting
+- Use new shared Gridicons component and shared Modules library
+
+## [0.12.3] - 2022-04-12
+### Added
+- Added deprecated methods as a safety.
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Search: auto config no longer overrides option if it exists.
+
+## [0.12.2] - 2022-04-06
+### Added
+- Adds API data to record meter chart.
+
+### Changed
+- Janitorial: Refactor classes into shared package.
+- Updated package dependencies.
+
+### Removed
+- Removed tracking dependency.
+
+### Fixed
+- Search: allow Search submenu to be added only once
+
+## [0.12.1] - 2022-03-31
+### Fixed
+- Search: fixed search submenu is shown because compatibility file is loaded too late.
+
+## [0.12.0] - 2022-03-29
+### Added
+- Add selector for retrieving last indexed date
+- Adds notice box component to record meter
+- Search: Migrated tests from Jetpack plugin
+
+### Changed
+- Microperformance: Use === null instead of is_null
+- Search: connection states
+- Updated package dependencies
+
+### Fixed
+- Fixed lints found after fixing ESLint config
+- Search: address feeback for #23477
+- Search: move Jetpack plugin compatibility to the package
+
+## [0.11.3] - 2022-03-24
+### Added
+- Search: adds a record count above the record meter chart.
+
+### Fixed
+- Deactivation: Do not attempt to redirect on a behind-the-scene deactivation.
+
+## [0.11.2] - 2022-03-23
+### Added
+- adds basic structure for record meter with dummy data
+
+### Changed
+- Centralized all intializing logic
+- Search dashboard: changed condition to always show dashboard submenu
+- Updated package dependencies
+- Use Migrated GlotPress locale classes from compat pkg.
+
+### Fixed
+- Search: fixed cli and package version reporting broken in #23435
+
+## [0.11.1] - 2022-03-15
+### Changed
+- Fixed minor product defects
+- Search: moved globals to a class for sake of autoloading correctly
+- Search package: Updated Gridicon dependancy to use local version
+- Updated package dependencies.
+
+## [0.11.0] - 2022-03-08
+### Changed
+- Components: update attributes used within the Button component to match recent deprecations and changes.
+- Move customizer integration into search package
+- search: move record meter location on dashboard
+
+### Fixed
+- Ensure that WP CLI is present before extending the class.
+- Ensure the Customizer classes are loaded.
+
+## [0.10.0] - 2022-03-02
+### Added
+- Search: add chart.js package to dependencies
+- Search: fetch search stats endpoint in wp-admin dashboard
+
+### Changed
+- Search: Renamed Customberg class file name
+- Updated package dependencies.
+
+### Fixed
+- Fix various notices shown for Customberg
+- Search package: i18n support for auto added search block label and button
+
+## [0.9.1] - 2022-02-25
+### Fixed
+- Search: Fixed a regression that prevented modal from being spawned by link clicks
+
+## [0.9.0] - 2022-02-22
+### Added
+- Bump package versions.
+- Search: add stats endpoint to REST controller
+
+### Changed
+- Search package: refactor `auto_config_search` and run it from activation API
+
+### Fixed
+- Search package: fix auto config doesn't add search input for block themes
+
 ## [0.8.0] - 2022-02-16
 ### Added
 - Add babel/runtime to dev dependencies
@@ -113,6 +234,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.13.0]: https://github.com/Automattic/jetpack-search/compare/v0.12.3...v0.13.0
+[0.12.3]: https://github.com/Automattic/jetpack-search/compare/v0.12.2...v0.12.3
+[0.12.2]: https://github.com/Automattic/jetpack-search/compare/v0.12.1...v0.12.2
+[0.12.1]: https://github.com/Automattic/jetpack-search/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-search/compare/v0.11.3...v0.12.0
+[0.11.3]: https://github.com/Automattic/jetpack-search/compare/v0.11.2...v0.11.3
+[0.11.2]: https://github.com/Automattic/jetpack-search/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-search/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-search/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/Automattic/jetpack-search/compare/v0.9.1...v0.10.0
+[0.9.1]: https://github.com/Automattic/jetpack-search/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-search/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Automattic/jetpack-search/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/Automattic/jetpack-search/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Automattic/jetpack-search/compare/v0.5.4...v0.6.0

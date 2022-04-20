@@ -1,9 +1,8 @@
 const loadIgnorePatterns = require( '../../../../tools/js-tools/load-eslint-ignore.js' );
 
 module.exports = {
-	extends: [ '../.eslintrc.js', 'plugin:jest/recommended' ],
+	extends: [ '../../../../tools/js-tools/eslintrc/jest' ],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
-	env: { jest: true },
 	rules: {
 		'react/forbid-elements': [
 			'error',
@@ -44,14 +43,5 @@ module.exports = {
 				allowedTextDomain: 'jetpack',
 			},
 		],
-		'jsdoc/check-tag-names': [
-			1, // Recommended
-			{ definedTags: [ 'jest-environment' ] },
-		],
-	},
-	settings: {
-		jsdoc: {
-			mode: 'typescript',
-		},
 	},
 };

@@ -4,8 +4,8 @@ module.exports = {
 	root: true,
 	parser: '@typescript-eslint/parser',
 	extends: [
-		'@sveltejs',
-		'../../../.eslintrc.normal.js',
+		// '@sveltejs',
+		'../../../tools/js-tools/eslintrc/base.js',
 		'plugin:@typescript-eslint/recommended',
 		'plugin:@wordpress/eslint-plugin/recommended',
 	],
@@ -76,5 +76,7 @@ module.exports = {
 		],
 
 		'prettier/prettier': 0,
+
+		'@typescript-eslint/no-unused-vars': [ 'warn', { argsIgnorePattern: '^_' } ],
 	},
 };

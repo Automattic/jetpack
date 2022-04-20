@@ -20,6 +20,42 @@ for F in README.md .gitkeep .gitignore; do
 	OKFILES[$F]=1
 done
 
+declare -A PROJECT_PREFIXES=(
+	['editor-extensions']='Block'
+	['github-actions']='Action'
+	['packages']='Package'
+	['plugins']='Plugin'
+	['js-packages']='JS Package'
+)
+
+PACKAGES=$(jq -nc 'reduce inputs as $in ({}; .[ $in.name ] |= true)' "$BASE"/projects/packages/*/composer.json)
+
+# Check that `@dev`, `dev-foo`, and `1.2.x-dev` style deps are used appropraitely.
+#
+# - $1: What is being checked.
+# - $2: Path to the composer.json to check.
+# - $3: 'require' or 'require-dev', which to check.
+# - $4: true or false, whether explicit git refs are allowed.
+function check_composer_no_dev_deps {
+	local SLUG="$1" FILE="$2" WHICH="$3" GITREFOK="$4"
+	local RE WHAT
+	if $GITREFOK; then
+		RE='^(@dev|dev-[^#]*|[^@# ]*-dev([@ ][^#]*)?)$'
+		WHAT="a release version or specific git commit"
+	else
+		RE='^(@dev(#.*)?|dev-.*|[^@# ]*-dev([@# ].*)?)$'
+		WHAT="a release version"
+	fi
+	local PKG VER
+	local TMP="$(jq -r --arg which "$WHICH" --arg re "$RE" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( $packages[.key] | not ) | select( .value | test( $re ) ) | [ .key, .value ] | @tsv' "$FILE")"
+	[[ -n "$TMP" ]] || return 0
+	while IFS=$'\t' read -r PKG VER; do
+		local LINE=$(jq --stream --arg which "$WHICH" --arg pkg "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$which,$pkg] then input_line_number else empty end' "$FILE" | head -n 1)
+		EXIT=1
+		echo "::error file=$FILE,line=$LINE::$SLUG must depend on $WHAT of \`$PKG\`, not \`$VER\`, to avoid lock file errors every time $PKG is updated."
+	done <<<"$TMP"
+}
+
 # - projects/ should generally contain directories. But certain files are ok.
 for PROJECT in projects/*; do
 	if [[ ! -d "$PROJECT" ]]; then
@@ -81,6 +117,82 @@ for PROJECT in projects/*/*; do
 		! IFS= read -r INDEX < <( ls -- "$PROJECT"/index.{js,jsx,cjs,mjs,ts,tsx,d.ts} 2>/dev/null )
 		if [[ -n "$INDEX" ]] && ! jq -e '.private // .main // .exports' "$PROJECT/package.json" >/dev/null; then
 			echo "::error file=$PROJECT/package.json::$SLUG appears to be a library (it has ${INDEX#$PROJECT/}), but does not specify \`.main\` or \`.exports\` in package.json. This will confuse renovate."
+		fi
+	fi
+
+	# - package.json homepage, if set, should make sense.
+	if [[ -e "$PROJECT/package.json" ]] && jq -e '.homepage' "$PROJECT/package.json" >/dev/null; then
+		HP="$(jq -r '.homepage' "$PROJECT/package.json")"
+		if [[ "$TYPE" != "plugins" && ( "$HP" == "https://jetpack.com" || "$HP" == "https://jetpack.com/"* ) ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["homepage"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json$LINE::Homepage set to \"jetpack.com\" only makes sense for plugins. Something like \"https://github.com/Automattic/jetpack/tree/HEAD/$PROJECT/#readme\" would make more sense."
+		fi
+		if [[ "$HP" =~ ^https://github.com/Automattic/jetpack($|\.git|/?[?#]) ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["homepage"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json$LINE::Homepage should not be set to the root of the monorepo. Something like \"https://github.com/Automattic/jetpack/tree/HEAD/$PROJECT/#readme\" would make more sense."
+		fi
+		if [[ "$HP" == "https://github.com/Automattic/jetpack/tree/"* && "$HP" != "https://github.com/Automattic/jetpack/tree/HEAD/$PROJECT/"* ||
+			"$HP" == "https://github.com/Automattic/jetpack/blob/"* && "$HP" != "https://github.com/Automattic/jetpack/blob/HEAD/$PROJECT/"*
+		]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["homepage"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json$LINE::Homepage should be set to somewhere within the package. Something like \"https://github.com/Automattic/jetpack/tree/HEAD/$PROJECT/#readme\" would make more sense."
+		fi
+		if [[ "$HP" == "https://github.com/Automattic/"* && ! "$HP" =~ ^https://github.com/Automattic/jetpack($|[/?#]) ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["homepage"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json$LINE::Homepage should probably not point to a mirror repo. Pointing to the monorepo, like \"https://github.com/Automattic/jetpack/tree/HEAD/$PROJECT/#readme\", would make navigation from npmjs.com easier."
+		fi
+	fi
+
+	# - package.json bugs.url, if set, should make sense.
+	if [[ -e "$PROJECT/package.json" ]] && jq -e '.bugs.url' "$PROJECT/package.json" >/dev/null; then
+		URL="$(jq -r '.bugs.url' "$PROJECT/package.json")"
+		URL2="https://github.com/Automattic/jetpack/labels/[${PROJECT_PREFIXES[$TYPE]:-Prefix}] $(sed -E 's/(^|-)([a-z])/\1\u\2/g;s/-/ /g' <<<"${SLUG##*/}")"
+		if [[ "$URL" == "https://github.com/Automattic/jetpack/issues" && "$SLUG" != "plugins/jetpack" ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["bugs","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json$LINE::Setting the project's bug URL to the raw issues list makes no sense. Target the project's label instead, i.e. \"$URL2\"."
+		fi
+		if [[ "$URL" == "https://github.com/Automattic/jetpack/labels/"* && "$URL" != "$URL2" ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["bugs","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			printf -v URL3 "%b" "$(sed -E 's/\\/\\\\/g;s/%([0-9a-fA-F]{2})/\\x\1/g' <<<"$URL")"
+			if [[ "$URL3" == "$URL2" ]]; then
+				echo "::error file=$PROJECT/package.json$LINE::The \`.bugs.url\` gets (brokenly) passed through \`encodeURI\` by \`npm bugs\`, so it should not be encoded in package.json. Sigh. Try \"$URL2\" instead."
+			else
+				echo "::error file=$PROJECT/package.json$LINE::The \`.bugs.url\` appears to be pointing to the wrong label. Try \"$URL2\" instead."
+			fi
+		fi
+		if [[ "$URL" == "https://github.com/Automattic/"* && "$URL" != "https://github.com/Automattic/jetpack/"* ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["bugs","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json$LINE::Bug tracking is disabled in the mirror repos. Point to the monorepo label \"$URL2\" instead."
+		fi
+	fi
+
+	# - package.json repository, if set, should make sense.
+	if [[ -e "$PROJECT/package.json" ]] && jq -e '.repository' "$PROJECT/package.json" >/dev/null; then
+		JSON="$(jq 'if .repository | type == "string" then { url: .repository } else .repository end' "$PROJECT/package.json")"
+		LINE2=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+		if ! jq -e '.type == "git"' <<<"$JSON" >/dev/null; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","type"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.type\` to \"git\", as the monorepo is a git repository."
+		fi
+		URL="$(jq -r '.url' <<<"$JSON")"
+		if [[ "$URL" != "https://github.com/Automattic/jetpack.git" && "$URL" != "https://github.com/Automattic/jetpack" ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","url"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.url\` to point to the monorepo, i.e. \"https://github.com/Automattic/jetpack\"."
+		fi
+		TMP="$(jq -r '.directory' <<<"$JSON")"
+		if [[ "$TMP" != "$PROJECT" ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["repository","directory"] then ",line=\( input_line_number )" else empty end' "$PROJECT/package.json")
+			echo "::error file=$PROJECT/package.json${LINE:-$LINE2}::Set \`.repository.directory\` to point to the project's path within the monorepo, i.e. \"$PROJECT\"."
 		fi
 	fi
 
@@ -156,7 +268,55 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
+	# - `@dev`, `dev-foo`, or `1.x-dev` type deps are only allowed in certain cases.
+	git ls-files --error-unmatch "$PROJECT/composer.lock" &>/dev/null && HAS_LOCK=true || HAS_LOCK=false
+	if [[ "$TYPE" == "packages" ]]; then
+		check_composer_no_dev_deps "Project $SLUG" "$PROJECT/composer.json" require false
+	elif $HAS_LOCK; then
+		check_composer_no_dev_deps "Project $SLUG" "$PROJECT/composer.json" require true
+	fi
+	if $HAS_LOCK; then
+		check_composer_no_dev_deps "Project $SLUG" "$PROJECT/composer.json" require-dev true
+	fi
+
+	# - Packages setting textdomain must have type set to "jetpack-library".
+	if [[ "$TYPE" == "packages" ]] && jq -e '.extra["textdomain"] and .type != "jetpack-library"' "$PROJECT/composer.json" >/dev/null; then
+		EXIT=1
+		LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["type"] then ",line=\( input_line_number )" else empty end' "$PROJECT/composer.json")
+		echo "::error file=$PROJECT/composer.json$LINE::Package $SLUG uses i18n (i.e. it sets \`.extra.textdomain\`), but does not set \`.type\` to \`jetpack-library\` in composer.json.%0AThis will prevent it from being translated when used in plugins."
+	fi
+
+	# - If it's being published to npmjs, it should have certain metadata fields.
+	if jq -e '.extra["npmjs-autopublish"]' "$PROJECT/composer.json" >/dev/null; then
+		if ! jq -e '.repository' "$PROJECT/package.json" >/dev/null; then
+			EXIT=1
+			JSON="$(jq --tab --arg dir "$PROJECT" -n '{ type: "git", url: "https://github.com/Automattic/jetpack.git", directory: $dir }')"
+			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
+			echo "::error file=$PROJECT/package.json::Package $SLUG is published to npmjs but does not specify \`.repository\`.%0A\`\`\`%0A\"repository\": ${JSON//$'\n'/%0A},%0A\`\`\`"
+			echo "---"
+		fi
+		if ! jq -e '.homepage' "$PROJECT/package.json" >/dev/null; then
+			EXIT=1
+			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
+			echo "::error file=$PROJECT/package.json::Package $SLUG is published to npmjs but does not specify \`.homepage\`.%0A\`\`\`%0A\"homepage\": \"https://github.com/Automattic/jetpack/tree/HEAD/$PROJECT/#readme\",%0A\`\`\`"
+			echo "---"
+		fi
+		if ! jq -e '.bugs.url' "$PROJECT/package.json" >/dev/null; then
+			EXIT=1
+			URL2="https://github.com/Automattic/jetpack/labels/[${PROJECT_PREFIXES[$TYPE]:-Prefix}] $(sed -E 's/(^|-)([a-z])/\1\u\2/g;s/-/ /g' <<<"${SLUG##*/}")"
+			JSON="$(jq --tab --arg url "$URL2" -n '{ url: $url }')"
+			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
+			echo "::error file=$PROJECT/package.json::Package $SLUG is published to npmjs but does not specify \`.bugs.url\`.%0A\`\`\`%0A\"bugs\": ${JSON//$'\n'/%0A},%0A\`\`\`"
+			echo "---"
+		fi
+	fi
+
 done
+
+# - Monorepo root composer.json must also use dev deps appropriately.
+debug "Checking monorepo root composer.json"
+check_composer_no_dev_deps "Monorepo root" "composer.json" require true
+check_composer_no_dev_deps "Monorepo root" "composer.json" require-dev true
 
 # - Composer name fields should not be repeated.
 debug "Checking for duplicate composer.json names"
@@ -239,12 +399,6 @@ for FILE in $(git -c core.quotepath=off ls-files 'projects/packages/**/.eslintrc
 	fi
 done
 
-# - Renovate should ignore all monorepo packages.
-debug "Checking renovate ignore list"
-if ! tools/js-tools/check-renovate-ignore-list.js; then
-	EXIT=1
-fi
-
 # - .nvmrc should match .github/versions.sh.
 . .github/versions.sh
 debug "Checking .nvmrc vs versions.sh"
@@ -256,13 +410,13 @@ fi
 # - package.json engines should be satisfied by .github/versions.sh.
 debug "Checking .github/versions.sh vs package.json engines"
 RANGE="$(jq -r '.engines.node' package.json)"
-if ! pnpx semver --range "$RANGE" "$NODE_VERSION" &>/dev/null; then
+if ! pnpx --no-install semver --range "$RANGE" "$NODE_VERSION" &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","node"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Node version $NODE_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 fi
 RANGE="$(jq -r '.engines.pnpm' package.json)"
-if ! pnpx semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
+if ! pnpx --no-install semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","pnpm"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"

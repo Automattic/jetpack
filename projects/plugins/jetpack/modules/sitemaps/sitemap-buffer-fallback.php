@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * The fallback buffer for users with no XML support.
  *
@@ -22,6 +22,13 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	 */
 	protected $buffer;
 
+	/**
+	 * Jetpack_Sitemap_Buffer_Fallback constructor.
+	 *
+	 * @param int    $item_limit The maximum size of the buffer in items.
+	 * @param int    $byte_limit The maximum size of the buffer in bytes.
+	 * @param string $time The initial datetime of the buffer. Must be in 'YYYY-MM-DD hh:mm:ss' format.
+	 */
 	public function __construct( $item_limit, $byte_limit, $time = '1970-01-01 00:00:00' ) {
 		$this->is_full_flag  = false;
 		$this->is_empty_flag = true;
@@ -46,7 +53,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	 * @return bool True if the append succeeded, False if not.
 	 */
 	public function append( $array ) {
-		if ( is_null( $array ) ) {
+		if ( $array === null ) {
 			return true;
 		}
 
@@ -98,10 +105,12 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 	/**
 	 * Legacy implementation of array to XML conversion without using DOMDocument.
 	 *
-	 * @param array $array
+	 * @param array       $array Item to append to buffer.
+	 * @param DOMElement  $parent (optional) an element to which new children should be added.
+	 * @param DOMDocument $root (optional) the parent document.
 	 * @return String $result
 	 */
-	public function array_to_xml_string( $array, $parent = null, $root = null ) {
+	public function array_to_xml_string( $array, $parent = null, $root = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$string = '';
 
 		foreach ( $array as $key => $value ) {
@@ -112,7 +121,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 				$string .= "<$tag>";
 				$string .= $this->array_to_xml_string( $value );
 				$string .= "</$tag>";
-			} elseif ( is_null( $value ) ) {
+			} elseif ( $value === null ) {
 				$string .= "<$tag />";
 			} else {
 				$string .= "<$tag>" . htmlspecialchars( $value ) . "</$tag>";

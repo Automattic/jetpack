@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack;
 
+require_once __DIR__ . '/functions.php';
+
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use function Automattic\Jetpack\Device_Detection\wp_unslash;
 
 /**
  * Class Device_Detection
@@ -145,12 +148,17 @@ class Device_Detection {
 				$kind = 'any';
 		}
 
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) ) {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+
+		$agent = strtolower( filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
+		if ( strpos( $agent, 'ipad' ) ) {
 			return false;
 		}
 
 		// Remove Samsung Galaxy tablets (SCH-I800) from being mobile devices.
-		if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'sch-i800' ) ) {
+		if ( strpos( $agent, 'sch-i800' ) ) {
 			return false;
 		}
 
@@ -174,7 +182,6 @@ class Device_Detection {
 			if ( ! $kinds['smart'] ) {
 				// if smart, we are not dumb so no need to check.
 				$dumb_agents = $ua_info->dumb_agents;
-				$agent       = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 				foreach ( $dumb_agents as $dumb_agent ) {
 					if ( false !== strpos( $agent, $dumb_agent ) ) {
@@ -189,7 +196,7 @@ class Device_Detection {
 					if ( isset( $_SERVER['HTTP_X_WAP_PROFILE'] ) ) {
 						$kinds['dumb'] = true;
 						$matched_agent = 'http_x_wap_profile';
-					} elseif ( isset( $_SERVER['HTTP_ACCEPT'] ) && ( preg_match( '/wap\.|\.wap/i', $_SERVER['HTTP_ACCEPT'] ) || false !== strpos( strtolower( $_SERVER['HTTP_ACCEPT'] ), 'application/vnd.wap.xhtml+xml' ) ) ) {
+					} elseif ( isset( $_SERVER['HTTP_ACCEPT'] ) && ( preg_match( '/wap\.|\.wap/i', $_SERVER['HTTP_ACCEPT'] ) || false !== strpos( strtolower( $_SERVER['HTTP_ACCEPT'] ), 'application/vnd.wap.xhtml+xml' ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is doing the validating.
 						$kinds['dumb'] = true;
 						$matched_agent = 'vnd.wap.xhtml+xml';
 					}

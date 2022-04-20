@@ -289,19 +289,9 @@ class VideoPress_Video {
 			return false;
 		}
 
-		if (
-			class_exists( 'DateTimeZone' )
-			&& method_exists( 'DateTime', 'createFromFormat' )
-		) {
-			$expires_date = DateTime::createFromFormat( 'D, d M Y H:i:s T', $expires_header, new DateTimeZone( 'UTC' ) );
-			if ( $expires_date instanceof DateTime ) {
-				return date_format( $expires_date, 'U' );
-			}
-		} else {
-			$expires_array = strptime( $expires_header, '%a, %d %b %Y %H:%M:%S %Z' );
-			if ( is_array( $expires_array ) && isset( $expires_array['tm_hour'] ) && isset( $expires_array['tm_min'] ) && isset( $expires_array['tm_sec'] ) && isset( $expires_array['tm_mon'] ) && isset( $expires_array['tm_mday'] ) && isset( $expires_array['tm_year'] ) ) {
-				return gmmktime( $expires_array['tm_hour'], $expires_array['tm_min'], $expires_array['tm_sec'], 1 + $expires_array['tm_mon'], $expires_array['tm_mday'], 1900 + $expires_array['tm_year'] );
-			}
+		$expires_date = DateTime::createFromFormat( 'D, d M Y H:i:s T', $expires_header, new DateTimeZone( 'UTC' ) );
+		if ( $expires_date instanceof DateTime ) {
+			return date_format( $expires_date, 'U' );
 		}
 		return false;
 	}

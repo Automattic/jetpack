@@ -279,7 +279,25 @@ if [[ -z "$BIN" ]]; then
 else
 	VER="$(composer --version 2>/dev/null | sed -n -E 's/^Composer( version)? ([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*/\2/p')"
 	VX="$(sed -E 's/^([0-9]+\.[0-9]+)\..*/\1/' <<<"$COMPOSER_VERSION")"
-	version_range 'Composer' "$BIN" 'composer' "$VER" "$VX.0" "$COMPOSER_VERSION" "$VX.9999999" true
+	version_range 'Composer' "$BIN" 'composer' "$VER" "$COMPOSER_VERSION" "$COMPOSER_VERSION" "$VX.9999999" true
+fi
+
+checking 'Required extensions are installed'
+MISSING_EXTENSIONS=()
+BIN="$(command -v php)"
+if [[ -z "$BIN" ]]; then
+	failure "no php found, skipping check" 'php'
+else
+	for extension in mbstring xml libxml; do
+		if php -r "exit( in_array( '$extension', get_loaded_extensions() ) ? 1 : 0 );"; then
+			MISSING_EXTENSIONS+=( "$extension" )
+		fi
+	done
+	if [[ ${#MISSING_EXTENSIONS[@]} -gt 0 ]]; then
+		failure 'no' '' "The following extensions are not installed: ${MISSING_EXTENSIONS[*]}"
+	else
+		success 'yes'
+	fi
 fi
 
 echo ""
@@ -293,7 +311,11 @@ if [[ -z "$BIN" ]]; then
 	failure "no node found" 'nodejs'
 else
 	VER="$(node --version 2>/dev/null | sed -n -E 's/^v([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+)$/\1/p')"
-	VM="$(jq -r '.engines.node | sub( "^\\^"; "" )' package.json)"
+	# We have multiple allowed major versions of node. Pick the right one for the version of node installed.
+	VM="$(jq -r --arg ver "${VER%%.*}" '.engines.node | split( " || " )[] | sub( "^\\^"; "" ) | select( sub( "\\..*"; "" ) == $ver )' package.json)"
+	if [[ -z "$VM" ]]; then
+		VM="$(jq -r --arg ver "${NODE_VERSION%%.*}" '.engines.node | split( " || " )[] | sub( "^\\^"; "" ) | select( sub( "\\..*"; "" ) == $ver )' package.json)"
+	fi
 	VX="$(sed -E 's/^([0-9]+)\..*/\1/' <<<"$NODE_VERSION")"
 	version_range 'Node' "$BIN" 'nodejs' "$VER" "$VM" "$NODE_VERSION" "$VX.9999999"
 fi

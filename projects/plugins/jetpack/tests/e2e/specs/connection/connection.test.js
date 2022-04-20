@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { doSiteLevelConnection, doClassicConnection } from 'jetpack-e2e-commons/flows/index.js';
 import { Sidebar, JetpackPage, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
@@ -29,7 +29,7 @@ test.describe( 'Connection', () => {
 
 		await test.step( 'Can assert that site is connected', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isConnected() ).toBeTruthy();
+			expect( await jetpackPage.isConnected(), 'Site should be connected' ).toBeTruthy();
 		} );
 	} );
 
@@ -40,7 +40,7 @@ test.describe( 'Connection', () => {
 
 		await test.step( 'Can assert that site is connected', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isConnected() ).toBeTruthy();
+			expect( await jetpackPage.isConnected(), 'Site should be connected' ).toBeTruthy();
 		} );
 	} );
 } );

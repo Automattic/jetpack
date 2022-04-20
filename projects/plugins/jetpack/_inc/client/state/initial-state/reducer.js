@@ -65,16 +65,6 @@ export function getInitialStateConnectedPlugins( state ) {
 	return get( state.jetpack.initialState, 'connectedPlugins', {} );
 }
 
-/**
- * Returns an array of benefits provided by the Jetpack plugin.
- *
- * @param   {object}  state - Global state tree
- * @returns {Array}          Array of benefits provided by the Jetpack Plugin.
- */
-export function getInitialStateJetpackBenefits( state ) {
-	return get( state.jetpack.initialState, 'jetpackBenefits', [] );
-}
-
 export function getAdminEmailAddress( state ) {
 	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'wpcomUser', 'email' ] );
 }
@@ -399,6 +389,36 @@ export function showBackups( state ) {
  */
 export function showRecommendations( state ) {
 	return get( state.jetpack.initialState.siteData, 'showRecommendations', false );
+}
+
+/**
+ * Determines if My Jetpack should be referenced.
+ *
+ * @param {object} state - Global state tree
+ * @returns {boolean} True if the My Jetpack should be referenced, false otherwise.
+ */
+export function showMyJetpack( state ) {
+	return get( state.jetpack.initialState.siteData, 'showMyJetpack', true );
+}
+
+/**
+ * Get an array of new recommendations for this site
+ *
+ * @param {object} state - Global state tree
+ * @returns {Array} - Array of recommendation slugs
+ */
+export function getNewRecommendations( state ) {
+	return get( state.jetpack.initialState, 'newRecommendations', [] );
+}
+
+/**
+ * Get a count of new recommendations for this site
+ *
+ * @param {object} state - Global state tree
+ * @returns {number} - Count of recommendations
+ */
+export function getNewRecommendationsCount( state ) {
+	return getNewRecommendations( state ).length;
 }
 
 /**

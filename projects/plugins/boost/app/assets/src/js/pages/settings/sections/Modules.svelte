@@ -3,10 +3,15 @@
 	 * Internal dependencies
 	 */
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
-	import { requestCloudCss } from '../../../utils/cloud-css';
-	import RefreshIcon from '../../../svg/refresh.svg';
+	import {
+		requestCloudCss,
+		pollCloudCssStatus,
+		stopPollingCloudCssStatus,
+	} from '../../../utils/cloud-css';
 	import GenerateCss from '../elements/GenerateCSS.svelte';
+	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
+	import PremiumCTA from '../elements/PremiumCTA.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 
@@ -14,6 +19,9 @@
 	 * WordPress dependencies
 	 */
 	import { __ } from '@wordpress/i18n';
+
+	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
+	export let location, navigate;
 </script>
 
 <div class="jb-container--narrow">
@@ -37,28 +45,31 @@
 
 		<div slot="meta">
 			<GenerateCss />
+			<PremiumCTA />
 		</div>
 	</Module>
 
-	<Module slug={'cloud-css'} on:enabled={requestCloudCss}>
+	<Module
+		slug={'cloud-css'}
+		on:enabled={requestCloudCss}
+		on:disabled={stopPollingCloudCssStatus}
+		on:mountEnabled={pollCloudCssStatus}
+	>
 		<h3 slot="title">
-			{__( 'Optimize CSS Loading from Cloud', 'jetpack-boost' )}
+			{__( 'Automatically Optimize CSS Loading', 'jetpack-boost' )}
+			<span class="jb-badge">Upgraded</span>
 		</h3>
 		<p slot="description">
 			<TemplatedString
 				template={__(
-					`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+					`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>critical CSS</link> which now generates automatically.`,
 					'jetpack-boost'
 				)}
 				vars={externalLinkTemplateVar( 'https://web.dev/extract-critical-css/' )}
 			/>
 		</p>
-
-		<div slot="meta">
-			<button type="button" class="components-button is-link" on:click={requestCloudCss}>
-				<RefreshIcon />
-				{__( 'Regenerate', 'jetpack-boost' )}
-			</button>
+		<div slot="meta" class="jb-feature-toggle__meta">
+			<CloudCssMeta />
 		</div>
 	</Module>
 

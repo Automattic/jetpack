@@ -1,8 +1,10 @@
 /**
  * External dependencies
  */
+import React from 'react';
 import { addDecorator } from '@storybook/react';
 import { withA11y } from '@storybook/addon-a11y';
+import { ThemeProvider } from '@automattic/jetpack-components';
 
 /**
  * WordPress dependencies
@@ -37,3 +39,11 @@ export const parameters = {
 		],
 	},
 };
+
+export const decorators = [
+	Story => (
+		<ThemeProvider>
+			<Story />
+		</ThemeProvider>
+	),
+];

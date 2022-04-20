@@ -2,6 +2,89 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.11.2 - 2022-04-19
+### Added
+- Added Gridicon component
+- Added TypeScript support
+- Protect: add ProductOffer component
+
+### Changed
+- Converted numberFormat to TypeScript
+- JS Components: Add subTitle prop to ProductOffer component
+- JS Components: Update loading state for Button
+- RNA: Add buttonText property to the ProductOffer component
+
+## 0.11.1 - 2022-04-12
+### Added
+- JS Components: Add Dialog component.
+- JS Components: Add ProductDetailCard component.
+- JS Components: Add ProductPrice component.
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Button: Fix export, external link target and padding.
+- JS Components: fix className prop in Button component.
+- RNA: fix ProductOffer button loading state issue.
+
+## 0.11.0 - 2022-04-05
+### Added
+- Components: add Button component.
+- JS Components: add spacing props to Text component.
+- JS Components: add story doc to Text components.
+- My Jetpack: improve Product and Interstitial components.
+
+### Changed
+- Updated package dependencies.
+
+## 0.10.12 - 2022-03-29
+### Added
+- Jetpack components: Add ThemeProvider stories for typographies and colors
+- JS Components: add H2, H3 and Title components
+
+### Changed
+- JS Components: Minor Product Icons story and doc improvements
+- Moved in product icon components from My Jetpack
+- Updated package dependencies.
+
+## 0.10.11 - 2022-03-23
+### Added
+- Components: Add Text component
+- Introduced SplitButton component
+
+### Changed
+- Updated package dependencies
+
+## 0.10.10 - 2022-03-15
+### Added
+- My Jetpack: Add new values to ThemeProvider
+
+### Changed
+- Bump version
+- Updated dependencies
+
+## 0.10.9 - 2022-03-09
+### Added
+- RNA: Add ThemeProvider
+
+## 0.10.8 - 2022-03-08
+### Added
+- Add optional link to the Module name in the JetpackFooter component
+- Components: replace Spinner with the core one
+- JS Components: Add QRPost component
+
+### Changed
+- Components: update attributes used within the Button component to match recent deprecations and changes.
+
+## 0.10.7 - 2022-03-02
+### Changed
+- Updated package dependencies.
+
+## 0.10.6 - 2022-02-22
+### Added
+- Components: Add showBackground prop
+
 ## 0.10.5 - 2022-02-09
 ### Changed
 - Updated package dependencies

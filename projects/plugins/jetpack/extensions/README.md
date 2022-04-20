@@ -156,8 +156,8 @@ Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branch=ma
 ### How do I merge extensions to WordPress.com?
 
 - Merge to Jetpack master first.
-- Now, merge the auto-generated diff on WordPress.com.
-- There's no need to wait on release schedules, in fact it is best if you merge your WordPress.com diff immediately after you've merged to Jetpack master.
+- Then, merge the auto-generated diff on WordPress.com.
+- Note: before merging your WordPress.com diff, it is worth considering the release schedule if you are shipping a new feature. This is to avoid a situation where a new feature ends up on WordPress.com before anywhere else, and any subsequent site migrations mean that functionality is lost. Reach out to a Jetpack crew member if in doubt.
 
 ### What if I need to manually create a WordPress.com diff?
 
@@ -340,7 +340,7 @@ See [Publicize](blocks/publicize/index.js) and [Shortlinks](blocks/shortlinks/in
 
 To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals](https://wordpress.org/gutenberg/handbook/designers-developers/designers/block-design/).
 
-Use Gutenberg color variables where possible by importing `extensions/shared/styles/gutenberg-base-styles.scss`, which in turn imports all variables and mixins published in [`@wordpress/base-styles`](https://github.com/WordPress/gutenberg/tree/983c60f25e4bdb7432fde7afdf2b4cc16640f01e/packages/base-styles) package.
+Use Gutenberg color variables where possible by importing `@automattic/jetpack-base-styles/gutenberg-base-styles`, which in turn imports all variables and mixins published in [`@wordpress/base-styles`](https://github.com/WordPress/gutenberg/tree/983c60f25e4bdb7432fde7afdf2b4cc16640f01e/packages/base-styles) package.
 
 The build pipeline also supports [Color studio](https://github.com/Automattic/color-studio) via SASS variables (`$studio-pink-50`) and CSS custom properties (`var( --studio-pink-50 )`) without specifically importing them first. Prefer CSS custom properties when possible.
 

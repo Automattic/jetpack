@@ -420,7 +420,7 @@ class Jetpack_Network {
 			return;
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Caller (i.e. `$this->jetpack_sites_list()`) should check.
-		$site_id = ( is_null( $site_id ) ) ? $_GET['site_id'] : $site_id;
+		$site_id = ( $site_id === null ) ? $_GET['site_id'] : $site_id;
 		switch_to_blog( $site_id );
 		Jetpack::disconnect();
 		restore_current_blog();
@@ -446,7 +446,7 @@ class Jetpack_Network {
 
 		// Figure out what site we are working on.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Caller (i.e. `$this->jetpack_sites_list()`) should check.
-		$site_id = ( is_null( $site_id ) ) ? $_GET['site_id'] : $site_id;
+		$site_id = ( $site_id === null ) ? $_GET['site_id'] : $site_id;
 
 		/*
 		 * Here we need to switch to the subsite

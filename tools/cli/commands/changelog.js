@@ -7,7 +7,6 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import inquirer from 'inquirer';
-import simpleGit from 'simple-git';
 
 /**
  * Internal dependencies
@@ -15,8 +14,9 @@ import simpleGit from 'simple-git';
 import promptForProject from '../helpers/promptForProject.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
-import { allProjects, projectTypes } from '../helpers/projectHelpers.js';
+import { projectTypes, allProjects } from '../helpers/projectHelpers.js';
 import { readComposerJson } from '../helpers/json.js';
+import { runCommand } from '../helpers/runCommand.js';
 
 /**
  * Comand definition for changelog subcommand.
@@ -87,16 +87,16 @@ export function changelogDefine( yargs ) {
 							} )
 							.option( 'gh-action', {
 								describe: 'Output validation issues using GitHub Action command syntax.',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'base-dir', {
 								describe: 'Output file paths in this directory relative to it.',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'no-strict', {
 								alias: 'strict',
 								describe: 'Do not exit with a failure code if only warnings are found.',
-								type: 'bool',
+								type: 'boolean',
 							} );
 					},
 					async argv => {
@@ -119,7 +119,7 @@ export function changelogDefine( yargs ) {
 							.option( 'yes', {
 								describe:
 									'Default all questions to "yes" instead of "no". Particularly useful for non-interactive mode',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'use-version', {
 								describe:
@@ -134,12 +134,12 @@ export function changelogDefine( yargs ) {
 							.option( 'prerelease', {
 								alias: 'p',
 								describe: 'When determining the new version, include this prerelease suffix',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'buildinfo', {
 								alias: 'b',
 								describe: 'When fetching the next version, include this buildinfo suffix',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'release-date', {
 								describe: 'Release date, as a valid PHP date or "unreleased"',
@@ -152,7 +152,7 @@ export function changelogDefine( yargs ) {
 							} )
 							.option( 'deduplicate', {
 								describe: 'Deduplicate new changes against the last N versions',
-								type: 'bool',
+								type: 'boolean',
 							} )
 							.option( 'prologue', {
 								describe: 'Prologue text for the new changelog entry',
@@ -213,6 +213,26 @@ export function changelogDefine( yargs ) {
 					async argv => {
 						await changelogArgs( argv );
 					}
+				)
+				// Squash subcommand.
+				.command(
+					'squash [project] [file]',
+					'Squashes changelog projects',
+					yargSquash => {
+						yargSquash
+							.positional( 'project', {
+								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+								type: 'string',
+							} )
+							.option( 'file', {
+								describe: 'File that we want to squash, either changelog or readme',
+								type: 'string',
+								choices: [ 'changelog', 'readme' ],
+							} );
+					},
+					async argv => {
+						await changelogArgs( argv );
+					}
 				);
 		},
 		async argv => {
@@ -232,7 +252,7 @@ async function changelogCommand( argv ) {
 		argv = await promptCommand( argv );
 	}
 
-	const commands = [ 'add', 'validate', 'version', 'write' ];
+	const commands = [ 'add', 'validate', 'version', 'write', 'squash' ];
 	if ( ! commands.includes( argv.cmd ) ) {
 		throw new Error( 'Unknown command' ); // Yargs should provide a helpful response before this, but to be safe.
 	}
@@ -271,15 +291,31 @@ async function checkSpecialProjects( needChangelog ) {
  */
 async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
-		const needChangelog = await changedProjects();
+		const needChangelog = await checkChangelogFiles();
 		const uniqueProjects = await checkSpecialProjects( needChangelog );
+
 		// If we don't detect any modified projects, shortcircuit to default changelogger.
 		if ( needChangelog.length === 0 && uniqueProjects.length === 0 ) {
+			console.log(
+				chalk.green(
+					'Did not detect a touched project that still need a changelog. You can still add a changelog manually.'
+				)
+			);
 			changelogArgs( argv );
 			return;
 		}
 
 		const promptType = await changelogAddPrompt( argv, needChangelog, uniqueProjects );
+
+		// Bail if user doesn't want to auto-add.
+		if ( ! promptType.autoAdd && ! promptType.autoPrompt ) {
+			console.log(
+				chalk.green(
+					`Auto changelog cancelled. You can run 'jetpack changelog add [project-type/project]' to add changelogs individually.`
+				)
+			);
+			return;
+		}
 
 		// Auto add the changelog files for the projects that we can:
 		if ( promptType.autoAdd ) {
@@ -366,6 +402,7 @@ async function changelogArgs( argv ) {
 	argv.error = `Command '${ argv.cmd || argv._[ 1 ] }' for ${ argv.project } has failed! See error`;
 	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
 	const removeArg = [ argv.project, ...projectTypes ];
+	let file;
 
 	if ( argv.auto ) {
 		argv.args.push( ...argv.pass );
@@ -390,16 +427,71 @@ async function changelogArgs( argv ) {
 				argv.args.push( argv.ver );
 			}
 			break;
+		case 'squash':
+			if ( typeof argv.file === 'undefined' ) {
+				file = await promptForFile( argv );
+			} else {
+				file = argv.file;
+			}
+			argv.args = [ 'squash' ];
+			await changeloggerSquash( argv, file );
+			break;
 	}
 
-	// Remove project from arguments list we pass to the changelogger.
+	// Remove the project from the list of args we're passing to changelogger.
+	argv = await removeArgs( argv, removeArg );
+
+	// Run the changelogger command.
+	await changeloggerCli( argv );
+
+	// Add any newly added changelog files.
+	await gitAdd( argv );
+
+	console.log( chalkJetpackGreen( argv.success ) );
+}
+
+/**
+ * Handles squashing just the readme file.
+ *
+ * @param {object} argv - arguments passed as cli.
+ * @param {string} file - what file we want to squash.
+ */
+async function changeloggerSquash( argv, file ) {
+	const changelogContents =
+		file === 'readme' ? fs.readFileSync( `projects/${ argv.project }/CHANGELOG.md` ) : null;
+	try {
+		if ( file === 'changelog' ) {
+			console.log( 'Squashing changelog...' );
+		}
+		await changeloggerCli( argv );
+
+		if ( file === 'readme' ) {
+			console.log( 'Updating readme...' );
+			await runCommand( 'tools/plugin-changelog-to-readme.sh', [ `${ argv.project }` ] );
+		}
+		console.log( chalk.green( 'Squash complete!' ) );
+	} finally {
+		if ( changelogContents !== null ) {
+			fs.writeFileSync( `projects/${ argv.project }/CHANGELOG.md`, changelogContents );
+		}
+	}
+	process.exit();
+}
+
+/**
+ * Remove project from arguments list we pass to the changelogger.
+ *
+ * @param {object} argv - arguments passed as cli.
+ * @param {Array} removeArg - the array of projects we want to remove.
+ * @returns {argv} - the arguemnts.
+ */
+async function removeArgs( argv, removeArg ) {
 	for ( const proj of removeArg ) {
 		if ( argv.args.includes( proj ) ) {
 			argv.args.splice( argv.args.indexOf( proj ), 1 );
 		}
 	}
-
-	await changeloggerCli( argv );
+	return argv;
 }
 
 /**
@@ -416,9 +508,6 @@ export async function changeloggerCli( argv ) {
 	if ( data.status !== 0 ) {
 		console.error( chalk.red( argv.error ) );
 		process.exit( data.status );
-	} else {
-		await gitAdd( argv );
-		console.log( chalkJetpackGreen( argv.success ) );
 	}
 }
 
@@ -429,28 +518,66 @@ export async function changeloggerCli( argv ) {
  */
 async function gitAdd( argv ) {
 	const changelogPath = `projects/${ argv.project }/changelog`;
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	for ( const file of gitStatus.not_added ) {
+	const addedFiles = await child_process
+		.spawnSync( 'git', [
+			'-c',
+			'core.quotepath=off',
+			'ls-files',
+			'--others',
+			'--exclude-standard',
+		] )
+		.stdout.toString()
+		.trim();
+	for ( const file of addedFiles.split( '\n' ) ) {
 		if ( path.dirname( file ) === changelogPath ) {
-			git.add( file );
+			await runCommand( 'git', [ 'add', file ] );
 		}
 	}
 }
 
 /**
- * Gets list of currently modified files.
+ * Checks if changelog files are required.
  *
- * @returns {Array} modifiedProjects - projects that need a changelog.
+ * @returns {Array} matchedProjects - projects that need a changelog.
  */
-async function changedProjects() {
+async function checkChangelogFiles() {
+	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
+
+	// Bail if we're pushing to a release branch, like boost/branch-1.3.0
+	let currentBranch = child_process.spawnSync( 'git', [ 'branch', '--show-current' ] );
+	currentBranch = currentBranch.stdout.toString().trim();
+	const branchReg = /\/branch-(\d+)\.(\d+)(\.(\d+))?/; // match example: jetpack/branch-1.2.3
+	if ( currentBranch.match( branchReg ) ) {
+		console.log( chalk.green( 'Release branch detected. No changelog required.' ) );
+		return [];
+	}
+
 	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
 	const modifiedProjects = new Set();
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	for ( const file of gitStatus.files ) {
-		const match = file.path.match( re );
+	const changelogsAdded = new Set();
+	let touchedFiles = child_process.spawnSync( 'git', [
+		'-c',
+		'core.quotepath=off',
+		`diff`,
+		`--no-renames`,
+		`--name-only`,
+		`--merge-base`,
+		`origin/master`,
+	] );
+	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
+
+	// Check for any existing changelog files.
+	for ( const file of touchedFiles ) {
+		const match = file.match( /^projects\/([^/]+\/[^/]+)\/changelog\// );
 		if ( match ) {
+			changelogsAdded.add( match[ 1 ] );
+		}
+	}
+
+	// Check for any touched projects without a changelog.
+	for ( const file of touchedFiles ) {
+		const match = file.match( re );
+		if ( match && ! changelogsAdded.has( match[ 1 ] ) ) {
 			modifiedProjects.add( match[ 1 ] );
 		}
 	}
@@ -533,10 +660,26 @@ async function promptCommand( argv ) {
 		type: 'list',
 		name: 'cmd',
 		message: 'What changelogger command do you want to run?',
-		choices: [ 'add', 'validate', 'version', 'write' ],
+		choices: [ 'add', 'validate', 'version', 'write', 'squash' ],
 	} );
 	argv.cmd = response.cmd;
 	return argv;
+}
+
+/**
+ * Prompts for for the readme
+ *
+ * @param {argv} argv - the arguments passed.
+ * @returns {argv}.
+ */
+async function promptForFile( argv ) {
+	const response = await inquirer.prompt( {
+		type: 'list',
+		name: 'file',
+		message: 'What are you looking to squash?',
+		choices: [ 'readme', 'changelog' ],
+	} );
+	return response.file;
 }
 
 /**
@@ -564,10 +707,12 @@ async function promptVersion( argv ) {
  * @returns {argv}.
  */
 async function promptChangelog( argv, needChangelog ) {
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	const gitBranch = gitStatus.current.replace( /\//g, '-' );
-
+	const gitBranch = child_process
+		.spawnSync( 'git', [ 'branch', '--show-current' ] )
+		.stdout.toString()
+		.trim()
+		.replace( /\//g, '-' );
+	console.log( gitBranch );
 	const commands = await inquirer.prompt( [
 		{
 			type: 'string',

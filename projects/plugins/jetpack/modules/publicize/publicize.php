@@ -1065,30 +1065,18 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Fires when a post is saved, checks conditions and saves state in postmeta so that it
-	 * can be picked up later by @see ::publicize_post() on WordPress.com codebase.
+	 * Helper function to allow us to not publicize posts in certain contexts.
 	 *
-	 * Attached to the `save_post` action.
-	 *
-	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post Post object.
 	 */
-	public function save_meta( $post_id, $post ) {
-		$cron_user   = null;
+	public function should_submit_post_pre_checks( $post ) {
 		$submit_post = true;
 
-		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
-			return;
-		}
-
-		// Don't Publicize during certain contexts.
-
-		// - import
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			$submit_post = false;
 		}
 
-		// - on quick edit, autosave, etc but do fire on p2, quickpress, and instapost ajax.
+		// On quick edit, autosave, etc but do fire on p2, quickpress, and instapost ajax.
 		if (
 			defined( 'DOING_AJAX' )
 		&&
@@ -1107,7 +1095,7 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- just ignoring the line doesn't work for some reason
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $_GET['bulk_edit'] ) ) {
 			$submit_post = false;
 		}
@@ -1140,8 +1128,30 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$admin_page = isset( $_POST[ $this->ADMIN_PAGE ] ) ? sanitize_text_field( wp_unslash( $_POST[ $this->ADMIN_PAGE ] ) ) : null;
+		return $submit_post;
+	}
+
+	/**
+	 * Fires when a post is saved, checks conditions and saves state in postmeta so that it
+	 * can be picked up later by @see ::publicize_post() on WordPress.com codebase.
+	 *
+	 * Attached to the `save_post` action.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post Post object.
+	 */
+	public function save_meta( $post_id, $post ) {
+		$cron_user   = null;
+		$submit_post = true;
+
+		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
+			return;
+		}
+
+		$submit_post = $this->should_submit_post_pre_checks( $post );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- We're only checking if a value is set
+		$admin_page = isset( $_POST[ $this->ADMIN_PAGE ] ) ? $_POST[ $this->ADMIN_PAGE ] : null;
 
 		// Did this request happen via wp-admin?
 		$from_web = isset( $_SERVER['REQUEST_METHOD'] )
@@ -1151,7 +1161,7 @@ abstract class Publicize_Base {
 			! empty( $admin_page );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : null;
+		$title = isset( $_POST['wpas_title'] ) ? sanitize_textarea_field( wp_unslash( $_POST['wpas_title'] ) ) : null;
 
 		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && $title ) {
 			if ( empty( $title ) ) {

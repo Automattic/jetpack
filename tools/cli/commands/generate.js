@@ -9,6 +9,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import semver from 'semver';
 import yaml from 'js-yaml';
+import { execSync } from 'child_process';
 
 /**
  * Internal dependencies
@@ -22,7 +23,15 @@ import {
 	writeComposerJson,
 } from '../helpers/json.js';
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
-import mergeDirs from '../helpers/mergeDirs.js';
+import mergeDirs, { copyFile } from '../helpers/mergeDirs.js';
+import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
+import {
+	transformToReadableName,
+	transformToPhpClassName,
+	transformToPhpConstantName,
+	normalizeSlug,
+	transformToCamelCase,
+} from '../helpers/projectNameTransformations.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { doesRepoExist } from '../helpers/github.js';
 
@@ -193,6 +202,21 @@ export function getQuestions( type ) {
 			message: "What is the plugin's starting version?:",
 			default: '0.1.0-alpha',
 		},
+		{
+			type: 'list',
+			name: 'pluginTemplate',
+			message: 'Create a blank plugin or use the Starter plugin?',
+			choices: [
+				{
+					name: 'Blank plugin',
+					value: 'blank',
+				},
+				{
+					name: 'Use Jetpack Starter plugin',
+					value: 'starter',
+				},
+			],
+		},
 	];
 	const extensionQuestions = [];
 	const githubQuestions = [];
@@ -215,6 +239,7 @@ export function getQuestions( type ) {
  * Generate a project based on questions passed to it.
  *
  * @param {object} answers - Answers from questions.
+ * @returns {void}
  */
 export async function generateProject(
 	answers = { name: 'test', description: 'n/a', buildScripts: [] }
@@ -224,6 +249,10 @@ export async function generateProject(
 	const projDir = fileURLToPath(
 		new URL( `../../../projects/${ type }/${ answers.name }`, import.meta.url )
 	);
+
+	if ( 'plugin' === answers.type && 'starter' === answers.pluginTemplate ) {
+		return generatePluginFromStarter( projDir, answers );
+	}
 
 	createSkeleton( type, projDir, answers.name );
 
@@ -255,6 +284,77 @@ export async function generateProject(
 		default:
 			throw new Error( 'Unsupported type selected.' );
 	}
+}
+
+/**
+ * Generates a new plugin using the Starter plugin as a template
+ *
+ * @param {string} projDir - The project dir path.
+ * @param {object} answers - Answers from the CLI prompt.
+ * @returns {void}
+ */
+async function generatePluginFromStarter( projDir, answers ) {
+	const starterDir = fileURLToPath(
+		new URL( '../../../projects/plugins/starter-plugin/', import.meta.url )
+	);
+
+	// Copy files.
+	let files = execSync( 'git -c core.quotepath=off ls-files', {
+		cwd: starterDir,
+		encoding: 'utf8',
+	} );
+	files = files.split( '\n' ).map( str => str.replace( 'projects/plugins/starter-plugin', '' ) );
+	files.forEach( file => {
+		if ( file ) {
+			copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
+		}
+	} );
+
+	// Replace strings.
+	await searchReplaceInFolder( projDir, 'jetpack-starter-plugin', normalizeSlug( answers.name ) );
+	await searchReplaceInFolder( projDir, 'starter-plugin', normalizeSlug( answers.name, false ) );
+	await searchReplaceInFolder(
+		projDir,
+		'starter_plugin',
+		normalizeSlug( answers.name, false, '_' )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'Jetpack Starter Plugin',
+		transformToReadableName( answers.name )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'Jetpack_Starter_Plugin',
+		transformToPhpClassName( answers.name )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'Starter Plugin',
+		transformToReadableName( answers.name, false )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'JETPACK_STARTER_PLUGIN',
+		transformToPhpConstantName( answers.name )
+	);
+	await searchReplaceInFolder(
+		projDir,
+		'jetpackStarterPlugin',
+		transformToCamelCase( answers.name )
+	);
+	await searchReplaceInFolder( projDir, '0.1.0-alpha', answers.version );
+	await searchReplaceInFolder( projDir, 'plugin--description', answers.description );
+
+	// Rename plugin files.
+	fs.renameSync(
+		path.join( projDir, '/jetpack-starter-plugin.php' ),
+		path.join( projDir, '/jetpack-' + answers.name + '.php' )
+	);
+	fs.renameSync(
+		path.join( projDir, 'src/class-jetpack-starter-plugin.php' ),
+		path.join( projDir, 'src/class-jetpack-' + answers.name + '.php' )
+	);
 }
 
 /**
@@ -318,6 +418,26 @@ function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
 	packageJson.name = `@automattic/jetpack-${ answers.name }`;
 	packageJson.version = '0.1.0-alpha';
+	packageJson.repository.directory = `projects/${ pluralize( answers.type ) }/${ answers.name }`;
+
+	if ( answers.type !== 'plugin' ) {
+		packageJson.homepage = `https://github.com/Automattic/jetpack/tree/HEAD/${ packageJson.repository.directory }/#readme`;
+	}
+
+	const prefix = {
+		'editor-extension': 'Block',
+		'github-action': 'Action',
+		package: 'Package',
+		plugin: 'Plugin',
+		'js-package': 'JS Package',
+	}[ answers.type ];
+	// Note we intentionally don't URI-encode here, because `npm bugs` will double-encode. Sigh.
+	packageJson.bugs.url =
+		`https://github.com/Automattic/jetpack/labels/[${ prefix }] ` +
+		answers.name
+			.split( '-' )
+			.map( word => `${ word[ 0 ].toUpperCase() }${ word.slice( 1 ) }` )
+			.join( ' ' );
 
 	if ( answers.type === 'js-package' ) {
 		packageJson.exports = {

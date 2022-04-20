@@ -13,6 +13,7 @@ import { find, isEmpty } from 'lodash';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -20,7 +21,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
-import ExternalLink from 'components/external-link';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
 import { getPlanClass, JETPACK_BACKUP_PRODUCTS, JETPACK_SCAN_PRODUCTS } from 'lib/plans/constants';
@@ -409,8 +409,6 @@ class MyPlanHeader extends React.Component {
 								className="all-purchases__link"
 								href={ getRedirectUrl( 'calypso-purchases' ) }
 								onClick={ this.trackAllPurchasesClick }
-								target="_blank"
-								icon={ true }
 							>
 								{ __( 'View all purchases', 'jetpack' ) }
 							</ExternalLink>

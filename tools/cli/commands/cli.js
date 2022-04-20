@@ -24,7 +24,7 @@ function cliStatus() {
 				fileURLToPath( new URL( `../../../`, import.meta.url ) )
 		)
 	);
-	console.log( 'To change the linked directory of the CLI, run `pnpm cli-setup` ' );
+	console.log( 'To change the linked directory of the CLI, run `pnpx jetpack cli link` ' );
 }
 /**
  * CLI link.

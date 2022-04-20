@@ -14,10 +14,7 @@ import { Button } from '@wordpress/components';
 
 export function SearchForm( { onSubmit, onChange, value = '' }, ref ) {
 	return (
-		<form
-			className="wp-block-jetpack-gif_input-container"
-			onSubmit={ onSubmit }
-		>
+		<form className="wp-block-jetpack-gif_input-container" onSubmit={ onSubmit }>
 			<input
 				type="text"
 				className="wp-block-jetpack-gif_input components-placeholder__input"
@@ -27,7 +24,7 @@ export function SearchForm( { onSubmit, onChange, value = '' }, ref ) {
 				ref={ ref }
 				aria-labelledby="wp-block-jetpack-gif_search-button"
 			/>
-			<Button id="wp-block-jetpack-gif_search-button" isSecondary type="submit">
+			<Button id="wp-block-jetpack-gif_search-button" variant="secondary" type="submit">
 				{ __( 'Search', 'jetpack' ) }
 			</Button>
 		</form>

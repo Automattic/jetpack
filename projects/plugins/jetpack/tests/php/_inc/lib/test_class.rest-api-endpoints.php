@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 
 require_once __DIR__ . '/../../../../modules/widgets/milestone.php';
 
@@ -186,6 +187,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_admin_page_permission() {
 
+		StatusCache::clear();
 		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
@@ -204,6 +206,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
 
 		// It should not work in Offline Mode.
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		// Subscribers only have access to connect, which is not available in Dev Mode so this should fail
@@ -220,6 +223,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -229,6 +233,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_connection_permission() {
 
+		StatusCache::clear();
 		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
@@ -255,11 +260,13 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
 
 		// It should not work in Offline Mode.
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -443,6 +450,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_connection_status_staging() {
 
+		StatusCache::clear();
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
 
@@ -469,6 +477,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		);
 
 		remove_filter( 'jetpack_is_staging_site', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -482,6 +491,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$user = $this->create_and_get_user();
 		wp_set_current_user( $user->ID );
 
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		// Create REST request in JSON format and dispatch
@@ -505,6 +515,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		);
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -1007,41 +1018,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->create_and_get_request( 'recommendations/step', array(), 'GET' );
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData( array( 'step' => $test_data ), $response );
-	}
-
-	/**
-	 * Test saving and retrieving licensing errors.
-	 *
-	 * @since 9.0.0
-	 */
-	public function test_licensing_error() {
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_admin_page' );
-		wp_set_current_user( $user->ID );
-
-		// Should be empty by default.
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
-		$response = $this->server->dispatch( $request );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertSame( '', $response->get_data() );
-
-		// Should accept updates.
-		$response = $this->create_and_get_request(
-			'licensing/error',
-			array(
-				'error' => 'foo',
-			),
-			'POST'
-		);
-		$this->assertResponseStatus( 200, $response );
-		$this->assertTrue( $response->get_data() );
-
-		// Should return updated value.
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
-		$response = $this->server->dispatch( $request );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( 'foo', $response->get_data() );
 	}
 
 	/**

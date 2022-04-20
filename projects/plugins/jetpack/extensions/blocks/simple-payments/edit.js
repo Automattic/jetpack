@@ -22,6 +22,7 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { InspectorControls } from '@wordpress/block-editor';
+import { getWidgetIdFromBlock } from '@wordpress/widgets';
 
 /**
  * Internal dependencies
@@ -76,10 +77,28 @@ export class SimplePaymentsEdit extends Component {
 				} ),
 			} );
 		}
+
+		window.wp?.customize?.bind( 'change', setting => {
+			// See if the widget that has changed is our block.
+			// Code inspired by https://github.com/WordPress/gutenberg/blob/dbeebb9985e8112689d1143fbe18c12d7cb5eb53/packages/customize-widgets/src/utils.js#L19.
+			let widgetId;
+			const matches = setting.id.match( /^widget_(.+)(?:\[(\d+)\])$/ );
+			if ( matches ) {
+				const idBase = matches[ 1 ];
+				const number = parseInt( matches[ 2 ], 10 );
+				widgetId = `${ idBase }-${ number }`;
+			} else {
+				widgetId = setting.id;
+			}
+
+			if ( widgetId === getWidgetIdFromBlock( this.props.block ) && this.validateAttributes() ) {
+				this.saveProduct();
+			}
+		} );
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { hasPublishAction, isSelected, postLinkUrl, setAttributes } = this.props;
+		const { hasPublishAction, isSelected, postLinkUrl, setAttributes, isPostEditor } = this.props;
 
 		if ( ! isEqual( prevProps.simplePayment, this.props.simplePayment ) ) {
 			this.injectPaymentAttributes();
@@ -88,7 +107,7 @@ export class SimplePaymentsEdit extends Component {
 		if (
 			! prevProps.isSaving &&
 			this.props.isSaving &&
-			hasPublishAction &&
+			( hasPublishAction || ! isPostEditor ) &&
 			this.validateAttributes()
 		) {
 			// Validate and save product on post save
@@ -594,8 +613,9 @@ export class SimplePaymentsEdit extends Component {
 
 const mapSelectToProps = withSelect( ( select, props ) => {
 	const { getEntityRecord, getMedia } = select( 'core' );
-	const { isSavingPost, getCurrentPost } = select( 'core/editor' );
-
+	const { getCurrentPost } = select( 'core/editor' );
+	const { __experimentalGetDirtyEntityRecords, isSavingEntityRecord } = select( 'core' );
+	const getDirtyEntityRecords = __experimentalGetDirtyEntityRecords;
 	const { productId, featuredMediaId } = props.attributes;
 
 	const fields = [
@@ -615,8 +635,11 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 	const post = getCurrentPost();
 
 	return {
+		block: select( 'core/block-editor' ).getBlock( props.clientId ),
 		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
-		isSaving: !! isSavingPost(),
+		isSaving: getDirtyEntityRecords().some( record =>
+			isSavingEntityRecord( record.kind, record.name, record.key )
+		),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
 		postLinkUrl: post?.link,

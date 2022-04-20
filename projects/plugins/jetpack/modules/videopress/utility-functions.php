@@ -5,7 +5,16 @@ use Automattic\Jetpack\Connection\Client;
 /**
  * We won't have any videos less than sixty pixels wide. That would be silly.
  */
-defined( 'VIDEOPRESS_MIN_WIDTH' ) or define( 'VIDEOPRESS_MIN_WIDTH', 60 );
+defined( 'VIDEOPRESS_MIN_WIDTH' ) || define( 'VIDEOPRESS_MIN_WIDTH', 60 );
+
+/**
+ * VideoPress Privacy constants.
+ */
+abstract class VIDEOPRESS_PRIVACY {
+	const IS_PUBLIC    = 0;
+	const IS_PRIVATE   = 1;
+	const SITE_DEFAULT = 2;
+}
 
 /**
  * Validate user-supplied guid values against expected inputs
@@ -352,11 +361,7 @@ function videopress_update_meta_data( $post_id ) {
 
 	$info = (object) $meta['videopress'];
 
-	$args = array(
-		// 'sslverify' => false,
-	);
-
-	$result = wp_remote_get( videopress_make_video_get_path( $info->guid ), $args );
+	$result = Client::wpcom_json_api_request_as_blog( 'videos/' . $info->guid );
 
 	if ( is_wp_error( $result ) ) {
 		return false;
@@ -450,6 +455,20 @@ function videopress_make_media_upload_path( $blog_id ) {
 }
 
 /**
+ * Get the resumable upload api path.
+ *
+ * @since 4.4
+ * @param int $blog_id The id of the blog we're uploading to.
+ * @return string
+ */
+function videopress_make_resumable_upload_path( $blog_id ) {
+	return sprintf(
+		'https://public-api.wordpress.com/rest/v1.1/video-uploads/%s/',
+		$blog_id
+	);
+}
+
+/**
  * This is a mock of the internal VideoPress method, which is meant to duplicate the functionality
  * of the WPCOM API, so that the Jetpack REST API returns the same data with no modifications.
  *
@@ -480,17 +499,14 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$meta             = wp_get_attachment_metadata( $post_id );
 
 	if ( $meta && isset( $meta['videopress'] ) ) {
-		$videopress_meta            = $meta['videopress'];
-		$video_info->rating         = isset( $videopress_meta['rating'] )
-			? $videopress_meta['rating']
-			: null;
-		$video_info->allow_download = isset( $videopress_meta['allow_download'] )
-			? $videopress_meta['allow_download']
-			: 0;
+		$videopress_meta             = $meta['videopress'];
+		$video_info->rating          = isset( $videopress_meta['rating'] ) ? $videopress_meta['rating'] : null;
+		$video_info->allow_download  = isset( $videopress_meta['allow_download'] ) ? $videopress_meta['allow_download'] : 0;
+		$video_info->privacy_setting = ! isset( $videopress_meta['privacy_setting'] ) ? VIDEOPRESS_PRIVACY::SITE_DEFAULT : $videopress_meta['privacy_setting'];
 	}
 
 	if ( videopress_is_finished_processing( $post_id ) ) {
-		$video_info->finish_date_gmt = date( 'Y-m-d H:i:s' );
+		$video_info->finish_date_gmt = gmdate( 'Y-m-d H:i:s' );
 	}
 
 	return $video_info;

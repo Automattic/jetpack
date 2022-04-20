@@ -1685,6 +1685,19 @@ class Search extends Module {
 		'zipcode',
 		'zoninator_zones',
 		'zrf_field_group',
+
+		// End The Backlog  @see https://wp.me/p9MPsk-X0.
+		'bill-status',
+		'etb-audience',
+		'etb-state',
+		'etb-target',
+		'etb-topic',
+		'etb-year',
+		'foia-response-status',
+		'target-type',
+		'timeline-pillar',
+		'timeline-type',
+
 	); // end taxonomies.
 
 	/*

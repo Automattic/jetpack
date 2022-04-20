@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
+import { H3, Text } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
@@ -36,13 +37,15 @@ const ConnectionStatusCard = props => {
 		connectedSiteId,
 		context,
 		onConnectUser,
+		requiresUserConnection,
 	} = props;
 
-	const { isRegistered, isUserConnected, userConnectionData } = useConnection( {
+	const { isRegistered, isUserConnected, userConnectionData, hasConnectedOwner } = useConnection( {
 		apiRoot,
 		apiNonce,
 	} );
 
+	const missingConnectedOwner = requiresUserConnection && ! hasConnectedOwner;
 	const avatarRef = useRef();
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
@@ -108,9 +111,9 @@ const ConnectionStatusCard = props => {
 
 	return (
 		<div className="jp-connection-status-card">
-			<h3>{ title }</h3>
+			<H3>{ title }</H3>
 
-			<p>{ connectionInfoText }</p>
+			<Text variant="body">{ connectionInfoText }</Text>
 
 			<div className="jp-connection-status-card--status">
 				<div className="jp-connection-status-card--cloud"></div>
@@ -154,11 +157,15 @@ const ConnectionStatusCard = props => {
 					</li>
 				) }
 
-				{ ! isUserConnected && (
-					<li className="jp-connection-status-card--list-item-error">
-						{ __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
+				{ ( ! isUserConnected || ! hasConnectedOwner ) && (
+					<li
+						className={ `jp-connection-status-card--list-item-${
+							missingConnectedOwner ? 'error' : 'info'
+						}` }
+					>
+						{ missingConnectedOwner && __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
 						<Button
-							isLink
+							variant="link"
 							disabled={ userIsConnecting }
 							onClick={ handleConnectUser }
 							className="jp-connection-status-card--btn-connect-user"
@@ -182,7 +189,7 @@ ConnectionStatusCard.propTypes = {
 	/** The redirect admin URI after the user has connected their WordPress.com account. */
 	redirectUri: PropTypes.string,
 	/** An object of the plugins currently using the Jetpack connection. */
-	connectedPlugins: PropTypes.object,
+	connectedPlugins: PropTypes.array,
 	/** ID of the currently connected site. */
 	connectedSiteId: PropTypes.number,
 	/** The Card title. */
@@ -195,16 +202,16 @@ ConnectionStatusCard.propTypes = {
 	context: PropTypes.string,
 	/** Function to override default action for connect user account */
 	onConnectUser: PropTypes.func,
+	/** Shows an requires user connection message if true and a user connection is missing */
+	requiresUserConnection: PropTypes.bool,
 };
 
 ConnectionStatusCard.defaultProps = {
 	title: __( 'Connection', 'jetpack' ),
-	connectionInfoText: __(
-		'Leverages the Jetpack Cloud for more features on your side.',
-		'jetpack'
-	),
+	connectionInfoText: __( 'Leverages the cloud for more powerful Jetpack features.', 'jetpack' ),
 	redirectUri: null,
 	onConnectUser: null,
+	requiresUserConnection: true,
 };
 
 export default ConnectionStatusCard;

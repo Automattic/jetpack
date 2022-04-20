@@ -8,6 +8,7 @@ use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use Requests_Utility_CaseInsensitiveDictionary;
@@ -175,6 +176,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/connection` endpoint.
 	 */
 	public function test_connection() {
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		try {
 			$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
@@ -187,6 +189,7 @@ class Test_REST_Endpoints extends TestCase {
 			$this->assertTrue( $data['offlineMode']['isActive'] );
 		} finally {
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
 		}
 	}
 
@@ -377,9 +380,6 @@ class Test_REST_Endpoints extends TestCase {
 
 		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
 
-		// Manually clears filter added by Manager::register().
-		remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
-
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
 
@@ -387,31 +387,6 @@ class Test_REST_Endpoints extends TestCase {
 		$this->assertNotFalse( get_option( Connection_Package_Version_Tracker::PACKAGE_VERSION_OPTION ) );
 
 		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
-		$this->assertFalse( $data['allowInplaceAuthorization'] );
-		$this->assertSame( '', $data['alternateAuthorizeUrl'] );
-	}
-
-	/**
-	 * Testing the `connection/register` endpoint with allow_inplace_authorization as true.
-	 */
-	public function test_connection_register_allow_inplace() {
-		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_allow_inplace' ), 10, 3 );
-
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
-
-		$this->request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
-
-		$response = $this->server->dispatch( $this->request );
-		$data     = $response->get_data();
-
-		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_allow_inplace' ), 10 );
-
-		$this->assertEquals( 200, $response->get_status() );
-		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize_iframe/' ) );
-
-		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
-		$this->assertTrue( $data['allowInplaceAuthorization'] );
 		$this->assertSame( '', $data['alternateAuthorizeUrl'] );
 	}
 
@@ -431,14 +406,10 @@ class Test_REST_Endpoints extends TestCase {
 
 		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_alternate_auth_url' ), 10 );
 
-		// Manually clears filter added by Manager::register().
-		remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
-
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
 
 		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
-		$this->assertFalse( $data['allowInplaceAuthorization'] );
 		$this->assertSame( Redirect::get_url( 'https://dummy.com' ), $data['alternateAuthorizeUrl'] );
 	}
 

@@ -1,16 +1,26 @@
-# Files not needed to be distributed in the package.
-.gitattributes    export-ignore
-.github/          export-ignore
-package.json      export-ignore
+# Files to include in mirror repo: Automattic/jetpack-search-plugin
+build/**                                        production-include
+jetpack_vendor/**                               production-include
+vendor/autoload.php                             production-include
+vendor/autoload_packages.php                    production-include
+vendor/automattic/**                            production-include
+vendor/composer/**                              production-include
+vendor/jetpack-autoloader/**                    production-include
 
-# Files to include in the mirror repo, but excluded via gitignore
-# Remember to end all directories with `/**` to properly tag every file.
-# /src/js/example.min.js  production-include
-
-# Files to exclude from the mirror repo, but included in the monorepo.
-# Remember to end all directories with `/**` to properly tag every file.
-.gitignore        production-exclude
-.phpcs.dir.xml    production-exclude
-changelog/**      production-exclude
-phpunit.xml.dist  production-exclude
-tests/**          production-exclude
+# Files to exclude from mirror repo: Automattic/jetpack-search-plugin
+.babelrc                                        production-exclude
+.eslintrc.js                                    production-exclude
+.gitattributes                                  production-exclude
+.gitignore                                      production-exclude
+.phpcs.dir.xml                                  production-exclude
+babel.config.js                                 production-exclude
+build/**/*.js.map                               production-exclude
+changelog/**                                    production-exclude
+composer.lock                                   production-exclude
+package.json                                    production-exclude
+phpunit.xml.dist                                production-exclude
+README.md                                       production-exclude
+tests/**                                        production-exclude
+/vendor/automattic/jetpack-autoloader/**        production-exclude
+/vendor/automattic/jetpack-changelogger/**      production-exclude
+/vendor/automattic/jetpack-composer-plugin/**   production-exclude

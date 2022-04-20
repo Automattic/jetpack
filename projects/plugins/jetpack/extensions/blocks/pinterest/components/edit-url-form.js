@@ -29,7 +29,7 @@ export default function EditUrlForm( { className, onSubmit, noticeUI, url, setUr
 						placeholder={ __( 'Enter URL to embed here…', 'jetpack' ) }
 						onChange={ onChange }
 					/>
-					<Button isSecondary type="submit">
+					<Button variant="secondary" type="submit">
 						{ _x( 'Embed', 'button label', 'jetpack' ) }
 					</Button>
 				</form>

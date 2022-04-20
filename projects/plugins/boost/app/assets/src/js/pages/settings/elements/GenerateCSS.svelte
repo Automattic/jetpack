@@ -13,9 +13,11 @@
 	import { criticalCssStatus, failedProviderKeyCount } from '../../../stores/critical-css-status';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
-	import { navigateTo } from '../../../stores/url-fragment';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
+	import routerHistory from '../../../utils/router-history.ts';
+
+	const { navigate } = routerHistory;
 
 	// Show an error if in error state, or if a success has 0 results.
 	let showError = false;
@@ -24,7 +26,7 @@
 		( $criticalCssStatus.status === 'success' && $criticalCssStatus.success_count === 0 );
 </script>
 
-{#if $criticalCssStatus.generating}
+{#if $criticalCssStatus.status === 'requesting'}
 	<div class="jb-critical-css-progress">
 		<span class="jb-critical-css-progress__label">
 			{__( 'Generating Critical CSS…', 'jetpack-boost' )}
@@ -44,7 +46,7 @@
 		</div>
 	</div>
 {:else if showError}
-	<CriticalCssShowStopperError />
+	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
 {:else if $criticalCssStatus.status === 'success'}
 	<div class="jb-critical-css__meta">
 		<div class="summary">
@@ -77,7 +79,7 @@
 							$failedProviderKeyCount
 						)}
 						vars={{
-							...actionLinkTemplateVar( () => navigateTo( 'critical-css-advanced' ), 'advanced' ),
+							...actionLinkTemplateVar( () => navigate( 'critical-css-advanced' ), 'advanced' ),
 						}}
 					/>
 				</div>

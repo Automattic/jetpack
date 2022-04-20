@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Visitor test suite.
  *
- * @covers Visitor
+ * @covers \Automattic\Jetpack\Status\Visitor
  */
 class Test_Visitor extends TestCase {
 	/**

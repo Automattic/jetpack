@@ -40,7 +40,13 @@ export default function DialogueEdit( {
 } ) {
 	const { content, label, slug, placeholder, showTimestamp, timestamp } = attributes;
 
-	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference, isMultipleSelection } = useSelect( select => {
+	const {
+		mediaSource,
+		mediaCurrentTime,
+		mediaDuration,
+		mediaDomReference,
+		isMultipleSelection,
+	} = useSelect( select => {
 		const {
 			getDefaultMediaSource,
 			getMediaSourceCurrentTime,
@@ -101,14 +107,7 @@ export default function DialogueEdit( {
 		setAttributes( {
 			label: conversationParticipant.label,
 		} );
-	}, [
-		conversationParticipant,
-		label,
-		slug,
-		isMultipleSelection,
-		isSelected,
-		setAttributes,
-	] );
+	}, [ conversationParticipant, label, slug, isMultipleSelection, isSelected, setAttributes ] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
@@ -166,9 +165,11 @@ export default function DialogueEdit( {
 				</Panel>
 			</InspectorControls>
 
-			<div className={ classnames( `${ BASE_CLASS_NAME }__meta`, {
-				'has-not-media-source': ! mediaSource,
-			} ) }>
+			<div
+				className={ classnames( `${ BASE_CLASS_NAME }__meta`, {
+					'has-not-media-source': ! mediaSource,
+				} ) }
+			>
 				<SpeakerEditControl
 					className={ `${ BASE_CLASS_NAME }__participant` }
 					label={ label }
@@ -178,7 +179,7 @@ export default function DialogueEdit( {
 					onParticipantChange={ updatedParticipant => {
 						setAttributes( { label: updatedParticipant } );
 					} }
-					onSelect={ ( selectedParticipant ) => {
+					onSelect={ selectedParticipant => {
 						if ( isMultipleSelection ) {
 							return;
 						}
@@ -229,9 +230,7 @@ export default function DialogueEdit( {
 
 					// Copy attrs for the new block
 					// only if content is not empty.
-					const newAttributes = value?.length
-						? attributes
-						: {};
+					const newAttributes = value?.length ? attributes : {};
 
 					return createBlock( blockName, {
 						...newAttributes,

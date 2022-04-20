@@ -5,6 +5,212 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2022-04-19
+### Added
+- Adds a skeleton for the licensing UI along with a feature flag
+- Better error handling for when the WPCOM server is unreachable
+- Introduced ConnectedProductOffer component
+
+### Changed
+- Turn Search into a Hybrid Product
+- Updated package dependencies
+- use connected plugin list from the connection store and ask for an update after activating a product
+
+## [1.0.2] - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed bug in checkout URLs for sites installed in subdirs.
+
+## [1.0.1] - 2022-04-06
+### Removed
+- Removed tracking dependency.
+
+## [1.0.0] - 2022-04-05
+### Added
+- My Jetpack: improve Product and Interstitial components.
+
+### Changed
+- Bump My Jetpack package to major version 1.0.0.
+- My Jetpack: align price boxes in the interstitial product page.
+- Updated package dependencies.
+
+## [0.6.13] - 2022-03-31
+### Added
+- Added tracking events to Plans section external links
+
+### Changed
+- My Jetpack: tweak plans section typography and descriptive text
+
+## [0.6.12] - 2022-03-29
+### Added
+- Add missing JS peer dependencies.
+
+### Changed
+- Microperformance: Use === null instead of is_null
+- My Jetpack: Moved in product icon components
+- My Jetpack: Tweak plan sections styles/sizes
+- My Jetpack: Update ProductDetailCard to use components and theme variables
+- My Jetpack: Use components to render headers elements
+- Use different URLs for manage and purchase links in plans section
+
+### Fixed
+- My Jetpack: Connect Screen logos quality
+
+## [0.6.11] - 2022-03-23
+### Added
+- My Jetpack: add error styles to the whole Product card component
+- My Jetpack: Make whole Product card clickable
+
+### Changed
+- Changed opacity of product icons to 40%
+- Changed title
+- Improved should_initialize method
+- My Jetpack: remove dropdown from CTA button in Product cards
+- My Jetpack: Use Text and CSS vars on ProductCard
+- Updated Boost product icon for clarity
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated styles for each product card status
+- Update organization and copy of the Plans section
+
+### Removed
+- My Jetpack: Remove client code that allows to deactivate a product
+
+### Fixed
+- Fix Plans section top margin for plan list
+- My Jetpack: jetpack_my_jetpack_should_initialize filter now respected when set to true.
+
+## [0.6.10] - 2022-03-15
+### Changed
+- Make Backup go through the purchase flow after activation
+- My Jetpack: Use ThemeProvider instead base-styles
+- Updated package dependencies
+
+### Removed
+- Removed Beta badge from menu item
+
+## [0.6.9] - 2022-03-09
+### Changed
+- Updated package dependencies.
+
+## [0.6.8] - 2022-03-08
+### Added
+- Added connected plugins slugs to My Jetpack tracking events
+- Add link to jetpack.com in the footer
+- My Jetpack: Add jetpack features link on connection screen
+- My Jetpack: tidy Product card component
+- My Jetpack: update Spinner in checkout button
+
+### Changed
+- Components: update attributes used within the Button component to match recent deprecations and changes.
+- My Jetpack: Add Connected Product Card stories
+- My Jetpack: Add connection screen footer
+- My Jetpack: clean/tidy Product data
+- My Jetpack: Remove Layout component
+- Only consider Backup product active when the plan is purchased
+
+### Fixed
+- Fixed Backup flow when Jetpack plugin is active
+- My Jetpack: align CTA buttons of My Jetpack overview
+- My Jetpack: Fix button height in the Interstitial pages
+
+## [0.6.7] - 2022-03-02
+### Added
+- Add My Jetpack action link to all Jetpack plugins
+- My Jetpack: Handle cosmetic tweaks
+- My Jetpack: Pass requiresUserConnection to ConnectionStatusCard
+
+### Changed
+- Refactor and simplify Products class
+- Updated package dependencies.
+
+### Fixed
+- Disable browser cache for My Jetpack
+- My Jetpack: fix products card section story
+- My Jetpack: fix stories for the Interstitial pages
+
+## [0.6.6] - 2022-02-28
+### Fixed
+- Re-doing 0.6.5 to fixup bad release.
+
+## [0.6.5] - 2022-02-28
+### Changed
+- Tweak product card box model.
+
+### Fixed
+- Use namespace in My Jetpack REST Products class to prevent fatal
+
+## [0.6.4] - 2022-02-25
+### Added
+- Activate Jetpack plugin from Extras product card
+- Added list of connected plugins to Disconnect dialog in My Jetpack
+- Add Extras interstitial page
+- My Jetpack: Handle cosmetic tweaks
+- My Jetpack: Remove global notices when in my jetpack page
+- My Jetpack: set height of Jetpack logo in the footer
+- My Jetpack: tweak height of Jetpack Logo
+- My Jetpack: update Product logos
+
+### Changed
+- Disable My Jetpack on MS
+- My Jetpack: compress extras product image
+- Updated package dependencies.
+- Update My Jetpack dashboard headline
+
+### Removed
+- Remove unnecessary line from My Jetpack Initial state
+
+### Fixed
+- Fix beta badge for RTL languages
+- Handle plugin activating from Hybrid class
+- Memoized RecordEvent from usAnalytics hook
+- My Jetpack: Fix post activation url redirect
+- My Jetpack: Move product list that requires user connection to selector
+- Products::get_products_names should not load all product information
+- Update automattic logo href in the footer
+
+## [0.6.3] - 2022-02-22
+### Changed
+- Updated inline documentation
+
+### Fixed
+- Use Jetpack namespace to fix fatal error
+
+## [0.6.2] - 2022-02-22
+### Added
+- Add Beta badge
+- Add Extras class
+- Apply coupon discount to Product price when it exists
+- Filesystem write access to the initial state
+- Improve Product detail layout
+- Implement close link on layout nav
+- Prevent calling activation hook when activating backup
+
+### Changed
+- Bump package versions.
+- Improve My Jetpack link styles
+- Improve redirect process after installing Product
+- Fix interstitial CTA buttons layout
+- Move from isPressed to CSS vars
+- Redirect connect user to connection interstitial
+- Point the link of the Manage button of CRM to its dashboard
+- Redirect to post_activation_url after product activation from iterstitial screen
+- Remove conditional loading depending on constant
+- Send My Jetpack version with fired events
+- Update the layout of interstitial page when it has an upgradable bundle
+
+### Fixed
+- Check if product is active before checking if requires plan
+- Fix check for plugin installation for hybrid products
+- Fix click on security and add click on My Jetpack interstitial
+- Fix clicks on VideoPress and CRM cards
+- Fix Product prices
+- Make Scan and Search interstitials install the plugin
+- Purchases: ensure we retrieve translated version of active purchases
+- Return needs purchase status for products module
+
 ## [0.6.1] - 2022-02-16
 ### Added
 - Add Anti-Spam Product detail card
@@ -232,6 +438,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[1.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.2...1.1.0
+[1.0.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.0...1.0.1
+[1.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.13...1.0.0
+[0.6.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.12...0.6.13
+[0.6.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.11...0.6.12
+[0.6.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.10...0.6.11
+[0.6.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.9...0.6.10
+[0.6.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.8...0.6.9
+[0.6.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.7...0.6.8
+[0.6.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.6...0.6.7
+[0.6.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.5...0.6.6
+[0.6.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.4...0.6.5
+[0.6.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.3...0.6.4
+[0.6.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.2...0.6.3
+[0.6.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.4.0...0.5.0

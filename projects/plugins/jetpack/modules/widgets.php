@@ -9,12 +9,17 @@
  * Module Tags: Social, Appearance
  * Feature: Appearance
  * Additional Search Queries: widget, widgets, facebook, gallery, twitter, gravatar, image, rss
+ *
+ * @package automattic/jetpack
  */
 
+/**
+ * Load Jetpack widget files.
+ */
 function jetpack_load_widgets() {
 	$widgets_include = array();
 
-	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/widgets' ) as $file ) {
+	foreach ( Jetpack::glob_php( __DIR__ . '/widgets' ) as $file ) {
 		$widgets_include[] = $file;
 	}
 	/**
@@ -28,16 +33,18 @@ function jetpack_load_widgets() {
 	 */
 	$widgets_include = apply_filters( 'jetpack_widgets_to_include', $widgets_include );
 
-	foreach( $widgets_include as $include ) {
+	foreach ( $widgets_include as $include ) {
 		include_once $include;
 	}
 
-	include_once dirname( __FILE__ ) . '/widgets/migrate-to-core/image-widget.php';
-	include_once dirname( __FILE__ ) . '/widgets/migrate-to-core/gallery-widget.php';
+	include_once __DIR__ . '/widgets/migrate-to-core/image-widget.php';
+	include_once __DIR__ . '/widgets/migrate-to-core/gallery-widget.php';
 }
 
 add_action( 'jetpack_modules_loaded', 'jetpack_widgets_loaded' );
-
+/**
+ * Actions to perform after Jetpack widgets are loaded.
+ */
 function jetpack_widgets_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	add_filter( 'jetpack_module_configuration_url_widgets', 'jetpack_widgets_configuration_url' );
@@ -61,7 +68,13 @@ jetpack_load_widgets();
  * @since 4.4.0
  */
 function jetpack_widgets_customizer_assets_preview() {
-	wp_enqueue_script( 'jetpack-customizer-widget-utils', plugins_url( '/widgets/customizer-utils.js', __FILE__ ), array( 'customize-base' ) );
+	wp_enqueue_script(
+		'jetpack-customizer-widget-utils',
+		plugins_url( '/widgets/customizer-utils.js', __FILE__ ),
+		array( 'customize-base' ),
+		JETPACK__VERSION,
+		false
+	);
 }
 add_action( 'customize_preview_init', 'jetpack_widgets_customizer_assets_preview' );
 
@@ -71,10 +84,18 @@ add_action( 'customize_preview_init', 'jetpack_widgets_customizer_assets_preview
  * @since 4.4.0
  */
 function jetpack_widgets_customizer_assets_controls() {
-	wp_enqueue_style( 'jetpack-customizer-widget-controls', plugins_url( '/widgets/customizer-controls.css', __FILE__ ), array( 'customize-widgets' ) );
+	wp_enqueue_style(
+		'jetpack-customizer-widget-controls',
+		plugins_url( '/widgets/customizer-controls.css', __FILE__ ),
+		array( 'customize-widgets' ),
+		JETPACK__VERSION
+	);
 }
 add_action( 'customize_controls_enqueue_scripts', 'jetpack_widgets_customizer_assets_controls' );
 
+/**
+ * Cleanup old Jetpack widgets data.
+ */
 function jetpack_widgets_remove_old_widgets() {
 	$old_widgets = array(
 		'googleplus-badge',

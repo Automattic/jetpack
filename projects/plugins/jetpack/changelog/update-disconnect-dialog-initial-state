@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Improve plugins page load by moving data feching to asyn inside React
