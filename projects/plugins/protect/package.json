@@ -3,11 +3,12 @@
 	"description": "Security tools that keep your site safe and sound, from posts to plugins.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Protect"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/protect"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
