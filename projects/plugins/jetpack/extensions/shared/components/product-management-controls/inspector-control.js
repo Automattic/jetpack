@@ -129,7 +129,7 @@ export default function ProductManagementInspectorControl() {
 						</PanelRow>
 						<PanelRow className="donation-subscription">
 							<ToggleControl
-								label={ __( 'Mark subscription as a donation', 'jetpack' ) }
+								label={ getMessageByProductType( 'mark this product as a donation', productType ) }
 								onChange={ value => setIsMarkedAsDonation( value ) }
 								checked={ isMarkedAsDonation }
 							/>
