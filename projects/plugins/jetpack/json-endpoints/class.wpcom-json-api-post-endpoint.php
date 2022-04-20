@@ -655,14 +655,15 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$link = isset( $attr['link'] ) && 'file' === $attr['link']
 					? wp_get_attachment_link( $id, $size, false, false )
 					: wp_get_attachment_link( $id, $size, true, false );
-
-				if ( $captiontag && trim( $attachment->post_excerpt ) ) {
-					$output .= "<div class='wp-caption aligncenter'>$link
+				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				if ( $captiontag && trim( $attachment->post_excerpt ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+					$output .= "<div class='wp-caption aligncenter'>$link 
 						<p class='wp-caption-text'>" . wptexturize( $attachment->post_excerpt ) . '</p>
 						</div>';
 				} else {
 					$output .= $link . ' ';
 				}
+				// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			}
 		}
 	}
