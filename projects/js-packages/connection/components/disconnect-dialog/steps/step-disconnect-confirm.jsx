@@ -82,7 +82,7 @@ const StepDisconnectConfirm = props => {
 	);
 };
 
-StepDisconnectConfirm.PropTypes = {
+StepDisconnectConfirm.propTypes = {
 	/** Callback used to close the modal. */
 	onExit: PropTypes.func,
 	/** Callback used to change the state if user would like to provide feedback. */
