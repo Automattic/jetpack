@@ -577,20 +577,20 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		// confirm sync worked as expected
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_site_option( 'my_option' ), '' );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_site_option( 'my_prefix_value' ) );
-		$this->assertNull( $this->server_replica_storage->get_site_option( 'my_non_synced_option' ) );
+		$this->assertFalse( $this->server_replica_storage->get_site_option( 'my_non_synced_option' ) );
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
-		$this->assertNull( $this->server_replica_storage->get_site_option( 'my_option' ) );
-		$this->assertNull( $this->server_replica_storage->get_site_option( 'my_prefix_value' ) );
+		$this->assertFalse( $this->server_replica_storage->get_site_option( 'my_option' ) );
+		$this->assertFalse( $this->server_replica_storage->get_site_option( 'my_prefix_value' ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_site_option( 'my_option' ), 'Network options not synced during full sync' );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_site_option( 'my_prefix_value' ) );
-		$this->assertNull( $this->server_replica_storage->get_site_option( 'my_non_synced_option' ) );
+		$this->assertFalse( $this->server_replica_storage->get_site_option( 'my_non_synced_option' ) );
 	}
 
 	public function test_full_sync_sends_all_post_meta() {
