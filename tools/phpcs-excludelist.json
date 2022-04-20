@@ -3,7 +3,6 @@
 	"projects/plugins/jetpack/functions.compat.php",
 	"projects/plugins/jetpack/functions.gallery.php",
 	"projects/plugins/jetpack/functions.photon.php",
-	"projects/plugins/jetpack/json-endpoints.php",
 	"projects/plugins/jetpack/modules/contact-form.php",
 	"projects/plugins/jetpack/modules/contact-form/admin.php",
 	"projects/plugins/jetpack/modules/contact-form/class-grunion-contact-form-endpoint.php",
