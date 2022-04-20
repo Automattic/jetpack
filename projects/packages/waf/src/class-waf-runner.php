@@ -72,7 +72,7 @@ class Waf_Runner {
 	 */
 	public static function is_enabled() {
 		if ( class_exists( 'Jetpack' ) ) {
-			return \Jetpack::is_module_active( 'firewall' );
+			return \Jetpack::is_module_active( 'waf' );
 		}
 
 		return true;

@@ -1,4 +1,4 @@
-.firewall__header {
+.waf__header {
     align-items: center;
     display: flex;
 
@@ -14,7 +14,7 @@
 
 }
 
-.firewall__settings {
+.waf__settings {
     padding-top: 24px;
     padding-left: 36px;
 
@@ -48,7 +48,7 @@
 
 }
 
-.firewall__enhanced-protection {
+.waf__enhanced-protection {
     &, &.dops-card.is-expanded {
         margin-bottom: 0;
     }
