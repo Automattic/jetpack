@@ -24,20 +24,22 @@ const PROTECT_PRODUCT_MOCK = {
  * Product Detail component.
  * ToDo: rename event handler properties.
  *
- * @param {object} props                    - Component props.
- * @param {Function} props.onClick          - Callback for Call To Action button click
- * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @returns {object}                          ConnectedProductOffer react component.
+ * @param {object} props              - Component props.
+ * @param {Function} props.onAdd      - Callback for Call To Action button click
+ * @param {Function} props.onTracking - Function to call for tracking event on Add button click.
+ * @returns {object}                    ConnectedProductOffer react component.
  */
-const ConnectedProductOffer = ( { onClick, trackButtonClick, ...rest } ) => {
+const ConnectedProductOffer = ( { onAdd, onTracking, ...rest } ) => {
 	/**
 	 * ToDo: Implement bound function when adding the product.
 	 *
 	 * @returns {boolean} False. Todo: implement.
 	 */
 	const activateProduct = useCallback( () => {
-		return false;
-	}, [] );
+		if ( onAdd ) {
+			onAdd();
+		}
+	}, [ onAdd ] );
 
 	return (
 		<ProductOfferComponent
