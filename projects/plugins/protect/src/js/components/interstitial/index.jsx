@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { __ } from '@wordpress/i18n';
 import { Dialog, ProductOffer } from '@automattic/jetpack-components';
 
 /**
@@ -13,16 +14,19 @@ import ConnectedProductOffer from '../product-offer';
 const SecurityBundle = props => (
 	<ProductOffer
 		slug="security"
-		name="Security"
-		title="Security"
-		description="Comprehensive site security, including Backup, Scan, and Anti-spam."
+		name={ __( 'Security', 'jetpack-protect' ) }
+		title={ __( 'Security', 'jetpack-protect' ) }
+		description={ __(
+			'Comprehensive site security, including Backup, Scan, and Anti-spam.',
+			'jetpack-protect'
+		) }
 		isBundle={ true }
 		supportedProducts={ [ 'backup', 'scan', 'anti-spam' ] }
 		features={ [
-			'Real time cloud backups with 10GB storage',
-			'Automated real-time malware scan',
-			'One click fixes for most threats',
-			'Comment & form spam protection',
+			__( 'Real time cloud backups with 10GB storage', 'jetpack-protect' ),
+			__( 'Automated real-time malware scan', 'jetpack-protect' ),
+			__( 'One click fixes for most threats', 'jetpack-protect' ),
+			__( 'Comment & form spam protection', 'jetpack-protect' ),
 		] }
 		pricing={ {
 			currency: 'USD',
