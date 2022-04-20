@@ -14,7 +14,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	public function set_up() {
 		parent::set_up();
 
-		$this->icon_id = self::_create_upload_object( __DIR__ . '/jetpack-icon.jpg', 0, true ); // 500 x 500
+		$this->icon_id = self::create_upload_object( __DIR__ . '/jetpack-icon.jpg', 0, true ); // 500 x 500
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 	}
 

@@ -28,7 +28,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$timestamp = wp_next_scheduled( 'jetpack_sync_cron' );
 		// we need to check a while in the past because the task got scheduled at
 		// the beginning of the entire test run, not at the beginning of this test :)
-		$this->assertTrue( $timestamp > time()-HOUR_IN_SECONDS );
+		$this->assertTrue( $timestamp > time() - HOUR_IN_SECONDS );
 	}
 
 	function test_default_schedule_incremental_sync_cron() {
@@ -51,7 +51,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	function test_schedules_full_sync_cron() {
 		Actions::init_sync_cron_jobs();
 		$timestamp = wp_next_scheduled( 'jetpack_sync_full_cron' );
-		$this->assertTrue( $timestamp > time()-HOUR_IN_SECONDS );
+		$this->assertTrue( $timestamp > time() - HOUR_IN_SECONDS );
 	}
 
 	function test_default_schedule_full_sync_cron() {
@@ -94,7 +94,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'updating_jetpack_version' );
-		$this->assertEquals( '4.3', $event->args[0] );
+		$this->assertSame( '4.3', $event->args[0] );
 		$this->assertEquals( '4.2.1', $event->args[1] );
 	}
 
@@ -121,7 +121,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 	function test_do_not_load_sender_if_is_cron_and_cron_sync_disabled() {
 		Constants::set_constant( 'DOING_CRON', true );
-		$settings = Settings::get_settings();
+		$settings                  = Settings::get_settings();
 		$settings['sync_via_cron'] = 0;
 		Settings::update_settings( $settings );
 		Actions::$sender = null;
@@ -159,7 +159,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 			$this->assertGreaterThan( 1, array_unique( $values ) );
 
 		} else {
-			$this->assertEquals( 0, Actions::get_start_time_offset() );
+			$this->assertSame( 0, Actions::get_start_time_offset() );
 		}
 	}
 
@@ -167,12 +167,12 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 		Settings::get_settings();
 
-		$this->assertEquals( 1, Settings::get_setting( 'render_filtered_content' ) );
+		$this->assertSame( 1, Settings::get_setting( 'render_filtered_content' ) );
 
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.5', '4.3' );
 
-		$this->assertEquals( 0, Settings::get_setting( 'render_filtered_content' ) );
+		$this->assertSame( 0, Settings::get_setting( 'render_filtered_content' ) );
 	}
 
 	function test_disable_sending_incremental_sync() {
@@ -186,7 +186,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create_many( 2 );
 		$this->sender->do_sync();
 
-		$this->assertTrue( empty(  $this->server_event_storage->get_all_events() ) );
+		$this->assertTrue( empty( $this->server_event_storage->get_all_events() ) );
 	}
 
 	function test_enable_sending_incremental_sync() {
@@ -200,7 +200,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create_many( 2 );
 		$this->sender->do_sync();
 
-		$this->assertFalse( empty(  $this->server_event_storage->get_all_events() ) );
+		$this->assertFalse( empty( $this->server_event_storage->get_all_events() ) );
 	}
 
 	/**

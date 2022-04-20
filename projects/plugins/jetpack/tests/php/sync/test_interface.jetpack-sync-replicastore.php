@@ -9,7 +9,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	require_once ABSPATH . 'wp-content/mu-plugins/jetpack/sync/class.jetpack-sync-test-object-factory.php';
 } else {
 	// is running in jetpack
-	require_once dirname( __FILE__ ) . '/server/class.jetpack-sync-test-object-factory.php';
+	require_once __DIR__ . '/server/class.jetpack-sync-test-object-factory.php';
 }
 
 /**
@@ -28,10 +28,10 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		parent::set_up_before_class();
 
 		self::$token = (object) array(
-			'blog_id'          => 101881278, //newsite16.goldsounds.com
-			'user_id'          => 282285,   //goldsounds
+			'blog_id'          => 101881278, // newsite16.goldsounds.com
+			'user_id'          => 282285,   // goldsounds
 			'external_user_id' => 2,
-			'role'             => 'administrator'
+			'role'             => 'administrator',
 		);
 
 		self::$factory = new JetpackSyncTestObjectFactory();
@@ -216,9 +216,9 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 * @dataProvider store_provider
 	 */
 	function test_does_not_checksum_spam_comments( $store ) {
-		$comment        = self::$factory->comment( 3, 1 );
-		$spam_comment = self::$factory->comment( 6, 1, array( 'comment_approved' => 'spam' ) );
-		$trash_comment = self::$factory->comment( 9, 1, array( 'comment_approved' => 'trash' )  );
+		$comment       = self::$factory->comment( 3, 1 );
+		$spam_comment  = self::$factory->comment( 6, 1, array( 'comment_approved' => 'spam' ) );
+		$trash_comment = self::$factory->comment( 9, 1, array( 'comment_approved' => 'trash' ) );
 
 		$store->upsert_comment( $comment );
 		$store->upsert_comment( $trash_comment );
@@ -330,10 +330,10 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 
 		// histogram with one bucket should equal checksum of corresponding object type
 		$histogram = $store->checksum_histogram( 'posts', 1, 0, 0 );
-		$this->assertEquals( $store->posts_checksum(), $histogram["$min_post_id-$max_post_id"] );
+		$this->assertEquals( $store->posts_checksum(), $histogram[ "$min_post_id-$max_post_id" ] );
 
 		$histogram = $store->checksum_histogram( 'comments', 1, 0, 0 );
-		$this->assertEquals( $store->comments_checksum(), $histogram["$min_comment_id-$max_comment_id"] );
+		$this->assertEquals( $store->comments_checksum(), $histogram[ "$min_comment_id-$max_comment_id" ] );
 	}
 
 	/**
@@ -348,7 +348,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$post = self::$factory->post( 816 );
 		$store->upsert_post( $post );
 		$before_checksum = $store->posts_checksum();
-		$post = self::$factory->post( 812 );
+		$post            = self::$factory->post( 812 );
 		$store->upsert_post( $post );
 		$post = self::$factory->post( 813 );
 		$store->upsert_post( $post );
@@ -376,7 +376,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 
 		$post_checksum = $histogram['1'];
 
-		$this->assertEquals( $post_checksum, (string) crc32( implode( '#', array( '' ,"Test post 1"  ) ) ) );
+		$this->assertEquals( $post_checksum, (string) crc32( implode( '#', array( '', 'Test post 1' ) ) ) );
 	}
 
 	/**
@@ -384,9 +384,8 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 */
 	function test_histogram_detects_missing_columns( $store ) {
 		global $wpdb;
-		$suppressed = $wpdb->suppress_errors;
+		$suppressed            = $wpdb->suppress_errors;
 		$wpdb->suppress_errors = true;
-
 
 		if ( $store instanceof Jetpack_Sync_Test_Replicastore ) {
 			$this->markTestIncomplete( "The Test replicastore doesn't support detecting missing columns" );
@@ -400,7 +399,6 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		} else {
 			$this->assertTrue( is_array( $histogram ) );
 		}
-
 
 		$wpdb->suppress_errors = $suppressed;
 	}
@@ -431,11 +429,11 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$this->assertSame( 1, $store->post_count() );
 
 		// test that re-upserting doesn't add a new post, but modifies existing one
-		$post->post_title = "A whole new title";
+		$post->post_title = 'A whole new title';
 		$store->upsert_post( $post );
 		$replica_post = $store->get_post( $post->ID );
 
-		$this->assertEquals( "A whole new title", $replica_post->post_title );
+		$this->assertEquals( 'A whole new title', $replica_post->post_title );
 	}
 
 	/**
@@ -680,7 +678,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 */
 	function test_replica_reset_preserves_internal_keys( $store ) {
 		if ( $store instanceof Jetpack_Sync_Test_Replicastore ) {
-			$this->markTestIncomplete( "Test replicastore resets fully every time - this is only necessary on WPCOM" );
+			$this->markTestIncomplete( 'Test replicastore resets fully every time - this is only necessary on WPCOM' );
 		}
 
 		$store->upsert_post( self::$factory->post( 1 ) );
@@ -717,7 +715,10 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	 * @dataProvider store_provider
 	 */
 	function test_replica_update_meta_array( $store ) {
-		$meta_array = array( 'trees' => 'green', 'ocean' => 'blue' );
+		$meta_array = array(
+			'trees' => 'green',
+			'ocean' => 'blue',
+		);
 
 		$store->upsert_post( self::$factory->post( 1 ) );
 		$store->upsert_metadata( 'post', 1, 'colors', $meta_array, 3 );
@@ -877,7 +878,8 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 
 		$this->ensure_synced_taxonomy( $store, $taxonomy );
 
-		$term_object = self::$factory->term( 22,
+		$term_object = self::$factory->term(
+			22,
 			array(
 				'name'             => 'Female',
 				'slug'             => 'female',
@@ -903,7 +905,8 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 
 		$this->ensure_synced_taxonomy( $store, $taxonomy );
 
-		$term_object = self::$factory->term( 22,
+		$term_object = self::$factory->term(
+			22,
 			array(
 				'name'             => 'Female',
 				'slug'             => 'female',
@@ -926,7 +929,8 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$taxonomy = 'test_shadow_taxonomy_term';
 		$this->ensure_synced_taxonomy( $store, $taxonomy );
 
-		$term_object = self::$factory->term( 22,
+		$term_object = self::$factory->term(
+			22,
 			array(
 				'name'             => 'Female',
 				'slug'             => 'female',
@@ -1026,7 +1030,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 			$slug,
 			$type,
 			array(
-				'label'        => __( $slug ),
+				'label'        => $slug,
 				'rewrite'      => array( 'slug' => $slug ),
 				'hierarchical' => true,
 			)

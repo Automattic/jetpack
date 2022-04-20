@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_module_is_enabled() {
-		$this->assertTrue( !! Modules::get_module( "wp-super-cache" ) );
+		$this->assertTrue( (bool) Modules::get_module( 'wp-super-cache' ) );
 	}
 
 	function test_constants_are_synced() {
@@ -55,14 +55,14 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 	function test_globals_are_synced() {
 		$wp_super_cache_globals = WP_Super_Cache::get_wp_super_cache_globals();
 		foreach ( $wp_super_cache_globals as $key => $value ) {
-			$GLOBALS[$key] = $key;
+			$GLOBALS[ $key ] = $key;
 		}
 		$this->sender->do_sync();
 
 		$synced_values = $this->server_replica_storage->get_callable( 'wp_super_cache_globals' );
 
 		foreach ( $wp_super_cache_globals as $key => $value ) {
-			$this->assertEquals( $key, $synced_values[$key] );
+			$this->assertEquals( $key, $synced_values[ $key ] );
 		}
 	}
 }

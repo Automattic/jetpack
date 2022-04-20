@@ -4,7 +4,7 @@
  * Just stores a buffer of received events
  */
 class Jetpack_Sync_Server_Eventstore {
-	private $events = array();
+	private $events      = array();
 	private $action_name = null;
 
 	function init() {
@@ -20,7 +20,7 @@ class Jetpack_Sync_Server_Eventstore {
 			'timestamp'      => $timestamp,
 			'sent_timestamp' => $sent_timestamp,
 			'queue'          => $queue_id,
-			'queue_size'     => $queue_size
+			'queue_size'     => $queue_size,
 		);
 	}
 
@@ -28,11 +28,11 @@ class Jetpack_Sync_Server_Eventstore {
 		$blog_id = isset( $blog_id ) ? $blog_id : get_current_blog_id();
 
 		if ( ! isset( $this->events, $this->events[ $blog_id ] ) ) {
-			return [];
+			return array();
 		}
 
 		if ( $action_name ) {
-			$events = [];
+			$events = array();
 
 			foreach ( $this->events[ $blog_id ] as $event ) {
 				if ( $event->action === $action_name ) {
@@ -57,6 +57,6 @@ class Jetpack_Sync_Server_Eventstore {
 	}
 
 	function reset() {
-		$this->events[ get_current_blog_id() ] = [];
+		$this->events[ get_current_blog_id() ] = array();
 	}
 }

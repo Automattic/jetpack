@@ -116,7 +116,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Helper to get a new image object.
 	 *
 	 * @param string $size Test image size. Accepts 'large' (default) or 'medium'.
-	 * @param bool   $meta Meta data to pass to _create_upload_object.
+	 * @param bool   $meta Meta data to pass to create_upload_object.
 	 *
 	 * @return int Post ID (attachment) of the image.
 	 */
@@ -135,7 +135,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		add_image_size( 'jetpack_hard_undefined_zero', 700, 0, true );
 		add_image_size( 'jetpack_soft_oversized', 2000, 2000, false );
 
-		$test_image = self::_create_upload_object( $filename, 0, $meta );
+		$test_image = self::create_upload_object( $filename, 0, $meta );
 
 		// add sizes that did not exist when the file was uploaded.
 		// These perfectly match the above and Photon should treat them the same.

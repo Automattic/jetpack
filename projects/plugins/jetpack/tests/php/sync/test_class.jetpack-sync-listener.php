@@ -2,8 +2,8 @@
 
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Defaults;
-use Automattic\Jetpack\Sync\Settings;
 use Automattic\Jetpack\Sync\Health;
+use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	function test_never_queues_if_development() {
@@ -16,7 +16,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->factory->post->create();
 
-		$this->assertEquals( 0, $queue->size() );
+		$this->assertSame( 0, $queue->size() );
 	}
 
 	function test_never_queues_if_staging() {
@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->factory->post->create();
 
-		$this->assertEquals( 0, $queue->size() );
+		$this->assertSame( 0, $queue->size() );
 	}
 
 	// This is trickier than you would expect because we only check against
@@ -56,14 +56,14 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 			$this->assertEquals( 2, $this->listener->get_queue_size_limit() );
 			$this->assertEquals( 3, $this->listener->get_queue_lag_limit() );
-			$this->assertEquals( 0, $this->listener->get_sync_queue()->size() );
+			$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
 
 			// now let's try exceeding the new limit.
 			add_action( 'my_action', array( $this->listener, 'action_handler' ) );
 
 			$this->listener->force_recheck_queue_limit();
 			do_action( 'my_action' );
-			$this->assertEquals( 1, $this->listener->get_sync_queue()->size() );
+			$this->assertSame( 1, $this->listener->get_sync_queue()->size() );
 
 			$this->listener->force_recheck_queue_limit();
 			do_action( 'my_action' );
@@ -99,9 +99,9 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$queue->reset(); // remove any actions that already got queued
 
 		$this->factory->post->create();
-		$current_user  = wp_get_current_user();
+		$current_user = wp_get_current_user();
 
-		$roles = new Roles();
+		$roles         = new Roles();
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
@@ -133,9 +133,14 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
 		$current_user = wp_get_current_user();
-		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
+		wp_signon(
+			array(
+				'user_login'    => $current_user->data->user_login,
+				'user_password' => 'password',
+			)
+		);
 
-		$roles = new Roles();
+		$roles         = new Roles();
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
@@ -170,10 +175,15 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$queue->reset(); // remove any actions that already got queued
 		$current_user = wp_get_current_user();
 		add_filter( 'jetpack_sync_actor_user_data', '__return_false' );
-		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
+		wp_signon(
+			array(
+				'user_login'    => $current_user->data->user_login,
+				'user_password' => 'password',
+			)
+		);
 		remove_filter( 'jetpack_sync_actor_user_data', '__return_false' );
 
-		$roles = new Roles();
+		$roles         = new Roles();
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
@@ -213,7 +223,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		Health::update_status( Health::STATUS_IN_SYNC );
 		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
 
-		$this->listener->sync_data_loss(  $this->listener->get_sync_queue() );
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
 
 		$this->assertTrue( isset( $event->args['timestamp'] ) );
@@ -233,6 +243,6 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function get_page_url() {
-		return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+		return 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}
 }

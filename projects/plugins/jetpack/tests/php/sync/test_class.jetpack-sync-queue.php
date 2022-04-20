@@ -154,7 +154,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$buffer = $this->queue->checkout_with_memory_limit( 10 ); // way smaller
 
 		// shouldn't be false or null or anything else falsy
-		$this->assertTrue( ! ! $buffer );
+		$this->assertTrue( (bool) $buffer );
 
 		$buffer_items = $buffer->get_item_values();
 
@@ -319,8 +319,8 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$iterations  = 100;
 		$buffer_size = 10;
 
-		$queue_add_time   = (double) 0;
-		$post_create_time = (double) 0;
+		$queue_add_time   = (float) 0;
+		$post_create_time = (float) 0;
 
 		// add a whole bunch of posts
 		for ( $i = 0; $i < $iterations; $i += 1 ) {
@@ -335,15 +335,15 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 			$end_time = microtime( true );
 
 			$post_create_time += $start_add_queue_time - $start_create_post_time;
-			$queue_add_time += $end_time - $start_add_queue_time;
+			$queue_add_time   += $end_time - $start_add_queue_time;
 		}
 
-		error_log( "Post create time: " . ( $post_create_time / $iterations ) . " ($post_create_time seconds)" );
-		error_log( "Queue add time: " . ( $queue_add_time / $iterations ) . " ($queue_add_time seconds)" );
+		error_log( 'Post create time: ' . ( $post_create_time / $iterations ) . " ($post_create_time seconds)" );
+		error_log( 'Queue add time: ' . ( $queue_add_time / $iterations ) . " ($queue_add_time seconds)" );
 
 		// pop off 10 at a time
-		$pop_buffer_time   = (double) 0;
-		$close_buffer_time = (double) 0;
+		$pop_buffer_time   = (float) 0;
+		$close_buffer_time = (float) 0;
 		$num_iterations    = 0;
 		for ( $i = 0; $i < $iterations / $buffer_size; $i += 1 ) {
 			$start_pop_buffer_time   = microtime( true );
@@ -352,12 +352,12 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 			$this->queue->close( $buffer );
 			$end_time = microtime( true );
 
-			$pop_buffer_time += $start_close_buffer_time - $start_pop_buffer_time;
+			$pop_buffer_time   += $start_close_buffer_time - $start_pop_buffer_time;
 			$close_buffer_time += $end_time - $start_close_buffer_time;
-			$num_iterations += 1;
+			$num_iterations++;
 		}
 
-		error_log( "Pop buffer time: " . ( $pop_buffer_time / $num_iterations ) . " ($pop_buffer_time seconds)" );
-		error_log( "Close buffer time: " . ( $close_buffer_time / $num_iterations ) . " ($close_buffer_time seconds)" );
+		error_log( 'Pop buffer time: ' . ( $pop_buffer_time / $num_iterations ) . " ($pop_buffer_time seconds)" );
+		error_log( 'Close buffer time: ' . ( $close_buffer_time / $num_iterations ) . " ($close_buffer_time seconds)" );
 	}
 }

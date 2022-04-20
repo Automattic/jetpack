@@ -10,7 +10,7 @@ class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event( 'export_wp' );
 		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $event->args[0]['content'], 'all' );
+		$this->assertEquals( 'all', $event->args[0]['content'] );
 	}
 
 	function test_import_start_action_syncs_jetpack_sync_import_start() {

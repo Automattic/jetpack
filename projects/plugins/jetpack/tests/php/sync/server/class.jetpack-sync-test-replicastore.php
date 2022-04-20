@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Sync\Replicastore_Interface;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Replicastore_Interface;
 
 /**
  * A simple in-memory implementation of iJetpack_Sync_Replicastore
@@ -40,20 +40,23 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	function reset() {
-		$this->posts[ get_current_blog_id() ]           = array();
-		$this->comments[ get_current_blog_id() ]        = array();
-		$this->options[ get_current_blog_id() ]         = array();
+		$this->posts[ get_current_blog_id() ]              = array();
+		$this->comments[ get_current_blog_id() ]           = array();
+		$this->options[ get_current_blog_id() ]            = array();
 		$this->theme_info[ get_current_blog_id() ]         = array();
-		$this->meta[ get_current_blog_id() ]            = array( 'post' => array(), 'comment' => array() );
-		$this->constants[ get_current_blog_id() ]       = array();
-		$this->updates[ get_current_blog_id() ]         = array();
-		$this->callable[ get_current_blog_id() ]        = array();
-		$this->network_options[ get_current_blog_id() ] = array();
-		$this->terms[ get_current_blog_id() ]           = array();
+		$this->meta[ get_current_blog_id() ]               = array(
+			'post'    => array(),
+			'comment' => array(),
+		);
+		$this->constants[ get_current_blog_id() ]          = array();
+		$this->updates[ get_current_blog_id() ]            = array();
+		$this->callable[ get_current_blog_id() ]           = array();
+		$this->network_options[ get_current_blog_id() ]    = array();
+		$this->terms[ get_current_blog_id() ]              = array();
 		$this->term_relationships[ get_current_blog_id() ] = array();
-		$this->object_terms[ get_current_blog_id() ]    = array();
-		$this->users[ get_current_blog_id() ]           = array();
-		$this->users_locale[ get_current_blog_id() ]    = array();
+		$this->object_terms[ get_current_blog_id() ]       = array();
+		$this->users[ get_current_blog_id() ]              = array();
+		$this->users_locale[ get_current_blog_id() ]       = array();
 	}
 
 	function full_sync_start( $config ) {
@@ -92,7 +95,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 
 	function filter_post_status( $post ) {
 		$matched_status = ! in_array( $post->post_status, array( 'inherit' ) )
-		                  && ( $this->post_status[ get_current_blog_id() ] ? $post->post_status === $this->post_status[ get_current_blog_id() ] : true );
+			&& ( $this->post_status[ get_current_blog_id() ] ? $post->post_status === $this->post_status[ get_current_blog_id() ] : true );
 
 		return $matched_status;
 	}
@@ -183,7 +186,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 
 	function trashed_post_comments( $post_id, $statuses ) {
 		$statuses = (array) $statuses;
-		foreach( $statuses as $comment_id => $status ) {
+		foreach ( $statuses as $comment_id => $status ) {
 			$this->comments[ get_current_blog_id() ][ $comment_id ]->comment_approved = 'post-trashed';
 		}
 	}
@@ -191,7 +194,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	function untrashed_post_comments( $post_id ) {
 		$statuses = (array) $this->get_metadata( 'post', $post_id, '_wp_trash_meta_comments_status', true );
 
-		foreach( $statuses as $comment_id => $status ) {
+		foreach ( $statuses as $comment_id => $status ) {
 			$this->comments[ get_current_blog_id() ][ $comment_id ]->comment_approved = $status;
 		}
 	}
@@ -239,7 +242,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	// meta
 	public function get_metadata( $type, $object_id, $meta_key = '', $single = false ) {
 
-		$object_id                      = absint( $object_id );
+		$object_id = absint( $object_id );
 		$this->meta_filter[ get_current_blog_id() ]['type']      = $type;
 		$this->meta_filter[ get_current_blog_id() ]['object_id'] = $object_id;
 		$this->meta_filter[ get_current_blog_id() ]['meta_key']  = $meta_key;
@@ -267,7 +270,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	// this is just here to support checksum histograms
 	function get_post_meta_by_id( $meta_id ) {
 		$matching_metas = array();
-		$metas = $this->meta[ get_current_blog_id() ]['post'];
+		$metas          = $this->meta[ get_current_blog_id() ]['post'];
 		foreach ( $metas as $m ) {
 			if ( $m->meta_id === $meta_id ) {
 				$matching_metas[] = $m;
@@ -279,7 +282,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	// this is just here to support checksum histograms
 	function get_comment_meta_by_id( $meta_id ) {
 		$matching_metas = array();
-		$metas = $this->meta[ get_current_blog_id() ]['comment'];
+		$metas          = $this->meta[ get_current_blog_id() ]['comment'];
 		foreach ( $metas as $m ) {
 			if ( $m->meta_id === $meta_id ) {
 				$matching_metas[] = $m;
@@ -327,7 +330,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 				$meta_data->meta_key === $meta_key &&
 				in_array( $meta_data->object_id, $object_ids )
 			) {
-			$meta_ids[] = $meta_id;
+				$meta_ids[] = $meta_id;
 			}
 		}
 
@@ -335,8 +338,6 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 			unset( $this->meta[ get_current_blog_id() ][ $type ][ $meta_id ] );
 		}
 	}
-
-
 
 	// constants
 	public function get_constant( $constant ) {
@@ -513,7 +514,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 					$term = $this->get_term( $taxonomy, $saved_term_id, 'term_id' );
 					if ( isset( $term->term_taxonomy_id ) && ! in_array( $term->term_taxonomy_id, $tt_ids ) && $object_id === $saved_object_id ) {
 						$saved_data[ $taxonomy ] [ $saved_object_id ][] = $saved_term_id;
-					} else if ( isset( $term->term_taxonomy_id ) && in_array( $term->term_taxonomy_id, $tt_ids ) && $object_id === $saved_object_id ) {
+					} elseif ( isset( $term->term_taxonomy_id ) && in_array( $term->term_taxonomy_id, $tt_ids ) && $object_id === $saved_object_id ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 						$this->update_term_count( $taxonomy, $term->term_id );
 					}
 				}
@@ -524,8 +525,8 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 
 	function update_object_terms( $object_id, $taxonomy, $term_ids, $append ) {
 		if ( $append ) {
-			$previous_array                                = isset( $this->object_terms[ get_current_blog_id() ][ $taxonomy ] )
-			                                                 && isset( $this->object_terms[ get_current_blog_id() ][ $taxonomy ][ $object_id ] )
+			$previous_array = isset( $this->object_terms[ get_current_blog_id() ][ $taxonomy ] )
+				&& isset( $this->object_terms[ get_current_blog_id() ][ $taxonomy ][ $object_id ] )
 				? $this->object_terms[ get_current_blog_id() ][ $taxonomy ][ $object_id ] : array();
 			$this->object_terms[ get_current_blog_id() ][ $taxonomy ][ $object_id ] = array_merge( $previous_array, $term_ids );
 		} else {
@@ -587,16 +588,15 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		unset( $this->users[ get_current_blog_id() ][ $user_id ] );
 	}
 
-
 	function checksum_all() {
-		$post_meta_checksum = $this->checksum_histogram( 'post_meta', 1 );
+		$post_meta_checksum    = $this->checksum_histogram( 'post_meta', 1 );
 		$comment_meta_checksum = $this->checksum_histogram( 'comment_meta', 1 );
 
 		return array(
-			'posts'    => $this->posts_checksum(),
-			'comments' => $this->comments_checksum(),
-			'post_meta'=> reset( $post_meta_checksum ),
-			'comment_meta'=> reset( $comment_meta_checksum ),
+			'posts'        => $this->posts_checksum(),
+			'comments'     => $this->comments_checksum(),
+			'post_meta'    => reset( $post_meta_checksum ),
+			'comment_meta' => reset( $comment_meta_checksum ),
 		);
 	}
 
@@ -624,10 +624,9 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		// divide all IDs into the number of buckets
 		switch ( $object_type ) {
 			case 'posts':
-				$posts         = $this->get_posts( null, $start_id, $end_id );
+				$posts        = $this->get_posts( null, $start_id, $end_id );
 				$all_ids      = array_map( array( $this, 'object_id' ), $posts );
-				$id_field      = 'ID';
-				$get_function  = 'get_post';
+				$get_function = 'get_post';
 
 				if ( empty( $fields ) ) {
 					$fields = Defaults::$default_post_checksum_columns;
@@ -635,8 +634,8 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 
 				break;
 			case 'post_meta':
-				$post_meta = array_filter( $this->meta[ get_current_blog_id() ]['post'], array( $this, 'is_post' ) );
-				$all_ids  = array_values( array_map( array( $this, 'meta_id' ), $post_meta ) );
+				$post_meta    = array_filter( $this->meta[ get_current_blog_id() ]['post'], array( $this, 'is_post' ) );
+				$all_ids      = array_values( array_map( array( $this, 'meta_id' ), $post_meta ) );
 				$id_field     = 'meta_id';
 				$get_function = 'get_post_meta_by_id';
 
@@ -646,7 +645,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 				break;
 			case 'comments':
 				$comments     = $this->get_comments( null, $start_id, $end_id );
-				$all_ids  = array_map( array( $this, 'comment_id' ), $comments );
+				$all_ids      = array_map( array( $this, 'comment_id' ), $comments );
 				$id_field     = 'comment_ID';
 				$get_function = 'get_comment';
 
@@ -656,7 +655,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 				break;
 			case 'comment_meta':
 				$comment_meta = array_filter( $this->meta[ get_current_blog_id() ]['comment'], array( $this, 'is_comment' ) );
-				$all_ids  = array_values( array_map( array( $this, 'meta_id' ), $comment_meta ) );
+				$all_ids      = array_values( array_map( array( $this, 'meta_id' ), $comment_meta ) );
 				$id_field     = 'meta_id';
 				$get_function = 'get_comment_meta_by_id';
 
@@ -675,8 +674,8 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 			return array();
 		}
 
-		$id_chunks   = array_chunk( $all_ids, $bucket_size );
-		$histogram   = array();
+		$id_chunks = array_chunk( $all_ids, $bucket_size );
+		$histogram = array();
 
 		foreach ( $id_chunks as $id_chunk ) {
 			$first_id      = $id_chunk[0];
@@ -726,10 +725,10 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	public function concat_items( $object ) {
 		$values = array();
 		foreach ( $this->checksum_fields[ get_current_blog_id() ] as $field ) {
-			$values[] = preg_replace( '/[^\x20-\x7E]/','', $object->{ $field } );
+			$values[] = preg_replace( '/[^\x20-\x7E]/', '', $object->{ $field } );
 		}
 		// array('') is the empty value of the salt.
-		$item_array = array_merge( array(''), $values );
+		$item_array = array_merge( array( '' ), $values );
 
 		return crc32( implode( '#', $item_array ) );
 	}

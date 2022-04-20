@@ -62,7 +62,7 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 			case 'trashed_post_comments':
 				list( $post_id, $statuses ) = $args;
-				$statuses = (array) $statuses;
+				$statuses                   = (array) $statuses;
 				$this->store->trashed_post_comments( $post_id, $statuses );
 				break;
 			case 'untrash_post_comments':
@@ -107,7 +107,7 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 			case 'jetpack_post_meta_batch_delete':
 				list( $object_ids, $meta_key ) = $args;
-				$type = 'post';
+				$type                          = 'post';
 				$this->store->delete_batch_metadata( $type, $object_ids, $meta_key );
 				break;
 			// constants
@@ -209,7 +209,6 @@ class Jetpack_Sync_Server_Replicator {
 				}
 				break;
 			case 'jetpack_full_sync_users':
-
 				foreach ( $args['users'] as $user ) {
 					$this->store->upsert_user( $user );
 				}
@@ -231,7 +230,7 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// terms
-			case 'jetpack_sync_save_term': //break intentionally omitted
+			case 'jetpack_sync_save_term': // break intentionally omitted
 			case 'jetpack_sync_add_term':
 				list( $term_object ) = $args;
 				$this->store->update_term( $term_object );
