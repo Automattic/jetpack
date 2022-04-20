@@ -81,15 +81,15 @@ function CardIcons( { products, icon } ) {
  *
  * @param {object} props                  - Component props.
  * @param {string} props.slug             - Product slug.
- * @param {string} props.icon 			  - Custom Icon slug.
- * @param {string} props.title 			  - Product title.
- * @param {string} props.subTitle 		  - Product sub-title.
+ * @param {string} props.icon 	          - Custom Icon slug.
+ * @param {string} props.title            - Product title.
+ * @param {string} props.subTitle         - Product sub-title.
  * @param {string} props.description      - Product description.
  * @param {Array}  props.features         - Features list of the product.
  * @param {boolean} props.isCard          - Add the styles to look like a card.
  * @param {boolean} props.isBundle        - Whether or not the product is a bundle.
  * @param {Array} props.supportedProducts - List of supported products (for bundles).
- * @param {Object} props.pricing 	      - Product Pricing object.
+ * @param {Object} props.pricing          - Product Pricing object.
  * @param {boolean} props.hasRequiredPlan - Whether or not the product has the required plan.
  * @param {boolean} props.isLoading       - Applies the isLoading style to the component.
  * @param {string} props.className        - A className to be concat with default ones.
