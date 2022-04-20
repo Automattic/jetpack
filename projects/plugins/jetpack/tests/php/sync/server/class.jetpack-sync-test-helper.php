@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
 
 /**
  * Class Jetpack_Sync_Test_Helper

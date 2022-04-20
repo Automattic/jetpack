@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix PHPCS sniff failures added in #23924
+
+
