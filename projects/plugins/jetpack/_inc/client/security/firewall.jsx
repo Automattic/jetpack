@@ -39,17 +39,17 @@ export const Firewall = class extends Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {{jetpack_firewall_ip_list: *, jetpack_firewall_share_data: *}}
+	 * @returns {{jetpack_waf_ip_list: *, jetpack_firewall_share_data: *}}
 	 */
 	state = {
-		jetpack_firewall_ip_list: this.props.getOptionValue( 'jetpack_firewall_ip_list' ),
-		jetpack_firewall_ip_allow_list: this.props.getOptionValue( 'jetpack_firewall_ip_allow_list' ),
-		jetpack_firewall_ip_block_list: this.props.getOptionValue( 'jetpack_firewall_ip_block_list' ),
+		jetpack_waf_ip_list: this.props.getOptionValue( 'jetpack_waf_ip_list' ),
+		jetpack_waf_ip_allow_list: this.props.getOptionValue( 'jetpack_waf_ip_allow_list' ),
+		jetpack_waf_ip_block_list: this.props.getOptionValue( 'jetpack_waf_ip_block_list' ),
 		jetpack_firewall_share_data: this.props.getOptionValue( 'jetpack_firewall_share_data' ),
 	};
 
 	handleIpListToggleChange = () => {
-		this.updateOptions( 'jetpack_firewall_ip_list' );
+		this.updateOptions( 'jetpack_waf_ip_list' );
 	};
 
 	handleShareDataToggleChange = () => {
@@ -102,11 +102,11 @@ export const Firewall = class extends Component {
 		const ipListSettings = (
 			<div className="firewall__settings__toggle-setting">
 				<CompactFormToggle
-					checked={ this.state.jetpack_firewall_ip_list }
+					checked={ this.state.jetpack_waf_ip_list }
 					disabled={
 						! isFirewallActive ||
 						unavailableInOfflineMode ||
-						this.props.isSavingAnyOption( [ 'firewall', 'jetpack_firewall_ip_list' ] )
+						this.props.isSavingAnyOption( [ 'firewall', 'jetpack_waf_ip_list' ] )
 					}
 					onChange={ this.handleIpListToggleChange }
 				>
@@ -115,7 +115,7 @@ export const Firewall = class extends Component {
 					</span>
 				</CompactFormToggle>
 
-				{ this.state.jetpack_firewall_ip_list && (
+				{ this.state.jetpack_waf_ip_list && (
 					<>
 						<div className="firewall__settings__ips">
 							<FormLabel>{ __( 'Blocked IP addresses', 'jetpack' ) }</FormLabel>
@@ -125,13 +125,13 @@ export const Firewall = class extends Component {
 									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [
 										'firewall',
-										'jetpack_firewall_ip_list',
-										'jetpack_firewall_ip_block_list',
+										'jetpack_waf_ip_list',
+										'jetpack_waf_ip_block_list',
 									] )
 								}
-								name="jetpack_firewall_ip_block_list"
+								name="jetpack_waf_ip_block_list"
 								placeholder={ __( 'Example: 12.12.12.1-12.12.12.100', 'jetpack' ) }
-								value={ this.state.jetpack_firewall_ip_block_list }
+								value={ this.state.jetpack_waf_ip_block_list }
 								onChange={ this.handleIpListChange }
 							/>
 						</div>
@@ -143,13 +143,13 @@ export const Firewall = class extends Component {
 									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [
 										'firewall',
-										'jetpack_firewall_ip_list',
-										'jetpack_firewall_ip_allow_list',
+										'jetpack_waf_ip_list',
+										'jetpack_waf_ip_allow_list',
 									] )
 								}
-								name="jetpack_firewall_ip_allow_list"
+								name="jetpack_waf_ip_allow_list"
 								placeholder={ __( 'Example: 12.12.12.1-12.12.12.100', 'jetpack' ) }
-								value={ this.state.jetpack_firewall_ip_allow_list }
+								value={ this.state.jetpack_waf_ip_allow_list }
 								onChange={ this.handleIpListChange }
 							/>
 						</div>
@@ -258,8 +258,8 @@ export const Firewall = class extends Component {
 				header={ moduleHeader }
 				module="firewall"
 				saveDisabled={ this.props.isSavingAnyOption( [
-					'jetpack_firewall_ip_allow_list',
-					'jetpack_firewall_ip_block_list',
+					'jetpack_waf_ip_allow_list',
+					'jetpack_waf_ip_block_list',
 				] ) }
 			>
 				<QueryWafSettings />

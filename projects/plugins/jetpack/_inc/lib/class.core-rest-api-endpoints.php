@@ -2213,14 +2213,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Firewall.
-			'jetpack_firewall_ip_list'             => array(
+			'jetpack_waf_ip_list'                  => array(
 				'description'       => esc_html__( 'Allow / Block list - Block or allow a specific request IP.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'firewall',
 			),
-			'jetpack_firewall_ip_block_list'       => array(
+			'jetpack_waf_ip_block_list'            => array(
 				'description'       => esc_html__( 'Blocked IP addresses', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
@@ -2228,7 +2228,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'esc_textarea',
 				'jp_group'          => 'firewall',
 			),
-			'jetpack_firewall_ip_allow_list'       => array(
+			'jetpack_waf_ip_allow_list'            => array(
 				'description'       => esc_html__( 'Always allowed IP addresses', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
