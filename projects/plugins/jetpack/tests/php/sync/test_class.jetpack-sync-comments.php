@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
 
-		$this->assertTrue( $event );
+		$this->assertNotFalse( $event );
 		$this->assertEquals( 'wp_insert_comment', $event->action );
 		$this->assertEquals( $this->comment->comment_ID, $event->args[0] );
 		$this->assertEqualsObject( $this->comment, $event->args[1], 'Synced comment does not match local comment' );
@@ -212,7 +212,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		// Test both sync actions we're expecting
 		$this->assertSame( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
-		$this->assertSame( 0, $remote_comment->comment_approved );
+		$this->assertSame( '0', $remote_comment->comment_approved );
 		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( $comment_action_name );
 		$this->assertTrue( (bool) $comment_unapproved_event );
 

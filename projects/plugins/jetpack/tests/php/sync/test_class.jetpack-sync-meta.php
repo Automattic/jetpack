@@ -144,7 +144,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
+		$this->assertSame( '', $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
 	}
 
 	/**
@@ -168,7 +168,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		add_post_meta( $this->post_id, '_private_meta', 'foo' );
 		$this->sender->do_sync();
 
-		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
+		$this->assertSame( '', $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
 
 		Settings::update_settings( array( 'post_meta_whitelist' => array( '_private_meta' ) ) );
 
@@ -185,7 +185,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		add_comment_meta( $comment_ids[0], '_private_meta', 'foo' );
 		$this->sender->do_sync();
 
-		$this->assertNull( $this->server_replica_storage->get_metadata( 'comment', $comment_ids[0], '_private_meta', true ) );
+		$this->assertSame( '', $this->server_replica_storage->get_metadata( 'comment', $comment_ids[0], '_private_meta', true ) );
 
 		Settings::update_settings( array( 'comment_meta_whitelist' => array( '_private_meta' ) ) );
 

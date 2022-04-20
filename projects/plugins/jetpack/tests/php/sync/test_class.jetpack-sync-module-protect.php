@@ -45,6 +45,6 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_valid_failed_login_attempt' );
 
-		$this->assertSame( '', $action->args[0]['login'] );
+		$this->assertNull( $action->args[0]['login'] );
 	}
 }

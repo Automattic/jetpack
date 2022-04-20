@@ -720,7 +720,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertNull( $this->server_replica_storage->get_post( $post_id ) );
 
-		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, 'hello', true ) );
+		$this->assertSame( '', $this->server_replica_storage->get_metadata( 'post', $post_id, 'hello', true ) );
 	}
 
 	public function test_post_types_blacklist_can_be_appended_in_settings() {
