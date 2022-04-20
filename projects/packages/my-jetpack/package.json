@@ -1,15 +1,16 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "1.1.0",
+	"version": "1.1.1-alpha",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] My Jetpack"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/my-jetpack"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
