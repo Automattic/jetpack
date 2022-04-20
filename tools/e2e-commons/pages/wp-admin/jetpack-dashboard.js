@@ -8,12 +8,6 @@ export default class JetpackDashboardPage extends WpPage {
 		super( page, { expectedSelectors: [ '#jp-plugin-container', '.jp-at-a-glance' ], url } );
 	}
 
-	async openMyPlan() {
-		logger.step( 'Switching to My Plan tab' );
-		const myPlanButton = "a[href*='my-plan'] span";
-		return await this.click( myPlanButton );
-	}
-
 	async isConnected() {
 		logger.step( 'Checking if Jetpack is connected' );
 		await this.waitForNetworkIdle();
