@@ -1,5 +1,10 @@
 import config from 'config';
-import { Sidebar, JetpackPage, RecommendationsPage } from '../pages/wp-admin/index.js';
+import {
+	Sidebar,
+	JetpackPage,
+	JetpackDashboardPage,
+	RecommendationsPage,
+} from '../pages/wp-admin/index.js';
 import {
 	AuthorizePage,
 	PickAPlanPage,
@@ -47,7 +52,7 @@ export async function syncJetpackPlanData( page, plan, mockPlanData = true ) {
 	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_complete';
 	await persistPlanData( planType );
 
-	const jetpackPage = await JetpackPage.visit( page );
+	const jetpackPage = await JetpackDashboardPage.visit( page );
 	await jetpackPage.openMyPlan();
 	await jetpackPage.reload();
 

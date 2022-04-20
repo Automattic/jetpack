@@ -16,10 +16,6 @@ test.describe( 'Jetpack pre-connection', () => {
 		await page.close();
 	} );
 
-	test.beforeEach( async ( { page } ) => {
-		await DashboardPage.visit( page );
-	} );
-
 	test( 'Can find connect button on plugins page', async ( { page } ) => {
 		await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 
