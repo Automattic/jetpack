@@ -1,10 +1,10 @@
 /**
- * This hook returns the highest discount amongst all suggested products.
+ * Return the highest discount amongst all suggested products.
  *
  * @param {Object} discountData - Informations about the discount
  * @param {Object[]} introOffers - Set of product offering information
  * @param {Object[]} suggestions - Suggested products
- * @returns {Number} Max discount
+ * @returns {number} Max discount
  */
 export const computeMaxSuggestedDiscount = ( discountData, introOffers, suggestions ) => {
 	if ( ! discountData || ! introOffers || ! suggestions ) {
