@@ -1,4 +1,5 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
 /*
 	Copyright 2006 Aaron D. Campbell (email : wp_plugins@xavisys.com)
 
@@ -17,12 +18,6 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-/**
- * Jetpack_Google_Analytics is the class that handles ALL of the plugin functionality.
- * It helps us avoid name collisions
- * https://codex.wordpress.org/Writing_a_Plugin#Avoiding_Function_Name_Collisions
- */
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -33,17 +28,26 @@ require_once plugin_basename( 'classes/wp-google-analytics-legacy.php' );
 require_once plugin_basename( 'classes/wp-google-analytics-universal.php' );
 require_once plugin_basename( 'classes/class-jetpack-google-amp-analytics.php' );
 
+/**
+ * Jetpack_Google_Analytics is the class that handles ALL of the plugin functionality.
+ * It helps us avoid name collisions
+ * https://codex.wordpress.org/Writing_a_Plugin#Avoiding_Function_Name_Collisions
+ */
 class Jetpack_Google_Analytics {
 
 	/**
-	 * @var Jetpack_Google_Analytics - Static property to hold our singleton instance
+	 * Jetpack_Google_Analytics singleton instance.
+	 *
+	 * @var Jetpack_Google_Analytics
 	 */
-	static $instance = false;
+	public static $instance = false;
 
 	/**
-	 * @var Static property to hold concrete analytics impl that does the work (universal or legacy)
+	 * Property to hold concrete analytics implementation that does the work (universal or legacy).
+	 *
+	 * @var Static
 	 */
-	static $analytics = false;
+	public static $analytics = false;
 
 	/**
 	 * This is our constructor, which is private to force the use of get_instance()
