@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
 
 // special factory that creates transient versions of various WP objects
 class JetpackSyncTestObjectFactory {

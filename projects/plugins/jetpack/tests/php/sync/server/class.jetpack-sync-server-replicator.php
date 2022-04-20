@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
 
 use Automattic\Jetpack\Sync\Replicastore_Interface;
 
