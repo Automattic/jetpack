@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix handling of re-reviews, only look at the latest review per user.
