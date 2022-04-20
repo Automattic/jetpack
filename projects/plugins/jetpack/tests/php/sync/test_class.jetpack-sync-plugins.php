@@ -117,7 +117,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotContains( 'hello.php', $active_plugins );
 	}
 
-	function test_plugin_activation_action_is_synced() {
+	public function test_plugin_activation_action_is_synced() {
 		activate_plugin( 'hello.php' );
 		$this->sender->do_sync();
 
@@ -130,7 +130,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $activated_plugin->args[2]['version'] );
 	}
 
-	function test_plugin_deactivation_action_is_synced() {
+	public function test_plugin_deactivation_action_is_synced() {
 		activate_plugin( 'hello.php' );
 		deactivate_plugins( 'hello.php' );
 		$this->sender->do_sync();
@@ -143,7 +143,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $deactivated_plugin->args[2]['version'] );
 	}
 
-	function test_plugin_deletion_is_synced() {
+	public function test_plugin_deletion_is_synced() {
 		do_action( 'delete_plugin', 'hello.php' );
 		do_action( 'deleted_plugin', 'hello.php', true );
 		$this->sender->do_sync();
@@ -157,7 +157,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	function test_all_plugins_filter_is_respected() {
+	public function test_all_plugins_filter_is_respected() {
 		$this->sender->do_sync();
 		$plugins = get_plugins();
 
@@ -176,7 +176,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $not_synced['hello.php'] ) );
 	}
 
-	static function install_the_plugin() {
+	public static function install_the_plugin() {
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
@@ -197,7 +197,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 	}
 
-	function set_update_plugin_transient( $transient ) {
+	public function set_update_plugin_transient() {
 		return (object) array(
 			'response' => array(
 				'the/the.php' => (object) array(
@@ -207,7 +207,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
-	static function remove_plugin() {
+	public static function remove_plugin() {
 		if ( file_exists( WP_PLUGIN_DIR . '/the/the.php' ) ) {
 			add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 			delete_plugins( array( 'the/the.php' ) );
@@ -216,7 +216,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function remove_hello_dolly( $plugins ) {
+	public function remove_hello_dolly( $plugins ) {
 		unset( $plugins['hello.php'] );
 		return $plugins;
 	}

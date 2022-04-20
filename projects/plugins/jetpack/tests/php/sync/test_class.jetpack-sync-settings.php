@@ -3,7 +3,7 @@
 use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
-	function test_can_write_settings() {
+	public function test_can_write_settings() {
 		$settings = Settings::get_settings();
 		// store original value.
 		$dequeue_max_bytes = $settings['dequeue_max_bytes'];
@@ -34,7 +34,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( 50, $updated_settings['dequeue_max_bytes'] );
 	}
 
-	function test_settings_disable_enqueue_and_clears_queue() {
+	public function test_settings_disable_enqueue_and_clears_queue() {
 		$event = $this->server_event_storage->reset();
 
 		// create a post - this will end up in the queue before data is sent
@@ -58,7 +58,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( Settings::is_sync_enabled() );
 	}
 
-	function test_settings_disable_network_enqueue_and_clears_queue() {
+	public function test_settings_disable_network_enqueue_and_clears_queue() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with single site mode' );
 		}
@@ -83,7 +83,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'network_disable' => 0 ) );
 	}
 
-	function test_setting_network_option_on_single_site_does_not_work() {
+	public function test_setting_network_option_on_single_site_does_not_work() {
 		if ( is_multisite() ) {
 			Settings::update_settings( array( 'network_disable' => 1 ) );
 			$this->assertSame( 1, Settings::get_setting( 'network_disable' ) );

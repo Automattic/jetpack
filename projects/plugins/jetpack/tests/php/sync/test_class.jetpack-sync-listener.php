@@ -6,7 +6,7 @@ use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
-	function test_never_queues_if_development() {
+	public function test_never_queues_if_development() {
 		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
 
 		add_filter( 'jetpack_offline_mode', '__return_true' );
@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( 0, $queue->size() );
 	}
 
-	function test_never_queues_if_staging() {
+	public function test_never_queues_if_staging() {
 		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
 
 		add_filter( 'jetpack_is_staging_site', '__return_true' );
@@ -37,7 +37,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	// we cache the "blocked on queue size" status.
 	// In addition, we should only enforce the queue size limit if the oldest (aka frontmost)
 	// item in the queue is gt 15 minutes old.
-	function test_detects_if_exceeded_queue_size_limit_and_oldest_item_gt_15_mins() {
+	public function test_detects_if_exceeded_queue_size_limit_and_oldest_item_gt_15_mins() {
 		$this->listener->get_sync_queue()->reset();
 
 		// first, let's try overriding the default queue limit
@@ -91,7 +91,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_does_listener_add_actor_to_queue() {
+	public function test_does_listener_add_actor_to_queue() {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->listener->get_sync_queue()->reset();
@@ -126,7 +126,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_does_listener_add_actor_user_data_for_login_events() {
+	public function test_does_listener_add_actor_user_data_for_login_events() {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->listener->get_sync_queue()->reset();
@@ -167,7 +167,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_does_listener_exclude_actor_ip_if_filter_is_present() {
+	public function test_does_listener_exclude_actor_ip_if_filter_is_present() {
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->listener->get_sync_queue()->reset();
@@ -208,7 +208,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_does_set_silent_flag_true_while_importing() {
+	public function test_does_set_silent_flag_true_while_importing() {
 		Settings::set_importing( true );
 
 		$this->factory->post->create();
@@ -219,7 +219,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->silent );
 	}
 
-	function test_data_loss_action_sent_and_health_updated() {
+	public function test_data_loss_action_sent_and_health_updated() {
 		Health::update_status( Health::STATUS_IN_SYNC );
 		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
 
@@ -232,7 +232,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Health::get_status(), Health::STATUS_OUT_OF_SYNC );
 	}
 
-	function test_data_loss_action_ignored_if_already_out_of_sync() {
+	public function test_data_loss_action_ignored_if_already_out_of_sync() {
 		Health::update_status( Health::STATUS_OUT_OF_SYNC );
 
 		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
@@ -242,7 +242,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Health::get_status(), Health::STATUS_OUT_OF_SYNC );
 	}
 
-	function get_page_url() {
+	public function get_page_url() {
 		return 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}
 }

@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 	}
 
-	function check_for_updates_to_sync() {
+	public function check_for_updates_to_sync() {
 		$updates_module = Modules::get_module( 'updates' );
 		$updates_module->sync_last_event();
 	}
@@ -74,7 +74,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $has_action );
 	}
 
-	function new_plugin_response( $new_version ) {
+	public function new_plugin_response( $new_version ) {
 		return (object) array(
 			'response'  => array(
 				'hello' => (object) array(

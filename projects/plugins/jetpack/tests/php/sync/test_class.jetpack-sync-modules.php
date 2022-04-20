@@ -5,7 +5,7 @@
  */
 class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_Sync_Base {
 
-	function test_sync_activate_module_event() {
+	public function test_sync_activate_module_event() {
 		// Calling the activate_module in tests is difficult.
 		// Since the site need to eather be connected or in offline mode.
 		// But we don't allow sync to happen in offline mode.
@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'stuff', $event->args[0] );
 	}
 
-	function test_sync_deactivate_module_event() {
+	public function test_sync_deactivate_module_event() {
 
 		Jetpack_Options::update_option( 'active_modules', array( 'stuff' ) );
 		Jetpack::deactivate_module( 'stuff' );

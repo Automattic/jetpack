@@ -286,7 +286,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $post_id, '_feedback_akismet_values', true ), $meta_key_value );
 	}
 
-	function assertOptionIsSynced( $meta_key, $value, $type, $object_id ) {
+	public function assertOptionIsSynced( $meta_key, $value, $type, $object_id ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_metadata( $type, $object_id, $meta_key, true ), 'Synced option doesn\'t match local option.' );
 	}
 

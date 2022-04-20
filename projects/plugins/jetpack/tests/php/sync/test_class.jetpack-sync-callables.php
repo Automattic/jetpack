@@ -58,7 +58,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		set_current_screen( 'post-user' ); // this only works in is_admin()
 	}
 
-	function test_white_listed_function_is_synced() {
+	public function test_white_listed_function_is_synced() {
 		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 
 		$this->sender->do_sync();
@@ -85,7 +85,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEqualsObject( Jetpack::get_updates(), $updates, 'The updates object should match' );
 	}
 
-	function test_wp_version_is_synced() {
+	public function test_wp_version_is_synced() {
 		global $wp_version;
 		$this->sender->do_sync();
 		$synced_value = $this->server_replica_storage->get_callable( 'wp_version' );
@@ -184,11 +184,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		return array( 'test' );
 	}
 
-	function assertCallableIsSynced( $name, $value ) {
+	public function assertCallableIsSynced( $name, $value ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_callable( $name ), 'Function ' . $name . ' didn\'t have the expected value of ' . json_encode( $value ) );
 	}
 
-	function test_white_listed_callables_doesnt_get_synced_twice() {
+	public function test_white_listed_callables_doesnt_get_synced_twice() {
 		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
@@ -246,7 +246,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( get_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME ) );
 	}
 
-	function test_sync_always_sync_changes_to_modules_right_away() {
+	public function test_sync_always_sync_changes_to_modules_right_away() {
 		Jetpack::update_active_modules( array( 'stats' ) );
 
 		$this->sender->do_sync();
@@ -263,7 +263,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( array( 'json-api' ), $synced_value );
 	}
 
-	function test_sync_always_sync_changes_to_home_siteurl_right_away() {
+	public function test_sync_always_sync_changes_to_home_siteurl_right_away() {
 		$original_home_option    = get_option( 'home' );
 		$original_siteurl_option = get_option( 'siteurl' );
 
@@ -296,7 +296,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		update_option( 'siteurl', $original_siteurl_option );
 	}
 
-	function test_sync_jetpack_sync_unlock_sync_callable_action_allows_syncing_siteurl_changes() {
+	public function test_sync_jetpack_sync_unlock_sync_callable_action_allows_syncing_siteurl_changes() {
 		$original_home_option    = get_option( 'home' );
 		$original_siteurl_option = get_option( 'siteurl' );
 
@@ -338,7 +338,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		update_option( 'siteurl', $original_siteurl_option );
 	}
 
-	function test_home_site_urls_synced_while_migrate_for_idc_set() {
+	public function test_home_site_urls_synced_while_migrate_for_idc_set() {
 		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 
@@ -376,43 +376,43 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Options::delete_option( 'migrate_for_idc' );
 	}
 
-	function return_example_com() {
+	public function return_example_com() {
 		return 'http://example.com';
 	}
 
-	function return_example_com_blog() {
+	public function return_example_com_blog() {
 		return 'http://example.com/blog';
 	}
 
-	function return_https_example_com() {
+	public function return_https_example_com() {
 		return 'https://example.com';
 	}
 
-	function return_https_example_org() {
+	public function return_https_example_org() {
 		return 'https://example.org';
 	}
 
-	function return_site_com() {
+	public function return_site_com() {
 		return 'http://site.com';
 	}
 
-	function return_https_site_com() {
+	public function return_https_site_com() {
 		return 'https://site.com';
 	}
 
-	function return_https_site_com_blog() {
+	public function return_https_site_com_blog() {
 		return 'https://site.com/blog';
 	}
 
-	function return_https_www_example_com() {
+	public function return_https_www_example_com() {
 		return 'https://www.example.com';
 	}
 
-	function return_https_foo_example_com() {
+	public function return_https_foo_example_com() {
 		return 'https://foo.example.com';
 	}
 
-	function test_get_protocol_normalized_url_works_with_no_history() {
+	public function test_get_protocol_normalized_url_works_with_no_history() {
 		$callable_type = 'home_url';
 		$option_key    = Urls::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
@@ -434,7 +434,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		delete_option( $option_key );
 	}
 
-	function test_get_protocol_normalized_url_stores_max_history() {
+	public function test_get_protocol_normalized_url_stores_max_history() {
 		$callable_type = 'home_url';
 		$option_key    = Urls::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
@@ -446,7 +446,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		delete_option( $option_key );
 	}
 
-	function test_get_protocol_normalized_url_returns_http_when_https_falls_off() {
+	public function test_get_protocol_normalized_url_returns_http_when_https_falls_off() {
 		$callable_type = 'home_url';
 		$option_key    = Urls::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
@@ -472,7 +472,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
-	function test_get_protocol_normalized_url_returns_new_value_cannot_parse() {
+	public function test_get_protocol_normalized_url_returns_new_value_cannot_parse() {
 		$test_url = 'http:///example.com';
 		$this->assertEquals(
 			$test_url,
@@ -480,7 +480,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
-	function test_get_protocol_normalized_url_cleared_on_reset_data() {
+	public function test_get_protocol_normalized_url_cleared_on_reset_data() {
 		Urls::get_protocol_normalized_url( 'home_url', get_home_url() );
 		Urls::get_protocol_normalized_url( 'site_url', get_site_url() );
 		Urls::get_protocol_normalized_url( 'main_network_site_url', network_site_url() );
@@ -497,7 +497,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_subdomain_switching_to_www_does_not_cause_sync() {
+	public function test_subdomain_switching_to_www_does_not_cause_sync() {
 		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of
 		// switching back and forth, so we force the domain to be the one in the siteurl option
 		$this->setSyncClientDefaults();
@@ -520,7 +520,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $original_site_url, $this->server_replica_storage->get_callable( 'site_url' ) );
 	}
 
-	function test_sync_limited_set_of_callables_if_cron() {
+	public function test_sync_limited_set_of_callables_if_cron() {
 		$all_callables  = array_keys( Defaults::get_callable_whitelist() );
 		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
 
@@ -547,7 +547,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Settings::set_doing_cron( false );
 	}
 
-	function test_sync_limited_set_of_callables_if_wp_cli() {
+	public function test_sync_limited_set_of_callables_if_wp_cli() {
 		$all_callables  = array_keys( Defaults::get_callable_whitelist() );
 		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
 
@@ -574,13 +574,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Constants::set_constant( 'WP_CLI', false );
 	}
 
-	function test_site_icon_url_returns_false_when_no_site_icon() {
+	public function test_site_icon_url_returns_false_when_no_site_icon() {
 		delete_option( 'jetpack_site_icon_url' );
 		$this->sender->do_sync();
 		$this->assertFalse( $this->server_replica_storage->get_callable( 'site_icon_url' ) );
 	}
 
-	function test_site_icon_url_returns_core_site_icon_url_when_set() {
+	public function test_site_icon_url_returns_core_site_icon_url_when_set() {
 		$attachment_id = $this->factory->post->create(
 			array(
 				'post_type'      => 'attachment',
@@ -598,7 +598,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		delete_option( 'site_icon' );
 	}
 
-	function test_site_icon_url_fallback_to_jetpack_site_icon_url() {
+	public function test_site_icon_url_fallback_to_jetpack_site_icon_url() {
 		delete_option( 'site_icon' );
 		update_option( 'jetpack_site_icon_url', 'http://website.com/wp-content/uploads/2016/09/jetpack_site_icon.png' );
 		$this->sender->do_sync();
@@ -606,7 +606,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertStringContainsString( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
 	}
 
-	function test_calling_taxonomies_do_not_modify_global() {
+	public function test_calling_taxonomies_do_not_modify_global() {
 		global $wp_taxonomies;
 		// adds taxonomies.
 		$test = new ABC_FOO_TEST_Taxonomy_Example();
@@ -621,7 +621,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	function test_sanitize_sync_taxonomies_method() {
+	public function test_sanitize_sync_taxonomies_method() {
 
 		$sanitized = Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_tags_meta_box' ) );
 		$this->assertEquals( 'post_tags_meta_box', $sanitized->meta_box_cb );
@@ -643,7 +643,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'WP_REST_Terms_Controller', $sanitized->rest_controller_class );
 	}
 
-	function test_sanitize_sync_post_type_method_default() {
+	public function test_sanitize_sync_post_type_method_default() {
 		$label            = 'foo_default';
 		$post_type_object = new WP_Post_Type( $label );
 		$post_type_object->add_supports();
@@ -657,7 +657,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	function test_sanitize_sync_post_type_method_remove_unknown_values_set() {
+	public function test_sanitize_sync_post_type_method_remove_unknown_values_set() {
 		$label            = 'foo_strange';
 		$post_type_object = new WP_Post_Type( $label, array( 'foo' => 'bar' ) );
 		$post_type_object->add_supports();
@@ -670,7 +670,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assert_sanitized_post_type_default( $sanitized, $label );
 	}
 
-	function assert_sanitized_post_type_default( $sanitized, $label ) {
+	public function assert_sanitized_post_type_default( $sanitized, $label ) {
 		$this->assertEquals( $label, $sanitized->name );
 		$this->assertEquals( 'Posts', $sanitized->label );
 		$this->assertSame( '', $sanitized->description );
@@ -701,7 +701,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	function test_sanitize_sync_post_type_method_all_values_set() {
+	public function test_sanitize_sync_post_type_method_all_values_set() {
 		$args             = array(
 			'labels'              => array(
 				'stuff' => 'apple',
@@ -746,7 +746,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_get_post_types_method() {
+	public function test_get_post_types_method() {
 		global $wp_post_types;
 		$synced = Functions::get_post_types();
 		foreach ( $wp_post_types as $post_type => $post_type_object ) {
@@ -760,7 +760,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_register_post_types_callback_error() {
+	public function test_register_post_types_callback_error() {
 		register_post_type( 'testing', array( 'register_meta_box_cb' => function () {} ) );
 		$this->sender->do_sync();
 
@@ -768,13 +768,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $post_types['testing'] ) );
 	}
 
-	function test_get_raw_url_by_option_bypasses_filters() {
+	public function test_get_raw_url_by_option_bypasses_filters() {
 		add_filter( 'option_home', array( $this, 'return_filtered_url' ) );
 		$this->assertTrue( 'http://filteredurl.com' !== Urls::get_raw_url( 'home' ) );
 		remove_filter( 'option_home', array( $this, 'return_filtered_url' ) );
 	}
 
-	function test_get_raw_url_by_constant_bypasses_filters() {
+	public function test_get_raw_url_by_constant_bypasses_filters() {
 		Constants::set_constant( 'WP_HOME', 'http://constanturl.com' );
 		Constants::set_constant( 'WP_SITEURL', 'http://constanturl.com' );
 		add_filter( 'option_home', array( $this, 'return_filtered_url' ) );
@@ -793,7 +793,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Constants::clear_constants();
 	}
 
-	function test_get_raw_url_returns_with_http_if_is_ssl() {
+	public function test_get_raw_url_returns_with_http_if_is_ssl() {
 		$home_option = get_option( 'home' );
 
 		// Test without https first
@@ -808,7 +808,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_SERVER['HTTPS'] );
 	}
 
-	function test_raw_home_url_is_https_when_is_ssl() {
+	public function test_raw_home_url_is_https_when_is_ssl() {
 		Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
 
 		$home_option = get_option( 'home' );
@@ -828,7 +828,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_SERVER['HTTPS'] );
 	}
 
-	function test_user_can_stop_raw_urls() {
+	public function test_user_can_stop_raw_urls() {
 		add_filter( 'option_home', array( $this, 'return_filtered_url' ) );
 		add_filter( 'option_siteurl', array( $this, 'return_filtered_url' ) );
 
@@ -844,7 +844,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'option_siteurl', array( $this, 'return_filtered_url' ) );
 	}
 
-	function test_plugin_action_links_get_synced() {
+	public function test_plugin_action_links_get_synced() {
 		// Makes sure that we start fresh
 		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
 		$helper_all = new Jetpack_Sync_Test_Helper();
@@ -904,7 +904,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array, 'Array was not updated to the new value as expected' );
 	}
 
-	function extract_plugins_we_are_testing( $plugins_action_links ) {
+	public function extract_plugins_we_are_testing( $plugins_action_links ) {
 		$only_plugins_we_care_about = array();
 		if ( isset( $plugins_action_links['hello.php'] ) ) {
 			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello.php'] ) ? $plugins_action_links['hello.php'] : '';
@@ -916,7 +916,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		return $only_plugins_we_care_about;
 	}
 
-	function cause_fatal_error( $actions ) {
+	public function cause_fatal_error( $actions ) {
 		unset( $actions['activate'] );
 		$actions[] = '<a href="/hello">world</a>';
 		return $actions;

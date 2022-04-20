@@ -199,7 +199,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_returns_term_object_by_id() {
+	public function test_returns_term_object_by_id() {
 		$term_sync_module = Modules::get_module( 'terms' );
 
 		$event       = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_term' );
@@ -217,7 +217,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $synced_term, $retrieved_term );
 	}
 
-	function test_returns_term_taxonomy_by_id() {
+	public function test_returns_term_taxonomy_by_id() {
 		$term_sync_module = Modules::get_module( 'terms' );
 
 		$event         = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_term' );
@@ -229,7 +229,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $term_taxonomy->taxonomy, $synced_term->taxonomy );
 	}
 
-	function get_terms() {
+	public function get_terms() {
 		return get_terms(
 			array(
 				'taxonomy'   => $this->taxonomy,

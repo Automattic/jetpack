@@ -7,14 +7,14 @@ use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
-	function test_sending_empties_queue() {
+	public function test_sending_empties_queue() {
 		$this->factory->post->create();
 		$this->assertNotEmpty( $this->sender->get_sync_queue()->get_all() );
 		$this->sender->do_sync();
 		$this->assertEmpty( $this->sender->get_sync_queue()->get_all() );
 	}
 
-	function test_sends_publish_post_action() {
+	public function test_sends_publish_post_action() {
 		$post_id = $this->factory->post->create();
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
@@ -22,7 +22,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post_id, $event->args[0] );
 	}
 
-	function test_schedules_incremental_sync_cron() {
+	public function test_schedules_incremental_sync_cron() {
 		// we need to run this again because cron is cleared between tests
 		Actions::init_sync_cron_jobs();
 		$timestamp = wp_next_scheduled( 'jetpack_sync_cron' );
@@ -31,41 +31,41 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $timestamp > time() - HOUR_IN_SECONDS );
 	}
 
-	function test_default_schedule_incremental_sync_cron() {
+	public function test_default_schedule_incremental_sync_cron() {
 		Actions::init_sync_cron_jobs();
 		$this->assertEquals( Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_cron' ) );
 	}
 
-	function test_filtered_schedule_incremental_sync_cron_works() {
+	public function test_filtered_schedule_incremental_sync_cron_works() {
 		add_filter( 'jetpack_sync_incremental_sync_interval', array( $this, 'return_hourly_schedule' ) );
 		Actions::init_sync_cron_jobs();
 		$this->assertEquals( 'hourly', wp_get_schedule( 'jetpack_sync_cron' ) );
 	}
 
-	function test_filtered_schedule_incremental_sync_cron_bad_schedule_sanitized() {
+	public function test_filtered_schedule_incremental_sync_cron_bad_schedule_sanitized() {
 		add_filter( 'jetpack_sync_incremental_sync_interval', array( $this, 'return_nonexistent_schedule' ) );
 		Actions::init_sync_cron_jobs();
 		$this->assertEquals( Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_cron' ) );
 	}
 
-	function test_schedules_full_sync_cron() {
+	public function test_schedules_full_sync_cron() {
 		Actions::init_sync_cron_jobs();
 		$timestamp = wp_next_scheduled( 'jetpack_sync_full_cron' );
 		$this->assertTrue( $timestamp > time() - HOUR_IN_SECONDS );
 	}
 
-	function test_default_schedule_full_sync_cron() {
+	public function test_default_schedule_full_sync_cron() {
 		Actions::init_sync_cron_jobs();
 		$this->assertEquals( Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_full_cron' ) );
 	}
 
-	function test_filtered_schedule_full_sync_cron_works() {
+	public function test_filtered_schedule_full_sync_cron_works() {
 		add_filter( 'jetpack_sync_full_sync_interval', array( $this, 'return_hourly_schedule' ) );
 		Actions::init_sync_cron_jobs();
 		$this->assertEquals( 'hourly', wp_get_schedule( 'jetpack_sync_full_cron' ) );
 	}
 
-	function test_filtered_schedule_full_sync_cron_bad_schedule_sanitized() {
+	public function test_filtered_schedule_full_sync_cron_bad_schedule_sanitized() {
 		add_filter( 'jetpack_sync_full_sync_interval', array( $this, 'return_nonexistent_schedule' ) );
 		Actions::init_sync_cron_jobs();
 		$this->assertEquals( Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_full_cron' ) );
@@ -87,7 +87,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( Modules::get_module( 'full-sync' )->is_started() );
 	}
 
-	function test_sends_updating_jetpack_version_event() {
+	public function test_sends_updating_jetpack_version_event() {
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.3', '4.2.1' );
 
@@ -98,7 +98,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '4.2.1', $event->args[1] );
 	}
 
-	function test_cleanup_old_cron_job_on_update() {
+	public function test_cleanup_old_cron_job_on_update() {
 		wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'jetpack_sync_send_db_checksum' );
 
 		$this->assertIsInt( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) );
@@ -109,7 +109,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) );
 	}
 
-	function test_loads_sender_if_listener_queues_actions() {
+	public function test_loads_sender_if_listener_queues_actions() {
 		remove_all_filters( 'jetpack_sync_sender_should_load' );
 		Actions::$sender = null;
 
@@ -119,7 +119,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( Actions::$sender !== null );
 	}
 
-	function test_do_not_load_sender_if_is_cron_and_cron_sync_disabled() {
+	public function test_do_not_load_sender_if_is_cron_and_cron_sync_disabled() {
 		Constants::set_constant( 'DOING_CRON', true );
 		$settings                  = Settings::get_settings();
 		$settings['sync_via_cron'] = 0;
@@ -134,7 +134,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		Settings::reset_data();
 	}
 
-	function test_cleanup_cron_jobs_with_non_staggered_start() {
+	public function test_cleanup_cron_jobs_with_non_staggered_start() {
 		Actions::init_sync_cron_jobs();
 
 		$this->assertIsInt( wp_next_scheduled( 'jetpack_sync_cron' ) );
@@ -147,7 +147,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( wp_next_scheduled( 'jetpack_sync_full_cron' ) );
 	}
 
-	function test_cron_start_time_offset_has_randomness() {
+	public function test_cron_start_time_offset_has_randomness() {
 		Actions::clear_sync_cron_jobs();
 
 		if ( is_multisite() ) {
@@ -163,7 +163,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_sync_settings_updates_on_upgrade() {
+	public function test_sync_settings_updates_on_upgrade() {
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 		Settings::get_settings();
 
@@ -175,7 +175,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( 0, Settings::get_setting( 'render_filtered_content' ) );
 	}
 
-	function test_disable_sending_incremental_sync() {
+	public function test_disable_sending_incremental_sync() {
 		$this->sender->reset_data();
 		$this->sender->do_sync();
 
@@ -189,7 +189,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( empty( $this->server_event_storage->get_all_events() ) );
 	}
 
-	function test_enable_sending_incremental_sync() {
+	public function test_enable_sending_incremental_sync() {
 		$this->sender->reset_data();
 		$this->sender->do_sync();
 

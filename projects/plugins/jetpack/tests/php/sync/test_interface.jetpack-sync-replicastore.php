@@ -17,9 +17,9 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
  */
 class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/** @var JetpackSyncTestObjectFactory $factory */
-	static $factory;
-	static $token;
-	static $all_replicastores;
+	public static $factory;
+	public static $token;
+	public static $all_replicastores;
 
 	/**
 	 * Set up before class.
@@ -72,7 +72,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * Test that the checksum values between implementations are the same
 	 */
-	function test_all_checksums_match() {
+	public function test_all_checksums_match() {
 		$this->markTestSkipped( 'Not a Valid E2E test.' );
 		$post           = self::$factory->post( 5 );
 		$second_post    = self::$factory->post( 10 );
@@ -141,30 +141,30 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		$this->assertSame( 1, $unique_histograms_count, 'Comment meta histograms do not match: ' . print_r( $labelled_histograms, 1 ) );
 	}
 
-	function get_all_checksums( $replicastore ) {
+	public function get_all_checksums( $replicastore ) {
 		return $replicastore->checksum_all();
 	}
 
-	function get_all_post_histograms( $replicastore ) {
+	public function get_all_post_histograms( $replicastore ) {
 		return $replicastore->checksum_histogram( 'posts', 10 );
 	}
 
-	function get_all_post_meta_histograms( $replicastore ) {
+	public function get_all_post_meta_histograms( $replicastore ) {
 		return $replicastore->checksum_histogram( 'post_meta', 10 );
 	}
 
-	function get_all_comment_histograms( $replicastore ) {
+	public function get_all_comment_histograms( $replicastore ) {
 		return $replicastore->checksum_histogram( 'comments', 10 );
 	}
 
-	function get_all_comment_meta_histograms( $replicastore ) {
+	public function get_all_comment_meta_histograms( $replicastore ) {
 		return $replicastore->checksum_histogram( 'comment_meta', 10 );
 	}
 
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_checksum_with_id_range( $store ) {
+	public function test_checksum_with_id_range( $store ) {
 		$post           = self::$factory->post( 5 );
 		$second_post    = self::$factory->post( 10 );
 		$comment        = self::$factory->comment( 3, $post->ID );
@@ -215,7 +215,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_does_not_checksum_spam_comments( $store ) {
+	public function test_does_not_checksum_spam_comments( $store ) {
 		$comment       = self::$factory->comment( 3, 1 );
 		$spam_comment  = self::$factory->comment( 6, 1, array( 'comment_approved' => 'spam' ) );
 		$trash_comment = self::$factory->comment( 9, 1, array( 'comment_approved' => 'trash' ) );
@@ -234,7 +234,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_strips_non_ascii_chars_for_checksum( $store ) {
+	public function test_strips_non_ascii_chars_for_checksum( $store ) {
 		$utf8_post     = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
 		$ascii_post    = self::$factory->post( 1, array( 'post_content' => 'Panam' ) );
 		$utf8_comment  = self::$factory->comment( 1, 1, array( 'comment_content' => 'Panamá' ) );
@@ -269,7 +269,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_checksum_histogram( $store ) {
+	public function test_checksum_histogram( $store ) {
 
 		$min_post_id           = 1000000;
 		$max_post_id           = 1;
@@ -339,7 +339,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_checksum_posts_return_different_values_on_enej_case( $store ) {
+	public function test_replica_checksum_posts_return_different_values_on_enej_case( $store ) {
 		$store->reset();
 		$post = self::$factory->post( 807 );
 		$store->upsert_post( $post );
@@ -363,7 +363,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_histogram_accepts_columns( $store ) {
+	public function test_histogram_accepts_columns( $store ) {
 		for ( $i = 1; $i <= 20; $i += 1 ) {
 			$post = self::$factory->post( $i, array( 'post_content' => "Test post $i" ) );
 			$store->upsert_post( $post );
@@ -382,7 +382,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_histogram_detects_missing_columns( $store ) {
+	public function test_histogram_detects_missing_columns( $store ) {
 		global $wpdb;
 		$suppressed            = $wpdb->suppress_errors;
 		$wpdb->suppress_errors = true;
@@ -410,7 +410,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_upsert_post( $store ) {
+	public function test_replica_upsert_post( $store ) {
 		$this->assertSame( 0, $store->post_count() );
 
 		$post = self::$factory->post( 5 );
@@ -439,7 +439,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_get_posts( $store ) {
+	public function test_replica_get_posts( $store ) {
 		$store->upsert_post( self::$factory->post( 1, array( 'post_status' => 'draft' ) ) );
 		$store->upsert_post( self::$factory->post( 2, array( 'post_status' => 'publish' ) ) );
 		$store->upsert_post( self::$factory->post( 3, array( 'post_status' => 'trash' ) ) );
@@ -463,7 +463,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_checksum_posts( $store ) {
+	public function test_replica_checksum_posts( $store ) {
 		$before_checksum = $store->posts_checksum();
 
 		$post = self::$factory->post( 5 );
@@ -480,7 +480,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_upsert_comment( $store ) {
+	public function test_replica_upsert_comment( $store ) {
 		$this->assertSame( 0, $store->comment_count() );
 
 		$comment = self::$factory->comment( 3, 2 );
@@ -507,7 +507,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_checksum_comments( $store ) {
+	public function test_replica_checksum_comments( $store ) {
 		$before_checksum = $store->comments_checksum();
 
 		$comment = self::$factory->comment( 3, 2 );
@@ -520,7 +520,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_get_comments( $store ) {
+	public function test_replica_get_comments( $store ) {
 		$post_id = 1;
 		self::$factory->post( $post_id, array( 'post_status' => 'publish' ) );
 		$store->upsert_comment( self::$factory->comment( 1, $post_id, array( 'comment_approved' => '0' ) ) );
@@ -542,7 +542,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_update_option( $store ) {
+	public function test_replica_update_option( $store ) {
 		$option_name  = 'blogdescription';
 		$option_value = (string) rand();
 		$store->update_option( $option_name, $option_value );
@@ -554,7 +554,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_delete_option( $store ) {
+	public function test_replica_delete_option( $store ) {
 		$option_name  = 'test_replicastore_' . rand();
 		$option_value = (string) rand();
 		$store->update_option( $option_name, $option_value );
@@ -567,7 +567,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_set_theme_support( $store ) {
+	public function test_replica_set_theme_support( $store ) {
 
 		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting theme options directly" );
@@ -676,7 +676,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_reset_preserves_internal_keys( $store ) {
+	public function test_replica_reset_preserves_internal_keys( $store ) {
 		if ( $store instanceof Jetpack_Sync_Test_Replicastore ) {
 			$this->markTestIncomplete( 'Test replicastore resets fully every time - this is only necessary on WPCOM' );
 		}
@@ -699,7 +699,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_update_meta( $store ) {
+	public function test_replica_update_meta( $store ) {
 		$store->upsert_post( self::$factory->post( 1 ) );
 
 		$store->upsert_metadata( 'post', 1, 'foo', 'bar', 3 );
@@ -714,7 +714,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_update_meta_array( $store ) {
+	public function test_replica_update_meta_array( $store ) {
 		$meta_array = array(
 			'trees' => 'green',
 			'ocean' => 'blue',
@@ -735,7 +735,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_set_constant( $store ) {
+	public function test_replica_set_constant( $store ) {
 		$this->assertNull( $store->get_constant( 'FOO' ) );
 
 		$store->set_constant( 'FOO', array( 'foo' => 'bar' ) );
@@ -750,7 +750,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_set_updates( $store ) {
+	public function test_replica_set_updates( $store ) {
 		$this->assertNull( $store->get_updates( 'core' ) );
 
 		$store->set_updates( 'core', 1 );
@@ -765,7 +765,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_set_callables( $store ) {
+	public function test_replica_set_callables( $store ) {
 		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting callables directly" );
 		}
@@ -784,7 +784,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_set_site_options( $store ) {
+	public function test_replica_set_site_options( $store ) {
 		$this->assertFalse( $store->get_site_option( 'foo' ), 'Site option Not empty.' );
 
 		$store->update_site_option( 'foo', 'bar' );
@@ -795,7 +795,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_delete_site_option( $store ) {
+	public function test_replica_delete_site_option( $store ) {
 		$store->update_site_option( 'to_delete', 'me' );
 
 		$this->assertEquals( 'me', $store->get_site_option( 'to_delete' ), 'Site option is NOT set to me.' );
@@ -812,7 +812,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_update_users( $store ) {
+	public function test_replica_update_users( $store ) {
 		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting users" );
 		}
@@ -853,7 +853,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_get_allowed_mime_types( $store ) {
+	public function test_replica_get_allowed_mime_types( $store ) {
 		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting users" );
 		}
@@ -900,7 +900,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_delete_terms( $store ) {
+	public function test_replica_delete_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
 
 		$this->ensure_synced_taxonomy( $store, $taxonomy );
@@ -925,7 +925,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_update_post_terms( $store ) {
+	public function test_replica_update_post_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
 		$this->ensure_synced_taxonomy( $store, $taxonomy );
 
@@ -959,7 +959,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 	/**
 	 * @dataProvider store_provider
 	 */
-	function test_replica_delete_post_terms( $store ) {
+	public function test_replica_delete_post_terms( $store ) {
 		$this->markTestIncomplete( 'contains SQL' );
 		global $wpdb;
 		$taxonomy = 'test_shadow_taxonomy_term';

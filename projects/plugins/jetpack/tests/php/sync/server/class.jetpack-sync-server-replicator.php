@@ -9,15 +9,15 @@ use Automattic\Jetpack\Sync\Replicastore_Interface;
 class Jetpack_Sync_Server_Replicator {
 	private $store;
 
-	function __construct( Replicastore_Interface $store ) {
+	public function __construct( Replicastore_Interface $store ) {
 		$this->store = $store;
 	}
 
-	function init() {
-		add_action( 'jetpack_sync_remote_action', array( $this, 'handle_remote_action' ), 5, 8 );
+	public function init() {
+		add_action( 'jetpack_sync_remote_action', array( $this, 'handle_remote_action' ), 5, 4 );
 	}
 
-	function handle_remote_action( $action_name, $args, $user_id, $silent, $timestamp, $sent_timestamp, $queue_id, $token ) {
+	public function handle_remote_action( $action_name, $args, $user_id, $silent ) {
 
 		switch ( $action_name ) {
 			// posts

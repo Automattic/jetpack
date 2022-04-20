@@ -17,7 +17,7 @@ class Dummy_Sync_Test_WP_Upgrader {
 		);
 	}
 
-	function theme_info() {
+	public function theme_info() {
 		$reflection = new ReflectionClass( 'WP_Theme' );
 
 		$instance = $reflection->newInstanceWithoutConstructor();

@@ -5,7 +5,7 @@
  */
 class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_Base {
 
-	function test_sync_creating_a_menu() {
+	public function test_sync_creating_a_menu() {
 		$menu_id = wp_create_nav_menu( 'FUN' );
 		$this->sender->do_sync();
 
@@ -15,7 +15,7 @@ class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'FUN', $event->args[1]['menu-name'] );
 	}
 
-	function test_sync_updating_a_menu() {
+	public function test_sync_updating_a_menu() {
 		$menu_id = wp_create_nav_menu( 'FUN' );
 		wp_update_nav_menu_object( $menu_id, array( 'menu-name' => 'UPDATE' ) );
 		$this->sender->do_sync();
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'UPDATE', $event->args[1]['menu-name'] );
 	}
 
-	function test_sync_updating_a_menu_add_an_item() {
+	public function test_sync_updating_a_menu_add_an_item() {
 		$menu_id = wp_create_nav_menu( 'FUN' );
 
 		// Add item to the menu
@@ -65,7 +65,7 @@ class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'http://example.com', $event->args[3]['menu-item-url'] );
 	}
 
-	function test_sync_updating_a_menu_update_an_item() {
+	public function test_sync_updating_a_menu_update_an_item() {
 		$menu_id = wp_create_nav_menu( 'FUN' );
 
 		// Add item to the menu
@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'https://example.com', $event->args[3]['menu-item-url'] );
 	}
 
-	function test_sync_deleteing_a_menu() {
+	public function test_sync_deleteing_a_menu() {
 		$menu_id = wp_create_nav_menu( 'DELETEME' );
 		wp_delete_nav_menu( $menu_id );
 		$this->sender->do_sync();

@@ -6,21 +6,21 @@ class WP_Test_Jetpack_Migrate_Gallery_Widget extends WP_UnitTestCase {
 	/**
 	 * Test jetpack_migrate_gallery_widget_upgrade_widget when called with a non-array
 	 */
-	function test_jetpack_migrate_gallery_widget_upgrade_widget_with_string() {
+	public function test_jetpack_migrate_gallery_widget_upgrade_widget_with_string() {
 		$this->assertNull( jetpack_migrate_gallery_widget_upgrade_widget( 'string' ) );
 	}
 
 	/**
 	 * Test jetpack_migrate_gallery_widget_upgrade_widget when called with an empty value
 	 */
-	function test_jetpack_migrate_gallery_widget_upgrade_widget_with_empty() {
+	public function test_jetpack_migrate_gallery_widget_upgrade_widget_with_empty() {
 		$this->assertNull( jetpack_migrate_gallery_widget_upgrade_widget( array() ) );
 	}
 
 	/**
 	 * Test jetpack_migrate_gallery_widget_upgrade_widget when called with valid widgets
 	 */
-	function test_jetpack_migrate_gallery_widget_upgrade_widget_with_valid_widget() {
+	public function test_jetpack_migrate_gallery_widget_upgrade_widget_with_valid_widget() {
 		$input   = array(
 			'title' => 'Jetpack Gallery',
 			'ids'   => '13,21,41,61,63,83',

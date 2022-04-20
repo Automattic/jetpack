@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../../modules/protect.php';
 
 class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
-	function test_sends_failed_login_message() {
+	public function test_sends_failed_login_message() {
 		$user_id = $this->factory->user->create();
 
 		$user = get_userdata( $user_id );
@@ -24,7 +24,7 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $user->user_email, $action->args[0]['login'] );
 	}
 
-	function test_do_not_send_failed_login_message() {
+	public function test_do_not_send_failed_login_message() {
 		$user_id = $this->factory->user->create();
 
 		$user = get_userdata( $user_id );
@@ -38,7 +38,7 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $action );
 	}
 
-	function test_sends_failed_login_empty_message() {
+	public function test_sends_failed_login_empty_message() {
 		Jetpack_Protect_Module::instance()->log_failed_attempt();
 
 		$this->sender->do_sync();

@@ -775,7 +775,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'editor', $event->args[0]->roles[0] );
 	}
 
-	function test_sends_insecure_password_flag() {
+	public function test_sends_insecure_password_flag() {
 		$user = get_user_by( 'ID', $this->user_id );
 
 		do_action( 'authenticate', $user, $user->user_login, 'admin' );
@@ -792,7 +792,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertArrayHasKey( 'warning', $action->args[2] );
 	}
 
-	function test_does_not_send_insecure_password_flags_on_secure_password() {
+	public function test_does_not_send_insecure_password_flags_on_secure_password() {
 		$user = get_user_by( 'ID', $this->user_id );
 
 		do_action( 'authenticate', $user, $user->user_login, wp_generate_password( 25 ) );

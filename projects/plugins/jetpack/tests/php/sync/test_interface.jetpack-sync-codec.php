@@ -7,7 +7,7 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
  */
 class WP_Test_Jetpack_Sync_Codec_Interface extends TestCase {
 
-	static $all_codecs;
+	public static $all_codecs;
 
 	/**
 	 * @dataProvider codec_provider

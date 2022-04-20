@@ -106,7 +106,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->server_event_storage->reset();
 	}
 
-	function test_updating_error_with_autoupdate_constant_results_in_proper_state() {
+	public function test_updating_error_with_autoupdate_constant_results_in_proper_state() {
 		Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 
 		$this->set_error();
@@ -118,7 +118,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->server_event_storage->reset();
 	}
 
-	function test_updating_with_autoupdate_constant_results_in_proper_state() {
+	public function test_updating_with_autoupdate_constant_results_in_proper_state() {
 		Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 		$this->update_bulk_plugins( new Silent_Upgrader_Skin() );
 		$this->sender->do_sync();
@@ -127,7 +127,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->server_event_storage->reset();
 	}
 
-	function update_the_plugin( $skin ) {
+	public function update_the_plugin( $skin ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		add_filter( 'site_transient_update_plugins', array( $this, 'set_update_plugin_transient' ) );
@@ -139,7 +139,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'site_transient_update_plugins', array( $this, 'set_update_plugin_transient' ) );
 	}
 
-	function update_bulk_plugins( $skin ) {
+	public function update_bulk_plugins( $skin ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		add_filter( 'site_transient_update_plugins', array( $this, 'set_update_plugin_transient' ) );
@@ -150,7 +150,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'site_transient_update_plugins', array( $this, 'set_update_plugin_transient' ) );
 	}
 
-	function set_update_plugin_transient( $transient ) {
+	public function set_update_plugin_transient() {
 		return (object) array(
 			'response' => array(
 				'the/the.php' => (object) array(
@@ -167,7 +167,8 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	public function remove_error() {
 		remove_filter( 'site_transient_update_plugins', array( $this, 'set_update_plugin_transient_with_error' ), 11 );
 	}
-	function set_update_plugin_transient_with_error( $transient ) {
+
+	public function set_update_plugin_transient_with_error() {
 		return (object) array(
 			'response' => array(
 				'the/the.php' => (object) array(

@@ -289,7 +289,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( 0, $this->server_replica_storage->comment_count( 'trash' ) );
 	}
 
-	function test_sync_comment_jetpack_sync_prevent_sending_comment_data_filter() {
+	public function test_sync_comment_jetpack_sync_prevent_sending_comment_data_filter() {
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
 
 		$this->server_replica_storage->reset();

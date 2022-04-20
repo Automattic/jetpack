@@ -9,7 +9,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 	protected $callable_module;
 	protected $full_sync;
-	static $woo_enabled;
+	public static $woo_enabled;
 
 	/**
 	 * Set up before class.
@@ -71,12 +71,12 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync = Modules::get_module( 'full-sync' );
 	}
 
-	function test_module_is_enabled() {
+	public function test_module_is_enabled() {
 		$this->assertTrue( (bool) Modules::get_module( 'woocommerce' ) );
 	}
 
 	// Incremental sync
-	function test_orders_are_synced() {
+	public function test_orders_are_synced() {
 		$order = $this->createOrderWithItem();
 
 		$this->sender->do_sync();
@@ -87,7 +87,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $order->get_id(), $order_event->args[0] );
 	}
 
-	function test_order_status_changes_are_synced() {
+	public function test_order_status_changes_are_synced() {
 		// registering a custom order status is necessary because the built-in ones leave
 		// unflushed content in the output buffer
 		add_filter( 'wc_order_statuses', array( $this, 'add_custom_order_status' ) );
@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'custom', $order_status_event->args[2] );
 	}
 
-	function test_order_status_payment_complete_is_synced() {
+	public function test_order_status_payment_complete_is_synced() {
 		$order = $this->createOrderWithItem();
 
 		// pay
@@ -123,7 +123,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $order->get_id(), $payment_complete_event->args[0] );
 	}
 
-	function test_created_order_items_are_synced() {
+	public function test_created_order_items_are_synced() {
 		$order       = $this->createOrderWithItem();
 		$order_items = $order->get_items();
 		$order_item  = reset( $order_items ); // first item
@@ -138,7 +138,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $order->get_id(), $create_order_item_event->args[2] );
 	}
 
-	function test_updated_order_items_are_synced() {
+	public function test_updated_order_items_are_synced() {
 		$order       = $this->createOrderWithItem();
 		$order_items = $order->get_items();
 		$order_item  = reset( $order_items ); // first item
@@ -157,7 +157,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $order->get_id(), $update_order_item_event->args[2] );
 	}
 
-	function test_updated_order_item_meta_is_synced() {
+	public function test_updated_order_item_meta_is_synced() {
 		$order       = $this->createOrderWithItem();
 		$order_items = $order->get_items();
 		$order_item  = reset( $order_items ); // first item
@@ -261,7 +261,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 	// Full Sync
 
-	function test_full_sync_order_items() {
+	public function test_full_sync_order_items() {
 		$order1 = $this->createOrderWithItem();
 		$order2 = $this->createOrderWithItem();
 

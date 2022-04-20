@@ -8,7 +8,7 @@ use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
  */
 class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 
-	static $wp_super_cache_enabled;
+	public static $wp_super_cache_enabled;
 
 	/**
 	 * Set up before class.
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 		set_current_screen( 'post_user' );
 	}
 
-	function define_constants() {
+	public function define_constants() {
 		foreach ( WP_Super_Cache::$wp_super_cache_constants as $constant ) {
 			if ( false === defined( $constant ) ) {
 				define( $constant, $constant );
@@ -40,11 +40,11 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_module_is_enabled() {
+	public function test_module_is_enabled() {
 		$this->assertTrue( (bool) Modules::get_module( 'wp-super-cache' ) );
 	}
 
-	function test_constants_are_synced() {
+	public function test_constants_are_synced() {
 		$this->define_constants();
 		$this->sender->do_sync();
 		foreach ( WP_Super_Cache::$wp_super_cache_constants as $constant ) {
@@ -52,7 +52,7 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_globals_are_synced() {
+	public function test_globals_are_synced() {
 		$wp_super_cache_globals = WP_Super_Cache::get_wp_super_cache_globals();
 		foreach ( $wp_super_cache_globals as $key => $value ) {
 			$GLOBALS[ $key ] = $key;

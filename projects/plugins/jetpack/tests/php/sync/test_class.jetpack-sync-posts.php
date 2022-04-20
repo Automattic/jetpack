@@ -429,7 +429,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $attachment, $remote_attachment );
 	}
 
-	function test_sync_post_filtered_content_was_filtered() {
+	public function test_sync_post_filtered_content_was_filtered() {
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_content = '[foo]';
@@ -442,7 +442,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( trim( $post_on_server->post_content_filtered ), 'bar' );
 	}
 
-	function test_sync_disabled_post_filtered_content() {
+	public function test_sync_disabled_post_filtered_content() {
 		Settings::update_settings( array( 'render_filtered_content' => 0 ) );
 
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
@@ -458,7 +458,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 	}
 
-	function test_sync_post_filtered_excerpt_was_filtered() {
+	public function test_sync_post_filtered_excerpt_was_filtered() {
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
@@ -473,7 +473,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ), '[foo]' );
 	}
 
-	function test_sync_post_filter_do_not_expand_jetpack_shortcodes() {
+	public function test_sync_post_filter_do_not_expand_jetpack_shortcodes() {
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		add_filter( 'jetpack_sync_do_not_expand_shortcodes', array( $this, 'do_not_expand_shortcode' ) );
@@ -491,12 +491,12 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( trim( $post_on_server->post_content_filtered ), '<p>[foo]</p>' );
 	}
 
-	function do_not_expand_shortcode( $shortcodes ) {
+	public function do_not_expand_shortcode( $shortcodes ) {
 		$shortcodes[] = 'foo';
 		return $shortcodes;
 	}
 
-	function test_sync_changed_post_password() {
+	public function test_sync_changed_post_password() {
 		// Don't set the password if there is non.
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEmpty( $post_on_server->post_password );
@@ -513,7 +513,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	function test_sync_post_includes_permalink_and_shortlink() {
+	public function test_sync_post_includes_permalink_and_shortlink() {
 		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$post              = $insert_post_event->args[1];
 
@@ -524,7 +524,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post->shortlink, wp_get_shortlink( $this->post->ID ) );
 	}
 
-	function test_sync_post_includes_amp_permalink() {
+	public function test_sync_post_includes_amp_permalink() {
 		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$post              = $insert_post_event->args[1];
 
@@ -543,7 +543,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post->amp_permalink, "http://example.com/?p={$post->ID}&amp" );
 	}
 
-	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
+	public function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
 		$post_id       = $this->factory->post->create();
 		$attachment_id = $this->factory->post->create(
 			array(
@@ -562,7 +562,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertStringContainsString( 'test_image.png', $post_on_server->featured_image );
 	}
 
-	function test_sync_post_not_includes_feature_image_meta_when_featured_image_not_set() {
+	public function test_sync_post_not_includes_feature_image_meta_when_featured_image_not_set() {
 		$post_id = $this->factory->post->create();
 
 		$this->sender->do_sync();
@@ -571,7 +571,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertObjectNotHasAttribute( 'featured_image', $post_on_server );
 	}
 
-	function test_do_not_sync_non_existant_post_types() {
+	public function test_do_not_sync_non_existant_post_types() {
 		$args = array(
 			'public' => true,
 			'label'  => 'unregister post type',
@@ -600,7 +600,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'does_not_exist', $synced_post->post_type );
 	}
 
-	function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
+	public function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
 
 		add_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
 
@@ -637,7 +637,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	/**
 	 * Tests that jetpack_sync_save_post events are not sent for blacklisted post_types
 	 */
-	function test_filters_out_blacklisted_post_types() {
+	public function test_filters_out_blacklisted_post_types() {
 		$args = array(
 			'public' => true,
 			'label'  => 'Snitch',
@@ -703,7 +703,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $deleted_event );
 	}
 
-	function test_filters_out_blacklisted_post_types_and_their_post_meta() {
+	public function test_filters_out_blacklisted_post_types_and_their_post_meta() {
 		$args = array(
 			'public' => true,
 			'label'  => 'Snitch',
@@ -723,7 +723,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNull( $this->server_replica_storage->get_metadata( 'post', $post_id, 'hello', true ) );
 	}
 
-	function test_post_types_blacklist_can_be_appended_in_settings() {
+	public function test_post_types_blacklist_can_be_appended_in_settings() {
 		register_post_type(
 			'filter_me',
 			array(
@@ -763,7 +763,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_does_not_publicize_blacklisted_post_types() {
+	public function test_does_not_publicize_blacklisted_post_types() {
 		register_post_type(
 			'dont_publicize_me',
 			array(
@@ -787,7 +787,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $good_post_id ) ) );
 	}
 
-	function test_returns_post_object_by_id() {
+	public function test_returns_post_object_by_id() {
 		$post_sync_module = Modules::get_module( 'posts' );
 
 		$post_id = $this->factory->post->create();
@@ -810,7 +810,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $synced_post, $retrieved_post );
 	}
 
-	function test_remove_contact_form_shortcode_from_filtered_content() {
+	public function test_remove_contact_form_shortcode_from_filtered_content() {
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
@@ -830,7 +830,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( "<p>This post has a contact form:</p>\n", $synced_post->post_content_filtered );
 	}
 
-	function test_remove_likes_from_filtered_content() {
+	public function test_remove_likes_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
@@ -857,7 +857,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '<p>' . $synced_post->post_content . "</p>\n", $synced_post->post_content_filtered );
 	}
 
-	function test_remove_sharedaddy_from_filtered_content() {
+	public function test_remove_sharedaddy_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
@@ -884,7 +884,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '<p>' . $synced_post->post_content . "</p>\n", $synced_post->post_content_filtered );
 	}
 
-	function enable_services() {
+	public function enable_services() {
 		return array(
 			'all'     => array( 'print' => new Share_Print( 'print', array() ) ),
 			'visible' => array( 'print' => new Share_Print( 'print', array() ) ),
@@ -892,7 +892,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
-	function test_remove_related_posts_from_filtered_content() {
+	public function test_remove_related_posts_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
@@ -918,7 +918,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'jetpack_is_fse_theme', '__return_false' );
 	}
 
-	function test_remove_related_posts_shortcode_from_filtered_content() {
+	public function test_remove_related_posts_shortcode_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
@@ -940,7 +940,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( "\n", $synced_post->post_content_filtered );
 	}
 
-	function test_customizer_changeset_to_widget_edited() {
+	public function test_customizer_changeset_to_widget_edited() {
 		$post_content = <<<POST_CONTENT
 {
     "widget_archives[2]": {
@@ -1005,7 +1005,7 @@ POST_CONTENT;
 		$wp_registered_widgets = $original_registered_widgets;
 	}
 
-	function test_that_we_apply_the_right_filters_to_post_content_and_excerpt() {
+	public function test_that_we_apply_the_right_filters_to_post_content_and_excerpt() {
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
@@ -1028,15 +1028,15 @@ POST_CONTENT;
 		add_filter( 'the_excerpt', array( $this, 'the_excerpt_filter' ) );
 	}
 
-	function the_content_filter( $content ) {
+	public function the_content_filter() {
 		return 'the_content';
 	}
 
-	function the_excerpt_filter( $content ) {
+	public function the_excerpt_filter() {
 		return 'the_excerpt';
 	}
 
-	function test_do_not_sync_non_public_post_types_filtered_post_content() {
+	public function test_do_not_sync_non_public_post_types_filtered_post_content() {
 		$args = array(
 			'public' => false,
 			'label'  => 'Non Public',
@@ -1057,7 +1057,7 @@ POST_CONTENT;
 		$this->assertSame( '', $synced_post->post_excerpt_filtered );
 	}
 
-	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
+	public function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
 		$this->markTestSkipped( 'Skipping to be able to merge #21030. Needs a proper fix anyway.' );
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
@@ -1122,13 +1122,13 @@ That was a cool video.';
 		remove_all_filters( 'wp_lazy_loading_enabled' );
 	}
 
-	function assertAttachmentSynced( $attachment_id ) {
+	public function assertAttachmentSynced( $attachment_id ) {
 		$remote_attachment = $this->server_replica_storage->get_post( $attachment_id );
 		$attachment        = get_post( $attachment_id );
 		$this->assertEquals( $attachment, $remote_attachment );
 	}
 
-	function foo_shortcode() {
+	public function foo_shortcode() {
 		return 'bar';
 	}
 
@@ -1399,7 +1399,7 @@ That was a cool video.';
 		$test_instance->daily_akismet_meta_cleanup_before( $ids );
 	}
 
-	function add_a_hello_post_type() {
+	public function add_a_hello_post_type() {
 		if ( ! $this->test_already ) {
 			$this->test_already = true;
 			$this->factory->post->create( array( 'post_type' => 'hello' ) );
