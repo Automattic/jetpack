@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Increased chunk size to 10Mb for VideoPress resumable uploads to reduce request overhead for faster uploads.
