@@ -67,6 +67,7 @@ class Waf_Request {
 	 * @return string|null
 	 */
 	public function get_real_user_ip_address() {
+		// phpcs:ignore 
 		$remote_addr = ! empty( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null;
 
 		if ( in_array( $remote_addr, $this->trusted_proxies, true ) ) {
@@ -89,6 +90,7 @@ class Waf_Request {
 	private function get_ip_by_header( $headers ) {
 		foreach ( $headers as $key ) {
 			if ( isset( $_SERVER[ $key ] ) ) {
+				// phpcs:ignore 
 				foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
 					$ip = trim( $ip );
 
