@@ -2,7 +2,7 @@ import config from 'config';
 import {
 	Sidebar,
 	JetpackPage,
-	JetpackDashboardPage,
+	JetpackMyPlanPage,
 	RecommendationsPage,
 } from '../pages/wp-admin/index.js';
 import {
@@ -52,12 +52,10 @@ export async function syncJetpackPlanData( page, plan, mockPlanData = true ) {
 	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_complete';
 	await persistPlanData( planType );
 
-	const jetpackPage = await JetpackDashboardPage.visit( page );
-	await jetpackPage.openMyPlan();
-	await jetpackPage.reload();
+	const jpPlanPage = await JetpackMyPlanPage.visit( page );
 
 	if ( ! mockPlanData ) {
-		await jetpackPage.reload();
+		await jpPlanPage.reload();
 		await page.waitForResponse(
 			response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
 			{ timeout: 60 * 1000 }
@@ -65,7 +63,7 @@ export async function syncJetpackPlanData( page, plan, mockPlanData = true ) {
 		await execWpCommand( 'cron event run jetpack_v2_heartbeat' );
 	}
 	await syncPlanData( page );
-	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
+	if ( ! ( await jpPlanPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
 }
