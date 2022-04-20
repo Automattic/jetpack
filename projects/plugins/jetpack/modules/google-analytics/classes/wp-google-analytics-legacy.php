@@ -246,7 +246,7 @@ class Jetpack_Google_Analytics_Legacy {
 					$custom_vars,
 					sprintf(
 						'_gaq.push( %s );',
-						json_encode(
+						wp_json_encode(
 							array(
 								'_addTrans',
 								(string) $order->get_order_number(),
@@ -272,7 +272,7 @@ class Jetpack_Google_Analytics_Legacy {
 							$custom_vars,
 							sprintf(
 								'_gaq.push( %s );',
-								json_encode(
+								wp_json_encode(
 									array(
 										'_addItem',
 										(string) $order->get_order_number(),
