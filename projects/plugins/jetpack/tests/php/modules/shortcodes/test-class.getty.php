@@ -37,7 +37,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 
 	const GETTY_EXAMPLE_PROCESSED = '<div class="getty embed image" style="background-color:#fff;display:inline-block;font-family:\'Helvetica Neue\',Helvetica,Arial,sans-serif;color:#a7a7a7;font-size:11px;width:100%;max-width:462px;"><div style="padding:0;margin:0;text-align:left;"><a href="http://www.gettyimages.com/detail/82278805" target="_blank" style="color:#a7a7a7;text-decoration:none;font-weight:normal !important;border:none;display:inline-block;">Embed from Getty Images</a></div><div style="overflow:hidden;position:relative;height:0;padding:80.086580% 0 0 0;width:100%;"><iframe src="//embed.gettyimages.com/embed/82278805?et=wi6iT1Wqn0yYxEh6Ocx_aA&amp;sig=G63PuQ-eKJqGCnssk8rsSu1wcGoyUsgwqL8Jfu83wis=&tld=com" width="462" height="370" scrolling="no" frameborder="0" style="display:inline-block;position:absolute;top:0;left:0;width:100%;height:100%;margin:0;" ></iframe></div><p style="margin:0;"></p></div>';
 
-	static function strip_url_signature_args( $str ) {
+	public static function strip_url_signature_args( $str ) {
 		return preg_replace( '/((id=\'[:alpha:\-]+)|[\?&]|&amp;|&#038;)(et=[\w-]+|sig=[\w-=]+)/', '', $str );
 	}
 
@@ -56,11 +56,11 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 			 * the shortcode output.
 			 * This filter bypasses that HTTP request for these tests
 			 */
-			add_filter( 'pre_oembed_result', array( $this, 'getty_oembed_response' ), 10, 3 );
+			add_filter( 'pre_oembed_result', array( $this, 'getty_oembed_response' ), 10, 2 );
 		}
 	}
 
-	function getty_oembed_response( $html, $url, $args ) {
+	public function getty_oembed_response( $html, $url ) {
 		if ( 0 !== strpos( $url, 'https://gty.im/' ) ) {
 			return $html;
 		}
@@ -79,7 +79,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 		$this->assertEquals( shortcode_exists( 'getty' ), true );
 	}
 
-	function test_getty_shortcode() {
+	public function test_getty_shortcode() {
 		$parsed = do_shortcode( self::GETTY_SHORTCODE );
 
 		$doc = new DOMDocument();
@@ -92,42 +92,42 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 		}
 	}
 
-	function test_getty_reverse_shortcode() {
+	public function test_getty_reverse_shortcode() {
 		$shortcode = wpcom_shortcodereverse_getty( self::GETTY_EMBED );
 		$this->assertEquals( self::GETTY_SHORTCODE, $shortcode );
 	}
 
-	function test_getty_reverse_multi_shortcode() {
+	public function test_getty_reverse_multi_shortcode() {
 		$shortcode = wpcom_shortcodereverse_getty( self::GETTY_EMBED_MULTI );
 		$this->assertEquals( self::GETTY_SHORTCODE_MULTI, $shortcode );
 	}
 
-	function test_getty_reverse_alphanumeric_daashed_id_shortcode() {
+	public function test_getty_reverse_alphanumeric_daashed_id_shortcode() {
 		$shortcode = wpcom_shortcodereverse_getty( self::GETTY_EMBED_ALPHANUMERIC_DASHED_ID );
 		$this->assertEquals( self::GETTY_SHORTCODE_ALPHANUMERIC_DASHED_ID, $shortcode );
 	}
 
-	function test_getty_reverse_shortcode_works_on_escaped_html() {
+	public function test_getty_reverse_shortcode_works_on_escaped_html() {
 		$shortcode = wpcom_shortcodereverse_getty( self::GETTY_ESCAPED_EMBED );
 		$this->assertEquals( self::GETTY_SHORTCODE, $shortcode );
 	}
 
-	function test_getty_reverse_shortcode_works_on_old_embed() {
+	public function test_getty_reverse_shortcode_works_on_old_embed() {
 		$shortcode = wpcom_shortcodereverse_getty( self::GETTY_OLD_EMBED );
 		$this->assertEquals( self::GETTY_SHORTCODE, $shortcode );
 	}
 
-	function test_getty_reverse_shortcode_2017() {
+	public function test_getty_reverse_shortcode_2017() {
 		$shortcode = wpcom_shortcodereverse_getty( self::GETTY_EMBED_2017 );
 		$this->assertEquals( self::GETTY_SHORTCODE_TLD, $shortcode );
 	}
 
-	function test_getty_reverse_shortcode_2017_works_on_escaped_html() {
+	public function test_getty_reverse_shortcode_2017_works_on_escaped_html() {
 		$shortcode = wpcom_shortcodereverse_getty( self::GETTY_ESCAPED_EMBED_2017 );
 		$this->assertEquals( self::GETTY_SHORTCODE_TLD, $shortcode );
 	}
 
-	function test_getty_reverse_shortcode_doesnt_remove_too_much() {
+	public function test_getty_reverse_shortcode_doesnt_remove_too_much() {
 		$before    = '<div class="something else">test<div class=\'something\'>another div';
 		$after     = 'blah</div></div>';
 		$shortcode = wpcom_shortcodereverse_getty( $before . self::GETTY_EMBED . $after );
@@ -135,7 +135,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 		$this->assertEquals( $expected, $shortcode );
 	}
 
-	function test_getty_add_oembed_endpoint_caller_non_getty() {
+	public function test_getty_add_oembed_endpoint_caller_non_getty() {
 		$provider_url = apply_filters(
 			'oembed_fetch_url',
 			'https://www.youtube.com/oembed?maxwidth=471&maxheight=594&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DdQw4w9WgXcQ',

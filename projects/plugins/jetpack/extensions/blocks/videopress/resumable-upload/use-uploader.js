@@ -34,7 +34,7 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 			withCredentials: false,
 			autoRetry: true,
 			overridePatchMethod: false,
-			chunkSize: 500000, // 500 Kb.
+			chunkSize: 10000000, // 10 Mb.
 			allowedFileTypes: [ 'video/*' ],
 			metadata: {
 				filename: file.name,
