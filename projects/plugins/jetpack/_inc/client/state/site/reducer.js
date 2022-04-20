@@ -423,7 +423,7 @@ export function hasActiveVideoPressPurchase( state ) {
  * Searches active products for a legacy Jetpack plan with security features.
  *
  * @param {*} state - Global state tree
- * @returns {boolean} True if an active legacy plan with security features was found, false otherwise.
+ * @returns {object} An active legacy plan with security features if one was found, undefined otherwise.
  */
 export function getSecurityComparableLegacyPlan( state ) {
 	return find( getActiveProductPurchases( state ), product =>
