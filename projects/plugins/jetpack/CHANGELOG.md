@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.9-a.7 - 2022-04-19
+### Enhancements
+- Add individual filters for JS and AMP stat footer data.
+- Add recommendation for anti-spam
+- Connection: when deactivating Jetpack from the Plugins screen, do not disconnect other Jetpack-connected plugins.
+- Moved gutenberg-base-styles.scss file to js-packages/base-styles and updated its imports in the Jetpack plugin directory
+
+### Improved compatibility
+- Moved licensing images into licensing package to minimize external dependencies.
+- Updated Sync tests
+- update sync tests callables whitelist
+
+### Bug fixes
+- Applied legacy Publicize filters to flag setting for Publicize
+- Fixing issue adding video descriptions and metadata via the WordPress.com dashboard.
+- Random Redirect: Fix functionality on author archives.
+- Update copy to reflect the actual plan that's needed
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added TypeScript support
+- Init 10.9-a.4
+- Jetpack Connection: Remove any remaining in-place flows.
+- Moved licensing endpoints from the Jetpack plugin to the Licensing package
+- Move enhanced-open-graph.php out of the publicize module.
+- phpcs changes for json endpoint
+- phpcs changes for json endpoints
+- PHPCS for custom CSS
+- Refactor Jetpack class to move some functions into Modules and File packages
+- Remaining phpcs changes for custom css
+- Remove call to use ad widget - which will be deprecated at some point.
+- Replace "Jetpack Ads" language with WordAds.
+- Security Settings: Updated plan checks to feature checks
+- Updated jetpack-waf package version
+- Updated package dependencies.
+
 ## 10.9-a.5 - 2022-04-14
 ### Bug fixes
 - Comments: Checking that Jetpack comments are supported before requiring nonce verification.

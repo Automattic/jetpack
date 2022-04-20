@@ -45,7 +45,6 @@ export async function connectThroughWPAdmin(
 
 export async function doClassicConnection( page, mockPlanData ) {
 	const jetpackPage = await JetpackPage.init( page );
-	await jetpackPage.forceVariation( 'original' );
 	await jetpackPage.connect();
 	// Go through Jetpack connect flow
 	await ( await AuthorizePage.init( page ) ).approve();
@@ -61,7 +60,6 @@ export async function doClassicConnection( page, mockPlanData ) {
 
 export async function doSiteLevelConnection( page ) {
 	const jetpackPage = await JetpackPage.init( page );
-	await jetpackPage.forceVariation( 'original' );
 	await jetpackPage.connect();
 
 	await ( await LoginPage.init( page ) ).continueWithout();

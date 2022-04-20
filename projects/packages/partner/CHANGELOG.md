@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.6] - 2022-04-19
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+
 ## [1.7.5] - 2022-04-12
 ### Changed
 - Updated package dependencies.
@@ -141,6 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add partner subsidiary id to upgrade URLs.
 
+[1.7.6]: https://github.com/Automattic/jetpack-partner/compare/v1.7.5...v1.7.6
 [1.7.5]: https://github.com/Automattic/jetpack-partner/compare/v1.7.4...v1.7.5
 [1.7.4]: https://github.com/Automattic/jetpack-partner/compare/v1.7.3...v1.7.4
 [1.7.3]: https://github.com/Automattic/jetpack-partner/compare/v1.7.2...v1.7.3

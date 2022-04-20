@@ -287,23 +287,6 @@ export const Ads = withModuleSettingsFormHelpers(
 									{ __( 'Second ad below post', 'jetpack' ) }
 								</span>
 							</CompactFormToggle>
-							<small className="jp-form-setting-explanation">
-								{ isAdsActive &&
-									createInterpolateElement(
-										__(
-											'You can place additional ads using the Ad widget. <link>Try it out!</link>',
-											'jetpack'
-										),
-										{
-											link: (
-												<a
-													className="jp-module-settings__external-link"
-													href="customize.php?autofocus[panel]=widgets"
-												/>
-											),
-										}
-									) }
-							</small>
 						</FormFieldset>
 					</SettingsGroup>
 					<SettingsGroup
