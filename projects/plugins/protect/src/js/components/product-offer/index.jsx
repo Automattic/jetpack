@@ -49,6 +49,7 @@ const ConnectedProductOffer = ( { onClick, trackButtonClick, ...rest } ) => {
 			isBundle={ false }
 			onAdd={ activateProduct }
 			buttonText={ __( 'Get started with Jetpack Protect', 'jetpack-protect' ) }
+			icon="jetpack"
 			{ ...rest }
 		/>
 	);
