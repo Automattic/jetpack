@@ -36,7 +36,7 @@ class Jetpack_Google_Analytics_Legacy {
 	 * @param array $track - Must have ['data'] and ['code'].
 	 * @return string - Tracking URL
 	 */
-	private function _get_url( $track ) {
+	private function get_url( $track ) {
 		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ); // Input var okay.
 		foreach ( $track as $k => $value ) {
 			if ( strpos( strtolower( $value ), strtolower( $site_url ) ) === 0 ) {
@@ -114,7 +114,7 @@ class Jetpack_Google_Analytics_Legacy {
 		}
 
 		if ( ! empty( $track ) ) {
-			$track['url'] = $this->_get_url( $track );
+			$track['url'] = $this->get_url( $track );
 			// adjust the code that we output, account for both types of tracking.
 			$track['url']  = esc_js( str_replace( '&', '&amp;', $track['url'] ) );
 			$custom_vars[] = "_gaq.push(['_trackPageview','{$track['url']}']);";
