@@ -53,3 +53,6 @@ add_action(
 		Waf_Endpoints::register_endpoints();
 	}
 );
+
+add_action( 'update_option_jetpack_waf_ip_allow_list', array( Waf_Runner::class, 'activate' ), 10, 0 );
+add_action( 'update_option_jetpack_waf_ip_block_list', array( Waf_Runner::class, 'activate' ), 10, 0 );
