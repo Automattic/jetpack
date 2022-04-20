@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added WAF IP allow list and block list functionality.
