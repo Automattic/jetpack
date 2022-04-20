@@ -3,13 +3,14 @@
 	"name": "@automattic/jetpack-storybook",
 	"version": "0.2.0-alpha",
 	"description": "Jetpack components storybook",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/storybook/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Storybook"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/storybook"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

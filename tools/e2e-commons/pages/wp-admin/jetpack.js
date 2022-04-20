@@ -46,13 +46,6 @@ export default class JetpackPage extends WpPage {
 		return await this.isElementVisible( connectionInfo );
 	}
 
-	async forceVariation( variation = 'original' ) {
-		return await this.page.evaluate(
-			forceVariation => ( jpConnect.forceVariation = forceVariation ),
-			variation
-		);
-	}
-
 	async isPlan( plan ) {
 		switch ( plan ) {
 			case 'free':

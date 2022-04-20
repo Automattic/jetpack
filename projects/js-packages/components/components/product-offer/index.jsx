@@ -10,7 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Text, { H3 } from '../text/index.jsx';
+import Text, { H3, Title } from '../text/index.jsx';
 import { getIconBySlug, CheckmarkIcon } from '../product-icons/index.jsx';
 import ProductPrice from '../product-price/index.jsx';
 import styles from './style.module.scss';
@@ -37,10 +37,20 @@ function ProductOfferHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
  * based on the list of supported products.
  *
  * @param {object} props         - Component props.
+ * @param {Array} props.icon     - Custom icon slug.
  * @param {Array} props.products - List of supported products.
- * @returns {React.Component}    Bundle product icons react component.
+ * @returns {React.Component}      Bundle product icons react component.
  */
-function ProductIcons( { products } ) {
+function CardIcons( { products, icon } ) {
+	if ( icon ) {
+		const CustomIcon = getIconBySlug( icon );
+		return (
+			<div className={ styles[ 'product-bundle-icons' ] }>
+				<CustomIcon size={ 32 } />
+			</div>
+		);
+	}
+
 	return (
 		<div className={ styles[ 'product-bundle-icons' ] }>
 			{ products.map( ( product, index ) => {
@@ -71,13 +81,15 @@ function ProductIcons( { products } ) {
  *
  * @param {object} props                  - Component props.
  * @param {string} props.slug             - Product slug.
- * @param {string} props.title 			  - Product title.
+ * @param {string} props.icon 	          - Custom Icon slug.
+ * @param {string} props.title            - Product title.
+ * @param {string} props.subTitle         - Product sub-title.
  * @param {string} props.description      - Product description.
  * @param {Array}  props.features         - Features list of the product.
  * @param {boolean} props.isCard          - Add the styles to look like a card.
  * @param {boolean} props.isBundle        - Whether or not the product is a bundle.
  * @param {Array} props.supportedProducts - List of supported products (for bundles).
- * @param {Object} props.pricing 	      - Product Pricing object.
+ * @param {Object} props.pricing          - Product Pricing object.
  * @param {boolean} props.hasRequiredPlan - Whether or not the product has the required plan.
  * @param {boolean} props.isLoading       - Applies the isLoading style to the component.
  * @param {string} props.className        - A className to be concat with default ones.
@@ -90,6 +102,8 @@ const ProductOffer = ( {
 	className,
 	slug,
 	title,
+	icon,
+	subTitle,
 	description,
 	features,
 	isCard,
@@ -118,12 +132,14 @@ const ProductOffer = ( {
 			{ isBundle && <ProductOfferHeader /> }
 
 			<div className={ styles[ 'card-container' ] }>
-				<ProductIcons
+				<CardIcons
 					slug={ slug }
+					icon={ icon }
 					products={ supportedProducts?.length ? supportedProducts : [ slug ] }
 				/>
 				<H3>{ title }</H3>
-				<Text mb={ 3 }>{ description }</Text>
+				{ subTitle && <Title mb={ 3 }>{ subTitle }</Title> }
+				{ description && <Text mb={ 3 }>{ description }</Text> }
 
 				<ul className={ styles.features }>
 					{ features.map( ( feature, id ) => (
@@ -167,7 +183,14 @@ const ProductOffer = ( {
 ProductOffer.propTypes = {
 	slug: PropTypes.string.isRequired,
 	name: PropTypes.string,
+
+	/** Custom icon slug */
+	icon: PropTypes.string,
+	/** Product title. Primary heading */
 	title: PropTypes.string,
+
+	/** Product subtitle. Secondary heading */
+	subTitle: PropTypes.string,
 	description: PropTypes.string,
 	features: PropTypes.arrayOf( PropTypes.string ),
 	pricing: PropTypes.object,
@@ -179,11 +202,15 @@ ProductOffer.propTypes = {
 	isLoading: PropTypes.bool,
 	onAdd: PropTypes.func,
 	addProductUrl: PropTypes.string,
+
+	/** Custom text for the onAdd product button. */
 	buttonText: PropTypes.string,
 };
 
 ProductOffer.defaultProps = {
 	trackButtonClick: () => {},
+	title: '',
+	subTitle: '',
 	isBundle: false,
 	pricing: {},
 	onAdd: () => {},

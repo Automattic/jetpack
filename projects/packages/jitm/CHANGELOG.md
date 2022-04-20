@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.13] - 2022-04-19
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+
 ## [2.2.12] - 2022-04-12
 ### Changed
 - Updated package dependencies.
@@ -413,6 +417,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[2.2.13]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.12...v2.2.13
 [2.2.12]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.11...v2.2.12
 [2.2.11]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.10...v2.2.11
 [2.2.10]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.9...v2.2.10
