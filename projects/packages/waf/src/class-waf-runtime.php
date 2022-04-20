@@ -646,6 +646,19 @@ class Waf_Runtime {
 	}
 
 	/**
+	 * Verifies is ip from request is in an array.
+	 *
+	 * @param array $array Array to verify ip against.
+	 */
+	public function is_ip_in_array( $array ) {
+		$request = new Waf_Request();
+
+		$real_ip = $request->get_real_user_ip_address();
+
+		return in_array( $real_ip, $array, true );
+	}
+
+	/**
 	 * Normalize array target.
 	 *
 	 * @param array  $source Source.
