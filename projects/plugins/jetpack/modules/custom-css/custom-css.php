@@ -124,16 +124,16 @@ class Jetpack_Custom_CSS {
 
 		add_action( 'admin_menu', array( 'Jetpack_Custom_CSS', 'menu' ) );
 
-		if ( isset( $_POST['safecss'] ) && false === strstr( $_SERVER['REQUEST_URI'], 'options.php' ) ) {
+		if ( isset( $_POST['safecss'] ) && ( ! isset( $_SERVER['REQUEST_URI'] ) || false === strstr( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'options.php' ) ) ) {
 			check_admin_referer( 'safecss' );
 
 			$save_result = self::save(
 				array(
-					'css'             => stripslashes( $_POST['safecss'] ),
+					'css'             => filter_var( wp_unslash( $_POST['safecss'] ) ),
 					'is_preview'      => isset( $_POST['action'] ) && $_POST['action'] === 'preview',
-					'preprocessor'    => isset( $_POST['custom_css_preprocessor'] ) ? $_POST['custom_css_preprocessor'] : '',
+					'preprocessor'    => isset( $_POST['custom_css_preprocessor'] ) ? sanitize_key( $_POST['custom_css_preprocessor'] ) : '',
 					'add_to_existing' => isset( $_POST['add_to_existing'] ) ? $_POST['add_to_existing'] === 'true' : true,
-					'content_width'   => isset( $_POST['custom_content_width'] ) ? $_POST['custom_content_width'] : false,
+					'content_width'   => isset( $_POST['custom_content_width'] ) ? intval( $_POST['custom_content_width'] ) : false,
 				)
 			);
 

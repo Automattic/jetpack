@@ -4450,30 +4450,22 @@ endif;
 	 * Create the Jetpack authorization URL.
 	 *
 	 * @param bool|string $redirect URL to redirect to.
-	 * @param bool        $iframe Whether to use the iframe version.
+	 * @param null        $deprecated Deprecated since Jetpack 10.9.
 	 *
 	 * @todo Update default value for redirect since the called function expects a string.
 	 *
 	 * @return mixed|void
 	 */
-	public static function build_authorize_url( $redirect = false, $iframe = false ) {
+	public static function build_authorize_url( $redirect = false, $deprecated = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-
-		if ( $iframe ) {
-			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
-		}
 
 		$c8n = self::connection();
 		$url = $c8n->get_authorization_url( wp_get_current_user(), $redirect );
 
 		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-
-		if ( $iframe ) {
-			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
-		}
 
 		/**
 		 * Filter the URL used when authorizing a user to a WordPress.com account.

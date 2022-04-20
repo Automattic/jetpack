@@ -69,7 +69,7 @@ class Licensing {
 	/**
 	 * Initialize endpoints required for Licensing package.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.7.0
 	 *
 	 * @return void
 	 */

@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.17.9 - 2022-04-19
+### Added
+- Add connected plugins list to the initial state and add action to update it when needed
+- Allow secondary users to connect from My Jetpack
+
+### Changed
+- Do not hard disconnect Jetpack on deactivation
+
+### Fixed
+- Avoid Warning in React PropTypes
+- do not display warning for secondary users if connection has an owner
+
 ## 0.17.8 - 2022-04-12
 ### Changed
 - Updated package dependencies.
