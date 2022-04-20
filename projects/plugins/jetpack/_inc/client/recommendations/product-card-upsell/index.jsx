@@ -53,7 +53,7 @@ const ProductCardUpsellComponent = ( {
 		() => introOffers.find( ( { product_slug } ) => product_slug === slug ) || {},
 		[ slug, introOffers ]
 	);
-	const finalPrice = introPrice * ( 1 - discount / 100 );
+	const finalPrice = discount ? introPrice * ( 1 - discount / 100 ) : introPrice;
 	const totalDiscount = originalPrice
 		? Math.round( ( ( originalPrice - finalPrice ) / originalPrice ) * 100 )
 		: null;

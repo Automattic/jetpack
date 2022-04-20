@@ -16,6 +16,8 @@ export const generateCheckoutLink = ( productSlug, siteAdminUrl, siteRawUrl, cou
 	return getRedirectUrl( 'jetpack-recommendations-product-checkout', {
 		site: siteRawUrl,
 		path: productSlug,
-		query: `redirect_to=${ siteAdminUrl }admin.php&coupon=${ couponCode }&jp-react-redirect=product-purchased`,
+		query: `redirect_to=${ siteAdminUrl }admin.php&coupon=${
+			couponCode || ''
+		}&jp-react-redirect=product-purchased`,
 	} );
 };

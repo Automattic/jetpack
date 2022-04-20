@@ -60,27 +60,25 @@ const ProductSuggestionsComponent = ( {
 				</div>
 				<div></div>
 			</div>
-			<footer className="jp-recommendations-product-suggestion__footer">
-				{ ! isFetchingDiscount && hasDiscount && (
-					<>
-						<span>
-							{ __(
-								'* Discount is for first term only, all renewals are at full price.',
-								'jetpack'
-							) }
-						</span>
-						{ expiryDate && (
-							<div className="jp-recommendations-product-suggestion__timer">
-								<Timer
-									timeClassName="jp-recommendations-product-suggestion__time"
-									label={ __( 'Discount ends in:', 'jetpack' ) }
-									expiryDate={ expiryDate }
-								/>
-							</div>
+			{ ! isFetchingDiscount && hasDiscount && (
+				<footer className="jp-recommendations-product-suggestion__footer">
+					<span>
+						{ __(
+							'* Discount is for first term only, all renewals are at full price.',
+							'jetpack'
 						) }
-					</>
-				) }
-			</footer>
+					</span>
+					{ expiryDate && (
+						<div className="jp-recommendations-product-suggestion__timer">
+							<Timer
+								timeClassName="jp-recommendations-product-suggestion__time"
+								label={ __( 'Discount ends in:', 'jetpack' ) }
+								expiryDate={ expiryDate }
+							/>
+						</div>
+					) }
+				</footer>
+			) }
 		</section>
 	);
 };
