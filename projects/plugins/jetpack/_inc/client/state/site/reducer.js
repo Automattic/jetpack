@@ -424,7 +424,7 @@ export function hasActiveVideoPressPurchase( state ) {
  * Searches active products for an active Anti-Spam product.
  *
  * @param {*} state - Global state tree
- * @returns {boolean} True if an active Anti-Spam product was found, false otherwise.
+ * @returns {object} An active Anti-Spam product if one was found, undefined otherwise.
  */
 export function getActiveAntiSpamPurchase( state ) {
 	return find( getActiveProductPurchases( state ), product =>
