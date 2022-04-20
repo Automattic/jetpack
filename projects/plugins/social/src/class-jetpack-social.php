@@ -157,7 +157,7 @@ class Jetpack_Social {
 				'callback' => function () {
 					return rest_ensure_response(
 						array(
-							'publicize' => array(
+							self::JETPACK_PUBLICIZE_MODULE_SLUG => array(
 								'activated' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
 							),
 						)
@@ -184,7 +184,7 @@ class Jetpack_Social {
 		$callables['active_modules'] = function () {
 			$publicize_is_active = ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG );
 
-			return $publicize_is_active ? array( 'publicize' ) : array();
+			return $publicize_is_active ? array( self::JETPACK_PUBLICIZE_MODULE_SLUG ) : array();
 		};
 
 		return $callables;
@@ -199,7 +199,7 @@ class Jetpack_Social {
 	 */
 	public static function plugin_activation( $plugin ) {
 		if ( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
-			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG );
+			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		}
 	}
 }
