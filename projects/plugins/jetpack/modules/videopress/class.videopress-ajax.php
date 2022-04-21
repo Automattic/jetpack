@@ -75,16 +75,17 @@ class VideoPress_AJAX {
 		$guid             = filter_input( INPUT_POST, 'guid' );
 		$embedded_post_id = filter_input( INPUT_POST, 'post_id', FILTER_VALIDATE_INT );
 
-		if ( false === $embedded_post_id ) {
+		if ( empty( $embedded_post_id ) ) {
 			$embedded_post_id = 0;
 		}
 
-		if ( ! $this->is_valid_guid( $guid ) ) {
+		if ( empty( $guid ) && ! $this->is_valid_guid( $guid ) ) {
 			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack' ) ) );
 			return;
 		}
 
 		if ( ! $this->is_current_user_authed_for_video( $guid, $embedded_post_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'You cannot view this video.', 'jetpack' ) ) );
 			return;
 		}
 
