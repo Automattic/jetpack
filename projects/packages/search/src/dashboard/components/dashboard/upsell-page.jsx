@@ -35,7 +35,7 @@ export default function UpsellPage() {
 	const sendToCart = useCallback( () => {
 		window.location.href = getProductCheckoutUrl( {
 			siteSuffix: domain,
-			redirectUrl: `${ adminUrl }/admin.php?page=jetpack-search`,
+			redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
 		} );
 	}, [ domain, adminUrl ] );
 

@@ -20,6 +20,7 @@ export default function ConnectionScreen() {
 
 	return (
 		<div className="jp-search-dashboard-connection-screen">
+			{ /* WARNING: Update styles if AdminSectionHero is no longer targeted via > selector. */ }
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col lg={ 12 } md={ 8 } sm={ 4 }>

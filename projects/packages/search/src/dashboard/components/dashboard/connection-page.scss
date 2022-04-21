@@ -6,7 +6,7 @@
 	display: flex;
 	width: 100%;
 
-	// Targets AdminSectionHero component
+	// WARNING: Brittle! Targets AdminSectionHero component, which uses obfuscated class names.
 	> div {
 		width: 100%;
 	}
