@@ -19,9 +19,12 @@ function mergeInstalledAndCheckedLists( installed, checked ) {
 	const newList = [];
 	for ( const slug in installed ) {
 		if ( checked.hasOwnProperty( slug ) ) {
-			checked[ slug ].name = installed[ slug ].Name;
-			checked[ slug ].notChecked = false;
-			newList.push( checked[ slug ] );
+			newList.push( {
+				name: installed[ slug ].Name,
+				version: checked[ slug ].version,
+				vulnerabilities: checked[ slug ].vulnerabilities,
+				notChecked: false,
+			} );
 		} else {
 			newList.push( {
 				name: installed[ slug ].Name,
