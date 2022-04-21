@@ -188,12 +188,12 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		return \Videopress_Attachment_Metadata::persist_metadata(
 			$media_id,
 			$item->videopress_guid,
-			$input['title'],
-			$input['caption'],
-			$input['description'],
-			$input['rating'],
-			$input['display_embed'],
-			$input['allow_download'],
+			isset( $input['title'] ) ? $input['title'] : null,
+			isset( $input['caption'] ) ? $input['caption'] : null,
+			isset( $input['description'] ) ? $input['description'] : null,
+			isset( $input['rating'] ) ? $input['rating'] : null,
+			isset( $input['display_embed'] ) ? $input['display_embed'] : null,
+			isset( $input['allow_download'] ) ? $input['allow_download'] : null,
 			isset( $input['privacy_setting'] ) ? $input['privacy_setting'] : null
 		);
 	}
