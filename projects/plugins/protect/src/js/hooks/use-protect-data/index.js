@@ -36,6 +36,27 @@ function mergeInstalledAndCheckedLists( installed, checked ) {
 	}
 	return newList;
 }
+/**
+ * Check if the WordPress version that was checked matches the current installed version.
+ *
+ * @param {string} wpVersion - The current installed WP version.
+ * @param {object} coreCheck - The object returned by Protect wpcom endpoint.
+ * @returns {object} The object representing the current status of core checks.
+ */
+function normalizeCoreInformation( wpVersion, coreCheck ) {
+	let core;
+	if ( wpVersion && coreCheck && coreCheck.version === wpVersion ) {
+		core = coreCheck;
+		core.name = 'wp';
+	} else {
+		core = {
+			version: wpVersion,
+			vulnerabilities: [],
+			name: 'wp',
+		};
+	}
+	return core;
+}
 
 /**
  * Get parsed data from the initial state
@@ -55,19 +76,7 @@ export default function useProtectData() {
 
 	const plugins = mergeInstalledAndCheckedLists( installedPlugins, status.plugins || {} );
 	const themes = mergeInstalledAndCheckedLists( installedThemes, status.themes || {} );
-
-	// Let's check if the WordPress version that was checked matches the current installed version.
-	let core;
-	if ( wpVersion && status.wordpress && status.wordpress.version === wpVersion ) {
-		core = status.wordpress;
-		core.name = 'wp';
-	} else {
-		core = {
-			version: wpVersion,
-			vulnerabilities: [],
-			name: 'wp',
-		};
-	}
+	const core = normalizeCoreInformation( wpVersion, status.wordpress );
 
 	let currentStatus = 'error';
 	if ( statusIsFetching ) {
