@@ -3,11 +3,11 @@
  */
 import React, { useEffect, useMemo, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
+import { RecordMeterBar } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import RecordMeterBar from 'components/record-meter-bar';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
 import { Popup } from './popup';
