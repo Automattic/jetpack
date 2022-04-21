@@ -13,7 +13,7 @@ import { ExternalLink } from '@wordpress/components';
  */
 import { getStepContent, mapDispatchToProps } from '../../feature-utils';
 import { PromptLayout } from '../prompt-layout';
-import { DiscountCard } from '../../sidebar/discount-card';
+import { ProductSpotlight } from '../../sidebar/product-spotlight';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import {
@@ -45,7 +45,7 @@ const FeaturePromptComponent = props => {
 		stateStepSlug,
 		updatingStep,
 		updateRecommendationsStep,
-		suggestedProduct,
+		spotlightProduct,
 		isNew,
 	} = props;
 
@@ -107,10 +107,10 @@ const FeaturePromptComponent = props => {
 					</a>
 				</div>
 			}
-			illustrationPath={ ! suggestedProduct ? illustrationPath : null }
+			illustrationPath={ ! spotlightProduct ? illustrationPath : null }
 			sidebarCard={
-				suggestedProduct ? (
-					<DiscountCard productSlug={ suggestedProduct } stepSlug={ stepSlug } />
+				spotlightProduct ? (
+					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
 				) : null
 			}
 			rna={ rnaIllustration }
@@ -124,7 +124,7 @@ const FeaturePrompt = connect(
 		...getStepContent( ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
-		suggestedProduct: getProductSlugForStep( state, ownProps.stepSlug ),
+		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 	} ),
 	( dispatch, ownProps ) => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),

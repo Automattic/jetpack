@@ -3,7 +3,7 @@
  */
 import { _x } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
-import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
+import { assign, difference, get, includes, isArray, isEmpty, mergeWith, union } from 'lodash';
 
 /**
  * Internal dependencies
@@ -30,18 +30,23 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
 } from 'state/action-types';
 import {
+	getPlanClass,
+	isVideoPressLegacySecurityPlan,
 	isJetpackPlanWithAntiSpam,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 } from 'lib/plans/constants';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import {
 	getSitePlan,
+	getSitePurchases,
 	hasActiveProductPurchase,
 	hasActiveScanPurchase,
 	hasActiveSecurityPurchase,
 	hasActiveAntiSpamPurchase,
+	hasActiveVideoPressPurchase,
 	hasSecurityComparableLegacyPlan,
 } from 'state/site';
 import { hasConnectedOwner } from 'state/connection';
@@ -312,12 +317,9 @@ export const isProductSuggestionsAvailable = state => {
 };
 
 export const getProductSlugForStep = ( state, step ) => {
+	const planClass = getPlanClass( getSitePlan( state ).product_slug );
+
 	switch ( step ) {
-		case 'site-type':
-			if ( isSiteEligibleForUpsell( state ) ) {
-				return PLAN_JETPACK_SECURITY_T1_YEARLY;
-			}
-			break;
 		case 'publicize':
 		case 'security-plan':
 			if ( ! hasActiveSecurityPurchase( state ) && ! hasSecurityComparableLegacyPlan( state ) ) {
@@ -331,6 +333,15 @@ export const getProductSlugForStep = ( state, step ) => {
 				! isJetpackPlanWithAntiSpam( getSitePlan( state ) )
 			) {
 				return PLAN_JETPACK_ANTI_SPAM;
+			}
+			break;
+		case 'videopress':
+			if (
+				! includes( [ 'is-premium-plan', 'is-business-plan', 'is-complete-plan' ], planClass ) &&
+				! getSitePurchases( state ).find( isVideoPressLegacySecurityPlan ) &&
+				! hasActiveVideoPressPurchase( state )
+			) {
+				return PLAN_JETPACK_VIDEOPRESS;
 			}
 			break;
 	}

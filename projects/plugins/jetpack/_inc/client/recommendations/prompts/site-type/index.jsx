@@ -11,7 +11,7 @@ import { ProgressBar } from '@automattic/components';
  */
 import { PromptLayout } from '../prompt-layout';
 import { CheckboxAnswer } from '../checkbox-answer';
-import { DiscountCard } from '../../sidebar/discount-card';
+import DiscountCard from '../../sidebar/discount-card';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { getSiteTitle } from 'state/initial-state';
@@ -34,7 +34,7 @@ const SiteTypeQuestionComponent = props => {
 		saveRecommendationsData,
 		siteTitle,
 		updateRecommendationsStep,
-		suggestedProduct,
+		canShowProductSuggestions,
 	} = props;
 
 	useEffect( () => {
@@ -106,8 +106,10 @@ const SiteTypeQuestionComponent = props => {
 				'jetpack'
 			) }
 			answer={ answerSection }
-			illustrationPath={ ! suggestedProduct ? 'recommendations/site-type-illustration.jpg' : null }
-			sidebarCard={ suggestedProduct ? <DiscountCard productSlug={ suggestedProduct } /> : null }
+			illustrationPath={
+				! canShowProductSuggestions ? 'recommendations/site-type-illustration.jpg' : null
+			}
+			sidebarCard={ canShowProductSuggestions ? <DiscountCard /> : null }
 		/>
 	);
 };
@@ -122,7 +124,7 @@ export const SiteTypeQuestion = connect(
 			store: getDataByKey( state, 'site-type-store' ),
 			other: getDataByKey( state, 'site-type-other' ),
 		},
-		suggestedProduct: false, // getProductSlugForStep( state, 'site-type' ),
+		canShowProductSuggestions: false, // isProductSuggestionsAvailable( state ),
 	} ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
