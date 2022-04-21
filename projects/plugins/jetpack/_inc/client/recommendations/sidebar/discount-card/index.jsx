@@ -14,7 +14,9 @@ import analytics from 'lib/analytics';
 import { getIntroOffers, isFetchingIntroOffers } from 'state/intro-offers';
 import {
 	getProductSuggestions,
+	getStep,
 	isFetchingRecommendationsProductSuggestions,
+	markSiteDiscountAsViewedInRecommendations,
 } from 'state/recommendations';
 import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
 import DiscountBadge from '../../discount-badge';
@@ -33,6 +35,8 @@ const DiscountCard = ( {
 	discountData,
 	introOffers,
 	suggestions,
+	markAsViewed,
+	step,
 } ) => {
 	const isLoading = isFetchingDiscount || isFetchingSuggestions || isFetchingOffers;
 	const { expiry_date: expiryDate } = discountData;
@@ -48,6 +52,8 @@ const DiscountCard = ( {
 			discount: hasDiscount,
 		} );
 	}, [ hasDiscount ] );
+
+	useEffect( () => markAsViewed( step ), [ markAsViewed, step ] );
 
 	useEffect( () => {
 		if ( ! isLoading ) {
@@ -107,11 +113,17 @@ const DiscountCard = ( {
 	);
 };
 
-export default connect( state => ( {
-	isFetchingDiscount: isFetchingSiteDiscount( state ),
-	isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
-	isFetchingOffers: isFetchingIntroOffers( state ),
-	discountData: getSiteDiscount( state ),
-	introOffers: getIntroOffers( state ),
-	suggestions: getProductSuggestions( state ),
-} ) )( DiscountCard );
+export default connect(
+	state => ( {
+		isFetchingDiscount: isFetchingSiteDiscount( state ),
+		isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
+		isFetchingOffers: isFetchingIntroOffers( state ),
+		discountData: getSiteDiscount( state ),
+		introOffers: getIntroOffers( state ),
+		suggestions: getProductSuggestions( state ),
+		step: getStep( state ),
+	} ),
+	dispatch => ( {
+		markAsViewed: step => dispatch( markSiteDiscountAsViewedInRecommendations( step ) ),
+	} )
+)( DiscountCard );

@@ -11,6 +11,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
+import DiscountCard from '../../sidebar/discount-card';
 import { getStepContent, mapDispatchToProps } from '../../feature-utils';
 import { PromptLayout } from '../prompt-layout';
 import Button from 'components/button';
@@ -23,6 +24,9 @@ import {
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
+	recommendationsSiteDiscountViewedStep,
+	isFetchingRecommendationsProductSuggestions,
+	isProductSuggestionsAvailable,
 } from 'state/recommendations';
 
 const FeaturePromptComponent = props => {
@@ -44,6 +48,9 @@ const FeaturePromptComponent = props => {
 		updatingStep,
 		updateRecommendationsStep,
 		isNew,
+		isFetchingSuggestions,
+		canShowProductSuggestions,
+		discountViewedStep,
 	} = props;
 
 	useEffect( () => {
@@ -61,6 +68,8 @@ const FeaturePromptComponent = props => {
 		updateRecommendationsStep,
 		addViewedRecommendation,
 	] );
+
+	const showDiscountCard = ! discountViewedStep || discountViewedStep === stepSlug;
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_learn_more_click', {
@@ -104,7 +113,11 @@ const FeaturePromptComponent = props => {
 					</a>
 				</div>
 			}
-			illustrationPath={ illustrationPath }
+			isLoadingSideContent={ showDiscountCard && isFetchingSuggestions }
+			illustrationPath={
+				! showDiscountCard || ! canShowProductSuggestions ? illustrationPath : null
+			}
+			sidebarCard={ showDiscountCard && canShowProductSuggestions ? <DiscountCard /> : null }
 			rna={ rnaIllustration }
 		/>
 	);
@@ -116,6 +129,9 @@ const FeaturePrompt = connect(
 		...getStepContent( ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
+		isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
+		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
+		discountViewedStep: recommendationsSiteDiscountViewedStep( state ),
 	} ),
 	( dispatch, ownProps ) => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),

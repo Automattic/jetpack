@@ -28,6 +28,7 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
+	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
 } from 'state/action-types';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
@@ -180,6 +181,18 @@ const conditional = ( state = [], action ) => {
 	}
 };
 
+const siteDiscount = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED:
+			return {
+				...state,
+				viewed: action.step,
+			};
+		default:
+			return state;
+	}
+};
+
 const getConditionalRecommendations = state => {
 	return get( state.jetpack, [ 'recommendations', 'conditional' ] );
 };
@@ -191,6 +204,7 @@ export const reducer = combineReducers( {
 	upsell,
 	productSuggestions,
 	conditional,
+	siteDiscount,
 } );
 
 export const isFetchingRecommendationsData = state => {
@@ -219,6 +233,10 @@ export const isRecommendationsConditionalLoaded = state => {
 
 export const isUpdatingRecommendationsStep = state => {
 	return !! state.jetpack.recommendations.requests.isUpdatingRecommendationsStep;
+};
+
+export const recommendationsSiteDiscountViewedStep = state => {
+	return state.jetpack.recommendations.siteDiscount.viewed || '';
 };
 
 export const getDataByKey = ( state, key ) => {
