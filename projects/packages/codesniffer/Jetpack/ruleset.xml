@@ -3,9 +3,7 @@
 	<description>Jetpack coding standards. Based on the WordPress coding standards, with some additions.</description>
 
 	<rule ref="PHPCompatibilityWP" />
-	<rule ref="WordPress-Core" />
-	<rule ref="WordPress-Docs" />
-	<rule ref="WordPress-Extra" />
+	<rule ref="WordPress"/>
 	<rule ref="VariableAnalysis" />
 
 	<!-- We only include some rules from mediawiki/mediawiki-codesniffer. -->
@@ -64,6 +62,11 @@
 	<!-- This rule, requiring a full stop at the end of an inline comment, is not useful for Jetpack. -->
 	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
 		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
+	</rule>
+
+	<!-- This rule seems too prone to false-positives and false-negatives to be worthwhile. -->
+	<rule ref="WordPress.DB.SlowDBQuery">
+		<exclude name="WordPress.DB.SlowDBQuery"/>
 	</rule>
 
 </ruleset>

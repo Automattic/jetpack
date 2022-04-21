@@ -2,6 +2,40 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.9-a.7 - 2022-04-19
+### Enhancements
+- Connection: Preventing other Jeptpack-connected plugins from disconnecting when deactivating Jetpack from the plugins screen.
+- Recommendations: Add recommendation for anti-spam.
+
+### Improved compatibility
+- WordAds: Remove the suggestion to use the ad widget from the dashboard.
+- WordAds: Change Jetpack Ads wording to be WordAds.
+
+### Bug fixes
+- Publicize: Ensure bulk publishing posts won’t publicize those posts.
+- Random Redirect: Fixes 'set author name' functionality on author archives.
+- VideoPress: Fixes issue adding video descriptions and metadata via the WordPress.com dashboard.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added TypeScript support.
+- Dashboard: Update copy to reflect new WordPress.com Pro plan.
+- Jetpack Connection: Remove any remaining in-place flows.
+- Moved licensing endpoints from the Jetpack plugin to the Licensing package.
+- Moved enhanced-open-graph.php out of the Publicize module.
+- Moved gutenberg-base-styles.scss file to js-packages/base-styles and updated its imports in the Jetpack plugin directory.
+- Moved images that are used for licensing components to licensing package to minimize external dependencies.
+- Refactor Jetpack class to move some functions into Modules and File packages.
+- Security Settings: convert plan checks to be feature checks.
+- Stats: Add individual filters for JS and AMP stat footer data.
+- Updated jetpack-waf package version.
+- Updated package dependencies.
+- Updated Sync tests.
+- Various PHPCS changes.
+
+## 10.9-a.5 - 2022-04-14
+### Bug fixes
+- Comments: Checking that Jetpack comments are supported before requiring nonce verification.
+
 ## 10.9-a.3 - 2022-04-12
 ### Enhancements
 - Dashboard: Various improvements to recommendations.
@@ -13,7 +47,6 @@
 ### Improved compatibility
 - Custom CSS: Improve saving for legacy Custom CSS.
 - Improvements to backwards compatibility with other Jetpack plugins.
-
 
 ### Bug fixes
 - Button block: Removes default CSS that would overwrite core and theme styles.
