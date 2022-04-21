@@ -74,7 +74,7 @@ const ProductCardUpsellComponent = ( {
 		if ( onMount ) {
 			onMount();
 		}
-	}, [] );
+	}, [ onMount ] );
 
 	return (
 		<div

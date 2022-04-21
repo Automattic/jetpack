@@ -20,6 +20,7 @@ import { MobileApp } from '../sidebar/mobile-app';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
 import { ProductCardUpsell } from '../product-card-upsell';
 import Timer from '../timer';
+import { isCouponValid } from '../utils';
 import { getSiteTitle } from 'state/initial-state';
 import {
 	getSidebarCardSlug,
@@ -57,27 +58,25 @@ const SummaryComponent = props => {
 	}, [ updateRecommendationsStep ] );
 
 	const { product_slug: productSlug } = upsell || {};
-	const { discount, is_used: isUsed, expiry_date: expiryDate } = discountData;
-	const hasDiscount = useMemo(
-		() => discount && ! isUsed && new Date( expiryDate ).valueOf() - Date.now() > 0,
-		[ discount, isUsed, expiryDate ]
-	);
+	const { expiry_date: expiryDate } = discountData;
+
+	const hasDiscount = useMemo( () => isCouponValid( discountData ), [ discountData ] );
 
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
 	};
 	const onUpsellClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
-			type: 'upsell_with_price',
 			product_slug: productSlug,
+			discount: hasDiscount,
 		} );
-	}, [ productSlug ] );
+	}, [ productSlug, hasDiscount ] );
 	const onUpsellMount = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
-			type: 'upsell_with_price',
 			product_slug: productSlug,
+			discount: hasDiscount,
 		} );
-	}, [ productSlug ] );
+	}, [ productSlug, hasDiscount ] );
 
 	const mainContent = isFetchingMainData ? (
 		<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />

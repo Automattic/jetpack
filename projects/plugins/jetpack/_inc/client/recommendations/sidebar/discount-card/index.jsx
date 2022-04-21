@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -19,7 +19,7 @@ import {
 import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
 import DiscountBadge from '../../discount-badge';
 import Timer from '../../timer';
-import { computeMaxSuggestedDiscount } from '../../utils';
+import { computeMaxSuggestedDiscount, isCouponValid } from '../../utils';
 
 /**
  * Style dependencies
@@ -34,20 +34,28 @@ const DiscountCard = ( {
 	introOffers,
 	suggestions,
 } ) => {
-	const { expiry_date: expiryDate, is_used: isUsed } = discountData;
+	const isLoading = isFetchingDiscount || isFetchingSuggestions || isFetchingOffers;
+	const { expiry_date: expiryDate } = discountData;
+
 	const discount = useMemo(
 		() => computeMaxSuggestedDiscount( discountData, introOffers, suggestions ),
 		[ discountData, introOffers, suggestions ]
 	);
-	const onViewDiscountClick = useCallback( () => {
-		analytics.tracks.recordJetpackClick(
-			'jetpack_recommendations_view_discounted_plans_button_click'
-		);
-	}, [] );
-	const hasDiscount = useMemo(
-		() => discount && ! isUsed && new Date( expiryDate ).valueOf() - Date.now() > 0,
-		[ discount, isUsed, expiryDate ]
-	);
+	const hasDiscount = useMemo( () => isCouponValid( discountData ), [ discountData ] );
+
+	const onCtaClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_upsell_card_cta_click', {
+			discount: hasDiscount,
+		} );
+	}, [ hasDiscount ] );
+
+	useEffect( () => {
+		if ( ! isLoading ) {
+			analytics.tracks.recordEvent( 'jetpack_recommendations_upsell_card_display', {
+				discount: hasDiscount,
+			} );
+		}
+	}, [ isLoading, hasDiscount ] );
 
 	return (
 		<div className="jp-recommendations-discount-card">
@@ -71,12 +79,12 @@ const DiscountCard = ( {
 							<li>{ __( 'Real-time malware scanning', 'jetpack' ) }</li>
 							<li>{ __( 'Comments and form spam protection', 'jetpack' ) }</li>
 						</ul>
-						{ ! ( isFetchingDiscount || isFetchingSuggestions || isFetchingOffers ) && (
+						{ ! isLoading && (
 							<Button
 								className="jp-recommendations-discount-card__button"
 								rna
 								href={ '#/recommendations/product-suggestions' }
-								onClick={ onViewDiscountClick }
+								onClick={ onCtaClick }
 							>
 								{ hasDiscount
 									? __( 'View discounted products', 'jetpack' )
