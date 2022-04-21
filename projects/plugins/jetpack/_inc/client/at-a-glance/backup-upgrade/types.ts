@@ -1,4 +1,4 @@
-export interface BackupUpgradeBaseProps {
+export interface BarChartBaseProps {
 	/**
 	 * The total number of comments for the site.
 	 */
@@ -12,6 +12,12 @@ export interface BackupUpgradeBaseProps {
 	 */
 	posts: number;
 }
-export interface BarChartProps extends BackupUpgradeBaseProps {
+export type BarChartProps = BarChartBaseProps & {
 	onClosePopup: () => void;
-}
+};
+
+export type BackupUpgradeProps = BarChartBaseProps & {
+	isFetchingData: boolean;
+};
+
+export type PopupProps = Omit< BarChartProps, 'plugins' >;

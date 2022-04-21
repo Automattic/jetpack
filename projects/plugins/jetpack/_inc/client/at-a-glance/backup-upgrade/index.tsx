@@ -15,16 +15,18 @@ import {
 } from 'state/at-a-glance';
 import { BarChart } from './bar-chart';
 import analytics from 'lib/analytics';
-import { BackupUpgradeBaseProps } from './types';
+import { BackupUpgradeProps } from './types';
 
 import './style.scss';
 
 const MIN_POSTS_FOR_VISIBLE_BAR = 20;
 
-type BackupUpgradeProps = BackupUpgradeBaseProps & {
-	isFetchingData: boolean;
-};
-
+/**
+ * It renders a bar chart if the user has more than a certain number of posts
+ *
+ * @param {BackupUpgradeProps} props - Props
+ * @returns {React.ReactElement} - JSX Element
+ */
 const BackupUpgrade: React.FC< BackupUpgradeProps > = ( {
 	comments,
 	isFetchingData,
