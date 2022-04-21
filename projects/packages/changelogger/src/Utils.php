@@ -79,14 +79,17 @@ class Utils {
 	 * Header names are normalized. The entry is returned under the empty
 	 * string key.
 	 *
-	 * @param string $filename File to load.
-	 * @param mixed  $diagnostics Output variable, set to an array with diagnostic data.
-	 *   - warnings: An array of warning messages and applicable lines.
-	 *   - lines: An array mapping headers to line numbers.
+	 * @param string               $filename File to load.
+	 * @param mixed                $diagnostics Output variable, set to an array with diagnostic data.
+	 *                 - warnings: An array of warning messages and applicable lines.
+	 *                 - lines: An array mapping headers to line numbers.
+	 * @param array|null           $input_options Holds command options retrieved from the InputInterface.
+	 * @param OutputInterface      $output OutputInterface to write diagnostics too.
+	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
 	 * @return array
 	 * @throws \RuntimeException On error.
 	 */
-	public static function loadChangeFile( $filename, &$diagnostics = null ) {
+	public static function loadChangeFile( $filename, &$diagnostics = null, $input_options = null, $output = null, $formatter = null ) {
 		$diagnostics = array(
 			'warnings' => array(),
 			'lines'    => array(),
@@ -143,9 +146,46 @@ class Utils {
 			throw $ex;
 		}
 		$diagnostics['lines'][''] = $line + strspn( $contents, "\n" );
-		$ret['']                  = trim( $contents );
 
+		$contents = trim( $contents );
+		if ( ! empty( $input_options['add-pr-num'] ) ) {
+			$pr = self::getPrNumForFile( $filename, $output, $formatter );
+			if ( $pr ) {
+				$contents = $contents . " [#$pr]";
+			}
+		}
+
+		$ret[''] = $contents;
 		return $ret;
+	}
+
+	/**
+	 * Try to get a GitHub PR number from the latest commit message subject for the given file.
+	 *
+	 * GitHub's 'squash merging' for pull requests adds the PR number by default to the end of the commit subject.
+	 *
+	 * @param string               $file Filepath.
+	 * @param OutputInterface      $output OutputInterface to write debug output to.
+	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
+	 * @return string The PR number string if found, or an empty string.
+	 */
+	public static function getPrNumForFile( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
+		try {
+			$process = self::runCommand( array( 'git', 'log', '-1', '--format=%s', $file ), $output, $formatter );
+			if ( $process->isSuccessful() ) {
+				$cmd_output = trim( $process->getOutput() );
+				$matches    = array();
+				preg_match( '/\(#(\d+)\)$/', $cmd_output, $matches );
+				if ( isset( $matches[1] ) ) {
+					return $matches[1];
+				}
+			}
+		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+		} catch ( \Exception $ex ) { // @codeCoverageIgnore
+			// Don't care.
+		}
+
+		return '';
 	}
 
 	/**
@@ -187,9 +227,10 @@ class Utils {
 	 * @param OutputInterface $output OutputInterface to write diagnostics too.
 	 * @param mixed           $files Output parameter. An array is written to this parameter, with
 	 *   keys being filenames in `$dir` and values being 0 for success, 1 for warnings, 2 for errors.
+	 * @param array|null      $input_options Holds command options retrieved from the InputInterface.
 	 * @return ChangeEntry[] Keys are filenames in `$dir`.
 	 */
-	public static function loadAllChanges( $dir, array $subheadings, FormatterPlugin $formatter, OutputInterface $output, &$files = null ) {
+	public static function loadAllChanges( $dir, array $subheadings, FormatterPlugin $formatter, OutputInterface $output, &$files = null, $input_options = null ) {
 		$debugHelper = new DebugFormatterHelper();
 		$files       = array();
 		$ret         = array();
@@ -206,7 +247,7 @@ class Utils {
 			$diagnostics    = null;
 			$files[ $name ] = 0;
 			try {
-				$data = self::loadChangeFile( $path, $diagnostics );
+				$data = self::loadChangeFile( $path, $diagnostics, $input_options, $output, $debugHelper );
 			} catch ( \RuntimeException $ex ) {
 				$output->writeln( "<error>$name: {$ex->getMessage()}</>" );
 				$files[ $name ] = 2;
