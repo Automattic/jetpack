@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import React from 'react';
 import { __ } from '@wordpress/i18n';
 import {
 	AdminPage,
@@ -9,9 +10,7 @@ import {
 	Container,
 	Col,
 } from '@automattic/jetpack-components';
-
 import { useConnection } from '@automattic/jetpack-connection';
-import React from 'react';
 
 /**
  * Internal dependencies
@@ -33,13 +32,11 @@ const Admin = () => {
 				showHeader={ false }
 				showBackground={ false }
 			>
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col sm={ 4 } md={ 8 } lg={ 12 }>
-							<Interstitial onProtectAdd={ handleRegisterSite } />
-						</Col>
-					</Container>
-				</AdminSectionHero>
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+					<Col sm={ 4 } md={ 8 } lg={ 12 }>
+						<Interstitial onProtectAdd={ handleRegisterSite } />
+					</Col>
+				</Container>
 			</AdminPage>
 		);
 	}
