@@ -15,14 +15,15 @@ use Jetpack_Options;
  */
 class Waf_Runner {
 
-	const WAF_RULES_VERSION         = '1.0.0';
-	const MODE_OPTION_NAME          = 'jetpack_waf_mode';
-	const IP_ALLOW_LIST_OPTION_NAME = 'jetpack_waf_ip_allow_list';
-	const IP_BLOCK_LIST_OPTION_NAME = 'jetpack_waf_ip_block_list';
-	const RULES_FILE                = __DIR__ . '/../rules/rules.php';
-	const ALLOW_IP_FILE             = __DIR__ . '/../rules/allow-ip.php';
-	const BLOCK_IP_FILE             = __DIR__ . '/../rules/block-ip.php';
-	const VERSION_OPTION_NAME       = 'jetpack_waf_rules_version';
+	const WAF_RULES_VERSION             = '1.0.0';
+	const MODE_OPTION_NAME              = 'jetpack_waf_mode';
+	const IP_ALLOW_LIST_OPTION_NAME     = 'jetpack_waf_ip_allow_list';
+	const IP_BLOCK_LIST_OPTION_NAME     = 'jetpack_waf_ip_block_list';
+	const RULES_FILE                    = __DIR__ . '/../rules/rules.php';
+	const ALLOW_IP_FILE                 = __DIR__ . '/../rules/allow-ip.php';
+	const BLOCK_IP_FILE                 = __DIR__ . '/../rules/block-ip.php';
+	const VERSION_OPTION_NAME           = 'jetpack_waf_rules_version';
+	const RULE_LAST_UPDATED_OPTION_NAME = 'jetpack_waf_last_updated_timestamp';
 
 	/**
 	 * Set the mode definition if it has not been set.
@@ -230,6 +231,21 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Tries periodically to update the rules using our API.
+	 *
+	 * @return void
+	 */
+	public static function update_rules_cron() {
+		self::define_mode();
+		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+			return;
+		}
+
+		self::generate_rules();
+		update_option( self::RULE_LAST_UPDATED_OPTION_NAME, time() );
+	}
+
+	/**
 	 * Updates the rule set if rules version has changed
 	 *
 	 * @return void
@@ -260,8 +276,12 @@ class Waf_Runner {
 			throw new \Exception( 'Site is not registered' );
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%s/waf-rules', $blog_id )
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%s/waf-rules', $blog_id ),
+			'2',
+			array(),
+			null,
+			'wpcom'
 		);
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
