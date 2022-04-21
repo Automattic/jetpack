@@ -33,7 +33,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 	const updateSubscriptionPlan = useCallback(
 		newPlanId => {
 			const resolvePaymentUrl = paymentPlanId => {
-				if ( POST_EDITOR !== editorType ) {
+				if ( POST_EDITOR !== editorType || ! postLink ) {
 					return '#';
 				}
 

@@ -311,7 +311,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_mediaextractor_extract_links() {
+	public function test_mediaextractor_extract_links() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -370,7 +370,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_images() {
+	public function test_extract_images() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -393,7 +393,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_mentions() {
+	public function test_extract_mentions() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -416,7 +416,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_shortcodes() {
+	public function test_extract_shortcodes() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -473,7 +473,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_embeds() {
+	public function test_extract_embeds() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -499,7 +499,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
 	 * @since 3.2
 	 */
-	function test_extract_image_from_html() {
+	public function test_extract_image_from_html() {
 		$html = <<<EOT
 <p><a href="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg"><img class="aligncenter size-full wp-image-1027" alt="Mr Gove Cover" src="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg" width="612" height="547" /></a></p>
 <p>Mr Gove was extraordinarily arrogant.</p>
