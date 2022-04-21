@@ -16,7 +16,11 @@ import { imagePath } from 'constants/urls';
  */
 import './style.scss';
 
-const SideContent = ( { illustrationPath, question, sidebarCard, rna } ) => {
+const SideContent = ( { isLoadingSideContent, illustrationPath, question, sidebarCard, rna } ) => {
+	if ( isLoadingSideContent ) {
+		return <div></div>;
+	}
+
 	if ( sidebarCard ) {
 		return <div className="jp-recommendations-question__sidebar-card">{ sidebarCard }</div>;
 	}
@@ -92,8 +96,7 @@ const PromptLayout = props => {
 				{ content }
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>
-
-			{ isLoadingSideContent ? <div></div> : <SideContent { ...props } /> }
+			<SideContent { ...props } />
 		</div>
 	);
 };
