@@ -375,6 +375,20 @@
 		hideNode( dialog );
 	}
 
+	function isUrlForCurrentHost( url ) {
+		var currentDomain = window.location.protocol + '//' + window.location.hostname + '/';
+
+		return String( url ).indexOf( currentDomain ) === 0;
+	}
+
+	function getEncodedFormFieldForSubmit( name, value ) {
+		// Encode the key and value into a URI-compatible string.
+		var encoded = encodeURIComponent( name ) + '=' + encodeURIComponent( value );
+
+		// In x-www-form-urlencoded, spaces should be `+`, not `%20`.
+		return encoded.replace( '%20', '+' );
+	}
+
 	// Sharing initialization.
 	// Will run immediately or on `DOMContentLoaded`, depending on current page status.
 	function init() {
@@ -518,58 +532,82 @@
 			forEachNode( group.querySelectorAll( 'a.share-email' ), function ( emailButton ) {
 				var dialog = document.querySelector( '#sharing_email' );
 
-				emailButton.addEventListener( 'click', function ( event ) {
-					event.preventDefault();
-					event.stopPropagation();
+				var emailShareMode = emailButton.getAttribute( 'data-email-share-mode' );
 
-					// Load reCAPTCHA if needed.
-					if ( typeof grecaptcha !== 'object' && ! recaptchaScriptAdded ) {
-						var configEl = document.querySelector( '.g-recaptcha' );
+				if ( emailShareMode === 'mailto' ) {
+					var emailShareNonce = emailButton.getAttribute( 'data-email-share-nonce' );
+					var emailShareTrackerUrl = emailButton.getAttribute( 'data-email-share-track-url' );
 
-						if ( configEl && configEl.getAttribute( 'data-lazy' ) === 'true' ) {
-							recaptchaScriptAdded = true;
-							loadScript( decodeURI( configEl.getAttribute( 'data-url' ) ) );
-						}
-					}
-
-					var url = emailButton.getAttribute( 'href' );
-					var currentDomain = window.location.protocol + '//' + window.location.hostname + '/';
-					if ( url.indexOf( currentDomain ) !== 0 ) {
-						return true;
-					}
-
-					if ( ! isNodeHidden( dialog ) ) {
-						closeEmailDialog();
-						return;
-					}
-
-					removeNode( document.querySelector( '#sharing_email .response' ) );
-
-					var form = document.querySelector( '#sharing_email form' );
-					showNode( form );
-					form.querySelector( 'input[type=submit]' ).removeAttribute( 'disabled' );
-					showNode( form.querySelector( 'a.sharing_cancel' ) );
-
-					// Reset reCATPCHA if exists.
 					if (
-						'object' === typeof grecaptcha &&
-						'function' === typeof grecaptcha.reset &&
-						window.___grecaptcha_cfg.count
+						emailShareNonce &&
+						emailShareTrackerUrl &&
+						isUrlForCurrentHost( emailShareTrackerUrl )
 					) {
-						grecaptcha.reset();
+						emailButton.addEventListener( 'click', function () {
+							var request = new XMLHttpRequest();
+							request.open( 'POST', emailShareTrackerUrl, true );
+							request.setRequestHeader(
+								'Content-Type',
+								'application/x-www-form-urlencoded; charset=UTF-8'
+							);
+							request.setRequestHeader( 'x-requested-with', 'XMLHttpRequest' );
+
+							request.send( getEncodedFormFieldForSubmit( 'email-share-nonce', emailShareNonce ) );
+						} );
 					}
+				} else if ( emailShareMode === 'form-submit' ) {
+					emailButton.addEventListener( 'click', function ( event ) {
+						event.preventDefault();
+						event.stopPropagation();
 
-					// Show dialog
-					var rect = emailButton.getBoundingClientRect();
-					var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft || 0;
-					var scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
-					dialog.style.left = scrollLeft + rect.left + 'px';
-					dialog.style.top = scrollTop + rect.top + rect.height + 'px';
-					showNode( dialog );
+						// Load reCAPTCHA if needed.
+						if ( typeof grecaptcha !== 'object' && ! recaptchaScriptAdded ) {
+							var configEl = document.querySelector( '.g-recaptcha' );
 
-					// Close all open More Button dialogs.
-					MoreButton.closeAll();
-				} );
+							if ( configEl && configEl.getAttribute( 'data-lazy' ) === 'true' ) {
+								recaptchaScriptAdded = true;
+								loadScript( decodeURI( configEl.getAttribute( 'data-url' ) ) );
+							}
+						}
+
+						var url = emailButton.getAttribute( 'href' );
+						if ( ! isUrlForCurrentHost( url ) ) {
+							return true;
+						}
+
+						if ( ! isNodeHidden( dialog ) ) {
+							closeEmailDialog();
+							return;
+						}
+
+						removeNode( document.querySelector( '#sharing_email .response' ) );
+
+						var form = document.querySelector( '#sharing_email form' );
+						showNode( form );
+						form.querySelector( 'input[type=submit]' ).removeAttribute( 'disabled' );
+						showNode( form.querySelector( 'a.sharing_cancel' ) );
+
+						// Reset reCATPCHA if exists.
+						if (
+							'object' === typeof grecaptcha &&
+							'function' === typeof grecaptcha.reset &&
+							window.___grecaptcha_cfg.count
+						) {
+							grecaptcha.reset();
+						}
+
+						// Show dialog
+						var rect = emailButton.getBoundingClientRect();
+						var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft || 0;
+						var scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
+						dialog.style.left = scrollLeft + rect.left + 'px';
+						dialog.style.top = scrollTop + rect.top + rect.height + 'px';
+						showNode( dialog );
+
+						// Close all open More Button dialogs.
+						MoreButton.closeAll();
+					} );
+				}
 
 				// Hook up other buttons
 				dialog.querySelector( 'a.sharing_cancel' ).addEventListener( 'click', function ( event ) {
@@ -615,14 +653,9 @@
 						// Encode form data. This would be much easier if we could rely on URLSearchParams...
 						var params = [];
 						for ( var i = 0; i < form.elements.length; i++ ) {
-							if ( form.elements[ i ].name ) {
-								// Encode each form element into a URI-compatible string.
-								var encoded =
-									encodeURIComponent( form.elements[ i ].name ) +
-									'=' +
-									encodeURIComponent( form.elements[ i ].value );
-								// In x-www-form-urlencoded, spaces should be `+`, not `%20`.
-								params.push( encoded.replace( '%20', '+' ) );
+							var formElement = form.elements[ i ];
+							if ( formElement.name ) {
+								params.push( getEncodedFormFieldForSubmit( formElement.name, formElement.value ) );
 							}
 						}
 						var data = params.join( '&' );

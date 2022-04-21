@@ -165,15 +165,17 @@ abstract class Sharing_Source {
 	/**
 	 * Get the HTML markup to display a sharing link.
 	 *
-	 * @param string   $url   Post URL to share.
-	 * @param string   $text  Sharing display text.
-	 * @param string   $title Post title.
-	 * @param string   $query Sharing service URL parameter.
-	 * @param bool|int $id    Sharing ID.
+	 * @param string   $url             Post URL to share.
+	 * @param string   $text            Sharing display text.
+	 * @param string   $title           The title for the link.
+	 * @param string   $query           Additional query arguments to add to the link. They should be in 'foo=bar&baz=1' format.
+	 * @param bool|int $id              Sharing ID to include in the data-shared attribute.
+	 * @param array    $data_attributes The keys are used as additional attribute names with 'data-' prefix.
+	 *                                  The values are used as the attribute values.
 	 *
-	 * @return string
+	 * @return string The HTML for the link.
 	 */
-	public function get_link( $url, $text, $title, $query = '', $id = false ) {
+	public function get_link( $url, $text, $title, $query = '', $id = false, $data_attributes = array() ) {
 		$args    = func_get_args();
 		$klasses = array( 'share-' . $this->get_class(), 'sd-button' );
 
@@ -197,7 +199,7 @@ abstract class Sharing_Source {
 		 *
 		 * @since 3.4.0
 		 *
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param object $this Sharing service properties.
 		 * @param array $args Array of sharing service options.
 		 */
@@ -211,7 +213,7 @@ abstract class Sharing_Source {
 		 *
 		 * @param string $url Post URL.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$url = apply_filters( 'sharing_display_link', $url, $this, $id, $args ); // backwards compatibility
@@ -224,7 +226,7 @@ abstract class Sharing_Source {
 		 *
 		 * @param string $url Post URL.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$url = apply_filters( 'jetpack_sharing_display_link', $url, $this, $id, $args );
@@ -237,7 +239,7 @@ abstract class Sharing_Source {
 		 *
 		 * @param string $query Sharing service URL parameter.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$query = apply_filters( 'jetpack_sharing_display_query', $query, $this, $id, $args );
@@ -263,7 +265,7 @@ abstract class Sharing_Source {
 		 *
 		 * @param array $klasses Sharing service classes.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$klasses = apply_filters( 'jetpack_sharing_display_classes', $klasses, $this, $id, $args );
@@ -276,7 +278,7 @@ abstract class Sharing_Source {
 		 *
 		 * @param string $title Sharing service title.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$title = apply_filters( 'jetpack_sharing_display_title', $title, $this, $id, $args );
@@ -289,19 +291,53 @@ abstract class Sharing_Source {
 		 *
 		 * @param string $text Sharing service text.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$text = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
 
+		/**
+		 * Filter the sharing data attributes.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 10.10.0
+		 *
+		 * @param array $data_attributes Attributes supplied from the sharing source.
+		 *                               Note that 'data-' will be prepended to all keys.
+		 * @param Sharing_Source $this Sharing source instance.
+		 * @param string|false $id Sharing ID.
+		 * @param array $args Array of sharing service options.
+		 */
+		$data_attributes = apply_filters( 'jetpack_sharing_data_attributes', $data_attributes, $this, $id, $args );
+
+		$encoded_data_attributes = '';
+		if ( ! empty( $data_attributes ) ) {
+			$encoded_data_attributes = implode(
+				' ',
+				array_map(
+					function ( $data_key, $data_value ) {
+						return sprintf(
+							'data-%s="%s"',
+							esc_html( str_replace( array( ' ', '"' ), '', $data_key ) ),
+							esc_attr( $data_value )
+						);
+					},
+					array_keys( $data_attributes ),
+					array_values( $data_attributes )
+				)
+			);
+		}
+
 		return sprintf(
-			'<a rel="nofollow%s" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
+			'<a rel="nofollow%s" data-shared="%s" class="%s" href="%s"%s title="%s" %s><span%s>%s</span></a>',
 			( true === $this->open_link_in_new ) ? ' noopener noreferrer' : '',
 			( $id ? esc_attr( $id ) : '' ),
 			implode( ' ', $klasses ),
 			$url,
 			( true === $this->open_link_in_new ) ? ' target="_blank"' : '',
 			$title,
+			$encoded_data_attributes,
 			( 'icon' === $this->button_style ) ? '></span><span class="sharing-screen-reader-text"' : '',
 			$text
 		);
@@ -816,6 +852,9 @@ abstract class Sharing_Advanced_Source extends Sharing_Source {
  * Handle the display of the email sharing button.
  */
 class Share_Email extends Sharing_Source {
+	const SHARE_MODE_FORM_SUBMIT = 'form-submit';
+	const SHARE_MODE_MAILTO      = 'mailto';
+
 	/**
 	 * Service short name.
 	 *
@@ -831,6 +870,14 @@ class Share_Email extends Sharing_Source {
 	public $icon = '\f410';
 
 	/**
+	 * Tracks the current email sharing mode.
+	 *
+	 * @var string The value should be either SHARE_MODE_FORM_SUBMIT or SHARE_MODE_MAILTO.
+	 * @see get_email_share_mode()
+	 */
+	protected $email_share_mode;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param int   $id       Sharing source ID.
@@ -844,6 +891,36 @@ class Share_Email extends Sharing_Source {
 		} else {
 			$this->smart = false;
 		}
+
+		$this->email_share_mode = self::get_email_share_mode();
+	}
+
+	/**
+	 * Returns the current email share mode.
+	 *
+	 * @return string The current email share mode.
+	 * @see self::SHARE_MODE_FORM_SUBMIT
+	 * @see self::SHARE_MODE_MAILTO
+	 */
+	public static function get_email_share_mode() {
+		/**
+		 * Allow plugins to specify the email sharing mode.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 10.10.0
+		 *
+		 * @param string $email_share_mode Email sharing mode. Default value is to create a mailto link.
+		 * @see Share_Email::SHARE_MODE_MAILTO Value is 'mailto'
+		 * @see Share_Email::SHARE_MODE_FORM_SUBMIT Value is 'form-submit'
+		 */
+		$email_share_mode = apply_filters( 'sharing_email_share_mode', self::SHARE_MODE_MAILTO );
+
+		if ( ! empty( $email_share_mode ) ) {
+			return $email_share_mode;
+		}
+
+		return self::SHARE_MODE_MAILTO;
 	}
 
 	/**
@@ -856,6 +933,20 @@ class Share_Email extends Sharing_Source {
 	}
 
 	/**
+	 * Helper function to return a nonce action based on the current post.
+	 *
+	 * @param WP_Post|null $post The current post if it is defined.
+	 * @return string The nonce action name.
+	 */
+	protected function get_email_share_nonce_action( $post ) {
+		if ( ! empty( $post ) && $post instanceof WP_Post ) {
+			return 'jetpack-email-share-' . $post->ID;
+		}
+
+		return 'jetpack-email-share';
+	}
+
+	/**
 	 * Process sharing request. Add actions that need to happen when sharing here.
 	 *
 	 * @param WP_Post $post Post object.
@@ -864,14 +955,41 @@ class Share_Email extends Sharing_Source {
 	 * @return void
 	 */
 	public function process_request( $post, array $post_data ) {
-		$ajax = false;
+		$is_ajax = false;
 		if (
 			isset( $_SERVER['HTTP_X_REQUESTED_WITH'] )
 			&& strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) ) === 'xmlhttprequest'
 		) {
-			$ajax = true;
+			$is_ajax = true;
 		}
 
+		if ( self::SHARE_MODE_FORM_SUBMIT === $this->email_share_mode ) {
+			$this->process_form_submit( $post, $post_data, $is_ajax );
+			return;
+		}
+
+		if ( self::SHARE_MODE_MAILTO === $this->email_share_mode ) {
+			// Require an AJAX-driven submit and a valid nonce to process the request
+			if (
+				$is_ajax
+				&& isset( $post_data['email-share-nonce'] )
+				&& wp_verify_nonce( $post_data['email-share-nonce'], $this->get_email_share_nonce_action( $post ) )
+			) {
+				// Ensure that we bump stats
+				parent::process_request( $post, $post_data );
+			}
+			return;
+		}
+	}
+
+	/**
+	 * Helper function to process form submissions for email shares.
+	 *
+	 * @param WP_Post $post The post we want to share.
+	 * @param array   $post_data The data from the form submission in $_POST.
+	 * @param bool    $ajax Whether we are processing an AJAX request or not.
+	 */
+	protected function process_form_submit( WP_Post $post, array $post_data, $ajax ) {
 		$source_name  = false;
 		$target_email = $source_name;
 		$source_email = $target_email;
@@ -985,7 +1103,54 @@ class Share_Email extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_display( $post ) {
-		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Email', 'share to', 'jetpack' ), __( 'Click to email this to a friend', 'jetpack' ), 'share=email' );
+		$data_attributes = array(
+			'email-share-mode' => $this->email_share_mode,
+		);
+
+		if ( self::SHARE_MODE_FORM_SUBMIT === $this->email_share_mode ) {
+			return $this->get_link(
+				$this->get_process_request_url( $post->ID ),
+				_x( 'Email', 'share to', 'jetpack' ),
+				__( 'Click to email this to a friend', 'jetpack' ),
+				'share=email',
+				false,
+				$data_attributes
+			);
+		}
+
+		$tracking_url = $this->get_process_request_url( $post->ID );
+		if ( false === stripos( $tracking_url, '?' ) ) {
+			$tracking_url .= '?';
+		} else {
+			$tracking_url .= '&';
+		}
+		$tracking_url .= 'share=email';
+
+		$data_attributes['email-share-nonce']     = wp_create_nonce( $this->get_email_share_nonce_action( $post ) );
+		$data_attributes['email-share-track-url'] = $tracking_url;
+
+		$post_title = $this->get_share_title( $post->ID );
+
+		/** This filter is documented in plugins/jetpack/modules/sharedaddy/sharedaddy.php */
+		$email_subject = apply_filters(
+			'wp_sharing_email_send_post_subject',
+			sprintf( '[%s] %s', __( 'Shared Post', 'jetpack' ), $post_title )
+		);
+
+		$mailto_query = sprintf(
+			'subject=%s&body=%s&share=email',
+			rawurlencode( $email_subject ),
+			rawurlencode( get_permalink( $post ) )
+		);
+
+		return $this->get_link(
+			'mailto:',
+			_x( 'Email', 'share to', 'jetpack' ),
+			__( 'Click to email a link to a friend', 'jetpack' ),
+			$mailto_query,
+			false,
+			$data_attributes
+		);
 	}
 
 	/**
@@ -1007,6 +1172,10 @@ class Share_Email extends Sharing_Source {
 	 */
 	public function display_footer() {
 		global $current_user;
+
+		if ( self::SHARE_MODE_FORM_SUBMIT !== $this->email_share_mode ) {
+			return;
+		}
 
 		$request_uri = isset( $_SERVER['REQUEST_URI'] )
 			? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) )
