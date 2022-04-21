@@ -1,5 +1,4 @@
-<?php
-
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Jetpack_Google_Analytics_Universal hooks and and enqueues support for analytics.js
  * https://developers.google.com/analytics/devguides/collection/analyticsjs/
@@ -15,7 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Jetpack_Google_Analytics_Universal main class.
+ */
 class Jetpack_Google_Analytics_Universal {
+	/**
+	 * Jetpack_Google_Analytics_Universal constructor.
+	 */
 	public function __construct() {
 		add_filter( 'jetpack_wga_universal_commands', array( $this, 'maybe_anonymize_ip' ) );
 		add_filter( 'jetpack_wga_universal_commands', array( $this, 'maybe_track_purchases' ) );
@@ -37,6 +42,9 @@ class Jetpack_Google_Analytics_Universal {
 		add_action( 'wp_footer', array( $this, 'send_pageview_in_footer' ), 24 );
 	}
 
+	/**
+	 * Inject the analytics code to wp_head.
+	 */
 	public function wp_head() {
 		$tracking_code = Jetpack_Google_Analytics_Options::get_tracking_code();
 		if ( empty( $tracking_code ) ) {
@@ -85,6 +93,11 @@ class Jetpack_Google_Analytics_Universal {
 		echo "$async_code\r\n";
 	}
 
+	/**
+	 * Check if the 'anonymize_ip' option should be added to the universal Google Analytics queue (ga) commands.
+	 *
+	 * @param array $command_array Array of commands to process.
+	 */
 	public function maybe_anonymize_ip( $command_array ) {
 		if ( Jetpack_Google_Analytics_Options::anonymize_ip_is_enabled() ) {
 			array_push( $command_array, "ga( 'set', 'anonymizeIp', true );" );
@@ -93,6 +106,11 @@ class Jetpack_Google_Analytics_Universal {
 		return $command_array;
 	}
 
+	/**
+	 * Process purchase tracking options for the universal Google Analytics queue (ga) commands.
+	 *
+	 * @param array $command_array Array of commands to process.
+	 */
 	public function maybe_track_purchases( $command_array ) {
 		global $wp;
 
@@ -162,6 +180,9 @@ class Jetpack_Google_Analytics_Universal {
 		return $command_array;
 	}
 
+	/**
+	 * Process add-to-cart analytics options.
+	 */
 	public function add_to_cart() {
 		if ( ! Jetpack_Google_Analytics_Options::track_add_to_cart_is_enabled() ) {
 			return;
@@ -190,6 +211,9 @@ class Jetpack_Google_Analytics_Universal {
 		);
 	}
 
+	/**
+	 * Process loop-add-to-cart analytics options.
+	 */
 	public function loop_add_to_cart() {
 		if ( ! Jetpack_Google_Analytics_Options::track_add_to_cart_is_enabled() ) {
 			return;
@@ -221,6 +245,9 @@ class Jetpack_Google_Analytics_Universal {
 		);
 	}
 
+	/**
+	 * Process remove-from-cart analytics options.
+	 */
 	public function remove_from_cart() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
@@ -273,6 +300,9 @@ class Jetpack_Google_Analytics_Universal {
 		return $url;
 	}
 
+	/**
+	 * Process listing-impression analytics options.
+	 */
 	public function listing_impression() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
@@ -301,6 +331,9 @@ class Jetpack_Google_Analytics_Universal {
 		wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details ) . ' );' );
 	}
 
+	/**
+	 * Process listing-click analytics options.
+	 */
 	public function listing_click() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
@@ -341,6 +374,9 @@ class Jetpack_Google_Analytics_Universal {
 		);
 	}
 
+	/**
+	 * Process product-detail analytics options.
+	 */
 	public function product_detail() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
@@ -365,6 +401,9 @@ class Jetpack_Google_Analytics_Universal {
 		);
 	}
 
+	/**
+	 * Process checkout-process analytics options.
+	 */
 	public function checkout_process() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
@@ -400,6 +439,9 @@ class Jetpack_Google_Analytics_Universal {
 		wc_enqueue_js( implode( "\r\n", $universal_commands ) );
 	}
 
+	/**
+	 * Helper to add the WooCommerce analytics code in the correct order.
+	 */
 	public function send_pageview_in_footer() {
 		if ( ! Jetpack_Google_Analytics_Options::has_tracking_code() ) {
 			return;
