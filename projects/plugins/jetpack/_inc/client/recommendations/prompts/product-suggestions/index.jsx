@@ -3,6 +3,7 @@
  */
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -11,6 +12,8 @@ import { __ } from '@wordpress/i18n';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import {
+	getNextRoute,
+	isProductSuggestionsAvailable as isProductSuggestionsAvailableCheck,
 	getProductSuggestions,
 	isFetchingRecommendationsProductSuggestions,
 	isFetchingRecommendationsUpsell,
@@ -26,6 +29,8 @@ import Timer from '../../timer';
 import './style.scss';
 
 const ProductSuggestionsComponent = ( {
+	nextRoute,
+	isProductSuggestionsAvailable,
 	isFetchingSuggestions,
 	isFetchingDiscount,
 	isFetchingUpsell,
@@ -40,6 +45,15 @@ const ProductSuggestionsComponent = ( {
 
 	if ( isFetchingSuggestions || isFetchingUpsell ) {
 		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
+	}
+
+	// Redirect the user to the next step if they are not eligible for the product
+	// suggestions step.
+	if ( ! isProductSuggestionsAvailable ) {
+		// We have to remove the first "#" value from the next route value
+		// so React Router will match it with one of the other recommendations paths.
+		// E.g. "#/recommendations/monitor" => "/recommendations/monitor".
+		return <Redirect to={ nextRoute.substring( 1 ) } />;
 	}
 
 	return (
@@ -84,6 +98,8 @@ const ProductSuggestionsComponent = ( {
 };
 
 export const ProductSuggestions = connect( state => ( {
+	nextRoute: getNextRoute( state ),
+	isProductSuggestionsAvailable: isProductSuggestionsAvailableCheck( state ),
 	isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
 	isFetchingDiscount: isFetchingSiteDiscount( state ),
 	isFetchingUpsell: isFetchingRecommendationsUpsell( state ),
