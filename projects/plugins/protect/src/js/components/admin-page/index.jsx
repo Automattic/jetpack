@@ -19,75 +19,7 @@ import React from 'react';
  */
 import Summary from '../summary';
 import VulnerabilitiesList from '../vulnerabilities-list';
-
-const coreListMock = [
-	{
-		name: 'WordPress',
-		version: '5.4.1',
-		vulnerabilities: [
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f416',
-				title: 'Vulnerability Title 1',
-				description: 'Vulnerability Description 1',
-				fixedIn: '5.4.2',
-			},
-		],
-	},
-];
-
-const pluginsListMock = [
-	{
-		name: 'Jetpack Backup',
-		version: '1.0.1',
-		vulnerabilities: [
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f420',
-				title: 'Vulnerability Title 1',
-				description: 'Vulnerability Description 1',
-				fixedIn: '1.1.0',
-			},
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f410',
-				title: 'Vulnerability Title 2',
-				description: 'Vulnerability Description 2',
-				fixedIn: '1.1.0',
-			},
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f411',
-				title: 'Vulnerability Title 3',
-				description: 'Vulnerability Description 3',
-				fixedIn: '1.1.0',
-			},
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f412',
-				title: 'Vulnerability Title 4',
-				description: 'Vulnerability Description 4',
-				fixedIn: '1.1.0',
-			},
-		],
-	},
-];
-
-const themeListMock = [
-	{
-		name: 'Famous Theme',
-		version: '1.0.2',
-		vulnerabilities: [
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f413',
-				title: 'Vulnerability Title 1',
-				description: 'Vulnerability Description 1',
-				fixedIn: '1.1.0',
-			},
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f414',
-				title: 'Vulnerability Title 2',
-				description: 'Vulnerability Description 2',
-				fixedIn: '1.1.0',
-			},
-		],
-	},
-];
+import useProtectData from '../../hooks/use-protect-data';
 
 const Admin = () => {
 	const connectionStatus = useSelect(
@@ -96,6 +28,7 @@ const Admin = () => {
 	);
 	const { isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered;
+	const { plugins, themes, core } = useProtectData();
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
 			{ showConnectionCard ? (
@@ -118,13 +51,13 @@ const Admin = () => {
 					<AdminSection>
 						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 							<Col>
-								<VulnerabilitiesList title="WordPress" list={ coreListMock } />
+								<VulnerabilitiesList title="WordPress" list={ [ core ] } />
 							</Col>
 							<Col>
-								<VulnerabilitiesList title="Plugins" list={ pluginsListMock } />
+								<VulnerabilitiesList title="Plugins" list={ plugins } />
 							</Col>
 							<Col>
-								<VulnerabilitiesList title="Themes" list={ themeListMock } />
+								<VulnerabilitiesList title="Themes" list={ themes } />
 							</Col>
 						</Container>
 					</AdminSection>

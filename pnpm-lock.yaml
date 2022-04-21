@@ -101,12 +101,12 @@ importers:
 
   projects/js-packages/components:
     specifiers:
-      '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/format-currency': 1.0.0
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@babel/core': 7.17.9
       '@babel/preset-react': 7.16.7
+      '@testing-library/react': 11.2.7
       '@types/chai': 4.3.0
-      '@types/enzyme': 3.10.11
       '@types/jest': 27.4.1
       '@types/react': 17.0.40
       '@types/react-dom': 17.0.13
@@ -127,7 +127,7 @@ importers:
       react-test-renderer: 17.0.2
       typescript: 4.3.5
     dependencies:
-      '@automattic/format-currency': 1.0.0-alpha.0_00d6772dea80510e818fd171caaa025a
+      '@automattic/format-currency': 1.0.0_react@17.0.2
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.8.0_90235303a63cb120a61bc1fbe29e5237
       '@wordpress/date': 4.6.0
@@ -141,8 +141,8 @@ importers:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.17.9
       '@babel/preset-react': 7.16.7_@babel+core@7.17.9
+      '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@types/chai': 4.3.0
-      '@types/enzyme': 3.10.11
       '@types/jest': 27.4.1
       '@types/react': 17.0.40
       '@types/react-dom': 17.0.13
@@ -673,7 +673,7 @@ importers:
 
   projects/packages/my-jetpack:
     specifiers:
-      '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/format-currency': 1.0.0
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.11
@@ -713,7 +713,7 @@ importers:
       typescript: 4.3.5
       webpack: 5.65.0
     dependencies:
-      '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
+      '@automattic/format-currency': 1.0.0_react@17.0.2
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
@@ -1121,7 +1121,7 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
-      '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/format-currency': 1.0.0
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
@@ -1263,7 +1263,7 @@ importers:
     dependencies:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/components': 1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2
-      '@automattic/format-currency': 1.0.0-alpha.0_00d6772dea80510e818fd171caaa025a
+      '@automattic/format-currency': 1.0.0_react@17.0.2
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
@@ -1434,6 +1434,7 @@ importers:
       '@wordpress/element': 4.4.0
       '@wordpress/i18n': 4.6.0
       '@wordpress/icons': 8.2.0
+      camelize: 1.0.0
       classnames: 2.3.1
       concurrently: 6.0.2
       react: 17.0.2
@@ -1451,6 +1452,7 @@ importers:
       '@wordpress/element': 4.4.0
       '@wordpress/i18n': 4.6.0
       '@wordpress/icons': 8.2.0
+      camelize: 1.0.0
       classnames: 2.3.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -1876,47 +1878,10 @@ packages:
       react-modal: 3.14.4_react-dom@17.0.2+react@17.0.2
     dev: false
 
-  /@automattic/format-currency/1.0.0-alpha.0_00d6772dea80510e818fd171caaa025a:
-    resolution: {integrity: sha512-Y5An5nsNtskdLN3mbh5UWKvsS3C5PHbOcBU5D58dmjc96z5WAa99gSNYkN87FjqrJKGM4J2JhE5d1gIadYU++A==}
-    dependencies:
-      i18n-calypso: 5.0.0_00d6772dea80510e818fd171caaa025a
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-      - supports-color
-    dev: false
-
-  /@automattic/format-currency/1.0.0-alpha.0_react@17.0.2:
-    resolution: {integrity: sha512-Y5An5nsNtskdLN3mbh5UWKvsS3C5PHbOcBU5D58dmjc96z5WAa99gSNYkN87FjqrJKGM4J2JhE5d1gIadYU++A==}
-    dependencies:
-      i18n-calypso: 5.0.0_react@17.0.2
-    transitivePeerDependencies:
-      - '@types/react'
-      - react
-      - supports-color
-    dev: false
-
-  /@automattic/interpolate-components/1.2.1_00d6772dea80510e818fd171caaa025a:
-    resolution: {integrity: sha512-YNQtJsrs9KQ3lkBdtLyDheVRijoBA3y/PuHdgJ0eB4AX9JyjkDX7jd79Inh79+01CGNLbMQGrEJby2zvbJr17A==}
+  /@automattic/format-currency/1.0.0_react@17.0.2:
+    resolution: {integrity: sha512-Y/HVAOFViqw/ED4YD/ibj7t5A7TQRxG6KW1qb25cPnNSb4Amos5Gu6NlGtAhEF4fBBSk5WqiPMmkpPXFTPGXHA==}
     peerDependencies:
-      '@types/react': '>=16.14.23'
-      react: '>=16.2.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-    dependencies:
-      '@types/react': 17.0.40
-      react: 17.0.2
-    dev: false
-
-  /@automattic/interpolate-components/1.2.1_react@17.0.2:
-    resolution: {integrity: sha512-YNQtJsrs9KQ3lkBdtLyDheVRijoBA3y/PuHdgJ0eB4AX9JyjkDX7jd79Inh79+01CGNLbMQGrEJby2zvbJr17A==}
-    peerDependencies:
-      '@types/react': '>=16.14.23'
-      react: '>=16.2.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
+      react: ^17.0.2
     dependencies:
       react: 17.0.2
     dev: false
@@ -7710,10 +7675,6 @@ packages:
   /@tannin/postfix/1.1.0:
     resolution: {integrity: sha512-oocsqY7g0cR+Gur5jRQLSrX2OtpMLMse1I10JQBm8CdGMrDkh1Mg2gjsiquMHRtBs4Qwu5wgEp5GgIYHk4SNPw==}
 
-  /@tannin/sprintf/1.2.0:
-    resolution: {integrity: sha512-T0ORaQrH6kNFGzTg285RVPK+NCYZxOoA+r0QfKgHqK+yk5RuYPSKDa18XCLtycCNq+VWKpfyDpzGUGhYgCV+kw==}
-    dev: false
-
   /@testing-library/dom/7.31.2:
     resolution: {integrity: sha512-3UqjCpey6HiTZT92vODYLPxTBWlM8ZOOjr3LX5F37/VRipW2M1kX6I/Cm4VXzteZqfGfagg8yXywpcOgQBlNsQ==}
     engines: {node: '>=10'}
@@ -7879,13 +7840,6 @@ packages:
     resolution: {integrity: sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==}
     dev: true
 
-  /@types/enzyme/3.10.11:
-    resolution: {integrity: sha512-LEtC7zXsQlbGXWGcnnmOI7rTyP+i1QzQv4Va91RKXDEukLDaNyxu0rXlfMiGEhJwfgTPCTb0R+Pnlj//oM9e/w==}
-    dependencies:
-      '@types/cheerio': 0.22.31
-      '@types/react': 18.0.1
-    dev: true
-
   /@types/eslint-scope/3.7.3:
     resolution: {integrity: sha512-PB3ldyrcnAicT35TWPs5IcwKD8S333HMaa2VVv4+wdvebJkjWuW/xESoB8IwRcog8HYVYamb1g/R31Qv5Bx03g==}
     dependencies:
@@ -8047,12 +8001,6 @@ packages:
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
     dev: true
 
-  /@types/react-dom/16.9.14:
-    resolution: {integrity: sha512-FIX2AVmPTGP30OUJ+0vadeIFJJ07Mh1m+U0rxfgyW34p3rTlXI+nlenvAxNn4BP36YyI9IJ/+UJ7Wu22N1pI7A==}
-    dependencies:
-      '@types/react': 16.14.24
-    dev: false
-
   /@types/react-dom/17.0.13:
     resolution: {integrity: sha512-wEP+B8hzvy6ORDv1QBhcQia4j6ea4SFIBttHYpXKPFZRviBvknq0FRh3VrIxeXUmsPkwuXVZrVGG7KUVONmXCQ==}
     dependencies:
@@ -8082,14 +8030,6 @@ packages:
     resolution: {integrity: sha512-3Fi2O6Zzq/f3QR9dRnlnHso9bMl7weKCviFmfF6B4LS1Uat6Hkm15k0ZAQuDz+UBq6B3+g+NM6IT2nr5QgPzCw==}
     dependencies:
       '@types/react': 18.0.1
-
-  /@types/react/16.14.24:
-    resolution: {integrity: sha512-e7U2WC8XQP/xfR7bwhOhNFZKPTfW1ph+MiqtudKb8tSV8RyCsovQx2sNVtKoOryjxFKpHPPC/yNiGfdeVM5Gyw==}
-    dependencies:
-      '@types/prop-types': 15.7.5
-      '@types/scheduler': 0.16.2
-      csstype: 3.0.11
-    dev: false
 
   /@types/react/17.0.40:
     resolution: {integrity: sha512-UrXhD/JyLH+W70nNSufXqMZNuUD2cXHu6UjCllC6pmOQgBX4SGXOH8fjRka0O0Ee0HrFxapDD8Bwn81Kmiz6jQ==}
@@ -9071,26 +9011,6 @@ packages:
       - '@babel/core'
       - '@types/react'
 
-  /@wordpress/compose/3.25.3_react@17.0.2:
-    resolution: {integrity: sha512-tCO2EnJCkCH548OqA0uU8V1k/1skz2QwBlHs8ZQSpimqUS4OWWsAlndCEFe4U4vDTqFt2ow7tzAir+05Cw8MAg==}
-    dependencies:
-      '@babel/runtime': 7.17.9
-      '@wordpress/deprecated': 2.12.3
-      '@wordpress/dom': 2.18.0
-      '@wordpress/element': 2.20.3
-      '@wordpress/is-shallow-equal': 3.1.3
-      '@wordpress/keycodes': 2.19.3
-      '@wordpress/priority-queue': 1.11.2
-      clipboard: 2.0.10
-      lodash: 4.17.21
-      memize: 1.1.0
-      mousetrap: 1.6.5
-      react-resize-aware: 3.1.1_react@17.0.2
-      use-memo-one: 1.1.2_react@17.0.2
-    transitivePeerDependencies:
-      - react
-    dev: false
-
   /@wordpress/compose/5.4.0_react@17.0.2:
     resolution: {integrity: sha512-KKRW2bJ9Lri2gRGX717b1iquxxDlNDnP5SenCoCR0kXXH2Q6DAlM6JfISspCst7ag6dgiBSVBWzIsDyjeezceA==}
     engines: {node: '>=12'}
@@ -9208,13 +9128,6 @@ packages:
       webpack: 5.65.0
       webpack-sources: 3.2.3
 
-  /@wordpress/deprecated/2.12.3:
-    resolution: {integrity: sha512-qr+yDfTQfI3M4h6oY6IeHWwoHr4jxbILjSlV+Ht6Jjto9Owap6OuzSqR13Ev4xqIoG4C7b5B3gZXVfwVDae1zg==}
-    dependencies:
-      '@babel/runtime': 7.17.9
-      '@wordpress/hooks': 2.12.3
-    dev: false
-
   /@wordpress/deprecated/3.6.0:
     resolution: {integrity: sha512-ykuOrr6Lxfl1E8D7MYHubMC3q/vKTjGzCzNj/LT3BUk7q6HQbk2rHhHejECrei7D9WqyKtQh1INyMG6y3vqjIA==}
     engines: {node: '>=12'}
@@ -9227,13 +9140,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.17.9
-
-  /@wordpress/dom/2.18.0:
-    resolution: {integrity: sha512-tM2WeQuSObl3nzWjUTF0/dyLnA7sdl/MXaSe32D64OF89bjSyJvjUipI7gjKzI3kJ7ddGhwcTggGvSB06MOoCQ==}
-    dependencies:
-      '@babel/runtime': 7.17.9
-      lodash: 4.17.21
-    dev: false
 
   /@wordpress/dom/3.6.0:
     resolution: {integrity: sha512-JmIi4IhY+syoRPmJsJBXt0HPV3yRsz7AR9tx4RXUc0t0DMbH1ULqcyuBFt24MkQ6HmL939gpESflKR4Wo3GIcw==}
@@ -9330,18 +9236,6 @@ packages:
       - '@babel/core'
       - '@types/react'
 
-  /@wordpress/element/2.20.3:
-    resolution: {integrity: sha512-f4ZPTDf9CxiiOXiMxc4v1K7jcBMT4dsiehVOpkKzCDKboNXp4qVf8oe5PE23VGZNEjcOj5Mkg9hB57R0nqvMTw==}
-    dependencies:
-      '@babel/runtime': 7.17.9
-      '@types/react': 16.14.24
-      '@types/react-dom': 16.9.14
-      '@wordpress/escape-html': 1.12.2
-      lodash: 4.17.21
-      react: 16.14.0
-      react-dom: 16.14.0_react@16.14.0
-    dev: false
-
   /@wordpress/element/4.1.1:
     resolution: {integrity: sha512-lzrCvQOtzyRguw+VlG8EVzy8aexJ2Fk3tN8ifefvvTN0vNJeFdoEaSZGqYCoVvRKHKXpLfX9vMsVp0Ug0EWPcQ==}
     engines: {node: '>=12'}
@@ -9366,12 +9260,6 @@ packages:
       lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-
-  /@wordpress/escape-html/1.12.2:
-    resolution: {integrity: sha512-FabgSwznhdaUwe6hr1CsGpgxQbzqEoGevv73WIL1B9GvlZ6csRWodgHfWh4P6fYqpzxFL4WYB8wPJ1PdO32XFA==}
-    dependencies:
-      '@babel/runtime': 7.17.9
-    dev: false
 
   /@wordpress/escape-html/2.6.0:
     resolution: {integrity: sha512-gA+49nsTiQuxbgx4g4P9i9q3ea0RLOD6yBVSvtMzUX/vRhlz7xvlaj9PhFkbZu1FD+IHgBLuvRqHPbHNEqMyyQ==}
@@ -9555,12 +9443,6 @@ packages:
       - '@types/react'
     dev: false
 
-  /@wordpress/is-shallow-equal/3.1.3:
-    resolution: {integrity: sha512-eDLhfC4aaSgklzqwc6F/F4zmJVpTVTAvhqX+q0SP/8LPcP2HuKErPHVrEc75PMWqIutja2wJg98YSNPdewrj1w==}
-    dependencies:
-      '@babel/runtime': 7.17.9
-    dev: false
-
   /@wordpress/is-shallow-equal/4.6.0:
     resolution: {integrity: sha512-sRPDgTfaogRUaWxPCVm6ZhRcLb7W214Af2IItxAPTa3jkrEFY5oWXtqRROYmDDQpxJFAmESz9TgsH7Ls36vBwA==}
     engines: {node: '>=12'}
@@ -9614,14 +9496,6 @@ packages:
       lodash: 4.17.21
       react: 17.0.2
       rememo: 3.0.0
-
-  /@wordpress/keycodes/2.19.3:
-    resolution: {integrity: sha512-8rNdmP5M1ifTgLIL0dt/N1uTGsq/Rx1ydCXy+gg24WdxBRhyu5sudNVCtascVXo26aIfOH9OJRdqRZZTEORhog==}
-    dependencies:
-      '@babel/runtime': 7.17.9
-      '@wordpress/i18n': 3.20.0
-      lodash: 4.17.21
-    dev: false
 
   /@wordpress/keycodes/3.6.0:
     resolution: {integrity: sha512-Iak71hXHSkT2N8/wv+5J/Mtoph8PLnJCAnFSZeKjOGCZ3Fw3hdnePK+aJby40CzaSll6y6Dk9Nj/OT8Bmkwe6Q==}
@@ -9713,12 +9587,6 @@ packages:
       '@babel/runtime': 7.17.9
       '@wordpress/element': 4.4.0
       classnames: 2.3.1
-
-  /@wordpress/priority-queue/1.11.2:
-    resolution: {integrity: sha512-ulwmUOklY3orn1xXpcPnTyGWV5B/oycxI+cHZ6EevBVgM5sq+BW3xo0PKLR/MMm6UNBtFTu/71QAJrNZcD6V1g==}
-    dependencies:
-      '@babel/runtime': 7.17.9
-    dev: false
 
   /@wordpress/priority-queue/2.6.0:
     resolution: {integrity: sha512-FKXrJ2OO7/R4vtDXJV0hyS4mCE5HgMqKkAiV83c62oJo4OWTr4hB+LvlngCMdY03O3qp9YKUEiQPgQCCgIXBuw==}
@@ -10595,7 +10463,7 @@ packages:
       loader-utils: 2.0.2
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
 
   /babel-plugin-add-react-displayname/0.0.5:
     resolution: {integrity: sha1-M51M3be2X9YtHfnbn+BN4TQSK9U=}
@@ -11223,6 +11091,10 @@ packages:
   /camelcase/6.3.0:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
+
+  /camelize/1.0.0:
+    resolution: {integrity: sha1-FkpUg+Yw+kMh5a8HAg5TGDGyYJs=}
+    dev: false
 
   /caniuse-api/3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
@@ -12114,7 +11986,7 @@ packages:
       postcss-modules-values: 4.0.0_postcss@8.3.11
       postcss-value-parser: 4.2.0
       semver: 7.3.6
-      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack: 5.65.0
 
   /css-minimizer-webpack-plugin/3.1.4_webpack@5.65.0:
     resolution: {integrity: sha512-JXnwBEA+a3FrmuBIJz7tKnCYGyraP86nuvX+wAqik1Lc8Ne9Ql8h5RpFbM3HjMpjXfhnqRBoTYIfArji5mteOg==}
@@ -14922,6 +14794,7 @@ packages:
     dependencies:
       inherits: 2.0.4
       minimalistic-assert: 1.0.1
+    dev: true
 
   /hasha/5.2.2:
     resolution: {integrity: sha512-Hrp5vIK/xr5SkeN2onO32H0MgNZ0f17HRNH39WfL0SYUNOTZ5Lz1TJ8Pajo/87dYGEFlLMm7mIc/k/s6Bvz9HQ==}
@@ -15204,50 +15077,6 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
     dev: true
-
-  /i18n-calypso/5.0.0_00d6772dea80510e818fd171caaa025a:
-    resolution: {integrity: sha512-YgqLgshNiBOiifWxr4s33ODWQ4JIaHoBPWtgFyqcRy0+WGMX2CmTDbXaeZHkHxuIjzsGP+YrVTPNp7lfbiot4g==}
-    peerDependencies:
-      react: ^16.8 || ^17
-    dependencies:
-      '@babel/runtime': 7.17.9
-      '@tannin/sprintf': 1.2.0
-      '@wordpress/compose': 3.25.3_react@17.0.2
-      debug: 4.3.4
-      events: 3.3.0
-      hash.js: 1.1.7
-      interpolate-components: /@automattic/interpolate-components/1.2.1_00d6772dea80510e818fd171caaa025a
-      lodash: 4.17.21
-      lru: 3.1.0
-      react: 17.0.2
-      tannin: 1.2.0
-      use-subscription: 1.5.1_react@17.0.2
-    transitivePeerDependencies:
-      - '@types/react'
-      - supports-color
-    dev: false
-
-  /i18n-calypso/5.0.0_react@17.0.2:
-    resolution: {integrity: sha512-YgqLgshNiBOiifWxr4s33ODWQ4JIaHoBPWtgFyqcRy0+WGMX2CmTDbXaeZHkHxuIjzsGP+YrVTPNp7lfbiot4g==}
-    peerDependencies:
-      react: ^16.8 || ^17
-    dependencies:
-      '@babel/runtime': 7.17.9
-      '@tannin/sprintf': 1.2.0
-      '@wordpress/compose': 3.25.3_react@17.0.2
-      debug: 4.3.4
-      events: 3.3.0
-      hash.js: 1.1.7
-      interpolate-components: /@automattic/interpolate-components/1.2.1_react@17.0.2
-      lodash: 4.17.21
-      lru: 3.1.0
-      react: 17.0.2
-      tannin: 1.2.0
-      use-subscription: 1.5.1_react@17.0.2
-    transitivePeerDependencies:
-      - '@types/react'
-      - supports-color
-    dev: false
 
   /iconv-lite/0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -17285,13 +17114,6 @@ packages:
     resolution: {integrity: sha512-E1v547OCgJvbvevfjgK9sNKIVXO96NnsTsFPBlg4ZxjhsJSODoH9lk8Bm0OxvHNm6Vm5Yqkl/1fErDxhYL8Skg==}
     engines: {node: '>=12'}
 
-  /lru/3.1.0:
-    resolution: {integrity: sha1-6n+4VG2DczOWoTCR12z+tMBoN9U=}
-    engines: {node: '>= 0.4.0'}
-    dependencies:
-      inherits: 2.0.4
-    dev: false
-
   /ltgt/2.2.1:
     resolution: {integrity: sha1-81ypHEk/e3PaDgdJUwTxezH4fuU=}
     dev: true
@@ -17628,6 +17450,7 @@ packages:
 
   /minimalistic-assert/1.0.1:
     resolution: {integrity: sha512-UtJcAD4yEaGtjPezWuO9wC4nwUnVH/8/Im3yEHQP4b67cXlD/Qr9hdITCU1xDbSEXg2XKNaP8jsReV7vQd00/A==}
+    dev: true
 
   /minimalistic-crypto-utils/1.0.1:
     resolution: {integrity: sha1-9sAMHAsIIkblxNmd+4x8CDsrWCo=}
@@ -19852,18 +19675,6 @@ packages:
       - supports-color
     dev: true
 
-  /react-dom/16.14.0_react@16.14.0:
-    resolution: {integrity: sha512-1gCeQXDLoIqMgqD3IO2Ah9bnf0w9kzhwN5q4FGnHZ67hBm9yePzB5JJAIQCc8x3pFnNlwFq4RidZggNAAkzWWw==}
-    peerDependencies:
-      react: ^16.14.0 || ^17
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      prop-types: 15.8.1
-      react: 16.14.0
-      scheduler: 0.19.1
-    dev: false
-
   /react-dom/17.0.2_react@17.0.2:
     resolution: {integrity: sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==}
     peerDependencies:
@@ -20269,15 +20080,6 @@ packages:
       react-with-direction: 1.4.0_react-dom@17.0.2+react@17.0.2
     transitivePeerDependencies:
       - react-dom
-
-  /react/16.14.0:
-    resolution: {integrity: sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==}
-    engines: {node: '>=0.10.0'}
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      prop-types: 15.8.1
-    dev: false
 
   /react/17.0.2:
     resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==}
@@ -21089,13 +20891,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       xmlchars: 2.2.0
-
-  /scheduler/0.19.1:
-    resolution: {integrity: sha512-n/zwRWRYSUj0/3g/otKDRPMh6qv2SYMWNq85IEa8iZyAv8od9zDYpGSnpBEjNgcMNq6Scbu5KfIPxNF72R/2EA==}
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-    dev: false
 
   /scheduler/0.20.2:
     resolution: {integrity: sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==}
@@ -22886,15 +22681,6 @@ packages:
       react: ^16.8.0 || ^17.0.0
     dependencies:
       react: 17.0.2
-
-  /use-subscription/1.5.1_react@17.0.2:
-    resolution: {integrity: sha512-Xv2a1P/yReAjAbhylMfFplFKj9GssgTwN7RlcTxBujFQcloStWNDQdc4g4NRWH9xS4i/FDk04vQBptAXoF3VcA==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0
-    dependencies:
-      object-assign: 4.1.1
-      react: 17.0.2
-    dev: false
 
   /use/3.1.1:
     resolution: {integrity: sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==}

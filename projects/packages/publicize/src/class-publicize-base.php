@@ -221,7 +221,6 @@ abstract class Publicize_Base {
 
 		add_action( 'init', array( $this, 'add_post_type_support' ) );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
-		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_extension' ) );
 	}
 
 	/**
@@ -961,25 +960,6 @@ abstract class Publicize_Base {
 	 */
 	public function add_post_type_support() {
 		add_post_type_support( 'post', 'publicize' );
-	}
-
-	/**
-	 * Register the Publicize Gutenberg extension
-	 */
-	public function register_gutenberg_extension() {
-		// TODO: The `gutenberg/available-extensions` endpoint currently doesn't accept a post ID,
-		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
-
-		// TODO: We should move this registration to the Jetpack plugin.
-		if ( ! class_exists( 'Jetpack_Gutenberg' ) ) {
-			return;
-		}
-
-		if ( $this->current_user_can_access_publicize_data() ) {
-			\Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
-		} else {
-			\Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
-		}
 	}
 
 	/**
