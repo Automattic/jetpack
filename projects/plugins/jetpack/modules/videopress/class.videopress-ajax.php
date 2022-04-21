@@ -105,7 +105,7 @@ class VideoPress_AJAX {
 	}
 
 	/**
-	 * Determines if the current user can view the provided video. Only ever gets fired if site-wide privace videos are enabled.
+	 * Determines if the current user can view the provided video. Only ever gets fired if site-wide private videos are enabled.
 	 *
 	 * Filterable for 3rd party plugins.
 	 *
