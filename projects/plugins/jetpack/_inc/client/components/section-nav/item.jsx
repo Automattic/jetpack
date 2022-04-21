@@ -6,9 +6,7 @@
 import PropTypes from 'prop-types';
 
 import React from 'react';
-import PureRenderMixin from 'react-pure-render/mixin';
 import classNames from 'classnames';
-import createReactClass from 'create-react-class';
 
 /**
  * Internal Dependencies
@@ -18,11 +16,10 @@ import Count from 'components/count';
 /**
  * Main
  */
-const NavItem = createReactClass( {
-	displayName: 'NavItem',
-	mixins: [ PureRenderMixin ],
+class NavItem extends React.PureComponent {
+	static displayName = 'NavItem';
 
-	propTypes: {
+	static propTypes = {
 		itemType: PropTypes.string,
 		path: PropTypes.string,
 		selected: PropTypes.bool,
@@ -31,9 +28,9 @@ const NavItem = createReactClass( {
 		isExternalLink: PropTypes.bool,
 		disabled: PropTypes.bool,
 		count: PropTypes.number,
-	},
+	};
 
-	render: function () {
+	render() {
 		const itemClassPrefix = this.props.itemType ? this.props.itemType : 'tab';
 		const itemClasses = {
 			'is-selected': this.props.selected,
@@ -70,7 +67,7 @@ const NavItem = createReactClass( {
 				</a>
 			</li>
 		);
-	},
-} );
+	}
+}
 
 export default NavItem;
