@@ -31,11 +31,14 @@ function buildInitialState( { recommendationsStep } = {} ) {
 				data: {},
 				requests: {},
 				step: recommendationsStep,
+				siteDiscount: {
+					viewed: 'site-type',
+				},
 			},
 			settings: {
 				items: [],
 			},
-		},
+		}
 	};
 }
 
