@@ -32,20 +32,20 @@ import {
 	getWafHasRulesAccess,
 	getWafUiEnabled,
 	isFetchingWafSettings,
-} from '../state/firewall/reducer';
+} from '../state/waf/reducer';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 
-export const Firewall = class extends Component {
+export const Waf = class extends Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {{jetpack_waf_ip_list: *, jetpack_firewall_share_data: *}}
+	 * @returns {{jetpack_waf_ip_list: *, jetpack_waf_share_data: *}}
 	 */
 	state = {
 		jetpack_waf_ip_list: this.props.getOptionValue( 'jetpack_waf_ip_list' ),
 		jetpack_waf_ip_allow_list: this.props.getOptionValue( 'jetpack_waf_ip_allow_list' ),
 		jetpack_waf_ip_block_list: this.props.getOptionValue( 'jetpack_waf_ip_block_list' ),
-		jetpack_firewall_share_data: this.props.getOptionValue( 'jetpack_firewall_share_data' ),
+		jetpack_waf_share_data: this.props.getOptionValue( 'jetpack_waf_share_data' ),
 	};
 
 	handleIpListToggleChange = () => {
@@ -53,7 +53,7 @@ export const Firewall = class extends Component {
 	};
 
 	handleShareDataToggleChange = () => {
-		this.updateOptions( 'jetpack_firewall_share_data' );
+		this.updateOptions( 'jetpack_waf_share_data' );
 	};
 
 	handleIpListChange = event => {
@@ -78,7 +78,7 @@ export const Firewall = class extends Component {
 			{
 				[ optionName ]: ! this.state[ optionName ],
 			},
-			this.props.updateFormStateModuleOption( 'firewall', optionName )
+			this.props.updateFormStateModuleOption( 'waf', optionName )
 		);
 	};
 
@@ -87,26 +87,26 @@ export const Firewall = class extends Component {
 			return <QueryWafSettings />;
 		}
 
-		const isFirewallActive = this.props.getOptionValue( 'firewall' ),
-			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'firewall' );
+		const isWafActive = this.props.getOptionValue( 'waf' ),
+			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
 
 		const moduleHeader = (
-			<div className="firewall__header">
+			<div className="waf__header">
 				<span>{ _x( 'Firewall', 'Settings header', 'jetpack' ) }</span>
-				<span className="firewall__header__badge">
+				<span className="waf__header__badge">
 					{ _x( 'Beta', 'Settings header badge', 'jetpack' ) }
 				</span>
 			</div>
 		);
 
 		const ipListSettings = (
-			<div className="firewall__settings__toggle-setting">
+			<div className="waf__settings__toggle-setting">
 				<CompactFormToggle
 					checked={ this.state.jetpack_waf_ip_list }
 					disabled={
-						! isFirewallActive ||
+						! isWafActive ||
 						unavailableInOfflineMode ||
-						this.props.isSavingAnyOption( [ 'firewall', 'jetpack_waf_ip_list' ] )
+						this.props.isSavingAnyOption( [ 'waf', 'jetpack_waf_ip_list' ] )
 					}
 					onChange={ this.handleIpListToggleChange }
 				>
@@ -117,14 +117,14 @@ export const Firewall = class extends Component {
 
 				{ this.state.jetpack_waf_ip_list && (
 					<>
-						<div className="firewall__settings__ips">
+						<div className="waf__settings__ips">
 							<FormLabel>{ __( 'Blocked IP addresses', 'jetpack' ) }</FormLabel>
 							<Textarea
 								disabled={
-									! isFirewallActive ||
+									! isWafActive ||
 									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [
-										'firewall',
+										'waf',
 										'jetpack_waf_ip_list',
 										'jetpack_waf_ip_block_list',
 									] )
@@ -135,14 +135,14 @@ export const Firewall = class extends Component {
 								onChange={ this.handleIpListChange }
 							/>
 						</div>
-						<div className="firewall__settings__ips">
+						<div className="waf__settings__ips">
 							<FormLabel>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLabel>
 							<Textarea
 								disabled={
-									! isFirewallActive ||
+									! isWafActive ||
 									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [
-										'firewall',
+										'waf',
 										'jetpack_waf_ip_list',
 										'jetpack_waf_ip_allow_list',
 									] )
@@ -159,13 +159,13 @@ export const Firewall = class extends Component {
 		);
 
 		const shareDataSettings = (
-			<div className="firewall__settings__toggle-setting">
+			<div className="waf__settings__toggle-setting">
 				<CompactFormToggle
-					checked={ this.state.jetpack_firewall_share_data }
+					checked={ this.state.jetpack_waf_share_data }
 					disabled={
-						! isFirewallActive ||
+						! isWafActive ||
 						unavailableInOfflineMode ||
-						this.props.isSavingAnyOption( [ 'firewall', 'jetpack_firewall_share_data' ] )
+						this.props.isSavingAnyOption( [ 'waf', 'jetpack_waf_share_data' ] )
 					}
 					onChange={ this.handleShareDataToggleChange }
 				>
@@ -176,7 +176,7 @@ export const Firewall = class extends Component {
 				<InfoPopover
 					position="right"
 					screenReaderText={ __( 'Learn more', 'jetpack' ) }
-					className="firewall__settings__share-data-popover"
+					className="waf__settings__share-data-popover"
 				>
 					{ createInterpolateElement(
 						__(
@@ -212,7 +212,7 @@ export const Firewall = class extends Component {
 		);
 
 		const bootstrapInstructions = (
-			<FoldableCard header={ enhanceProtectionHeader } className="firewall__enhanced-protection">
+			<FoldableCard header={ enhanceProtectionHeader } className="waf__enhanced-protection">
 				<SettingsGroup hasChild>
 					<ul>
 						<li>
@@ -256,34 +256,34 @@ export const Firewall = class extends Component {
 			<SettingsCard
 				{ ...this.props }
 				header={ moduleHeader }
-				module="firewall"
+				module="waf"
 				saveDisabled={ this.props.isSavingAnyOption( [
 					'jetpack_waf_ip_allow_list',
 					'jetpack_waf_ip_block_list',
 				] ) }
 			>
 				<QueryWafSettings />
-				<SettingsGroup disableInOfflineMode module={ this.props.getModule( 'firewall' ) }>
+				<SettingsGroup disableInOfflineMode module={ this.props.getModule( 'waf' ) }>
 					<ModuleToggle
-						slug="firewall"
+						slug="waf"
 						disabled={ unavailableInOfflineMode }
-						activated={ isFirewallActive }
-						toggling={ this.props.isSavingAnyOption( 'firewall' ) }
+						activated={ isWafActive }
+						toggling={ this.props.isSavingAnyOption( 'waf' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">
-							{ this.props.getModule( 'firewall' ).description }
+							{ this.props.getModule( 'waf' ).description }
 						</span>
 					</ModuleToggle>
 
-					{ isFirewallActive && (
-						<FormFieldset className="firewall__settings">
+					{ isWafActive && (
+						<FormFieldset className="waf__settings">
 							{ ipListSettings }
 							{ shareDataSettings }
 						</FormFieldset>
 					) }
 				</SettingsGroup>
-				{ isFirewallActive && this.props.bootstrapPath && bootstrapInstructions }
+				{ isWafActive && this.props.bootstrapPath && bootstrapInstructions }
 				{ ! this.props.hasRulesAccess && ! this.props.isFetchingWafSettings && upgradeBanner }
 			</SettingsCard>
 		);
@@ -302,4 +302,4 @@ export default connect( state => {
 		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 		sitePlan,
 	};
-} )( withModuleSettingsFormHelpers( Firewall ) );
+} )( withModuleSettingsFormHelpers( Waf ) );

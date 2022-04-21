@@ -322,6 +322,12 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchSiteDiscount: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/discount`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => body.data ),
+
 		fetchSetupQuestionnaire: () =>
 			getRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, getParams )
 				.then( checkStatus )

@@ -6,7 +6,7 @@
  * First Introduced: 10.9
  * Requires Connection: No
  * Auto Activate: Yes
- * Module Tags: Firewall
+ * Module Tags: Firewall, WAF
  * Feature: Security
  *
  * @package automattic/jetpack
@@ -17,12 +17,12 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Waf\Waf_Standalone_Bootstrap;
 
 // Register endpoints when WP REST API is initialized.
-add_action( 'rest_api_init', array( 'Jetpack_Firewall', 'register_endpoints' ) );
+add_action( 'rest_api_init', array( 'Jetpack_Waf', 'register_endpoints' ) );
 
 /**
- * Jetpack firewall module class.
+ * Jetpack web application firewall module class.
  */
-class Jetpack_Firewall {
+class Jetpack_Waf {
 
 	/**
 	 * Get Bootstrap File Path

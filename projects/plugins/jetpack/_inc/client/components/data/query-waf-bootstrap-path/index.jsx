@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { fetchWafSettings, isFetchingWafSettings } from 'state/firewall';
+import { fetchWafSettings, isFetchingWafSettings } from 'state/waf';
 import { isOfflineMode } from 'state/connection';
 
 class QueryWafSettings extends Component {

@@ -94,7 +94,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		remove_post_type_support( 'post', 'publicize' );
 	}
 
-	static function setup_connections_wpcom() {
+	public static function setup_connections_wpcom() {
 		global $wpdb;
 
 		$wpdb->insert(
@@ -138,7 +138,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		);
 	}
 
-	static function setup_connections_jetpack() {
+	public static function setup_connections_jetpack() {
 		Jetpack_Options::update_options(
 			array(
 				'publicize_connections' => array(

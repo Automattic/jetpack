@@ -11,8 +11,8 @@ if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR'
  */
 class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_Testcase {
 
-	static $editor_user_id;
-	static $subscriber_user_id;
+	public static $editor_user_id;
+	public static $subscriber_user_id;
 
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$editor_user_id     = $factory->user->create( array( 'role' => 'editor' ) );
