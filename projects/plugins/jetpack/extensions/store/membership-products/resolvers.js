@@ -31,6 +31,8 @@ export const getProducts = (
 	const origin = getQueryArg( window.location.href, 'origin' );
 	const path = addQueryArgs( '/wpcom/v2/memberships/status', {
 		source: origin === 'https://wordpress.com' ? 'gutenberg-wpcom' : 'gutenberg',
+		type: 'all',
+		is_editable: true,
 	} );
 
 	try {

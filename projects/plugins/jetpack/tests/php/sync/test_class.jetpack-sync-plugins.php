@@ -20,11 +20,11 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		self::install_the_plugin();
 		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 		$this->sender->do_sync();
-		//Determine which action came first as between jetpack_installed_plugin and jetpack_sync_callable
+		// Determine which action came first as between jetpack_installed_plugin and jetpack_sync_callable
 		$events = $this->server_event_storage->get_all_events();
 
 		$first_action = false;
-		foreach( $events as $event ) {
+		foreach ( $events as $event ) {
 			if ( 'jetpack_plugin_installed' === $event->action ||
 			'jetpack_sync_callable' === $event->action ) {
 				$first_action = $event->action;
@@ -42,7 +42,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $plugins['the/the.php'] ) );
 		// gets called via callable.
 		$this->assertEquals( get_option( 'uninstall_plugins', array() ), $this->server_replica_storage->get_option( 'uninstall_plugins', array() ) );
-
 
 		// Remove plugin
 		self::remove_plugin();
@@ -62,7 +61,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$set_autoupdate_plugin = $this->server_replica_storage->get_site_option( 'auto_update_plugins' );
 
 		$this->assertEquals( (array) get_site_option( 'auto_update_plugins', array() ), $set_autoupdate_plugin );
-		$this->assertTrue( in_array( 'hello', $set_autoupdate_plugin ) );
+		$this->assertContains( 'hello', $set_autoupdate_plugin );
 
 		// disable autoupdates
 		$autoupdate_plugins = (array) get_site_option( 'auto_update_plugins', array() );
@@ -72,13 +71,13 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 
 		$set_autoupdate_plugin = $this->server_replica_storage->get_site_option( 'auto_update_plugins' );
 		$this->assertEquals( (array) get_site_option( 'auto_update_plugins', array() ), $set_autoupdate_plugin );
-		$this->assertFalse( in_array( 'hello', $set_autoupdate_plugin ) );
+		$this->assertNotContains( 'hello', $set_autoupdate_plugin );
 	}
 
 	public function test_edit_plugin() {
 		$_POST = array(
-			'action' => 'update',
-			'plugin' => 'hello.php',
+			'action'     => 'update',
+			'plugin'     => 'hello.php',
 			'newcontent' => 'stuff',
 		);
 		set_current_screen( 'plugin-editor' );
@@ -102,25 +101,23 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $plugins['hello.php'], $event->args[1] );
 	}
 
-
-
 	public function test_activate_and_deactivating_plugin_is_synced() {
 		activate_plugin( 'hello.php' );
 		$this->sender->do_sync();
 
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
-		$this->assertTrue( in_array( 'hello.php', $active_plugins ) );
+		$this->assertContains( 'hello.php', $active_plugins );
 
 		deactivate_plugins( 'hello.php' );
 		$this->sender->do_sync();
 
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
-		$this->assertFalse( in_array( 'hello.php', $active_plugins ) );
+		$this->assertNotContains( 'hello.php', $active_plugins );
 	}
 
-	function test_plugin_activation_action_is_synced() {
+	public function test_plugin_activation_action_is_synced() {
 		activate_plugin( 'hello.php' );
 		$this->sender->do_sync();
 
@@ -133,7 +130,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $activated_plugin->args[2]['version'] );
 	}
 
-	function test_plugin_deactivation_action_is_synced() {
+	public function test_plugin_deactivation_action_is_synced() {
 		activate_plugin( 'hello.php' );
 		deactivate_plugins( 'hello.php' );
 		$this->sender->do_sync();
@@ -146,7 +143,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $deactivated_plugin->args[2]['version'] );
 	}
 
-	function test_plugin_deletion_is_synced() {
+	public function test_plugin_deletion_is_synced() {
 		do_action( 'delete_plugin', 'hello.php' );
 		do_action( 'deleted_plugin', 'hello.php', true );
 		$this->sender->do_sync();
@@ -160,7 +157,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	function test_all_plugins_filter_is_respected() {
+	public function test_all_plugins_filter_is_respected() {
 		$this->sender->do_sync();
 		$plugins = get_plugins();
 
@@ -179,7 +176,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $not_synced['hello.php'] ) );
 	}
 
-	static function install_the_plugin() {
+	public static function install_the_plugin() {
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
@@ -200,17 +197,17 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ) );
 	}
 
-	function set_update_plugin_transient( $transient ) {
+	public function set_update_plugin_transient() {
 		return (object) array(
 			'response' => array(
 				'the/the.php' => (object) array(
 					'package' => self::PLUGIN_ZIP,
-				)
-			)
+				),
+			),
 		);
 	}
 
-	static function remove_plugin() {
+	public static function remove_plugin() {
 		if ( file_exists( WP_PLUGIN_DIR . '/the/the.php' ) ) {
 			add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_wordpress_org_updates' ), 10, 3 );
 			delete_plugins( array( 'the/the.php' ) );
@@ -219,7 +216,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function remove_hello_dolly( $plugins ) {
+	public function remove_hello_dolly( $plugins ) {
 		unset( $plugins['hello.php'] );
 		return $plugins;
 	}

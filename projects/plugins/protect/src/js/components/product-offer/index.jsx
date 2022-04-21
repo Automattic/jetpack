@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { ProductOffer as ProductOfferComponent } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 
@@ -24,20 +25,21 @@ const PROTECT_PRODUCT_MOCK = {
  * Product Detail component.
  * ToDo: rename event handler properties.
  *
- * @param {object} props                    - Component props.
- * @param {Function} props.onClick          - Callback for Call To Action button click
- * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @returns {object}                          ConnectedProductOffer react component.
+ * @param {object} props              - Component props.
+ * @param {Function} props.onAdd      - Callback for Call To Action button click
+ * @returns {object}                    ConnectedProductOffer react component.
  */
-const ConnectedProductOffer = ( { onClick, trackButtonClick, ...rest } ) => {
+const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 	/**
 	 * ToDo: Implement bound function when adding the product.
 	 *
 	 * @returns {boolean} False. Todo: implement.
 	 */
-	const activateProduct = useCallback( () => {
-		return false;
-	}, [] );
+	const AddButtonHandler = useCallback( () => {
+		if ( onAdd ) {
+			onAdd();
+		}
+	}, [ onAdd ] );
 
 	return (
 		<ProductOfferComponent
@@ -47,15 +49,19 @@ const ConnectedProductOffer = ( { onClick, trackButtonClick, ...rest } ) => {
 			features={ PROTECT_PRODUCT_MOCK.features }
 			pricing={ { isFree: true } }
 			isBundle={ false }
-			onAdd={ activateProduct }
+			onAdd={ AddButtonHandler }
 			buttonText={ __( 'Get started with Jetpack Protect', 'jetpack-protect' ) }
+			icon="jetpack"
 			{ ...rest }
 		/>
 	);
 };
+ConnectedProductOffer.propTypes = {
+	onAdd: PropTypes.func,
+};
 
 ConnectedProductOffer.defaultProps = {
-	trackButtonClick: () => {},
+	onAdd: () => {},
 };
 
 export default ConnectedProductOffer;
