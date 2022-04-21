@@ -21,7 +21,7 @@ import useProtectData from '../../hooks/use-protect-data';
 import Interstitial from '../interstitial';
 
 const Admin = () => {
-	const { isRegistered, handleRegisterSite } = useConnection( { skipUserConnection: true } );
+	const { isRegistered } = useConnection( { skipUserConnection: true } );
 	const { plugins, themes, core } = useProtectData();
 
 	// Show interstital page when Jetpack is not connected.
@@ -34,7 +34,7 @@ const Admin = () => {
 			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Interstitial onProtectAdd={ handleRegisterSite } />
+						<Interstitial />
 					</Col>
 				</Container>
 			</AdminPage>
