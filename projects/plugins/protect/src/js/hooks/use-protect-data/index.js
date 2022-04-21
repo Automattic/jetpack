@@ -18,7 +18,7 @@ import { STORE_ID } from '../../state/store';
 function mergeInstalledAndCheckedLists( installed, checked ) {
 	const newList = [];
 	for ( const slug in installed ) {
-		if ( checked.hasOwnProperty( slug ) ) {
+		if ( checked.hasOwnProperty( slug ) && checked[ slug ].version === installed[ slug ].Version ) {
 			newList.push( {
 				name: installed[ slug ].Name,
 				version: checked[ slug ].version,
