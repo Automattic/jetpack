@@ -54,5 +54,6 @@ add_action(
 	}
 );
 
-add_action( 'update_option_jetpack_waf_ip_allow_list', array( Waf_Runner::class, 'activate' ), 10, 0 );
-add_action( 'update_option_jetpack_waf_ip_block_list', array( Waf_Runner::class, 'activate' ), 10, 0 );
+add_action( 'update_option_' . Waf_Runner::IP_ALLOW_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
+add_action( 'update_option_' . Waf_Runner::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
+add_action( 'update_option_' . Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );

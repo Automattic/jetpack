@@ -18,6 +18,7 @@ class Waf_Runner {
 
 	const WAF_RULES_VERSION             = '1.0.0';
 	const MODE_OPTION_NAME              = 'jetpack_waf_mode';
+	const IP_LISTS_ENABLED_OPTION_NAME  = 'jetpack_waf_ip_list';
 	const IP_ALLOW_LIST_OPTION_NAME     = 'jetpack_waf_ip_allow_list';
 	const IP_BLOCK_LIST_OPTION_NAME     = 'jetpack_waf_ip_block_list';
 	const RULES_FILE                    = __DIR__ . '/../rules/rules.php';
@@ -395,6 +396,13 @@ class Waf_Runner {
 
 		$allow_list = self::ip_option_to_array( get_option( self::IP_ALLOW_LIST_OPTION_NAME ) );
 		$block_list = self::ip_option_to_array( get_option( self::IP_BLOCK_LIST_OPTION_NAME ) );
+
+		$lists_enabled = (bool) get_option( self::IP_LISTS_ENABLED_OPTION_NAME );
+		if ( false === $lists_enabled ) {
+			// Making the lists empty effectively disabled the feature while still keeping the other WAF rules evaluation active.
+			$allow_list = array();
+			$block_list = array();
+		}
 
 		$allow_rules_content = '';
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
