@@ -149,9 +149,9 @@ class Utils {
 
 		$contents = trim( $contents );
 		if ( ! empty( $input_options['add-pr-num'] ) && $output && $formatter ) {
-			$pr = self::getPrNumForFile( $filename, $output, $formatter );
-			if ( $pr ) {
-				$contents = $contents . " [#$pr]";
+			$pr_num = self::getPrNumForFile( $filename, $output, $formatter );
+			if ( $pr_num ) {
+				$contents = $contents . " [#$pr_num]";
 			}
 		}
 
@@ -163,7 +163,7 @@ class Utils {
 	 * Try to get a GitHub PR number from the latest commit message subject for the given file.
 	 *
 	 * GitHub's 'squash merging' for pull requests adds the PR number by default to the end of the commit subject.
-	 * Expects the commit subject string to end like`(#123)`.
+	 * Expects the commit subject string to end like `(#123)`.
 	 *
 	 * @param string               $file Filepath.
 	 * @param OutputInterface      $output OutputInterface to write debug output to.
