@@ -33,20 +33,27 @@ class Jetpack_Social_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that `active_modules` gets added to Jetpack Sync correctly.
+	 * Test that `active_modules` does not get synced if it's already been added (for example by the Jetpack plugin).
 	 */
-	public function test_active_modules_option_gets_added_to_jetpack_sync_correctly() {
-		// Active modules shouldn't be changed if it's set already.
+	public function test_active_modules_option_does_not_get_synced_if_already_set() {
 		$input = array( 'active_modules' => array( 'test' ) );
 		$this->assertEquals( $input, $this->social->filter_sync_callable_whitelist( $input ) );
+	}
 
-		// Test with Publicize enabled.
+	/**
+	 * Test that `active_modules` gets synced correctly with Publicize enabled.
+	 */
+	public function test_active_modules_option_gets_synced_correctly_with_publicize_enabled() {
 		( new Modules() )->activate( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		$callables = $this->social->filter_sync_callable_whitelist( array() );
 		$this->assertArrayHasKey( 'active_modules', $callables );
 		$this->assertEquals( $callables['active_modules'](), array( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
+	}
 
-		// Test with Publicize disabled.
+	/**
+	 * Test that `active_modules` gets synced correctly with Publicize disabled.
+	 */
+	public function test_active_modules_option_gets_synced_correctly_with_publicize_disabled() {
 		( new Modules() )->deactivate( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		$callables = $this->social->filter_sync_callable_whitelist( array() );
 		$this->assertArrayHasKey( 'active_modules', $callables );
