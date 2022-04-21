@@ -10,15 +10,17 @@ import restApi from '@automattic/jetpack-api';
  */
 import { STORE_ID } from '../../state/store';
 
+const initialState = window?.JP_CONNECTION_INITIAL_STATE ? window.JP_CONNECTION_INITIAL_STATE : {};
+
 export default ( {
-	registrationNonce,
+	registrationNonce = initialState.registrationNonce,
+	apiRoot = initialState.apiRoot,
+	apiNonce = initialState.apiNonce,
 	redirectUri,
-	apiRoot,
-	apiNonce,
 	autoTrigger,
 	from,
 	skipUserConnection,
-} ) => {
+} = {} ) => {
 	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( STORE_ID );
 
 	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError() );

@@ -129,6 +129,7 @@ class Jetpack_Protect {
 	 * @return array
 	 */
 	public function initial_state() {
+		global $wp_version;
 		return array(
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
@@ -136,6 +137,7 @@ class Jetpack_Protect {
 			'status'            => Status::get_status(),
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
+			'wpVersion'         => $wp_version,
 		);
 	}
 

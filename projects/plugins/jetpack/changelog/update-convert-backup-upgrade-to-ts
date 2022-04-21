@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Converted BackupUpgrade and BarChart to TypeScript

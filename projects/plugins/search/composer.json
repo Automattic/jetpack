@@ -12,7 +12,7 @@
 		"automattic/jetpack-options": "^1.15",
 		"automattic/jetpack-search": "0.13.x-dev",
 		"automattic/jetpack-status": "^1.13",
-		"automattic/jetpack-sync": "1.30.x-dev",
+		"automattic/jetpack-sync": "1.31.x-dev",
 		"automattic/jetpack-tracking": "^1.14"
 	},
 	"require-dev": {
