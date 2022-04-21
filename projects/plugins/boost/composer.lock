@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "acc2e5cb4377f73fdd0a00a6fc72567e",
+    "content-hash": "25fd1c38981085929ebd496fde4267e0",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -324,13 +324,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "58967f97bcd012aa2389824c42ca1da24d9fc180"
+                "reference": "c4d5dabee7cef88b9f8296b590ebdecd26dcea55"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-heartbeat": "^1.4",
                 "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
@@ -354,7 +353,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.38.x-dev"
+                    "dev-master": "1.39.x-dev"
                 }
             },
             "autoload": {
@@ -482,46 +481,6 @@
             }
         },
         {
-            "name": "automattic/jetpack-heartbeat",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/heartbeat",
-                "reference": "89d4466f3ccf924afcbe3f6e80a15f2b39895def"
-            },
-            "require": {
-                "automattic/jetpack-a8c-mc-stats": "^1.4",
-                "automattic/jetpack-options": "^1.15"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-heartbeat",
-                "textdomain": "jetpack-heartbeat",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-heartbeat/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-master": "1.4.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "automattic/jetpack-lazy-images",
             "version": "dev-master",
             "dist": {
@@ -589,12 +548,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "6baa42d9f139fe8115cfedee1b7b649acad66b45"
+                "reference": "6b37fd296379e6327eadc9dd895e05e1a31af879"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.38",
+                "automattic/jetpack-connection": "^1.39",
                 "automattic/jetpack-plugins-installer": "^0.1",
                 "automattic/jetpack-redirect": "^1.7"
             },

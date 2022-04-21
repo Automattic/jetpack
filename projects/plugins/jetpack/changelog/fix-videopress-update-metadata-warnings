@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Add checks to eliminate warnings in php log.
