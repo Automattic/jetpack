@@ -317,11 +317,6 @@ export const getProductSlugForStep = ( state, step ) => {
 	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 
 	switch ( step ) {
-		case 'site-type':
-			if ( isSiteEligibleForUpsell( state ) ) {
-				return PLAN_JETPACK_SECURITY_T1_YEARLY;
-			}
-			break;
 		case 'publicize':
 		case 'security-plan':
 			if ( ! hasActiveSecurityPurchase( state ) && ! hasSecurityComparableLegacyPlan( state ) ) {
