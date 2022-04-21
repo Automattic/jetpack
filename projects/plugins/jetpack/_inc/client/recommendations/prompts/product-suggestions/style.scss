@@ -26,7 +26,7 @@
 	grid-template-columns: 1fr 1fr;
 
 	@include breakpoint( '<782px' ) {
-		display: block;	
+		display: block;
 
 		max-width: 360px;
 		margin: 0 auto;
@@ -69,7 +69,7 @@
 	@include breakpoint( '<782px' ) {
 		flex-direction: column;
 		justify-content: flex-start;
-		
+
 		padding-left: 1rem;
 		padding-right: 1rem;
 
@@ -87,9 +87,9 @@
 }
 
 .jp-recommendations-product-suggestion__time {
-    display: inline-block;
+	display: inline-block;
 
-	width: 135px;
+	width: 140px;
 	margin-inline-start: 0.5rem;
 
 	font-size: 1.125rem;
