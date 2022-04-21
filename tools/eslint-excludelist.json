@@ -140,6 +140,5 @@
 	"projects/plugins/jetpack/modules/widgets/customizer-utils.js",
 	"projects/plugins/jetpack/modules/widgets/milestone/admin.js",
 	"projects/plugins/jetpack/modules/widgets/simple-payments/customizer.js",
-	"projects/plugins/jetpack/modules/wpgroho.js",
-	"projects/plugins/jetpack/tools/builder/react.js"
+	"projects/plugins/jetpack/modules/wpgroho.js"
 ]

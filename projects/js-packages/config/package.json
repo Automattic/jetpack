@@ -1,15 +1,16 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-config",
-	"version": "0.1.4-alpha",
+	"version": "0.1.6-alpha",
 	"description": "Handles Jetpack global configuration shared across all packages",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/config/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Config"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack",
+		"directory": "projects/js-packages/config"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

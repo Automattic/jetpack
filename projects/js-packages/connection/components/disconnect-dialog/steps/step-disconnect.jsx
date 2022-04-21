@@ -64,7 +64,7 @@ const StepDisconnect = props => {
 		if ( isDisconnecting ) {
 			buttonText = __( 'Disconnecting…', 'jetpack' );
 		} else if ( context === 'plugins' ) {
-			buttonText = __( 'Disconnect and Deactivate', 'jetpack' );
+			buttonText = __( 'Deactivate', 'jetpack' );
 		}
 
 		return (
@@ -157,7 +157,9 @@ const StepDisconnect = props => {
 							onClick={ handleStayConnectedClick }
 							className="jp-connection__disconnect-dialog__btn-dismiss"
 						>
-							{ __( 'Stay connected', 'jetpack' ) }
+							{ context === 'plugins'
+								? __( 'Cancel', 'jetpack' )
+								: __( 'Stay connected', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 						</Button>
 						{ renderDisconnectButton() }
 					</div>
@@ -182,7 +184,7 @@ StepDisconnect.propTypes = {
 	/** A component to be rendered as part of this step */
 	disconnectStepComponent: PropTypes.elementType,
 	/** Plugins that are using the Jetpack connection. */
-	connectedPlugins: PropTypes.object,
+	connectedPlugins: PropTypes.array,
 	/** The slug of the plugin that is initiating the disconnection. */
 	disconnectingPlugin: PropTypes.string,
 	/** Callback function that closes the modal. */

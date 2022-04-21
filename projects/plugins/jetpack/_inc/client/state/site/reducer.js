@@ -25,6 +25,9 @@ import {
 	JETPACK_SITE_BENEFITS_FETCH,
 	JETPACK_SITE_BENEFITS_FETCH_RECEIVE,
 	JETPACK_SITE_BENEFITS_FETCH_FAIL,
+	JETPACK_SITE_DISCOUNT_FETCH,
+	JETPACK_SITE_DISCOUNT_FETCH_RECEIVE,
+	JETPACK_SITE_DISCOUNT_FETCH_FAIL,
 	JETPACK_SITE_FEATURES_FETCH,
 	JETPACK_SITE_FEATURES_FETCH_RECEIVE,
 	JETPACK_SITE_FEATURES_FETCH_FAIL,
@@ -45,6 +48,10 @@ export const data = ( state = {}, action ) => {
 			return assign( {}, state, action.siteData );
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { benefits: action.siteBenefits } } );
+		case JETPACK_SITE_DISCOUNT_FETCH_RECEIVE:
+			if ( action.siteDiscount?.code ) {
+				return merge( {}, state, { site: { discount: action.siteDiscount } } );
+			}
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { connectedPlugins: action.connectedPlugins } } );
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
@@ -72,6 +79,10 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSiteBenefits: true,
 			} );
+		case JETPACK_SITE_DISCOUNT_FETCH:
+			return assign( {}, state, {
+				isFetchingSiteDiscount: true,
+			} );
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH:
 			return assign( {}, state, {
 				isFetchingConnectedPlugins: true,
@@ -97,6 +108,11 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
 			return assign( {}, state, {
 				isFetchingSiteBenefits: false,
+			} );
+		case JETPACK_SITE_DISCOUNT_FETCH_FAIL:
+		case JETPACK_SITE_DISCOUNT_FETCH_RECEIVE:
+			return assign( {}, state, {
+				isFetchingSiteDiscount: false,
 			} );
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL:
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
@@ -211,6 +227,16 @@ export function isFetchingSiteBenefits( state ) {
 }
 
 /**
+ * Returns true if currently requesting site discount. Otherwise false.
+ *
+ * @param  {object}  state - Global state tree
+ * @returns {boolean} Whether discount is being requested
+ */
+export function isFetchingSiteDiscount( state ) {
+	return !! state.jetpack.siteData.requests.isFetchingSiteDiscount;
+}
+
+/**
  * Returns true if currently requesting connected plugins. Otherwise false.
  *
  * @param  {Object}  state Global state tree
@@ -279,6 +305,16 @@ export function getSiteBenefits( state ) {
 }
 
 /**
+ * Returns discount provided to the site by Jetpack.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {object} Discount
+ */
+export function getSiteDiscount( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'site', 'discount' ], null );
+}
+
+/**
  * Returns features that are available on any plan.
  * @param  {Object}  state Global state tree
  * @return {Object}  Features
@@ -294,6 +330,19 @@ export function getAvailableFeatures( state ) {
  */
 export function getActiveFeatures( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'site', 'features', 'active' ], [] );
+}
+
+/**
+ * Check if the feature is active on the site.
+ *
+ * @param  {object}  state     - Global state tree
+ * @param  {string}  featureId - The feature to check.
+ * @returns {boolean} True if the feature is active. Otherwise, False.
+ */
+export function hasActiveSiteFeature( state, featureId ) {
+	const siteFeatures = getActiveFeatures( state );
+
+	return siteFeatures && siteFeatures.indexOf( featureId ) >= 0;
 }
 
 export function getSitePurchases( state ) {

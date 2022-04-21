@@ -92,9 +92,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( wrapper.find( '.jp-connection-status-card--list-item-error' ) ).to.have.lengthOf( 0 );
 		} );
 
-		it( 'Doesn\'t render the "Connect your user account" button', () => {
+		it( 'renders the "Connect your user account" button', () => {
 			expect( wrapper.find( '.jp-connection-status-card--btn-connect-user' ) ).to.have.lengthOf(
-				0
+				1
 			);
 		} );
 	} );
@@ -124,6 +124,10 @@ describe( 'ConnectionStatusCard', () => {
 			expect(
 				wrapper.find( '.jp-connection-status-card--list-item-success' ).at( 1 ).render().text()
 			).to.be.equal( 'Logged in as ' );
+		} );
+
+		it( 'Doesn\'t render the "Account not connected" error list item', () => {
+			expect( wrapper.find( '.jp-connection-status-card--list-item-error' ) ).to.have.lengthOf( 0 );
 		} );
 
 		it( 'doesn\'t render the "Connect your WordPress.com account" button', () => {

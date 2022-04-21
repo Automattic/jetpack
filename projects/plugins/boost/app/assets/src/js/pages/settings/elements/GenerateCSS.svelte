@@ -26,7 +26,7 @@
 		( $criticalCssStatus.status === 'success' && $criticalCssStatus.success_count === 0 );
 </script>
 
-{#if $criticalCssStatus.generating}
+{#if $criticalCssStatus.status === 'requesting'}
 	<div class="jb-critical-css-progress">
 		<span class="jb-critical-css-progress__label">
 			{__( 'Generating Critical CSS…', 'jetpack-boost' )}
@@ -46,7 +46,7 @@
 		</div>
 	</div>
 {:else if showError}
-	<CriticalCssShowStopperError />
+	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
 {:else if $criticalCssStatus.status === 'success'}
 	<div class="jb-critical-css__meta">
 		<div class="summary">

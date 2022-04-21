@@ -2,7 +2,7 @@
 /**
  * Publicize_Base class.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName
@@ -970,10 +970,15 @@ abstract class Publicize_Base {
 		// TODO: The `gutenberg/available-extensions` endpoint currently doesn't accept a post ID,
 		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
 
+		// TODO: We should move this registration to the Jetpack plugin.
+		if ( ! class_exists( 'Jetpack_Gutenberg' ) ) {
+			return;
+		}
+
 		if ( $this->current_user_can_access_publicize_data() ) {
-			Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
+			\Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
 		} else {
-			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
+			\Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
 		}
 	}
 
@@ -1067,30 +1072,18 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Fires when a post is saved, checks conditions and saves state in postmeta so that it
-	 * can be picked up later by @see ::publicize_post() on WordPress.com codebase.
+	 * Helper function to allow us to not publicize posts in certain contexts.
 	 *
-	 * Attached to the `save_post` action.
-	 *
-	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post Post object.
 	 */
-	public function save_meta( $post_id, $post ) {
-		$cron_user   = null;
+	public function should_submit_post_pre_checks( $post ) {
 		$submit_post = true;
 
-		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
-			return;
-		}
-
-		// Don't Publicize during certain contexts.
-
-		// - import
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			$submit_post = false;
 		}
 
-		// - on quick edit, autosave, etc but do fire on p2, quickpress, and instapost ajax.
+		// On quick edit, autosave, etc but do fire on p2, quickpress, and instapost ajax.
 		if (
 			defined( 'DOING_AJAX' )
 		&&
@@ -1109,7 +1102,7 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- just ignoring the line doesn't work for some reason
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $_GET['bulk_edit'] ) ) {
 			$submit_post = false;
 		}
@@ -1141,6 +1134,28 @@ abstract class Publicize_Base {
 		if ( '' !== $post->post_password ) {
 			$submit_post = false;
 		}
+
+		return $submit_post;
+	}
+
+	/**
+	 * Fires when a post is saved, checks conditions and saves state in postmeta so that it
+	 * can be picked up later by @see ::publicize_post() on WordPress.com codebase.
+	 *
+	 * Attached to the `save_post` action.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post Post object.
+	 */
+	public function save_meta( $post_id, $post ) {
+		$cron_user   = null;
+		$submit_post = true;
+
+		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
+			return;
+		}
+
+		$submit_post = $this->should_submit_post_pre_checks( $post );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- We're only checking if a value is set
 		$admin_page = isset( $_POST[ $this->ADMIN_PAGE ] ) ? $_POST[ $this->ADMIN_PAGE ] : null;
@@ -1301,7 +1316,7 @@ abstract class Publicize_Base {
 		) . $view_post_link_html;
 
 		if ( 'post' === $post_type && class_exists( 'Jetpack_Subscriptions' ) ) {
-			$subscription = Jetpack_Subscriptions::init();
+			$subscription = \Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
 					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */

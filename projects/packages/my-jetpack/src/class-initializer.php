@@ -27,7 +27,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.14-alpha';
+	const PACKAGE_VERSION = '1.1.1-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -123,6 +123,11 @@ class Initializer {
 				'fileSystemWriteAccess'    => self::has_file_system_write_access(),
 				'connectedPlugins'         => self::get_connected_plugins(),
 				'productsWithActivePlugin' => Products::get_products_with_active_plugins(),
+				'topJetpackMenuItemUrl'    => Admin_Menu::get_top_level_menu_item_url(),
+				'loadAddLicenseScreen'     => apply_filters(
+					'jetpack_my_jetpack_should_enable_add_license_screen',
+					defined( 'JETPACK_ENABLE_MY_JETPACK_LICENSE' ) && JETPACK_ENABLE_MY_JETPACK_LICENSE
+				),
 			)
 		);
 
@@ -143,28 +148,6 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
-	}
-
-	/**
-	 * Get the list of plugins actively using the Connection
-	 *
-	 * @return array The list of plugins.
-	 */
-	private static function get_connected_plugins() {
-		$plugins = ( new Connection_Manager() )->get_connected_plugins();
-
-		if ( is_wp_error( $plugins ) ) {
-			return array();
-		}
-
-		array_walk(
-			$plugins,
-			function ( &$data, $slug ) {
-				$data['slug'] = $slug;
-			}
-		);
-
-		return $plugins;
 	}
 
 	/**

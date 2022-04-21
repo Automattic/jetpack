@@ -7,7 +7,7 @@ import formatCurrency from '@automattic/format-currency';
  * WordPress dependencies
  */
 import { BlockControls } from '@wordpress/block-editor';
-import { MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
+import { ExternalLink, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, update, warning } from '@wordpress/icons';
@@ -15,9 +15,11 @@ import { check, update, warning } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { useProductManagementContext } from './context';
 import useOpenBlockSidebar from './use-open-block-sidebar';
 import { getMessageByProductType } from './utils';
 import { store as membershipProductsStore } from '../../../store/membership-products';
+import { CUSTOMIZER_EDITOR, getEditorType } from '../../get-editor-type';
 
 function getProductDescription( product ) {
 	const { currency, interval, price } = product;
@@ -46,7 +48,9 @@ function getProductDescription( product ) {
 	);
 }
 
-function Product( { onClose, product, selectedProductId, setSelectedProductId } ) {
+function Product( { onClose, product } ) {
+	const { selectedProductId, setSelectedProductId } = useProductManagementContext();
+
 	const { id, title } = product;
 	const isSelected = selectedProductId && selectedProductId === id;
 	const icon = isSelected ? check : undefined;
@@ -65,12 +69,27 @@ function Product( { onClose, product, selectedProductId, setSelectedProductId } 
 	);
 }
 
-function NewProduct( { onClose, productType } ) {
-	const openBlockSidebar = useOpenBlockSidebar();
+function NewProduct( { onClose } ) {
+	const { clientId, productType } = useProductManagementContext();
+	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
+	const openBlockSidebar = useOpenBlockSidebar( clientId );
+
+	if ( CUSTOMIZER_EDITOR === getEditorType() ) {
+		return (
+			<MenuItem>
+				{ siteSlug && (
+					<ExternalLink href={ `https://wordpress.com/earn/payments-plans/${ siteSlug }` }>
+						{ getMessageByProductType( 'add a new product', productType ) }
+					</ExternalLink>
+				) }
+			</MenuItem>
+		);
+	}
 
 	const handleClick = event => {
 		event.preventDefault();
 		openBlockSidebar();
+
 		setTimeout( () => {
 			const input = document.getElementById( 'new-product-title' );
 			if ( input !== null ) {
@@ -88,12 +107,9 @@ function NewProduct( { onClose, productType } ) {
 	);
 }
 
-export default function ProductManagementToolbarControl( {
-	products,
-	productType,
-	selectedProductId,
-	setSelectedProductId,
-} ) {
+export default function ProductManagementToolbarControl() {
+	const { products, productType, selectedProductId } = useProductManagementContext();
+
 	const selectedProduct = useSelect( select =>
 		select( membershipProductsStore ).getProduct( selectedProductId )
 	);
@@ -121,17 +137,11 @@ export default function ProductManagementToolbarControl( {
 					<>
 						<MenuGroup>
 							{ products.map( product => (
-								<Product
-									key={ product.id }
-									onClose={ onClose }
-									product={ product }
-									selectedProductId={ selectedProductId }
-									setSelectedProductId={ setSelectedProductId }
-								/>
+								<Product key={ product.id } onClose={ onClose } product={ product } />
 							) ) }
 						</MenuGroup>
 						<MenuGroup>
-							<NewProduct onClose={ onClose } productType={ productType } />
+							<NewProduct onClose={ onClose } />
 						</MenuGroup>
 					</>
 				) }

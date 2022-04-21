@@ -172,6 +172,7 @@ class Defaults {
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
+		'videopress_private_enabled_for_site',
 	);
 
 	/**
@@ -283,6 +284,7 @@ class Defaults {
 	 */
 	public static $default_callable_whitelist = array(
 		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+		'get_themes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
 		'has_file_system_write_access'     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'file_system_write_access' ),
 		'home_url'                         => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),

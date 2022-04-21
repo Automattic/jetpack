@@ -702,6 +702,14 @@ class Jetpack_Gutenberg {
 					 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 					 */
 					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
+					/**
+					 * Enable Pocket Casts block variation in block editor context.
+					 *
+					 * @since 10.9
+					 *
+					 * @param bool true Enable Pocket Casts block variation in block editor context. Defaults to false.
+					 */
+					'pocket_casts_enabled'      => apply_filters( 'jetpack_block_editor_pocket_casts_feature', false ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
@@ -717,7 +725,7 @@ class Jetpack_Gutenberg {
 	 * Add the Gutenberg editor stylesheet to iframed editors, such as the site editor,
 	 * which don't have access to stylesheets added with `wp_enqueue_style`.
 	 *
-	 * This workaround is currently used by WordPress.com Simple sites.
+	 * This workaround is currently used by WordPress.com Simple and Atomic sites.
 	 *
 	 * @since 10.7
 	 *
@@ -1187,13 +1195,20 @@ class Jetpack_Gutenberg {
 	}
 }
 
-/*
- * Enable upgrade nudge for Atomic sites.
- * This feature is false as default,
- * so let's enable it through this filter.
- *
- * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
- */
 if ( ( new Host() )->is_woa_site() ) {
+	/**
+	* Enable upgrade nudge for Atomic sites.
+	 * This feature is false as default,
+	 * so let's enable it through this filter.
+	 *
+	 * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
+	 */
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
+
+	/**
+	 * Load block editor styles inline for iframed editors.
+	 *
+	 * @see paYJgx-1Kl-p2
+	 */
+	add_action( 'admin_init', array( 'Jetpack_Gutenberg', 'add_iframed_editor_style' ) );
 }

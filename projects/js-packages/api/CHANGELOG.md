@@ -2,6 +2,19 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.12.0 - 2022-04-19
+### Added
+- Added API routes for WordAds settings
+- Search: added API support for search product tier pricing
+
+## 0.11.0 - 2022-04-12
+### Added
+- Add endpoint for conditional recommendations
+
+## 0.10.2 - 2022-04-05
+### Changed
+- Updated package dependencies
+
 ## 0.10.1 - 2022-03-29
 ### Changed
 - Updated package dependencies.

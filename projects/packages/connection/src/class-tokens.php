@@ -9,6 +9,9 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
+use DateInterval;
+use DateTime;
+use Exception;
 use Jetpack_Options;
 use WP_Error;
 
@@ -18,6 +21,11 @@ use WP_Error;
 class Tokens {
 
 	const MAGIC_NORMAL_TOKEN_KEY = ';normal;';
+
+	/**
+	 * Datetime format.
+	 */
+	const DATE_FORMAT_ATOM = 'Y-m-d\TH:i:sP';
 
 	/**
 	 * Deletes all connection tokens and transients from the local Jetpack site.
@@ -30,6 +38,8 @@ class Tokens {
 				'user_tokens',
 			)
 		);
+
+		$this->remove_lock();
 	}
 
 	/**
@@ -357,6 +367,11 @@ class Tokens {
 	 * @return object|false
 	 */
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
+		if ( $this->is_locked() ) {
+			$this->delete_all();
+			return false;
+		}
+
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
 		$user_tokens             = $this->get_user_tokens();
@@ -591,5 +606,86 @@ class Tokens {
 	 */
 	public function update_user_tokens( $tokens ) {
 		return Jetpack_Options::update_option( 'user_tokens', $tokens );
+	}
+
+	/**
+	 * Lock the tokens to the current site URL.
+	 *
+	 * @param int $timespan How long the tokens should be locked, in seconds.
+	 *
+	 * @return bool
+	 */
+	public function set_lock( $timespan = HOUR_IN_SECONDS ) {
+		try {
+			$expires = ( new DateTime() )->add( DateInterval::createFromDateString( (int) $timespan . ' seconds' ) );
+		} catch ( Exception $e ) {
+			return false;
+		}
+
+		if ( false === $expires ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		return Jetpack_Options::update_option( 'token_lock', $expires->format( static::DATE_FORMAT_ATOM ) . '|||' . base64_encode( Urls::site_url() ) );
+	}
+
+	/**
+	 * Remove the site lock from tokens.
+	 *
+	 * @return bool
+	 */
+	public function remove_lock() {
+		Jetpack_Options::delete_option( 'token_lock' );
+
+		return true;
+	}
+
+	/**
+	 * Check if the domain is locked, remove the lock if needed.
+	 * Possible scenarios:
+	 * - lock expired, site URL matches the lock URL: remove the lock, return false.
+	 * - lock not expired, site URL matches the lock URL: return false.
+	 * - site URL does not match the lock URL (expiration date is ignored): return true, do not remove the lock.
+	 *
+	 * @return bool
+	 */
+	public function is_locked() {
+		$the_lock = Jetpack_Options::get_option( 'token_lock' );
+		if ( ! $the_lock ) {
+			// Not locked.
+			return false;
+		}
+
+		$the_lock = explode( '|||', $the_lock, 2 );
+		if ( count( $the_lock ) !== 2 ) {
+			// Something's wrong with the lock.
+			$this->remove_lock();
+			return false;
+		}
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		$locked_site_url = base64_decode( $the_lock[1] );
+		$expires         = $the_lock[0];
+
+		$expiration_date = DateTime::createFromFormat( static::DATE_FORMAT_ATOM, $expires );
+		if ( false === $expiration_date || ! $locked_site_url ) {
+			// Something's wrong with the lock.
+			$this->remove_lock();
+			return false;
+		}
+
+		if ( Urls::site_url() === $locked_site_url ) {
+			if ( new DateTime() > $expiration_date ) {
+				// Site lock expired.
+				// Site URL matches, removing the lock.
+				$this->remove_lock();
+			}
+
+			return false;
+		}
+
+		// Site URL doesn't match.
+		return true;
 	}
 }

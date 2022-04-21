@@ -10,8 +10,11 @@
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.7.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "0.6.x-dev",
-		"automattic/jetpack-sync": "1.30.x-dev"
+		"automattic/jetpack-publicize": "0.1.x-dev",
+		"automattic/jetpack-options": "1.15.x-dev",
+		"automattic/jetpack-connection": "1.39.x-dev",
+		"automattic/jetpack-my-jetpack": "1.1.x-dev",
+		"automattic/jetpack-sync": "1.31.x-dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.0",
