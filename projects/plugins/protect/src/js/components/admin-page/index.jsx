@@ -19,7 +19,7 @@ import React from 'react';
  */
 import Summary from '../summary';
 import VulnerabilitiesList from '../vulnerabilities-list';
-import useProtectData from '../../hooks/use-protect-context';
+import useProtectData from '../../hooks/use-protect-data';
 
 const Admin = () => {
 	const connectionStatus = useSelect(
