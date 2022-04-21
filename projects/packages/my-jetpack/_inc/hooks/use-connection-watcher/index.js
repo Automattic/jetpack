@@ -4,7 +4,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
 import { useDispatch } from '@wordpress/data';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -20,15 +19,10 @@ import useProducts from '../use-products';
  * the hook dispatches an action to populate the global notice.
  */
 export default function useConnectionWatcher() {
-	const navigate = useNavigate();
 	const navToConnection = useMyJetpackNavigate( '/connection' );
 	const { setGlobalNotice } = useDispatch( STORE_ID );
 
-	const {
-		productsThatRequiresUserConnection,
-		productsWithActivePlugin,
-		disconnectedAndOnePluginInstalled,
-	} = useProducts();
+	const { productsThatRequiresUserConnection } = useProducts();
 
 	const { hasConnectedOwner } = useMyJetpackConnection();
 
@@ -51,15 +45,6 @@ export default function useConnectionWatcher() {
 					'jetpack-my-jetpack'
 			  )
 			: oneProductMessage;
-
-	/*
-	 * When the site is not connect, redirect to the Jetpack dashboard.
-	 */
-	useEffect( () => {
-		if ( disconnectedAndOnePluginInstalled ) {
-			navigate( `add-${ productsWithActivePlugin[ 0 ] }` );
-		}
-	}, [ disconnectedAndOnePluginInstalled, productsWithActivePlugin, navigate ] );
 
 	useEffect( () => {
 		if ( requiresUserConnection ) {

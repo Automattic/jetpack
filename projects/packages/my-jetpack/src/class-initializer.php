@@ -121,7 +121,6 @@ class Initializer {
 				'siteSuffix'               => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'         => self::PACKAGE_VERSION,
 				'fileSystemWriteAccess'    => self::has_file_system_write_access(),
-				'connectedPlugins'         => self::get_connected_plugins(),
 				'productsWithActivePlugin' => Products::get_products_with_active_plugins(),
 				'topJetpackMenuItemUrl'    => Admin_Menu::get_top_level_menu_item_url(),
 				'loadAddLicenseScreen'     => apply_filters(

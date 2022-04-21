@@ -52,6 +52,9 @@ const myJetpackResolvers = {
 			dispatch.setPurchasesIsFetching( false );
 		} catch ( error ) {
 			dispatch.setPurchasesIsFetching( false );
+			if ( error.code === 'not_connected' ) {
+				return; // Let's not display an error if the site is not connected yet.
+			}
 			dispatch.setGlobalNotice(
 				__(
 					'There was an error fetching your purchases information. Check your site connectivity and try again.',
