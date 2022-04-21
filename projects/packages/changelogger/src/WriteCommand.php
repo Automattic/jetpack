@@ -75,7 +75,7 @@ class WriteCommand extends Command {
 			->addOption( 'prologue', null, InputOption::VALUE_REQUIRED, 'Prologue text for the new changelog entry' )
 			->addOption( 'epilogue', null, InputOption::VALUE_REQUIRED, 'Epilogue text for the new changelog entry' )
 			->addOption( 'link', null, InputOption::VALUE_REQUIRED, 'Link for the new changelog entry' )
-			->addOption( 'add-pr-num', null, InputOption::VALUE_NONE, 'Todo description for add-pr-num write cmd option' )
+			->addOption( 'add-pr-num', null, InputOption::VALUE_NONE, 'Try to append the GH PR number to each entry. Commit subject must end like: (#123)' )
 			->setHelp(
 				<<<EOF
 The <info>write</info> command adds a new changelog entry based on the changes files, and removes the changes files.
