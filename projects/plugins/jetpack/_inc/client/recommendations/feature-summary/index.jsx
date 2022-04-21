@@ -88,7 +88,9 @@ const FeatureSummaryComponent = props => {
 				onClick={ onStepNameClick }
 				className="jp-recommendations-feature-summary__display-name"
 			>
-				{ displayName }
+				<span className="jp-recommendations-feature-summary__display-name-text">
+					{ displayName }
+				</span>
 				{ isNew && (
 					/* translators: 'New' is shown as a badge to indicate that this content has not been viewed before. */
 					<span className="jp-recommendations__new-badge">{ __( 'New', 'jetpack' ) }</span>
