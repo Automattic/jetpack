@@ -49,6 +49,7 @@ SecurityBundle.args = {
 	addProductUrl: '',
 	hasRequiredPlan: false,
 	isLoading: false,
+	error: '',
 };
 
 export const JetpackBackup = Template.bind( {} );
