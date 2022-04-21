@@ -4,23 +4,19 @@
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
+import SummaryUpsell from './upsell';
 import { FeatureSummary } from '../feature-summary';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
-import { MoneyBackGuarantee } from 'components/money-back-guarantee';
-import analytics from 'lib/analytics';
 import { OneClickRestores } from '../sidebar/one-click-restores';
 import { Security } from '../sidebar/security';
 import { MobileApp } from '../sidebar/mobile-app';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
-import { ProductCardUpsell } from '../product-card-upsell';
-import Timer from '../timer';
-import { isCouponValid } from '../utils';
 import { getSiteTitle } from 'state/initial-state';
 import {
 	getSidebarCardSlug,
@@ -31,7 +27,6 @@ import {
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
 import { getPluginsData } from 'state/site/plugins';
-import { getSiteDiscount } from 'state/site/reducer';
 
 /**
  * Style dependencies
@@ -50,33 +45,15 @@ const SummaryComponent = props => {
 		updateRecommendationsStep,
 		upsell,
 		newRecommendations,
-		discountData,
 	} = props;
 
 	useEffect( () => {
 		updateRecommendationsStep( 'summary' );
 	}, [ updateRecommendationsStep ] );
 
-	const { product_slug: productSlug } = upsell || {};
-	const { expiry_date: expiryDate } = discountData;
-
-	const hasDiscount = useMemo( () => isCouponValid( discountData ), [ discountData ] );
-
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
 	};
-	const onUpsellClick = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
-			product_slug: productSlug,
-			discount: hasDiscount,
-		} );
-	}, [ productSlug, hasDiscount ] );
-	const onUpsellMount = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
-			product_slug: productSlug,
-			discount: hasDiscount,
-		} );
-	}, [ productSlug, hasDiscount ] );
 
 	const mainContent = isFetchingMainData ? (
 		<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
@@ -143,47 +120,7 @@ const SummaryComponent = props => {
 				sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 				break;
 			case 'upsell':
-				sidebarCard = upsell.hide_upsell ? (
-					<ProductCardUpsellNoPrice />
-				) : (
-					<>
-						<ProductCardUpsell
-							{ ...upsell }
-							slug={ productSlug }
-							isRecommended
-							onClick={ onUpsellClick }
-							onMount={ onUpsellMount }
-						/>
-						{ hasDiscount && (
-							<div className="jp-recommendations-summary__discount">
-								<div className="jp-recommendations-summary__timer">
-									<Timer
-										timeClassName="jp-recommendations-summary__time"
-										label={ __( 'Discount ends in:', 'jetpack' ) }
-										expiryDate={ expiryDate }
-									/>
-								</div>
-								<a
-									className="jp-recommendations-summary__reco-link"
-									href="#/recommendations/product-suggestions"
-								>
-									{ __( 'See all discounted products', 'jetpack' ) }
-								</a>
-							</div>
-						) }
-						<div className="jp-recommendations-summary__footer">
-							<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
-							{ hasDiscount && (
-								<div className="jp-recommendations-summary__footnote">
-									{ __(
-										'* Discount is for first term only, all renewals are at full price.',
-										'jetpack'
-									) }
-								</div>
-							) }
-						</div>
-					</>
-				);
+				sidebarCard = upsell.hide_upsell ? <ProductCardUpsellNoPrice /> : <SummaryUpsell />;
 				break;
 			case 'one-click-restores':
 				sidebarCard = <OneClickRestores />;
@@ -239,7 +176,6 @@ const Summary = connect(
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
 			upsell,
-			discountData: getSiteDiscount( state ),
 		};
 	},
 	dispatch => ( {
