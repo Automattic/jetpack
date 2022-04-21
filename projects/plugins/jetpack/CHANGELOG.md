@@ -4,38 +4,33 @@
 
 ## 10.9-a.7 - 2022-04-19
 ### Enhancements
-- Add individual filters for JS and AMP stat footer data.
-- Add recommendation for anti-spam
-- Connection: when deactivating Jetpack from the Plugins screen, do not disconnect other Jetpack-connected plugins.
-- Moved gutenberg-base-styles.scss file to js-packages/base-styles and updated its imports in the Jetpack plugin directory
+- Connection: Preventing other Jeptpack-connected plugins from disconnecting when deactivating Jetpack from the plugins screen.
+- Recommendations: Add recommendation for anti-spam.
 
 ### Improved compatibility
-- Moved licensing images into licensing package to minimize external dependencies.
-- Updated Sync tests
-- update sync tests callables whitelist
+- WordAds: Remove the suggestion to use the ad widget from the dashboard.
+- WordAds: Change Jetpack Ads wording to be WordAds.
 
 ### Bug fixes
-- Applied legacy Publicize filters to flag setting for Publicize
-- Fixing issue adding video descriptions and metadata via the WordPress.com dashboard.
-- Random Redirect: Fix functionality on author archives.
-- Update copy to reflect the actual plan that's needed
+- Publicize: Ensure bulk publishing posts won’t publicize those posts.
+- Random Redirect: Fixes 'set author name' functionality on author archives.
+- VideoPress: Fixes issue adding video descriptions and metadata via the WordPress.com dashboard.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Added TypeScript support
-- Init 10.9-a.4
+- Added TypeScript support.
+- Dashboard: Update copy to reflect new WordPress.com Pro plan.
 - Jetpack Connection: Remove any remaining in-place flows.
-- Moved licensing endpoints from the Jetpack plugin to the Licensing package
-- Move enhanced-open-graph.php out of the publicize module.
-- phpcs changes for json endpoint
-- phpcs changes for json endpoints
-- PHPCS for custom CSS
-- Refactor Jetpack class to move some functions into Modules and File packages
-- Remaining phpcs changes for custom css
-- Remove call to use ad widget - which will be deprecated at some point.
-- Replace "Jetpack Ads" language with WordAds.
-- Security Settings: Updated plan checks to feature checks
-- Updated jetpack-waf package version
+- Moved licensing endpoints from the Jetpack plugin to the Licensing package.
+- Moved enhanced-open-graph.php out of the Publicize module.
+- Moved gutenberg-base-styles.scss file to js-packages/base-styles and updated its imports in the Jetpack plugin directory.
+- Moved images that are used for licensing components to licensing package to minimize external dependencies.
+- Refactor Jetpack class to move some functions into Modules and File packages.
+- Security Settings: convert plan checks to be feature checks.
+- Stats: Add individual filters for JS and AMP stat footer data.
+- Updated jetpack-waf package version.
 - Updated package dependencies.
+- Updated Sync tests.
+- Various PHPCS changes.
 
 ## 10.9-a.5 - 2022-04-14
 ### Bug fixes
