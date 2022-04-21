@@ -148,7 +148,7 @@ class Utils {
 		$diagnostics['lines'][''] = $line + strspn( $contents, "\n" );
 
 		$contents = trim( $contents );
-		if ( ! empty( $input_options['add-pr-num'] ) && $output && $formatter ) {
+		if ( ! empty( $input_options['add-pr-num'] ) && $contents && $output && $formatter ) {
 			$pr_num = self::getPrNumForFile( $filename, $output, $formatter );
 			if ( $pr_num ) {
 				$contents = $contents . " [#$pr_num]";
