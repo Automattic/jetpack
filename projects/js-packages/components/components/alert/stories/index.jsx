@@ -19,4 +19,5 @@ export const _default = Template.bind( {} );
 _default.args = {
 	level: LEVEL_INFO,
 	children: "Don't forget to check your email for the latest news.",
+	showIcon: true,
 };
