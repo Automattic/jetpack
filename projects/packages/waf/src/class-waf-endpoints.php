@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\REST_Connector;
-use Automattic\Jetpack\Constants;
 use WP_REST_Server;
 
 /**
@@ -36,15 +35,6 @@ class Waf_Endpoints {
 	}
 
 	/**
-	 * UI Enabled
-	 *
-	 * @return bool True when the WAF settings UI should be displayed.
-	 */
-	private static function ui_enabled() {
-		return Constants::is_true( 'JETPACK_WAF_UI' );
-	}
-
-	/**
 	 * Register REST API endpoints.
 	 */
 	public static function register_endpoints() {
@@ -67,7 +57,6 @@ class Waf_Endpoints {
 			array(
 				'bootstrapPath'  => self::get_bootstrap_file_path(),
 				'hasRulesAccess' => self::has_rules_access(),
-				'uiEnabled'      => self::ui_enabled(),
 			)
 		);
 	}
