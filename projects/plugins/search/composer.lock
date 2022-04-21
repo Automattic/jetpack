@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "793a835b8385cd297c5b4423fd611f1b",
+    "content-hash": "677ba094669b29fa59cc11f0b42ec432",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -288,7 +288,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "7ed065622e06c9992d7f659458c42b85a9864c8d"
+                "reference": "990b87542a104209e1228a441346eaee82ef95a6"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -302,7 +302,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.7.x-dev"
+                    "dev-master": "1.8.x-dev"
                 }
             },
             "autoload": {
@@ -883,11 +883,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "1c2070dd54312c878a2b9de852dae8f996968115"
+                "reference": "f47bf8514a729e8422144feb8afd7aa59be4bba5"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-config": "^1.7",
+                "automattic/jetpack-config": "^1.8",
                 "automattic/jetpack-connection": "^1.39",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.15",
