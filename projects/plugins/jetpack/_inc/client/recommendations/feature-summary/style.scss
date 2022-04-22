@@ -67,6 +67,15 @@
 		width: 100%;
 		text-align: center;
 	}
+
+	.components-external-link {
+		display: flex;
+		align-items: center;
+
+		&__icon {
+			margin-left: 4px;
+		}
+	}
 }
 
 .jp-recommendations-feature-summary__actions {

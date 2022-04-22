@@ -4,7 +4,7 @@
 import { ProgressBar } from '@automattic/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { ExternalLink } from '@wordpress/components';
 
@@ -106,6 +106,10 @@ const FeaturePromptComponent = props => {
 		} );
 	}, [ stepSlug ] );
 
+	const configLinkIsExternal = useMemo( () => {
+		return configLink.match( /^https:\/\/jetpack.com\/redirect/ );
+	}, [ configLink ] );
+
 	return (
 		<PromptLayout
 			progressBar={
@@ -125,11 +129,24 @@ const FeaturePromptComponent = props => {
 								<div className="jp-recommendations-question__checkmark">
 									<Gridicon icon="checkmark-circle" size={ 24 } />
 								</div>
-								<span>Feature Enabled</span>
+								<span>{ __( 'Feature Enabled', 'jetpack' ) }</span>
 							</div>
-							<Button rna href={ configLink } onClick={ onConfigureClick }>
-								{ configureButtonLabel }
-							</Button>
+							<div className="jp-recommendations-question__settings-button">
+								{ configLinkIsExternal ? (
+									<ExternalLink
+										type="button"
+										className="dops-button is-rna"
+										href={ configLink }
+										onClick={ onConfigureClick }
+									>
+										{ configureButtonLabel }
+									</ExternalLink>
+								) : (
+									<Button rna href={ configLink } onClick={ onConfigureClick }>
+										{ configureButtonLabel }
+									</Button>
+								) }
+							</div>
 						</>
 					) : (
 						<Button primary rna href={ nextRoute } onClick={ onInstallClick }>

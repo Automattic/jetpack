@@ -161,6 +161,17 @@
 	}
 }
 
+.jp-recommendations-question__settings-button {
+	.components-external-link {
+		display: flex;
+		align-items: center;
+
+		&__icon {
+			margin-left: 4px;
+		}
+	}
+}
+
 .jp-recommendations-question__install-section {
 	height: 100%;
 	display: flex;

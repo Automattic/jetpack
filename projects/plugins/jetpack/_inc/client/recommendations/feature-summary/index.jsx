@@ -2,7 +2,7 @@
  * External dependencies
  */
 import classNames from 'classnames';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -20,6 +20,7 @@ import { isFeatureActive, stepToRoute } from 'state/recommendations';
  */
 import './style.scss';
 import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
 
 const FeatureSummaryComponent = props => {
 	const {
@@ -57,12 +58,29 @@ const FeatureSummaryComponent = props => {
 		} );
 	}, [ featureSlug ] );
 
+	const configLinkIsExternal = useMemo( () => {
+		return configLink.match( /^https:\/\/jetpack.com\/redirect/ );
+	}, [ configLink ] );
+
 	const ctaButton = (
 		<div className="jp-recommendations-feature-summary__cta">
 			{ props.isFeatureActive ? (
-				<Button rna href={ configLink } onClick={ onConfigureClick }>
-					{ configureButtonLabel }
-				</Button>
+				<>
+					{ configLinkIsExternal ? (
+						<ExternalLink
+							type="button"
+							className="dops-button is-rna"
+							href={ configLink }
+							onClick={ onConfigureClick }
+						>
+							{ configureButtonLabel }
+						</ExternalLink>
+					) : (
+						<Button rna href={ configLink } onClick={ onConfigureClick }>
+							{ configureButtonLabel }
+						</Button>
+					) }
+				</>
 			) : (
 				<InstallButton primary rna isInstalling={ isInstalling } onClick={ onInstallClick }>
 					{ summaryActivateButtonLabel }
