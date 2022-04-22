@@ -12,14 +12,6 @@
  */
 function fixDeps( pkg ) {
 	// Why do they not publish new versions from their monorepo?
-	if ( pkg.name === '@automattic/format-currency' ) {
-		// 1.0.0-alpha.0 published 2019-03-21
-		pkg.dependencies[ 'i18n-calypso' ] = '^5';
-	}
-	if ( pkg.name === 'i18n-calypso' && pkg.dependencies[ 'interpolate-components' ] ) {
-		// 5.0.0 published 2020-07-01
-		pkg.dependencies[ 'interpolate-components' ] = 'npm:@automattic/interpolate-components@^1.2.0';
-	}
 	if ( pkg.name === '@automattic/social-previews' ) {
 		// 1.1.1 published 2021-04-08
 		if ( pkg.dependencies[ '@wordpress/components' ] === '^12.0.8' ) {

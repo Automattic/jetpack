@@ -16,6 +16,9 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	InnerBlocks: () => <button>Mocked button</button>,
 } ) );
 
+// Mock the @wordpress/edit-post, used internally to resolve the fallback URL.
+jest.mock( '@wordpress/edit-post', () => jest.fn() );
+
 /**
  * Internal dependencies
  */
