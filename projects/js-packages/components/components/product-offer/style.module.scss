@@ -1,5 +1,4 @@
 .wrapper {
-	height: 100%;
 	padding: calc( var( --spacing-base ) * 8 );
 	position: relative;
 
@@ -26,6 +25,7 @@
 	top: 0;
 	left: 0;
 	width: 100%;
+	box-sizing: border-box;
 }
 
 .card-container {
@@ -43,7 +43,6 @@
 .product-icon {
 	display: flex;
 	align-items: center;
-	height: calc( var( --spacing-base ) * 4 );
 	margin-bottom: calc( var( --spacing-base ) * 4 );
 }
 

@@ -65,6 +65,7 @@ class Jetpack_Protect {
 						),
 						'jetpack_sync_callable_whitelist'  => array(
 							'get_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+							'get_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 							'wp_version'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
 						),
 						'jetpack_sync_options_contentless' => array(),
@@ -128,6 +129,7 @@ class Jetpack_Protect {
 	 * @return array
 	 */
 	public function initial_state() {
+		global $wp_version;
 		return array(
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
@@ -135,6 +137,7 @@ class Jetpack_Protect {
 			'status'            => Status::get_status(),
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
+			'wpVersion'         => $wp_version,
 		);
 	}
 

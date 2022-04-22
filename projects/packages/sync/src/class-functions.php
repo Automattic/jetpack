@@ -632,12 +632,14 @@ class Functions {
 	/**
 	 * Return the list of installed themes
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return array
 	 */
 	public static function get_themes() {
 		$current_stylesheet = get_stylesheet();
 		$installed_themes   = wp_get_themes();
-		$synced_headers     = array( 'Name', 'ThemeURI', 'Description', 'Author', 'Version', 'Template', 'Status', 'TextDomain', 'RequiresWP', 'RequiresPHP' );
+		$synced_headers     = array( 'Name', 'ThemeURI', 'Author', 'Version', 'Template', 'Status', 'TextDomain', 'RequiresWP', 'RequiresPHP' );
 		$themes             = array();
 		foreach ( $installed_themes as $stylesheet => $theme ) {
 			$themes[ $stylesheet ] = array();
@@ -649,6 +651,13 @@ class Functions {
 				$themes[ $stylesheet ]['is_block_theme'] = $theme->is_block_theme();
 			}
 		}
-		return $themes;
+		/**
+		 * Filters the output of Sync's get_theme callable
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $themes The list of installed themes formatted in an array with a collection of information extracted from the Theme's headers
+		 */
+		return apply_filters( 'jetpack_sync_get_themes_callable', $themes );
 	}
 }

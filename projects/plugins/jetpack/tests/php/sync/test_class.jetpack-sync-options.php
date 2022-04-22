@@ -16,7 +16,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	public function set_up() {
 		parent::set_up();
 
-		$this->options_module = Modules::get_module( "options" );
+		$this->options_module = Modules::get_module( 'options' );
 
 		$this->options_module->set_options_whitelist( array( 'test_option' ) );
 
@@ -41,14 +41,14 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		delete_option( 'test_option' );
 		$this->sender->do_sync();
 		$synced_option_value = $this->server_replica_storage->get_option( 'test_option' );
-		$this->assertEquals( false, $synced_option_value );
+		$this->assertFalse( $synced_option_value );
 	}
 
 	public function test_don_t_sync_option_if_not_on_whitelist() {
 		add_option( 'don_t_sync_test_option', 'foo' );
 		$this->sender->do_sync();
 		$synced_option_value = $this->server_replica_storage->get_option( 'don_t_sync_test_option' );
-		$this->assertEquals( false, $synced_option_value );
+		$this->assertFalse( $synced_option_value );
 	}
 
 	public function test_sync_options_that_use_filter() {
@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		update_option( 'foo_option_bar', '123' );
 		$this->sender->do_sync();
 
-		$this->assertEquals( '123', $this->server_replica_storage->get_option( 'foo_option_bar' ) );
+		$this->assertSame( '123', $this->server_replica_storage->get_option( 'foo_option_bar' ) );
 	}
 
 	public function test_sync_default_options() {
@@ -287,7 +287,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
-	function assertOptionIsSynced( $option_name, $value ) {
+	public function assertOptionIsSynced( $option_name, $value ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' didn\'t have the expected value of ' . wp_json_encode( $value ) );
 	}
 

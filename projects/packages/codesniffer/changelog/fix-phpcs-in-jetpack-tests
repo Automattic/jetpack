@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Detect classes like `WP_Test_.*_Case` as test case base classes too.
