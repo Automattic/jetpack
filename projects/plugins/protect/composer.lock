@@ -235,14 +235,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "fd26ae83f0d0d8b8b3dcf3bd75ae5ce89403360c"
+                "reference": "da587bbe569354fa25fa18948f6a20fa7f181311"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
-                "composer/composer": "2.2.3",
+                "composer/composer": "2.2.12",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "composer-plugin",
