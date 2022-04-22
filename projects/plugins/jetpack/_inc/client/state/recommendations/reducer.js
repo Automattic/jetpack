@@ -32,8 +32,10 @@ import {
 import {
 	getPlanClass,
 	isVideoPressLegacySecurityPlan,
+	isJetpackPlanWithAntiSpam,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
+	PLAN_JETPACK_ANTI_SPAM,
 } from 'lib/plans/constants';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
@@ -43,6 +45,7 @@ import {
 	hasActiveProductPurchase,
 	hasActiveScanPurchase,
 	hasActiveSecurityPurchase,
+	hasActiveAntiSpamPurchase,
 	hasActiveVideoPressPurchase,
 	hasSecurityComparableLegacyPlan,
 } from 'state/site';
@@ -321,6 +324,15 @@ export const getProductSlugForStep = ( state, step ) => {
 		case 'security-plan':
 			if ( ! hasActiveSecurityPurchase( state ) && ! hasSecurityComparableLegacyPlan( state ) ) {
 				return PLAN_JETPACK_SECURITY_T1_YEARLY;
+			}
+			break;
+		case 'anti-spam':
+			if (
+				! isPluginActive( state, 'akismet/akismet.php' ) &&
+				! hasActiveAntiSpamPurchase( state ) &&
+				! isJetpackPlanWithAntiSpam( getSitePlan( state ) )
+			) {
+				return PLAN_JETPACK_ANTI_SPAM;
 			}
 			break;
 		case 'videopress':
