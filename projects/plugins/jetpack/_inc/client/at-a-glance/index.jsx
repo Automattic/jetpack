@@ -21,6 +21,7 @@ import DashMonitor from './monitor';
 import DashScan from './scan';
 import DashAkismet from './akismet';
 import DashBackups from './backups';
+import DashBlocks from './blocks';
 import DashPhoton from './photon';
 import DashSearch from './search';
 import DashSecurityBundle from './security-bundle';
@@ -106,17 +107,6 @@ class AtAGlance extends Component {
 			);
 		}
 
-		if ( ! this.props.multisite ) {
-			securityCards.push(
-				<DashBackups
-					{ ...settingsProps }
-					siteRawUrl={ this.props.siteRawUrl }
-					rewindStatus={ rewindStatus }
-					rewindStatusReason={ rewindStatusReason }
-					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
-				/>
-			);
-		}
 		securityCards.push(
 			<DashAkismet
 				{ ...urls }
@@ -169,6 +159,9 @@ class AtAGlance extends Component {
 				);
 			}
 
+			// Add Blocks card.
+			performanceCards.push( <DashBlocks /> );
+
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
 				<PartnerCouponRedeem
 					apiNonce={ this.props.apiNonce }
@@ -183,6 +176,19 @@ class AtAGlance extends Component {
 				/>
 			);
 
+			const pinnedBundle = canDisplaybundleCard ? (
+				<div className="jp-at-a-glance__pinned-bundle">
+					<DashSecurityBundle />
+					<DashBackups
+						{ ...settingsProps }
+						siteRawUrl={ this.props.siteRawUrl }
+						rewindStatus={ rewindStatus }
+						rewindStatusReason={ rewindStatusReason }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
+					/>
+				</div>
+			) : null;
+
 			return (
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
@@ -193,7 +199,7 @@ class AtAGlance extends Component {
 					<Section
 						header={ securityHeader }
 						cards={ securityCards }
-						pinnedBundle={ canDisplaybundleCard ? <DashSecurityBundle /> : null }
+						pinnedBundle={ pinnedBundle }
 					/>
 					<Section
 						header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }

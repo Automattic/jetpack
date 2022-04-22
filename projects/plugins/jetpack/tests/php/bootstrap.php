@@ -93,7 +93,7 @@ function _manually_install_woocommerce() {
 	WC_Install::install();
 
 	// reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374
-	$GLOBALS['wp_roles'] = new WP_Roles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	$GLOBALS['wp_roles'] = new WP_Roles();
 
 	echo 'Installing WooCommerce...' . PHP_EOL;
 }
@@ -139,6 +139,7 @@ if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstal
 require __DIR__ . '/attachment_test_case.php';
 
 // Load WPCOM-shared helper functions.
+require __DIR__ . '/lib/class-wpcom-features.php';
 require __DIR__ . '/lib/wpcom-helper-functions.php';
 
 // Load the Tweetstorm Requests override class.

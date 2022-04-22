@@ -1,22 +1,45 @@
-<?php
-/*
-Plugin Name: Tonesque
-Plugin URI: https://automattic.com/
-Description: Grab an average color representation from an image.
-Version: 1.0
-Author: Automattic, Matias Ventura
-Author URI: https://automattic.com/
-License: GNU General Public License v2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-*/
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Tonesque
+ * Grab an average color representation from an image.
+ * Author: Automattic, Matias Ventura
+ * Author URI: https://automattic.com/
+ * License: GNU General Public License v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * @package automattic/jetpack
+ */
 
+/**
+ * Color representation class.
+ */
 class Tonesque {
 
+	/**
+	 * Image URL.
+	 *
+	 * @var string
+	 */
 	private $image_url = '';
-	private $image_obj = NULL;
+	/**
+	 * Image identifier representing the image.
+	 *
+	 * @var null|object
+	 */
+	private $image_obj = null;
+	/**
+	 * Color code.
+	 *
+	 * @var string
+	 */
 	private $color = '';
 
-	function __construct( $image_url ) {
+	/**
+	 * Constructor.
+	 *
+	 * @param string $image_url Image URL.
+	 */
+	public function __construct( $image_url ) {
 		if ( ! class_exists( 'Jetpack_Color' ) ) {
 			jetpack_require_lib( 'class.color' );
 		}
@@ -37,23 +60,29 @@ class Tonesque {
 		$this->image_obj = self::imagecreatefromurl( $this->image_url );
 	}
 
+	/**
+	 * Get an image object from a URL.
+	 *
+	 * @param string $image_url Image URL.
+	 *
+	 * @return object Image object.
+	 */
 	public static function imagecreatefromurl( $image_url ) {
 		$data = null;
 
-		// If it's a URL:
+		// If it's a URL.
 		if ( preg_match( '#^https?://#i', $image_url ) ) {
-			// If it's a url pointing to a local media library url:
+			// If it's a url pointing to a local media library url.
 			$content_url = content_url();
 			$_image_url  = set_url_scheme( $image_url );
 			if ( wp_startswith( $_image_url, $content_url ) ) {
 				$_image_path = str_replace( $content_url, WP_CONTENT_DIR, $_image_url );
 				if ( file_exists( $_image_path ) ) {
 					$filetype = wp_check_filetype( $_image_path );
-					$ext = $filetype['ext'];
-					$type = $filetype['type'];
+					$type     = $filetype['type'];
 
 					if ( wp_startswith( $type, 'image/' ) ) {
-						$data = file_get_contents( $_image_path );
+						$data = file_get_contents( $_image_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 					}
 				}
 			}
@@ -67,14 +96,13 @@ class Tonesque {
 			}
 		}
 
-		// If it's a local path in our WordPress install:
+		// If it's a local path in our WordPress install.
 		if ( file_exists( $image_url ) ) {
 			$filetype = wp_check_filetype( $image_url );
-			$ext = $filetype['ext'];
-			$type = $filetype['type'];
+			$type     = $filetype['type'];
 
 			if ( wp_startswith( $type, 'image/' ) ) {
-				$data = file_get_contents( $image_url );
+				$data = file_get_contents( $image_url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			}
 		}
 
@@ -83,44 +111,45 @@ class Tonesque {
 	}
 
 	/**
-	 *
 	 * Construct object from image.
 	 *
-	 * @param optional $type (hex, rgb, hsv)
-	 * @return color as a string formatted as $type
+	 * @param string $type Type (hex, rgb, hsv) (optional).
 	 *
- 	 */
-	function color( $type = 'hex' ) {
-		// Bail if there is no image to work with
-	 	if ( ! $this->image_obj )
+	 * @return color as a string formatted as $type
+	 */
+	public function color( $type = 'hex' ) {
+		// Bail if there is no image to work with.
+		if ( ! $this->image_obj ) {
 			return false;
+		}
 
-		// Finds dominant color
+		// Finds dominant color.
 		$color = self::grab_color();
-		// Passes value to Color class
+		// Passes value to Color class.
 		$color = self::get_color( $color, $type );
 		return $color;
 	}
 
 	/**
-	 *
 	 * Grabs the color index for each of five sample points of the image
 	 *
-	 * @param $image
-	 * @param $type can be 'index' or 'hex'
-	 * @return array() with color indices
+	 * @param string $type can be 'index' or 'hex'.
 	 *
- 	 */
-	function grab_points( $type = 'index' ) {
+	 * @return array with color indices
+	 */
+	public function grab_points( $type = 'index' ) {
 		$img = $this->image_obj;
-		if ( ! $img )
+		if ( ! $img ) {
 			return false;
+		}
 
 		$height = imagesy( $img );
 		$width  = imagesx( $img );
 
-		// Sample five points in the image
-		// Based on rule of thirds and center
+		/*
+		 * Sample five points in the image
+		 * based on rule of thirds and center.
+		 */
 		$topy    = round( $height / 3 );
 		$bottomy = round( ( $height / 3 ) * 2 );
 		$leftx   = round( $width / 3 );
@@ -128,7 +157,7 @@ class Tonesque {
 		$centery = round( $height / 2 );
 		$centerx = round( $width / 2 );
 
-		// Cast those colors into an array
+		// Cast those colors into an array.
 		$points = array(
 			imagecolorat( $img, $leftx, $topy ),
 			imagecolorat( $img, $rightx, $topy ),
@@ -137,14 +166,17 @@ class Tonesque {
 			imagecolorat( $img, $centerx, $centery ),
 		);
 
-		if ( 'hex' == $type ) {
+		if ( 'hex' === $type ) {
 			foreach ( $points as $i => $p ) {
-				$c = imagecolorsforindex( $img, $p );
-				$points[ $i ] = self::get_color( array(
-					'r' => $c['red'],
-					'g' => $c['green'],
-					'b' => $c['blue'],
-				), 'hex' );
+				$c            = imagecolorsforindex( $img, $p );
+				$points[ $i ] = self::get_color(
+					array(
+						'r' => $c['red'],
+						'g' => $c['green'],
+						'b' => $c['blue'],
+					),
+					'hex'
+				);
 			}
 		}
 
@@ -152,34 +184,37 @@ class Tonesque {
 	}
 
 	/**
-	 *
 	 * Finds the average color of the image based on five sample points
 	 *
-	 * @param $image
-	 * @return array() with rgb color
-	 *
- 	 */
-	function grab_color() {
+	 * @return array with rgb color
+	 */
+	public function grab_color() {
 		$img = $this->image_obj;
-		if ( ! $img )
+		if ( ! $img ) {
 			return false;
+		}
 
 		$rgb = self::grab_points();
 
-		// Process the color points
-		// Find the average representation
+		$r = array();
+		$g = array();
+		$b = array();
+
+		/*
+		 * Process the color points
+		 * Find the average representation
+		 */
 		foreach ( $rgb as $color ) {
 			$index = imagecolorsforindex( $img, $color );
-			$r[] = $index['red'];
-			$g[] = $index['green'];
-			$b[] = $index['blue'];
-
-			$red = round( array_sum( $r ) / 5 );
-			$green = round( array_sum( $g ) / 5 );
-			$blue = round( array_sum( $b ) / 5 );
+			$r[]   = $index['red'];
+			$g[]   = $index['green'];
+			$b[]   = $index['blue'];
 		}
+		$red   = round( array_sum( $r ) / 5 );
+		$green = round( array_sum( $g ) / 5 );
+		$blue  = round( array_sum( $b ) / 5 );
 
-		// The average color of the image as rgb array
+		// The average color of the image as rgb array.
 		$color = array(
 			'r' => $red,
 			'g' => $green,
@@ -190,29 +225,31 @@ class Tonesque {
 	}
 
 	/**
-	 *
 	 * Get a Color object using /lib class.color
 	 * Convert to appropriate type
 	 *
-	 * @return string
+	 * @param string $color Color code.
+	 * @param string $type  Color type (rgb, hex, hsv).
 	 *
+	 * @return string
 	 */
-	function get_color( $color, $type ) {
-		$c = new Jetpack_Color( $color, 'rgb' );
+	public function get_color( $color, $type ) {
+		$c           = new Jetpack_Color( $color, 'rgb' );
 		$this->color = $c;
 
 		switch ( $type ) {
-			case 'rgb' :
+			case 'rgb':
 				$color = implode( ',', $c->toRgbInt() );
 				break;
-			case 'hex' :
+			case 'hex':
 				$color = $c->toHex();
 				break;
-			case 'hsv' :
+			case 'hsv':
 				$color = implode( ',', $c->toHsvInt() );
 				break;
 			default:
-				return $color = $c->toHex();
+				$color = $c->toHex();
+				return $color;
 		}
 
 		return $color;
@@ -224,14 +261,14 @@ class Tonesque {
 	 * Gives either black or white for using with opacity
 	 *
 	 * @return string
-	 *
- 	 */
-	function contrast() {
-	 	if ( ! $this->color )
+	 */
+	public function contrast() {
+		if ( ! $this->color ) {
 			return false;
+		}
 
 		$c = $this->color->getMaxContrastColor();
 		return implode( ',', $c->toRgbInt() );
 	}
 
-};
+}

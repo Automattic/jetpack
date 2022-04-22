@@ -26,9 +26,6 @@ const config = {
 		tunnels: `${ tempDir }/e2e-tunnels.txt`,
 		jetpackPrivateOptions: `${ tempDir }/jetpack-private-options.json`,
 		planData: `${ tempDir }/plan-data.json`,
-		sidebarsWidgetsFile: `${ tempDir }/sidebars-widgets.json`,
-		searchWidgetFile: `${ tempDir }/search-widget.json`,
-		blockWidgetsFile: `${ tempDir }/widget-block.json`,
 	},
 	consoleIgnore: [
 		'This is a global warning',
@@ -37,6 +34,8 @@ const config = {
 		'elements with non-unique id #_wpnonce',
 		'is deprecated',
 		'SharedArrayBuffer will require cross-origin isolation as of M91, around May 2021',
+		'Warning: getDefaultProps is only used on classic React.createClass definitions',
+		'Warning: A future version of React will block javascript: URLs as a security precaution',
 	],
 	repository: {
 		url: 'https://github.com/Automattic/jetpack',

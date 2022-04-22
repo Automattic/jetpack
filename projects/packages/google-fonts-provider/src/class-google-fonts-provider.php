@@ -2,8 +2,8 @@
 /**
  * WordPress webfonts provider for Google Fonts
  *
- * @package automattic/google-fonts-provider
- * @since $$next-version$$
+ * @package automattic/jetpack-google-fonts-provider
+ * @since 0.1.0
  */
 
 namespace Automattic\Jetpack\Fonts;
@@ -36,9 +36,13 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 	 *
 	 * Hook this function into `wp_head` to enable the preconnect link.
 	 *
+	 * @deprecated 0.2.0 Use Automattic\Jetpack\Fonts\Utils::font_source_resource_hint() instead.
+	 *
 	 * @return void
 	 */
 	public static function preconnect_font_source() {
+		_deprecated_function( __METHOD__, '0.2.0', 'Automattic\\Jetpack\\Fonts\\Utils::font_source_resource_hint' );
+
 		$fonts_url = \set_url_scheme( 'https://fonts.gstatic.com' ); ?>
 <link rel="preconnect" href="<?php echo esc_url( $fonts_url ); ?>" crossorigin>
 		<?php

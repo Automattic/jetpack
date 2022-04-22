@@ -14,7 +14,7 @@ class Recommendations_Dismiss implements Endpoint {
 	}
 
 	public function response( $request ) {
-		$provider_key = filter_var( $request['providerKey'], FILTER_SANITIZE_STRING );
+		$provider_key = sanitize_title( $request['providerKey'] );
 		if ( empty( $provider_key ) ) {
 			wp_send_json_error();
 		}

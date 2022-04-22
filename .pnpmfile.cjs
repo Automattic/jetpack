@@ -12,13 +12,13 @@
  */
 function fixDeps( pkg ) {
 	// Why do they not publish new versions from their monorepo?
-	if ( pkg.name === '@automattic/format-currency' ) {
-		// 1.0.0-alpha.0 published 3 years ago
-		pkg.dependencies[ 'i18n-calypso' ] = '^5';
-	}
-	if ( pkg.name === 'i18n-calypso' && pkg.dependencies[ 'interpolate-components' ] ) {
-		// 5.0.0 published 2 years ago
-		pkg.dependencies[ 'interpolate-components' ] = 'npm:@automattic/interpolate-components@^1.2.0';
+	if ( pkg.name === '@automattic/social-previews' ) {
+		// 1.1.1 published 2021-04-08
+		if ( pkg.dependencies[ '@wordpress/components' ] === '^12.0.8' ) {
+			// Update to avoid a dep on @emotion/native that wants react-native.
+			// This dep update is in their monorepo as of 2022-03-10 with no code changes.
+			pkg.dependencies[ '@wordpress/components' ] = '^19.2.0';
+		}
 	}
 
 	// Even though Storybook works with webpack 5, they still have a bunch of deps on webpack4.
@@ -42,6 +42,16 @@ function fixDeps( pkg ) {
 	// https://github.com/enzymejs/enzyme-matchers/issues/353
 	if ( pkg.name === 'jest-environment-enzyme' ) {
 		pkg.dependencies[ 'jest-environment-jsdom' ] = '^27';
+	}
+
+	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
+	if ( pkg.name === '@wordpress/eslint-plugin' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( 'eslint-plugin-' ) || dep.endsWith( '/eslint-plugin' ) ) {
+				delete pkg.dependencies[ dep ];
+				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
+			}
+		}
 	}
 
 	// Unpin browserslist here.
@@ -78,6 +88,11 @@ function fixPeerDeps( pkg ) {
 		) {
 			pkg.peerDependencies[ p ] += ' || ^17';
 		}
+	}
+
+	// @sveltejs/eslint-config peer-depends on eslint-plugin-node but doesn't seem to actually use it.
+	if ( pkg.name === '@sveltejs/eslint-config' ) {
+		delete pkg.peerDependencies?.[ 'eslint-plugin-node' ];
 	}
 
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with

@@ -13,6 +13,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
@@ -56,6 +58,10 @@ class Jetpack_Redux_State_Helper {
 			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'] );
 			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'] );
 		}
+
+		// "mock" a block module in order to get it searchable in the settings.
+		$modules['blocks']['module']                    = 'blocks';
+		$modules['blocks']['additional_search_queries'] = esc_html_x( 'blocks, block, gutenberg', 'Search terms', 'jetpack' );
 
 		// Collecting roles that can view site stats.
 		$stats_roles   = array();
@@ -168,6 +174,8 @@ class Jetpack_Redux_State_Helper {
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
+				/** This filter is documented in my-jetpack/src/class-initializer.php */
+				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
 			),
@@ -176,6 +184,7 @@ class Jetpack_Redux_State_Helper {
 				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
 				'support'   => array(
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
+					'webfonts'        => WP_Theme_JSON_Resolver::theme_has_support() && function_exists( 'wp_register_webfont_provider' ) && function_exists( 'wp_register_webfonts' ),
 				),
 			),
 			'jetpackStateNotices'         => array(
@@ -196,10 +205,11 @@ class Jetpack_Redux_State_Helper {
 			'licensing'                   => array(
 				'error'                   => Licensing::instance()->last_error(),
 				'showLicensingUi'         => Licensing::instance()->is_licensing_input_enabled(),
-				'userCounts'              => Jetpack_Core_Json_Api_Endpoints::get_user_license_counts(),
+				'userCounts'              => Licensing_Endpoints::get_user_license_counts(),
 				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
 			),
 			'hasSeenWCConnectionModal'    => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
+			'newRecommendations'          => Jetpack_Recommendations::get_new_conditional_recommendations(),
 			// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
 			'isWooCommerceActive'         => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
 		);
@@ -349,7 +359,7 @@ class Jetpack_Redux_State_Helper {
 		$connect_urls = array();
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 		// phpcs:disable
-		foreach ( Jetpack_Keyring_Service_Helper::$SERVICES as $service_name => $service_info ) {
+		foreach ( Jetpack_Keyring_Service_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable
 			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name, $service_info['for'] );
 		}
@@ -387,7 +397,6 @@ class Jetpack_Redux_State_Helper {
 	public static function generate_purchase_token() {
 		return wp_generate_password( 12, false );
 	}
-
 }
 
 /**

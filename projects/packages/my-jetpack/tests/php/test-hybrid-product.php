@@ -130,7 +130,7 @@ class Test_Hybrid_Product extends TestCase {
 	public function test_backup_post_activation_url_with_jetpack_disconnected() {
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( 'admin_url', Backup::get_post_activation_url() );
+		$this->assertSame( '', Backup::get_post_activation_url() );
 	}
 
 	/**
@@ -139,7 +139,7 @@ class Test_Hybrid_Product extends TestCase {
 	public function test_backup_post_activation_url_with_backup_disconnected() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
 		activate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( admin_url( 'admin.php?page=jetpack-backup' ), Backup::get_post_activation_url() );
+		$this->assertSame( '', Backup::get_post_activation_url() );
 	}
 
 	/**

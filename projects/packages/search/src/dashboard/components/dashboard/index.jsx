@@ -1,27 +1,24 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useMemo } from 'react';
+import React from 'react';
 
 /**
  * WordPress dependencies
  */
-import { useSelect, useDispatch, select as syncSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import analytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
-import { JetpackFooter, JetpackLogo, Spinner } from '@automattic/jetpack-components';
+import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
 import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
 import RecordMeter from 'components/record-meter';
 
-import 'scss/rna-styles.scss';
 import './style.scss';
 
 /**
@@ -30,10 +27,6 @@ import './style.scss';
  * @returns {React.Component} Search dashboard component.
  */
 export default function SearchDashboard() {
-	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
-	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
-	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
-
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
@@ -45,8 +38,8 @@ export default function SearchDashboard() {
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const upgradeBillPeriod = useSelect( select => select( STORE_ID ).getUpgradeBillPeriod() );
 
-	const supportsOnlyClassicSearch = useSelect(
-		select => select( STORE_ID ).supportsOnlyClassicSearch
+	const supportsOnlyClassicSearch = useSelect( select =>
+		select( STORE_ID ).supportsOnlyClassicSearch()
 	);
 	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
 	const supportsInstantSearch = useSelect( select => select( STORE_ID ).supportsInstantSearch() );
@@ -64,41 +57,10 @@ export default function SearchDashboard() {
 	const tierMaximumRecords = useSelect( select => select( STORE_ID ).getTierMaximumRecords() );
 	const postCount = useSelect( select => select( STORE_ID ).getPostCount() );
 	const postTypeBreakdown = useSelect( select => select( STORE_ID ).getPostTypeBreakdown() );
-
-	const isLoading = useSelect(
-		select =>
-			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
-			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' ) ||
-			select( STORE_ID ).isResolving( 'getSearchStats' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' )
-	);
+	const lastIndexedDate = useSelect( select => select( STORE_ID ).getLastIndexedDate() );
 
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
-
-	const initializeAnalytics = () => {
-		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
-		const blogId = syncSelect( STORE_ID ).getBlogId();
-
-		if ( tracksUser ) {
-			analytics.initialize( tracksUser.ID, tracksUser.login, {
-				blog_id: blogId,
-			} );
-		}
-	};
-
-	useMemo( () => {
-		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
-		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
-		apiRootUrl && restApi.setApiRoot( apiRootUrl );
-		apiNonce && restApi.setApiNonce( apiNonce );
-		initializeAnalytics();
-		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
-			current_version: syncSelect( STORE_ID ).getVersion(),
-		} );
-	}, [] );
 
 	const renderHeader = () => {
 		return (
@@ -184,24 +146,18 @@ export default function SearchDashboard() {
 
 	return (
 		<div className="jp-search-dashboard-page">
-			{ isLoading && (
-				<Spinner className="jp-search-dashboard-page-loading-spinner" color="#000" size={ 32 } />
+			{ renderHeader() }
+			{ renderMockedSearchInterface() }
+			{ isRecordMeterEnabled && (
+				<RecordMeter
+					postCount={ postCount }
+					postTypeBreakdown={ postTypeBreakdown }
+					tierMaximumRecords={ tierMaximumRecords }
+					lastIndexedDate={ lastIndexedDate }
+				/>
 			) }
-			{ ! isLoading && (
-				<Fragment>
-					{ renderHeader() }
-					{ renderMockedSearchInterface() }
-					{ isRecordMeterEnabled && (
-						<RecordMeter
-							postCount={ postCount }
-							postTypeBreakdown={ postTypeBreakdown }
-							tierMaximumRecords={ tierMaximumRecords }
-						/>
-					) }
-					{ renderModuleControl() }
-					{ renderFooter() }
-				</Fragment>
-			) }
+			{ renderModuleControl() }
+			{ renderFooter() }
 			<NoticesList
 				notices={ notices }
 				handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }

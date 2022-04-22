@@ -1,13 +1,13 @@
 {
 	"name": "automattic/jetpack-google-fonts-provider",
 	"description": "WordPress Webfonts provider for Google Fonts",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.0",
-		"brain/monkey": "^2.6"
+		"brain/monkey": "2.6.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -43,7 +43,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-google-fonts-provider/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.1.x-dev"
+			"dev-master": "0.2.x-dev"
 		},
 		"textdomain": "jetpack-google-fonts-provider"
 	}

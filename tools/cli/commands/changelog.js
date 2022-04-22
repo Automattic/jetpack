@@ -7,7 +7,6 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import inquirer from 'inquirer';
-import simpleGit from 'simple-git';
 
 /**
  * Internal dependencies
@@ -15,7 +14,7 @@ import simpleGit from 'simple-git';
 import promptForProject from '../helpers/promptForProject.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
-import { allProjects, projectTypes } from '../helpers/projectHelpers.js';
+import { projectTypes, allProjects } from '../helpers/projectHelpers.js';
 import { readComposerJson } from '../helpers/json.js';
 import { runCommand } from '../helpers/runCommand.js';
 
@@ -292,15 +291,31 @@ async function checkSpecialProjects( needChangelog ) {
  */
 async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
-		const needChangelog = await changedProjects();
+		const needChangelog = await checkChangelogFiles();
 		const uniqueProjects = await checkSpecialProjects( needChangelog );
+
 		// If we don't detect any modified projects, shortcircuit to default changelogger.
 		if ( needChangelog.length === 0 && uniqueProjects.length === 0 ) {
+			console.log(
+				chalk.green(
+					'Did not detect a touched project that still need a changelog. You can still add a changelog manually.'
+				)
+			);
 			changelogArgs( argv );
 			return;
 		}
 
 		const promptType = await changelogAddPrompt( argv, needChangelog, uniqueProjects );
+
+		// Bail if user doesn't want to auto-add.
+		if ( ! promptType.autoAdd && ! promptType.autoPrompt ) {
+			console.log(
+				chalk.green(
+					`Auto changelog cancelled. You can run 'jetpack changelog add [project-type/project]' to add changelogs individually.`
+				)
+			);
+			return;
+		}
 
 		// Auto add the changelog files for the projects that we can:
 		if ( promptType.autoAdd ) {
@@ -454,6 +469,7 @@ async function changeloggerSquash( argv, file ) {
 			console.log( 'Updating readme...' );
 			await runCommand( 'tools/plugin-changelog-to-readme.sh', [ `${ argv.project }` ] );
 		}
+		console.log( chalk.green( 'Squash complete!' ) );
 	} finally {
 		if ( changelogContents !== null ) {
 			fs.writeFileSync( `projects/${ argv.project }/CHANGELOG.md`, changelogContents );
@@ -502,28 +518,66 @@ export async function changeloggerCli( argv ) {
  */
 async function gitAdd( argv ) {
 	const changelogPath = `projects/${ argv.project }/changelog`;
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	for ( const file of gitStatus.not_added ) {
+	const addedFiles = await child_process
+		.spawnSync( 'git', [
+			'-c',
+			'core.quotepath=off',
+			'ls-files',
+			'--others',
+			'--exclude-standard',
+		] )
+		.stdout.toString()
+		.trim();
+	for ( const file of addedFiles.split( '\n' ) ) {
 		if ( path.dirname( file ) === changelogPath ) {
-			git.add( file );
+			await runCommand( 'git', [ 'add', file ] );
 		}
 	}
 }
 
 /**
- * Gets list of currently modified files.
+ * Checks if changelog files are required.
  *
- * @returns {Array} modifiedProjects - projects that need a changelog.
+ * @returns {Array} matchedProjects - projects that need a changelog.
  */
-async function changedProjects() {
+async function checkChangelogFiles() {
+	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
+
+	// Bail if we're pushing to a release branch, like boost/branch-1.3.0
+	let currentBranch = child_process.spawnSync( 'git', [ 'branch', '--show-current' ] );
+	currentBranch = currentBranch.stdout.toString().trim();
+	const branchReg = /\/branch-(\d+)\.(\d+)(\.(\d+))?/; // match example: jetpack/branch-1.2.3
+	if ( currentBranch.match( branchReg ) ) {
+		console.log( chalk.green( 'Release branch detected. No changelog required.' ) );
+		return [];
+	}
+
 	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
 	const modifiedProjects = new Set();
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	for ( const file of gitStatus.files ) {
-		const match = file.path.match( re );
+	const changelogsAdded = new Set();
+	let touchedFiles = child_process.spawnSync( 'git', [
+		'-c',
+		'core.quotepath=off',
+		`diff`,
+		`--no-renames`,
+		`--name-only`,
+		`--merge-base`,
+		`origin/master`,
+	] );
+	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
+
+	// Check for any existing changelog files.
+	for ( const file of touchedFiles ) {
+		const match = file.match( /^projects\/([^/]+\/[^/]+)\/changelog\// );
 		if ( match ) {
+			changelogsAdded.add( match[ 1 ] );
+		}
+	}
+
+	// Check for any touched projects without a changelog.
+	for ( const file of touchedFiles ) {
+		const match = file.match( re );
+		if ( match && ! changelogsAdded.has( match[ 1 ] ) ) {
 			modifiedProjects.add( match[ 1 ] );
 		}
 	}
@@ -653,10 +707,12 @@ async function promptVersion( argv ) {
  * @returns {argv}.
  */
 async function promptChangelog( argv, needChangelog ) {
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	const gitBranch = gitStatus.current.replace( /\//g, '-' );
-
+	const gitBranch = child_process
+		.spawnSync( 'git', [ 'branch', '--show-current' ] )
+		.stdout.toString()
+		.trim()
+		.replace( /\//g, '-' );
+	console.log( gitBranch );
 	const commands = await inquirer.prompt( [
 		{
 			type: 'string',

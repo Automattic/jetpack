@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Disable asynchronize stylesheet on pending Cloud CSS.

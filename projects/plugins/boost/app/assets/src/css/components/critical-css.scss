@@ -76,33 +76,6 @@
 			}
 		}
 	}
-
-	button {
-		color: $gray_90;
-
-		&.components-button.is-link {
-			margin-left: auto;
-		}
-
-		&.components-button.is-link:hover {
-			color: $gray_90;
-		}
-
-		svg {
-			margin: 4px 4px 2px 0;
-			height: 1.5rem;
-		}
-
-		&.close {
-			font-size: 14pt;
-			text-decoration: none;
-			margin-bottom: 20px;
-
-			svg {
-				margin-right: 20px;
-			}
-		}
-	}
 }
 
 .jb-critical-css__meta {
@@ -121,7 +94,7 @@
 		flex-grow: 1;
 		position: relative;
 
-		.successes {
+		.successes, .generating {
 			color: $gray_40;
 		}
 
@@ -194,4 +167,25 @@
 	}
 }
 
+.jb-premium-cta {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 24px;
+	margin: 32px 0;
+	border: 2px solid $jetpack-green;
+	border-radius: $border-radius;
+	cursor: pointer;
 
+	p {
+		margin: 0;
+	}
+
+	&__action-line {
+		font-weight: bold;
+	}
+
+	&__icon svg {
+		fill: $jetpack-green;
+	}
+}

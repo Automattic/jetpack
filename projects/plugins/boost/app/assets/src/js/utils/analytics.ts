@@ -9,5 +9,10 @@ export function recordBoostEvent(
 		eventProp.boost_version = Jetpack_Boost.version;
 	}
 
-	jpTracksAJAX.record_ajax_event( `boost_${ eventName }`, 'click', eventProp );
+	if (
+		typeof jpTracksAJAX !== 'undefined' &&
+		typeof jpTracksAJAX.record_ajax_event === 'function'
+	) {
+		jpTracksAJAX.record_ajax_event( `boost_${ eventName }`, 'click', eventProp );
+	}
 }

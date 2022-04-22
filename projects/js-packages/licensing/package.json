@@ -1,15 +1,16 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-licensing",
-	"version": "0.4.9-alpha",
+	"version": "0.4.16-alpha",
 	"description": "Jetpack licensing flow",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/licensing/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Licensing"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack",
+		"directory": "projects/js-packages/licensing"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -17,17 +18,18 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
 	},
 	"devDependencies": {
-		"@babel/core": "7.16.0",
-		"@babel/preset-react": "7.16.0",
+		"@babel/core": "7.17.9",
+		"@babel/preset-react": "7.16.7",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
 		"react": "17.0.2",
+		"react-dom": "17.0.2",
 		"react-test-renderer": "17.0.2",
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10-alpha"
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.3"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"pnpm": "^6.32.3",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
@@ -36,12 +38,12 @@
 		"./action-types": "./src/state/action-types"
 	},
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:^0.9.1",
-		"@automattic/jetpack-components": "workspace:^0.10.8-alpha",
-		"@wordpress/i18n": "4.3.1",
-		"@wordpress/element": "4.1.1",
+		"@automattic/jetpack-api": "workspace:* || ^0.13",
+		"@automattic/jetpack-components": "workspace:* || ^0.11",
+		"@wordpress/i18n": "4.6.0",
+		"@wordpress/element": "4.4.0",
 		"prop-types": "15.7.2",
-		"@wordpress/components": "19.5.0",
-		"@wordpress/icons": "7.0.1"
+		"@wordpress/components": "19.8.0",
+		"@wordpress/icons": "8.2.0"
 	}
 }

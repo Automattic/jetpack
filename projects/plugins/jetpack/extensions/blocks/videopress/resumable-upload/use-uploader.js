@@ -34,7 +34,7 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 			withCredentials: false,
 			autoRetry: true,
 			overridePatchMethod: false,
-			chunkSize: 500000, // 500 Kb.
+			chunkSize: 10000000, // 10 Mb.
 			allowedFileTypes: [ 'video/*' ],
 			metadata: {
 				filename: file.name,
@@ -54,7 +54,7 @@ export const resumableUploader = ( { onError, onProgress, onSuccess } ) => {
 				const mediaId = res.getHeader( MEDIA_ID_HEADER );
 				const src = res.getHeader( SRC_URL_HEADER );
 				if ( guid && mediaId && src ) {
-					onSuccess && onSuccess( { mediaId, guid, src } );
+					onSuccess && onSuccess( { mediaId: Number( mediaId ), guid, src } );
 					return;
 				}
 

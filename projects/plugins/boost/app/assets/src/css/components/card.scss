@@ -1,0 +1,48 @@
+.jb-card {
+  background: #FFFFFF url("../static/images/color-shift.svg") no-repeat top right;
+  border: 1px solid #DCDCDE;
+  border-radius: $border-radius;
+
+  & &__content {
+	@extend .p-4;
+	color: $primary-black;
+  }
+
+  & &__summary {
+	font-size: 1.2rem;
+	font-weight: 500;
+  }
+
+  & &__cta {
+	svg, img {
+	  max-width: 100%;
+	}
+  }
+
+  .jp-components__pricing-card {
+	.jp-components__pricing-card__icon img {
+	  width: 16px;
+	  height: 16px;
+	}
+
+	.jp-components__pricing-card__title {
+	  font-weight: 600;
+	  @extend .my-2;
+	}
+
+	.jp-components__pricing-card__pricing {
+	  @extend .mt-3;
+	}
+  }
+
+  @include breakpoint( xs ) {
+	& &__content {
+	  padding: $spacing-unit * 3;
+	}
+  }
+
+  @include breakpoint( lg ) {
+	display: grid;
+	grid-template-columns: auto 400px;
+  }
+}

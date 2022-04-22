@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Using the new Webfont API in Gutenberg, registers a selection of Google fonts for use with block and Global styles

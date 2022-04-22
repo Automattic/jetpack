@@ -121,7 +121,7 @@ export default function ResumableUpload( { file } ) {
 		<div { ...blockProps }>
 			<div className="resumable-upload__logo">
 				<Icon icon={ VideoPressIcon } />
-				<div className="resumable-upload__logo-text">{ __( 'Video', 'jetpack' ) }</div>
+				<div className="resumable-upload__logo-text">{ __( 'VideoPress', 'jetpack' ) }</div>
 			</div>
 			{ null !== error ? (
 				<div className="resumable-upload__error">
@@ -146,6 +146,7 @@ export default function ResumableUpload( { file } ) {
 				<div className="resumable-upload__status">
 					<div className="resumable-upload__file-info">
 						<div className="resumable-upload__file-name">{ fileNameLabel }</div>
+						&nbsp;&#8212;&nbsp;
 						<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
 					</div>
 					<div className="resumable-upload__progress">

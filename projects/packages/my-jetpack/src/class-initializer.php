@@ -27,7 +27,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.8-alpha';
+	const PACKAGE_VERSION = '1.1.1-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -35,7 +35,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! self::should_initialize() ) {
+		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
 			return;
 		}
 
@@ -50,11 +50,7 @@ class Initializer {
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			sprintf(
-			/* translators: %s: "beta" label on Menu item for My Jetpack. */
-				__( 'My Jetpack %s', 'jetpack-my-jetpack' ),
-				'<span style="display:inline-block; margin: 0 8px; color: #bbb;">' . __( 'beta', 'jetpack-my-jetpack' ) . '</span>'
-			),
+			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			'manage_options',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
@@ -126,7 +122,10 @@ class Initializer {
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
-				'connectedPlugins'      => self::get_connected_plugins(),
+				'loadAddLicenseScreen'  => apply_filters(
+					'jetpack_my_jetpack_should_enable_add_license_screen',
+					defined( 'JETPACK_ENABLE_MY_JETPACK_LICENSE' ) && JETPACK_ENABLE_MY_JETPACK_LICENSE
+				),
 			)
 		);
 
@@ -146,28 +145,6 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
-	}
-
-	/**
-	 * Get the list of plugins actively using the Connection
-	 *
-	 * @return array The list of plugins.
-	 */
-	private static function get_connected_plugins() {
-		$plugins = ( new Connection_Manager() )->get_connected_plugins();
-
-		if ( is_wp_error( $plugins ) ) {
-			return array();
-		}
-
-		array_walk(
-			$plugins,
-			function ( &$data, $slug ) {
-				$data['slug'] = $slug;
-			}
-		);
-
-		return $plugins;
 	}
 
 	/**
@@ -212,32 +189,28 @@ class Initializer {
 	}
 
 	/**
-	 * Return true if we should initialize the My Jetpack
+	 * Return true if we should initialize the My Jetpack admin page.
 	 */
 	public static function should_initialize() {
-		if ( did_action( 'my_jetpack_init' ) ) {
-			return false;
-		}
+		$should = true;
 
 		if ( is_multisite() ) {
-			return false;
+			$should = false;
+		}
+
+		// Do not initialize My Jetpack if site is not connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			$should = false;
 		}
 
 		/**
-		 * Allows filtering whether My Jetpack should be initialized
+		 * Allows filtering whether My Jetpack should be initialized.
 		 *
 		 * @since 0.5.0-alpha
 		 *
 		 * @param bool $shoud_initialize Should we initialize My Jetpack?
 		 */
-		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', true );
-
-		// Do not initialize My Jetpack if site is not connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			return false;
-		}
-
-		return $should;
+		return apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
 	}
 
 	/**

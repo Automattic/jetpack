@@ -11,6 +11,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import PropTypes from 'prop-types';
 import './style.scss';
 
 /**
@@ -18,10 +19,11 @@ import './style.scss';
  *
  * @param {object} props - The component props.
  * @param {Array} props.siteBenefits - An array of site benefits.
+ * @param {Array} props.context - Context in which the component will be used. disconnect or deactivate.
  * @returns {React.Component} - The JetpackBenefits component.
  */
 const JetpackBenefits = props => {
-	const { siteBenefits } = props;
+	const { siteBenefits, context } = props;
 
 	return (
 		<React.Fragment>
@@ -29,10 +31,16 @@ const JetpackBenefits = props => {
 				<React.Fragment>
 					<div className="jp-connection__disconnect-dialog__step-copy">
 						<p className="jp-connection__disconnect-dialog__large-text">
-							{ __(
-								'Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.',
-								'jetpack'
-							) }
+							{ context === 'disconnect'
+								? __(
+										'Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.',
+										'jetpack'
+								  )
+								: __(
+										'Jetpack is currently powering features on your site. Once you deactivate Jetpack, these features will no longer be available.',
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
+								  ) }
 						</p>
 					</div>
 					<div className="jp-connection__disconnect-card__group">
@@ -107,6 +115,17 @@ const JetpackBenefits = props => {
 			) }
 		</React.Fragment>
 	);
+};
+
+JetpackBenefits.propTypes = {
+	/** An array of site benefits. */
+	siteBenefits: PropTypes.array,
+	/** Context in which the component will be used. disconnect or deactivate. */
+	context: PropTypes.oneOf( [ 'disconnect', 'deactivate' ] ),
+};
+
+JetpackBenefits.defaultProps = {
+	context: 'disconnect',
 };
 
 export default JetpackBenefits;

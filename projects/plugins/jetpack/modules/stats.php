@@ -273,8 +273,30 @@ function stats_build_view_data() {
 function stats_footer() {
 	$data = stats_build_view_data();
 	if ( Jetpack_AMP_Support::is_amp_request() ) {
+
+		/**
+		 * Filter the parameters added to the AMP pixel tracking code.
+		 *
+		 * @module stats
+		 *
+		 * @since 10.9
+		 *
+		 * @param array $data Array of options about the site and page you're on.
+		 */
+		$data = (array) apply_filters( 'jetpack_stats_footer_amp_data', $data );
 		stats_render_amp_footer( $data );
 	} else {
+
+		/**
+		 * Filter the parameters added to the JavaScript stats tracking code.
+		 *
+		 * @module stats
+		 *
+		 * @since 10.9
+		 *
+		 * @param array $data Array of options about the site and page you're on.
+		 */
+		$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
 		stats_render_footer( $data );
 	}
 
@@ -307,7 +329,7 @@ END;
 /**
  * Render the stats footer for AMP output.
  *
- * @param array $data Array of data for the JS stats tracker.
+ * @param array $data Array of data for the AMP pixel tracker.
  */
 function stats_render_amp_footer( $data ) {
 	$data['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : ''; // input var ok.

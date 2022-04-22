@@ -1,0 +1,57 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.product-management-control-inspector__product-title .components-base-control,
+.product-management-control-inspector__product-interval .components-base-control {
+	width: 100%;
+}
+
+.product-management-control-inspector__product-price .components-base-control {
+	width: 45%;
+	margin: 0;
+}
+
+.product-management-control-inspector__add-plan .components-panel__row:last-child {
+	margin-top: 25px;
+}
+
+.product-management-control-inspector__add-plan .components-base-control:last-child {
+	margin: 0;
+}
+
+.product-management-control-nudge .editor-warning {
+	margin-bottom: 0;
+}
+
+.product-management-control-nudge .editor-warning__message {
+	margin: 13px 0;
+}
+
+.product-management-control-nudge .editor-warning__actions {
+	line-height: 1;
+}
+
+.product-management-control-nudge .product-management-control-nudge__info {
+	font-size: $default-font-size;
+	display: flex;
+	flex-direction: row;
+	line-height: 1.4;
+}
+
+.product-management-control-nudge .product-management-control-nudge__text-container {
+	display: flex;
+	flex-direction: column;
+	padding-left: 10px;
+}
+
+.product-management-control-nudge .product-management-control-nudge__title {
+	font-size: 14px;
+}
+
+.product-management-control-nudge__message {
+	color: var( --color-text-subtle );
+}
+
+.editor-styles-wrapper a.product-management-control-nudge__button {
+	color: #0075af;
+	text-decoration: none;
+}

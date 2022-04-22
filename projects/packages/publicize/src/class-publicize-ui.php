@@ -2,7 +2,7 @@
 /**
  * Publicize_UI class.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
 namespace Automattic\Jetpack\Publicize;
@@ -49,9 +49,7 @@ class Publicize_UI {
 		}
 
 		// Assets (css, js).
-		if ( $this->in_jetpack ) {
-			add_action( 'load-settings_page_sharing', array( $this, 'load_assets' ) );
-		}
+		add_action( 'load-settings_page_sharing', array( $this, 'load_assets' ) );
 		add_action( 'admin_head-post.php', array( $this, 'post_page_metabox_assets' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'post_page_metabox_assets' ) );
 
@@ -78,7 +76,9 @@ class Publicize_UI {
 	 * Add admin page with wrapper.
 	 */
 	public function wrapper_admin_page() {
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ) );
+		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
+			\Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ) );
+		}
 	}
 
 	/**
@@ -103,7 +103,9 @@ class Publicize_UI {
 	 * JS for the options and switching
 	 */
 	public function load_assets() {
-		Jetpack_Admin_Page::load_wrapper_styles();
+		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
+			\Jetpack_Admin_Page::load_wrapper_styles();
+		}
 	}
 
 	/**
@@ -142,6 +144,12 @@ class Publicize_UI {
 	 * There is also some JavaScript for length counting and some basic display effects.
 	 */
 	public function post_page_metabox_assets() {
+		// We don't need those assets for the block editor pages.
+		$current_screen = get_current_screen();
+		if ( $current_screen && $current_screen->is_block_editor ) {
+			return;
+		}
+
 		$default_prefix = $this->publicize->default_prefix;
 		$default_prefix = preg_replace( '/%([0-9])\$s/', "' + %\\1\$s + '", esc_js( $default_prefix ) );
 

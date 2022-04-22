@@ -11,7 +11,7 @@ BASE=$PWD
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-a] [-v] [-U|-u] [<slug> ...]
+		usage: $0 [-a] [-n <name>] [-v] [-U|-u] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
@@ -24,6 +24,7 @@ function usage {
 
 		Other options:
 		 -a: Pass --filename-auto-suffix to changelogger (avoids "file already exists" errors).
+		 -n: Set changelogger filename.
 		 -v: Output debug information.
 	EOH
 	exit 1
@@ -34,7 +35,8 @@ UPDATE=false
 VERBOSE=false
 DOCL_EVER=true
 AUTO_SUFFIX=false
-while getopts ":uUvha" opt; do
+CL_FILENAME=
+while getopts ":uUvhan:" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
@@ -45,6 +47,9 @@ while getopts ":uUvha" opt; do
 			;;
 		a)
 			AUTO_SUFFIX=true
+			;;
+		n)
+			CL_FILENAME="$OPTARG"
 			;;
 		v)
 			VERBOSE=true
@@ -83,7 +88,7 @@ function get_packages {
 	PACKAGES_DEV=$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= if $in.extra["branch-alias"]["dev-master"] then [ $in.extra["branch-alias"]["dev-master"], ( $in.extra["branch-alias"]["dev-master"] | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "^\(.v)" ) ) ] else [ "@dev" ] end )' "$BASE"/projects/packages/*/composer.json)
 	PACKAGES_NODEV=$(jq -c '( .[][0] | select( . != "@dev" ) ) |= empty' <<<"$PACKAGES_DEV")
 	PACKAGES_STAR=$(jq -c '.[] |= [ "@dev" ]' <<<"$PACKAGES_DEV")
-	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:^\($in.version)", "workspace:\($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
+	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:* || ^\( $in.version | sub( "^(?<v>[0-9]+\\.[0-9]+)(?:\\..*)$"; "\(.v)" ) )", "workspace:* || \($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
 	JSPACKAGES_STAR=$(jq -c '.[] |= [ "workspace:*" ]' <<<"$JSPACKAGES_PROJ")
 }
 
@@ -93,7 +98,7 @@ DO_PNPM_LOCK=true
 SLUGS=()
 if [[ $# -le 0 ]]; then
 	# Use a temp variable so pipefail works
-	TMP="$(pnpx jetpack dependencies build-order --pretty)"
+	TMP="$(pnpx --no-install jetpack dependencies build-order --pretty)" || { echo "$TMP"; exit 1; }
 	mapfile -t SLUGS <<<"$TMP"
 	TMP="$(git ls-files '**/composer.json' '**/package.json' | sed -E -n -e '\!^projects/[^/]*/[^/]*/(composer|package)\.json$! d' -e 's!/(composer|package)\.json$!!' -e 's/^/nonproject:/p' | sort -u)"
 	mapfile -t -O ${#SLUGS[@]} SLUGS <<<"$TMP"
@@ -125,6 +130,9 @@ if $UPDATE; then
 			ARGS+=( "--type=$CLTYPE" )
 		fi
 
+		if [[ -n "$CL_FILENAME" ]]; then
+			ARGS+=( --filename="$CL_FILENAME" )
+		fi
 		if $AUTO_SUFFIX; then
 			ARGS+=( --filename-auto-suffix )
 		fi
@@ -176,6 +184,15 @@ for SLUG in "${SLUGS[@]}"; do
 		fi
 		DOCL=$DOCL_EVER
 		DIR="projects/$SLUG"
+	fi
+	if [[ ! -d "$DIR" ]]; then
+		EXIT=1
+		if [[ -n "$CI" ]]; then
+			echo "::error::Cannot check $SLUG, as $DIR does not exist."
+		else
+			error "Cannot check $SLUG, as $DIR does not exist."
+		fi
+		continue
 	fi
 	PHPFILE="$DIR/composer.json"
 	JSFILE="$DIR/package.json"
@@ -235,10 +252,10 @@ for SLUG in "${SLUGS[@]}"; do
 			fi
 		done < <(
 			if [[ -e "$PHPFILE" ]]; then
-				jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$PHPFILE"
+				jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( .value as $v | $packages[.key] as $vals | $vals and ( $vals | index( $v ) == null ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$PHPFILE"
 			fi
 			if [[ -e "$JSFILE" ]]; then
-				jq --argjson packages "$JSPACKAGES" -r '.dependencies // {}, .devDependencies // {}, .peerDependencies // {}, .optionalDependencies // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$JSFILE"
+				jq --argjson packages "$JSPACKAGES" -r '.dependencies // {}, .devDependencies // {}, .peerDependencies // {}, .optionalDependencies // {} | to_entries[] | select( .value as $v | $packages[.key] as $vals | $vals and ( $vals | index( $v ) == null ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$JSFILE"
 			fi
 		)
 	fi
