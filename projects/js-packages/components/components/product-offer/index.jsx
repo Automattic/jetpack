@@ -122,8 +122,11 @@ const ProductOffer = ( {
 	const { isFree, price, currency, offPrice } = pricing;
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	/* translators: placeholder is product name. */
-	const defautlButtonText = sprintf( __( 'Add %s', 'jetpack' ), title );
+	const defautlButtonText = sprintf(
+		/* translators: placeholder is product name. */
+		__( 'Add %s', 'jetpack' ),
+		title
+	);
 
 	return (
 		<div
