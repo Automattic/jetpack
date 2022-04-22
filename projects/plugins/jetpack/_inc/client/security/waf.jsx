@@ -227,7 +227,7 @@ export const Waf = class extends Component {
 						</li>
 						<li>
 							{ __(
-								"Don't forget to undo this action when Firewall is turned off, or you uninstall Jetpack.",
+								"Don't forget to undo this action when Firewall is turned off, or when you uninstall Jetpack.",
 								'jetpack'
 							) }
 						</li>
