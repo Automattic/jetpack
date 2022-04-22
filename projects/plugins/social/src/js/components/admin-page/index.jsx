@@ -24,12 +24,12 @@ const ConnectionItem = props => {
 		return (
 			<div>
 				<tr>
-					<th>Name</th>
-					<th>Image</th>
+					<th className={ styles.connectionRow }>Name</th>
+					<th className={ styles.connectionRow }>Image</th>
 				</tr>
 				<tr>
-					<td>{ connection.external_display }</td>
-					<td>
+					<td className={ styles.connectionRow }>{ connection.external_display }</td>
+					<td className={ styles.connectionRow }>
 						{ connection && (
 							<img
 								alt="connection_image"
@@ -55,7 +55,7 @@ const ConnectionItems = () => {
 		return (
 			<div>
 				<h2> { provider.charAt( 0 ).toUpperCase() + provider.slice( 1 ) } Connections</h2>
-				<table>
+				<table className={ styles.connectionTable }>
 					<ConnectionItem
 						connectionIds={ Object.keys( jetpackSocial.connections[ provider ] ) }
 						provider={ provider }

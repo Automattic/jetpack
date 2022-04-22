@@ -19,13 +19,13 @@ ul.jp-product-promote {
 		line-height: 1.5;
 	} 
 }
-table {
+.connectionTable {
 	font-family: arial, sans-serif;
 	border-collapse: collapse;
 	width: 100%;
 }
   
-td, th {
+.connectionRow {
 	border: 1px solid #dddddd;
 	text-align: left;
 	padding: 8px;
