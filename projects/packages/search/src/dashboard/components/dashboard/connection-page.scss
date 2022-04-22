@@ -1,6 +1,16 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .jp-search-dashboard-connection-screen {
+	background: var(--jp-white-off);
+	align-items: center;
+	display: flex;
+	width: 100%;
+
+	// WARNING: Brittle! Targets AdminSectionHero component, which uses obfuscated class names.
+	> div {
+		width: 100%;
+	}
+
 	.jp-components__pricing-card .components-spinner {
 		margin: 0;
 	}
