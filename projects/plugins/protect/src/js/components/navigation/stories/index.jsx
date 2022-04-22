@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Navigation, NavigationItem, NavigationGroup } from '..';
+import Navigation, { NavigationItem, NavigationGroup } from '..';
 
 export default {
 	title: 'Plugins/Protect/Navigation',

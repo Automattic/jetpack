@@ -23,4 +23,5 @@ const Navigation = ( { children, selected, onSelect } ) => {
 	);
 };
 
-export { Navigation, NavigationItem, NavigationGroup };
+export default Navigation;
+export { NavigationItem, NavigationGroup };
