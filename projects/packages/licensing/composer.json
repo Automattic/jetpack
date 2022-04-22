@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-options": "^1.15",
-		"automattic/jetpack-connection": "^1.37"
+		"automattic/jetpack-connection": "^1.39"
 	},
 	"require-dev": {
 		"automattic/wordbless": "@dev",

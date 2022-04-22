@@ -25,7 +25,6 @@ abstract class Jetpack_Block_Fixture_TestCase extends WP_UnitTestCase {
 		$block_slug,
 		$target_extension = '.server-rendered.html'
 	) {
-		// phpcs:disable WordPress.WP.AlternativeFunctions
 		$fixtures_path = "extensions/blocks/{$block_slug}/test/fixtures/";
 		$file_pattern  = '*.serialized.html';
 		$files         = glob( JETPACK__PLUGIN_DIR . $fixtures_path . $file_pattern );
@@ -74,6 +73,5 @@ abstract class Jetpack_Block_Fixture_TestCase extends WP_UnitTestCase {
 				"\nTry running this test again. Be sure to commit generated fixture files with any code changes."
 			);
 		}
-		// phpcs:enable WordPress.WP.AlternativeFunctions
 	}
 }

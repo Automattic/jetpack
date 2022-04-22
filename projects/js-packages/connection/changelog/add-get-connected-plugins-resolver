@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add connected plugins list to the initial state and add action to update it when needed

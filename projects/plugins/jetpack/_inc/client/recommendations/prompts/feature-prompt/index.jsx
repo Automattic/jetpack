@@ -13,6 +13,7 @@ import { ExternalLink } from '@wordpress/components';
  */
 import { getStepContent, mapDispatchToProps } from '../../feature-utils';
 import { PromptLayout } from '../prompt-layout';
+import { ProductSpotlight } from '../../sidebar/product-spotlight';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import {
@@ -23,6 +24,7 @@ import {
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
+	getProductSlugForStep,
 } from 'state/recommendations';
 
 const FeaturePromptComponent = props => {
@@ -43,6 +45,7 @@ const FeaturePromptComponent = props => {
 		stateStepSlug,
 		updatingStep,
 		updateRecommendationsStep,
+		spotlightProduct,
 		isNew,
 	} = props;
 
@@ -104,7 +107,12 @@ const FeaturePromptComponent = props => {
 					</a>
 				</div>
 			}
-			illustrationPath={ illustrationPath }
+			illustrationPath={ ! spotlightProduct ? illustrationPath : null }
+			sidebarCard={
+				spotlightProduct ? (
+					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
+				) : null
+			}
 			rna={ rnaIllustration }
 		/>
 	);
@@ -116,6 +124,7 @@ const FeaturePrompt = connect(
 		...getStepContent( ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
+		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 	} ),
 	( dispatch, ownProps ) => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),

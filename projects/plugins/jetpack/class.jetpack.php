@@ -824,6 +824,7 @@ class Jetpack {
 			array(
 				'sync',
 				'jitm',
+				'publicize',
 			)
 			as $feature
 		) {
@@ -2015,6 +2016,7 @@ class Jetpack {
 	 */
 	public function check_open_graph() {
 		if ( in_array( 'publicize', self::get_active_modules() ) || in_array( 'sharedaddy', self::get_active_modules() ) ) {
+			include_once JETPACK__PLUGIN_DIR . 'enhanced-open-graph.php';
 			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
 		}
 
@@ -2972,7 +2974,10 @@ p {
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
-		$connection->disconnect_site( ! Identity_Crisis::validate_sync_error_idc_option() );
+		if ( ! Identity_Crisis::validate_sync_error_idc_option() ) {
+			$connection->disconnect_site_wpcom();
+		}
+		$connection->delete_all_connection_tokens();
 	}
 
 	/**
@@ -4446,30 +4451,22 @@ endif;
 	 * Create the Jetpack authorization URL.
 	 *
 	 * @param bool|string $redirect URL to redirect to.
-	 * @param bool        $iframe Whether to use the iframe version.
+	 * @param null        $deprecated Deprecated since Jetpack 10.9.
 	 *
 	 * @todo Update default value for redirect since the called function expects a string.
 	 *
 	 * @return mixed|void
 	 */
-	public static function build_authorize_url( $redirect = false, $iframe = false ) {
+	public static function build_authorize_url( $redirect = false, $deprecated = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-
-		if ( $iframe ) {
-			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
-		}
 
 		$c8n = self::connection();
 		$url = $c8n->get_authorization_url( wp_get_current_user(), $redirect );
 
 		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-
-		if ( $iframe ) {
-			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
-		}
 
 		/**
 		 * Filter the URL used when authorizing a user to a WordPress.com account.

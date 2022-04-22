@@ -1,6 +1,4 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
-// phpcs:disable Squiz.Commenting, Generic.Commenting  -- Tests should be self documenting
+<?php
 
 /**
  * Contains the tests for the Jetpack_Plan class.

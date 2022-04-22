@@ -7,20 +7,10 @@
 
 namespace Automattic\Jetpack\Waf;
 
-use Automattic\Jetpack\Constants as Jetpack_Constants;
-
 // We don't want to be anything in here outside WP context.
 if ( ! function_exists( 'add_action' ) ) {
 	return;
 }
-
-/**
- * Triggers when the Jetpack plugin is activated
- */
-register_activation_hook(
-	Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ),
-	array( __NAMESPACE__ . '\Waf_Runner', 'activate' )
-);
 
 /**
  * Triggers when the Jetpack plugin is updated
@@ -29,6 +19,15 @@ add_action(
 	'upgrader_process_complete',
 	array( __NAMESPACE__ . '\Waf_Runner', 'update_rules_if_changed' )
 );
+
+/**
+ * Cron to update the rules periodically.
+ */
+add_action( 'jetpack_waf_rules_update_cron', array( __NAMESPACE__ . '\Waf_Runner', 'update_rules_cron' ) );
+
+if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
+	wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
+}
 
 /**
  * Runs the WAF in the WP context.

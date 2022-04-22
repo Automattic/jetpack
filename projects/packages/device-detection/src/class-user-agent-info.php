@@ -13,6 +13,8 @@
 
 namespace Automattic\Jetpack\Device_Detection;
 
+require_once __DIR__ . '/functions.php';
+
 /**
  * A class providing device properties detection.
  */
@@ -136,7 +138,7 @@ class User_Agent_Info {
 			$this->useragent = $ua;
 		} else {
 			if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				$this->useragent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+				$this->useragent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about validating.
 			}
 		}
 	}
@@ -433,7 +435,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( ( strpos( $ua, 'iphone' ) !== false ) || ( strpos( $ua, 'ipod' ) !== false ) ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
 				return false;
@@ -461,7 +463,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua        = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua        = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$is_iphone = ( strpos( $ua, 'iphone' ) !== false ) || ( strpos( $ua, 'ipod' ) !== false );
 		$is_safari = ( false !== strpos( $ua, 'safari' ) );
 
@@ -489,7 +491,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'crios/' ) !== false ) {
 			return true;
@@ -509,7 +511,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'ipad' ) !== false ) {
 			return false;
@@ -533,7 +535,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'twitter for ipad' ) !== false ) {
 			return true;
@@ -555,7 +557,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false === strpos( $ua, 'iphone' ) ) {
 			return false;
@@ -583,7 +585,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false === strpos( $ua, 'ipad' ) ) {
 			return false;
@@ -604,7 +606,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( false !== strpos( $ua, 'wp-iphone' ) ) {
 			return true;
 		} else {
@@ -628,7 +630,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$is_ipad   = ( false !== strpos( $ua, 'ipad' ) );
 		$is_safari = ( false !== strpos( $ua, 'safari' ) );
@@ -655,7 +657,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'fennec' ) !== false ) {
 			return true;
@@ -677,7 +679,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false !== strpos( $ua, 'firefox' ) && false === strpos( $ua, 'mobile' ) && false === strpos( $ua, 'tablet' ) ) {
 			return true;
@@ -697,7 +699,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'mozilla' ) !== false && strpos( $ua, 'mobile' ) !== false && strpos( $ua, 'gecko' ) !== false && strpos( $ua, 'firefox' ) !== false ) {
 			return true;
@@ -718,7 +720,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		if ( false === strpos( $_SERVER['HTTP_USER_AGENT'], 'OPR/' ) ) {
+		if ( false === strpos( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 'OPR/' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return false;
 		}
 
@@ -742,7 +744,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'opera' ) !== false && strpos( $ua, 'mobi' ) !== false ) {
 			return true;
@@ -769,7 +771,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'opera' ) !== false && strpos( $ua, 'mini' ) !== false ) {
 			return true;
@@ -786,7 +788,7 @@ class User_Agent_Info {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
 			return false;
 		}
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( self::is_opera_mini() ) {
 			if ( strpos( $ua, 'android' ) !== false || strpos( $ua, 'iphone' ) !== false || strpos( $ua, 'ipod' ) !== false
@@ -809,7 +811,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false === strpos( $ua, 'windows phone os 7' ) ) {
 			return false;
@@ -831,7 +833,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( strpos( $ua, 'windows phone 8' ) === false ) {
 			return false;
 		} else {
@@ -850,7 +852,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false === strpos( $ua, 'webos' ) ) {
 			return false;
@@ -874,7 +876,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$http_user_agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$http_user_agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( false !== strpos( $http_user_agent, 'hp-tablet' ) || false !== strpos( $http_user_agent, 'hpwos' ) || false !== strpos( $http_user_agent, 'touchpad' ) ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
 				return false;
@@ -901,7 +903,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
 			return false;
 		}
@@ -932,7 +934,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_webkit = strpos( $agent, 'webkit' );
 		if ( false !== $pos_webkit ) {
@@ -966,7 +968,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $agent, 'series40' ) !== false ) {
 			if ( strpos( $agent, 'nokia' ) !== false || strpos( $agent, 'ovibrowser' ) !== false || strpos( $agent, 'nokiabrowser' ) !== false ) {
@@ -988,7 +990,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $agent, 'j2me/midp' ) !== false ) {
 			return true;
@@ -1007,7 +1009,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_maemo = strpos( $agent, 'maemo' );
 		if ( false === $pos_maemo ) {
@@ -1035,7 +1037,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false === strpos( $ua, 'meego' ) ) {
 			return false;
@@ -1057,7 +1059,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_webkit = strpos( $agent, 'webkit' );
 
@@ -1078,7 +1080,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent       = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent       = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos_android = strpos( $agent, 'android' );
 		if ( false !== $pos_android ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
@@ -1102,7 +1104,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_android      = strpos( $agent, 'android' );
 		$pos_mobile       = strpos( $agent, 'mobile' );
@@ -1132,7 +1134,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent        = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent        = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos_silk     = strpos( $agent, 'silk/' );
 		$pos_silk_acc = strpos( $agent, 'silk-accelerated=' );
 		if ( false !== $pos_silk && false !== $pos_silk_acc ) {
@@ -1153,7 +1155,7 @@ class User_Agent_Info {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
 			return false;
 		}
-		$agent            = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent            = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos_kindle_touch = strpos( $agent, 'kindle/3.0+' );
 		if ( false !== $pos_kindle_touch && false === self::is_kindle_fire() ) {
 			return true;
@@ -1170,7 +1172,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos   = strpos( $agent, 'msauthhost' );
 		if ( false !== $pos ) {
 			return true;
@@ -1187,7 +1189,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos   = strpos( $agent, 'wp-windows8' );
 		if ( false !== $pos ) {
 			return true;
@@ -1204,7 +1206,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos   = strpos( $agent, 'WordPressDesktop' );
 		if ( false !== $pos ) {
 			return true;
@@ -1224,7 +1226,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent          = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent          = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos_playbook   = stripos( $agent, 'PlayBook' );
 		$pos_rim_tablet = stripos( $agent, 'RIM Tablet' );
 
@@ -1244,7 +1246,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_blackberry = strpos( $agent, 'blackberry' );
 		if ( false !== $pos_blackberry ) {
@@ -1265,7 +1267,7 @@ class User_Agent_Info {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
 			return false;
 		}
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		return ( strpos( $agent, 'bb10' ) !== false ) && ( strpos( $agent, 'mobile' ) !== false );
 	}
 
@@ -1295,7 +1297,7 @@ class User_Agent_Info {
 			return 'blackberry-10';
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_blackberry = stripos( $agent, 'blackberry' );
 		if ( false === $pos_blackberry ) {
@@ -1380,7 +1382,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( self::is_blackberry_10() ) {
 			return 'blackberry-10';
@@ -1435,9 +1437,9 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( isset( $_SERVER['X_USER_AGENT'] ) && preg_match( '|wp-webos|', $_SERVER['X_USER_AGENT'] ) ) {
+		if ( isset( $_SERVER['X_USER_AGENT'] ) && preg_match( '|wp-webos|', $_SERVER['X_USER_AGENT'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			return true; // Wp4webos 1.1 or higher.
 		}
 
@@ -1467,7 +1469,7 @@ class User_Agent_Info {
 			return false;
 		}
 
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( strpos( $ua, 'nintendo 3ds' ) !== false ) {
 			return true;
 		}
@@ -1487,7 +1489,7 @@ class User_Agent_Info {
 		}
 
 		if ( $is_bot === null ) {
-			$is_bot = self::is_bot_user_agent( $_SERVER['HTTP_USER_AGENT'] );
+			$is_bot = self::is_bot_user_agent( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		}
 
 		return $is_bot;

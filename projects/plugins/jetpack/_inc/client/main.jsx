@@ -477,10 +477,7 @@ class Main extends React.Component {
 					navComponent = null;
 					pageComponent = (
 						<ActivationScreen
-							assetBaseUrl={ this.props.pluginBaseUrl }
-							lockImage="/images/jetpack-license-activation-with-lock.png"
 							siteRawUrl={ this.props.siteRawUrl }
-							successImage="/images/jetpack-license-activation-with-success.png"
 							onActivationSuccess={ this.onLicenseActivationSuccess }
 							siteAdminUrl={ this.props.siteAdminUrl }
 							currentRecommendationsStep={ this.props.currentRecommendationsStep }
