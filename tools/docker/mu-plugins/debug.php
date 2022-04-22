@@ -223,5 +223,3 @@ function t() {
 }
 
 // phpcs:enable
-
-add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_true' );
