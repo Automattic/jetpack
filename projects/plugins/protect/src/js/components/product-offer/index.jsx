@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
-import { ProductOffer as ProductOfferComponent } from '@automattic/jetpack-components';
+import { ProductOffer } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 
 const PROTECT_PRODUCT_MOCK = {
@@ -36,7 +36,7 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 	} );
 
 	return (
-		<ProductOfferComponent
+		<ProductOffer
 			slug={ PROTECT_PRODUCT_MOCK.slug }
 			title={ PROTECT_PRODUCT_MOCK.title }
 			description={ PROTECT_PRODUCT_MOCK.description }
