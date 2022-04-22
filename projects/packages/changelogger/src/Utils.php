@@ -79,17 +79,14 @@ class Utils {
 	 * Header names are normalized. The entry is returned under the empty
 	 * string key.
 	 *
-	 * @param string               $filename File to load.
-	 * @param mixed                $diagnostics Output variable, set to an array with diagnostic data.
-	 *                 - warnings: An array of warning messages and applicable lines.
-	 *                 - lines: An array mapping headers to line numbers.
-	 * @param array|null           $input_options Holds command options retrieved from the InputInterface.
-	 * @param OutputInterface      $output OutputInterface to write diagnostics too.
-	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
+	 * @param string $filename File to load.
+	 * @param mixed  $diagnostics Output variable, set to an array with diagnostic data.
+	 *   - warnings: An array of warning messages and applicable lines.
+	 *   - lines: An array mapping headers to line numbers.
 	 * @return array
 	 * @throws \RuntimeException On error.
 	 */
-	public static function loadChangeFile( $filename, &$diagnostics = null, $input_options = null, $output = null, $formatter = null ) {
+	public static function loadChangeFile( $filename, &$diagnostics = null ) {
 		$diagnostics = array(
 			'warnings' => array(),
 			'lines'    => array(),
@@ -146,39 +143,44 @@ class Utils {
 			throw $ex;
 		}
 		$diagnostics['lines'][''] = $line + strspn( $contents, "\n" );
+		$ret['']                  = trim( $contents );
 
-		$contents = trim( $contents );
-		if ( ! empty( $input_options['add-pr-num'] ) && $contents && $output && $formatter ) {
-			$pr_num = self::getPrNumForFile( $filename, $output, $formatter );
-			if ( $pr_num ) {
-				$contents = $contents . " [#$pr_num]";
-			}
-		}
-
-		$ret[''] = $contents;
 		return $ret;
 	}
 
 	/**
-	 * Try to get a GitHub PR number from the latest commit message subject for the given file.
-	 *
-	 * GitHub's 'squash merging' for pull requests adds the PR number by default to the end of the commit subject.
-	 * Expects the commit subject string to end like `(#123)`.
+	 * Get miscellaneous repo data for a file.
 	 *
 	 * @param string               $file Filepath.
 	 * @param OutputInterface      $output OutputInterface to write debug output to.
 	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
-	 * @return string The PR number string if found, or an empty string.
+	 * @param array|null           $input_options Options for the extraction.
+	 *   - add-pr-num: (bool) Whether to try to read a `(#12345)`-like PR number from the git commit creating each change entry. Default false.
+	 * @return array With keys 'timestamp' and 'pr-num'.
 	 */
-	public static function getPrNumForFile( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
+	public static function getRepoData( $file, OutputInterface $output, DebugFormatterHelper $formatter, $input_options = null ) {
+		$repo_data = array(
+			'timestamp' => null,
+			'pr-num'    => null,
+		);
+
 		try {
-			$process = self::runCommand( array( 'git', 'log', '-1', '--format=%s', $file ), $output, $formatter );
+			$process = self::runCommand( array( 'git', 'log', '-1', '--format=%cI\n%s', $file ), $output, $formatter );
 			if ( $process->isSuccessful() ) {
-				$cmd_output = trim( $process->getOutput() );
-				$matches    = array();
-				preg_match( '/\(#(\d+)\)$/', $cmd_output, $matches );
-				if ( isset( $matches[1] ) ) {
-					return $matches[1];
+				$cmd_output = explode( '\n', trim( $process->getOutput() ) );
+
+				// Timestamp.
+				if ( isset( $cmd_output[0] ) && preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/', $cmd_output[0] ) ) {
+					$repo_data['timestamp'] = $cmd_output[0];
+				}
+
+				// PR number.
+				if ( isset( $cmd_output[1] ) && ! empty( $input_options['add-pr-num'] ) ) {
+					$matches = array();
+					preg_match( '/\(#(\d+)\)$/', $cmd_output[1], $matches );
+					if ( isset( $matches[1] ) ) {
+						$repo_data['pr-num'] = $matches[1];
+					}
 				}
 			}
 		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -186,37 +188,14 @@ class Utils {
 			// Don't care.
 		}
 
-		return '';
-	}
-
-	/**
-	 * Get a timestamp for a file.
-	 *
-	 * @param string               $file File.
-	 * @param OutputInterface      $output OutputInterface to write debug output to.
-	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
-	 * @return string|null
-	 */
-	public static function getTimestamp( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
-		try {
-			$process = self::runCommand( array( 'git', 'log', '-1', '--format=%cI', $file ), $output, $formatter );
-			if ( $process->isSuccessful() ) {
-				$ret = trim( $process->getOutput() );
-				if ( preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/', $ret ) ) {
-					return $ret;
-				}
+		if ( ! $repo_data['timestamp'] ) {
+			$mtime = quietCall( 'filemtime', $file );
+			if ( false !== $mtime ) {
+				$repo_data['timestamp'] = gmdate( 'Y-m-d\\TH:i:s\\Z', $mtime );
 			}
-		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-		} catch ( \Exception $ex ) { // @codeCoverageIgnore
-			// Don't care.
 		}
 
-		$mtime = quietCall( 'filemtime', $file );
-		if ( false !== $mtime ) {
-			return gmdate( 'Y-m-d\\TH:i:s\\Z', $mtime );
-		}
-
-		return null;
+		return $repo_data;
 	}
 
 	/**
@@ -228,7 +207,8 @@ class Utils {
 	 * @param OutputInterface $output OutputInterface to write diagnostics too.
 	 * @param mixed           $files Output parameter. An array is written to this parameter, with
 	 *   keys being filenames in `$dir` and values being 0 for success, 1 for warnings, 2 for errors.
-	 * @param array|null      $input_options Holds command options retrieved from the InputInterface.
+	 * @param array|null      $input_options Options for the extraction.
+	 *   - add-pr-num: (bool) Whether to try to read a `(#12345)`-like PR number from the git commit creating each change entry. Default false.
 	 * @return ChangeEntry[] Keys are filenames in `$dir`.
 	 */
 	public static function loadAllChanges( $dir, array $subheadings, FormatterPlugin $formatter, OutputInterface $output, &$files = null, $input_options = null ) {
@@ -248,7 +228,7 @@ class Utils {
 			$diagnostics    = null;
 			$files[ $name ] = 0;
 			try {
-				$data = self::loadChangeFile( $path, $diagnostics, $input_options, $output, $debugHelper );
+				$data = self::loadChangeFile( $path, $diagnostics );
 			} catch ( \RuntimeException $ex ) {
 				$output->writeln( "<error>$name: {$ex->getMessage()}</>" );
 				$files[ $name ] = 2;
@@ -262,12 +242,13 @@ class Utils {
 				}
 			}
 			try {
+				$repo_data    = self::getRepoData( $path, $output, $debugHelper, $input_options );
 				$ret[ $name ] = $formatter->newChangeEntry(
 					array(
 						'significance' => isset( $data['Significance'] ) ? $data['Significance'] : null,
 						'subheading'   => isset( $data['Type'] ) ? ( isset( $subheadings[ $data['Type'] ] ) ? $subheadings[ $data['Type'] ] : ucfirst( $data['Type'] ) ) : null,
-						'content'      => $data[''],
-						'timestamp'    => isset( $data['Date'] ) ? $data['Date'] : self::getTimestamp( $path, $output, $debugHelper ),
+						'content'      => ( ! empty( $input_options['add-pr-num'] ) && $repo_data['pr-num'] && $data[''] ) ? ( $data[''] . " [#{$repo_data['pr-num']}]" ) : $data[''],
+						'timestamp'    => isset( $data['Date'] ) ? $data['Date'] : $repo_data['timestamp'],
 					)
 				);
 			} catch ( \InvalidArgumentException $ex ) {
