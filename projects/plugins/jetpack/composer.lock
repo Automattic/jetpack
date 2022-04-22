@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f34930a72beeea6c7d2f911021ad227e",
+    "content-hash": "cca3c89be23e55c8e1ec275b5e90973f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -496,7 +496,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "7ed065622e06c9992d7f659458c42b85a9864c8d"
+                "reference": "990b87542a104209e1228a441346eaee82ef95a6"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0"
@@ -510,7 +510,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.7.x-dev"
+                    "dev-master": "1.8.x-dev"
                 }
             },
             "autoload": {
@@ -1429,6 +1429,66 @@
             }
         },
         {
+            "name": "automattic/jetpack-publicize",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/publicize",
+                "reference": "69fa2353d016dbe84b580f0a67f730301e522ad8"
+            },
+            "require": {
+                "automattic/jetpack-autoloader": "^2.11",
+                "automattic/jetpack-config": "^1.8",
+                "automattic/jetpack-connection": "^1.39",
+                "automattic/jetpack-options": "^1.15"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.0",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-publicize",
+                "textdomain": "jetpack-publicize-pkg",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-redirect",
             "version": "dev-master",
             "dist": {
@@ -1533,11 +1593,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "1c2070dd54312c878a2b9de852dae8f996968115"
+                "reference": "f47bf8514a729e8422144feb8afd7aa59be4bba5"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-config": "^1.7",
+                "automattic/jetpack-config": "^1.8",
                 "automattic/jetpack-connection": "^1.39",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.15",
@@ -1831,11 +1891,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wordads",
-                "reference": "4fddcd049d2b7bc0c9ca902b954f590a1d89e83c"
+                "reference": "5cdd37dc8b9e05cf11601606ba6b3016d7c0b88d"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-config": "^1.7",
+                "automattic/jetpack-config": "^1.8",
                 "automattic/jetpack-connection": "^1.39",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-options": "^1.15",
@@ -5297,6 +5357,7 @@
         "automattic/jetpack-options": 20,
         "automattic/jetpack-partner": 20,
         "automattic/jetpack-plugins-installer": 20,
+        "automattic/jetpack-publicize": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,
         "automattic/jetpack-search": 20,
