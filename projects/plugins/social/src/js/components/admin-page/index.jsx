@@ -18,49 +18,54 @@ import React from 'react';
  */
 import styles from './styles.module.scss';
 
-const getConnectionsDiv = () => {
-	// eslint-disable-next-line no-undef
-	if ( ! connections ) {
-		return null;
-	}
-	// eslint-disable-next-line no-undef
-	const providers = Object.keys( connections );
-	return providers.map( provider => {
-		// eslint-disable-next-line no-undef
-		const connectionIds = Object.keys( connections[ provider ] );
-		const connectionDiv = connectionIds.map( connectionId => {
-			// eslint-disable-next-line no-undef
-			const connection = connections[ provider ][ connectionId ];
-			return (
-				<div>
-					<tr>
-						<th>Name</th>
-						<th>Image</th>
-					</tr>
-					<tr>
-						<td>{ connection.external_display }</td>
-						<td>
+const ConnectionItem = props => {
+	return props.connectionIds.map( connectionId => {
+		const connection = jetpackSocial.connections[ props.provider ][ connectionId ];
+		return (
+			<div>
+				<tr>
+					<th>Name</th>
+					<th>Image</th>
+				</tr>
+				<tr>
+					<td>{ connection.external_display }</td>
+					<td>
+						{ connection && (
 							<img
 								alt="connection_image"
 								src={ connection.profile_picture ? connection.profile_picture : null }
 								height="50px"
 								width="50px"
 							/>
-						</td>
-					</tr>
-				</div>
-			);
-		} );
+						) }
+					</td>
+				</tr>
+			</div>
+		);
+	} );
+};
+
+const ConnectionItems = () => {
+	if ( ! jetpackSocial.connections ) {
+		return null;
+	}
+
+	const providers = Object.keys( jetpackSocial.connections );
+	return providers.map( provider => {
 		return (
 			<div>
 				<h2> { provider.charAt( 0 ).toUpperCase() + provider.slice( 1 ) } Connections</h2>
-				<table>{ connectionDiv }</table>
+				<table>
+					<ConnectionItem
+						connectionIds={ Object.keys( jetpackSocial.connections[ provider ] ) }
+						provider={ provider }
+					/>
+				</table>
 			</div>
 		);
 	} );
 };
 const Admin = () => {
-	const connectionsDiv = getConnectionsDiv();
 	const connectionStatus = useSelect(
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
@@ -119,7 +124,9 @@ const Admin = () => {
 					</Container>
 				) }
 			</AdminSectionHero>
-			<div className={ styles.publicizeConnectionsList }>{ connectionsDiv }</div>
+			<div className={ styles.publicizeConnectionsList }>
+				<ConnectionItems />
+			</div>
 		</AdminPage>
 	);
 };

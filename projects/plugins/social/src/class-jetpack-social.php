@@ -60,7 +60,6 @@ class Jetpack_Social {
 
 				// Publicize package.
 				$config->ensure( 'publicize' );
-
 			},
 			1
 		);
@@ -93,7 +92,13 @@ class Jetpack_Social {
 		);
 
 		global $publicize;
-		wp_localize_script( 'jetpack-social', 'connections', $publicize->get_all_connections_for_user() );
+		wp_localize_script(
+			'jetpack-social',
+			'jetpackSocial',
+			array(
+				'connections' => $publicize->get_all_connections_for_user(),
+			)
+		);
 		Assets::enqueue_script( 'jetpack-social' );
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-social', Connection_Initial_State::render(), 'before' );

@@ -14,4 +14,7 @@ module.exports = {
 			},
 		],
 	},
+	globals: {
+		jetpackSocial: 'readonly',
+	},
 };
