@@ -44,7 +44,10 @@ module.exports = {
 		...jetpackWebpackConfig.optimization,
 		splitChunks: {
 			cacheGroups: {
-				vendors: false,
+				// Disable default cache groups.
+				// Doc: https://webpack.js.org/plugins/split-chunks-plugin/#optimizationsplitchunks
+				default: false,
+				defaultVendors: false,
 			},
 		},
 	},
