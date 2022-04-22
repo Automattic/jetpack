@@ -2,62 +2,86 @@
  * External dependencies
  */
 import React from 'react';
-import { __, sprintf } from '@wordpress/i18n';
-import { Container, Col, Text, H3, Button, getRedirectUrl } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
+import { Container, Col, Text } from '@automattic/jetpack-components';
+import { wordpress, plugins as pluginsIcon, warning, color } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import styles from './styles.module.scss';
+// import styles from './styles.module.scss';
+import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
+import Accordion, { AccordionItem } from '../accordion';
+import useProtectData from '../../hooks/use-protect-data';
 
-const VulnerabilityItem = ( { name, version, vulnerabilities } ) => {
+const VulnerabilitiesList = () => {
+	const { plugins, themes, numVulnerabilities, numCoreVulnerabilities } = useProtectData();
+
 	return (
-		<Container fluid className={ styles.item }>
-			<Col lg={ 4 } className={ styles.name }>
-				<Text variant="title-small">{ name }</Text>
-				<Text variant="body-small">
-					{
-						/* translators: placeholder is version. */
-						sprintf( __( 'Version %s', 'jetpack-protect' ), version )
-					}
-				</Text>
+		<Container fluid>
+			<Col lg={ 4 }>
+				<Navigation>
+					<NavigationItem
+						initial
+						id="all"
+						label={ __( 'All vulnerabilities', 'jetpack-protect' ) }
+						icon={ warning }
+						badge={ numVulnerabilities }
+						disabled={ numVulnerabilities <= 0 }
+					/>
+					<NavigationItem
+						id="wordpress"
+						label={ __( 'WordPress', 'jetpack-protect' ) }
+						icon={ wordpress }
+						badge={ numCoreVulnerabilities }
+						disabled={ numCoreVulnerabilities <= 0 }
+					/>
+					<NavigationGroup label={ __( 'Plugins', 'jetpack-protect' ) } icon={ pluginsIcon }>
+						{ plugins.map( ( { name, vulnerabilities } ) => (
+							<NavigationItem
+								id={ name }
+								label={ name }
+								badge={ vulnerabilities?.length }
+								disabled={ vulnerabilities?.length <= 0 }
+							/>
+						) ) }
+					</NavigationGroup>
+					<NavigationGroup label={ __( 'Themes', 'jetpack-protect' ) } icon={ color }>
+						{ themes.map( ( { name, vulnerabilities } ) => (
+							<NavigationItem
+								id={ name }
+								label={ name }
+								badge={ vulnerabilities?.length }
+								disabled={ vulnerabilities?.length <= 0 }
+							/>
+						) ) }
+					</NavigationGroup>
+				</Navigation>
 			</Col>
 			<Col lg={ 8 }>
-				{ vulnerabilities.map( vulnerability => (
-					<div className={ styles.vulnerability } key={ vulnerability.id }>
-						<Button
-							href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: vulnerability.id } ) }
-							variant="external-link"
-						>
-							{ vulnerability.title }
-						</Button>
-						<Text>{ vulnerability.description }</Text>
-						<Text variant="body-extra-small">
-							{
-								/* translators: placeholder is version. */
-								sprintf( __( 'Fixed in %s', 'jetpack-protect' ), vulnerability.fixedIn )
-							}
+				<Accordion>
+					<AccordionItem
+						id="wordpress"
+						label="WordPress (5.9-5.9.1)"
+						title="Contributor+ Stored Cross-Site Scripting"
+						icon={ wordpress }
+					>
+						<Text variant="title-small" mb={ 2 }>
+							What is the problem?
 						</Text>
-					</div>
-				) ) }
+						<Text mb={ 5 }>
+							Post authors are able to bypass KSES restrictions in WordPress { '>' }= 5.9 (and or
+							Gutenberg { '>' }= 9.8.0) due to the order filters are executed, which could allow
+							them to perform to Stored Cross-Site Scripting attacks
+						</Text>
+						<Text variant="title-small" mb={ 2 }>
+							How to fix it?
+						</Text>
+						<Text>Update to WordPress 5.9.2</Text>
+					</AccordionItem>
+				</Accordion>
 			</Col>
 		</Container>
-	);
-};
-
-const VulnerabilitiesList = ( { title, list } ) => {
-	return (
-		<>
-			<H3>{ title }</H3>
-			{ list.map( item => (
-				<VulnerabilityItem
-					key={ item.name }
-					name={ item.name }
-					version={ item.version }
-					vulnerabilities={ item.vulnerabilities }
-				/>
-			) ) }
-		</>
 	);
 };
 
