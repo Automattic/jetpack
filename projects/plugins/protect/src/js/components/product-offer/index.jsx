@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { ProductOffer as ProductOfferComponent } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { ProductOffer as ProductOfferComponent } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 
 const PROTECT_PRODUCT_MOCK = {
 	slug: 'protect',
@@ -30,16 +31,9 @@ const PROTECT_PRODUCT_MOCK = {
  * @returns {object}                    ConnectedProductOffer react component.
  */
 const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
-	/**
-	 * ToDo: Implement bound function when adding the product.
-	 *
-	 * @returns {boolean} False. Todo: implement.
-	 */
-	const AddButtonHandler = useCallback( () => {
-		if ( onAdd ) {
-			onAdd();
-		}
-	}, [ onAdd ] );
+	const { siteIsRegistering, handleRegisterSite } = useConnection( {
+		skipUserConnection: true,
+	} );
 
 	return (
 		<ProductOfferComponent
@@ -49,9 +43,10 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 			features={ PROTECT_PRODUCT_MOCK.features }
 			pricing={ { isFree: true } }
 			isBundle={ false }
-			onAdd={ AddButtonHandler }
+			onAdd={ handleRegisterSite }
 			buttonText={ __( 'Get started with Jetpack Protect', 'jetpack-protect' ) }
 			icon="jetpack"
+			isLoading={ siteIsRegistering }
 			{ ...rest }
 		/>
 	);

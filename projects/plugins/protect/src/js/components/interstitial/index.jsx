@@ -4,7 +4,6 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { Dialog, ProductOffer } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -44,19 +43,9 @@ const SecurityBundle = props => (
  * @returns {React.Component} Interstitial react component.
  */
 const Interstitial = () => {
-	const { siteIsRegistering, handleRegisterSite } = useConnection( {
-		skipUserConnection: true,
-	} );
-
 	return (
 		<Dialog
-			primary={
-				<ConnectedProductOffer
-					onAdd={ handleRegisterSite }
-					isLoading={ siteIsRegistering }
-					isCard={ true }
-				/>
-			}
+			primary={ <ConnectedProductOffer isCard={ true } /> }
 			secondary={ <SecurityBundle /> }
 			split={ true }
 		/>
