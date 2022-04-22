@@ -5,7 +5,7 @@
  * Sort Order: 5
  * First Introduced: 10.9
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Firewall, WAF
  * Feature: Security
  *
