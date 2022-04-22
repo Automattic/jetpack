@@ -169,7 +169,7 @@ export const getStepContent = stepSlug => {
 				descriptionLink:
 					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
 				ctaText: __( 'Install Creative Mail', 'jetpack' ),
-				illustrationPath: '/recommendations/creative-mail-illustration.svg',
+				illustration: 'assistant-creative-mail',
 			};
 		case 'monitor':
 			return {
@@ -184,7 +184,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/monitor/',
 				ctaText: __( 'Enable Downtime Monitoring', 'jetpack' ),
-				illustrationPath: '/recommendations/monitor-illustration.svg',
+				illustration: 'assistant-downtime-monitoring',
 			};
 		case 'related-posts':
 			return {
@@ -199,7 +199,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/related-posts/',
 				ctaText: __( 'Enable Related Posts', 'jetpack' ),
-				illustrationPath: '/recommendations/related-posts-illustration.jpg',
+				illustration: 'assistant-related-post',
 			};
 		case 'site-accelerator':
 			return {
@@ -211,7 +211,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/site-accelerator/',
 				ctaText: __( 'Enable Site Accelerator', 'jetpack' ),
-				illustrationPath: '/recommendations/site-accelerator-illustration.svg',
+				illustration: 'assistant-site-accelerator',
 			};
 		case 'publicize':
 			return {

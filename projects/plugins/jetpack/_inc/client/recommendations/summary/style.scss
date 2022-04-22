@@ -43,7 +43,7 @@
 
 	h1 {
 		font-size: $font-title-medium;
-	
+
 		color: var( --jp-gray-80 );
 	}
 
@@ -64,6 +64,22 @@
 
 .jp-recommendations-summary__sidebar {
 	padding: 2rem 2.5rem;
+
+	background: radial-gradient(
+			circle at 60%,
+			rgba( 6, 158, 8, 0.15 ) 0%,
+			rgba( 255, 255, 255, 0 ) 75%
+		),
+		radial-gradient(
+			circle at 30% 80%,
+			rgba( 206, 217, 242, 0.5 ) 5%,
+			rgba( 255, 255, 255, 0 ) 25%
+		),
+		radial-gradient(
+			circle at 50% 15%,
+			rgba( 245, 230, 179, 0.5 ) 0%,
+			rgba( 255, 255, 255, 0 ) 35%
+		);
 
 	@include breakpoint( '<660px' ) {
 		padding: 1rem;

@@ -47,6 +47,7 @@ const FeaturePromptComponent = props => {
 		ctaText,
 		description,
 		descriptionLink,
+		illustration,
 		illustrationPath,
 		rnaIllustration,
 		nextRoute,
@@ -196,6 +197,7 @@ const FeaturePromptComponent = props => {
 			}
 			isLoadingSideContent={ showDiscountCard && isFetchingSuggestions }
 			sidebarCard={ sidebarCard }
+			illustration={ illustration }
 			illustrationPath={
 				! spotlightProduct || ! showDiscountCard || ! canShowProductSuggestions
 					? illustrationPath

@@ -90,18 +90,38 @@
 }
 
 .jp-recommendations-question__illustration-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
 	width: 100%;
-	position: relative;
 
-	img {
-		position: absolute;
-		bottom: 0;
-		right: 0;
-	}
+	background: radial-gradient(
+			circle at 60%,
+			rgba( 6, 158, 8, 0.15 ) 0%,
+			rgba( 255, 255, 255, 0 ) 75%
+		),
+		radial-gradient(
+			circle at 30% 80%,
+			rgba( 206, 217, 242, 0.5 ) 5%,
+			rgba( 255, 255, 255, 0 ) 25%
+		),
+		radial-gradient(
+			circle at 50% 15%,
+			rgba( 245, 230, 179, 0.5 ) 0%,
+			rgba( 255, 255, 255, 0 ) 35%
+		);
 
-	@include breakpoint( '<782px' ) {
+	@include breakpoint( '<1040px' ) {
 		display: none;
 	}
+}
+
+.jp-recommendations-question__illustration-picture {
+	display: flex;
+	justify-content: center;
+
+	width: 100%;
 }
 
 .jp-recommendations-question__illustration-container--rna {
@@ -134,13 +154,10 @@
 	width: 100%;
 }
 
-.jp-recommendations-question__illustration-background {
-	width: 100%;
-}
-
 .jp-recommendations-question__illustration-foreground {
-	width: 60%;
-	margin: 18%;
+	flex: 1;
+
+	max-width: 420px;
 }
 
 .jp-recommendations-question__checkmark {

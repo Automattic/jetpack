@@ -113,6 +113,8 @@ const SiteTypeQuestionComponent = props => {
 			illustrationPath={
 				! canShowProductSuggestions ? 'recommendations/site-type-illustration.jpg' : null
 			}
+			illustration={ ! canShowProductSuggestions ? 'assistant-site-type' : null }
+			illustrationClassName="jp-recommendations-site-type__illustration"
 			sidebarCard={ canShowProductSuggestions ? <DiscountCard /> : null }
 		/>
 	);
