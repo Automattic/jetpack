@@ -2,21 +2,7 @@
  * @type {import("eslint").Linter.Config}
  */
 module.exports = {
-	extends: [ '../../../../../../../tools/js-tools/eslintrc/base.js' ],
-	parserOptions: {
-		babelOptions: {
-			configFile: require.resolve( '../../../../babel.config.js' ),
-		},
-	},
-	/*
-	rules: {
-		// Enforce use of the correct textdomain.
-		'@wordpress/i18n-text-domain': [
-			'error',
-			{
-				allowedTextDomain: 'jetpack',
-			},
-		],
-	},
-	*/
+	// eslint config in modules/.eslintrc.js is screwy for historical reasons that don't apply to tests.
+	// Reset to the rules from Jetpack's root dir.
+	extends: [ '../../../../.eslintrc.js' ],
 };
