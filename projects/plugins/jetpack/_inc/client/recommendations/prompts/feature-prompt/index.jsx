@@ -158,7 +158,9 @@ const FeaturePromptComponent = props => {
 					) }
 					<div className="jp-recommendations-question__jump-nav">
 						<a href={ nextRoute } onClick={ onDecideLaterClick }>
-							{ featureActive ? __( 'Next', 'jetpack' ) : __( 'Not now', 'jetpack' ) }
+							{ /* This formatting is more verbose than necessary to avoid a js optimization error */ }
+							{ featureActive && __( 'Next', 'jetpack' ) }
+							{ ! featureActive && __( 'Not Now', 'jetpack' ) }
 						</a>
 						{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
 							<>
