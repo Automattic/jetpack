@@ -18,10 +18,12 @@ import {
 	getStep,
 	isUpdatingRecommendationsStep,
 	isStepViewed,
+	getProductSlugForStep,
 } from 'state/recommendations';
 import analytics from 'lib/analytics';
 import { PromptLayout } from '../prompt-layout';
 import { getStepContent } from '../../feature-utils';
+import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
 
 /**
  * Provide a recommendation step that gives a resource.
@@ -48,6 +50,7 @@ const ResourcePromptComponent = props => {
 		stepSlug,
 		stateStepSlug,
 		updatingStep,
+		spotlightProduct,
 		updateRecommendationsStep,
 		addViewedRecommendation,
 		summaryViewed,
@@ -147,7 +150,12 @@ const ResourcePromptComponent = props => {
 					</div>
 				</div>
 			}
-			illustrationPath={ illustrationPath }
+			illustrationPath={ ! spotlightProduct ? illustrationPath : null }
+			sidebarCard={
+				spotlightProduct ? (
+					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
+				) : null
+			}
 			rna={ rnaIllustration }
 		/>
 	);
@@ -160,6 +168,7 @@ const ResourcePrompt = connect(
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
 		summaryViewed: isStepViewed( state, 'summary' ),
+		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 	} ),
 	dispatch => ( {
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),

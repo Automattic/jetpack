@@ -17,6 +17,7 @@ import {
 	mapDispatchToProps,
 } from '../../feature-utils';
 import { PromptLayout } from '../prompt-layout';
+import { ProductSpotlight } from '../../sidebar/product-spotlight';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import {
@@ -29,6 +30,7 @@ import {
 	isUpdatingRecommendationsStep,
 	isFeatureActive,
 	isStepViewed,
+	getProductSlugForStep,
 } from 'state/recommendations';
 import Gridicon from 'components/gridicon';
 
@@ -50,6 +52,7 @@ const FeaturePromptComponent = props => {
 		stateStepSlug,
 		updatingStep,
 		updateRecommendationsStep,
+		spotlightProduct,
 		isNew,
 		featureActive,
 		configureButtonLabel,
@@ -168,7 +171,12 @@ const FeaturePromptComponent = props => {
 					</div>
 				</div>
 			}
-			illustrationPath={ illustrationPath }
+			illustrationPath={ ! spotlightProduct ? illustrationPath : null }
+			sidebarCard={
+				spotlightProduct ? (
+					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
+				) : null
+			}
 			rna={ rnaIllustration }
 		/>
 	);
@@ -183,6 +191,7 @@ const FeaturePrompt = connect(
 		updatingStep: isUpdatingRecommendationsStep( state ),
 		featureActive: isFeatureActive( state, ownProps.stepSlug ),
 		summaryViewed: isStepViewed( state, 'summary' ),
+		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 	} ),
 	( dispatch, ownProps ) => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
