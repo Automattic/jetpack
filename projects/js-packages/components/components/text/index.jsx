@@ -66,7 +66,7 @@ const Text = ( { variant, children, component, className, ...componentProps } ) 
 
 	return (
 		<Component
-			className={ classNames( styles[ variant ], className, boxModelClasses ) }
+			className={ classNames( styles.reset, styles[ variant ], className, boxModelClasses ) }
 			{ ...componentProps }
 		>
 			{ children }

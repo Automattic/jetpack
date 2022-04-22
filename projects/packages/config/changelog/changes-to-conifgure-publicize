@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added the publicize package to be configured via the config package.
