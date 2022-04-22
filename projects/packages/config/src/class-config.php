@@ -17,6 +17,7 @@ use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Post_List\Post_List as Post_List;
+use Automattic\Jetpack\Publicize\Publicize_Setup as Publicize_Setup;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\WordAds\Initializer as Jetpack_WordAds_Main;
@@ -42,6 +43,7 @@ class Config {
 		'post_list'       => false,
 		'identity_crisis' => false,
 		'search'          => false,
+		'publicize'       => false,
 		'wordads'         => false,
 	);
 
@@ -113,6 +115,11 @@ class Config {
 		if ( $this->config['search'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Search\Initializer' )
 				&& $this->ensure_feature( 'search' );
+		}
+
+		if ( $this->config['publicize'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Publicize\Publicize_UI' ) && $this->ensure_class( 'Automattic\Jetpack\Publicize\Publicize' )
+				&& $this->ensure_feature( 'publicize' );
 		}
 
 		if ( $this->config['wordads'] ) {
@@ -237,6 +244,15 @@ class Config {
 	 */
 	protected function enable_search() {
 		Jetpack_Search_Main::init();
+	}
+
+	/**
+	 * Enables the Publicize feature.
+	 */
+	protected function enable_publicize() {
+		Publicize_Setup::configure();
+
+		return true;
 	}
 
 	/**

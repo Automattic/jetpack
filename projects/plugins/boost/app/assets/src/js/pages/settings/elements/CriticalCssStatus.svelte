@@ -3,53 +3,31 @@
 	 * WordPress dependencies
 	 */
 	import { __, _n, sprintf } from '@wordpress/i18n';
+	import { createEventDispatcher } from 'svelte';
 
 	/**
 	 * Internal dependencies
 	 */
-	import InfoIcon from '../../../svg/info.svg';
-	import RefreshIcon from '../../../svg/refresh.svg';
-	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import { criticalCssStatus, failedProviderKeyCount } from '../../../stores/critical-css-status';
+	import RefreshIcon from '../../../svg/refresh.svg';
+	import TimeAgo from '../../../elements/TimeAgo.svelte';
+	import InfoIcon from '../../../svg/info.svg';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
-	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
-	import TimeAgo from '../../../elements/TimeAgo.svelte';
 	import routerHistory from '../../../utils/router-history.ts';
 
-	const { navigate } = routerHistory;
+	export let generateText = '';
+	export let generateMoreText = '';
 
-	// Show an error if in error state, or if a success has 0 results.
-	let showError = false;
-	$: showError =
-		$criticalCssStatus.status === 'error' ||
-		( $criticalCssStatus.status === 'success' && $criticalCssStatus.success_count === 0 );
+	const dispatch = createEventDispatcher();
+	const { navigate } = routerHistory;
 </script>
 
-{#if $criticalCssStatus.status === 'requesting'}
-	<div class="jb-critical-css-progress">
-		<span class="jb-critical-css-progress__label">
-			{__( 'Generating Critical CSS…', 'jetpack-boost' )}
-		</span>
-		<div
-			role="progressbar"
-			aria-valuemax="100"
-			aria-valuemin="0"
-			aria-valuenow={$criticalCssStatus.progress}
-			class="jb-progress-bar"
-		>
-			<div
-				class="jb-progress-bar__filler"
-				aria-hidden="true"
-				style={`width: ${ $criticalCssStatus.progress }%;`}
-			/>
-		</div>
-	</div>
-{:else if showError}
-	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
-{:else if $criticalCssStatus.status === 'success'}
-	<div class="jb-critical-css__meta">
-		<div class="summary">
+<div class="jb-critical-css__meta">
+	<div class="summary">
+		{#if $criticalCssStatus.success_count === 0}
+			<div class="generating">{generateText}</div>
+		{:else}
 			<div class="successes">
 				{sprintf(
 					/* translators: %d is a number of CSS Files which were successfully generated */
@@ -61,9 +39,13 @@
 					),
 					$criticalCssStatus.success_count
 				)}
-				<TimeAgo time={new Date( $criticalCssStatus.created * 1000 )} />.
+				<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
+				{#if $criticalCssStatus.progress < 100}
+					<span>{generateMoreText}</span>
+				{/if}
 			</div>
-			{#if $failedProviderKeyCount > 0}
+
+			{#if $criticalCssStatus.status !== 'requesting' && $failedProviderKeyCount > 0}
 				<div class="failures">
 					<InfoIcon />
 
@@ -84,11 +66,12 @@
 					/>
 				</div>
 			{/if}
-		</div>
-
-		<button type="button" class="components-button is-link" on:click={generateCriticalCss}>
+		{/if}
+	</div>
+	{#if $criticalCssStatus.status !== 'requesting'}
+		<button type="button" class="components-button is-link" on:click={() => dispatch( 'retry' )}>
 			<RefreshIcon />
 			{__( 'Regenerate', 'jetpack-boost' )}
 		</button>
-	</div>
-{/if}
+	{/if}
+</div>

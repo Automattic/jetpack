@@ -13,14 +13,26 @@ import {
 	isFetchingPluginsData,
 	isFetchingStatsData,
 } from 'state/at-a-glance';
-import BarChart from './bar-chart';
+import { BarChart } from './bar-chart';
 import analytics from 'lib/analytics';
+import { BackupUpgradeProps } from './types';
 
 import './style.scss';
 
 const MIN_POSTS_FOR_VISIBLE_BAR = 20;
 
-const BackupUpgrade = ( { comments, isFetchingData, plugins, posts } ) => {
+/**
+ * It renders a bar chart if the user has more than a certain number of posts
+ *
+ * @param {BackupUpgradeProps} props - Props
+ * @returns {React.ReactElement} - JSX Element
+ */
+const BackupUpgrade: React.FC< BackupUpgradeProps > = ( {
+	comments,
+	isFetchingData,
+	plugins,
+	posts,
+} ) => {
 	const [ showPopup, setShowPopup ] = useState( true );
 
 	const onClosePopup = useCallback( () => {
@@ -37,22 +49,19 @@ const BackupUpgrade = ( { comments, isFetchingData, plugins, posts } ) => {
 		setShowPopup( false );
 	}, [ comments, plugins, posts ] );
 
-	return (
-		! isFetchingData &&
-		showPopup &&
-		posts > MIN_POSTS_FOR_VISIBLE_BAR && (
-			<BarChart
-				posts={ posts }
-				comments={ comments }
-				plugins={ plugins }
-				onClosePopup={ onClosePopup }
-			/>
-		)
-	);
+	return ! isFetchingData && showPopup && posts > MIN_POSTS_FOR_VISIBLE_BAR ? (
+		<BarChart
+			posts={ posts }
+			comments={ comments }
+			plugins={ plugins }
+			onClosePopup={ onClosePopup }
+		/>
+	) : null;
 };
 
 export default connect( state => {
-	const stats = getStatsData( state )?.general?.stats;
+	// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+	const stats = ( getStatsData( state ) as any )?.general?.stats;
 
 	return {
 		comments: stats?.comments,

@@ -105,8 +105,8 @@ importers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@babel/core': 7.17.9
       '@babel/preset-react': 7.16.7
+      '@testing-library/react': 11.2.7
       '@types/chai': 4.3.0
-      '@types/enzyme': 3.10.11
       '@types/jest': 27.4.1
       '@types/react': 17.0.40
       '@types/react-dom': 17.0.13
@@ -141,8 +141,8 @@ importers:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.17.9
       '@babel/preset-react': 7.16.7_@babel+core@7.17.9
+      '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
       '@types/chai': 4.3.0
-      '@types/enzyme': 3.10.11
       '@types/jest': 27.4.1
       '@types/react': 17.0.40
       '@types/react-dom': 17.0.13
@@ -1434,8 +1434,10 @@ importers:
       '@wordpress/element': 4.4.0
       '@wordpress/i18n': 4.6.0
       '@wordpress/icons': 8.2.0
+      camelize: 1.0.0
       classnames: 2.3.1
       concurrently: 6.0.2
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -1451,7 +1453,9 @@ importers:
       '@wordpress/element': 4.4.0
       '@wordpress/i18n': 4.6.0
       '@wordpress/icons': 8.2.0
+      camelize: 1.0.0
       classnames: 2.3.1
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:
@@ -7838,13 +7842,6 @@ packages:
     resolution: {integrity: sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==}
     dev: true
 
-  /@types/enzyme/3.10.11:
-    resolution: {integrity: sha512-LEtC7zXsQlbGXWGcnnmOI7rTyP+i1QzQv4Va91RKXDEukLDaNyxu0rXlfMiGEhJwfgTPCTb0R+Pnlj//oM9e/w==}
-    dependencies:
-      '@types/cheerio': 0.22.31
-      '@types/react': 18.0.1
-    dev: true
-
   /@types/eslint-scope/3.7.3:
     resolution: {integrity: sha512-PB3ldyrcnAicT35TWPs5IcwKD8S333HMaa2VVv4+wdvebJkjWuW/xESoB8IwRcog8HYVYamb1g/R31Qv5Bx03g==}
     dependencies:
@@ -11096,6 +11093,10 @@ packages:
   /camelcase/6.3.0:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
+
+  /camelize/1.0.0:
+    resolution: {integrity: sha1-FkpUg+Yw+kMh5a8HAg5TGDGyYJs=}
+    dev: false
 
   /caniuse-api/3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
@@ -22068,7 +22069,7 @@ packages:
       serialize-javascript: 6.0.0
       source-map: 0.6.1
       terser: 5.12.1
-      webpack: 5.65.0
+      webpack: 5.65.0_webpack-cli@4.9.1
 
   /terser/5.12.1:
     resolution: {integrity: sha512-NXbs+7nisos5E+yXwAD+y7zrcTkMqb0dEJxIGtSKPdCBzopf7ni4odPul2aechpV7EXNvOudYOX2bb5tln1jbQ==}

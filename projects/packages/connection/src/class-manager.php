@@ -1637,15 +1637,16 @@ class Manager {
 	 * This is a proxy method to simplify the Connection package API.
 	 *
 	 * @see Manager::disable_plugin()
-	 * @see Manager::disconnect_site_wpcom()
-	 * @see Manager::delete_all_connection_tokens()
+	 * @see Manager::disconnect_site()
 	 *
+	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
+	 * @param bool    $ignore_connected_plugins Delete the tokens even if there are other connected plugins.
 	 * @return bool
 	 */
-	public function remove_connection() {
+	public function remove_connection( $disconnect_wpcom = true, $ignore_connected_plugins = false ) {
+
 		$this->disable_plugin();
-		$this->disconnect_site_wpcom();
-		$this->delete_all_connection_tokens();
+		$this->disconnect_site( $disconnect_wpcom, $ignore_connected_plugins );
 
 		return true;
 	}
@@ -1976,8 +1977,13 @@ class Manager {
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
 	 *
 	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
+	 * @param bool    $ignore_connected_plugins Delete the tokens even if there are other connected plugins.
 	 */
-	public function disconnect_site( $disconnect_wpcom = true ) {
+	public function disconnect_site( $disconnect_wpcom = true, $ignore_connected_plugins = true ) {
+		if ( ! $ignore_connected_plugins && null !== $this->plugin && ! $this->plugin->is_only() ) {
+			return false;
+		}
+
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 
 		( new Nonce_Handler() )->clean_all();
@@ -1995,10 +2001,10 @@ class Manager {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$this->disconnect_site_wpcom( true );
+			$this->disconnect_site_wpcom( $ignore_connected_plugins );
 		}
 
-		$this->delete_all_connection_tokens( true );
+		$this->delete_all_connection_tokens( $ignore_connected_plugins );
 
 		// Remove tracked package versions, since they depend on the Jetpack Connection.
 		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );

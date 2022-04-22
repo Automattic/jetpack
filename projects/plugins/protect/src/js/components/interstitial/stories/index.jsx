@@ -20,6 +20,3 @@ export default {
 
 const InterstitialTemplate = args => <Interstitial { ...args } />;
 export const Default = InterstitialTemplate.bind( {} );
-Default.args = {
-	isFetching: false,
-};

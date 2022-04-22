@@ -9,7 +9,7 @@
 		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-backup": "1.2.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.7.x-dev",
+		"automattic/jetpack-config": "1.8.x-dev",
 		"automattic/jetpack-connection": "1.39.x-dev",
 		"automattic/jetpack-connection-ui": "2.4.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
