@@ -70,7 +70,6 @@ class Jetpack_Social {
 
 		new Publicize_UI();
 
-		add_action( 'rest_api_init', array( $this, 'register_rest_route' ) );
 		// Priority >10 to run this filter after the Jetpack plugin runs this filter.
 		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ), 11, 1 );
 	}
@@ -135,36 +134,6 @@ class Jetpack_Social {
 		?>
 			<div id="jetpack-social-root"></div>
 		<?php
-	}
-
-	/**
-	 * Calypso and Jetpack Cloud use this endpoint to check if the connections
-	 * screen should be shown. If the Jetpack plugin isn't active, we use this
-	 * endpoint to communicate the status of the Publicize module.
-	 */
-	public function register_rest_route() {
-		// The Jetpack plugin provides its own version of this endpoint.
-		// See: Jetpack_Core_Json_Api_Endpoints
-		if ( class_exists( 'Jetpack' ) ) {
-			return;
-		}
-
-		register_rest_route(
-			'jetpack/v4',
-			'/module/all',
-			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => function () {
-					return rest_ensure_response(
-						array(
-							self::JETPACK_PUBLICIZE_MODULE_SLUG => array(
-								'activated' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
-							),
-						)
-					);
-				},
-			)
-		);
 	}
 
 	/**
