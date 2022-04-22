@@ -160,7 +160,7 @@ const FeaturePromptComponent = props => {
 						<a href={ nextRoute } onClick={ onDecideLaterClick }>
 							{ /* This formatting is more verbose than necessary to avoid a js optimization error */ }
 							{ featureActive && __( 'Next', 'jetpack' ) }
-							{ ! featureActive && __( 'Not Now', 'jetpack' ) }
+							{ ! featureActive && __( 'Not now', 'jetpack' ) }
 						</a>
 						{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
 							<>
