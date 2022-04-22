@@ -93,7 +93,7 @@ function _manually_install_woocommerce() {
 	WC_Install::install();
 
 	// reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374
-	$GLOBALS['wp_roles'] = new WP_Roles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	$GLOBALS['wp_roles'] = new WP_Roles();
 
 	echo 'Installing WooCommerce...' . PHP_EOL;
 }

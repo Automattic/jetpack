@@ -10,22 +10,25 @@ import restApi from '@automattic/jetpack-api';
  */
 import { STORE_ID } from '../../state/store';
 
+const initialState = window?.JP_CONNECTION_INITIAL_STATE ? window.JP_CONNECTION_INITIAL_STATE : {};
+
 export default ( {
-	registrationNonce,
+	registrationNonce = initialState.registrationNonce,
+	apiRoot = initialState.apiRoot,
+	apiNonce = initialState.apiNonce,
 	redirectUri,
-	apiRoot,
-	apiNonce,
 	autoTrigger,
 	from,
 	skipUserConnection,
-} ) => {
-	const { registerSite, connectUser } = useDispatch( STORE_ID );
+} = {} ) => {
+	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( STORE_ID );
 
 	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError() );
 	const {
 		siteIsRegistering,
 		userIsConnecting,
 		userConnectionData,
+		connectedPlugins,
 		isRegistered,
 		isUserConnected,
 		hasConnectedOwner,
@@ -33,6 +36,7 @@ export default ( {
 		siteIsRegistering: select( STORE_ID ).getSiteIsRegistering(),
 		userIsConnecting: select( STORE_ID ).getUserIsConnecting(),
 		userConnectionData: select( STORE_ID ).getUserConnectionData(),
+		connectedPlugins: select( STORE_ID ).getConnectedPlugins(),
 		...select( STORE_ID ).getConnectionStatus(),
 	} ) );
 
@@ -81,6 +85,7 @@ export default ( {
 	return {
 		handleRegisterSite,
 		handleConnectUser,
+		refreshConnectedPlugins,
 		isRegistered,
 		isUserConnected,
 		siteIsRegistering,
@@ -88,5 +93,6 @@ export default ( {
 		registrationError,
 		userConnectionData,
 		hasConnectedOwner,
+		connectedPlugins,
 	};
 };

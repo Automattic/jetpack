@@ -11,6 +11,7 @@ import {
 	ExternalLink,
 	Placeholder,
 	Spinner,
+	ToggleControl,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
@@ -21,11 +22,13 @@ import { lock } from '@wordpress/icons';
  * Internal dependencies
  */
 import { API_STATE_NOT_REQUESTING, API_STATE_REQUESTING } from './constants';
+import { useProductManagementContext } from './context';
 import { getMessageByProductType } from './utils';
 import { CURRENCY_OPTIONS } from '../../currencies';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 
-export default function ProductManagementInspectorControl( { productType, setSelectedProductId } ) {
+export default function ProductManagementInspectorControl() {
+	const { productType, setSelectedProductId } = useProductManagementContext();
 	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
 	const { saveProduct } = useDispatch( membershipProductsStore );
 
@@ -36,6 +39,8 @@ export default function ProductManagementInspectorControl( { productType, setSel
 	const [ currency, setCurrency ] = useState( 'USD' );
 	const [ price, setPrice ] = useState( 5 );
 	const [ interval, setInterval ] = useState( '1 month' );
+	const [ isMarkedAsDonation, setIsMarkedAsDonation ] = useState( false );
+	const [ isCustomAmount, setIsCustomAmount ] = useState( false );
 
 	const intervalOptions = [
 		{ label: __( 'Month', 'jetpack' ), value: '1 month' },
@@ -47,7 +52,15 @@ export default function ProductManagementInspectorControl( { productType, setSel
 		event.preventDefault();
 		setApiState( API_STATE_REQUESTING );
 		saveProduct(
-			{ title, currency, price, interval },
+			{
+				title,
+				currency,
+				price,
+				interval,
+				type: isMarkedAsDonation ? 'donation' : null,
+				buyer_can_change_amount: isCustomAmount,
+				is_editable: true,
+			},
 			productType,
 			setSelectedProductId,
 			success => {
@@ -112,6 +125,20 @@ export default function ProductManagementInspectorControl( { productType, setSel
 								onChange={ value => setInterval( value ) }
 								options={ intervalOptions }
 								value={ interval }
+							/>
+						</PanelRow>
+						<PanelRow className="donation-subscription">
+							<ToggleControl
+								label={ getMessageByProductType( 'mark this product as a donation', productType ) }
+								onChange={ value => setIsMarkedAsDonation( value ) }
+								checked={ isMarkedAsDonation }
+							/>
+						</PanelRow>
+						<PanelRow className="custom-amount">
+							<ToggleControl
+								label={ __( 'Enable customers to pick their own amount', 'jetpack' ) }
+								onChange={ value => setIsCustomAmount( value ) }
+								checked={ isCustomAmount }
 							/>
 						</PanelRow>
 						<PanelRow>

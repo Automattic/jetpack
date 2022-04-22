@@ -4,9 +4,8 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.37",
+		"automattic/jetpack-connection": "^1.39",
 		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-heartbeat": "^1.4",
 		"automattic/jetpack-identity-crisis": "^0.8",
 		"automattic/jetpack-options": "^1.15",
 		"automattic/jetpack-password-checker": "^0.2",
@@ -57,7 +56,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.30.x-dev"
+			"dev-master": "1.31.x-dev"
 		}
 	},
 	"config": {

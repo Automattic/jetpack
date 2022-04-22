@@ -31,6 +31,7 @@ class Initial_State {
 			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'connectionStatus'   => REST_Connector::connection_status( false ),
 			'userConnectionData' => REST_Connector::get_user_connection_data( false ),
+			'connectedPlugins'   => REST_Connector::get_connection_plugins( false ),
 		);
 	}
 

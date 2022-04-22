@@ -81,17 +81,17 @@ class Render_Blocking_JS implements Feature {
 		}
 
 		// Disable in robots.txt.
-		if ( strpos( home_url( $_SERVER['REQUEST_URI'] ), 'robots.txt' ) !== false ) {
+		if ( isset( $_SERVER['REQUEST_URI'] ) && strpos( home_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'robots.txt' ) !== false ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return;
 		}
 
 		// Disable in other possible AJAX requests setting cors related header.
-		if ( isset( $_SERVER['HTTP_SEC_FETCH_MODE'] ) && 'cors' === strtolower( $_SERVER['HTTP_SEC_FETCH_MODE'] ) ) {
+		if ( isset( $_SERVER['HTTP_SEC_FETCH_MODE'] ) && 'cors' === strtolower( $_SERVER['HTTP_SEC_FETCH_MODE'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			return;
 		}
 
 		// Disable in other possible AJAX requests setting XHR related header.
-		if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && 'xmlhttprequest' === strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) {
+		if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && 'xmlhttprequest' === strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			return;
 		}
 
@@ -99,9 +99,11 @@ class Render_Blocking_JS implements Feature {
 		// in accordance with sitemap protocol).
 		if ( isset( $_SERVER['REQUEST_URI'] ) &&
 			(
+				// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- This is validating.
 				false !== strpos( $_SERVER['REQUEST_URI'], '.xsl' ) ||
 				false !== strpos( $_SERVER['REQUEST_URI'], 'sitemap-stylesheet=index' ) ||
 				false !== strpos( $_SERVER['REQUEST_URI'], 'sitemap-stylesheet=sitemap' )
+				// phpcs:enable WordPress.Security.ValidatedSanitizedInput
 			) ) {
 			return;
 		}

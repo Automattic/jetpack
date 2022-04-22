@@ -8,7 +8,6 @@ const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const NodePolyfillPlugin = require( 'node-polyfill-webpack-plugin' );
 
-const webpack = jetpackWebpackConfig.webpack;
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
@@ -123,25 +122,6 @@ for ( const module of moduleSources ) {
 	}
 }
 
-const moduleCssEntries = {
-	'_inc/build/style.min': path.join( __dirname, '../_inc/client', 'scss/style.scss' ),
-};
-// prettier-ignore
-for ( const file of glob
-	.sync( 'modules/calypsoify/*.scss' )
-	.filter( n => ! path.basename( n ).startsWith( '_' ) )
-) {
-	moduleCssEntries[ file.substring( 0, file.length - 5 ) + '.min' ] = './' + file;
-}
-// prettier-ignore
-for ( const file of glob
-	.sync( 'scss/*.scss' )
-	.filter( n => ! path.basename( n ).startsWith( '_' ) )
-) {
-	moduleCssEntries[ 'css/' + file.substring( 5, file.length - 5 ) ] = './' + file;
-	moduleCssEntries[ 'css/' + file.substring( 5, file.length - 5 ) + '.min' ] = './' + file;
-}
-
 module.exports = [
 	// Build all the modules.
 	{
@@ -156,98 +136,6 @@ module.exports = [
 			filename: '[name].min.js', // @todo: Fix this.
 		},
 	},
-	// Build module CSS.
-	{
-		...sharedWebpackConfig,
-		entry: moduleCssEntries,
-		output: {
-			...sharedWebpackConfig.output,
-			path: path.join( __dirname, '..' ),
-		},
-		optimization: {
-			...sharedWebpackConfig.optimization,
-			minimizer: [
-				jetpackWebpackConfig.CssMinimizerPlugin( {
-					exclude: /^css\/.*(?<!\.min(?:\.rtl)?\.css)$/,
-				} ),
-			],
-		},
-		module: {
-			strictExportPresence: true,
-			rules: [
-				// Handle CSS.
-				jetpackWebpackConfig.CssRule( {
-					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [
-						{
-							loader: 'postcss-loader',
-							options: {
-								postcssOptions: { plugins: { autoprefixer: {} } },
-							},
-						},
-						{
-							loader: 'sass-loader',
-							options: {
-								sassOptions: {
-									// The minifier will minify if necessary.
-									outputStyle: 'expanded',
-								},
-							},
-						},
-					],
-				} ),
-
-				// Leave fonts and images in place.
-				{
-					test: /\.(eot|ttf|woff|png|svg)$/i,
-					type: 'asset/resource',
-					generator: {
-						emit: false,
-						filename: '[file]',
-					},
-				},
-			],
-		},
-		plugins: [
-			...jetpackWebpackConfig.StandardPlugins( {
-				DependencyExtractionPlugin: false,
-				I18nLoaderPlugin: false,
-				I18nCheckPlugin: false,
-			} ),
-			// Delete the dummy JS files Webpack would otherwise create.
-			new RemoveAssetWebpackPlugin( {
-				assets: /\.js(\.map)?$/,
-			} ),
-			// Rename rtl assets in css/ and modules/calypsoify, existing code uses a different naming convention from everything else. Sigh.
-			// @todo Fix that and delete this.
-			{
-				apply( compiler ) {
-					compiler.hooks.thisCompilation.tap( 'Renamer', compilation => {
-						compilation.hooks.processAssets.tap(
-							{
-								name: 'Renamer',
-								stage: webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
-								additionalAssets: true,
-							},
-							assets => {
-								for ( const [ name, asset ] of Object.entries( assets ) ) {
-									const m = name.match(
-										/^(css\/.*?|modules\/calypsoify\/(?:style|style-gutenberg))((?:\.min)?)\.rtl\.css$/
-									);
-									if ( m ) {
-										delete assets[ name ];
-										assets[ `${ m[ 1 ] }-rtl${ m[ 2 ] }.css` ] = asset;
-									}
-								}
-							}
-						);
-					} );
-				},
-			},
-		],
-	},
-	// Build masterbar CSS.
-	require( './webpack.config.masterbar.js' ),
 	// Build admin page JS.
 	{
 		...sharedWebpackConfig,

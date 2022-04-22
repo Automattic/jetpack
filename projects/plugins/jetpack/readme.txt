@@ -242,17 +242,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.9-a.1 - 2022-04-06
+### 10.9-a.7 - 2022-04-19
 #### Enhancements
-- Payments Block: Re-loading the page will not cause payment form to open again.
+- Connection: Preventing other Jeptpack-connected plugins from disconnecting when deactivating Jetpack from the plugins screen.
+- Recommendations: Add recommendation for anti-spam.
 
 #### Improved compatibility
-- Dashboard: Display block settings even when the Classic Editor plugin is active.
-- Mailchimp Popup widget: Widget deprecation.
+- WordAds: Remove the suggestion to use the ad widget from the dashboard.
+- WordAds: Change Jetpack Ads wording to be WordAds.
 
 #### Bug fixes
-- Contact Form: Ensure the form's input fields inherit a default font size.
-- Subscribe Block: Fix default styles block setting selection to "Split".
+- Publicize: Ensure bulk publishing posts won’t publicize those posts.
+- Random Redirect: Fixes 'set author name' functionality on author archives.
+- VideoPress: Fixes issue adding video descriptions and metadata via the WordPress.com dashboard.
 
 --------
 

@@ -5,9 +5,9 @@
  * @package automattic/jetpack-waf
  */
 
-use Automattic\Jetpack\Waf\WafOperators;
-use Automattic\Jetpack\Waf\WafRuntime;
-use Automattic\Jetpack\Waf\WafTransforms;
+use Automattic\Jetpack\Waf\Waf_Operators;
+use Automattic\Jetpack\Waf\Waf_Runtime;
+use Automattic\Jetpack\Waf\Waf_Transforms;
 
 /**
  * Runtime test suite.
@@ -16,7 +16,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Instance of the Runtime class
 	 *
-	 * @var WafRuntime
+	 * @var Waf_Runtime
 	 */
 	private $runtime;
 
@@ -26,7 +26,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	 * @before
 	 */
 	protected function before() {
-		$this->runtime = new WafRuntime( new WafTransforms(), new WafOperators() );
+		$this->runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 	}
 
 	/**
@@ -411,5 +411,26 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 		$this->assertSame( 2.0, $this->runtime->get_var( 'def' ) );
 		$this->runtime->unset_var( 'abc' );
 		$this->assertSame( '', $this->runtime->get_var( 'abc' ) );
+	}
+
+	/**
+	 * Test calling the log function and check if a file is written.
+	 *
+	 * @runInSeparateProcess
+	 */
+	public function testWriteBlocklog() {
+		$tmp_dir      = sys_get_temp_dir();
+		$waf_log_path = $tmp_dir . '/waf-blocklog';
+
+		define( 'JETPACK_WAF_DIR', $tmp_dir );
+		define( 'JETPACK_WAF_WPCONFIG', $tmp_dir . '/wp-config.php' );
+
+		$this->runtime->write_blocklog( 1337, 'test block' );
+		$file_content = file_get_contents( $waf_log_path );
+
+		$this->assertTrue( file_exists( $waf_log_path ) );
+		$this->assertTrue( strpos( $file_content, '{"rule_id":1337,"reason":"test block"' ) !== true );
+
+		unlink( $waf_log_path );
 	}
 }

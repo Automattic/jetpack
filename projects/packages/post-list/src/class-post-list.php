@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Post_List;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.3.0';
+	const PACKAGE_VERSION = '0.3.1-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -144,9 +144,10 @@ class Post_List {
 		// We've already verified the nonce in the register method above, and we're not performing
 		// any action on these POST arguments.
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		if ( ! empty( $_POST['screen'] ) && 'edit-' === substr( $_POST['screen'], 0, 5 ) && ! empty( $_POST['post_type'] ) ) {
-			$this->maybe_customize_columns( $_POST['post_type'] );
-			$this->maybe_add_share_action( $_POST['post_type'] );
+		if ( ! empty( $_POST['screen'] ) && 'edit-' === substr( sanitize_key( $_POST['screen'] ), 0, 5 ) && ! empty( $_POST['post_type'] ) ) {
+			$type = sanitize_key( $_POST['post_type'] );
+			$this->maybe_customize_columns( $type );
+			$this->maybe_add_share_action( $type );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
