@@ -49,9 +49,7 @@ class Publicize_UI {
 		}
 
 		// Assets (css, js).
-		if ( $this->in_jetpack ) {
-			add_action( 'load-settings_page_sharing', array( $this, 'load_assets' ) );
-		}
+		add_action( 'load-settings_page_sharing', array( $this, 'load_assets' ) );
 		add_action( 'admin_head-post.php', array( $this, 'post_page_metabox_assets' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'post_page_metabox_assets' ) );
 

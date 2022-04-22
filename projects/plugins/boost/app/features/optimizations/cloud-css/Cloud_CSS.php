@@ -120,12 +120,80 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		}
 		$state->create_request( $source_providers->get_providers() );
 
-		$client   = new Cloud_CSS_Request( $state );
-		$response = $client->request_generate();
+		$client    = new Cloud_CSS_Request();
+		$providers = $this->add_generation_args( $state->get_provider_urls() );
+		$response  = $client->request_generate( $providers );
+
 		if ( is_wp_error( $response ) ) {
 			$state->set_as_failed( $response->get_error_message() );
 		}
 		return $response;
+	}
+
+	/**
+	 * Store the Cloud Critical CSS or the error response.
+	 *
+	 * @param  array $params    Request parameters with the Cloud CSS status.
+	 * @return bool[]|\WP_Error Update status response.
+	 */
+	public function update_cloud_css( $params ) {
+		try {
+			$providers = $this->remove_generation_args( $params['providers'] );
+			$state     = new Critical_CSS_State( 'cloud' );
+			$storage   = new Critical_CSS_Storage();
+
+			foreach ( $providers as $provider => $result ) {
+				if ( ! isset( $result['data'] ) ) {
+					$state->set_as_failed( __( 'An unknown error occurred', 'jetpack-boost' ) );
+					continue;
+				}
+				$data = $result['data'];
+				if ( isset( $result['success'] ) && $result['success'] ) {
+					$state->set_source_success( $provider );
+					$storage->store_css( $provider, $data['css'] );
+				} elseif ( isset( $data['show_stopper'] ) && $data['show_stopper'] ) {
+					$state->set_as_failed( $data['error'] );
+				} else {
+					$state->set_source_error( $provider, $data['urls'] );
+				}
+			}
+			$state->maybe_set_status();
+
+			return array( 'success' => true );
+		} catch ( \Exception $e ) {
+			return new \WP_Error( 'invalid_request', $e->getMessage(), array( 'status' => 400 ) );
+		}
+	}
+
+	/**
+	 * Add jb-generate-critical-css arg to each URL in the provider set.
+	 */
+	private function add_generation_args( $providers ) {
+		foreach ( $providers as &$urls ) {
+			foreach ( $urls as &$url ) {
+				$url = add_query_arg( 'jb-generate-critical-css', 'true', $url );
+			}
+		}
+		return $providers;
+	}
+
+	/**
+	 * Remove jb-generate-critical-css arg from each URL in the provider set.
+	 */
+	private function remove_generation_args( $providers ) {
+		foreach ( $providers as &$provider ) {
+			if ( ! isset( $provider['data'] ) || ! isset( $provider['data']['urls'] ) ) {
+				continue;
+			}
+			$formatted = array();
+			foreach ( $provider['data']['urls'] as $url => $error ) {
+				$url                  = remove_query_arg( 'jb-generate-critical-css', $url );
+				$error['meta']['url'] = $url;
+				$formatted[ $url ]    = $error;
+			}
+			$provider['data']['urls'] = $formatted;
+		}
+		return $providers;
 	}
 
 	/**
