@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import Button from 'components/button';
+import { ExternalLink } from '@wordpress/components';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { getProductCardData, getProductCardDataStepOverrides } from 'recommendations/feature-utils';
@@ -30,7 +30,7 @@ const ProductSpotlightComponent = props => {
 	} = props;
 
 	const onProductCtaClick = useCallback( () => {
-		analytics.tracks.recordJetpackClick( 'jetpack_recommendations_step_product_card_button_click', {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_step_product_card_button_click', {
 			feature: stepSlug,
 		} );
 	}, [ stepSlug ] );
@@ -55,14 +55,14 @@ const ProductSpotlightComponent = props => {
 								} ) }
 							</ul>
 						) }
-						<Button
-							className="jp-recommendations-discount-card__button"
-							rna
+						<ExternalLink
+							type="button"
+							className="dops-button is-rna jp-recommendations-discount-card__button"
 							href={ productCardCtaLink }
 							onClick={ onProductCtaClick }
 						>
 							{ productCardCtaText }
-						</Button>
+						</ExternalLink>
 					</div>
 				</div>
 			</div>
