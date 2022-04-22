@@ -2,13 +2,19 @@
  * WordPress dependencies
  */
 import { store as blockEditorStore } from '@wordpress/block-editor';
+import { store as editPostStore } from '@wordpress/edit-post';
 import { useDispatch } from '@wordpress/data';
+
+/**
+ * Internal dependencies
+ */
 import { getEditorType, SITE_EDITOR, WIDGET_EDITOR } from '../../get-editor-type';
 
 export default function useOpenBlockSidebar( clientId ) {
 	const editorType = getEditorType();
 	const { selectBlock } = useDispatch( blockEditorStore );
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
+	const { closePublishSidebar } = useDispatch( editPostStore );
 
 	return () => {
 		if ( clientId ) {
@@ -21,6 +27,8 @@ export default function useOpenBlockSidebar( clientId ) {
 			case WIDGET_EDITOR:
 				return enableComplementaryArea( 'core/edit-widgets', 'edit-widgets/block-inspector' );
 			default:
+				// We first need to close the publish sidebar (if it's open).
+				closePublishSidebar();
 				enableComplementaryArea( 'core/edit-post', 'edit-post/block' );
 		}
 	};

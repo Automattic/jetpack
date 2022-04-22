@@ -1,0 +1,92 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-wordads",
+	"version": "0.1.1-alpha",
+	"description": "Earn income by allowing Jetpack to display high quality ads.",
+	"main": "main.js",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wordads/#readme",
+	"directories": {
+		"test": "tests"
+	},
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Wordads"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/wordads"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-dashboard",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
+		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build",
+		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
+		"clean": "rm -rf build/ .cache/",
+		"test": "pnpx concurrently 'pnpm:test-scripts'",
+		"test-scripts": "jest --passWithNoTests",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
+		"watch": "pnpx concurrently 'pnpm:build-dashboard -- --watch'"
+	},
+	"dependencies": {
+		"@automattic/calypso-color-schemes": "2.1.1",
+		"@automattic/color-studio": "2.5.0",
+		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
+		"@automattic/jetpack-api": "workspace:* || ^0.13",
+		"@automattic/jetpack-components": "workspace:* || ^0.11",
+		"@wordpress/base-styles": "4.1.1",
+		"@wordpress/block-editor": "8.2.0",
+		"@wordpress/data": "6.3.0",
+		"@wordpress/element": "4.1.1",
+		"@wordpress/i18n": "4.3.1",
+		"@wordpress/icons": "7.0.1",
+		"chart.js": "^3.7.1",
+		"classnames": "2.3.1",
+		"fast-json-stable-stringify": "2.1.0",
+		"lodash": "4.17.21",
+		"photon": "4.0.0",
+		"preact": "10.5.15",
+		"prop-types": "15.7.2",
+		"q-flat": "1.0.7",
+		"qss": "2.0.3",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
+		"react-redux": "7.2.6",
+		"redux": "4.1.1",
+		"refx": "3.1.1",
+		"strip": "3.0.0",
+		"tiny-lru": "7.0.6"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
+		"@babel/core": "7.17.8",
+		"@babel/plugin-proposal-nullish-coalescing-operator": "7.16.7",
+		"@babel/preset-env": "7.16.11",
+		"@babel/preset-react": "7.16.7",
+		"@babel/preset-typescript": "7.16.7",
+		"@babel/runtime": "7.17.8",
+		"@size-limit/preset-app": "6.0.3",
+		"@testing-library/jest-dom": "5.14.1",
+		"@testing-library/preact": "2.0.1",
+		"@wordpress/browserslist-config": "4.1.1",
+		"@wordpress/dependency-extraction-webpack-plugin": "3.3.2",
+		"concurrently": "6.4.0",
+		"jest": "27.3.1",
+		"jest-environment-jsdom": "27.3.1",
+		"postcss": "8.3.11",
+		"postcss-loader": "6.2.0",
+		"prettier": "npm:wp-prettier@2.0.5",
+		"sass-loader": "12.4.0",
+		"size-limit": "6.0.3",
+		"webpack": "5.65.0"
+	},
+	"engines": {
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.32.3",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	]
+}

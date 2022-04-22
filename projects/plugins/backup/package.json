@@ -3,11 +3,12 @@
 	"description": "Easily restore or download a backup of your site from a specific moment in time.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Backup"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/backup"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -24,7 +25,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:* || ^0.11",
+		"@automattic/jetpack-api": "workspace:* || ^0.13",
 		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@automattic/jetpack-connection": "workspace:* || ^0.17",
 		"@wordpress/api-fetch": "6.3.0",
@@ -36,7 +37,7 @@
 		"react-dom": "17.0.2"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:* || ^0.2",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
 		"@babel/core": "7.17.9",
 		"@babel/preset-env": "7.16.11",
