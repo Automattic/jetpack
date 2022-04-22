@@ -33,11 +33,31 @@ class Jetpack_Social_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that `active_modules` does not get synced if it's already been added (for example by the Jetpack plugin).
+	 * Test that `active_modules` does not overwrite existing synced modules.
 	 */
-	public function test_active_modules_option_does_not_get_synced_if_already_set() {
-		$input = array( 'active_modules' => array( 'test' ) );
-		$this->assertEquals( $input, $this->social->filter_sync_callable_whitelist( $input ) );
+	public function test_active_modules_sync_does_not_overwrite_other_modules() {
+		( new Modules() )->activate( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+		$input     = array(
+			'active_modules' => function () {
+				return array( 'example-module' );
+			},
+		);
+		$callables = $this->social->filter_sync_callable_whitelist( $input );
+		$this->assertEquals( $callables['active_modules'](), array( 'example-module', Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
+	}
+
+	/**
+	 * Test that `active_modules` does not get duplicate modules.
+	 */
+	public function test_active_modules_sync_does_not_get_duplicate_modules() {
+		( new Modules() )->activate( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+		$input     = array(
+			'active_modules' => function () {
+				return array( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG );
+			},
+		);
+		$callables = $this->social->filter_sync_callable_whitelist( $input );
+		$this->assertEquals( $callables['active_modules'](), array( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
 	}
 
 	/**

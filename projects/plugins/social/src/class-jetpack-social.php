@@ -177,14 +177,15 @@ class Jetpack_Social {
 	 * @return array
 	 */
 	public function filter_sync_callable_whitelist( $callables ) {
-		if ( array_key_exists( 'active_modules', $callables ) ) {
-			return $callables;
-		}
+		$callables['active_modules'] = function () use ( $callables ) {
+			$synced_active_modules = array_key_exists( 'active_modules', $callables ) ? $callables['active_modules']() : array();
+			$publicize_is_active   = ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG );
 
-		$callables['active_modules'] = function () {
-			$publicize_is_active = ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG );
+			if ( ! $publicize_is_active ) {
+				return $synced_active_modules;
+			}
 
-			return $publicize_is_active ? array( self::JETPACK_PUBLICIZE_MODULE_SLUG ) : array();
+			return array_unique( array_merge( $synced_active_modules, array( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ) );
 		};
 
 		return $callables;
