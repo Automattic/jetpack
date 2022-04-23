@@ -33,9 +33,9 @@ const Footer = () => {
 			</Col>
 			<Col sm={ 0 } md={ 0 } lg={ 1 }></Col>
 			<Col sm={ 4 } md={ 3 } lg={ 5 }>
-				<Text variant="title-medium" className={ styles.titles }>
+				<Title>
 					{ __( 'Over 22,000 listed vulnerabilities', 'jetpack-protect' ) }
-				</Text>
+				</Title>
 				<Text className={ styles.paragraphs }>
 					{ __(
 						'Every day we check your plugin, theme, and WordPress versions against our 22,000 listed vulnerabilities powered by WPScan, an Automattic brand.',
