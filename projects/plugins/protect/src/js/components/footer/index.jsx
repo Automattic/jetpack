@@ -20,9 +20,9 @@ const Footer = () => {
 				<Icon icon={ bug } size={ 18 } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 6 }>
-				<Text variant="title-medium" className={ styles.titles }>
+				<Title>
 					{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }
-				</Text>
+				</Title>
 				<Text className={ styles.paragraphs }>
 					{ __(
 						'Jetpack Security offers advanced scan tools, including one-click fixes for most threats and malware scanning. Plus, with this bundle you also get real-time cloud backups and spam protection.',
