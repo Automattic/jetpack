@@ -58,9 +58,8 @@ class Test_Global_Styles_Font_Introspector extends TestCase {
 			->andReturn( $global_styles );
 
 		$this->webfonts
-			->shouldReceive( 'is_font_family_registered' )
-			->with( 'Roboto' )
-			->andReturn( true );
+			->shouldReceive( 'get_registered_webfonts' )
+			->andReturn( array( 'roboto' => array() ) );
 
 		Functions\expect( 'wp_enqueue_webfont' )
 			->once()
@@ -88,9 +87,8 @@ class Test_Global_Styles_Font_Introspector extends TestCase {
 			->andReturn( $global_styles );
 
 		$this->webfonts
-			->shouldReceive( 'is_font_family_registered' )
-			->with( 'Arvo' )
-			->andReturn( true );
+			->shouldReceive( 'get_registered_webfonts' )
+			->andReturn( array( 'arvo' => array() ) );
 
 		Functions\expect( 'wp_enqueue_webfont' )
 			->once()
@@ -114,9 +112,8 @@ class Test_Global_Styles_Font_Introspector extends TestCase {
 			->andReturn( $global_styles );
 
 		$this->webfonts
-			->shouldReceive( 'is_font_family_registered' )
-			->with( 'Lato' )
-			->andReturn( true );
+			->shouldReceive( 'get_registered_webfonts' )
+			->andReturn( array( 'lato' => array() ) );
 
 		Functions\expect( 'wp_enqueue_webfont' )
 			->once()

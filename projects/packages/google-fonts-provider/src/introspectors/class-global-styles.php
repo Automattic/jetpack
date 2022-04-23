@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Fonts\Introspectors;
 
+use Automattic\Jetpack\Fonts\Utils;
+
 /**
  * Global Styles fonts introspector.
  */
@@ -17,14 +19,14 @@ class Global_Styles {
 	 * @return void
 	 */
 	public static function enqueue_global_styles_fonts() {
-		if ( is_admin() || ! function_exists( 'wp_webfonts' ) ) {
+		if ( is_admin() || ! function_exists( 'wp_enqueue_webfont' ) ) {
 			return;
 		}
 
 		$global_styles_fonts = self::collect_fonts_from_global_styles();
 
 		foreach ( $global_styles_fonts as $font ) {
-			$font_is_registered = wp_webfonts()->is_font_family_registered( $font );
+			$font_is_registered = Utils::is_font_family_registered( $font );
 
 			if ( $font_is_registered ) {
 				wp_enqueue_webfont( $font );

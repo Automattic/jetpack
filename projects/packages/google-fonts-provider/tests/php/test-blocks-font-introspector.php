@@ -51,9 +51,8 @@ class Test_Blocks_Font_Introspector extends TestCase {
 		);
 
 		$this->webfonts
-			->shouldReceive( 'is_font_family_registered' )
-			->with( 'Roboto' )
-			->andReturn( true );
+			->shouldReceive( 'get_registered_webfonts' )
+			->andReturn( array( 'roboto' => array() ) );
 
 		Functions\expect( 'wp_enqueue_webfont' )
 			->once()
@@ -82,5 +81,22 @@ class Test_Blocks_Font_Introspector extends TestCase {
 	 */
 	public function tear_down() {
 		Monkey\tearDown();
+	}
+}
+
+// phpcs:disable
+
+/**
+ * Use stub so that method_exists checks will pass.
+ *
+ * This will not be needed if/when WP_Webfonts provides a check for
+ * is_font_family_registered().
+ *
+ * @link https://github.com/WordPress/gutenberg/pull/39988
+ * @link https://github.com/WordPress/gutenberg/blob/e94fffae0684aa5a6dc370ce3eba262cb77071d9/lib/experimental/class-wp-webfonts.php#L217
+ */
+class WP_Webfonts {
+	public static function get_font_slug( $font ) {
+		return strtolower( $font );
 	}
 }
