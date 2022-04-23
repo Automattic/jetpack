@@ -2,9 +2,9 @@
  * External dependencies
  */
 import React from 'react';
-import { Container, Col, Text, Button } from '@automattic/jetpack-components';
+import { Container, Col, Text, Button, Title } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Icon, bug, cloud, shield, Title } from '@wordpress/icons';
+import { Icon, bug, cloud, shield } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -20,9 +20,7 @@ const Footer = () => {
 				<Icon icon={ bug } size={ 18 } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 6 }>
-				<Title>
-					{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }
-				</Title>
+				<Title>{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }</Title>
 				<Text className={ styles.paragraphs }>
 					{ __(
 						'Jetpack Security offers advanced scan tools, including one-click fixes for most threats and malware scanning. Plus, with this bundle you also get real-time cloud backups and spam protection.',
@@ -33,9 +31,7 @@ const Footer = () => {
 			</Col>
 			<Col sm={ 0 } md={ 0 } lg={ 1 }></Col>
 			<Col sm={ 4 } md={ 3 } lg={ 5 }>
-				<Title>
-					{ __( 'Over 22,000 listed vulnerabilities', 'jetpack-protect' ) }
-				</Title>
+				<Title>{ __( 'Over 22,000 listed vulnerabilities', 'jetpack-protect' ) }</Title>
 				<Text className={ styles.paragraphs }>
 					{ __(
 						'Every day we check your plugin, theme, and WordPress versions against our 22,000 listed vulnerabilities powered by WPScan, an Automattic brand.',
