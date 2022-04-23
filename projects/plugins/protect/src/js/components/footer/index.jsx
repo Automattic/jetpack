@@ -4,7 +4,7 @@
 import React from 'react';
 import { Container, Col, Text, Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Icon, bug, cloud, shield } from '@wordpress/icons';
+import { Icon, bug, cloud, shield, Title } from '@wordpress/icons';
 
 /**
  * Internal dependencies
