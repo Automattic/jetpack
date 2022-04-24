@@ -22,6 +22,7 @@ import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
 import { ProductSuggestion } from '../product-suggestion';
 import BackButton from '../../back-button';
 import Timer from '../../timer';
+import { isCouponValid } from '../../utils';
 
 /**
  * Style dependencies
@@ -37,11 +38,8 @@ const ProductSuggestionsComponent = ( {
 	suggestions,
 	discountData,
 } ) => {
-	const { discount, expiry_date: expiryDate, is_used: isUsed } = discountData;
-	const hasDiscount = useMemo(
-		() => discount && ! isUsed && new Date( expiryDate ).valueOf() - Date.now() > 0,
-		[ discount, isUsed, expiryDate ]
-	);
+	const { expiry_date: expiryDate } = discountData;
+	const hasDiscount = useMemo( () => isCouponValid( discountData ), [ discountData ] );
 
 	if ( isFetchingSuggestions || isFetchingUpsell ) {
 		return <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
