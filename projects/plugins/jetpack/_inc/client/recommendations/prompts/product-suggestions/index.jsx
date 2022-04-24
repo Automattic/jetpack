@@ -70,7 +70,6 @@ const ProductSuggestionsComponent = ( {
 				<div className="jp-recommendations-product-suggestion__money-back-guarantee">
 					<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
 				</div>
-				<div></div>
 			</div>
 			{ ! isFetchingDiscount && hasDiscount && (
 				<footer className="jp-recommendations-product-suggestion__footer">
