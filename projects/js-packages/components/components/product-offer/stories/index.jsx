@@ -110,3 +110,4 @@ CardIconsStory.parameters = {};
 CardIconsStory.args = {
 	products: [ 'backup', 'scan', 'anti-spam' ],
 };
+CardIconsStory.storyName = 'Card Icons';
