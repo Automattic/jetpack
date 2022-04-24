@@ -71,13 +71,15 @@ const ProductSuggestionsComponent = ( {
 					<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
 				</div>
 			</div>
-			{ ! isFetchingDiscount && hasDiscount && (
+			{ ! isFetchingDiscount && (
 				<footer className="jp-recommendations-product-suggestion__footer">
 					<span>
-						{ __(
-							'* Discount is for first term only, all renewals are at full price.',
-							'jetpack'
-						) }
+						{ hasDiscount
+							? __(
+									'* Discount is for first term only, all renewals are at full price.',
+									'jetpack'
+							  )
+							: __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
 					</span>
 					{ expiryDate && (
 						<div className="jp-recommendations-product-suggestion__timer">
