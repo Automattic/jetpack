@@ -42,7 +42,7 @@ function ProductOfferHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
  * @param {Array} props.products - List of supported products.
  * @returns {React.Component}      Bundle product icons react component.
  */
-function CardIcons( { products, icon } ) {
+export function CardIcons( { products, icon } ) {
 	if ( icon ) {
 		const CustomIcon = getIconBySlug( icon );
 		return (
