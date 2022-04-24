@@ -2,9 +2,8 @@
  * External dependencies
  */
 import React from 'react';
-import { Container, Col, Text, Button, Title } from '@automattic/jetpack-components';
+import { Container, Col, Text, Button, Title, CardIcons } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Icon, bug, cloud, shield } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -14,12 +13,8 @@ import styles from './styles.module.scss';
 const Footer = () => {
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 } fluid={ false }>
-			<Col sm={ 4 } md={ 8 } lg={ 12 }>
-				<Icon icon={ cloud } size={ 18 } />
-				<Icon icon={ shield } size={ 18 } />
-				<Icon icon={ bug } size={ 18 } />
-			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 6 }>
+				<CardIcons products={ [ 'backup', 'scan', 'anti-spam' ] } />
 				<Title>{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }</Title>
 				<Text className={ styles.paragraphs }>
 					{ __(
