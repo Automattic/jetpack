@@ -69,6 +69,7 @@ const FeaturePromptComponent = props => {
 		addViewedRecommendation,
 	] );
 
+	// Show card if it hasn't been viewed yet, or if it has been viewed at this step already.
 	const showDiscountCard = ! discountViewedStep || discountViewedStep === stepSlug;
 
 	const onExternalLinkClick = useCallback( () => {
