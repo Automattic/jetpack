@@ -81,7 +81,7 @@ const ProductSuggestionsComponent = ( {
 							  )
 							: __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
 					</span>
-					{ expiryDate && (
+					{ hasDiscount && expiryDate && (
 						<div className="jp-recommendations-product-suggestion__timer">
 							<Timer
 								timeClassName="jp-recommendations-product-suggestion__time"

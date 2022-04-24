@@ -17,12 +17,12 @@ import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
 import DiscountBadge from '../discount-badge';
 import withUpgradeUrl from '../hoc/with-upgrade-url';
 import RecommendedHeader from '../sidebar/recommended-header';
+import { isCouponValid } from '../utils';
 
 /**
  * Style dependencies
  */
 import './style.scss';
-
 const Price = ( { className, integer, fraction, symbol } ) => (
 	<div className={ className }>
 		<sup className="jp-recommendations-product-card-upsell__currency-symbol">{ symbol }</sup>
@@ -49,11 +49,12 @@ const ProductCardUpsellComponent = ( {
 	upgradeUrl,
 } ) => {
 	const { discount } = discountData;
+	const hasDiscount = useMemo( () => isCouponValid( discountData ), [ discountData ] );
 	const { original_price: originalPrice, raw_price: introPrice } = useMemo(
 		() => introOffers.find( ( { product_slug } ) => product_slug === slug ) || {},
 		[ slug, introOffers ]
 	);
-	const finalPrice = discount ? introPrice * ( 1 - discount / 100 ) : introPrice;
+	const finalPrice = hasDiscount && discount ? introPrice * ( 1 - discount / 100 ) : introPrice;
 	const totalDiscount = originalPrice
 		? Math.round( ( ( originalPrice - finalPrice ) / originalPrice ) * 100 )
 		: null;
@@ -94,7 +95,7 @@ const ProductCardUpsellComponent = ( {
 				<>
 					<div className="jp-recommendations-product-card-upsell__price-container">
 						<div className="jp-recommendations-product-card-upsell__price">
-							{ discount && (
+							{ hasDiscount && (
 								<Price
 									className="jp-recommendations-product-card-upsell__raw-price"
 									{ ...originalCurrencyObject }
@@ -104,7 +105,7 @@ const ProductCardUpsellComponent = ( {
 								className="jp-recommendations-product-card-upsell__final-price"
 								{ ...currencyObject }
 							/>
-							{ discount && (
+							{ hasDiscount && (
 								<DiscountBadge
 									className="jp-recommendations-product-card-upsell__discount"
 									discount={ totalDiscount }
