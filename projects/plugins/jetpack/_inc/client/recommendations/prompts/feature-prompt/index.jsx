@@ -14,6 +14,7 @@ import { ExternalLink } from '@wordpress/components';
 import DiscountCard from '../../sidebar/discount-card';
 import { getStepContent, mapDispatchToProps } from '../../feature-utils';
 import { PromptLayout } from '../prompt-layout';
+import { ProductSpotlight } from '../../sidebar/product-spotlight';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import {
@@ -27,6 +28,7 @@ import {
 	recommendationsSiteDiscountViewedStep,
 	isFetchingRecommendationsProductSuggestions,
 	isProductSuggestionsAvailable,
+	getProductSlugForStep,
 } from 'state/recommendations';
 
 const FeaturePromptComponent = props => {
@@ -47,6 +49,7 @@ const FeaturePromptComponent = props => {
 		stateStepSlug,
 		updatingStep,
 		updateRecommendationsStep,
+		spotlightProduct,
 		isNew,
 		isFetchingSuggestions,
 		canShowProductSuggestions,
@@ -93,6 +96,14 @@ const FeaturePromptComponent = props => {
 		addSkippedRecommendation( stepSlug );
 	}, [ addSkippedRecommendation, stepSlug ] );
 
+	let sidebarCard = null;
+
+	if ( spotlightProduct ) {
+		sidebarCard = <ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />;
+	} else if ( showDiscountCard && canShowProductSuggestions ) {
+		sidebarCard = <DiscountCard />;
+	}
+
 	return (
 		<PromptLayout
 			progressBar={
@@ -115,10 +126,12 @@ const FeaturePromptComponent = props => {
 				</div>
 			}
 			isLoadingSideContent={ showDiscountCard && isFetchingSuggestions }
+			sidebarCard={ sidebarCard }
 			illustrationPath={
-				! showDiscountCard || ! canShowProductSuggestions ? illustrationPath : null
+				! spotlightProduct || ! showDiscountCard || ! canShowProductSuggestions
+					? illustrationPath
+					: null
 			}
-			sidebarCard={ showDiscountCard && canShowProductSuggestions ? <DiscountCard /> : null }
 			rna={ rnaIllustration }
 		/>
 	);
@@ -133,6 +146,7 @@ const FeaturePrompt = connect(
 		isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
 		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 		discountViewedStep: recommendationsSiteDiscountViewedStep( state ),
+		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 	} ),
 	( dispatch, ownProps ) => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),

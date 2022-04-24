@@ -675,9 +675,11 @@ importers:
     specifiers:
       '@automattic/format-currency': 1.0.0
       '@automattic/jetpack-analytics': workspace:* || ^0.1
+      '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.11
       '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-licensing': workspace:* || ^0.4
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
       '@babel/preset-env': 7.16.11
@@ -715,8 +717,10 @@ importers:
     dependencies:
       '@automattic/format-currency': 1.0.0_react@17.0.2
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
+      '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-licensing': link:../../js-packages/licensing
       '@wordpress/api-fetch': 6.3.0
       '@wordpress/components': 19.8.0_f370f735164a03a12cea0cc89593cbee
       '@wordpress/data': 6.6.0_react@17.0.2
@@ -1437,6 +1441,7 @@ importers:
       camelize: 1.0.0
       classnames: 2.3.1
       concurrently: 6.0.2
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -1454,6 +1459,7 @@ importers:
       '@wordpress/icons': 8.2.0
       camelize: 1.0.0
       classnames: 2.3.1
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:

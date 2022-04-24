@@ -17,6 +17,8 @@ import {
 	isJetpackSearch,
 	isJetpackSecurityBundle,
 	isJetpackVideoPress,
+	isJetpackAntiSpam,
+	isSecurityComparableJetpackLegacyPlan,
 } from 'lib/plans/constants';
 import {
 	JETPACK_SITE_DATA_FETCH,
@@ -452,6 +454,50 @@ export function getActiveVideoPressPurchase( state ) {
  */
 export function hasActiveVideoPressPurchase( state ) {
 	return !! getActiveVideoPressPurchase( state );
+}
+
+/**
+ * Searches active products for an active Anti-Spam product.
+ *
+ * @param {*} state - Global state tree
+ * @returns {object} An active Anti-Spam product if one was found, undefined otherwise.
+ */
+export function getActiveAntiSpamPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackAntiSpam( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active Anti-Spam product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active Anti-Spam product purchase, false otherwise.
+ */
+export function hasActiveAntiSpamPurchase( state ) {
+	return !! getActiveAntiSpamPurchase( state );
+}
+
+/**
+ * Searches active products for a legacy Jetpack plan with security features.
+ *
+ * @param {*} state - Global state tree
+ * @returns {object} An active legacy plan with security features if one was found, undefined otherwise.
+ */
+export function getSecurityComparableLegacyPlan( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isSecurityComparableJetpackLegacyPlan( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active Jetpack legacy plan with security features
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has a legacy Jetpack plan with security features, false otherwise.
+ */
+export function hasSecurityComparableLegacyPlan( state ) {
+	return !! getSecurityComparableLegacyPlan( state );
 }
 
 export function getSiteID( state ) {
