@@ -363,7 +363,13 @@ class UtilsTest extends TestCase {
 
 		// Create a non-git file in a non-git checkout.
 		touch( 'not-in-git.txt', 1614124800 );
-		$this->assertSame( array( 'timestamp' => '2021-02-24T00:00:00Z', 'pr-num' => null ), Utils::getRepoData( 'not-in-git.txt', $output, $helper ) );
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-24T00:00:00Z',
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'not-in-git.txt', $output, $helper )
+		);
 
 		// Create a file in a git checkout.
 		file_put_contents( 'in-git.txt', '' );
@@ -385,18 +391,32 @@ class UtilsTest extends TestCase {
 		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
 		Utils::runCommand( array( 'git', 'add', 'in-git.txt' ), ...$args );
 		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#123)' ), ...$args );
-		$this->assertSame( '2021-02-02T22:22:22+00:00', Utils::getRepoData( 'in-git.txt', $output, $helper )['timestamp'] );
+
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'pr-num'    => '123',
+			),
+			Utils::getRepoData( 'in-git.txt', $output, $helper )
+		);
 
 		// Test our non-git file again.
-		$this->assertSame( '2021-02-24T00:00:00Z', Utils::getRepoData( 'not-in-git.txt', $output, $helper )['timestamp'] );
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-24T00:00:00Z',
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'not-in-git.txt', $output, $helper )
+		);
 
 		// Nonexistent file.
-		$this->assertNull( Utils::getRepoData( 'missing.txt', $output, $helper )['timestamp'] );
-
-		// Test 'add-pr-num' write command option.
-		$input_options = array( 'add-pr-num' => true );
-		$this->assertSame( '123', Utils::getRepoData( 'in-git.txt', $output, $helper, $input_options )['pr-num'] );
-		$this->assertNull( Utils::getRepoData( 'in-git.txt', $output, $helper )['pr-num'] );
+		$this->assertSame(
+			array(
+				'timestamp' => null,
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'missing.txt', $output, $helper )
+		);
 	}
 
 	/**

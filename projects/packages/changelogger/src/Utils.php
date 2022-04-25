@@ -154,11 +154,9 @@ class Utils {
 	 * @param string               $file Filepath.
 	 * @param OutputInterface      $output OutputInterface to write debug output to.
 	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
-	 * @param array|null           $input_options Options for the extraction.
-	 *   - add-pr-num: (bool) Whether to try to read a `(#12345)`-like PR number from the git commit creating each change entry. Default false.
 	 * @return array With keys 'timestamp' and 'pr-num'.
 	 */
-	public static function getRepoData( $file, OutputInterface $output, DebugFormatterHelper $formatter, $input_options = null ) {
+	public static function getRepoData( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
 		$repo_data = array(
 			'timestamp' => null,
 			'pr-num'    => null,
@@ -175,7 +173,7 @@ class Utils {
 				}
 
 				// PR number.
-				if ( isset( $cmd_output[1] ) && ! empty( $input_options['add-pr-num'] ) ) {
+				if ( isset( $cmd_output[1] ) ) {
 					$matches = array();
 					preg_match( '/\(#(\d+)\)$/', $cmd_output[1], $matches );
 					if ( isset( $matches[1] ) ) {
@@ -242,7 +240,7 @@ class Utils {
 				}
 			}
 			try {
-				$repo_data    = self::getRepoData( $path, $output, $debugHelper, $input_options );
+				$repo_data    = self::getRepoData( $path, $output, $debugHelper );
 				$ret[ $name ] = $formatter->newChangeEntry(
 					array(
 						'significance' => isset( $data['Significance'] ) ? $data['Significance'] : null,
