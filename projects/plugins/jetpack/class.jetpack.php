@@ -924,6 +924,7 @@ class Jetpack {
 
 		Partner::init();
 		My_Jetpack_Initializer::init();
+		Jetpack_Backup::initialize();
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
