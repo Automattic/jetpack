@@ -80,6 +80,8 @@ export function buildInitialState( {
 			},
 			recommendations: {
 				upsell: upsellFixture( { hideUpsell } ),
+				requests: {},
+				data: {},
 			},
 			rewind: rewindFixture( rewindStatus ),
 			settings: {
