@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useConnection } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
+import { useEffect } from 'react';
 
 /**
  * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
@@ -64,6 +66,7 @@ function normalizeCoreInformation( wpVersion, coreCheck ) {
  * @returns {object} The information available in Protect's initial state.
  */
 export default function useProtectData() {
+	const { isRegistered } = useConnection();
 	const { installedPlugins, installedThemes, wpVersion, statusIsFetching, status } = useSelect(
 		select => ( {
 			installedPlugins: select( STORE_ID ).getInstalledPlugins(),
@@ -73,6 +76,16 @@ export default function useProtectData() {
 			status: select( STORE_ID ).getStatus(),
 		} )
 	);
+
+	const { refreshStatus } = useDispatch( STORE_ID );
+
+	useEffect( () => {
+		if ( isRegistered && ! status.status ) {
+			refreshStatus();
+		}
+		// We don't want to run the effect if status changes. Only on changes on isRegistered.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ isRegistered ] );
 
 	const plugins = mergeInstalledAndCheckedLists( installedPlugins, status.plugins || {} );
 	const themes = mergeInstalledAndCheckedLists( installedThemes, status.themes || {} );
