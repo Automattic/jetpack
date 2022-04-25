@@ -99,7 +99,7 @@ class Plugin_Storage {
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
-	 * @since since $$next-version$$ Deprecated $connected_only argument.
+	 * @since $$next-version$$ deprecated the $connected_only argument.
 	 *
 	 * @param null $deprecated null plugins that were explicitly disconnected. Deprecated, there's no such a thing as disconnecting only specific plugins anymore.
 	 *
