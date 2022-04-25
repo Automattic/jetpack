@@ -1,11 +1,12 @@
-const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+// eslint-disable-next-line import/no-extraneous-dependencies
+const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 
 module.exports = {
 	root: true,
 	parser: '@typescript-eslint/parser',
 	extends: [
 		// '@sveltejs',
-		'../../../tools/js-tools/eslintrc/base.js',
+		require.resolve( 'jetpack-js-tools/eslintrc/base' ),
 		'plugin:@typescript-eslint/recommended',
 		'plugin:@wordpress/eslint-plugin/recommended',
 	],

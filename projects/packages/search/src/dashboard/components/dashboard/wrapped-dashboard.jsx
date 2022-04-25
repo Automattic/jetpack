@@ -9,22 +9,26 @@ import { useSelect, select as syncSelect } from '@wordpress/data';
  */
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { AdminSectionHero, Container, Col, Spinner } from '@automattic/jetpack-components';
+import { Spinner } from '@automattic/jetpack-components';
 import useConnection from './use-connection';
-import SearchDashboard from './index';
 import { STORE_ID } from 'store';
+import UpsellPage from './upsell-page';
+import SearchConnectionPage from './connection-page';
+import SearchDashboard from './index';
 
 /**
- * Return Search Dashboard if connected, otherwise the connection screen.
+ * Return appropriate components.
  *
- * @returns {React.Component} SearchDashboardWithConnection component.
+ * @returns {React.Component} WrappedDashboard component.
  */
-export default function SearchDashboardWithConnection() {
+export default function WrappedDashboard() {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
-	const { connectionStatus, renderConnectScreen, renderConnectionFooter } = useConnection();
+	const { connectionStatus } = useConnection();
+
+	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
 
 	const isFullyConnected =
 		Object.keys( connectionStatus ).length &&
@@ -72,20 +76,11 @@ export default function SearchDashboardWithConnection() {
 	}
 
 	if ( ! isFullyConnected ) {
-		return (
-			<div className="jp-search-dashboard-connection-screen">
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col lg={ 12 } md={ 8 } sm={ 4 }>
-							{ renderConnectScreen() }
-						</Col>
-						<Col lg={ 12 } md={ 8 } sm={ 4 }>
-							{ renderConnectionFooter() }
-						</Col>
-					</Container>
-				</AdminSectionHero>
-			</div>
-		);
+		return <SearchConnectionPage />;
+	}
+
+	if ( ! supportsSearch ) {
+		return <UpsellPage />;
 	}
 
 	return <SearchDashboard />;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixing issue in apiFetch middleware where request bodies were assumed to always be objects with a "file" property; this is only true for requests to the media endpoint.

@@ -197,7 +197,7 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
   Note we're using something of a hack to get eslint to read ignore rules from `.gitignore` and per-directory `.eslintignore` files.
   Any eslintrc that does `root: true` or an `extends` that extends from an eslintrc that includes the hack will have to do like
   ```js
-  const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+  const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
   module.exports = {
   	// Whatever stuff, including `root: true` or `extends`.
   	ignorePatterns: loadIgnorePatterns( __dirname ),

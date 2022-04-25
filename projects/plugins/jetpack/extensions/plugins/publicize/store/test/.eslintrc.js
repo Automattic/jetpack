@@ -1,3 +1,3 @@
 module.exports = {
-	extends: [ '../../../../../../../../tools/js-tools/eslintrc/jest' ],
+	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
 };
