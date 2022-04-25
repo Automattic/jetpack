@@ -13,10 +13,10 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "b69a4e0a795222b6ca485926daf15c9bf7075955"
+                "reference": "83df3961934b8068249d09ef1d4167e5e537eca4"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^3.1",
                 "wikimedia/at-ease": "^1.2 || ^2.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -61,7 +61,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "66265d03f4812275b907a08ee58ce6ee2d395bd6"
+                "reference": "a1ded8af05be990fc915cb9fba24de4df25af57b"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -72,7 +72,7 @@
                 "wp-coding-standards/wpcs": "^2.3"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^3.1",
                 "wp-coding-standards/wpcs": "dev-develop#7b39722c38cbf2fe64c55be7154ee6f1807d304c as 2.3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -123,14 +123,14 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "3fa5cd8a60532b0c07839554fad8918691dd76e4"
+                "reference": "b3777393b31aa50e37f3f2f92af1d668fca3c826"
             },
             "require": {
                 "automattic/ignorefile": "^1.0",
                 "squizlabs/php_codesniffer": "^3.6.1"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "library",
