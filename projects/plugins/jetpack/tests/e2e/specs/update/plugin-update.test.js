@@ -35,7 +35,7 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 
 	await test.step( 'Jetpack is still connected', async () => {
 		const jetpackPage = await JetpackDashboardPage.visit( page );
-		expect( await jetpackPage.isConnected(), 'Jetpack should be connected' ).toBeTruthy();
+		expect( await jetpackPage.isUserConnected(), 'Jetpack should be connected' ).toBeTruthy();
 	} );
 } );
 

@@ -21,10 +21,13 @@ import { ProductCardUpsell } from '../product-card-upsell';
 import { generateCheckoutLink } from '../utils';
 import { getSiteTitle, getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import {
+	addViewedRecommendation as addViewedRecommendationAction,
 	getSidebarCardSlug,
+	getStep,
 	getSummaryFeatureSlugs,
 	getSummaryResourceSlugs,
 	getUpsell,
+	isUpdatingRecommendationsStep,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
@@ -47,13 +50,20 @@ const SummaryComponent = props => {
 		summaryFeatureSlugs,
 		summaryResourceSlugs,
 		updateRecommendationsStep,
+		addViewedRecommendation,
 		upsell,
 		newRecommendations,
+		stateStepSlug,
+		updatingStep,
 	} = props;
 
 	useEffect( () => {
-		updateRecommendationsStep( 'summary' );
-	}, [ updateRecommendationsStep ] );
+		if ( 'summary' !== stateStepSlug ) {
+			updateRecommendationsStep( 'summary' );
+		} else if ( 'summary' === stateStepSlug && ! updatingStep ) {
+			addViewedRecommendation( 'summary' );
+		}
+	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
 
 	const upgradeUrl = upsell.product_slug
 		? generateCheckoutLink( upsell.product_slug, siteAdminUrl, siteRawUrl )
@@ -196,11 +206,14 @@ const Summary = connect(
 			siteAdminUrl: getSiteAdminUrl( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
+			stateStepSlug: getStep( state ),
+			updatingStep: isUpdatingRecommendationsStep( state ),
 			upsell,
 		};
 	},
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 	} )
 )( SummaryComponent );
 
