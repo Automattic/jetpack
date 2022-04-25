@@ -9131,7 +9131,7 @@ packages:
       webpack: ^4.8.3 || ^5.0.0
     dependencies:
       json2php: 0.0.4
-      webpack: 5.65.0
+      webpack: 5.65.0_webpack-cli@4.9.1
       webpack-sources: 3.2.3
 
   /@wordpress/deprecated/3.6.0:

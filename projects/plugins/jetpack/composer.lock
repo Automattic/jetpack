@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed070e0a747910e15a2b4c071c35ea69",
+    "content-hash": "1e7f9636e832a1a5752b3aae87638f28",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -796,7 +796,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/google-fonts-provider",
-                "reference": "b4505b57b156ce9fb2a2eee1adebae621c7b3f96"
+                "reference": "4612b57832dbaa4fcc33ac683cd2a9fd191cab3c"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.0",
@@ -811,7 +811,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-google-fonts-provider/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.2.x-dev"
+                    "dev-master": "0.3.x-dev"
                 },
                 "textdomain": "jetpack-google-fonts-provider"
             },
