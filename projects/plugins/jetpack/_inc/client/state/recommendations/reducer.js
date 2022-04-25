@@ -260,7 +260,7 @@ const stepToNextStep = {
 	summary: 'summary',
 };
 
-const stepToRoute = {
+export const stepToRoute = {
 	'not-started': '#/recommendations/site-type',
 	'site-type-question': '#/recommendations/site-type',
 	'product-suggestions': '#/recommendations/product-suggestions',
@@ -274,6 +274,14 @@ const stepToRoute = {
 	'anti-spam': '#/recommendations/anti-spam',
 	videopress: '#/recommendations/videopress',
 	summary: '#/recommendations/summary',
+};
+
+export const isStepViewed = ( state, featureSlug ) => {
+	const recommendationsData = get( state.jetpack, [ 'recommendations', 'data' ] );
+	return (
+		recommendationsData.viewedRecommendations &&
+		recommendationsData.viewedRecommendations.includes( featureSlug )
+	);
 };
 
 export const isFeatureActive = ( state, featureSlug ) => {
