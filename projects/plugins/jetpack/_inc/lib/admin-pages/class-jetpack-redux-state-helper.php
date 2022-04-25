@@ -180,12 +180,13 @@ class Jetpack_Redux_State_Helper {
 				'dateFormat'                 => get_option( 'date_format' ),
 			),
 			'themeData'                   => array(
-				'name'      => $current_theme->get( 'Name' ),
-				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
-				'support'   => array(
+				'name'         => $current_theme->get( 'Name' ),
+				'hasUpdate'    => (bool) get_theme_update_available( $current_theme ),
+				'support'      => array(
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 					'webfonts'        => WP_Theme_JSON_Resolver::theme_has_support() && function_exists( 'wp_register_webfont_provider' ) && function_exists( 'wp_register_webfonts' ),
 				),
+				'isBlockTheme' => function_exists( 'wp_is_block_theme' ) && wp_is_block_theme(),
 			),
 			'jetpackStateNotices'         => array(
 				'messageCode'      => Jetpack::state( 'message' ),
