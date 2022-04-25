@@ -67,12 +67,12 @@ class Waf_Endpoints {
 	 * @return bool|WP_Error True if user can view the Jetpack admin page.
 	 */
 	public static function waf_permissions_callback() {
-		if ( current_user_can( 'jetpack_admin_page' ) ) {
+		if ( current_user_can( 'jetpack_manage_modules' ) ) {
 			return true;
 		}
 
 		return new WP_Error(
-			'invalid_user_permission_view_admin',
+			'invalid_user_permission_manage_modules',
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
