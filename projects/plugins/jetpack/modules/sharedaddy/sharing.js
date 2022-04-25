@@ -386,7 +386,7 @@
 		var encoded = encodeURIComponent( name ) + '=' + encodeURIComponent( value );
 
 		// In x-www-form-urlencoded, spaces should be `+`, not `%20`.
-		return encoded.replace( '%20', '+' );
+		return encoded.replace( /%20/g, '+' );
 	}
 
 	// Sharing initialization.
