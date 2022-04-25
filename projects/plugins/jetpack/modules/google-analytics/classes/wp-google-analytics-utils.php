@@ -1,5 +1,4 @@
-<?php
-
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Jetpack_Google_Analytics_Options provides a single interface to module options
  *
@@ -13,11 +12,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Jetpack_Google_Analytics_Utils main class.
+ */
 class Jetpack_Google_Analytics_Utils {
 	/**
 	 * Gets product categories or varation attributes as a formatted concatenated string
 	 *
-	 * @param WC_Product
+	 * @param WC_Product $product Product to get categories/variations for.
 	 * @return string
 	 */
 	public static function get_product_categories_concatenated( $product ) {
@@ -48,7 +50,7 @@ class Jetpack_Google_Analytics_Utils {
 	/**
 	 * Gets a product's SKU with fallback to just ID. IDs are prepended with a hash symbol.
 	 *
-	 * @param WC_Product
+	 * @param WC_Product $product Product to get SKU/ID for.
 	 * @return string
 	 */
 	public static function get_product_sku_or_id( $product ) {
