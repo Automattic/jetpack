@@ -4,30 +4,11 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
-import { plugins as pluginsIcon } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import Accordion, { AccordionItem } from '../accordion';
-import useProtectData from '../../hooks/use-protect-data';
-
-const getSelected = ( { core, plugins, themes, selected } ) => {
-	if ( selected === 'wordpress' ) {
-		return core;
-	}
-
-	const fromPlugin = plugins.find( ( { name } ) => name === selected );
-
-	if ( fromPlugin ) {
-		return fromPlugin;
-	}
-
-	const fromThemes = themes.find( ( { name } ) => name === selected );
-	if ( fromThemes ) {
-		return fromThemes;
-	}
-};
 
 const VulAccordionItem = ( { id, name, version, title, icon, fixedIn } ) => {
 	return (
@@ -51,49 +32,20 @@ const VulAccordionItem = ( { id, name, version, title, icon, fixedIn } ) => {
 	);
 };
 
-const AllVuls = () => {
-	const { plugins, themes } = useProtectData();
-	return (
-		<>
-			{ [ ...plugins, ...themes ]
-				.map( ( { name, version, vulnerabilities } ) =>
-					vulnerabilities.map( ( { title, id, fixedIn } ) => (
-						<VulAccordionItem
-							key={ id }
-							id={ id }
-							name={ name }
-							version={ version }
-							title={ title }
-							icon={ pluginsIcon }
-							fixedIn={ fixedIn }
-						/>
-					) )
-				)
-				.flat() }
-		</>
-	);
-};
-
-const SelectedVuls = ( { selected } ) => {
-	const { plugins, themes, core } = useProtectData();
-	const selectedItem = getSelected( { core, plugins, themes, selected } );
-	const vuls = selectedItem?.vulnerabilities;
-	return vuls.map( ( { title, id } ) => (
-		<VulAccordionItem
-			key={ id }
-			id={ `${ id }-${ title }` }
-			name={ selectedItem?.name }
-			version={ selectedItem?.version }
-			title={ title }
-			icon={ pluginsIcon }
-		/>
-	) );
-};
-
-const List = ( { selected } ) => {
+const List = ( { list } ) => {
 	return (
 		<Accordion>
-			{ selected === 'all' ? <AllVuls /> : <SelectedVuls selected={ selected } /> }
+			{ list.map( ( { id, name, title, version, fixedIn, icon } ) => (
+				<VulAccordionItem
+					key={ id }
+					id={ `${ id }-${ title }` }
+					name={ name }
+					version={ version }
+					title={ title }
+					icon={ icon }
+					fixedIn={ fixedIn }
+				/>
+			) ) }
 		</Accordion>
 	);
 };

@@ -12,7 +12,7 @@ import List from './list';
 import useVulsList from './use-vuls-list';
 
 const VulnerabilitiesList = () => {
-	const { selected, setSelected } = useVulsList();
+	const { list, selected, setSelected } = useVulsList();
 
 	return (
 		<Container fluid>
@@ -20,7 +20,7 @@ const VulnerabilitiesList = () => {
 				<VulnerabilitiesNavigation selected={ selected } onSelect={ setSelected } />
 			</Col>
 			<Col lg={ 8 }>
-				<List selected={ selected } />
+				<List list={ list } />
 			</Col>
 		</Container>
 	);

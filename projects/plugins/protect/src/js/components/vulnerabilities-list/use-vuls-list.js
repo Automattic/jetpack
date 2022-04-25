@@ -2,23 +2,25 @@
  * External dependencies
  */
 import { useState, useRef } from 'react';
+import { plugins as pluginsIcon, wordpress, color } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import useProtectData from '../../hooks/use-protect-data';
 
-const flatVulsData = data => {
+const flatVulsData = ( data, icon ) => {
 	if ( Array.isArray( data ) ) {
 		return data
 			.map( ( { vulnerabilities, ...plugin } ) =>
-				vulnerabilities.map( vul => ( { ...vul, ...plugin } ) )
+				vulnerabilities.map( vul => ( { ...vul, ...plugin, icon } ) )
 			)
 			.flat();
 	}
 	return data?.vulnerabilities?.map( vul => ( {
 		...vul,
 		...data,
+		icon,
 	} ) );
 };
 
@@ -27,9 +29,9 @@ const useVulsList = () => {
 	const { plugins, themes, core } = useProtectData();
 
 	const { current: data } = useRef( {
-		core: flatVulsData( core ),
-		plugins: flatVulsData( plugins ),
-		themes: flatVulsData( themes ),
+		core: flatVulsData( core, wordpress ),
+		plugins: flatVulsData( plugins, pluginsIcon ),
+		themes: flatVulsData( themes, color ),
 	} );
 
 	const [ list, setList ] = useState( [ ...data.core, ...data.plugins, ...data.themes ] );
