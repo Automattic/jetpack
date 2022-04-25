@@ -1,9 +1,11 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
-import { ProductOffer as ProductOfferComponent } from '@automattic/jetpack-components';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
+import { ProductOffer } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 
 const PROTECT_PRODUCT_MOCK = {
 	slug: 'protect',
@@ -24,38 +26,40 @@ const PROTECT_PRODUCT_MOCK = {
  * Product Detail component.
  * ToDo: rename event handler properties.
  *
- * @param {object} props                    - Component props.
- * @param {Function} props.onClick          - Callback for Call To Action button click
- * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @returns {object}                          ConnectedProductOffer react component.
+ * @param {object} props              - Component props.
+ * @param {Function} props.onAdd      - Callback for Call To Action button click
+ * @returns {object}                    ConnectedProductOffer react component.
  */
-const ConnectedProductOffer = ( { onClick, trackButtonClick, ...rest } ) => {
-	/**
-	 * ToDo: Implement bound function when adding the product.
-	 *
-	 * @returns {boolean} False. Todo: implement.
-	 */
-	const activateProduct = useCallback( () => {
-		return false;
-	}, [] );
+const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
+	const { siteIsRegistering, handleRegisterSite, registrationError } = useConnection( {
+		skipUserConnection: true,
+	} );
 
 	return (
-		<ProductOfferComponent
+		<ProductOffer
 			slug={ PROTECT_PRODUCT_MOCK.slug }
 			title={ PROTECT_PRODUCT_MOCK.title }
 			description={ PROTECT_PRODUCT_MOCK.description }
 			features={ PROTECT_PRODUCT_MOCK.features }
 			pricing={ { isFree: true } }
 			isBundle={ false }
-			onAdd={ activateProduct }
+			onAdd={ handleRegisterSite }
 			buttonText={ __( 'Get started with Jetpack Protect', 'jetpack-protect' ) }
+			icon="jetpack"
+			isLoading={ siteIsRegistering }
+			error={
+				registrationError ? __( 'An error occurred. Please try again.', 'jetpack-protect' ) : null
+			}
 			{ ...rest }
 		/>
 	);
 };
+ConnectedProductOffer.propTypes = {
+	onAdd: PropTypes.func,
+};
 
 ConnectedProductOffer.defaultProps = {
-	trackButtonClick: () => {},
+	onAdd: () => {},
 };
 
 export default ConnectedProductOffer;

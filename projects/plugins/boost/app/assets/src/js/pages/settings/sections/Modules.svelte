@@ -8,7 +8,7 @@
 		pollCloudCssStatus,
 		stopPollingCloudCssStatus,
 	} from '../../../utils/cloud-css';
-	import GenerateCss from '../elements/GenerateCSS.svelte';
+	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
@@ -44,7 +44,7 @@
 		</p>
 
 		<div slot="meta">
-			<GenerateCss />
+			<CriticalCssMeta />
 			<PremiumCTA />
 		</div>
 	</Module>

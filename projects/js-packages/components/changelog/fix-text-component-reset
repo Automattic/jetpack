@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Components: Avoid reset global text components when usin Text

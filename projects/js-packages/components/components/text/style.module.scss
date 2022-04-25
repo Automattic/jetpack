@@ -1,10 +1,7 @@
-// as soon start to use Text,
-// we reset all text elements
-:global {
-	p, h1, h2, h3, h4, h5, h6 {
-		margin: 0;
-		padding: 0;
-	}
+/* Reset all margin and padding for used components */
+.reset {
+	margin: 0;
+	padding: 0;
 }
 
 /* Emerald Typography/Headline Medium */
@@ -96,7 +93,7 @@ $sides: (
 		.#{$p}x-#{$size} {
 			#{$prop}-left: calc( var( --spacing-base ) * #{$size} );
 			#{$prop}-right: calc( var( --spacing-base ) * #{$size} );
-		}	
+		}
 
 		.#{$p}y-#{$size} {
 			#{$prop}-top: calc( var( --spacing-base ) * #{$size} );
