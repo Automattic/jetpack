@@ -22,7 +22,7 @@
 		"test": "js-test-runner jest --passWithNoTests --setupFilesAfterEnv ./jest.setup.js"
 	},
 	"dependencies": {
-		"@automattic/format-currency": "1.0.0",
+		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-api": "workspace:* || ^0.13",
 		"@automattic/jetpack-components": "workspace:* || ^0.11",
