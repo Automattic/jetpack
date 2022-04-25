@@ -12,9 +12,11 @@ import styles from './styles.module.scss';
 
 const Footer = () => {
 	return (
-		<Container horizontalSpacing={ 3 } horizontalGap={ 3 } fluid={ false }>
-			<Col sm={ 4 } md={ 4 } lg={ 6 }>
+		<Container horizontalSpacing={ 3 } horizontalGap={ 0 } fluid={ false }>
+			<Col>
 				<IconsCard products={ [ 'backup', 'scan', 'anti-spam' ] } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 6 }>
 				<Title>{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }</Title>
 				<Text className={ styles.paragraphs }>
 					{ __(
