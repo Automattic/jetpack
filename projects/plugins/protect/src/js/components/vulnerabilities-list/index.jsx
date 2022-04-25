@@ -2,7 +2,8 @@
  * External dependencies
  */
 import React from 'react';
-import { Container, Col } from '@automattic/jetpack-components';
+import { Container, Col, Title } from '@automattic/jetpack-components';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -20,6 +21,20 @@ const VulnerabilitiesList = () => {
 				<VulnerabilitiesNavigation selected={ selected } onSelect={ setSelected } />
 			</Col>
 			<Col lg={ 8 }>
+				<Title>
+					{ selected === 'all'
+						? sprintf(
+								/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
+								__( 'All %s vulnerabilities', 'jetpack-protect' ),
+								list.length
+						  )
+						: sprintf(
+								/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
+								__( '%1$s vulnerabilities in your %2$s', 'jetpack-protect' ),
+								list.length,
+								selected
+						  ) }
+				</Title>
 				<List list={ list } />
 			</Col>
 		</Container>
