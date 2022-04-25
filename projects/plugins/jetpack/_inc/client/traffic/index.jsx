@@ -25,10 +25,10 @@ import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
 import Shortlinks from './shortlinks';
-import { RelatedPosts } from './related-posts';
+import RelatedPosts from './related-posts';
 import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
-import { getLastPostUrl, isAtomicSite } from 'state/initial-state';
+import { isAtomicSite } from 'state/initial-state';
 
 export class Traffic extends React.Component {
 	static displayName = 'TrafficSettings';
@@ -94,19 +94,7 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
-				{ foundRelated && (
-					<RelatedPosts
-						{ ...commonProps }
-						configureUrl={
-							this.props.siteAdminUrl +
-							'customize.php?autofocus[section]=jetpack_relatedposts' +
-							'&return=' +
-							encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
-							'&url=' +
-							encodeURIComponent( this.props.lastPostUrl )
-						}
-					/>
-				) }
+				{ foundRelated && <RelatedPosts { ...commonProps } /> }
 				{ foundSeo && (
 					<SEO
 						{ ...commonProps }
@@ -142,7 +130,6 @@ export default connect( state => {
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isSiteConnected: isSiteConnected( state ),
-		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isAtomicSite: isAtomicSite( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
