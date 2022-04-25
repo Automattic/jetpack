@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Use workspace for imports from js-tools
+Comment: Use workspace for imports from js-tools. Monorepo tooling only, no change to the package.
