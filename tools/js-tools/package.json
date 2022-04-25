@@ -12,7 +12,7 @@
 	"devDependencies": {
 		"@automattic/eslint-changed": "workspace:*",
 		"@automattic/eslint-config-target-es": "workspace:*",
-		"@babel/core": "7.17.8",
+		"@babel/core": "7.17.9",
 		"@babel/eslint-parser": "7.17.0",
 		"@octokit/auth-token": "2.5.0",
 		"@octokit/rest": "18.12.0",
@@ -42,13 +42,13 @@
 		"glob": "7.1.6",
 		"ignore": "5.1.8",
 		"inquirer": "7.3.3",
+		"libsodium-wrappers": "0.7.10",
 		"parse-diff": "0.8.1",
 		"prettier": "npm:wp-prettier@2.2.1-beta-1",
 		"prettier-plugin-svelte": "2.4.0",
 		"semver": "7.3.5",
 		"sort-package-json": "1.50.0",
 		"svelte": "3.42.4",
-		"tweetsodium": "0.0.6",
 		"typescript": "4.3.5",
 		"yaml": "1.10.2"
 	},

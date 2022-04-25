@@ -537,6 +537,16 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 };
 
 /**
+ * Returns the list of products that are available for purchase in the initial state.
+ *
+ * @param {object} state - Global state tree
+ * @returns {Array} - Array of Products that you can purchase.
+ */
+export function getStaticProductsForPurchase( state ) {
+	return get( state.jetpack.initialState, 'products', {} );
+}
+
+/**
  * Returns the list of products that are available for purchase.
  *
  * @param state

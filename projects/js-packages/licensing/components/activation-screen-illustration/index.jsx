@@ -30,7 +30,7 @@ const ActivationScreenIllustration = props => {
 			{ showSupportLink && (
 				<p className="jp-license-activation-screen-illustration--support-link">
 					{ createInterpolateElement( __( 'Do you need help? <a>Contact us.</a>', 'jetpack' ), {
-						a: <a href={ getRedirectUrl( 'jetpack-support' ) } />,
+						a: <a href={ getRedirectUrl( 'jetpack-support-license-activation' ) } />,
 					} ) }
 				</p>
 			) }

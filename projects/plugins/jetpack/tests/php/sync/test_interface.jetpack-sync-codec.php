@@ -7,7 +7,7 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
  */
 class WP_Test_Jetpack_Sync_Codec_Interface extends TestCase {
 
-	static $all_codecs;
+	public static $all_codecs;
 
 	/**
 	 * @dataProvider codec_provider
@@ -51,7 +51,7 @@ class WP_Test_Jetpack_Sync_Codec_Interface extends TestCase {
 				'bar' => 2,
 				'baz' => array( 'a', 'b', 'c' ),
 			),
-			'b' => array()
+			'b' => array(),
 		);
 
 		// add a circular reference

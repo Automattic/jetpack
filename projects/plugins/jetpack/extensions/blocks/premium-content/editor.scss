@@ -1,4 +1,4 @@
-@import '../../shared/styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-premium-content-container .premium-content-tabs {
 	align-items: center;
@@ -34,44 +34,6 @@
 	margin: 0;
 }
 
-.premium-content-block-nudge .editor-warning {
-	margin-bottom: 0;
-}
-
-.premium-content-block-nudge .editor-warning__message {
-	margin: 13px 0;
-}
-
-.premium-content-block-nudge .editor-warning__actions {
-	line-height: 1;
-}
-
-.premium-content-block-nudge .premium-content-block-nudge__info {
-	font-size: $default-font-size;
-	display: flex;
-	flex-direction: row;
-	line-height: 1.4;
-}
-
-.premium-content-block-nudge .premium-content-block-nudge__text-container {
-	display: flex;
-	flex-direction: column;
-	padding-left: 10px;
-}
-
-.premium-content-block-nudge .premium-content-block-nudge__title {
-	font-size: 14px;
-}
-
-.premium-content-block-nudge__message {
-	color: var( --color-text-subtle );
-}
-
-.editor-styles-wrapper a.premium-content-block-nudge__button {
-	color: #0075af;
-	text-decoration: none;
-}
-
 .membership-button__disclaimer {
 	color: var( --color-gray-200 );
 	flex-basis: 100%;
@@ -100,7 +62,7 @@
 
 /* Hide Stripe nudge from Jetpack payments block */
 /* https://github.com/Automattic/wp-calypso/issues/44332 */
-.wp-block-premium-content-container .jetpack-block-nudge {
+.wp-block-premium-content-container .premium-content-wrapper .jetpack-block-nudge {
 	display: none;
 }
 

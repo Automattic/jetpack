@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Make remove_connection a proxy method to ensure all trackings are triggered

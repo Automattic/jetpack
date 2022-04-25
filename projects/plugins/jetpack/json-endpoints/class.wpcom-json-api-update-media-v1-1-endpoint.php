@@ -20,16 +20,17 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint(
 		),
 
 		'request_format'       => array(
-			'parent_id'      => '(int) ID of the post this media is attached to',
-			'title'          => '(string) The file name.',
-			'caption'        => '(string) File caption.',
-			'description'    => '(HTML) Description of the file.',
-			'alt'            => '(string) Alternative text for image files.',
-			'rating'         => '(string) Video only. Video rating.',
-			'display_embed'  => '(string) Video only. Whether to share or not the video.',
-			'allow_download' => '(string) Video only. Whether the video can be downloaded or not.',
-			'artist'         => '(string) Audio Only. Artist metadata for the audio track.',
-			'album'          => '(string) Audio Only. Album metadata for the audio track.',
+			'parent_id'       => '(int) ID of the post this media is attached to',
+			'title'           => '(string) The file name.',
+			'caption'         => '(string) File caption.',
+			'description'     => '(HTML) Description of the file.',
+			'alt'             => '(string) Alternative text for image files.',
+			'rating'          => '(string) Video only. Video rating.',
+			'display_embed'   => '(string) Video only. Whether to share or not the video.',
+			'allow_download'  => '(string) Video only. Whether the video can be downloaded or not.',
+			'privacy_setting' => '(int) Video only. The privacy level for the video.',
+			'artist'          => '(string) Audio Only. Artist metadata for the audio track.',
+			'album'           => '(string) Audio Only. Album metadata for the audio track.',
 		),
 
 		'response_format'      => array(
@@ -54,6 +55,7 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint(
 			'rating'                     => '(string) (Video only) VideoPress rating of the video',
 			'display_embed'              => '(string) Video only. Whether to share or not the video.',
 			'allow_download'             => '(string) Video only. Whether the video can be downloaded or not.',
+			'privacy_setting'            => '(int) Video only. The privacy level for the video.',
 			'videopress_guid'            => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 			'videopress_processing_done' => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.',
 		),
@@ -186,12 +188,13 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		return \Videopress_Attachment_Metadata::persist_metadata(
 			$media_id,
 			$item->videopress_guid,
-			$input['title'],
-			$input['caption'],
-			$input['description'],
-			$input['rating'],
-			$input['display_embed'],
-			$input['allow_download']
+			isset( $input['title'] ) ? $input['title'] : null,
+			isset( $input['caption'] ) ? $input['caption'] : null,
+			isset( $input['description'] ) ? $input['description'] : null,
+			isset( $input['rating'] ) ? $input['rating'] : null,
+			isset( $input['display_embed'] ) ? $input['display_embed'] : null,
+			isset( $input['allow_download'] ) ? $input['allow_download'] : null,
+			isset( $input['privacy_setting'] ) ? $input['privacy_setting'] : null
 		);
 	}
 }

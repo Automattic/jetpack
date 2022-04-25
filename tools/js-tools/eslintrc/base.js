@@ -1,10 +1,10 @@
 // eslint config for normal projects. If for some reason you can't just inherit from .eslintrc.js, extend this instead of .eslintrc.js, probably like this:
 //
 // ```
-// const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+// const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 // module.exports = {
 // 	root: true,
-// 	extends: [ '../../../tools/js-tools/eslintrc/base.js' ],
+// 	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/base' ) ],
 // 	ignorePatterns: loadIgnorePatterns( __dirname ),
 // 	parserOptions: {
 // 		babelOptions: {
@@ -26,7 +26,7 @@ require( '@rushstack/eslint-patch/modern-module-resolution' );
  * @type {import("eslint").Linter.Config}
  */
 module.exports = {
-	parser: '@babel/eslint-parser',
+	parser: '@typescript-eslint/parser',
 	extends: [
 		'wpcalypso',
 		'plugin:@wordpress/eslint-plugin/i18n',
@@ -48,12 +48,8 @@ module.exports = {
 		},
 		requireConfigFile: false,
 	},
-	settings: {
-		jsdoc: {
-			mode: 'typescript',
-		},
-	},
-	plugins: [ 'prettier', 'jsx-a11y', 'lodash', 'jsdoc' ],
+	settings: {},
+	plugins: [ 'prettier', 'jsx-a11y', 'lodash', 'jsdoc', '@typescript-eslint' ],
 	rules: {
 		// REST API objects include underscores
 		camelcase: 0,
@@ -183,5 +179,7 @@ module.exports = {
 
 		// Disabled pending #16099.
 		'inclusive-language/use-inclusive-words': 0,
+		// Misc
+		'no-use-before-define': 'off',
 	},
 };
