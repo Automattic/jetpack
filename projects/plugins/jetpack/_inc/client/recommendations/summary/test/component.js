@@ -15,16 +15,22 @@ import { render, screen, within } from 'test/test-utils';
 
 describe( 'Recommendations – Summary', () => {
 	let updateRecommendationsStepStub;
+	let addViewedRecommendationStub;
 
 	before( function () {
 		const DUMMY_ACTION = { type: 'dummy' };
 		updateRecommendationsStepStub = sinon
 			.stub( recommendationsActions, 'updateRecommendationsStep' )
 			.returns( DUMMY_ACTION );
+
+		addViewedRecommendationStub = sinon
+			.stub( recommendationsActions, 'addViewedRecommendation' )
+			.returns( DUMMY_ACTION );
 	} );
 
 	after( function () {
 		updateRecommendationsStepStub.restore();
+		addViewedRecommendationStub.restore();
 	} );
 
 	describe( 'Loading cards when fetching data', () => {

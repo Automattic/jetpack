@@ -19,10 +19,13 @@ import { MobileApp } from '../sidebar/mobile-app';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
 import { getSiteTitle } from 'state/initial-state';
 import {
+	addViewedRecommendation as addViewedRecommendationAction,
 	getSidebarCardSlug,
+	getStep,
 	getSummaryFeatureSlugs,
 	getSummaryResourceSlugs,
 	getUpsell,
+	isUpdatingRecommendationsStep,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
@@ -43,13 +46,20 @@ const SummaryComponent = props => {
 		summaryFeatureSlugs,
 		summaryResourceSlugs,
 		updateRecommendationsStep,
+		addViewedRecommendation,
 		upsell,
 		newRecommendations,
+		stateStepSlug,
+		updatingStep,
 	} = props;
 
 	useEffect( () => {
-		updateRecommendationsStep( 'summary' );
-	}, [ updateRecommendationsStep ] );
+		if ( 'summary' !== stateStepSlug ) {
+			updateRecommendationsStep( 'summary' );
+		} else if ( 'summary' === stateStepSlug && ! updatingStep ) {
+			addViewedRecommendation( 'summary' );
+		}
+	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
 
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
@@ -175,11 +185,14 @@ const Summary = connect(
 			siteTitle: getSiteTitle( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
+			stateStepSlug: getStep( state ),
+			updatingStep: isUpdatingRecommendationsStep( state ),
 			upsell,
 		};
 	},
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 	} )
 )( SummaryComponent );
 

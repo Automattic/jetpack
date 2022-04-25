@@ -31,7 +31,7 @@ const PROTECT_PRODUCT_MOCK = {
  * @returns {object}                    ConnectedProductOffer react component.
  */
 const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
-	const { siteIsRegistering, handleRegisterSite } = useConnection( {
+	const { siteIsRegistering, handleRegisterSite, registrationError } = useConnection( {
 		skipUserConnection: true,
 	} );
 
@@ -47,6 +47,9 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 			buttonText={ __( 'Get started with Jetpack Protect', 'jetpack-protect' ) }
 			icon="jetpack"
 			isLoading={ siteIsRegistering }
+			error={
+				registrationError ? __( 'An error occurred. Please try again.', 'jetpack-protect' ) : null
+			}
 			{ ...rest }
 		/>
 	);
