@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { plugins as pluginsIcon, wordpress, color } from '@wordpress/icons';
 
 /**
@@ -9,14 +9,11 @@ import { plugins as pluginsIcon, wordpress, color } from '@wordpress/icons';
  */
 import useProtectData from '../../hooks/use-protect-data';
 
-const flatVulsData = ( data, icon ) => {
+const flatData = ( data, icon ) => {
 	if ( Array.isArray( data ) ) {
-		return data
-			.map( ( { vulnerabilities, ...plugin } ) =>
-				vulnerabilities.map( vul => ( { ...vul, ...plugin, icon } ) )
-			)
-			.flat();
+		return data.map( plugin => flatData( plugin, icon ) ).flat();
 	}
+
 	return data?.vulnerabilities?.map( vul => ( {
 		...vul,
 		...data,
@@ -24,46 +21,56 @@ const flatVulsData = ( data, icon ) => {
 	} ) );
 };
 
+const mergeAllVuls = ( { core, plugins, themes } ) => [
+	...flatData( core, wordpress ),
+	...flatData( plugins, pluginsIcon ),
+	...flatData( themes, color ),
+];
+
 const useVulsList = () => {
-	const [ selected, setSelected ] = useState( 'all' );
 	const { plugins, themes, core } = useProtectData();
-
-	const { current: data } = useRef( {
-		core: flatVulsData( core, wordpress ),
-		plugins: flatVulsData( plugins, pluginsIcon ),
-		themes: flatVulsData( themes, color ),
-	} );
-
-	const [ list, setList ] = useState( [ ...data.core, ...data.plugins, ...data.themes ] );
+	const [ selected, setSelected ] = useState( 'all' );
+	const [ item, setItem ] = useState( {} );
+	const [ list, setList ] = useState( mergeAllVuls( { core, plugins, themes } ) );
 
 	const handleSelected = id => {
 		setSelected( id );
 
-		if ( id !== selected ) {
-			const fromPlugins = data.plugins.filter( vul => vul?.name === id );
-			const fromThemes = data.themes.filter( vul => vul?.name === id );
+		if ( id === selected ) {
+			return;
+		}
 
-			switch ( id ) {
-				case 'all':
-					setList( [ ...data.core, ...data.plugins, ...data.themes ] );
-					break;
-				case 'wordpress':
-					setList( data.core );
-					break;
-				default:
-					if ( fromPlugins.length ) {
-						setList( fromPlugins );
-						break;
-					}
-					if ( fromThemes.length ) {
-						setList( fromThemes );
-						break;
-					}
-			}
+		if ( id === 'all' ) {
+			setList( mergeAllVuls( { core, plugins, themes } ) );
+			setItem( {} );
+			return;
+		}
+
+		if ( id === 'wordpress' ) {
+			setList( flatData( core, wordpress ) );
+			setItem( core );
+			return;
+		}
+
+		const pluginsItem = plugins.find( vul => vul?.name === id );
+
+		if ( pluginsItem ) {
+			setList( flatData( pluginsItem, pluginsIcon ) );
+			setItem( pluginsItem );
+			return;
+		}
+
+		const themesItem = themes.find( vul => vul?.name === id );
+
+		if ( themesItem ) {
+			setList( flatData( themesItem, color ) );
+			setItem( themesItem );
+			return;
 		}
 	};
 
 	return {
+		item,
 		list,
 		selected,
 		setSelected: handleSelected,

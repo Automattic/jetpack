@@ -13,7 +13,7 @@ import List from './list';
 import useVulsList from './use-vuls-list';
 
 const VulnerabilitiesList = () => {
-	const { list, selected, setSelected } = useVulsList();
+	const { item, list, selected, setSelected } = useVulsList();
 
 	return (
 		<Container fluid>
@@ -30,9 +30,10 @@ const VulnerabilitiesList = () => {
 						  )
 						: sprintf(
 								/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
-								__( '%1$s vulnerabilities in your %2$s', 'jetpack-protect' ),
+								__( '%1$s vulnerabilities in your %2$s %3$s', 'jetpack-protect' ),
 								list.length,
-								selected
+								item?.name,
+								item?.version
 						  ) }
 				</Title>
 				<List list={ list } />

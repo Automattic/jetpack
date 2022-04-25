@@ -38,7 +38,7 @@ const List = ( { list } ) => {
 			{ list.map( ( { id, name, title, version, fixedIn, icon } ) => (
 				<VulAccordionItem
 					key={ id }
-					id={ `${ id }-${ title }` }
+					id={ id }
 					name={ name }
 					version={ version }
 					title={ title }
