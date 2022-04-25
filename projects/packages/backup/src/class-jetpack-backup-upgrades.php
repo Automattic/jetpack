@@ -5,6 +5,8 @@
  * @package automattic/jetpack-backup-plugin
  */
 
+namespace Automattic\Jetpack\Backup;
+
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
@@ -17,7 +19,7 @@ class Jetpack_Backup_Upgrades {
 	 */
 	public static function upgrade() {
 
-		$upgrades = get_class_methods( 'Jetpack_Backup_Upgrades' );
+		$upgrades = get_class_methods( __CLASS__ );
 
 		foreach ( $upgrades as $upgrade ) {
 			$option_name = '_upgrade_' . $upgrade;
@@ -27,7 +29,7 @@ class Jetpack_Backup_Upgrades {
 
 			update_option( $option_name, 1 );
 
-			call_user_func( array( 'Jetpack_Backup_Upgrades', $upgrade ) );
+			call_user_func( array( __CLASS__, $upgrade ) );
 
 		}
 

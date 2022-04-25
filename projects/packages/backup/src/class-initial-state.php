@@ -5,6 +5,8 @@
  * @package automattic/jetpack-backup-plugin
  */
 
+namespace Automattic\Jetpack\Backup;
+
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Status;
 
@@ -33,7 +35,7 @@ class Initial_State {
 				'title' => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
 			),
 			'assets'           => array(
-				'buildUrl' => plugins_url( 'build/', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
+				'buildUrl' => plugins_url( '../build/', __FILE__ ),
 			),
 		);
 	}

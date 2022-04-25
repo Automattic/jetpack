@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Backup\Initial_State as Backup_Initial_State;
+use Automattic\Jetpack\Backup\Jetpack_Backup_Upgrades;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -23,23 +25,62 @@ use Automattic\Jetpack\Status;
 class Jetpack_Backup {
 
 	/**
+	 * Slug.
+	 *
+	 * @var string
+	 */
+	const JETPACK_BACKUP_SLUG = 'jetpack-backup';
+
+	/**
+	 * Backup name.
+	 *
+	 * @var string
+	 */
+	const JETPACK_BACKUP_NAME = 'Jetpack Backup';
+
+	/**
+	 * Backup URL.
+	 *
+	 * @var string
+	 */
+	const JETPACK_BACKUP_URI = 'https://jetpack.com/jetpack-backup';
+
+	/**
+	 * Promoted product.
+	 *
+	 * @var string
+	 */
+	const JETPACK_BACKUP_PROMOTED_PRODUCT = 'jetpack_backup_t1_yearly';
+
+	/**
+	 * Jetpack Backup DB version.
+	 *
+	 * @var string
+	 */
+	const JETPACK_BACKUP_DB_VERSION = '2';
+
+	/**
 	 * Constructor.
 	 */
-	public function __construct() {
+	public static function initialize() {
+		if ( did_action( 'jetpack_backup_initialized' ) ) {
+			return;
+		}
+
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
-		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Backup', 'jetpack-backup' ),
-			_x( 'Backup', 'The Jetpack Backup product name, without the Jetpack prefix', 'jetpack-backup' ),
+			__( 'Jetpack Backup', 'jetpack-backup-pkg' ),
+			_x( 'Backup', 'The Jetpack Backup product name, without the Jetpack prefix', 'jetpack-backup-pkg' ),
 			'manage_options',
 			'jetpack-backup',
-			array( $this, 'plugin_settings_page' ),
+			array( __CLASS__, 'plugin_settings_page' ),
 			99
 		);
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
@@ -50,9 +91,9 @@ class Jetpack_Backup {
 				$config->ensure(
 					'connection',
 					array(
-						'slug'     => JETPACK_BACKUP_PLUGIN_SLUG,
-						'name'     => JETPACK_BACKUP_PLUGIN_NAME,
-						'url_info' => JETPACK_BACKUP_PLUGIN_URI,
+						'slug'     => self::JETPACK_BACKUP_SLUG,
+						'name'     => self::JETPACK_BACKUP_NAME,
+						'url_info' => self::JETPACK_BACKUP_URI,
 					)
 				);
 				// Sync package.
@@ -64,36 +105,32 @@ class Jetpack_Backup {
 			1
 		);
 
-		// Add "Settings" link to plugins page.
-		add_filter(
-			'plugin_action_links_' . JETPACK_BACKUP_PLUGIN_FOLDER . '/jetpack-backup.php',
-			function ( $actions ) {
-				$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) . '">' . __( 'Settings', 'jetpack-backup' ) . '</a>';
-				array_unshift( $actions, $settings_link );
-
-				return $actions;
-			}
-		);
-
-		add_action( 'plugins_loaded', array( $this, 'maybe_upgrade_db' ), 20 );
+		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
 
 		My_Jetpack_Initializer::init();
+
+		/**
+		 * Runs right after the Jetpack Backup package is initialized.
+		 *
+		 * @since $$next-version$$
+		 */
+		do_action( 'jetpack_backup_initialized' );
 	}
 
 	/**
 	 * Initialize the admin resources.
 	 */
-	public function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+	public static function admin_init() {
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
 	 * Checks current version against version in code and run upgrades if we are running a new version
 	 */
-	public function maybe_upgrade_db() {
+	public static function maybe_upgrade_db() {
 		$current_db_version = get_option( 'jetpack_backup_db_version' );
-		if ( version_compare( $current_db_version, JETPACK_BACKUP_DB_VERSION, '<' ) ) {
-			update_option( 'jetpack_backup_db_version', JETPACK_BACKUP_DB_VERSION );
+		if ( version_compare( $current_db_version, self::JETPACK_BACKUP_DB_VERSION, '<' ) ) {
+			update_option( 'jetpack_backup_db_version', self::JETPACK_BACKUP_DB_VERSION );
 			Jetpack_Backup_Upgrades::upgrade();
 		}
 	}
@@ -101,22 +138,22 @@ class Jetpack_Backup {
 	/**
 	 * Enqueue plugin admin scripts and styles.
 	 */
-	public function enqueue_admin_scripts() {
+	public static function enqueue_admin_scripts() {
 		$status  = new Status();
 		$manager = new Connection_Manager( 'jetpack-backup' );
 
 		Assets::register_script(
 			'jetpack-backup',
-			'build/index.js',
-			JETPACK_BACKUP_PLUGIN_ROOT_FILE,
+			'../build/index.js',
+			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-backup',
+				'textdomain' => 'jetpack-backup-pkg',
 			)
 		);
 		Assets::enqueue_script( 'jetpack-backup' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-backup', $this->get_initial_state(), 'before' );
+		wp_add_inline_script( 'jetpack-backup', self::get_initial_state(), 'before' );
 		wp_add_inline_script( 'jetpack-backup', Connection_Initial_State::render(), 'before' );
 
 		// Load script for analytics.
@@ -128,7 +165,7 @@ class Jetpack_Backup {
 	/**
 	 * Main plugin settings page.
 	 */
-	public function plugin_settings_page() {
+	public static function plugin_settings_page() {
 		?>
 			<div id="jetpack-backup-root"></div>
 		<?php
@@ -139,15 +176,14 @@ class Jetpack_Backup {
 	 *
 	 * @return string
 	 */
-	private function get_initial_state() {
-		require_once JETPACK_BACKUP_PLUGIN_DIR . '/src//php/class-initial-state.php';
-		return ( new Initial_State() )->render();
+	private static function get_initial_state() {
+		return ( new Backup_Initial_State() )->render();
 	}
 
 	/**
 	 * Register REST API
 	 */
-	public function register_rest_routes() {
+	public static function register_rest_routes() {
 
 		// Get information on most recent 10 backups.
 		register_rest_route(
@@ -278,32 +314,17 @@ class Jetpack_Backup {
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 === $response_code ) {
 			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-			return $products->{JETPACK_BACKUP_PROMOTED_PRODUCT};
+			return $products->{self::JETPACK_BACKUP_PROMOTED_PRODUCT};
 		} else {
 			// Something went wrong so we'll just return the response without caching.
 			return new WP_Error(
 				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup' ),
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack-backup-pkg' ),
 				array(
 					'status'  => $response_code,
 					'request' => $wpcom_request,
 				)
 			);
-		}
-	}
-
-	/**
-	 * Redirects to plugin page when the plugin is activated
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @param string $plugin Path to the plugin file relative to the plugins directory.
-	 */
-	public static function plugin_activation( $plugin ) {
-		if ( JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
-			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) );
-			exit;
 		}
 	}
 
@@ -350,7 +371,7 @@ class Jetpack_Backup {
 		return rest_ensure_response(
 			array(
 				'code'    => 'success',
-				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack-backup' ),
+				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack-backup-pkg' ),
 				'data'    => wp_remote_retrieve_body( $response ),
 			)
 		);

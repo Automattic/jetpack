@@ -125,7 +125,7 @@ const Backups = () => {
 								<p>
 									{ sprintf(
 										/* translators: placeholder is the Site Title */
-										__( 'Backing up %s', 'jetpack-backup' ),
+										__( 'Backing up %s', 'jetpack-backup-pkg' ),
 										siteTitle
 									) }
 								</p>
@@ -139,18 +139,18 @@ const Backups = () => {
 							</div>
 						</div>
 					) }
-					<h1>{ __( 'Your first cloud backup will be ready soon', 'jetpack-backup' ) }</h1>
+					<h1>{ __( 'Your first cloud backup will be ready soon', 'jetpack-backup-pkg' ) }</h1>
 					<p>
 						{ __(
 							'The first backup usually takes a few minutes, so it will become available soon.',
-							'jetpack-backup'
+							'jetpack-backup-pkg'
 						) }
 					</p>
 					<p>
 						{ createInterpolateElement(
 							__(
 								'In the meanwhile, you can start getting familiar with your <a>backup management on Jetpack.com</a>.',
-								'jetpack-backup'
+								'jetpack-backup-pkg'
 							),
 							{
 								a: (
@@ -175,7 +175,7 @@ const Backups = () => {
 	};
 
 	const formatDateString = dateString => {
-		const todayString = __( 'Today', 'jetpack-backup' );
+		const todayString = __( 'Today', 'jetpack-backup-pkg' );
 		const todayDate = getDate();
 		let backupDate = todayString;
 		if ( dateI18n( 'zY', todayDate ) !== dateI18n( 'zY', dateString ) ) {
@@ -192,7 +192,7 @@ const Backups = () => {
 				<div className="lg-col-span-3 md-col-span-4 sm-col-span-4">
 					<div className="backup__latest">
 						<img src={ CloudIcon } alt="" />
-						<h2>{ __( 'Latest Backup', 'jetpack-backup' ) }</h2>
+						<h2>{ __( 'Latest Backup', 'jetpack-backup-pkg' ) }</h2>
 					</div>
 					<h1>{ formatDateString( latestTime ) }</h1>
 					<a
@@ -201,35 +201,35 @@ const Backups = () => {
 						target="_blank"
 						rel="noreferrer"
 					>
-						{ __( 'See all your backups', 'jetpack-backup' ) }
+						{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
 					</a>
 				</div>
 				<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
 						icon={ PostsIcon }
-						label={ __( 'Posts', 'jetpack-backup' ) }
+						label={ __( 'Posts', 'jetpack-backup-pkg' ) }
 						value={ stats.posts }
 					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
 						icon={ UploadsIcon }
-						label={ __( 'Uploads', 'jetpack-backup' ) }
+						label={ __( 'Uploads', 'jetpack-backup-pkg' ) }
 						value={ stats.uploads }
 					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
 						icon={ PluginsIcon }
-						label={ __( 'Plugins', 'jetpack-backup' ) }
+						label={ __( 'Plugins', 'jetpack-backup-pkg' ) }
 						value={ stats.plugins }
 					/>
 				</div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
 						icon={ ThemesIcon }
-						label={ __( 'Themes', 'jetpack-backup' ) }
+						label={ __( 'Themes', 'jetpack-backup-pkg' ) }
 						value={ stats.themes }
 					/>
 				</div>
@@ -242,12 +242,12 @@ const Backups = () => {
 			<div className="jp-row">
 				<div className="lg-col-span-5 md-col-span-4 sm-col-span-4">
 					<img src={ CloudAlertIcon } alt="" />
-					<h1>{ __( "We're having trouble backing up your site", 'jetpack-backup' ) }</h1>
+					<h1>{ __( "We're having trouble backing up your site", 'jetpack-backup-pkg' ) }</h1>
 					<p>
 						{ createInterpolateElement(
 							__(
 								' <a>Get in touch with us</a> to get your site backups going again.',
-								'jetpack-backup'
+								'jetpack-backup-pkg'
 							),
 							{
 								a: (

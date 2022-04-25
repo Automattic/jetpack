@@ -1,14 +1,14 @@
 {
 	"private": true,
 	"description": "Easily restore or download a backup of your site from a specific moment in time.",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/backup/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Backup"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Backup"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/plugins/backup"
+		"directory": "projects/packages/backup"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
