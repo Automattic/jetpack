@@ -15,12 +15,12 @@ import {
  * Returns a URL where the current site's plan can be viewed from.
  * [Relative to current domain for JP sites]
  *
- * @returns {string|null} A URL where the current site plan is viewable - null if not retrievable.
+ * @return {string|null} A URL where the current site plan is viewable - null if not retrievable.
  */
 function getPlanUrl() {
 	const siteFragment = getSiteFragment();
 
-	if ( 'undefined' !== typeof window && window.location && siteFragment ) {
+	if ( undefined !== typeof window && window.location && siteFragment ) {
 		if ( isSimpleSite() || isAtomicSite() ) {
 			return `https://wordpress.com/plans/my-plan/${ siteFragment }`;
 		}
@@ -41,7 +41,7 @@ function getPlanUrl() {
  * after redirection from WPCOM.
  */
 ( async () => {
-	if ( 'undefined' !== typeof window && window.location ) {
+	if ( undefined !== typeof window && window.location ) {
 		const queryParams = new URLSearchParams( window.location.search );
 
 		if ( queryParams.get( 'plan_upgraded' ) ) {
