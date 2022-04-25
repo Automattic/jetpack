@@ -25,26 +25,36 @@ use Automattic\Jetpack\Status;
 class Jetpack_Backup {
 
 	/**
+	 * Slug.
+	 *
 	 * @var string
 	 */
 	const JETPACK_BACKUP_SLUG = 'jetpack-backup';
 
 	/**
+	 * Backup name.
+	 *
 	 * @var string
 	 */
 	const JETPACK_BACKUP_NAME = 'Jetpack Backup';
 
 	/**
+	 * Backup URL.
+	 *
 	 * @var string
 	 */
 	const JETPACK_BACKUP_URI = 'https://jetpack.com/jetpack-backup';
 
 	/**
+	 * Promoted product.
+	 *
 	 * @var string
 	 */
 	const JETPACK_BACKUP_PROMOTED_PRODUCT = 'jetpack_backup_t1_yearly';
 
 	/**
+	 * Jetpack Backup DB version.
+	 *
 	 * @var string
 	 */
 	const JETPACK_BACKUP_DB_VERSION = '2';

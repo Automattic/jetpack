@@ -150,7 +150,7 @@ function jetpack_backup_plugin_activation( $plugin ) {
 add_filter(
 	'plugin_action_links_' . JETPACK_BACKUP_PLUGIN_FOLDER . '/jetpack-backup.php',
 	function ( $actions ) {
-		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) . '">' . __( 'Settings', 'jetpack-backup-pkg' ) . '</a>';
+		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) . '">' . __( 'Settings', 'jetpack-backup' ) . '</a>';
 		array_unshift( $actions, $settings_link );
 
 		return $actions;
