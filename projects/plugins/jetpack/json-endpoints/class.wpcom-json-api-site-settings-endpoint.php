@@ -373,7 +373,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_relatedposts_enabled'     => (bool) $jetpack_relatedposts_options['enabled'],
 						'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options['show_headline'] ) ? $jetpack_relatedposts_options['show_headline'] : false,
 						'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options['show_thumbnails'] ) ? $jetpack_relatedposts_options['show_thumbnails'] : false,
-						'jetpack_relatedposts_append_to_posts' => (bool) isset( $jetpack_relatedposts_options['append_to_posts'] ) ? $jetpack_relatedposts_options['append_to_posts'] : true,
+						'jetpack_relatedposts_append_to_posts' => (bool) isset( $jetpack_relatedposts_options['append_to_posts'] ) ? $jetpack_relatedposts_options['append_to_posts'] : false,
 						'jetpack_search_enabled'           => (bool) $jetpack_search_active,
 						'jetpack_search_supported'         => (bool) $jetpack_search_supported,
 						'default_category'                 => (int) get_option( 'default_category' ),

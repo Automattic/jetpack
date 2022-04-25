@@ -476,7 +476,23 @@ class Jetpack {
 
 				// check which active modules actually exist and remove others from active_modules list.
 				$unfiltered_modules = self::get_active_modules();
-				$modules            = array_filter( $unfiltered_modules, array( 'Jetpack', 'is_module' ) );
+
+				/*
+				 * Update to Jetpack 11.0
+				 * (Related Posts default behavior change).
+				 *
+				 * If the module is already active, enable new option
+				 * so related posts keep getting appended to posts.
+				 */
+				if ( in_array( 'related-posts', $unfiltered_modules, true ) ) {
+					$relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
+					if ( empty( $relatedposts_options['append_to_posts'] ) ) {
+						$relatedposts_options['append_to_posts'] = 1;
+						Jetpack_Options::update_option( 'relatedposts', $relatedposts_options );
+					}
+				}
+
+				$modules = array_filter( $unfiltered_modules, array( 'Jetpack', 'is_module' ) );
 				if ( array_diff( $unfiltered_modules, $modules ) ) {
 					self::update_active_modules( $modules );
 				}

@@ -549,9 +549,6 @@ EOT;
 			if ( ! is_array( $this->options ) ) {
 				$this->options = array();
 			}
-			if ( ! isset( $this->options['append_to_posts'] ) ) {
-				$this->options['append_to_posts'] = true;
-			}
 			if ( ! isset( $this->options['enabled'] ) ) {
 				$this->options['enabled'] = true;
 			}
