@@ -201,7 +201,7 @@ class Jetpack_RelatedPosts {
 			$this->action_frontend_init_ajax( $excludes );
 		} else {
 			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- checking if fields are set to setup tracking, nothing is changing on the site.
-				$this->previous_post_id = (int) $_GET['relatedposts_origin']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- fetching a previous post ID for tracking, nothing is changing on the site. 
+				$this->previous_post_id = (int) $_GET['relatedposts_origin']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- fetching a previous post ID for tracking, nothing is changing on the site.
 				$this->log_click( $this->previous_post_id, get_the_ID(), sanitize_text_field( wp_unslash( $_GET['relatedposts_position'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- logging the click for tracking, nothing is changing on the site.
 			}
 
@@ -548,6 +548,9 @@ EOT;
 			$this->options = Jetpack_Options::get_option( 'relatedposts', array() );
 			if ( ! is_array( $this->options ) ) {
 				$this->options = array();
+			}
+			if ( ! isset( $this->options['append_to_posts'] ) ) {
+				$this->options['append_to_posts'] = true;
 			}
 			if ( ! isset( $this->options['enabled'] ) ) {
 				$this->options['enabled'] = true;
@@ -1749,7 +1752,8 @@ EOT;
 			&& ! is_attachment()
 			&& ! is_admin()
 			&& ! is_embed()
-			&& ( ! $this->allow_feature_toggle() || $this->get_option( 'enabled' ) );
+			&& ( ! $this->allow_feature_toggle() || $this->get_option( 'enabled' ) )
+			&& $this->get_option( 'append_to_posts' );
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.
