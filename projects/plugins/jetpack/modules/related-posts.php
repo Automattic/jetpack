@@ -6,7 +6,7 @@
  * Sort Order: 29
  * Recommendation Order: 9
  * Requires Connection: Yes
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Engagement
  * // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
