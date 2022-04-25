@@ -74,6 +74,7 @@ class Jetpack_Google_Analytics_Universal {
 		 */
 		$universal_commands = apply_filters( 'jetpack_wga_universal_commands', array() );
 
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Script is added to wp_head.
 		$async_code = "
 			<!-- Jetpack Google Analytics -->
 			<script>
@@ -84,7 +85,7 @@ class Jetpack_Google_Analytics_Universal {
 			</script>
 			<script async src='https://www.google-analytics.com/analytics.js'></script>
 			<!-- End Jetpack Google Analytics -->
-		";
+		"; // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		$async_code = str_replace( '%tracking_id%', $tracking_code, $async_code );
 
 		$universal_commands_string = implode( "\r\n", $universal_commands );
