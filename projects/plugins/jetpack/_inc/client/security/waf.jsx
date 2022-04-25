@@ -33,6 +33,8 @@ import {
 	isFetchingWafSettings,
 } from '../state/waf/reducer';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
+import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 
 export const Waf = class extends Component {
 	/**
@@ -175,23 +177,19 @@ export const Waf = class extends Component {
 				>
 					{ createInterpolateElement(
 						__(
-							'Allow Jetpack to collect data to improve Firewall protection and rules. <a>Learn more</a>',
+							'Allow Jetpack to collect data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink>',
 							'jetpack'
 						),
 						{
-							a: (
-								<a
-									href="https://jetpack.com/support/privacy/"
-									target="_blank"
-									rel="noopener noreferrer"
-								/>
+							ExternalLink: (
+								<ExternalLink href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) } />
 							),
 						}
 					) }
 					<hr />
-					<a href="https://jetpack.com/support/privacy/" target="_blank" rel="noopener noreferrer">
+					<ExternalLink href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }>
 						{ __( 'Privacy information', 'jetpack' ) }
-					</a>
+					</ExternalLink>
 				</InfoPopover>
 			</div>
 		);
