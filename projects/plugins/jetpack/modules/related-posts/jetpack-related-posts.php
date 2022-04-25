@@ -1749,8 +1749,7 @@ EOT;
 			&& ! is_attachment()
 			&& ! is_admin()
 			&& ! is_embed()
-			&& ( ! $this->allow_feature_toggle() || $this->get_option( 'enabled' ) )
-			&& $this->get_option( 'append_to_posts' );
+			&& ( ! $this->allow_feature_toggle() || $this->get_option( 'enabled' ) );
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.
@@ -1800,7 +1799,7 @@ EOT;
 	protected function enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array();
 		// Do not enqueue scripts unless they are required.
-		if ( $script && $this->requires_scripts() ) {
+		if ( $script && $this->requires_scripts() && $this->get_option( 'append_to_posts' ) ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
 				Assets::get_file_url_for_environment(
