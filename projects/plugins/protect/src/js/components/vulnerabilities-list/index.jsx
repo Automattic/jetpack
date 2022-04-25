@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { Container, Col } from '@automattic/jetpack-components';
 
 /**
@@ -9,9 +9,11 @@ import { Container, Col } from '@automattic/jetpack-components';
  */
 import VulnerabilitiesNavigation from './navigation';
 import List from './list';
+import useVulsList from './use-vuls-list';
 
 const VulnerabilitiesList = () => {
-	const [ selected, setSelected ] = useState( 'all' );
+	const { selected, setSelected } = useVulsList();
+
 	return (
 		<Container fluid>
 			<Col lg={ 4 }>
