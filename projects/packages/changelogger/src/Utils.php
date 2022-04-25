@@ -149,6 +149,19 @@ class Utils {
 	}
 
 	/**
+	 * Get a timestamp for a file.
+	 *
+	 * @deprecated since $$next-version$$
+	 * @param string               $file File.
+	 * @param OutputInterface      $output OutputInterface to write debug output to.
+	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
+	 * @return string|null
+	 */
+	public static function getTimestamp( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
+		return self::getRepoData( $file, $output, $formatter )['timestamp'];
+	}
+
+	/**
 	 * Get miscellaneous repo data for a file.
 	 *
 	 * @param string               $file Filepath.
