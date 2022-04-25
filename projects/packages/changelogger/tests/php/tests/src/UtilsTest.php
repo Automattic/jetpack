@@ -363,7 +363,7 @@ class UtilsTest extends TestCase {
 
 		// Create a non-git file in a non-git checkout.
 		touch( 'not-in-git.txt', 1614124800 );
-		$this->assertSame( '2021-02-24T00:00:00Z', Utils::getRepoData( 'not-in-git.txt', $output, $helper )['timestamp'] );
+		$this->assertSame( array( 'timestamp' => '2021-02-24T00:00:00Z', 'pr-num' => null ), Utils::getRepoData( 'not-in-git.txt', $output, $helper ) );
 
 		// Create a file in a git checkout.
 		file_put_contents( 'in-git.txt', '' );
