@@ -133,12 +133,12 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
-		if ( 0 == $order_id ) {
+		if ( 0 === (int) $order_id ) {
 			return $command_array;
 		}
 
 		// A 1 indicates we've already tracked this order - don't do it again
-		if ( 1 == get_post_meta( $order_id, '_ga_tracked', true ) ) {
+		if ( 1 === (int) get_post_meta( $order_id, '_ga_tracked', true ) ) {
 			return $command_array;
 		}
 
