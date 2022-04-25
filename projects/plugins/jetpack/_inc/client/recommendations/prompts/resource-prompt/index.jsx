@@ -17,6 +17,7 @@ import {
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
+	isStepViewed,
 	getProductSlugForStep,
 } from 'state/recommendations';
 import analytics from 'lib/analytics';
@@ -52,6 +53,7 @@ const ResourcePromptComponent = props => {
 		spotlightProduct,
 		updateRecommendationsStep,
 		addViewedRecommendation,
+		summaryViewed,
 	} = props;
 
 	useEffect( () => {
@@ -86,6 +88,12 @@ const ResourcePromptComponent = props => {
 
 	const onResourceSkipClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_resource_skip_click', {
+			feature: stepSlug,
+		} );
+	}, [ stepSlug ] );
+
+	const onBackToSummaryClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommended_resource_back_to_summary_click', {
 			feature: stepSlug,
 		} );
 	}, [ stepSlug ] );
@@ -127,9 +135,19 @@ const ResourcePromptComponent = props => {
 					>
 						{ ctaText }
 					</ExternalLink>
-					<a href={ nextRoute } onClick={ onResourceSkipClick }>
-						{ __( 'Read Later', 'jetpack' ) }
-					</a>
+					<div className="jp-recommendations-question__jump-nav">
+						<a href={ nextRoute } onClick={ onResourceSkipClick }>
+							{ __( 'Read Later', 'jetpack' ) }
+						</a>
+						{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
+							<>
+								<span className="jp-recommendations-question__jump-nav-separator">|</span>
+								<a onClick={ onBackToSummaryClick } href={ '#/recommendations/summary' }>
+									{ __( 'View Summary', 'jetpack' ) }{ ' ' }
+								</a>
+							</>
+						) }
+					</div>
 				</div>
 			}
 			illustrationPath={ ! spotlightProduct ? illustrationPath : null }
@@ -149,6 +167,7 @@ const ResourcePrompt = connect(
 		...getStepContent( ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
+		summaryViewed: isStepViewed( state, 'summary' ),
 		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 	} ),
 	dispatch => ( {

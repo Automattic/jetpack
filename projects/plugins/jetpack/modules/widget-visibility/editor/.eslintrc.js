@@ -1,4 +1,5 @@
-const loadIgnorePatterns = require( '../../../../../../tools/js-tools/load-eslint-ignore.js' );
+// eslint-disable-next-line import/no-extraneous-dependencies
+const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 
 module.exports = {
 	extends: [
