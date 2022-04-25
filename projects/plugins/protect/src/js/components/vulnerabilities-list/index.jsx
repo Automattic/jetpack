@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Container, Col, Text, Button } from '@automattic/jetpack-components';
-import { plugins as pluginsIcon, color } from '@wordpress/icons';
+import { plugins as pluginsIcon } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -12,6 +12,23 @@ import { plugins as pluginsIcon, color } from '@wordpress/icons';
 import Accordion, { AccordionItem } from '../accordion';
 import useProtectData from '../../hooks/use-protect-data';
 import VulnerabilitiesNavigation from './navigation';
+
+const getSelected = ( { core, plugins, themes, selected } ) => {
+	if ( selected === 'wordpress' ) {
+		return core;
+	}
+
+	const fromPlugin = plugins.find( ( { name } ) => name === selected );
+
+	if ( fromPlugin ) {
+		return fromPlugin;
+	}
+
+	const fromThemes = themes.find( ( { name } ) => name === selected );
+	if ( fromThemes ) {
+		return fromThemes;
+	}
+};
 
 const VulAccordionItem = ( { id, name, version, title, icon } ) => {
 	return (
@@ -27,40 +44,42 @@ const VulAccordionItem = ( { id, name, version, title, icon } ) => {
 	);
 };
 
-const AllPluginsVuls = () => {
-	const { plugins } = useProtectData();
-	return plugins
-		.map( ( { name, version, vulnerabilities } ) =>
-			vulnerabilities.map( ( { title, id } ) => (
-				<VulAccordionItem
-					key={ id }
-					id={ `${ id }-${ title }` }
-					name={ name }
-					version={ version }
-					title={ title }
-					icon={ pluginsIcon }
-				/>
-			) )
-		)
-		.flat();
+const AllVuls = () => {
+	const { plugins, themes } = useProtectData();
+	return (
+		<>
+			{ [ ...plugins, ...themes ]
+				.map( ( { name, version, vulnerabilities } ) =>
+					vulnerabilities.map( ( { title, id } ) => (
+						<VulAccordionItem
+							key={ id }
+							id={ `${ id }-${ title }` }
+							name={ name }
+							version={ version }
+							title={ title }
+							icon={ pluginsIcon }
+						/>
+					) )
+				)
+				.flat() }
+		</>
+	);
 };
 
-const AllThemesVuls = () => {
-	const { themes } = useProtectData();
-	return themes
-		.map( ( { name, version, vulnerabilities } ) =>
-			vulnerabilities.map( ( { title, id } ) => (
-				<VulAccordionItem
-					key={ id }
-					id={ id }
-					name={ name }
-					version={ version }
-					title={ title }
-					icon={ color }
-				/>
-			) )
-		)
-		.flat();
+const SelectedVuls = ( { selected } ) => {
+	const { plugins, themes, core } = useProtectData();
+	const selectedItem = getSelected( { core, plugins, themes, selected } );
+	const vuls = selectedItem?.vulnerabilities;
+	return vuls.map( ( { title, id } ) => (
+		<VulAccordionItem
+			key={ id }
+			id={ `${ id }-${ title }` }
+			name={ selectedItem?.name }
+			version={ selectedItem?.version }
+			title={ title }
+			icon={ pluginsIcon }
+		/>
+	) );
 };
 
 const VulnerabilitiesList = () => {
@@ -72,12 +91,7 @@ const VulnerabilitiesList = () => {
 			</Col>
 			<Col lg={ 8 }>
 				<Accordion>
-					{ selected === 'all' && (
-						<>
-							<AllPluginsVuls />
-							<AllThemesVuls />
-						</>
-					) }
+					{ selected === 'all' ? <AllVuls /> : <SelectedVuls selected={ selected } /> }
 				</Accordion>
 			</Col>
 		</Container>
