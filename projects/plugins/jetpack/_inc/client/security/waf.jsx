@@ -127,7 +127,11 @@ export const Waf = class extends Component {
 									] )
 								}
 								name="jetpack_waf_ip_block_list"
-								placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
+								placeholder={ sprintf(
+									/* translators: Placeholder is a list of example IP addresses. */
+									__( 'Example: %s', 'jetpack' ),
+									'\n12.12.12.1\n12.12.12.2'
+								) }
 								value={ this.state.jetpack_waf_ip_block_list }
 								onChange={ this.handleIpListChange }
 							/>
@@ -177,19 +181,16 @@ export const Waf = class extends Component {
 				>
 					{ createInterpolateElement(
 						__(
-							'Allow Jetpack to collect data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink>',
+							'Allow Jetpack to collect data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
 							'jetpack'
 						),
 						{
 							ExternalLink: (
 								<ExternalLink href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) } />
 							),
+							hr: <hr />,
 						}
 					) }
-					<hr />
-					<ExternalLink href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }>
-						{ __( 'Privacy information', 'jetpack' ) }
-					</ExternalLink>
 				</InfoPopover>
 			</div>
 		);
