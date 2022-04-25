@@ -313,7 +313,7 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		if ( isset( $_GET['s'] ) ) {
+		if ( isset( $_GET['s'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No site actions, just GA options being set.
 			$list = 'Search Results';
 		} else {
 			$list = 'Product List';
@@ -344,7 +344,7 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		if ( isset( $_GET['s'] ) ) {
+		if ( isset( $_GET['s'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No site actions, just GA options being set.
 			$list = 'Search Results';
 		} else {
 			$list = 'Product List';
