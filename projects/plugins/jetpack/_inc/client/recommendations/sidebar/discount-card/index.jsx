@@ -92,9 +92,8 @@ const DiscountCard = ( {
 								href={ '#/recommendations/product-suggestions' }
 								onClick={ onCtaClick }
 							>
-								{ hasDiscount
-									? __( 'View discounted products', 'jetpack' )
-									: __( 'View products', 'jetpack' ) }
+								{ hasDiscount && __( 'View discounted products', 'jetpack' ) }
+								{ ! hasDiscount && __( 'View discounted products', 'jetpack' ) }
 							</Button>
 						) }
 					</div>
