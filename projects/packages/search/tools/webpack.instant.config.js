@@ -43,12 +43,8 @@ module.exports = {
 	optimization: {
 		...jetpackWebpackConfig.optimization,
 		splitChunks: {
-			cacheGroups: {
-				// Disable default cache groups.
-				// Doc: https://webpack.js.org/plugins/split-chunks-plugin/#optimizationsplitchunks
-				default: false,
-				defaultVendors: false,
-			},
+			// Unused keys are prefixed with underscores, as per eslint recommendation.
+			name: ( _module, _chunks, key ) => `jp-search.${ key }`,
 		},
 	},
 	resolve: {
