@@ -74,12 +74,13 @@ const ProductSuggestionsComponent = ( {
 			{ ! isFetchingDiscount && (
 				<footer className="jp-recommendations-product-suggestion__footer">
 					<span>
-						{ hasDiscount
-							? __(
-									'* Discount is for first term only, all renewals are at full price.',
-									'jetpack'
-							  )
-							: __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
+						{ hasDiscount &&
+							__(
+								'* Discount is for first term only, all renewals are at full price.',
+								'jetpack'
+							) }
+						{ ! hasDiscount &&
+							__( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
 					</span>
 					{ hasDiscount && expiryDate && (
 						<div className="jp-recommendations-product-suggestion__timer">

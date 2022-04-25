@@ -69,9 +69,10 @@ const SummaryUpsellComponent = ( { upsell, discountData } ) => {
 			<div className="jp-recommendations-summary__footer">
 				<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
 				<div className="jp-recommendations-summary__footnote">
-					{ hasDiscount
-						? __( '* Discount is for first term only, all renewals are at full price.', 'jetpack' )
-						: __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
+					{ hasDiscount &&
+						__( '* Discount is for first term only, all renewals are at full price.', 'jetpack' ) }
+					{ ! hasDiscount &&
+						__( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
 				</div>
 			</div>
 		</>
