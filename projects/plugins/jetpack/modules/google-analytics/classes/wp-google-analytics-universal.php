@@ -91,7 +91,7 @@ class Jetpack_Google_Analytics_Universal {
 		$universal_commands_string = implode( "\r\n", $universal_commands );
 		$async_code                = str_replace( '%universal_commands%', $universal_commands_string, $async_code );
 
-		echo "$async_code\r\n";
+		echo "$async_code\r\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
