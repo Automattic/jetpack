@@ -2545,6 +2545,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'related-posts',
 			),
+			'append_to_posts'                      => array(
+				'description'       => esc_html__( 'Automattically display related posts to the bottom of each one of your posts', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'related-posts',
+			),
 
 			// Search.
 			'instant_search_enabled'               => array(

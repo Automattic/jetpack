@@ -759,6 +759,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'show_headline':
 				case 'show_thumbnails':
+				case 'append_to_posts':
 					$grouped_options_current    = (array) Jetpack_Options::get_option( 'relatedposts' );
 					$grouped_options            = $grouped_options_current;
 					$grouped_options[ $option ] = $value;

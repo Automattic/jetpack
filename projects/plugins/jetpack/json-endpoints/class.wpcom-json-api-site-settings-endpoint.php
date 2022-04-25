@@ -53,6 +53,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_relatedposts_enabled'            => '(bool) Enable related posts?',
 			'jetpack_relatedposts_show_headline'      => '(bool) Show headline in related posts?',
 			'jetpack_relatedposts_show_thumbnails'    => '(bool) Show thumbnails in related posts?',
+			'jetpack_relatedposts_append_to_posts'    => '(bool) Automattically display related posts to the bottom of each one of your posts?',
 			'jetpack_protect_whitelist'               => '(array) List of IP addresses to whitelist',
 			'instant_search_enabled'                  => '(bool) Enable the new Jetpack Instant Search interface',
 			'jetpack_search_enabled'                  => '(bool) Enable Jetpack Search',
@@ -372,6 +373,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_relatedposts_enabled'     => (bool) $jetpack_relatedposts_options['enabled'],
 						'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options['show_headline'] ) ? $jetpack_relatedposts_options['show_headline'] : false,
 						'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options['show_thumbnails'] ) ? $jetpack_relatedposts_options['show_thumbnails'] : false,
+						'jetpack_relatedposts_append_to_posts' => (bool) isset( $jetpack_relatedposts_options['append_to_posts'] ) ? $jetpack_relatedposts_options['append_to_posts'] : true,
 						'jetpack_search_enabled'           => (bool) $jetpack_search_active,
 						'jetpack_search_supported'         => (bool) $jetpack_search_supported,
 						'default_category'                 => (int) get_option( 'default_category' ),
@@ -606,6 +608,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_relatedposts_enabled':
 				case 'jetpack_relatedposts_show_thumbnails':
 				case 'jetpack_relatedposts_show_headline':
+				case 'jetpack_relatedposts_append_to_posts':
 					if ( ! $this->jetpack_relatedposts_supported() ) {
 						break;
 					}
