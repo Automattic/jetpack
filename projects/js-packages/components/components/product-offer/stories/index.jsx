@@ -8,7 +8,7 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import ProductOffer, { CardIcons } from '..';
+import ProductOffer, { IconsCard } from '..';
 
 export default {
 	title: 'JS Packages/Components/Product Offer',
@@ -103,11 +103,11 @@ JetpackProtect.args = {
 	isLoading: false,
 };
 
-const CardIconsTemplate = args => <CardIcons { ...args } />;
+const IconsCardTemplate = args => <IconsCard { ...args } />;
 
-export const CardIconsStory = CardIconsTemplate.bind( {} );
-CardIconsStory.parameters = {};
-CardIconsStory.args = {
+export const IconsCardStory = IconsCardTemplate.bind( {} );
+IconsCardStory.parameters = {};
+IconsCardStory.args = {
 	products: [ 'backup', 'scan', 'anti-spam' ],
 };
-CardIconsStory.storyName = 'Card Icons';
+IconsCardStory.storyName = 'Icons Card';

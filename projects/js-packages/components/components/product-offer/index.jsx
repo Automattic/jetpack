@@ -42,7 +42,7 @@ function ProductOfferHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
  * @param {Array} props.products - List of supported products.
  * @returns {React.Component}      Bundle product icons react component.
  */
-export function CardIcons( { products, icon } ) {
+export function IconsCard( { products, icon } ) {
 	if ( icon ) {
 		const CustomIcon = getIconBySlug( icon );
 		return (
@@ -138,7 +138,7 @@ const ProductOffer = ( {
 			{ isBundle && <ProductOfferHeader /> }
 
 			<div className={ styles[ 'card-container' ] }>
-				<CardIcons
+				<IconsCard
 					slug={ slug }
 					icon={ icon }
 					products={ supportedProducts?.length ? supportedProducts : [ slug ] }
