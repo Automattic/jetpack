@@ -139,14 +139,12 @@ class Jetpack_Social {
 	/**
 	 * Whitelist the `active_modules` option for Jetpack Sync.
 	 *
-	 * If the Jetpack plugin is active, this filter won't run (because it has
-	 * a lower priority and checks for the existence of `active_modules`).
-	 *
 	 * @param array $callables Array of callables to sync.
 	 * @return array
 	 */
 	public function filter_sync_callable_whitelist( $callables ) {
 		$callables['active_modules'] = function () use ( $callables ) {
+			// If another plugin synced `active_modules` as well, then we use that value as a base and append `publicize` if it's active.
 			$synced_active_modules = array_key_exists( 'active_modules', $callables ) ? $callables['active_modules']() : array();
 			$publicize_is_active   = ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG );
 
