@@ -2279,6 +2279,37 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'custom-content-types',
 			),
 
+			// WAF.
+			'jetpack_waf_ip_list'                  => array(
+				'description'       => esc_html__( 'Allow / Block list - Block or allow a specific request IP.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'waf',
+			),
+			'jetpack_waf_ip_block_list'            => array(
+				'description'       => esc_html__( 'Blocked IP addresses', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_string',
+				'sanitize_callback' => 'esc_textarea',
+				'jp_group'          => 'waf',
+			),
+			'jetpack_waf_ip_allow_list'            => array(
+				'description'       => esc_html__( 'Always allowed IP addresses', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_string',
+				'sanitize_callback' => 'esc_textarea',
+				'jp_group'          => 'waf',
+			),
+			'jetpack_waf_share_data'               => array(
+				'description'       => esc_html__( 'Share data with Jetpack.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'waf',
+			),
 			// Galleries.
 			'tiled_galleries'                      => array(
 				'description'       => esc_html__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ),

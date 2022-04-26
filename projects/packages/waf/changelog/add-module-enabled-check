@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added a check to only run the firewall when the Jetpack module is enabled, a method to provide the bootstrap.php path, and a REST API endpoint to provide the firewall settings.
