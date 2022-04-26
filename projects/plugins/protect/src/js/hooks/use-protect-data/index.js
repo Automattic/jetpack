@@ -36,6 +36,13 @@ function mergeInstalledAndCheckedLists( installed, checked ) {
 			} );
 		}
 	}
+	newList.sort( ( a, b ) => {
+		const vulsA = a.vulnerabilities.length > 0 ? 2 : 0;
+		const vulsB = b.vulnerabilities.length > 0 ? 2 : 0;
+		const CheckedA = a.notChecked ? 1 : 0;
+		const CheckedB = b.notChecked ? 1 : 0;
+		return vulsB + CheckedB - ( vulsA + CheckedA );
+	} );
 	return newList;
 }
 /**
