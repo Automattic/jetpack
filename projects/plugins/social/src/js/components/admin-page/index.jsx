@@ -22,18 +22,20 @@ const ConnectionItem = props => {
 	return props.connectionIds.map( connectionId => {
 		const connection = jetpackSocial.connections[ props.provider ][ connectionId ];
 		return (
-			<div>
+			<div
+				key={ connectionId + Date.now().toString( 36 ) + Math.random().toString( 36 ).substr( 2 ) }
+			>
 				<tr>
-					<th className={ styles.connectionRow }>Name</th>
-					<th className={ styles.connectionRow }>Image</th>
+					<th className={ styles.connectionRow }> { __( 'Name', 'jetpack-social' ) }</th>
+					<th className={ styles.connectionRow }>{ __( 'Image', 'jetpack-social' ) }</th>
 				</tr>
 				<tr>
 					<td className={ styles.connectionRow }>{ connection.external_display }</td>
 					<td className={ styles.connectionRow }>
 						{ connection && (
 							<img
-								alt="connection_image"
-								src={ connection.profile_picture ? connection.profile_picture : null }
+								alt="connection avatar"
+								src={ connection?.profile_picture ?? null }
 								height="50px"
 								width="50px"
 							/>
@@ -53,7 +55,7 @@ const ConnectionItems = () => {
 	const providers = Object.keys( jetpackSocial.connections );
 	return providers.map( provider => {
 		return (
-			<div>
+			<div key={ provider + Date.now().toString( 36 ) + Math.random().toString( 36 ).substr( 2 ) }>
 				<h2> { provider.charAt( 0 ).toUpperCase() + provider.slice( 1 ) } Connections</h2>
 				<table className={ styles.connectionTable }>
 					<ConnectionItem
