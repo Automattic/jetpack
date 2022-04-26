@@ -313,6 +313,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 	 * Filter respnse.
 	 *
 	 * @param array $response - the response.
+	 * @return array Filtered response.
 	 */
 	public function filter_response( $response ) {
 
