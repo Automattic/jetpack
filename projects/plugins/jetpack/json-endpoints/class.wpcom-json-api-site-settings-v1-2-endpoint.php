@@ -173,7 +173,7 @@ class WPCOM_JSON_API_Site_Settings_V1_2_Endpoint extends WPCOM_JSON_API_Site_Set
 	 *
 	 * @param array $settings - the site settings.
 	 *
-	 * @return array
+	 * @return array `$settings` with a locale key added.
 	 */
 	public function return_locale( $settings ) {
 		return $settings + array( 'locale' => $this->get_locale( 'locale' ) );
