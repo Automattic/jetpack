@@ -442,7 +442,9 @@ class Jetpack_Google_Analytics_Universal {
 	}
 
 	/**
-	 * Helper to add the WooCommerce analytics code in the correct order.
+	 * Enqueue pageview event in footer of all pages.
+	 *
+	 * Action hook added with later priority to come after all of the above tracking. 
 	 */
 	public function send_pageview_in_footer() {
 		if ( ! Jetpack_Google_Analytics_Options::has_tracking_code() ) {
