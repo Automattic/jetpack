@@ -101,7 +101,7 @@ importers:
 
   projects/js-packages/components:
     specifiers:
-      '@automattic/format-currency': 1.0.0
+      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@babel/core': 7.17.9
       '@babel/preset-react': 7.16.7
@@ -127,7 +127,7 @@ importers:
       react-test-renderer: 17.0.2
       typescript: 4.3.5
     dependencies:
-      '@automattic/format-currency': 1.0.0_react@17.0.2
+      '@automattic/format-currency': 1.0.1
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.8.0_90235303a63cb120a61bc1fbe29e5237
       '@wordpress/date': 4.6.0
@@ -566,6 +566,55 @@ importers:
       md5-es: 1.8.2
       webpack: 5.65.0
 
+  projects/packages/backup:
+    specifiers:
+      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-base-styles': workspace:* || ^0.3
+      '@automattic/jetpack-components': workspace:* || ^0.11
+      '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-webpack-config': workspace:* || ^1.1
+      '@babel/core': 7.17.9
+      '@babel/preset-env': 7.16.11
+      '@babel/register': 7.17.7
+      '@babel/runtime': 7.17.9
+      '@wordpress/api-fetch': 6.3.0
+      '@wordpress/browserslist-config': 4.1.2
+      '@wordpress/data': 6.6.0
+      '@wordpress/date': 4.6.0
+      '@wordpress/element': 4.4.0
+      '@wordpress/i18n': 4.6.0
+      concurrently: 6.0.2
+      react: 17.0.2
+      react-dom: 17.0.2
+      sass: 1.43.3
+      sass-loader: 12.4.0
+      webpack: 5.65.0
+      webpack-cli: 4.9.1
+    dependencies:
+      '@automattic/jetpack-api': link:../../js-packages/api
+      '@automattic/jetpack-components': link:../../js-packages/components
+      '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@wordpress/api-fetch': 6.3.0
+      '@wordpress/data': 6.6.0_react@17.0.2
+      '@wordpress/date': 4.6.0
+      '@wordpress/element': 4.4.0
+      '@wordpress/i18n': 4.6.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    devDependencies:
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      '@babel/core': 7.17.9
+      '@babel/preset-env': 7.16.11_@babel+core@7.17.9
+      '@babel/register': 7.17.7_@babel+core@7.17.9
+      '@babel/runtime': 7.17.9
+      '@wordpress/browserslist-config': 4.1.2
+      concurrently: 6.0.2
+      sass: 1.43.3
+      sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
+      webpack: 5.65.0_webpack-cli@4.9.1
+      webpack-cli: 4.9.1_webpack@5.65.0
+
   projects/packages/connection-ui:
     specifiers:
       '@automattic/jetpack-api': workspace:* || ^0.13
@@ -673,7 +722,7 @@ importers:
 
   projects/packages/my-jetpack:
     specifiers:
-      '@automattic/format-currency': 1.0.0
+      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
@@ -715,7 +764,7 @@ importers:
       typescript: 4.3.5
       webpack: 5.65.0
     dependencies:
-      '@automattic/format-currency': 1.0.0_react@17.0.2
+      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
@@ -970,55 +1019,6 @@ importers:
       size-limit: 6.0.3
       webpack: 5.65.0
 
-  projects/plugins/backup:
-    specifiers:
-      '@automattic/jetpack-api': workspace:* || ^0.13
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.11
-      '@automattic/jetpack-connection': workspace:* || ^0.17
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.1
-      '@babel/core': 7.17.9
-      '@babel/preset-env': 7.16.11
-      '@babel/register': 7.17.7
-      '@babel/runtime': 7.17.9
-      '@wordpress/api-fetch': 6.3.0
-      '@wordpress/browserslist-config': 4.1.2
-      '@wordpress/data': 6.6.0
-      '@wordpress/date': 4.6.0
-      '@wordpress/element': 4.4.0
-      '@wordpress/i18n': 4.6.0
-      concurrently: 6.0.2
-      react: 17.0.2
-      react-dom: 17.0.2
-      sass: 1.43.3
-      sass-loader: 12.4.0
-      webpack: 5.65.0
-      webpack-cli: 4.9.1
-    dependencies:
-      '@automattic/jetpack-api': link:../../js-packages/api
-      '@automattic/jetpack-components': link:../../js-packages/components
-      '@automattic/jetpack-connection': link:../../js-packages/connection
-      '@wordpress/api-fetch': 6.3.0
-      '@wordpress/data': 6.6.0_react@17.0.2
-      '@wordpress/date': 4.6.0
-      '@wordpress/element': 4.4.0
-      '@wordpress/i18n': 4.6.0
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
-    devDependencies:
-      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
-      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
-      '@babel/core': 7.17.9
-      '@babel/preset-env': 7.16.11_@babel+core@7.17.9
-      '@babel/register': 7.17.7_@babel+core@7.17.9
-      '@babel/runtime': 7.17.9
-      '@wordpress/browserslist-config': 4.1.2
-      concurrently: 6.0.2
-      sass: 1.43.3
-      sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
-      webpack: 5.65.0_webpack-cli@4.9.1
-      webpack-cli: 4.9.1_webpack@5.65.0
-
   projects/plugins/boost:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
@@ -1125,7 +1125,7 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
-      '@automattic/format-currency': 1.0.0
+      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
@@ -1267,7 +1267,7 @@ importers:
     dependencies:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/components': 1.0.0-alpha.3_react-dom@17.0.2+react@17.0.2
-      '@automattic/format-currency': 1.0.0_react@17.0.2
+      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
@@ -1884,12 +1884,10 @@ packages:
       react-modal: 3.14.4_react-dom@17.0.2+react@17.0.2
     dev: false
 
-  /@automattic/format-currency/1.0.0_react@17.0.2:
-    resolution: {integrity: sha512-Y/HVAOFViqw/ED4YD/ibj7t5A7TQRxG6KW1qb25cPnNSb4Amos5Gu6NlGtAhEF4fBBSk5WqiPMmkpPXFTPGXHA==}
-    peerDependencies:
-      react: ^17.0.2
+  /@automattic/format-currency/1.0.1:
+    resolution: {integrity: sha512-RY2eiUlDiqNSHiJzz2YmH/mw4IjAUO5hkxbwcVGHJkBZowdq/WcSG2yhXc8N9cV9N1fTO/ryCuJvGnpHUe+mAg==}
     dependencies:
-      react: 17.0.2
+      tslib: 2.3.1
     dev: false
 
   /@automattic/popup-monitor/1.0.0:
