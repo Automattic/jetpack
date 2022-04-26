@@ -147,7 +147,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 	 * @param string $field_value - the field value.
 	 * @param string $context Post use context (e.g. 'display').
 	 *
-	 * @return array Post
+	 * @return SAL_Post|WP_Error Post
 	 **/
 	protected function get_sal_post_by( $field, $field_value, $context ) {
 		global $blog_id;
