@@ -374,7 +374,7 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 	 *
 	 * @param array $menus - the menu list.
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	protected function add_locations( $menus ) {
 		$menus_with_locations = array();
@@ -392,7 +392,7 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 	 *
 	 * @param array $menus - the menu list.
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	protected function add_widget_locations( $menus ) {
 		$nav_menu_widgets = WPCOM_JSON_API_Menus_Widgets::get();
@@ -486,7 +486,7 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 	 *
 	 * @param array $menus - the list of menus.
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	public function untreeify( $menus ) {
 		return array_map( array( $this, 'untreeify_menu' ), $menus );
@@ -567,7 +567,7 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 	 *
 	 * @param array $menus - the menus.
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	protected function whitelist_and_rename_keys( $menus ) {
 		$transformed_menus = array();
@@ -624,7 +624,7 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 	 *
 	 * @param array $menus - the menu list.
 	 *
-	 * @return array|WP_Error
+	 * @return array[]|WP_Error
 	 */
 	protected function set_locations( $menus ) {
 		foreach ( $menus as $menu ) {
