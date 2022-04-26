@@ -1173,7 +1173,7 @@ class WPCOM_JSON_API_Menus_Delete_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abs
 	 * @param int    $site - the site ID.
 	 * @param int    $menu_id - the menu ID.
 	 *
-	 * @return bool|WP_Error
+	 * @return array|WP_Error
 	 */
 	public function callback( $path = '', $site = 0, $menu_id = 0 ) {
 		$site_id = $this->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site ) );
