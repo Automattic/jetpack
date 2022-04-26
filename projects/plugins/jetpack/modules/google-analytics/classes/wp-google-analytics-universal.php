@@ -334,7 +334,7 @@ class Jetpack_Google_Analytics_Universal {
 	}
 
 	/**
-	 * Process listing-click analytics options.
+	 * Enqueue listing click tracking script, if enabled.
 	 */
 	public function listing_click() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
