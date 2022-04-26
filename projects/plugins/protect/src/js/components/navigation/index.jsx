@@ -11,8 +11,8 @@ import NavigationItem from './item';
 import NavigationGroup from './group';
 import useMenuNavigation, { NavigationContext } from './use-menu-navigation';
 
-const Navigation = ( { children } ) => {
-	const data = useMenuNavigation();
+const Navigation = ( { children, selected, onSelect } ) => {
+	const data = useMenuNavigation( { selected, onSelect } );
 
 	return (
 		<NavigationContext.Provider value={ data }>
@@ -23,4 +23,5 @@ const Navigation = ( { children } ) => {
 	);
 };
 
-export { Navigation, NavigationItem, NavigationGroup };
+export default Navigation;
+export { NavigationItem, NavigationGroup };
