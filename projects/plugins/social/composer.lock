@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "14c28c2820343cb1267a811617fa08b1",
+    "content-hash": "eb53c735da68e2b56f426517e357a301",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -438,7 +438,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "5721ad33016e2561e5f7d58574d8190c006b5f64"
+                "reference": "38a95658ceb9346bffaee877c1b1b255091abe67"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -464,7 +464,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.9.x-dev"
+                    "dev-master": "0.8.x-dev"
                 }
             },
             "autoload": {
@@ -510,7 +510,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "d2339e7d3ad75ddf3283618d354cba144e689f13"
+                "reference": "5a34e5070dc28f9bc714c9e8c609c93027205a27"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.40"
@@ -529,7 +529,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-licensing/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.8.x-dev"
+                    "dev-master": "1.7.x-dev"
                 }
             },
             "autoload": {
@@ -612,13 +612,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "b0387d338a06b7c9a6bfcda66ff3e37fcdc8d8f8"
+                "reference": "6d639a693079b82ec70c988619f352fc39f785d7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.40",
-                "automattic/jetpack-licensing": "^1.8",
+                "automattic/jetpack-licensing": "^1.7",
                 "automattic/jetpack-plugins-installer": "^0.1",
                 "automattic/jetpack-redirect": "^1.7"
             },
@@ -637,7 +637,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.3.x-dev"
+                    "dev-master": "1.2.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -798,7 +798,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "cfaba9cf7436d9dde3865dc8f74d51e87edaa52c"
+                "reference": "4ea6133419a087e31cbe33f27ea5831a156a800c"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",
@@ -818,7 +818,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.2.x-dev"
+                    "dev-master": "0.1.x-dev"
                 }
             },
             "autoload": {
@@ -1007,12 +1007,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "1c6e8092f93097ab73d60ec947456dd153eb8609"
+                "reference": "e638ec9a22f5b6035959668f9a831b0002ff1f41"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.40",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-identity-crisis": "^0.9",
+                "automattic/jetpack-identity-crisis": "^0.8",
                 "automattic/jetpack-password-checker": "^0.2",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.13"
@@ -1034,7 +1034,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.32.x-dev"
+                    "dev-master": "1.31.x-dev"
                 }
             },
             "autoload": {

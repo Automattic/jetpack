@@ -3,7 +3,6 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
-import createReactClass from 'create-react-class';
 import { noop } from 'lodash';
 
 /**
@@ -16,10 +15,10 @@ import analytics from 'lib/analytics';
 
 import './style.scss';
 
-export default createReactClass( {
-	displayName: 'InfoPopover',
+export default class extends React.Component {
+	static displayName = 'InfoPopover';
 
-	propTypes: {
+	static propTypes = {
 		id: PropTypes.string,
 		position: PropTypes.string,
 		className: PropTypes.string,
@@ -30,20 +29,16 @@ export default createReactClass( {
 		ignoreContext: PropTypes.shape( {
 			getDOMNode: PropTypes.function,
 		} ),
-	},
+	};
 
-	getDefaultProps() {
-		return {
-			position: 'bottom',
-			onClick: noop,
-		};
-	},
+	static defaultProps = {
+		position: 'bottom',
+		onClick: noop,
+	};
 
-	getInitialState() {
-		return {
-			showPopover: false,
-		};
-	},
+	state = {
+		showPopover: false,
+	};
 
 	render() {
 		const classes = classNames(
@@ -74,9 +69,9 @@ export default createReactClass( {
 				</Popover>
 			</button>
 		);
-	},
+	}
 
-	_onClick( event ) {
+	_onClick = event => {
 		this.props.onClick();
 		event.preventDefault();
 		this.setState(
@@ -85,11 +80,11 @@ export default createReactClass( {
 			},
 			this._recordStats
 		);
-	},
+	};
 
-	_onClose() {
+	_onClose = () => {
 		this.setState( { showPopover: false }, this._recordStats );
-	},
+	};
 
 	_recordStats() {
 		const { gaEventCategory, popoverName } = this.props;
@@ -98,5 +93,5 @@ export default createReactClass( {
 			const dialogState = this.state.showPopover ? ' Opened' : ' Closed';
 			analytics.ga.recordEvent( gaEventCategory, 'InfoPopover: ' + popoverName + dialogState );
 		}
-	},
-} );
+	}
+}
