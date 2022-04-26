@@ -2,8 +2,6 @@
 
 set -eo pipefail
 
-. tests/maybe-downgrade-phpunit.sh
-
 PLUGINDIR="$PWD"
 
 cd "$MONOREPO_BASE/projects/plugins/jetpack"
