@@ -114,7 +114,8 @@ describe( 'Recommendations – Feature Prompt', () => {
 			// Make sure the enable button points to the right link
 			expect( enableFeatureButton.href ).to.have.string( 'recommendations/related-posts' );
 
-			expect( recordEventStub.callCount ).to.be.equal( 0 );
+			// The jetpack_recommendations_recommendation_viewed event has already fired on step load
+			expect( recordEventStub.callCount ).to.be.equal( 1 );
 			fireEvent.click( enableFeatureButton );
 
 			// Make sure tracks work
@@ -154,8 +155,9 @@ describe( 'Recommendations – Feature Prompt', () => {
 
 			// Make sure the enable button points to the right link
 			expect( skipFeatureButton.href ).to.have.string( 'recommendations/related-posts' );
-
-			expect( recordEventStub.callCount ).to.be.equal( 0 );
+			
+			// The jetpack_recommendations_recommendation_viewed event has already fired on step load
+			expect( recordEventStub.callCount ).to.be.equal( 1 );
 			fireEvent.click( skipFeatureButton );
 
 			// Make sure tracks work
