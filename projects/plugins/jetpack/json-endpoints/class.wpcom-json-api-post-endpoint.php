@@ -77,7 +77,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Returns the password form.
+	 * Filter to replace the password form with a simple message that the post is protected.
 	 *
 	 * @return string
 	 */
