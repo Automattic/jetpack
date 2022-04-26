@@ -5,7 +5,6 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-connection": "^1.39",
-		"automattic/jetpack-options": "^1.15",
 		"automattic/jetpack-autoloader": "^2.11",
 		"automattic/jetpack-config": "^1.8"
 	},
