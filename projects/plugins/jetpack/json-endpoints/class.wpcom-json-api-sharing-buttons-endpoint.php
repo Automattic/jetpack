@@ -398,6 +398,7 @@ class WPCOM_JSON_API_Get_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
 	 * @param int    $button_id - the button id.
+	 * @return array|WP_Error
 	 */
 	public function callback( $path = '', $blog_id = 0, $button_id = 0 ) {
 		// Validate request
