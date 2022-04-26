@@ -624,7 +624,7 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 	 *
 	 * @param array $menus - the menu list.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	protected function set_locations( $menus ) {
 		foreach ( $menus as $menu ) {
