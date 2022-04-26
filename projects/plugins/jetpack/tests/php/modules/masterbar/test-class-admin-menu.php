@@ -92,9 +92,20 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->reregister_menu_items();
 
+		/*
+		 * To-do: remove the version check once Jetpack requires WordPress 6.0.
+		 * and set the new array key value ('3.05211') as the new expected key value in the assertion.
+		 * See https://core.trac.wordpress.org/ticket/40927
+		 */
+		$stats_menu_key = '3.86682';
+		global $wp_version;
+		if ( version_compare( $wp_version, '6.0-alpha', '>' ) ) {
+			$stats_menu_key = '3.05211';
+		}
+
 		$this->assertSame(
 			array_keys( $menu ),
-			array( 2, '3.05211', 4, 5, 10, 15, 20, 25, 30, 50, 51, 58, 59, 60, 65, 70, 75, 80 ),
+			array( 2, $stats_menu_key, 4, 5, 10, 15, 20, 25, 30, 50, 51, 58, 59, 60, 65, 70, 75, 80 ),
 			'Admin menu should not have unexpected top menu items.'
 		);
 
@@ -208,7 +219,18 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_stats_menu();
 
-		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu['3.05211'][2] );
+		/*
+		 * To-do: remove the version check once Jetpack requires WordPress 6.0.
+		 * and set the new array key value ('3.05211') as the new expected key value in the assertion.
+		 * See https://core.trac.wordpress.org/ticket/40927
+		 */
+		$stats_menu_key = '3.86682';
+		global $wp_version;
+		if ( version_compare( $wp_version, '6.0-alpha', '>' ) ) {
+			$stats_menu_key = '3.05211';
+		}
+
+		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu[ $stats_menu_key ][2] );
 	}
 
 	/**
