@@ -105,7 +105,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			}
 		}
 
-		if ( strpos( $_SERVER['HTTP_USER_AGENT'], 'wp-windows8' ) ) {
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && strpos( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 'wp-windows8' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- we're not using this value and making changes, just checking if it exists.
 			remove_shortcode( 'gallery', 'gallery_shortcode' );
 			add_shortcode( 'gallery', array( $this, 'win8_gallery_shortcode' ) );
 		}
@@ -323,7 +323,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		}
 
 		// Retrieve an array of field paths, such as: [`autosave.modified`, `autosave.post_ID`]
-		$fields = explode( ',', $_REQUEST['meta_fields'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not making any changes to the site.
+		$fields = explode( ',', sanitize_text_field( wp_unslash( $_REQUEST['meta_fields'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not making any changes to the site.
 
 		foreach ( $response['posts'] as $post ) {
 
@@ -380,6 +380,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		static $instance = 0;
 		$instance++;
 
+		// @todo - find out if this is a bug, intentionally unused, or can be removed.
 		$output = ''; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// We're trusting author input, so let's at least make sure it looks like a valid orderby statement

@@ -112,7 +112,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		if ( strpos( $_SERVER['HTTP_USER_AGENT'], 'wp-windows8' ) ) {
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && strpos( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 'wp-windows8' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- we're not using this value and making changes, just checking if it exists.
 			remove_shortcode( 'gallery', 'gallery_shortcode' );
 			add_shortcode( 'gallery', array( $this, 'win8_gallery_shortcode' ) );
 		}
@@ -551,7 +551,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * since it's calling WPCOM_JSON_API_Read_Endpoint methods which presently
 	 * rely on wpcom specific functionality.
 	 *
-	 * @param  object $post - WP_Post.
+	 * @param  WP_Post $post - the WP Post object.
 	 * @return object list of featured media
 	 */
 	public static function find_featured_media( &$post ) {
@@ -575,6 +575,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		static $instance = 0;
 		$instance++;
 
+		// @todo - find out if this is a bug, intentionally unused, or can be removed.
 		$output = ''; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// We're trusting author input, so let's at least make sure it looks like a valid orderby statement
@@ -698,7 +699,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Get post-specific user capabilities
 	 *
-	 * @param object $post - the WP_Post object.
+	 * @param WP_Post $post - the WP_Post object.
 	 *
 	 * @return array - array of post-level permissions; 'publish_post', 'delete_post', 'edit_post'
 	 */
