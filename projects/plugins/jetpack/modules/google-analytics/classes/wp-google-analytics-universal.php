@@ -111,7 +111,10 @@ class Jetpack_Google_Analytics_Universal {
 	/**
 	 * Process purchase tracking options for the universal Google Analytics queue (ga) commands.
 	 *
-	 * @param array $command_array Array of commands to process.
+	 * May also update post meta to indicate the order has been tracked.
+	 *
+	 * @param array $command_array Array of commands.
+	 * @return array `$command_array` with additional commands conditionally added.
 	 */
 	public function maybe_track_purchases( $command_array ) {
 		global $wp;
