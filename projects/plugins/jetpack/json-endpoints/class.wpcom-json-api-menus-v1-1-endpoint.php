@@ -104,7 +104,7 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 	/**
 	 * Class constructor.
 	 *
-	 * @param array $menus - a list of menus.
+	 * @param mixed $menus - a menu or list of menus.
 	 */
 	public function __construct( $menus ) {
 		$this->is_single_menu = ! is_array( $menus );
