@@ -217,7 +217,7 @@ class Jetpack_Google_Analytics_Universal {
 	}
 
 	/**
-	 * Process loop-add-to-cart analytics options.
+	 * Enqueue add-to-cart click tracking script for looped product views, if enabled.
 	 */
 	public function loop_add_to_cart() {
 		if ( ! Jetpack_Google_Analytics_Options::track_add_to_cart_is_enabled() ) {
@@ -447,7 +447,7 @@ class Jetpack_Google_Analytics_Universal {
 	/**
 	 * Enqueue pageview event in footer of all pages.
 	 *
-	 * Action hook added with later priority to come after all of the above tracking. 
+	 * Action hook added with later priority to come after all of the above tracking.
 	 */
 	public function send_pageview_in_footer() {
 		if ( ! Jetpack_Google_Analytics_Options::has_tracking_code() ) {
