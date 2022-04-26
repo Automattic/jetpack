@@ -108,6 +108,8 @@ const ProductPurchasedComponent = props => {
 			question={ __( 'Your plan has been upgraded!', 'jetpack' ) }
 			description={ __( 'You now have access to these benefits:', 'jetpack' ) }
 			answer={ answerSection }
+			illustration="assistant-product-purchased"
+			illustrationClassName="jp-recommendations-product-purchased__illustration"
 		/>
 	);
 };
