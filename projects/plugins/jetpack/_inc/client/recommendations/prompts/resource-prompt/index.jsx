@@ -63,6 +63,9 @@ const ResourcePromptComponent = props => {
 			updateRecommendationsStep( stepSlug );
 		} else if ( stepSlug === stateStepSlug && ! updatingStep ) {
 			addViewedRecommendation( stepSlug );
+			analytics.tracks.recordEvent( 'jetpack_recommendations_recommendation_viewed', {
+				feature: stepSlug,
+			} );
 		}
 	}, [
 		stepSlug,
