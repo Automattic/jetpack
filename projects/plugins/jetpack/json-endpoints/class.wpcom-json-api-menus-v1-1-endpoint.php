@@ -132,7 +132,7 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 	 *
 	 * @param array $menus - the menu list.
 	 *
-	 * @return string|array
+	 * @return array|array[]
 	 */
 	protected function maybe_extract( $menus ) {
 		return $this->is_single_menu ? $menus[0] : $menus;
