@@ -106,8 +106,8 @@ class WPCOM_JSON_API_Render_Embed_Reversal_Endpoint extends WPCOM_JSON_API_Rende
 			return new WP_Error( 'invalid_embed', 'The provided embed is not supported.', 400 );
 		}
 
-		$return = array();
 		// our output for this endpoint..
+		$return = array();
 		$return['maybe_embed']   = $maybe_embed;
 		$return['result']        = $ksesed_content;
 		$return['reversal_type'] = ( $is_embed ) ? 'embed' : 'shortcode';
