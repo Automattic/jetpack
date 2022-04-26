@@ -2,6 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import camelize from 'camelize';
 
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
@@ -26,7 +27,7 @@ const refreshStatus = () => async ( { dispatch } ) => {
 			method: 'GET',
 		} )
 			.then( status => {
-				dispatch( setStatus( status ) );
+				dispatch( setStatus( camelize( status ) ) );
 				dispatch( setStatusIsFetching( false ) );
 				resolve( status );
 			} )

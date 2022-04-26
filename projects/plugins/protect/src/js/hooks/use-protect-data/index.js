@@ -49,12 +49,12 @@ function normalizeCoreInformation( wpVersion, coreCheck ) {
 	let core;
 	if ( wpVersion && coreCheck && coreCheck.version === wpVersion ) {
 		core = coreCheck;
-		core.name = 'wp';
+		core.name = 'WordPress';
 	} else {
 		core = {
 			version: wpVersion,
 			vulnerabilities: [],
-			name: 'wp',
+			name: 'WordPress',
 		};
 	}
 	return core;
@@ -80,7 +80,7 @@ export default function useProtectData() {
 	const { refreshStatus } = useDispatch( STORE_ID );
 
 	useEffect( () => {
-		if ( isRegistered && ! status.status ) {
+		if ( true !== statusIsFetching && isRegistered && ! status.status ) {
 			refreshStatus();
 		}
 		// We don't want to run the effect if status changes. Only on changes on isRegistered.
