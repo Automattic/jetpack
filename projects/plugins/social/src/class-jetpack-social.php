@@ -21,7 +21,8 @@ use Automattic\Jetpack\Publicize\Publicize_UI;
  * Class Jetpack_Social
  */
 class Jetpack_Social {
-	const JETPACK_PUBLICIZE_MODULE_SLUG = 'publicize';
+	const JETPACK_PUBLICIZE_MODULE_SLUG    = 'publicize';
+	const JETPACK_SOCIAL_ACTIVATION_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
 
 	/**
 	 * Constructor.
@@ -66,12 +67,12 @@ class Jetpack_Social {
 			1
 		);
 
+		// Activate the module as the plugin is activated
+		add_action( 'admin_init', array( $this, 'activate_module_on_plugin_activation' ) );
+
 		My_Jetpack_Initializer::init();
 
 		new Publicize_UI();
-
-		// Priority >10 to run this filter after the Jetpack plugin runs this filter.
-		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ), 11, 1 );
 	}
 
 	/**
@@ -137,28 +138,6 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Whitelist the `active_modules` option for Jetpack Sync.
-	 *
-	 * @param array $callables Array of callables to sync.
-	 * @return array
-	 */
-	public function filter_sync_callable_whitelist( $callables ) {
-		$callables['active_modules'] = function () use ( $callables ) {
-			// If another plugin synced `active_modules` as well, then we use that value as a base and append `publicize` if it's active.
-			$synced_active_modules = array_key_exists( 'active_modules', $callables ) ? $callables['active_modules']() : array();
-			$publicize_is_active   = ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG );
-
-			if ( ! $publicize_is_active ) {
-				return $synced_active_modules;
-			}
-
-			return array_unique( array_merge( $synced_active_modules, array( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ) );
-		};
-
-		return $callables;
-	}
-
-	/**
 	 * Activate the Publicize module on plugin activation.
 	 *
 	 * @static
@@ -167,6 +146,19 @@ class Jetpack_Social {
 	 */
 	public static function plugin_activation( $plugin ) {
 		if ( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
+			add_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION, true );
+		}
+	}
+
+	/**
+	 * Runs an admin_init and checks the activation option to work out
+	 * if we should activate the module. This needs to be run after the
+	 * activation hook, as that results in a redirect, and we need the
+	 * sync module's actions and filters to be registered.
+	 */
+	public function activate_module_on_plugin_activation() {
+		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) ) {
+			delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
 			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		}
 	}
