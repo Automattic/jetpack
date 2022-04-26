@@ -84,10 +84,11 @@ endif;
  */
 if ( ! function_exists( 'wp_startswith' ) ) :
 	/**
-	 * Filters strings that start with a specific substring.
+	 * Check whether a string starts with a specific substring.
 	 *
 	 * @param var    $haystack String we are filtering.
 	 * @param string $needle The substring we are looking for.
+	 * @return bool
 	 */
 	function wp_startswith( $haystack, $needle ) {
 		return 0 === strpos( $haystack, $needle );
@@ -96,10 +97,11 @@ endif;
 
 if ( ! function_exists( 'wp_endswith' ) ) :
 	/**
-	 * Filters strings that end with a specific substring.
+	 * Check whether a string ends with a specific substring.
 	 *
 	 * @param var    $haystack String we are filtering.
 	 * @param string $needle The substring we are looking for.
+	 * @return bool
 	 */
 	function wp_endswith( $haystack, $needle ) {
 		return $needle === substr( $haystack, -strlen( $needle ) );
@@ -108,10 +110,11 @@ endif;
 
 if ( ! function_exists( 'wp_in' ) ) :
 	/**
-	 * Filters strings that contain a specific substring.
+	 * Checks whether a string contains a specific substring.
 	 *
 	 * @param string $needle The substring we are looking for.
 	 * @param var    $haystack String we are filtering.
+	 * @return bool
 	 */
 	function wp_in( $needle, $haystack ) {
 		return false !== strpos( $haystack, $needle );
