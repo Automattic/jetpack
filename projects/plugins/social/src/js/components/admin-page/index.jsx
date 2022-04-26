@@ -24,9 +24,7 @@ const ConnectionItem = props => {
 	return props.connectionIds.map( connectionId => {
 		const connection = connections[ props.provider ][ connectionId ];
 		return (
-			<div
-				key={ connectionId + Date.now().toString( 36 ) + Math.random().toString( 36 ).substr( 2 ) }
-			>
+			<div key={ connectionId }>
 				<tr>
 					<th className={ styles.connectionRow }> { __( 'Name', 'jetpack-social' ) }</th>
 					<th className={ styles.connectionRow }>{ __( 'Image', 'jetpack-social' ) }</th>
@@ -59,7 +57,7 @@ const ConnectionItems = () => {
 	const providers = Object.keys( connections );
 	return providers.map( provider => {
 		return (
-			<div key={ provider + Date.now().toString( 36 ) + Math.random().toString( 36 ).substr( 2 ) }>
+			<div key={ provider }>
 				<h2> { provider.charAt( 0 ).toUpperCase() + provider.slice( 1 ) } Connections</h2>
 				<table className={ styles.connectionTable }>
 					<ConnectionItem
