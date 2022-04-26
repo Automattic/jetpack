@@ -77,8 +77,8 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoin
 			return new WP_Error( 'invalid_embed', __( 'The requested URL is not an embed.', 'jetpack' ), 400 );
 		}
 
-		$return = array();
 		// our output for this endpoint..
+		$return = array();
 		$return['embed_url'] = $embed_url;
 		$return['result']    = $render['result'];
 
