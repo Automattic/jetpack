@@ -1192,7 +1192,6 @@ importers:
       cookie: 0.4.1
       copy-webpack-plugin: 10.2.0
       core-js: 3.11.1
-      create-react-class: 15.7.0
       css-loader: 6.5.1
       debug: 4.3.3
       email-validator: 2.0.4
@@ -1233,7 +1232,6 @@ importers:
       react-click-outside: 3.0.1
       react-dom: 17.0.2
       react-page-visibility: 6.4.0
-      react-pure-render: 1.0.2
       react-redux: 6.0.1
       react-router-dom: 5.2.0
       react-tagsinput: 3.19.0
@@ -1302,7 +1300,6 @@ importers:
       cookie: 0.4.1
       copy-webpack-plugin: 10.2.0_webpack@5.65.0
       core-js: 3.11.1
-      create-react-class: 15.7.0
       debug: 4.3.3
       email-validator: 2.0.4
       fast-json-stable-stringify: 2.1.0
@@ -1321,7 +1318,6 @@ importers:
       qss: 2.0.3
       query-string: 7.0.0
       react-page-visibility: 6.4.0_react@17.0.2
-      react-pure-render: 1.0.2
       react-redux: 6.0.1_react@17.0.2+redux@4.0.5
       react-router-dom: 5.2.0_react@17.0.2
       react-tagsinput: 3.19.0_react@17.0.2
@@ -11890,13 +11886,6 @@ packages:
       sha.js: 2.4.11
     dev: true
 
-  /create-react-class/15.7.0:
-    resolution: {integrity: sha512-QZv4sFWG9S5RUvkTYWbflxeZX+JG7Cz0Tn33rQBJ+WFQTqTfUTjMjiv9tnfXazjsO5r0KhPs+AqCjyrQX6h2ng==}
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-    dev: false
-
   /croner/4.1.97:
     resolution: {integrity: sha512-/f6gpQuxDaqXu+1kwQYSckUglPaOrHdbIlBAu0YuW8/Cdb45XwXYNUBXg3r/9Mo6n540Kn/smKcZWko5x99KrQ==}
     dev: true
@@ -19854,10 +19843,6 @@ packages:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-
-  /react-pure-render/1.0.2:
-    resolution: {integrity: sha1-nYqSjH8sN1E8LQZOV7Pjw1bp+rs=}
-    dev: false
 
   /react-redux/6.0.1_react@17.0.2+redux@4.0.5:
     resolution: {integrity: sha512-T52I52Kxhbqy/6TEfBv85rQSDz6+Y28V/pf52vDWs1YRXG19mcFOGfHnY2HsNFHyhP+ST34Aih98fvt6tqwVcQ==}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Replace uses of `create-react-class` with modern syntax.
