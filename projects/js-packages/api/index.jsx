@@ -503,6 +503,10 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		fetchWafSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/waf`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 		fetchWordAdsSettings: () =>
 			getRequest( `${ apiRoot }jetpack/v4/wordads/settings`, getParams )
 				.then( checkStatus )

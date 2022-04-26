@@ -324,13 +324,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "51209feabcef11f0eb098685bd37e26a7910b500"
+                "reference": "5751ff3191734375ecbbcfc59ff1e73bb82999a8"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.13"
@@ -353,7 +352,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.39.x-dev"
+                    "dev-master": "1.40.x-dev"
                 }
             },
             "autoload": {
@@ -439,14 +438,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "fa6b7127c3df8b9e90547c6f00394ad00dd5b101"
+                "reference": "38a95658ceb9346bffaee877c1b1b255091abe67"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.39",
+                "automattic/jetpack-connection": "^1.40",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
-                "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-status": "^1.13"
             },
             "require-dev": {
@@ -512,11 +510,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "1b0fdf2e4f5cbcf2b136b5304a32d67d0583a315"
+                "reference": "5a34e5070dc28f9bc714c9e8c609c93027205a27"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.39",
-                "automattic/jetpack-options": "^1.15"
+                "automattic/jetpack-connection": "^1.40"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
@@ -615,12 +612,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "76ad2a33440f3349c867654387e1a8cafbf7d981"
+                "reference": "6d639a693079b82ec70c988619f352fc39f785d7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.39",
+                "automattic/jetpack-connection": "^1.40",
                 "automattic/jetpack-licensing": "^1.7",
                 "automattic/jetpack-plugins-installer": "^0.1",
                 "automattic/jetpack-redirect": "^1.7"
@@ -628,7 +625,6 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-options": "^1.15",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -689,45 +685,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-options",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/options",
-                "reference": "320b96466a7236a12590c623ac403a42a1f4a46e"
-            },
-            "require": {
-                "automattic/jetpack-constants": "^1.6"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^3.1",
-                "yoast/phpunit-polyfills": "1.0.3"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-options",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-master": "1.15.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "legacy"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "A wrapper for wp-options to manage specific Jetpack options.",
             "transport-options": {
                 "relative": true
             }
@@ -991,13 +948,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "ef51c6f086de0b6c98886f93f8e0463917e9b9a7"
+                "reference": "e638ec9a22f5b6035959668f9a831b0002ff1f41"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.39",
+                "automattic/jetpack-connection": "^1.40",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-identity-crisis": "^0.8",
-                "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-password-checker": "^0.2",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.13"

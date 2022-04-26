@@ -242,19 +242,42 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.9-a.7 - 2022-04-19
+### 10.9-beta - 2022-04-26
+### Major Enhancements
+- VideoPress: add settings for controlling VideoPress video privacy.
+
 #### Enhancements
-- Connection: Preventing other Jeptpack-connected plugins from disconnecting when deactivating Jetpack from the plugins screen.
-- Recommendations: Add recommendation for anti-spam.
+- Connection: prevent other Jetpack-connected plugins from disconnecting when deactivating Jetpack from the plugins screen.
+- Dashboard: improve the display and contents of recommendations.
+- Google Fonts: update the Google Fonts module to be compatible with the most recent version of the WP_Webfonts API.
+- Payments Block: add additional features to the payment management control block (ability to mark as donation, and enabling customers to pick own amount).
+- Payments Block: add new property that establishes if the membership is editable by the site editor.
+- Payments Block: improve block selection behavior.
+- Protect: rename the feature to "Brute Force Protection" for a better understanding of what the feature does.
+- VideoPress: enable the resumable uploader.
+- VideoPress: improve upload spreed, by increasing chunk size to 10Mb for resumable uploads.
 
 #### Improved compatibility
-- WordAds: Remove the suggestion to use the ad widget from the dashboard.
-- WordAds: Change Jetpack Ads wording to be WordAds.
+- Custom CSS: improve saving for legacy Custom CSS.
+- Dashboard: display block settings even when the Classic Editor plugin is active.
+- Mailchimp Popup widget: deprecate this old widget.
 
 #### Bug fixes
-- Publicize: Ensure bulk publishing posts won’t publicize those posts.
-- Random Redirect: Fixes 'set author name' functionality on author archives.
-- VideoPress: Fixes issue adding video descriptions and metadata via the WordPress.com dashboard.
+- Button Block: remove default CSS that would overwrite core and theme styles.
+- Comments: check that Jetpack comments are supported before requiring nonce verification.
+- Form Block: ensure the form's input fields inherit a default font size.
+- Payments Block: change the sidebar display when clicking 'add new subscription', as well as using an external link in the Customizer.
+- Payments Block: fix bug when creating new Payment blocks.
+- Payments Block: make the ‘one time’ subscription recurrence always available.
+- Payments Block: remove the dropdown icon from the product management control subscription selector.
+- Payments Block: ensure that re-loading the page will not cause the payment form to open again.
+- Pay with PayPal: fix issue when saving widget in Customizer.
+- Publicize: ensure bulk publishing posts won’t publicize those posts.
+- Random Redirect: fix 'set author name' functionality on author archives.
+- Slideshow Block: fix grid blowout when Slideshow block is inserted inside a Layout Grid block (in editor).
+- Subscribe Block: fix default styles block setting selection to "Split".
+- Top Posts Widget: ensure hooks retain existing behavior when adding extra data before or after each post.
+- VideoPress: fix issue when adding video descriptions and metadata via the WordPress.com dashboard.
 
 --------
 
