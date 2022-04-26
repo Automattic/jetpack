@@ -608,9 +608,9 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 	/**
 	 * Implode an array field.
 	 *
-	 * @param array $field - the field we're imploding.
+	 * @param mixed $field - the field we're imploding.
 	 *
-	 * @return string
+	 * @return mixed The imploded string if `$field` was an array, otherwise `$field` unchanged.
 	 */
 	protected function implode_array_field( $field ) {
 		if ( is_array( $field ) ) {
