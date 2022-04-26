@@ -356,7 +356,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 	 * @param int    $post_id - the post ID.
 	 * @param string $context - the context.
 	 *
-	 * @return object
+	 * @return array|bool|WP_Error
 	 */
 	public function get_blog_post( $blog_id, $post_id, $context = 'display' ) {
 		$blog_id = $this->api->get_blog_id( $blog_id );
