@@ -136,7 +136,7 @@ class WordAds_California_Privacy {
 		$host = 'localhost';
 
 		if ( isset( $_SERVER['HTTP_HOST'] ) ) {
-			$host = $_SERVER['HTTP_HOST'];
+			$host = filter_var( wp_unslash( $_SERVER['HTTP_HOST'] ) );
 		}
 
 		return '.wordpress.com' === substr( $host, -strlen( '.wordpress.com' ) ) ? '.wordpress.com' : '.' . $host;
@@ -184,7 +184,7 @@ class WordAds_California_Privacy {
 	public static function handle_optout_request() {
 		check_ajax_referer( 'ccpa_optout', 'security' );
 
-		$optout = 'true' === $_POST['optout'];
+		$optout = isset( $_POST['optout'] ) && 'true' === $_POST['optout'];
 		$optout ? self::set_optout_cookie() : self::set_optin_cookie();
 
 		wp_send_json_success( $optout );

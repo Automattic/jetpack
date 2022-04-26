@@ -3,20 +3,15 @@
  */
 import React from 'react';
 
-import PureRenderMixin from 'react-pure-render/mixin';
-import createReactClass from 'create-react-class';
-
 /**
  * Internal dependencies
  */
 import Count from 'components/count';
 
-export default createReactClass( {
-	displayName: 'Count',
+export default class extends React.PureComponent {
+	static displayName = 'Count';
 
-	mixins: [ PureRenderMixin ],
-
-	render: function () {
+	render() {
 		return (
 			<div className="design-assets__group">
 				<h2>
@@ -27,5 +22,5 @@ export default createReactClass( {
 				</div>
 			</div>
 		);
-	},
-} );
+	}
+}
