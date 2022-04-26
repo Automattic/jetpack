@@ -8,7 +8,7 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import ProductOffer from '..';
+import ProductOffer, { IconsCard } from '..';
 
 export default {
 	title: 'JS Packages/Components/Product Offer',
@@ -49,6 +49,7 @@ SecurityBundle.args = {
 	addProductUrl: '',
 	hasRequiredPlan: false,
 	isLoading: false,
+	error: '',
 };
 
 export const JetpackBackup = Template.bind( {} );
@@ -101,3 +102,12 @@ JetpackProtect.args = {
 	hasRequiredPlan: false,
 	isLoading: false,
 };
+
+const IconsCardTemplate = args => <IconsCard { ...args } />;
+
+export const IconsCardStory = IconsCardTemplate.bind( {} );
+IconsCardStory.parameters = {};
+IconsCardStory.args = {
+	products: [ 'backup', 'scan', 'anti-spam' ],
+};
+IconsCardStory.storyName = 'Icons Card';

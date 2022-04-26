@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Load block editor styles inline for iframed editors on Atomic sites.

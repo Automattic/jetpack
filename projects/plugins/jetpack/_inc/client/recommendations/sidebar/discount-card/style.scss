@@ -23,7 +23,7 @@
 
 	&__container {
 		width: 100%;
-		max-width: 360px;		
+		max-width: 360px;
 	}
 
 	&__card {
@@ -84,15 +84,19 @@
 	}
 
 	&__feature-list {
-		@include features-list;	
+		@include features-list;
 	}
 
 	&__button {
 		align-self: center;
-
 		margin-top: 0.25rem;
-
 		font-size: $font-body;
+		display: flex;
+		align-items: center;
+
+		.components-external-link__icon {
+			margin-left: 4px;
+		}
 	}
 
 	&__timer {
