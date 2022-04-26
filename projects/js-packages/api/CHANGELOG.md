@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.13.0 - 2022-04-26
+### Added
+- Add endpoints for site discount
+- Add endpoint to fetch intro offers
+
+### Changed
+- Updated package dependencies.
+
 ## 0.12.0 - 2022-04-19
 ### Added
 - Added API routes for WordAds settings

@@ -396,7 +396,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
 	 */
 	public function ajax_sidebar_state() {
-		$expanded    = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$expanded    = isset( $_REQUEST['expanded'] ) ? filter_var( wp_unslash( $_REQUEST['expanded'] ), FILTER_VALIDATE_BOOLEAN ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$user_id     = get_current_user_id();
 		$preferences = get_user_attribute( $user_id, 'calypso_preferences' );
 		if ( empty( $preferences ) ) {
@@ -422,7 +422,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function wp_ajax_jitm_dismiss() {
 		check_ajax_referer( 'jitm_dismiss' );
 		require_lib( 'jetpack-jitm/jitm-engine' );
-		JITM\Engine::dismiss( $_REQUEST['id'], $_REQUEST['feature_class'] );
+		if ( isset( $_REQUEST['id'] ) && isset( $_REQUEST['feature_class'] ) ) {
+			JITM\Engine::dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
+		}
 		wp_die();
 	}
 

@@ -28,6 +28,7 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
+	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
 } from 'state/action-types';
 import {
 	getPlanClass,
@@ -197,6 +198,18 @@ const conditional = ( state = [], action ) => {
 	}
 };
 
+const siteDiscount = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED:
+			return {
+				...state,
+				viewed: action.step,
+			};
+		default:
+			return state;
+	}
+};
+
 const getConditionalRecommendations = state => {
 	return get( state.jetpack, [ 'recommendations', 'conditional' ] );
 };
@@ -208,6 +221,7 @@ export const reducer = combineReducers( {
 	upsell,
 	productSuggestions,
 	conditional,
+	siteDiscount,
 } );
 
 export const isFetchingRecommendationsData = state => {
@@ -238,6 +252,10 @@ export const isUpdatingRecommendationsStep = state => {
 	return !! state.jetpack.recommendations.requests.isUpdatingRecommendationsStep;
 };
 
+export const recommendationsSiteDiscountViewedStep = state => {
+	return state.jetpack.recommendations.siteDiscount.viewed || '';
+};
+
 export const getDataByKey = ( state, key ) => {
 	return get( state.jetpack, [ 'recommendations', 'data', key ], false );
 };
@@ -246,7 +264,7 @@ const stepToNextStep = {
 	'setup-wizard-completed': 'summary',
 	'banner-completed': 'woocommerce',
 	'not-started': 'site-type-question',
-	'site-type-question': 'product-suggestions',
+	'site-type-question': 'woocommerce',
 	'product-suggestions': 'woocommerce',
 	woocommerce: 'monitor',
 	monitor: 'related-posts',
@@ -260,7 +278,7 @@ const stepToNextStep = {
 	summary: 'summary',
 };
 
-const stepToRoute = {
+export const stepToRoute = {
 	'not-started': '#/recommendations/site-type',
 	'site-type-question': '#/recommendations/site-type',
 	'product-suggestions': '#/recommendations/product-suggestions',
@@ -274,6 +292,14 @@ const stepToRoute = {
 	'anti-spam': '#/recommendations/anti-spam',
 	videopress: '#/recommendations/videopress',
 	summary: '#/recommendations/summary',
+};
+
+export const isStepViewed = ( state, featureSlug ) => {
+	const recommendationsData = get( state.jetpack, [ 'recommendations', 'data' ] );
+	return (
+		recommendationsData.viewedRecommendations &&
+		recommendationsData.viewedRecommendations.includes( featureSlug )
+	);
 };
 
 export const isFeatureActive = ( state, featureSlug ) => {
