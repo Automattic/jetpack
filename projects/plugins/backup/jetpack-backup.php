@@ -35,15 +35,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Constant definitions.
 define( 'JETPACK_BACKUP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'JETPACK_BACKUP_PLUGIN_ROOT_FILE', __FILE__ );
 define( 'JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
-define( 'JETPACK_BACKUP_PLUGIN_SLUG', 'jetpack-backup' );
-define( 'JETPACK_BACKUP_PLUGIN_NAME', 'Jetpack Backup' );
-define( 'JETPACK_BACKUP_PLUGIN_URI', 'https://jetpack.com/jetpack-backup' );
 define( 'JETPACK_BACKUP_REQUIRED_JETPACK_VERSION', '10.0' );
 define( 'JETPACK_BACKUP_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
-define( 'JETPACK_BACKUP_PROMOTED_PRODUCT', 'jetpack_backup_t1_yearly' );
-define( 'JETPACK_BACKUP_DB_VERSION', '2' );
 
 /**
  * Checks if Jetpack is installed and if yes, require version 10+
@@ -135,8 +129,35 @@ if ( is_readable( $jetpack_autoloader ) ) {
 }
 
 // Redirect to plugin page when the plugin is activated.
-add_action( 'activated_plugin', array( 'Jetpack_Backup', 'plugin_activation' ) );
+add_action( 'activated_plugin', 'jetpack_backup_plugin_activation' );
+
+/**
+ * Redirects to plugin page when the plugin is activated
+ *
+ * @access public
+ * @static
+ *
+ * @param string $plugin Path to the plugin file relative to the plugins directory.
+ */
+function jetpack_backup_plugin_activation( $plugin ) {
+	if ( JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
+		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) );
+		exit;
+	}
+}
+
+// Add "Settings" link to plugins page.
+add_filter(
+	'plugin_action_links_' . JETPACK_BACKUP_PLUGIN_FOLDER . '/jetpack-backup.php',
+	function ( $actions ) {
+		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) . '">' . __( 'Settings', 'jetpack-backup' ) . '</a>';
+		array_unshift( $actions, $settings_link );
+
+		return $actions;
+	}
+);
 
 register_deactivation_hook( __FILE__, array( 'Jetpack_Backup', 'plugin_deactivation' ) );
+
 // Main plugin class.
-new Jetpack_Backup();
+Jetpack_Backup::initialize();
