@@ -203,7 +203,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$user['ID'] = $user_id;
 		$is_wpcom   = defined( 'IS_WPCOM' ) && IS_WPCOM;
 
-		if ( get_current_user_id() === $user_id && isset( $input['roles'] ) ) {
+		if ( get_current_user_id() === (int) $user_id && isset( $input['roles'] ) ) {
 			return new WP_Error( 'unauthorized', 'You cannot change your own role', 403 );
 		}
 
