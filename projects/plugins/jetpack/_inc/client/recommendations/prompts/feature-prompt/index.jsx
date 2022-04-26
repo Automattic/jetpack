@@ -18,6 +18,7 @@ import {
 	mapDispatchToProps,
 } from '../../feature-utils';
 import { PromptLayout } from '../prompt-layout';
+import { DEFAULT_ILLUSTRATION } from '../../constants';
 import { ProductSpotlight } from '../../sidebar/product-spotlight';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
@@ -30,14 +31,12 @@ import {
 	getStep,
 	isUpdatingRecommendationsStep,
 	recommendationsSiteDiscountViewedStep,
-	isFetchingRecommendationsProductSuggestions,
 	isProductSuggestionsAvailable,
 	isFeatureActive,
 	isStepViewed,
 	getProductSlugForStep,
 } from 'state/recommendations';
 import Gridicon from 'components/gridicon';
-
 const FeaturePromptComponent = props => {
 	const {
 		activateFeature,
@@ -48,8 +47,6 @@ const FeaturePromptComponent = props => {
 		description,
 		descriptionLink,
 		illustration,
-		illustrationPath,
-		rnaIllustration,
 		nextRoute,
 		progressValue,
 		question,
@@ -59,7 +56,6 @@ const FeaturePromptComponent = props => {
 		updateRecommendationsStep,
 		spotlightProduct,
 		isNew,
-		isFetchingSuggestions,
 		canShowProductSuggestions,
 		discountViewedStep,
 		featureActive,
@@ -195,15 +191,8 @@ const FeaturePromptComponent = props => {
 					</div>
 				</div>
 			}
-			isLoadingSideContent={ showDiscountCard && isFetchingSuggestions }
 			sidebarCard={ sidebarCard }
-			illustration={ illustration }
-			illustrationPath={
-				! spotlightProduct || ! showDiscountCard || ! canShowProductSuggestions
-					? illustrationPath
-					: null
-			}
-			rna={ rnaIllustration }
+			illustration={ illustration || DEFAULT_ILLUSTRATION }
 		/>
 	);
 };
@@ -215,7 +204,6 @@ const FeaturePrompt = connect(
 		...mapStateToSummaryFeatureProps( state, ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
-		isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
 		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 		discountViewedStep: recommendationsSiteDiscountViewedStep( state ),
 		featureActive: isFeatureActive( state, ownProps.stepSlug ),

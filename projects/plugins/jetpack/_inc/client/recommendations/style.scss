@@ -1,3 +1,4 @@
+@import './mixin';
 @import '../scss/mixin_breakpoint.scss';
 @import '../scss/mixins/rna';
 @import 'node_modules/@automattic/jetpack-base-styles/style';
@@ -36,4 +37,12 @@
 	font-weight: 500;
 	border-radius: 3px;
 	font-size: 12px;
+}
+
+.jp-recommendations-question__sidebar {
+	@include recommendation-sidebar-blob;
+
+	@include breakpoint( '<1040px' ) {
+		background: none;
+	}
 }

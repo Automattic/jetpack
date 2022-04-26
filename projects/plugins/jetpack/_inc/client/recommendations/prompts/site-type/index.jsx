@@ -11,6 +11,7 @@ import { ProgressBar } from '@automattic/components';
  */
 import { PromptLayout } from '../prompt-layout';
 import { CheckboxAnswer } from '../checkbox-answer';
+import { DEFAULT_ILLUSTRATION } from '../../constants';
 import DiscountCard from '../../sidebar/discount-card';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
@@ -20,7 +21,6 @@ import {
 	getNextRoute,
 	saveRecommendationsData as saveRecommendationsDataAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
-	isFetchingRecommendationsProductSuggestions,
 	isProductSuggestionsAvailable,
 } from 'state/recommendations';
 
@@ -28,7 +28,6 @@ import {
  * Style dependencies
  */
 import './style.scss';
-
 const SiteTypeQuestionComponent = props => {
 	const {
 		answers,
@@ -36,7 +35,6 @@ const SiteTypeQuestionComponent = props => {
 		saveRecommendationsData,
 		siteTitle,
 		updateRecommendationsStep,
-		isFetchingSuggestions,
 		canShowProductSuggestions,
 	} = props;
 
@@ -109,13 +107,9 @@ const SiteTypeQuestionComponent = props => {
 				'jetpack'
 			) }
 			answer={ answerSection }
-			isLoadingSideContent={ isFetchingSuggestions }
-			illustrationPath={
-				! canShowProductSuggestions ? 'recommendations/site-type-illustration.jpg' : null
-			}
-			illustration={ ! canShowProductSuggestions ? 'assistant-site-type' : null }
-			illustrationClassName="jp-recommendations-site-type__illustration"
 			sidebarCard={ canShowProductSuggestions ? <DiscountCard /> : null }
+			illustration={ DEFAULT_ILLUSTRATION }
+			illustrationClassName="jp-recommendations-site-type__illustration"
 		/>
 	);
 };
@@ -130,7 +124,6 @@ export const SiteTypeQuestion = connect(
 			store: getDataByKey( state, 'site-type-store' ),
 			other: getDataByKey( state, 'site-type-other' ),
 		},
-		isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
 		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 	} ),
 	dispatch => ( {

@@ -225,8 +225,6 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-blog-social-sharing' ),
 				ctaText: __( 'Enable Social Media Sharing', 'jetpack' ),
-				illustrationPath: '/recommendations/general-illustration.png',
-				rnaIllustration: true,
 			};
 		case 'security-plan':
 			return {
@@ -246,8 +244,6 @@ export const getStepContent = stepSlug => {
 				),
 				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
-				illustrationPath: '/recommendations/general-illustration.png',
-				rnaIllustration: true,
 			};
 		case 'anti-spam':
 			return {
@@ -258,8 +254,6 @@ export const getStepContent = stepSlug => {
 				),
 				ctaText: __( 'Learn how to block spam', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
-				illustrationPath: '/recommendations/general-illustration.png',
-				rnaIllustration: true,
 			};
 		case 'videopress':
 			return {
@@ -273,8 +267,6 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-videopress' ),
 				ctaText: __( 'Try VideoPress for free', 'jetpack' ),
-				illustrationPath: '/recommendations/general-illustration.png',
-				rnaIllustration: true,
 			};
 		case 'woocommerce':
 			return {
@@ -286,7 +278,6 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
-				illustrationPath: '/recommendations/woocommerce-illustration.jpg',
 			};
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;

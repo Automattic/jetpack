@@ -1,3 +1,4 @@
+@import '../../mixin';
 @import '../../../scss/mixin_breakpoint.scss';
 @import '../../../scss/variables/colors';
 
@@ -95,22 +96,7 @@
 	align-items: center;
 
 	width: 100%;
-
-	background: radial-gradient(
-			circle at 60%,
-			rgba( 6, 158, 8, 0.15 ) 0%,
-			rgba( 255, 255, 255, 0 ) 75%
-		),
-		radial-gradient(
-			circle at 30% 80%,
-			rgba( 206, 217, 242, 0.5 ) 5%,
-			rgba( 255, 255, 255, 0 ) 25%
-		),
-		radial-gradient(
-			circle at 50% 15%,
-			rgba( 245, 230, 179, 0.5 ) 0%,
-			rgba( 255, 255, 255, 0 ) 35%
-		);
+	height: 100%;
 
 	@include breakpoint( '<1040px' ) {
 		display: none;
@@ -124,37 +110,11 @@
 	width: 100%;
 }
 
-.jp-recommendations-question__illustration-container--rna {
-	background: radial-gradient(
-			circle at 70%,
-			rgba( 6, 158, 8, 0.15 ) 0%,
-			rgba( 255, 255, 255, 0 ) 56%
-		),
-		radial-gradient(
-			circle at 35% 80%,
-			rgba( 206, 217, 242, 0.5 ) 5%,
-			rgba( 255, 256, 255, 0 ) 25%
-		);
-	display: flex;
-	align-items: center;
-	justify-content: right;
-
-	img {
-		position: relative;
-		bottom: auto;
-		right: auto;
-	}
-
-	.jp-recommendations-question__illustration-foreground {
-		margin: auto 0;
-	}
-}
-
 .jp-recommendations-question__sidebar-card {
 	width: 100%;
 }
 
-.jp-recommendations-question__illustration-foreground {
+.jp-recommendations-question__illustration {
 	flex: 1;
 
 	max-width: 420px;

@@ -29,16 +29,13 @@ import { computeMaxSuggestedDiscount, isCouponValid } from '../../utils';
 import './style.scss';
 
 const DiscountCard = ( {
-	isFetchingDiscount,
-	isFetchingSuggestions,
-	isFetchingOffers,
+	isLoading,
 	discountData,
 	introOffers,
 	suggestions,
 	markAsViewed,
 	step,
 } ) => {
-	const isLoading = isFetchingDiscount || isFetchingSuggestions || isFetchingOffers;
 	const { expiry_date: expiryDate } = discountData;
 
 	const discount = useMemo(
@@ -62,6 +59,10 @@ const DiscountCard = ( {
 			} );
 		}
 	}, [ isLoading, hasDiscount ] );
+
+	if ( isLoading ) {
+		return null;
+	}
 
 	return (
 		<div className="jp-recommendations-discount-card">
@@ -114,9 +115,10 @@ const DiscountCard = ( {
 
 export default connect(
 	state => ( {
-		isFetchingDiscount: isFetchingSiteDiscount( state ),
-		isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
-		isFetchingOffers: isFetchingIntroOffers( state ),
+		isLoading:
+			isFetchingSiteDiscount( state ) ||
+			isFetchingRecommendationsProductSuggestions( state ) ||
+			isFetchingIntroOffers( state ),
 		discountData: getSiteDiscount( state ),
 		introOffers: getIntroOffers( state ),
 		suggestions: getProductSuggestions( state ),

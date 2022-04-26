@@ -4,68 +4,48 @@
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { imagePath } from 'constants/urls';
+import { isFetchingIntroOffers } from 'state/intro-offers';
+import { isFetchingRecommendationsProductSuggestions } from 'state/recommendations';
+import { isFetchingSiteDiscount } from 'state/site/reducer';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
-const SideContent = ( {
-	isLoadingSideContent,
-	illustration,
-	illustrationClassName,
-	illustrationPath,
-	sidebarCard,
-	rna,
-} ) => {
-	const hasIllustration = !! ( illustration || illustrationPath );
+const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarCard } ) => {
 	const imgBase = `${ imagePath }recommendations/${ illustration }`;
 
-	if ( isLoadingSideContent ) {
-		return <div></div>;
+	if ( isLoading ) {
+		return null;
 	}
 
 	if ( sidebarCard ) {
 		return <div className="jp-recommendations-question__sidebar-card">{ sidebarCard }</div>;
 	}
 
-	if ( hasIllustration && ! sidebarCard ) {
+	if ( illustration ) {
 		return (
-			<div
-				className={
-					'jp-recommendations-question__illustration-container ' +
-					( rna ? 'jp-recommendations-question__illustration-container--rna' : '' )
-				}
-			>
-				{ illustrationPath ? (
+			<div className="jp-recommendations-question__illustration-container">
+				<picture className="jp-recommendations-question__illustration-picture">
+					<source type="image/webp" srcset={ `${ imgBase }.webp 1x, ${ imgBase }-2x.webp 2x` } />
 					<img
 						className={ classNames(
-							'jp-recommendations-question__illustration-foreground',
+							'jp-recommendations-question__illustration',
 							illustrationClassName
 						) }
-						src={ `${ imagePath }${ illustrationPath }` }
+						srcset={ `${ imgBase }-2x.png 2x` }
+						src={ `${ imgBase }.png` }
 						alt=""
 					/>
-				) : (
-					<picture className="jp-recommendations-question__illustration-picture">
-						<source type="image/webp" srcset={ `${ imgBase }.webp 1x, ${ imgBase }-2x.webp 2x` } />
-						<img
-							className={ classNames(
-								'jp-recommendations-question__illustration-foreground',
-								illustrationClassName
-							) }
-							srcset={ `${ imgBase }-2x.png 2x` }
-							src={ `${ imgBase }.png` }
-							alt=""
-						/>
-					</picture>
-				) }
+				</picture>
 			</div>
 		);
 	}
@@ -73,29 +53,22 @@ const SideContent = ( {
 	return null;
 };
 
-const PromptLayout = props => {
+const PromptLayoutComponent = props => {
 	const {
 		answer,
 		description,
 		illustration,
-		illustrationPath,
 		progressBar,
 		question,
 		content,
 		isNew,
-		rna,
 		sidebarCard,
-		isLoadingSideContent,
 	} = props;
-	const hasIllustration = !! ( illustration || illustrationPath );
 
 	return (
 		<div
 			className={ classNames( 'jp-recommendations-question__main', {
-				'jp-recommendations-question__main--with-sidebar': hasIllustration || !! sidebarCard,
-				'jp-recommendations-question__main--with-illustration':
-					! isLoadingSideContent && !! illustrationPath,
-				'jp-recommendations-question__main--with-illustration--rna': !! illustrationPath && !! rna,
+				'jp-recommendations-question__main--with-sidebar': !! illustration || !! sidebarCard,
 			} ) }
 		>
 			<div className="jp-recommendations-question__content">
@@ -112,21 +85,30 @@ const PromptLayout = props => {
 				{ content }
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>
-			<SideContent { ...props } />
+			<div className="jp-recommendations-question__sidebar">
+				<SideContent { ...props } />
+			</div>
 		</div>
 	);
 };
 
-PromptLayout.propTypes = {
+PromptLayoutComponent.propTypes = {
 	answer: PropTypes.element.isRequired,
 	description: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
-	illustrationPath: PropTypes.string,
 	illustration: PropTypes.string,
 	illustrationClassName: PropTypes.string,
 	progressBar: PropTypes.element.isRequired,
 	question: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
+	content: PropTypes.element.isRequired,
 	sidebarCard: PropTypes.element,
-	isLoadingSideContent: PropTypes.boolean,
+	isNew: PropTypes.boolean,
+	isLoading: PropTypes.boolean,
 };
 
+const PromptLayout = connect( state => ( {
+	isLoading:
+		isFetchingSiteDiscount( state ) ||
+		isFetchingRecommendationsProductSuggestions( state ) ||
+		isFetchingIntroOffers( state ),
+} ) )( PromptLayoutComponent );
 export { PromptLayout };
