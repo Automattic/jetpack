@@ -20,6 +20,8 @@ import {
 	getNextRoute,
 	saveRecommendationsData as saveRecommendationsDataAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	isFetchingRecommendationsProductSuggestions,
+	isProductSuggestionsAvailable,
 } from 'state/recommendations';
 
 /**
@@ -34,6 +36,7 @@ const SiteTypeQuestionComponent = props => {
 		saveRecommendationsData,
 		siteTitle,
 		updateRecommendationsStep,
+		isFetchingSuggestions,
 		canShowProductSuggestions,
 	} = props;
 
@@ -106,6 +109,7 @@ const SiteTypeQuestionComponent = props => {
 				'jetpack'
 			) }
 			answer={ answerSection }
+			isLoadingSideContent={ isFetchingSuggestions }
 			illustrationPath={
 				! canShowProductSuggestions ? 'recommendations/site-type-illustration.jpg' : null
 			}
@@ -124,7 +128,8 @@ export const SiteTypeQuestion = connect(
 			store: getDataByKey( state, 'site-type-store' ),
 			other: getDataByKey( state, 'site-type-other' ),
 		},
-		canShowProductSuggestions: false, // isProductSuggestionsAvailable( state ),
+		isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
+		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 	} ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),

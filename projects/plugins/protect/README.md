@@ -28,6 +28,8 @@ define( 'JETPACK_PROTECT_DEV__BYPASS_CACHE', true );
 define( 'JETPACK_PROTECT_DEV__API_RESPONSE_TYPE', 'complete' );
 ```
 
+`JETPACK_PROTECT_DEV__API_CORE_VULS` - will let you ask WPCOM servers to respond with found vulnerabilities for WordPress core. The value should be an integer with the number of vulnerabilities you want to get. Default is zero.
+
 ## Contribute
 
 Please refer to the [Contribute](https://github.com/Automattic/jetpack/blob/master/readme.md#contribute) section in the README.md file at the root of the repository.
