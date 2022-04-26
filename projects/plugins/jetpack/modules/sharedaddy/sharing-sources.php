@@ -1130,6 +1130,7 @@ class Share_Email extends Sharing_Source {
 		$data_attributes['email-share-track-url'] = $tracking_url;
 
 		$post_title = $this->get_share_title( $post->ID );
+		$post_url   = $this->get_share_url( $post->ID );
 
 		/** This filter is documented in plugins/jetpack/modules/sharedaddy/sharedaddy.php */
 		$email_subject = apply_filters(
@@ -1140,7 +1141,7 @@ class Share_Email extends Sharing_Source {
 		$mailto_query = sprintf(
 			'subject=%s&body=%s&share=email',
 			rawurlencode( $email_subject ),
-			rawurlencode( get_permalink( $post ) )
+			rawurlencode( $post_url )
 		);
 
 		return $this->get_link(
