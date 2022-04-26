@@ -37,7 +37,7 @@ class Jetpack_Google_Analytics_Legacy {
 	 * @return string - Tracking URL
 	 */
 	private function get_url( $track ) {
-		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ); // Input var okay.
+		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) );
 		foreach ( $track as $k => $value ) {
 			if ( strpos( strtolower( $value ), strtolower( $site_url ) ) === 0 ) {
 				$track[ $k ] = substr( $track[ $k ], strlen( $site_url ) );
@@ -56,7 +56,7 @@ class Jetpack_Google_Analytics_Legacy {
 			$track[ $k ] = trim( $track[ $k ], '_' );
 		}
 		$char = ( strpos( $track['data'], '?' ) === false ) ? '?' : '&amp;';
-		return str_replace( "'", "\'", "/{$track['code']}/{$track['data']}{$char}referer=" . rawurlencode( isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '' ) ); // Input var okay.
+		return str_replace( "'", "\'", "/{$track['code']}/{$track['data']}{$char}referer=" . rawurlencode( esc_url_raw( wp_unslash( isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '' ) ) ) );
 	}
 
 	/**
