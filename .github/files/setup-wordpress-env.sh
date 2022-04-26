@@ -30,8 +30,8 @@ echo "::endgroup::"
 
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
 case "$WP_BRANCH" in
-	master)
-		git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
+	trunk)
+		git clone --depth=1 --branch trunk git://develop.git.wordpress.org/ /tmp/wordpress-trunk
 		;;
 	latest)
 		LATEST=$(php ./tools/get-wp-version.php)

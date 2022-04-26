@@ -73,13 +73,13 @@ $matrix[] = array(
 	'experimental' => true,
 );
 */
-foreach ( array( 'previous', 'master' ) as $wp ) {
+foreach ( array( 'previous', 'trunk' ) as $wp ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP {$versions['PHP_VERSION']} WP $wp",
 		'script'  => 'test-php',
 		'php'     => $versions['PHP_VERSION'],
 		'wp'      => $wp,
-		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 master run, ~5.5-6 for 7.x and 8.0.
+		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
 	);
 }
 
