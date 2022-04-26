@@ -939,6 +939,7 @@ class WPCOM_JSON_API_Menus_Update_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abs
 	 *
 	 * @param array $data - the data we're checking.
 	 * @param int   $menu_id - the menu ID.
+	 * @return array `$data` with new item IDs filled in.
 	 */
 	public function create_new_items( $data, $menu_id ) {
 		$tmp_to_actual_ids = array();
