@@ -11,6 +11,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
+import DiscountCard from '../../sidebar/discount-card';
 import {
 	getStepContent,
 	mapStateToSummaryFeatureProps,
@@ -28,6 +29,9 @@ import {
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
+	recommendationsSiteDiscountViewedStep,
+	isFetchingRecommendationsProductSuggestions,
+	isProductSuggestionsAvailable,
 	isFeatureActive,
 	isStepViewed,
 	getProductSlugForStep,
@@ -54,6 +58,9 @@ const FeaturePromptComponent = props => {
 		updateRecommendationsStep,
 		spotlightProduct,
 		isNew,
+		isFetchingSuggestions,
+		canShowProductSuggestions,
+		discountViewedStep,
 		featureActive,
 		configureButtonLabel,
 		configLink,
@@ -75,6 +82,9 @@ const FeaturePromptComponent = props => {
 		updateRecommendationsStep,
 		addViewedRecommendation,
 	] );
+
+	// Show card if it hasn't been viewed yet, or if it has been viewed at this step already.
+	const showDiscountCard = ! discountViewedStep || discountViewedStep === stepSlug;
 
 	const onExternalLinkClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_learn_more_click', {
@@ -112,6 +122,14 @@ const FeaturePromptComponent = props => {
 	const configLinkIsExternal = useMemo( () => {
 		return configLink.match( /^https:\/\/jetpack.com\/redirect/ );
 	}, [ configLink ] );
+
+	let sidebarCard = null;
+
+	if ( spotlightProduct ) {
+		sidebarCard = <ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />;
+	} else if ( showDiscountCard && canShowProductSuggestions ) {
+		sidebarCard = <DiscountCard />;
+	}
 
 	return (
 		<PromptLayout
@@ -173,11 +191,12 @@ const FeaturePromptComponent = props => {
 					</div>
 				</div>
 			}
-			illustrationPath={ ! spotlightProduct ? illustrationPath : null }
-			sidebarCard={
-				spotlightProduct ? (
-					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
-				) : null
+			isLoadingSideContent={ showDiscountCard && isFetchingSuggestions }
+			sidebarCard={ sidebarCard }
+			illustrationPath={
+				! spotlightProduct || ! showDiscountCard || ! canShowProductSuggestions
+					? illustrationPath
+					: null
 			}
 			rna={ rnaIllustration }
 		/>
@@ -191,6 +210,9 @@ const FeaturePrompt = connect(
 		...mapStateToSummaryFeatureProps( state, ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
+		isFetchingSuggestions: isFetchingRecommendationsProductSuggestions( state ),
+		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
+		discountViewedStep: recommendationsSiteDiscountViewedStep( state ),
 		featureActive: isFeatureActive( state, ownProps.stepSlug ),
 		summaryViewed: isStepViewed( state, 'summary' ),
 		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
