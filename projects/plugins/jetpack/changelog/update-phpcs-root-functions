@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-PHPCS changes for root functions. Adding class-jetpack-gallery-settings.php to replace the functions.gallery.php.
+PHPCS changes for root functions.
