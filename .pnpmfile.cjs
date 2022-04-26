@@ -122,6 +122,12 @@ function fixPeerDeps( pkg ) {
 		delete pkg.peerDependencies?.[ 'eslint-plugin-node' ];
 	}
 
+	// Peer-depends on js-git but doesn't declare it.
+	// https://github.com/creationix/git-node-fs/pull/8
+	if ( pkg.name === 'git-node-fs' && ! pkg.peerDependencies?.[ 'js-git' ] ) {
+		pkg.peerDependencies[ 'js-git' ] = '*';
+	}
+
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with
 	// eslint-plugin-wpcalypso 5.1.0, but they haven't released that yet.
 	if ( pkg.name === 'eslint-config-wpcalypso' ) {

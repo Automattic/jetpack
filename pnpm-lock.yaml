@@ -13307,8 +13307,12 @@ packages:
     resolution: {integrity: sha512-Y7wLWcrLUXwk2noSka166byGCvhMtDRpgHdzCno1UQv/n/Hegp++a2xBWJL1lJarnKD3SWaljD+0z1ztqxuKyQ==}
     dev: true
 
-  /git-node-fs/1.0.0:
+  /git-node-fs/1.0.0_js-git@0.7.8:
     resolution: {integrity: sha1-SbIV4kLr5Dqkx1Ybu6SZUhdSCA8=}
+    peerDependencies:
+      js-git: '*'
+    dependencies:
+      js-git: 0.7.8
     dev: true
 
   /git-sha1/0.1.2:
@@ -21461,7 +21465,7 @@ packages:
     engines: {node: '>=4.0'}
     dependencies:
       async: 2.6.3
-      git-node-fs: 1.0.0
+      git-node-fs: 1.0.0_js-git@0.7.8
       ini: 1.3.8
       js-git: 0.7.8
     dev: true
