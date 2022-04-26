@@ -347,9 +347,9 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 	/**
 	 * Whitelist and rename keys.
 	 *
-	 * @param array $menus - the menu list.
+	 * @param (object|array)[] $menus - the menu list.
 	 *
-	 * @return array
+	 * @return array[]
 	 */
 	protected function whitelist_and_rename_keys( $menus ) {
 		$transformed_menus = array();
