@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Blocks: do not load the Payments block on P2's frontend editor.
-
-

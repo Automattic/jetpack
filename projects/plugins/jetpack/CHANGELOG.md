@@ -2,6 +2,49 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 10.9-beta - 2022-04-26
+### Enhancements
+- Add a videopress product card to videopress recommendtion
+- Added support for "public" property for membership subscriptions
+- Add logic to fetch intro offers
+- Add Mark subscription as Donation and Enable customers to pick their own amount in Payment management control block.
+- Add product cards to recommendation steps
+- Add site discount in Jetpack Assistant
+- Allow individual recommendations to be reached from the recommendations summary screen
+- Assistant: Added endpoints for site discount
+- Created a Stripe connect nudge that is aware of the product management store
+- Google Fonts module: enqueue fonts used in block and Global Styles settings
+- Increased chunk size to 10Mb for VideoPress resumable uploads to reduce request overhead for faster uploads.
+- Make the subscribe button for premium-content blocks (wpcom specific) open up the 'checkout' dialog when clicked in emails and notifications
+- Updated checks for enabling conditional recommendations
+- Updated the Membership endpoints to contain the newly added "public" property.
+
+### Improved compatibility
+- Added activation screen component to My Jetpack licensing page
+- updating lock file
+
+### Bug fixes
+- Add checks to eliminate warnings in php log.
+- Close the publish sidebar when the user clicks on the Add new subscription from the Payments block and replace the Add new subscription with an external link in context of the Customizer.
+- Display the payment blocks product manager on free sites connected to Stripe.
+- Fix failing tests because of an editor type mismatch caused by imported packages side-effects
+- Fixing issue in apiFetch middleware where request bodies were assumed to always be objects with a "file" property; this is only true for requests to the media endpoint.
+- Load block editor styles inline for iframed editors on Atomic sites.
+- We now don't show a dropdown indication for the product management controls subscription selector.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added analytics events for enabling condtional recommendations and viewing conditional recommendations.
+- Converted BackupUpgrade and BarChart to TypeScript
+- E2E tests: add extra checks in connection tests
+- E2E tests: improve connection tests
+- Init 10.9-a.8
+- Move RecordMeterBar to js-packages
+- Nav-unification: Update nudge to support Pro plan.
+- Remove code in native files that was causing the rnmobile build to fail.
+- Updated package dependencies
+- Update package.json metadata.
+- Updating changelog and readme for 10.9-a.7
+
 ## 10.9-a.7 - 2022-04-19
 ### Enhancements
 - Connection: Preventing other Jeptpack-connected plugins from disconnecting when deactivating Jetpack from the plugins screen.

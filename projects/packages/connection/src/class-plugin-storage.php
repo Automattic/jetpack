@@ -19,7 +19,7 @@ class Plugin_Storage {
 	/**
 	 * Options where disabled plugins were stored
 	 *
-	 * @deprecated since $$next-version$$.
+	 * @deprecated since 1.39.0.
 	 * @var string
 	 */
 	const PLUGINS_DISABLED_OPTION_NAME = 'jetpack_connection_disabled_plugins';
@@ -99,7 +99,7 @@ class Plugin_Storage {
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
-	 * @since $$next-version$$ deprecated the $connected_only argument.
+	 * @since 1.39.0 deprecated the $connected_only argument.
 	 *
 	 * @param null $deprecated null plugins that were explicitly disconnected. Deprecated, there's no such a thing as disconnecting only specific plugins anymore.
 	 *
@@ -200,40 +200,40 @@ class Plugin_Storage {
 	/**
 	 * Add the plugin to the set of disconnected ones.
 	 *
-	 * @deprecated since $$next-version$$.
+	 * @deprecated since 1.39.0.
 	 *
 	 * @param string $slug Plugin slug.
 	 *
 	 * @return bool
 	 */
 	public static function disable_plugin( $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '1.39.0' );
 		return true;
 	}
 
 	/**
 	 * Remove the plugin from the set of disconnected ones.
 	 *
-	 * @deprecated since $$next-version$$.
+	 * @deprecated since 1.39.0.
 	 *
 	 * @param string $slug Plugin slug.
 	 *
 	 * @return bool
 	 */
 	public static function enable_plugin( $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '1.39.0' );
 		return true;
 	}
 
 	/**
 	 * Get all plugins that were disconnected by user.
 	 *
-	 * @deprecated since $$next-version$$.
+	 * @deprecated since 1.39.0.
 	 *
 	 * @return array
 	 */
 	public static function get_all_disabled_plugins() { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '1.39.0' );
 		return array();
 	}
 
