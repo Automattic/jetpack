@@ -79,7 +79,7 @@ class VideoPress_AJAX {
 			$embedded_post_id = 0;
 		}
 
-		if ( empty( $guid ) && ! $this->is_valid_guid( $guid ) ) {
+		if ( empty( $guid ) || ! $this->is_valid_guid( $guid ) ) {
 			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack' ) ) );
 			return;
 		}
