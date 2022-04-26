@@ -16,8 +16,6 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Site_Health;
-use Automattic\Jetpack\Protect\Status as Protect_Status;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 /**
  * Class Jetpack_Protect
@@ -135,6 +133,8 @@ class Jetpack_Protect {
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'status'            => Protect_Status::get_status(),
+			'siteSuffix'        => ( new JetpackStatus() )->get_site_suffix(),
+			'redirectUrl'       => admin_url( 'admin.php?page=my-jetpack' ),
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
