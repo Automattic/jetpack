@@ -21,6 +21,7 @@ class Jetpack_Google_Analytics_Options {
 	 *
 	 * @param string $option_name Nested 'jetpack_wga' option value to retrieve.
 	 * @param mixed  $default Default value if $option is not set.
+	 * @return mixed Option value or `$default`.
 	 */
 	public static function get_option( $option_name, $default = false ) {
 		$o = get_option( 'jetpack_wga' );
