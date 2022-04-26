@@ -59,9 +59,10 @@ abstract class WPCOM_JSON_API_Menus_Abstract_Endpoint extends WPCOM_JSON_API_End
 	}
 
 	/**
-	 * Simplify the data.
+	 * Simplify the menus.
 	 *
-	 * @param object $data - the data we're simplifying.
+	 * @param WP_Term|WP_Term[] $data - the menus we're simplifying.
+	 * @return array|array[] Simplified menu data.
 	 */
 	protected function simplify( $data ) {
 		$simplifier = new WPCOM_JSON_API_Menus_Simplifier( $data );
