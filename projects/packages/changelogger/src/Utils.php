@@ -151,7 +151,7 @@ class Utils {
 	/**
 	 * Get a timestamp for a file.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 3.1.0
 	 * @param string               $file File.
 	 * @param OutputInterface      $output OutputInterface to write debug output to.
 	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
