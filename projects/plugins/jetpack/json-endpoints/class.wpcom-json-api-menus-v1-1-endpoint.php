@@ -114,7 +114,7 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 	/**
 	 * Translate the menus.
 	 *
-	 * @return mixed|WP_Error
+	 * @return array|array[]|WP_Error
 	 */
 	public function translate() {
 		$result = $this->menus;
@@ -142,9 +142,9 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 	 * See if we need to whitelist and rename.
 	 *
 	 * @param object|array $object - the object (or associative array) we're checking.
-	 * @param array  $dict Associative array holding the key whitelist and renaming/casting data.
-	 *   Keys are the keys from $object` to preserve. Values are the key to use in the output or an
-	 *   assoc where 'name' specifies the output key and 'type' specifies the PHP type to cast the value to.
+	 * @param array        $dict Associative array holding the key whitelist and renaming/casting data.
+	 *         Keys are the keys from $object` to preserve. Values are the key to use in the output or an
+	 *         assoc where 'name' specifies the output key and 'type' specifies the PHP type to cast the value to.
 	 *
 	 * @return array
 	 */
@@ -152,7 +152,7 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 		$keys   = array_keys( $dict );
 		$return = array();
 		foreach ( (array) $object as $k => $v ) {
-			if ( isset( $dict[$k] ) ) {
+			if ( isset( $dict[ $k ] ) ) {
 				if ( is_array( $dict[ $k ] ) ) {
 					settype( $v, $dict[ $k ]['type'] );
 					$return[ $dict[ $k ]['name'] ] = $v;
