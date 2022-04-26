@@ -152,7 +152,7 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 		$keys   = array_keys( $dict );
 		$return = array();
 		foreach ( (array) $object as $k => $v ) {
-			if ( in_array( $k, $keys, true ) ) {
+			if ( isset( $dict[$k] ) ) {
 				if ( is_array( $dict[ $k ] ) ) {
 					settype( $v, $dict[ $k ]['type'] );
 					$return[ $dict[ $k ]['name'] ] = $v;
