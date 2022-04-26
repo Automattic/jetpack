@@ -115,10 +115,7 @@ class RelatedPosts extends Component {
 					onChange={ this.handleAppendPostsToggleChange }
 				>
 					<span className="jp-form-toggle-explanation">
-						{ __(
-							'Automatically display related posts to the bottom of each one of your posts.',
-							'jetpack'
-						) }
+						{ __( 'Automatically display related posts at the bottom of each post.', 'jetpack' ) }
 					</span>
 				</CompactFormToggle>
 				{ this.state.append_to_posts && (

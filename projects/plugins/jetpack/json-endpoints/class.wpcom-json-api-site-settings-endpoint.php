@@ -53,7 +53,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_relatedposts_enabled'            => '(bool) Enable related posts?',
 			'jetpack_relatedposts_show_headline'      => '(bool) Show headline in related posts?',
 			'jetpack_relatedposts_show_thumbnails'    => '(bool) Show thumbnails in related posts?',
-			'jetpack_relatedposts_append_to_posts'    => '(bool) Automattically display related posts to the bottom of each one of your posts?',
+			'jetpack_relatedposts_append_to_posts'    => '(bool) Automatically display related posts after each post?',
 			'jetpack_protect_whitelist'               => '(array) List of IP addresses to whitelist',
 			'instant_search_enabled'                  => '(bool) Enable the new Jetpack Instant Search interface',
 			'jetpack_search_enabled'                  => '(bool) Enable Jetpack Search',
