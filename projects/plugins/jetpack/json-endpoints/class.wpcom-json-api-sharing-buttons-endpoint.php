@@ -39,7 +39,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 	}
 
 	/**
-	 * Format the sharring button.
+	 * Format the sharing button.
 	 *
 	 * @param object $button - the button object.
 	 */
