@@ -19,8 +19,10 @@ import React from 'react';
 import styles from './styles.module.scss';
 
 const ConnectionItem = props => {
+	const { connections } = window.jetpackSocialInitialState;
+
 	return props.connectionIds.map( connectionId => {
-		const connection = jetpackSocial.connections[ props.provider ][ connectionId ];
+		const connection = connections[ props.provider ][ connectionId ];
 		return (
 			<div
 				key={ connectionId + Date.now().toString( 36 ) + Math.random().toString( 36 ).substr( 2 ) }
@@ -48,18 +50,20 @@ const ConnectionItem = props => {
 };
 
 const ConnectionItems = () => {
-	if ( ! jetpackSocial.connections ) {
+	const { connections } = window.jetpackSocialInitialState;
+
+	if ( ! connections ) {
 		return null;
 	}
 
-	const providers = Object.keys( jetpackSocial.connections );
+	const providers = Object.keys( connections );
 	return providers.map( provider => {
 		return (
 			<div key={ provider + Date.now().toString( 36 ) + Math.random().toString( 36 ).substr( 2 ) }>
 				<h2> { provider.charAt( 0 ).toUpperCase() + provider.slice( 1 ) } Connections</h2>
 				<table className={ styles.connectionTable }>
 					<ConnectionItem
-						connectionIds={ Object.keys( jetpackSocial.connections[ provider ] ) }
+						connectionIds={ Object.keys( connections[ provider ] ) }
 						provider={ provider }
 					/>
 				</table>
