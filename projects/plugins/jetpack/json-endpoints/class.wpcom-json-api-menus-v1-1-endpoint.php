@@ -141,7 +141,7 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 	/**
 	 * See if we need to whitelist and rename.
 	 *
-	 * @param object $object - the object we're checking.
+	 * @param object|array $object - the object (or associative array) we're checking.
 	 * @param array  $dict - the...dictionary? I have no idea.
 	 *
 	 * @return array
