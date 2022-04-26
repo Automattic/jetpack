@@ -43,7 +43,7 @@ class Jetpack_Google_Analytics_Universal {
 	}
 
 	/**
-	 * Inject the analytics code to wp_head.
+	 * Hook for the `wp_head` action to output the analytics code.
 	 */
 	public function wp_head() {
 		$tracking_code = Jetpack_Google_Analytics_Options::get_tracking_code();
