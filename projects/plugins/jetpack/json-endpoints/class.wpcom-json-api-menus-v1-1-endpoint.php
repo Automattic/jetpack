@@ -33,6 +33,8 @@ abstract class WPCOM_JSON_API_Menus_Abstract_Endpoint extends WPCOM_JSON_API_End
 
 	/**
 	 * Get the locations of the menus.
+	 *
+	 * @return array[]
 	 */
 	protected function get_locations() {
 		$locations = array();
