@@ -599,6 +599,7 @@ class WPCOM_JSON_API_Menus_Complexify extends WPCOM_JSON_API_Menus_Translator {
 	 * All item fields are set as strings.
 	 *
 	 * @param array $menu_item - the menu item.
+	 * @return array Item with fields imploded.
 	 */
 	protected function implode_array_fields( $menu_item ) {
 		return array_map( array( $this, 'implode_array_field' ), $menu_item );
