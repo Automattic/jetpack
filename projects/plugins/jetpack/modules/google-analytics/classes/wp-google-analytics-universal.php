@@ -377,7 +377,7 @@ class Jetpack_Google_Analytics_Universal {
 	}
 
 	/**
-	 * Process product-detail analytics options.
+	 * Enqueue product detail view tracking script, if enabled.
 	 */
 	public function product_detail() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
