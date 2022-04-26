@@ -824,6 +824,7 @@ class Jetpack {
 			array(
 				'sync',
 				'jitm',
+				'publicize',
 			)
 			as $feature
 		) {

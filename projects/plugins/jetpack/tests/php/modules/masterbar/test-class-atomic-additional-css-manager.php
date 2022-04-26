@@ -46,11 +46,11 @@ class Test_Atomic_Additional_CSS_Manager extends \WP_UnitTestCase {
 
 		$manager->register_nudge( $this->wp_customize );
 		$this->assertEquals(
-			'/checkout/foo.com/business',
+			'/checkout/foo.com/pro',
 			$this->wp_customize->controls()['custom_css_control']->cta_url
 		);
 		$this->assertEquals(
-			'Purchase a Business Plan to<br> activate CSS customization',
+			'Purchase a Pro Plan to<br> activate CSS customization',
 			$this->wp_customize->controls()['custom_css_control']->nudge_copy
 		);
 	}

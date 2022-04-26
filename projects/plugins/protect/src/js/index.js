@@ -9,6 +9,11 @@ import { ThemeProvider } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import AdminPage from './components/admin-page';
+import { initStore } from './state/store';
+import './styles.module.scss';
+
+// Initialize Jetpack Protect store
+initStore();
 
 /**
  * Initial render function.

@@ -1636,16 +1636,15 @@ class Manager {
 	 * This function will automatically perform "soft" or "hard" disconnect depending on whether other plugins are using the connection.
 	 * This is a proxy method to simplify the Connection package API.
 	 *
-	 * @see Manager::disable_plugin()
-	 * @see Manager::disconnect_site_wpcom()
-	 * @see Manager::delete_all_connection_tokens()
+	 * @see Manager::disconnect_site()
 	 *
+	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
+	 * @param bool    $ignore_connected_plugins Delete the tokens even if there are other connected plugins.
 	 * @return bool
 	 */
-	public function remove_connection() {
-		$this->disable_plugin();
-		$this->disconnect_site_wpcom();
-		$this->delete_all_connection_tokens();
+	public function remove_connection( $disconnect_wpcom = true, $ignore_connected_plugins = false ) {
+
+		$this->disconnect_site( $disconnect_wpcom, $ignore_connected_plugins );
 
 		return true;
 	}
@@ -1976,8 +1975,13 @@ class Manager {
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
 	 *
 	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
+	 * @param bool    $ignore_connected_plugins Delete the tokens even if there are other connected plugins.
 	 */
-	public function disconnect_site( $disconnect_wpcom = true ) {
+	public function disconnect_site( $disconnect_wpcom = true, $ignore_connected_plugins = true ) {
+		if ( ! $ignore_connected_plugins && null !== $this->plugin && ! $this->plugin->is_only() ) {
+			return false;
+		}
+
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 
 		( new Nonce_Handler() )->clean_all();
@@ -1995,10 +1999,10 @@ class Manager {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$this->disconnect_site_wpcom( true );
+			$this->disconnect_site_wpcom( $ignore_connected_plugins );
 		}
 
-		$this->delete_all_connection_tokens( true );
+		$this->delete_all_connection_tokens( $ignore_connected_plugins );
 
 		// Remove tracked package versions, since they depend on the Jetpack Connection.
 		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
@@ -2324,14 +2328,12 @@ class Manager {
 	 * Force plugin disconnect. After its called, the plugin will not be allowed to use the connection.
 	 * Note: this method does not remove any access tokens.
 	 *
+	 * @deprecated since 1.39.0
 	 * @return bool
 	 */
 	public function disable_plugin() {
-		if ( ! $this->plugin ) {
-			return false;
-		}
-
-		return $this->plugin->disable();
+		_deprecated_function( __METHOD__, '1.39.0' );
+		return null;
 	}
 
 	/**
@@ -2339,14 +2341,12 @@ class Manager {
 	 * After its called, the plugin will be allowed to use the connection again.
 	 * Note: this method does not initialize access tokens.
 	 *
+	 * @deprecated since 1.39.0.
 	 * @return bool
 	 */
 	public function enable_plugin() {
-		if ( ! $this->plugin ) {
-			return false;
-		}
-
-		return $this->plugin->enable();
+		_deprecated_function( __METHOD__, '1.39.0' );
+		return null;
 	}
 
 	/**

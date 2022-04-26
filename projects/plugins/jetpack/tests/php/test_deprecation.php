@@ -26,11 +26,11 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	/**
 	 * @dataProvider provider_deprecated_method_stubs
 	 */
-	function test_deprecated_method_stubs( $class_name, $method_name ) {
+	public function test_deprecated_method_stubs( $class_name, $method_name ) {
 		$this->assertTrue( method_exists( $class_name, $method_name ) );
 	}
 
-	function provider_deprecated_method_stubs() {
+	public function provider_deprecated_method_stubs() {
 		return array(
 			array( 'JetpackTracking', 'record_user_event', array( 'Bogus' ) ),
 			array( 'Jetpack_Client', '_wp_remote_request', array( 'Bogus', 'Bogus' ) ),
@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	/**
 	 * @dataProvider provider_deprecated_defined_functions
 	 */
-	function test_deprecated_defined_functions( $function ) {
+	public function test_deprecated_defined_functions( $function ) {
 		$this->assertTrue( function_exists( $function ) );
 	}
 
@@ -69,7 +69,6 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		$class  = new ReflectionClass( $class );
 		$method = $class->getMethod( $method );
 
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
 		set_error_handler( '__return_null' );
 		try {
 			$method->invokeArgs( null, $arguments );
@@ -81,14 +80,14 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		}
 	}
 
-	function provider_deprecated_defined_functions() {
+	public function provider_deprecated_defined_functions() {
 		return array(
 			array( 'jetpack_tracks_get_identity' ),
 			array( 'jetpack_tracks_record_event' ),
 		);
 	}
 
-	function test_jetpack_sync_action_sender_exists() {
+	public function test_jetpack_sync_action_sender_exists() {
 		$this->assertTrue( property_exists( 'Jetpack_Sync_Actions', 'sender' ) );
 	}
 

@@ -67,10 +67,20 @@ SCRIPT="
 			q
 		}
 		:c
+
+		# Remove markdown links from section header.
 		s/^## \[([^]]+)\]/## \1/
+
+		# Increase section header level by 1.
 		s/^#/##/
+
+		# Remove PR numbers from the ends of lines.
+		s/ \[#[0-9]+\]$//
+
+		# Add some escaping, needed later.
 		s/\\\\/\\\\\\\\/
 		s/$/\\\\/
+
 		p
 		ba
 	}

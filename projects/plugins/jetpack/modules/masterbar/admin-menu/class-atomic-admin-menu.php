@@ -399,7 +399,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
 	 */
 	public function ajax_sidebar_state() {
-		$expanded = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$expanded = isset( $_REQUEST['expanded'] ) ? filter_var( wp_unslash( $_REQUEST['expanded'] ), FILTER_VALIDATE_BOOLEAN ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		Client::wpcom_json_api_request_as_user(
 			'/me/preferences',
 			'2',
@@ -419,7 +419,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function wp_ajax_jitm_dismiss() {
 		check_ajax_referer( 'jitm_dismiss' );
 		$jitm = \Automattic\Jetpack\JITMS\JITM::get_instance();
-		$jitm->dismiss( $_REQUEST['id'], $_REQUEST['feature_class'] );
+		if ( isset( $_REQUEST['id'] ) && isset( $_REQUEST['feature_class'] ) ) {
+			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
+		}
 		wp_die();
 	}
 

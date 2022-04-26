@@ -3,8 +3,8 @@
 require_jetpack_file( 'sal/class.json-api-platform.php' );
 
 class SalSiteTest extends WP_UnitTestCase {
-	static $token;
-	static $site;
+	public static $token;
+	public static $site;
 
 	/**
 	 * Set up before class.
@@ -24,12 +24,12 @@ class SalSiteTest extends WP_UnitTestCase {
 		self::$site = $platform->get_site( self::$token->blog_id );
 	}
 
-	function test_uses_synced_api_post_type_whitelist_if_available() {
+	public function test_uses_synced_api_post_type_whitelist_if_available() {
 
 		$this->assertFalse( self::$site->is_post_type_allowed( 'my_new_type' ) );
 	}
 
-	function test_is_module_active() {
+	public function test_is_module_active() {
 
 		// Picking random 3 modules from an array of existing ones to not slow down the test
 		$modules = array_rand( Jetpack::get_available_modules(), 3 );
@@ -51,7 +51,7 @@ class SalSiteTest extends WP_UnitTestCase {
 		}
 	}
 
-	function test_interface() {
+	public function test_interface() {
 		$this->assertTrue( method_exists( 'SAL_Site', 'is_module_active' ) );
 	}
 }

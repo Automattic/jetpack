@@ -110,7 +110,7 @@ class Jetpack_Heartbeat {
 		}
 
 		if ( ! empty( $_SERVER['SERVER_ADDR'] ) || ! empty( $_SERVER['LOCAL_ADDR'] ) ) {
-			$ip     = ! empty( $_SERVER['SERVER_ADDR'] ) ? $_SERVER['SERVER_ADDR'] : $_SERVER['LOCAL_ADDR'];
+			$ip     = ! empty( $_SERVER['SERVER_ADDR'] ) ? wp_unslash( $_SERVER['SERVER_ADDR'] ) : wp_unslash( $_SERVER['LOCAL_ADDR'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized just below.
 			$ip_arr = array_map( 'intval', explode( '.', $ip ) );
 			if ( 4 === count( $ip_arr ) ) {
 				$return[ "{$prefix}ip-2-octets" ] = implode( '.', array_slice( $ip_arr, 0, 2 ) );
