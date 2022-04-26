@@ -74,8 +74,8 @@ class WPCOM_JSON_API_Render_Shortcode_Endpoint extends WPCOM_JSON_API_Render_End
 			return new WP_Error( 'invalid_shortcode', 'The requested shortcode does not exist.', 400 );
 		}
 
-		$return = array();
 		// our output for this endpoint..
+		$return = array();
 		$return['shortcode'] = $shortcode;
 		$return['result']    = $render['result'];
 
