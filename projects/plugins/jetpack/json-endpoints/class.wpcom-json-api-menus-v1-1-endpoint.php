@@ -93,7 +93,9 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 	protected $filter = '';
 
 	/**
-	 * List of filters.
+	 * List of filter method names.
+	 *
+	 * Filter methods are passed an array, and return a transformed array or WP_Error.
 	 *
 	 * @var array
 	 */
