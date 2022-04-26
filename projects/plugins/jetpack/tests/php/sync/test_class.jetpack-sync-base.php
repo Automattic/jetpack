@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		// Stop triggering 'jetpack.fetchPublicizeConnection' remote XML-RPC call to
 		// WPCOM on every `save_post` action.
-		$publicize = new Publicize();
+		global $publicize;
 		$publicize->set_refresh_wait_transient( HOUR_IN_SECONDS );
 
 		// Bind the two storage systems to the server events.

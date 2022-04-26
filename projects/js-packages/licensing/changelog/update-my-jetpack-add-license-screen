@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Uses ActivationScreen component in My Jetpack; Tweaks original component for compatibility with My Jetpack

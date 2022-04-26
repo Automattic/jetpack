@@ -55,9 +55,6 @@ class Publicize extends Publicize_Base {
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
 		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
-
-		// TODO: Move enhanced Open Graph to the Jetpack plugin.
-		// include_once __DIR__ . '/enhanced-open-graph.php';
 	}
 
 	/**
