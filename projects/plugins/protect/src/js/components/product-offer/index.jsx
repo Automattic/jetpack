@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { ProductOffer as ProductOfferComponent } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { ProductOffer } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 
 const PROTECT_PRODUCT_MOCK = {
 	slug: 'protect',
@@ -30,28 +31,25 @@ const PROTECT_PRODUCT_MOCK = {
  * @returns {object}                    ConnectedProductOffer react component.
  */
 const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
-	/**
-	 * ToDo: Implement bound function when adding the product.
-	 *
-	 * @returns {boolean} False. Todo: implement.
-	 */
-	const AddButtonHandler = useCallback( () => {
-		if ( onAdd ) {
-			onAdd();
-		}
-	}, [ onAdd ] );
+	const { siteIsRegistering, handleRegisterSite, registrationError } = useConnection( {
+		skipUserConnection: true,
+	} );
 
 	return (
-		<ProductOfferComponent
+		<ProductOffer
 			slug={ PROTECT_PRODUCT_MOCK.slug }
 			title={ PROTECT_PRODUCT_MOCK.title }
 			description={ PROTECT_PRODUCT_MOCK.description }
 			features={ PROTECT_PRODUCT_MOCK.features }
 			pricing={ { isFree: true } }
 			isBundle={ false }
-			onAdd={ AddButtonHandler }
+			onAdd={ handleRegisterSite }
 			buttonText={ __( 'Get started with Jetpack Protect', 'jetpack-protect' ) }
 			icon="jetpack"
+			isLoading={ siteIsRegistering }
+			error={
+				registrationError ? __( 'An error occurred. Please try again.', 'jetpack-protect' ) : null
+			}
 			{ ...rest }
 		/>
 	);

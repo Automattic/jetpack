@@ -15,6 +15,7 @@ import { getIconBySlug, CheckmarkIcon } from '../product-icons/index.jsx';
 import ProductPrice from '../product-price/index.jsx';
 import styles from './style.module.scss';
 import Button from '../button/index.jsx';
+import Alert from '../alert/index.jsx';
 
 /**
  * Product Detail Card Header component.
@@ -41,7 +42,7 @@ function ProductOfferHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
  * @param {Array} props.products - List of supported products.
  * @returns {React.Component}      Bundle product icons react component.
  */
-function CardIcons( { products, icon } ) {
+export function IconsCard( { products, icon } ) {
 	if ( icon ) {
 		const CustomIcon = getIconBySlug( icon );
 		return (
@@ -96,6 +97,7 @@ function CardIcons( { products, icon } ) {
  * @param {Function} props.onAdd          - Callback function to be executed on click on Add button.
  * @param {string} props.addProductUrl    - The checkout URL to add/buy the product.
  * @param {string} props.buttonText       - The text to be displayed on the Add button.
+ * @param {string} props.error            - Error message.
  * @returns {React.Component}               ProductOffer react component. Optional.
  */
 const ProductOffer = ( {
@@ -115,12 +117,16 @@ const ProductOffer = ( {
 	addProductUrl,
 	isLoading,
 	buttonText,
+	error,
 } ) => {
 	const { isFree, price, currency, offPrice } = pricing;
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	/* translators: placeholder is product name. */
-	const defautlButtonText = sprintf( __( 'Add %s', 'jetpack' ), title );
+	const defautlButtonText = sprintf(
+		/* translators: placeholder is product name. */
+		__( 'Add %s', 'jetpack' ),
+		title
+	);
 
 	return (
 		<div
@@ -132,7 +138,7 @@ const ProductOffer = ( {
 			{ isBundle && <ProductOfferHeader /> }
 
 			<div className={ styles[ 'card-container' ] }>
-				<CardIcons
+				<IconsCard
 					slug={ slug }
 					icon={ icon }
 					products={ supportedProducts?.length ? supportedProducts : [ slug ] }
@@ -175,6 +181,8 @@ const ProductOffer = ( {
 						<Text>{ __( 'Active on your site', 'jetpack' ) }</Text>
 					</div>
 				) }
+
+				{ error && <Alert level="error">{ error } </Alert> }
 			</div>
 		</div>
 	);
@@ -201,6 +209,7 @@ ProductOffer.propTypes = {
 	hasRequiredPlan: PropTypes.bool,
 	isLoading: PropTypes.bool,
 	onAdd: PropTypes.func,
+	error: PropTypes.string,
 	addProductUrl: PropTypes.string,
 
 	/** Custom text for the onAdd product button. */
@@ -216,6 +225,7 @@ ProductOffer.defaultProps = {
 	onAdd: () => {},
 	isLoading: false,
 	buttonText: '',
+	error: '',
 };
 
 export default ProductOffer;
