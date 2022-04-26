@@ -1,65 +1,92 @@
-## Jetpack 10.8
+## Jetpack 10.9
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### QR Post Feature
+### VideoPress
 
-QR Post is a new Jetpack feature which automatically generates QR codes for your published posts. When scanned, the QR code will link visitors to the post. Take this feature for a spin by:
+In this release there are several additions related to VideoPress: the introduction of private videos and the resumable uploader, as well as increased chunk sizes to enable faster uploads.
 
-- Open an existing published post on your site (or create a new one).
-- Click on the Jetpack icon in the post editor, then locate the QR Code section.
-- Then click on the "Get QR Code" button to view or download the QR code for the post.
-- With a smartphone, try scanning the QR code to test that it forwards to the published post.
-- If your site has a custom logo set, it will be shown in the generated QR code image instead of the Jetpack logo.
+**Video Privacy**
 
-### Openverse Media Support
+1. Add a Jetpack VideoPress plan (since you are likely going to need to upload more than one video).
+2. The default site-level privacy setting will be public.
+3. Create a new post, upload a video. Save and publish. Open post on a private tab. Video is visible.
+4. Edit post. On the video block, set Privacy setting to Private. Save. Open post on private tab. You get a message that the video is private.
+5. Go to Jetpack Settings > Performance and toggle site-wide private videos.
+6. Create a new post and upload a video. Save. Opening the post on a private window, you get a message that the video is private.
+7. Edit the post and set video privacy to public. Now the post video should play back on private windows.
+8. Finally, create a new post, and create 2 new video blocks. Set one to public and one to private. In Jetpack Settings, enable site-wide private videos. Viewing the post on a private browser window, one of the videos will be playing back, the other will display a private message.
 
-[Openverse](https://wordpress.org/openverse/) is a search engine for openly-licensed media which we've added as an extneral media provider. This will allow you to search Openverse for media you'd like to use right from the post editor! To see this in action:
+**Resumable Uploader**
 
-- Open the post editor for a new/existing post.
-- Insert an Image or Gallery block.
-- Click on "Select Image(s)" for the block you inserted, then choose the Openverse option.
-- Search for something you'd like to see images of.
-- Once you have chosen your images and clicked "Select", the images will be inserted into the block.
+1. With VideoPress enabled, create or edit a post and add a Video block.
+2. Upload a video, you should see the resumable uploader progress bar.
+3. Use the pause button to stop and restart the upload.
+4. Once the video reaches 100% it should convert to the Video block.
+5. Additionally, the chunk size has also increased for resumable uploads, so that can be tested by uploading a video larger than 10MB  (smaller works too, but its easier to catch the upload requests).
+6. Check the Network Inspector - the upload should happen in 10Mb chunks instead of 500KB.
 
-### Google Fonts In Global Styles
+### Module activation / deactivation
 
-We've begun adding support for a selection of Google Fonts available from the Global Styles setting. To test this out, try:
+Module activation and deactivation methods have changed location to live within the Status package. You can test activation and deactivation of various features within the Jetpack settings pages and via the module page at `/wp-admin/admin.php?page=jetpack_modules` (and anywhere else that you can).
 
-- Have the Gutenberg plugin version 12.8.1 or later installed on your site.
-- Activate a block-based theme such as Twenty Twenty Two.
-- Turn on the the Google Fonts feature from Jetpack settings: `Jetpack > Settings > Writing > Theme enhancements`
-- Next, navigate to the Full Site Editor: `Appearance > Editor`
-- Once in the Site Editor, click on the `Styles` icon which is next to the Settings icon.
-- Clicking on the `Typography` options will show the subset of Google Fonts which are available for selection, such as: Bodoni Moda, Merriweather, Roboto, or Nunito among others.
-- Save your Typography settings and check that the frontend of your site loads content with the selected font.
+### In-place connection removal
 
-### Jetpack Block Settings Discoverability
+In-place connection flows have been removed. As such we want to make sure all the connection flows work. 
 
-We've improved the discoverability of Jetpack Blocks in settings and added the ability to toggle them if desired:
+1. Test the full-screen connection prompt - this should only display immediately after activating the plugin on the plugins page.
+2. Test the connection banner at the top of the main wp-admin dashboard.
+3. Test the following connection option: `/wp-admin/admin.php?page=jetpack#/setup`.
+4. When already connected, test the reconnect flow here: `/wp-admin/admin.php?page=jetpack#/reconnect`.
+5. When already connected (site only), test the connect user flow here: `/wp-admin/admin.php?page=jetpack#/connect-user`.
 
-- Navigate to `Jetpack > Settings`.
-- Click on the Search icon and search for "blocks".
-- You should see a toggle setting with "Jetpack Blocks give you the power to deliver quality content..."
-- That toggle **must** be active by default.
-- Try checking out the information tooltip/link for the setting.
-- Test that disabling the Jetpack Blocks setting works as expected. If the setting is off for example, you would not be able to insert a Jetpack block such as the Tiled Gallery block.
+### Jetpack Assistant
 
-### Jetpack CRM Installable Via Form Block
+This release introduces multiple new recommendations cards to help with Jetpack setup (self-hosted Jetpack sites only), and these can be tested from the Recommendations tab at `/wp-admin/admin.php?page=jetpack#/recommendations`. For each, test with a free plan. You can then add the recommended plan and check the recommendations flow again, which should be updated to reflect your current plan. Some flows to test include the following:
 
-Jetpack CRM is now directly installable from the Form block settings. Follow these steps to test:
+**Testing extra navigation controls to the recommendations flow**
 
-- If you already have Jetpack CRM on your test site, uninstall it.
-- Open a post for editing, and in the editor insert a Form block (Contact type will work fine).
-- In the Form block sidebar (ensure you're selecting the parent Form block, and not a child block of the Form block) you will see the "CRM Integration" panel.
-- Expand the CRM Integration panel, and follow the prompt to install Jetpack CRM.
-- For further testing, head over to the Plugins menu, and deactivate (don't uninstall) the Jetpack CRM plugin.
-- Go back to the post editor with your Form block, and you should have an option to activate the plugin which you should do.
-- Test that the toggle option to save form entries to the CRM works; it should get saved properly when saving and refreshing the post.
-- Head to the Plugins menu again, and use a plugin such as WP Rollback to downgrade to Jetpack CRM version 4.9.0 or earlier.
-- Then open your post for editing again, and you should observe a notice that a plugin update is required in the CRM Integration panel section.
+1. Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`.
+2. Proceed through the recommendations flow, note that when viewing individual feature recommendations, each step provides a CTA to activate the feature or to skip it.
+3. When you reach the summary screen, you should now be able to click on the names of each feature/ resource to view that step in the flow again.
+4. After you have reached the summary screen and go back to view an individual step, you should have a new control below the CTA button to "View Summary". Clicking "View Summary" should return you to the summary screen.
+5. If you did not activate any of the features in the flow, activate "Downtime Monitor" from the summary screen.
+6. After Downtime Monitor is activated, click on the feature name in the summary screen to view the individual recommendation step.
+7. Notice that, since the feature is active, an "Enabled" label shows on the step and the CTA link now links to the settings for the feature. Additionally, the skip link below the CTA button now reads "Next" instead of "Not Now".
+8. Test activating a few other features and confirm that the CTA buttons on the individual recommendations are linking to the proper settings controls for each feature.
+
+**Testing the Publicize recommendation**
+
+1. Create a new post. After the post is published, navigate back to the Jetpack Dashboard. You should see a red badge with a "1" next to the Recommendations tab in the navigation on the Jetpack dashboard - indicating a new recommendation is available.
+2. Click on the "Recommendations" tab in the navigation - you should now see a recommendation to enable the Publicize feature. There should be a green "New" badge that shows on this step next to the progress bar.
+
+**Testing the Security recommendation**
+
+1. Go to the plugins page and enable the "Hello Dolly" plugin. You can disable it again right away if you like.
+2. After the enabling the plugin, navigate back to the Jetpack Dashboard. You should see a red badge with a "1" next to the Recommendations tab in the navigation on the Jetpack dashboard - indicating a new recommendation is available.
+3. Click on the 'Recommendations' tab in the navigation - you should now see a recommendation step that provides some information about plugin security. There should be a green "New" badge that shows on this step in the upper-left corner. The CTA button should link out to this article: jetpack.com/2021/10/15/wordpress-security-for-beginners-2.
+
+**Testing the Anti-spam recommendation**
+
+1. Add at least 5 sample comments to a post on your site.
+2. Navigate back to the Jetpack dashboard. You should see a red badge with a "1" next to the Recommendations tab in the navigation on the Jetpack dashboard - indicating a new recommendation is available.
+
+### Payments Block
+
+In this release there are a few enhancements to the Payments Blocks (Premium Content on WoA and Payment Button). You will need a Jetpack Security plan or higher to connect the Payment Button block. Some specific changes include: the 'add donation' and 'allow custom amount' options have been added; both blocks should show a Stripe connection nudge if Stripe isn't connected; 
+
+1. To test, go to `wp-admin/post-new.php` and add a new Payments Block.
+2. Add a new payment plan.
+3. Make sure that "Mark as a donation" and "Enable customers to pick their own amount" toggles are working properly in the settings sidebar.
+5. An additional new feature to test is that both blocks should have a Stripe connection nudge, which should disappear once Stripe is connected.
+
+### Publicize
+
+The Publicize package is now being used from a different location - the packages folder in Jetpack instead of the plugin's module files. With this change, it would be helpful to test that Publicize (and also re-publicizing with a Jetpack Security plan or higher) works as you would expect. Some examples of what you can test include adding and removing new Publicize connections, sharing posts, disabling Publicize on individual posts, and re-publicizing older posts.
+
+While testing Publicize, you can also test bulk publishing posts - a fix was added in this release which prevents bulk-edited posts being publicized. You can test this with just one post: if you select "edit" underneath "bulk actions" in the posts list and change the status of a draft to be published (it shouldn't share in this case).
 
 **Thank you for all your help!**

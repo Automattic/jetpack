@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "10.9.0-a.8",
+	"version": "11.0.0-a.0",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -48,7 +48,7 @@
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/components": "1.0.0-alpha.3",
-		"@automattic/format-currency": "1.0.0",
+		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-api": "workspace:* || ^0.13",
 		"@automattic/jetpack-components": "workspace:* || ^0.11",
@@ -83,7 +83,6 @@
 		"cookie": "0.4.1",
 		"copy-webpack-plugin": "10.2.0",
 		"core-js": "3.11.1",
-		"create-react-class": "15.7.0",
 		"debug": "4.3.3",
 		"email-validator": "2.0.4",
 		"fast-json-stable-stringify": "2.1.0",
@@ -102,7 +101,6 @@
 		"qss": "2.0.3",
 		"query-string": "7.0.0",
 		"react-page-visibility": "6.4.0",
-		"react-pure-render": "1.0.2",
 		"react-redux": "6.0.1",
 		"react-router-dom": "5.2.0",
 		"react-tagsinput": "3.19.0",

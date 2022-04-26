@@ -1,5 +1,5 @@
 {
-	"extends": "../../../tools/js-tools/tsconfig.base.json",
+	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {

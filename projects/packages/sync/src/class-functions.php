@@ -632,7 +632,7 @@ class Functions {
 	/**
 	 * Return the list of installed themes
 	 *
-	 * @since $$next-version$$
+	 * @since 1.31.0
 	 *
 	 * @return array
 	 */
@@ -654,7 +654,7 @@ class Functions {
 		/**
 		 * Filters the output of Sync's get_theme callable
 		 *
-		 * @since $$next-version$$
+		 * @since 1.31.0
 		 *
 		 * @param array $themes The list of installed themes formatted in an array with a collection of information extracted from the Theme's headers
 		 */

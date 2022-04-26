@@ -100,6 +100,7 @@ export default function useProtectData() {
 
 	return {
 		numVulnerabilities: status.numVulnerabilities || 0,
+		numCoreVulnerabilities: core?.vulnerabilities?.length || 0,
 		numPluginsVulnerabilities: status.numPluginsVulnerabilities || 0,
 		numThemesVulnerabilities: status.numThemesVulnerabilities || 0,
 		lastChecked: status.lastChecked || null,
