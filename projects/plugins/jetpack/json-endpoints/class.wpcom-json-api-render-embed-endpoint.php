@@ -78,7 +78,7 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoin
 		}
 
 		// our output for this endpoint..
-		$return = array();
+		$return              = array();
 		$return['embed_url'] = $embed_url;
 		$return['result']    = $render['result'];
 

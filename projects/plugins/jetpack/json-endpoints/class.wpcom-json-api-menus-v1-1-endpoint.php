@@ -149,7 +149,6 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 	 * @return array
 	 */
 	public function whitelist_and_rename_with( $object, $dict ) {
-		$keys   = array_keys( $dict );
 		$return = array();
 		foreach ( (array) $object as $k => $v ) {
 			if ( isset( $dict[ $k ] ) ) {
