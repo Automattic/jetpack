@@ -42,6 +42,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 	 * Format the sharing button.
 	 *
 	 * @param object $button - the button object.
+	 * @return array
 	 */
 	public function format_sharing_button( $button ) {
 		$response = array(
