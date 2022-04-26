@@ -142,7 +142,9 @@ abstract class WPCOM_JSON_API_Menus_Translator {
 	 * See if we need to whitelist and rename.
 	 *
 	 * @param object|array $object - the object (or associative array) we're checking.
-	 * @param array  $dict - the...dictionary? I have no idea.
+	 * @param array  $dict Associative array holding the key whitelist and renaming/casting data.
+	 *   Keys are the keys from $object` to preserve. Values are the key to use in the output or an
+	 *   assoc where 'name' specifies the output key and 'type' specifies the PHP type to cast the value to.
 	 *
 	 * @return array
 	 */
