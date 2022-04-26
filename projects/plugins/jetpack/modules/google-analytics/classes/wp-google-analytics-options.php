@@ -30,6 +30,8 @@ class Jetpack_Google_Analytics_Options {
 
 	/**
 	 * Get the analytics tracking code.
+	 *
+	 * @return string
 	 */
 	public static function get_tracking_code() {
 		return self::get_option( 'code', '' );
