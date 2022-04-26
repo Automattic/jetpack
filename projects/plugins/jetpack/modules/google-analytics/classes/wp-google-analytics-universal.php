@@ -183,7 +183,7 @@ class Jetpack_Google_Analytics_Universal {
 	}
 
 	/**
-	 * Process add-to-cart analytics options.
+	 * Enqueue add-to-cart click tracking script, if enabled.
 	 */
 	public function add_to_cart() {
 		if ( ! Jetpack_Google_Analytics_Options::track_add_to_cart_is_enabled() ) {
