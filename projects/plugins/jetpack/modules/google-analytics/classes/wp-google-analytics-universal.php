@@ -248,7 +248,7 @@ class Jetpack_Google_Analytics_Universal {
 	}
 
 	/**
-	 * Process remove-from-cart analytics options.
+	 * Enqueue remove-from-cart click tracking script, if enabled.
 	 */
 	public function remove_from_cart() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
