@@ -303,7 +303,7 @@ class Jetpack_Google_Analytics_Universal {
 	}
 
 	/**
-	 * Process listing-impression analytics options.
+	 * Enqueue listing impression tracking script, if enabled.
 	 */
 	public function listing_impression() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
