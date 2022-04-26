@@ -242,7 +242,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 			$editable_roles = array_keys( get_editable_roles() );
 			if ( ! in_array( $user['role'], $editable_roles, true ) ) {
-				// translators: The role that was returned that's not valid.
+				// translators: The role that is not valid.
 				return new WP_Error( 'invalid_input', sprintf( __( '%s is not a valid role.', 'jetpack' ), $editable_roles ), 400 );
 			}
 		}
