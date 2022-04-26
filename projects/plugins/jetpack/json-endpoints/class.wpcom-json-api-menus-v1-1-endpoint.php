@@ -70,9 +70,10 @@ abstract class WPCOM_JSON_API_Menus_Abstract_Endpoint extends WPCOM_JSON_API_End
 	}
 
 	/**
-	 * Complexify the data.
+	 * Complexify the menus.
 	 *
-	 * @param object $data - the data we're complexifying.
+	 * @param array[] $data - the menu data we're complexifying.
+	 * @return array[]|WP_Error Complexified menu data, or WP_Error on error.
 	 */
 	protected function complexify( $data ) {
 		$complexifier = new WPCOM_JSON_API_Menus_Complexify( $data );
