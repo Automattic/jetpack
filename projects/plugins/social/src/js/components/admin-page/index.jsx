@@ -34,10 +34,10 @@ const ConnectionItem = props => {
 				<tr>
 					<td className={ styles.connectionRow }>{ connection.external_display }</td>
 					<td className={ styles.connectionRow }>
-						{ connection && (
+						{ connection.profile_picture && (
 							<img
 								alt="connection avatar"
-								src={ connection?.profile_picture ?? null }
+								src={ connection.profile_picture }
 								height="50px"
 								width="50px"
 							/>
