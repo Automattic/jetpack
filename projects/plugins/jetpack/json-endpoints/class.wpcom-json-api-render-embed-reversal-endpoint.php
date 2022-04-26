@@ -107,7 +107,7 @@ class WPCOM_JSON_API_Render_Embed_Reversal_Endpoint extends WPCOM_JSON_API_Rende
 		}
 
 		// our output for this endpoint..
-		$return = array();
+		$return                  = array();
 		$return['maybe_embed']   = $maybe_embed;
 		$return['result']        = $ksesed_content;
 		$return['reversal_type'] = ( $is_embed ) ? 'embed' : 'shortcode';

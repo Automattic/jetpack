@@ -75,7 +75,7 @@ class WPCOM_JSON_API_Render_Shortcode_Endpoint extends WPCOM_JSON_API_Render_End
 		}
 
 		// our output for this endpoint..
-		$return = array();
+		$return              = array();
 		$return['shortcode'] = $shortcode;
 		$return['result']    = $render['result'];
 
