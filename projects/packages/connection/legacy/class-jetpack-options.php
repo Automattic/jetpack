@@ -2,7 +2,7 @@
 /**
  * Legacy Jetpack_Options class.
  *
- * @package automattic/jetpack-options
+ * @package automattic/jetpack-connection
  */
 
 use Automattic\Jetpack\Constants;
