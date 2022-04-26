@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add 'write' command option 'add-pr-num' for adding GH PR numbers to entries.

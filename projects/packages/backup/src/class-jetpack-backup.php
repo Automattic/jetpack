@@ -112,7 +112,7 @@ class Jetpack_Backup {
 		/**
 		 * Runs right after the Jetpack Backup package is initialized.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.3.0
 		 */
 		do_action( 'jetpack_backup_initialized' );
 	}
