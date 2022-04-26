@@ -158,7 +158,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 *
 	 * @param string $embed_url - the embed URL.
 	 *
-	 * @return mixed
+	 * @return string|false
 	 */
 	public function do_embed( $embed_url ) {
 		// in order for oEmbed to fire in the `$wp_embed->shortcode` method, we need to set a post as the current post
