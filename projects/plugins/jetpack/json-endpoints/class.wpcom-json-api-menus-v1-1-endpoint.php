@@ -1034,7 +1034,7 @@ class WPCOM_JSON_API_Menus_List_Menus_Endpoint extends WPCOM_JSON_API_Menus_Abst
 	 * @param string $path - the path.
 	 * @param int    $site - the site ID.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public function callback( $path = '', $site = 0 ) {
 		$site_id = $this->switch_to_blog_and_validate_user( $this->api->get_blog_id( $site ) );
