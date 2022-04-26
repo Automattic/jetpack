@@ -114,7 +114,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		if ( strpos( $_SERVER['HTTP_USER_AGENT'], 'wp-windows8' ) ) {
 			remove_shortcode( 'gallery', 'gallery_shortcode' );
-			add_shortcode( 'gallery', array( &$this, 'win8_gallery_shortcode' ) ); // phpcs:ignore MediaWiki.Usage.ReferenceThis.Found
+			add_shortcode( 'gallery', array( $this, 'win8_gallery_shortcode' ) );
 		}
 
 		switch ( $field ) {
