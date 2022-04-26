@@ -6,10 +6,10 @@
 .jp-recommendations-discount-card {
 	display: flex;
 	justify-content: flex-end;
-	align-items: center;
+	align-items: flex-start;
 
 	height: 100%;
-	padding: 2rem 3rem 2rem 0;
+	padding: 3rem 3rem 2rem 0;
 
 	@include breakpoint( '<782px' ) {
 		justify-content: center;
@@ -23,7 +23,7 @@
 
 	&__container {
 		width: 100%;
-		max-width: 360px;		
+		max-width: 360px;
 	}
 
 	&__card {
@@ -59,19 +59,6 @@
 		width: 55px;
 	}
 
-	&__discount {
-		padding: 0.375rem 0.75rem;
-
-		background-color: var( --jp-yellow-10 );
-		border-radius: var( --jp-border-radius );
-		color: var( --jp-gray-100 );
-
-		font-size: $font-body-small;
-		font-weight: $bold;
-		line-height: 1;
-		text-align: center;
-	}
-
 	&__card-body {
 		display: flex;
 		flex-direction: column;
@@ -84,15 +71,19 @@
 	}
 
 	&__feature-list {
-		@include features-list;	
+		@include features-list;
 	}
 
 	&__button {
 		align-self: center;
-
 		margin-top: 0.25rem;
-
 		font-size: $font-body;
+		display: flex;
+		align-items: center;
+
+		.components-external-link__icon {
+			margin-left: 4px;
+		}
 	}
 
 	&__timer {

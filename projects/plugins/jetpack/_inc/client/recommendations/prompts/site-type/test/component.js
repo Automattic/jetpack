@@ -32,6 +32,9 @@ function buildInitialState() {
 					'site-type-store': true,
 					'site-type-business': true,
 				},
+				requests: {
+					isFetchingRecommendationsProductSuggestions: false
+				}
 			},
 			settings: {
 				items: [],
