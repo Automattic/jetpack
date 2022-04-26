@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Created a Stripe connect nudge that is aware of the product management store

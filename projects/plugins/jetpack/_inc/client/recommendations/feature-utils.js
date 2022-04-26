@@ -8,9 +8,14 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
+import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
+import {
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_VIDEOPRESS,
+	PLAN_JETPACK_ANTI_SPAM,
+} from 'lib/plans/constants';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
@@ -67,6 +72,25 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		default:
 			throw `Unknown feature slug in mapStateToSummaryFeatureProps() recommendations/feature-utils.js: ${ featureSlug }`;
+	}
+};
+
+export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
+	switch ( resourceSlug ) {
+		case 'security-plan':
+			return {
+				displayName: __( 'Site Security', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+			};
+		case 'anti-spam':
+			return {
+				displayName: __( 'Spam Management', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+			};
+		default:
+			throw `Unknown resource slug in mapStateToSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
 	}
 };
 
@@ -204,6 +228,39 @@ export const getStepContent = stepSlug => {
 				illustrationPath: '/recommendations/general-illustration.png',
 				rnaIllustration: true,
 			};
+		case 'security-plan':
+			return {
+				question: __( 'With more plugins comes more responsibility.', 'jetpack' ),
+				description: __(
+					'As you add plugins to your site, you have to start thinking about vulnerabilities, failed updates, and incompatible plugins. You should ensure that the plugins you install:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Have good user ratings', 'jetpack' ),
+					__( 'Are compatible with the most recent version of WordPress', 'jetpack' ),
+					__( 'Are developed by teams that respond to support requests promptly', 'jetpack' ),
+				],
+				descriptionSecondary: __(
+					'Or let Jetpack handle your security and backups so you can focus on your business.',
+					'jetpack'
+				),
+				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
+			};
+		case 'anti-spam':
+			return {
+				question: __( 'It’s time to block spam comments.', 'jetpack' ),
+				description: __(
+					'Congratulations! Your content is getting traction and receiving comments. The more popular your content is, the more likely it is you will be a target for spam comments. To ensure a great experience for your readers, we recommend manually moderating spam or using an automated product like Jetpack Anti-spam.',
+					'jetpack'
+				),
+				ctaText: __( 'Learn how to block spam', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+				illustrationPath: '/recommendations/general-illustration.png',
+				rnaIllustration: true,
+			};
 		case 'videopress':
 			return {
 				question: __(
@@ -234,4 +291,72 @@ export const getStepContent = stepSlug => {
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;
 	}
+};
+
+// Gets data for the product suggestion card that can show on a recommendation step.
+export const getProductCardData = ( state, productSlug ) => {
+	const siteRawUrl = getSiteRawUrl( state );
+	const products = getStaticProductsForPurchase( state );
+
+	switch ( productSlug ) {
+		// Security Plan
+		case PLAN_JETPACK_SECURITY_T1_YEARLY:
+			return {
+				productCardTitle: __( 'Increase your site security!', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get Jetpack Security', 'jetpack' ),
+				productCardList: products.security ? products.security.features : [],
+				productCardIcon: '/recommendations/cloud-icon.svg',
+			};
+		case PLAN_JETPACK_ANTI_SPAM:
+			return {
+				productCardTitle: __( 'Block spam automatically with Jetpack Anti-spam', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get Anti-spam', 'jetpack' ),
+				productCardList: products.akismet ? products.akismet.features : [],
+				productCardIcon: '/recommendations/bug-icon.svg',
+			};
+		case PLAN_JETPACK_VIDEOPRESS:
+			return {
+				productCardTitle: __( 'Upgrade for more videos and storage', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get VideoPress', 'jetpack' ),
+				productCardList: products.videopress ? products.videopress.features : [],
+				productCardIcon: '/recommendations/video-icon.svg',
+			};
+		default:
+			throw `Unknown product slug for getProductCardData: ${ productSlug }`;
+	}
+};
+
+// Sets step-specific props for when products are shown on different recommendation steps
+// Important that this be called after getProductCardData when setting up props
+export const getProductCardDataStepOverrides = ( state, productSlug, stepSlug ) => {
+	switch ( productSlug ) {
+		case PLAN_JETPACK_SECURITY_T1_YEARLY:
+			if ( stepSlug === 'publicize' ) {
+				return {
+					productCardTitle: __( 'Your site is growing. It’s time for a security plan.', 'jetpack' ),
+				};
+			} else if ( stepSlug === 'security-plan' ) {
+				return {
+					productCardTitle: __(
+						'Jetpack Security gives you complete site protection and backups.',
+						'jetpack'
+					),
+				};
+			}
+			break;
+	}
+
+	return {};
 };

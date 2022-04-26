@@ -17,7 +17,6 @@ babel.config.js                                 production-exclude
 build/**/*.js.map                               production-exclude
 changelog/**                                    production-exclude
 composer.lock                                   production-exclude
-gulpfile.babel.js                               production-exclude
 package.json                                    production-exclude
 phpunit.xml.dist                                production-exclude
 README.md                                       production-exclude

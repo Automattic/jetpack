@@ -21,9 +21,13 @@ import { ProductCardUpsell } from '../product-card-upsell';
 import { generateCheckoutLink } from '../utils';
 import { getSiteTitle, getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import {
+	addViewedRecommendation as addViewedRecommendationAction,
 	getSidebarCardSlug,
+	getStep,
 	getSummaryFeatureSlugs,
+	getSummaryResourceSlugs,
 	getUpsell,
+	isUpdatingRecommendationsStep,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
@@ -33,6 +37,7 @@ import { getPluginsData } from 'state/site/plugins';
  * Style dependencies
  */
 import './style.scss';
+import { ResourceSummary } from '../feature-summary/resource';
 
 const SummaryComponent = props => {
 	const {
@@ -43,14 +48,22 @@ const SummaryComponent = props => {
 		siteRawUrl,
 		siteAdminUrl,
 		summaryFeatureSlugs,
+		summaryResourceSlugs,
 		updateRecommendationsStep,
+		addViewedRecommendation,
 		upsell,
 		newRecommendations,
+		stateStepSlug,
+		updatingStep,
 	} = props;
 
 	useEffect( () => {
-		updateRecommendationsStep( 'summary' );
-	}, [ updateRecommendationsStep ] );
+		if ( 'summary' !== stateStepSlug ) {
+			updateRecommendationsStep( 'summary' );
+		} else if ( 'summary' === stateStepSlug && ! updatingStep ) {
+			addViewedRecommendation( 'summary' );
+		}
+	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
 
 	const upgradeUrl = upsell.product_slug
 		? generateCheckoutLink( upsell.product_slug, siteAdminUrl, siteRawUrl )
@@ -97,6 +110,16 @@ const SummaryComponent = props => {
 						<div>
 							{ summaryFeatureSlugs.skipped.map( slug => (
 								<FeatureSummary key={ slug } featureSlug={ slug } isNew={ isNew( slug ) } />
+							) ) }
+						</div>
+					</section>
+				) }
+				{ summaryResourceSlugs.length > 0 && (
+					<section aria-labelledby="resources-summary-title">
+						<h2 id="resources-summary-title">{ __( 'Resources', 'jetpack' ) }</h2>
+						<div>
+							{ summaryResourceSlugs.map( slug => (
+								<ResourceSummary key={ slug } resourceSlug={ slug } isNew={ isNew( slug ) } />
 							) ) }
 						</div>
 					</section>
@@ -182,11 +205,15 @@ const Summary = connect(
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
+			summaryResourceSlugs: getSummaryResourceSlugs( state ),
+			stateStepSlug: getStep( state ),
+			updatingStep: isUpdatingRecommendationsStep( state ),
 			upsell,
 		};
 	},
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 	} )
 )( SummaryComponent );
 
