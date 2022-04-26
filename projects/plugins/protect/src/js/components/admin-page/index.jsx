@@ -17,12 +17,10 @@ import { useConnection } from '@automattic/jetpack-connection';
  */
 import Summary from '../summary';
 import VulnerabilitiesList from '../vulnerabilities-list';
-import useProtectData from '../../hooks/use-protect-data';
 import Interstitial from '../interstitial';
 
 const Admin = () => {
 	const { isRegistered } = useConnection( { skipUserConnection: true } );
-	const { plugins, themes, core } = useProtectData();
 
 	// Show interstital page when Jetpack is not connected.
 	if ( ! isRegistered ) {
@@ -53,13 +51,7 @@ const Admin = () => {
 			<AdminSection>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
-						<VulnerabilitiesList title="WordPress" list={ [ core ] } />
-					</Col>
-					<Col>
-						<VulnerabilitiesList title="Plugins" list={ plugins } />
-					</Col>
-					<Col>
-						<VulnerabilitiesList title="Themes" list={ themes } />
+						<VulnerabilitiesList />
 					</Col>
 				</Container>
 			</AdminSection>
