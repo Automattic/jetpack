@@ -91,24 +91,24 @@ class Plugin {
 	/**
 	 * Add the plugin to the set of disconnected ones.
 	 *
-	 * @deprecated since $$next-version$$.
+	 * @deprecated since 1.39.0.
 	 *
 	 * @return bool
 	 */
 	public function disable() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '1.39.0' );
 		return true;
 	}
 
 	/**
 	 * Remove the plugin from the set of disconnected ones.
 	 *
-	 * @deprecated since $$next-version$$.
+	 * @deprecated since 1.39.0.
 	 *
 	 * @return bool
 	 */
 	public function enable() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '1.39.0' );
 		return true;
 	}
 
