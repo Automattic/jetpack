@@ -2,6 +2,7 @@
 @import 'node_modules/@automattic/jetpack-base-styles/style';
 @import '../_inc/client/scss/calypso-colors';
 @import '../_inc/client/scss/mixin_breakpoint';
+@import '../_inc/client/recommendations/mixin';
 
 .jp-recommendations-banner-main {
 	position: relative;
@@ -207,24 +208,10 @@
 }
 
 .jp-recommendations-banner__illustration-container {
+	@include recommendation-sidebar-blob;
+
 	width: 100%;
 	position: relative;
-
-	background: radial-gradient(
-			circle at 60%,
-			rgba( 6, 158, 8, 0.15 ) 0%,
-			rgba( 255, 255, 255, 0 ) 75%
-		),
-		radial-gradient(
-			circle at 30% 80%,
-			rgba( 206, 217, 242, 0.5 ) 5%,
-			rgba( 255, 255, 255, 0 ) 25%
-		),
-		radial-gradient(
-			circle at 50% 15%,
-			rgba( 245, 230, 179, 0.5 ) 0%,
-			rgba( 255, 255, 255, 0 ) 35%
-		);
 
 	img {
 		position: absolute;
