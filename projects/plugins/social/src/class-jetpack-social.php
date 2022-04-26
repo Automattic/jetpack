@@ -90,11 +90,11 @@ class Jetpack_Social {
 				'textdomain' => 'jetpack-social',
 			)
 		);
+
 		Assets::enqueue_script( 'jetpack-social' );
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-social', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-social', $this->render_initial_state(), 'before' );
-
 	}
 
 	/**
@@ -112,10 +112,13 @@ class Jetpack_Social {
 	 * @return array
 	 */
 	public function initial_state() {
+		global $publicize;
+
 		return array(
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'connections'       => $publicize->get_all_connections_for_user(),
 		);
 	}
 

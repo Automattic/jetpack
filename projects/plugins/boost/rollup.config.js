@@ -8,7 +8,6 @@ import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import postcss from 'rollup-plugin-postcss';
-import builtins from 'rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
 import svelteSVG from 'rollup-plugin-svelte-svg';
 import copy from 'rollup-plugin-copy';
@@ -101,7 +100,6 @@ export default {
 
 		commonjs(),
 		globals(),
-		builtins(),
 		json(),
 
 		babel( {

@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.17.10 - 2022-04-26
+### Changed
+- JS Connection: add default connection arguments for the useConnection() hook
+- Updated package dependencies.
+
+### Fixed
+- Disconnect Modal: Fix react warning
+
 ## 0.17.9 - 2022-04-19
 ### Added
 - Add connected plugins list to the initial state and add action to update it when needed

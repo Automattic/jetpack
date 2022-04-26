@@ -13,17 +13,7 @@ import { NavigationContext } from './use-menu-navigation';
 import ItemLabel from './label';
 import ItemBadge from './badge';
 
-const NavigationItem = ( {
-	id,
-	initial,
-	label,
-	icon,
-	badge,
-	disabled,
-	onClick,
-	onKeyDown,
-	onFocus,
-} ) => {
+const NavigationItem = ( { id, label, icon, badge, disabled, onClick, onKeyDown, onFocus } ) => {
 	const context = useContext( NavigationContext );
 
 	const selected = context?.selectedItem === id;
@@ -72,7 +62,7 @@ const NavigationItem = ( {
 	);
 
 	useEffect( () => {
-		registerItem( { id, initial, disabled } );
+		registerItem( { id, disabled } );
 		// eslint-disable-next-line
 	}, [] );
 

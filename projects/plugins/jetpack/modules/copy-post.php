@@ -51,7 +51,12 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		$source_post = get_post( $_GET['jetpack-copy'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// Shouldn't happen, since this filter is only added when the value isn't empty, but check anyway.
+		if ( empty( $_GET['jetpack-copy'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		$source_post = get_post( intval( $_GET['jetpack-copy'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $source_post instanceof WP_Post ||
 			! $this->user_can_access_post( $source_post->ID ) ||
 			! $this->validate_post_type( $source_post ) ) {

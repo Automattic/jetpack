@@ -483,7 +483,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		public function ajax_check_api_key() {
 			if ( isset( $_POST['apikey'] ) ) {
 				if ( check_ajax_referer( 'customize_contact_info_api_key' ) && current_user_can( 'customize' ) ) {
-					$apikey                     = wp_kses( $_POST['apikey'], array() );
+					$apikey                     = wp_kses( wp_unslash( $_POST['apikey'] ), array() );
 					$default_instance           = $this->defaults();
 					$default_instance['apikey'] = $apikey;
 					wp_send_json( array( 'result' => esc_html( $this->has_good_map( $default_instance ) ) ) );

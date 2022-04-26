@@ -91,19 +91,25 @@ class Plugin {
 	/**
 	 * Add the plugin to the set of disconnected ones.
 	 *
+	 * @deprecated since 1.39.0.
+	 *
 	 * @return bool
 	 */
 	public function disable() {
-		return Plugin_Storage::disable_plugin( $this->slug );
+		_deprecated_function( __METHOD__, '1.39.0' );
+		return true;
 	}
 
 	/**
 	 * Remove the plugin from the set of disconnected ones.
 	 *
+	 * @deprecated since 1.39.0.
+	 *
 	 * @return bool
 	 */
 	public function enable() {
-		return Plugin_Storage::enable_plugin( $this->slug );
+		_deprecated_function( __METHOD__, '1.39.0' );
+		return true;
 	}
 
 	/**
@@ -112,7 +118,7 @@ class Plugin {
 	 * @return bool
 	 */
 	public function is_enabled() {
-		return ! in_array( $this->slug, Plugin_Storage::get_all_disabled_plugins(), true );
+		return in_array( $this->slug, Plugin_Storage::get_all(), true );
 	}
 
 }

@@ -31,7 +31,7 @@ export default function AddLicenseScreen() {
 				</Col>
 				<Col>
 					<ActivationScreen
-						siteRawUrl={ window?.myJetpackInitialState?.rawUrl }
+						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
 						onActivationSuccess={ undefined }
 						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
 						currentRecommendationsStep={ null }
