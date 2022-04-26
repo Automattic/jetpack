@@ -97,7 +97,8 @@ class Jetpack_Google_Analytics_Universal {
 	/**
 	 * Check if the 'anonymize_ip' option should be added to the universal Google Analytics queue (ga) commands.
 	 *
-	 * @param array $command_array Array of commands to process.
+	 * @param array $command_array Array of commands.
+	 * @return array `$command_array` with the additional command conditionally added.
 	 */
 	public function maybe_anonymize_ip( $command_array ) {
 		if ( Jetpack_Google_Analytics_Options::anonymize_ip_is_enabled() ) {
