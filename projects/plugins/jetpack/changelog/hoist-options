@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Moved the Options class to Connection package.
