@@ -119,8 +119,6 @@ class Plugin {
 	 * @return bool
 	 */
 	public function is_enabled() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
 		return true;
 	}
-
 }
