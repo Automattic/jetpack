@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "84511d55eea080f79b6be51e041ca5dc",
+    "content-hash": "850c4603647920b2b8cab52d12b54408",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -506,22 +506,23 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "v1.39.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "3e28c47c72afe0f401f0300777c9a8603524fb44"
+                "reference": "b08bf488fe983ee902ba212f6d35de4ef6931ecc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/3e28c47c72afe0f401f0300777c9a8603524fb44",
-                "reference": "3e28c47c72afe0f401f0300777c9a8603524fb44",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/b08bf488fe983ee902ba212f6d35de4ef6931ecc",
+                "reference": "b08bf488fe983ee902ba212f6d35de4ef6931ecc",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-constants": "^1.6",
+                "automattic/jetpack-options": "^1.15",
                 "automattic/jetpack-redirect": "^1.7",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.13"
@@ -532,7 +533,6 @@
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
-            "default-branch": true,
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
@@ -545,7 +545,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.40.x-dev"
+                    "dev-master": "1.39.x-dev"
                 }
             },
             "autoload": {
@@ -561,9 +561,9 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection/tree/master"
+                "source": "https://github.com/Automattic/jetpack-connection/tree/v1.39.1"
             },
-            "time": "2022-04-27T03:49:24+00:00"
+            "time": "2022-04-27T16:27:56+00:00"
         },
         {
             "name": "automattic/jetpack-connection-ui",
@@ -1723,30 +1723,31 @@
         },
         {
             "name": "automattic/jetpack-wordads",
-            "version": "dev-master",
+            "version": "v0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-wordads.git",
-                "reference": "24294f8241c0bf1b2eecd2d52a3b542dc46b7d26"
+                "reference": "9fcbd36eb6ac5685634a428d728fc03260a7703a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-wordads/zipball/24294f8241c0bf1b2eecd2d52a3b542dc46b7d26",
-                "reference": "24294f8241c0bf1b2eecd2d52a3b542dc46b7d26",
+                "url": "https://api.github.com/repos/Automattic/jetpack-wordads/zipball/9fcbd36eb6ac5685634a428d728fc03260a7703a",
+                "reference": "9fcbd36eb6ac5685634a428d728fc03260a7703a",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-config": "^1.8",
-                "automattic/jetpack-connection": "^1.40",
+                "automattic/jetpack-connection": "^1.39",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-status": "^1.13"
+                "automattic/jetpack-options": "^1.15",
+                "automattic/jetpack-status": "^1.13",
+                "automattic/jetpack-tracking": "^1.14"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
-            "default-branch": true,
             "type": "jetpack-library",
             "extra": {
                 "mirror-repo": "Automattic/jetpack-wordads",
@@ -1773,9 +1774,9 @@
             ],
             "description": "Earn income by allowing Jetpack to display high quality ads.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-wordads/tree/master"
+                "source": "https://github.com/Automattic/jetpack-wordads/tree/v0.1.1"
             },
-            "time": "2022-04-26T21:16:19+00:00"
+            "time": "2022-04-26T14:34:08+00:00"
         },
         {
             "name": "nojimage/twitter-text-php",
@@ -5132,9 +5133,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "automattic/jetpack-wordads": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
