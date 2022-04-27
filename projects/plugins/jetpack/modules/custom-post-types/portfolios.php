@@ -761,7 +761,7 @@ class Jetpack_Portfolio {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param bool|string $attr Shrtcode ttribute value.
+	 * @param bool|string $attr Shortcode attribute value.
 	 *
 	 * @return bool
 	 */
