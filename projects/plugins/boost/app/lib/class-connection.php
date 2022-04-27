@@ -127,7 +127,7 @@ class Connection {
 			$is_connected = $this->manager->is_registered();
 		}
 
-		return $is_connected && $this->manager->is_plugin_enabled();
+		return $is_connected;
 	}
 
 	/**
