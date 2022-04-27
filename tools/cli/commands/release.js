@@ -128,7 +128,7 @@ export async function runScript( argv ) {
 }
 
 /**
- * Set the argument variables depending on which script we're runnning.
+ * Set the argument variables depending on which script we're running.
  *
  * @param {object} argv - the arguments passed
  */
@@ -171,6 +171,7 @@ export async function scriptRouter( argv ) {
 			await checkBranchValid( argv );
 			argv.script = `vendor/bin/changelogger`;
 			argv.scriptArgs = [ `write`, `--amend` ];
+			argv.addPrNum && argv.scriptArgs.push( '--add-pr-num' );
 			argv.workingDir = `projects/${ argv.project }`;
 			argv.next = `Finished! Next:
 				  - You will now likely want to update readme.txt again, then commit to the release branch:
