@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.13.0",
+	"version": "0.13.1-alpha",
 	"description": "Jetpack Api Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -12,6 +12,7 @@
 	"devDependencies": {
 		"fetch-mock": "9.11.0",
 		"jetpack-js-test-runner": "workspace:*",
+		"node-fetch": "2.6.7",
 		"nyc": "15.1.0"
 	},
 	"type": "module",

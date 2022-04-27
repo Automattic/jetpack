@@ -1636,6 +1636,7 @@ class Manager {
 	 * This function will automatically perform "soft" or "hard" disconnect depending on whether other plugins are using the connection.
 	 * This is a proxy method to simplify the Connection package API.
 	 *
+	 * @see Manager::disable_plugin()
 	 * @see Manager::disconnect_site()
 	 *
 	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
@@ -1644,6 +1645,7 @@ class Manager {
 	 */
 	public function remove_connection( $disconnect_wpcom = true, $ignore_connected_plugins = false ) {
 
+		$this->disable_plugin();
 		$this->disconnect_site( $disconnect_wpcom, $ignore_connected_plugins );
 
 		return true;
@@ -2328,12 +2330,14 @@ class Manager {
 	 * Force plugin disconnect. After its called, the plugin will not be allowed to use the connection.
 	 * Note: this method does not remove any access tokens.
 	 *
-	 * @deprecated since 1.39.0
 	 * @return bool
 	 */
 	public function disable_plugin() {
-		_deprecated_function( __METHOD__, '1.39.0' );
-		return null;
+		if ( ! $this->plugin ) {
+			return false;
+		}
+
+		return $this->plugin->disable();
 	}
 
 	/**
@@ -2341,12 +2345,14 @@ class Manager {
 	 * After its called, the plugin will be allowed to use the connection again.
 	 * Note: this method does not initialize access tokens.
 	 *
-	 * @deprecated since 1.39.0.
 	 * @return bool
 	 */
 	public function enable_plugin() {
-		_deprecated_function( __METHOD__, '1.39.0' );
-		return null;
+		if ( ! $this->plugin ) {
+			return false;
+		}
+
+		return $this->plugin->enable();
 	}
 
 	/**
