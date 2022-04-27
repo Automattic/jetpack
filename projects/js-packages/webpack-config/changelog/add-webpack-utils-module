@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added utils module to use for webpack specific utility functions

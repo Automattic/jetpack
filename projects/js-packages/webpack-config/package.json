@@ -65,7 +65,8 @@
 		".": "./src/index.js",
 		"./webpack": "./src/webpack.js",
 		"./babel": "./src/babel.js",
-		"./babel/preset": "./src/babel-preset.js"
+		"./babel/preset": "./src/babel-preset.js",
+		"./utils": "./src/utils.js"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
