@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.11.3",
+	"version": "0.11.4-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -20,6 +20,7 @@
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@babel/core": "7.17.9",
 		"@babel/preset-react": "7.16.7",
+		"@storybook/addon-actions": "6.4.22",
 		"@testing-library/react": "11.2.7",
 		"@types/chai": "4.3.0",
 		"@types/jest": "27.4.1",
@@ -31,6 +32,8 @@
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-test-renderer": "17.0.2",
+		"sass": "1.43.3",
+		"storybook-addon-mock": "2.0.2",
 		"typescript": "4.3.5"
 	},
 	"peerDependencies": {
