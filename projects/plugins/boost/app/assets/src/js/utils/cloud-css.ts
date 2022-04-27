@@ -10,9 +10,9 @@ import {
 	CriticalCssStatus,
 } from '../stores/critical-css-status';
 
-export async function requestCloudCss(): Promise< void > {
+export async function requestCloudCss( isShowstopperRetry = false ): Promise< void > {
 	// Todo: Debounce request.
-	resetGenerateStatus( true );
+	resetGenerateStatus( true, isShowstopperRetry );
 	try {
 		await api.post( '/cloud-css/request-generate' );
 	} catch ( e ) {

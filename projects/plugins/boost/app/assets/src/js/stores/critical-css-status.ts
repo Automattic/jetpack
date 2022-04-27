@@ -193,11 +193,18 @@ export function storeGenerateError( error: Error ): void {
 	} ) );
 }
 
-export function resetGenerateStatus( forceRequest = true ): void {
+/**
+ * Reset Critical CSS generation status.
+ *
+ * @param {boolean} forceRequest       Force to set the status to `requesting`
+ * @param {boolean} isShowstopperRetry Whether this reset is after a showstopper error.
+ */
+export function resetGenerateStatus( forceRequest = true, isShowstopperRetry = false ): void {
 	return update( state => ( {
 		...state,
 		...resetState,
 		status: forceRequest ? REQUESTING : resetState.status,
+		retried_show_stopper: isShowstopperRetry,
 	} ) );
 }
 

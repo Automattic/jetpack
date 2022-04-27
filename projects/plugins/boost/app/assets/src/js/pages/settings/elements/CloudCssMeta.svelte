@@ -14,10 +14,13 @@
 </script>
 
 {#if $showError}
-	<CriticalCssShowStopperError on:retry={requestCloudCss} />
+	<CriticalCssShowStopperError
+		supportLink="https://jetpackme.wordpress.com/contact-support/"
+		on:retry={() => requestCloudCss( true )}
+	/>
 {:else}
 	<CriticalCssStatus
-		on:retry={requestCloudCss}
+		on:retry={() => requestCloudCss( false )}
 		generateText={__(
 			'Jetpack Boost will generate Critical CSS for you automatically.',
 			'jetpack-boost'
