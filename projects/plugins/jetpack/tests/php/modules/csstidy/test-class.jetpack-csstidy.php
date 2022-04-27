@@ -45,6 +45,31 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Provides values for testing whitelisted CSS properties
+	 * Not all supported/whitelisted properties are tested here.
+	 */
+	public function custom_whitelisted_css_properties_provider() {
+		return array(
+			'accent-color'          => array(
+				'body {accent-color:red;accent-color:#74992e;accent-color:rgb(255,255,128);accent-color:hsl(250,100%,34%)}',
+				"body {\naccent-color:red;\naccent-color:#74992e;\naccent-color:rgb(255,255,128);\naccent-color:hsl(250,100%,34%)\n}",
+			),
+			'aspect-ratio'          => array(
+				'body {aspect-ratio:1/1;aspect-ratio:1;aspect-ratio:inherit}',
+				"body {\naspect-ratio:1/1;\naspect-ratio:1;\naspect-ratio:inherit\n}",
+			),
+			'gap'                   => array(
+				'body {gap:0;gap:10%;gap:calc(20px+10%)}',
+				"body {\ngap:0;\ngap:10%;\ngap:calc(20px+10%)\n}",
+			),
+			'text-underline-offset' => array(
+				'body {text-underline-offset:auto;text-underline-offset:2em;text-underline-offset:initial}',
+				"body {\ntext-underline-offset:auto;\ntext-underline-offset:2em;\ntext-underline-offset:initial\n}",
+			),
+		);
+	}
+
+	/**
 	 * Test that leading zeros for decimals values are preserved/discarded as expected.
 	 *
 	 * @dataProvider custom_preserve_leading_zeros_provider
@@ -60,5 +85,22 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 			$expected_output,
 			$this->instance->print->plain()
 		);
+	}
+
+	/**
+	 * Test that a CSS property is white-listed and not removed when parsed by
+	 * CSSTidy.
+	 *
+	 * @dataProvider custom_whitelisted_css_properties_provider
+	 *
+	 * @param string $input                  potential CSS values.
+	 * @param string $expected_output        what we expect csstidy to output.
+	 */
+	public function test_whitelisted_css_properties( $input, $expected_output ) {
+		$this->instance->parse( $input );
+			$this->assertEquals(
+				$expected_output,
+				$this->instance->print->plain()
+			);
 	}
 }
