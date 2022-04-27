@@ -1,22 +1,25 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Jetpack_Google_Analytics_Options provides a single interface to module options
+ *
+ * @author allendav
+ */
 
 /**
-* Jetpack_Google_Analytics_Options provides a single interface to module options
-*
-* @author allendav 
-*/
-
-/**
-* Bail if accessed directly
-*/
+ * Bail if accessed directly
+ */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Jetpack_Google_Analytics_Utils main class.
+ */
 class Jetpack_Google_Analytics_Utils {
 	/**
 	 * Gets product categories or varation attributes as a formatted concatenated string
-	 * @param WC_Product
+	 *
+	 * @param WC_Product $product Product to get categories/variations for.
 	 * @return string
 	 */
 	public static function get_product_categories_concatenated( $product ) {
@@ -32,21 +35,22 @@ class Jetpack_Google_Analytics_Utils {
 		if ( is_array( $variation_data ) && ! empty( $variation_data ) ) {
 			$line = wc_get_formatted_variation( $variation_data, true );
 		} else {
-			$out = array();
+			$out        = array();
 			$categories = get_the_terms( $product->get_id(), 'product_cat' );
 			if ( $categories ) {
 				foreach ( $categories as $category ) {
 					$out[] = $category->name;
 				}
 			}
-			$line = join( "/", $out );
+			$line = join( '/', $out );
 		}
 		return $line;
 	}
 
 	/**
 	 * Gets a product's SKU with fallback to just ID. IDs are prepended with a hash symbol.
-	 * @param WC_Product
+	 *
+	 * @param WC_Product $product Product to get SKU/ID for.
 	 * @return string
 	 */
 	public static function get_product_sku_or_id( $product ) {
