@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '1.2.0';
+	const PACKAGE_VERSION = '1.2.1-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -149,7 +149,6 @@ class Initializer {
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
-				'rawUrl'                => ( new Status() )->get_site_suffix(),
 				'adminUrl'              => esc_url( admin_url() ),
 			)
 		);

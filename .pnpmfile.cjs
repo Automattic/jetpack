@@ -20,6 +20,24 @@ function fixDeps( pkg ) {
 			pkg.dependencies[ '@wordpress/components' ] = '^19.2.0';
 		}
 	}
+	if ( pkg.name === '@automattic/components' ) {
+		// 1.0.0-alpha.3 published 2020-11-11. Not that we want alpha.4, they added an i18n-calypso dep (ugh).
+		if ( ! pkg.dependencies[ '@wordpress/base-styles' ] ) {
+			// Depends on this but doesn't specify it.
+			pkg.dependencies[ '@wordpress/base-styles' ] = '^4.0.4';
+		}
+	}
+
+	// Depends on events but doesn't declare it.
+	if ( pkg.name === '@automattic/popup-monitor' && ! pkg.dependencies.events ) {
+		pkg.dependencies.events = '^3.3.0';
+	}
+
+	// Depends on punycode but doesn't declare it.
+	// https://github.com/markdown-it/markdown-it/issues/230
+	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {
+		pkg.dependencies.punycode = '^2.1.1';
+	}
 
 	// Even though Storybook works with webpack 5, they still have a bunch of deps on webpack4.
 	if ( pkg.name.startsWith( '@storybook/' ) ) {
@@ -35,6 +53,15 @@ function fixDeps( pkg ) {
 		if ( pkg.dependencies[ '@types/webpack' ] ) {
 			pkg.dependencies[ '@types/webpack' ] = '^5';
 		}
+	}
+
+	// Outdated dep.
+	// https://github.com/SamVerschueren/stream-to-observable/pull/9
+	if (
+		pkg.name === '@samverschueren/stream-to-observable' &&
+		pkg.dependencies[ 'any-observable' ] === '^0.3.0'
+	) {
+		pkg.dependencies[ 'any-observable' ] = '^0.5.1';
 	}
 
 	// Project is supposedly not dead, but still isn't being updated.
@@ -93,6 +120,12 @@ function fixPeerDeps( pkg ) {
 	// @sveltejs/eslint-config peer-depends on eslint-plugin-node but doesn't seem to actually use it.
 	if ( pkg.name === '@sveltejs/eslint-config' ) {
 		delete pkg.peerDependencies?.[ 'eslint-plugin-node' ];
+	}
+
+	// Peer-depends on js-git but doesn't declare it.
+	// https://github.com/creationix/git-node-fs/pull/8
+	if ( pkg.name === 'git-node-fs' && ! pkg.peerDependencies?.[ 'js-git' ] ) {
+		pkg.peerDependencies[ 'js-git' ] = '*';
 	}
 
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with

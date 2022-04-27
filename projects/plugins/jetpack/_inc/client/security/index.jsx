@@ -23,6 +23,7 @@ import BackupsScan from './backups-scan';
 import Antispam from './antispam';
 import { JetpackBackup } from './jetpack-backup';
 import { Monitor } from './monitor';
+import Waf from './waf';
 import { Protect } from './protect';
 import { SSO } from './sso';
 
@@ -70,7 +71,8 @@ export class Security extends Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
-		const foundProtect = this.props.isModuleFound( 'protect' ),
+		const foundWaf = this.props.isModuleFound( 'waf' ),
+			foundProtect = this.props.isModuleFound( 'protect' ),
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
@@ -115,6 +117,7 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</>
 				) }
+				{ foundWaf && <Waf { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>

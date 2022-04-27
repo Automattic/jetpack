@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 
 /**
@@ -64,6 +65,21 @@ class Waf_Runner {
 		);
 
 		return in_array( $option, $allowed_modes, true );
+	}
+
+	/**
+	 * Determines if the WAF module is enabled on the site.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		// if ABSPATH is defined, then WordPress has already been instantiated,
+		// so we can check to see if the waf module is activated.
+		if ( defined( 'ABSPATH' ) ) {
+			return ( new Modules() )->is_active( 'waf' );
+		}
+
+		return true;
 	}
 
 	/**

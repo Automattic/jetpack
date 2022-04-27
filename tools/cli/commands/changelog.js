@@ -165,6 +165,10 @@ export function changelogDefine( yargs ) {
 							.option( 'link', {
 								describe: 'Link for the new changelog entry',
 								type: 'string',
+							} )
+							.option( 'add-pr-num', {
+								describe: 'Append the GH PR number to each entry',
+								type: 'boolean',
 							} );
 					},
 					async argv => {
