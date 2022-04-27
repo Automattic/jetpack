@@ -143,10 +143,15 @@ class Jetpack_Portfolio {
 		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) : ?>
 			<p>
 			<?php
-			printf(
-				/* translators: %s is the name of a custom post type such as "jetpack-portfolio" */
-				esc_html__( 'Your theme supports <strong>%s</strong>', 'jetpack' ),
-				esc_attr( self::CUSTOM_POST_TYPE )
+			echo wp_kses(
+				sprintf(
+					/* translators: %s is the name of a custom post type such as "jetpack-portfolio" */
+					__( 'Your theme supports <strong>%s</strong>', 'jetpack' ),
+					esc_attr( self::CUSTOM_POST_TYPE )
+				),
+				array(
+					'strong' => array(),
+				)
 			);
 			?>
 			</p>
