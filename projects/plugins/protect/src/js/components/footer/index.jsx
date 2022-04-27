@@ -4,13 +4,14 @@
 import React from 'react';
 import { Container, Col, Text, Button, Title, IconsCard } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
 
 /**
  * Internal dependencies
  */
 import styles from './styles.module.scss';
 
-const Footer = () => {
+const Footer = ( { handleProductButton, learnMoreUrl } ) => {
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 0 } fluid={ false }>
 			<Col>
@@ -24,7 +25,9 @@ const Footer = () => {
 						'jetpack-protect'
 					) }
 				</Text>
-				<Button variant="secondary">{ __( 'Get Jetpack Security', 'jetpack-protect' ) }</Button>
+				<Button variant="secondary" onClick={ handleProductButton }>
+					{ __( 'Get Jetpack Security', 'jetpack-protect' ) }
+				</Button>
 			</Col>
 			<Col sm={ 0 } md={ 0 } lg={ 1 }></Col>
 			<Col sm={ 4 } md={ 3 } lg={ 5 }>
@@ -35,10 +38,19 @@ const Footer = () => {
 						'jetpack-protect'
 					) }
 				</Text>
-				<Button variant="external-link">{ __( 'Learn more', 'jetpack-protect' ) }</Button>
+				<Button variant="external-link" href={ learnMoreUrl }>
+					{ __( 'Learn more', 'jetpack-protect' ) }
+				</Button>
 			</Col>
 		</Container>
 	);
+};
+
+Footer.propTypes = {
+	/** Callback to handle the add product button click. */
+	handleProductButton: PropTypes.func,
+	/** Urt of the Learn More link. */
+	learnMoreUrl: PropTypes.string,
 };
 
 export default Footer;
