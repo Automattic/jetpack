@@ -5,9 +5,9 @@
 /**
  * External dependencies
  */
-const fs = require( 'fs' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const jetpackWebpackUtils = require( '@automattic/jetpack-webpack-config/utils' );
 const path = require( 'path' );
 const webpack = jetpackWebpackConfig.webpack;
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
@@ -38,9 +38,9 @@ const noop = function () {};
 function presetProductionExtensions( type, inputDir, presetBlocks ) {
 	return presetBlocks
 		.flatMap( block =>
-			blockEditorDirectories.map( dir => path.join( inputDir, dir, block, `${ type }.js` ) )
+			blockEditorDirectories.map( dir => path.join( inputDir, dir, block, type ) )
 		)
-		.filter( fs.existsSync );
+		.filter( jetpackWebpackUtils.moduleExists );
 }
 
 const presetPath = path.join( __dirname, '../extensions', 'index.json' );
@@ -57,8 +57,8 @@ const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta ||
 
 // Helps split up each block into its own folder view script
 const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
-	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
-	if ( fs.existsSync( viewScriptPath ) ) {
+	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view' );
+	if ( jetpackWebpackUtils.moduleExists( viewScriptPath ) ) {
 		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
 	}
 	return viewBlocks;
