@@ -1,4 +1,4 @@
-# useProductCheckoutWorkflow
+# getProductCheckoutUrl
 
 Helper function useful to build the product checkout URL.
 
@@ -21,23 +21,12 @@ Boolean value that defined whether the user is connected, or not.
 It will affect the built URL by adding the unlinked param to the query string.
 
 ```jsx
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 
-function MyComponent() {
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: 'jetpack_security_t1_yearly',
-		siteSuffix: 'poweredsite.wordpress.com'
-		redirectUrl: 'https://poweredsite.wordpress.com/wp-admin/admin.php?page=jetpack-protect',
-	} );
-
-	return (
-		<Button onClick={ run }>Add Security plan!</Button>
-	)
-}
+const checkoutUrl = useProductCheckoutWorkflow(
+	'jetpack_security_t1_yearly',
+	'poweredsite.wordpress.com',
+	'https://poweredsite.wordpress.com/wp-admin/admin.php?page=jetpack-protect',
+	true
+);
 ```
-
-### isRegisterd
-Determine if the site is registered, or not.
-
-### hasCheckoutStarted
-True right after the checkout process starts.
