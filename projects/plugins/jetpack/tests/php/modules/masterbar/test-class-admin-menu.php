@@ -92,6 +92,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->reregister_menu_items();
 
+		/**
+		 * To-do: remove this once rWPGIT5cce3fb0b3979fcea5c1c7655f21201efd0a9769 has been shipped.
+		 */
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com does not run the full version of WordPress 6.0 yet.' );
+			return;
+		}
+
 		/*
 		 * To-do: remove the version check once Jetpack requires WordPress 6.0.
 		 * and set the new array key value ('3.05211') as the new expected key value in the assertion.
@@ -218,6 +226,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		global $menu;
 
 		static::$admin_menu->add_stats_menu();
+
+		/**
+		 * To-do: remove this once rWPGIT5cce3fb0b3979fcea5c1c7655f21201efd0a9769 has been shipped.
+		 */
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com does not run the full version of WordPress 6.0 yet.' );
+			return;
+		}
 
 		/*
 		 * To-do: remove the version check once Jetpack requires WordPress 6.0.
