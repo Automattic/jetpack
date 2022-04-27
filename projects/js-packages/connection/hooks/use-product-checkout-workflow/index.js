@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
@@ -30,6 +30,7 @@ export default function useProductCheckoutWorkflow( {
 	siteSuffix,
 	redirectUrl,
 } = {} ) {
+	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
 
 	const { isUserConnected, isRegistered } = useSelect( select =>
@@ -52,6 +53,7 @@ export default function useProductCheckoutWorkflow( {
 	 */
 	const run = event => {
 		event && event.preventDefault();
+		setCheckoutStarted( true );
 
 		if ( isRegistered ) {
 			return ( window.location.href = checkoutProductUrl );
@@ -71,5 +73,6 @@ export default function useProductCheckoutWorkflow( {
 	return {
 		run,
 		isRegistered,
+		hasCheckoutStarted,
 	};
 }

@@ -41,3 +41,6 @@ function MyComponent() {
 
 ### isRegisterd
 Determine if the site is registered, or not.
+
+### hasCheckoutStarted
+True right after the checkout process starts.
