@@ -134,7 +134,7 @@ class Jetpack_Protect {
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'status'            => Protect_Status::get_status(),
 			'siteSuffix'        => ( new JetpackStatus() )->get_site_suffix(),
-			'redirectUrl'       => admin_url( 'admin.php?page=my-jetpack' ),
+			'redirectUrl'       => admin_url( 'admin.php?page=jetpack-protect' ),
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
