@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { get, isEmpty, noop } from 'lodash';
+import { get, noop } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -22,19 +22,11 @@ import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import {
-	containsBackupRealtime,
-	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import {
-	getActiveBackupPurchase,
-	getSitePlan,
-	hasActiveBackupPurchase,
-	siteHasBackupPlan,
-	isFetchingSiteData,
-} from 'state/site';
+import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
@@ -77,7 +69,8 @@ class DashBackups extends Component {
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
-		sitePlan: PropTypes.object.isRequired,
+		hasRealTimeBackups: PropTypes.bool.isRequired,
+		hasVaultPressBackups: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
@@ -88,7 +81,6 @@ class DashBackups extends Component {
 		siteRawUrl: '',
 		getOptionValue: noop,
 		vaultPressData: '',
-		sitePlan: '',
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
 		rewindStatus: '',
@@ -186,7 +178,8 @@ class DashBackups extends Component {
 
 	getVPContent() {
 		const {
-			sitePlan,
+			hasVaultPressBackups,
+			isFetchingSite,
 			isVaultPressInstalled,
 			getOptionValue,
 			siteRawUrl,
@@ -215,9 +208,9 @@ class DashBackups extends Component {
 			} );
 		}
 
-		if ( ! isEmpty( sitePlan ) ) {
+		if ( ! isFetchingSite ) {
 			// If site has a paid plan
-			if ( 'jetpack_free' !== get( sitePlan, 'product_slug', 'jetpack_free' ) ) {
+			if ( hasVaultPressBackups ) {
 				return renderCard( {
 					className: 'jp-dash-item__is-inactive',
 					status: isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled',
@@ -253,7 +246,7 @@ class DashBackups extends Component {
 	}
 
 	getRewindContent() {
-		const { planClass, rewindStatus, siteRawUrl } = this.props;
+		const { hasRealTimeBackups, rewindStatus, siteRawUrl } = this.props;
 		const buildAction = ( url, message ) => (
 			<Card
 				compact
@@ -295,7 +288,7 @@ class DashBackups extends Component {
 					</React.Fragment>
 				);
 			case 'active':
-				const message = containsBackupRealtime( planClass )
+				const message = hasRealTimeBackups
 					? __( 'We are backing up your site in real-time.', 'jetpack' )
 					: __( 'We are backing up your site daily.', 'jetpack' );
 
@@ -374,21 +367,17 @@ class DashBackups extends Component {
 
 export default connect(
 	state => {
-		const sitePlan = getSitePlan( state );
-
 		return {
 			vaultPressData: getVaultPressData( state ),
-			sitePlan,
-			planClass: hasActiveBackupPurchase( state )
-				? getPlanClass( getActiveBackupPurchase( state ).product_slug )
-				: getPlanClass( sitePlan.product_slug ),
 			isOfflineMode: isOfflineMode( state ),
 			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 			showBackups: showBackups( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 			isFetchingSite: isFetchingSiteData( state ),
-			hasBackupPlan: siteHasBackupPlan( state ),
+			hasBackupPlan: hasActiveSiteFeature( state, 'backups' ),
+			hasRealTimeBackups: hasActiveSiteFeature( state, 'real-time-backups' ),
+			hasVaultPressBackups: hasActiveSiteFeature( state, 'vaultpress-backups' ),
 			partnerCoupon: getPartnerCoupon( state ),
 		};
 	},
