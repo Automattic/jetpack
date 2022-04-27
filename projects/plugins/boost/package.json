@@ -27,7 +27,6 @@
 		"@rollup/plugin-typescript": "8.2.5",
 		"@tsconfig/svelte": "2.0.1",
 		"@wordpress/i18n": "4.6.0",
-		"babel-loader": "8.2.4",
 		"eslint-plugin-import": "2.25.4",
 		"eslint-plugin-svelte3": "3.4.1",
 		"node-wp-i18n": "1.2.6",
@@ -44,11 +43,11 @@
 		"rollup-plugin-svelte": "7.1.0",
 		"rollup-plugin-svelte-svg": "0.2.3",
 		"rollup-plugin-terser": "7.0.2",
+		"sass": "1.43.3",
 		"svelte": "3.42.4",
 		"svelte-preprocess": "4.9.2",
 		"tslib": "2.3.1",
-		"typescript": "4.3.5",
-		"webpack": "5.65.0"
+		"typescript": "4.3.5"
 	},
 	"scripts": {
 		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack-boost --exclude=node_modules,tests,vendor *.php **/*.php",
