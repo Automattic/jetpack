@@ -70,7 +70,3 @@ require $_tests_dir . '/includes/bootstrap.php';
 
 // Load Composer autoloader.
 require $_plugin_root . '/vendor/autoload.php';
-
-// Using the Speed Trap Listener provided by WordPress Core testing suite to expose
-// slowest running tests. See the configuration in phpunit.xml.dist.
-require $_tests_dir . '/includes/listener-loader.php';
