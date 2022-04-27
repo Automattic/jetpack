@@ -48,3 +48,45 @@
 	-webkit-box-shadow: none !important;
 	box-shadow: none !important; /* Can otherwise be overridden by https://core.trac.wordpress.org/browser/tags/5.2.1/src/wp-admin/css/list-tables.css#L1217 */
 }
+
+/*
+ * Atomic plan renewal notification customized to standout. Based on Calypso notifications.
+ */
+.wpcomsh-plan-notice {
+	border: none;
+	background: #2D3337;
+	box-sizing: border-box;
+	color: #fff;
+	display: flex;
+	line-height: 1.5;
+	position: relative;
+	width: 100%;
+	padding: 0;
+}
+
+.wpcomsh-plan-notice a{
+	color: #fff;
+}
+
+.wpcomsh-plan-notice .dashicons-info{
+	height: 24px;
+	width: 24px;
+	font-size: 26px;
+}
+
+.notice__icon-wrapper {
+	align-items: center;
+	align-self: stretch;
+	background: #e34c84;
+	display: flex;
+	flex-shrink: 0;
+	justify-content: center;
+	position: relative;
+	width: 47px;
+}
+
+.notice__content {
+	flex-grow: 1;
+	font-size: .875rem;
+	padding: 13px;
+}

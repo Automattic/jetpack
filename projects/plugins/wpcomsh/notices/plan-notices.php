@@ -150,6 +150,16 @@ function wpcomsh_plan_notices() {
 		$domain
 	);
 
-	printf( '<div class="notice notice-warning"><p>%s</p></div>', wp_kses_post( $message ) );
+	printf(
+		'<div class="notice wpcomsh-plan-notice">
+			<span class="notice__icon-wrapper">
+				<span class="dashicons dashicons-info"></span>
+			</span>
+			<span class="notice__content">
+				<span class="notice__text">%s</span>
+			</span>
+		</div>',
+		wp_kses_post( $message )
+	);
 }
 add_action( 'admin_notices', 'wpcomsh_plan_notices' );
