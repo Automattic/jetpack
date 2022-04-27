@@ -141,13 +141,9 @@ class Jetpack_Social {
 	 * Activate the Publicize module on plugin activation.
 	 *
 	 * @static
-	 *
-	 * @param string $plugin Path to the plugin file relative to the plugins directory.
 	 */
-	public static function plugin_activation( $plugin ) {
-		if ( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
-			add_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION, true );
-		}
+	public static function plugin_activation() {
+		add_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION, true );
 	}
 
 	/**
