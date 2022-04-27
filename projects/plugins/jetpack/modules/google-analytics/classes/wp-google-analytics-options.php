@@ -49,64 +49,82 @@ class Jetpack_Google_Analytics_Options {
 
 	/**
 	 * Get the 'anonymize_ip' option used by both legacy and universal analytics.
+	 *
+	 * @return bool
 	 */
 	public static function anonymize_ip_is_enabled() {
-		return self::get_option( 'anonymize_ip' );
+		return (bool) self::get_option( 'anonymize_ip' );
 	}
 
 	/**
 	 * Get the 'ec_track_purchases' eCommerce option used by both legacy and universal analytics
+	 *
+	 * @return bool
 	 */
 	public static function track_purchases_is_enabled() {
-		return self::get_option( 'ec_track_purchases' );
+		return (bool) self::get_option( 'ec_track_purchases' );
 	}
 
 	/**
 	 * Get the 'ec_track_add_to_cart' analytics option.
+	 *
+	 * @return bool
 	 */
 	public static function track_add_to_cart_is_enabled() {
-		return self::get_option( 'ec_track_add_to_cart' );
+		return (bool) self::get_option( 'ec_track_add_to_cart' );
 	}
 
 	/**
 	 * Get the 'enh_ec_tracking' analytics option.
+	 *
+	 * @return bool
 	 */
 	public static function enhanced_ecommerce_tracking_is_enabled() {
-		return self::get_option( 'enh_ec_tracking' );
+		return (bool) self::get_option( 'enh_ec_tracking' );
 	}
 
 	/**
 	 * Get the 'enh_ec_track_remove_from_cart' analytics option.
+	 *
+	 * @return bool
 	 */
 	public static function track_remove_from_cart_is_enabled() {
-		return self::get_option( 'enh_ec_track_remove_from_cart' );
+		return (bool) self::get_option( 'enh_ec_track_remove_from_cart' );
 	}
 
 	/**
 	 * Get the 'enh_ec_track_prod_impression' analytics option.
+	 *
+	 * @return bool
 	 */
 	public static function track_product_impressions_is_enabled() {
-		return self::get_option( 'enh_ec_track_prod_impression' );
+		return (bool) self::get_option( 'enh_ec_track_prod_impression' );
 	}
 
 	/**
 	 * Get the 'enh_ec_track_prod_click' analytics option.
+	 *
+	 * @return bool
 	 */
 	public static function track_product_clicks_is_enabled() {
-		return self::get_option( 'enh_ec_track_prod_click' );
+		return (bool) self::get_option( 'enh_ec_track_prod_click' );
 	}
 
 	/**
 	 * Get the 'enh_ec_track_prod_detail_view' analytics option.
+	 *
+	 * @return bool
 	 */
 	public static function track_product_detail_view_is_enabled() {
-		return self::get_option( 'enh_ec_track_prod_detail_view' );
+		return (bool) self::get_option( 'enh_ec_track_prod_detail_view' );
 	}
 
 	/**
 	 * Get the 'enh_ec_track_checkout_started' analytics option.
+	 *
+	 * @return bool
 	 */
 	public static function track_checkout_started_is_enabled() {
-		return self::get_option( 'enh_ec_track_checkout_started' );
+		return (bool) self::get_option( 'enh_ec_track_checkout_started' );
 	}
 }
