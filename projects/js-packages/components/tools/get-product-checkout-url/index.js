@@ -5,7 +5,7 @@
  * @param {string} siteSuffix	    - Site suffix
  * @param {string} redirectUrl	    - Redirect URL used to define redirect_to
  * @param {boolean} isUserConnected - True when the user is connected Jetpack
- * @returns {string}                  the redirect URL
+ * @returns {string}                  The Calypso checkout URL
  */
 export default function getProductCheckoutUrl( product, siteSuffix, redirectUrl, isUserConnected ) {
 	const checkoutUrl = new URL( 'https://wordpress.com/checkout/' );
