@@ -43,9 +43,8 @@ module.exports = {
 	optimization: {
 		...jetpackWebpackConfig.optimization,
 		splitChunks: {
-			cacheGroups: {
-				vendors: false,
-			},
+			// Unused keys are prefixed with underscores, as per eslint recommendation.
+			name: ( _module, _chunks, key ) => `jp-search.${ key }`,
 		},
 	},
 	resolve: {
