@@ -115,10 +115,12 @@ class Plugin {
 	/**
 	 * Whether this plugin is allowed to use the connection.
 	 *
+	 * @deprecated since $next-version$$
 	 * @return bool
 	 */
 	public function is_enabled() {
-		return in_array( $this->slug, Plugin_Storage::get_all(), true );
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+		return true;
 	}
 
 }
