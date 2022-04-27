@@ -17,8 +17,6 @@ import Footer from '../footer';
 
 export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
-const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
-
 const Admin = () => {
 	const { siteSuffix, redirectUrl } = window.jetpackProtectInitialState || {};
 
