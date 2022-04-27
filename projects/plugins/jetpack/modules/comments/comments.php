@@ -335,10 +335,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$signature = 'error';
 		}
 
-		$params['sig']    = $signature;
-		$url_origin       = 'https://jetpack.wordpress.com';
-		$url              = "{$url_origin}/jetpack-comment/?" . http_build_query( $params );
-		$url              = "{$url}#parent=" . rawurlencode( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
+		$params['sig'] = $signature;
+		$url_origin    = 'https://jetpack.wordpress.com';
+		$url           = "{$url_origin}/jetpack-comment/?" . http_build_query( $params );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sniff misses the esc_url_raw.
+		$url              = "{$url}#parent=" . rawurlencode( esc_url_raw( set_url_scheme( 'http://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ) ) );
 		$this->signed_url = $url;
 		$height           = $params['comment_registration'] || is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not allowing guest commenting.
 		$transparent      = ( 'transparent' === $params['color_scheme'] ) ? 'true' : 'false';
@@ -591,29 +592,29 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		switch ( $this->is_highlander_comment_post() ) {
 			case 'facebook':
 				$comment_meta['hc_post_as']         = 'facebook';
-				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
-				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
 				break;
 
 			case 'twitter':
 				$comment_meta['hc_post_as']         = 'twitter';
-				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
-				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
 				break;
 
 			// phpcs:ignore WordPress.WP.CapitalPDangit
 			case 'wordpress':
 				// phpcs:ignore WordPress.WP.CapitalPDangit
 				$comment_meta['hc_post_as']         = 'wordpress';
-				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
-				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
-				$comment_meta['hc_wpcom_id_sig']    = stripslashes( $_POST['hc_wpcom_id_sig'] ); // since 1.9.
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
+				$comment_meta['hc_wpcom_id_sig']    = isset( $_POST['hc_wpcom_id_sig'] ) ? filter_var( wp_unslash( $_POST['hc_wpcom_id_sig'] ) ) : null; // since 1.9.
 				break;
 
 			case 'jetpack':
 				$comment_meta['hc_post_as']         = 'jetpack';
-				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
-				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
 				break;
 
 		}

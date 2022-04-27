@@ -4,16 +4,15 @@
 
 ## 10.9-beta - 2022-04-26
 ### Enhancements
-- Recommendations: Updates to the recommendations flow including adding recommendations for VideoPress, and adding site discounts.
-- Payments Block: Adds property that establishes if the membership is editable by the site editor.
-- Payments Block: Adds additional features to the payment management control block (ability to mark as donation, and enabling customers to pick own amount).
-- Google Fonts: Updated the Google Fonts module to be compatible with the most recent version of the WP_Webfonts API.
-- VideoPress: Increased chunk size to 10Mb for VideoPress resumable uploads to reduce request overhead for faster uploads.
+- Dashboard: update the recommendation flow to include recommendations for VideoPress as well as discounts.
+- Google Fonts: update the Google Fonts module to be compatible with the most recent version of the WP_Webfonts API.
+- Payments Block: add additional features to the payment management control block (ability to mark as donation, and enabling customers to pick own amount).
+- Payments Block: add new property that establishes if the membership is editable by the site editor.
+- VideoPress: improve upload spreed, by increasing chunk size to 10Mb for resumable uploads.
 
 ### Bug fixes
-- Payments Block: Changes to the sidebar display when clicking 'add new subscription', as well as using an external link in the Customizer.
-- Payments Block: Display the product manager on free plan sites connected to Stripe.
-- Payments Block: Removing the dropdown icon from the product management control subscription selector.
+- Payments Block: change the sidebar display when clicking 'add new subscription', as well as using an external link in the Customizer.
+- Payments Block: remove the dropdown icon from the product management control subscription selector.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Added analytics events for enabling condtional recommendations and viewing conditional recommendations.
@@ -31,6 +30,7 @@
 - Fix failing tests because of an editor type mismatch caused by imported packages side-effects.
 - Load block editor styles inline for iframed editors on WoA sites.
 - My Jetpack: Updated to require licensing package when licensing UI enabled.
+- Payments Block: Display the product manager on free plan sites connected to Stripe.
 - Premium Content blocks: subscription button from emails and notifications opens the checkout dialog  (WordPress.com specific).
 - VideoPress: Fixing issue in apiFetch middleware where request bodies were assumed to always be objects with a "file" property; this is only true for requests to the media endpoint.
 ## 10.9-a.7 - 2022-04-19
@@ -68,11 +68,13 @@
 - Comments: Checking that Jetpack comments are supported before requiring nonce verification.
 
 ## 10.9-a.3 - 2022-04-12
+### Major Enhancements
+- VideoPress: add settings for controlling VideoPress video privacy.
+
 ### Enhancements
 - Dashboard: Various improvements to recommendations.
 - Payments block: Improves block selection behavior.
 - Protect: Renamed to "Brute Force Protection" in the UI.
-- VideoPress: Adds settings for controlling VideoPress video privacy.
 - VideoPress: Enable the resumable uploader.
 
 ### Improved compatibility
