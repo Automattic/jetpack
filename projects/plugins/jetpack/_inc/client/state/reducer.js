@@ -30,6 +30,7 @@ import { reducer as disconnectSurvey } from 'state/disconnect-survey/reducer';
 import { reducer as trackingSettings } from 'state/tracking/reducer';
 import { reducer as mobile } from 'state/mobile/reducer';
 import { reducer as licensing } from 'state/licensing/reducer';
+import { reducer as waf } from 'state/waf';
 
 const jetpackReducer = combineReducers( {
 	connection,
@@ -54,6 +55,7 @@ const jetpackReducer = combineReducers( {
 	trackingSettings,
 	mobile,
 	licensing,
+	waf,
 	introOffers,
 } );
 
