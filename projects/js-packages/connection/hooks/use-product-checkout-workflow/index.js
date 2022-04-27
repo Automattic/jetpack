@@ -16,55 +16,59 @@ const { registrationNonce, apiRoot, apiNonce } = window?.JP_CONNECTION_INITIAL_S
 	: {};
 
 /**
- * Custom hook that handles the checkout workflow.
+ * Custom hook that performs the needed steps
+ * to concrete the checkout workflow.
  *
- * @param {object} props             - The props passed to the component.
- * @param {string} props.productSlug - The product slug.
+ * @param {object} props             - The props passed to the hook.
+ * @param {string} props.productSlug - The WordPress product slug.
  * @param {string} props.siteSuffix  - The site suffix.
- * @param {string} props.redirectUri - The URI to redirect to after checkout.
+ * @param {string} props.redirectUrl - The URI to redirect to after checkout.
  * @returns {Function}				 - The useEffect hook.
  */
 export default function useProductCheckoutWorkflow( {
 	productSlug,
 	siteSuffix,
-	redirectUri,
+	redirectUrl,
 } = {} ) {
 	const { registerSite } = useDispatch( STORE_ID );
 
-	const { isUserConnected } = useSelect( select => select( STORE_ID ).getConnectionStatus() );
+	const { isUserConnected, isRegistered } = useSelect( select =>
+		select( STORE_ID ).getConnectionStatus()
+	);
 
 	// Build the checkout URL.
 	const checkoutProductUrl = getProductCheckoutUrl(
 		productSlug,
 		siteSuffix,
-		redirectUri,
+		redirectUrl,
 		isUserConnected
 	);
 
 	/**
-	 * Initialize the site registration process.
+	 * Handler to run the checkout workflow.
 	 *
-	 * @param {Event} [event] - Event that dispatched onCheckoutHandler
+	 * @param {Event} [event] - Event that dispatched run
+	 * @returns {void}          Nothing.
 	 */
-	const onCheckoutHandler = event => {
+	const run = event => {
 		event && event.preventDefault();
 
-		registerSite( { registrationNonce, redirectUri } ).then( () => {
-			if ( checkoutProductUrl ) {
-				window.location = checkoutProductUrl;
-			}
+		if ( isRegistered ) {
+			return ( window.location.href = checkoutProductUrl );
+		}
+
+		registerSite( { registrationNonce, redirectUrl } ).then( () => {
+			window.location = checkoutProductUrl;
 		} );
 	};
 
-	/**
-	 * Initialize/Setup the REST API.
-	 */
+	// Initialize/Setup the REST API.
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [] );
 
 	return {
-		onCheckoutHandler,
+		run,
 	};
 }
