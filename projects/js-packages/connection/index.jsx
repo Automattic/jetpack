@@ -41,4 +41,4 @@ export { STORE_ID as CONNECTION_STORE_ID } from './state/store';
 /**
  * Hooks
  */
-export { default as useProductCheckoutWorkflow } from './hooks/use-product-checkout-workflow/index.js';
+export { default as useProductCheckoutWorkflow } from './hooks/use-product-checkout-workflow';
