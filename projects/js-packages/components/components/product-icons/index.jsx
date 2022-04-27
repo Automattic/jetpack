@@ -133,6 +133,7 @@ const iconsMap = {
 	extras: ExtrasIcon,
 	scan: ScanIcon,
 	search: SearchIcon,
+	social: SearchIcon,
 	star: StarIcon,
 	videopress: VideopressIcon,
 	jetpack: JetpackIcon,
