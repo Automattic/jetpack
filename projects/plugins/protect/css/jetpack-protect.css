@@ -1,16 +1,16 @@
 @font-face {
 	font-family: 'jetpack-protect';
-	src:  url('fonts/jetpack-protect.eot?lr5yop');
-	src:  url('fonts/jetpack-protect.eot?lr5yop#iefix') format('embedded-opentype'),
-	  url('fonts/jetpack-protect.ttf?lr5yop') format('truetype'),
-	  url('fonts/jetpack-protect.woff?lr5yop') format('woff'),
-	  url('fonts/jetpack-protect.svg?lr5yop#jetpack-protect') format('svg');
+	src:  url('fonts/jetpack-protect.eot?31wpn');
+	src:  url('fonts/jetpack-protect.eot?31wpn#iefix') format('embedded-opentype'),
+	  url('fonts/jetpack-protect.ttf?31wpn') format('truetype'),
+	  url('fonts/jetpack-protect.woff?31wpn') format('woff'),
+	  url('fonts/jetpack-protect.svg?31wpn#jetpack-protect') format('svg');
 	font-weight: normal;
 	font-style: normal;
 	font-display: block;
   }
 
-  [class^="icon-"], [class*=" icon-"] {
+[class^="jp-protect-icon"], [class*=" jp-protect-icon"] {
 	/* use !important to prevent issues with browser extensions that change fonts */
 	font-family: 'jetpack-protect' !important;
 	speak: never;
@@ -23,9 +23,8 @@
 	/* Better Font Rendering =========== */
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-  }
+}
 
-  .icon-protect:before {
+.jp-protect-icon:before {
 	content: "\e900";
-  }
-
+}
