@@ -115,7 +115,7 @@ class Jetpack_Protect {
 	 * Enqueues the wp-admin styles (used outside the React app)
 	 */
 	public function enqueue_admin_styles() {
-		wp_enqueue_style( 'jetpack-protect-wpadmin', JETPACK_PROTECT_BASE_PLUGIN_URL . '/css/jetpack-protect.css', array(), JETPACK_PROTECT_VERSION );
+		wp_enqueue_style( 'jetpack-protect-wpadmin', JETPACK_PROTECT_BASE_PLUGIN_URL . '/assets/jetpack-protect.css', array(), JETPACK_PROTECT_VERSION );
 	}
 
 	/**
