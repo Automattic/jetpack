@@ -96,7 +96,6 @@ class Plugin {
 	 * @return bool
 	 */
 	public function disable() {
-		_deprecated_function( __METHOD__, '1.39.0' );
 		return true;
 	}
 
@@ -108,7 +107,6 @@ class Plugin {
 	 * @return bool
 	 */
 	public function enable() {
-		_deprecated_function( __METHOD__, '1.39.0' );
 		return true;
 	}
 

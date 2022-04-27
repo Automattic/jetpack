@@ -2332,7 +2332,6 @@ class Manager {
 	 * @return bool
 	 */
 	public function disable_plugin() {
-		_deprecated_function( __METHOD__, '1.39.0' );
 		return null;
 	}
 
@@ -2345,7 +2344,6 @@ class Manager {
 	 * @return bool
 	 */
 	public function enable_plugin() {
-		_deprecated_function( __METHOD__, '1.39.0' );
 		return null;
 	}
 

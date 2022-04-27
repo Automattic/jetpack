@@ -207,7 +207,6 @@ class Plugin_Storage {
 	 * @return bool
 	 */
 	public static function disable_plugin( $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '1.39.0' );
 		return true;
 	}
 
@@ -221,7 +220,6 @@ class Plugin_Storage {
 	 * @return bool
 	 */
 	public static function enable_plugin( $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '1.39.0' );
 		return true;
 	}
 
@@ -233,7 +231,6 @@ class Plugin_Storage {
 	 * @return array
 	 */
 	public static function get_all_disabled_plugins() { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '1.39.0' );
 		return array();
 	}
 
