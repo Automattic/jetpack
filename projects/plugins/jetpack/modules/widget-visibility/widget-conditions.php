@@ -53,7 +53,7 @@ class Jetpack_Widget_Conditions {
 		}
 
 		// API call to *list* the widget types doesn't use editing visibility or display widgets.
-		if ( false !== strpos( $_SERVER['REQUEST_URI'], '/widget-types?' ) ) {
+		if ( isset( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], '/widget-types?' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return;
 		}
 
@@ -84,7 +84,7 @@ class Jetpack_Widget_Conditions {
 			}
 
 			// Encoding for a particular widget end point.
-			if ( 1 === preg_match( '|/widget-types/.*/encode|', $_SERVER['REQUEST_URI'] ) ) {
+			if ( isset( $_SERVER['REQUEST_URI'] ) && 1 === preg_match( '|/widget-types/.*/encode|', $_SERVER['REQUEST_URI'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				$add_html_to_form      = true;
 				$handle_widget_updates = true;
 			}
@@ -97,7 +97,7 @@ class Jetpack_Widget_Conditions {
 			}
 
 			// Saving widgets via non-batch API. This isn't used within WordPress but could be used by third parties in theory.
-			if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] && false !== strpos( $_SERVER['REQUEST_URI'], '/wp/v2/widgets' ) ) {
+			if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] && false !== strpos( $_SERVER['REQUEST_URI'], '/wp/v2/widgets' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				$handle_widget_updates = true;
 				$add_html_to_form      = true;
 			}
@@ -509,9 +509,12 @@ class Jetpack_Widget_Conditions {
 			<input type="hidden" name="widget-conditions-visible" value="
 			<?php
 			if ( isset( $_POST['widget-conditions-visible'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				echo esc_attr( $_POST['widget-conditions-visible'] ); } else { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				?>
-				0<?php } ?>" />
+				echo esc_attr( filter_var( wp_unslash( $_POST['widget-conditions-visible'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			} else {
+				echo 0;
+			}
+			?>
+			" />
 			<?php
 			if ( ! isset( $_POST['widget-conditions-visible'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				?>
@@ -778,7 +781,7 @@ class Jetpack_Widget_Conditions {
 	public static function filter_widget( $instance ) {
 		// Don't filter widgets from the REST API when it's called via the widgets admin page - otherwise they could get
 		// filtered out and become impossible to edit.
-		if ( strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) && false !== strpos( $_SERVER['REQUEST_URI'], '/wp-json/' ) ) {
+		if ( strpos( wp_get_raw_referer(), '/wp-admin/widgets.php' ) && isset( $_SERVER['REQUEST_URI'] ) && false !== strpos( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/wp-json/' ) ) {
 			return $instance;
 		}
 		// WordPress.com specific check - here, referer ends in /rest-proxy/ and doesn't tell us what's requesting.

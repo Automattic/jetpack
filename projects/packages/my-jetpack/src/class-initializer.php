@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '1.2.0-alpha';
+	const PACKAGE_VERSION = '1.2.1-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -75,7 +75,7 @@ class Initializer {
 	/**
 	 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.2.0
 	 *
 	 * @return boolean
 	 */
@@ -85,7 +85,7 @@ class Initializer {
 		 *
 		 * @param bool $is_enabled Defaults to the JETPACK_ENABLE_MY_JETPACK_LICENSE when set, or false.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.2.0
 		 */
 		return apply_filters(
 			'jetpack_my_jetpack_should_enable_add_license_screen',
@@ -149,7 +149,6 @@ class Initializer {
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
-				'rawUrl'                => ( new Status() )->get_site_suffix(),
 				'adminUrl'              => esc_url( admin_url() ),
 			)
 		);

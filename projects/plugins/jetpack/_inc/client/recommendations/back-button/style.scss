@@ -1,0 +1,36 @@
+@import '_inc/client/scss/variables/_colors';
+@import '../../scss/typography';
+
+.jp-recommendations-back-btn {
+	display: flex;
+	align-items: center;
+
+	padding: 0;
+
+	background-color: transparent;
+	border: none;
+	color: var( --jp-gray-70 );
+	fill: currentColor;
+
+	font-size: $font-body;
+
+	cursor: pointer;
+
+	&:hover,
+	&:active {
+		.gridicon {
+			transform: translateX(-0.25rem);
+		}
+	}
+
+	&:focus-visible {
+		outline-color: var( --jp-black );
+		outline-offset: 2px;
+	}
+
+	.gridicon {
+		margin-inline-end: 0.25rem;
+
+		transition: transform 0.1s ease-in-out;
+	}
+}

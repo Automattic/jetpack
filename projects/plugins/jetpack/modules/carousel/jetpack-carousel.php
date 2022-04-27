@@ -1044,13 +1044,13 @@ class Jetpack_Carousel {
 			header( 'Content-type: text/javascript' );
 		}
 
-		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) {
+		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP Core doesn't unslash or sanitize nonces either
 			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
 		}
 
-		$_blog_id = (int) $_POST['blog_id'];
-		$_post_id = (int) $_POST['id'];
-		$comment  = $_POST['comment'];
+		$_blog_id = isset( $_POST['blog_id'] ) ? (int) $_POST['blog_id'] : 0;
+		$_post_id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+		$comment  = isset( $_POST['comment'] ) ? filter_var( wp_unslash( $_POST['comment'] ) ) : null;
 
 		if ( empty( $_blog_id ) ) {
 			die( wp_json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
@@ -1096,9 +1096,9 @@ class Jetpack_Carousel {
 			}
 		} else {
 			$user_id      = 0;
-			$display_name = $_POST['author'];
-			$email        = $_POST['email'];
-			$url          = $_POST['url'];
+			$display_name = isset( $_POST['author'] ) ? sanitize_text_field( wp_unslash( $_POST['author'] ) ) : null;
+			$email        = isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Checked or sanitized below.
+			$url          = isset( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : null;
 
 			if ( get_option( 'require_name_email' ) ) {
 				if ( empty( $display_name ) ) {
@@ -1121,6 +1121,8 @@ class Jetpack_Carousel {
 					}
 					die( wp_json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
 				}
+			} else {
+				$email = $email !== null ? sanitize_email( $email ) : null;
 			}
 		}
 

@@ -6,30 +6,26 @@
 import PropTypes from 'prop-types';
 
 import React from 'react';
-import PureRenderMixin from 'react-pure-render/mixin';
-import createReactClass from 'create-react-class';
 
 /**
  * Internal dependencies
  */
 
-const LegendItem = createReactClass( {
-	displayName: 'ModuleChartLegendItem',
+class LegendItem extends React.PureComponent {
+	static displayName = 'ModuleChartLegendItem';
 
-	mixins: [ PureRenderMixin ],
-
-	propTypes: {
+	static propTypes = {
 		checked: PropTypes.bool.isRequired,
 		label: PropTypes.oneOfType( [ PropTypes.object, PropTypes.string ] ),
 		attr: PropTypes.string.isRequired,
 		changeHandler: PropTypes.func.isRequired,
-	},
+	};
 
-	clickHandler: function () {
+	clickHandler = () => {
 		this.props.changeHandler( this.props.attr );
-	},
+	};
 
-	render: function () {
+	render() {
 		return (
 			<li className="dops-chart__legend-option">
 				<label
@@ -47,8 +43,8 @@ const LegendItem = createReactClass( {
 				</label>
 			</li>
 		);
-	},
-} );
+	}
+}
 
 class Legend extends React.Component {
 	static displayName = 'ModuleChartLegend';
