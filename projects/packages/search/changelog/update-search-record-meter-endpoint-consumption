@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+updated how record meter retrieves endpoint data
