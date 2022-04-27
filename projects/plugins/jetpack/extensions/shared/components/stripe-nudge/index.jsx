@@ -7,6 +7,7 @@ import GridiconStar from 'gridicons/dist/star';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { select } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -14,6 +15,7 @@ import { __ } from '@wordpress/i18n';
 import analytics from '../../../../_inc/client/lib/analytics';
 import BlockNudge from '../block-nudge';
 import getConnectUrl from '../../get-connect-url';
+import { store as membershipProductsStore } from '../../../store/membership-products';
 
 import './style.scss';
 
@@ -43,6 +45,17 @@ export const StripeNudge = ( { blockName, url } ) => (
 		) }
 	/>
 );
+
+export const MembershipStoreAwareStripeNudge = ( { blockName } ) => {
+	const store = select( membershipProductsStore );
+	const stripeConnectUrl = store.getConnectUrl();
+
+	if ( store.getShouldUpgrade() || ! stripeConnectUrl ) {
+		return null;
+	}
+
+	return <StripeNudge blockName={ blockName } url={ stripeConnectUrl } />;
+};
 
 export default ( { blockName, postId, stripeConnectUrl } ) => {
 	const url = getConnectUrl( postId, stripeConnectUrl );

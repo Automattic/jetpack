@@ -40,3 +40,16 @@ add_action(
 		require_once __DIR__ . '/run.php';
 	}
 );
+
+/**
+ * Adds the REST API endpoints used by the WAF in the WP context.
+ *
+ * @return void
+ */
+add_action(
+	'rest_api_init',
+	function () {
+		require_once __DIR__ . '/src/class-waf-endpoints.php';
+		Waf_Endpoints::register_endpoints();
+	}
+);

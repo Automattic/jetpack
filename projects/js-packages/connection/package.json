@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.17.10-alpha",
+	"version": "0.17.11-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -22,6 +22,7 @@
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@babel/core": "7.17.9",
 		"@babel/preset-react": "7.16.7",
+		"@storybook/addon-actions": "6.4.22",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
 		"react": "17.0.2",

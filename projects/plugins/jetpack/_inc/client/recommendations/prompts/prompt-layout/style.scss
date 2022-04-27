@@ -1,4 +1,5 @@
 @import '../../../scss/mixin_breakpoint.scss';
+@import '../../../scss/variables/colors';
 
 .jp-recommendations-question__content {
 	display: flex;
@@ -142,12 +143,41 @@
 	margin: 18%;
 }
 
+.jp-recommendations-question__checkmark {
+	margin-right: 8px;
+	display: flex;
+	align-items: center;
+	align-content: center;
+}
+
+.jp-recommendations-question__feature-enabled {
+	display: flex;
+	align-items: center;
+	align-content: center;
+	margin-bottom: 16px;
+
+	.gridicons-checkmark-circle {
+		fill: $green-primary;
+	}
+}
+
+.jp-recommendations-question__settings-button {
+	.components-external-link {
+		display: flex;
+		align-items: center;
+
+		&__icon {
+			margin-left: 4px;
+		}
+	}
+}
+
 .jp-recommendations-question__install-section {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: center;
 
 	button {
 		margin-top: auto;
@@ -171,4 +201,13 @@
 	@include breakpoint( '<480px' ) {
 		padding: 64px 16px 0 16px;
 	}
+}
+
+.jp-recommendations-question__jump-nav {
+	display: flex;
+	justify-content: center;
+}
+
+.jp-recommendations-question__jump-nav-separator {
+	margin: 0 8px;
 }

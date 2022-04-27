@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the local copy of `@babel/runtime` rather than any that might be installed in the project.

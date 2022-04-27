@@ -236,7 +236,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		);
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$target = sanitize_text_field( (string) $_GET['jp-react-redirect'] );
+		$target = sanitize_text_field( wp_unslash( $_GET['jp-react-redirect'] ) );
 		if ( isset( $allowed_paths[ $target ] ) ) {
 			wp_safe_redirect( $allowed_paths[ $target ] );
 			exit;
