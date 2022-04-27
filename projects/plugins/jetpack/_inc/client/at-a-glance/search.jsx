@@ -19,12 +19,8 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
-import {
-	getPlanClass,
-	getJetpackProductUpsellByFeature,
-	FEATURE_SEARCH_JETPACK,
-} from 'lib/plans/constants';
-import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
+import { getJetpackProductUpsellByFeature, FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
+import { hasActiveSiteFeature, isFetchingSitePurchases } from 'state/site';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
@@ -95,7 +91,7 @@ class DashSearch extends Component {
 	activateSearch = () => {
 		this.props.updateOptions( {
 			search: true,
-			...( this.props.hasSearchProduct ? { instant_search_enabled: true } : {} ),
+			...( this.props.hasInstantSearch ? { instant_search_enabled: true } : {} ),
 		} );
 	};
 
@@ -116,7 +112,7 @@ class DashSearch extends Component {
 			} );
 		}
 
-		if ( ! this.props.isBusinessPlan && ! this.props.hasSearchProduct ) {
+		if ( ! this.props.hasClassicSearch && ! this.props.hasInstantSearch ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
@@ -169,7 +165,7 @@ class DashSearch extends Component {
 							{ __( 'Jetpack Search is powering search on your site.', 'jetpack' ) }
 						</p>
 					</DashItem>
-					{ this.props.hasSearchProduct ? (
+					{ this.props.hasInstantSearch ? (
 						<Card
 							compact
 							className="jp-search-config-aag"
@@ -211,10 +207,10 @@ class DashSearch extends Component {
 export default connect(
 	state => {
 		return {
-			isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
 			isOfflineMode: isOfflineMode( state ),
 			isFetching: isFetchingSitePurchases( state ),
-			hasSearchProduct: hasActiveSearchPurchase( state ),
+			hasClassicSearch: hasActiveSiteFeature( state, 'search' ),
+			hasInstantSearch: hasActiveSiteFeature( state, 'instant-search' ),
 			upgradeUrl: getProductDescriptionUrl( state, 'search' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};
