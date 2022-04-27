@@ -28,12 +28,27 @@ class Jetpack_Protect {
 	 * Constructor.
 	 */
 	public function __construct() {
+		add_action( 'init', array( $this, 'init' ) );
+	}
+
+	/**
+	 * Initialize the plugin
+	 *
+	 * @return void
+	 */
+	public function init() {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		$total_vuls = Status::get_total_vulnerabilities();
+		$menu_label = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
+		if ( $total_vuls ) {
+			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_vuls );
+		}
+
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Protect', 'jetpack-protect' ),
-			_x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' ),
+			$menu_label,
 			'manage_options',
 			'jetpack-protect',
 			array( $this, 'plugin_settings_page' ),
@@ -82,6 +97,9 @@ class Jetpack_Protect {
 			1
 		);
 
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 65 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
 	}
@@ -91,6 +109,13 @@ class Jetpack_Protect {
 	 */
 	public function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+	}
+
+	/**
+	 * Enqueues the wp-admin styles (used outside the React app)
+	 */
+	public function enqueue_admin_styles() {
+		wp_enqueue_style( 'jetpack-protect-wpadmin', JETPACK_PROTECT_BASE_PLUGIN_URL . '/css/jetpack-protect.css', array(), JETPACK_PROTECT_VERSION );
 	}
 
 	/**
@@ -148,5 +173,33 @@ class Jetpack_Protect {
 		?>
 			<div id="jetpack-protect-root"></div>
 		<?php
+	}
+
+	/**
+	 * Create a shortcut on Admin Bar to show the total of vulnerabilities found.
+	 *
+	 * @param object $wp_admin_bar The Admin Bar object.
+	 * @return void
+	 */
+	public function admin_bar( $wp_admin_bar ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$total = Status::get_total_vulnerabilities();
+
+		if ( $total > 0 ) {
+			$args = array(
+				'id'    => 'jetpack-protect',
+				'title' => '<span class="ab-icon noticon icon-protect"></span><span class="ab-label">' . $total . '</span>',
+				'href'  => admin_url( 'admin.php?page=jetpack-protect' ),
+				'meta'  => array(
+					// translators: %d is the number of vulnerabilities found.
+					'title' => sprintf( _n( '%d vulnerability found by Jetpack Protect', '%d vulnerabilities found by Jetpack Protect', $total, 'jetpack-protect' ), $total ),
+				),
+			);
+
+			$wp_admin_bar->add_node( $args );
+		}
 	}
 }
