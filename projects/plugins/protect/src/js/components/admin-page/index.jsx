@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
+
 import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 
@@ -12,6 +13,9 @@ import { useConnection } from '@automattic/jetpack-connection';
 import Summary from '../summary';
 import VulnerabilitiesList from '../vulnerabilities-list';
 import Interstitial from '../interstitial';
+import Footer from '../footer';
+
+export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
 const Admin = () => {
 	const { isRegistered } = useConnection( { skipUserConnection: true } );
@@ -45,6 +49,7 @@ const Admin = () => {
 					</Col>
 				</Container>
 			</AdminSectionHero>
+			<Footer />
 		</AdminPage>
 	);
 };
