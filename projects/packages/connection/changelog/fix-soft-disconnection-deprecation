@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+fix is_enabled method
