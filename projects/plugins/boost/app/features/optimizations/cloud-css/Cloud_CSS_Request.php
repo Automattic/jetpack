@@ -19,7 +19,7 @@ class Cloud_CSS_Request {
 	public function request_generate( $providers ) {
 		$client               = Boost_API::get_client();
 		$payload              = array( 'providers' => $providers );
-		$payload['requestId'] = md5( wp_json_encode( $payload ) );
+		$payload['requestId'] = md5( wp_json_encode( $payload ) . time() );
 
 		$this->reset_existing_css();
 		return $client->post( 'cloud-css', $payload );
