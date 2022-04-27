@@ -70,5 +70,6 @@ export default function useProductCheckoutWorkflow( {
 
 	return {
 		run,
+		isRegistered,
 	};
 }

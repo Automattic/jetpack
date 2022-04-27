@@ -38,3 +38,6 @@ function MyComponent() {
 	)
 }
 ```
+
+### isRegisterd
+Determine if the site is registered, or not.
