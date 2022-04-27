@@ -56,7 +56,7 @@ class Jetpack_Google_Analytics_Legacy {
 			$track[ $k ] = trim( $track[ $k ], '_' );
 		}
 		$char = ( strpos( $track['data'], '?' ) === false ) ? '?' : '&amp;';
-		return str_replace( "'", "\'", "/{$track['code']}/{$track['data']}{$char}referer=" . rawurlencode( esc_url_raw( wp_unslash( isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '' ) ) ) );
+		return str_replace( "'", "\'", "/{$track['code']}/{$track['data']}{$char}referer=" . rawurlencode( isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '' ) );
 	}
 
 	/**
