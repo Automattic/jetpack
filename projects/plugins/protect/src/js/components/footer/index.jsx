@@ -12,7 +12,6 @@ import {
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 
 /**
@@ -64,13 +63,6 @@ const Footer = () => {
 			</Col>
 		</Container>
 	);
-};
-
-Footer.propTypes = {
-	/** Callback to handle the add product button click. */
-	handleProductButton: PropTypes.func,
-	/** Urt of the Learn More link. */
-	learnMoreUrl: PropTypes.string,
 };
 
 export default Footer;
