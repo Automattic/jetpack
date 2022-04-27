@@ -46,6 +46,13 @@ if ( ! isset( $_tests_dir ) || ! file_exists( $_tests_dir . '/includes/bootstrap
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 echo "Using test root $_tests_dir\n";
 
+if ( ! is_readable( $_plugin_root . '/vendor/autoload.php' ) ) {
+	echo 'The plugin is not ready for testing.' . PHP_EOL;
+	echo PHP_EOL;
+	echo 'Composer dependencies must be installed.' . PHP_EOL;
+	exit( 1 );
+}
+
 // Give access to tests_add_filter() function.
 require_once $_tests_dir . '/includes/functions.php';
 
