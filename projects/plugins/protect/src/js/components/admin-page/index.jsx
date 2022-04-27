@@ -1,18 +1,10 @@
-/* global jetpackProtectInitialState */
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React from 'react';
 import { __ } from '@wordpress/i18n';
 
-import {
-	AdminPage,
-	AdminSectionHero,
-	Container,
-	Col,
-	getProductCheckoutUrl,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
+import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 
 /**
@@ -23,20 +15,10 @@ import VulnerabilitiesList from '../vulnerabilities-list';
 import Interstitial from '../interstitial';
 import Footer from '../footer';
 
-const Admin = () => {
-	const { isRegistered, isUserConnected } = useConnection( { skipUserConnection: true } );
-	const { siteSuffix, adminUrl } = jetpackProtectInitialState;
-	const securityCheckoutUrl = getProductCheckoutUrl(
-		'jetpack_security_t1_yearly',
-		siteSuffix,
-		adminUrl,
-		isUserConnected
-	);
-	const learnMoreUrl = getRedirectUrl( 'jetpack-protect-footer-learn-more' );
+export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
-	const handleProductButton = useCallback( () => {
-		window.location = securityCheckoutUrl;
-	}, [ securityCheckoutUrl ] );
+const Admin = () => {
+	const { isRegistered } = useConnection( { skipUserConnection: true } );
 
 	// Show interstital page when Jetpack is not connected.
 	if ( ! isRegistered ) {
@@ -67,7 +49,7 @@ const Admin = () => {
 					</Col>
 				</Container>
 			</AdminSectionHero>
-			<Footer handleProductButton={ handleProductButton } learnMoreUrl={ learnMoreUrl } />
+			<Footer />
 		</AdminPage>
 	);
 };

@@ -2,16 +2,35 @@
  * External dependencies
  */
 import React from 'react';
-import { Container, Col, Text, Button, Title, IconsCard } from '@automattic/jetpack-components';
+import {
+	Container,
+	Col,
+	Text,
+	Button,
+	Title,
+	IconsCard,
+	getRedirectUrl,
+} from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
  */
 import styles from './styles.module.scss';
+import { SECURITY_BUNDLE } from '../admin-page';
 
-const Footer = ( { handleProductButton, learnMoreUrl } ) => {
+const Footer = () => {
+	const learnMoreUrl = getRedirectUrl( 'jetpack-protect-footer-learn-more' );
+	const { siteSuffix, redirectUrl } = window.jetpackProtectInitialState || {};
+
+	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug: SECURITY_BUNDLE,
+		siteSuffix,
+		redirectUrl,
+	} );
+
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 0 } fluid={ false }>
 			<Col>
@@ -25,7 +44,8 @@ const Footer = ( { handleProductButton, learnMoreUrl } ) => {
 						'jetpack-protect'
 					) }
 				</Text>
-				<Button variant="secondary" onClick={ handleProductButton }>
+
+				<Button variant="secondary" onClick={ run } isLoading={ hasCheckoutStarted }>
 					{ __( 'Get Jetpack Security', 'jetpack-protect' ) }
 				</Button>
 			</Col>
