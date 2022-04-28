@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -147,13 +148,20 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Helper to check that we have a Jetpack connection.
+	 */
+	private static function is_connected() {
+		return ( new Connection_Manager( JETPACK_SOCIAL_PLUGIN_SLUG ) )->is_connected();
+	}
+
+	/**
 	 * Runs an admin_init and checks the activation option to work out
 	 * if we should activate the module. This needs to be run after the
 	 * activation hook, as that results in a redirect, and we need the
 	 * sync module's actions and filters to be registered.
 	 */
 	public function activate_module_on_plugin_activation() {
-		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) ) {
+		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) && self::is_connected() ) {
 			delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
 			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		}
