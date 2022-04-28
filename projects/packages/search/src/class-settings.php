@@ -16,6 +16,23 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class to initialize search settings on the site.
  */
 class Settings {
+	/**
+	 * This contains significant code overlap with `customizer/class-customizer.php`.
+	 * The settings are synced to WPCOM thru `sync/src/modules/class-search.php`.
+	 *
+	 * @var array
+	 */
+	public static $settings = array(
+		array( Options::OPTION_PREFIX . 'color_theme', 'string', 'light' ),
+		array( Options::OPTION_PREFIX . 'result_format', 'string', 'minimal' ),
+		array( Options::OPTION_PREFIX . 'default_sort', 'string', 'relevance' ),
+		array( Options::OPTION_PREFIX . 'overlay_trigger', 'string', 'results' ),
+		array( Options::OPTION_PREFIX . 'excluded_post_types', 'string', '' ),
+		array( Options::OPTION_PREFIX . 'highlight_color', 'string', '#FFC' ),
+		array( Options::OPTION_PREFIX . 'enable_sort', 'boolean', true ),
+		array( Options::OPTION_PREFIX . 'inf_scroll', 'boolean', true ),
+		array( Options::OPTION_PREFIX . 'show_powered_by', 'boolean', true ),
+	);
 
 	/**
 	 * Class initialization.
@@ -31,20 +48,7 @@ class Settings {
 	 * @since 9.x.x
 	 */
 	public function settings_register() {
-		// NOTE: This contains significant code overlap with class-jetpack-search-customize.
-		$setting_prefix = Options::OPTION_PREFIX;
-		$settings       = array(
-			array( $setting_prefix . 'color_theme', 'string', 'light' ),
-			array( $setting_prefix . 'result_format', 'string', 'minimal' ),
-			array( $setting_prefix . 'default_sort', 'string', 'relevance' ),
-			array( $setting_prefix . 'overlay_trigger', 'string', 'results' ),
-			array( $setting_prefix . 'excluded_post_types', 'string', '' ),
-			array( $setting_prefix . 'highlight_color', 'string', '#FFC' ),
-			array( $setting_prefix . 'enable_sort', 'boolean', true ),
-			array( $setting_prefix . 'inf_scroll', 'boolean', true ),
-			array( $setting_prefix . 'show_powered_by', 'boolean', true ),
-		);
-		foreach ( $settings as $value ) {
+		foreach ( static::$settings as $value ) {
 			register_setting(
 				'options',
 				$value[0],

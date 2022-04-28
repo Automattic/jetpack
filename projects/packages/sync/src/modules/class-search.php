@@ -45,6 +45,8 @@ class Search extends Module {
 	public function __construct() {
 		// Post meta whitelists.
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_search_post_meta_whitelist' ), 10 );
+		// Add options
+		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_search_options_whitelist' ) );
 	}
 
 	/**
@@ -1724,6 +1726,16 @@ class Search extends Module {
 		return array_merge( $list, $this->get_all_postmeta_keys() );
 	}
 
+	/**
+	 * Add Search options to the options whitelist.
+	 *
+	 * @param array $list Existing options whitelist.
+	 * @return array Updated options whitelist.
+	 */
+	public function add_search_options_whitelist( $list ) {
+		return array_merge( $list, $this->get_all_option_keys() );
+	}
+
 	//
 	// Indexing functions for wp.com.
 
@@ -1773,6 +1785,17 @@ class Search extends Module {
 	 */
 	public static function get_all_postmeta_keys() {
 		return array_keys( self::$postmeta_to_sync );
+	}
+
+	/**
+	 * Get all option keys that get synced.
+	 *
+	 * @access public
+	 *
+	 * @return array List of option keys that get synced.
+	 */
+	public static function get_all_option_keys() {
+		return array_column( \Automattic\Jetpack\Search\Settings::$settings, 0 );
 	}
 
 	/**
