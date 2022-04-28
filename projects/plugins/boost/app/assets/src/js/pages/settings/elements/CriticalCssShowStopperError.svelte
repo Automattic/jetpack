@@ -19,7 +19,7 @@
 	import { primaryErrorSet } from '../../../stores/critical-css-recommendations';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 
-	export let supportLink;
+	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';
 
 	// Show a Provider Key error if the process succeeded but there were errors.
 	let showingProviderError = false;

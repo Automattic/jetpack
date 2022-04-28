@@ -33,10 +33,7 @@
 		</div>
 	</div>
 {:else if $showError}
-	<CriticalCssShowStopperError
-		supportLink="https://wordpress.org/support/plugin/jetpack-boost/"
-		on:retry={() => generateCriticalCss( true, true )}
-	/>
+	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
 {:else}
 	<CriticalCssStatus on:retry={generateCriticalCss} />
 {/if}
