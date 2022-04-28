@@ -4,8 +4,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
-import Formsy from 'formsy-react';
-import createReactClass from 'create-react-class';
+import { withFormsy } from 'formsy-react';
 
 /**
  * Internal Dependencies
@@ -60,74 +59,70 @@ class Radios extends React.Component {
 	}
 }
 
-export default createReactClass( {
-	displayName: 'RadioInput',
+export default withFormsy(
+	class extends React.Component {
+		static displayName = 'RadioInput';
 
-	mixins: [ Formsy.Mixin ],
+		static propTypes = {
+			name: PropTypes.string.isRequired,
+			description: PropTypes.string,
+			choices: PropTypes.any,
+			selected: PropTypes.any,
+			required: PropTypes.any,
+			validations: PropTypes.string,
+			validationError: PropTypes.string,
+		};
 
-	propTypes: {
-		name: PropTypes.string.isRequired,
-		description: PropTypes.string,
-		choices: PropTypes.any,
-		selected: PropTypes.any,
-		required: PropTypes.any,
-		validations: PropTypes.string,
-		validationError: PropTypes.string,
-	},
-
-	getInitialState: function () {
-		return {
+		state = {
 			uniqueId: getUniqueId(),
 			selectedItem: this.props.selected,
 		};
-	},
 
-	UNSAFE_componentWillMount: function () {
-		this.setValue( this.props.selected );
-	},
-
-	getDefaultProps: function () {
-		return { required: false };
-	},
-
-	changeValue: function ( event ) {
-		this.setState( { selectedItem: event.target.value } );
-		this.setValue( event.target.value );
-	},
-
-	render: function () {
-		let errorMessage;
-
-		if ( ! this.isPristine() ) {
-			errorMessage = this.showError() ? this.getErrorMessage() : null;
-			if ( ! errorMessage ) {
-				errorMessage = this.showRequired()
-					? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' )
-					: null;
-			}
+		UNSAFE_componentWillMount() {
+			this.setValue( this.props.selected );
 		}
 
-		const className = classNames(
-			{
-				'dops-field': true,
-				'dops-form-radio': true,
-				'dops-form-error': errorMessage,
-			},
-			this.props.className
-		);
+		static defaultProps = { required: false };
 
-		return (
-			<div className={ className }>
-				<Radios
-					name={ this.props.name }
-					uniqueId={ this.state.uniqueId }
-					choices={ this.props.choices }
-					changeValue={ this.changeValue }
-					selected={ this.state.selectedItem }
-				/>
+		changeValue = event => {
+			this.setState( { selectedItem: event.target.value } );
+			this.setValue( event.target.value );
+		};
 
-				{ errorMessage && <FormInputValidation text={ errorMessage } isError={ true } /> }
-			</div>
-		);
-	},
-} );
+		render() {
+			let errorMessage;
+
+			if ( ! this.isPristine() ) {
+				errorMessage = this.showError() ? this.getErrorMessage() : null;
+				if ( ! errorMessage ) {
+					errorMessage = this.showRequired()
+						? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' )
+						: null;
+				}
+			}
+
+			const className = classNames(
+				{
+					'dops-field': true,
+					'dops-form-radio': true,
+					'dops-form-error': errorMessage,
+				},
+				this.props.className
+			);
+
+			return (
+				<div className={ className }>
+					<Radios
+						name={ this.props.name }
+						uniqueId={ this.state.uniqueId }
+						choices={ this.props.choices }
+						changeValue={ this.changeValue }
+						selected={ this.state.selectedItem }
+					/>
+
+					{ errorMessage && <FormInputValidation text={ errorMessage } isError={ true } /> }
+				</div>
+			);
+		}
+	}
+);

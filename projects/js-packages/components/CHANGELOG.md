@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.11.3 - 2022-04-26
+### Added
+- Added RecordMeterBar component with stories and unit tests
+- Expose and use IconsCard component
+- JS Components: add `icon` property to ProductOffer component
+- JS Components: Introduce Alert component. Add error to ProductOffer components
+- JS Components: Update Alter level colors via ThemeProvider
+
+### Changed
+- JS Components: improve box-model composed by dialog and product-offer components
+- Updated package dependencies
+- Updated package dependencies.
+
+### Fixed
+- Components: Avoid reset global text components when usin Text
+
 ## 0.11.2 - 2022-04-19
 ### Added
 - Added Gridicon component

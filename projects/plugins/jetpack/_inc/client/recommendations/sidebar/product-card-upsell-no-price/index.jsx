@@ -12,8 +12,9 @@ import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
 import { Layout } from '../layout';
 import RecommendedHeader from '../recommended-header';
+import withUpgradeUrl from '../../hoc/with-upgrade-url';
 
-const ProductCardUpsellNoPrice = props => {
+const ProductCardUpsellNoPriceComponent = props => {
 	const { upgradeUrl } = props;
 
 	useEffect( () => {
@@ -66,5 +67,7 @@ const ProductCardUpsellNoPrice = props => {
 		/>
 	);
 };
+
+const ProductCardUpsellNoPrice = withUpgradeUrl( ProductCardUpsellNoPriceComponent );
 
 export { ProductCardUpsellNoPrice };
