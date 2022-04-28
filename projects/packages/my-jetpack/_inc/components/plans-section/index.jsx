@@ -90,7 +90,7 @@ function PlanSectionFooter( { purchases } ) {
 	}, [ purchases, recordEvent ] );
 
 	return (
-		<ul>
+		<ul className={ styles[ 'actions-list' ] }>
 			<li>
 				<Button
 					onClick={ purchaseClickHandler }

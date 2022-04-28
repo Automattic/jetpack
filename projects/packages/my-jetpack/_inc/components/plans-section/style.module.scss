@@ -7,3 +7,10 @@
 .expire-date {
 	margin-bottom: calc( var(--spacing-base ) * 3 );
 }
+
+.actions-list {
+	li {
+		line-height: 24px;
+		margin: 0 0 8px 0;
+	}
+}
