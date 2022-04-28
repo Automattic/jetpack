@@ -1622,6 +1622,7 @@ importers:
 
   projects/plugins/wooads:
     specifiers:
+      '@automattic/format-currency': 1.0.0-alpha.0
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.11
       '@automattic/jetpack-connection': workspace:* || ^0.17
@@ -1631,11 +1632,17 @@ importers:
       '@babel/register': 7.17.7
       '@babel/runtime': 7.17.9
       '@wordpress/browserslist-config': 4.1.2
+      '@wordpress/components': 19.8.0
       '@wordpress/data': 6.6.0
       '@wordpress/date': 4.6.0
       '@wordpress/element': 4.4.0
       '@wordpress/i18n': 4.6.0
+      classnames: 2.3.1
       concurrently: 6.0.2
+      lodash: 4.17.21
+      moment: 2.29.2
+      moment-timezone: 0.5.34
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -1643,13 +1650,20 @@ importers:
       webpack: 5.65.0
       webpack-cli: 4.9.1
     dependencies:
+      '@automattic/format-currency': 1.0.0-alpha.0_react@17.0.2
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@wordpress/components': 19.8.0_f370f735164a03a12cea0cc89593cbee
       '@wordpress/data': 6.6.0_react@17.0.2
       '@wordpress/date': 4.6.0
       '@wordpress/element': 4.4.0
       '@wordpress/i18n': 4.6.0
+      classnames: 2.3.1
+      lodash: 4.17.21
+      moment: 2.29.2
+      moment-timezone: 0.5.34
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:

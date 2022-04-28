@@ -1,6 +1,6 @@
 {
 	"name": "automattic/wooads",
-	"description": "Promote your products and content using ads",
+	"description": "Promote your WooCommerce products and content using ads",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -58,7 +58,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/wooads",
-		"release-branch-prefix": "promote",
+		"release-branch-prefix": "wooads",
 		"beta-plugin-slug": "wooads",
 		"wp-plugin-slug": "wooads"
 	},

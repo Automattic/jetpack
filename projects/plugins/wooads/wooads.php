@@ -3,7 +3,7 @@
  *
  * Plugin Name: WooAds
  * Plugin URI: https://wordpress.org/plugins/wooads
- * Description: Promote your products and content using ads.
+ * Description: Promote your WooCommerce store products and content using ads.
  * Version: 0.1.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/

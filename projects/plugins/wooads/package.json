@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"description": "Promote your products and content using ads.",
+	"description": "Promote your WooCommerce products and content using ads.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/issues"
@@ -24,13 +24,20 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@automattic/jetpack-connection": "workspace:* || ^0.17",
+		"@wordpress/components": "19.8.0",
 		"@wordpress/data": "6.6.0",
-		"@wordpress/element": "4.4.0",
 		"@wordpress/date": "4.6.0",
+		"@wordpress/element": "4.4.0",
 		"@wordpress/i18n": "4.6.0",
+		"classnames": "2.3.1",
+		"lodash": "4.17.21",
+		"moment": "2.29.2",
+		"moment-timezone": "0.5.34",
+		"prop-types": "15.8.1",
 		"react": "17.0.2",
 		"react-dom": "17.0.2"
 	},
