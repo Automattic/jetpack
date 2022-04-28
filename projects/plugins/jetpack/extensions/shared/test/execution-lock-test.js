@@ -107,9 +107,9 @@ describe( 'Execution lock', () => {
 
             // Then
             const timeElapsedInMillis = Date.now() - initialTimeMillis;
-            expect( timeElapsedInMillis ).toBeGreaterThan( OFFSET_FOR_1000_MS );
+            expect( timeElapsedInMillis ).toBeGreaterThanOrEqual( OFFSET_FOR_1000_MS );
             // We need to take into consideration that there might be a slight delay during the execution of js code.
-            expect( timeElapsedInMillis ).toBeLessThan( OFFSET_FOR_1000_MS_WITH_MARGIN_OF_ERROR );
+            expect( timeElapsedInMillis ).toBeLessThanOrEqual( OFFSET_FOR_1000_MS_WITH_MARGIN_OF_ERROR );
         } );
     } );
 
