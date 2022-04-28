@@ -210,7 +210,7 @@ class ProStatus extends React.Component {
 
 				case 'backups':
 					if ( hasFree && ! hasBackups && this.props.isCompact ) {
-						return this.getProActions( 'free', 'backups' );
+						return '';
 					}
 					break;
 
@@ -221,7 +221,7 @@ class ProStatus extends React.Component {
 					if ( 'N/A' !== vpData ) {
 						if ( ( hasFree || hasPersonal ) && ! hasVPScan ) {
 							if ( this.props.isCompact ) {
-								return this.getProActions( 'free', 'scan' );
+								return '';
 							} else if ( hasPersonal && ! hasBackups ) {
 								// Personal plans doesn't have scan but it does have backups.
 								return this.getSetUpButton( 'backups' );
@@ -260,13 +260,13 @@ class ProStatus extends React.Component {
 
 				case 'search':
 					if ( hasFree || hasPersonal || hasPremium ) {
-						return this.getProActions( 'pro', 'search' );
+						return '';
 					}
 					return '';
 
 				case 'akismet':
 					if ( hasFree && ! ( active && installed ) ) {
-						return this.props.isCompact ? this.getProActions( 'free', 'anti-spam' ) : '';
+						return this.props.isCompact ? '' : '';
 					}
 
 					if (
