@@ -415,7 +415,7 @@ class MyPlanHeader extends React.Component {
 						) }
 						{ 'header' === position ? (
 							<Button
-								href={ siteAdminUrl + 'admin.php?page=jetpack#/license/activation' }
+								href={ siteAdminUrl + 'admin.php?page=my-jetpack#/add-license' }
 								onClick={ this.trackLicenseActivationClick }
 								primary
 							>
