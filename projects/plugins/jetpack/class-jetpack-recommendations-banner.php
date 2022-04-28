@@ -286,7 +286,7 @@ class Jetpack_Recommendations_Banner {
 	 */
 	private function img_path( $res = 1, $format = 'png' ) {
 		$suffix = 2 === $res ? '-2x' : '';
-		$ext    = in_array( $format, array( 'webp', 'png' ), true ) ? $format : '';
+		$ext    = in_array( $format, array( 'webp', 'png' ), true ) ? $format : 'png';
 
 		return plugins_url( "images/recommendations/assistant-site-type$suffix.$ext", JETPACK__PLUGIN_FILE );
 	}
