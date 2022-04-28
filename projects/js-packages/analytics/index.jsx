@@ -273,3 +273,5 @@ const analytics = {
 };
 
 export default analytics;
+
+export { default as useAnalyticsTracks } from './hooks/use-analytics-tracks/index.js';
