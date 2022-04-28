@@ -230,7 +230,7 @@ class Jetpack_Protect {
 	 * @return WP_REST_Response
 	 */
 	public static function api_get_status() {
-		$status = Status::get_status();
+		$status = Protect_Status::get_status();
 		return rest_ensure_response( $status, 200 );
 	}
 }
