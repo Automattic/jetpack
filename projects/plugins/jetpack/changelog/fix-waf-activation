@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Call activation/deactivation endpoints for waf so its setup correctly
