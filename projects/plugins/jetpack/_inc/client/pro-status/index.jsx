@@ -260,7 +260,7 @@ class ProStatus extends React.Component {
 
 				case 'akismet':
 					if ( hasFree && ! ( active && installed ) ) {
-						return this.props.isCompact ? '' : '';
+						return '';
 					}
 
 					if (
