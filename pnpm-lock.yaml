@@ -1508,7 +1508,6 @@ importers:
 
   projects/plugins/protect:
     specifiers:
-      '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.11
       '@automattic/jetpack-connection': workspace:* || ^0.17
@@ -1517,6 +1516,7 @@ importers:
       '@babel/preset-env': 7.16.11
       '@babel/register': 7.17.7
       '@babel/runtime': 7.17.9
+      '@wordpress/api-fetch': 6.3.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/data': 6.6.0
       '@wordpress/date': 4.6.0
@@ -1534,10 +1534,10 @@ importers:
       webpack: 5.65.0
       webpack-cli: 4.9.1
     dependencies:
-      '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@wordpress/api-fetch': 6.3.0
       '@wordpress/data': 6.6.0_react@17.0.2
       '@wordpress/date': 4.6.0
       '@wordpress/element': 4.4.0
