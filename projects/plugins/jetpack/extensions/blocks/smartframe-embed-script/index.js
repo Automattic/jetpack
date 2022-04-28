@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -12,6 +13,10 @@ import { Fragment } from '@wordpress/element';
 //import edit from './edit';
 import icon from './icon';
 import { getIconColor } from '../../shared/block-icons';
+
+export const URL_REGEX = /smartframe\.io\/[a-zA-Z]+/i;
+//export const URL_REGEX = /<script\ssrc=\"https:\/\/embed\.smartframe\.(?:io|net)\/(\w+)\.js\"\sdata-image-id=\"(.*?)\"(?:\sdata-width=\"(?:\d+(?:%|px))\"\s)?(?:data-max-width=\"(\d+(%|px)))?\"><\/script>/i;
+//export const URL_REGEX = /<script>[a-zA-Z]+<\/script>/i;
 
 /**
  * Style dependencies
@@ -66,5 +71,23 @@ export const settings = {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.
 		},
+	},
+	transforms: {
+		from: [
+			{
+				type: 'raw',
+				isMatch: node => {
+					//console.log( node.nodeName );
+					//return node.nodeName === 'P' && URL_REGEX.test( node.textContent );
+					return URL_REGEX.test( node.textContent );
+				},
+				transform: node => {
+					//console.log( node );
+					return createBlock( 'core/paragraph', {
+						content: node.textContent.trim() + ' hello',
+					} );
+				},
+			},
+		],
 	},
 };
