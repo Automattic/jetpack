@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Connection: Expose wpVersion, siteSuffix and adminUrl in the global initial state var
