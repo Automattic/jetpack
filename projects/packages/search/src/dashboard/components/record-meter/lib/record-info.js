@@ -54,9 +54,8 @@ export default function getRecordInfo( post_count, post_type_breakdown, tier, la
 
 	if ( numItems > 0 && hasValidData && hasBeenIndexed ) {
 		for ( let i = 0; i < numItems; i++ ) {
-			const theData = Object.values( post_type_breakdown )[ i ];
-			const count = theData.count;
-			const name = theData.title;
+			const postTypeDetails = Object.values( post_type_breakdown )[ i ];
+			const { count, title: name } = postTypeDetails;
 
 			postTypeBreakdown.push( {
 				data: createData( count, colors[ i ], name ),
