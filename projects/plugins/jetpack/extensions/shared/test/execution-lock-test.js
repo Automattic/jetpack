@@ -92,6 +92,25 @@ describe( 'Execution lock', () => {
             // The lock will not be resolved before the test timeout, and we should reach this point.
             expect( true ).toBeTruthy();
         } );
+
+        test( 'The time elapsed between lock checks when the execution is halted is greater than the time offSet value', async () => {
+            // Given
+            const lock = executionLock.acquire( ANY_LOCK_KEY );
+            const RELEASE_LOCK_AFTER_900_MS = 900;
+            const OFFSET_FOR_1000_MS = 1000;
+            const OFFSET_FOR_1000_MS_WITH_MARGIN_OF_ERROR = OFFSET_FOR_1000_MS * 1.2;
+            setTimeout(() => executionLock.release( lock ), RELEASE_LOCK_AFTER_900_MS );
+            const initialTimeMillis = Date.now();
+
+            // When
+            await executionLock.blockExecution( ANY_LOCK_KEY, OFFSET_FOR_1000_MS );
+
+            // Then
+            const timeElapsedInMillis = Date.now() - initialTimeMillis;
+            expect( timeElapsedInMillis ).toBeGreaterThan( OFFSET_FOR_1000_MS );
+            // We need to take into consideration that there might be a slight delay during the execution of js code.
+            expect( timeElapsedInMillis ).toBeLessThan( OFFSET_FOR_1000_MS_WITH_MARGIN_OF_ERROR );
+        } );
     } );
 
     describe( 'Check lock tests', () => {

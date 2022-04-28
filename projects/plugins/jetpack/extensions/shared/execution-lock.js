@@ -1,4 +1,8 @@
 /**
+ * @see execution-lock-test.js
+ */
+
+/**
  * Map that relates a locked key with its unique lock value.
  *
  * @type {Map<string, number>}
@@ -28,9 +32,8 @@ const acquire = key => {
  * @param {number} timeOffset - Amount of time to wait between lock checks.
  */
 const blockExecution = async ( key, timeOffset = 10 ) => {
-	if ( isLocked( key ) ) {
+	while ( isLocked( key ) ) {
 		await new Promise( resolve => setTimeout( resolve, timeOffset ) );
-		await blockExecution( key, timeOffset );
 	}
 };
 
