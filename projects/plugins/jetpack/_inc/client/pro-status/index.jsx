@@ -220,9 +220,7 @@ class ProStatus extends React.Component {
 					}
 					if ( 'N/A' !== vpData ) {
 						if ( ( hasFree || hasPersonal ) && ! hasVPScan ) {
-							if ( this.props.isCompact ) {
-								return '';
-							} else if ( hasPersonal && ! hasBackups ) {
+							if ( hasPersonal && ! hasBackups ) {
 								// Personal plans doesn't have scan but it does have backups.
 								return this.getSetUpButton( 'backups' );
 							}
