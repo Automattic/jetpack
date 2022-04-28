@@ -52,7 +52,8 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 		return array(
 			'accent-color'          => array(
 				'body {accent-color:red;accent-color:#74992e;accent-color:rgb(255,255,128);accent-color:hsl(250,100%,34%)}',
-				"body {\naccent-color:red;\naccent-color:#74992e;\naccent-color:rgb(255,255,128);\naccent-color:hsl(250,100%,34%)\n}",
+				// csstidy converts the rgb() color format to hex
+				"body {\naccent-color:red;\naccent-color:#74992e;\naccent-color:#ffff80;\naccent-color:hsl(250,100%,34%)\n}",
 			),
 			'aspect-ratio'          => array(
 				'body {aspect-ratio:1/1;aspect-ratio:1;aspect-ratio:inherit}',
