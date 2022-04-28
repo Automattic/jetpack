@@ -36,9 +36,11 @@ const OneClickRestoresComponent = props => {
 		} );
 	}, [] );
 
-	const backupsName = hasRealTimeBackups
-		? __( 'Real-time Backups', 'jetpack' )
-		: __( 'Daily Backups', 'jetpack' );
+	/* Avoid ternary as code minification will break translation function. :( */
+	let backupsName = __( 'Daily Backups', 'jetpack' );
+	if ( hasRealTimeBackups ) {
+		backupsName = __( 'Real-time Backups', 'jetpack' );
+	}
 
 	return (
 		<Layout
