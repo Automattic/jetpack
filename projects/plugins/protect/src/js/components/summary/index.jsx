@@ -26,13 +26,15 @@ const Summary = () => {
 						dateI18n( 'F jS', lastChecked )
 					) }
 				</Title>
-				<Text variant="headline-small" component="h1">
-					{ sprintf(
-						/* translators: %s: Total number of vulnerabilities  */
-						__( '%s vulnerabilities found', 'jetpack-protect' ),
-						numVulnerabilities
-					) }
-				</Text>
+				{ numVulnerabilities > 0 && (
+					<Text variant="headline-small" component="h1">
+						{ sprintf(
+							/* translators: %s: Total number of vulnerabilities  */
+							__( '%s vulnerabilities found', 'jetpack-protect' ),
+							numVulnerabilities
+						) }
+					</Text>
+				) }
 			</Col>
 		</Container>
 	);
