@@ -22,7 +22,6 @@
 	"projects/plugins/jetpack/modules/custom-content-types.php",
 	"projects/plugins/jetpack/modules/custom-post-types/comics.php",
 	"projects/plugins/jetpack/modules/custom-post-types/nova.php",
-	"projects/plugins/jetpack/modules/custom-post-types/portfolios.php",
 	"projects/plugins/jetpack/modules/custom-post-types/testimonial.php",
 	"projects/plugins/jetpack/modules/infinite-scroll.php",
 	"projects/plugins/jetpack/modules/infinite-scroll/infinity.php",

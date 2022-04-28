@@ -17,7 +17,6 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 /**
  * Class Jetpack_Protect
@@ -99,6 +98,8 @@ class Jetpack_Protect {
 
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 65 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+		// Add custom WP REST API endoints.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
@@ -163,7 +164,6 @@ class Jetpack_Protect {
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
-			'siteSuffix'        => ( new Status() )->get_site_suffix(),
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
 		);
 	}
@@ -203,5 +203,34 @@ class Jetpack_Protect {
 
 			$wp_admin_bar->add_node( $args );
 		}
+	}
+
+	/**
+	 * Register the REST API routes.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_endpoints() {
+		register_rest_route(
+			'jetpack-protect/v1',
+			'status',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_get_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+	}
+
+	/**
+	 * Return Protect Status for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_get_status() {
+		$status = Status::get_status();
+		return rest_ensure_response( $status, 200 );
 	}
 }
