@@ -101,6 +101,15 @@ class Waf_Standalone_Bootstrap {
 	}
 
 	/**
+	 * Gets the path to the bootstrap.php file.
+	 *
+	 * @return string The bootstrap.php file path.
+	 */
+	public function get_bootstrap_file_path() {
+		return trailingslashit( JETPACK_WAF_DIR ) . 'bootstrap.php';
+	}
+
+	/**
 	 * Generates the bootstrap file.
 	 *
 	 * @return string Absolute path to the bootstrap file.
@@ -115,7 +124,7 @@ class Waf_Standalone_Bootstrap {
 			throw new Exception( 'Can not work without the file system being initialized.' );
 		}
 
-		$bootstrap_file = trailingslashit( JETPACK_WAF_DIR ) . 'bootstrap.php';
+		$bootstrap_file = $this->get_bootstrap_file_path();
 		$mode_option    = get_option( Waf_Runner::MODE_OPTION_NAME, false );
 
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
