@@ -1,49 +1,53 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
 /*
-    Copyright 2006 Aaron D. Campbell (email : wp_plugins@xavisys.com)
+	Copyright 2006 Aaron D. Campbell (email : wp_plugins@xavisys.com)
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+require_once plugin_basename( 'classes/wp-google-analytics-utils.php' );
+require_once plugin_basename( 'classes/wp-google-analytics-options.php' );
+require_once plugin_basename( 'classes/wp-google-analytics-legacy.php' );
+require_once plugin_basename( 'classes/wp-google-analytics-universal.php' );
+require_once plugin_basename( 'classes/class-jetpack-google-amp-analytics.php' );
 
 /**
  * Jetpack_Google_Analytics is the class that handles ALL of the plugin functionality.
  * It helps us avoid name collisions
  * https://codex.wordpress.org/Writing_a_Plugin#Avoiding_Function_Name_Collisions
  */
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
-require_once( plugin_basename( 'classes/wp-google-analytics-utils.php' ) );
-require_once( plugin_basename( 'classes/wp-google-analytics-options.php' ) );
-require_once( plugin_basename( 'classes/wp-google-analytics-legacy.php' ) );
-require_once( plugin_basename( 'classes/wp-google-analytics-universal.php' ) );
-require_once plugin_basename( 'classes/class-jetpack-google-amp-analytics.php' );
-
 class Jetpack_Google_Analytics {
 
 	/**
-	 * @var Jetpack_Google_Analytics - Static property to hold our singleton instance
+	 * Jetpack_Google_Analytics singleton instance.
+	 *
+	 * @var Jetpack_Google_Analytics
 	 */
-	static $instance = false;
+	public static $instance = false;
 
 	/**
-	 * @var Static property to hold concrete analytics impl that does the work (universal or legacy)
+	 * Property to hold concrete analytics implementation that does the work (universal or legacy).
+	 *
+	 * @var Static
 	 */
-	static $analytics = false;
+	public static $analytics = false;
 
 	/**
 	 * This is our constructor, which is private to force the use of get_instance()
@@ -66,7 +70,7 @@ class Jetpack_Google_Analytics {
 	 */
 	public static function get_instance() {
 		if ( ! self::$instance ) {
-			self::$instance = new self;
+			self::$instance = new self();
 		}
 
 		return self::$instance;
