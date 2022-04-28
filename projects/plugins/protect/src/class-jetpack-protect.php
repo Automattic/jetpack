@@ -40,7 +40,7 @@ class Jetpack_Protect {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
-		$total_vuls = Status::get_total_vulnerabilities();
+		$total_vuls = Protect_Status::get_total_vulnerabilities();
 		$menu_label = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
 		if ( $total_vuls ) {
 			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_vuls );
