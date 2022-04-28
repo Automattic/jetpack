@@ -62,7 +62,7 @@
 		"release-branch-prefix": "starter-plugin",
 		"wp-plugin-slug": "jetpack-protect",
 		"version-constants": {
-			"PACKAGE_VERSION": "jetpack-protect.php"
+			"JETPACK_PROTECT_VERSION": "jetpack-protect.php"
 		}
 	},
 	"config": {
