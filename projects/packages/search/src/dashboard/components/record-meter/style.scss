@@ -68,7 +68,7 @@ ul.jp-search-chart-legend {
 }
 
 .jp-search-notice-box .dops-notice__icon-wrapper {
-	align-items: center;
+	vertical-align: text-top;
 	color: grey;
 }
 
@@ -85,6 +85,7 @@ ul.jp-search-chart-legend {
 
 .jp-search-record-meter .jp-search-notice-box > span.dops-notice__icon-wrapper {
 	background-color: rgba( 255, 255, 255, 0 );
+	padding-top: 13px;
 }
 
 .jp-search-record-meter {
