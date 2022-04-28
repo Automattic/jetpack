@@ -222,8 +222,13 @@ class Jetpack_Slideshow_Shortcode {
 		 * Checking for JSON_HEX_AMP and friends here allows us to get rid of
 		 * '&quot;', that can sometimes be included in the JSON input in some languages like French.
 		 */
-		$gallery_attributes = wp_check_invalid_utf8(
-			wp_json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT )
+		$gallery_attributes = _wp_specialchars(
+			wp_check_invalid_utf8(
+				wp_json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT )
+			),
+			ENT_QUOTES,
+			false,
+			true
 		);
 
 		$output .= sprintf(
