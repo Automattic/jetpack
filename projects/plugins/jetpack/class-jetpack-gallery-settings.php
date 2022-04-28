@@ -1,4 +1,4 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Adding extra functions for the gallery.
  *
@@ -10,7 +10,7 @@ use Automattic\Jetpack\Assets;
 /**
  * Renders extra controls in the Gallery Settings section of the new media UI.
  */
-class Jetpack_Gallery_Settings {//phpcs:ignore
+class Jetpack_Gallery_Settings {
 	/**
 	 * The constructor.
 	 */
