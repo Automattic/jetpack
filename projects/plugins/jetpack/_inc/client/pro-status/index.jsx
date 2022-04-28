@@ -197,7 +197,6 @@ class ProStatus extends React.Component {
 
 		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
 			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
-			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
 			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
 			hasVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
 
@@ -257,9 +256,6 @@ class ProStatus extends React.Component {
 					break;
 
 				case 'search':
-					if ( hasFree || hasPersonal || hasPremium ) {
-						return '';
-					}
 					return '';
 
 				case 'akismet':
