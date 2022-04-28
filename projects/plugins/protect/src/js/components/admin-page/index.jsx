@@ -3,14 +3,9 @@
  */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import {
-	AdminPage,
-	AdminSectionHero,
-	AdminSection,
-	Container,
-	Col,
-} from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
+
+import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -18,12 +13,24 @@ import { useConnection } from '@automattic/jetpack-connection';
 import Summary from '../summary';
 import VulnerabilitiesList from '../vulnerabilities-list';
 import Interstitial from '../interstitial';
+import Footer from '../footer';
+
+export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
 const Admin = () => {
-	const { isRegistered } = useConnection( { skipUserConnection: true } );
+	const { adminUrl } = window.jetpackProtectInitialState || {};
 
-	// Show interstital page when Jetpack is not connected.
-	if ( ! isRegistered ) {
+	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug: SECURITY_BUNDLE,
+		redirectUrl: adminUrl,
+	} );
+
+	/*
+	 * Show interstital page when
+	 * - Site is not registered
+	 * - Checkout workflow has started
+	 */
+	if ( ! isRegistered || hasCheckoutStarted ) {
 		return (
 			<AdminPage
 				moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
@@ -32,7 +39,7 @@ const Admin = () => {
 			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Interstitial />
+						<Interstitial onSecurityAdd={ run } securityJustAdded={ hasCheckoutStarted } />
 					</Col>
 				</Container>
 			</AdminPage>
@@ -42,19 +49,16 @@ const Admin = () => {
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
 			<AdminSectionHero>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+				<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 					<Col>
 						<Summary />
 					</Col>
-				</Container>
-			</AdminSectionHero>
-			<AdminSection>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
 						<VulnerabilitiesList />
 					</Col>
 				</Container>
-			</AdminSection>
+			</AdminSectionHero>
+			<Footer />
 		</AdminPage>
 	);
 };

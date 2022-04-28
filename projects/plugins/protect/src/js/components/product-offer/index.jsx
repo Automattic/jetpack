@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 import { ProductOffer } from '@automattic/jetpack-components';
@@ -35,6 +35,14 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 		skipUserConnection: true,
 	} );
 
+	const onAddHandler = useCallback( () => {
+		if ( onAdd ) {
+			onAdd();
+		}
+
+		handleRegisterSite();
+	}, [ handleRegisterSite, onAdd ] );
+
 	return (
 		<ProductOffer
 			slug={ PROTECT_PRODUCT_MOCK.slug }
@@ -43,7 +51,7 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 			features={ PROTECT_PRODUCT_MOCK.features }
 			pricing={ { isFree: true } }
 			isBundle={ false }
-			onAdd={ handleRegisterSite }
+			onAdd={ onAddHandler }
 			buttonText={ __( 'Get started with Jetpack Protect', 'jetpack-protect' ) }
 			icon="jetpack"
 			isLoading={ siteIsRegistering }

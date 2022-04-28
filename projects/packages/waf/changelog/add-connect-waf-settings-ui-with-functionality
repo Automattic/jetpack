@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Connected the WAF UI to actually updating the IP block and allow lists when saving the settings.
