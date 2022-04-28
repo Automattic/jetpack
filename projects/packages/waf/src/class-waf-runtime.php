@@ -301,6 +301,7 @@ class Waf_Runtime {
 		$statement = $conn->prepare( "INSERT INTO {$table_prefix}jetpack_waf_blocklog(reason,rule_id, timestamp) VALUES (?, ?, ?)" );
 		if ( false !== $statement ) {
 			$statement->bind_param( 'sis', $log_data['reason'], $log_data['rule_id'], $log_data['timestamp'] );
+			$statement->execute();
 
 			if ( $conn->insert_id > 100 ) {
 				$conn->query( "DELETE FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id LIMIT 1" );
