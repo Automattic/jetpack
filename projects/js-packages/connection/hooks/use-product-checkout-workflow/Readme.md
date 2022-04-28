@@ -15,7 +15,7 @@ this is the WordPress.com product slug.
 The URL to redirect to after checkout.
 For instance, for security bundle it's usually defined with `jetpack_security_t1_yearly`.
 #### siteSuffix (optional)
-Site slug suffix to be used as part of Calypso URLs. As default, tt's defined by the [get_site_suffix()](../../../../packages/status/src/class-status.php#L327) backend helper.
+Site slug suffix to be used as part of Calypso URLs. As default, it's defined by the [get_site_suffix()](../../../../packages/status/src/class-status.php#L327) backend helper.
 
 And it returns also an object with the following keys:
 
@@ -41,8 +41,8 @@ function MyComponent() {
 #### isRegisterd
 determine if the site is registered, or not. It's shortcut to the [getSiteIsRegistering](../../state/selectors.jsx#L10) selector.
 
-#### hasCheckoutStarted*
-True right after the checkout process starts. Take advantage of this prop to deal with the delay that happens when the browser starts to redirect to the checkout page.
+#### hasCheckoutStarted
+True right after the checkout process starts. Take advantage of this prop to deal with the "Loading" state. There's a delay that happens between the user click and the redirect to the checkout page. If the site is not registered, it will register the site so it might take a few seconds.
 
 ```jsx
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
