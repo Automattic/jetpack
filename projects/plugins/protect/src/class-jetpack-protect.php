@@ -82,6 +82,9 @@ class Jetpack_Protect {
 			1
 		);
 
+		// Add custom WP REST API endoints.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
+
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
 	}
@@ -161,5 +164,34 @@ class Jetpack_Protect {
 		$manager = new Connection_Manager( 'jetpack-protect' );
 		$manager->disconnect_site_wpcom();
 		$manager->delete_all_connection_tokens();
+	}
+
+	/**
+	 * Register the REST API routes.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_endpoints() {
+		register_rest_route(
+			'jetpack-protect/v1',
+			'status',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_get_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+	}
+
+	/**
+	 * Return Protect Status for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_get_status() {
+		$status = Status::get_status();
+		return rest_ensure_response( $status, 200 );
 	}
 }
