@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6ee1dc0d962c324d93ffd1a817534b88",
+    "content-hash": "e315aea25796184c156d8025f136ce33",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1818,7 +1818,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wordads",
-                "reference": "09fb385af5da96c748a1766a522b16b3ec90e404"
+                "reference": "46eae08f7f57115eed46c4587960ce6dc7c873a7"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1839,7 +1839,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-master": "0.1.x-dev"
+                    "dev-master": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-wordads",
                 "version-constants": {
