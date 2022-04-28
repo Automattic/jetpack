@@ -25,13 +25,12 @@ const acquire = key => {
  * Block the execution until the locked key is released without blocking the thread.
  *
  * @param {string} key - Key that we will wait for release.
- * @param {number} initialTimeOffset - Minimum amount of time between lock checks.
- * @param {number} backOff - Exponential backoff step.
+ * @param {number} initialTimeOffset - Amount of time to wait between lock checks.
  */
-const blockExecution = async ( key, initialTimeOffset = 10, backOff = 1 ) => {
+const blockExecution = async ( key, initialTimeOffset = 10 ) => {
 	if ( isLocked( key ) ) {
 		await new Promise( resolve => setTimeout( resolve, initialTimeOffset ) );
-		await blockExecution( key, initialTimeOffset, backOff + 1 );
+		await blockExecution( key, initialTimeOffset );
 	}
 };
 
