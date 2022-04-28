@@ -53,6 +53,7 @@ class Jetpack_Waf_Module {
 	 */
 	public function on_activation() {
 		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
+		Waf_Runner::activate();
 		( new Waf_Standalone_Bootstrap() )->generate();
 	}
 
@@ -60,7 +61,7 @@ class Jetpack_Waf_Module {
 	 * On module deactivation, unset waf mode
 	 */
 	public function on_deactivation() {
-		delete_option( Waf_Runner::MODE_OPTION_NAME );
+		Waf_Runner::deactivate();
 	}
 }
 
