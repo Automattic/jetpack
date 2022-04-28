@@ -327,7 +327,13 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
-		$rules = self::get_rules_from_api();
+		$rules = '<?php';
+
+		try {
+			$rules = self::get_rules_from_api();
+		} catch ( \Exception $e ) {
+			error_log( $e->getMessage() );
+		}
 
 		// Ensure that the folder exists.
 		if ( ! $wp_filesystem->is_dir( dirname( self::RULES_FILE ) ) ) {
