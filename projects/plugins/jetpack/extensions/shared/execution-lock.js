@@ -1,5 +1,7 @@
 /**
- * @see execution-lock-test.js
+ * For detailed information about this file go to the referenced test file.
+ *
+ * @see extensions/shared/test/execution-lock-test.js
  */
 
 /**
