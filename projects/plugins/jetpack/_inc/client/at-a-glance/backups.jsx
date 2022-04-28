@@ -287,10 +287,12 @@ class DashBackups extends Component {
 						) }
 					</React.Fragment>
 				);
-			case 'active':
-				const message = hasRealTimeBackups
-					? __( 'We are backing up your site in real-time.', 'jetpack' )
-					: __( 'We are backing up your site daily.', 'jetpack' );
+			case 'active': {
+				/* Avoid ternary as code minification will break translation function. :( */
+				let message = __( 'We are backing up your site daily.', 'jetpack' );
+				if ( hasRealTimeBackups ) {
+					message = __( 'We are backing up your site in real-time.', 'jetpack' );
+				}
 
 				return (
 					<React.Fragment>
@@ -301,6 +303,7 @@ class DashBackups extends Component {
 						) }
 					</React.Fragment>
 				);
+			}
 		}
 
 		return false;
