@@ -4,7 +4,7 @@
 
 .jp-search-chart-legend__box {
 	margin-right: 3px;
-	margin-left: 6px;
+	margin-left: 0;
 	width: 15px;
 	height: 15px;
 	border-radius: 100%;
@@ -14,7 +14,7 @@
 .jp-search-chart-legend {
 	list-style: none;
 	display: inline-block;
-	font-size: 0.9em;
+	font-size: 1em;
 }
 
 ul.jp-search-chart-legend {
@@ -47,11 +47,6 @@ ul.jp-search-chart-legend {
 	border: red 0.5px solid;
 }
 
-.jp-search-notice-box span.dops-notice__icon-wrapper,
-.jp-search-notice-box__important span.dops-notice__icon-wrapper {
-	background-color: white;
-}
-
 .jp-search-notice-box a.dops-notice__action {
 	display: inline;
 	color: black;
@@ -81,6 +76,10 @@ ul.jp-search-chart-legend {
 
 .jp-search-notice-box > span.dops-notice__icon-wrapper > svg {
 	margin: 0;
+}
+
+.jp-search-record-count p {
+	font-size: 1em;
 }
 
 .jp-search-record-meter .jp-search-notice-box > span.dops-notice__icon-wrapper {
