@@ -3,13 +3,8 @@
  */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import {
-	AdminPage,
-	AdminSectionHero,
-	AdminSection,
-	Container,
-	Col,
-} from '@automattic/jetpack-components';
+
+import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 
 /**
@@ -18,6 +13,9 @@ import { useConnection } from '@automattic/jetpack-connection';
 import Summary from '../summary';
 import VulnerabilitiesList from '../vulnerabilities-list';
 import Interstitial from '../interstitial';
+import Footer from '../footer';
+
+export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
 const Admin = () => {
 	const { isRegistered } = useConnection( { skipUserConnection: true } );
@@ -42,19 +40,16 @@ const Admin = () => {
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
 			<AdminSectionHero>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+				<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 					<Col>
 						<Summary />
 					</Col>
-				</Container>
-			</AdminSectionHero>
-			<AdminSection>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
 						<VulnerabilitiesList />
 					</Col>
 				</Container>
-			</AdminSection>
+			</AdminSectionHero>
+			<Footer />
 		</AdminPage>
 	);
 };
