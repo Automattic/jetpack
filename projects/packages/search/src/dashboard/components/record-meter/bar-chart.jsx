@@ -17,6 +17,7 @@ const CHART_OPTIONS = {
 		indexAxis: 'y',
 		maintainAspectRatio: false,
 		aspectRatio: 1.3,
+		barThickness: 24,
 		scales: {
 			x: {
 				stacked: true,
