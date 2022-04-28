@@ -22,11 +22,11 @@ import { SECURITY_BUNDLE } from '../admin-page';
 
 const Footer = () => {
 	const learnMoreUrl = getRedirectUrl( 'jetpack-protect-footer-learn-more' );
-	const { siteSuffix, adminUrl } = window.jetpackProtectInitialState || {};
+
+	const { adminUrl } = window.jetpackProtectInitialState || {};
 
 	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: SECURITY_BUNDLE,
-		siteSuffix,
 		redirectUrl: adminUrl,
 	} );
 

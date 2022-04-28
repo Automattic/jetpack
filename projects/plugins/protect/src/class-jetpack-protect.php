@@ -17,7 +17,6 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 /**
  * Class Jetpack_Protect
@@ -138,7 +137,6 @@ class Jetpack_Protect {
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
-			'siteSuffix'        => ( new Status() )->get_site_suffix(),
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
 		);
 	}
