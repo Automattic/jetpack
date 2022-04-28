@@ -503,6 +503,14 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		activateWaf: () =>
+			postRequest( `${ apiRoot }jetpack/v4/waf/activate`, postParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		deactivateWaf: () =>
+			postRequest( `${ apiRoot }jetpack/v4/waf/deactivate`, postParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 		fetchWafSettings: () =>
 			getRequest( `${ apiRoot }jetpack/v4/waf`, getParams )
 				.then( checkStatus )

@@ -2280,6 +2280,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// WAF.
+			'jetpack_waf_mode'                     => array(
+				'description'       => esc_html__( 'Jetpack WAF running mode', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'silent',
+				'validate_callback' => __CLASS__ . '::validate_string',
+				'jp_group'          => 'waf',
+			),
 			'jetpack_waf_ip_list'                  => array(
 				'description'       => esc_html__( 'Allow / Block list - Block or allow a specific request IP.', 'jetpack' ),
 				'type'              => 'boolean',

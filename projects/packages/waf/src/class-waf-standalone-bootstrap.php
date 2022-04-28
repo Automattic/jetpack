@@ -51,6 +51,10 @@ class Waf_Standalone_Bootstrap {
 	 * @return void
 	 */
 	protected function initialize_filesystem() {
+		if ( ! function_exists( '\\WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
 		WP_Filesystem();
 	}
 

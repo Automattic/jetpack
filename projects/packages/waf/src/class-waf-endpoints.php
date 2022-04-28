@@ -47,6 +47,24 @@ class Waf_Endpoints {
 				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
 			)
 		);
+		register_rest_route(
+			'jetpack/v4',
+			'/waf/activate',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::waf_activate',
+				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
+			)
+		);
+		register_rest_route(
+			'jetpack/v4',
+			'/waf/deactivate',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::waf_deactivate',
+				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -57,6 +75,51 @@ class Waf_Endpoints {
 			array(
 				'bootstrapPath'  => self::get_bootstrap_file_path(),
 				'hasRulesAccess' => self::has_rules_access(),
+			)
+		);
+	}
+
+	/**
+	 * WAF Activation Endpoint
+	 */
+	public static function waf_activate() {
+		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
+		$success = true;
+		$message = 'Waf Activated Succesfully';
+
+		try {
+			( new Waf_Standalone_Bootstrap() )->generate();
+		} catch ( \Exception $e ) {
+			$success = false;
+			$message = $e->getMessage();
+		}
+
+		return rest_ensure_response(
+			array(
+				'success' => $success,
+				'message' => $message,
+			)
+		);
+	}
+
+	/**
+	 * WAF Activation Endpoint
+	 */
+	public static function waf_deactivate() {
+		$success = true;
+		$message = 'Waf Deactivated Succesfully';
+
+		try {
+			delete_option( Waf_Runner::MODE_OPTION_NAME );
+		} catch ( \Exception $e ) {
+			$success = false;
+			$message = $e->getMessage();
+		}
+
+		return rest_ensure_response(
+			array(
+				'success' => $success,
+				'message' => $message,
 			)
 		);
 	}

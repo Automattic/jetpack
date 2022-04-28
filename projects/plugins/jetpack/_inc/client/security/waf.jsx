@@ -27,6 +27,7 @@ import Textarea from '../components/textarea';
 import { createInterpolateElement } from '@wordpress/element';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getSitePlan } from 'state/site';
+import { activateWaf, deactivateWaf } from 'state/waf';
 import {
 	getWafBootstrapPath,
 	getWafHasRulesAccess,
@@ -81,6 +82,18 @@ export const Waf = class extends Component {
 			},
 			this.props.updateFormStateModuleOption( 'waf', optionName )
 		);
+	};
+
+	toogleWafModule = module => {
+		const isWafActive = this.props.getOptionValue( 'waf' );
+
+		if ( ! isWafActive ) {
+			this.props.activateWaf();
+		} else {
+			this.props.deactivateWaf();
+		}
+
+		this.props.toggleModuleNow( module );
 	};
 
 	render() {
@@ -263,7 +276,7 @@ export const Waf = class extends Component {
 						disabled={ unavailableInOfflineMode }
 						activated={ isWafActive }
 						toggling={ this.props.isSavingAnyOption( 'waf' ) }
-						toggleModule={ this.props.toggleModuleNow }
+						toggleModule={ this.toogleWafModule }
 					>
 						<span className="jp-form-toggle-explanation">
 							{ this.props.getModule( 'waf' ).description }
@@ -284,15 +297,23 @@ export const Waf = class extends Component {
 	}
 };
 
-export default connect( state => {
-	const sitePlan = getSitePlan( state );
+export default connect(
+	state => {
+		const sitePlan = getSitePlan( state );
 
-	return {
-		bootstrapPath: getWafBootstrapPath( state ),
-		hasRulesAccess: getWafHasRulesAccess( state ),
-		isFetchingWafSettings: isFetchingWafSettings( state ),
-		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
-		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
-		sitePlan,
-	};
-} )( withModuleSettingsFormHelpers( Waf ) );
+		return {
+			bootstrapPath: getWafBootstrapPath( state ),
+			hasRulesAccess: getWafHasRulesAccess( state ),
+			isFetchingWafSettings: isFetchingWafSettings( state ),
+			planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
+			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
+			sitePlan,
+		};
+	},
+	dispatch => {
+		return {
+			activateWaf: () => dispatch( activateWaf() ),
+			deactivateWaf: () => dispatch( deactivateWaf() ),
+		};
+	}
+)( withModuleSettingsFormHelpers( Waf ) );
