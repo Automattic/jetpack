@@ -74,6 +74,8 @@ class WPCOM_Features {
 	private const WOOCOMMERCE_ROYALMAIL_MONTHLY               = 'woocommerce_shipping_royalmail_monthly'; // 942
 	private const WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_YEARLY  = 'woocommerce_shipping_australia_post_yearly'; // 943
 	private const WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_MONTHLY = 'woocommerce_shipping_australia_post_monthly'; // 944
+	private const WOOCOMMERCE_PRODUCT_BUNDLES_YEARLY          = 'woocommerce_product_bundles_yearly'; // 945
+	private const WOOCOMMERCE_PRODUCT_BUNDLES_MONTHLY         = 'woocommerce_product_bundles_monthly'; // 946
 	private const VALUE_BUNDLE                                = 'value_bundle'; // 1003
 	private const BUNDLE_PRO                                  = 'bundle_pro'; // 1004
 	private const BUNDLE_SUPER                                = 'bundle_super'; // 1005
@@ -183,6 +185,8 @@ class WPCOM_Features {
 		self::WOOCOMMERCE_ROYALMAIL_MONTHLY,
 		self::WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_YEARLY,
 		self::WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_MONTHLY,
+		self::WOOCOMMERCE_PRODUCT_BUNDLES_YEARLY,
+		self::WOOCOMMERCE_PRODUCT_BUNDLES_MONTHLY,
 	];
 	private const GOOGLE_WORKSPACE_PRODUCTS = [ self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY ];
 	private const GSUITE_PRODUCTS           = [ self::GAPPS, self::GAPPS_UNLIMITED ];
@@ -250,6 +254,7 @@ class WPCOM_Features {
 	public const BACKUPS_DAILY                 = 'backups-daily';
 	public const BACKUPS_RESTORE               = 'restore';
 	public const BACKUP_ONE_TIME               = 'backup-one-time';
+	public const BLOG_DOMAIN_ONLY              = 'blog-domain-only';
 	public const CALENDLY                      = 'calendly';
 	public const CLASSIC_SEARCH                = 'search';
 	public const CLOUD_CRITICAL_CSS            = 'cloud-critical-css';
@@ -345,7 +350,6 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
-
 		/*
 		 * Temporary limit until the Pro plan storage is ready to be fully
 		 * implemented.
@@ -387,6 +391,10 @@ class WPCOM_Features {
 		 */
 		self::BACKUP_ONE_TIME               => array(
 			self::JETPACK_BACKUP_ONE_TIME,
+		),
+		// BLOG_DOMAIN_ONLY - Users on Blogger plan can only purchase .blog domains.
+		self::BLOG_DOMAIN_ONLY              => array(
+			self::WPCOM_BLOGGER_PLANS,
 		),
 		self::CALENDLY                      => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -655,7 +663,6 @@ class WPCOM_Features {
 		self::SPACE                         => array(
 			self::WPCOM_ALL_SITES,
 		),
-
 		/*
 		 * Products that have upgraded storage space on WordPress.com, beyond
 		 * the bare minimum advertised for free sites. This list includes all
