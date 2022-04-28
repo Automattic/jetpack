@@ -5,6 +5,7 @@
  * @package automattic/jetpack-social-plugin
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use WorDBless\BaseTestCase;
 
@@ -40,6 +41,13 @@ class Jetpack_Social_Test extends BaseTestCase {
 		$this->assertFalse( ( new Modules() )->is_active( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
 
 		$this->activate_plugin( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH );
+		$this->assertFalse( ( new Modules() )->is_active( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
+
+		$connection_manager = $this->createMock( Connection_Manager::class );
+		$connection_manager->method( 'is_connected' )->willReturn( true );
+		$this->social = new Jetpack_Social( $connection_manager );
+		$this->activate_plugin( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH );
 		$this->assertTrue( ( new Modules() )->is_active( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
+
 	}
 }

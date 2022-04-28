@@ -16,7 +16,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\Publicize\Publicize_UI;
 
 /**
  * Class Jetpack_Social
@@ -26,9 +25,18 @@ class Jetpack_Social {
 	const JETPACK_SOCIAL_ACTIVATION_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
 
 	/**
-	 * Constructor.
+	 * The connection manager used to check if we have a Jetpack connection.
+	 *
+	 * @var Connection_Manager
 	 */
-	public function __construct() {
+	private $manager = null;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Connection_Manager $connection_manager The Jetpack connection manager to use.
+	 */
+	public function __construct( $connection_manager = null ) {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
@@ -73,7 +81,7 @@ class Jetpack_Social {
 
 		My_Jetpack_Initializer::init();
 
-		new Publicize_UI();
+		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 	}
 
 	/**
@@ -150,8 +158,8 @@ class Jetpack_Social {
 	/**
 	 * Helper to check that we have a Jetpack connection.
 	 */
-	private static function is_connected() {
-		return ( new Connection_Manager( JETPACK_SOCIAL_PLUGIN_SLUG ) )->is_connected();
+	private function is_connected() {
+		return $this->manager->is_connected();
 	}
 
 	/**
@@ -161,7 +169,7 @@ class Jetpack_Social {
 	 * sync module's actions and filters to be registered.
 	 */
 	public function activate_module_on_plugin_activation() {
-		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) && self::is_connected() ) {
+		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) && $this->is_connected() ) {
 			delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
 			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		}
