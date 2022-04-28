@@ -51,9 +51,9 @@ module.exports = {
 		...jetpackWebpackConfig.resolve,
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
-			react: 'preact/compat',
-			'react-dom/test-utils': 'preact/test-utils',
-			'react-dom': 'preact/compat', // Must be aliased after test-utils
+			react: require.resolve( 'preact/compat' ),
+			'react-dom/test-utils': require.resolve( 'preact/test-utils' ),
+			'react-dom': require.resolve( 'preact/compat' ), // Must be aliased after test-utils
 			fs: false,
 		},
 		modules: [ path.resolve( __dirname, '../src/instant-search' ), 'node_modules' ],
