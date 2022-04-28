@@ -47,7 +47,11 @@ class Jetpack_Portfolio {
 		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_portfolio_rest_api_type' ) );
 
-		$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$setting = get_option( self::OPTION_NAME, '0' );
+		} else {
+			$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
+		}
 
 		// Bail early if Portfolio option is not set and the theme doesn't declare support.
 		if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {
@@ -316,6 +320,7 @@ class Jetpack_Portfolio {
 					'editor',
 					'thumbnail',
 					'author',
+					'post-formats',
 					'comments',
 					'publicize',
 					'wpcom-markdown',
@@ -407,6 +412,8 @@ class Jetpack_Portfolio {
 				'rewrite'           => array( 'slug' => 'project-tag' ),
 			)
 		);
+
+		register_taxonomy_for_object_type( 'post_format', self::CUSTOM_POST_TYPE );
 	}
 
 	/**
