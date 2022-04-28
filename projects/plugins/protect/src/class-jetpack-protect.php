@@ -188,7 +188,7 @@ class Jetpack_Protect {
 			return;
 		}
 
-		$total = Status::get_total_vulnerabilities();
+		$total = Protect_Status::get_total_vulnerabilities();
 
 		if ( $total > 0 ) {
 			$args = array(
