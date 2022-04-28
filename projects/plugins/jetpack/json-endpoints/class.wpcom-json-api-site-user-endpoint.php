@@ -207,7 +207,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unauthorized', 'You cannot change your own role', 403 );
 		}
 
-		if ( $is_wpcom && $user_id !== get_current_user_id() && $user_id === wpcom_get_blog_owner( $blog_id ) ) {
+		if ( $is_wpcom && $user_id !== get_current_user_id() && (int) $user_id === wpcom_get_blog_owner( $blog_id ) ) {
 			return new WP_Error( 'unauthorized_edit_owner', 'Current user can not edit blog owner', 403 );
 		}
 
