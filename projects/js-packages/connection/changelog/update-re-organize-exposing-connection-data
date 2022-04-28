@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+JS Connection: use connection global state as a fallback to be used by the useProductCheckoutWorkflow() custom hook
