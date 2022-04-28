@@ -14,7 +14,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import { getPlanClass } from 'lib/plans/constants';
-import { getSiteRawUrl, getSiteAdminUrl, getUpgradeUrl } from 'state/initial-state';
+import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
@@ -316,8 +316,6 @@ export default connect( state => {
 		fetchingSiteData: isFetchingSiteData( state ),
 		isAkismetKeyValid: isAkismetKeyValid( state ),
 		fetchingAkismetData: isFetchingAkismetData( state ),
-		paidFeatureUpgradeUrl: getUpgradeUrl( state, 'upgrade' ),
-		planProUpgradeUrl: getUpgradeUrl( state, 'plans-business' ),
 		rewindStatus: getRewindStatus( state ),
 		scanStatus: getScanStatus( state ),
 	};
