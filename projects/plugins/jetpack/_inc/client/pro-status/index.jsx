@@ -117,10 +117,6 @@ class ProStatus extends React.Component {
 				}
 				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
-			case 'free':
-			case 'personal':
-			case 'pro':
-				return;
 			case 'secure':
 				status = 'is-success';
 				message = _x(
