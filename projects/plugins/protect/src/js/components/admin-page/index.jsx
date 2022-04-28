@@ -18,11 +18,10 @@ import Footer from '../footer';
 export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
 const Admin = () => {
-	const { siteSuffix, adminUrl } = window.jetpackProtectInitialState || {};
+	const { adminUrl } = window.jetpackProtectInitialState || {};
 
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: SECURITY_BUNDLE,
-		siteSuffix,
 		redirectUrl: adminUrl,
 	} );
 
