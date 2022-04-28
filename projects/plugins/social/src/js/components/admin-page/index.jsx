@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import React from 'react';
 
 /**
@@ -94,10 +94,8 @@ export default Admin;
 const ConnectionSection = () => {
 	const { apiNonce, apiRoot, registrationNonce } = window.jetpackSocialInitialState;
 	return (
-		<ConnectScreenRequiredPlan
+		<ConnectScreen
 			buttonLabel={ __( 'Connect Jetpack Social', 'jetpack-social' ) }
-			priceAfter={ 0 }
-			priceBefore={ 1 }
 			pricingTitle={ __( 'Jetpack Social', 'jetpack-social' ) }
 			title={ __( 'Social Media Automation for WordPress Sites', 'jetpack-social' ) }
 			apiRoot={ apiRoot }
@@ -132,6 +130,6 @@ const ConnectionSection = () => {
 					) }
 				</li>
 			</ul>
-		</ConnectScreenRequiredPlan>
+		</ConnectScreen>
 	);
 };
