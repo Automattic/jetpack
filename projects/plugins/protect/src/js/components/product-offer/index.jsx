@@ -45,7 +45,7 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 			isBundle={ false }
 			onAdd={ handleRegisterSite }
 			buttonText={ __( 'Get started with Jetpack Protect', 'jetpack-protect' ) }
-			icon="jetpack"
+			icon="protect"
 			isLoading={ siteIsRegistering }
 			error={
 				registrationError ? __( 'An error occurred. Please try again.', 'jetpack-protect' ) : null
