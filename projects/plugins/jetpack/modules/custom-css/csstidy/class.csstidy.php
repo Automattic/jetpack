@@ -944,7 +944,7 @@ class csstidy { // phpcs:ignore
 
 						if ( 'iv' === $this->status ) {
 							// phpcs:disable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoNewLine
-							// WPCOM hack: prevents CSSTidy from removing spaces after commans inside
+							// WPCOM hack: prevents CSSTidy from removing spaces after commas inside
 							// declaration's values.
 							// For more information, see D74626-code.
 							/*if ( ! $_quoted_string ) {
