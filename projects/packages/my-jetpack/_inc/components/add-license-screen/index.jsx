@@ -26,9 +26,18 @@ export default function AddLicenseScreen() {
 
 	const { recordEvent } = useAnalytics();
 
-	const onClickGoBack = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_license_activation_back_link_click' );
-	}, [ recordEvent ] );
+	const onClickGoBack = useCallback(
+		event => {
+			recordEvent( 'jetpack_myjetpack_license_activation_back_link_click' );
+
+			if ( -1 !== document.referrer.indexOf( window.location.host ) ) {
+				// Prevent default here to minimize page change within the My Jetpack app.
+				event.preventDefault();
+				history.back();
+			}
+		},
+		[ recordEvent ]
+	);
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
