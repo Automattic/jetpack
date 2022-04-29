@@ -22,7 +22,7 @@ import styles from './styles.module.scss';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { SECURITY_BUNDLE } from '../admin-page';
 
-const GetSecurityBundle = ( { run, hasCheckoutStarted } ) => {
+const GetSecurityBundle = ( { onAdd, hasCheckoutStarted } ) => {
 	return (
 		<div className={ styles.section }>
 			<Title>{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }</Title>
@@ -33,7 +33,7 @@ const GetSecurityBundle = ( { run, hasCheckoutStarted } ) => {
 				) }
 			</Text>
 
-			<Button variant="secondary" onClick={ run } isLoading={ hasCheckoutStarted }>
+			<Button variant="secondary" onClick={ onAdd } isLoading={ hasCheckoutStarted }>
 				{ __( 'Get Jetpack Security', 'jetpack-protect' ) }
 			</Button>
 		</div>
@@ -84,7 +84,12 @@ const Footer = () => {
 			</Col>
 			<Col>
 				<Dialog
-					primary={ <GetSecurityBundle run={ run } hasCheckoutStarted={ hasCheckoutStarted } /> }
+					primary={
+						<GetSecurityBundle
+							onAdd={ getSecurityBundle }
+							hasCheckoutStarted={ hasCheckoutStarted }
+						/>
+					}
 					secondary={ <FooterInfo /> }
 					split={ true }
 				/>
