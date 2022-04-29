@@ -82,7 +82,11 @@ const Admin = () => {
 						) : (
 							<div>
 								<div className={ styles.manageConnectionsHeader }>
-									<Button href={ jetpackSocialConnectionsAdminUrl } variant="primary" targer="_">
+									<Button
+										href={ jetpackSocialConnectionsAdminUrl }
+										variant="primary"
+										target="_blank"
+									>
 										Manage your connections
 									</Button>
 								</div>
