@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
+import { Button } from '@wordpress/components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import React from 'react';
 
@@ -74,12 +75,11 @@ const Admin = () => {
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Social', 'jetpack-social' ) }>
 			<AdminSectionHero>
-				<span className={ styles.manageConnectionsHeader }>
-					Manage your connections{ ' ' }
-					<a href={ jetpackSocialConnectionsAdminUrl } target="_blank" rel="noreferrer">
-						here
-					</a>
-				</span>
+				<div className={ styles.manageConnectionsHeader }>
+					<Button href={ jetpackSocialConnectionsAdminUrl } variant="link" targer="_">
+						Manage your connections
+					</Button>
+				</div>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						{ showConnectionCard ? (
