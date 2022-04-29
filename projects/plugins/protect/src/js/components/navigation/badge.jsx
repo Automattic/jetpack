@@ -5,24 +5,30 @@ import React, { useState, useCallback } from 'react';
 import { Text } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import PropTypes from 'prop-types';
-import { Icon, check } from '@wordpress/icons';
+import { Icon, check, info } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import styles from './styles.module.scss';
 
-const getBadgeElement = count => {
-	if ( ! Number.isFinite( count ) ) {
+const getBadgeElement = ( count, notChecked ) => {
+	if ( notChecked ) {
 		return {
-			popoverText: null,
-			badgeElement: null,
+			popoverText: __(
+				'This item was added to your site after the most recent scan. We will check for vulnerabilities during the next scheduled one.',
+				'jetpack-protect'
+			),
+			badgeElement: (
+				<Icon icon={ info } size={ 28 } className={ styles[ 'navigation-item-check-badge' ] } />
+			),
 		};
 	}
 
 	if ( count === 0 ) {
 		return {
-			popoverText: 'No known vulnerabilities found to affect this version',
+			popoverText: __( 'No known vulnerabilities found to affect this version', 'jetpack-protect' ),
 			badgeElement: (
 				<Icon icon={ check } size={ 28 } className={ styles[ 'navigation-item-check-badge' ] } />
 			),
@@ -43,8 +49,8 @@ const getBadgeElement = count => {
 	};
 };
 
-const ItemBadge = ( { count } ) => {
-	const { popoverText, badgeElement } = getBadgeElement( count );
+const ItemBadge = ( { count, notChecked } ) => {
+	const { popoverText, badgeElement } = getBadgeElement( count, notChecked );
 	const [ showPopover, setShowPopover ] = useState( false );
 
 	const handleEnter = useCallback( () => {
