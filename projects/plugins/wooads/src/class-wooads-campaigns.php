@@ -60,31 +60,22 @@ class WooAds_Campaigns {
 	public function handle_get_campaigns_stub() {
 		$stub_campaigns = array(
 			array(
-				'startDate'         => 1644507492000,
-				'endDate'           => 1654875492000,
-				'impressions'       => 243,
-				'targetImpressions' => 700,
-				'autoRenew'         => true,
-				'earned'            => 18.73,
-				'status'            => 'active',
+				'name'               => 'Only phones',
+				'description'        => 'Only targetted for phone insertions',
+				'activeInsertions'   => 13,
+				'inactiveInsertions' => 3,
 			),
 			array(
-				'startDate'         => 1662824292000,
-				'endDate'           => 1670686692000,
-				'impressions'       => 0,
-				'targetImpressions' => 0,
-				'autoRenew'         => false,
-				'earned'            => 0,
-				'status'            => 'scheduled',
+				'name'               => 'Free goodies',
+				'description'        => 'Summer sale period',
+				'activeInsertions'   => 3,
+				'inactiveInsertions' => 5,
 			),
 			array(
-				'startDate'         => 1644507492000,
-				'endDate'           => 1655875492000,
-				'impressions'       => 6752,
-				'targetImpressions' => 7000,
-				'autoRenew'         => false,
-				'earned'            => 252.23,
-				'status'            => 'expired',
+				'name'               => 'Winter holidays 2021',
+				'description'        => 'Special campaign for winter',
+				'activeInsertions'   => 0,
+				'inactiveInsertions' => 11,
 			),
 
 		);

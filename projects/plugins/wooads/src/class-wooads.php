@@ -92,7 +92,7 @@ class WooAds {
 			WOOADS_REST_NAMESPACE,
 			WOOADS_REST_PREFIX . '/wordads-dsp/opted',
 			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
+				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'is_blog_opted_in' ),
 				'permission_callback' => '__return_true',
 			)
@@ -101,7 +101,7 @@ class WooAds {
 			WOOADS_REST_NAMESPACE,
 			WOOADS_REST_PREFIX . '/wordads-dsp/create',
 			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
+				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_campaigns' ),
 				'permission_callback' => '__return_true',
 			)
@@ -186,12 +186,8 @@ class WooAds {
 	 * @return bool
 	 */
 	public function is_blog_opted_in() {
-		/*
 		$wooads_campaigns = new WooAds_Campaigns();
-		$response = $wooads_campaigns->handle_blog_opted_in_stub();
+		$response         = $wooads_campaigns->handle_blog_opted_in_stub();
 		return $response;
-		*/
-
-		return true;
 	}
 }

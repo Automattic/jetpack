@@ -1,89 +1,92 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .heading {
-	font-size: 36px;
-	line-height: 40px;
-	font-weight: 700;
-	margin: 0;
+  font-size: 36px;
+  line-height: 40px;
+  font-weight: 700;
+  margin: 0;
 }
 
 ul.jp-product-wooads {
-	li {
-		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC)
-			no-repeat;
-		background-size: 24px;
-		padding-left: 30px;
-		margin-bottom: 9px;
-		color: var(--jp-black);
-		font-size: 16px;
-		line-height: 1.5;
-	}
+  li {
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+	background-size: 24px;
+	padding-left: 30px;
+	margin-bottom: 9px;
+	color: var(--jp-black);
+	font-size: 16px;
+	line-height: 1.5;
+  }
 }
 
 .jp-wooads-campaign-wrapper {
-	.H2 {
-		margin-bottom: 20px;
-		display: inline-block;
-		font-size: 1.25rem;
-		font-weight: 400;
-		white-space: nowrap;
-		box-sizing: border-box;
-	}
+  .H2 {
+	margin-bottom: 20px;
+	display: inline-block;
+	font-size: 1.25rem;
+	font-weight: 400;
+	white-space: nowrap;
+	box-sizing: border-box;
+  }
 
-	.box {
-		background: var(--jp-white);
-		border-radius: var(--jp-border-radius);
-		box-shadow: 0 0 0 1px #c3c4c7, 0 1px 1px 1px rgb(0 0 0 / 4%);
-		margin-bottom: 20px;
-	}
+  .box {
+	background: var(--jp-white);
+	border-radius: var(--jp-border-radius);
+	box-shadow: 0 0 0 1px #c3c4c7, 0 1px 1px 1px rgb(0 0 0 / 4%);
+	margin-bottom: 20px;
+  }
 
-	.campaign {
-		border-left: 4px solid;
-	}
+  .campaign {
+	border-left: 4px solid;
+  }
 
-	.earnings {
-		font-weight: bold;
-		font-size: 20px;
-	}
+  .earnings {
+	font-weight: bold;
+	font-size: 20px;
+  }
 
-	.campaignDate {
-		font-weight: 700;
-	}
+  .campaignDate {
+	font-weight: 700;
+  }
 
-	.impressions {
-		font-weight: bold;
-	}
+  .impressions {
+	font-weight: bold;
+  }
 
-	.components-button {
-		color: pink !important;
-	}
+  .campaign-status {
+	text-transform: capitalize;
+	margin-bottom: 10px;
+  }
 
-	.campaign-status {
-		text-transform: capitalize;
-		margin-bottom: 10px;
-	}
+  .wrapper-status_active {
+	border-left-color: #4ab866;
+  }
 
-	.wrapper-status_active {
-		border-left-color: #4ab866;
-	}
+  .campaign-status_active {
+	color: #4ab866;
+  }
 
-	.campaign-status_active {
-		color: #4ab866;
-	}
+  .wrapper-status_scheduled {
+	border-left-color: #2d6ee7;
+  }
 
-	.wrapper-status_scheduled {
-		border-left-color: #2d6ee7;
-	}
+  .campaign-status_scheduled {
+	color: #2d6ee7;
+  }
 
-	.campaign-status_scheduled {
-		color: #2d6ee7;
-	}
+  .wrapper-status_expired {
+	border-left-color: grey;
+  }
 
-	.wrapper-status_expired {
-		border-left-color: grey;
-	}
+  .campaign-status_expired {
+	color: grey;
+  }
 
-	.campaign-status_expired {
-		color: grey;
-	}
+  .active-impressions {
+	color: var(--jp-green);
+  }
+
+  .inactive-impressions {
+	color: var(--jp-red);
+  }
 }
