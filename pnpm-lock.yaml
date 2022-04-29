@@ -1518,6 +1518,7 @@ importers:
       '@babel/runtime': 7.17.9
       '@wordpress/api-fetch': 6.3.0
       '@wordpress/browserslist-config': 4.1.2
+      '@wordpress/components': 19.8.0
       '@wordpress/data': 6.6.0
       '@wordpress/date': 4.6.0
       '@wordpress/element': 4.4.0
@@ -1538,6 +1539,7 @@ importers:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@wordpress/api-fetch': 6.3.0
+      '@wordpress/components': 19.8.0_f370f735164a03a12cea0cc89593cbee
       '@wordpress/data': 6.6.0_react@17.0.2
       '@wordpress/date': 4.6.0
       '@wordpress/element': 4.4.0
