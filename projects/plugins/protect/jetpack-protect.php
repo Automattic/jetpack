@@ -33,6 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'JETPACK_PROTECT_VERSION', '0.1.0-alpha' );
 define( 'JETPACK_PROTECT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_PROTECT_ROOT_FILE', __FILE__ );
 define( 'JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
@@ -40,6 +41,7 @@ define( 'JETPACK_PROTECT_SLUG', 'jetpack-protect' );
 define( 'JETPACK_PROTECT_NAME', 'Jetpack Protect' );
 define( 'JETPACK_PROTECT_URI', 'https://jetpack.com/jetpack-protect' );
 define( 'JETPACK_PROTECT_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+define( 'JETPACK_PROTECT_BASE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_PROTECT_DIR . 'vendor/autoload_packages.php';

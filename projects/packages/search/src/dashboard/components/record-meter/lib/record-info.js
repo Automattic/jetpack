@@ -54,13 +54,13 @@ export default function getRecordInfo( post_count, post_type_breakdown, tier, la
 
 	if ( numItems > 0 && hasValidData && hasBeenIndexed ) {
 		for ( let i = 0; i < numItems; i++ ) {
-			const theData = Object.values( post_type_breakdown )[ i ];
-			const name = Object.keys( post_type_breakdown )[ i ];
+			const postTypeDetails = Object.values( post_type_breakdown )[ i ];
+			const { count, slug: name } = postTypeDetails;
 
 			postTypeBreakdown.push( {
-				data: createData( theData, colors[ i ], name ),
+				data: createData( count, colors[ i ], name ),
 			} );
-			currentCount = currentCount + theData;
+			currentCount = currentCount + count;
 		}
 
 		// sort & split items into included and other
