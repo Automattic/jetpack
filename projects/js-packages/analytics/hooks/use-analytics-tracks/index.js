@@ -7,7 +7,7 @@ import jetpackAnalytics from '../../index.jsx';
 
 const useAnalyticsTracks = ( {
 	pageViewEventName,
-	pageViewProjectName = 'jetpack',
+	namespace = 'jetpack',
 	pageViewSuffix = 'page_view',
 	pageViewEventProperties = {},
 } = {} ) => {
@@ -58,7 +58,7 @@ const useAnalyticsTracks = ( {
 
 		if ( pageViewEventName ) {
 			recordEvent(
-				`${ pageViewProjectName }_${ pageViewEventName }_${ pageViewSuffix }`,
+				`${ namespace }_${ pageViewEventName }_${ pageViewSuffix }`,
 				pageViewEventProperties
 			);
 		}

@@ -2,6 +2,28 @@
 
 React custom hook to handle tracks events.
 
+## Example
+
+```jsx
+import { useAnalyticsTracks } from '@automattic/jetpack-analytics';
+
+function MyJetpackAdminApp( init ) {
+	/*
+	 * Get recordEvent helper,
+	 * and record page-view on the fly.
+	 */
+	const { recordEvent } = useAnalyticsTracks( { pageViewEventName: 'my_admin_app' } );
+
+	if ( init ) {
+		// Record generic event.
+		recordEvent( 'jetpack_app_init', { dev: 'env', type: 'testing' } )
+	}
+
+	return (
+		// ...
+	);
+}
+```
 # API
 
 ## Input Object Properties
@@ -12,7 +34,7 @@ React custom hook to handle tracks events.
 
 When defined, it will record a **page-view** event. See [Recording a Page View event](#recording-a-page-view-event) section for more info.
 
-### `pageViewProjectName`
+### `namespace`
 
 -   Type: `String`
 -   Optional
@@ -112,9 +134,9 @@ function MyJetpackAdminApp( init, onContinueHere ) {
 ## Recording a Page-View event
 Recording a **page-view** event is something so usual that deserves a simple and automatic usage.
 Taking advantage of the React hooks, it's makse sense to induce that it happens when the component is mounted.
-Also, and by convention to get even simpler, a page_view event has the following shape:
+Also, and by convention to get even simpler, a **page-view** event has the following shape:
 
-`{ project_name }_{ event_name }_{ suffix }`, where the values of `project_name` is `jetpack` and `suffix` is `page_view` by default.
+`{ namespace }_{ event_name }_{ suffix }`, where the values of `namespace` is `jetpack` and `suffix` is `page_view` by default.
 The idea behing this name convention is to be consistent among all page-view event recorded by different apps, contexts, etc.
 
 Being said that, it's possible to record the **page-view** event simply defining the event name via the [pageViewEventName](#pagevieweventname-optional) of the hook settings:
