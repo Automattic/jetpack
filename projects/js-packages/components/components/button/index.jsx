@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { Button as WPButton, Spinner } from '@wordpress/components';
+import { Button as WPButton, Spinner as WPSpinner } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -59,7 +59,7 @@ const Button = ( {
 			text={ text }
 			{ ...componentProps }
 		>
-			{ isLoading && <Spinner /> }
+			{ isLoading && <WPSpinner /> }
 			<span>{ children }</span>
 			{ externalIcon }
 		</WPButton>
