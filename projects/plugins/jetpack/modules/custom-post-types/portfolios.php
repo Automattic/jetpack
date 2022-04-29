@@ -719,7 +719,7 @@ class Jetpack_Portfolio {
 		 * Attributes can be booleans (from the default values) or strings.
 		 */
 		foreach ( $atts as $attribute_name => $attribute_value ) {
-			if ( preg_match( '#^(?:display_|include_|show_)#i', $attribute_name ) ) {
+			if ( preg_match( '#^(?:display_|show_)#i', $attribute_name ) ) {
 				// display_content is a special case.
 				if ( 'display_content' === $attribute_name && 'full' === $attribute_value ) {
 					$atts['display_content'] = 'full';
