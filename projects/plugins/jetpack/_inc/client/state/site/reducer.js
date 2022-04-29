@@ -11,7 +11,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	getPlanClass,
 	isJetpackProduct,
-	isJetpackBackup,
 	isJetpackPlanWithBackup,
 	isJetpackSearch,
 	isJetpackSecurityBundle,
@@ -373,16 +372,6 @@ export function getActiveProductPurchases( state ) {
  */
 export function hasActiveProductPurchase( state ) {
 	return getActiveProductPurchases( state ).length > 0;
-}
-
-export function getActiveBackupPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
-		isJetpackBackup( product.product_slug )
-	);
-}
-
-export function hasActiveBackupPurchase( state ) {
-	return !! getActiveBackupPurchase( state );
 }
 
 /**
