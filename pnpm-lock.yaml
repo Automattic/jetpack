@@ -52,13 +52,11 @@ importers:
 
   projects/js-packages/analytics:
     specifiers:
-      '@automattic/jetpack-connection': workspace:* || ^0.17
       debug: 4.3.3
       jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
       nyc: 15.1.0
     dependencies:
-      '@automattic/jetpack-connection': link:../connection
       lodash: 4.17.21
     devDependencies:
       debug: 4.3.3
