@@ -13,3 +13,9 @@
 .paragraphs {
 	margin-bottom: calc( var(--spacing-base) * 3 );
 }
+
+.learn-more-link {
+	&:global(.is-link) {
+		font-weight: 400;
+	}
+}

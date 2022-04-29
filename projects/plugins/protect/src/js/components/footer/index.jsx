@@ -52,7 +52,11 @@ const FooterInfo = () => {
 					'jetpack-protect'
 				) }
 			</Text>
-			<Button variant="external-link" href={ learnMoreUrl }>
+			<Button
+				variant="external-link"
+				href={ learnMoreUrl }
+				className={ styles[ 'learn-more-link' ] }
+			>
 				{ __( 'Learn more', 'jetpack-protect' ) }
 			</Button>
 		</div>
@@ -74,7 +78,7 @@ const Footer = () => {
 	);
 
 	return (
-		<Container horizontalSpacing={ 0 } horizontalGap={ 0 } className={ styles.wrapper }>
+		<Container horizontalSpacing={ 8 } horizontalGap={ 0 } className={ styles.wrapper }>
 			<Col className={ `${ styles.section } ${ styles.icons }` }>
 				<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ true }>
 					<Col>
