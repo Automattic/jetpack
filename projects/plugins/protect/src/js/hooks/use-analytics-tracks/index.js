@@ -63,10 +63,12 @@ const useAnalyticsTracks = ( {
 			return;
 		}
 
-		if ( pageViewEvent ) {
-			recordEvent( pageViewEvent, pageViewEventProperties );
+		if ( ! pageViewEvent ) {
+			return;
 		}
-	}, [ isRegistered, recordEvent, pageViewEvent, pageViewEventProperties ] );
+
+		recordEvent( pageViewEvent, pageViewEventProperties );
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return {
 		recordEvent: recordEventAsync,
