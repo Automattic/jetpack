@@ -1795,7 +1795,7 @@ class Search extends Module {
 	 * @return array List of option keys that get synced.
 	 */
 	public static function get_all_option_keys() {
-		return array_column( \Automattic\Jetpack\Search\Settings::$settings, 0 );
+		return property_exists( '\Automattic\Jetpack\Search\Settings', 'settings' ) ? array_column( \Automattic\Jetpack\Search\Settings::$settings, 0 ) : array();
 	}
 
 	/**
