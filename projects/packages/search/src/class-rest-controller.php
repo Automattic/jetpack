@@ -257,13 +257,12 @@ class REST_Controller {
 	 * @param WP_REST_Request $request - REST request.
 	 */
 	public function get_search_results( $request ) {
-		$blog_id = $this->get_blog_id();
-		$path    = sprintf( '/sites/%d/search', absint( $blog_id ) );
-		$path    = add_query_arg(
+		$blog_id  = $this->get_blog_id();
+		$path     = sprintf( '/sites/%d/search', absint( $blog_id ) );
+		$path     = add_query_arg(
 			$request->get_query_params(),
 			sprintf( '/sites/%d/search', absint( $blog_id ) )
 		);
-
 		$response = Client::wpcom_json_api_request_as_blog( $path, '1.3', array(), null, 'rest' );
 		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
