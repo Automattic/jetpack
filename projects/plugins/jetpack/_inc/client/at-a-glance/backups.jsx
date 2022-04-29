@@ -319,7 +319,7 @@ class DashBackups extends Component {
 
 	renderFromRewindStatus() {
 		if (
-			this.props.hasBackupPlan &&
+			this.props.hasBackups &&
 			'unavailable' === this.props.rewindStatus &&
 			'site_new' === this.props.rewindStatusReason
 		) {
@@ -378,7 +378,7 @@ export default connect(
 			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 			isFetchingSite: isFetchingSiteData( state ),
-			hasBackupPlan: hasActiveSiteFeature( state, 'backups' ),
+			hasBackups: hasActiveSiteFeature( state, 'backups' ),
 			hasRealTimeBackups: hasActiveSiteFeature( state, 'real-time-backups' ),
 			hasVaultPressBackups: hasActiveSiteFeature( state, 'vaultpress-backups' ),
 			partnerCoupon: getPartnerCoupon( state ),
