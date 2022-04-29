@@ -75,18 +75,20 @@ const Admin = () => {
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Social', 'jetpack-social' ) }>
 			<AdminSectionHero>
-				<div className={ styles.manageConnectionsHeader }>
-					<Button href={ jetpackSocialConnectionsAdminUrl } variant="link" targer="_">
-						Manage your connections
-					</Button>
-				</div>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						{ showConnectionCard ? (
 							<ConnectionSection />
 						) : (
-							<div className={ styles.publicizeConnectionsList }>
-								<ConnectionItems />
+							<div>
+								<div className={ styles.manageConnectionsHeader }>
+									<Button href={ jetpackSocialConnectionsAdminUrl } variant="primary" targer="_">
+										Manage your connections
+									</Button>
+								</div>
+								<div className={ styles.publicizeConnectionsList }>
+									<ConnectionItems />
+								</div>
 							</div>
 						) }
 					</Col>
