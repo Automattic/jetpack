@@ -20,7 +20,6 @@
 	"projects/plugins/jetpack/modules/contact-form/grunion-editor-view.php",
 	"projects/plugins/jetpack/modules/contact-form/grunion-form-view.php",
 	"projects/plugins/jetpack/modules/custom-content-types.php",
-	"projects/plugins/jetpack/modules/custom-post-types/comics.php",
 	"projects/plugins/jetpack/modules/custom-post-types/nova.php",
 	"projects/plugins/jetpack/modules/custom-post-types/testimonial.php",
 	"projects/plugins/jetpack/modules/infinite-scroll.php",
