@@ -11,7 +11,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	getPlanClass,
 	isJetpackProduct,
-	isJetpackPlanWithBackup,
 	isJetpackSearch,
 	isJetpackSecurityBundle,
 	isJetpackVideoPress,
@@ -514,27 +513,4 @@ export function getConnectedPluginsMap( state ) {
 			return map;
 		}, {} )
 	);
-}
-
-/**
- * Returns true if the site has a subscription to a Backup product or to a plan that includes Backup.
- *
- * @param   {object} state - Global state tree
- * @returns {boolean} True if the site does have Backup
- */
-export function siteHasBackupPlan( state ) {
-	const sitePlan = getSitePlan( state );
-	const siteProducts = getSiteProducts( state );
-
-	let hasBackup = false;
-
-	if ( sitePlan && sitePlan.product_slug ) {
-		hasBackup = hasBackup || isJetpackPlanWithBackup( sitePlan.product_slug );
-	}
-
-	if ( Array.isArray( siteProducts ) ) {
-		hasBackup = hasBackup || siteProducts.some( p => isJetpackProduct( p.product_slug ) );
-	}
-
-	return hasBackup;
 }
