@@ -45,6 +45,7 @@ export default ( {
 	 * Initialize the site registration process.
 	 *
 	 * @param {Event} [e] - Event that dispatched handleRegisterSite
+	 * @returns {void}    - Promise when running the registration process. Otherwise, nothing.
 	 */
 	const handleRegisterSite = e => {
 		e && e.preventDefault();
@@ -52,7 +53,7 @@ export default ( {
 		if ( isRegistered ) {
 			handleConnectUser();
 		} else {
-			registerSite( { registrationNonce, redirectUri } ).then( () => {
+			return registerSite( { registrationNonce, redirectUri } ).then( () => {
 				handleConnectUser();
 			} );
 		}
