@@ -26,7 +26,7 @@
 	],
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:* || ^0.13",
-		"@automattic/jetpack-components": "workspace:* || ^0.11",
+		"@automattic/jetpack-components": "workspace:* || ^0.12",
 		"@automattic/jetpack-connection": "workspace:* || ^0.17",
 		"@wordpress/api-fetch": "6.3.0",
 		"@wordpress/data": "6.6.0",
