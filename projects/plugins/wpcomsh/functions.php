@@ -312,3 +312,26 @@ function wpcomsh_get_atomic_client_id() {
 
 	return 0;
 }
+
+/**
+ * Returns an array of active WordPress.com subscriptions. The array keys are the product slugs.
+ *
+ * @return array
+ */
+function wpcomsh_get_wpcom_active_subscriptions() {
+	$persistent_data = new Atomic_Persistent_Data();
+	$wpcom_purchases = json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+	return array_reduce(
+		$wpcom_purchases,
+		function ( $assoc_array, $purchase ) {
+			// 1. Remove _monthly or _yearly ( mainly found in marketplace plugins ).
+			// 2. Transform to plugin slug pattern with dashes.
+			$product_slug                 = preg_replace( array( '/_monthly|_yearly$/', '/_/' ), array( '', '-' ), $purchase->product_slug );
+			$assoc_array[ $product_slug ] = $purchase;
+
+			return $assoc_array;
+		},
+		array()
+	);
+}
+add_filter( 'pre_option_wpcom_active_subscriptions', 'wpcomsh_get_wpcom_active_subscriptions' );
