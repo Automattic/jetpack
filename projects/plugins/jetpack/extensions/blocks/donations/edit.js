@@ -18,8 +18,6 @@ const Edit = props => {
 	const { currency } = attributes;
 
 	const [ loadingError, setLoadingError ] = useState( '' );
-	const [ shouldUpgrade, setShouldUpgrade ] = useState( false );
-	const [ stripeConnectUrl, setStripeConnectUrl ] = useState( false );
 	const [ products, setProducts ] = useState( [] );
 
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
@@ -54,8 +52,6 @@ const Edit = props => {
 			setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
 			return;
 		}
-		setShouldUpgrade( result.should_upgrade_to_access_memberships );
-		setStripeConnectUrl( result.connect_url );
 
 		const filteredProducts = filterProducts( result.products );
 
@@ -90,14 +86,7 @@ const Edit = props => {
 		return <LoadingError className={ className } error={ loadingError } />;
 	}
 
-	return (
-		<Tabs
-			{ ...props }
-			products={ products }
-			shouldUpgrade={ shouldUpgrade }
-			stripeConnectUrl={ stripeConnectUrl }
-		/>
-	);
+	return <Tabs { ...props } products={ products } />;
 };
 
 export default Edit;
