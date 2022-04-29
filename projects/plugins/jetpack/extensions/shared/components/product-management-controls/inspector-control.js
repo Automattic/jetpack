@@ -72,8 +72,13 @@ export default function ProductManagementInspectorControl() {
 			success => {
 				setApiState( API_STATE_NOT_REQUESTING );
 				if ( success ) {
+					const defaultTitle = getMessageByProductType( 'default new product title', productType );
 					setPrice( 5 );
-					setTitle( '' );
+					setTitle( defaultTitle );
+					setInterval( '1 month' );
+					setIsMarkedAsDonation( false );
+					setIsCustomAmount( false );
+					setCurrency( 'USD' );
 				}
 			}
 		);
