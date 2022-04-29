@@ -13,6 +13,13 @@ import { __ } from '@wordpress/i18n';
  */
 import styles from './styles.module.scss';
 
+/**
+ * Gets the Badge element
+ *
+ * @param {number} count - The number of vulnerabilities found for this item.
+ * @param {boolean} notChecked - Whether this item was not checked for vulnerabilities yet.
+ * @returns {object} The badge element
+ */
 const getBadgeElement = ( count, notChecked ) => {
 	if ( notChecked ) {
 		return {
@@ -83,8 +90,10 @@ const ItemBadge = ( { count, notChecked } ) => {
 };
 
 ItemBadge.propTypes = {
-	/* Element that will be rendered as children */
-	children: PropTypes.node.isRequired,
+	/* The number of vulnerabilities found for this item */
+	count: PropTypes.number,
+	/* Whether this item was not checked for vulnerabilities yet */
+	notChecked: PropTypes.bool,
 };
 
 export default ItemBadge;

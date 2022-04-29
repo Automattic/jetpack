@@ -12,7 +12,17 @@ import { NavigationContext } from './use-menu-navigation';
 import ItemLabel from './label';
 import ItemBadge from './badge';
 
-const NavigationItem = ( { id, label, icon, badge, disabled, onClick, onKeyDown, onFocus } ) => {
+const NavigationItem = ( {
+	id,
+	label,
+	icon,
+	badge,
+	disabled,
+	onClick,
+	onKeyDown,
+	onFocus,
+	notChecked,
+} ) => {
 	const context = useContext( NavigationContext );
 
 	const selected = context?.selectedItem === id;
@@ -74,7 +84,7 @@ const NavigationItem = ( { id, label, icon, badge, disabled, onClick, onKeyDown,
 			ref={ handleRef }
 		>
 			<ItemLabel icon={ icon }>{ label }</ItemLabel>
-			<ItemBadge count={ badge } />
+			<ItemBadge count={ badge } notChecked={ notChecked } />
 		</li>
 	);
 };
