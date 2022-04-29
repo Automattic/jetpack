@@ -323,11 +323,26 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function generate_rules() {
+		/**
+		 * WordPress filesystem abstraction.
+		 *
+		 * @var \WP_Filesystem_Base $wp_filesystem
+		 */
 		global $wp_filesystem;
 
 		self::initialize_filesystem();
 
-		$rules = self::get_rules_from_api();
+		$api_exception = null;
+		try {
+			$rules = self::get_rules_from_api();
+		} catch ( \Exception $e ) {
+			if ( $wp_filesystem->exists( self::RULES_FILE ) ) {
+				throw $e;
+			}
+
+			$rules         = "<?php\n";
+			$api_exception = $e;
+		}
 
 		// Ensure that the folder exists.
 		if ( ! $wp_filesystem->is_dir( dirname( self::RULES_FILE ) ) ) {
@@ -347,6 +362,10 @@ class Waf_Runner {
 
 		if ( ! $wp_filesystem->put_contents( self::RULES_FILE, $rules ) ) {
 			throw new \Exception( 'Failed writing rules file to: ' . self::RULES_FILE );
+		}
+
+		if ( null !== $api_exception ) {
+			throw $api_exception;
 		}
 	}
 

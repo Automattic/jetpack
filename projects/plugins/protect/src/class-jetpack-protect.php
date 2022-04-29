@@ -28,32 +28,6 @@ class Jetpack_Protect {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
-	}
-
-	/**
-	 * Initialize the plugin
-	 *
-	 * @return void
-	 */
-	public function init() {
-		// Set up the REST authentication hooks.
-		Connection_Rest_Authentication::init();
-
-		$total_vuls = Protect_Status::get_total_vulnerabilities();
-		$menu_label = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
-		if ( $total_vuls ) {
-			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_vuls );
-		}
-
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Protect', 'jetpack-protect' ),
-			$menu_label,
-			'manage_options',
-			'jetpack-protect',
-			array( $this, 'plugin_settings_page' ),
-			99
-		);
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
@@ -95,6 +69,32 @@ class Jetpack_Protect {
 			},
 			1
 		);
+	}
+
+	/**
+	 * Initialize the plugin
+	 *
+	 * @return void
+	 */
+	public function init() {
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
+
+		$total_vuls = Protect_Status::get_total_vulnerabilities();
+		$menu_label = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
+		if ( $total_vuls ) {
+			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_vuls );
+		}
+
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'Jetpack Protect', 'jetpack-protect' ),
+			$menu_label,
+			'manage_options',
+			'jetpack-protect',
+			array( $this, 'plugin_settings_page' ),
+			99
+		);
+		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 65 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
