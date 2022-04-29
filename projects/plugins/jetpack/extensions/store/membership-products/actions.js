@@ -51,12 +51,14 @@ export const setUpgradeUrl = upgradeUrl => ( {
 export const saveProduct = (
 	product,
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
-	setSelectedProductId = () => {}
+	setSelectedProductId = () => {},
+	callback = () => {}
 ) => async ( { dispatch, registry } ) => {
 	const { title, price, currency } = product;
 
 	if ( ! title || 0 === title.length ) {
 		onError( getMessageByProductType( 'product requires a name', productType ), registry );
+		callback( false );
 		return;
 	}
 
@@ -71,10 +73,12 @@ export const saveProduct = (
 			),
 			registry
 		);
+		callback( false );
 		return;
 	}
 	if ( ! isPriceValid( currency, parsedPrice ) ) {
 		onError( getMessageByProductType( 'product requires a valid price', productType ), registry );
+		callback( false );
 		return;
 	}
 
@@ -98,10 +102,12 @@ export const saveProduct = (
 		dispatch( setProducts( products.concat( [ newProduct ] ) ) );
 		setSelectedProductId( newProduct.id );
 		onSuccess( getMessageByProductType( 'successfully created product', productType ), registry );
+		callback( true );
 	} catch ( error ) {
 		onError(
 			getMessageByProductType( 'there was an error when adding the product', productType ),
 			registry
 		);
+		callback( false );
 	}
 };
