@@ -14,7 +14,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import { getPlanClass } from 'lib/plans/constants';
-import { getSiteRawUrl, getSiteAdminUrl, getUpgradeUrl } from 'state/initial-state';
+import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
@@ -117,10 +117,6 @@ class ProStatus extends React.Component {
 				}
 				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
-			case 'free':
-			case 'personal':
-			case 'pro':
-				return;
 			case 'secure':
 				status = 'is-success';
 				message = _x(
@@ -197,7 +193,6 @@ class ProStatus extends React.Component {
 
 		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
 			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
-			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
 			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
 			hasVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
 
@@ -210,7 +205,7 @@ class ProStatus extends React.Component {
 
 				case 'backups':
 					if ( hasFree && ! hasBackups && this.props.isCompact ) {
-						return this.getProActions( 'free', 'backups' );
+						return '';
 					}
 					break;
 
@@ -220,9 +215,7 @@ class ProStatus extends React.Component {
 					}
 					if ( 'N/A' !== vpData ) {
 						if ( ( hasFree || hasPersonal ) && ! hasVPScan ) {
-							if ( this.props.isCompact ) {
-								return this.getProActions( 'free', 'scan' );
-							} else if ( hasPersonal && ! hasBackups ) {
+							if ( ! this.props.isCompact && hasPersonal && ! hasBackups ) {
 								// Personal plans doesn't have scan but it does have backups.
 								return this.getSetUpButton( 'backups' );
 							}
@@ -259,14 +252,11 @@ class ProStatus extends React.Component {
 					break;
 
 				case 'search':
-					if ( hasFree || hasPersonal || hasPremium ) {
-						return this.getProActions( 'pro', 'search' );
-					}
 					return '';
 
 				case 'akismet':
 					if ( hasFree && ! ( active && installed ) ) {
-						return this.props.isCompact ? this.getProActions( 'free', 'anti-spam' ) : '';
+						return '';
 					}
 
 					if (
@@ -326,8 +316,6 @@ export default connect( state => {
 		fetchingSiteData: isFetchingSiteData( state ),
 		isAkismetKeyValid: isAkismetKeyValid( state ),
 		fetchingAkismetData: isFetchingAkismetData( state ),
-		paidFeatureUpgradeUrl: getUpgradeUrl( state, 'upgrade' ),
-		planProUpgradeUrl: getUpgradeUrl( state, 'plans-business' ),
 		rewindStatus: getRewindStatus( state ),
 		scanStatus: getScanStatus( state ),
 	};
