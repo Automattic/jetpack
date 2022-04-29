@@ -46,7 +46,7 @@ class Search extends Module {
 		// Post meta whitelists.
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_search_post_meta_whitelist' ), 10 );
 		// Add options
-		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_search_options_whitelist' ) );
+		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_search_options_whitelist' ), 10 );
 	}
 
 	/**
