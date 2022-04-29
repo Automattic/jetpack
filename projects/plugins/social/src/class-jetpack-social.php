@@ -82,6 +82,9 @@ class Jetpack_Social {
 		My_Jetpack_Initializer::init();
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
+
+		// Add REST routes
+		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Controller(), 'register_rest_routes' ) );
 	}
 
 	/**
@@ -130,10 +133,15 @@ class Jetpack_Social {
 		global $publicize;
 
 		return array(
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'connections'       => $publicize->get_all_connections_for_user(),
+			'siteData'        => array(
+				'apiRoot'           => esc_url_raw( rest_url() ),
+				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
+				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+			),
+			'jetpackSettings' => array(
+				'publicize_active' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
+			),
+			'connections'     => $publicize->get_all_connections_for_user(),
 		);
 	}
 

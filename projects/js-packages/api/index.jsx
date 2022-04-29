@@ -519,6 +519,16 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/search/pricing`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		fetchSocialSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/social/settings`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateSocialSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/social/settings`, postParams, {
+				body: JSON.stringify( newSettings ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**

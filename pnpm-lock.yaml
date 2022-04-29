@@ -1581,6 +1581,7 @@ importers:
 
   projects/plugins/social:
     specifiers:
+      '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.11
       '@automattic/jetpack-connection': workspace:* || ^0.17
@@ -1595,6 +1596,7 @@ importers:
       '@wordpress/element': 4.4.0
       '@wordpress/i18n': 4.6.0
       concurrently: 6.0.2
+      lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -1602,6 +1604,7 @@ importers:
       webpack: 5.65.0
       webpack-cli: 4.9.1
     dependencies:
+      '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
@@ -1609,6 +1612,7 @@ importers:
       '@wordpress/date': 4.6.0
       '@wordpress/element': 4.4.0
       '@wordpress/i18n': 4.6.0
+      lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:
