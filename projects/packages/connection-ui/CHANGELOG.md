@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.1] - 2022-04-26
+### Changed
+- Updated package dependencies.
+- Update package.json metadata.
+
 ## [2.4.0] - 2022-04-19
 ### Deprecated
 - Deprecated in-place connection.
@@ -225,6 +230,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Connection UI: Building the Framework
 
+[2.4.1]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.14...v2.4.0
 [2.3.14]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.13...v2.3.14
 [2.3.13]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.12...v2.3.13

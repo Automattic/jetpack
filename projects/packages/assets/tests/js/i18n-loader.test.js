@@ -21,9 +21,13 @@ fetch.mockFetchResponse = function ( body, init = {} ) {
 };
 
 const mockSetLocaleData = jest.fn();
-jest.doMock( '@wordpress/i18n', () => ( {
-	setLocaleData: mockSetLocaleData,
-} ) );
+jest.doMock(
+	'@wordpress/i18n',
+	() => ( {
+		setLocaleData: mockSetLocaleData,
+	} ),
+	{ virtual: true }
+);
 
 const translations = JSON.stringify( {
 	domain: 'messages',

@@ -811,14 +811,16 @@ const VpBlock = props => {
 		scripts = [];
 	}
 
-	const videopresAjaxURLBlob = new Blob(
-		[ `var videopressAjax = { ajaxUrl: '${ window.videopressAjax.ajaxUrl }' };` ],
-		{
-			type: 'text/javascript',
-		}
-	);
+	if ( window.videopressAjax ) {
+		const videopresAjaxURLBlob = new Blob(
+			[ `var videopressAjax = { ajaxUrl: '${ window.videopressAjax.ajaxUrl }' };` ],
+			{
+				type: 'text/javascript',
+			}
+		);
 
-	scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
+		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
+	}
 
 	return (
 		<figure { ...blockProps }>

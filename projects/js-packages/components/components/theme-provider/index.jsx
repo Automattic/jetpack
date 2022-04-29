@@ -40,6 +40,12 @@ export const colors = {
 	'--jp-red-70': '#8A2424',
 	'--jp-red-80': '#691C1C',
 	'--jp-red': '#d63639',
+	// Yellow
+	'--jp-yellow-20': '#F0C930',
+	'--jp-yellow-40': '#C08C00',
+	// Blue
+	'--jp-blue-20': '#68B3E8',
+	'--jp-blue-40': '#1689DB',
 	// Pink
 	'--jp-pink': '#C9356E',
 	// Green
