@@ -21,7 +21,7 @@ const getBadgeElement = ( count, notChecked ) => {
 				'jetpack-protect'
 			),
 			badgeElement: (
-				<Icon icon={ info } size={ 28 } className={ styles[ 'navigation-item-check-badge' ] } />
+				<Icon icon={ info } size={ 28 } className={ styles[ 'navigation-item-info-badge' ] } />
 			),
 		};
 	}
