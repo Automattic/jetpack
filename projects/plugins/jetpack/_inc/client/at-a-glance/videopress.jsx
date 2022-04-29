@@ -17,11 +17,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import DashItem from 'components/dash-item';
-import {
-	isVideoPressLegacySecurityPlan,
-	getJetpackProductUpsellByFeature,
-	FEATURE_VIDEOPRESS,
-} from 'lib/plans/constants';
+import { getJetpackProductUpsellByFeature, FEATURE_VIDEOPRESS } from 'lib/plans/constants';
 import { ProgressBar } from '@automattic/components';
 import JetpackBanner from 'components/jetpack-banner';
 import { isModuleAvailable } from 'state/modules';
@@ -33,9 +29,8 @@ import {
 import {
 	isFetchingSitePurchases,
 	getSitePlan,
-	getSitePurchases,
 	getVideoPressStorageUsed,
-	hasActiveSiteFeature,
+	hasActiveVideoPressFeature,
 } from 'state/site';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 
@@ -66,7 +61,6 @@ class DashVideoPress extends Component {
 
 		const {
 			hasConnectedOwner,
-			hasVideoPressLegacySecurityPlan,
 			hasVideoPressFeature,
 			isFetching,
 			isOffline,
@@ -74,10 +68,9 @@ class DashVideoPress extends Component {
 			videoPressStorageUsed,
 		} = this.props;
 
-		const hasUpgrade = hasVideoPressFeature || hasVideoPressLegacySecurityPlan;
-
 		const shouldDisplayStorage = hasVideoPressFeature && null !== videoPressStorageUsed;
-		const shouldDisplayBanner = hasConnectedOwner && ! hasUpgrade && ! isOffline && ! isFetching;
+		const shouldDisplayBanner =
+			hasConnectedOwner && ! hasVideoPressFeature && ! isOffline && ! isFetching;
 
 		const bannerText =
 			! hasVideoPressFeature && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
@@ -187,10 +180,7 @@ class DashVideoPress extends Component {
 export default connect(
 	state => ( {
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
-		hasVideoPressFeature: hasActiveSiteFeature( state, 'videopress' ),
-		hasVideoPressLegacySecurityPlan: getSitePurchases( state ).find(
-			isVideoPressLegacySecurityPlan
-		),
+		hasVideoPressFeature: hasActiveVideoPressFeature( state ),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),
 		isFetching: isFetchingSitePurchases( state ),

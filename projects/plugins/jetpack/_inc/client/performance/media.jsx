@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { includes } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ProgressBar } from '@automattic/components';
@@ -12,8 +11,6 @@ import { ProgressBar } from '@automattic/components';
  * Internal dependencies
  */
 import {
-	isVideoPressLegacySecurityPlan,
-	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,
 	FEATURE_VIDEO_HOSTING_JETPACK,
@@ -30,9 +27,8 @@ import { isModuleFound as _isModuleFound } from 'state/search';
 import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
 import {
 	getSitePlan,
-	getSitePurchases,
 	getVideoPressStorageUsed,
-	hasActiveVideoPressPurchase,
+	hasActiveVideoPressFeature,
 	isFetchingSitePurchases,
 } from 'state/site';
 import CompactFormToggle from 'components/form/form-toggle/compact';
@@ -54,26 +50,19 @@ class Media extends React.Component {
 		}
 
 		const videoPress = this.props.module( 'videopress' );
-		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const {
 			hasConnectedOwner,
-			hasVideoPressLegacySecurityPlan,
-			hasVideoPressPurchase,
+			hasVideoPressFeature,
 			isFetching,
 			isOffline,
 			upgradeUrl,
 			videoPressStorageUsed,
 		} = this.props;
 
-		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
-
-		const hasUpgrade =
-			includes( [ 'is-premium-plan', 'is-business-plan', 'is-complete-plan' ], planClass ) ||
-			hasVideoPressLegacySecurityPlan ||
-			hasVideoPressPurchase;
+		const shouldDisplayStorage = hasVideoPressFeature && null !== videoPressStorageUsed;
 
 		const bannerText =
-			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
+			! hasVideoPressFeature && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
 				? __(
 						'1 free video available. Upgrade now to unlock more videos and 1TB of storage.',
 						'jetpack'
@@ -139,7 +128,7 @@ class Media extends React.Component {
 
 		const videoPressForcedInactive = 'inactive' === this.props.getModuleOverride( 'videopress' );
 		const shouldDisplayBanner =
-			foundVideoPress && ! hasUpgrade && hasConnectedOwner && ! isOffline && ! isFetching;
+			foundVideoPress && ! hasVideoPressFeature && hasConnectedOwner && ! isOffline && ! isFetching;
 
 		return (
 			<SettingsCard
@@ -171,10 +160,7 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
-		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
-		hasVideoPressLegacySecurityPlan: getSitePurchases( state ).find(
-			isVideoPressLegacySecurityPlan
-		),
+		hasVideoPressFeature: hasActiveVideoPressFeature( state ),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),
 		isFetching: isFetchingSitePurchases( state ),
