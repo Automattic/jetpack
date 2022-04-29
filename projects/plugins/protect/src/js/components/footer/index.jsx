@@ -2,15 +2,34 @@
  * External dependencies
  */
 import React from 'react';
-import { Container, Col, Text, Button, Title, IconsCard } from '@automattic/jetpack-components';
+import {
+	Container,
+	Col,
+	Text,
+	Button,
+	Title,
+	IconsCard,
+	getRedirectUrl,
+} from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
  */
 import styles from './styles.module.scss';
+import { SECURITY_BUNDLE } from '../admin-page';
 
 const Footer = () => {
+	const learnMoreUrl = getRedirectUrl( 'jetpack-protect-footer-learn-more' );
+
+	const { adminUrl } = window.jetpackProtectInitialState || {};
+
+	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug: SECURITY_BUNDLE,
+		redirectUrl: adminUrl,
+	} );
+
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 0 } fluid={ false }>
 			<Col>
@@ -24,7 +43,10 @@ const Footer = () => {
 						'jetpack-protect'
 					) }
 				</Text>
-				<Button variant="secondary">{ __( 'Get Jetpack Security', 'jetpack-protect' ) }</Button>
+
+				<Button variant="secondary" onClick={ run } isLoading={ hasCheckoutStarted }>
+					{ __( 'Get Jetpack Security', 'jetpack-protect' ) }
+				</Button>
 			</Col>
 			<Col sm={ 0 } md={ 0 } lg={ 1 }></Col>
 			<Col sm={ 4 } md={ 3 } lg={ 5 }>
@@ -35,7 +57,9 @@ const Footer = () => {
 						'jetpack-protect'
 					) }
 				</Text>
-				<Button variant="external-link">{ __( 'Learn more', 'jetpack-protect' ) }</Button>
+				<Button variant="external-link" href={ learnMoreUrl }>
+					{ __( 'Learn more', 'jetpack-protect' ) }
+				</Button>
 			</Col>
 		</Container>
 	);

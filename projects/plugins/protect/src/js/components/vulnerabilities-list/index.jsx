@@ -10,6 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import VulnerabilitiesNavigation from './navigation';
 import List from './list';
+import EmptyList from './empty';
 import useVulsList from './use-vuls-list';
 
 const VulnerabilitiesList = () => {
@@ -21,22 +22,28 @@ const VulnerabilitiesList = () => {
 				<VulnerabilitiesNavigation selected={ selected } onSelect={ setSelected } />
 			</Col>
 			<Col lg={ 8 }>
-				<Title>
-					{ selected === 'all'
-						? sprintf(
-								/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
-								__( 'All %s vulnerabilities', 'jetpack-protect' ),
-								list.length
-						  )
-						: sprintf(
-								/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
-								__( '%1$s vulnerabilities in your %2$s %3$s', 'jetpack-protect' ),
-								list.length,
-								item?.name,
-								item?.version
-						  ) }
-				</Title>
-				<List list={ list } />
+				{ list?.length > 0 ? (
+					<>
+						<Title>
+							{ selected === 'all'
+								? sprintf(
+										/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
+										__( 'All %s vulnerabilities', 'jetpack-protect' ),
+										list.length
+								  )
+								: sprintf(
+										/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
+										__( '%1$s vulnerabilities in your %2$s %3$s', 'jetpack-protect' ),
+										list.length,
+										item?.name,
+										item?.version
+								  ) }
+						</Title>
+						<List list={ list } />
+					</>
+				) : (
+					<EmptyList />
+				) }
 			</Col>
 		</Container>
 	);

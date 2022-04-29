@@ -33,6 +33,7 @@ const Price = ( { className, integer, fraction, symbol } ) => (
 
 const ProductCardUpsellComponent = ( {
 	slug,
+	cost,
 	title,
 	description,
 	billing_timeframe,
@@ -50,16 +51,27 @@ const ProductCardUpsellComponent = ( {
 } ) => {
 	const { discount } = discountData;
 	const hasDiscount = useMemo( () => isCouponValid( discountData ), [ discountData ] );
-	const { original_price: originalPrice, raw_price: introPrice } = useMemo(
+
+	const { original_price: introOriginalPrice, raw_price: introRawPrice } = useMemo(
 		() => introOffers.find( ( { product_slug } ) => product_slug === slug ) || {},
 		[ slug, introOffers ]
 	);
+	// introOriginalPrice is the price before introductory offer. Defaults to `cost` is there's
+	// no such offer available.
+	const initialPrice = introOriginalPrice || cost;
+	// introRawPrice is the price after introductory offer, but before any other discount.
+	const introPrice = introRawPrice || initialPrice;
+	// Apply special discount.
 	const finalPrice = hasDiscount && discount ? introPrice * ( 1 - discount / 100 ) : introPrice;
-	const totalDiscount = originalPrice
-		? Math.round( ( ( originalPrice - finalPrice ) / originalPrice ) * 100 )
+
+	// Compute total discount, including introductory offer (if it exists) and special discount.
+	const totalDiscount = initialPrice
+		? Math.round( ( ( initialPrice - finalPrice ) / initialPrice ) * 100 )
 		: null;
-	const originalCurrencyObject = useMemo( () => getCurrencyObject( originalPrice / 12, currency ), [
-		originalPrice,
+
+	// Get price parts, such as currency symbol and value.
+	const initialCurrencyObject = useMemo( () => getCurrencyObject( initialPrice / 12, currency ), [
+		initialPrice,
 		currency,
 	] );
 	const currencyObject = useMemo( () => getCurrencyObject( finalPrice / 12, currency ), [
@@ -98,7 +110,7 @@ const ProductCardUpsellComponent = ( {
 							{ hasDiscount && (
 								<Price
 									className="jp-recommendations-product-card-upsell__raw-price"
-									{ ...originalCurrencyObject }
+									{ ...initialCurrencyObject }
 								/>
 							) }
 							<Price
@@ -139,6 +151,7 @@ const ProductCardUpsellComponent = ( {
 
 ProductCardUpsellComponent.propTypes = {
 	slug: PropTypes.string.isRequired,
+	cost: PropTypes.number.isRequired,
 	title: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
 	billing_timeframe: PropTypes.string.isRequired,
