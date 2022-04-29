@@ -28,6 +28,7 @@
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.11",
 		"@automattic/jetpack-connection": "workspace:* || ^0.17",
+		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@wordpress/api-fetch": "6.3.0",
 		"@wordpress/data": "6.6.0",
 		"@wordpress/date": "4.6.0",
