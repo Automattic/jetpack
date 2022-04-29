@@ -68,11 +68,18 @@ const Admin = () => {
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
 	);
+	const { jetpackSocialConnectionsAdminUrl } = window.jetpackSocialInitialState;
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Social', 'jetpack-social' ) }>
 			<AdminSectionHero>
+				<span className={ styles.manageConnectionsHeader }>
+					Manage your connections{ ' ' }
+					<a href={ jetpackSocialConnectionsAdminUrl } target="_blank" rel="noreferrer">
+						here
+					</a>
+				</span>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						{ showConnectionCard ? (

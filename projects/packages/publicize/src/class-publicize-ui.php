@@ -554,9 +554,8 @@ jQuery( function($) {
 				?>
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels are already escaped above ?>
 					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
-					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
-				<?php
-
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( jetpack_social_connections_classic_editor_url() ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />				
+					<?php
 			else :
 				$publicize_form = $this->get_metabox_form_disconnected( $available_services );
 				?>

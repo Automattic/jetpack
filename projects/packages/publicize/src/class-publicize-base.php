@@ -1433,6 +1433,15 @@ abstract class Publicize_Base {
 		}
 		return str_replace( $search, $replace, $string );
 	}
+
+	/**
+	 * Get Jetpack Cloud URL for Publicize connections.
+	 *
+	 * @return string
+	 */
+	public function jetpack_social_connections_admin_url() {
+		return Redirect::get_url( 'jetpack-social-connections-admin-page', array( 'site' => ( new Status() )->get_site_suffix() ) );
+	}
 }
 
 /**
@@ -1442,4 +1451,13 @@ abstract class Publicize_Base {
  */
 function publicize_calypso_url() {
 	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
+}
+
+/**
+ * Get Jetpack Cloud URL for Publicize connections.
+ *
+ * @return string
+ */
+function jetpack_social_connections_classic_editor_url() {
+	return Redirect::get_url( 'jetpack-social-connections-classic-editor', array( 'site' => ( new Status() )->get_site_suffix() ) );
 }
