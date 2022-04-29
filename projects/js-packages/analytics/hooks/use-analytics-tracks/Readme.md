@@ -34,7 +34,7 @@ function MyJetpackAdminApp( init ) {
 
 When defined, it will record a **page-view** event. See [Recording a Page View event](#recording-a-page-view-event) section for more info.
 
-### `namespace`
+### `pageViewNamespace`
 
 -   Type: `String`
 -   Optional
@@ -136,7 +136,7 @@ Recording a **page-view** event is something so usual that deserves a simple and
 Taking advantage of the React hooks, it's makse sense to induce that it happens when the component is mounted.
 Also, and by convention to get even simpler, a **page-view** event has the following shape:
 
-`{ namespace }_{ event_name }_{ suffix }`, where the values of `namespace` is `jetpack` and `suffix` is `page_view` by default.
+`{ pageViewNamespace }_{ eventName }_{ suffix }`, where the values of `pageViewNamespace` is `jetpack` and `suffix` is `page_view` by default.
 The idea behing this name convention is to be consistent among all page-view event recorded by different apps, contexts, etc.
 
 Being said that, it's possible to record the **page-view** event simply defining the event name via the [pageViewEventName](#pagevieweventname-optional) of the hook settings:
