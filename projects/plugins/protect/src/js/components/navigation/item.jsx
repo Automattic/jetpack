@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React, { useContext, useEffect, useCallback } from 'react';
-import { Icon, check } from '@wordpress/icons';
 import classNames from 'classnames';
 
 /**
@@ -22,8 +21,6 @@ const NavigationItem = ( { id, label, icon, badge, disabled, onClick, onKeyDown,
 	const handleClickItem = context?.handleClickItem;
 	const handleKeyDownItem = context?.handleKeyDownItem;
 	const handleFocusItem = context?.handleFocusItem;
-
-	const hasBadge = Number.isFinite( badge );
 
 	const wrapperClassName = classNames( styles[ 'navigation-item' ], {
 		[ styles.clickable ]: ! disabled,
@@ -66,16 +63,6 @@ const NavigationItem = ( { id, label, icon, badge, disabled, onClick, onKeyDown,
 		// eslint-disable-next-line
 	}, [] );
 
-	const badgeElement = hasBadge && (
-		<>
-			{ badge > 0 ? (
-				<ItemBadge>{ badge }</ItemBadge>
-			) : (
-				<Icon icon={ check } size={ 28 } className={ styles[ 'navigation-item-check-badge' ] } />
-			) }
-		</>
-	);
-
 	return (
 		<li
 			className={ wrapperClassName }
@@ -87,7 +74,7 @@ const NavigationItem = ( { id, label, icon, badge, disabled, onClick, onKeyDown,
 			ref={ handleRef }
 		>
 			<ItemLabel icon={ icon }>{ label }</ItemLabel>
-			{ badgeElement }
+			<ItemBadge count={ badge } />
 		</li>
 	);
 };
