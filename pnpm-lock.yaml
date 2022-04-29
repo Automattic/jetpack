@@ -466,8 +466,8 @@ importers:
       '@wordpress/postcss-plugins-preset': 3.6.0
       babel-loader: 8.2.4
       babel-plugin-inline-json-import: 0.3.2
-      concurrently: 6.0.2
       css-loader: 6.5.1
+      jest: 27.3.1
       postcss: 8.3.11
       postcss-loader: 6.2.0
       react: 17.0.2
@@ -508,8 +508,8 @@ importers:
       '@wordpress/postcss-plugins-preset': 3.6.0_postcss@8.3.11
       babel-loader: 8.2.4_609d5772f83284a93f69f48cce82773c
       babel-plugin-inline-json-import: 0.3.2
-      concurrently: 6.0.2
       css-loader: 6.5.1_webpack@5.65.0
+      jest: 27.3.1
       postcss: 8.3.11
       postcss-loader: 6.2.0_postcss@8.3.11+webpack@5.65.0
       react: 17.0.2
