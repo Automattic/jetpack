@@ -78,7 +78,7 @@ const PromptLayout = props => {
 			className={ classNames( 'jp-recommendations-question__main', {
 				'jp-recommendations-question__main--with-sidebar': !! illustrationPath || !! sidebarCard,
 				'jp-recommendations-question__main--with-illustration':
-					! isLoadingSideContent && !! illustrationPath,
+					! isLoadingSideContent && !! illustrationPath && ! sidebarCard,
 				'jp-recommendations-question__main--with-illustration--rna': !! illustrationPath && !! rna,
 			} ) }
 		>
