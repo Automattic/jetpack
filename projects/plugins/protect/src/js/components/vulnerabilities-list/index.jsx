@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { Container, Col, Text, H3 } from '@automattic/jetpack-components';
+import { Container, Col, Text, H3, Button, getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -24,7 +24,13 @@ const VulnerabilityItem = ( { name, version, vulnerabilities } ) => {
 			</Col>
 			<Col lg={ 8 }>
 				{ vulnerabilities.map( vulnerability => (
-					<div className={ styles.vulnerability }>
+					<div className={ styles.vulnerability } key={ vulnerability.id }>
+						<Button
+							href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: vulnerability.id } ) }
+							variant="external-link"
+						>
+							{ vulnerability.title }
+						</Button>
 						<Text>{ vulnerability.description }</Text>
 						<Text variant="body-extra-small">
 							{
@@ -45,6 +51,7 @@ const VulnerabilitiesList = ( { title, list } ) => {
 			<H3>{ title }</H3>
 			{ list.map( item => (
 				<VulnerabilityItem
+					key={ item.name }
 					name={ item.name }
 					version={ item.version }
 					vulnerabilities={ item.vulnerabilities }

@@ -52,8 +52,6 @@ class Publicize extends Publicize_Base {
 
 		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
 
-		include_once __DIR__ . '/enhanced-open-graph.php';
-
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 	}
 
@@ -545,6 +543,8 @@ class Publicize extends Publicize_Base {
 			return;
 		}
 
+		$should_publicize = $this->should_submit_post_pre_checks( $post );
+
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			/**
 			 * Determines whether a post being published gets publicized.
@@ -553,12 +553,13 @@ class Publicize extends Publicize_Base {
 			 *
 			 * @module publicize
 			 *
+			 * @since 10.9 No longer defaults to true. Adds checks to not publicize based on different contexts.
 			 * @since 4.1.0
 			 *
 			 * @param bool $should_publicize Should the post be publicized? Default to true.
 			 * @param WP_POST $post Current Post object.
 			 */
-			$should_publicize = apply_filters( 'publicize_should_publicize_published_post', true, $post );
+			$should_publicize = apply_filters( 'publicize_should_publicize_published_post', $should_publicize, $post );
 
 			if ( $should_publicize ) {
 				update_post_meta( $post->ID, $this->PENDING, true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -658,8 +659,11 @@ class Publicize extends Publicize_Base {
 		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
 			return $flags;
 		}
+
+		$should_publicize = $this->should_submit_post_pre_checks( $post );
+
 		/** This filter is already documented in modules/publicize/publicize-jetpack.php */
-		if ( ! apply_filters( 'publicize_should_publicize_published_post', true, $post ) ) {
+		if ( ! apply_filters( 'publicize_should_publicize_published_post', $should_publicize, $post ) ) {
 			return $flags;
 		}
 

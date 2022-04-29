@@ -31,6 +31,8 @@ export const getProducts = (
 	const origin = getQueryArg( window.location.href, 'origin' );
 	const path = addQueryArgs( '/wpcom/v2/memberships/status', {
 		source: origin === 'https://wordpress.com' ? 'gutenberg-wpcom' : 'gutenberg',
+		type: 'all',
+		is_editable: true,
 	} );
 
 	try {
@@ -64,7 +66,8 @@ export const getProducts = (
 		if (
 			! response?.products?.length &&
 			! response.should_upgrade_to_access_memberships &&
-			response.connected_account_id
+			response.connected_account_id &&
+			! selectedProductId
 		) {
 			// Is ready to use and has no product set up yet. Let's create one!
 			await dispatch(

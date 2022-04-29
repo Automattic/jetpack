@@ -90,7 +90,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								{ isAdsActive &&
 									createInterpolateElement(
 										__(
-											'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
+											'WordAds automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
 											'jetpack'
 										),
 										{
@@ -287,23 +287,6 @@ export const Ads = withModuleSettingsFormHelpers(
 									{ __( 'Second ad below post', 'jetpack' ) }
 								</span>
 							</CompactFormToggle>
-							<small className="jp-form-setting-explanation">
-								{ isAdsActive &&
-									createInterpolateElement(
-										__(
-											'You can place additional ads using the Ad widget. <link>Try it out!</link>',
-											'jetpack'
-										),
-										{
-											link: (
-												<a
-													className="jp-module-settings__external-link"
-													href="customize.php?autofocus[panel]=widgets"
-												/>
-											),
-										}
-									) }
-							</small>
 						</FormFieldset>
 					</SettingsGroup>
 					<SettingsGroup

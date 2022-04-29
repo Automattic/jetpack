@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added several enhancements to the Autoloader debugger module that make debugging easier.
