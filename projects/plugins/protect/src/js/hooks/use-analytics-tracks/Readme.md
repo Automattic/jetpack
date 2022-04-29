@@ -5,7 +5,7 @@ React custom hook to handle tracks events.
 ## Example
 
 ```jsx
-import { useAnalyticsTracks } from '@automattic/jetpack-analytics';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
 function MyJetpackAdminApp( init ) {
 	/*
@@ -69,7 +69,7 @@ Helper function to record an event with optional properties. It accepts two argu
 - `props`: Optional properties to add to the event. Type: `Object`
 
 ```jsx
-import { useAnalyticsTracks } from '@automattic/jetpack-analytics';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
 function MyJetpackAdminApp( init ) {
 	const { recordEvent } = useAnalyticsTracks();
@@ -87,7 +87,7 @@ function MyJetpackAdminApp( init ) {
 `recordEvent()` is an async function which allows optionally to chain, and thus running, a function to it.
 
 ```jsx
-import { useAnalyticsTracks } from '@automattic/jetpack-analytics';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
 function MyJetpackAdminApp( init, onContinueHere ) {
 	const { recordEvent } = useAnalyticsTracks();
@@ -115,7 +115,7 @@ function MyJetpackAdminApp( init, onContinueHere ) {
 This function tries to simplify the usage of tracking event tied to events in React components context. The following example shows how to use it when user clicks on a button.
 
 ```jsx
-import { useAnalyticsTracks } from '@automattic/jetpack-analytics';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
 function MyJetpackAdminApp( init, onContinueHere ) {
 	const { recordEvent } = useAnalyticsTracks();
@@ -142,7 +142,7 @@ The idea behing this name convention is to be consistent among all page-view eve
 Being said that, it's possible to record the **page-view** event simply defining the event name via the [pageViewEventName](#pagevieweventname-optional) of the hook settings:
 
 ```jsx
-import { useAnalyticsTracks } from '@automattic/jetpack-analytics';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
 function MyJetpackAdminApp() {
 	// the following code will record the `jetpack_my_admin_app_page_view` event

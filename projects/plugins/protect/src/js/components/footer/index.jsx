@@ -18,7 +18,7 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
  * Internal dependencies
  */
 import styles from './styles.module.scss';
-import { useAnalyticsTracks } from '../../hooks/use-analytics-tracks';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { SECURITY_BUNDLE } from '../admin-page';
 
 const Footer = () => {

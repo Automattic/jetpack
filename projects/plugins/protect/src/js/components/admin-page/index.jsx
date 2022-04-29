@@ -24,10 +24,9 @@ import { STORE_ID } from '../../state/store';
 import Footer from '../footer';
 import useProtectData from '../../hooks/use-protect-data';
 import inProgressImage from './in-progress.png';
-import { useAnalyticsTracks } from '../../hooks/use-analytics-tracks';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
 export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
-
 
 const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 	return (
