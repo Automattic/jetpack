@@ -19,9 +19,9 @@ import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import analytics from 'lib/analytics';
 import Banner from 'components/banner';
 import Card from 'components/card';
-import { getPlanClass, FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
+import { FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
-import { getSitePlan } from 'state/site';
+import { hasActiveSiteFeature } from 'state/site';
 import { isModuleActivated } from 'state/modules';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import SettingsCard from 'components/settings-card';
@@ -159,8 +159,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 					[ 'data', 'features', 'backups' ],
 					false
 				),
-				scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false ),
-				planClass = getPlanClass( this.props.sitePlan.product_slug );
+				scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
 			let cardText = '';
 
 			if ( this.props.isOfflineMode ) {
@@ -199,33 +198,21 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				);
 			}
 
-			// Only return here if backups enabled and site on on free/personal plan, or if Jetpack Backup is in use.
-			// If they're on a higher plan, then they have access to scan as well, and need to set it up!
-			if (
-				backupsEnabled &&
-				includes(
-					[ 'is-free-plan', 'is-personal-plan', 'is-daily-backup-plan', 'is-realtime-backup-plan' ],
-					planClass
-				)
-			) {
+			// Only return here if backups are enabled and site doesn't have scan.
+			if ( backupsEnabled && ! this.props.hasScan ) {
 				return __( 'Your site is connected to VaultPress for backups.', 'jetpack' );
 			}
 
 			// Nothing is enabled. We can show upgrade/setup text now.
-			switch ( planClass ) {
-				case 'is-personal-plan':
-					cardText = __( "You have paid for backups but they're not yet active.", 'jetpack' );
-					cardText += ' ' + __( 'Click "Set Up" to finish installation.', 'jetpack' );
-					break;
-				case 'is-premium-plan':
-				case 'is-business-plan':
-					cardText = __(
-						'You have paid for backups and security scanning but they’re not yet active.',
-						'jetpack'
-					);
-					cardText += ' ' + __( 'Click "Set Up" to finish installation.', 'jetpack' );
-					break;
+			cardText = __( "You have paid for backups but they're not yet active.", 'jetpack' );
+			if ( this.props.hasScan ) {
+				cardText = __(
+					'You have paid for backups and security scanning but they’re not yet active.',
+					'jetpack'
+				);
 			}
+
+			cardText += ' ' + __( 'Click "Set Up" to finish installation.', 'jetpack' );
 
 			return cardText;
 		}
@@ -296,8 +283,8 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 
 export default connect( state => {
 	return {
-		sitePlan: getSitePlan( state ),
 		vaultPressData: getVaultPressData( state ),
+		hasScan: hasActiveSiteFeature( state, 'scan' ),
 		hasThreats: getVaultPressScanThreatCount( state ),
 		vaultPressActive: isModuleActivated( state, 'vaultpress' ),
 		showBackups: showBackups( state ),
