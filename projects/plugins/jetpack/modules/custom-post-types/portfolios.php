@@ -789,7 +789,11 @@ class Jetpack_Portfolio {
 	 * @return bool
 	 */
 	private static function sanitize_boolean_attribute( $attr ) {
-		return (bool) $attr;
+		if ( $attr && 'true' == $attr ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
