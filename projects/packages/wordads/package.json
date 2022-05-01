@@ -41,7 +41,7 @@
 		"@wordpress/element": "4.1.1",
 		"@wordpress/i18n": "4.3.1",
 		"@wordpress/icons": "7.0.1",
-		"chart.js": "^3.7.1",
+		"chart.js": "3.7.1",
 		"classnames": "2.3.1",
 		"fast-json-stable-stringify": "2.1.0",
 		"lodash": "4.17.21",
