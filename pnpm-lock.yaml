@@ -991,7 +991,7 @@ importers:
       '@babel/preset-react': 7.16.7
       '@babel/preset-typescript': 7.16.7
       '@babel/runtime': 7.17.8
-      '@size-limit/preset-app': 6.0.3
+      '@size-limit/preset-app': 6.0.4
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1
       '@testing-library/react': 11.2.7
@@ -1027,7 +1027,7 @@ importers:
       refx: 3.1.1
       sass: 1.43.3
       sass-loader: 12.4.0
-      size-limit: 6.0.3
+      size-limit: 6.0.4
       strip: 3.0.0
       tiny-lru: 7.0.6
       webpack: 5.65.0
@@ -1069,7 +1069,7 @@ importers:
       '@babel/preset-react': 7.16.7_@babel+core@7.17.9
       '@babel/preset-typescript': 7.16.7_@babel+core@7.17.9
       '@babel/runtime': 7.17.8
-      '@size-limit/preset-app': 6.0.3_size-limit@6.0.3
+      '@size-limit/preset-app': 6.0.4_size-limit@6.0.4
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1_preact@10.5.15
       '@testing-library/react': 11.2.7_react-dom@17.0.2+react@17.0.2
@@ -1085,7 +1085,7 @@ importers:
       prettier: /wp-prettier/2.0.5
       sass: 1.43.3
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.65.0
-      size-limit: 6.0.3
+      size-limit: 6.0.4
       webpack: 5.65.0_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.65.0
 
@@ -2077,7 +2077,7 @@ packages:
       '@babel/traverse': 7.17.9
       '@babel/types': 7.17.0
       convert-source-map: 1.8.0
-      debug: 4.3.3
+      debug: 4.3.4
       gensync: 1.0.0-beta.2
       json5: 2.2.1
       semver: 6.3.0
@@ -4963,16 +4963,6 @@ packages:
       size-limit: 5.0.5
     dev: true
 
-  /@size-limit/file/6.0.3_size-limit@6.0.3:
-    resolution: {integrity: sha512-OfDrkJBB7OAWtnedz6jpmL1pjlha1MpgtvYwUSP2442qB96nwMN5Ig78XR3ldPj2cbxq1FVoNnc2vfWMi40vQA==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
-    peerDependencies:
-      size-limit: 6.0.3
-    dependencies:
-      semver: 7.3.5
-      size-limit: 6.0.3
-    dev: true
-
   /@size-limit/file/6.0.4_size-limit@6.0.4:
     resolution: {integrity: sha512-SoGUUNEHsZJTDlw6znuMbR0z6apr/NmeEXSFT6iB6gUPyOHIdFtFJpvWeS1vijC7OFQhWHskedB6nBJ6L+bd+A==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
@@ -4991,21 +4981,6 @@ packages:
       '@size-limit/file': 5.0.5_size-limit@5.0.5
       '@size-limit/time': 5.0.5_size-limit@5.0.5
       size-limit: 5.0.5
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - utf-8-validate
-    dev: true
-
-  /@size-limit/preset-app/6.0.3_size-limit@6.0.3:
-    resolution: {integrity: sha512-pfCJNmQsqDHYdaxRXI/LtTuUpElHVjFH5COkRoDhokCoazhZVvSRT6rvWsNbk9ONM8vg2n5vVOpzWe2vp2yYwg==}
-    peerDependencies:
-      size-limit: 6.0.3
-    dependencies:
-      '@size-limit/file': 6.0.3_size-limit@6.0.3
-      '@size-limit/time': 6.0.3_size-limit@6.0.3
-      size-limit: 6.0.3
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -5037,22 +5012,6 @@ packages:
       estimo: 2.3.6
       react: 17.0.2
       size-limit: 5.0.5
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - utf-8-validate
-    dev: true
-
-  /@size-limit/time/6.0.3_size-limit@6.0.3:
-    resolution: {integrity: sha512-p6JpZg1wUr7e4ja9NozXo7IqdodcPEHswr4TeiruvhcMILGkUbSu8+fQ0kDTZt1Gju8BrsFvIWAiC+TWd07pqw==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
-    peerDependencies:
-      size-limit: 6.0.3
-    dependencies:
-      estimo: 2.3.6
-      react: 17.0.2
-      size-limit: 6.0.3
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -16342,12 +16301,6 @@ packages:
       to-regex: 3.0.2
     dev: true
 
-  /nanospinner/0.3.2:
-    resolution: {integrity: sha512-ToZuxmiRuuNe3McB7CVzP7PCOhzWAy4qx6ndb5QWxJFp6INdg3n0mVm8f7HR6Fz8raRg3/vzglIZYrOSna8vkg==}
-    dependencies:
-      picocolors: 1.0.0
-    dev: true
-
   /nanospinner/0.4.0:
     resolution: {integrity: sha512-FhxiB9PcEztMw6XfQDSLJBMlmN4n7B2hl/oiK4Hy9479r1+df0i2099DgcEx+m6yBfBJVUuKpILvP8fM3rK3Sw==}
     dependencies:
@@ -19830,20 +19783,6 @@ packages:
       lilconfig: 2.0.5
       mico-spinner: 1.4.0
       picocolors: 0.1.0
-    dev: true
-
-  /size-limit/6.0.3:
-    resolution: {integrity: sha512-bvZuNG1dPJ8GTkFq3lXkW8H1+ybVV3D7GecowAGlfbNO2T1Mcvy8kCoCpwVOWnq1wV+TraRUtExnQzIyyV94NQ==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
-    hasBin: true
-    dependencies:
-      bytes-iec: 3.1.1
-      chokidar: 3.5.3
-      ci-job-number: 1.2.2
-      globby: 11.1.0
-      lilconfig: 2.0.5
-      nanospinner: 0.3.2
-      picocolors: 0.2.1
     dev: true
 
   /size-limit/6.0.4:
