@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Icon, warning, info, check } from '@wordpress/icons';
 import classNames from 'classnames';
 
@@ -21,7 +20,17 @@ export const LEVEL_SUCCESS = 'success';
 
 export const ALERT_LEVELS = [ LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_SUCCESS ];
 
-const getIconByLevel = level => {
+type AlertProps = {
+	/** The severity of the alert. */
+	level: typeof LEVEL_ERROR | typeof LEVEL_WARNING | typeof LEVEL_INFO | typeof LEVEL_SUCCESS;
+
+	/** Children to be rendered inside the alert. */
+	children: React.ReactElement | string;
+
+	showIcon?: boolean;
+};
+
+const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
 	switch ( level ) {
 		case LEVEL_ERROR:
 			return warning;
@@ -45,7 +54,7 @@ const getIconByLevel = level => {
  * @param {React.Component} props.children - The alert content.
  * @returns {React.Component}                The `Alert` component.
  */
-function Alert( { level, children, showIcon } ) {
+function Alert( { level, children, showIcon }: AlertProps ): React.ReactElement {
 	const classes = classNames( styles.container, styles[ `is-${ level }` ] );
 
 	return (
@@ -56,15 +65,8 @@ function Alert( { level, children, showIcon } ) {
 	);
 }
 
-Alert.propTypes = {
-	level: PropTypes.oneOf( ALERT_LEVELS ),
-	children: PropTypes.oneOfType( [ PropTypes.arrayOf( PropTypes.node ), PropTypes.node ] ),
-	showIcon: PropTypes.bool,
-};
-
 Alert.defaultProps = {
 	level: LEVEL_WARNING,
-	children: '',
 	showIcon: true,
 };
 

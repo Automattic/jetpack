@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import Alert, { LEVEL_INFO } from '../index.jsx';
+import Alert, { LEVEL_INFO } from '../index';
 
 export default {
 	title: 'JS Packages/Components/Alert',
