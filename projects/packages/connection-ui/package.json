@@ -12,10 +12,10 @@
 	"license": "GPL-2.0-or-later",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client && pnpm run validate",
-		"build-client": "pnpx webpack",
+		"build-client": "webpack",
 		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es build/",
-		"watch": "pnpm run build && pnpx webpack watch"
+		"watch": "pnpm run build && webpack watch"
 	},
 	"browserslist": "extends @wordpress/browserslist-config",
 	"dependencies": {

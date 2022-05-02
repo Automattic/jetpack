@@ -18,11 +18,6 @@
 		&.icon {
 			padding: var(--spacing-base) calc( var(--spacing-base) * 2); // 8px - 16px
 		}
-
-		// With Spinner
-		& > :global(.components-spinner) {
-			height: 24px;
-		}
 	}
 
 	// Small Size & Font

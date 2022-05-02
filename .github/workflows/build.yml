@@ -59,7 +59,7 @@ jobs:
             mkdir "$BUILD_BASE"
             touch "$BUILD_BASE/mirrors.txt"
           else
-            pnpx jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"
+            pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"
           fi
 
       - name: Filter mirror list for release branch
