@@ -78,8 +78,8 @@ const Footer = () => {
 	);
 
 	return (
-		<Container horizontalSpacing={ 8 } horizontalGap={ 0 } className={ styles.wrapper }>
-			<Col className={ `${ styles.section } ${ styles.icons }` }>
+		<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
+			<Col className={ styles.icons }>
 				<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ true }>
 					<Col>
 						<IconsCard products={ [ 'backup', 'scan', 'anti-spam' ] } />
