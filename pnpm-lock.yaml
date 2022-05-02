@@ -243,7 +243,7 @@ importers:
       semver: ^7.3.5
     dependencies:
       '@mdn/browser-compat-data': 4.1.14
-      browserslist: 4.20.2
+      browserslist: 4.20.3
       debug: 4.3.4
       semver: 7.3.6
     devDependencies:
@@ -7476,7 +7476,7 @@ packages:
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/element': 4.5.0
       '@wordpress/warning': 2.7.0
-      browserslist: 4.20.2
+      browserslist: 4.20.3
       core-js: 3.21.1
     transitivePeerDependencies:
       - supports-color
@@ -9101,7 +9101,7 @@ packages:
     peerDependencies:
       postcss: ^8.1.0
     dependencies:
-      browserslist: 4.20.2
+      browserslist: 4.20.3
       caniuse-lite: 1.0.30001327
       fraction.js: 4.2.0
       normalize-range: 0.1.2
@@ -9117,7 +9117,7 @@ packages:
     peerDependencies:
       postcss: ^8.1.0
     dependencies:
-      browserslist: 4.20.2
+      browserslist: 4.20.3
       caniuse-lite: 1.0.30001327
       fraction.js: 4.2.0
       normalize-range: 0.1.2
@@ -9621,28 +9621,6 @@ packages:
       pako: 1.0.11
     dev: true
 
-  /browserslist/4.19.1:
-    resolution: {integrity: sha512-u2tbbG5PdKRTUoctO3NBD8FQ5HdPh1ZXPHzp1rwaa5jTc+RV9/+RlWiAIKmjRPQF+xbGM9Kklj5bZQFa2s/38A==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-    dependencies:
-      caniuse-lite: 1.0.30001327
-      electron-to-chromium: 1.4.106
-      escalade: 3.1.1
-      node-releases: 2.0.3
-      picocolors: 1.0.0
-
-  /browserslist/4.20.2:
-    resolution: {integrity: sha512-CQOBCqp/9pDvDbx3xfMi+86pr4KXIf2FDkTTdeuYw8OxS9t898LA1Khq57gtufFILXpfgsSx5woNgsBgvGjpsA==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-    dependencies:
-      caniuse-lite: 1.0.30001327
-      electron-to-chromium: 1.4.106
-      escalade: 3.1.1
-      node-releases: 2.0.3
-      picocolors: 1.0.0
-
   /browserslist/4.20.3:
     resolution: {integrity: sha512-NBhymBQl1zM0Y5dQT/O+xiLP9/rzOIQdKM/eMJBAq7yBgaB6krIYLGejrwVYnSHZdqjscB1SPuAjHwxjvN6Wdg==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
@@ -9819,6 +9797,7 @@ packages:
 
   /caniuse-lite/1.0.30001327:
     resolution: {integrity: sha512-1/Cg4jlD9qjZzhbzkzEaAC2JHsP0WrOc8Rd/3a3LuajGzGWR/hD7TVyvq99VqmTy99eVh8Zkmdq213OgvgXx7w==}
+    dev: true
 
   /caniuse-lite/1.0.30001335:
     resolution: {integrity: sha512-ddP1Tgm7z2iIxu6QTtbZUv6HJxSaV/PZeSrWFZtbY4JZ69tOeNhBCl3HyRQgeNZKE5AOn1kpV7fhljigy0Ty3w==}
@@ -10487,7 +10466,7 @@ packages:
   /core-js-compat/3.21.1:
     resolution: {integrity: sha512-gbgX5AUvMb8gwxC7FLVWYT7Kkgu/y7+h/h1X43yJkNqhlK2fuYyQimqvKGNZFAY6CKii/GFKJ2cp/1/42TN36g==}
     dependencies:
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       semver: 7.0.0
 
   /core-js-pure/3.21.1:
@@ -11323,9 +11302,6 @@ packages:
   /ee-first/1.1.1:
     resolution: {integrity: sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=}
     dev: true
-
-  /electron-to-chromium/1.4.106:
-    resolution: {integrity: sha512-ZYfpVLULm67K7CaaGP7DmjyeMY4naxsbTy+syVVxT6QHI1Ww8XbJjmr9fDckrhq44WzCrcC5kH3zGpdusxwwqg==}
 
   /electron-to-chromium/1.4.129:
     resolution: {integrity: sha512-GgtN6bsDtHdtXJtlMYZWGB/uOyjZWjmRDumXTas7dGBaB9zUyCjzHet1DY2KhyHN8R0GLbzZWqm4efeddqqyRQ==}
@@ -21488,7 +21464,7 @@ packages:
       '@webassemblyjs/wasm-parser': 1.11.1
       acorn: 8.7.0
       acorn-import-assertions: 1.8.0_acorn@8.7.0
-      browserslist: 4.20.2
+      browserslist: 4.20.3
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.9.2
       es-module-lexer: 0.9.3
