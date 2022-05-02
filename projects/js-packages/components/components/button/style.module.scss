@@ -6,6 +6,7 @@
 
 	border-radius: var(--jp-border-radius);
 	justify-content: center;
+	font-weight: 600;
 
 	// Normal Size & Font
 	&.normal {
@@ -43,9 +44,6 @@
 	// Primary & Secondary
 	&:global(.is-primary),
 	&:global(.is-secondary) {
-		// Font Weight
-		font-weight: 500;
-
 		// Disabled
 		&:disabled {
 			background: var(--jp-gray);
@@ -66,9 +64,6 @@
 	// LINK & EXTERNAL LINK
 
 	&:global(.is-link) {
-		// Font Weight
-		font-weight: 600;
-
 		// Normal & Small Spacing
 		&.normal,
 		&.small {
