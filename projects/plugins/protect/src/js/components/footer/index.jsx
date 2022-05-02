@@ -52,11 +52,7 @@ const FooterInfo = () => {
 					'jetpack-protect'
 				) }
 			</Text>
-			<Button
-				variant="external-link"
-				href={ learnMoreUrl }
-				className={ styles[ 'learn-more-link' ] }
-			>
+			<Button variant="external-link" href={ learnMoreUrl } weight="regular">
 				{ __( 'Learn more', 'jetpack-protect' ) }
 			</Button>
 		</div>
