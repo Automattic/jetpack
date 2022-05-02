@@ -83,6 +83,8 @@ class Nova_Restaurant {
 	 * Initialize class.
 	 *
 	 * @param array $menu_item_loop_markup Array of markup for the menu items.
+	 *
+	 * @return self
 	 */
 	public static function init( $menu_item_loop_markup = array() ) {
 		static $instance = false;
@@ -1098,9 +1100,9 @@ class Nova_Restaurant {
 			</td>
 			<td>
 				<?php if ( $term instanceof WP_Term ) { ?>
-				<a class="nova-move-menu-up" title="<?php esc_attr_e( 'Move menu section up', 'jetpack' ); ?>" href="<?php echo esc_url( $up_url ); ?>"><?php esc_html_e( 'UP', 'jetpack' ); ?></a>
+				<a class="nova-move-menu-up" title="<?php esc_attr_e( 'Move menu section up', 'jetpack' ); ?>" href="<?php echo esc_url( $up_url ); ?>"><?php echo esc_html_x( 'UP', 'indicates movement (up or down)', 'jetpack' ); ?></a>
 				<br />
-				<a class="nova-move-menu-down" title="<?php esc_attr_e( 'Move menu section down', 'jetpack' ); ?>" href="<?php echo esc_url( $down_url ); ?>"><?php esc_html_e( 'DOWN', 'jetpack' ); ?></a>
+				<a class="nova-move-menu-down" title="<?php esc_attr_e( 'Move menu section down', 'jetpack' ); ?>" href="<?php echo esc_url( $down_url ); ?>"><?php echo esc_html_x( 'DOWN', 'indicates movement (up or down)', 'jetpack' ); ?></a>
 				<?php } ?>
 			</td>
 		</tr>
@@ -1344,10 +1346,10 @@ class Nova_Restaurant {
 	 */
 	public function menu_item_price_meta_box( $post ) {
 		printf(
-			'<label for="nova-price-%1$s" class="screen-reader-text">%2$s</label><input type="text" id="nova-price-%1$s" class="widefat" name="nova_price[%1$s] value="%3$s" />',
+			'<label for="nova-price-%1$s" class="screen-reader-text">%2$s</label><input type="text" id="nova-price-%1$s" class="widefat" name="nova_price[%1$s]" value="%3$s" />',
 			(int) $post->ID,
 			esc_html__( 'Price', 'jetpack' ),
-			esc_attr( $this->get_price( $post->ID ) )
+			esc_attr( $this->get_price( (int) $post->ID ) )
 		);
 	}
 
@@ -1357,15 +1359,13 @@ class Nova_Restaurant {
 	 * @param int $post_id Post ID.
 	 */
 	public function add_post_meta( $post_id ) {
-		if ( ! isset( $_POST['nova_price'][ $post_id ] ) ) {
+		if ( ! isset( $_POST['nova_price'][ $post_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce handling happens via core, since we hook into wp_insert_post.
 			return;
 		}
 
-		check_admin_referer( 'nova_many_items' );
-
 		$this->set_price(
 			$post_id,
-			sanitize_meta( 'nova_price', wp_unslash( $_POST['nova_price'][ $post_id ] ), 'post' )
+			sanitize_meta( 'nova_price', wp_unslash( $_POST['nova_price'][ $post_id ] ), 'post' ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce handling happens via core, since we hook into wp_insert_post.
 		);
 	}
 
@@ -1497,9 +1497,7 @@ class Nova_Restaurant {
 	 * @return int|bool
 	 */
 	private function set_price( $post_id = 0, $price = '' ) {
-		$post = get_post( $post_id );
-
-		return update_post_meta( $post->ID, 'nova_price', $price );
+		return update_post_meta( $post_id, 'nova_price', $price );
 	}
 
 	/**
@@ -1510,9 +1508,7 @@ class Nova_Restaurant {
 	 * @return bool|string
 	 */
 	private function get_price( $post_id = 0 ) {
-		$post = get_post( $post_id );
-
-		return get_post_meta( $post->ID, 'nova_price', true );
+		return get_post_meta( $post_id, 'nova_price', true );
 	}
 
 	/**
