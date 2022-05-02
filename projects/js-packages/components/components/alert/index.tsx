@@ -25,7 +25,7 @@ type AlertProps = {
 	level: typeof LEVEL_ERROR | typeof LEVEL_WARNING | typeof LEVEL_INFO | typeof LEVEL_SUCCESS;
 
 	/** Children to be rendered inside the alert. */
-	children: React.ReactElement | string;
+	children: React.ReactNode;
 
 	showIcon?: boolean;
 };
