@@ -30,22 +30,24 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				disabled={ numCoreVulnerabilities <= 0 }
 			/>
 			<NavigationGroup label={ __( 'Plugins', 'jetpack-protect' ) } icon={ pluginsIcon }>
-				{ plugins.map( ( { name, vulnerabilities } ) => (
+				{ plugins.map( ( { name, vulnerabilities, notChecked } ) => (
 					<NavigationItem
 						key={ name }
 						id={ name }
 						label={ name }
+						notChecked={ notChecked }
 						badge={ vulnerabilities?.length }
 						disabled={ vulnerabilities?.length <= 0 }
 					/>
 				) ) }
 			</NavigationGroup>
 			<NavigationGroup label={ __( 'Themes', 'jetpack-protect' ) } icon={ color }>
-				{ themes.map( ( { name, vulnerabilities } ) => (
+				{ themes.map( ( { name, vulnerabilities, notChecked } ) => (
 					<NavigationItem
 						key={ name }
 						id={ name }
 						label={ name }
+						notChecked={ notChecked }
 						badge={ vulnerabilities?.length }
 						disabled={ vulnerabilities?.length <= 0 }
 					/>

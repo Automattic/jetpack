@@ -18,6 +18,7 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
  * Internal dependencies
  */
 import styles from './styles.module.scss';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { SECURITY_BUNDLE } from '../admin-page';
 
 const Footer = () => {
@@ -29,6 +30,12 @@ const Footer = () => {
 		productSlug: SECURITY_BUNDLE,
 		redirectUrl: adminUrl,
 	} );
+
+	const { recordEventHandler } = useAnalyticsTracks();
+	const getSecurityBundle = recordEventHandler(
+		'jetpack_protect_footer_get_security_link_click',
+		run
+	);
 
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 0 } fluid={ false }>
@@ -44,7 +51,7 @@ const Footer = () => {
 					) }
 				</Text>
 
-				<Button variant="secondary" onClick={ run } isLoading={ hasCheckoutStarted }>
+				<Button variant="secondary" onClick={ getSecurityBundle } isLoading={ hasCheckoutStarted }>
 					{ __( 'Get Jetpack Security', 'jetpack-protect' ) }
 				</Button>
 			</Col>

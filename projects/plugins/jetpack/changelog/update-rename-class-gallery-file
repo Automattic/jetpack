@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Renaming class file to comply with class naming rules in phpcs.

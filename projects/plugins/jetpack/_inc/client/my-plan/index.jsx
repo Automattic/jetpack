@@ -13,7 +13,6 @@ import {
 	getAvailableFeatures,
 	getSitePlan,
 	getSitePurchases,
-	hasActiveSearchPurchase,
 } from 'state/site';
 import QuerySite from 'components/data/query-site';
 import { getSiteConnectionStatus } from 'state/connection';
@@ -45,7 +44,6 @@ export function MyPlan( props ) {
 			<MyPlanBody
 				activeFeatures={ activeFeatures }
 				availableFeatures={ availableFeatures }
-				hasActiveSearchPurchase={ props.hasActiveSearchPurchase }
 				plan={ sitePlan }
 				rewindStatus={ props.rewindStatus }
 				siteAdminUrl={ props.siteAdminUrl }
@@ -61,7 +59,6 @@ export default connect( state => {
 		activeProducts: getActiveProductPurchases( state ),
 		availableFeatures: getAvailableFeatures( state ),
 		getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
-		hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
 		purchases: getSitePurchases( state ),
 		sitePlan: getSitePlan( state ),
 	};
