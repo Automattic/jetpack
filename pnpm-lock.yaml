@@ -541,7 +541,7 @@ importers:
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/dependency-extraction-webpack-plugin': 3.4.1
       babel-loader: 8.2.4
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       css-loader: 6.5.1
       css-minimizer-webpack-plugin: 3.1.4
       duplicate-package-checker-webpack-plugin: 3.0.0
@@ -567,7 +567,7 @@ importers:
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/dependency-extraction-webpack-plugin': 3.4.1_webpack@5.65.0
       babel-loader: 8.2.4_609d5772f83284a93f69f48cce82773c
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       css-loader: 6.5.1_webpack@5.65.0
       css-minimizer-webpack-plugin: 3.1.4_webpack@5.65.0
       duplicate-package-checker-webpack-plugin: 3.0.0
@@ -2152,7 +2152,7 @@ packages:
       '@babel/compat-data': 7.17.7
       '@babel/core': 7.16.12
       '@babel/helper-validator-option': 7.16.7
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       semver: 6.3.0
     dev: true
 
@@ -2165,7 +2165,7 @@ packages:
       '@babel/compat-data': 7.17.7
       '@babel/core': 7.17.9
       '@babel/helper-validator-option': 7.16.7
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       semver: 6.3.0
 
   /@babel/helper-create-class-features-plugin/7.17.9_@babel+core@7.16.12:
@@ -9643,6 +9643,17 @@ packages:
       node-releases: 2.0.3
       picocolors: 1.0.0
 
+  /browserslist/4.20.3:
+    resolution: {integrity: sha512-NBhymBQl1zM0Y5dQT/O+xiLP9/rzOIQdKM/eMJBAq7yBgaB6krIYLGejrwVYnSHZdqjscB1SPuAjHwxjvN6Wdg==}
+    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
+    hasBin: true
+    dependencies:
+      caniuse-lite: 1.0.30001335
+      electron-to-chromium: 1.4.129
+      escalade: 3.1.1
+      node-releases: 2.0.3
+      picocolors: 1.0.0
+
   /bs-logger/0.2.6:
     resolution: {integrity: sha512-pd8DCoxmbgc7hyPKOvxtqNcjYoOsABPQdcCUjGp3d42VR2CX1ORhk2A87oqqu5R1kk+76nsxZupkmyd+MVtCog==}
     engines: {node: '>= 6'}
@@ -9801,13 +9812,16 @@ packages:
   /caniuse-api/3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
-      browserslist: 4.19.1
-      caniuse-lite: 1.0.30001327
+      browserslist: 4.20.3
+      caniuse-lite: 1.0.30001335
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
 
   /caniuse-lite/1.0.30001327:
     resolution: {integrity: sha512-1/Cg4jlD9qjZzhbzkzEaAC2JHsP0WrOc8Rd/3a3LuajGzGWR/hD7TVyvq99VqmTy99eVh8Zkmdq213OgvgXx7w==}
+
+  /caniuse-lite/1.0.30001335:
+    resolution: {integrity: sha512-ddP1Tgm7z2iIxu6QTtbZUv6HJxSaV/PZeSrWFZtbY4JZ69tOeNhBCl3HyRQgeNZKE5AOn1kpV7fhljigy0Ty3w==}
 
   /capture-exit/2.0.0:
     resolution: {integrity: sha512-PiT/hQmTonHhl/HFGN+Lx3JJUznrVYJ3+AQsnthneZbvW7x+f08Tk7yLJTLEOUvBTbduLeeBkxEaYXUOUrRq6g==}
@@ -11312,6 +11326,9 @@ packages:
 
   /electron-to-chromium/1.4.106:
     resolution: {integrity: sha512-ZYfpVLULm67K7CaaGP7DmjyeMY4naxsbTy+syVVxT6QHI1Ww8XbJjmr9fDckrhq44WzCrcC5kH3zGpdusxwwqg==}
+
+  /electron-to-chromium/1.4.129:
+    resolution: {integrity: sha512-GgtN6bsDtHdtXJtlMYZWGB/uOyjZWjmRDumXTas7dGBaB9zUyCjzHet1DY2KhyHN8R0GLbzZWqm4efeddqqyRQ==}
 
   /elegant-spinner/1.0.1:
     resolution: {integrity: sha1-2wQ1IcldfjA/2PNFvtwzSc+wcp4=}
@@ -17273,7 +17290,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       caniuse-api: 3.0.0
       colord: 2.9.2
       postcss: 8.4.12
@@ -17374,7 +17391,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       caniuse-api: 3.0.0
       cssnano-utils: 3.1.0_postcss@8.4.12
       postcss: 8.4.12
@@ -17406,7 +17423,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       cssnano-utils: 3.1.0_postcss@8.4.12
       postcss: 8.4.12
       postcss-value-parser: 4.2.0
@@ -17573,7 +17590,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       postcss: 8.4.12
       postcss-value-parser: 4.2.0
 
@@ -17612,7 +17629,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       caniuse-api: 3.0.0
       postcss: 8.4.12
 
@@ -20235,7 +20252,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.19.1
+      browserslist: 4.20.3
       postcss: 8.4.12
       postcss-selector-parser: 6.0.10
 
