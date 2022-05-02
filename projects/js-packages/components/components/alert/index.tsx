@@ -22,7 +22,7 @@ export const ALERT_LEVELS = [ LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_SUCC
 
 type AlertProps = {
 	/** The severity of the alert. */
-	level: typeof LEVEL_ERROR | typeof LEVEL_WARNING | typeof LEVEL_INFO | typeof LEVEL_SUCCESS;
+	level: typeof ALERT_LEVELS[ number ];
 
 	/** Children to be rendered inside the alert. */
 	children: React.ReactNode;
