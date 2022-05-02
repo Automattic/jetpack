@@ -17,6 +17,8 @@ class Jetpack_Testimonial {
 
 	/**
 	 * Initialize class.
+	 *
+	 * @return self
 	 */
 	public static function init() {
 		static $instance = false;
@@ -201,7 +203,8 @@ class Jetpack_Testimonial {
 	/**
 	 * Add to REST API post type allowed list.
 	 *
-	 *  @param array $post_types Array of post types to add to the allowed list. Default to `array( 'post', 'page', 'revision' )`.
+	 *  @param array $post_types Array of allowed post types.
+	 * @return array `$post_types` with our type added.
 	 */
 	public function allow_cpt_rest_api_type( $post_types ) {
 		$post_types[] = self::CUSTOM_POST_TYPE;
@@ -363,6 +366,7 @@ class Jetpack_Testimonial {
 	 * Update messages for the Testimonial admin.
 	 *
 	 * @param array $messages Existing post update messages.
+	 * @return array Updated `$messages`.
 	 */
 	public function updated_messages( $messages ) {
 		global $post;
@@ -416,6 +420,7 @@ class Jetpack_Testimonial {
 	 * Change ‘Enter Title Here’ text for the Testimonial.
 	 *
 	 * @param string $title Placeholder text. Default 'Add title'.
+	 * @param string Replacement title.
 	 */
 	public function change_default_title( $title ) {
 		if ( self::CUSTOM_POST_TYPE === get_post_type() ) {
@@ -429,6 +434,7 @@ class Jetpack_Testimonial {
 	 * Change ‘Title’ column label on all Testimonials page.
 	 *
 	 * @param array $columns An array of column names.
+	 * @return array Updated array.
 	 */
 	public function edit_title_column_label( $columns ) {
 		$columns['title'] = esc_html__( 'Customer Name', 'jetpack' );
@@ -454,6 +460,7 @@ class Jetpack_Testimonial {
 	 * If Infinite Scroll is set to 'click', use our custom reading setting instead of core's `posts_per_page`.
 	 *
 	 * @param array $settings Array of Infinite Scroll settings.
+	 * @return array Updated `$settings`.
 	 */
 	public function infinite_scroll_click_posts_per_page( $settings ) {
 		global $wp_query;
@@ -469,6 +476,7 @@ class Jetpack_Testimonial {
 	 * Add CPT to Dotcom sitemap
 	 *
 	 * @param array $post_types Array of post types included in sitemap.
+	 * @return array Updated `$post_types`.
 	 */
 	public function add_to_sitemap( $post_types ) {
 		$post_types[] = self::CUSTOM_POST_TYPE;
@@ -478,6 +486,8 @@ class Jetpack_Testimonial {
 
 	/**
 	 * Count the number of published testimonials.
+	 *
+	 * @return int
 	 */
 	private function count_testimonials() {
 		$testimonials = get_transient( 'jetpack-testimonial-count-cache' );
@@ -597,6 +607,7 @@ class Jetpack_Testimonial {
 	 * Add Featured image to theme mod if necessary.
 	 *
 	 * @param array $opt The value of the current theme modification.
+	 * @return array Updated `$opt`.
 	 */
 	public function coerce_testimonial_image_to_url( $opt ) {
 		if ( ! $opt || ! is_array( $opt ) ) {
@@ -618,7 +629,7 @@ class Jetpack_Testimonial {
 	 *
 	 * @param array $atts Shortcode attributes.
 	 *
-	 * @return jetpack_testimonial_shortcode_html
+	 * @return string HTML from `self::jetpack_testimonial_shortcode_html()`.
 	 */
 	public static function jetpack_testimonial_shortcode( $atts ) {
 		// Default attributes.
@@ -693,7 +704,7 @@ class Jetpack_Testimonial {
 	 *
 	 * @param array $atts Shortcode attributes.
 	 *
-	 * @return html
+	 * @return string html
 	 */
 	private static function jetpack_testimonial_shortcode_html( $atts ) {
 		// Default query arguments
@@ -818,7 +829,7 @@ class Jetpack_Testimonial {
 	 *
 	 * @param int $post_id Post ID.
 	 *
-	 * @return html
+	 * @return string html
 	 */
 	private static function get_testimonial_thumbnail_link( $post_id ) {
 		if ( has_post_thumbnail( $post_id ) ) {
@@ -848,6 +859,7 @@ function jetpack_testimonial_custom_control_classes() {
 		 * Sanitize content passed to control.
 		 *
 		 * @param string $value Control value.
+		 * @return string Sanitized value.
 		 */
 		public static function sanitize_content( $value ) {
 			if ( '' != $value ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
@@ -885,6 +897,7 @@ function jetpack_testimonial_custom_control_classes() {
 		 * Sanitize content passed to control.
 		 *
 		 * @param string $value Control value.
+		 * @return string Sanitized value.
 		 */
 		public static function sanitize_content( $value ) {
 			if ( ! empty( $value ) ) {
