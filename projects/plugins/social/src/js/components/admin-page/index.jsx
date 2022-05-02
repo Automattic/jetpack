@@ -134,8 +134,6 @@ export default Admin;
 const ConnectionSection = () => {
 	const { apiNonce, apiRoot, registrationNonce } = window.jetpackSocialInitialState;
 
-	// const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
-
 	return (
 		<ConnectScreen
 			buttonLabel={ __( 'Connect Jetpack Social', 'jetpack-social' ) }
