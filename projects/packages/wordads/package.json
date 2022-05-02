@@ -27,7 +27,7 @@
 		"test": "concurrently 'pnpm:test-scripts'",
 		"test-scripts": "jest --passWithNoTests",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
-		"watch": "concurrently 'pnpm:build-dashboard -- --watch'"
+		"watch": "concurrently 'pnpm:build-dashboard --watch'"
 	},
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",

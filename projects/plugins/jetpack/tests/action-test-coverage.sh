@@ -11,7 +11,7 @@ pnpm nyc --reporter=clover -x '_inc/**/**/test/*.js' --report-dir="$COVERAGE_DIR
 echo "::endgroup::"
 
 echo "::group::Jetpack Extensions coverage"
-pnpm run test-extensions -- --coverage --collectCoverageFrom='extensions/**/*.js' --coverageDirectory="$COVERAGE_DIR/extensions" --coverageReporters=clover
+pnpm run test-extensions --coverage --collectCoverageFrom='extensions/**/*.js' --coverageDirectory="$COVERAGE_DIR/extensions" --coverageReporters=clover
 echo "::endgroup::"
 
 cd "$PLUGINDIR"
