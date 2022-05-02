@@ -91,10 +91,15 @@ class REST_Controller {
 		$publicize_active_updated = ( new Modules() )->update_status( \Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, $publicize_active, false, false );
 
 		if ( is_wp_error( $publicize_active_updated ) ) {
+			/**
+			 * Return an error if some settings didn't update. The error name
+			 * and message are intentionally generic to allow for updating more
+			 * settings in the future.
+			 */
 			return new WP_Error(
-				'some_updated',
+				'some_not_updated',
 				sprintf(
-					/* translators: %s are the setting name that not updated. */
+					/* translators: %s are the setting name(s) that did not update. */
 					__( 'Some settings ( %s ) not updated.', 'jetpack-social' ),
 					\Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG
 				),
