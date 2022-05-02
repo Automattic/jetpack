@@ -15,6 +15,8 @@ class Jetpack_Comic {
 
 	/**
 	 * Initialize the class.
+	 *
+	 * @return self
 	 */
 	public static function init() {
 		static $instance = false;
@@ -93,6 +95,8 @@ class Jetpack_Comic {
 
 	/**
 	 * Enqueue JavaScript in the footer.
+	 *
+	 * @return void
 	 */
 	public function admin_footer() {
 		$post_type = get_post_type();
@@ -121,6 +125,8 @@ class Jetpack_Comic {
 
 	/**
 	 * Handle the "Convert to [Post|Comic]" bulk action.
+	 *
+	 * @return void
 	 */
 	public function bulk_edit() {
 		if ( empty( $_REQUEST['post'] ) ) {
@@ -185,6 +191,8 @@ class Jetpack_Comic {
 
 	/**
 	 * Show the post conversion success notice.
+	 *
+	 * @return void
 	 */
 	public function bulk_edit_notices() {
 		global $pagenow;
@@ -219,6 +227,8 @@ class Jetpack_Comic {
 
 	/**
 	 * Enqueue scripts and styles.
+	 *
+	 * @return void
 	 */
 	public function register_scripts() {
 		wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ), array(), JETPACK__VERSION );
@@ -363,6 +373,8 @@ class Jetpack_Comic {
 	 *
 	 * @see https://core.trac.wordpress.org/ticket/19744
 	 * @param string $permalink The existing (possibly pretty) permalink.
+	 *
+	 * @return string The permalink to use.
 	 */
 	public function custom_permalink_for_feedbag( $permalink ) {
 		global $post;
@@ -386,6 +398,8 @@ class Jetpack_Comic {
 	 * Update messages for the Comic admin.
 	 *
 	 * @param array $messages Existing post update messages.
+	 *
+	 * @return array $messages Amended post update messages.
 	 */
 	public function updated_messages( $messages ) {
 		global $post;
@@ -438,6 +452,8 @@ class Jetpack_Comic {
 
 	/**
 	 * Should this Custom Post Type be made available?
+	 *
+	 * @return bool
 	 */
 	public function site_supports_comics() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -496,6 +512,8 @@ class Jetpack_Comic {
 	 * Anywhere that a feed is displaying posts, show comics too.
 	 *
 	 * @param WP_Query $query The current query.
+	 *
+	 * @return void
 	 */
 	public function include_in_feeds( $query ) {
 		if ( ! $query->is_feed() ) {
@@ -646,6 +664,8 @@ class Jetpack_Comic {
 	 * Add comic posts to the tag and category pages.
 	 *
 	 * @param WP_Query $query Post query.
+	 *
+	 * @return WP_Query
 	 */
 	public function add_posts_to_loop( $query ) {
 		if ( ! is_admin() && $query->is_main_query() && ( $query->is_category() || $query->is_tag() ) ) {
@@ -666,7 +686,9 @@ class Jetpack_Comic {
 	/**
 	 * Add to REST API post type allowed list.
 	 *
-	 * @param array $post_types Array of post types to add to the allowed list. Default to `array( 'post', 'page', 'revision' )`.
+	 * @param array $post_types Array of post types to add to the allowed list.
+	 *
+	 * @return array
 	 */
 	public function allow_rest_api_type( $post_types ) {
 		$post_types[] = self::POST_TYPE;
@@ -686,6 +708,8 @@ add_action( 'init', array( 'Jetpack_Comic', 'init' ) );
  * @param string $password      User password, or "N/A" if the user account is not new.
  * @param string $title         Site title.
  * @param array  $meta          Signup meta data. By default, contains the requested privacy setting and lang id.
+ *
+ * @return string
  */
 function comics_welcome_email( $welcome_email, $blog_id, $user_id, $password, $title, $meta ) {
 	if ( ( isset( $meta['vertical'] ) && 'comics' === $meta['vertical'] ) || has_blog_sticker( 'vertical-comics', $blog_id ) ) {
