@@ -69,8 +69,8 @@ class DashBackups extends Component {
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
+		hasBackups: PropTypes.bool.isRequired,
 		hasRealTimeBackups: PropTypes.bool.isRequired,
-		hasVaultPressBackups: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
@@ -178,7 +178,7 @@ class DashBackups extends Component {
 
 	getVPContent() {
 		const {
-			hasVaultPressBackups,
+			hasBackups,
 			isFetchingSite,
 			isVaultPressInstalled,
 			getOptionValue,
@@ -210,7 +210,7 @@ class DashBackups extends Component {
 
 		if ( ! isFetchingSite ) {
 			// If site has a paid plan
-			if ( hasVaultPressBackups ) {
+			if ( hasBackups ) {
 				return renderCard( {
 					className: 'jp-dash-item__is-inactive',
 					status: isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled',
@@ -380,7 +380,6 @@ export default connect(
 			isFetchingSite: isFetchingSiteData( state ),
 			hasBackups: hasActiveSiteFeature( state, 'backups' ),
 			hasRealTimeBackups: hasActiveSiteFeature( state, 'real-time-backups' ),
-			hasVaultPressBackups: hasActiveSiteFeature( state, 'vaultpress-backups' ),
 			partnerCoupon: getPartnerCoupon( state ),
 		};
 	},
