@@ -324,7 +324,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "5751ff3191734375ecbbcfc59ff1e73bb82999a8"
+                "reference": "a4ecc94e298664a623d5b9e5568b4f0af4263cfc"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -363,6 +363,12 @@
                 ]
             },
             "scripts": {
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
