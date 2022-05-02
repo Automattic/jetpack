@@ -134,7 +134,7 @@ class Jetpack_Social {
 			'apiNonce'                         => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'                => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'connections'                      => $publicize->get_all_connections_for_user(),
-			'jetpackSocialConnectionsAdminUrl' => $publicize->jetpack_social_connections_admin_url(),
+			'jetpackSocialConnectionsAdminUrl' => $publicize->publicize_calypso_url( 'jetpack-social-connections-admin-page' ),
 		);
 	}
 

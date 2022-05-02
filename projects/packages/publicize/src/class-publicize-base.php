@@ -1435,29 +1435,19 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Get Jetpack Cloud URL for Publicize connections.
+	 * Get Calypso URL for Publicize connections.
 	 *
+	 * @param string $source The idenfitier of the place the function is called from.
 	 * @return string
 	 */
-	public function jetpack_social_connections_admin_url() {
-		return Redirect::get_url( 'jetpack-social-connections-admin-page', array( 'site' => ( new Status() )->get_site_suffix() ) );
+	public function publicize_calypso_url( $source = null ) {
+		switch ( $source ) {
+			case 'jetpack-social-connections-admin-page':
+				return Redirect::get_url( 'jetpack-social-connections-admin-page', array( 'site' => ( new Status() )->get_site_suffix() ) );
+			case 'jetpack-social-connections-classic-editor':
+				return Redirect::get_url( 'jetpack-social-connections-classic-editor', array( 'site' => ( new Status() )->get_site_suffix() ) );
+			default:
+				return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
+		}
 	}
-}
-
-/**
- * Get Calypso URL for Publicize connections.
- *
- * @return string
- */
-function publicize_calypso_url() {
-	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
-}
-
-/**
- * Get Jetpack Cloud URL for Publicize connections.
- *
- * @return string
- */
-function jetpack_social_connections_classic_editor_url() {
-	return Redirect::get_url( 'jetpack-social-connections-classic-editor', array( 'site' => ( new Status() )->get_site_suffix() ) );
 }
