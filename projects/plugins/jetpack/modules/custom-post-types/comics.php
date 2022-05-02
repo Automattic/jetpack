@@ -191,7 +191,7 @@ class Jetpack_Comic {
 
 		if (
 			empty( $_GET['bulk_edit_comics_nonce'] )
-			|| wp_verify_nonce( sanitize_key( $_GET['bulk_edit_comics_nonce'] ), 'bulk-edit-comics-nonce' )
+			|| ! wp_verify_nonce( sanitize_key( $_GET['bulk_edit_comics_nonce'] ), 'bulk-edit-comics-nonce' )
 		) {
 			return;
 		}
