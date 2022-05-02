@@ -19,7 +19,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 		1: {
 			id: 1,
 			message: __(
-				"We weren't able to properly locate your content for Search",
+				"Search was unable to index your content Jetpack's servers ran into a problem when trying to communicate with your site, which is needed for Search to work properly.",
 				'jetpack-search-pkg'
 			),
 			isImportant: true,
@@ -40,7 +40,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 			message: sprintf(
 				// translators: %s: site's current plan record limit
 				__(
-					'You recently surpassed %d records and will be automatically upgraded to the next billing tier',
+					'You recently surpassed %d records and will be automatically upgraded to the next billing tier <p> learn more <p>',
 					'jetpack-search-pkg'
 				),
 				tierMaximumRecords
@@ -55,7 +55,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 			message: sprintf(
 				// translators: %s: site's current plan record limit
 				__(
-					"You're close to the max amount of records for this billing tier. Once you hit %s indexed records, you'll automatically be billed for the next tier",
+					"You're close to the max amount of records for this billing tier. Once you hit %s indexed records, you'll automatically be billed for <br> the next tier <p> learn more <p>",
 					'jetpack-search-pkg'
 				),
 				tierMaximumRecords
