@@ -1441,13 +1441,8 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function publicize_calypso_url( $source = null ) {
-		switch ( $source ) {
-			case 'jetpack-social-connections-admin-page':
-				return Redirect::get_url( 'jetpack-social-connections-admin-page', array( 'site' => ( new Status() )->get_site_suffix() ) );
-			case 'jetpack-social-connections-classic-editor':
-				return Redirect::get_url( 'jetpack-social-connections-classic-editor', array( 'site' => ( new Status() )->get_site_suffix() ) );
-			default:
-				return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
-		}
+		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
+		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
+		return Redirect::get_url( $source, array( 'site' => ( new Status() )->get_site_suffix() ) );
 	}
 }
