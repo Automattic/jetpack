@@ -47,8 +47,8 @@ class Waf_Runner {
 	 */
 	public static function define_share_data() {
 		if ( ! defined( 'JETPACK_WAF_SHARE_DATA' ) ) {
-			$mode_option = get_option( self::SHARE_DATA_OPTION_NAME, false );
-			define( 'JETPACK_WAF_SHARE_DATA', $mode_option );
+			$share_data_option = get_option( self::SHARE_DATA_OPTION_NAME, false );
+			define( 'JETPACK_WAF_SHARE_DATA', $share_data_option );
 		}
 	}
 
