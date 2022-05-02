@@ -131,6 +131,7 @@ const ConnectionStatusCard = props => {
 					{ __( 'Site connected.', 'jetpack' ) }&nbsp;
 					<Button
 						variant="link"
+						weight="regular"
 						onClick={ openDisconnectDialog }
 						className="jp-connection__disconnect-dialog__link"
 					>

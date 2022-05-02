@@ -93,6 +93,7 @@ function PlanSectionFooter( { purchases } ) {
 					onClick={ purchaseClickHandler }
 					href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
 					variant="external-link"
+					weight="regular"
 				>
 					{ planLinkDescription }
 				</Button>
@@ -104,6 +105,7 @@ function PlanSectionFooter( { purchases } ) {
 						onClick={ activateLicenseClickHandler }
 						href={ `${ window?.myJetpackInitialState?.adminUrl }admin.php?page=my-jetpack#/add-license` }
 						variant="link"
+						weight="regular"
 					>
 						{ __( 'Activate a license', 'jetpack-my-jetpack' ) }
 					</Button>
