@@ -18,7 +18,7 @@ export const LEVEL_WARNING = 'warning';
 export const LEVEL_INFO = 'info';
 export const LEVEL_SUCCESS = 'success';
 
-export const ALERT_LEVELS = [ LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_SUCCESS ];
+export const ALERT_LEVELS = [ LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_SUCCESS ] as const;
 
 type AlertProps = {
 	/** The severity of the alert. */
@@ -27,6 +27,7 @@ type AlertProps = {
 	/** Children to be rendered inside the alert. */
 	children: React.ReactNode;
 
+	/** Show/Hide icon */
 	showIcon?: boolean;
 };
 
