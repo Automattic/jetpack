@@ -420,7 +420,7 @@ class Jetpack_Testimonial {
 	 * Change ‘Enter Title Here’ text for the Testimonial.
 	 *
 	 * @param string $title Placeholder text. Default 'Add title'.
-	 * @param string Replacement title.
+	 * @return string Replacement title.
 	 */
 	public function change_default_title( $title ) {
 		if ( self::CUSTOM_POST_TYPE === get_post_type() ) {
