@@ -74,7 +74,7 @@
 	"homepage": "https://jetpack.com/boost/",
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
