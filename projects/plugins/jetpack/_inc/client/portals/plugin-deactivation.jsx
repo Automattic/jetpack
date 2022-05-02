@@ -34,6 +34,7 @@ import JetpackBenefits from '../components/jetpack-benefits';
  * @param {object} props - The props object for the component.
  * @param {string} props.apiRoot - Root URL for the API, which is required by the <DisconnectDialog/> component.
  * @param {string} props.apiNonce - Nonce value for the API, which is required by the <DisconnectDialog/> component.
+ * @param {object} props.connectedPlugins - An object of plugins that are using the Jetpack connection.
  * @param {Array} props.siteBenefits - An array of benefits provided by Jetpack.
  * @param {string} props.pluginUrl - The URL of the plugin directory.
  * @returns {React.Component} - The PluginDeactivation component.
@@ -42,8 +43,10 @@ const PluginDeactivation = props => {
 	const {
 		apiRoot,
 		apiNonce,
+		connectedPlugins,
 		siteBenefits,
 		connectionUserData,
+		fetchConnectedPlugins,
 		fetchSiteBenefits,
 		fetchUserConnectionData,
 	} = props;
@@ -51,13 +54,15 @@ const PluginDeactivation = props => {
 
 	useEffect( () => {
 		fetchSiteBenefits();
+		fetchConnectedPlugins();
 		fetchUserConnectionData();
-	}, [ fetchSiteBenefits, fetchUserConnectionData ] );
+	}, [ fetchSiteBenefits, fetchConnectedPlugins, fetchUserConnectionData ] );
 
 	// Modify the deactivation link.
 	const deactivationLink = document.querySelector( '#deactivate-jetpack, #deactivate-jetpack-dev' ); // ID set by WP on the deactivation link.
 
 	deactivationLink.setAttribute( 'title', __( 'Deactivate Jetpack', 'jetpack' ) );
+	deactivationLink.textContent = __( 'Disconnect and Deactivate', 'jetpack' );
 
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -93,16 +98,15 @@ const PluginDeactivation = props => {
 	}, [ deactivationLink ] );
 
 	const disconnectStepComponent = siteBenefits ? (
-		<JetpackBenefits siteBenefits={ siteBenefits } context="deactivate" />
+		<JetpackBenefits siteBenefits={ siteBenefits } />
 	) : null;
 
 	return (
 		<PortalSidecar>
 			<DisconnectDialog
-				title={ __( 'Are you sure you want to deactivate?', 'jetpack' ) }
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
-				connectedPlugins={ [] } // We no longer disconnect Jetpack if other plugins are active, so no need to warn.
+				connectedPlugins={ connectedPlugins }
 				connectedUser={ {
 					ID: connectionUserData?.ID,
 					login: connectionUserData?.login,

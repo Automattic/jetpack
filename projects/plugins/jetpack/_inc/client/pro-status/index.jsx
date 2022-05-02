@@ -13,7 +13,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import { getPlanClass } from 'lib/plans/constants';
 import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getVaultPressScanThreatCount,
@@ -308,7 +307,6 @@ export default connect( state => {
 		getAkismetData: () => getAkismetData( state ),
 		isFetchingVaultPressData: isFetchingVaultPressData( state ),
 		sitePlan,
-		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		fetchingPluginsData: isFetchingPluginsData( state ),
 		pluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		pluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
