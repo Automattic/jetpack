@@ -24,10 +24,10 @@
 		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build",
 		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"clean": "rm -rf build/ .cache/",
-		"test": "pnpx concurrently 'pnpm:test-scripts'",
+		"test": "concurrently 'pnpm:test-scripts'",
 		"test-scripts": "jest --passWithNoTests",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
-		"watch": "pnpx concurrently 'pnpm:build-dashboard -- --watch'"
+		"watch": "concurrently 'pnpm:build-dashboard -- --watch'"
 	},
 	"dependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",
