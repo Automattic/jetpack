@@ -10,7 +10,7 @@
 
 .actions-list {
 	li {
-		line-height: 24px;
-		margin: 0 0 8px 0;
+		line-height: calc( var( --spacing-base ) * 3 );
+		margin: 0 0 var( --spacing-base ) 0;
 	}
 }
