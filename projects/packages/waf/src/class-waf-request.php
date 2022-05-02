@@ -78,6 +78,8 @@ class Waf_Request {
 			}
 		}
 
+		echo "IP Address: $remote_addr";
+
 		return $remote_addr;
 	}
 
