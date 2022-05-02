@@ -3,7 +3,7 @@
 }
 
 .jp-search-chart-legend__box {
-	margin-right: 3px;
+	margin-right: 5px;
 	margin-left: 0;
 	width: 15px;
 	height: 15px;
@@ -18,7 +18,7 @@
 }
 
 ul.jp-search-chart-legend {
-	padding-left: 0;
+	padding: 0;
 }
 
 .jp-search-chart-legend li {
@@ -26,10 +26,13 @@ ul.jp-search-chart-legend {
 	padding-bottom: 5px;
 }
 
+.jp-search-chart-legend__count {
+	padding-right: 10px;
+}
+
 .jp-search-chart-legend li .jp-search-chart-legend__label,
 .jp-search-chart-legend li .jp-search-chart-legend__count {
 	max-width: 200px;
-	padding-right: 3px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
