@@ -20,12 +20,12 @@ These tests are using the [e2e commons package](../../../../../tools/e2e-commons
 
 ## Pre-requisites
 
-- Make sure you built Jetpack first `pnpm install && pnpx jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
+- Make sure you built Jetpack first `pnpm install && pnpm jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
 
 ```shell
 # run in the monorepo root
 pnpm install
-pnpx jetpack build plugins/jetpack
+pnpm jetpack build plugins/jetpack
 ```
 
 ## Environment setup

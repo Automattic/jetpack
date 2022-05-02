@@ -525,7 +525,7 @@ async function createComposerJson( composerJson, answers ) {
 		case 'js-package':
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
+				'test-coverage': [ 'pnpm nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
 			};
 	}
 }

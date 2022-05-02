@@ -14,11 +14,11 @@
 		"build-customberg": "webpack --config ./tools/webpack.customberg.config.js",
 		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"clean": "rm -rf build/ .cache/",
-		"test": "pnpx concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
+		"test": "concurrently 'pnpm:test-scripts' 'pnpm:test-size'",
 		"test-scripts": "jest --passWithNoTests",
 		"test-size": "NODE_ENV=production BABEL_ENV=production pnpm run build-instant && size-limit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
-		"watch": "pnpx concurrently 'pnpm:build-instant -- --watch' 'pnpm:build-customberg -- --watch' 'pnpm:build-dashboard -- --watch'"
+		"watch": "concurrently 'pnpm:build-instant -- --watch' 'pnpm:build-customberg -- --watch' 'pnpm:build-dashboard -- --watch'"
 	},
 	"repository": {
 		"type": "git",

@@ -19,7 +19,7 @@
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "true",
 		"validate": "pnpm exec validate-es build/",
-		"watch": "pnpm run build && pnpx webpack watch"
+		"watch": "pnpm run build && webpack watch"
 	},
 	"browserslist": "extends @wordpress/browserslist-config",
 	"devDependencies": {
