@@ -12,6 +12,10 @@ if ( ! function_exists( 'add_action' ) ) {
 	return;
 }
 
+if ( ! Waf_Runner::is_enabled() ) {
+	return;
+}
+
 /**
  * Triggers when the Jetpack plugin is updated
  */
