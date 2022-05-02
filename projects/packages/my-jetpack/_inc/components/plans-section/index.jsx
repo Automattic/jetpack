@@ -83,11 +83,8 @@ function PlanSectionFooter( { purchases } ) {
 	}, [ purchases, recordEvent ] );
 
 	const activateLicenseClickHandler = useCallback( () => {
-		const event = purchases.length
-			? 'jetpack_myjetpack_plans_manage_click'
-			: 'jetpack_myjetpack_plans_purchase_click';
-		recordEvent( event );
-	}, [ purchases, recordEvent ] );
+		recordEvent( 'jetpack_myjetpack_activate_license_click' );
+	}, [ recordEvent ] );
 
 	return (
 		<ul className={ styles[ 'actions-list' ] }>
