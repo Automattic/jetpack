@@ -19,10 +19,11 @@ export const LEVEL_INFO = 'info';
 export const LEVEL_SUCCESS = 'success';
 
 export const ALERT_LEVELS = [ LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_SUCCESS ] as const;
+export type alertLevelProp = typeof ALERT_LEVELS[ number ];
 
 type AlertProps = {
 	/** The severity of the alert. */
-	level: typeof ALERT_LEVELS[ number ];
+	level: alertLevelProp;
 
 	/** Children to be rendered inside the alert. */
 	children: React.ReactNode;
@@ -31,7 +32,7 @@ type AlertProps = {
 	showIcon?: boolean;
 };
 
-const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
+const getIconByLevel = ( level: alertLevelProp ) => {
 	switch ( level ) {
 		case LEVEL_ERROR:
 			return warning;
