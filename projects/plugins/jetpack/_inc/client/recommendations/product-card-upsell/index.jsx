@@ -56,9 +56,9 @@ const ProductCardUpsellComponent = ( {
 		() => introOffers.find( ( { product_slug } ) => product_slug === slug ) || {},
 		[ slug, introOffers ]
 	);
-	// introOriginalPrice is the price before introductory offer. Defaults to `cost` is there's
-	// no such offer available.
-	const initialPrice = introOriginalPrice || cost;
+	// introOriginalPrice is the price per year before introductory offer. Defaults to `cost`
+	// (which is cost per month) if there's no such offer available.
+	const initialPrice = introOriginalPrice || cost * 12;
 	// introRawPrice is the price after introductory offer, but before any other discount.
 	const introPrice = introRawPrice || initialPrice;
 	// Apply special discount.

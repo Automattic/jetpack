@@ -13,6 +13,11 @@ export const BUTTON_SIZES = {
 	SMALL: 'small',
 };
 
+export const FONT_WEIGHT = {
+	REGULAR: 'regular',
+	BOLD: 'bold',
+};
+
 export const BUTTON_VARIANTS = {
 	PRIMARY: 'primary',
 	SECONDARY: 'secondary',
@@ -24,6 +29,7 @@ const Button = ( {
 	children,
 	variant,
 	size,
+	weight,
 	icon,
 	iconSize,
 	disabled,
@@ -38,6 +44,7 @@ const Button = ( {
 		[ styles.small ]: size === BUTTON_SIZES.SMALL,
 		[ styles.icon ]: Boolean( icon ),
 		[ styles.loading ]: isLoading,
+		[ styles.regular ]: weight === FONT_WEIGHT.REGULAR,
 	} );
 
 	const isExternalLink = variant === BUTTON_VARIANTS.EXTERNAL_LINK;
@@ -74,6 +81,7 @@ Button.propTypes = {
 		BUTTON_VARIANTS.EXTERNAL_LINK,
 	] ),
 	size: PropTypes.oneOf( [ BUTTON_SIZES.NORMAL, BUTTON_SIZES.SMALL ] ),
+	weight: PropTypes.oneOf( [ FONT_WEIGHT.REGULAR, FONT_WEIGHT.BOLD ] ),
 	disabled: PropTypes.bool,
 	isDestructive: PropTypes.bool,
 	isLoading: PropTypes.bool,
@@ -84,6 +92,7 @@ Button.propTypes = {
 Button.defaultProps = {
 	variant: BUTTON_VARIANTS.PRIMARY,
 	size: BUTTON_SIZES.NORMAL,
+	weight: FONT_WEIGHT.BOLD,
 	disabled: false,
 	isDestructive: false,
 	isLoading: false,
