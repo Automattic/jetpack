@@ -19,15 +19,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * 2. Ensure to add new options to WPCOM whitelist if need to be synced following `PCYsg-sBM-p2`.
  * 3. If the list of available values change say there is a new sorting method added, the sanitizing code in WPCOM should be updated as well.
  */
-	/**
-	 * This contains significant code overlap with `customizer/class-customizer.php`.
-	 *
-	 * 1. The settings are synced to WPCOM thru `sync/src/modules/class-search.php`.
-	 * 2. Ensure to add new options to WPCOM whitelist if need to be synced following `PCYsg-sBM-p2`.
-	 * 3. If the list of available values change say there is a new sorting method added, the sanitizing code in WPCOM should be updated as well.
-	 *
-	 * @var array
-	 */
 class Settings {
 
 	/**
