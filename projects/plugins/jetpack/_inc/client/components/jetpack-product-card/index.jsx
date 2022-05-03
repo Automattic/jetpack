@@ -44,7 +44,7 @@ const JetpackProductCard = props => {
 		features,
 		currencyCode,
 		price,
-		discount,
+		discountedPrice,
 		billingDescription,
 		callToAction,
 		checkoutText,
@@ -53,8 +53,7 @@ const JetpackProductCard = props => {
 		illustrationPath,
 	} = props;
 
-	const discountedPrice = ( price * ( 100 - discount ) ) / 100;
-	const isDiscounted = discount > 0;
+	const isDiscounted = discountedPrice && discountedPrice < price;
 	const hasMedia = !! illustrationPath;
 	const hasCta = !! callToAction;
 

@@ -11,6 +11,7 @@ import { isEmpty } from 'lodash';
  * Internal dependencies
  */
 import QueryProducts from 'components/data/query-products';
+import QueryIntroOffers from '../components/data/query-intro-offers';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isFetchingProducts as isFetchingProductsSelector } from 'state/products';
 import { arePromotionsActive, getProductsForPurchase } from 'state/initial-state';
@@ -50,6 +51,7 @@ const ProductDescriptions = props => {
 	return (
 		<>
 			<QueryProducts />
+			<QueryIntroOffers />
 			{ isLoading ? (
 				<div className="jp-product-descriptions__loading">
 					<JetpackLoadingIcon />
