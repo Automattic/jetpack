@@ -189,7 +189,7 @@ class Jetpack_Protect {
 	public static function plugin_deactivation() {
 
 		// Clear Sync data.
-		( Sender::get_instance() )->uninstall();
+		Sender::get_instance()->uninstall();
 
 		$manager = new Connection_Manager( 'jetpack-protect' );
 		$manager->disconnect_site_wpcom();
