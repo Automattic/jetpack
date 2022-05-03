@@ -4,7 +4,7 @@
 
 ## 0.17.11 - 2022-05-03
 ### Removed
-- reverted Jetpack not hard disconecting on deactivation
+- Connection: Allowing hard disconnection on deactivation.
 
 ## 0.17.10 - 2022-04-26
 ### Changed
