@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Use dynamically loaded pricing offers instead of fixed percentage values.
