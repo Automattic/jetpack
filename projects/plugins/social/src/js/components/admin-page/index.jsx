@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
+import { Button } from '@wordpress/components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import React from 'react';
 
@@ -68,6 +69,7 @@ const Admin = () => {
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
 	);
+	const { jetpackSocialConnectionsAdminUrl } = window.jetpackSocialInitialState;
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
@@ -78,8 +80,19 @@ const Admin = () => {
 						{ showConnectionCard ? (
 							<ConnectionSection />
 						) : (
-							<div className={ styles.publicizeConnectionsList }>
-								<ConnectionItems />
+							<div>
+								<div className={ styles.manageConnectionsHeader }>
+									<Button
+										href={ jetpackSocialConnectionsAdminUrl }
+										variant="primary"
+										target="_blank"
+									>
+										Manage your connections
+									</Button>
+								</div>
+								<div className={ styles.publicizeConnectionsList }>
+									<ConnectionItems />
+								</div>
 							</div>
 						) }
 					</Col>

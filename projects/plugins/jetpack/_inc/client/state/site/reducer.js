@@ -11,9 +11,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	getPlanClass,
 	isJetpackProduct,
-	isJetpackBackup,
-	isJetpackPlanWithBackup,
-	isJetpackScan,
 	isJetpackSearch,
 	isJetpackSecurityBundle,
 	isJetpackVideoPress,
@@ -376,26 +373,6 @@ export function hasActiveProductPurchase( state ) {
 	return getActiveProductPurchases( state ).length > 0;
 }
 
-export function getActiveBackupPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
-		isJetpackBackup( product.product_slug )
-	);
-}
-
-export function hasActiveBackupPurchase( state ) {
-	return !! getActiveBackupPurchase( state );
-}
-
-export function getActiveScanPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
-		isJetpackScan( product.product_slug )
-	);
-}
-
-export function hasActiveScanPurchase( state ) {
-	return !! getActiveScanPurchase( state );
-}
-
 /**
  * Return any active security bundles on the site
  *
@@ -536,27 +513,4 @@ export function getConnectedPluginsMap( state ) {
 			return map;
 		}, {} )
 	);
-}
-
-/**
- * Returns true if the site has a subscription to a Backup product or to a plan that includes Backup.
- *
- * @param   {object} state - Global state tree
- * @returns {boolean} True if the site does have Backup
- */
-export function siteHasBackupPlan( state ) {
-	const sitePlan = getSitePlan( state );
-	const siteProducts = getSiteProducts( state );
-
-	let hasBackup = false;
-
-	if ( sitePlan && sitePlan.product_slug ) {
-		hasBackup = hasBackup || isJetpackPlanWithBackup( sitePlan.product_slug );
-	}
-
-	if ( Array.isArray( siteProducts ) ) {
-		hasBackup = hasBackup || siteProducts.some( p => isJetpackProduct( p.product_slug ) );
-	}
-
-	return hasBackup;
 }
