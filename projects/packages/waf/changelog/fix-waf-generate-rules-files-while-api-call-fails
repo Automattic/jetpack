@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed writing rules php files if the API request for getting up-to-date rules failes so that the internal functionality is kept in tact.

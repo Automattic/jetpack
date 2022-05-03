@@ -2,7 +2,6 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import React from 'react';
 
 /**
@@ -28,14 +27,12 @@ export default {
 };
 
 const DefaultDefaultProductOffer = args => {
-	const error = args.showError
-		? __( 'An error occurred. Please try again.', 'jetpack-protect' )
-		: '';
-	return <ConnectedProductOffer { ...args } error={ error } />;
+	return <ConnectedProductOffer { ...args } />;
 };
 
 export const Default = DefaultDefaultProductOffer.bind( {} );
 Default.args = {
 	isCard: false,
 	showError: false,
+	onAdd: () => {},
 };

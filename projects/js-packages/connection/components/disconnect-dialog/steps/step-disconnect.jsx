@@ -64,7 +64,7 @@ const StepDisconnect = props => {
 		if ( isDisconnecting ) {
 			buttonText = __( 'Disconnecting…', 'jetpack' );
 		} else if ( context === 'plugins' ) {
-			buttonText = __( 'Deactivate', 'jetpack' );
+			buttonText = __( 'Disconnect and Deactivate', 'jetpack' );
 		}
 
 		return (
@@ -157,9 +157,7 @@ const StepDisconnect = props => {
 							onClick={ handleStayConnectedClick }
 							className="jp-connection__disconnect-dialog__btn-dismiss"
 						>
-							{ context === 'plugins'
-								? __( 'Cancel', 'jetpack' )
-								: __( 'Stay connected', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
+							{ __( 'Stay connected', 'jetpack' ) }
 						</Button>
 						{ renderDisconnectButton() }
 					</div>

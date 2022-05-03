@@ -60,7 +60,10 @@
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-protect-plugin",
 		"release-branch-prefix": "starter-plugin",
-		"wp-plugin-slug": "jetpack-protect"
+		"wp-plugin-slug": "jetpack-protect",
+		"version-constants": {
+			"JETPACK_PROTECT_VERSION": "jetpack-protect.php"
+		}
 	},
 	"config": {
 		"allow-plugins": {

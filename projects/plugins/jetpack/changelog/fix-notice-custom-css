@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+.

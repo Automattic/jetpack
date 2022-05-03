@@ -12,19 +12,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\Publicize\Publicize_UI;
 
 /**
  * Class Jetpack_Social
  */
 class Jetpack_Social {
+	const JETPACK_PUBLICIZE_MODULE_SLUG    = 'publicize';
+	const JETPACK_SOCIAL_ACTIVATION_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
+
+	/**
+	 * The connection manager used to check if we have a Jetpack connection.
+	 *
+	 * @var Connection_Manager
+	 */
+	private $manager = null;
 
 	/**
 	 * Constructor.
+	 *
+	 * @param Connection_Manager $connection_manager The Jetpack connection manager to use.
 	 */
-	public function __construct() {
+	public function __construct( $connection_manager = null ) {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
@@ -64,9 +76,12 @@ class Jetpack_Social {
 			1
 		);
 
+		// Activate the module as the plugin is activated
+		add_action( 'admin_init', array( $this, 'activate_module_on_plugin_activation' ) );
+
 		My_Jetpack_Initializer::init();
 
-		new Publicize_UI();
+		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 	}
 
 	/**
@@ -115,10 +130,11 @@ class Jetpack_Social {
 		global $publicize;
 
 		return array(
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'connections'       => $publicize->get_all_connections_for_user(),
+			'apiRoot'                          => esc_url_raw( rest_url() ),
+			'apiNonce'                         => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'                => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'connections'                      => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
+			'jetpackSocialConnectionsAdminUrl' => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 		);
 	}
 
@@ -129,5 +145,34 @@ class Jetpack_Social {
 		?>
 			<div id="jetpack-social-root"></div>
 		<?php
+	}
+
+	/**
+	 * Activate the Publicize module on plugin activation.
+	 *
+	 * @static
+	 */
+	public static function plugin_activation() {
+		add_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION, true );
+	}
+
+	/**
+	 * Helper to check that we have a Jetpack connection.
+	 */
+	private function is_connected() {
+		return $this->manager->is_connected();
+	}
+
+	/**
+	 * Runs an admin_init and checks the activation option to work out
+	 * if we should activate the module. This needs to be run after the
+	 * activation hook, as that results in a redirect, and we need the
+	 * sync module's actions and filters to be registered.
+	 */
+	public function activate_module_on_plugin_activation() {
+		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) && $this->is_connected() ) {
+			delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
+			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+		}
 	}
 }

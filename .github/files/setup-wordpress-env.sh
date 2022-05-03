@@ -30,8 +30,8 @@ echo "::endgroup::"
 
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
 case "$WP_BRANCH" in
-	master)
-		git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
+	trunk)
+		git clone --depth=1 --branch trunk git://develop.git.wordpress.org/ /tmp/wordpress-trunk
 		;;
 	latest)
 		LATEST=$(php ./tools/get-wp-version.php)
@@ -40,7 +40,7 @@ case "$WP_BRANCH" in
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		git clone --depth=1 --branch 5.8 git://develop.git.wordpress.org/ /tmp/wordpress-previous
+		git clone --depth=1 --branch 5.9 git://develop.git.wordpress.org/ /tmp/wordpress-previous
 		;;
 	*)
 		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2
