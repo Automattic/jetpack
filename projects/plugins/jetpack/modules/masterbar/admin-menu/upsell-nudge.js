@@ -19,7 +19,14 @@
 		} );
 	}
 
-	requestJitm().then( ( { data } ) => {
+	requestJitm().then( response => {
+		let data;
+		if ( response.data ) {
+			data = response.data;
+		} else {
+			data = response;
+		}
+
 		if ( data.length ) {
 			const upsell = data[ 0 ];
 			let menuElement = document.createElement( 'li' );
