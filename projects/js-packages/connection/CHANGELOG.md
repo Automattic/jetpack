@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.17.11 - 2022-05-03
+### Removed
+- Connection: Allowing hard disconnection on deactivation.
+
 ## 0.17.10 - 2022-04-26
 ### Changed
 - JS Connection: add default connection arguments for the useConnection() hook

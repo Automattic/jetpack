@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Updated Backups box in At a Glance to use feature checks
