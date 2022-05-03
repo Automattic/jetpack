@@ -9,10 +9,3 @@
 .paragraphs {
 	margin-bottom: calc( var(--spacing-base) * 3 );
 }
-
-// Todo: consider to tweak the styles straight at Button component level
-.learn-more-link {
-	&:global(.is-link) {
-		font-weight: 400;
-	}
-}

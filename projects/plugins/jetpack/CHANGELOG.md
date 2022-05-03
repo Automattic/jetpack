@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 10.9-beta - 2022-04-26
+## 10.9 - 2022-05-03
 ### Enhancements
 - Dashboard: update the recommendation flow to include recommendations for VideoPress as well as discounts.
 - Google Fonts: update the Google Fonts module to be compatible with the most recent version of the WP_Webfonts API.
@@ -11,28 +11,31 @@
 - VideoPress: improve upload spreed, by increasing chunk size to 10Mb for resumable uploads.
 
 ### Bug fixes
+- Assistant: style and CTA changes plus introductory offer fixes.
 - Payments Block: change the sidebar display when clicking 'add new subscription', as well as using an external link in the Customizer.
 - Payments Block: remove the dropdown icon from the product management control subscription selector.
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add checks to eliminate warnings in PHP log.
 - Added analytics events for enabling condtional recommendations and viewing conditional recommendations.
 - Converted BackupUpgrade and BarChart to TypeScript.
 - E2E tests: add extra checks in connection tests.
 - E2E tests: improve connection tests.
+- Fix failing tests because of an editor type mismatch caused by imported packages side-effects.
 - Init 10.9-a.8
+- Load block editor styles inline for iframed editors on WoA sites.
 - Move RecordMeterBar to js-packages.
+- My Jetpack: Updated to require licensing package when licensing UI enabled.
 - Nav-unification: Update nudge to support Pro plan.
+- Payments Block: Display the product manager on free plan sites connected to Stripe.
+- Premium Content blocks: subscription button from emails and notifications opens the checkout dialog  (WordPress.com specific).
 - Remove code in native files that was causing the rnmobile build to fail.
+- Revert Jetpack not hard disconnecting on deactivation
 - Updated package dependencies.
 - Update package.json metadata.
 - Updating changelog and readme for 10.9-a.7
-- Add checks to eliminate warnings in php log.
-- Fix failing tests because of an editor type mismatch caused by imported packages side-effects.
-- Load block editor styles inline for iframed editors on WoA sites.
-- My Jetpack: Updated to require licensing package when licensing UI enabled.
-- Payments Block: Display the product manager on free plan sites connected to Stripe.
-- Premium Content blocks: subscription button from emails and notifications opens the checkout dialog  (WordPress.com specific).
 - VideoPress: Fixing issue in apiFetch middleware where request bodies were assumed to always be objects with a "file" property; this is only true for requests to the media endpoint.
+
 ## 10.9-a.7 - 2022-04-19
 ### Enhancements
 - Connection: Preventing other Jeptpack-connected plugins from disconnecting when deactivating Jetpack from the plugins screen.
