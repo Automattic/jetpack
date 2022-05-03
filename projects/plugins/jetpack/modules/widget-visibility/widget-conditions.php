@@ -239,13 +239,6 @@ class Jetpack_Widget_Conditions {
 			'fields'     => array( 'ID', 'display_name' ),
 		);
 
-		// To-do: remove this once Jetpack requires WordPress 5.9.
-		global $wp_version;
-		if ( version_compare( $wp_version, '5.9-alpha', '<' ) ) {
-			$authors_args['who'] = 'authors';
-			unset( $authors_args['capability'] );
-		}
-
 		$authors = get_users( $authors_args );
 
 		foreach ( $authors as $author ) {
