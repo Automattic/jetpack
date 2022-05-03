@@ -306,7 +306,7 @@ jobs:
 
       - name: Monorepo pnpm install
         run: pnpm install
-      - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
+      - run: pnpm jetpack install --all -v # Ensure there are no unresolved import errors.
       - run: pnpm run lint-required
 
   ### Runs eslint-changed on JS files listed in eslint-excludelist.json.
@@ -335,7 +335,7 @@ jobs:
 
       - name: Monorepo pnpm install
         run: pnpm install
-      - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
+      - run: pnpm jetpack install --all -v # Ensure there are no unresolved import errors.
       - name: Run eslint-changed
         env:
           SHA: ${{ github.event.pull_request.base.sha }}
@@ -390,7 +390,7 @@ jobs:
       - run: composer install
       - name: Monorepo pnpm install
         run: pnpm install
-      - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
+      - run: pnpm jetpack install --all -v # Ensure there are no unresolved import errors.
 
       - name: Cleanup excludelists
         run: tools/cleanup-excludelists.sh

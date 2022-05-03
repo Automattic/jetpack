@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { get, includes, isEmpty } from 'lodash';
+import { get, includes } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -20,7 +20,6 @@ import {
 	FEATURE_WORDADS_JETPACK,
 	FEATURE_SPAM_AKISMET_PLUS,
 	FEATURE_SEARCH_JETPACK,
-	getPlanClass,
 	getJetpackProductUpsellByFeature,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
@@ -36,12 +35,7 @@ import {
 	userCanManageModules,
 } from 'state/initial-state';
 import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
-import {
-	getActiveFeatures,
-	getSitePlan,
-	hasActiveSearchPurchase,
-	isFetchingSiteData,
-} from 'state/site';
+import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
 import SectionHeader from 'components/section-header';
 import ProStatus from 'pro-status';
 import JetpackBanner from 'components/jetpack-banner';
@@ -98,8 +92,7 @@ export const SettingsCard = props => {
 	}
 
 	const getBanner = () => {
-		const planClass = getPlanClass( props.sitePlan.product_slug ),
-			upgradeLabel = _x(
+		const upgradeLabel = _x(
 				'Upgrade',
 				'A caption for a button to upgrade an existing paid feature to a higher tier.',
 				'jetpack'
@@ -108,26 +101,11 @@ export const SettingsCard = props => {
 				'Connect',
 				'A caption for a button to connect a user account to access paid features.',
 				'jetpack'
-			),
-			hasPremiumOrBetter = includes(
-				[
-					'is-premium-plan',
-					'is-business-plan',
-					'is-security-t1-plan',
-					'is-security-t2-plan',
-					'is-complete-plan',
-
-					// DEPRECATED: Daily and Real-time variations will soon be retired.
-					// Remove after all customers are migrated to new products.
-					'is-daily-security-plan',
-					'is-realtime-security-plan',
-				],
-				planClass
 			);
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if ( props.hasConnectedOwner || hasPremiumOrBetter ) {
+				if ( props.hasConnectedOwner || props.hasVideoPress ) {
 					return '';
 				}
 
@@ -145,10 +123,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_WORDADS_JETPACK:
-				if (
-					hasPremiumOrBetter ||
-					-1 !== props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
-				) {
+				if ( props.hasWordAds ) {
 					return '';
 				}
 
@@ -175,17 +150,11 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if (
-					backupsEnabled ||
-					[ 'is-business-plan', 'is-realtime-security-plan', 'is-complete-plan' ].includes(
-						planClass
-					) ||
-					props.multisite
-				) {
+				if ( backupsEnabled || ( props.hasScan && props.hasBackups ) || props.multisite ) {
 					return '';
 				}
 
-				if ( [ 'is-premium-plan', 'is-daily-security-plan' ].includes( planClass ) ) {
+				if ( props.hasScan && ! props.hasBackups ) {
 					return props.hasConnectedOwner ? (
 						<JetpackBanner
 							title={ __(
@@ -238,7 +207,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( hasPremiumOrBetter ) {
+				if ( props.hasGoogleAnalytics ) {
 					return '';
 				}
 
@@ -265,7 +234,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEARCH_JETPACK:
-				if ( props.hasActiveSearchPurchase || 'is-complete-plan' === planClass ) {
+				if ( props.hasInstantSearch ) {
 					return '';
 				}
 
@@ -295,12 +264,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SPAM_AKISMET_PLUS:
-				if (
-					props.isCheckingAkismetKey ||
-					props.isAkismetKeyValid ||
-					'is-personal-plan' === planClass ||
-					hasPremiumOrBetter
-				) {
+				if ( props.isCheckingAkismetKey || props.isAkismetKeyValid || props.hasAntispam ) {
 					return '';
 				}
 
@@ -335,54 +299,30 @@ export const SettingsCard = props => {
 			return true;
 		}
 
-		const planClass = getPlanClass( props.sitePlan.product_slug ),
-			hasPremiumOrBetter = includes(
-				[
-					'is-premium-plan',
-					'is-business-plan',
-					'is-security-t1-plan',
-					'is-security-t2-plan',
-					'is-complete-plan',
-
-					// DEPRECATED: Daily and Real-time variations will soon be retired.
-					// Remove after all customers are migrated to new products.
-					'is-daily-security-plan',
-					'is-realtime-security-plan',
-				],
-				planClass
-			);
-
 		switch ( feature ) {
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if ( 'is-free-plan' === planClass && ! scanEnabled ) {
+				if ( ! props.hasScan && ! scanEnabled ) {
 					return false;
 				}
 
 				break;
 
 			case FEATURE_WORDADS_JETPACK:
-				if (
-					! hasPremiumOrBetter &&
-					-1 === props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
-				) {
+				if ( ! props.hasWordAds ) {
 					return false;
 				}
 
 				break;
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( ! hasPremiumOrBetter ) {
+				if ( ! props.hasGoogleAnalytics ) {
 					return false;
 				}
 
 				break;
 
 			case FEATURE_SPAM_AKISMET_PLUS:
-				if (
-					( includes( [ 'is-free-plan' ], planClass ) || isEmpty( planClass ) ) &&
-					! props.isAkismetKeyValid &&
-					! props.isCheckingAkismetKey
-				) {
+				if ( ! props.hasAntispam && ! props.isAkismetKeyValid && ! props.isCheckingAkismetKey ) {
 					return false;
 				}
 
@@ -484,7 +424,6 @@ SettingsCard.defaultProps = {
 export default connect(
 	state => {
 		return {
-			sitePlan: getSitePlan( state ),
 			fetchingSiteData: isFetchingSiteData( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			userCanManageModules: userCanManageModules( state ),
@@ -493,7 +432,6 @@ export default connect(
 			vaultPressData: getVaultPressData( state ),
 			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 			getModule: module_name => getModule( state, module_name ),
-			activeFeatures: getActiveFeatures( state ),
 			adsUpgradeUrl: getUpgradeUrl( state, 'settings-ads' ),
 			securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
 			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
@@ -501,9 +439,15 @@ export default connect(
 			searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
 			spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			multisite: isMultisite( state ),
-			hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
 			inOfflineMode: isOfflineMode( state ),
 			hasConnectedOwner: hasConnectedOwnerSelector( state ),
+			hasAntispam: hasActiveSiteFeature( state, 'antispam' ),
+			hasBackups: hasActiveSiteFeature( state, 'backups' ),
+			hasGoogleAnalytics: hasActiveSiteFeature( state, 'google-analytics' ),
+			hasInstantSearch: hasActiveSiteFeature( state, 'instant-search' ),
+			hasScan: hasActiveSiteFeature( state, 'scan' ),
+			hasVideoPress: hasActiveSiteFeature( state, 'videopress' ),
+			hasWordAds: hasActiveSiteFeature( state, 'wordads' ),
 		};
 	},
 	dispatch => ( {
