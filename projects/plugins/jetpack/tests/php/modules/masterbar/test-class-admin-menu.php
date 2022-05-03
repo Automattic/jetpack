@@ -206,7 +206,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$menu_items = array_values( $menu );
 
-		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu_items[1][2] );
+		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu_items[4][2] );
 	}
 
 	/**
