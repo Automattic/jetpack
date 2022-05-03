@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+General: Jetpack now requires a more recent version of WordPress (5.9), since a new version of WordPress (6.0) will be available soon.
