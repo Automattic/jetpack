@@ -1,21 +1,20 @@
 ( () => {
 	function requestJitm() {
-		if ( window.wpApiSettings ) {
+		if ( window._currentSiteId ) {
 			return wp.apiFetch( {
+				apiNamespace: 'rest/v1.1',
+				global: true,
+				path:
+					'/jetpack-blogs/' +
+					window._currentSiteId +
+					'/rest-api?path=/jetpack/v4/jitm&query={"message_path":"calypso:sites:sidebar_notice"}',
 				method: 'GET',
-				url:
-					window.wpApiSettings.root + 'jetpack/v4/jitm?message_path=calypso:sites:sidebar_notice',
 			} );
 		}
 
 		return wp.apiFetch( {
-			apiNamespace: 'rest/v1.1',
-			global: true,
-			path:
-				'/jetpack-blogs/' +
-				window._currentSiteId +
-				'/rest-api?path=/jetpack/v4/jitm&query={"message_path":"calypso:sites:sidebar_notice"}',
 			method: 'GET',
+			url: window.wpApiSettings.root + 'jetpack/v4/jitm?message_path=calypso:sites:sidebar_notice',
 		} );
 	}
 
