@@ -266,7 +266,7 @@ class Waf_Runtime {
 		$log_data['reason']    = $reason;
 		$log_data['timestamp'] = gmdate( 'Y-m-d H:i:s' );
 
-		if ( JETPACK_WAF_SHARE_DATA ) {
+		if ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
 			$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';
 			$file_exists = file_exists( $file_path );
 
