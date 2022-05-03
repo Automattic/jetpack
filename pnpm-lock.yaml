@@ -896,7 +896,7 @@ importers:
       lodash: 4.17.21
       photon: 4.0.0
       postcss: 8.4.13
-      postcss-custom-properties: 10.0.0
+      postcss-custom-properties: 12.1.7
       postcss-loader: 6.2.0
       preact: 10.5.15
       prettier: npm:wp-prettier@2.0.5
@@ -967,7 +967,7 @@ importers:
       jest: 27.3.1
       jest-environment-jsdom: 27.3.1
       postcss: 8.4.13
-      postcss-custom-properties: 10.0.0
+      postcss-custom-properties: 12.1.7_postcss@8.4.13
       postcss-loader: 6.2.0_postcss@8.4.13+webpack@5.65.0
       prettier: /wp-prettier/2.0.5
       sass: 1.43.3
@@ -1295,7 +1295,7 @@ importers:
       nyc: 15.1.0
       photon: 4.0.0
       postcss: 8.4.13
-      postcss-custom-properties: 10.0.0
+      postcss-custom-properties: 12.1.7
       postcss-loader: 6.2.0
       preact: 10.5.15
       prettier: npm:wp-prettier@2.0.5
@@ -1387,7 +1387,7 @@ importers:
       mapbox-gl: 1.13.0
       markdown-it: 12.3.2
       photon: 4.0.0
-      postcss-custom-properties: 10.0.0
+      postcss-custom-properties: 12.1.7_postcss@8.4.13
       preact: 10.5.15
       progress-event: 1.0.0
       prop-types: 15.7.2
@@ -14320,10 +14320,6 @@ packages:
   /is-typedarray/1.0.0:
     resolution: {integrity: sha1-5HnICFjfDBsR3dppQPlgEfzaSpo=}
 
-  /is-url-superb/4.0.0:
-    resolution: {integrity: sha512-GI+WjezhPPcbM+tqE9LnmsY5qqjwHzTvjJ36wxYX5ujNXefSUJ/T17r5bqDV8yLhcgB59KTPNOc9O9cmHTPWsA==}
-    engines: {node: '>=10'}
-
   /is-weakref/1.0.2:
     resolution: {integrity: sha512-qctsuLZmIQ0+vSSMfoVvyFe2+GSEvnmZ2ezTup1SBse9+twCCeial6EEi3Nc2KFcf6+qz2FBPnjXsk8xhKSaPQ==}
     dependencies:
@@ -17081,6 +17077,7 @@ packages:
 
   /picocolors/0.2.1:
     resolution: {integrity: sha512-cMlDqaLEqfSaW8Z7N5Jw+lyIW869EzT73/F5lhtY9cLGoVxSXznfgfXMO0Z5K0o0Q2TkTXq+0KFsdnSe3jDViA==}
+    dev: true
 
   /picocolors/1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
@@ -17385,12 +17382,14 @@ packages:
       postcss-value-parser: 4.2.0
     dev: true
 
-  /postcss-custom-properties/10.0.0:
-    resolution: {integrity: sha512-55BPj5FudpCiPZzBaO+MOeqmwMDa+nV9/0QBJBfhZjYg6D9hE+rW9lpMBLTJoF4OTXnS5Po4yM1nMlgkPbCxFg==}
-    engines: {node: '>=10.0.0'}
+  /postcss-custom-properties/12.1.7_postcss@8.4.13:
+    resolution: {integrity: sha512-N/hYP5gSoFhaqxi2DPCmvto/ZcRDVjE3T1LiAMzc/bg53hvhcHOLpXOHb526LzBBp5ZlAUhkuot/bfpmpgStJg==}
+    engines: {node: ^12 || ^14 || >=16}
+    peerDependencies:
+      postcss: ^8.4
     dependencies:
-      postcss: 7.0.39
-      postcss-values-parser: 4.0.0
+      postcss: 8.4.13
+      postcss-value-parser: 4.2.0
 
   /postcss-discard-comments/5.1.1_postcss@8.4.12:
     resolution: {integrity: sha512-5JscyFmvkUxz/5/+TB3QTTT9Gi9jHkcn8dcmmuN68JQcv3aQg4y88yEHHhwFB52l/NkaJ43O0dbksGMAo49nfQ==}
@@ -17982,14 +17981,6 @@ packages:
   /postcss-value-parser/4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
 
-  /postcss-values-parser/4.0.0:
-    resolution: {integrity: sha512-R9x2D87FcbhwXUmoCXJR85M1BLII5suXRuXibGYyBJ7lVDEpRIdKZh4+8q5S+/+A4m0IoG1U5tFw39asyhX/Hw==}
-    engines: {node: '>=10'}
-    dependencies:
-      color-name: 1.1.4
-      is-url-superb: 4.0.0
-      postcss: 7.0.39
-
   /postcss/5.2.18:
     resolution: {integrity: sha512-zrUjRRe1bpXKsX1qAJNJjqZViErVuyEkMTRrwu4ud4sbTtIBRmtaYDrHmcGgmrbsW3MHfmtIf+vJumgQn+PrXg==}
     engines: {node: '>=0.12'}
@@ -17999,13 +17990,6 @@ packages:
       source-map: 0.5.7
       supports-color: 3.2.3
     dev: false
-
-  /postcss/7.0.39:
-    resolution: {integrity: sha512-yioayjNbHn6z1/Bywyb2Y4s3yvDAeXGOyxqD+LnVOinq6Mdmd++SW2wUNVzavyyHxd6+DxzWGIuosg6P1Rj8uA==}
-    engines: {node: '>=6.0.0'}
-    dependencies:
-      picocolors: 0.2.1
-      source-map: 0.6.1
 
   /postcss/8.4.12:
     resolution: {integrity: sha512-lg6eITwYe9v6Hr5CncVbK70SoioNQIq81nsaG86ev5hAidQvmOeETBqs7jm43K2F5/Ley3ytDtriImV6TpNiSg==}
