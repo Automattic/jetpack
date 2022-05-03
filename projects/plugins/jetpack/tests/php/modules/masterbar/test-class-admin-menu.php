@@ -92,11 +92,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->reregister_menu_items();
 
-		$this->assertSame(
-			array_keys( $menu ),
-			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 58, 59, 60, 65, 70, 75, 80 ),
-			'Admin menu should not have unexpected top menu items.'
-		);
+		$this->assertCount( 18, $menu, 'Admin menu should not have unexpected top menu items.' );
 
 		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
 	}
@@ -208,7 +204,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_stats_menu();
 
-		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu['3.86682'][2] );
+		// Ignore position keys, since the key used for the Stats menu contains a pseudorandom number
+		// that we shouldn't hardcode. The only thing that matters is that the menu should be in the
+		// 3rd position regardless of the key.
+		// @see https://core.trac.wordpress.org/ticket/40927
+		ksort( $menu );
+		$menu_items = array_values( $menu );
+
+		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu_items[2][2] );
 	}
 
 	/**
