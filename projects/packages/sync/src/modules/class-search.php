@@ -1702,6 +1702,27 @@ class Search extends Module {
 
 	); // end taxonomies.
 
+	/**
+	 * List of options to sync
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @var array
+	 */
+	private static $options_to_sync = array(
+		'jetpack_search_color_theme',
+		'jetpack_search_result_format',
+		'jetpack_search_default_sort',
+		'jetpack_search_overlay_trigger',
+		'jetpack_search_excluded_post_types',
+		'jetpack_search_highlight_color',
+		'jetpack_search_enable_sort',
+		'jetpack_search_inf_scroll',
+		'jetpack_search_show_powered_by',
+		'instant_search_enabled',
+	); // end options.
+
 	/*
 	 * Taxonomies we know don't sync.
 	 * See also sync/src/class-defaults.php
@@ -1795,7 +1816,7 @@ class Search extends Module {
 	 * @return array List of option keys that get synced.
 	 */
 	public static function get_all_option_keys() {
-		return property_exists( '\Automattic\Jetpack\Search\Settings', 'settings' ) ? array_column( \Automattic\Jetpack\Search\Settings::$settings, 0 ) : array();
+		return self::$options_to_sync;
 	}
 
 	/**
