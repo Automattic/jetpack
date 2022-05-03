@@ -82,6 +82,13 @@ export const ExtrasIcon = ( { opacity = 1, size } ) => (
 	</IconWrapper>
 );
 
+export const ProtectIcon = ( { opacity = 1, size, className } ) => (
+	<IconWrapper className={ className } size={ size } opacity={ opacity }>
+		<Path d="M12 3.17627L18.75 6.24445V10.8183C18.75 14.7173 16.2458 18.4089 12.7147 19.5735C12.2507 19.7265 11.7493 19.7265 11.2853 19.5735C7.75416 18.4089 5.25 14.7173 5.25 10.8183V6.24445L12 3.17627ZM6.75 7.21032V10.8183C6.75 14.1312 8.89514 17.2057 11.7551 18.149C11.914 18.2014 12.086 18.2014 12.2449 18.149C15.1049 17.2057 17.25 14.1312 17.25 10.8183V7.21032L12 4.82396L6.75 7.21032Z" />
+		<Path d="M15.5291 10.0315L11.1818 14.358L8.47095 11.66L9.52907 10.5968L11.1818 12.2417L14.4709 8.96826L15.5291 10.0315Z" />
+	</IconWrapper>
+);
+
 export const ScanIcon = ( { opacity = 1, size } ) => (
 	<IconWrapper size={ size } opacity={ opacity }>
 		<Path d="m12 3.176 6.75 3.068v4.574c0 3.9-2.504 7.59-6.035 8.755a2.283 2.283 0 0 1-1.43 0c-3.53-1.164-6.035-4.856-6.035-8.755V6.244L12 3.176ZM6.75 7.21v3.608c0 3.313 2.145 6.388 5.005 7.33.159.053.331.053.49 0 2.86-.942 5.005-4.017 5.005-7.33V7.21L12 4.824 6.75 7.21Z" />
@@ -131,6 +138,7 @@ const iconsMap = {
 	boost: BoostIcon,
 	crm: CrmIcon,
 	extras: ExtrasIcon,
+	protect: ProtectIcon,
 	scan: ScanIcon,
 	search: SearchIcon,
 	star: StarIcon,

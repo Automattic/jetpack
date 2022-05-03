@@ -107,7 +107,7 @@ jobs:
 
         if [ "${RUN_NAME}" == gutenberg ]; then
             echo "::group::Setting up Gutenberg"
-            pnpx e2e-env gb-setup
+            pnpm e2e-env gb-setup
             echo "::endgroup::"
         fi
 

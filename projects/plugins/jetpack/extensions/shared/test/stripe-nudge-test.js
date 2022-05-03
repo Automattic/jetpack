@@ -6,7 +6,7 @@ import * as data from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { MembershipStoreAwareStripeNudge } from "../components/stripe-nudge";
+import { StripeNudge } from "../components/stripe-nudge";
 
 /**
  * External dependencies
@@ -34,7 +34,7 @@ describe( 'Stripe nudge component', () => {
             } ) );
 
             // When
-            render( <MembershipStoreAwareStripeNudge blockName={ ANY_BLOCK_NAME } /> );
+            render( <StripeNudge blockName={ ANY_BLOCK_NAME } /> );
 
             // Then
             await waitFor( () => expect( screen.getByText( NUDGE_RENDERED_TEXT ) ).toBeInTheDocument() );
@@ -48,7 +48,7 @@ describe( 'Stripe nudge component', () => {
             } ) );
 
             // When
-            render( <MembershipStoreAwareStripeNudge blockName={ ANY_BLOCK_NAME } /> );
+            render( <StripeNudge blockName={ ANY_BLOCK_NAME } /> );
 
             // Then
             await waitFor( () => expect( screen.queryByText( NUDGE_RENDERED_TEXT ) ).not.toBeInTheDocument() );
@@ -62,7 +62,7 @@ describe( 'Stripe nudge component', () => {
             } ) );
 
             // When
-            render( <MembershipStoreAwareStripeNudge blockName={ ANY_BLOCK_NAME } /> );
+            render( <StripeNudge blockName={ ANY_BLOCK_NAME } /> );
 
             // Then
             await waitFor( () => expect( screen.queryByText( NUDGE_RENDERED_TEXT ) ).not.toBeInTheDocument() );

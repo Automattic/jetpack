@@ -13,7 +13,6 @@ import {
 	isJetpackProduct,
 	isJetpackBackup,
 	isJetpackPlanWithBackup,
-	isJetpackScan,
 	isJetpackSearch,
 	isJetpackSecurityBundle,
 	isJetpackVideoPress,
@@ -384,16 +383,6 @@ export function getActiveBackupPurchase( state ) {
 
 export function hasActiveBackupPurchase( state ) {
 	return !! getActiveBackupPurchase( state );
-}
-
-export function getActiveScanPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
-		isJetpackScan( product.product_slug )
-	);
-}
-
-export function hasActiveScanPurchase( state ) {
-	return !! getActiveScanPurchase( state );
 }
 
 /**

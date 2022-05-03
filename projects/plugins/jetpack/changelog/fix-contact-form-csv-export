@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Contact Form: ensure the option to export forms to a csv file works with the upcoming version of WordPress, 6.0.
