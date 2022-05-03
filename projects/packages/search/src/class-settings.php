@@ -18,7 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Settings {
 	/**
 	 * This contains significant code overlap with `customizer/class-customizer.php`.
-	 * The settings are synced to WPCOM thru `sync/src/modules/class-search.php`.
+	 *
+	 * 1. The settings are synced to WPCOM thru `sync/src/modules/class-search.php`.
+	 * 2. Ensure to add new options to WPCOM whitelist if need to be synced following `PCYsg-sBM-p2`.
 	 *
 	 * @var array
 	 */
