@@ -25,6 +25,7 @@ import Footer from '../footer';
 import useProtectData from '../../hooks/use-protect-data';
 import inProgressImage from './in-progress.png';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import Logo from '../logo';
 
 export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
@@ -53,7 +54,7 @@ const ProtectAdminPage = () => {
 	// When there's no information yet. Usually when the plugin was just activated
 	if ( ! lastChecked ) {
 		return (
-			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
+			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 						<Col sm={ 4 } md={ 4 } lg={ 6 }>
@@ -77,7 +78,7 @@ const ProtectAdminPage = () => {
 	}
 
 	return (
-		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
+		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 					<Col>
