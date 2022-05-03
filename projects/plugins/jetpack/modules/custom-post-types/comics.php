@@ -208,7 +208,7 @@ class Jetpack_Comic {
 			? (int) $_GET['post_type_changed']
 			: 0;
 
-		if ( 'edit.php' === $pagenow && ! empty( $number_posts_changed ) ) {
+		if ( 'edit.php' === $pagenow && $number_posts_changed ) {
 			?>
 			<div id="message" class="updated below-h2 jetpack-comic-post-type-conversion" style="display: none;"><p>
 			<?php
