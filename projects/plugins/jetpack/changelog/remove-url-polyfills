@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Use browser URL API instead of polyfills.
