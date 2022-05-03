@@ -525,7 +525,7 @@ async function createComposerJson( composerJson, answers ) {
 		case 'js-package':
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
+				'test-coverage': [ 'pnpm nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
 			};
 	}
 }
@@ -688,9 +688,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 5.8\n' +
+		'Requires at least: 5.9\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 5.9\n' +
+		'Tested up to: 6.0\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

@@ -29,9 +29,9 @@ const mergeAllVuls = ( { core, plugins, themes } ) => [
 
 const useVulsList = () => {
 	const { plugins, themes, core } = useProtectData();
-	const [ selected, setSelected ] = useState( 'all' );
 	const [ item, setItem ] = useState( {} );
 	const [ list, setList ] = useState( mergeAllVuls( { core, plugins, themes } ) );
+	const [ selected, setSelected ] = useState( list?.length ? 'all' : null );
 
 	const handleSelected = id => {
 		setSelected( id );

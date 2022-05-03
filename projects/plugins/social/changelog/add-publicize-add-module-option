@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add automatic Publicize module activation and a mocked endpoint for testing

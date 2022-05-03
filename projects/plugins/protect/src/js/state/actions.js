@@ -1,3 +1,9 @@
+/**
+ * External dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+import camelize from 'camelize';
+
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
@@ -6,6 +12,29 @@ const SET_WP_VERSION = 'SET_WP_VERSION';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
+};
+
+/**
+ * Side effect action which will fetch the status from the server
+ *
+ * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
+ */
+const refreshStatus = () => async ( { dispatch } ) => {
+	dispatch( setStatusIsFetching( true ) );
+	return await new Promise( ( resolve, reject ) => {
+		return apiFetch( {
+			path: 'jetpack-protect/v1/status',
+			method: 'GET',
+		} )
+			.then( status => {
+				dispatch( setStatus( camelize( status ) ) );
+				dispatch( setStatusIsFetching( false ) );
+				resolve( status );
+			} )
+			.catch( error => {
+				reject( error );
+			} );
+	} );
 };
 
 const setStatusIsFetching = status => {
@@ -26,6 +55,7 @@ const setwpVersion = version => {
 
 const actions = {
 	setStatus,
+	refreshStatus,
 	setStatusIsFetching,
 	setInstalledPlugins,
 	setInstalledThemes,
