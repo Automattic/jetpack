@@ -345,6 +345,7 @@ class Jetpack_Comic {
 	 * Add a Preview colunm to the Comic CPT admin view.
 	 *
 	 * @param array $columns An array of column names.
+	 * @return array Updated `$columns`.
 	 */
 	public function manage_posts_columns( $columns ) {
 		$new_columns = array(
@@ -354,7 +355,7 @@ class Jetpack_Comic {
 	}
 
 	/**
-	 * Display the post's featured image in colunm.
+	 * Display the post's featured image in column.
 	 *
 	 * @param string $column_name The name of the column to display.
 	 * @param int    $post_ID     The current post ID.
