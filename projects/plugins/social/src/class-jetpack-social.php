@@ -133,8 +133,8 @@ class Jetpack_Social {
 			'apiRoot'                          => esc_url_raw( rest_url() ),
 			'apiNonce'                         => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'                => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'connections'                      => $publicize->get_all_connections_for_user(),
-			'jetpackSocialConnectionsAdminUrl' => $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ),
+			'connections'                      => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
+			'jetpackSocialConnectionsAdminUrl' => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 		);
 	}
 
