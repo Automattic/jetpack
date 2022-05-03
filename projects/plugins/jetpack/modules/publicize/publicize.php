@@ -1466,6 +1466,6 @@ abstract class Publicize_Base {
  * @return string
  */
 function publicize_calypso_url() {
-	_deprecated_function( __METHOD__, 'jetpack-10.9', 'Publicize_Base::publicize_calypso_url' );
+	_deprecated_function( __METHOD__, 'jetpack-10.9', 'Publicize::publicize_calypso_url' );
 	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
 }

@@ -1440,7 +1440,7 @@ abstract class Publicize_Base {
 	 * @param string $source The idenfitier of the place the function is called from.
 	 * @return string
 	 */
-	public function publicize_calypso_url( $source = null ) {
+	public function publicize_connections_url( $source = null ) {
 		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
 		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
 		return Redirect::get_url( $source, array( 'site' => ( new Status() )->get_site_suffix() ) );
@@ -1453,6 +1453,6 @@ abstract class Publicize_Base {
  * @return string
  */
 function publicize_calypso_url() {
-	_deprecated_function( __METHOD__, 'jetpack-10.9', 'Publicize_Base::publicize_calypso_url' );
+	_deprecated_function( __METHOD__, 'jetpack-10.9', 'Publicize::publicize_connections_url' );
 	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
 }
