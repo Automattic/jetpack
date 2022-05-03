@@ -79,7 +79,7 @@ AdminPage.propTypes = {
 	/** Whether or not to display the Header */
 	showHeader: PropTypes.bool,
 	/** Custom header. Optional */
-	header: PropTypes.ReactNode,
+	header: PropTypes.element,
 	/** Whether or not to display the Footer */
 	showFooter: PropTypes.bool,
 	/** Link that the Footer Module name will link to (optional). */
