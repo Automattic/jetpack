@@ -1,10 +1,10 @@
 ( () => {
 	function requestJitm() {
-		if ( window.window.jitm_config ) {
+		if ( window.wpApiSettings ) {
 			return wp.apiFetch( {
 				method: 'GET',
 				url:
-					window.jitm_config.api_root + 'jetpack/v4/jitm?message_path=calypso:sites:sidebar_notice',
+					window.wpApiSettings.root + 'jetpack/v4/jitm?message_path=calypso:sites:sidebar_notice',
 			} );
 		}
 
