@@ -8,9 +8,7 @@
 	margin-bottom: calc( var(--spacing-base ) * 3 );
 }
 
-.actions-list {
-	li {
-		line-height: calc( var( --spacing-base ) * 3 );
-		margin: 0 0 var( --spacing-base ) 0;
-	}
+.actions-list-item {
+	line-height: calc( var( --spacing-base ) * 3 );
+	margin: 0 0 var( --spacing-base ) 0;
 }

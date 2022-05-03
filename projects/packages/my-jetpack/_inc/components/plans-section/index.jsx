@@ -87,8 +87,8 @@ function PlanSectionFooter( { purchases } ) {
 	}, [ recordEvent ] );
 
 	return (
-		<ul className={ styles[ 'actions-list' ] }>
-			<li>
+		<ul>
+			<li className={ styles[ 'actions-list-item' ] }>
 				<Button
 					onClick={ purchaseClickHandler }
 					href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
@@ -99,9 +99,8 @@ function PlanSectionFooter( { purchases } ) {
 				</Button>
 			</li>
 			{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
-				<li>
+				<li className={ styles[ 'actions-list-item' ] }>
 					<Button
-						component={ <Button variant="link" /> }
 						onClick={ activateLicenseClickHandler }
 						href={ `${ window?.myJetpackInitialState?.adminUrl }admin.php?page=my-jetpack#/add-license` }
 						variant="link"
