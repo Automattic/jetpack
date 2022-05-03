@@ -71,7 +71,7 @@ const Alert: React.FC< React.PropsWithChildren< AlertProps > > = ( {
 };
 
 Alert.defaultProps = {
-	level: 'warning',
+	level: LEVEL_WARNING,
 	showIcon: true,
 };
 
