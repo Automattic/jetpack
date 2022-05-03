@@ -19,7 +19,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 		1: {
 			id: 1,
 			message: __(
-				"Search was unable to index your content Jetpack's servers ran into a problem when trying to communicate with your site, which is needed for Search to work properly.",
+				"Search was unable to locate your content. Jetpack's servers ran into a problem when trying to communicate with your site, which is needed for Search to work properly.",
 				'jetpack-search-pkg'
 			),
 			isImportant: true,
