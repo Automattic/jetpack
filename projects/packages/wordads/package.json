@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-wordads",
-	"version": "0.1.2-alpha",
+	"version": "0.2.0-alpha",
 	"description": "Earn income by allowing Jetpack to display high quality ads.",
 	"main": "main.js",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wordads/#readme",
@@ -78,7 +78,7 @@
 		"concurrently": "6.4.0",
 		"jest": "27.3.1",
 		"jest-environment-jsdom": "27.3.1",
-		"postcss": "8.3.11",
+		"postcss": "8.4.13",
 		"postcss-loader": "6.2.0",
 		"prettier": "npm:wp-prettier@2.0.5",
 		"sass": "1.43.3",
