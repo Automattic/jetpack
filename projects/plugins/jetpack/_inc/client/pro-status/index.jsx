@@ -35,8 +35,9 @@ import SimpleNotice from 'components/notice';
 /**
  * Track click on Pro status badge.
  *
- * @param {string} type    - Status of a certain feature.
- * @param {string} feature - Slug of plugin or service.
+ * @param {string} type    Status of a certain feature.
+ * @param {string} feature Slug of plugin or service.
+ *
  * @returns {undefined}
  */
 const trackProStatusClick = ( type, feature ) =>
@@ -49,9 +50,10 @@ const trackProStatusClick = ( type, feature ) =>
 /**
  * Build function to pass as onClick property.
  *
- * @param {string} type    - Status of a certain feature.
- * @param {string} feature - Slug of plugin or service.
- * @returns {Function} Function to track a click.
+ * @param {string} type    Status of a certain feature.
+ * @param {string} feature Slug of plugin or service.
+ *
+ * @returns {function} Function to track a click.
  */
 const handleClickForTracking = ( type, feature ) => () => trackProStatusClick( type, feature );
 
@@ -153,8 +155,9 @@ class ProStatus extends React.Component {
 	/**
 	 * Return a button to Set Up a feature.
 	 *
-	 * @param {string} feature - Slug of the feature to set up.
-	 * @returns {component} A Button component.
+	 * @param {string} feature Slug of the feature to set up.
+	 *
+	 * @return {component} A Button component.
 	 */
 	getSetUpButton = feature => {
 		return (
@@ -191,14 +194,6 @@ class ProStatus extends React.Component {
 		const hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
 			usingVPBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
 			usingVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
-		console.log( {
-			purchasedVaultPressScan,
-			purchasedVaultPressBackups,
-			vpData,
-			usingVPScan,
-			usingVPBackups,
-			hasFree,
-		} );
 
 		const getStatus = ( feature, active, installed ) => {
 			switch ( feature ) {
@@ -220,22 +215,17 @@ class ProStatus extends React.Component {
 					if ( 'N/A' !== vpData ) {
 						if ( purchasedVaultPressScan ) {
 							if ( usingVPScan ) {
-								console.log( 'scan 1 - vp + purchased and using scan' );
 								return this.getProActions(
 									0 === this.props.getScanThreats() ? 'secure' : 'threats',
 									'scan'
 								);
 							}
-							console.log( 'scan 2 - vp + purchased, not using scan' );
 							return this.getSetUpButton( 'scan' );
 						} else if ( purchasedVaultPressBackups && ! usingVPBackups && ! this.props.isCompact ) {
-							console.log( 'scan 3 - vp + purchased, not using backups' );
 							return this.getSetUpButton( 'backups' );
 						}
-						console.log( 'scan 4 - vp, empty case' );
 						return '';
 					} else if ( scanStatus && scanStatus.state !== 'unavailable' ) {
-						console.log( 'scan 5 - no VP' );
 						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
 							return (
 								<SimpleNotice showDismiss={ false } status="is-error" isCompact>
