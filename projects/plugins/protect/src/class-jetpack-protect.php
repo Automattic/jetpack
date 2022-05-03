@@ -19,6 +19,7 @@ use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
+use Automattic\Jetpack\Sync\Sender;
 /**
  * Class Jetpack_Protect
  */
@@ -51,6 +52,7 @@ class Jetpack_Protect {
 						'jetpack_sync_modules'             => array(
 							'Automattic\\Jetpack\\Sync\\Modules\\Options',
 							'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+							'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync',
 						),
 						'jetpack_sync_callable_whitelist'  => array(
 							'get_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
@@ -185,6 +187,10 @@ class Jetpack_Protect {
 	 * @static
 	 */
 	public static function plugin_deactivation() {
+
+		// Clear Sync data.
+		( Sender::get_instance() )->uninstall();
+
 		$manager = new Connection_Manager( 'jetpack-protect' );
 		$manager->disconnect_site_wpcom();
 		$manager->delete_all_connection_tokens();
