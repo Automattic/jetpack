@@ -90,6 +90,7 @@ const DefaultTemplate = args => {
 export const _default = DefaultTemplate.bind( {} );
 _default.args = {
 	size: 'normal',
+	weight: 'bold',
 	children: 'Once upon a time… a button story',
 	variant: 'primary',
 	isLoading: false,

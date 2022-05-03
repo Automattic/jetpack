@@ -13,9 +13,8 @@ import { Layout } from '../layout';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
-import { containsBackupRealtime, getPlanClass } from 'lib/plans/constants';
 import { getSiteRawUrl } from 'state/initial-state';
-import { getActiveBackupPurchase, hasActiveBackupPurchase, getSitePlan } from 'state/site';
+import { hasActiveSiteFeature } from 'state/site';
 
 /**
  * Style dependencies
@@ -23,7 +22,7 @@ import { getActiveBackupPurchase, hasActiveBackupPurchase, getSitePlan } from 's
 import './style.scss';
 
 const OneClickRestoresComponent = props => {
-	const { planClass, siteRawUrl } = props;
+	const { hasRealTimeBackups, siteRawUrl } = props;
 
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
@@ -37,9 +36,11 @@ const OneClickRestoresComponent = props => {
 		} );
 	}, [] );
 
-	const backupsName = containsBackupRealtime( planClass )
-		? __( 'Real-time Backups', 'jetpack' )
-		: __( 'Daily Backups', 'jetpack' );
+	/* Avoid ternary as code minification will break translation function. :( */
+	let backupsName = __( 'Daily Backups', 'jetpack' );
+	if ( hasRealTimeBackups ) {
+		backupsName = __( 'Real-time Backups', 'jetpack' );
+	}
 
 	return (
 		<Layout
@@ -79,10 +80,8 @@ const OneClickRestoresComponent = props => {
 };
 
 const OneClickRestores = connect( state => ( {
+	hasRealTimeBackups: hasActiveSiteFeature( state, 'real-time-backups' ),
 	siteRawUrl: getSiteRawUrl( state ),
-	planClass: hasActiveBackupPurchase( state )
-		? getPlanClass( getActiveBackupPurchase( state ).product_slug )
-		: getPlanClass( getSitePlan( state ).product_slug ),
 } ) )( OneClickRestoresComponent );
 
 export { OneClickRestores };

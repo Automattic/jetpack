@@ -263,7 +263,7 @@ class REST_Controller {
 			$request->get_query_params(),
 			sprintf( '/sites/%d/search', absint( $blog_id ) )
 		);
-		$response = Client::wpcom_json_api_request_as_user( $path, '1.3', array(), null, 'rest' );
+		$response = Client::wpcom_json_api_request_as_blog( $path, '1.3', array(), null, 'rest' );
 		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 

@@ -80,9 +80,9 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 fi
 
 cd "$BASE"
-pnpx jetpack install --all
+pnpm jetpack install --all
 
-DEPS="$(pnpx jetpack dependencies json)"
+DEPS="$(pnpm jetpack dependencies json)"
 declare -A RELEASED
 
 # Release a project
@@ -169,7 +169,7 @@ cd "$BASE"
 info "Updating dependencies..."
 SLUGS=()
 # Use a temp variable so pipefail works
-TMP="$(pnpx jetpack dependencies build-order --pretty)"
+TMP="$(pnpm jetpack dependencies build-order --pretty)"
 mapfile -t SLUGS <<<"$TMP"
 for SLUG in "${SLUGS[@]}"; do
 	if [[ -n "${RELEASED[$SLUG]}" ]]; then

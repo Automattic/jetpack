@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect: use weight Button prop to style the "learn more" footer link
