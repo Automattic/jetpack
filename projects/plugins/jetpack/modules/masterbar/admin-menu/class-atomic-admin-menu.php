@@ -16,6 +16,12 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Atomic_Admin_Menu.
  */
 class Atomic_Admin_Menu extends Admin_Menu {
+	/**
+	 * Cache buster for the belonging assets.
+	 *
+	 * @var int
+	 */
+	private $cache_bust = '20220503';
 
 	/**
 	 * Atomic_Admin_Menu constructor.
@@ -39,6 +45,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			},
 			0
 		);
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_async_upsell_nudge' ) );
+		add_filter( 'script_loader_tag', array( $this, 'async_script_loader_tag' ), 10, 3 );
 	}
 
 	/**
@@ -72,11 +81,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
-			$nudge = $this->get_upsell_nudge();
-			if ( $nudge ) {
-				parent::add_upsell_nudge( $nudge );
-			}
-
 			$this->add_new_site_link();
 		}
 
@@ -259,30 +263,23 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Returns the first available upsell nudge.
-	 *
-	 * @return array
+	 * Enqueue the script to async load the upsell nudge.
 	 */
-	public function get_upsell_nudge() {
-		$jitm         = \Automattic\Jetpack\JITMS\JITM::get_instance();
-		$message_path = 'calypso:sites:sidebar_notice';
-		$message      = $jitm->get_messages( $message_path, wp_json_encode( array( 'message_path' => $message_path ) ), false );
+	public function enqueue_async_upsell_nudge() {
+		wp_enqueue_script( 'admin-menu-upsell-nudge', plugins_url( 'upsell-nudge.js', __FILE__ ), array( 'wp-api-fetch' ), $this->cache_bust, true );
+	}
 
-		if ( isset( $message[0] ) ) {
-			$message = $message[0];
-			return array(
-				'content'                      => $message->content->message,
-				'cta'                          => $message->CTA->message, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				'link'                         => $message->CTA->link, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				'tracks_impression_event_name' => $message->tracks->display->name,
-				'tracks_impression_cta_name'   => $message->tracks->display->props->cta_name,
-				'tracks_click_event_name'      => $message->tracks->click->name,
-				'tracks_click_cta_name'        => $message->tracks->click->props->cta_name,
-				'dismissible'                  => $message->is_dismissible,
-				'feature_class'                => $message->feature_class,
-				'id'                           => $message->id,
-			);
+	/**
+	 * Modify the async upsell nudge script tag to be async.
+	 *
+	 * @param string $tag    Prior script tag markup.
+	 * @param string $handle Name of the script handle we're going to load.
+	 */
+	public function async_script_loader_tag( $tag, $handle ) {
+		if ( $handle !== 'admin-menu-upsell-nudge' ) {
+			return $tag;
 		}
+		return str_replace( '<script src', '<script async src', $tag );
 	}
 
 	/**

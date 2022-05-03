@@ -16,6 +16,13 @@ require_once __DIR__ . '/class-admin-menu.php';
  */
 class WPcom_Admin_Menu extends Admin_Menu {
 	/**
+	 * Cache buster for the belonging assets.
+	 *
+	 * @var int
+	 */
+	private $cache_bust = '20220503';
+
+	/**
 	 * Holds the current plan, set by get_current_plan().
 	 *
 	 * @var array
@@ -32,6 +39,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_async_upsell_nudge' ) );
+		add_filter( 'script_loader_tag', array( $this, 'async_script_loader_tag' ), 10, 3 );
 	}
 
 	/**
@@ -47,10 +56,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
-			$nudge = $this->get_upsell_nudge();
-			if ( $nudge ) {
-				parent::add_upsell_nudge( $nudge );
-			}
 			$this->add_new_site_link();
 		}
 
@@ -216,40 +221,56 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Returns the first available upsell nudge.
-	 *
-	 * @return array
+	 * Enqueue the script to async load the upsell nudge.
 	 */
-	public function get_upsell_nudge() {
-		require_lib( 'jetpack-jitm/jitm-engine' );
-		$jitm_engine = new JITM\Engine();
+	public function enqueue_async_upsell_nudge() {
+		if ( ! did_action( 'enqueue_block_editor_assets' ) ) {
+			$gutenberg_wpcom_path = ABSPATH . 'wp-content/plugins/gutenberg-wpcom/';
 
-		$message_path = 'calypso:sites:sidebar_notice';
-		$current_user = wp_get_current_user();
-		$user_id      = $current_user->ID;
-		$user_roles   = implode( ',', $current_user->roles );
-		$query_string = array(
-			'message_path' => $message_path,
-		);
-
-		// Get the top message only.
-		$message = $jitm_engine->get_top_messages( $message_path, $user_id, $user_roles, $query_string );
-
-		if ( isset( $message[0] ) ) {
-			$message = $message[0];
-			return array(
-				'content'                      => $message->content['message'],
-				'cta'                          => $message->CTA['message'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				'link'                         => $message->CTA['link'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				'tracks_impression_event_name' => $message->tracks['display']['name'],
-				'tracks_impression_cta_name'   => $message->tracks['display']['props']['cta_name'],
-				'tracks_click_event_name'      => $message->tracks['click']['name'],
-				'tracks_click_cta_name'        => $message->tracks['click']['props']['cta_name'],
-				'dismissible'                  => $message->is_dismissible,
-				'feature_class'                => $message->feature_class,
-				'id'                           => $message->id,
+			wp_register_script( 'jquery.wpcom-proxy-request', '/wp-content/js/jquery/jquery.wpcom-proxy-request.js', array( 'jquery' ), '20211111', false );
+			wp_enqueue_script(
+				'async-nudge-gutenberg-wpcom-apifetch',
+				plugins_url( 'gutenberg-wpcom-apifetch.js', $gutenberg_wpcom_path . 'gutenberg-wpcom-apifetch.js' ),
+				array(
+					'jquery.wpcom-proxy-request',
+					'lodash',
+					'wp-api',
+					'wp-api-fetch',
+					'wp-polyfill',
+					'wp-url',
+				),
+				filemtime( $gutenberg_wpcom_path . 'gutenberg-wpcom-apifetch.js' ),
+				false
 			);
+			wp_localize_script(
+				'async-nudge-gutenberg-wpcom-apifetch',
+				'wpcomGutenberg',
+				array(
+					'errorMessages' => array(
+						'apiFetchOffline' => __( 'You are probably offline.', 'jetpack' ),
+						'apiFetchUnknown' => __( 'An unknown error occurred.', 'jetpack' ),
+					),
+				)
+			);
+
+			$script_data = '_currentSiteId = ' . get_current_blog_id() . ';';
 		}
+
+		wp_enqueue_script( 'admin-menu-upsell-nudge', plugins_url( 'upsell-nudge.js', __FILE__ ), array(), $this->cache_bust, true );
+		wp_add_inline_script( 'admin-menu-upsell-nudge', $script_data, 'before' );
+	}
+
+	/**
+	 * Modify the async upsell nudge script tag to be async.
+	 *
+	 * @param string $tag    Prior script tag markup.
+	 * @param string $handle Name of the script handle we're going to load.
+	 */
+	public function async_script_loader_tag( $tag, $handle ) {
+		if ( $handle !== 'admin-menu-upsell-nudge' ) {
+			return $tag;
+		}
+		return str_replace( '<script src', '<script async src', $tag );
 	}
 
 	/**

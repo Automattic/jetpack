@@ -108,68 +108,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Adds upsell nudge as a menu.
-	 *
-	 * @param object $nudge The $nudge object containing the content, CTA, link and tracks.
-	 */
-	public function add_upsell_nudge( $nudge ) {
-		$dismiss_button = '';
-		if ( $nudge['dismissible'] ) {
-			$dismiss_button = '<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="%1$s" data-feature_id="%2$s" viewBox="0 0 24 24" class="gridicon gridicons-cross dismissible-card__close-icon" height="24" width="24"><g><path d="M18.36 19.78L12 13.41l-6.36 6.37-1.42-1.42L10.59 12 4.22 5.64l1.42-1.42L12 10.59l6.36-6.36 1.41 1.41L13.41 12l6.36 6.36z"></path></g></svg>';
-			$dismiss_button = sprintf( $dismiss_button, esc_attr( $nudge['feature_class'] ), esc_attr( $nudge['id'] ) );
-		}
-
-		$message = '
-<div class="upsell_banner">
-	<div class="banner__info">
-		<div class="banner__title">%1$s</div>
-	</div>
-	<div class="banner__action">
-		<button type="button" class="button">%2$s</button>
-	</div>%3$s
-</div>';
-
-		$message = sprintf(
-			$message,
-			wp_kses( $nudge['content'], array() ),
-			wp_kses( $nudge['cta'], array() ),
-			$dismiss_button
-		);
-
-		$menu_slug = $nudge['link'];
-		if ( wp_startswith( $menu_slug, '/' ) ) {
-			$menu_slug = 'https://wordpress.com' . $menu_slug;
-		}
-
-		add_menu_page( 'site-notices', $message, 'read', $menu_slug, null, null, 1 );
-		add_filter( 'add_menu_classes', array( $this, 'set_site_notices_menu_class' ) );
-	}
-
-	/**
-	 * Adds a custom element class and id for Site Notices's menu item.
-	 *
-	 * @param array $menu Associative array of administration menu items.
-	 * @return array
-	 */
-	public function set_site_notices_menu_class( array $menu ) {
-		foreach ( $menu as $key => $menu_item ) {
-			if ( 'site-notices' !== $menu_item[3] ) {
-				continue;
-			}
-
-			$classes = ' toplevel_page_site-notices';
-
-			if ( isset( $menu_item[4] ) ) {
-				$menu[ $key ][4] = $menu_item[4] . $classes;
-				$menu[ $key ][5] = 'toplevel_page_site-notices';
-				break;
-			}
-		}
-
-		return $menu;
-	}
-
-	/**
 	 * Adds Inbox menu.
 	 */
 	public function add_inbox_menu() {

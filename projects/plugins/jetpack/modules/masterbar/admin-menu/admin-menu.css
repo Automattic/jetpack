@@ -131,7 +131,7 @@
 	min-height: 26px;
 }
 
-#adminmenu .toplevel_page_site-notices .upsell_banner svg.dismissible-card__close-icon {
+#adminmenu .toplevel_page_site-notices .upsell_banner .dismissible-card__close-icon {
 	height: 24px;
 	width: 24px;
 	margin-left: 10px;

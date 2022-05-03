@@ -59,15 +59,16 @@
 				} );
 			}
 
-			const jitmDismissButton = adminMenu.querySelector( '.dismissible-card__close-icon' );
-			if ( jitmDismissButton ) {
-				jitmDismissButton.addEventListener( 'click', function ( event ) {
+			adminMenu.addEventListener( 'click', function ( event ) {
+				if ( event.target.classList.contains( 'dismissible-card__close-icon' ) ) {
 					event.preventDefault();
 
 					const siteNotice = document.getElementById( 'toplevel_page_site-notices' );
 					if ( siteNotice ) {
 						siteNotice.style.display = 'none';
 					}
+
+					const jitmDismissButton = event.target;
 
 					makeAjaxRequest(
 						'POST',
@@ -81,8 +82,8 @@
 							'&_ajax_nonce=' +
 							jetpackAdminMenu.jitmDismissNonce
 					);
-				} );
-			}
+				}
+			} );
 		}
 	}
 
