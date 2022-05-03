@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Unified Stripe Nudge component, refactored the donation block so that it uses this version of the block and cleaned some code from the premium content block.
