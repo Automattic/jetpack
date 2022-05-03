@@ -193,11 +193,20 @@ export function storeGenerateError( error: Error ): void {
 	} ) );
 }
 
-export function resetGenerateStatus( forceRequest = true ): void {
+export function resetCloudStatus(): void {
 	return update( state => ( {
 		...state,
 		...resetState,
-		status: forceRequest ? REQUESTING : resetState.status,
+		status: REQUESTING,
+	} ) );
+}
+
+export function resetCloudRetryStatus(): void {
+	return update( state => ( {
+		...state,
+		...resetState,
+		status: REQUESTING,
+		retried_show_stopper: true,
 	} ) );
 }
 

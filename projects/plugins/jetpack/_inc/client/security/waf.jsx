@@ -4,7 +4,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -12,7 +11,6 @@ import { get } from 'lodash';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel } from 'components/forms';
 import {
-	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 } from 'lib/plans/constants';
@@ -291,7 +289,6 @@ export default connect( state => {
 		bootstrapPath: getWafBootstrapPath( state ),
 		hasRulesAccess: getWafHasRulesAccess( state ),
 		isFetchingWafSettings: isFetchingWafSettings( state ),
-		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 		sitePlan,
 	};

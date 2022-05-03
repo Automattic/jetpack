@@ -22,12 +22,18 @@ import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import getConnectUrl from '../../shared/get-connect-url';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
 import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
+import executionLock from '../../shared/execution-lock';
+
+const EXECUTION_KEY = 'membership-products-resolver-getProducts';
 
 export const getProducts = (
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
 	setSelectedProductId = () => {}
 ) => async ( { dispatch, registry } ) => {
+	await executionLock.blockExecution( EXECUTION_KEY );
+	const lock = executionLock.acquire( EXECUTION_KEY );
+
 	const origin = getQueryArg( window.location.href, 'origin' );
 	const path = addQueryArgs( '/wpcom/v2/memberships/status', {
 		source: origin === 'https://wordpress.com' ? 'gutenberg-wpcom' : 'gutenberg',
@@ -83,6 +89,7 @@ export const getProducts = (
 				)
 			);
 			dispatch( setApiState( API_STATE_CONNECTED ) );
+			executionLock.release( lock );
 			return;
 		}
 
@@ -101,4 +108,5 @@ export const getProducts = (
 		dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 		onError( error.message, registry );
 	}
+	executionLock.release( lock );
 };
