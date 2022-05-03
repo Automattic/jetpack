@@ -18,6 +18,8 @@ export const LEVEL_WARNING = 'warning';
 export const LEVEL_INFO = 'info';
 export const LEVEL_SUCCESS = 'success';
 
+export const ALERT_LEVELS = [ LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_SUCCESS ] as const;
+
 type AlertProps = {
 	/** The severity of the alert. */
 	level: typeof LEVEL_ERROR | typeof LEVEL_WARNING | typeof LEVEL_INFO | typeof LEVEL_SUCCESS;
