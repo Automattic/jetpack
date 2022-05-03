@@ -173,6 +173,16 @@ class Defaults {
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
 		'videopress_private_enabled_for_site',
+		'jetpack_search_color_theme',
+		'jetpack_search_result_format',
+		'jetpack_search_default_sort',
+		'jetpack_search_overlay_trigger',
+		'jetpack_search_excluded_post_types',
+		'jetpack_search_highlight_color',
+		'jetpack_search_enable_sort',
+		'jetpack_search_inf_scroll',
+		'jetpack_search_show_powered_by',
+		'instant_search_enabled',
 	);
 
 	/**
