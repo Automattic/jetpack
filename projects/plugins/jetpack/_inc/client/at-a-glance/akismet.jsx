@@ -200,7 +200,7 @@ class DashAkismet extends Component {
 
 		const hasSitePlan = false !== this.props.sitePlan;
 
-		if ( ! this.props.hasAkismet ) {
+		if ( ! this.props.hasAntiSpam ) {
 			if ( 'not_installed' === akismetData ) {
 				return (
 					<DashItem
@@ -304,7 +304,7 @@ export default connect(
 			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			hasAkismet: hasActiveSiteFeature( state, 'akismet' ),
+			hasAntiSpam: hasActiveSiteFeature( state, 'antispam' ),
 		};
 	},
 	dispatch => ( {
