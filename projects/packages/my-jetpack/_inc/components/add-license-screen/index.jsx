@@ -30,7 +30,7 @@ export default function AddLicenseScreen() {
 		event => {
 			recordEvent( 'jetpack_myjetpack_license_activation_back_link_click' );
 
-			if ( -1 !== document.referrer.indexOf( window.location.host ) ) {
+			if ( document.referrer.includes( window.location.host ) ) {
 				// Prevent default here to minimize page change within the My Jetpack app.
 				event.preventDefault();
 				history.back();
