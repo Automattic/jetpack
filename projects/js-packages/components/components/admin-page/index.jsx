@@ -40,16 +40,9 @@ const AdminPage = props => {
 
 	return (
 		<div className={ rootClassName }>
-			{ showHeader && !! header && (
+			{ showHeader && (
 				<Container horizontalSpacing={ 5 }>
-					<Col>{ header }</Col>
-				</Container>
-			) }
-			{ showHeader && ! header && (
-				<Container horizontalSpacing={ 5 }>
-					<Col>
-						<JetpackLogo />
-					</Col>
+					<Col>{ header ? header : <JetpackLogo /> }</Col>
 				</Container>
 			) }
 			<Container fluid horizontalSpacing={ 0 }>
