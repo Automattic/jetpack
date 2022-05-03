@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Test that projects in `storybook/projects.js` are listed as extra build dependencies in composer.json.

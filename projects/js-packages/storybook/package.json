@@ -15,13 +15,10 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
-		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
 		"storybook:build": "build-storybook -s ./public -c ./storybook -o ./docs",
-		"dev:packages": "echo 'TODO dev:packages'",
-		"storybook:dev": "concurrently \"pnpm run dev:packages\" \"start-storybook -c ./storybook -p 50240 -s ./public\""
+		"storybook:dev": "start-storybook -c ./storybook -p 50240 -s ./public",
+		"test": "jest tests/",
+		"test-coverage": "jest tests/ --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:* || ^0.11",
@@ -52,8 +49,8 @@
 		"@wordpress/postcss-plugins-preset": "3.7.0",
 		"babel-loader": "8.2.4",
 		"babel-plugin-inline-json-import": "0.3.2",
-		"concurrently": "6.0.2",
 		"css-loader": "6.5.1",
+		"jest": "27.3.1",
 		"postcss": "8.3.11",
 		"postcss-loader": "6.2.0",
 		"react": "17.0.2",
