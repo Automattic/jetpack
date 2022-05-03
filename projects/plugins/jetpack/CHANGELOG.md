@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 10.9 - 2022-05-03
+## [10.9] - 2022-05-03
 ### Enhancements
 - Dashboard: update the recommendation flow to include recommendations for VideoPress as well as discounts.
 - Google Fonts: update the Google Fonts module to be compatible with the most recent version of the WP_Webfonts API.
@@ -6496,6 +6496,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[10.9]: https://wp.me/p1moTy-EHd
 [10.8]: https://wp.me/p1moTy-CTQ
 [10.7]: https://wp.me/p1moTy-AMD
 [10.6]: https://wp.me/p1moTy-AES
