@@ -1,6 +1,6 @@
 ( () => {
 	function requestJitm() {
-		if ( window._currentSiteId ) {
+		if ( window.wpApiSettings.root.indexOf( 'https://public-api.wordpress.com/' ) === 0 ) {
 			return wp.apiFetch( {
 				apiNamespace: 'rest/v1.1',
 				global: true,
