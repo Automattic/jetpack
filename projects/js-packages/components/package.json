@@ -8,6 +8,7 @@
 		"@automattic/format-currency": "1.0.1",
 		"@wordpress/browserslist-config": "4.1.2",
 		"@wordpress/components": "19.9.0",
+		"@wordpress/compose": "5.5.0",
 		"@wordpress/date": "4.7.0",
 		"@wordpress/i18n": "4.7.0",
 		"@wordpress/icons": "8.3.0",

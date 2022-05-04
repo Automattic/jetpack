@@ -116,6 +116,7 @@ importers:
       '@types/react-test-renderer': 17.0.1
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.9.0
+      '@wordpress/compose': 5.5.0
       '@wordpress/date': 4.7.0
       '@wordpress/i18n': 4.7.0
       '@wordpress/icons': 8.3.0
@@ -135,6 +136,7 @@ importers:
       '@automattic/format-currency': 1.0.1
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.9.0_90235303a63cb120a61bc1fbe29e5237
+      '@wordpress/compose': 5.5.0_react@17.0.2
       '@wordpress/date': 4.7.0
       '@wordpress/i18n': 4.7.0
       '@wordpress/icons': 8.3.0
