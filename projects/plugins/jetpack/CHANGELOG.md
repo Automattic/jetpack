@@ -6,7 +6,7 @@
 ### Enhancements
 - WAF: add settings UI for Jetpack Firewall [#23769]
 - Google Fonts: add additional fonts to the list of available fonts. [#24098]
-- Payment Block: refactors the donation block by unifieing Stripe Nudge component. [#24177]
+- Payment Block: refactors the donation block by unifying Stripe Nudge component. [#24177]
 
 ### Improved compatibility
 - Contact Form: ensure the option to export forms to a csv file works with the upcoming version of WordPress, 6.0. [#24173]
