@@ -4,25 +4,27 @@
 import React from 'react';
 import { Path, SVG } from '@wordpress/components';
 
-type HEXColorType = `#${ string }`;
+type HexDigit = `${ number }` | 'a' | 'b' | 'c' | 'd' | 'e' | 'f';
+type HexNum< T extends string = HexDigit > = HexDigit | `${ HexDigit }${ T }`;
+type HexColor = `#${ HexNum< HexNum > }`;
 
 type LogoProps = {
-	iconColor: HEXColorType;
-	color: HEXColorType;
+	iconColor?: HexColor;
+	color?: HexColor;
 };
 
 /**
  * Protect Logo component
  *
  * @param {object} props                 - Component props
- * @param {HEXColorType} props.color     - Text color.
- * @param {HEXColorType} props.iconColor - Icon color
+ * @param {HexColor} props.color     - Text color.
+ * @param {HexColor} props.iconColor - Icon color
  * @returns {React.ReactElement}   Component template
  */
-export default function Logo( {
+const Logo: React.FC< React.PropsWithChildren< LogoProps > > = ( {
 	iconColor = '#069E08',
 	color = '#000',
-}: LogoProps ): React.ReactElement {
+} ) => {
 	return (
 		<SVG
 			fillRule="evenodd"
@@ -96,4 +98,6 @@ export default function Logo( {
 			/>
 		</SVG>
 	);
-}
+};
+
+export default Logo;
