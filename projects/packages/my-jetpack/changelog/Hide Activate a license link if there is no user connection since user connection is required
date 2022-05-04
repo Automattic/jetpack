@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide Activate a license link if there is no user connection since user connection is required
