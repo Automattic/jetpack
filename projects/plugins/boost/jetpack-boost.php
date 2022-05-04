@@ -10,7 +10,7 @@
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
  * Version: 1.4.3-alpha
- * Author:            Automattic
+ * Author:            Automattic - Website Speed and Performance team
  * Author URI:        https://automattic.com
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
