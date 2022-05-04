@@ -47,12 +47,12 @@ ul.jp-search-chart-legend {
 .jp-search-notice-box {
 	background-color: white;
 	color: black;
-	border: #dcdcde 0.5px solid; // grey #5
+	border: $studio-gray-5 0.5px solid;
 	border-radius: 5px;
 }
 
 .jp-search-notice-box__important {
-	border: #d63638 0.5px solid; // red #50
+	border: $studio-red-50 0.5px solid;
 }
 
 .jp-search-notice-box a.dops-notice__action {
@@ -79,7 +79,7 @@ ul.jp-search-chart-legend {
 .jp-search-notice-box__important .dops-notice__icon-wrapper,
 .jp-search-notice-box__important,
 .jp-search-notice-box__important a.dops-notice__action {
-	color: #d63638;
+	color: $studio-red-50;
 }
 
 .jp-search-notice-box > span.dops-notice__icon-wrapper > svg {
@@ -96,7 +96,7 @@ ul.jp-search-chart-legend {
 }
 
 .jp-search-record-meter {
-	border-bottom: #dcdcde 1px solid; // grey #5
+	border-bottom: $studio-gray-5 1px solid;
 	padding: 64px 0;
 }
 
