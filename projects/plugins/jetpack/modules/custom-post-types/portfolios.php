@@ -782,7 +782,7 @@ class Jetpack_Portfolio {
 	 * Sanitizes an attribute value.
 	 * Attributes can be booleans (from the default values) or strings.
 	 *
-	 * @since $$next-version$$
+	 * @since 11.0
 	 *
 	 * @param bool|string $attr Shortcode attribute value.
 	 *
