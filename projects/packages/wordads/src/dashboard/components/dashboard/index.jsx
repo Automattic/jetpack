@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { JetpackFooter, JetpackLogo, Spinner } from '@automattic/jetpack-components';
+import { Spinner, AdminSection, AdminPage, Container, Col } from '@automattic/jetpack-components';
 import ModuleControl from 'components/module-control';
 import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
@@ -64,68 +64,36 @@ export default function WordAdsDashboard() {
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
 		initializeAnalytics();
-		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
+		analytics.tracks.recordEvent( 'jetpack_wordads_admin_page_view', {
 			current_version: syncSelect( STORE_ID ).getVersion(),
 		} );
 	}, [] );
 
-	const renderHeader = () => {
-		return (
-			<div className="jp-wordads-dashboard-header jp-wordads-dashboard-wrap">
-				<div className="jp-wordads-dashboard-row">
-					<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
-						<div className="jp-wordads-dashboard-header__logo-container">
-							<JetpackLogo className="jp-wordads-dashboard-header__masthead" />
-						</div>
-					</div>
-				</div>
-			</div>
-		);
-	};
-
-	const renderModuleControl = () => {
-		return (
-			<div className="jp-wordads-dashboard-bottom">
-				<ModuleControl
-					updateOptions={ updateOptions }
-					isModuleEnabled={ isModuleEnabled }
-					isSavingOptions={ isSavingOptions }
-					isTogglingModule={ isTogglingModule }
-				/>
-			</div>
-		);
-	};
-
-	const renderFooter = () => {
-		return (
-			<div className="jp-wordads-dashboard-footer jp-wordads-dashboard-wrap">
-				<div className="jp-wordads-dashboard-row">
-					<JetpackFooter
-						a8cLogoHref={ aboutPageUrl }
-						moduleName={ __( 'WordAds', 'jetpack-wordads' ) }
-						className="lg-col-span-12 md-col-span-8 sm-col-span-4"
-					/>
-				</div>
-			</div>
-		);
-	};
-
 	return (
-		<div className="jp-wordads-dashboard-page">
+		<Fragment>
 			{ isLoading && (
 				<Spinner className="jp-wordads-dashboard-page-loading-spinner" color="#000" size={ 32 } />
 			) }
 			{ ! isLoading && (
-				<Fragment>
-					{ renderHeader() }
-					{ renderModuleControl() }
-					{ renderFooter() }
-				</Fragment>
+				<AdminPage a8cLogoHref={ aboutPageUrl } moduleName={ __( 'WordAds', 'jetpack-wordads' ) }>
+					<AdminSection>
+						<Container horizontalSpacing={ 5 }>
+							<Col sm={ 4 }>
+								<ModuleControl
+									updateOptions={ updateOptions }
+									isModuleEnabled={ isModuleEnabled }
+									isSavingOptions={ isSavingOptions }
+									isTogglingModule={ isTogglingModule }
+								/>
+							</Col>
+						</Container>
+					</AdminSection>
+				</AdminPage>
 			) }
 			<NoticesList
 				notices={ notices }
 				handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
 			/>
-		</div>
+		</Fragment>
 	);
 }
