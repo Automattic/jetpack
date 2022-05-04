@@ -19,11 +19,11 @@ Did you know that a faster website:-
 - Improves bounce rate (people stay on your site for longer).
 - Increases your conversion rate.
 
-Increase your website performance and speed up your website with one-click optimizations that supercharge your WordPress site’s performance and improve web vitals scores for better search engine listings.
+Increase your website performance and speed up your website with one-click optimizations that supercharge your WordPress site’s performance and improve core web vitals scores for better search engine listings.
 
 Improving Core Web Vitals helps you rank higher on Google. A faster website also improves your SEO, helps you reduce your bounce rate and increase your ecommerce conversion rate. 
 
-- Largest Contenful Paint (LCP): Measures loading performance. Improve your LCP and improve your website loading speed.
+- Largest Contentful Paint (LCP): Measures loading performance. Improve your LCP and improve your website loading speed.
 - First Input Delay (FID): Measures interactivity. To improve user experience pages should have a low FID.
 - Cumilative Layout Shift (CLS): Measures visual stability. Lowering your CLS helps improve your user experience.
 
@@ -49,6 +49,8 @@ Currently the plugin has 3 performance modules available:
 
  Google PageSpeed API is used to measure the performance score of a site. It's important to look at the Page Speed score because Core Web Vitals are going to be used as a ranking factor in search engines which means improving your SERP listing and increase your website visitors.
 
+Don’t want to have to manually generate your critical CSS each time you update your site? Let us do the heavy lifting for you with automated critical CSS – each time you update your site we will automatically regenerate your critical CSS and update your performance scores. Upgrading also gives you dedicated email support access.
+
 ### With 💚 by Jetpack
 
 This is just the start!
@@ -59,7 +61,7 @@ We'd also like to give a special THANK YOU to the XWP team who provided help wit
 
 == Frequently Asked Questions ==
 
-= What does the Jetpack Boost plugin do to help speed up my site? =
+= What does the Jetpack Boost plugin do to help speed up my WordPress site? =
 
 Jetpack Boost makes small changes to the way that data is sent from your WordPress site to your users’ browser, to enable the browser to display your site faster.
 
