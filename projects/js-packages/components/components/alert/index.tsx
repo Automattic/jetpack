@@ -10,19 +10,9 @@ import classNames from 'classnames';
  */
 import styles from './style.module.scss';
 
-/**
- * Contants
- */
-export const LEVEL_ERROR = 'error';
-export const LEVEL_WARNING = 'warning';
-export const LEVEL_INFO = 'info';
-export const LEVEL_SUCCESS = 'success';
-
-export const ALERT_LEVELS = [ LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_SUCCESS ] as const;
-
 type AlertProps = {
 	/** The severity of the alert. */
-	level: typeof LEVEL_ERROR | typeof LEVEL_WARNING | typeof LEVEL_INFO | typeof LEVEL_SUCCESS;
+	level: 'error' | 'warning' | 'info' | 'success';
 
 	/** Show/Hide icon */
 	showIcon?: boolean;
@@ -33,13 +23,13 @@ type AlertProps = {
 
 const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
 	switch ( level ) {
-		case LEVEL_ERROR:
+		case 'error':
 			return warning;
-		case LEVEL_WARNING:
+		case 'warning':
 			return warning;
-		case LEVEL_INFO:
+		case 'info':
 			return info;
-		case LEVEL_SUCCESS:
+		case 'success':
 			return check;
 		default:
 			return warning;
@@ -71,7 +61,7 @@ const Alert: React.FC< React.PropsWithChildren< AlertProps > > = ( {
 };
 
 Alert.defaultProps = {
-	level: LEVEL_WARNING,
+	level: 'warning',
 	showIcon: true,
 };
 

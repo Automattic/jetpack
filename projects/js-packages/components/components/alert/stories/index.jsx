@@ -6,7 +6,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import Alert, { ALERT_LEVELS, LEVEL_INFO } from '../index';
+import Alert from '../index';
 
 export default {
 	title: 'JS Packages/Components/Alert',
@@ -15,7 +15,7 @@ export default {
 		level: {
 			control: {
 				type: 'select',
-				options: ALERT_LEVELS,
+				options: [ 'info', 'success', 'warning', 'error' ],
 			},
 		},
 	},
@@ -25,7 +25,7 @@ const Template = args => <Alert { ...args } />;
 
 export const _default = Template.bind( {} );
 _default.args = {
-	level: LEVEL_INFO,
+	level: 'info',
 	children: "Don't forget to check your email for the latest news.",
 	showIcon: true,
 };
