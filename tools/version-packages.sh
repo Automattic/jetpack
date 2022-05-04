@@ -101,10 +101,10 @@ fi
 
 # Compare new versus old versions to check for downgrades.
 EXIT=0
-while IFS=$'\t' read --range PKG OLDVER NEWVER; do
+while IFS=$'\t' read -r PKG OLDVER NEWVER; do
 	OV=$(sed -e 's/\.x-dev$/.0-alpha/' <<<"$OLDVER")
 	NV=$(sed -e 's/^\^//' -e 's/\.x-dev$/.0-alpha/' <<<"$NEWVER")
-	if ! pnpm semver -c -r ">$OV" "$NV" >/dev/null; then
+	if ! pnpm semver -c --range ">$OV" "$NV" >/dev/null; then
 		EXIT=1
 		error "$PKG was not upgraded ($NEWVER <= $OLDVER)"
 	fi
