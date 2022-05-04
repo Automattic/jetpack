@@ -246,7 +246,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Enhancements
 - WAF: add settings UI for Jetpack Firewall
 - Google Fonts: add additional fonts to the list of available fonts.
-- Payment Block: refactors the donation block by unifieing Stripe Nudge component.
+- Payment Block: refactors the donation block by unifying Stripe Nudge component.
 
 #### Improved compatibility
 - Contact Form: ensure the option to export forms to a csv file works with the upcoming version of WordPress, 6.0.
