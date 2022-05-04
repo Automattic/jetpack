@@ -2,14 +2,20 @@
  * External dependencies
  */
 import React from 'react';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Container, Col } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import styles from './style.module.scss';
+import Container from '../layout/container';
+import Col from '../layout/col';
+
+type DialogProps = {
+	primary: React.ReactNode;
+	secondary: React.ReactNode;
+	split?: boolean;
+};
 
 /**
  * Dialog component.
@@ -18,9 +24,9 @@ import styles from './style.module.scss';
  * @param {React.Component} props.primary   - Primary content.
  * @param {React.Component} props.secondary - Secondary content.
  * @param {boolean} props.split			    - Split the sections.
- * @returns {object}                          Dialog react component.
+ * @returns {React.FunctionComponent}         Dialog react component.
  */
-export default function Dialog( { primary, secondary, split } ) {
+const Dialog: React.FC< DialogProps > = ( { primary, secondary, split } ) => {
 	const classNames = classnames( {
 		[ styles.container ]: ! split,
 	} );
@@ -35,14 +41,10 @@ export default function Dialog( { primary, secondary, split } ) {
 			</Col>
 		</Container>
 	);
-}
-
-Dialog.propTypes = {
-	split: PropTypes.bool,
 };
 
 Dialog.defaultProps = {
-	primary: null,
-	secondary: null,
 	split: false,
 };
+
+export default Dialog;

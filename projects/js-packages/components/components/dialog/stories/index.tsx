@@ -7,8 +7,8 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import ProductDetailCard from '../../product-offer';
-import Dialog from '../';
+import ProductOffer from '../../product-offer';
+import Dialog from '..';
 import BoostImage from '../boost.png';
 
 export default {
@@ -43,7 +43,7 @@ export const InterstitialJetpackBoost = Template.bind( {} );
 InterstitialJetpackBoost.parameters = {};
 InterstitialJetpackBoost.args = {
 	primary: (
-		<ProductDetailCard
+		<ProductOffer
 			slug="boost"
 			name="Boost"
 			title="Jepack Boost"
@@ -56,6 +56,12 @@ InterstitialJetpackBoost.args = {
 			pricing={ {
 				isFree: true,
 			} }
+			className={ '' }
+			icon={ '' }
+			isCard={ false }
+			supportedProducts={ [] }
+			hasRequiredPlan={ false }
+			addProductUrl={ '' }
 		/>
 	),
 	secondary: <img src={ BoostImage } alt="Boost" />,
@@ -66,7 +72,7 @@ export const InterstitialJetpackBackup = Template.bind( {} );
 InterstitialJetpackBackup.parameters = {};
 InterstitialJetpackBackup.args = {
 	primary: (
-		<ProductDetailCard
+		<ProductOffer
 			slug="boost"
 			name="Boost"
 			title="Jepack Boost"
@@ -80,10 +86,15 @@ InterstitialJetpackBackup.args = {
 				isFree: true,
 			} }
 			isCard={ true }
+			className={ '' }
+			icon={ '' }
+			supportedProducts={ [] }
+			hasRequiredPlan={ false }
+			addProductUrl={ '' }
 		/>
 	),
 	secondary: (
-		<ProductDetailCard
+		<ProductOffer
 			slug="security"
 			name="Security"
 			title="Security"
@@ -103,6 +114,10 @@ InterstitialJetpackBackup.args = {
 			} }
 			hasRequiredPlan={ false }
 			isLoading={ false }
+			className={ '' }
+			icon={ '' }
+			isCard={ false }
+			addProductUrl={ '' }
 		/>
 	),
 	split: true,
