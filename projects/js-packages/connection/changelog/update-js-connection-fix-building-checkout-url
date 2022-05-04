@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-JS Connection: fix builinfg the product checkout URL in useProductCheckoutWorkflow() custom hook

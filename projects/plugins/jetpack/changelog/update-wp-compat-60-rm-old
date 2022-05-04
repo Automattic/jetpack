@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-General: remove backwards compatibility code now that Jetpack requires WordPress 5.9.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Remove use of `pnpx` in preparation for pnpm 7.0.

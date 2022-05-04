@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.11.4 - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+- JS Components: add getProductCheckoutUrl helper function [#24113]
+- JS Components: Add Protect Icon [#24139]
+- JS Components: add `weight` prop to Button component [#24219]
+
+### Changed
+- JS Components: Add className prop to Protect icon [#24142]
+- JS Components: Introduce `header` prop to AdminPage component [#24232]
+- Protect: update new version of icon [#24215]
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+### Fixed
+- JS Components: fix weird spinner issue [#24206]
+
 ## 0.11.3 - 2022-04-26
 ### Added
 - Added RecordMeterBar component with stories and unit tests
