@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+JS Components: Introduce `header` prop to AdminPage component

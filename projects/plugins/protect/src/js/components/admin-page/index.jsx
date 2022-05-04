@@ -24,46 +24,37 @@ import { STORE_ID } from '../../state/store';
 import Footer from '../footer';
 import useProtectData from '../../hooks/use-protect-data';
 import inProgressImage from './in-progress.png';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import Logo from '../logo';
 
 export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
-const Admin = () => {
-	useRegistrationWatcher();
-	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
-		redirectUrl: adminUrl,
-	} );
+const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
+	return (
+		<AdminPage
+			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
+			showHeader={ false }
+			showBackground={ false }
+		>
+			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+				<Col sm={ 4 } md={ 8 } lg={ 12 }>
+					<Interstitial onSecurityAdd={ run } securityJustAdded={ hasCheckoutStarted } />
+				</Col>
+			</Container>
+		</AdminPage>
+	);
+};
+
+const ProtectAdminPage = () => {
 	const { lastChecked } = useProtectData();
 
-	/*
-	 * Show interstital page when
-	 * - Site is not registered
-	 * - Checkout workflow has started
-	 */
-	if ( ! isRegistered || hasCheckoutStarted ) {
-		return (
-			<AdminPage
-				moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
-				showHeader={ false }
-				showBackground={ false }
-			>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Interstitial onSecurityAdd={ run } securityJustAdded={ hasCheckoutStarted } />
-					</Col>
-				</Container>
-			</AdminPage>
-		);
-	}
+	// Track view for Protect admin page.
+	useAnalyticsTracks( { pageViewEventName: 'protect_admin' } );
 
-	/*
-	 * When there's no information yet. Usually when the plugin was just activated
-	 */
-
+	// When there's no information yet. Usually when the plugin was just activated
 	if ( ! lastChecked ) {
 		return (
-			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
+			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 						<Col sm={ 4 } md={ 4 } lg={ 6 }>
@@ -87,7 +78,7 @@ const Admin = () => {
 	}
 
 	return (
-		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
+		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 					<Col>
@@ -115,6 +106,26 @@ const useRegistrationWatcher = () => {
 		// We don't want to run the effect if status changes. Only on changes on isRegistered.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ isRegistered ] );
+};
+
+const Admin = () => {
+	useRegistrationWatcher();
+	const { adminUrl } = window.jetpackProtectInitialState || {};
+	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug: SECURITY_BUNDLE,
+		redirectUrl: adminUrl,
+	} );
+
+	/*
+	 * Show interstital page when
+	 * - Site is not registered
+	 * - Checkout workflow has started
+	 */
+	if ( ! isRegistered || hasCheckoutStarted ) {
+		return <InterstitialPage run={ run } hasCheckoutStarted={ hasCheckoutStarted } />;
+	}
+
+	return <ProtectAdminPage />;
 };
 
 export default Admin;

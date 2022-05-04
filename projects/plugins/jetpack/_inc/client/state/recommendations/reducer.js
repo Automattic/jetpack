@@ -44,8 +44,8 @@ import {
 	getSitePlan,
 	getSitePurchases,
 	hasActiveProductPurchase,
-	hasActiveScanPurchase,
 	hasActiveSecurityPurchase,
+	hasActiveSiteFeature,
 	hasActiveAntiSpamPurchase,
 	hasActiveVideoPressPurchase,
 	hasSecurityComparableLegacyPlan,
@@ -552,7 +552,7 @@ export const getSidebarCardSlug = state => {
 		return 'upsell';
 	}
 
-	if ( 'awaiting_credentials' === rewindState && ! hasActiveScanPurchase( state ) ) {
+	if ( 'awaiting_credentials' === rewindState && ! hasActiveSiteFeature( state, 'scan' ) ) {
 		return 'one-click-restores';
 	}
 

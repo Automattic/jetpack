@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Custom Content Types: fix PHPCS linting errors in CPT module files, part 2
