@@ -24,9 +24,6 @@ type AlertProps = {
 	/** The severity of the alert. */
 	level: typeof LEVEL_ERROR | typeof LEVEL_WARNING | typeof LEVEL_INFO | typeof LEVEL_SUCCESS;
 
-	/** Children to be rendered inside the alert. */
-	children: React.ReactNode;
-
 	/** Show/Hide icon */
 	showIcon?: boolean;
 };
@@ -59,7 +56,7 @@ const Alert: React.FC< React.PropsWithChildren< AlertProps > > = ( {
 	level,
 	children,
 	showIcon,
-}: AlertProps ): React.ReactElement => {
+} ) => {
 	const classes = classNames( styles.container, styles[ `is-${ level }` ] );
 
 	return (
