@@ -1,5 +1,6 @@
 ( () => {
 	function requestJitm() {
+		// Use remote Jetpack JITM endpoint on WP.com Simple sites.
 		if ( window.wpApiSettings.root.indexOf( 'https://public-api.wordpress.com/' ) === 0 ) {
 			return wp.apiFetch( {
 				apiNamespace: 'rest/v1.1',
@@ -12,6 +13,7 @@
 			} );
 		}
 
+		// Use built-in Jetpack JITM endpoint on Jetpack / Atomic sites.
 		return wp.apiFetch( {
 			method: 'GET',
 			url: window.wpApiSettings.root + 'jetpack/v4/jitm?message_path=calypso:sites:sidebar_notice',
