@@ -8,7 +8,7 @@ import React from 'react';
  * Internal dependencies
  */
 import ProductOffer from '../../product-offer';
-import Dialog from '..';
+import Dialog from '../';
 import BoostImage from './boost.png';
 
 export default {
