@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Moving from raw HTML tags to Jetpack components with ThemeProvider.

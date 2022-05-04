@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixed a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active.
