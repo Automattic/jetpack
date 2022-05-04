@@ -9,7 +9,7 @@ import React from 'react';
  */
 import ProductOffer from '../../product-offer';
 import Dialog from '..';
-import BoostImage from '../boost.png';
+import BoostImage from './boost.png';
 
 export default {
 	title: 'JS Packages/Components/Dialog',
