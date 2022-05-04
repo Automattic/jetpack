@@ -13,6 +13,7 @@ import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import styles from './style.module.scss';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 /**
  * Basic plan section component.
@@ -63,6 +64,9 @@ function PlanSectionHeader( { purchases } ) {
  * @returns {object} PlanSectionFooter react component.
  */
 function PlanSectionFooter( { purchases } ) {
+	const { recordEvent } = useAnalytics();
+	const { isUserConnected } = useMyJetpackConnection();
+
 	let planLinkDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
 	if ( purchases.length >= 1 ) {
 		planLinkDescription = _n(
@@ -72,8 +76,6 @@ function PlanSectionFooter( { purchases } ) {
 			'jetpack-my-jetpack'
 		);
 	}
-
-	const { recordEvent } = useAnalytics();
 
 	const purchaseClickHandler = useCallback( () => {
 		const event = purchases.length
@@ -98,7 +100,7 @@ function PlanSectionFooter( { purchases } ) {
 					{ planLinkDescription }
 				</Button>
 			</li>
-			{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
+			{ window?.myJetpackInitialState?.loadAddLicenseScreen && isUserConnected && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Button
 						onClick={ activateLicenseClickHandler }
