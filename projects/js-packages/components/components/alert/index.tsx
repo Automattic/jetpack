@@ -45,11 +45,7 @@ const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
  * @param {React.Component} props.children - The alert content.
  * @returns {React.ReactElement}             The `Alert` component.
  */
-const Alert: React.FC< AlertProps > = ( {
-	level,
-	children,
-	showIcon,
-} ) => {
+const Alert: React.FC< AlertProps > = ( { level, children, showIcon } ) => {
 	const classes = classNames( styles.container, styles[ `is-${ level }` ] );
 
 	return (
