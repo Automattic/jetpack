@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-We now lock the execution of get products in a non blocking way for the execution thread.
