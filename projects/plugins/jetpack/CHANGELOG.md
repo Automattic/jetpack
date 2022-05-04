@@ -4,21 +4,19 @@
 
 ## 11.0-a.1 - 2022-05-04
 ### Enhancements
-- Add settings UI for Jetpack Firewall [#23769]
+- WAF: add settings UI for Jetpack Firewall [#23769]
 - Google Fonts: add additional fonts to the list of available fonts. [#24098]
-- Unified Stripe Nudge component, refactored the donation block so that it uses this version of the block and cleaned some code from the premium content block. [#24177]
+- Payment Block: refactors the donation block by unifying Stripe Nudge component. [#24177]
 
 ### Improved compatibility
 - Contact Form: ensure the option to export forms to a csv file works with the upcoming version of WordPress, 6.0. [#24173]
 - General: Jetpack is now fully compatible with the upcoming version of WordPress, 6.0. [#24083]
 - General: Jetpack now requires a more recent version of WordPress (5.9), since a new version of WordPress (6.0) will be available soon. [#24083]
 - General: remove backwards compatibility code now that Jetpack requires WordPress 5.9. [#24086]
-- Updated Backups box in At a Glance to use feature checks [#24121]
 
 ### Bug fixes
 - Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+. [#24135]
-- Fixed a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active. [#24194]
-- We now lock the execution of get products in a non blocking way for the execution thread. [#24140]
+- VaultPress: fixes a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active. [#24194]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Activity: Removed commented-out code [#24126]
@@ -32,11 +30,7 @@
 - My Plan: Use feature check for search card [#24166]
 - One Click Restores: Uses feature checks to determine backup type [#24131]
 - Performance-Search: Converts plan checks to feature checks [#24162]
-- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput` [#24007]
-- phpcs changes for endpoints [#24029]
-- PHPCS changes for root functions. [#24077]
-- phpcs endpoint change [#24214]
-- readme/changelog fix you're going to delete this entry anyway. [#24231]
+- PHPCS: changes for endpoints, root functions [#24029]
 - Recommendations: Use feature check for one-click restores [#24165]
 - Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
 - Renaming class file to comply with class naming rules in phpcs. [#24136]
@@ -46,14 +40,10 @@
 - Security Settings: Use feature checks for backup and scan [#24163]
 - Settings: Display upsells using feature checks [#24180]
 - Updated package dependencies. [#24095]
-- Updated package dependencies. [#24109]
-- Updated package dependencies. [#24205]
-- Updated package dependencies [#24198]
-- Updated package dependencies [#24228]
-- Updated package dependencies [#24230]
 - Updating 10.9 beta changelog and readme [#24091]
-- Updating package dependencies [#24114]
 - Updating to-test.md [#24088]
+- Updated Backups box in At a Glance to use feature checks [#24121]
+- We now lock the execution of get products in a non blocking way for the execution thread. [#24140]
 
 ## [10.9] - 2022-05-03
 ### Enhancements
