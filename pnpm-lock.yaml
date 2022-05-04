@@ -366,7 +366,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
-      '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-connection': workspace:* || ^0.18
       '@babel/core': 7.17.9
       '@babel/preset-react': 7.16.7
       '@wordpress/base-styles': 4.4.0
@@ -605,7 +605,7 @@ importers:
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
-      '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
       '@babel/preset-env': 7.16.11
@@ -652,7 +652,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/jetpack-api': workspace:* || ^0.13
-      '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
       '@babel/preset-env': 7.16.11
@@ -767,7 +767,7 @@ importers:
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
-      '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-licensing': workspace:* || ^0.4
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
@@ -863,7 +863,7 @@ importers:
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
-      '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.16.7
@@ -1196,7 +1196,7 @@ importers:
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
-      '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-licensing': workspace:* || ^0.4
       '@automattic/jetpack-partner-coupon': workspace:* || ^0.2
       '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.4
@@ -1511,7 +1511,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
-      '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
       '@babel/preset-env': 7.16.11
@@ -1587,7 +1587,7 @@ importers:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
-      '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
       '@babel/preset-env': 7.16.11
@@ -1632,7 +1632,7 @@ importers:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
-      '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
       '@babel/preset-env': 7.16.11
