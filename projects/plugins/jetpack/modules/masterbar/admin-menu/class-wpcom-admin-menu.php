@@ -270,7 +270,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( $handle !== 'admin-menu-upsell-nudge' ) {
 			return $tag;
 		}
-		return str_replace( '<script src', '<script async src', $tag );
+		return str_replace( '<script src', '<script defer src', $tag );
 	}
 
 	/**
