@@ -26,6 +26,9 @@ type AlertProps = {
 
 	/** Show/Hide icon */
 	showIcon?: boolean;
+
+	/** Children to be rendered inside the alert. */
+	children: React.ReactNode;
 };
 
 const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
