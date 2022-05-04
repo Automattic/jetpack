@@ -242,47 +242,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.9 - 2022-05-03
-#### Major Enhancements
-- VideoPress: add settings for controlling VideoPress video privacy.
-
+### 11.0-a.1 - 2022-05-04
 #### Enhancements
-- Connection: preventing other Jetpack-connected plugins from disconnecting when deactivating Jetpack from the plugins screen.
-- Dashboard: update the recommendation flow to include recommendations for VideoPress as well as discounts.
-- Google Fonts: update the Google Fonts module to be compatible with the most recent version of the WP_Webfonts API.
-- Payments Block: add additional features to the payment management control block (ability to mark as donation, and enabling customers to pick own amount).
-- Payments Block: add new property that establishes if the membership is editable by the site editor.
-- Payments Block: improves block selection behavior.
-- Payments Block: re-loading the page will not cause payment form to open again.
-- Protect: renamed to 'Brute Force Protection' in the UI.
-- Recommendations: add recommendation for anti-spam.
-- VideoPress: enable the resumable uploader.
-- VideoPress: improve upload speed, by increasing chunk size to 10MB for resumable uploads.
+- WAF: add settings UI for Jetpack Firewall
+- Google Fonts: add additional fonts to the list of available fonts.
+- Payment Block: refactors the donation block by unifieing Stripe Nudge component.
 
 #### Improved compatibility
-- Custom CSS: improve saving for legacy Custom CSS.
-- Dashboard: display block settings even when the Classic Editor plugin is active.
-- Improvements to backwards compatibility with other Jetpack plugins.
-- Mailchimp Popup widget: widget deprecation.
-- WordAds: change Jetpack Ads wording to be WordAds.
-- WordAds: remove the suggestion to use the ad widget from the dashboard.
+- Contact Form: ensure the option to export forms to a csv file works with the upcoming version of WordPress, 6.0.
+- General: Jetpack is now fully compatible with the upcoming version of WordPress, 6.0.
+- General: Jetpack now requires a more recent version of WordPress (5.9), since a new version of WordPress (6.0) will be available soon.
+- General: remove backwards compatibility code now that Jetpack requires WordPress 5.9.
 
 #### Bug fixes
-- Assistant: style and CTA changes plus introductory offer fixes.
-- Button Block: remove default CSS that would overwrite core and theme styles.
-- Comments: check that Jetpack comments are supported before requiring nonce verification.
-- Contact Form: ensure the form's input fields inherit a default font size.
-- Payments Block: change the sidebar display when clicking 'add new subscription', as well as using an external link in the Customizer.
-- Payments Block: fix bug regarding creation of new Payment blocks.
-- Payments Block: make the 'one time' subscription recurrence always available.
-- Payments Block: remove the dropdown icon from the product management control subscription selector.
-- Pay with PayPal: fix issue with saving widget in Customizer.
-- Publicize: ensure bulk publishing posts won’t publicize those posts.
-- Random Redirect: fix 'set author name' functionality on author archives.
-- Slideshow Block: fix grid blowout when Slideshow block is inserted inside a Layout Grid block (in editor).
-- Subscribe Block: fix default styles block setting selection to 'Split'.
-- Top Posts Widget: ensure hooks retain existing behavior when adding extra data before or after each post.
-- VideoPress: fix issue adding video descriptions and metadata via the WordPress.com dashboard.
+- Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+.
+- VaultPress: fixes a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active.
 
 --------
 
