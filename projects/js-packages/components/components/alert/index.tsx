@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Icon, warning, info, check } from '@wordpress/icons';
 import classNames from 'classnames';
 
@@ -11,25 +10,26 @@ import classNames from 'classnames';
  */
 import styles from './style.module.scss';
 
-/**
- * Contants
- */
-export const LEVEL_ERROR = 'error';
-export const LEVEL_WARNING = 'warning';
-export const LEVEL_INFO = 'info';
-export const LEVEL_SUCCESS = 'success';
+type AlertProps = {
+	/** The severity of the alert. */
+	level: 'error' | 'warning' | 'info' | 'success';
 
-export const ALERT_LEVELS = [ LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_SUCCESS ];
+	/** Show/Hide icon */
+	showIcon?: boolean;
 
-const getIconByLevel = level => {
+	/** Children to be rendered inside the alert. */
+	children: React.ReactNode;
+};
+
+const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
 	switch ( level ) {
-		case LEVEL_ERROR:
+		case 'error':
 			return warning;
-		case LEVEL_WARNING:
+		case 'warning':
 			return warning;
-		case LEVEL_INFO:
+		case 'info':
 			return info;
-		case LEVEL_SUCCESS:
+		case 'success':
 			return check;
 		default:
 			return warning;
@@ -43,9 +43,9 @@ const getIconByLevel = level => {
  * @param {string} props.level             - The alert level: error, warning, info, success.
  * @param {boolean} props.showIcon         - Whether to show the alert icon.
  * @param {React.Component} props.children - The alert content.
- * @returns {React.Component}                The `Alert` component.
+ * @returns {React.ReactElement}             The `Alert` component.
  */
-function Alert( { level, children, showIcon } ) {
+const Alert: React.FC< AlertProps > = ( { level, children, showIcon } ) => {
 	const classes = classNames( styles.container, styles[ `is-${ level }` ] );
 
 	return (
@@ -54,17 +54,10 @@ function Alert( { level, children, showIcon } ) {
 			{ children }
 		</div>
 	);
-}
-
-Alert.propTypes = {
-	level: PropTypes.oneOf( ALERT_LEVELS ),
-	children: PropTypes.oneOfType( [ PropTypes.arrayOf( PropTypes.node ), PropTypes.node ] ),
-	showIcon: PropTypes.bool,
 };
 
 Alert.defaultProps = {
-	level: LEVEL_WARNING,
-	children: '',
+	level: 'warning',
 	showIcon: true,
 };
 
