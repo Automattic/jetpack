@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-fixed issue where code for the waf package was executed if the module was disabled
