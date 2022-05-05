@@ -5,18 +5,23 @@ import { __ } from '@wordpress/i18n';
 const PALETTE = require( '@automattic/color-studio' );
 
 /**
- * converts provided information into a chart consumable data form
+ * Convert provided information into a chart-consumable data form
  *
- * @param {number} post_count - The total count of indexed post records
- * @param {object} post_type_breakdown - Post type breakdown (post type => number of posts)
- * @param {number} tier - Max number of records allowed in user's current tier
- * @param {string} last_indexed_date - The date on which the site was last indexed as a string
+ * @param {number} postCount - The total count of indexed post records
+ * @param {object} postTypeBreakdown - Post type breakdown (post type => number of posts)
+ * @param {number} tierMaximumRecords - Max number of records allowed in user's current tier
+ * @param {string} lastIndexedDate - The date on which the site was last indexed as a string
  * @returns {object} data in correct form to use in chart and notice-box
  */
-export default function getRecordInfo( post_count, post_type_breakdown, tier, last_indexed_date ) {
+export default function getRecordInfo(
+	postCount,
+	postTypeBreakdown,
+	tierMaximumRecords,
+	lastIndexedDate
+) {
 	const maxPostTypeCount = 5; // this value determines when to cut off displaying post times & compound into an 'other'
 	const recordInfo = [];
-	const postTypeBreakdown = [];
+	const chartPostTypeBreakdown = [];
 
 	let currentCount = 0;
 	let hasValidData = true;
@@ -24,21 +29,17 @@ export default function getRecordInfo( post_count, post_type_breakdown, tier, la
 	let hasItems = true;
 
 	//check for valid data coming in and catch it before it goes to far
-	if (
-		'object' !== typeof post_type_breakdown ||
-		'number' !== typeof tier ||
-		'string' !== typeof last_indexed_date
-	) {
+	if ( 'object' !== typeof postTypeBreakdown || 'string' !== typeof lastIndexedDate ) {
 		hasValidData = false;
 	}
 
 	//check if site has likely been indexed.
-	if ( 'undefined' === typeof last_indexed_date || 'undefined' === typeof post_count ) {
+	if ( 'undefined' === typeof lastIndexedDate || 'undefined' === typeof postCount ) {
 		hasBeenIndexed = false;
 	}
 
 	// make sure there are items there before going any further
-	const numItems = hasValidData && hasBeenIndexed ? Object.keys( post_type_breakdown ).length : 0;
+	const numItems = hasValidData && hasBeenIndexed ? Object.keys( postTypeBreakdown ).length : 0;
 
 	if ( numItems === 0 ) {
 		hasItems = false;
@@ -54,34 +55,38 @@ export default function getRecordInfo( post_count, post_type_breakdown, tier, la
 
 	if ( numItems > 0 && hasValidData && hasBeenIndexed ) {
 		for ( let i = 0; i < numItems; i++ ) {
-			const postTypeDetails = Object.values( post_type_breakdown )[ i ];
+			const postTypeDetails = Object.values( postTypeBreakdown )[ i ];
 			const { count, slug: name } = postTypeDetails;
 
-			postTypeBreakdown.push( {
+			chartPostTypeBreakdown.push( {
 				data: createData( count, colors[ i ], name ),
 			} );
 			currentCount = currentCount + count;
 		}
 
 		// sort & split items into included and other
-		const PostTypeItems = splitUsablePostTypes( postTypeBreakdown, numItems, maxPostTypeCount );
+		const postTypeItems = splitUsablePostTypes(
+			chartPostTypeBreakdown,
+			numItems,
+			maxPostTypeCount
+		);
 
 		// push includedItems into the recordInfo
-		for ( const item in PostTypeItems.includedItems ) {
+		for ( const item in postTypeItems.includedItems ) {
 			recordInfo.push( {
 				data: createData(
-					PostTypeItems.includedItems[ item ].data.data[ 0 ],
+					postTypeItems.includedItems[ item ].data.data[ 0 ],
 					colors[ item ],
-					PostTypeItems.includedItems[ item ].data.label
+					postTypeItems.includedItems[ item ].data.label
 				),
 			} );
 		}
 
 		// populate the 'other' category with combined remaining items and push to end of data array
-		if ( PostTypeItems.otherItems.length > 0 ) {
+		if ( postTypeItems.otherItems.length > 0 ) {
 			recordInfo.push( {
 				data: createData(
-					combineOtherCount( PostTypeItems.otherItems ),
+					combineOtherCount( postTypeItems.otherItems ),
 					PALETTE.colors[ 'Gray 30' ],
 					'Other'
 				),
@@ -89,10 +94,10 @@ export default function getRecordInfo( post_count, post_type_breakdown, tier, la
 		}
 
 		// if there is remaining unused space in tier, add filler spacing to chart
-		if ( tier - currentCount > 0 ) {
+		if ( tierMaximumRecords - currentCount > 0 ) {
 			recordInfo.push( {
 				data: createData(
-					tier - currentCount,
+					tierMaximumRecords - currentCount,
 					PALETTE.colors[ 'Gray 0' ],
 					__( 'remaining', 'jetpack-search-pkg' )
 				),
@@ -105,7 +110,7 @@ export default function getRecordInfo( post_count, post_type_breakdown, tier, la
 
 	return {
 		data: recordInfo,
-		tier: tier,
+		tier: tierMaximumRecords,
 		recordCount: currentCount,
 		hasBeenIndexed,
 		hasValidData,
