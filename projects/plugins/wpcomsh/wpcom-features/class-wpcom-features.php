@@ -76,6 +76,8 @@ class WPCOM_Features {
 	private const WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_MONTHLY = 'woocommerce_shipping_australia_post_monthly'; // 944
 	private const WOOCOMMERCE_PRODUCT_BUNDLES_YEARLY          = 'woocommerce_product_bundles_yearly'; // 945
 	private const WOOCOMMERCE_PRODUCT_BUNDLES_MONTHLY         = 'woocommerce_product_bundles_monthly'; // 946
+	private const WOO_CONDITIONAL_SHIPPING_PAYMENTS_YEARLY    = 'woo_conditional_shippingpayments_yearly'; // 947
+	private const WOO_CONDITIONAL_SHIPPING_PAYMENTS_MONTHLY   = 'woo_conditional_shippingpayments_monthly'; // 948
 	private const VALUE_BUNDLE                                = 'value_bundle'; // 1003
 	private const BUNDLE_PRO                                  = 'bundle_pro'; // 1004
 	private const BUNDLE_SUPER                                = 'bundle_super'; // 1005
@@ -195,6 +197,8 @@ class WPCOM_Features {
 		self::WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_MONTHLY,
 		self::WOOCOMMERCE_PRODUCT_BUNDLES_YEARLY,
 		self::WOOCOMMERCE_PRODUCT_BUNDLES_MONTHLY,
+		self::WOO_CONDITIONAL_SHIPPING_PAYMENTS_YEARLY,
+		self::WOO_CONDITIONAL_SHIPPING_PAYMENTS_MONTHLY,
 	];
 	private const GOOGLE_WORKSPACE_PRODUCTS = [ self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY ];
 	private const GSUITE_PRODUCTS           = [ self::GAPPS, self::GAPPS_UNLIMITED ];
@@ -381,6 +385,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
+
 		/*
 		 * Temporary limit until the Pro plan storage is ready to be fully
 		 * implemented.
@@ -710,6 +715,7 @@ class WPCOM_Features {
 		self::SPACE                         => array(
 			self::WPCOM_ALL_SITES,
 		),
+
 		/*
 		 * Products that have upgraded storage space on WordPress.com, beyond
 		 * the bare minimum advertised for free sites. This list includes all
