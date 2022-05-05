@@ -14,6 +14,8 @@ import QueryProducts from 'components/data/query-products';
 import QueryIntroOffers from '../components/data/query-intro-offers';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isFetchingProducts as isFetchingProductsSelector } from 'state/products';
+import { isFetchingIntroOffers as isFetchingIntroOffersSelector } from 'state/intro-offers';
+import { isFetchingSaleCoupon as isFetchingSaleCouponSelector } from 'state/sale-coupon';
 import { arePromotionsActive, getProductsForPurchase } from 'state/initial-state';
 import { PRODUCT_DESCRIPTION_PRODUCTS as SUPPORTED_PRODUCTS } from './constants';
 import ProductDescription from './product-description';
@@ -25,8 +27,9 @@ import './style.scss';
 import QuerySaleCoupon from '../components/data/query-sale-coupon';
 
 const ProductDescriptions = props => {
-	const { isFetchingProducts, products } = props;
-	const isLoading = isFetchingProducts || isEmpty( products );
+	const { isFetchingProducts, isFetchingIntroOffers, isFetchingSaleCoupon, products } = props;
+	const isLoading =
+		isFetchingProducts || isFetchingIntroOffers || isFetchingSaleCoupon || isEmpty( products );
 	const routes = [];
 
 	if ( ! isLoading ) {
@@ -75,5 +78,7 @@ ProductDescriptions.propTypes = {
 export default connect( state => ( {
 	arePromotionsActive: arePromotionsActive( state ),
 	isFetchingProducts: isFetchingProductsSelector( state ),
+	isFetchingIntroOffers: isFetchingIntroOffersSelector( state ),
+	isFetchingSaleCoupon: isFetchingSaleCouponSelector( state ),
 	products: getProductsForPurchase( state ),
 } ) )( ProductDescriptions );
