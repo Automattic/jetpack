@@ -20,9 +20,9 @@ type DialogProps = {
 /**
  * Dialog component.
  *
- * @param {object} props                    - Component props.
- * @param {React.Component} props.primary   - Primary content.
- * @param {React.Component} props.secondary - Secondary content.
+ * @param {object} props                    - React component props.
+ * @param {React.ReactNode} props.primary   - Primary content.
+ * @param {React.ReactNode} props.secondary - Secondary content.
  * @param {boolean} props.split			    - Split the sections.
  * @returns {React.ReactNode}                 Rendered dialog
  */
