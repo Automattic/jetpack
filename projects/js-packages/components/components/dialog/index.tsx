@@ -26,7 +26,7 @@ type DialogProps = {
  * @param {boolean} props.split			    - Split the sections.
  * @returns {React.ReactNode}         Rendered dialog
  */
-const Dialog: React.FC< DialogProps > = ( { primary, secondary, split } ) => {
+const Dialog: React.FC< DialogProps > = ( { primary, secondary, split = false } ) => {
 	const classNames = classnames( {
 		[ styles.container ]: ! split,
 	} );
@@ -41,10 +41,6 @@ const Dialog: React.FC< DialogProps > = ( { primary, secondary, split } ) => {
 			</Col>
 		</Container>
 	);
-};
-
-Dialog.defaultProps = {
-	split: false,
 };
 
 export default Dialog;
