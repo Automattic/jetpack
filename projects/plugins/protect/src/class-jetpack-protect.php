@@ -12,12 +12,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
+use Automattic\Jetpack\Sync\Sender;
 /**
  * Class Jetpack_Protect
  */
@@ -28,32 +30,6 @@ class Jetpack_Protect {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
-	}
-
-	/**
-	 * Initialize the plugin
-	 *
-	 * @return void
-	 */
-	public function init() {
-		// Set up the REST authentication hooks.
-		Connection_Rest_Authentication::init();
-
-		$total_vuls = Protect_Status::get_total_vulnerabilities();
-		$menu_label = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
-		if ( $total_vuls ) {
-			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_vuls );
-		}
-
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Protect', 'jetpack-protect' ),
-			$menu_label,
-			'manage_options',
-			'jetpack-protect',
-			array( $this, 'plugin_settings_page' ),
-			99
-		);
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
@@ -95,6 +71,32 @@ class Jetpack_Protect {
 			},
 			1
 		);
+	}
+
+	/**
+	 * Initialize the plugin
+	 *
+	 * @return void
+	 */
+	public function init() {
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
+
+		$total_vuls = Protect_Status::get_total_vulnerabilities();
+		$menu_label = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
+		if ( $total_vuls ) {
+			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_vuls );
+		}
+
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'Jetpack Protect', 'jetpack-protect' ),
+			$menu_label,
+			'manage_options',
+			'jetpack-protect',
+			array( $this, 'plugin_settings_page' ),
+			99
+		);
+		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 65 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
@@ -167,7 +169,6 @@ class Jetpack_Protect {
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
 		);
 	}
-
 	/**
 	 * Main plugin settings page.
 	 */
@@ -175,6 +176,25 @@ class Jetpack_Protect {
 		?>
 			<div id="jetpack-protect-root"></div>
 		<?php
+	}
+
+	/**
+	 * Removes plugin from the connection manager
+	 * If it's the last plugin using the connection, the site will be disconnected.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function plugin_deactivation() {
+
+		// Clear Sync data.
+		Sender::get_instance()->uninstall();
+
+		$manager = new Connection_Manager( 'jetpack-protect' );
+		$manager->disconnect_site_wpcom();
+		$manager->delete_all_connection_tokens();
+
+		Protect_Status::delete_option();
 	}
 
 	/**

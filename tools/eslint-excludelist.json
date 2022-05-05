@@ -1,6 +1,5 @@
 [
 	"projects/plugins/jetpack/_inc/client/admin.js",
-	"projects/plugins/jetpack/_inc/client/at-a-glance/backups.jsx",
 	"projects/plugins/jetpack/_inc/client/at-a-glance/search.jsx",
 	"projects/plugins/jetpack/_inc/client/components/count/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/form/counter.js",

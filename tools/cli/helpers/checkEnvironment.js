@@ -40,6 +40,7 @@ export async function compareComposerVersion() {
 	const currentComposerVersion = await getComposerVersion();
 	const monorepoComposerVersion = getVersions().COMPOSER_VERSION;
 	if (
+		! process.env.CI &&
 		currentComposerVersion &&
 		! semver.satisfies( currentComposerVersion, '~' + monorepoComposerVersion )
 	) {

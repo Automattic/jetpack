@@ -47,7 +47,22 @@ class Jetpack_Portfolio {
 		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_portfolio_rest_api_type' ) );
 
-		$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
+		// If called via REST API, we need to register later in lifecycle.
+		add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ) );
+
+		$this->maybe_register_cpt();
+	}
+
+	/**
+	 * Registers the custom post types and adds action/filter handlers, but
+	 * only if the site supports it
+	 */
+	public function maybe_register_cpt() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$setting = get_option( self::OPTION_NAME, '0' );
+		} else {
+			$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
+		}
 
 		// Bail early if Portfolio option is not set and the theme doesn't declare support.
 		if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {
@@ -316,6 +331,7 @@ class Jetpack_Portfolio {
 					'editor',
 					'thumbnail',
 					'author',
+					'post-formats',
 					'comments',
 					'publicize',
 					'wpcom-markdown',
@@ -407,6 +423,8 @@ class Jetpack_Portfolio {
 				'rewrite'           => array( 'slug' => 'project-tag' ),
 			)
 		);
+
+		register_taxonomy_for_object_type( 'post_format', self::CUSTOM_POST_TYPE );
 	}
 
 	/**
@@ -701,7 +719,7 @@ class Jetpack_Portfolio {
 		 * Attributes can be booleans (from the default values) or strings.
 		 */
 		foreach ( $atts as $attribute_name => $attribute_value ) {
-			if ( preg_match( '#^(?:display_|include_|show_)#i', $attribute_name ) ) {
+			if ( preg_match( '#^(?:display_|show_)#i', $attribute_name ) ) {
 				// display_content is a special case.
 				if ( 'display_content' === $attribute_name && 'full' === $attribute_value ) {
 					$atts['display_content'] = 'full';
@@ -764,14 +782,18 @@ class Jetpack_Portfolio {
 	 * Sanitizes an attribute value.
 	 * Attributes can be booleans (from the default values) or strings.
 	 *
-	 * @since $$next-version$$
+	 * @since 11.0
 	 *
 	 * @param bool|string $attr Shortcode attribute value.
 	 *
 	 * @return bool
 	 */
 	private static function sanitize_boolean_attribute( $attr ) {
-		return (bool) $attr;
+		if ( $attr && 'true' == $attr ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

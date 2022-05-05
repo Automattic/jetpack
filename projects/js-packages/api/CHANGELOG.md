@@ -2,6 +2,15 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.13.1 - 2022-05-04
+### Added
+- Added an endpoint to load the firewall's settings. [#23769]
+- Add missing JavaScript dependencies. [#24096]
+
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
 ## 0.13.0 - 2022-04-26
 ### Added
 - Add endpoints for site discount
