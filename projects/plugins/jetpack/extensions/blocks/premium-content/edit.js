@@ -18,7 +18,7 @@ import ViewSelector from './_inc/view-selector';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { PRODUCT_TYPE_SUBSCRIPTION } from '../../shared/components/product-management-controls/constants';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import { MembershipStoreAwareStripeNudge } from '../../shared/components/stripe-nudge';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
 
 /**
  * Tab definitions
@@ -137,7 +137,7 @@ function Edit( props ) {
 			) }
 			{ ! isApiLoading && (
 				<>
-					<MembershipStoreAwareStripeNudge blockName={ BLOCK_NAME } />
+					<StripeNudge blockName={ BLOCK_NAME } />
 					<Context.Provider value={ { selectedTab } }>
 						<Blocks />
 					</Context.Provider>

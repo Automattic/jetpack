@@ -424,7 +424,7 @@ export function search( options, requestId ) {
 	//       "Private" Jetpack sites are not yet supported.
 	const urlForPublicApi = `https://public-api.wordpress.com/rest/v1.3${ pathForPublicApi }`;
 	const urlForWpcomOrigin = `${ homeUrl }/wp-json/wpcom-origin/v1.3${ pathForPublicApi }`;
-	const urlForAtomicOrigin = `${ apiRoot }wpcom/v2/search?${ queryString }`;
+	const urlForAtomicOrigin = `${ apiRoot }jetpack/v4/search?${ queryString }`;
 	let url = urlForPublicApi;
 	if ( isPrivateSite && isWpcom ) {
 		url = urlForWpcomOrigin;

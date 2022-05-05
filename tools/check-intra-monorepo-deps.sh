@@ -98,7 +98,7 @@ DO_PNPM_LOCK=true
 SLUGS=()
 if [[ $# -le 0 ]]; then
 	# Use a temp variable so pipefail works
-	TMP="$(pnpx --no-install jetpack dependencies build-order --pretty)" || { echo "$TMP"; exit 1; }
+	TMP="$(pnpm jetpack dependencies build-order --pretty)" || { echo "$TMP"; exit 1; }
 	mapfile -t SLUGS <<<"$TMP"
 	TMP="$(git ls-files '**/composer.json' '**/package.json' | sed -E -n -e '\!^projects/[^/]*/[^/]*/(composer|package)\.json$! d' -e 's!/(composer|package)\.json$!!' -e 's/^/nonproject:/p' | sort -u)"
 	mapfile -t -O ${#SLUGS[@]} SLUGS <<<"$TMP"

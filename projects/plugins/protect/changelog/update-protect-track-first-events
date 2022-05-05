@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Protect: record admin page-view and get security from footer events

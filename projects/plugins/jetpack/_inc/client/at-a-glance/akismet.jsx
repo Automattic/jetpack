@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { get, noop } from 'lodash';
+import { noop } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -20,7 +20,7 @@ import Card from 'components/card';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import DashItem from 'components/dash-item';
 import { getAkismetData } from 'state/at-a-glance';
-import { getSitePlan } from 'state/site';
+import { hasActiveSiteFeature } from 'state/site';
 import { getApiNonce } from 'state/initial-state';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
@@ -96,8 +96,6 @@ class DashAkismet extends Component {
 	getContent() {
 		const akismetData = this.props.akismetData;
 		const labelName = __( 'Anti-spam', 'jetpack' );
-		const isSiteOnFreePlan =
-			'jetpack_free' === get( this.props.sitePlan, 'product_slug', 'jetpack_free' );
 
 		const support = {
 			text: __(
@@ -200,9 +198,7 @@ class DashAkismet extends Component {
 			);
 		}
 
-		const hasSitePlan = false !== this.props.sitePlan;
-
-		if ( isSiteOnFreePlan ) {
+		if ( ! this.props.hasAntiSpam && ! this.props.hasAkismet ) {
 			if ( 'not_installed' === akismetData ) {
 				return (
 					<DashItem
@@ -210,7 +206,6 @@ class DashAkismet extends Component {
 						module="akismet"
 						support={ support }
 						className="jp-dash-item__is-inactive"
-						status={ hasSitePlan ? 'pro-uninstalled' : 'no-pro-uninstalled-or-inactive' }
 						pro={ true }
 						overrideContent={ getBanner() }
 					/>
@@ -223,7 +218,6 @@ class DashAkismet extends Component {
 						label={ labelName }
 						module="akismet"
 						support={ support }
-						status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
 						className="jp-dash-item__is-inactive"
 						pro={ true }
 						overrideContent={ getBanner() }
@@ -301,11 +295,12 @@ export default connect(
 	state => {
 		return {
 			akismetData: getAkismetData( state ),
-			sitePlan: getSitePlan( state ),
 			isOfflineMode: isOfflineMode( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			hasAntiSpam: hasActiveSiteFeature( state, 'antispam' ),
+			hasAkismet: hasActiveSiteFeature( state, 'akismet' ),
 		};
 	},
 	dispatch => ( {

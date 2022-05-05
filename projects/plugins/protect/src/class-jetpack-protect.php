@@ -12,12 +12,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
+use Automattic\Jetpack\Sync\Sender;
 /**
  * Class Jetpack_Protect
  */
@@ -167,7 +169,6 @@ class Jetpack_Protect {
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
 		);
 	}
-
 	/**
 	 * Main plugin settings page.
 	 */
@@ -175,6 +176,25 @@ class Jetpack_Protect {
 		?>
 			<div id="jetpack-protect-root"></div>
 		<?php
+	}
+
+	/**
+	 * Removes plugin from the connection manager
+	 * If it's the last plugin using the connection, the site will be disconnected.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function plugin_deactivation() {
+
+		// Clear Sync data.
+		Sender::get_instance()->uninstall();
+
+		$manager = new Connection_Manager( 'jetpack-protect' );
+		$manager->disconnect_site_wpcom();
+		$manager->delete_all_connection_tokens();
+
+		Protect_Status::delete_option();
 	}
 
 	/**
