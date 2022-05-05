@@ -71,15 +71,21 @@ function normalizeCoreInformation( wpVersion, coreCheck ) {
  * @returns {object} The information available in Protect's initial state.
  */
 export default function useProtectData() {
-	const { installedPlugins, installedThemes, wpVersion, statusIsFetching, status } = useSelect(
-		select => ( {
-			installedPlugins: select( STORE_ID ).getInstalledPlugins(),
-			installedThemes: select( STORE_ID ).getInstalledThemes(),
-			wpVersion: select( STORE_ID ).getWpVersion(),
-			statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
-			status: select( STORE_ID ).getStatus(),
-		} )
-	);
+	const {
+		installedPlugins,
+		installedThemes,
+		wpVersion,
+		statusIsFetching,
+		status,
+		securityBundle,
+	} = useSelect( select => ( {
+		installedPlugins: select( STORE_ID ).getInstalledPlugins(),
+		installedThemes: select( STORE_ID ).getInstalledThemes(),
+		wpVersion: select( STORE_ID ).getWpVersion(),
+		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+		status: select( STORE_ID ).getStatus(),
+		securityBundle: select( STORE_ID ).getSecurityBundle(),
+	} ) );
 
 	const plugins = mergeInstalledAndCheckedLists( installedPlugins, status.plugins || {} );
 	const themes = mergeInstalledAndCheckedLists( installedThemes, status.themes || {} );
@@ -102,5 +108,6 @@ export default function useProtectData() {
 		plugins,
 		themes,
 		currentStatus,
+		securityBundle,
 	};
 }
