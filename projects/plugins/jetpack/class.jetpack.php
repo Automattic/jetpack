@@ -825,6 +825,7 @@ class Jetpack {
 				'sync',
 				'jitm',
 				'publicize',
+				'waf',
 			)
 			as $feature
 		) {
