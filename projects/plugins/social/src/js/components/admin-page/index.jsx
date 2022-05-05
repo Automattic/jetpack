@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ToggleControl } from '@wordpress/components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import { useSelect, select as syncSelect, useDispatch } from '@wordpress/data';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
@@ -106,6 +106,7 @@ const Admin = () => {
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
 	);
+	const { jetpackSocialConnectionsAdminUrl } = window.jetpackSocialInitialState;
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
@@ -117,9 +118,20 @@ const Admin = () => {
 						{ showConnectionCard ? (
 							<ConnectionSection />
 						) : (
-							<div className={ styles.publicizeConnectionsList }>
-								<ModuleToggle />
-								<ConnectionItems />
+							<div>
+								<div className={ styles.manageConnectionsHeader }>
+									<Button
+										href={ jetpackSocialConnectionsAdminUrl }
+										variant="primary"
+										target="_blank"
+									>
+										Manage your connections
+									</Button>
+								</div>
+								<div className={ styles.publicizeConnectionsList }>
+									<ModuleToggle />
+									<ConnectionItems />
+								</div>
 							</div>
 						) }
 					</Col>
