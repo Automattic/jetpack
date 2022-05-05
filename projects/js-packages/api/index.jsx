@@ -392,6 +392,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchSaleCoupon: () =>
+			getRequest( `${ apiRoot }jetpack/v4/sale-coupon`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchVerifySiteGoogleStatus: keyringId => {
 			const request =
 				keyringId !== null

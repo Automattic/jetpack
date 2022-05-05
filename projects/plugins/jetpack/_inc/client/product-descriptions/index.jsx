@@ -22,6 +22,7 @@ import ProductDescription from './product-description';
  * Import styles.
  */
 import './style.scss';
+import QuerySaleCoupon from '../components/data/query-sale-coupon';
 
 const ProductDescriptions = props => {
 	const { isFetchingProducts, products } = props;
@@ -52,6 +53,7 @@ const ProductDescriptions = props => {
 		<>
 			<QueryProducts />
 			<QueryIntroOffers />
+			<QuerySaleCoupon />
 			{ isLoading ? (
 				<div className="jp-product-descriptions__loading">
 					<JetpackLoadingIcon />

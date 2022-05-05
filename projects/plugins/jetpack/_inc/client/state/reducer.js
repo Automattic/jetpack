@@ -12,6 +12,7 @@ import { dashboard } from 'state/at-a-glance/reducer';
 import { reducer as connection } from 'state/connection/reducer';
 import { reducer as devCard } from 'state/dev-version/reducer';
 import { reducer as introOffers } from 'state/intro-offers';
+import { reducer as saleCoupon } from 'state/sale-coupon';
 import { reducer as plans } from 'state/plans/reducer';
 import { reducer as jetpackNotices } from 'state/jetpack-notices/reducer';
 import { reducer as modules } from 'state/modules/reducer';
@@ -57,6 +58,7 @@ const jetpackReducer = combineReducers( {
 	licensing,
 	waf,
 	introOffers,
+	saleCoupon,
 } );
 
 export default combineReducers( {

@@ -757,6 +757,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
+
+		// Get Jetpack sale coupon
+		register_rest_route(
+			'jetpack/v4',
+			'/sale-coupon',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_sale_coupon',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			)
+		);
 	}
 
 	/**
@@ -4208,6 +4219,63 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error(
 				'intro_offers_error',
 				esc_html__( 'Could not parse intro offers.', 'jetpack' ),
+				array( 'status' => 204 ) // no content.
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+				'data' => $data,
+			)
+		);
+	}
+
+	/**
+	 * Fetch Sale Coupon
+	 *
+	 * @since 11.0
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_sale_coupon() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error(
+				'site_id_missing',
+				esc_html__( 'Site ID is missing.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/jetpack-marketing/sale-coupon',
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'sale_coupon_fetch_failed',
+				esc_html__( 'Could not retrieve sale coupon.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( ! isset( $data ) ) {
+			return new WP_Error(
+				'sale_coupon_error',
+				esc_html__( 'Could not parse sale coupon.', 'jetpack' ),
 				array( 'status' => 204 ) // no content.
 			);
 		}

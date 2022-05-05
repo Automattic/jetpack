@@ -16,6 +16,7 @@ import JetpackProductCard from 'components/jetpack-product-card';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import { getProductsForPurchase } from 'state/initial-state';
 import { getIntroOffers } from 'state/intro-offers';
+import { getSaleCoupon } from 'state/sale-coupon';
 import { productIllustrations } from '../constants';
 import {
 	cloud as cloudIcon,
@@ -43,10 +44,21 @@ const getRelatedProductPlan = ( product, availableProductsAndPlans ) => {
 	return availableProductsAndPlans[ upsellPlan ];
 };
 
-const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive, introOffers ) => {
+const renderProduct = (
+	product,
+	priority,
+	hasRelatedPlan,
+	arePromotionsActive,
+	introOffers,
+	saleCoupon
+) => {
 	const introOffer = introOffers.find( offer => offer.product_slug === product.slug );
+	const discountRatio = saleCoupon && saleCoupon.discount ? saleCoupon.discount / 100 : 0;
+	const introOfferPrice = introOffer ? introOffer.raw_price / 12 : null;
 	const discountedPrice =
-		arePromotionsActive && product.showPromotion && introOffer && introOffer.raw_price / 12;
+		arePromotionsActive &&
+		product.showPromotion &&
+		( introOfferPrice || product.fullPrice / 12 ) * ( 1 - discountRatio );
 
 	const illustration =
 		! hasRelatedPlan && productIllustrations.hasOwnProperty( product.key )
@@ -98,7 +110,13 @@ const renderProduct = ( product, priority, hasRelatedPlan, arePromotionsActive, 
 };
 
 const ProductDescription = props => {
-	const { arePromotionsActive, availableProductsAndPlans, product, introOffers } = props;
+	const {
+		arePromotionsActive,
+		availableProductsAndPlans,
+		product,
+		introOffers,
+		saleCoupon,
+	} = props;
 
 	const relatedPlan = getRelatedProductPlan( product, availableProductsAndPlans );
 
@@ -116,14 +134,22 @@ const ProductDescription = props => {
 	return (
 		<>
 			<div className={ classes }>
-				{ renderProduct( product, 'primary', !! relatedPlan, arePromotionsActive, introOffers ) }
+				{ renderProduct(
+					product,
+					'primary',
+					!! relatedPlan,
+					arePromotionsActive,
+					introOffers,
+					saleCoupon
+				) }
 				{ !! relatedPlan &&
 					renderProduct(
 						relatedPlan,
 						'secondary',
 						!! relatedPlan,
 						arePromotionsActive,
-						introOffers
+						introOffers,
+						saleCoupon
 					) }
 			</div>
 
@@ -154,5 +180,6 @@ export default connect( state => {
 	return {
 		availableProductsAndPlans: getProductsForPurchase( state ),
 		introOffers: getIntroOffers( state ),
+		saleCoupon: getSaleCoupon( state ),
 	};
 } )( ProductDescription );
