@@ -41,26 +41,24 @@ export default function RecordMeter( {
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-record-meter__title lg-col-span-8 md-col-span-6 sm-col-span-4">
 					<h2>{ __( 'Your search records', 'jetpack-search-pkg' ) }</h2>
-					{ tierMaximumRecords && (
-						<div>
-							<RecordCount
-								recordCount={ recordInfo.recordCount }
-								planRecordLimit={ tierMaximumRecords }
-							/>
-							<BarChart
-								data={ recordInfo.data }
-								isValid={ recordInfo.isValid }
-								postTypeBreakdown={ postTypeBreakdown }
-							/>
-							<NoticeBox
-								recordCount={ recordInfo.recordCount }
-								planRecordLimit={ tierMaximumRecords }
-								hasBeenIndexed={ recordInfo.hasBeenIndexed }
-								hasValidData={ recordInfo.hasValidData }
-								hasItems={ recordInfo.hasItems }
-							></NoticeBox>
-						</div>
-					) }
+					<div>
+						<RecordCount
+							recordCount={ recordInfo.recordCount }
+							planRecordLimit={ tierMaximumRecords }
+						/>
+						<BarChart
+							data={ recordInfo.data }
+							isValid={ recordInfo.isValid }
+							postTypeBreakdown={ postTypeBreakdown }
+						/>
+						<NoticeBox
+							recordCount={ recordInfo.recordCount }
+							planRecordLimit={ tierMaximumRecords }
+							hasBeenIndexed={ recordInfo.hasBeenIndexed }
+							hasValidData={ recordInfo.hasValidData }
+							hasItems={ recordInfo.hasItems }
+						></NoticeBox>
+					</div>
 				</div>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 			</div>

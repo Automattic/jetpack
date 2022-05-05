@@ -94,7 +94,7 @@ export default function getRecordInfo(
 		}
 
 		// if there is remaining unused space in tier, add filler spacing to chart
-		if ( tierMaximumRecords - currentCount > 0 ) {
+		if ( typeof tierMaximumRecords === 'number' && tierMaximumRecords - currentCount > 0 ) {
 			recordInfo.push( {
 				data: createData(
 					tierMaximumRecords - currentCount,
