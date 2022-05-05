@@ -16,6 +16,7 @@ import { ProductPurchased } from './product-purchased';
 import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';
+import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryRecommendationsProductSuggestions from 'components/data/query-recommendations-product-suggestions';
 import QueryRecommendationsUpsell from 'components/data/query-recommendations-upsell';
 import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
@@ -28,6 +29,7 @@ import {
 	isRecommendationsConditionalLoaded,
 } from 'state/recommendations';
 import { getNewRecommendations } from 'state/initial-state';
+import QuerySiteDiscount from 'components/data/query-site-discount';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
 import { ResourcePrompt } from './prompts/resource-prompt';
@@ -69,6 +71,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SECURITY_PLAN:
 			redirectPath = '/security-plan';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.ANTI_SPAM:
+			redirectPath = '/anti-spam';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.VIDEOPRESS:
 			redirectPath = '/videopress';
 			break;
@@ -93,6 +98,8 @@ const RecommendationsComponent = props => {
 			<QueryRewindStatus />
 			<QuerySite />
 			<QuerySitePlugins />
+			<QuerySiteDiscount />
+			<QueryIntroOffers />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
 					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
@@ -129,6 +136,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/security-plan">
 						<ResourcePrompt stepSlug="security-plan" isNew={ isNew( 'security-plan' ) } />
+					</Route>
+					<Route path="/recommendations/anti-spam">
+						<ResourcePrompt stepSlug="anti-spam" isNew={ isNew( 'anti-spam' ) } />
 					</Route>
 					<Route path="/recommendations/videopress">
 						<FeaturePrompt stepSlug="videopress" isNew={ isNew( 'videopress' ) } />

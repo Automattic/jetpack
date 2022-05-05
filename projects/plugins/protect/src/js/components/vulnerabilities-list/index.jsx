@@ -2,55 +2,50 @@
  * External dependencies
  */
 import React from 'react';
+import { Container, Col, Title } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Container, Col, Text, H3 } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import styles from './styles.module.scss';
+import VulnerabilitiesNavigation from './navigation';
+import List from './list';
+import EmptyList from './empty';
+import useVulsList from './use-vuls-list';
 
-const VulnerabilityItem = ( { name, version, vulnerabilities } ) => {
+const VulnerabilitiesList = () => {
+	const { item, list, selected, setSelected } = useVulsList();
+
 	return (
-		<Container fluid className={ styles.item }>
-			<Col lg={ 4 } className={ styles.name }>
-				<Text variant="title-small">{ name }</Text>
-				<Text variant="body-small">
-					{
-						/* translators: placeholder is version. */
-						sprintf( __( 'Version %s', 'jetpack-protect' ), version )
-					}
-				</Text>
+		<Container fluid>
+			<Col lg={ 4 }>
+				<VulnerabilitiesNavigation selected={ selected } onSelect={ setSelected } />
 			</Col>
 			<Col lg={ 8 }>
-				{ vulnerabilities.map( vulnerability => (
-					<div className={ styles.vulnerability }>
-						<Text>{ vulnerability.description }</Text>
-						<Text variant="body-extra-small">
-							{
-								/* translators: placeholder is version. */
-								sprintf( __( 'Fixed in %s', 'jetpack-protect' ), vulnerability.fixedIn )
-							}
-						</Text>
-					</div>
-				) ) }
+				{ list?.length > 0 ? (
+					<>
+						<Title>
+							{ selected === 'all'
+								? sprintf(
+										/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
+										__( 'All %s vulnerabilities', 'jetpack-protect' ),
+										list.length
+								  )
+								: sprintf(
+										/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
+										__( '%1$s vulnerabilities in your %2$s %3$s', 'jetpack-protect' ),
+										list.length,
+										item?.name,
+										item?.version
+								  ) }
+						</Title>
+						<List list={ list } />
+					</>
+				) : (
+					<EmptyList />
+				) }
 			</Col>
 		</Container>
-	);
-};
-
-const VulnerabilitiesList = ( { title, list } ) => {
-	return (
-		<>
-			<H3>{ title }</H3>
-			{ list.map( item => (
-				<VulnerabilityItem
-					name={ item.name }
-					version={ item.version }
-					vulnerabilities={ item.vulnerabilities }
-				/>
-			) ) }
-		</>
 	);
 };
 

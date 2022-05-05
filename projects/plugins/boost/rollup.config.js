@@ -8,7 +8,6 @@ import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import postcss from 'rollup-plugin-postcss';
-import builtins from 'rollup-plugin-node-builtins';
 import globals from 'rollup-plugin-node-globals';
 import svelteSVG from 'rollup-plugin-svelte-svg';
 import copy from 'rollup-plugin-copy';
@@ -16,6 +15,7 @@ import path from 'path';
 import { babel } from '@rollup/plugin-babel';
 import replace from '@rollup/plugin-replace';
 import json from '@rollup/plugin-json';
+import tsconfig from './rollup-tsconfig.json';
 
 const cssGenPath = path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) );
 
@@ -100,7 +100,6 @@ export default {
 
 		commonjs(),
 		globals(),
-		builtins(),
 		json(),
 
 		babel( {
@@ -130,6 +129,10 @@ export default {
 		typescript( {
 			sourceMap: ! production,
 			inlineSources: ! production,
+			// In order to let @rollup/plugin-typescript hanlde TS files from js-packages
+			// we need to include those here and pass the custom tsconfig as well
+			include: tsconfig.include,
+			tsconfig: 'rollup-tsconfig.json',
 		} ),
 
 		copy( {

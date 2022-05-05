@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.11 - 2022-05-04
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+## 0.2.10 - 2022-04-26
+### Changed
+- Update package.json metadata.
+
+## 0.2.9 - 2022-04-19
+### Changed
+- Updated package dependencies.
+
+## 0.2.8 - 2022-04-12
+### Changed
+- Updated package dependencies.
+
 ## 0.2.7 - 2022-04-06
 ### Changed
 - Updated package dependencies

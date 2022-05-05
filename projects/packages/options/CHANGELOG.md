@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.2] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
+## [1.15.1] - 2022-04-19
+### Added
+- Add options for token lock functionality.
+
+## [1.15.0] - 2022-04-12
+### Added
+- Add option for conditional recommendations.
+
 ## [1.14.3] - 2022-03-29
 ### Changed
 - Microperformance: Use === null instead of is_null
@@ -149,6 +161,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[1.15.2]: https://github.com/Automattic/jetpack-options/compare/v1.15.1...v1.15.2
+[1.15.1]: https://github.com/Automattic/jetpack-options/compare/v1.15.0...v1.15.1
+[1.15.0]: https://github.com/Automattic/jetpack-options/compare/v1.14.3...v1.15.0
 [1.14.3]: https://github.com/Automattic/jetpack-options/compare/v1.14.2...v1.14.3
 [1.14.2]: https://github.com/Automattic/jetpack-options/compare/v1.14.1...v1.14.2
 [1.14.1]: https://github.com/Automattic/jetpack-options/compare/v1.14.0...v1.14.1

@@ -102,6 +102,7 @@ const recommendationsRoutes = [
 	'/recommendations/site-accelerator',
 	'/recommendations/publicize',
 	'/recommendations/security-plan',
+	'/recommendations/anti-spam',
 	'/recommendations/videopress',
 	'/recommendations/summary',
 ];
@@ -476,10 +477,7 @@ class Main extends React.Component {
 					navComponent = null;
 					pageComponent = (
 						<ActivationScreen
-							assetBaseUrl={ this.props.pluginBaseUrl }
-							lockImage="/images/jetpack-license-activation-with-lock.png"
 							siteRawUrl={ this.props.siteRawUrl }
-							successImage="/images/jetpack-license-activation-with-success.png"
 							onActivationSuccess={ this.onLicenseActivationSuccess }
 							siteAdminUrl={ this.props.siteAdminUrl }
 							currentRecommendationsStep={ this.props.currentRecommendationsStep }
@@ -501,6 +499,7 @@ class Main extends React.Component {
 			case '/recommendations/site-accelerator':
 			case '/recommendations/publicize':
 			case '/recommendations/security-plan':
+			case '/recommendations/anti-spam':
 			case '/recommendations/videopress':
 			case '/recommendations/summary':
 				if ( this.props.showRecommendations ) {

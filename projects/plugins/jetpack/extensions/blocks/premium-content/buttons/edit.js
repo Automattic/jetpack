@@ -42,6 +42,10 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 						element: 'a',
 						uniqueId: 'recurring-payments-id',
 						text: __( 'Subscribe', 'jetpack' ),
+						passthroughAttributes: {
+							uniqueId: 'uniqueId',
+							url: 'url',
+						},
 					},
 				],
 			],

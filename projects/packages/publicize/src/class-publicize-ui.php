@@ -2,7 +2,7 @@
 /**
  * Publicize_UI class.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
 namespace Automattic\Jetpack\Publicize;
@@ -41,7 +41,7 @@ class Publicize_UI {
 	 * Initialize UI-related functionality.
 	 */
 	public function init() {
-		$this->publicize_settings_url = publicize_calypso_url();
+		$this->publicize_settings_url = $this->publicize->publicize_connections_url();
 
 		// Show only to users with the capability required to manage their Publicize connections.
 		if ( ! $this->publicize->current_user_can_access_publicize_data() ) {
@@ -49,9 +49,7 @@ class Publicize_UI {
 		}
 
 		// Assets (css, js).
-		if ( $this->in_jetpack ) {
-			add_action( 'load-settings_page_sharing', array( $this, 'load_assets' ) );
-		}
+		add_action( 'load-settings_page_sharing', array( $this, 'load_assets' ) );
 		add_action( 'admin_head-post.php', array( $this, 'post_page_metabox_assets' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'post_page_metabox_assets' ) );
 
@@ -78,7 +76,9 @@ class Publicize_UI {
 	 * Add admin page with wrapper.
 	 */
 	public function wrapper_admin_page() {
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ) );
+		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
+			\Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ) );
+		}
 	}
 
 	/**
@@ -103,7 +103,9 @@ class Publicize_UI {
 	 * JS for the options and switching
 	 */
 	public function load_assets() {
-		Jetpack_Admin_Page::load_wrapper_styles();
+		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
+			\Jetpack_Admin_Page::load_wrapper_styles();
+		}
 	}
 
 	/**
@@ -128,12 +130,12 @@ class Publicize_UI {
 						),
 					)
 				),
-				esc_url( publicize_calypso_url() )
+				esc_url( $this->publicize->publicize_connections_url() )
 			);
 			?>
 		</h4>
 
-		<a href="<?php echo esc_url( publicize_calypso_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Publicize Settings', 'jetpack-publicize-pkg' ); ?></a>
+		<a href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Publicize Settings', 'jetpack-publicize-pkg' ); ?></a>
 		<?php
 	}
 
@@ -525,7 +527,7 @@ jQuery( function($) {
 							?>
 							<a
 								class="publicize-external-link"
-								href="<?php echo esc_url( publicize_calypso_url() ); ?>"
+								href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>"
 								target="_blank"
 							>
 								<span class="publicize-external-link__text"><?php esc_html_e( 'Go to Sharing settings', 'jetpack-publicize-pkg' ); ?></span>
@@ -552,9 +554,8 @@ jQuery( function($) {
 				?>
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels are already escaped above ?>
 					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
-					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
-				<?php
-
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />				
+					<?php
 			else :
 				$publicize_form = $this->get_metabox_form_disconnected( $available_services );
 				?>

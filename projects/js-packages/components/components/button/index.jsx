@@ -13,6 +13,11 @@ export const BUTTON_SIZES = {
 	SMALL: 'small',
 };
 
+export const FONT_WEIGHT = {
+	REGULAR: 'regular',
+	BOLD: 'bold',
+};
+
 export const BUTTON_VARIANTS = {
 	PRIMARY: 'primary',
 	SECONDARY: 'secondary',
@@ -24,6 +29,7 @@ const Button = ( {
 	children,
 	variant,
 	size,
+	weight,
 	icon,
 	iconSize,
 	disabled,
@@ -37,11 +43,15 @@ const Button = ( {
 		[ styles.normal ]: size === BUTTON_SIZES.NORMAL,
 		[ styles.small ]: size === BUTTON_SIZES.SMALL,
 		[ styles.icon ]: Boolean( icon ),
+		[ styles.loading ]: isLoading,
+		[ styles.regular ]: weight === FONT_WEIGHT.REGULAR,
 	} );
 
 	const isExternalLink = variant === BUTTON_VARIANTS.EXTERNAL_LINK;
 	const externalIconSize = size === BUTTON_SIZES.NORMAL ? 20 : 16;
-	const externalIcon = isExternalLink && <Icon size={ externalIconSize } icon={ external } />;
+	const externalIcon = isExternalLink && (
+		<Icon size={ externalIconSize } icon={ external } className={ styles[ 'external-icon' ] } />
+	);
 	const externalTarget = isExternalLink ? '_blank' : undefined;
 
 	return (
@@ -49,21 +59,16 @@ const Button = ( {
 			target={ externalTarget }
 			variant={ isExternalLink ? 'link' : variant }
 			className={ className }
-			icon={ icon }
+			icon={ ! isExternalLink ? icon : undefined }
 			iconSize={ iconSize }
 			disabled={ disabled }
 			isDestructive={ isDestructive }
 			text={ text }
 			{ ...componentProps }
 		>
-			{ isLoading ? (
-				<Spinner />
-			) : (
-				<>
-					{ children }
-					{ externalIcon }
-				</>
-			) }
+			{ isLoading && <Spinner /> }
+			<span>{ children }</span>
+			{ externalIcon }
 		</WPButton>
 	);
 };
@@ -76,6 +81,7 @@ Button.propTypes = {
 		BUTTON_VARIANTS.EXTERNAL_LINK,
 	] ),
 	size: PropTypes.oneOf( [ BUTTON_SIZES.NORMAL, BUTTON_SIZES.SMALL ] ),
+	weight: PropTypes.oneOf( [ FONT_WEIGHT.REGULAR, FONT_WEIGHT.BOLD ] ),
 	disabled: PropTypes.bool,
 	isDestructive: PropTypes.bool,
 	isLoading: PropTypes.bool,
@@ -86,6 +92,7 @@ Button.propTypes = {
 Button.defaultProps = {
 	variant: BUTTON_VARIANTS.PRIMARY,
 	size: BUTTON_SIZES.NORMAL,
+	weight: FONT_WEIGHT.BOLD,
 	disabled: false,
 	isDestructive: false,
 	isLoading: false,

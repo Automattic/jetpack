@@ -1,4 +1,4 @@
-@import '../styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 // Styling copied from Gutenberg's `@wordpress/block-editor` styling for the Warning component
 // so we can use it on the frontend.

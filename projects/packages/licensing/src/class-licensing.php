@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Licensing\Endpoints;
 use Jetpack_IXR_ClientMulticall;
 use Jetpack_Options;
 use WP_Error;
@@ -62,6 +63,19 @@ class Licensing {
 		add_action( 'add_option_' . self::LICENSES_OPTION_NAME, array( $this, 'attach_stored_licenses' ) );
 		add_action( 'update_option_' . self::LICENSES_OPTION_NAME, array( $this, 'attach_stored_licenses' ) );
 		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'attach_stored_licenses_on_connection' ) );
+		add_action( 'rest_api_init', array( $this, 'initialize_endpoints' ) );
+	}
+
+	/**
+	 * Initialize endpoints required for Licensing package.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @return void
+	 */
+	public function initialize_endpoints() {
+		$endpoints = new Endpoints();
+		$endpoints->register_endpoints();
 	}
 
 	/**

@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+
+### Changed
+- My Jetpack: remove duplicated site suffix stored on rawUrl. Use siteSuffix instead. [#24094]
+- Updated package dependencies. [#24095] [#24198]
+
+### Deprecated
+- Moved the options class into Connection. [#24095]
+
+## [1.2.0] - 2022-04-26
+### Added
+- Added activation screen component to My Jetpack licensing page
+
+### Changed
+- Updated package dependencies.
+- Update package.json metadata.
+
+## [1.1.0] - 2022-04-19
+### Added
+- Adds a skeleton for the licensing UI along with a feature flag
+- Better error handling for when the WPCOM server is unreachable
+- Introduced ConnectedProductOffer component
+
+### Changed
+- Turn Search into a Hybrid Product
+- Updated package dependencies
+- use connected plugin list from the connection store and ask for an update after activating a product
+
+## [1.0.2] - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed bug in checkout URLs for sites installed in subdirs.
+
 ## [1.0.1] - 2022-04-06
 ### Removed
 - Removed tracking dependency.
@@ -420,6 +457,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[1.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.2.0...1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.1.0...1.2.0
+[1.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.2...1.1.0
+[1.0.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.13...1.0.0
 [0.6.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.12...0.6.13

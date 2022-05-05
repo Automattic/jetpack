@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.2] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
+## [1.13.1] - 2022-04-19
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+
 ## [1.13.0] - 2022-04-05
 ### Added
 - Created Modules and File modules for managing those resources
@@ -170,6 +178,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[1.13.2]: https://github.com/Automattic/jetpack-status/compare/v1.13.1...v1.13.2
+[1.13.1]: https://github.com/Automattic/jetpack-status/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/Automattic/jetpack-status/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/Automattic/jetpack-status/compare/v1.11.2...v1.12.0
 [1.11.2]: https://github.com/Automattic/jetpack-status/compare/v1.11.1...v1.11.2

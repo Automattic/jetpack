@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
+import { useCallback } from 'react';
 
 /**
  * WordPress dependencies
@@ -12,6 +13,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -19,29 +21,43 @@ import { __ } from '@wordpress/i18n';
 import { icon, title } from './';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { store as membershipProductsStore } from '../../store/membership-products';
+import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
+
+// If we use the name on index.js and the block name changes the events block name will also change.
+const BLOCK_NAME = 'recurring-payments';
 
 export default function Edit( { attributes, clientId, context, setAttributes } ) {
 	const { planId } = attributes;
 	const { isPremiumContentChild } = context;
+	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 	const upgradeUrl = useSelect( select => select( membershipProductsStore ).getUpgradeUrl() );
 
-	const resolvePaymentUrl = newPlanId => {
-		if ( postLink ) {
-			const postUrl = new URL( postLink );
-			postUrl.searchParams.set( 'recurring_payments', newPlanId );
-			return postUrl.toString();
-		}
-		// When we aren't in an editing post context.
-		return '#';
-	};
+	const updateSubscriptionPlan = useCallback(
+		newPlanId => {
+			const resolvePaymentUrl = paymentPlanId => {
+				if ( POST_EDITOR !== editorType || ! postLink ) {
+					return '#';
+				}
 
-	const updateSubscriptionPlan = newPlanId =>
-		setAttributes( {
-			planId: newPlanId,
-			url: resolvePaymentUrl( newPlanId ),
-			uniqueId: `recurring-payments-${ newPlanId }`,
-		} );
+				const postUrl = new URL( postLink );
+				postUrl.searchParams.set( 'recurring_payments', paymentPlanId );
+				return postUrl.toString();
+			};
+
+			setAttributes( {
+				planId: newPlanId,
+				url: resolvePaymentUrl( newPlanId ),
+				uniqueId: `recurring-payments-${ newPlanId }`,
+			} );
+		},
+		[ editorType, postLink, setAttributes ]
+	);
+
+	useEffect( () => {
+		updateSubscriptionPlan( planId );
+	}, [ planId, updateSubscriptionPlan ] );
 
 	/**
 	 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
@@ -62,8 +78,8 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 		<div className="wp-block-jetpack-recurring-payments">
 			{ showControls && (
 				<ProductManagementControls
-					allowCreateOneTimeInterval={ true }
-					blockName="recurring-payments"
+					blockName={ BLOCK_NAME }
+					clientId={ clientId }
 					selectedProductId={ planId }
 					setSelectedProductId={ updateSubscriptionPlan }
 				/>
@@ -88,7 +104,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 					</div>
 				</Placeholder>
 			) }
-
+			<StripeNudge blockName={ BLOCK_NAME } />
 			<InnerBlocks
 				template={ [
 					[

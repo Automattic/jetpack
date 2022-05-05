@@ -50,10 +50,10 @@ First time working with the monorepo? We got you covered.
 
 For the first time only:
 
-* From the root of the repo, run `pnpm install && pnpx jetpack cli link` (if you want the `jetpack` CLI tool installed globally) or `pnpm install` (if you don't).
+* From the root of the repo, run `pnpm install && pnpm jetpack cli link` (if you want the `jetpack` CLI tool installed globally) or `pnpm install` (if you don't).
 * That’s it. You won’t need to do that again unless you nuke your node_modules directory.
 
-Once you’ve done that, it’s easy: run `jetpack` (or `pnpx jetpack`) while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
+Once you’ve done that, it’s easy: run `jetpack` (or `pnpm jetpack`) while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
 
 ## Jetpack Generate Wizard
 
@@ -197,7 +197,7 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
   Note we're using something of a hack to get eslint to read ignore rules from `.gitignore` and per-directory `.eslintignore` files.
   Any eslintrc that does `root: true` or an `extends` that extends from an eslintrc that includes the hack will have to do like
   ```js
-  const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+  const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
   module.exports = {
   	// Whatever stuff, including `root: true` or `extends`.
   	ignorePatterns: loadIgnorePatterns( __dirname ),
@@ -234,8 +234,7 @@ WordPress plugins generally want to run within WordPress. All monorepo plugins a
 
 Tests will be run against the latest version of WordPress using the variety of supported PHP versions, and against the previous and master versions of WordPress using the PHP version in `.github/versions.sh`. The environment variable `WP_BRANCH` will be set to 'latest', 'previous', or 'master' accordingly. If you have tests that only need to be run once, run them when `WP_BRANCH` is 'latest'.
 
-<!-- @todo: Update this once we drop support for WP 5.8. -->
-Note that the state of WordPress's own PHPUnit integration is currently in flux. For WordPress 5.8 and earlier you need to both use `yoast/phpunit-polyfills` to supply polyfills and need to run with PHPUnit < 8.0 (even on PHP 8, where monkey-patching is required), while for 5.9 you can use `yoast/phpunit-polyfills` normally. Your best bet for the moment is to copy what Jetpack is doing; once the situation has stabilized, we'll update this documentation and [the example bootstrap.php](./examples/bootstrap.php).
+When implementing tests within a new plugin, you can follow the example set in [the example bootstrap.php](./examples/bootstrap.php).
 
 ### JavaScript tests
 

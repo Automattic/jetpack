@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 const PALETTE = require( '@automattic/color-studio' );
 
 /**
@@ -53,13 +54,13 @@ export default function getRecordInfo( post_count, post_type_breakdown, tier, la
 
 	if ( numItems > 0 && hasValidData && hasBeenIndexed ) {
 		for ( let i = 0; i < numItems; i++ ) {
-			const theData = Object.values( post_type_breakdown )[ i ];
-			const name = Object.keys( post_type_breakdown )[ i ];
+			const postTypeDetails = Object.values( post_type_breakdown )[ i ];
+			const { count, slug: name } = postTypeDetails;
 
 			postTypeBreakdown.push( {
-				data: createData( theData, colors[ i ], name ),
+				data: createData( count, colors[ i ], name ),
 			} );
-			currentCount = currentCount + theData;
+			currentCount = currentCount + count;
 		}
 
 		// sort & split items into included and other
@@ -90,7 +91,11 @@ export default function getRecordInfo( post_count, post_type_breakdown, tier, la
 		// if there is remaining unused space in tier, add filler spacing to chart
 		if ( tier - currentCount > 0 ) {
 			recordInfo.push( {
-				data: createData( tier - currentCount, PALETTE.colors[ 'Gray 0' ], 'Remaining' ),
+				data: createData(
+					tier - currentCount,
+					PALETTE.colors[ 'Gray 0' ],
+					__( 'remaining', 'jetpack-search-pkg' )
+				),
 			} );
 		}
 	}

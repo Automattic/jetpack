@@ -28,6 +28,19 @@ define( 'JETPACK_PROTECT_DEV__BYPASS_CACHE', true );
 define( 'JETPACK_PROTECT_DEV__API_RESPONSE_TYPE', 'complete' );
 ```
 
+`JETPACK_PROTECT_DEV__API_CORE_VULS` - will let you ask WPCOM servers to respond with found vulnerabilities for WordPress core. The value should be an integer with the number of vulnerabilities you want to get. Default is zero.
+
+### Troubleshooting
+
+Jetpack Protect and the dev API endpoint on WPCOM relies on Sync. Protect needs to send the list of installed themes and plugins to our servers so we know what to check for.
+
+Sometimes in our dev environment we might run into situations where information is not synced immediately (because of plugin dance, etc).
+
+If you run in a situation where you are only getting empty responses from our testing endpoint, even though you have many plugins and themes installed and chose the right `response_type` in the constants described above, try the following:
+
+* Delete this transient: `wp transient delete jetpack_sync_callables_await`
+* Install or uninstall a plugin and/or a theme to make sure the list changes
+
 ## Contribute
 
 Please refer to the [Contribute](https://github.com/Automattic/jetpack/blob/master/readme.md#contribute) section in the README.md file at the root of the repository.

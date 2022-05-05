@@ -32,7 +32,6 @@ class WP_Test_Jetpack_Widget_Conditions extends WP_UnitTestCase {
 		. "\n" . '<!-- /wp:paragraph -->';
 		$block         = array( 'content' => $block_content );
 		// Expect to see the same block. Clone it, just in case the function modifies its parameters.
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize,WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		$expected   = unserialize( serialize( $block ) );
 		$return_val = Jetpack_Widget_Conditions::filter_widget( $block );
 		$this->assertSame( $return_val, $expected );
@@ -53,7 +52,6 @@ class WP_Test_Jetpack_Widget_Conditions extends WP_UnitTestCase {
 		. "\n" . '<!-- /wp:paragraph -->';
 		$block         = array( 'content' => $block_content );
 		// Expect to see the same block. Clone it, just in case the function modifies its parameters.
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize,WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		$expected   = unserialize( serialize( $block ) );
 		$return_val = Jetpack_Widget_Conditions::filter_widget( $block );
 		$this->assertSame( $return_val, $expected );

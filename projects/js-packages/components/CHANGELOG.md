@@ -2,6 +2,65 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.11.4 - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+- JS Components: add getProductCheckoutUrl helper function [#24113]
+- JS Components: Add Protect Icon [#24139]
+- JS Components: add `weight` prop to Button component [#24219]
+
+### Changed
+- JS Components: Add className prop to Protect icon [#24142]
+- JS Components: Introduce `header` prop to AdminPage component [#24232]
+- Protect: update new version of icon [#24215]
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+### Fixed
+- JS Components: fix weird spinner issue [#24206]
+
+## 0.11.3 - 2022-04-26
+### Added
+- Added RecordMeterBar component with stories and unit tests
+- Expose and use IconsCard component
+- JS Components: add `icon` property to ProductOffer component
+- JS Components: Introduce Alert component. Add error to ProductOffer components
+- JS Components: Update Alter level colors via ThemeProvider
+
+### Changed
+- JS Components: improve box-model composed by dialog and product-offer components
+- Updated package dependencies
+- Updated package dependencies.
+
+### Fixed
+- Components: Avoid reset global text components when usin Text
+
+## 0.11.2 - 2022-04-19
+### Added
+- Added Gridicon component
+- Added TypeScript support
+- Protect: add ProductOffer component
+
+### Changed
+- Converted numberFormat to TypeScript
+- JS Components: Add subTitle prop to ProductOffer component
+- JS Components: Update loading state for Button
+- RNA: Add buttonText property to the ProductOffer component
+
+## 0.11.1 - 2022-04-12
+### Added
+- JS Components: Add Dialog component.
+- JS Components: Add ProductDetailCard component.
+- JS Components: Add ProductPrice component.
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Button: Fix export, external link target and padding.
+- JS Components: fix className prop in Button component.
+- RNA: fix ProductOffer button loading state issue.
+
 ## 0.11.0 - 2022-04-05
 ### Added
 - Components: add Button component.

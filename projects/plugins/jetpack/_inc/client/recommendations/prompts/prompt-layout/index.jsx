@@ -16,6 +16,49 @@ import { imagePath } from 'constants/urls';
  */
 import './style.scss';
 
+const SideContent = ( { isLoadingSideContent, illustrationPath, question, sidebarCard, rna } ) => {
+	if ( isLoadingSideContent ) {
+		return <div></div>;
+	}
+
+	if ( sidebarCard ) {
+		return <div className="jp-recommendations-question__sidebar-card">{ sidebarCard }</div>;
+	}
+
+	if ( illustrationPath && ! sidebarCard ) {
+		return (
+			<div
+				className={
+					'jp-recommendations-question__illustration-container ' +
+					( rna ? 'jp-recommendations-question__illustration-container--rna' : '' )
+				}
+			>
+				{ ! rna && (
+					<img
+						className="jp-recommendations-question__illustration-background"
+						src={ imagePath + 'recommendations/background.svg' }
+						alt={ __(
+							'An illustration of a browser window used as the container to visually represent the current question.',
+							'jetpack'
+						) }
+					/>
+				) }
+				<img
+					className="jp-recommendations-question__illustration-foreground"
+					src={ imagePath + illustrationPath }
+					alt={ sprintf(
+						/* translators: %s: Name of the current Jetpack Assistant question (read: step). */
+						__( 'Illustration used to visually represent the current question: %s.', 'jetpack' ),
+						question
+					) }
+				/>
+			</div>
+		);
+	}
+
+	return null;
+};
+
 const PromptLayout = props => {
 	const {
 		answer,
@@ -26,12 +69,16 @@ const PromptLayout = props => {
 		content,
 		isNew,
 		rna,
+		sidebarCard,
+		isLoadingSideContent,
 	} = props;
 
 	return (
 		<div
 			className={ classNames( 'jp-recommendations-question__main', {
-				'jp-recommendations-question__main--with-illustration': !! illustrationPath,
+				'jp-recommendations-question__main--with-sidebar': !! illustrationPath || !! sidebarCard,
+				'jp-recommendations-question__main--with-illustration':
+					! isLoadingSideContent && !! illustrationPath && ! sidebarCard,
 				'jp-recommendations-question__main--with-illustration--rna': !! illustrationPath && !! rna,
 			} ) }
 		>
@@ -49,34 +96,7 @@ const PromptLayout = props => {
 				{ content }
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>
-			{ illustrationPath && (
-				<div
-					className={
-						'jp-recommendations-question__illustration-container ' +
-						( rna ? 'jp-recommendations-question__illustration-container--rna' : '' )
-					}
-				>
-					{ ! rna && (
-						<img
-							className="jp-recommendations-question__illustration-background"
-							src={ imagePath + 'recommendations/background.svg' }
-							alt={ __(
-								'An illustration of a browser window used as the container to visually represent the current question.',
-								'jetpack'
-							) }
-						/>
-					) }
-					<img
-						className="jp-recommendations-question__illustration-foreground"
-						src={ imagePath + illustrationPath }
-						alt={ sprintf(
-							/* translators: %s: Name of the current Jetpack Assistant question (read: step). */
-							__( 'Illustration used to visually represent the current question: %s.', 'jetpack' ),
-							question
-						) }
-					/>
-				</div>
-			) }
+			<SideContent { ...props } />
 		</div>
 	);
 };
@@ -87,6 +107,8 @@ PromptLayout.propTypes = {
 	illustrationPath: PropTypes.string,
 	progressBar: PropTypes.element.isRequired,
 	question: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
+	sidebarCard: PropTypes.element,
+	isLoadingSideContent: PropTypes.boolean,
 };
 
 export { PromptLayout };

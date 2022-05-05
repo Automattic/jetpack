@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 
 import {
+	hasActiveSiteFeature,
 	isDoneFetchingConnectedPlugins,
 	getConnectedPlugins,
 	getConnectedPluginsMap,
@@ -11,6 +12,11 @@ describe( 'site selectors', () => {
 		{ slug: 'slug1', name: 'name1' },
 		{ slug: 'slug2', name: 'name2' },
 	];
+	const active = [
+		'feature_active_01',
+		'feature_active_02',
+		'feature_active_03',
+	]
 	const baseInState = {
 		jetpack: {
 			siteData: {
@@ -20,6 +26,9 @@ describe( 'site selectors', () => {
 				data: {
 					site: {
 						connectedPlugins,
+						features: {
+							active
+						},
 					},
 				},
 			},
@@ -89,6 +98,23 @@ describe( 'site selectors', () => {
 			const result = getConnectedPluginsMap( inState );
 
 			expect( result ).to.eql( expectedMap );
+		} );
+	} );
+
+	describe( '#hasActiveSiteFeature()', () => {
+		it( 'should return False when feature param is not defined', () => {
+			const activeFeature = hasActiveSiteFeature( inState );
+			expect( activeFeature ).to.eql( false );
+		} );
+
+		it( 'should return False when feature is not defined in the active array', () => {
+			const activeFeature = hasActiveSiteFeature( inState, 'unknown-feature' );
+			expect( activeFeature ).to.eql( false );
+		} );
+
+		it( 'should return True when feature is defined in the active array', () => {
+			const activeFeature = hasActiveSiteFeature( inState, 'feature_active_01' );
+			expect( activeFeature ).to.eql( true );
 		} );
 	} );
 } );
