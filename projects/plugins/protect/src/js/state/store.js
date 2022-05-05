@@ -4,6 +4,7 @@
 import reducer from './reducers';
 import actions from './actions';
 import selectors from './selectors';
+import resolvers from './resolvers';
 import storeHolder from './store-holder';
 import camelize from 'camelize';
 
@@ -18,6 +19,7 @@ function initStore() {
 		reducer,
 		actions,
 		selectors,
+		resolvers,
 		initialState: camelize( window.jetpackProtectInitialState ) || {},
 	} );
 }
