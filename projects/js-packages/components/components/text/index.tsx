@@ -24,7 +24,9 @@ const Text: React.FC< TextProps > = ( {
 	className,
 	...componentProps
 } ) => {
-	const Component = ( component || VARIANTS_MAPPING[ variant ] || 'span' ) as React.FC< TextProps >;
+	const Component = ( component || VARIANTS_MAPPING[ variant ] || 'span' ) as React.FC< {
+		[ props: string ]: any;
+	} >;
 
 	// Build Styles module CSS classnames.
 	const boxModelClasses = useMemo( () => {
