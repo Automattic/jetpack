@@ -70,7 +70,7 @@ describe( 'Execution lock', () => {
         test( 'When the supplied key is locked execution is halted until the lock is released', async () => {
             // Given
             const lock = executionLock.acquire( ANY_LOCK_KEY );
-            const RELEASE_LOCK_AFTER_ANY_MS = Math.random() * 3000 + 100;
+            const RELEASE_LOCK_AFTER_ANY_MS = 400;
             setTimeout(() => executionLock.release( lock ), RELEASE_LOCK_AFTER_ANY_MS );
 
             // When
@@ -96,20 +96,20 @@ describe( 'Execution lock', () => {
         test( 'The time elapsed between lock checks when the execution is halted is greater than the time offSet value', async () => {
             // Given
             const lock = executionLock.acquire( ANY_LOCK_KEY );
-            const RELEASE_LOCK_AFTER_900_MS = 900;
-            const OFFSET_FOR_1000_MS = 1000;
-            const OFFSET_FOR_1000_MS_WITH_MARGIN_OF_ERROR = OFFSET_FOR_1000_MS * 1.2;
-            setTimeout(() => executionLock.release( lock ), RELEASE_LOCK_AFTER_900_MS );
+            const RELEASE_LOCK_AFTER_90_MS = 90;
+            const OFFSET_FOR_100_MS = 100;
+            setTimeout(() => executionLock.release( lock ), RELEASE_LOCK_AFTER_90_MS );
             const initialTimeMillis = Date.now();
 
             // When
-            await executionLock.blockExecution( ANY_LOCK_KEY, OFFSET_FOR_1000_MS );
+            await executionLock.blockExecution( ANY_LOCK_KEY, OFFSET_FOR_100_MS );
 
             // Then
             const timeElapsedInMillis = Date.now() - initialTimeMillis;
-            expect( timeElapsedInMillis ).toBeGreaterThanOrEqual( OFFSET_FOR_1000_MS );
-            // We need to take into consideration that there might be a slight delay during the execution of js code.
-            expect( timeElapsedInMillis ).toBeLessThanOrEqual( OFFSET_FOR_1000_MS_WITH_MARGIN_OF_ERROR );
+            // The time measurement can sometimes lose 1ms.
+            expect( timeElapsedInMillis ).toBeGreaterThanOrEqual( OFFSET_FOR_100_MS - 1 );
+            // While the delay beyond the specified time may be arbitrarily long, within the test infrastructure it shouldn't be that far off.
+            expect( timeElapsedInMillis ).toBeLessThanOrEqual( OFFSET_FOR_100_MS + 20 );
         } );
     } );
 
