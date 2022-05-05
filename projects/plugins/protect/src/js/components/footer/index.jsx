@@ -23,7 +23,7 @@ import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { SECURITY_BUNDLE } from '../admin-page';
 import useProtectData from '../../hooks/use-protect-data';
 
-const Upsell = ( { onSecurityAdd, hasCheckoutStarted, hasSecurityBundle } ) => {
+const ProductPromotion = ( { onSecurityAdd, hasCheckoutStarted, hasSecurityBundle } ) => {
 	if ( ! hasSecurityBundle ) {
 		return (
 			<div className={ styles.section }>
@@ -111,7 +111,7 @@ const Footer = () => {
 			<Col>
 				<Dialog
 					primary={
-						<Upsell
+						<ProductPromotion
 							onSecurityAdd={ getSecurityBundle }
 							hasCheckoutStarted={ hasCheckoutStarted }
 							hasSecurityBundle={ hasRequiredPlan }
