@@ -95,7 +95,7 @@ const ModuleToggle = () => {
 };
 
 const Admin = () => {
-	useMemo( () => {
+	useEffect( () => {
 		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
 		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
