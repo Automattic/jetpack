@@ -6,7 +6,7 @@ import { Button, ToggleControl } from '@wordpress/components';
 import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import { useSelect, select as syncSelect, useDispatch } from '@wordpress/data';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import React, { useMemo, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
 /**
  * Internal dependencies
