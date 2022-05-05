@@ -86,7 +86,7 @@ export default function useProtectData() {
 	const core = normalizeCoreInformation( wpVersion, status.wordpress );
 
 	let currentStatus = 'error';
-	if ( statusIsFetching ) {
+	if ( true === statusIsFetching ) {
 		currentStatus = 'loading';
 	} else if ( status.status ) {
 		currentStatus = status.status;
@@ -98,6 +98,8 @@ export default function useProtectData() {
 		numPluginsVulnerabilities: status.numPluginsVulnerabilities || 0,
 		numThemesVulnerabilities: status.numThemesVulnerabilities || 0,
 		lastChecked: status.lastChecked || null,
+		errorCode: status.errorCode || null,
+		errorMessage: status.errorMessage || null,
 		core,
 		plugins,
 		themes,
