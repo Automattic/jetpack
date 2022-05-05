@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { CSSProperties } from 'react';
+import type React from 'react';
 
 import { VARIANTS_MAPPING } from './constants';
 
@@ -47,7 +47,7 @@ export type TextProps = {
 
 export type H3Props = TextProps & {
 	/** Font weight: 'bold' (default) | 'regular'. */
-	weight?: CSSProperties[ 'fontWeight' ];
+	weight?: 'bold' | 'regular';
 };
 
 export type TitleProps = TextProps & {
