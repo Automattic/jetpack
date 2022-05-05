@@ -6,8 +6,11 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { H2, H3, TIPOGRAPHY_WEIGHTS } from '../index.jsx';
+import { H2, H3 } from '../index';
+import type { H3Props } from '../types';
 import styles from './style.module.scss';
+
+const TIPOGRAPHY_WEIGHTS: Array< H3Props[ 'weight' ] > = [ 'regular', 'bold' ];
 
 export default {
 	title: 'JS Packages/Components/Text/Heading',
@@ -17,7 +20,7 @@ export default {
 			control: { type: 'text' },
 		},
 		weight: {
-			control: { type: 'select', options: Object.values( TIPOGRAPHY_WEIGHTS ) },
+			control: { type: 'select', options: TIPOGRAPHY_WEIGHTS },
 		},
 	},
 };
@@ -74,10 +77,10 @@ export const HeadlineH2 = TemplateH2.bind( {} );
 HeadlineH2.storyName = 'H2';
 HeadlineH2.args = {
 	weight: 'bold',
-};
+} as H3Props;
 
 export const HeadlineH3 = TemplateH3.bind( {} );
 HeadlineH3.storyName = 'H3';
 HeadlineH3.args = {
 	weight: 'bold',
-};
+} as H3Props;
