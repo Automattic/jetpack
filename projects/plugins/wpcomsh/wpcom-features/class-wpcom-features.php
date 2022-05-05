@@ -131,6 +131,14 @@ class WPCOM_Features {
 	private const JETPACK_VIDEOPRESS                          = 'jetpack_videopress'; // 2116
 	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
 	private const JETPACK_BACKUP_ONE_TIME                     = 'jetpack_backup_one_time'; // 2201
+	private const AKISMET_PLUS_MONTHLY                        = 'ak_plus_monthly'; // 2301
+	private const AKISMET_PLUS_YEARLY                         = 'ak_plus_yearly'; // 2302
+	private const AKISMET_ENTERPRISE_MONTHLY                  = 'ak_ent_monthly'; // 2303
+	private const AKISMET_ENTERPRISE_YEARLY                   = 'ak_ent_yearly'; // 2304
+	private const AKISMET_ENTERPRISE_350K_MONTHLY             = 'ak_ep350k_monthly'; // 2305
+	private const AKISMET_ENTERPRISE_350K_YEARLY              = 'ak_ep350k_yearly'; // 2306
+	private const AKISMET_ENTERPRISE_2M_MONTHLY               = 'ak_ep2m_monthly'; // 2307
+	private const AKISMET_ENTERPRISE_2M_YEARLY                = 'ak_ep2m_yearly'; // 2308
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
 
@@ -238,6 +246,17 @@ class WPCOM_Features {
 		self::JETPACK_SECURITY_T2_PLANS,
 	];
 
+	private const AKISMET_PLANS = [
+		self::AKISMET_PLUS_MONTHLY,
+		self::AKISMET_PLUS_YEARLY,
+		self::AKISMET_ENTERPRISE_MONTHLY,
+		self::AKISMET_ENTERPRISE_YEARLY,
+		self::AKISMET_ENTERPRISE_350K_MONTHLY,
+		self::AKISMET_ENTERPRISE_350K_YEARLY,
+		self::AKISMET_ENTERPRISE_2M_MONTHLY,
+		self::AKISMET_ENTERPRISE_2M_YEARLY,
+	];
+
 	// Features automatically granted to all sites regardless of their purchases are mapped to these constants.
 	private const WPCOM_ALL_SITES   = 'wpcom-all-sites';
 	private const JETPACK_ALL_SITES = 'jetpack-all-sites';
@@ -258,6 +277,7 @@ class WPCOM_Features {
 	public const CALENDLY                      = 'calendly';
 	public const CLASSIC_SEARCH                = 'search';
 	public const CLOUD_CRITICAL_CSS            = 'cloud-critical-css';
+	public const CLOUDFLARE_ANALYTICS          = 'cloudflare-analytics';
 	public const CONCIERGE                     = 'concierge';
 	public const CONCIERGE_BUSINESS            = 'concierge-business';
 	public const CORE_AUDIO                    = 'core/audio';
@@ -297,16 +317,26 @@ class WPCOM_Features {
 	public const SCAN                          = 'scan';
 	public const SCAN_MANAGED                  = 'scan-managed';
 	public const SECURITY_SETTINGS             = 'security-settings';
+	public const SEO_PREVIEW_TOOLS             = 'seo-preview-tools';
 	public const SEND_A_MESSAGE                = 'send-a-message';
 	public const SET_PRIMARY_CUSTOM_DOMAIN     = 'set-primary-custom-domain';
+	public const SFTP                          = 'sftp';
 	public const SIMPLE_PAYMENTS               = 'simple-payments';
 	public const SOCIAL_PREVIEWS               = 'social-previews';
 	public const SPACE                         = 'space';
 	public const SPACE_UPGRADED_STORAGE        = 'space-upgraded-storage';
 	public const SUPPORT                       = 'support';
-	public const UPGRADED_UPLOAD_FILETYPES     = 'upgraded_upload_filetypes';
 	public const UNLIMITED_THEMES              = 'unlimited_themes';
+	public const UPGRADED_UPLOAD_FILETYPES     = 'upgraded_upload_filetypes';
+	public const UPLOAD_AUDIO_FILES            = 'upload-audio-files';
 	public const UPLOAD_PLUGINS                = 'upload-plugins';
+	public const UPLOAD_SPACE_3GB              = 'upload-space-3gb';
+	public const UPLOAD_SPACE_10GB             = 'upload-space-10gb';
+	public const UPLOAD_SPACE_25GB             = 'upload-space-25gb';
+	public const UPLOAD_SPACE_50GB             = 'upload-space-50gb';
+	public const UPLOAD_SPACE_100GB            = 'upload-space-100gb';
+	public const UPLOAD_SPACE_200GB            = 'upload-space-200gb';
+	public const UPLOAD_SPACE_UNLIMITED        = 'upload-space-unlimited';
 	public const UPLOAD_THEMES                 = 'upload-themes';
 	public const UPLOAD_VIDEO_FILES            = 'upload-video-files';
 	public const VAULTPRESS_AUTOMATED_RESTORES = 'vaultpress-automated-restores';
@@ -339,9 +369,10 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
-		// AKISMET - @todo Jetpack free plans do not support Akismet.
 		self::AKISMET                       => array(
-			self::JETPACK_ALL_SITES,
+			self::AKISMET_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WPCOM_ALL_SITES,
 		),
 		self::ANTISPAM                      => array(
 			self::JETPACK_ANTI_SPAM,
@@ -360,7 +391,6 @@ class WPCOM_Features {
 		self::ATOMIC                        => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_MARKETPLACE_PLANS,
 		),
 		// BACKUPS - Site has *any* kind of backups.
 		self::BACKUPS                       => array(
@@ -409,6 +439,11 @@ class WPCOM_Features {
 			self::JETPACK_SEARCH_MONTHLY,
 			self::JETPACK_COMPLETE_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
+		),
+		self::CLOUDFLARE_ANALYTICS          => array(
+			self::JETPACK_PREMIUM_AND_HIGHER,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::CONCIERGE                     => array(
 			self::WPCOM_BUSINESS_PLANS,
@@ -564,6 +599,7 @@ class WPCOM_Features {
 			self::WP_P2_PLUS_MONTHLY,
 		),
 		self::PREMIUM_THEMES                => array(
+			self::BUNDLE_ENTERPRISE,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
@@ -629,6 +665,12 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
+		self::SEO_PREVIEW_TOOLS             => array(
+			self::BUNDLE_ENTERPRISE,
+			self::JETPACK_ALL_SITES,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
 		self::SEND_A_MESSAGE                => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
@@ -646,6 +688,11 @@ class WPCOM_Features {
 		self::SET_PRIMARY_CUSTOM_DOMAIN     => array(
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::YOAST_PREMIUM,
+		),
+		// Hosting Configuration.
+		self::SFTP                          => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::SIMPLE_PAYMENTS               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -700,9 +747,34 @@ class WPCOM_Features {
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
 		),
+		self::UPLOAD_AUDIO_FILES            => array(
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
+		),
 		self::UPLOAD_PLUGINS                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+		self::UPLOAD_SPACE_3GB              => array(
+			self::SPACE_3GB,
+		),
+		self::UPLOAD_SPACE_10GB             => array(
+			self::SPACE_10GB,
+		),
+		self::UPLOAD_SPACE_25GB             => array(
+			self::SPACE_25GB,
+		),
+		self::UPLOAD_SPACE_50GB             => array(
+			self::SPACE_50GB,
+		),
+		self::UPLOAD_SPACE_100GB            => array(
+			self::SPACE_100GB,
+		),
+		self::UPLOAD_SPACE_200GB            => array(
+			self::SPACE_200GB,
+		),
+		self::UPLOAD_SPACE_UNLIMITED        => array(
+			self::SPACE_UNLIMITED,
 		),
 		self::UPLOAD_THEMES                 => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -729,8 +801,7 @@ class WPCOM_Features {
 			self::JETPACK_BUSINESS_PLANS,
 		),
 		self::VAULTPRESS_BACKUPS            => array(
-			self::JETPACK_PREMIUM_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
 		),
 		self::VAULTPRESS_SECURITY_SCANNING  => array(
 			self::JETPACK_BUSINESS_PLANS,
