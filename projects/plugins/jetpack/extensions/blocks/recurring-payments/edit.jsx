@@ -22,7 +22,7 @@ import { icon, title } from './';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
-import { MembershipStoreAwareStripeNudge } from '../../shared/components/stripe-nudge';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
 
 // If we use the name on index.js and the block name changes the events block name will also change.
 const BLOCK_NAME = 'recurring-payments';
@@ -104,7 +104,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 					</div>
 				</Placeholder>
 			) }
-			<MembershipStoreAwareStripeNudge blockName={ BLOCK_NAME } />
+			<StripeNudge blockName={ BLOCK_NAME } />
 			<InnerBlocks
 				template={ [
 					[

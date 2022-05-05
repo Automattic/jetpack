@@ -18,6 +18,7 @@ class Data_Settings {
 	const MUST_SYNC_DATA_SETTINGS = array(
 		'jetpack_sync_modules'            => array(
 			'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+			'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately', // enable Initial Sync on Site Connection.
 		),
 		'jetpack_sync_callable_whitelist' => array(
 			'site_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
