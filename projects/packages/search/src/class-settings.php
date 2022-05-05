@@ -15,9 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class to initialize search settings on the site.
  *
- * 1. The settings are synced to WPCOM thru `sync/src/modules/class-search.php`.
- * 2. Ensure to add new options to WPCOM whitelist if need to be synced following `PCYsg-sBM-p2`.
- * 3. If the list of available values change say there is a new sorting method added, the sanitizing code in WPCOM should be updated as well.
+ * 1. Settings are synced to WPCOM according to `Automattic\Jetpack\Sync\Modules\Search::$options_to_sync`.
+ * 2. All synced options must also be explicitly whitelisted and sanitized on WPCOM; see `PCYsg-sBM-p2`.
  */
 class Settings {
 
