@@ -103,7 +103,7 @@ const Footer = () => {
 				<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ true }>
 					<Col>
 						<IconsCard
-							products={ hasRequiredPlan ? [ 'backup', 'scan', 'anti-spam' ] : [ 'scan' ] }
+							products={ ! hasRequiredPlan ? [ 'backup', 'scan', 'anti-spam' ] : [ 'scan' ] }
 						/>
 					</Col>
 				</Container>
@@ -114,7 +114,7 @@ const Footer = () => {
 						<ProductPromotion
 							onSecurityAdd={ getSecurityBundle }
 							hasCheckoutStarted={ hasCheckoutStarted }
-							hasSecurityBundle={ hasRequiredPlan }
+							hasSecurityBundle={ ! hasRequiredPlan }
 						/>
 					}
 					secondary={ <FooterInfo /> }
