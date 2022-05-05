@@ -10,7 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Text, { H3, Title } from '../text/index.jsx';
+import Text, { H3, Title } from '../text/index';
 import { getIconBySlug, CheckmarkIcon } from '../product-icons/index.jsx';
 import ProductPrice from '../product-price/index.jsx';
 import styles from './style.module.scss';
