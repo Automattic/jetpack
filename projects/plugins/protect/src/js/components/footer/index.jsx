@@ -22,7 +22,7 @@ import styles from './styles.module.scss';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { SECURITY_BUNDLE } from '../admin-page';
 
-const GetSecurityBundle = ( { onAdd, hasCheckoutStarted } ) => {
+const Upsell = ( { onAdd, hasCheckoutStarted } ) => {
 	return (
 		<div className={ styles.section }>
 			<Title>{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }</Title>
@@ -85,10 +85,7 @@ const Footer = () => {
 			<Col>
 				<Dialog
 					primary={
-						<GetSecurityBundle
-							onAdd={ getSecurityBundle }
-							hasCheckoutStarted={ hasCheckoutStarted }
-						/>
+						<Upsell onAdd={ getSecurityBundle } hasCheckoutStarted={ hasCheckoutStarted } />
 					}
 					secondary={ <FooterInfo /> }
 					split={ true }
