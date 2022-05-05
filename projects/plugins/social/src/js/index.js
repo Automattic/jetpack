@@ -4,6 +4,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createReduxStore, register } from '@wordpress/data';
+
 /**
  * Internal dependencies
  */

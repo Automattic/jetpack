@@ -85,6 +85,61 @@ class Jetpack_Social {
 
 		// Add REST routes
 		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Controller(), 'register_rest_routes' ) );
+
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				Assets::register_script(
+					'jetpack-social-editor',
+					'build/editor.js',
+					JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
+					array(
+						'in_footer'  => true,
+						'textdomain' => 'jetpack-social',
+					)
+				);
+
+				Assets::enqueue_script( 'jetpack-social-editor' );
+
+				wp_localize_script(
+					'jetpack-social-editor',
+					'Jetpack_Editor_Initial_State',
+					array(
+						'available_blocks' => array( 'publicize' ),
+						'jetpack'          => array(
+							'is_active'                 => true,
+							'is_current_user_connected' => true,
+							/** This filter is documented in class.jetpack-gutenberg.php */
+							'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
+							'is_private_site'           => '-1' === get_option( 'blog_public' ),
+							'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
+							'is_offline_mode'           => false,
+							/**
+							 * Enable the RePublicize UI in the block editor context.
+							 *
+							 * @module publicize
+							 *
+							 * @since 10.3.0
+							 *
+							 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
+							 */
+							'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
+							/**
+							 * Enable Pocket Casts block variation in block editor context.
+							 *
+							 * @since 10.9
+							 *
+							 * @param bool true Enable Pocket Casts block variation in block editor context. Defaults to false.
+							 */
+							'pocket_casts_enabled'      => apply_filters( 'jetpack_block_editor_pocket_casts_feature', false ),
+						),
+						'adminUrl'         => esc_url( admin_url() ),
+						'allowedMimeTypes' => wp_get_mime_types(),
+						'siteLocale'       => str_replace( '_', '-', get_locale() ),
+					)
+				);
+			}
+		);
 	}
 
 	/**

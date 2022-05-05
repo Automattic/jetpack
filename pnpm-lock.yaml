@@ -853,7 +853,28 @@ importers:
     specifiers: {}
 
   projects/packages/publicize:
-    specifiers: {}
+    specifiers:
+      '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-base-styles': workspace:0.3.2-alpha
+      '@automattic/jetpack-shared-extension-utils': workspace:0.4.4-alpha
+      '@wordpress/icons': 8.3.0
+      classnames: 2.3.1
+      prop-types: 15.8.1
+      react: 17.0.2
+      react-page-visibility: 6.4.0
+      refx: 3.1.1
+      rememo: 3.0.0
+    dependencies:
+      '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
+      '@wordpress/icons': 8.3.0
+      classnames: 2.3.1
+      prop-types: 15.8.1
+      react: 17.0.2
+      react-page-visibility: 6.4.0_react@17.0.2
+      refx: 3.1.1
+      rememo: 3.0.0
 
   projects/packages/search:
     specifiers:
@@ -1589,6 +1610,8 @@ importers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.11
       '@automattic/jetpack-connection': workspace:* || ^0.17
+      '@automattic/jetpack-publicize': workspace:0.1.1-alpha
+      '@automattic/jetpack-shared-extension-utils': workspace:0.4.4-alpha
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
       '@babel/preset-env': 7.16.11
@@ -1599,8 +1622,10 @@ importers:
       '@wordpress/date': 4.7.0
       '@wordpress/element': 4.5.0
       '@wordpress/i18n': 4.7.0
+      classnames: 2.3.1
       concurrently: 6.0.2
       lodash: 4.17.21
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -1612,11 +1637,15 @@ importers:
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-publicize': link:../../packages/publicize
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@wordpress/data': 6.7.0_react@17.0.2
       '@wordpress/date': 4.7.0
       '@wordpress/element': 4.5.0
       '@wordpress/i18n': 4.7.0
+      classnames: 2.3.1
       lodash: 4.17.21
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:
@@ -18339,7 +18368,7 @@ packages:
     peerDependencies:
       react: ^16.13.1 || ^17.0.0
     dependencies:
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
     dev: false
 
