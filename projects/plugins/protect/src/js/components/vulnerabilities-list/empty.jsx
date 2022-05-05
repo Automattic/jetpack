@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './styles.module.scss';
+import useProtectData from '../../hooks/use-protect-data';
 
 const ProtectCheck = () => (
 	<svg width="80" height="96" viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -27,14 +28,19 @@ const ProtectCheck = () => (
 );
 
 const EmptyList = () => {
+	const { hasUncheckedItems } = useProtectData();
 	return (
 		<div className={ styles.empty }>
 			<ProtectCheck />
 			<H3 weight="bold" mt={ 8 }>
-				{ __( "Don't worry about a thing", 'jetpack-protect' ) }
+				{ hasUncheckedItems
+					? __( 'No vulnerabilities found', 'jetpack-protect' )
+					: __( "Don't worry about a thing", 'jetpack-protect' ) }
 			</H3>
 			<Text>
-				{ __( 'The last Protect scan ran and everything looked great.', 'jetpack-protect' ) }
+				{ hasUncheckedItems
+					? __( "The last Protect scan ran and we didn't find vulnerabilities.", 'jetpack-protect' )
+					: __( "Don't worry about a thing", 'jetpack-protect' ) }
 			</Text>
 		</div>
 	);
