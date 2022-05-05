@@ -69,10 +69,10 @@ export const H2: React.FC< TextProps > = ( { children, ...componentProps } ) => 
  * @returns {React.ReactElement} - JSX.Element
  */
 export const H3: React.FC< H3Props > = ( { children, weight = 'bold', ...componentProps } ) => {
-	const _weight = ( weight === 'bold' ? '' : weight ) as string;
+	const weightStr = ( weight === 'bold' ? '' : weight ) as string;
 
 	const variant = `headline-small${
-		_weight?.length ? `-${ _weight }` : ''
+		weightStr?.length ? `-${ weightStr }` : ''
 	}` as TextProps[ 'variant' ];
 
 	return (
