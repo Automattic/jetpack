@@ -24,7 +24,7 @@ type DialogProps = {
  * @param {React.Component} props.primary   - Primary content.
  * @param {React.Component} props.secondary - Secondary content.
  * @param {boolean} props.split			    - Split the sections.
- * @returns {React.FunctionComponent}         Dialog react component.
+ * @returns {React.ReactNode}         Rendered dialog
  */
 const Dialog: React.FC< DialogProps > = ( { primary, secondary, split } ) => {
 	const classNames = classnames( {
