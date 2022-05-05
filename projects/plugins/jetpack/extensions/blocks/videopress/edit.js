@@ -320,6 +320,19 @@ const VideoPressEdit = CoreVideoEdit =>
 				: null;
 		}
 
+		getPrivacySettingHelp = selectedSetting => {
+			const privacySetting = parseInt( selectedSetting, 10 );
+			if ( VIDEO_PRIVACY.PRIVATE === privacySetting ) {
+				return __( 'Restrict views to members of this site', 'jetpack' );
+			}
+
+			if ( VIDEO_PRIVACY.PUBLIC === privacySetting ) {
+				return __( 'Video can be viewed by anyone', 'jetpack' );
+			}
+
+			return __( 'Follow the site privacy setting', 'jetpack' );
+		};
+
 		renderControlLabelWithTooltip( label, tooltipText ) {
 			return (
 				<Tooltip text={ tooltipText } position="top">
@@ -624,7 +637,7 @@ const VideoPressEdit = CoreVideoEdit =>
 							/>
 							<SelectControl
 								label={ __( 'Privacy', 'jetpack' ) }
-								help={ __( 'Restrict views to members of this site', 'jetpack' ) }
+								help={ this.getPrivacySettingHelp( privacySetting ) }
 								onChange={ this.onChangePrivacySetting }
 								value={ privacySetting }
 								options={ [

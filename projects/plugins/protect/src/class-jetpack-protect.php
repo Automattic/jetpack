@@ -193,6 +193,8 @@ class Jetpack_Protect {
 		$manager = new Connection_Manager( 'jetpack-protect' );
 		$manager->disconnect_site_wpcom();
 		$manager->delete_all_connection_tokens();
+
+		Protect_Status::delete_option();
 	}
 
 	/**
