@@ -36,7 +36,7 @@ add_filter( 'a8c_enable_public_coming_soon', '__return_true' );
  */
 function wpcomsh_coming_soon_get_atomic_persistent_data( $wpcom_public_coming_soon ) {
 	$persistent_data                   = new Atomic_Persistent_Data();
-	$persistent_data_coming_soon_value = $persistent_data->WPCOM_PUBLIC_COMING_SOON;
+	$persistent_data_coming_soon_value = $persistent_data->WPCOM_PUBLIC_COMING_SOON; // phpcs:ignore WordPress.NamingConventions.ValidVariableName
 
 	if ( $persistent_data_coming_soon_value !== null ) {
 		return $persistent_data_coming_soon_value;
