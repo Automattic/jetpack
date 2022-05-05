@@ -77,7 +77,7 @@ Default.args = {
 	],
 };
 
-export const ViewportMatch = () => {
+export const BreakpointMatch = () => {
 	const [
 		isSm,
 		isGtSm,
