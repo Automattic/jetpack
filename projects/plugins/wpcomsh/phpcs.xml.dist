@@ -15,7 +15,6 @@
 	<exclude-pattern>/private-site</exclude-pattern>
 	<exclude-pattern>/widgets</exclude-pattern>
 	<exclude-pattern>/support-session.php</exclude-pattern>
-	<exclude-pattern>/feature-plugins/jetpack-data.php</exclude-pattern>
 
 	<arg value="ps"/>
 	<arg name="basepath" value="."/><!-- Strip the file paths down to the relevant bit -->

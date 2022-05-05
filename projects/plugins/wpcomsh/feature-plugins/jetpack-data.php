@@ -12,18 +12,26 @@
 use Automattic\Jetpack\Connection\Tokens;
 
 if ( ! class_exists( 'Jetpack_Data' ) ) {
+	/**
+	 * Jetpack_Data class.
+	 */
 	class Jetpack_Data {
 		/**
+		 * Get a token based on query args.
+		 *
 		 * @deprecated Jetpack 7.5 Use Connection_Manager instead.
+		 *
+		 * @param int|false    $user_id         false: Return the Blog Token. int: Return that user's User Token.
+		 * @param string|false $token_key       If provided, check that the token matches the provided input.
+		 * @param bool|true    $suppress_errors If true, return a falsy value when the token isn't found;
+		 *                                      When false, return a descriptive WP_Error when the token isn't found.
 		 */
 		public static function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
 			if ( class_exists( '\Automattic\Jetpack\Connection\Tokens' ) ) {
-				$token = ( new Tokens() )->get_access_token( $user_id, $token_key, $suppress_errors );
-				return $token;
+				return ( new Tokens() )->get_access_token( $user_id, $token_key, $suppress_errors );
 			}
 
 			return false;
 		}
 	}
 }
-
