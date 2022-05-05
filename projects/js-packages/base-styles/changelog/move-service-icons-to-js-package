@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Changed the @wordpress/base-style imports to be compatible with Rollup
