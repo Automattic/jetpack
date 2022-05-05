@@ -111,9 +111,10 @@ importers:
       '@testing-library/react': 12.1.5
       '@types/chai': 4.3.0
       '@types/jest': 27.4.1
-      '@types/react': 17.0.44
-      '@types/react-dom': 17.0.15
-      '@types/react-test-renderer': 17.0.1
+      '@types/react': 18.0.8
+      '@types/react-dom': 18.0.3
+      '@types/react-test-renderer': 18.0.0
+      '@wordpress/base-styles': 4.3.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.10.0
       '@wordpress/compose': 5.5.0
@@ -134,6 +135,7 @@ importers:
       typescript: 4.3.5
     dependencies:
       '@automattic/format-currency': 1.0.1
+      '@wordpress/base-styles': 4.3.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.10.0_288661f573e9d1f632fd8574f13f5a41
       '@wordpress/compose': 5.5.0_react@17.0.2
@@ -7592,6 +7594,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@wordpress/base-styles/4.3.0:
+    resolution: {integrity: sha512-e9Z+txhEQ3zyAHkzzsuYg1ADFhKArz1eGU3ayqCNtCdakrgNjI6Q/sPODI26LlwTmjJPBIJ5wSCBrsDjMhdWqA==}
+    dev: false
 
   /@wordpress/base-styles/4.4.0:
     resolution: {integrity: sha512-9ugtTev/eH4RNIpu9nSNygJM8ONJ2cVAmvYDzOG0b7E4ut2RTph5okTSunOx0ny/nsxWLrj6GqVsS6+liTB6GQ==}
