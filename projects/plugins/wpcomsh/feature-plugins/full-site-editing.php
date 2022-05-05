@@ -160,39 +160,3 @@ function wpcom_fse_global_editors_script() {
 	wp_add_inline_script( 'wp-list-reusable-blocks', $script );
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_fse_global_editors_script' );
-
-/**
- * Enable site launch on editor.
- */
-function wpcom_editor_site_launch() {
-	// Temporarily disable launch.
-	return false;
-
-	// phpcs:disable Squiz.PHP.NonExecutableCode.Unreachable
-
-	// If site is already launched, skip.
-	if ( \Private_Site\is_launched() ) {
-		return false;
-	}
-
-	// Get site creation flow (currently unused).
-	// $site_creation_flow = get_option( 'site_creation_flow' );
-
-	// Get site slug & launch url.
-	$blog_id    = get_current_blog_id();
-	$site_url   = get_home_url( $blog_id );
-	$site_slug  = wp_parse_url( $site_url, PHP_URL_HOST );
-	$launch_url = 'https://wordpress.com/start/launch-site?siteSlug=' . $site_slug;
-
-	// Prepare site launch options.
-	$site_launch_options = [
-		'site_slug'        => $site_slug,
-		'launch_url'       => $launch_url,
-		'launch_flow'      => 'launch-site',
-		'is_gutenboarding' => false,
-		'anchor_podcast'   => false,
-	];
-
-	return $site_launch_options;
-}
-add_filter( 'a8c_enable_editor_site_launch', 'wpcom_editor_site_launch' );
