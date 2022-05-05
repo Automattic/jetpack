@@ -1,13 +1,11 @@
 /**
- * External dependencies
- */
-import React from 'react';
-
-/**
  * Internal dependencies
  */
-import { Title, TIPOGRAPHY_SIZES } from '../index.jsx';
+import { Title } from '../index';
 import styles from './style.module.scss';
+import type { TitleProps } from '../types';
+
+const TIPOGRAPHY_SIZES: Array< TitleProps[ 'size' ] > = [ 'medium', 'small' ];
 
 export default {
 	title: 'JS Packages/Components/Text/Title',
@@ -17,7 +15,7 @@ export default {
 			control: { type: 'text' },
 		},
 		size: {
-			control: { type: 'select', options: Object.values( TIPOGRAPHY_SIZES ) },
+			control: { type: 'select', options: TIPOGRAPHY_SIZES },
 		},
 	},
 };
@@ -34,5 +32,5 @@ const Template = args => (
 
 export const Default = Template.bind( {} );
 Default.args = {
-	size: TIPOGRAPHY_SIZES.medium,
-};
+	size: 'medium',
+} as TitleProps;

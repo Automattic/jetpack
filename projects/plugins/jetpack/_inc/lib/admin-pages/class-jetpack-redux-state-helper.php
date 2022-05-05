@@ -212,6 +212,7 @@ class Jetpack_Redux_State_Helper {
 			'newRecommendations'          => Jetpack_Recommendations::get_new_conditional_recommendations(),
 			// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
 			'isWooCommerceActive'         => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
+			'useMyJetpackLicensingUI'     => My_Jetpack_Initializer::is_licensing_ui_enabled(),
 		);
 	}
 
