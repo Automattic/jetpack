@@ -19,7 +19,7 @@ export type SplitButtonProps = Omit< Button.ButtonProps, 'controls' > &
 	// make `controls` prop required
 	Required< Pick< AllowedDropdownMenuProps, 'controls' > >;
 
-const DownIcon = (
+const DownIcon = () => (
 	<svg width="15" height="9" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="10 9 4 7">
 		<path
 			fillRule="evenodd"
@@ -43,7 +43,7 @@ const SplitButton: React.FC< SplitButtonProps > = ( {
 			<DropdownMenu
 				toggleProps={ { variant, className: styles.button, ...toggleProps } }
 				popoverProps={ { noArrow: false, ...popoverProps } }
-				icon={ DownIcon }
+				icon={ <DownIcon /> }
 				disableOpenOnArrowDown={ true }
 				controls={ controls }
 				label={ label }
