@@ -25,18 +25,25 @@ import './dashboard-page.scss';
 /**
  * SearchDashboard component definition.
  *
+ * @param {object} props - Component properties.
+ * @param {string} props.isLoading - should page show Loading spinner.
  * @returns {React.Component} Search dashboard component.
  */
-export default function SearchDashboard() {
+export default function SearchDashboard( { isLoading = false } ) {
+	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
-	const isLoading = useSelect(
+	const isPageLoading = useSelect(
 		select =>
 			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' ) ||
 			select( STORE_ID ).isResolving( 'getSearchStats' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' )
+			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' ) ||
+			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
+			isLoading,
+		[ isLoading ]
 	);
 
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
@@ -158,8 +165,8 @@ export default function SearchDashboard() {
 
 	return (
 		<>
-			{ isLoading && <Loading /> }
-			{ ! isLoading && (
+			{ isPageLoading && <Loading /> }
+			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }

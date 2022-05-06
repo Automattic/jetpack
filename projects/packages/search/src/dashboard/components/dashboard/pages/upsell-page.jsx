@@ -25,15 +25,19 @@ import Loading from './loading';
 /**
  * defines UpsellPage.
  *
+ * @param {object} props - Component properties.
+ * @param {string} props.isLoading - should page show Loading spinner.
  * @returns {React.Component} UpsellPage component.
  */
-export default function UpsellPage() {
+export default function UpsellPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 
-	const isLoading = useSelect(
+	const isPageLoading = useSelect(
 		select =>
 			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' )
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' ) ||
+			isLoading,
+		[ isLoading ]
 	);
 
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
@@ -57,8 +61,8 @@ export default function UpsellPage() {
 
 	return (
 		<>
-			{ isLoading && <Loading /> }
-			{ ! isLoading && (
+			{ isPageLoading && <Loading /> }
+			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-upsell-page">
 					<AdminPage
 						withHeader={ true }

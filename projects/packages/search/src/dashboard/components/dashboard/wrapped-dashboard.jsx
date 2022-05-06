@@ -12,7 +12,6 @@ import restApi from '@automattic/jetpack-api';
 import useConnection from './use-connection';
 import { STORE_ID } from 'store';
 import SearchConnectionPage from './pages/connection-page';
-import Loading from './pages/loading';
 import UpsellPage from './pages/upsell-page';
 import SearchDashboard from './pages/dashboard-page';
 
@@ -48,30 +47,8 @@ export default function WrappedDashboard() {
 
 	return (
 		<>
-			{ ! isFullyConnected && <ConnectionPage /> }
+			{ ! isFullyConnected && <SearchConnectionPage /> }
 			{ isFullyConnected && <AfterConnectionPage /> }
-		</>
-	);
-}
-
-/**
- * Returns ConnectionPage component if supports search otherwise UpsellPage component
- *
- * @returns {React.Component} AfterConnectionPage component.
- */
-function ConnectionPage() {
-	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
-
-	const isLoading = useSelect(
-		select =>
-			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' )
-	);
-
-	return (
-		<>
-			{ isLoading && <Loading /> }
-			{ ! isLoading && <SearchConnectionPage /> }
 		</>
 	);
 }
@@ -94,9 +71,8 @@ function AfterConnectionPage() {
 
 	return (
 		<>
-			{ isLoading && <Loading /> }
-			{ ! isLoading && supportsSearch && <SearchDashboard /> }
-			{ ! isLoading && ! supportsSearch && <UpsellPage /> }
+			{ supportsSearch && <SearchDashboard isLoading={ isLoading } /> }
+			{ ! supportsSearch && <UpsellPage isLoading={ isLoading } /> }
 		</>
 	);
 }
