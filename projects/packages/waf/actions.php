@@ -13,9 +13,9 @@ if ( ! function_exists( 'add_action' ) ) {
 }
 
 /**
- * Check if killswitch is defined
+ * Check if killswitch is defined as true
  */
-if ( defined( 'DISABLE_JETPACK_WAF' ) ) {
+if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
 	return;
 }
 
