@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added the Publicize API endpoint URL to the initial state.
