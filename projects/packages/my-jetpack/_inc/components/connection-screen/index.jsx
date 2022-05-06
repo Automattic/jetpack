@@ -69,6 +69,7 @@ const ConnectionScreen = () => {
 						apiNonce={ apiNonce }
 						images={ [ connectImage ] }
 						footer={ <ConnectionScreenFooter /> }
+						from="my-jetpack-connection-route"
 					>
 						<ul>
 							<li>{ __( 'Receive instant downtime alerts', 'jetpack-my-jetpack' ) }</li>
