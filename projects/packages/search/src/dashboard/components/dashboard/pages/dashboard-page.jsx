@@ -18,8 +18,9 @@ import MockedSearch from 'components/mocked-search';
 import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
 import RecordMeter from 'components/record-meter';
+import Loading from './loading';
 
-import './style.scss';
+import './dashboard-page.scss';
 
 /**
  * SearchDashboard component definition.
@@ -27,6 +28,17 @@ import './style.scss';
  * @returns {React.Component} Search dashboard component.
  */
 export default function SearchDashboard() {
+	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
+	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
+
+	const isLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' ) ||
+			select( STORE_ID ).isResolving( 'getSearchStats' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' )
+	);
+
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
@@ -145,23 +157,28 @@ export default function SearchDashboard() {
 	);
 
 	return (
-		<div className="jp-search-dashboard-page">
-			{ renderHeader() }
-			{ renderMockedSearchInterface() }
-			{ isRecordMeterEnabled && (
-				<RecordMeter
-					postCount={ postCount }
-					postTypeBreakdown={ postTypeBreakdown }
-					tierMaximumRecords={ tierMaximumRecords }
-					lastIndexedDate={ lastIndexedDate }
-				/>
+		<>
+			{ isLoading && <Loading /> }
+			{ ! isLoading && (
+				<div className="jp-search-dashboard-page">
+					{ renderHeader() }
+					{ renderMockedSearchInterface() }
+					{ isRecordMeterEnabled && (
+						<RecordMeter
+							postCount={ postCount }
+							postTypeBreakdown={ postTypeBreakdown }
+							tierMaximumRecords={ tierMaximumRecords }
+							lastIndexedDate={ lastIndexedDate }
+						/>
+					) }
+					{ renderModuleControl() }
+					{ renderFooter() }
+					<NoticesList
+						notices={ notices }
+						handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+					/>
+				</div>
 			) }
-			{ renderModuleControl() }
-			{ renderFooter() }
-			<NoticesList
-				notices={ notices }
-				handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
-			/>
-		</div>
+		</>
 	);
 }

@@ -7,7 +7,7 @@ import { Container, Col, AdminSectionHero } from '@automattic/jetpack-components
 /**
  * Internal dependencies
  */
-import useConnection from './use-connection';
+import useConnection from '../use-connection';
 import './connection-page.scss';
 
 /**

@@ -9,12 +9,12 @@ import { useSelect, select as syncSelect } from '@wordpress/data';
  */
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { Spinner } from '@automattic/jetpack-components';
 import useConnection from './use-connection';
 import { STORE_ID } from 'store';
-import UpsellPage from './upsell-page';
-import SearchConnectionPage from './connection-page';
-import SearchDashboard from './index';
+import SearchConnectionPage from './pages/connection-page';
+import Loading from './pages/loading';
+import UpsellPage from './pages/upsell-page';
+import SearchDashboard from './pages/dashboard-page';
 
 /**
  * Return appropriate components.
@@ -22,27 +22,12 @@ import SearchDashboard from './index';
  * @returns {React.Component} WrappedDashboard component.
  */
 export default function WrappedDashboard() {
-	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
-	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
-	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
-	const { connectionStatus } = useConnection();
 
-	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
-
-	const isFullyConnected =
-		Object.keys( connectionStatus ).length &&
-		connectionStatus.isUserConnected &&
-		connectionStatus.isRegistered;
+	const { isFullyConnected } = useConnection();
 
 	const isLoading = useSelect(
 		select =>
-			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
-			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' ) ||
-			select( STORE_ID ).isResolving( 'getSearchStats' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' ) ||
 			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' )
 	);
@@ -69,19 +54,36 @@ export default function WrappedDashboard() {
 		} );
 	}, [] );
 
-	if ( isLoading ) {
-		return (
-			<Spinner className="jp-search-dashboard-page-loading-spinner" color="#000" size={ 32 } />
-		);
-	}
+	return (
+		<>
+			{ isLoading && <Loading /> }
+			{ ! isLoading && ! isFullyConnected && <SearchConnectionPage /> }
+			{ ! isLoading && isFullyConnected && <AfterConnectionPage /> }
+		</>
+	);
+}
 
-	if ( ! isFullyConnected ) {
-		return <SearchConnectionPage />;
-	}
+/**
+ * Returns SearchDashboard component if supports search otherwise UpsellPage component
+ *
+ * @returns {React.Component} AfterConnectionPage component.
+ */
+function AfterConnectionPage() {
+	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 
-	if ( ! supportsSearch ) {
-		return <UpsellPage />;
-	}
+	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
 
-	return <SearchDashboard />;
+	const isLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' )
+	);
+
+	return (
+		<>
+			{ isLoading && <Loading /> }
+			{ ! isLoading && supportsSearch && <SearchDashboard /> }
+			{ ! isLoading && ! supportsSearch && <UpsellPage /> }
+		</>
+	);
 }

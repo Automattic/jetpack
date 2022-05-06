@@ -11,14 +11,15 @@ import {
 	PricingCard,
 	AdminSectionHero,
 } from '@automattic/jetpack-components';
-import SearchPromotionBlock from './search-promotion';
 
 /**
  * Internal dependencies
  */
 import { STORE_ID } from 'store';
-import './upsell-page.scss';
 import getProductCheckoutUrl from 'utils/get-product-checkout-url';
+import SearchPromotionBlock from '../search-promotion';
+
+import './upsell-page.scss';
 
 /**
  * defines UpsellPage.

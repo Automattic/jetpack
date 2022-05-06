@@ -13,6 +13,8 @@ import { __ } from '@wordpress/i18n';
 import { STORE_ID } from 'store';
 import SearchPromotionBlock from './search-promotion';
 
+import './use-connection.scss';
+
 /**
  * Expose the `connectionStatus` state object and `renderConnectScreen()` to show a component used for connection.
  *
@@ -29,6 +31,11 @@ export default function useConnection() {
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
 	);
+
+	const isFullyConnected =
+		Object.keys( connectionStatus ).length &&
+		connectionStatus.isUserConnected &&
+		connectionStatus.isRegistered;
 
 	const renderConnectScreen = () => {
 		return (
@@ -76,5 +83,5 @@ export default function useConnection() {
 		);
 	};
 
-	return { connectionStatus, renderConnectScreen, renderConnectionFooter };
+	return { connectionStatus, isFullyConnected, renderConnectScreen, renderConnectionFooter };
 }
