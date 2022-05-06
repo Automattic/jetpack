@@ -71,6 +71,15 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ 'jest-environment-jsdom' ] = '^28';
 	}
 
+	// Need to match the version of jest used everywhere else.
+	if (
+		pkg.name === '@wordpress/jest-preset-default' &&
+		pkg.dependencies[ 'babel-jest' ] &&
+		pkg.dependencies[ 'babel-jest' ].startsWith( '^27' )
+	) {
+		pkg.dependencies[ 'babel-jest' ] = '^28';
+	}
+
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
