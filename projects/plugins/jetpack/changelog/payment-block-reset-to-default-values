@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Reset form data after create subsciption to default values.
+Reset form data to default values after creating a subscription.
