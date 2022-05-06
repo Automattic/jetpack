@@ -27,6 +27,8 @@ import useProtectData from '../../hooks/use-protect-data';
 import inProgressImage from './in-progress.png';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Logo from '../logo';
+import AlertSVGIcon from '../alert-icon';
+import styles from './styles.module.scss';
 
 export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
@@ -63,7 +65,7 @@ const ProtectAdminPage = () => {
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 						<Col sm={ 4 } md={ 4 } lg={ 6 }>
-							ALERT ICON GOES HERE
+							<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } />
 							<H3 mt={ 8 }>
 								{ __( 'We’re having problems scanning your site', 'jetpack-protect' ) }
 							</H3>
