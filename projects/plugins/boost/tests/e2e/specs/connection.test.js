@@ -16,6 +16,7 @@ test.describe( 'Settings Page Connection', () => {
 	test( 'Should connect to WP.com on a fresh install with Jetpack plugin activated', async ( {
 		page,
 	} ) => {
+		await prerequisitesBuilder().withActivePlugins( [ 'jetpack' ] ).withConnection( false ).build();
 		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( false ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
