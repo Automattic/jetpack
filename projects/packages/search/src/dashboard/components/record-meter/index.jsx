@@ -44,7 +44,7 @@ export default function RecordMeter( {
 					<div>
 						<RecordCount
 							recordCount={ recordInfo.recordCount }
-							planRecordLimit={ tierMaximumRecords }
+							tierMaximumRecords={ tierMaximumRecords }
 						/>
 						<BarChart
 							data={ recordInfo.data }
@@ -53,7 +53,7 @@ export default function RecordMeter( {
 						/>
 						<NoticeBox
 							recordCount={ recordInfo.recordCount }
-							planRecordLimit={ tierMaximumRecords }
+							tierMaximumRecords={ tierMaximumRecords }
 							hasBeenIndexed={ recordInfo.hasBeenIndexed }
 							hasValidData={ recordInfo.hasValidData }
 							hasItems={ recordInfo.hasItems }
