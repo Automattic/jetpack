@@ -343,7 +343,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		$args = wp_parse_args(
 			$args,
 			array(
-				'return_url' => rawurlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ),
+				'return_url' => isset( $_SERVER['REQUEST_URI'] ) ? rawurlencode( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) : '',
 			)
 		);
 

@@ -47,7 +47,8 @@ export default function ProductManagementControls( {
 		}
 	);
 
-	if ( shouldUpgrade ) {
+	// Don't display this on free sites with Stripe disconnected.
+	if ( shouldUpgrade && ! isApiConnected ) {
 		return null;
 	}
 

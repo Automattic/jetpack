@@ -202,6 +202,9 @@ class Status {
 		if ( defined( 'JETPACK_PROTECT_DEV__API_RESPONSE_TYPE' ) && is_string( JETPACK_PROTECT_DEV__API_RESPONSE_TYPE ) ) {
 			$api_url = add_query_arg( array( 'response_type' => JETPACK_PROTECT_DEV__API_RESPONSE_TYPE ), $api_url );
 		}
+		if ( defined( 'JETPACK_PROTECT_DEV__API_CORE_VULS' ) && is_int( JETPACK_PROTECT_DEV__API_CORE_VULS ) ) {
+			$api_url = add_query_arg( array( 'core_vuls' => JETPACK_PROTECT_DEV__API_CORE_VULS ), $api_url );
+		}
 		return $api_url;
 	}
 
@@ -254,6 +257,16 @@ class Status {
 		// TODO: Sanitize $status.
 		update_option( self::OPTION_NAME, $status );
 		update_option( self::OPTION_TIMESTAMP_NAME, time() );
+	}
+
+	/**
+	 * Delete the cached status and its timestamp
+	 *
+	 * @return void
+	 */
+	public static function delete_option() {
+		delete_option( self::OPTION_NAME );
+		delete_option( self::OPTION_TIMESTAMP_NAME );
 	}
 
 }

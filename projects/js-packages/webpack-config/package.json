@@ -1,15 +1,16 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "1.1.8",
+	"version": "1.1.10",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Webpack Config"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/webpack-config"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -32,7 +33,7 @@
 		"@wordpress/browserslist-config": "4.1.2",
 		"@wordpress/dependency-extraction-webpack-plugin": "3.4.1",
 		"babel-loader": "8.2.4",
-		"browserslist": "4.19.1",
+		"browserslist": "4.20.3",
 		"css-loader": "6.5.1",
 		"css-minimizer-webpack-plugin": "3.1.4",
 		"duplicate-package-checker-webpack-plugin": "3.0.0",

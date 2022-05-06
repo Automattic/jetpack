@@ -55,9 +55,6 @@ class Publicize extends Publicize_Base {
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
 		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
-
-		// TODO: Move enhanced Open Graph to the Jetpack plugin.
-		// include_once __DIR__ . '/enhanced-open-graph.php';
 	}
 
 	/**
@@ -558,7 +555,7 @@ class Publicize extends Publicize_Base {
 			 *
 			 * @module publicize
 			 *
-			 * @since $$next-version$$ No longer defaults to true. Adds checks to not publicize based on different contexts.
+			 * @since 0.1.0 No longer defaults to true. Adds checks to not publicize based on different contexts.
 			 * @since 4.1.0
 			 *
 			 * @param bool $should_publicize Should the post be publicized? Default to true.

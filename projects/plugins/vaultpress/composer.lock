@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "77ab70380f150d0157c6234b18b107fd",
+    "content-hash": "4fc273322fcd4c46638b484a3f50cb5b",
     "packages": [
         {
             "name": "automattic/jetpack-autoloader",
@@ -12,13 +12,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "0d14c81f42c4da64b4d3b2a7878e3b058d1af7c8"
+                "reference": "4b278cf445826a854386cd03d1d7e56bde99cf29"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "composer-plugin",
@@ -67,10 +67,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "c0d7df78e0ea4d9d09a22ff937fce5ec13a08379"
+                "reference": "08461ed89e904bd3ae4ff49b6087d8a971a9e811"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -116,7 +116,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "370ad5f2cc8af110c19227a87686028ae8e468b7"
+                "reference": "7818e70646db9201be1957b342f0f13449bf2c45"
             },
             "require": {
                 "php": ">=5.6",
@@ -135,7 +135,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-master": "3.0.x-dev"
+                    "dev-master": "3.1.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {
@@ -3262,5 +3262,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

@@ -418,6 +418,26 @@ function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
 	packageJson.name = `@automattic/jetpack-${ answers.name }`;
 	packageJson.version = '0.1.0-alpha';
+	packageJson.repository.directory = `projects/${ pluralize( answers.type ) }/${ answers.name }`;
+
+	if ( answers.type !== 'plugin' ) {
+		packageJson.homepage = `https://github.com/Automattic/jetpack/tree/HEAD/${ packageJson.repository.directory }/#readme`;
+	}
+
+	const prefix = {
+		'editor-extension': 'Block',
+		'github-action': 'Action',
+		package: 'Package',
+		plugin: 'Plugin',
+		'js-package': 'JS Package',
+	}[ answers.type ];
+	// Note we intentionally don't URI-encode here, because `npm bugs` will double-encode. Sigh.
+	packageJson.bugs.url =
+		`https://github.com/Automattic/jetpack/labels/[${ prefix }] ` +
+		answers.name
+			.split( '-' )
+			.map( word => `${ word[ 0 ].toUpperCase() }${ word.slice( 1 ) }` )
+			.join( ' ' );
 
 	if ( answers.type === 'js-package' ) {
 		packageJson.exports = {
@@ -505,7 +525,7 @@ async function createComposerJson( composerJson, answers ) {
 		case 'js-package':
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpx nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
+				'test-coverage': [ 'pnpm nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
 			};
 	}
 }
@@ -668,9 +688,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 5.8\n' +
+		'Requires at least: 5.9\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 5.9\n' +
+		'Tested up to: 6.0\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

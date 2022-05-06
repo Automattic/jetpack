@@ -824,6 +824,7 @@ class Jetpack {
 			array(
 				'sync',
 				'jitm',
+				'publicize',
 			)
 			as $feature
 		) {
@@ -2973,10 +2974,7 @@ p {
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
-		if ( ! Identity_Crisis::validate_sync_error_idc_option() ) {
-			$connection->disconnect_site_wpcom();
-		}
-		$connection->delete_all_connection_tokens();
+		$connection->disconnect_site( ! Identity_Crisis::validate_sync_error_idc_option() );
 	}
 
 	/**

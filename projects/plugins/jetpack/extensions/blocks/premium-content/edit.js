@@ -18,6 +18,7 @@ import ViewSelector from './_inc/view-selector';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { PRODUCT_TYPE_SUBSCRIPTION } from '../../shared/components/product-management-controls/constants';
 import { store as membershipProductsStore } from '../../store/membership-products';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
 
 /**
  * Tab definitions
@@ -42,7 +43,7 @@ const tabs = [
 
 const CONTENT_TAB = 0;
 const WALL_TAB = 1;
-
+const BLOCK_NAME = 'premium-content';
 /**
  *
  * @typedef { import('react').MutableRefObject<?object> } ContainerRef
@@ -119,7 +120,7 @@ function Edit( props ) {
 						</Placeholder>
 					) }
 					<ProductManagementControls
-						blockName="premium-content"
+						blockName={ BLOCK_NAME }
 						clientId={ clientId }
 						productType={ PRODUCT_TYPE_SUBSCRIPTION }
 						selectedProductId={ selectedPlanId }
@@ -135,9 +136,12 @@ function Edit( props ) {
 				</>
 			) }
 			{ ! isApiLoading && (
-				<Context.Provider value={ { selectedTab } }>
-					<Blocks />
-				</Context.Provider>
+				<>
+					<StripeNudge blockName={ BLOCK_NAME } />
+					<Context.Provider value={ { selectedTab } }>
+						<Blocks />
+					</Context.Provider>
+				</>
 			) }
 		</div>
 	);

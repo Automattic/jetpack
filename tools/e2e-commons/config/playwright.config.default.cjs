@@ -39,7 +39,7 @@ const playwrightConfig = {
 		headless: true,
 		viewport: { width: 1280, height: 720 },
 		ignoreHTTPSErrors: true,
-		actionTimeout: 20000,
+		actionTimeout: 30000,
 		screenshot: 'only-on-failure',
 		video: 'retain-on-failure',
 		trace: 'retain-on-failure',

@@ -42,8 +42,7 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 
 		expect( screen.getAllByText( productSuggestion.title ) ).to.be.not.null;
 		expect( screen.getAllByText( productSuggestion.description ) ).to.be.not.null;
-		expect( screen.getAllByText( productSuggestion.cost ) ).to.be.not.null;
-		expect( screen.getAllByText( 'Continue with ' + productSuggestion.title ) ).to.be.not.null;
+		expect( screen.getAllByText( 'Get ' + productSuggestion.title ) ).to.be.not.null;
 	} );
 
 	it( 'track and save data when going to checkout', () => {
@@ -54,7 +53,7 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 		} );
 
 		const checkoutButton = screen.getByRole( 'link', {
-			name: 'Continue with ' + productSuggestion.title,
+			name: 'Get ' + productSuggestion.title,
 		} );
 		expect( checkoutButton ).to.be.not.null;
 
@@ -68,7 +67,8 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 		// Verify that tracking is working.
 		expect(
 			recordEventStub.withArgs( 'jetpack_recommendations_product_suggestion_click', {
-				type: productSuggestion.slug,
+				product_slug: productSuggestion.slug,
+				discount: false
 			} ).callCount
 		).to.be.equal( 1 );
 

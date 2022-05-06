@@ -221,7 +221,6 @@ abstract class Publicize_Base {
 
 		add_action( 'init', array( $this, 'add_post_type_support' ) );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
-		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_extension' ) );
 	}
 
 	/**
@@ -964,25 +963,6 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Register the Publicize Gutenberg extension
-	 */
-	public function register_gutenberg_extension() {
-		// TODO: The `gutenberg/available-extensions` endpoint currently doesn't accept a post ID,
-		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
-
-		// TODO: We should move this registration to the Jetpack plugin.
-		if ( ! class_exists( 'Jetpack_Gutenberg' ) ) {
-			return;
-		}
-
-		if ( $this->current_user_can_access_publicize_data() ) {
-			\Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
-		} else {
-			\Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
-		}
-	}
-
-	/**
 	 * Can the current user access Publicize Data.
 	 *
 	 * @param int $post_id 0 for general access. Post_ID for specific access.
@@ -1453,6 +1433,18 @@ abstract class Publicize_Base {
 		}
 		return str_replace( $search, $replace, $string );
 	}
+
+	/**
+	 * Get Calypso URL for Publicize connections.
+	 *
+	 * @param string $source The idenfitier of the place the function is called from.
+	 * @return string
+	 */
+	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
+		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
+		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
+		return Redirect::get_url( $source, array( 'site' => ( new Status() )->get_site_suffix() ) );
+	}
 }
 
 /**
@@ -1461,5 +1453,6 @@ abstract class Publicize_Base {
  * @return string
  */
 function publicize_calypso_url() {
+	_deprecated_function( __METHOD__, '0.2.0', 'Publicize::publicize_connections_url' );
 	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
 }

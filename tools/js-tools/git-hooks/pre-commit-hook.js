@@ -139,7 +139,7 @@ function checkFailed( before = 'The linter reported some problems. ', after = ''
  */
 function sortPackageJson( jsFiles ) {
 	if ( jsFiles.includes( 'package.json' ) ) {
-		spawnSync( 'pnpx', [ 'sort-package-json' ], { stdio: 'inherit' } );
+		spawnSync( 'pnpm', [ 'sort-package-json' ], { stdio: 'inherit' } );
 	}
 }
 
@@ -234,7 +234,7 @@ function runPrettier( toPrettify ) {
 		const filesByConfig = groupByClosestConfig( '.prettierrc.js', toPrettify );
 
 		for ( const [ config, files ] of Object.entries( filesByConfig ) ) {
-			spawnSync( 'pnpx', [ 'prettier', '--config', config, '--write', ...files ], {
+			spawnSync( 'pnpm', [ 'prettier', '--config', config, '--write', ...files ], {
 				stdio: 'inherit',
 			} );
 		}

@@ -13,8 +13,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import { getPlanClass } from 'lib/plans/constants';
-import { getSiteRawUrl, getSiteAdminUrl, getUpgradeUrl } from 'state/initial-state';
+import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
@@ -23,7 +22,7 @@ import {
 	isAkismetKeyValid,
 	isFetchingAkismetData,
 } from 'state/at-a-glance';
-import { getSitePlan, isFetchingSiteData } from 'state/site';
+import { getSitePlan, hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
 import { getRewindStatus } from 'state/rewind';
 import { getScanStatus } from 'state/scan';
 import { isOfflineMode } from 'state/connection';
@@ -117,10 +116,6 @@ class ProStatus extends React.Component {
 				}
 				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
-			case 'free':
-			case 'personal':
-			case 'pro':
-				return;
 			case 'secure':
 				status = 'is-success';
 				message = _x(
@@ -181,6 +176,7 @@ class ProStatus extends React.Component {
 	};
 
 	render() {
+		const { purchasedVaultPressBackups, purchasedVaultPressScan, scanStatus } = this.props;
 		const sitePlan = this.props.sitePlan,
 			vpData = this.props.getVaultPressData();
 		let pluginSlug = '';
@@ -195,22 +191,20 @@ class ProStatus extends React.Component {
 			pluginSlug = 'akismet/akismet.php';
 		}
 
-		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
-			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
-			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
-			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
-			hasVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
-
-		const { scanStatus } = this.props;
+		const hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
+			usingVPBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
+			usingVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
 
 		const getStatus = ( feature, active, installed ) => {
 			switch ( feature ) {
 				case 'rewind':
+					// This is the newer backup technology powered by Jetpack Backup.
 					return this.getProActions( 'rewind_connected', 'rewind' );
 
 				case 'backups':
-					if ( hasFree && ! hasBackups && this.props.isCompact ) {
-						return this.getProActions( 'free', 'backups' );
+					// This is the older backup technology powered by VaultPress.
+					if ( hasFree && ! usingVPBackups && this.props.isCompact ) {
+						return '';
 					}
 					break;
 
@@ -219,23 +213,18 @@ class ProStatus extends React.Component {
 						return '';
 					}
 					if ( 'N/A' !== vpData ) {
-						if ( ( hasFree || hasPersonal ) && ! hasVPScan ) {
-							if ( this.props.isCompact ) {
-								return this.getProActions( 'free', 'scan' );
-							} else if ( hasPersonal && ! hasBackups ) {
-								// Personal plans doesn't have scan but it does have backups.
-								return this.getSetUpButton( 'backups' );
+						if ( purchasedVaultPressScan ) {
+							if ( usingVPScan ) {
+								return this.getProActions(
+									0 === this.props.getScanThreats() ? 'secure' : 'threats',
+									'scan'
+								);
 							}
-							return '';
-						}
-						if ( ! hasVPScan ) {
 							return this.getSetUpButton( 'scan' );
+						} else if ( purchasedVaultPressBackups && ! usingVPBackups && ! this.props.isCompact ) {
+							return this.getSetUpButton( 'backups' );
 						}
-
-						return this.getProActions(
-							0 === this.props.getScanThreats() ? 'secure' : 'threats',
-							'scan'
-						);
+						return '';
 					} else if ( scanStatus && scanStatus.state !== 'unavailable' ) {
 						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
 							return (
@@ -259,14 +248,11 @@ class ProStatus extends React.Component {
 					break;
 
 				case 'search':
-					if ( hasFree || hasPersonal || hasPremium ) {
-						return this.getProActions( 'pro', 'search' );
-					}
 					return '';
 
 				case 'akismet':
 					if ( hasFree && ! ( active && installed ) ) {
-						return this.props.isCompact ? this.getProActions( 'free', 'anti-spam' ) : '';
+						return '';
 					}
 
 					if (
@@ -318,7 +304,6 @@ export default connect( state => {
 		getAkismetData: () => getAkismetData( state ),
 		isFetchingVaultPressData: isFetchingVaultPressData( state ),
 		sitePlan,
-		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		fetchingPluginsData: isFetchingPluginsData( state ),
 		pluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		pluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
@@ -326,9 +311,9 @@ export default connect( state => {
 		fetchingSiteData: isFetchingSiteData( state ),
 		isAkismetKeyValid: isAkismetKeyValid( state ),
 		fetchingAkismetData: isFetchingAkismetData( state ),
-		paidFeatureUpgradeUrl: getUpgradeUrl( state, 'upgrade' ),
-		planProUpgradeUrl: getUpgradeUrl( state, 'plans-business' ),
 		rewindStatus: getRewindStatus( state ),
 		scanStatus: getScanStatus( state ),
+		purchasedVaultPressBackups: hasActiveSiteFeature( state, 'vaultpress-backups' ),
+		purchasedVaultPressScan: hasActiveSiteFeature( state, 'vaultpress-security-scanning' ),
 	};
 } )( ProStatus );

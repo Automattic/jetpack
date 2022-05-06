@@ -433,4 +433,14 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 
 		unlink( $waf_log_path );
 	}
+
+	/**
+	 * Test the sanitize output method catches odd cases
+	 */
+	public function testSanitizeOutput() {
+		$bad_output = 'a=<svg/onload%0c=alert%601%60>';
+		$result     = $this->runtime->sanitize_output( $bad_output );
+
+		$this->assertSame( 'a=&lt;svg\/onload\b=alert`1`&gt;', $result );
+	}
 }

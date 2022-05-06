@@ -8,7 +8,7 @@ import withMock from 'storybook-addon-mock';
 /**
  * Internal dependencies
  */
-import ProductOffer from '..';
+import ProductOffer, { IconsCard } from '..';
 
 export default {
 	title: 'JS Packages/Components/Product Offer',
@@ -26,6 +26,7 @@ export const SecurityBundle = Template.bind( {} );
 SecurityBundle.parameters = {};
 SecurityBundle.args = {
 	slug: 'security',
+	icon: '',
 	name: 'Security',
 	title: 'Security',
 	subTitle: '',
@@ -48,12 +49,14 @@ SecurityBundle.args = {
 	addProductUrl: '',
 	hasRequiredPlan: false,
 	isLoading: false,
+	error: '',
 };
 
 export const JetpackBackup = Template.bind( {} );
 JetpackBackup.parameters = {};
 JetpackBackup.args = {
 	slug: 'backup',
+	icon: '',
 	name: 'Backup',
 	title: 'Jepack Backup',
 	subTitle: '',
@@ -76,3 +79,35 @@ JetpackBackup.args = {
 	hasRequiredPlan: false,
 	isLoading: false,
 };
+
+export const JetpackProtect = Template.bind( {} );
+JetpackProtect.parameters = {};
+JetpackProtect.args = {
+	slug: 'protect',
+	icon: 'jetpack',
+	title: 'Protect',
+	subTitle: 'Protect your site and scan for security vulnerabilities listed in our database.',
+	features: [
+		'Over 20,000 listed vulnerabilities',
+		'Daily automatic scans',
+		'Check plugin and theme version status',
+		'Easy to navigate and use',
+	],
+	isBundle: false,
+	isCard: true,
+	pricing: {
+		isFree: true,
+	},
+	addProductUrl: '',
+	hasRequiredPlan: false,
+	isLoading: false,
+};
+
+const IconsCardTemplate = args => <IconsCard { ...args } />;
+
+export const IconsCardStory = IconsCardTemplate.bind( {} );
+IconsCardStory.parameters = {};
+IconsCardStory.args = {
+	products: [ 'backup', 'scan', 'anti-spam' ],
+};
+IconsCardStory.storyName = 'Icons Card';

@@ -14,17 +14,25 @@ export default {
 	component: ConnectedProductOffer,
 	parameters: {
 		layout: 'centered',
+		actions: { argTypesRegex: '^on.*' },
 	},
 	argTypes: {
 		isCard: {
 			control: { type: 'boolean' },
 		},
+		showError: {
+			control: { type: 'boolean' },
+		},
 	},
 };
 
-const DefaultDefaultProductOffer = args => <ConnectedProductOffer { ...args } />;
+const DefaultDefaultProductOffer = args => {
+	return <ConnectedProductOffer { ...args } />;
+};
 
 export const Default = DefaultDefaultProductOffer.bind( {} );
 Default.args = {
 	isCard: false,
+	showError: false,
+	onAdd: () => {},
 };

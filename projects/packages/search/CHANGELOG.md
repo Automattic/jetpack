@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.2] - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies. [#24095] [#24230] [#24198] [#24228]
+
+### Deprecated
+- Moved the options class into Connection. [#24095]
+
+### Fixed
+- Adapt Record Meter to change in API response format [#24107]
+- Search: Bundle vendor assets within the main chunk [#24068]
+- Search: Fix search for private WoA sites [#24099]
+- Search: reset border-radius for search buttons [#24100]
+
+## [0.13.1] - 2022-04-26
+### Added
+- Search: added upsell page
+
+### Changed
+- Updated package dependencies.
+- Update package.json metadata.
+
 ## [0.13.0] - 2022-04-19
 ### Added
 - Search: add class to retrieve search product information
@@ -234,6 +259,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.13.2]: https://github.com/Automattic/jetpack-search/compare/v0.13.1...v0.13.2
+[0.13.1]: https://github.com/Automattic/jetpack-search/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/Automattic/jetpack-search/compare/v0.12.3...v0.13.0
 [0.12.3]: https://github.com/Automattic/jetpack-search/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/Automattic/jetpack-search/compare/v0.12.1...v0.12.2

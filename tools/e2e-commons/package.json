@@ -28,10 +28,10 @@
 		"config": "3.3.7",
 		"localtunnel": "2.0.2",
 		"lodash": "4.17.21",
+		"node-fetch": "2.6.7",
 		"pm2": "5.2.0",
 		"shell-escape": "0.2.0",
 		"winston": "3.6.0",
-		"wpapi": "1.2.2",
 		"yargs": "17.4.0"
 	},
 	"engines": {

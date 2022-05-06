@@ -493,8 +493,7 @@ class Jetpack_Admin {
 					break;
 				}
 
-				$modules = (array) $_GET['modules'];
-				$modules = array_map( 'sanitize_key', $modules );
+				$modules = isset( $_GET['modules'] ) ? array_map( 'sanitize_key', wp_unslash( (array) $_GET['modules'] ) ) : array();
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'activate', $module );
 					Jetpack::activate_module( $module, false );
@@ -508,8 +507,7 @@ class Jetpack_Admin {
 					break;
 				}
 
-				$modules = (array) $_GET['modules'];
-				$modules = array_map( 'sanitize_key', $modules );
+				$modules = isset( $_GET['modules'] ) ? array_map( 'sanitize_key', wp_unslash( (array) $_GET['modules'] ) ) : array();
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'deactivate', $module );
 					Jetpack::deactivate_module( $module );

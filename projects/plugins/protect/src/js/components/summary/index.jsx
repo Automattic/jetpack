@@ -2,40 +2,41 @@
  * External dependencies
  */
 import React from 'react';
-import { Container, Col, Text, Title } from '@automattic/jetpack-components';
-import { Icon, wordpress, plugins, color, shield } from '@wordpress/icons';
+import { Container, Col, Text, Title, getIconBySlug } from '@automattic/jetpack-components';
+import { __, sprintf } from '@wordpress/i18n';
+import { dateI18n } from '@wordpress/date';
 
 /**
  * Internal dependencies
  */
 import styles from './styles.module.scss';
-
-const Cards = ( { name, vulnerabilities, icon } ) => {
-	return (
-		<Col lg={ 2 } className={ styles.card }>
-			{ icon && <Icon icon={ icon } /> }
-			<Text variant="label">{ name }</Text>
-			<Text variant="body-extra-small">Vulnerabilities</Text>
-			<Text variant="headline-small">{ vulnerabilities }</Text>
-		</Col>
-	);
-};
+import useProtectData from '../../hooks/use-protect-data';
 
 const Summary = () => {
+	const { numVulnerabilities, lastChecked } = useProtectData();
+	const Icon = getIconBySlug( 'protect' );
+
 	return (
 		<Container fluid>
-			<Col lg={ 6 }>
+			<Col>
 				<Title size="small" className={ styles.title }>
-					<Icon icon={ shield } size={ 32 } className={ styles.icon } />
-					Last check
+					<Icon size={ 32 } className={ styles.icon } />
+					{ sprintf(
+						/* translators: %s: Latest check date  */
+						__( 'Latest results as of %s', 'jetpack-protect' ),
+						dateI18n( 'F jS', lastChecked )
+					) }
 				</Title>
-				<Text variant="headline-small" component="h1">
-					Today, 4:43PM
-				</Text>
+				{ numVulnerabilities > 0 && (
+					<Text variant="headline-small" component="h1">
+						{ sprintf(
+							/* translators: %s: Total number of vulnerabilities  */
+							__( '%s vulnerabilities found', 'jetpack-protect' ),
+							numVulnerabilities
+						) }
+					</Text>
+				) }
 			</Col>
-			<Cards name="WordPress" vulnerabilities={ 3 } icon={ wordpress } />
-			<Cards name="Plugins" vulnerabilities={ 5 } icon={ plugins } />
-			<Cards name="Themes" vulnerabilities={ 10 } icon={ color } />
 		</Container>
 	);
 };

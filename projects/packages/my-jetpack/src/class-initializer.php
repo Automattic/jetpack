@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -27,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '1.1.0';
+	const PACKAGE_VERSION = '1.3.0-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -44,6 +45,10 @@ class Initializer {
 
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
+
+		if ( self::is_licensing_ui_enabled() ) {
+			Licensing::instance()->initialize();
+		}
 
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
@@ -65,6 +70,27 @@ class Initializer {
 		 * @since 0.1.0
 		 */
 		do_action( 'my_jetpack_init' );
+	}
+
+	/**
+	 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return boolean
+	 */
+	public static function is_licensing_ui_enabled() {
+		/**
+		 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
+		 *
+		 * @param bool $is_enabled Defaults to the JETPACK_ENABLE_MY_JETPACK_LICENSE when set, or false.
+		 *
+		 * @since 1.2.0
+		 */
+		return apply_filters(
+			'jetpack_my_jetpack_should_enable_add_license_screen',
+			defined( 'JETPACK_ENABLE_MY_JETPACK_LICENSE' ) && JETPACK_ENABLE_MY_JETPACK_LICENSE
+		);
 	}
 
 	/**
@@ -122,10 +148,8 @@ class Initializer {
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
-				'loadAddLicenseScreen'  => apply_filters(
-					'jetpack_my_jetpack_should_enable_add_license_screen',
-					defined( 'JETPACK_ENABLE_MY_JETPACK_LICENSE' ) && JETPACK_ENABLE_MY_JETPACK_LICENSE
-				),
+				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
+				'adminUrl'              => esc_url( admin_url() ),
 			)
 		);
 

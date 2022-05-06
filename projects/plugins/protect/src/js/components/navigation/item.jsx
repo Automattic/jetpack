@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React, { useContext, useEffect, useCallback } from 'react';
-import { Icon, check } from '@wordpress/icons';
 import classNames from 'classnames';
 
 /**
@@ -15,7 +14,6 @@ import ItemBadge from './badge';
 
 const NavigationItem = ( {
 	id,
-	initial,
 	label,
 	icon,
 	badge,
@@ -23,6 +21,7 @@ const NavigationItem = ( {
 	onClick,
 	onKeyDown,
 	onFocus,
+	notChecked,
 } ) => {
 	const context = useContext( NavigationContext );
 
@@ -32,8 +31,6 @@ const NavigationItem = ( {
 	const handleClickItem = context?.handleClickItem;
 	const handleKeyDownItem = context?.handleKeyDownItem;
 	const handleFocusItem = context?.handleFocusItem;
-
-	const hasBadge = Number.isFinite( badge );
 
 	const wrapperClassName = classNames( styles[ 'navigation-item' ], {
 		[ styles.clickable ]: ! disabled,
@@ -72,19 +69,9 @@ const NavigationItem = ( {
 	);
 
 	useEffect( () => {
-		registerItem( { id, initial, disabled } );
+		registerItem( { id, disabled } );
 		// eslint-disable-next-line
 	}, [] );
-
-	const badgeElement = hasBadge && (
-		<>
-			{ badge > 0 ? (
-				<ItemBadge>{ badge }</ItemBadge>
-			) : (
-				<Icon icon={ check } size={ 28 } className={ styles[ 'navigation-item-check-badge' ] } />
-			) }
-		</>
-	);
 
 	return (
 		<li
@@ -97,7 +84,7 @@ const NavigationItem = ( {
 			ref={ handleRef }
 		>
 			<ItemLabel icon={ icon }>{ label }</ItemLabel>
-			{ badgeElement }
+			<ItemBadge count={ badge } notChecked={ notChecked } />
 		</li>
 	);
 };

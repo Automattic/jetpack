@@ -187,7 +187,7 @@ class Jetpack_Boost {
 			"
 			DELETE
 			FROM    `$wpdb->options`
-			WHERE   `option_name` LIKE jetpack_boost_%
+			WHERE   `option_name` LIKE 'jetpack_boost_%'
 		"
 		);
 

@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.8
-Requires at least: 5.8
+Stable tag: 10.9
+Requires at least: 5.9
 Requires PHP: 5.6
-Tested up to: 5.9
+Tested up to: 6.0
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -242,23 +242,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.9-a.7 - 2022-04-19
+### 11.0-a.1 - 2022-05-04
 #### Enhancements
-- Add individual filters for JS and AMP stat footer data.
-- Add recommendation for anti-spam
-- Connection: when deactivating Jetpack from the Plugins screen, do not disconnect other Jetpack-connected plugins.
-- Moved gutenberg-base-styles.scss file to js-packages/base-styles and updated its imports in the Jetpack plugin directory
+- WAF: add settings UI for Jetpack Firewall
+- Google Fonts: add additional fonts to the list of available fonts.
+- Payment Block: refactors the donation block by unifying Stripe Nudge component.
 
 #### Improved compatibility
-- Moved licensing images into licensing package to minimize external dependencies.
-- Updated Sync tests
-- update sync tests callables whitelist
+- Contact Form: ensure the option to export forms to a csv file works with the upcoming version of WordPress, 6.0.
+- General: Jetpack is now fully compatible with the upcoming version of WordPress, 6.0.
+- General: Jetpack now requires a more recent version of WordPress (5.9), since a new version of WordPress (6.0) will be available soon.
+- General: remove backwards compatibility code now that Jetpack requires WordPress 5.9.
 
 #### Bug fixes
-- Applied legacy Publicize filters to flag setting for Publicize
-- Fixing issue adding video descriptions and metadata via the WordPress.com dashboard.
-- Random Redirect: Fix functionality on author archives.
-- Update copy to reflect the actual plan that's needed
+- Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+.
+- VaultPress: fixes a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active.
 
 --------
 

@@ -1,13 +1,13 @@
 const { execSync, exec } = require( 'child_process' );
 const config = require( 'config' );
+const fetch = require( 'node-fetch' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const shellescape = require( 'shell-escape' );
 const logger = require( '../logger.cjs' );
 const { join } = require( 'path' );
-const WordpressAPI = require( '../api/wp-api.cjs' );
 const { E2E_DEBUG } = process.env;
-const BASE_DOCKER_CMD = 'pnpx jetpack docker --type e2e --name t1';
+const BASE_DOCKER_CMD = 'pnpm jetpack docker --type e2e --name t1';
 
 /**
  * Executes a shell command and return it as a Promise.
@@ -42,7 +42,7 @@ function execSyncShellCommand( cmd ) {
 }
 
 async function resetWordpressInstall() {
-	const cmd = 'pnpx e2e-env reset';
+	const cmd = 'pnpm e2e-env reset';
 	execSyncShellCommand( cmd );
 }
 
@@ -152,7 +152,7 @@ async function logDebugLog() {
 }
 
 async function logAccessLog() {
-	// const apacheLog = execSyncShellCommand( 'pnpx wp-env logs tests --watch=false' );
+	// const apacheLog = execSyncShellCommand( 'pnpm wp-env logs tests --watch=false' );
 	const apacheLog = 'EMPTY';
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
 	const filename = `access_${ escapedDate }.log`;
@@ -285,8 +285,14 @@ async function logEnvironment() {
 			env = fs.readFileSync( envFilePath );
 		}
 
-		const wpApi = new WordpressAPI( getSiteCredentials(), resolveSiteUrl() );
-		const plugins = await wpApi.getPlugins();
+		const credentials = getSiteCredentials();
+		const plugins = await fetch( resolveSiteUrl() + '/index.php?rest_route=/wp/v2/plugins', {
+			headers: {
+				Authorization:
+					'Basic ' +
+					Buffer.from( credentials.username + ':' + credentials.apiPassword ).toString( 'base64' ),
+			},
+		} ).then( res => res.json() );
 
 		for ( const p of plugins ) {
 			env.plugins.push( {

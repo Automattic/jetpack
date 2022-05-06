@@ -35,4 +35,4 @@ if [[ -n "$EXTRA" ]]; then
 	fi
 fi
 
-pnpx --no-install jetpack dependencies list "${ARGS[@]}" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)'
+pnpm jetpack dependencies list "${ARGS[@]}" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)'

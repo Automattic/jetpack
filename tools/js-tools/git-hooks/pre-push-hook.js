@@ -65,7 +65,7 @@ function checkChangelogFiles() {
 		process.exitCode = 1;
 		try {
 			// Run the changelogger.
-			const autoChangelog = spawnSync( 'pnpx', [ 'jetpack', 'changelog', 'add' ], {
+			const autoChangelog = spawnSync( 'pnpm', [ 'jetpack', 'changelog', 'add' ], {
 				stdio: 'inherit',
 			} );
 

@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.17.12 - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+- JS Connection: introduce useProductCheckoutWorkflow() custom hook [#24122]
+
+### Changed
+- JS Connection: use connection global state as a fallback to be used by the useProductCheckoutWorkflow() custom hook [#24137]
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+### Fixed
+- JS Connection: fix builinfg the product checkout URL in useProductCheckoutWorkflow() custom hook [#24191]
+
+## 0.17.11 - 2022-05-03
+### Removed
+- Connection: Allowing hard disconnection on deactivation.
+
+## 0.17.10 - 2022-04-26
+### Changed
+- JS Connection: add default connection arguments for the useConnection() hook
+- Updated package dependencies.
+
+### Fixed
+- Disconnect Modal: Fix react warning
+
 ## 0.17.9 - 2022-04-19
 ### Added
 - Add connected plugins list to the initial state and add action to update it when needed
