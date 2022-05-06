@@ -65,10 +65,10 @@ function fixDeps( pkg ) {
 	}
 
 	// Project is supposedly not dead, but still isn't being updated.
-	// For our purposes at least it seems to work fine with jest-environment-jsdom 27.
+	// For our purposes at least it seems to work fine with jest-environment-jsdom 28.
 	// https://github.com/enzymejs/enzyme-matchers/issues/353
 	if ( pkg.name === 'jest-environment-enzyme' ) {
-		pkg.dependencies[ 'jest-environment-jsdom' ] = '^27';
+		pkg.dependencies[ 'jest-environment-jsdom' ] = '^28';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
