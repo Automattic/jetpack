@@ -35,12 +35,20 @@ const EmptyList = () => {
 			<H3 weight="bold" mt={ 8 }>
 				{ hasUncheckedItems
 					? __( 'No vulnerabilities found', 'jetpack-protect' )
-					: __( "Don't worry about a thing", 'jetpack-protect' ) }
+					: __(
+							"Don't worry about a thing",
+							'jetpack-protect',
+							/* dummy arg to avoid bad minification */ 0
+					  ) }
 			</H3>
 			<Text>
 				{ hasUncheckedItems
 					? __( "The last Protect scan ran and we didn't find vulnerabilities.", 'jetpack-protect' )
-					: __( "Don't worry about a thing", 'jetpack-protect' ) }
+					: __(
+							"Don't worry about a thing",
+							'jetpack-protect',
+							/* dummy arg to avoid bad minification */ 0
+					  ) }
 			</Text>
 		</div>
 	);
