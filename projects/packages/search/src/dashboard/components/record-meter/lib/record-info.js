@@ -160,7 +160,7 @@ export function combineOtherCount( otherItems ) {
  *
  * @param {object} data - data object with the count for the post type item
  * @param {string} color - color code to be used for the chart item
- * @param {string} name - capitalized name of post type for the label
+ * @param {string} name - name of post type for the label
  * @returns {object} chart ready data with data, label and background color.
  */
 export function createData( data, color, name ) {
