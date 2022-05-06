@@ -1,14 +1,12 @@
 /**
- * External dependencies
- */
-import React from 'react';
-
-/**
  * Internal dependencies
  */
-import Text, { SPACING_VALUES, BOX_MODEL_VALUES, H2, H3, Title } from '../index.jsx';
+import Text, { BOX_MODEL_VALUES, H2, H3, Title } from '../index';
+import type { SpacingValue } from '../types';
 import styles from './style.module.scss';
 import TextMDXDocumentation from './Text-MDX-Documentation.mdx';
+
+const SPACING_VALUES: Array< SpacingValue > = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
 
 export default {
 	title: 'JS Packages/Components/Text',
