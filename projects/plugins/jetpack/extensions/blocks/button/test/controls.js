@@ -64,10 +64,11 @@ describe( 'Inspector settings', () => {
 			expect( screen.getByText( 'Background' ) ).toBeInTheDocument();
 		} );
 
-		test( 'loads and displays only default background color options', () => {
+		test( 'loads and displays only default background color options', async () => {
+			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } /> );
 
-			userEvent.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
+			await user.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
 			const backgroundColorPanel = screen
 				.getByText( 'Background' )
 				.closest( 'div.components-dropdown' );
@@ -76,27 +77,29 @@ describe( 'Inspector settings', () => {
 			expect( within( backgroundColorPanel ).queryByText( 'Gradient' ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'sets text color attribute', () => {
+		test( 'sets text color attribute', async () => {
+			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } /> );
 
-			userEvent.click( screen.getByText( 'Text Color', { ignore: '[aria-hidden=true]' } ) );
+			await user.click( screen.getByText( 'Text Color', { ignore: '[aria-hidden=true]' } ) );
 			const textColors = screen.getByText( 'Text Color' ).closest( 'div.components-dropdown' );
-			userEvent.click( within( textColors ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ] );
+			await user.click( within( textColors ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ] );
 
 			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
 
-		test( 'sets background color attribute', () => {
+		test( 'sets background color attribute', async () => {
+			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } /> );
 
-			userEvent.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
+			await user.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
 			const backgroundSection = screen
 				.getByText( 'Background' )
 				.closest( 'div.components-dropdown' );
 			const backgroundColorOption = within( backgroundSection ).getAllByLabelText( 'Color: ', {
 				exact: false,
 			} )[ 0 ];
-			userEvent.click( backgroundColorOption );
+			await user.click( backgroundColorOption );
 
 			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
@@ -111,10 +114,11 @@ describe( 'Inspector settings', () => {
 			expect( screen.getByText( 'Background' ) ).toBeInTheDocument();
 		} );
 
-		test( 'loads and displays solid and gradient background color options', () => {
+		test( 'loads and displays solid and gradient background color options', async () =>{
+			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			userEvent.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
+			await user.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
 			const backgroundSection = screen
 				.getByText( 'Background' )
 				.closest( 'div.components-dropdown' );
@@ -127,45 +131,48 @@ describe( 'Inspector settings', () => {
 			).toBeInTheDocument();
 		} );
 
-		test( 'sets text color attribute', () => {
+		test( 'sets text color attribute', async () =>{
+			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			userEvent.click( screen.getByText( 'Text Color', { ignore: '[aria-hidden=true]' } ) );
+			await user.click( screen.getByText( 'Text Color', { ignore: '[aria-hidden=true]' } ) );
 			const textColors = screen.getByText( 'Text Color' ).closest( 'div.components-dropdown' );
-			userEvent.click( within( textColors ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ] );
+			await user.click( within( textColors ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ] );
 
 			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
 
-		test( 'sets solid background color attribute', () => {
+		test( 'sets solid background color attribute', async () =>{
+			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			userEvent.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
+			await user.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
 			const backgroundSection = screen
 				.getByText( 'Background' )
 				.closest( 'div.components-dropdown' );
 
-			userEvent.click(
+			await user.click(
 				within( backgroundSection ).getByText( 'Solid', { ignore: '[aria-hidden=true]' } )
 			);
-			userEvent.click(
+			await user.click(
 				within( backgroundSection ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ]
 			);
 
 			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
 
-		test( 'sets gradient background color attribute', () => {
+		test( 'sets gradient background color attribute', async () =>{
+			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			userEvent.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
+			await user.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
 			const backgroundSection = screen
 				.getByText( 'Background' )
 				.closest( 'div.components-dropdown' );
-			userEvent.click(
+			await user.click(
 				within( backgroundSection ).getByText( 'Gradient', { ignore: '[aria-hidden=true]' } )
 			);
-			userEvent.click(
+			await user.click(
 				within( backgroundSection ).getAllByLabelText( 'Gradient: ', { exact: false } )[ 0 ]
 			);
 
