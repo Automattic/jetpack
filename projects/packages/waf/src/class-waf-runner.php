@@ -339,9 +339,9 @@ class Waf_Runner {
 		try {
 			$rules = self::get_rules_from_api();
 		} catch ( \Exception $e ) {
-			if ( 401 !== $e->getCode() ) {
+			if ( 401 === $e->getCode() ) {
 				// do not throw API exceptions for users who do not have access
-				$throw_api_exception = true;
+				$throw_api_exception = false;
 			}
 
 			if ( $wp_filesystem->exists( self::RULES_FILE ) && $throw_api_exception ) {
