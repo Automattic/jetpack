@@ -1,22 +1,23 @@
-/* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
-import React from 'react';
-
 /**
  * Internal dependencies
  */
-import SplitButton from '../index.jsx';
+import SplitButton from '../index';
 
 export default {
 	title: 'JS Packages/Components/Split Button',
 	component: SplitButton,
 	argTypes: {
 		variant: { type: 'select', options: [ undefined, 'secondary', 'primary', 'tertiary', 'link' ] },
+	},
+	args: {
 		controls: [
 			{
-				title: 'Deactivate',
+				title: 'Add to cart',
+				icon: null,
+				onClick: () => {},
+			},
+			{
+				title: 'Add to wishlist',
 				icon: null,
 				onClick: () => {},
 			},
