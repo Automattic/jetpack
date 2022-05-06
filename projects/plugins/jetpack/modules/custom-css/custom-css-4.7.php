@@ -48,19 +48,21 @@ class Jetpack_Custom_CSS_Enhancements {
 
 		// Remove the Customizer link from the menu to avoid additional confusion if the site is a FSE themed site.
 		if ( wp_is_block_theme() || Blocks::is_fse_theme() ) {
-			add_action(
-				'admin_menu',
-				function () {
-					remove_submenu_page(
-						'themes.php',
-						add_query_arg(
-							'return',
-							rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ),
-							'customize.php'
-						)
-					);
-				}
-			);
+			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+				add_action(
+					'admin_menu',
+					function () {
+						remove_submenu_page(
+							'themes.php',
+							add_query_arg(
+								'return',
+								rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ),  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+								'customize.php'
+							)
+						);
+					}
+				);
+			}
 		}
 	}
 
