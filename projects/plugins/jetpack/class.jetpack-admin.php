@@ -190,12 +190,14 @@ class Jetpack_Admin {
 	 * @return string
 	 */
 	public static function customizer_link( $args = array() ) {
-		$args = wp_parse_args(
-			$args,
-			array(
-				'return_url' => rawurlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ),
-			)
-		);
+		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+			$args = wp_parse_args(
+				$args,
+				array(
+					'return_url' => rawurlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ), // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				)
+			);
+		}
 
 		return add_query_arg(
 			array(
