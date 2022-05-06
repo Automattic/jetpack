@@ -45,10 +45,10 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Provides values for testing whitelisted CSS properties
-	 * Not all supported/whitelisted properties are tested here.
+	 * Provides values for testing allowed CSS properties.
+	 * Not all supported/allowed properties are tested here.
 	 */
-	public function custom_whitelisted_css_properties_provider() {
+	public function custom_allowed_css_properties_provider() {
 		return array(
 			'accent-color'          => array(
 				'body {accent-color:red;accent-color:#74992e;accent-color:rgb(255,255,128);accent-color:hsl(250,100%,34%)}',
@@ -89,15 +89,14 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a CSS property is white-listed and not removed when parsed by
-	 * CSSTidy.
+	 * Test that a CSS property is allowed and not removed when parsed by CSSTidy.
 	 *
-	 * @dataProvider custom_whitelisted_css_properties_provider
+	 * @dataProvider custom_allowed_css_properties_provider
 	 *
 	 * @param string $input                  potential CSS values.
 	 * @param string $expected_output        what we expect csstidy to output.
 	 */
-	public function test_whitelisted_css_properties( $input, $expected_output ) {
+	public function test_allowed_css_properties( $input, $expected_output ) {
 		$this->instance->parse( $input );
 			$this->assertEquals(
 				$expected_output,
