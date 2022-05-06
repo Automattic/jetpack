@@ -17,3 +17,10 @@
 .secodanary {
 	display: flex;
 }
+
+// Add spacing between primary and secondary in "sm" viewport size
+.primary {
+	@media ( max-width: '599px' ) {
+		margin-bottom: calc( var( --spacing-base ) * 3 );
+	}
+}
