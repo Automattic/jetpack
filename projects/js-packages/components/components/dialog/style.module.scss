@@ -5,16 +5,10 @@
 	border: 1px solid var( --jp-gray );
 	border-radius: var( --jp-border-radius );
 	box-shadow: 0 2px 6px var( --product-card-shadow ), 0 1px 2px var( --product-card-shadow );
-
-	// let's the image to fit the card
-	img {
-		object-fit: cover;
-		width: 100%;
-	}
 }
 
 .primary,
-.secodanary {
+.secondary {
 	display: flex;
 }
 
@@ -22,5 +16,14 @@
 .primary {
 	@media ( max-width: '599px' ) {
 		margin-bottom: calc( var( --spacing-base ) * 3 );
+	}
+}
+
+.secondary {
+	align-items: center;
+	img {
+		// let's fit images
+		object-fit: cover;
+		width: 100%;
 	}
 }
