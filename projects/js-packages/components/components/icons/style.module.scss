@@ -1,21 +1,34 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.jetpack-gutenberg-social-icon {
-	fill: $gray-700;
+.iconWrapper {
+	fill: #2C3338;
+}
 
-	&.is-facebook {
+.star-icon {
+	fill: black;
+}
+
+.jetpack,
+.checkmark-icon {
+	fill: var(--jp-green-primary);
+}
+
+.socialIcon {
+	fill: $gray-700;
+	&.facebook {
 		fill: var( --color-facebook );
 	}
-	&.is-twitter {
+	&.twitter {
 		fill: var( --color-twitter );
 	}
-	&.is-linkedin {
+	&.linkedin {
 		fill: var( --color-linkedin );
 	}
-	&.is-tumblr {
+	&.tumblr {
 		fill: var( --color-tumblr );
 	}
-	&.is-google {
+	&.google {
 		fill: var( --color-gplus );
 	}
 }
+

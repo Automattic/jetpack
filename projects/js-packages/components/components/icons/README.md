@@ -1,4 +1,4 @@
-## Jetpack Product Icons
+## Jetpack Icons
 
 Exports:
 

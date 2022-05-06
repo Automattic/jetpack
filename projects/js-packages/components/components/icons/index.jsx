@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import classNames from 'classnames';
 import React from 'react';
 import { Path, SVG, G, Polygon } from '@wordpress/components';
 
@@ -26,20 +27,22 @@ function IconWrapper( {
 	size = 24,
 	viewBox = '0 0 24 24',
 	opacity = 1,
-	color = '#2C3338',
+	color,
 	children,
 } ) {
+	const iconProps = {
+		className: classNames( styles.iconWrapper, className ),
+		width: size,
+		height: size,
+		viewBox,
+		opacity,
+	};
+	if ( color ) {
+		iconProps.fill = color;
+	}
+
 	return (
-		<SVG
-			className={ className }
-			width={ size }
-			height={ size }
-			viewBox={ viewBox }
-			fill={ color }
-			fillRule="evenodd"
-			clipRule="evenodd"
-			xmlns="http://www.w3.org/2000/svg"
-		>
+		<SVG { ...iconProps } fillRule="evenodd" clipRule="evenodd" xmlns="http://www.w3.org/2000/svg">
 			<G opacity={ opacity }>{ children }</G>
 		</SVG>
 	);
@@ -132,6 +135,100 @@ export const JetpackIcon = ( { size, className = styles.jetpack } ) => {
 	);
 };
 
+/**
+ * Wrapper of the Social Icons. Adds a default CSS class.
+ *
+ * @param {object} props           - Component props.
+ * @param {string} props.className - Icon class name. Optional.
+ * @param {string} props.fill      - RGB Icon color. Optional.
+ * @param {number} props.size      - Icon size.
+ * @param {object} props.children  - Icon component children.
+ * @returns {object}                 Icon Wrapper component.
+ */
+function SocialIconWrapper( { className, fill = 'none', size, children } ) {
+	return (
+		<IconWrapper
+			className={ classNames( styles.socialIcon, className ) }
+			size={ size }
+			fill={ fill }
+		>
+			{ children }
+		</IconWrapper>
+	);
+}
+
+export const FacebookIcon = ( { fill, size, className } ) => {
+	return (
+		<SocialIconWrapper
+			fill={ fill }
+			size={ size }
+			className={ classNames( styles.facebook, className ) }
+		>
+			<Path
+				d="M12,2C6.5,2,2,6.5,2,12c0,5,3.7,9.1,8.4,9.9v-7H7.9V12h2.5V9.8c0-2.5,1.5-3.9,3.8-3.9c1.1,0,2.2,0.2,2.2,0.2v2.5h-1.3
+	c-1.2,0-1.6,0.8-1.6,1.6V12h2.8l-0.4,2.9h-2.3v7C18.3,21.1,22,17,22,12C22,6.5,17.5,2,12,2z"
+			/>
+		</SocialIconWrapper>
+	);
+};
+
+export const TwitterIcon = ( { fill, size, className } ) => {
+	return (
+		<SocialIconWrapper
+			fill={ fill }
+			size={ size }
+			className={ classNames( styles.twitter, className ) }
+		>
+			<Path
+				d="M19,3H5C3.895,3,3,3.895,3,5v14c0,1.105,0.895,2,2,2h14c1.105,0,2-0.895,2-2V5C21,3.895,20.105,3,19,3z M16.466,9.71
+		c0.004,0.099,0.007,0.198,0.007,0.298c0,3.045-2.318,6.556-6.556,6.556c-1.301,0-2.512-0.381-3.532-1.035
+		c0.18,0.021,0.364,0.032,0.55,0.032c1.079,0,2.073-0.368,2.862-0.986c-1.008-0.019-1.859-0.685-2.152-1.6
+		c0.141,0.027,0.285,0.041,0.433,0.041c0.21,0,0.414-0.028,0.607-0.081c-1.054-0.212-1.848-1.143-1.848-2.259
+		c0-0.01,0-0.019,0-0.029c0.311,0.173,0.666,0.276,1.044,0.288c-0.618-0.413-1.025-1.118-1.025-1.918
+		c0-0.422,0.114-0.818,0.312-1.158c1.136,1.394,2.834,2.311,4.749,2.407c-0.039-0.169-0.06-0.344-0.06-0.525
+		c0-1.272,1.032-2.304,2.304-2.304c0.663,0,1.261,0.28,1.682,0.728c0.525-0.103,1.018-0.295,1.463-0.559
+		c-0.172,0.538-0.537,0.99-1.013,1.275c0.466-0.056,0.91-0.18,1.323-0.363C17.306,8.979,16.916,9.385,16.466,9.71z"
+			/>
+		</SocialIconWrapper>
+	);
+};
+
+export const LinkedinIcon = ( { fill, size, className } ) => {
+	return (
+		<SocialIconWrapper
+			fill={ fill }
+			size={ size }
+			className={ classNames( styles.linkedin, className ) }
+		>
+			<Path d="M19.7 3H4.3C3.582 3 3 3.582 3 4.3v15.4c0 .718.582 1.3 1.3 1.3h15.4c.718 0 1.3-.582 1.3-1.3V4.3c0-.718-.582-1.3-1.3-1.3zM8.34 18.338H5.666v-8.59H8.34v8.59zM7.003 8.574c-.857 0-1.55-.694-1.55-1.548 0-.855.692-1.548 1.55-1.548.854 0 1.547.694 1.547 1.548 0 .855-.692 1.548-1.546 1.548zm11.335 9.764h-2.67V14.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.6 1.086-1.6 2.206v4.248h-2.668v-8.59h2.56v1.174h.036c.357-.675 1.228-1.387 2.527-1.387 2.703 0 3.203 1.78 3.203 4.092v4.71z" />
+		</SocialIconWrapper>
+	);
+};
+
+export const TumblrIcon = ( { fill, size, className } ) => {
+	return (
+		<SocialIconWrapper
+			fill={ fill }
+			size={ size }
+			className={ classNames( styles.tumblr, className ) }
+		>
+			<Path d="M19 3H5c-1.105 0-2 .895-2 2v14c0 1.105.895 2 2 2h14c1.105 0 2-.895 2-2V5c0-1.105-.895-2-2-2zm-5.57 14.265c-2.445.042-3.37-1.742-3.37-2.998V10.6H8.922V9.15c1.703-.615 2.113-2.15 2.21-3.026.006-.06.053-.084.08-.084h1.645V8.9h2.246v1.7H12.85v3.495c.008.476.182 1.13 1.08 1.107.3-.008.698-.094.907-.194l.54 1.6c-.205.297-1.12.642-1.946.657z" />
+		</SocialIconWrapper>
+	);
+};
+
+export const GoogleIcon = ( { fill, size, className } ) => {
+	return (
+		<SocialIconWrapper
+			fill={ fill }
+			size={ size }
+			className={ classNames( styles.google, className ) }
+		>
+			<Path d="M12.02 10.18v3.73h5.51c-.26 1.57-1.67 4.22-5.5 4.22-3.31 0-6.01-2.75-6.01-6.12s2.7-6.12 6.01-6.12c1.87 0 3.13.8 3.85 1.48l2.84-2.76C16.99 2.99 14.73 2 12.03 2c-5.52 0-10 4.48-10 10s4.48 10 10 10c5.77 0 9.6-4.06 9.6-9.77 0-.83-.11-1.42-.25-2.05h-9.36z" />
+		</SocialIconWrapper>
+	);
+};
+
 const iconsMap = {
 	'anti-spam': AntiSpamIcon,
 	backup: BackupIcon,
@@ -144,6 +241,11 @@ const iconsMap = {
 	star: StarIcon,
 	videopress: VideopressIcon,
 	jetpack: JetpackIcon,
+	facebook: FacebookIcon,
+	twitter: TwitterIcon,
+	linkedin: LinkedinIcon,
+	tumblr: TumblrIcon,
+	google: GoogleIcon,
 };
 
 /**
@@ -159,3 +261,11 @@ export function getIconBySlug( slug ) {
 
 	return iconsMap[ slug ];
 }
+
+export const SocialServiceIcon = ( { serviceName, className } ) => {
+	const Icon = getIconBySlug( serviceName );
+	if ( Icon ) {
+		return <Icon className={ className } />;
+	}
+	return null;
+};
