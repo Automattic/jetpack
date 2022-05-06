@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
  * Jetpack_Google_Analytics_Legacy hooks and enqueues support for ga.js
@@ -15,7 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Jetpack_Google_Analytics_Legacy hooks and enqueues support for ga.js
+ */
 class Jetpack_Google_Analytics_Legacy {
+	/**
+	 * Jetpack_Google_Analytics_Legacy constructor.
+	 */
 	public function __construct() {
 		add_filter( 'jetpack_wga_classic_custom_vars', array( $this, 'jetpack_wga_classic_anonymize_ip' ) );
 		add_filter( 'jetpack_wga_classic_custom_vars', array( $this, 'jetpack_wga_classic_track_purchases' ) );
@@ -30,8 +36,8 @@ class Jetpack_Google_Analytics_Legacy {
 	 * @param array $track - Must have ['data'] and ['code'].
 	 * @return string - Tracking URL
 	 */
-	private function _get_url( $track ) {
-		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ); // Input var okay.
+	private function get_url( $track ) {
+		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) );
 		foreach ( $track as $k => $value ) {
 			if ( strpos( strtolower( $value ), strtolower( $site_url ) ) === 0 ) {
 				$track[ $k ] = substr( $track[ $k ], strlen( $site_url ) );
@@ -50,7 +56,7 @@ class Jetpack_Google_Analytics_Legacy {
 			$track[ $k ] = trim( $track[ $k ], '_' );
 		}
 		$char = ( strpos( $track['data'], '?' ) === false ) ? '?' : '&amp;';
-		return str_replace( "'", "\'", "/{$track['code']}/{$track['data']}{$char}referer=" . rawurlencode( isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '' ) ); // Input var okay.
+		return str_replace( "'", "\'", "/{$track['code']}/{$track['data']}{$char}referer=" . rawurlencode( isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '' ) );
 	}
 
 	/**
@@ -100,15 +106,15 @@ class Jetpack_Google_Analytics_Legacy {
 			$custom_vars[] = "_gaq.push(['_trackEvent', '404', document.location.href, document.referrer]);";
 		} elseif (
 			is_search()
-			&& isset( $_REQUEST['s'] )
+			&& isset( $_REQUEST['s'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Function renders client-side JS, no site actions.
 		) {
 			// Set track for searches, if it's a search, and we are supposed to.
-			$track['data'] = sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ); // Input var okay.
+			$track['data'] = sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Function renders client-side JS, no site actions.
 			$track['code'] = 'search';
 		}
 
 		if ( ! empty( $track ) ) {
-			$track['url'] = $this->_get_url( $track );
+			$track['url'] = $this->get_url( $track );
 			// adjust the code that we output, account for both types of tracking.
 			$track['url']  = esc_js( str_replace( '&', '&amp;', $track['url'] ) );
 			$custom_vars[] = "_gaq.push(['_trackPageview','{$track['url']}']);";
@@ -138,7 +144,7 @@ class Jetpack_Google_Analytics_Legacy {
 				})();
 			</script>
 			<!-- End Jetpack Google Analytics -->\r\n",
-			implode( "\r\n", $custom_vars )
+			implode( "\r\n", $custom_vars ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Additional elements added to the classic Google Analytics script.
 		);
 	}
 
@@ -194,8 +200,8 @@ class Jetpack_Google_Analytics_Legacy {
 	 * Used to filter in the anonymize IP snippet to the custom vars array for classic analytics
 	 * Ref https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApi_gat#_gat._anonymizelp
 	 *
-	 * @param array custom vars to be filtered
-	 * @return array possibly updated custom vars
+	 * @param array $custom_vars Custom vars to be filtered.
+	 * @return array Possibly updated custom vars.
 	 */
 	public function jetpack_wga_classic_anonymize_ip( $custom_vars ) {
 		if ( Jetpack_Google_Analytics_Options::anonymize_ip_is_enabled() ) {
@@ -208,8 +214,8 @@ class Jetpack_Google_Analytics_Legacy {
 	/**
 	 * Used to filter in the order details to the custom vars array for classic analytics
 	 *
-	 * @param array custom vars to be filtered
-	 * @return array possibly updated custom vars
+	 * @param array $custom_vars Custom vars to be filtered.
+	 * @return array Possibly updated custom vars.
 	 */
 	public function jetpack_wga_classic_track_purchases( $custom_vars ) {
 		global $wp;
@@ -230,15 +236,17 @@ class Jetpack_Google_Analytics_Legacy {
 		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( WC_VERSION, '3.0', '>=' );
 		if ( $minimum_woocommerce_active && is_order_received_page() ) {
 			$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
-			if ( 0 < $order_id && 1 != get_post_meta( $order_id, '_ga_tracked', true ) ) {
+			if ( 0 < $order_id && 1 !== (int) get_post_meta( $order_id, '_ga_tracked', true ) ) {
 				$order = new WC_Order( $order_id );
 
-				// [ '_add_Trans', '123', 'Site Title', '21.00', '1.00', '5.00', 'Snohomish', 'WA', 'USA' ]
+				/**
+				 * [ '_add_Trans', '123', 'Site Title', '21.00', '1.00', '5.00', 'Snohomish', 'WA', 'USA' ]
+				 */
 				array_push(
 					$custom_vars,
 					sprintf(
 						'_gaq.push( %s );',
-						json_encode(
+						wp_json_encode(
 							array(
 								'_addTrans',
 								(string) $order->get_order_number(),
@@ -264,7 +272,7 @@ class Jetpack_Google_Analytics_Legacy {
 							$custom_vars,
 							sprintf(
 								'_gaq.push( %s );',
-								json_encode(
+								wp_json_encode(
 									array(
 										'_addItem',
 										(string) $order->get_order_number(),
@@ -308,7 +316,7 @@ class Jetpack_Google_Analytics_Legacy {
 
 		if ( is_product() ) { // product page
 			global $product;
-			$product_sku_or_id = $product->get_sku() ? $product->get_sku() : '#' + $product->get_id();
+			$product_sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
 			wc_enqueue_js(
 				"$( '.single_add_to_cart_button' ).click( function() {
 					_gaq.push(['_trackEvent', 'Products', 'Add to Cart', '#" . esc_js( $product_sku_or_id ) . "']);

@@ -39,7 +39,7 @@ module.exports = {
 		},
 	],
 	settings: {
-		'svelte3/typescript': true,
+		'svelte3/typescript': () => require( 'typescript' ),
 	},
 	plugins: [ 'svelte3', '@typescript-eslint' ],
 	rules: {

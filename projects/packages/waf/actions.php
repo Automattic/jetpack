@@ -12,6 +12,10 @@ if ( ! function_exists( 'add_action' ) ) {
 	return;
 }
 
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	return;
+}
+
 /**
  * Triggers when the Jetpack plugin is updated
  */
@@ -23,10 +27,12 @@ add_action(
 /**
  * Cron to update the rules periodically.
  */
-add_action( 'jetpack_waf_rules_update_cron', array( __NAMESPACE__ . '\Waf_Runner', 'update_rules_cron' ) );
+if ( Waf_Runner::is_enabled() ) {
+	add_action( 'jetpack_waf_rules_update_cron', array( __NAMESPACE__ . '\Waf_Runner', 'update_rules_cron' ) );
 
-if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
-	wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
+	if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
+		wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
+	}
 }
 
 /**
@@ -53,3 +59,7 @@ add_action(
 		Waf_Endpoints::register_endpoints();
 	}
 );
+
+add_action( 'update_option_' . Waf_Runner::IP_ALLOW_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
+add_action( 'update_option_' . Waf_Runner::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
+add_action( 'update_option_' . Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );

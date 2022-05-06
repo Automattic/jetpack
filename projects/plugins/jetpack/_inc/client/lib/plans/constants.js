@@ -289,16 +289,6 @@ export function isNew( plan ) {
 }
 
 /**
- * Determines if a plan includes Jetpack Backup.
- *
- * @param {string} plan - The plan slug
- * @returns {boolean} True if the plan includes Jetpack Backup
- */
-export function isJetpackPlanWithBackup( plan ) {
-	return includes( JETPACK_PLANS_WITH_BACKUP, plan );
-}
-
-/**
  * Determines if a plan includes Jetpack Anti-Spam.
  *
  * @param {string} plan - The plan slug
