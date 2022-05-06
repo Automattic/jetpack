@@ -43,7 +43,7 @@
 	},
 	"type": "module",
 	"exports": {
-		".": "./index.jsx"
+		".": "./index.ts"
 	},
 	"sideEffects": [
 		"*.css",
