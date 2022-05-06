@@ -12,6 +12,7 @@ import {
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
+	SET_SECURITY_BUNDLE,
 } from './actions';
 
 const status = ( state = {}, action ) => {
@@ -54,12 +55,21 @@ const wpVersion = ( state = {}, action ) => {
 	return state;
 };
 
+const securityBundle = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_SECURITY_BUNDLE:
+			return action.bundle;
+	}
+	return state;
+};
+
 const reducers = combineReducers( {
 	status,
 	statusIsFetching,
 	installedPlugins,
 	installedThemes,
 	wpVersion,
+	securityBundle,
 } );
 
 export default reducers;

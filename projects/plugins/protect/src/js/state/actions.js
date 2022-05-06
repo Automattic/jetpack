@@ -9,6 +9,7 @@ const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
 const SET_WP_VERSION = 'SET_WP_VERSION';
+const SET_SECURITY_BUNDLE = 'SET_SECURITY_BUNDLE';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -53,6 +54,10 @@ const setwpVersion = version => {
 	return { type: SET_WP_VERSION, version };
 };
 
+const setSecurityBundle = bundle => {
+	return { type: SET_SECURITY_BUNDLE, bundle };
+};
+
 const actions = {
 	setStatus,
 	refreshStatus,
@@ -60,6 +65,7 @@ const actions = {
 	setInstalledPlugins,
 	setInstalledThemes,
 	setwpVersion,
+	setSecurityBundle,
 };
 
 export {
@@ -68,5 +74,6 @@ export {
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
+	SET_SECURITY_BUNDLE,
 	actions as default,
 };

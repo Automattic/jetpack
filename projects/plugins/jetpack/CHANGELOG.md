@@ -2,6 +2,49 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.0-a.1 - 2022-05-04
+### Enhancements
+- WAF: add settings UI for Jetpack Firewall [#23769]
+- Google Fonts: add additional fonts to the list of available fonts. [#24098]
+- Payment Block: refactors the donation block by unifying Stripe Nudge component. [#24177]
+
+### Improved compatibility
+- Contact Form: ensure the option to export forms to a csv file works with the upcoming version of WordPress, 6.0. [#24173]
+- General: Jetpack is now fully compatible with the upcoming version of WordPress, 6.0. [#24083]
+- General: Jetpack now requires a more recent version of WordPress (5.9), since a new version of WordPress (6.0) will be available soon. [#24083]
+- General: remove backwards compatibility code now that Jetpack requires WordPress 5.9. [#24086]
+
+### Bug fixes
+- Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+. [#24135]
+- VaultPress: fixes a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active. [#24194]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Activity: Removed commented-out code [#24126]
+- Add missing JavaScript dependencies. [#24096]
+- Client: Removed unused planClass props [#24195]
+- Custom Content Types: bring changes from WordPress.com to Jetpack to keep the files in sync. [#24150]
+- Custom Content Types: fix PHPCS linting errors in CPT module files, part 2 [#24154]
+- Custom Content Types: solve PHPCS errors for Portfolios. [#23848]
+- Init 11.0-a.0 [#24087]
+- Moved the Options class to Connection package. [#24095]
+- My Plan: Use feature check for search card [#24166]
+- One Click Restores: Uses feature checks to determine backup type [#24131]
+- Performance-Search: Converts plan checks to feature checks [#24162]
+- PHPCS: changes for endpoints, root functions [#24029]
+- Recommendations: Use feature check for one-click restores [#24165]
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Renaming class file to comply with class naming rules in phpcs. [#24136]
+- Replace uses of `create-react-class` with modern syntax. [#24055]
+- Rewind: Remove unused sitePlan information [#24128]
+- Search: Converted At a Glance search box to using feature checks. [#24127]
+- Security Settings: Use feature checks for backup and scan [#24163]
+- Settings: Display upsells using feature checks [#24180]
+- Updated package dependencies. [#24095]
+- Updating 10.9 beta changelog and readme [#24091]
+- Updating to-test.md [#24088]
+- Updated Backups box in At a Glance to use feature checks [#24121]
+- We now lock the execution of get products in a non blocking way for the execution thread. [#24140]
+
 ## [10.9] - 2022-05-03
 ### Enhancements
 - Dashboard: update the recommendation flow to include recommendations for VideoPress as well as discounts.

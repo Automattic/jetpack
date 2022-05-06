@@ -15,6 +15,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
@@ -52,7 +53,6 @@ class Jetpack_Protect {
 						'jetpack_sync_modules'             => array(
 							'Automattic\\Jetpack\\Sync\\Modules\\Options',
 							'Automattic\\Jetpack\\Sync\\Modules\\Callables',
-							'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync',
 						),
 						'jetpack_sync_callable_whitelist'  => array(
 							'get_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
@@ -168,6 +168,7 @@ class Jetpack_Protect {
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
+			'securityBundle'    => My_Jetpack_Products::get_product( 'security' ),
 		);
 	}
 	/**
@@ -194,6 +195,8 @@ class Jetpack_Protect {
 		$manager = new Connection_Manager( 'jetpack-protect' );
 		$manager->disconnect_site_wpcom();
 		$manager->delete_all_connection_tokens();
+
+		Protect_Status::delete_option();
 	}
 
 	/**
