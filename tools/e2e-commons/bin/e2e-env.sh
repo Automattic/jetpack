@@ -18,7 +18,7 @@ usage() {
 	exit 1
 }
 
-BASE_CMD='pnpx jetpack docker --type e2e --name t1'
+BASE_CMD='pnpm jetpack docker --type e2e --name t1'
 
 start_env() {
 	$BASE_CMD up -d
@@ -61,7 +61,7 @@ configure_wp_env() {
 		shift
 		for var in "$@"; do
 			# shellcheck disable=SC2086
-			pnpx $BASE_CMD wp plugin activate "$var"
+			pnpm $BASE_CMD wp plugin activate "$var"
 		done
 	fi
 	$BASE_CMD wp option set permalink_structure ""

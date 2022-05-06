@@ -3,6 +3,7 @@
  */
 import ReactDOM from 'react-dom';
 import React from 'react';
+import { ThemeProvider } from '@automattic/jetpack-components';
 
 /**
  * WordPress dependencies
@@ -28,7 +29,12 @@ function init() {
 		return;
 	}
 
-	ReactDOM.render( <WordAdsDashboard />, container );
+	ReactDOM.render(
+		<ThemeProvider>
+			<WordAdsDashboard />
+		</ThemeProvider>,
+		container
+	);
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

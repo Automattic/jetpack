@@ -32,6 +32,7 @@ const AdminPage = props => {
 		showHeader,
 		showFooter,
 		showBackground,
+		header,
 	} = props;
 	const rootClassName = classNames( styles[ 'admin-page' ], {
 		[ styles.background ]: showBackground,
@@ -41,9 +42,7 @@ const AdminPage = props => {
 		<div className={ rootClassName }>
 			{ showHeader && (
 				<Container horizontalSpacing={ 5 }>
-					<Col>
-						<JetpackLogo />
-					</Col>
+					<Col>{ header ? header : <JetpackLogo /> }</Col>
 				</Container>
 			) }
 			<Container fluid horizontalSpacing={ 0 }>
@@ -67,6 +66,7 @@ const AdminPage = props => {
 AdminPage.defaultProps = {
 	moduleName: __( 'Jetpack', 'jetpack' ),
 	showHeader: true,
+	header: null,
 	showFooter: true,
 	showBackground: true,
 };
@@ -78,6 +78,8 @@ AdminPage.propTypes = {
 	moduleName: PropTypes.string,
 	/** Whether or not to display the Header */
 	showHeader: PropTypes.bool,
+	/** Custom header. Optional */
+	header: PropTypes.node,
 	/** Whether or not to display the Footer */
 	showFooter: PropTypes.bool,
 	/** Link that the Footer Module name will link to (optional). */

@@ -14,7 +14,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import Button from 'components/button';
-import { getSitePlan, isFetchingSiteData } from 'state/site';
+import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
 import {
 	getSiteConnectionStatus,
 	hasConnectedOwner,
@@ -55,10 +55,6 @@ class SupportCard extends React.Component {
 		this.props.connectUser();
 	};
 
-	shouldComponentUpdate( nextProps ) {
-		return nextProps.sitePlan.product_slug !== this.props.sitePlan.product_slug;
-	}
-
 	trackSearchClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'support-card',
@@ -76,17 +72,12 @@ class SupportCard extends React.Component {
 	};
 
 	render() {
-		if (
-			'undefined' === typeof this.props.sitePlan.product_slug &&
-			this.props.isFetchingSiteData
-		) {
+		const { hasSupport } = this.props;
+		if ( this.props.isFetchingSiteData ) {
 			return <div />;
 		}
 
-		const classes = classNames( this.props.className, 'jp-support-card' ),
-			noPrioritySupport =
-				'undefined' === typeof this.props.sitePlan.product_slug ||
-				'jetpack_free' === this.props.sitePlan.product_slug;
+		const classes = classNames( this.props.className, 'jp-support-card' );
 
 		return (
 			<div className={ classes }>
@@ -94,15 +85,15 @@ class SupportCard extends React.Component {
 					<div className="jp-support-card__happiness-contact">
 						<h3 className="jp-support-card__header">{ __( "We're here to help", 'jetpack' ) }</h3>
 						<p className="jp-support-card__description">
-							{ noPrioritySupport
+							{ hasSupport
 								? __(
-										'Jetpack offers support via community forums for any site without a paid product.',
-										'jetpack'
-								  )
-								: __(
 										'Your paid plan gives you access to prioritized Jetpack support.',
 										'jetpack',
 										/* dummy arg to avoid bad minification */ 0
+								  )
+								: __(
+										'Jetpack offers support via community forums for any site without a paid product.',
+										'jetpack'
 								  ) }
 						</p>
 						<p className="jp-support-card__description">
@@ -129,7 +120,7 @@ class SupportCard extends React.Component {
 						</p>
 					</div>
 				</Card>
-				{ this.props.siteConnectionStatus && noPrioritySupport && this.props.hasConnectedOwner && (
+				{ this.props.siteConnectionStatus && ! hasSupport && this.props.hasConnectedOwner && (
 					<JetpackBanner
 						title={ __( 'Get a faster resolution to your support questions.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }
@@ -138,19 +129,17 @@ class SupportCard extends React.Component {
 						href={ this.props.supportUpgradeUrl }
 					/>
 				) }
-				{ this.props.siteConnectionStatus &&
-					noPrioritySupport &&
-					! this.props.hasConnectedOwner && (
-						<JetpackBanner
-							title={ __(
-								'Connect your WordPress.com account and upgrade to get a faster resolution to your support questions.',
-								'jetpack'
-							) }
-							plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }
-							callToAction={ __( 'Connect', 'jetpack' ) }
-							onClick={ this.handleConnectClick }
-						/>
-					) }
+				{ this.props.siteConnectionStatus && ! hasSupport && ! this.props.hasConnectedOwner && (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account and upgrade to get a faster resolution to your support questions.',
+							'jetpack'
+						) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }
+						callToAction={ __( 'Connect', 'jetpack' ) }
+						onClick={ this.handleConnectClick }
+					/>
+				) }
 			</div>
 		);
 	}
@@ -166,7 +155,6 @@ SupportCard.propTypes = {
 export default connect(
 	state => {
 		return {
-			sitePlan: getSitePlan( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isFetchingSiteData: isFetchingSiteData( state ),
 			isAtomicSite: isAtomicSite( state ),
@@ -175,6 +163,7 @@ export default connect(
 			isCurrentUserLinked: isCurrentUserLinked( state ),
 			isConnectionOwner: isConnectionOwner( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			hasSupport: hasActiveSiteFeature( state, 'support' ),
 		};
 	},
 	dispatch => ( {

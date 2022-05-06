@@ -2,48 +2,82 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 10.9-beta - 2022-04-26
+## 11.0-a.1 - 2022-05-04
 ### Enhancements
-- Add a videopress product card to videopress recommendtion
-- Added support for "public" property for membership subscriptions
-- Add logic to fetch intro offers
-- Add Mark subscription as Donation and Enable customers to pick their own amount in Payment management control block.
-- Add product cards to recommendation steps
-- Add site discount in Jetpack Assistant
-- Allow individual recommendations to be reached from the recommendations summary screen
-- Assistant: Added endpoints for site discount
-- Created a Stripe connect nudge that is aware of the product management store
-- Google Fonts module: enqueue fonts used in block and Global Styles settings
-- Increased chunk size to 10Mb for VideoPress resumable uploads to reduce request overhead for faster uploads.
-- Make the subscribe button for premium-content blocks (wpcom specific) open up the 'checkout' dialog when clicked in emails and notifications
-- Updated checks for enabling conditional recommendations
-- Updated the Membership endpoints to contain the newly added "public" property.
+- WAF: add settings UI for Jetpack Firewall [#23769]
+- Google Fonts: add additional fonts to the list of available fonts. [#24098]
+- Payment Block: refactors the donation block by unifying Stripe Nudge component. [#24177]
 
 ### Improved compatibility
-- Added activation screen component to My Jetpack licensing page
-- updating lock file
+- Contact Form: ensure the option to export forms to a csv file works with the upcoming version of WordPress, 6.0. [#24173]
+- General: Jetpack is now fully compatible with the upcoming version of WordPress, 6.0. [#24083]
+- General: Jetpack now requires a more recent version of WordPress (5.9), since a new version of WordPress (6.0) will be available soon. [#24083]
+- General: remove backwards compatibility code now that Jetpack requires WordPress 5.9. [#24086]
 
 ### Bug fixes
-- Add checks to eliminate warnings in php log.
-- Close the publish sidebar when the user clicks on the Add new subscription from the Payments block and replace the Add new subscription with an external link in context of the Customizer.
-- Display the payment blocks product manager on free sites connected to Stripe.
-- Fix failing tests because of an editor type mismatch caused by imported packages side-effects
-- Fixing issue in apiFetch middleware where request bodies were assumed to always be objects with a "file" property; this is only true for requests to the media endpoint.
-- Load block editor styles inline for iframed editors on Atomic sites.
-- We now don't show a dropdown indication for the product management controls subscription selector.
+- Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+. [#24135]
+- VaultPress: fixes a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active. [#24194]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Activity: Removed commented-out code [#24126]
+- Add missing JavaScript dependencies. [#24096]
+- Client: Removed unused planClass props [#24195]
+- Custom Content Types: bring changes from WordPress.com to Jetpack to keep the files in sync. [#24150]
+- Custom Content Types: fix PHPCS linting errors in CPT module files, part 2 [#24154]
+- Custom Content Types: solve PHPCS errors for Portfolios. [#23848]
+- Init 11.0-a.0 [#24087]
+- Moved the Options class to Connection package. [#24095]
+- My Plan: Use feature check for search card [#24166]
+- One Click Restores: Uses feature checks to determine backup type [#24131]
+- Performance-Search: Converts plan checks to feature checks [#24162]
+- PHPCS: changes for endpoints, root functions [#24029]
+- Recommendations: Use feature check for one-click restores [#24165]
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Renaming class file to comply with class naming rules in phpcs. [#24136]
+- Replace uses of `create-react-class` with modern syntax. [#24055]
+- Rewind: Remove unused sitePlan information [#24128]
+- Search: Converted At a Glance search box to using feature checks. [#24127]
+- Security Settings: Use feature checks for backup and scan [#24163]
+- Settings: Display upsells using feature checks [#24180]
+- Updated package dependencies. [#24095]
+- Updating 10.9 beta changelog and readme [#24091]
+- Updating to-test.md [#24088]
+- Updated Backups box in At a Glance to use feature checks [#24121]
+- We now lock the execution of get products in a non blocking way for the execution thread. [#24140]
+
+## [10.9] - 2022-05-03
+### Enhancements
+- Dashboard: update the recommendation flow to include recommendations for VideoPress as well as discounts.
+- Google Fonts: update the Google Fonts module to be compatible with the most recent version of the WP_Webfonts API.
+- Payments Block: add additional features to the payment management control block (ability to mark as donation, and enabling customers to pick own amount).
+- Payments Block: add new property that establishes if the membership is editable by the site editor.
+- VideoPress: improve upload spreed, by increasing chunk size to 10Mb for resumable uploads.
+
+### Bug fixes
+- Assistant: style and CTA changes plus introductory offer fixes.
+- Payments Block: change the sidebar display when clicking 'add new subscription', as well as using an external link in the Customizer.
+- Payments Block: remove the dropdown icon from the product management control subscription selector.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add checks to eliminate warnings in PHP log.
 - Added analytics events for enabling condtional recommendations and viewing conditional recommendations.
-- Converted BackupUpgrade and BarChart to TypeScript
-- E2E tests: add extra checks in connection tests
-- E2E tests: improve connection tests
+- Converted BackupUpgrade and BarChart to TypeScript.
+- E2E tests: add extra checks in connection tests.
+- E2E tests: improve connection tests.
+- Fix failing tests because of an editor type mismatch caused by imported packages side-effects.
 - Init 10.9-a.8
-- Move RecordMeterBar to js-packages
+- Load block editor styles inline for iframed editors on WoA sites.
+- Move RecordMeterBar to js-packages.
+- My Jetpack: Updated to require licensing package when licensing UI enabled.
 - Nav-unification: Update nudge to support Pro plan.
+- Payments Block: Display the product manager on free plan sites connected to Stripe.
+- Premium Content blocks: subscription button from emails and notifications opens the checkout dialog  (WordPress.com specific).
 - Remove code in native files that was causing the rnmobile build to fail.
-- Updated package dependencies
+- Revert Jetpack not hard disconnecting on deactivation
+- Updated package dependencies.
 - Update package.json metadata.
 - Updating changelog and readme for 10.9-a.7
+- VideoPress: Fixing issue in apiFetch middleware where request bodies were assumed to always be objects with a "file" property; this is only true for requests to the media endpoint.
 
 ## 10.9-a.7 - 2022-04-19
 ### Enhancements
@@ -80,11 +114,13 @@
 - Comments: Checking that Jetpack comments are supported before requiring nonce verification.
 
 ## 10.9-a.3 - 2022-04-12
+### Major Enhancements
+- VideoPress: add settings for controlling VideoPress video privacy.
+
 ### Enhancements
 - Dashboard: Various improvements to recommendations.
 - Payments block: Improves block selection behavior.
 - Protect: Renamed to "Brute Force Protection" in the UI.
-- VideoPress: Adds settings for controlling VideoPress video privacy.
 - VideoPress: Enable the resumable uploader.
 
 ### Improved compatibility
@@ -6503,6 +6539,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[10.9]: https://wp.me/p1moTy-EHd
 [10.8]: https://wp.me/p1moTy-CTQ
 [10.7]: https://wp.me/p1moTy-AMD
 [10.6]: https://wp.me/p1moTy-AES

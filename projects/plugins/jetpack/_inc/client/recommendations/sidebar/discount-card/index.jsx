@@ -94,7 +94,7 @@ const DiscountCard = ( {
 								onClick={ onCtaClick }
 							>
 								{ hasDiscount && __( 'View discounted products', 'jetpack' ) }
-								{ ! hasDiscount && __( 'View discounted products', 'jetpack' ) }
+								{ ! hasDiscount && __( 'View products', 'jetpack' ) }
 							</Button>
 						) }
 					</div>

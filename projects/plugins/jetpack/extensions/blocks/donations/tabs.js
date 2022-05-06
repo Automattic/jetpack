@@ -6,7 +6,6 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -15,13 +14,12 @@ import { __ } from '@wordpress/i18n';
  */
 import Controls from './controls';
 import Tab from './tab';
-import StripeNudge from '../../shared/components/stripe-nudge';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
 
 const Tabs = props => {
-	const { attributes, className, products, setAttributes, shouldUpgrade, stripeConnectUrl } = props;
+	const { attributes, className, products, setAttributes } = props;
 	const { oneTimeDonation, monthlyDonation, annualDonation } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
-	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
 	const isTabActive = useCallback( tab => activeTab === tab, [ activeTab ] );
 
@@ -67,13 +65,7 @@ const Tabs = props => {
 
 	return (
 		<div className={ className }>
-			{ ! shouldUpgrade && stripeConnectUrl && (
-				<StripeNudge
-					blockName="donations"
-					postId={ postId }
-					stripeConnectUrl={ stripeConnectUrl }
-				/>
-			) }
+			<StripeNudge blockName="donations" />
 			<div className="donations__container">
 				{ Object.keys( tabs ).length > 1 && (
 					<div className="donations__nav">

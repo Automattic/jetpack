@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 
 /**
@@ -10,6 +10,7 @@ import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import GoBackLink from '../go-back-link';
 import restApi from '@automattic/jetpack-api';
+import useAnalytics from '../../hooks/use-analytics';
 
 /**
  * The AddLicenseScreen component of the My Jetpack app.
@@ -23,15 +24,30 @@ export default function AddLicenseScreen() {
 		restApi.setApiNonce( apiNonce );
 	}, [] );
 
+	const { recordEvent } = useAnalytics();
+
+	const onClickGoBack = useCallback(
+		event => {
+			recordEvent( 'jetpack_myjetpack_license_activation_back_link_click' );
+
+			if ( document.referrer.includes( window.location.host ) ) {
+				// Prevent default here to minimize page change within the My Jetpack app.
+				event.preventDefault();
+				history.back();
+			}
+		},
+		[ recordEvent ]
+	);
+
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
-					<GoBackLink onClick={ null } />
+					<GoBackLink onClick={ onClickGoBack } />
 				</Col>
 				<Col>
 					<ActivationScreen
-						siteRawUrl={ window?.myJetpackInitialState?.rawUrl }
+						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
 						onActivationSuccess={ undefined }
 						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
 						currentRecommendationsStep={ null }

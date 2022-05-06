@@ -86,5 +86,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	return;
 }
 
+register_activation_hook( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH, array( 'Jetpack_Social', 'plugin_activation' ) );
+
 // Main plugin class.
 new Jetpack_Social();

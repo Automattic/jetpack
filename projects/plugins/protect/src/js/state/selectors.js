@@ -4,6 +4,7 @@ const selectors = {
 	getStatus: state => state.status || {},
 	getStatusIsFetching: state => state.statusIsFetching || false,
 	getWpVersion: state => state.wpVersion || '',
+	getSecurityBundle: state => state.securityBundle || {},
 };
 
 export default selectors;

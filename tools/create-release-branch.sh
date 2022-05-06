@@ -66,7 +66,7 @@ if [[ ! "$NORMALIZED_VERSION" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
 	die "\"$NORMALIZED_VERSION\" does not appear to be a valid version number."
 fi
 CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN_DIR")
-if pnpx semver --range "<= $("$BASE/tools/plugin-version.sh" -n 3 -v "$CUR_VERSION")" "$("$BASE/tools/plugin-version.sh" -n 3 -v "$NORMALIZED_VERSION")" &>/dev/null; then
+if pnpm semver --range "<= $("$BASE/tools/plugin-version.sh" -n 3 -v "$CUR_VERSION")" "$("$BASE/tools/plugin-version.sh" -n 3 -v "$NORMALIZED_VERSION")" &>/dev/null; then
 	proceed_p "Version $NORMALIZED_VERSION <= $CUR_VERSION."
 fi
 
