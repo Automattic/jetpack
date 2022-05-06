@@ -44,7 +44,7 @@ const defaultConfig = {
 	},
 	// Work around some packages that only provide module versions in jest's jsdom environment.
 	// https://github.com/microsoft/accessibility-insights-web/pull/5421#issuecomment-1109168149
-	resolver: `${ __dirname }/jest-resolver.js`,
+	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
 };
 
 module.exports = defaultConfig;
