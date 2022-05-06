@@ -636,13 +636,8 @@ const VideoPressEdit = CoreVideoEdit =>
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
 							/>
 							<SelectControl
-<<<<<<< add/video-privacy-messaging
 								label={ __( 'Video Privacy', 'jetpack' ) }
-								help={ __( 'Restrict views to members of this site', 'jetpack' ) }
-=======
-								label={ __( 'Privacy', 'jetpack' ) }
 								help={ this.getPrivacySettingHelp( privacySetting ) }
->>>>>>> master
 								onChange={ this.onChangePrivacySetting }
 								value={ privacySetting }
 								options={ [
