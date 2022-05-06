@@ -1742,10 +1742,10 @@ importers:
       config: 3.3.7
       localtunnel: 2.0.2
       lodash: 4.17.21
+      node-fetch: 2.6.7
       pm2: 5.2.0
       shell-escape: 0.2.0
       winston: 3.6.0
-      wpapi: 1.2.2
       yargs: 17.4.0
     devDependencies:
       '@playwright/test': 1.20.1
@@ -1756,10 +1756,10 @@ importers:
       config: 3.3.7
       localtunnel: 2.0.2
       lodash: 4.17.21
+      node-fetch: 2.6.7
       pm2: 5.2.0
       shell-escape: 0.2.0
       winston: 3.6.0
-      wpapi: 1.2.2
       yargs: 17.4.0
 
   tools/js-test-runner:
@@ -10321,10 +10321,6 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
-  /cookiejar/2.1.3:
-    resolution: {integrity: sha512-JxbCBUdrfr6AQjOXrxoTvAMJO4HBTUIlBzslcJPAz+/KT8yk53fXun51u+RenNYvad/+Vc2DIz5o9UxlCDymFQ==}
-    dev: true
-
   /copy-descriptor/0.1.1:
     resolution: {integrity: sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=}
     engines: {node: '>=0.10.0'}
@@ -12743,11 +12739,6 @@ packages:
     engines: {node: '>=0.4.x'}
     dev: true
 
-  /formidable/1.2.6:
-    resolution: {integrity: sha512-KcpbcpuLNOwrEjnbpMC0gS+X8ciDoZE1kkqzat4a8vrprf+s9pKNQ/QIwWfbfs4ltgmFl3MD177SNTkve3BwGQ==}
-    deprecated: 'Please upgrade to latest, formidable@v2 or formidable@v3! Check these notes: https://bit.ly/2ZEqIau'
-    dev: true
-
   /forwarded/0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
     engines: {node: '>= 0.6'}
@@ -15064,10 +15055,6 @@ packages:
       type-check: 0.4.0
     dev: true
 
-  /li/1.3.0:
-    resolution: {integrity: sha1-IsWbyu+qmo7zWc91l4TkvxBq6hs=}
-    dev: true
-
   /libsodium-wrappers/0.7.10:
     resolution: {integrity: sha512-pO3F1Q9NPLB/MWIhehim42b/Fwb30JNScCNh8TcQ/kIc+qGLQch8ag8wb0keK3EP5kbGakk1H8Wwo7v+36rNQg==}
     dependencies:
@@ -15727,12 +15714,6 @@ packages:
   /mime/1.6.0:
     resolution: {integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==}
     engines: {node: '>=4'}
-    hasBin: true
-    dev: true
-
-  /mime/2.6.0:
-    resolution: {integrity: sha512-USPkMeET31rOMiarsBNIHZKLGgvKc/LrjofAnBlOttf5ajRvqiRA8QsenbcooctK6d6Ts6aqZXBA+XbkKthiQg==}
-    engines: {node: '>=4.0.0'}
     hasBin: true
     dev: true
 
@@ -16593,12 +16574,6 @@ packages:
       error-ex: 1.3.2
       json-parse-even-better-errors: 2.3.1
       lines-and-columns: 1.2.4
-
-  /parse-link-header/1.0.1:
-    resolution: {integrity: sha1-vt/g0hGK64S+deewJUGeyKYRQKc=}
-    dependencies:
-      xtend: 4.0.2
-    dev: true
 
   /parse-node-version/1.0.1:
     resolution: {integrity: sha512-3YHlOa/JgH6Mnpr05jP9eDG254US9ek25LyIxZlDItp2iJtwyaXQb57lBYLdT3MowkUFYEV2XXNAYIPlESvJlA==}
@@ -20162,24 +20137,6 @@ packages:
     resolution: {integrity: sha512-SrSDzNasOCBTo7C2N9geFwydg/2bmdkWXd4gJirtq82m5JBYtR2+Ialck8czmfBLIdPxCOotlgJESPa8C1RqvA==}
     dev: true
 
-  /superagent/4.1.0:
-    resolution: {integrity: sha512-FT3QLMasz0YyCd4uIi5HNe+3t/onxMyEho7C3PSqmti3Twgy2rXT4fmkTz6wRL6bTF4uzPcfkUCa8u4JWHw8Ag==}
-    engines: {node: '>= 6.0'}
-    deprecated: Please upgrade to v7.0.2+ of superagent.  We have fixed numerous issues with streams, form-data, attach(), filesystem errors not bubbling up (ENOENT on attach()), and all tests are now passing.  See the releases tab for more information at <https://github.com/visionmedia/superagent/releases>.
-    dependencies:
-      component-emitter: 1.3.0
-      cookiejar: 2.1.3
-      debug: 4.3.4
-      form-data: 2.5.1
-      formidable: 1.2.6
-      methods: 1.1.2
-      mime: 2.6.0
-      qs: 6.10.3
-      readable-stream: 3.6.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /supercluster/7.1.5:
     resolution: {integrity: sha512-EulshI3pGUM66o6ZdH3ReiFcvHpM3vAigyK+vcxdjpJyEbIIrtbmBdY23mGgnI24uXiGFvrGq9Gkum/8U7vJWg==}
     dependencies:
@@ -21528,17 +21485,6 @@ packages:
     resolution: {integrity: sha512-+JHkqs9LC/JPp51yy1hzs3lQ7qeuWCwOcSzpQNeeY/G7oSpnF61vxt7hRh87zNRTr6ob2ndy0W8rVzhgrcA+Gw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
-    dev: true
-
-  /wpapi/1.2.2:
-    resolution: {integrity: sha512-lkgi8Gjav3SArrCkNpG61ZnmCyamXKB+SjaR8tAoHhSZbJRTeabIlsdqUUAN3JGbVY3ht8p+EGdpCFIaanI5+w==}
-    dependencies:
-      li: 1.3.0
-      parse-link-header: 1.0.1
-      qs: 6.10.3
-      superagent: 4.1.0
-    transitivePeerDependencies:
-      - supports-color
     dev: true
 
   /wrap-ansi/3.0.1:
