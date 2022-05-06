@@ -69,17 +69,19 @@ describe( 'AdVisibilityToggle', () => {
 		expect( screen.getByText( help ) ).toBeInTheDocument();
 	} );
 
-	test( 'calls onChange when checkbox clicked', () => {
+	test( 'calls onChange when checkbox clicked', async () => {
+		const user = userEvent.setup();
 		render( <AdVisibilityToggle { ...defaultProps } /> );
 
-		userEvent.click( screen.getByRole( 'checkbox' ) );
+		await user.click( screen.getByRole( 'checkbox' ) );
 		expect( onChange ).toHaveBeenCalledWith( true );
 	} );
 
-	test( 'calls onChange when label clicked', () => {
+	test( 'calls onChange when label clicked', async () => {
+		const user = userEvent.setup();
 		render( <AdVisibilityToggle { ...checkedProps } /> );
 
-		userEvent.click( screen.getByText( 'Hide on mobile' ) );
+		await user.click( screen.getByText( 'Hide on mobile' ) );
 		expect( onChange ).toHaveBeenCalledWith( false );
 	} );
 } );
@@ -101,9 +103,10 @@ describe( 'FormatPicker', () => {
 	} );
 
 	test( 'displays dropdown with available options on toolbar button click', async () => {
+		const user = userEvent.setup();
 		render( <FormatPicker { ...defaultProps } /> );
 
-		userEvent.click( screen.getByLabelText( 'Pick an ad format' ) );
+		await user.click( screen.getByLabelText( 'Pick an ad format' ) );
 		await waitFor( () => screen.getByText( defaultFormat.name ) );
 
 		AD_FORMATS.forEach( format => {
@@ -112,9 +115,10 @@ describe( 'FormatPicker', () => {
 	} );
 
 	test( 'selects current format in dropdown', async () => {
+		const user = userEvent.setup();
 		render( <FormatPicker { ...defaultProps } /> );
 
-		userEvent.click( screen.getByLabelText( 'Pick an ad format' ) );
+		await user.click( screen.getByLabelText( 'Pick an ad format' ) );
 		await waitFor( () => screen.getByText( defaultFormat.name ) );
 
 		expect( screen.getByText( defaultFormat.name ).innerHTML ).toMatch( /[A-Za-z0-9 ]+/ );
@@ -127,9 +131,10 @@ describe( 'FormatPicker', () => {
 	} );
 
 	test( 'applies format picker class to menu', async () => {
+		const user = userEvent.setup();
 		render( <FormatPicker { ...defaultProps } /> );
 
-		userEvent.click( screen.getByLabelText( 'Pick an ad format' ) );
+		await user.click( screen.getByLabelText( 'Pick an ad format' ) );
 		await waitFor( () => screen.getByText( defaultFormat.name ) );
 		const menu = screen.getByRole( 'menu' );
 
@@ -138,12 +143,13 @@ describe( 'FormatPicker', () => {
 	} );
 
 	test( 'calls onChange when option is clicked', async () => {
+		const user = userEvent.setup();
 		render( <FormatPicker { ...defaultProps } /> );
 		const leaderboard = getFormat( 'leaderboard' );
 
-		userEvent.click( screen.getByLabelText( 'Pick an ad format' ) );
+		await user.click( screen.getByLabelText( 'Pick an ad format' ) );
 		await waitFor( () => screen.getByText( leaderboard.name ) );
-		userEvent.click( screen.getByText( leaderboard.name ) );
+		await user.click( screen.getByText( leaderboard.name ) );
 
 		expect( onChange ).toHaveBeenCalledWith( leaderboard.tag );
 	} );

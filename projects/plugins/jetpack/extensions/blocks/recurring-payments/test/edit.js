@@ -26,7 +26,6 @@ import Edit from '../edit';
 
 import { settings } from '../../button';
 import { registerBlocks } from '../../../shared/test/block-fixtures';
-import userEvent from '@testing-library/user-event';
 
 registerBlocks( [ { name: 'jetpack/button', settings } ] );
 
