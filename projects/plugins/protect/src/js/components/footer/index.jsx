@@ -21,8 +21,31 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import styles from './styles.module.scss';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { SECURITY_BUNDLE } from '../admin-page';
+import useProtectData from '../../hooks/use-protect-data';
 
-const GetSecurityBundle = ( { onAdd, hasCheckoutStarted } ) => {
+const ProductPromotion = ( { onSecurityAdd, hasCheckoutStarted, hasSecurityBundle } ) => {
+	if ( ! hasSecurityBundle ) {
+		const getStartedUrl = getRedirectUrl( 'protect-footer-get-started-scan' );
+
+		return (
+			<div className={ styles.section }>
+				<Title>
+					{ __( 'Increase your site protection with Jetpack Scan', 'jetpack-protect' ) }
+				</Title>
+				<Text className={ styles.paragraphs }>
+					{ __(
+						'With your Jetpack Security bundle you have access to Jetpack Scan. Automatically scan your site from the Cloud, get email notifications and perform one-click fixes.',
+						'jetpack-protect'
+					) }
+				</Text>
+
+				<Button variant="external-link" weight="regular" href={ getStartedUrl }>
+					{ __( 'Get Started', 'jetpack-protect' ) }
+				</Button>
+			</div>
+		);
+	}
+
 	return (
 		<div className={ styles.section }>
 			<Title>{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }</Title>
@@ -33,7 +56,7 @@ const GetSecurityBundle = ( { onAdd, hasCheckoutStarted } ) => {
 				) }
 			</Text>
 
-			<Button variant="secondary" onClick={ onAdd } isLoading={ hasCheckoutStarted }>
+			<Button variant="secondary" onClick={ onSecurityAdd } isLoading={ hasCheckoutStarted }>
 				{ __( 'Get Jetpack Security', 'jetpack-protect' ) }
 			</Button>
 		</div>
@@ -73,21 +96,27 @@ const Footer = () => {
 		run
 	);
 
+	const { securityBundle } = useProtectData();
+	const { hasRequiredPlan } = securityBundle;
+
 	return (
 		<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 			<Col className={ styles.icons }>
 				<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ true }>
 					<Col>
-						<IconsCard products={ [ 'backup', 'scan', 'anti-spam' ] } />
+						<IconsCard
+							products={ ! hasRequiredPlan ? [ 'backup', 'scan', 'anti-spam' ] : [ 'scan' ] }
+						/>
 					</Col>
 				</Container>
 			</Col>
 			<Col>
 				<Dialog
 					primary={
-						<GetSecurityBundle
-							onAdd={ getSecurityBundle }
+						<ProductPromotion
+							onSecurityAdd={ getSecurityBundle }
 							hasCheckoutStarted={ hasCheckoutStarted }
+							hasSecurityBundle={ ! hasRequiredPlan }
 						/>
 					}
 					secondary={ <FooterInfo /> }
