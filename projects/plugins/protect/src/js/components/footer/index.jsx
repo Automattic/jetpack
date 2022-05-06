@@ -25,6 +25,8 @@ import useProtectData from '../../hooks/use-protect-data';
 
 const ProductPromotion = ( { onSecurityAdd, hasCheckoutStarted, hasSecurityBundle } ) => {
 	if ( ! hasSecurityBundle ) {
+		const getStartedUrl = getRedirectUrl( 'protect-footer-get-started-scan' );
+
 		return (
 			<div className={ styles.section }>
 				<Title>
@@ -37,7 +39,7 @@ const ProductPromotion = ( { onSecurityAdd, hasCheckoutStarted, hasSecurityBundl
 					) }
 				</Text>
 
-				<Button variant="external-link" weight="regular" href="#">
+				<Button variant="external-link" weight="regular" href={ getStartedUrl }>
 					{ __( 'Get Started', 'jetpack-protect' ) }
 				</Button>
 			</div>
