@@ -23,7 +23,7 @@
 	"devDependencies": {
 		"@babel/core": "7.17.9",
 		"babel-plugin-tester": "10.1.0",
-		"jest": "27.3.1"
+		"jest": "28.1.0"
 	},
 	"engines": {
 		"node": "^14.18.3 || ^16.13.2",
