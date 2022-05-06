@@ -110,7 +110,6 @@ export default function getRecordInfo(
 
 	return {
 		data: recordInfo,
-		tier: tierMaximumRecords,
 		recordCount: currentCount,
 		hasBeenIndexed,
 		hasValidData,
