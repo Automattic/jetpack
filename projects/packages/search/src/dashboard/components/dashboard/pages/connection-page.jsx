@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import Loading from './loading';
-import SearchPromotionBlock from '../search-promotion';
+import SearchPromotionBlock from 'components/search-promotion';
 import { STORE_ID } from 'store';
 
 import './connection-page.scss';

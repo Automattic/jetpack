@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import './search-promotion.scss';
+import './style.scss';
 
 /**
  * SearchPromotion component definition.
