@@ -22,15 +22,7 @@ import SearchDashboard from './pages/dashboard-page';
  * @returns {React.Component} WrappedDashboard component.
  */
 export default function WrappedDashboard() {
-	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
-
 	const { isFullyConnected } = useConnection();
-
-	const isLoading = useSelect(
-		select =>
-			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' )
-	);
 
 	const initializeAnalytics = () => {
 		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
@@ -56,9 +48,30 @@ export default function WrappedDashboard() {
 
 	return (
 		<>
+			{ ! isFullyConnected && <ConnectionPage /> }
+			{ isFullyConnected && <AfterConnectionPage /> }
+		</>
+	);
+}
+
+/**
+ * Returns ConnectionPage component if supports search otherwise UpsellPage component
+ *
+ * @returns {React.Component} AfterConnectionPage component.
+ */
+function ConnectionPage() {
+	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
+
+	const isLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' )
+	);
+
+	return (
+		<>
 			{ isLoading && <Loading /> }
-			{ ! isLoading && ! isFullyConnected && <SearchConnectionPage /> }
-			{ ! isLoading && isFullyConnected && <AfterConnectionPage /> }
+			{ ! isLoading && <SearchConnectionPage /> }
 		</>
 	);
 }
