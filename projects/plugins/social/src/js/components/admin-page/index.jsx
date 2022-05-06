@@ -69,8 +69,13 @@ const ConnectionItems = () => {
 
 const ModuleToggle = () => {
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
-	const isModuleEnabled = useSelect( select => select( STORE_ID ).isModuleEnabled() );
-	const isUpdating = useSelect( select => select( STORE_ID ).isUpdatingJetpackSettings() );
+	const { isModuleEnabled, isUpdating } = useSelect( select => {
+	    const store = select( STORE_ID );
+	    return {
+	        isModuleEnabled: store.isModuleEnabled(),
+	        isUpdating: store.isUpdatingJetpackSettings(),
+	    };
+	);
 
 	const toggleModule = useCallback( () => {
 		const newOption = {
