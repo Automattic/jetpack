@@ -673,7 +673,6 @@ class Jetpack_Gutenberg {
 			);
 			$blog_id                   = get_current_blog_id();
 			$is_current_user_connected = true;
-			$publicize_connection_url  = '/wpcom/v2/publicize/connection-test-results';
 		} else {
 			$user_data                 = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
 			$blog_id                   = Jetpack_Options::get_option( 'id', 0 );
@@ -711,7 +710,6 @@ class Jetpack_Gutenberg {
 					 * @param bool true Enable Pocket Casts block variation in block editor context. Defaults to false.
 					 */
 					'pocket_casts_enabled'      => apply_filters( 'jetpack_block_editor_pocket_casts_feature', false ),
-					'publicize_connection_url'  => $publicize_connection_url,
 				),
 				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
