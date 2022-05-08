@@ -29,7 +29,7 @@ import './dashboard-page.scss';
  * @param {string} props.isLoading - should page show Loading spinner.
  * @returns {React.Component} Search dashboard component.
  */
-export default function SearchDashboardPage( { isLoading = false } ) {
+export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
