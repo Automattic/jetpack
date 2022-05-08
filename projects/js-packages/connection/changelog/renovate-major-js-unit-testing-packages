@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update tests for updated `@testing-library/user-event`.

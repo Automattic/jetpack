@@ -38,9 +38,10 @@ describe( 'GoogleCalendarInspectorControls', () => {
 	} );
 
 	test( 'shows embed form when calendar settings expanded', async () => {
+		const user = userEvent.setup();
 		render( <GoogleCalendarInspectorControls { ...defaultProps } /> );
 
-		userEvent.click( screen.getByText( 'Calendar settings' ) );
+		await user.click( screen.getByText( 'Calendar settings' ) );
 
 		const button = await screen.findByText( 'Embed' );
 
@@ -52,9 +53,10 @@ describe( 'GoogleCalendarInspectorControls', () => {
 	} );
 
 	test( 'calls onSubmit when button clicked', async () => {
+		const user = userEvent.setup();
 		render( <GoogleCalendarInspectorControls { ...defaultProps } /> );
 
-		userEvent.click( screen.getByText( 'Calendar settings' ) );
+		await user.click( screen.getByText( 'Calendar settings' ) );
 		const button = await screen.findByText( 'Embed' );
 		await fireEvent.submit( button );
 
@@ -62,11 +64,13 @@ describe( 'GoogleCalendarInspectorControls', () => {
 	} );
 
 	test( 'calls onChange when user updates embed value', async () => {
+		const user = userEvent.setup();
 		render( <GoogleCalendarInspectorControls { ...defaultProps } /> );
 
-		userEvent.click( screen.getByText( 'Calendar settings' ) );
+		await user.click( screen.getByText( 'Calendar settings' ) );
 		const textarea = await screen.findByLabelText( 'Google Calendar URL or iframe' );
-		userEvent.paste( textarea, 'https://calendar.google.com/calendar/embed?src=newcalendarurl' );
+		await user.click( textarea );
+		await user.paste( 'https://calendar.google.com/calendar/embed?src=newcalendarurl' );
 
 		expect( onChange ).toHaveBeenCalled();
 	} );
