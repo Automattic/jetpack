@@ -34,9 +34,10 @@ describe( 'SearchForm', () => {
 		expect( screen.getByPlaceholderText( 'Enter search terms, e.g. cat…' ).value ).toBe( 'Woolloomooloo' );
 	} );
 
-	test( 'loads and applies passed props to children', () => {
+	test( 'loads and applies passed props to children', async () => {
+		const user = userEvent.setup();
 		render( <SearchForm { ...defaultProps } value={ '' }/> );
-		userEvent.type( screen.getByPlaceholderText( 'Enter search terms, e.g. cat…' ), 'Hi' );
+		await user.type( screen.getByPlaceholderText( 'Enter search terms, e.g. cat…' ), 'Hi' );
 		expect( onChange ).toHaveBeenCalledTimes( 2 );
 	} );
 
