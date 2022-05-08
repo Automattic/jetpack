@@ -50,9 +50,10 @@ describe( 'EditUrlForm', () => {
 		expect( onSubmit ).toHaveBeenCalled();
 	} );
 
-	test( 'calls setUrl when updating input field', () => {
+	test( 'calls setUrl when updating input field', async () => {
+		const user = userEvent.setup();
 		render( <EditUrlForm { ...defaultProps } /> );
-		userEvent.type( screen.getByLabelText( 'Pinterest URL' ), 'blah' );
+		await user.type( screen.getByLabelText( 'Pinterest URL' ), 'blah' );
 
 		expect( setUrl ).toHaveBeenCalledTimes( 4 );
 	} );

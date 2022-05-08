@@ -25,9 +25,10 @@ describe( 'PinterestBlockControls', () => {
 		setEditingState.mockClear();
 	} );
 
-	test( 'calls setEditingState when clicking edit icon', () => {
+	test( 'calls setEditingState when clicking edit icon', async () => {
+		const user = userEvent.setup();
 		render( <PinterestBlockControls { ...defaultProps } /> );
-		userEvent.click( screen.getByRole( 'button' ) );
+		await user.click( screen.getByRole( 'button' ) );
 		expect( setEditingState ).toHaveBeenCalledWith( true );
 	} );
 } );

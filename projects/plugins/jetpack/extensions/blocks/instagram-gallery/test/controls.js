@@ -42,12 +42,13 @@ describe( 'InstagramGalleryInspectorControls', () => {
 		setAttributes.mockClear();
 	} );
 
-	test( 'renders account settings and allows the connected account to be disconnected', () => {
+	test( 'renders account settings and allows the connected account to be disconnected', async () => {
+		const user = userEvent.setup();
 		render( <InstagramGalleryInspectorControls { ...defaultProps } /> );
 
 		expect( screen.getByText( 'Account Settings' ) ).toBeInTheDocument();
 		expect( screen.getByText( '@testjetpackuser' ) ).toBeInTheDocument();
-		userEvent.click( screen.getByText( 'Disconnect your account' ) );
+		await user.click( screen.getByText( 'Disconnect your account' ) );
 
 		expect( disconnectFromService ).toHaveBeenCalledWith( 'test-access-token' );
 	} );
@@ -73,11 +74,13 @@ describe( 'InstagramGalleryInspectorControls', () => {
 		expect( screen.getAllByText( 'There are currently only 3 posts in your Instagram account.' )[0] ).toBeInTheDocument();
 	} );
 
-	test( 'updates count when changing number of posts', () => {
+	test( 'updates count when changing number of posts', async () => {
+		const user = userEvent.setup();
 		const propsSmallCount = { ...defaultProps, attributes: { ...defaultAttributes, count: 1 } };
 		render( <InstagramGalleryInspectorControls { ...propsSmallCount } /> );
 
-		userEvent.paste( screen.getAllByLabelText( 'Number of Posts' )[1], '5' );
+		await user.click( screen.getAllByLabelText( 'Number of Posts' )[1] );
+		await user.paste( '5' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { count: 15 } );
 	} );
@@ -93,20 +96,23 @@ describe( 'InstagramGalleryInspectorControls', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { columns: 3 } );
 	} );
 
-	test( 'updates spacing when changing image spacing', () => {
+	test( 'updates spacing when changing image spacing', async () => {
+		const user = userEvent.setup();
 		const propsSmallCount = { ...defaultProps, attributes: { ...defaultAttributes, spacing: 0 } };
 		render( <InstagramGalleryInspectorControls { ...propsSmallCount } /> );
 
-		userEvent.paste( screen.getAllByLabelText( 'Image Spacing (px)' )[1], '5' );
+		await user.click( screen.getAllByLabelText( 'Image Spacing (px)' )[1] );
+		await user.paste( '5' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { spacing: 5 } );
 	} );
 
-	test( 'updates isStackedOnMobile when toggling stack on mobile', () => {
+	test( 'updates isStackedOnMobile when toggling stack on mobile', async () => {
+		const user = userEvent.setup();
 		const propsSmallCount = { ...defaultProps, attributes: { ...defaultAttributes, isStackedOnMobile: true } };
 		render( <InstagramGalleryInspectorControls { ...propsSmallCount } /> );
 
-		userEvent.click( screen.getByLabelText( 'Stack on mobile' ) );
+		await user.click( screen.getByLabelText( 'Stack on mobile' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { isStackedOnMobile: false } );
 	} );

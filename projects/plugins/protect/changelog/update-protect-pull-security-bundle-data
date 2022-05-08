@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Protect: request and expose to the client the Security bundle data
