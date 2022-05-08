@@ -13,7 +13,7 @@ import useConnection from './use-connection';
 import { STORE_ID } from 'store';
 import SearchConnectionPage from './pages/connection-page';
 import UpsellPage from './pages/upsell-page';
-import SearchDashboard from './pages/dashboard-page';
+import SearchDashboardPage from './pages/dashboard-page';
 
 /**
  * Return appropriate components.
@@ -71,7 +71,7 @@ function AfterConnectionPage() {
 
 	return (
 		<>
-			{ supportsSearch && <SearchDashboard isLoading={ isLoading } /> }
+			{ supportsSearch && <SearchDashboardPage isLoading={ isLoading } /> }
 			{ ! supportsSearch && <UpsellPage isLoading={ isLoading } /> }
 		</>
 	);

@@ -5,9 +5,9 @@ import { useSelect } from '@wordpress/data';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 
 /**
- * Expose the `connectionStatus` state object and `renderConnectScreen()` to show a component used for connection.
+ * Expose the `connectionStatus`, `isFullyConnected` state object
  *
- * @returns {Array} connectionStatus, renderConnectScreen
+ * @returns {Object} connectionStatus, isFullyConnected
  */
 export default function useConnection() {
 	const connectionStatus = useSelect(
