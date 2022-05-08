@@ -7,7 +7,7 @@ import React from 'react';
  * Internal dependencies
  */
 import { Spinner } from '@automattic/jetpack-components';
-import './loading.scss';
+import './style.scss';
 
 /**
  * Defines a centerized spinner

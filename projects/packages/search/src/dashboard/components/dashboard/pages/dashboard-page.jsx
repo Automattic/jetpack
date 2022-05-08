@@ -18,7 +18,7 @@ import MockedSearch from 'components/mocked-search';
 import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
 import RecordMeter from 'components/record-meter';
-import Loading from './loading';
+import Loading from 'components/loading';
 
 import './dashboard-page.scss';
 
