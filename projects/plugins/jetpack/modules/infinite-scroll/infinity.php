@@ -285,7 +285,7 @@ class The_Neverending_Home_Page {
 	 * @uses self::wp_query, self::get_settings, apply_filters
 	 * @return int
 	 */
-	static function posts_per_page() {
+	public static function posts_per_page() {
 		$posts_per_page             = self::get_settings()->posts_per_page ? self::get_settings()->posts_per_page : self::wp_query()->get( 'posts_per_page' );
 		$posts_per_page_core_option = get_option( 'posts_per_page' );
 
@@ -324,7 +324,7 @@ class The_Neverending_Home_Page {
 	 * @uses apply_filters
 	 * @return object
 	 */
-	static function wp_query() {
+	public static function wp_query() {
 		global $wp_the_query;
 		/**
 		 * Filter the Infinite Scroll query object.
@@ -341,7 +341,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * Has infinite scroll been triggered?
 	 */
-	static function got_infinity() {
+	public static function got_infinity() {
 		/**
 		 * Filter the parameter used to check if Infinite Scroll has been triggered.
 		 *
@@ -351,13 +351,13 @@ class The_Neverending_Home_Page {
 		 *
 		 * @param bool isset( $_GET[ 'infinity' ] ) Return true if the "infinity" parameter is set.
 		 */
-		return apply_filters( 'infinite_scroll_got_infinity', isset( $_GET['infinity'] ) );
+		return apply_filters( 'infinite_scroll_got_infinity', isset( $_GET['infinity'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
 	}
 
 	/**
 	 * Is this guaranteed to be the last batch of posts?
 	 */
-	static function is_last_batch() {
+	public static function is_last_batch() {
 		/**
 		 * Override whether or not this is the last batch for a request
 		 *
@@ -378,7 +378,7 @@ class The_Neverending_Home_Page {
 		$posts_per_page = self::posts_per_page();
 
 		// This is to cope with an issue in certain themes or setups where posts are returned but found_posts is 0.
-		if ( 0 == $entries ) {
+		if ( 0 === $entries ) {
 			return (bool) ( count( self::wp_query()->posts ) < $posts_per_page );
 		}
 		$paged = max( 1, self::wp_query()->get( 'paged' ) );
@@ -400,12 +400,15 @@ class The_Neverending_Home_Page {
 	/**
 	 * The more tag will be ignored by default if the blog page isn't our homepage.
 	 * Let's force the $more global to false.
+	 *
+	 * @param array $array - the_post array.
+	 * @return array
 	 */
-	function preserve_more_tag( $array ) {
+	public function preserve_more_tag( $array ) {
 		global $more;
 
 		if ( self::got_infinity() ) {
-			$more = 0; // 0 = show content up to the more tag. Add more link.
+			$more = 0; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- 0 = show content up to the more tag. Add more link.
 		}
 
 		return $array;
@@ -421,7 +424,7 @@ class The_Neverending_Home_Page {
 	 * @action admin_init
 	 * @return null
 	 */
-	function settings_api_init() {
+	public function settings_api_init() {
 		if ( ! current_theme_supports( 'infinite-scroll' ) ) {
 			return;
 		}
@@ -442,7 +445,10 @@ class The_Neverending_Home_Page {
 		register_setting( 'reading', self::$option_name_enabled, 'esc_attr' );
 	}
 
-	function infinite_setting_html_calypso_placeholder() {
+	/**
+	 * Render the redirect link to the infinite scroll settings in Calypso.
+	 */
+	public function infinite_setting_html_calypso_placeholder() {
 		$details     = get_blog_details();
 		$writing_url = Redirect::get_url( 'calypso-settings-writing', array( 'site' => $details->domain ) );
 		echo '<span>' . sprintf(
@@ -457,14 +463,16 @@ class The_Neverending_Home_Page {
 	 * HTML code to display a checkbox true/false option
 	 * for the infinite_scroll setting.
 	 */
-	function infinite_setting_html() {
+	public function infinite_setting_html() {
 		$notice = '<em>' . __( 'We&rsquo;ve changed this option to a click-to-scroll version for you since you have footer widgets in Appearance &rarr; Widgets, or your theme uses click-to-scroll as the default behavior.', 'jetpack' ) . '</em>';
 
 		// If the blog has footer widgets, show a notice instead of the checkbox
-		if ( self::get_settings()->footer_widgets || 'click' == self::get_settings()->requested_type ) {
-			echo '<label>' . $notice . '</label>';
+		if ( self::get_settings()->footer_widgets || 'click' === self::get_settings()->requested_type ) {
+			// @todo find out if this is even rendered any more and escape it if so.
+			echo '<label>' . $notice . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we know what the HTML is.
 		} else {
 			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
+			// translators: the number of posts to show on each page load.
 			echo '<p class="description">' . esc_html( sprintf( _n( 'Shows %s post on each load.', 'Shows %s posts on each load.', self::posts_per_page(), 'jetpack' ), number_format_i18n( self::posts_per_page() ) ) ) . '</p>';
 		}
 	}
@@ -476,7 +484,7 @@ class The_Neverending_Home_Page {
 	 * @action template_redirect
 	 * @return null
 	 */
-	function action_template_redirect() {
+	public function action_template_redirect() {
 		// Check that we support infinite scroll, and are on the home page.
 		if ( ! current_theme_supports( 'infinite-scroll' ) || ! self::archive_supports_infinity() ) {
 			return;
@@ -738,7 +746,7 @@ class The_Neverending_Home_Page {
 	 * @filter posts_where
 	 * @return string
 	 */
-	function query_time_filter( $where, $query ) {
+	public function query_time_filter( $where, $query ) {
 		if ( self::got_infinity() ) {
 			global $wpdb;
 
@@ -828,7 +836,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * Our own Ajax response, avoiding calling admin-ajax
 	 */
-	function ajax_response() {
+	public function ajax_response() {
 		// Only proceed if the url query has a key of "Infinity"
 		if ( ! self::got_infinity() ) {
 			return false;
