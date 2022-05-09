@@ -1284,7 +1284,7 @@ importers:
       focus-trap: 6.3.0
       fs-extra: 10.0.0
       glob: 7.1.6
-      gridicons: 3.3.1
+      gridicons: 3.4.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       jest-enzyme: 7.1.2
@@ -1385,7 +1385,7 @@ importers:
       fast-json-stable-stringify: 2.1.0
       filesize: 8.0.6
       focus-trap: 6.3.0
-      gridicons: 3.3.1_react@17.0.2
+      gridicons: 3.4.0_react@17.0.2
       jsdom: 19.0.0
       mapbox-gl: 1.13.0
       markdown-it: 12.3.2
@@ -1970,7 +1970,7 @@ packages:
       '@babel/runtime': 7.17.9
       '@wordpress/base-styles': 4.4.0
       classnames: 2.3.1
-      gridicons: 3.3.1_react@17.0.2
+      gridicons: 3.4.0_react@17.0.2
       lodash: 4.17.21
       prop-types: 15.8.1
       react: 17.0.2
@@ -13166,10 +13166,10 @@ packages:
     resolution: {integrity: sha512-HZRwumpOGUrHyxO5bqKZL0B0GlUpwtCAzZ42sgxUPniu33R1LSFH5yrIcBCHjkctCAh3mtWKcKd9J4vDDdeVHA==}
     dev: false
 
-  /gridicons/3.3.1_react@17.0.2:
-    resolution: {integrity: sha512-eQsmujjLptLtyhGuu31US3mXkcptYHkgEE/s277HWv+j6c3Z2gYyjoHcBKwSFbQwxbfhToRd5uzYimR2ExWJdQ==}
+  /gridicons/3.4.0_react@17.0.2:
+    resolution: {integrity: sha512-GikyCOcfhwHSN8tfsZvcWwWSaRLebVZCvDzfFg0X50E+dIAnG2phfFUTNa06dXA09kqRYCdnu8sPO8pSYO3UVA==}
     peerDependencies:
-      react: "^15.3.0 ||\_^16.0.0  || ^17"
+      react: 15 - 17
     dependencies:
       prop-types: 15.8.1
       react: 17.0.2
