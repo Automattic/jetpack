@@ -26,11 +26,9 @@ jobs:
           git clone -b master https://github.com/WordPress/WordPress-Coding-Standards.git ~/wpcs
           ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/wpcs
 
-      - name: Detect coding standard violations
-        run: |
-          CHANGED_FILES=$(git diff --name-only origin/master | grep '\.php' | xargs)
-          if [[ ! -z "$CHANGED_FILES" ]]; then
-            ~/.composer/vendor/bin/phpcs -q --report=checkstyle | cs2pr --graceful-warnings
-          else 
-            echo "Skipping the check. PHP files not changed! $CHANGED_FILES"
-          fi
+      - name: Detect coding standard violations (Expand for details)
+        continue-on-error: true
+        run: ~/.composer/vendor/bin/phpcs --report-full --report-checkstyle=./phpcs-report.xml
+
+      - name: Show coding standard violations in PR (Expand above section for details)
+        run: cs2pr --graceful-warnings ./phpcs-report.xml
