@@ -28,7 +28,7 @@ use function wp_send_json_error;
  *
  * @see private_blog_filter_jetpack_active_modules in wp-content/mu-plugins/private-blog.php (update this to an actual link when D41356-code lands)
  */
-const DISABLED_JETPACK_MODULES_WHEN_PRIVATE = [
+const DISABLED_JETPACK_MODULES_WHEN_PRIVATE = array(
 	'publicize',
 	'sharedaddy',
 	'json-api',
@@ -40,7 +40,7 @@ const DISABLED_JETPACK_MODULES_WHEN_PRIVATE = [
 	'verification-tools',
 	'videopress',
 	'wordads',
-];
+);
 
 /**
  * This function was used when the feature was in testing. Currently we're trying it for a some WP.com users.
@@ -212,7 +212,7 @@ function fetch_option_from_wpcom( $option ) {
 	if ( ! method_exists( $jetpack, 'get_cloud_site_options' ) ) {
 		return false;
 	}
-	$options = $jetpack->get_cloud_site_options( [ $option ] );
+	$options = $jetpack->get_cloud_site_options( array( $option ) );
 
 	return $options[ $option ];
 }
@@ -368,10 +368,10 @@ function hide_videopress_from_jetpack_plans_page() {
 function register_additional_jetpack_xmlrpc_methods( $methods ) {
 	return array_merge(
 		$methods,
-		[
+		array(
 			'jetpack.getClosestThumbnailSizeUrl' => '\Private_Site\get_closest_thumbnail_size_url',
 			'jetpack.getReadAccessCookies'       => '\Private_Site\get_read_access_cookies',
-		]
+		)
 	);
 }
 
@@ -383,13 +383,12 @@ function register_additional_jetpack_xmlrpc_methods( $methods ) {
  * @return array|false
  */
 function get_closest_thumbnail_size_url( $args ) {
-	[ $url, $width, $height ] = $args;
-	$id                       = attachment_url_to_postid( $url );
+	$id = attachment_url_to_postid( $args['url'] );
 	if ( ! $id ) {
 		return false;
 	}
 
-	$result = wp_get_attachment_image_src( $id, [ $width, $height ] );
+	$result = wp_get_attachment_image_src( $id, array( $args['width'], $args['height'] ) );
 	if ( ! $result ) {
 		return false;
 	}
@@ -406,9 +405,7 @@ function get_closest_thumbnail_size_url( $args ) {
  * @return array|WP_Error
  */
 function get_read_access_cookies( $args ) {
-	[ $user_id, $expiration ] = $args;
-
-	$user = get_user_by( 'id', intval( $user_id ) );
+	$user = get_user_by( 'id', intval( $args['user_id'] ) );
 	if ( ! $user ) {
 		return new WP_Error(
 			'account_not_found',
@@ -422,16 +419,16 @@ function get_read_access_cookies( $args ) {
 	add_filter( 'send_auth_cookies', '__return_false' );
 	add_filter(
 		'auth_cookie_expiration',
-		function () use ( $expiration ) {
-			return $expiration;
+		function () use ( $args ) {
+			return $args['expiration'];
 		},
 		1000
 	);
 	add_action(
 		'set_logged_in_cookie',
-		function ( $_cookie, $expiration ) use ( &$logged_in_cookie, &$logged_in_cookie_expiration ) {
+		function ( $_cookie, $args ) use ( &$logged_in_cookie, &$logged_in_cookie_expiration ) {
 			$logged_in_cookie            = $_cookie;
-			$logged_in_cookie_expiration = $expiration;
+			$logged_in_cookie_expiration = $args['expiration'];
 		},
 		10,
 		2
@@ -441,9 +438,9 @@ function get_read_access_cookies( $args ) {
 		return new WP_Error( 'authorization_failed', 'Authorization cookie was not found' );
 	}
 
-	return [
-		[ LOGGED_IN_COOKIE, $logged_in_cookie, $logged_in_cookie_expiration ],
-	];
+	return array(
+		array( LOGGED_IN_COOKIE, $logged_in_cookie, $logged_in_cookie_expiration ),
+	);
 }
 
 /**
@@ -472,13 +469,13 @@ function send_access_denied_error_response() {
 
 	if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || 'admin-ajax.php' === ( $wp->query_vars['pagename'] ?? '' ) ) {
 		wp_send_json_error(
-			[
+			array(
 				'code'    => 'private_site',
 				'message' => __(
 					'This site is private.',
 					'wpcomsh'
 				),
-			]
+			)
 		);
 	}
 
@@ -509,7 +506,7 @@ function original_request_url() {
 	// phpcs:disable WordPress.Security
 	$origin = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['SERVER_NAME'];
 
-	if ( ! empty( $_SERVER['SERVER_PORT'] ) && ! in_array( $_SERVER['SERVER_PORT'], [ 80, 443 ] ) ) { //phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+	if ( ! empty( $_SERVER['SERVER_PORT'] ) && ! in_array( $_SERVER['SERVER_PORT'], array( 80, 443 ) ) ) { //phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 		$origin .= ':' . $_SERVER['SERVER_PORT'];
 	}
 
@@ -581,18 +578,18 @@ function rest_dispatch_request( $dispatch_result, $request, $route ) { // phpcs:
 	 * Allow certain endpoints for plugin-based authentication methods.
 	 * These are "anchored" on the left side with `^/`, but not the right, so include the trailing `/`
 	 */
-	$allowed_routes = [
+	$allowed_routes = array(
 		'2fa/', // https://wordpress.org/plugins/application-passwords/
 		'jwt-auth/', // https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/
 		'oauth1/', // https://wordpress.org/plugins/rest-api-oauth1/
-	];
+	);
 
 	if ( preg_match( '#^/(' . implode( '|', $allowed_routes ) . ')#', $route ) ) {
 		return null;
 	}
 
 	if ( should_prevent_site_access() ) {
-		return new WP_Error( 'private_site', __( 'This site is private.', 'wpcomsh' ), [ 'status' => 403 ] );
+		return new WP_Error( 'private_site', __( 'This site is private.', 'wpcomsh' ), array( 'status' => 403 ) );
 	}
 
 	return null;
@@ -664,7 +661,7 @@ function blog_user_can( $capability = 'read' ) {
  * @return string The potentially modified bloginfo value
  */
 function mask_site_name( $value, $what ) {
-	if ( ! site_is_coming_soon() && should_prevent_site_access() && in_array( $what, [ 'name', 'title' ], true ) ) {
+	if ( ! site_is_coming_soon() && should_prevent_site_access() && in_array( $what, array( 'name', 'title' ), true ) ) {
 		return __( 'Private Site', 'wpcomsh' );
 	}
 
@@ -719,11 +716,11 @@ function is_site_preview() {
 function site_preview_source() {
 	// phpcs:disable WordPress.Security
 	$ua                = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
-	$apps_ua_fragments = [
+	$apps_ua_fragments = array(
 		'iphone-app'  => ' wp-iphone/',
 		'android-app' => ' wp-android/',
 		'desktop-app' => ' WordPressDesktop/',
-	];
+	);
 	foreach ( $apps_ua_fragments as $source => $fragment ) {
 		if ( strpos( $ua, $fragment ) !== false ) {
 			return $source;
@@ -882,10 +879,10 @@ function use_classic_editor_if_requested() {
 	add_action(
 		'classic_editor_plugin_settings',
 		function () {
-			return [
+			return array(
 				'editor'      => 'classic',
 				'allow-users' => false,
-			];
+			);
 		}
 	);
 
