@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
@@ -29,9 +29,8 @@ class The_Neverending_Home_Page {
 	 * Register actions and filters, plus parse IS settings
 	 *
 	 * @uses add_action, add_filter, self::get_settings
-	 * @return null
 	 */
-	function __construct() {
+	public function __construct() {
 		add_action( 'pre_get_posts', array( $this, 'posts_per_page_query' ) );
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
 		add_action( 'template_redirect', array( $this, 'action_template_redirect' ) );
@@ -58,10 +57,29 @@ class The_Neverending_Home_Page {
 	/**
 	 * Initialize our static variables
 	 */
-	static $the_time = null;
-	static $settings = null; // Don't access directly, instead use self::get_settings().
 
-	static $option_name_enabled = 'infinite_scroll';
+	/**
+	 * The time.
+	 *
+	 * @var null - I don't think this is used?
+	 */
+	public static $the_time = null;
+
+	/**
+	 * Settings.
+	 *
+	 * Don't access directly, instead use self::get_settings().
+	 *
+	 * @var array
+	 */
+	public static $settings = null;
+
+	/**
+	 * The enabled option name.
+	 *
+	 * @var string
+	 */
+	public static $option_name_enabled = 'infinite_scroll';
 
 	/**
 	 * Parse IS settings provided by theme
@@ -69,23 +87,23 @@ class The_Neverending_Home_Page {
 	 * @uses get_theme_support, infinite_scroll_has_footer_widgets, sanitize_title, add_action, get_option, wp_parse_args, is_active_sidebar
 	 * @return object
 	 */
-	static function get_settings() {
+	public static function get_settings() {
 		if ( self::$settings === null ) {
 			$css_pattern = '#[^A-Z\d\-_]#i';
 
-			$settings = $defaults = array(
+			$defaults = array(
 				'type'            => 'scroll', // scroll | click
 				'requested_type'  => 'scroll', // store the original type for use when logic overrides it
 				'footer_widgets'  => false, // true | false | sidebar_id | array of sidebar_ids -- last two are checked with is_active_sidebar
 				'container'       => 'content', // container html id
-				'wrapper'         => true, // true | false | html class
+				'wrapper'         => true, // true | false | html class -- the html class.
 				'render'          => false, // optional function, otherwise the `content` template part will be used
 				'footer'          => true, // boolean to enable or disable the infinite footer | string to provide an html id to derive footer width from
 				'footer_callback' => false, // function to be called to render the IS footer, in place of the default
-				'posts_per_page'  => false, // int | false to set based on IS type
+				'posts_per_page'  => false, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- int | false to set based on IS type
 				'click_handle'    => true, // boolean to enable or disable rendering the click handler div. If type is click and this is false, page must include its own trigger with the HTML ID `infinite-handle`.
 			);
-
+			$settings = $defaults;
 			// Validate settings passed through add_theme_support()
 			$_settings = get_theme_support( 'infinite-scroll' );
 
@@ -95,8 +113,9 @@ class The_Neverending_Home_Page {
 					foreach ( $_settings[0] as $key => $value ) {
 						switch ( $key ) {
 							case 'type':
-								if ( in_array( $value, array( 'scroll', 'click' ) ) ) {
-									$settings[ $key ] = $settings['requested_type'] = $value;
+								if ( in_array( $value, array( 'scroll', 'click' ), true ) ) {
+									$settings[ $key ]           = $settings['requested_type'];
+									$settings['requested_type'] = $value;
 								}
 
 								break;
@@ -114,7 +133,7 @@ class The_Neverending_Home_Page {
 
 							case 'container':
 							case 'wrapper':
-								if ( 'wrapper' == $key && is_bool( $value ) ) {
+								if ( 'wrapper' === $key && is_bool( $value ) ) {
 									$settings[ $key ] = $value;
 								} else {
 									$value = preg_replace( $css_pattern, '', $value );
@@ -228,7 +247,7 @@ class The_Neverending_Home_Page {
 			}
 
 			// Ensure that IS is enabled and no footer widgets exist if the IS type isn't already "click".
-			if ( 'click' != $settings['type'] ) {
+			if ( 'click' !== $settings['type'] ) {
 				// Check the setting status
 				$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
 
