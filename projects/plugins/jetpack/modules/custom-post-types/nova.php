@@ -802,7 +802,11 @@ class Nova_Restaurant {
 
 			// save a write if the order hasn't changed
 			if ( (int) $menu_order !== $post->menu_order ) {
-				wp_update_post( compact( 'id', 'menu_order' ) );
+				$args = array(
+					'ID'         => $id,
+					'menu_order' => $menu_order,
+				);
+				wp_update_post( $args );
 			}
 
 			// save a write if the term hasn't changed
