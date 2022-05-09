@@ -444,6 +444,9 @@ class WPCOM_Features {
 			self::JETPACK_SEARCH_MONTHLY,
 			self::JETPACK_COMPLETE_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
+			self::WPCOM_SEARCH,
+			self::WPCOM_SEARCH_MONTHLY,
+			self::WP_P2_PLUS_MONTHLY,
 		),
 		self::CLOUDFLARE_ANALYTICS          => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
@@ -795,6 +798,7 @@ class WPCOM_Features {
 		 * - Jetpack sites with any plan.
 		 */
 		self::UPLOAD_VIDEO_FILES            => array(
+			self::WP_P2_PLUS_MONTHLY,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
