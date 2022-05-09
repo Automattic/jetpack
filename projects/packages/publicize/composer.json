@@ -50,7 +50,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.2.x-dev"
+			"dev-master": "0.3.x-dev"
 		}
 	},
 	"config": {
