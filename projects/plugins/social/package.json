@@ -14,20 +14,20 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
-		"build-client": "pnpx webpack",
-		"build-concurrently": "pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
-		"build-production-concurrently": "pnpm run clean && pnpx concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"build-client": "webpack",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build-php'",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es build/",
-		"watch": "pnpm run build && pnpx webpack watch"
+		"watch": "pnpm run build && webpack watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@automattic/jetpack-components": "workspace:* || ^0.11",
-		"@automattic/jetpack-connection": "workspace:* || ^0.17",
+		"@automattic/jetpack-components": "workspace:* || ^0.12",
+		"@automattic/jetpack-connection": "workspace:* || ^0.18",
 		"@wordpress/data": "6.7.0",
 		"@wordpress/element": "4.5.0",
 		"@wordpress/date": "4.7.0",

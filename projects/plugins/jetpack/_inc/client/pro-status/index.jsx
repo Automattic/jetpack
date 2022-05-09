@@ -13,7 +13,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import { getPlanClass } from 'lib/plans/constants';
 import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getVaultPressScanThreatCount,
@@ -23,7 +22,7 @@ import {
 	isAkismetKeyValid,
 	isFetchingAkismetData,
 } from 'state/at-a-glance';
-import { getSitePlan, isFetchingSiteData } from 'state/site';
+import { getSitePlan, hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
 import { getRewindStatus } from 'state/rewind';
 import { getScanStatus } from 'state/scan';
 import { isOfflineMode } from 'state/connection';
@@ -177,6 +176,7 @@ class ProStatus extends React.Component {
 	};
 
 	render() {
+		const { purchasedVaultPressBackups, purchasedVaultPressScan, scanStatus } = this.props;
 		const sitePlan = this.props.sitePlan,
 			vpData = this.props.getVaultPressData();
 		let pluginSlug = '';
@@ -191,20 +191,19 @@ class ProStatus extends React.Component {
 			pluginSlug = 'akismet/akismet.php';
 		}
 
-		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
-			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
-			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
-			hasVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
-
-		const { scanStatus } = this.props;
+		const hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
+			usingVPBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
+			usingVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
 
 		const getStatus = ( feature, active, installed ) => {
 			switch ( feature ) {
 				case 'rewind':
+					// This is the newer backup technology powered by Jetpack Backup.
 					return this.getProActions( 'rewind_connected', 'rewind' );
 
 				case 'backups':
-					if ( hasFree && ! hasBackups && this.props.isCompact ) {
+					// This is the older backup technology powered by VaultPress.
+					if ( hasFree && ! usingVPBackups && this.props.isCompact ) {
 						return '';
 					}
 					break;
@@ -214,21 +213,18 @@ class ProStatus extends React.Component {
 						return '';
 					}
 					if ( 'N/A' !== vpData ) {
-						if ( ( hasFree || hasPersonal ) && ! hasVPScan ) {
-							if ( ! this.props.isCompact && hasPersonal && ! hasBackups ) {
-								// Personal plans doesn't have scan but it does have backups.
-								return this.getSetUpButton( 'backups' );
+						if ( purchasedVaultPressScan ) {
+							if ( usingVPScan ) {
+								return this.getProActions(
+									0 === this.props.getScanThreats() ? 'secure' : 'threats',
+									'scan'
+								);
 							}
-							return '';
-						}
-						if ( ! hasVPScan ) {
 							return this.getSetUpButton( 'scan' );
+						} else if ( purchasedVaultPressBackups && ! usingVPBackups && ! this.props.isCompact ) {
+							return this.getSetUpButton( 'backups' );
 						}
-
-						return this.getProActions(
-							0 === this.props.getScanThreats() ? 'secure' : 'threats',
-							'scan'
-						);
+						return '';
 					} else if ( scanStatus && scanStatus.state !== 'unavailable' ) {
 						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
 							return (
@@ -308,7 +304,6 @@ export default connect( state => {
 		getAkismetData: () => getAkismetData( state ),
 		isFetchingVaultPressData: isFetchingVaultPressData( state ),
 		sitePlan,
-		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		fetchingPluginsData: isFetchingPluginsData( state ),
 		pluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		pluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
@@ -318,5 +313,7 @@ export default connect( state => {
 		fetchingAkismetData: isFetchingAkismetData( state ),
 		rewindStatus: getRewindStatus( state ),
 		scanStatus: getScanStatus( state ),
+		purchasedVaultPressBackups: hasActiveSiteFeature( state, 'vaultpress-backups' ),
+		purchasedVaultPressScan: hasActiveSiteFeature( state, 'vaultpress-security-scanning' ),
 	};
 } )( ProStatus );

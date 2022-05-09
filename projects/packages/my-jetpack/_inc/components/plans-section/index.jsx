@@ -3,8 +3,7 @@
  */
 import React, { useCallback } from 'react';
 import { __, _n } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-import { Text, H3, Title } from '@automattic/jetpack-components';
+import { Text, H3, Title, Button } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -76,23 +75,42 @@ function PlanSectionFooter( { purchases } ) {
 
 	const { recordEvent } = useAnalytics();
 
-	const clickHandler = useCallback( () => {
+	const purchaseClickHandler = useCallback( () => {
 		const event = purchases.length
 			? 'jetpack_myjetpack_plans_manage_click'
 			: 'jetpack_myjetpack_plans_purchase_click';
 		recordEvent( event );
 	}, [ purchases, recordEvent ] );
 
+	const activateLicenseClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_activate_license_click' );
+	}, [ recordEvent ] );
+
 	return (
-		<Text
-			component={ ExternalLink }
-			className={ styles[ 'external-link' ] }
-			onClick={ clickHandler }
-			href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
-			variant="body"
-		>
-			{ planLinkDescription }
-		</Text>
+		<ul>
+			<li className={ styles[ 'actions-list-item' ] }>
+				<Button
+					onClick={ purchaseClickHandler }
+					href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
+					variant="external-link"
+					weight="regular"
+				>
+					{ planLinkDescription }
+				</Button>
+			</li>
+			{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
+				<li className={ styles[ 'actions-list-item' ] }>
+					<Button
+						onClick={ activateLicenseClickHandler }
+						href={ `${ window?.myJetpackInitialState?.adminUrl }admin.php?page=my-jetpack#/add-license` }
+						variant="link"
+						weight="regular"
+					>
+						{ __( 'Activate a license', 'jetpack-my-jetpack' ) }
+					</Button>
+				</li>
+			) }
+		</ul>
 	);
 }
 

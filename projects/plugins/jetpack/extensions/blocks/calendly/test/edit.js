@@ -100,33 +100,34 @@ describe( 'CalendlyEdit', () => {
 	} );
 
 	describe( 'parseEmbedCode', () => {
-		test( 'displays error notice when empty embed url submitted', () => {
+		test( 'displays error notice when empty embed url submitted', async () => {
+			const user = userEvent.setup();
 			render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
-			userEvent.click( screen.getByRole( 'button', { name: 'Embed' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Embed' } ) );
 
 			expect( removeAllNotices ).toHaveBeenCalled();
 			expect( createErrorNotice ).toHaveBeenCalled();
 		} );
 
-		test( 'displays error notice when updated embed code fails to parse', () => {
+		test( 'displays error notice when updated embed code fails to parse', async () => {
+			const user = userEvent.setup();
 			render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
-			userEvent.paste(
-				screen.getByPlaceholderText( 'Calendly web address or embed code…' ),
-				'invalid-url'
-			);
-			userEvent.click( screen.getByRole( 'button', { name: 'Embed' } ) );
+			await user.click( screen.getByPlaceholderText( 'Calendly web address or embed code…' ) );
+			await user.paste( 'invalid-url' );
+			await user.click( screen.getByRole( 'button', { name: 'Embed' } ) );
 
 			expect( removeAllNotices ).toHaveBeenCalled();
 			expect( createErrorNotice ).toHaveBeenCalled();
 		} );
 
 		test( 'parsed embed code is tested before updating attributes', async () => {
+			const user = userEvent.setup();
 			render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
-			userEvent.type( screen.getByRole( 'textbox' ), 'https://calendly.com/valid-url' );
-			userEvent.click( screen.getByRole( 'button', { name: 'Embed' } ) );
+			await user.type( screen.getByRole( 'textbox' ), 'https://calendly.com/valid-url' );
+			await user.click( screen.getByRole( 'button', { name: 'Embed' } ) );
 
 			await waitFor( () =>
 				expect( testEmbedUrl ).toHaveBeenCalledWith(

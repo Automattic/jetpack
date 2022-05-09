@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Text from '../text/index.jsx';
+import Text from '../text/index';
 import styles from './style.module.scss';
 
 /**

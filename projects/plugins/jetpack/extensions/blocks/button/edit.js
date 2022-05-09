@@ -42,12 +42,6 @@ export function ButtonEdit( props ) {
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
 
-	const onChange = value => {
-		// TODO: Remove `replace` once minimum Gutenberg version is 8.0 (to fully support `disableLineBreaks`)
-		const newValue = 'input' === element ? value.replace( /<br>/gim, ' ' ) : value;
-		setAttributes( { text: newValue } );
-	};
-
 	useEffect( () => {
 		// Reset button width if switching to left or right (floated) alignment for first time.
 		const alignmentChanged = previousAlign !== align;
@@ -98,7 +92,7 @@ export function ButtonEdit( props ) {
 				allowedFormats={ 'input' === element ? [] : undefined }
 				className={ buttonClasses }
 				disableLineBreaks={ 'input' === element }
-				onChange={ onChange }
+				onChange={ value => setAttributes( { text: value } ) }
 				placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 				style={ buttonStyles }
 				value={ text }

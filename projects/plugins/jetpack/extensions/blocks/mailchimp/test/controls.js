@@ -71,8 +71,10 @@ describe( 'Mailchimp block controls component', () => {
 	} );
 
 	test( 'updates email placeholder attribute', async () => {
+		const user = userEvent.setup();
 		render( <MailChimpBlockControls { ...defaultProps } /> );
-		userEvent.paste( screen.getByLabelText( 'Email Placeholder' ), 'Enter an email address' );
+		await user.click( screen.getByLabelText( 'Email Placeholder' ) );
+		await user.paste( 'Enter an email address' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			emailPlaceholder: 'Enter your emailEnter an email address',
@@ -80,8 +82,10 @@ describe( 'Mailchimp block controls component', () => {
 	} );
 
 	test( 'updates processing text attribute', async () => {
+		const user = userEvent.setup();
 		render( <MailChimpBlockControls { ...defaultProps } /> );
-		userEvent.paste( screen.getByLabelText( 'Processing text' ), ' Relax!' );
+		await user.click( screen.getByLabelText( 'Processing text' ) );
+		await user.paste( ' Relax!' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			processingLabel: 'Processing ... Relax!',
@@ -89,8 +93,10 @@ describe( 'Mailchimp block controls component', () => {
 	} );
 
 	test( 'updates success text attribute', async () => {
+		const user = userEvent.setup();
 		render( <MailChimpBlockControls { ...defaultProps } /> );
-		userEvent.paste( screen.getByLabelText( 'Success text' ), ' It Worked!' );
+		await user.click( screen.getByLabelText( 'Success text' ) );
+		await user.paste( ' It Worked!' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			successLabel: 'Woop woop! It Worked!',
@@ -98,8 +104,10 @@ describe( 'Mailchimp block controls component', () => {
 	} );
 
 	test( 'updates error text attribute', async () => {
+		const user = userEvent.setup();
 		render( <MailChimpBlockControls { ...defaultProps } /> );
-		userEvent.paste( screen.getByLabelText( 'Error text' ), ' Epic fail!' );
+		await user.click( screen.getByLabelText( 'Error text' ) );
+		await user.paste( ' Epic fail!' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			errorLabel: 'Dang! Epic fail!',
@@ -107,8 +115,10 @@ describe( 'Mailchimp block controls component', () => {
 	} );
 
 	test( 'updates signup field tag attribute', async () => {
+		const user = userEvent.setup();
 		render( <MailChimpBlockControls { ...defaultProps } /> );
-		userEvent.paste( screen.getByLabelText( 'Signup Field Tag' ), 'NOW' );
+		await user.click( screen.getByLabelText( 'Signup Field Tag' ) );
+		await user.paste( 'NOW' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			signupFieldTag: 'SIGNUPNOW',
@@ -116,17 +126,20 @@ describe( 'Mailchimp block controls component', () => {
 	} );
 
 	test( 'updates signup field value attribute', async () => {
+		const user = userEvent.setup();
 		render( <MailChimpBlockControls { ...defaultProps } /> );
-		userEvent.paste( screen.getByLabelText( 'Signup Field Value' ), ' please' );
+		await user.click( screen.getByLabelText( 'Signup Field Value' ) );
+		await user.paste( ' please' );
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			signupFieldValue: 'Sign up please',
 		} );
 	} );
 
 	test( 'updates selected groups', async () => {
+		const user = userEvent.setup();
 		render( <MailChimpBlockControls { ...defaultProps } /> );
 		await waitFor( () => screen.getByLabelText( 'golf' ) );
-		userEvent.click( screen.getByLabelText( 'golf' ) );
+		await user.click( screen.getByLabelText( 'golf' ) );
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			interests: [ 1 ],
 		} );

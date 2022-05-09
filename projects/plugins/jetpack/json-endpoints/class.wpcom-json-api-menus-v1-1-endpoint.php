@@ -379,7 +379,7 @@ class WPCOM_JSON_API_Menus_Simplifier extends WPCOM_JSON_API_Menus_Translator {
 		$menus_with_locations = array();
 
 		foreach ( $menus as $menu ) {
-			$menu['locations']      = array_keys( get_nav_menu_locations(), $menu['id'], true );
+			$menu['locations']      = array_keys( get_nav_menu_locations(), $menu['id'] ); // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 			$menus_with_locations[] = $menu;
 		}
 

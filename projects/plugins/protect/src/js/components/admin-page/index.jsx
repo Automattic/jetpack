@@ -4,6 +4,7 @@
 import React, { useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
+
 import {
 	AdminPage,
 	AdminSectionHero,
@@ -25,6 +26,9 @@ import Footer from '../footer';
 import useProtectData from '../../hooks/use-protect-data';
 import inProgressImage from './in-progress.png';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import Logo from '../logo';
+import AlertSVGIcon from '../alert-icon';
+import styles from './styles.module.scss';
 
 export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
@@ -45,15 +49,41 @@ const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 };
 
 const ProtectAdminPage = () => {
-	const { lastChecked } = useProtectData();
-
+	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
 	// Track view for Protect admin page.
 	useAnalyticsTracks( { pageViewEventName: 'protect_admin' } );
+
+	// Error
+	if ( 'error' === currentStatus ) {
+		let displayErrorMessage = errorMessage
+			? `${ errorMessage } (${ errorCode }).`
+			: __( 'We are having problems scanning your site.', 'jetpack-protect' );
+		displayErrorMessage += ' ' + __( 'Try again in a few minutes.', 'jetpack-protect' );
+
+		return (
+			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+				<AdminSectionHero>
+					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
+						<Col sm={ 4 } md={ 4 } lg={ 6 }>
+							<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } />
+							<H3>{ __( 'We’re having problems scanning your site', 'jetpack-protect' ) }</H3>
+							<Text>{ displayErrorMessage }</Text>
+						</Col>
+						<Col sm={ 0 } md={ 0 } lg={ 1 }></Col>
+						<Col sm={ 4 } md={ 3 } lg={ 5 }>
+							<img src={ inProgressImage } alt="" />
+						</Col>
+					</Container>
+				</AdminSectionHero>
+				<Footer />
+			</AdminPage>
+		);
+	}
 
 	// When there's no information yet. Usually when the plugin was just activated
 	if ( ! lastChecked ) {
 		return (
-			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
+			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 						<Col sm={ 4 } md={ 4 } lg={ 6 }>
@@ -77,7 +107,7 @@ const ProtectAdminPage = () => {
 	}
 
 	return (
-		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
+		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 					<Col>

@@ -6,7 +6,7 @@
 	"projects/plugins/jetpack/modules/contact-form/grunion-contact-form.php",
 	"projects/plugins/jetpack/modules/contact-form/grunion-editor-view.php",
 	"projects/plugins/jetpack/modules/contact-form/grunion-form-view.php",
-	"projects/plugins/jetpack/modules/custom-post-types/comics.php",
+	"projects/plugins/jetpack/modules/custom-post-types/nova.php",
 	"projects/plugins/jetpack/modules/infinite-scroll.php",
 	"projects/plugins/jetpack/modules/infinite-scroll/infinity.php",
 	"projects/plugins/jetpack/modules/infinite-scroll/themes/twentyeleven.php",

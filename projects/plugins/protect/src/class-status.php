@@ -259,4 +259,14 @@ class Status {
 		update_option( self::OPTION_TIMESTAMP_NAME, time() );
 	}
 
+	/**
+	 * Delete the cached status and its timestamp
+	 *
+	 * @return void
+	 */
+	public static function delete_option() {
+		delete_option( self::OPTION_NAME );
+		delete_option( self::OPTION_TIMESTAMP_NAME );
+	}
+
 }

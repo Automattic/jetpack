@@ -127,14 +127,16 @@ describe( 'GoogleCalendarEdit', () => {
 	} );
 
 	test( 'handles submitted embed codes', async () => {
+		const user = userEvent.setup();
 		const emptyProps = { ...defaultProps, attributes: emptyAttributes };
 		const { container } = render( <GoogleCalendarEdit { ...emptyProps } /> );
 
 		const input = screen.getByPlaceholderText( 'Enter URL or iframe to embed here…' );
 		const button = screen.getByRole( 'button', { name: 'Embed' } );
 
-		userEvent.paste( input, 'invalid-url' );
-		userEvent.click( button );
+		await user.click( input );
+		await user.paste( 'invalid-url' );
+		await user.click( button );
 
 		const errorMessage =
 			"Your calendar couldn't be embedded. Please double check your URL or Embed Code. Please note, you need to use the 'Public URL' or 'Embed Code', the 'Shareable Link' will not work.";
@@ -142,8 +144,9 @@ describe( 'GoogleCalendarEdit', () => {
 		expect( createErrorNotice ).toHaveBeenCalledWith( errorMessage );
 		expect( removeAllNotices ).toHaveBeenCalledTimes( 1 );
 
-		userEvent.paste( input, 'https://calendar.google.com/calendar?cid=Z2xlbi5kYXZpZXNAYThjLmNvbQ' );
-		userEvent.click( button );
+		await user.click( input );
+		await user.paste( 'https://calendar.google.com/calendar?cid=Z2xlbi5kYXZpZXNAYThjLmNvbQ' );
+		await user.click( button );
 
 		const parsedEmbedUrl = 'https://calendar.google.com/calendar/embed?src=glen.davies%40a8c.com';
 
@@ -163,14 +166,15 @@ describe( 'GoogleCalendarEdit', () => {
 		).toBeInTheDocument();
 	} );
 
-	test( 'omits overlay once clicked', () => {
+	test( 'omits overlay once clicked', async () => {
+		const user = userEvent.setup();
 		const deselectedProps = { ...defaultProps, isSelected: false };
 		const { container } = render( <GoogleCalendarEdit { ...deselectedProps } /> );
 		const overlay = container.querySelector( '.block-library-embed__interactive-overlay' );
 
 		expect( overlay ).toBeInTheDocument();
 
-		userEvent.click( overlay );
+		await user.click( overlay );
 
 		expect( overlay ).not.toBeInTheDocument();
 	} );
