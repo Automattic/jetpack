@@ -1124,7 +1124,7 @@ class Nova_Restaurant {
 	public function add_many_new_items_page_load() {
 		if (
 			isset( $_SERVER['REQUEST_METHOD'] )
-			&& 'POST' === strtolower( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) )
+			&& 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) )
 		) {
 			$this->process_form_request();
 			exit;
