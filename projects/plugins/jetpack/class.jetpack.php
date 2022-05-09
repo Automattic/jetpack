@@ -2966,6 +2966,10 @@ p {
 	 * Disconnects from the Jetpack servers.
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
 	 *
+	 * Will not disconnect if there are other plugins using the connection.
+	 *
+	 * @since $$next-version$$ Do not disconnect if other plugins are using the connection.
+	 *
 	 * @static
 	 */
 	public static function disconnect() {
@@ -2974,10 +2978,7 @@ p {
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
-		if ( ! Identity_Crisis::validate_sync_error_idc_option() ) {
-			$connection->disconnect_site_wpcom();
-		}
-		$connection->delete_all_connection_tokens();
+		$connection->remove_connection( ! Identity_Crisis::validate_sync_error_idc_option() );
 	}
 
 	/**
