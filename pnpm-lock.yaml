@@ -1329,7 +1329,7 @@ importers:
       sinon: 13.0.2
       sinon-chai: 3.7.0
       size-limit: 5.0.5
-      social-logos: 2.3.0
+      social-logos: 2.5.0
       static-site-generator-webpack-plugin: 3.4.2
       strip: 3.0.0
       style-loader: 2.0.0
@@ -1408,7 +1408,7 @@ importers:
       resize-observer-polyfill: 1.5.1
       sass: 1.38.1
       semver: 7.3.5
-      social-logos: 2.3.0_react@17.0.2
+      social-logos: 2.5.0_react@17.0.2
       static-site-generator-webpack-plugin: 3.4.2
       strip: 3.0.0
       swiper: 6.7.0
@@ -19263,10 +19263,10 @@ packages:
       use: 3.1.1
     dev: true
 
-  /social-logos/2.3.0_react@17.0.2:
-    resolution: {integrity: sha512-md5+ZgxAvODCQpMMhe8h7QtmmUIKLI78xjL3tfxTTqzzGIT7NaeVIiiLla/aF5kktxN1W7UGvEbse3Dn4CdYmw==}
+  /social-logos/2.5.0_react@17.0.2:
+    resolution: {integrity: sha512-yEj6OftSAAfP6G1NHV/TqacVZGKYp1Ger9JZLhjB9GFckZXGXBQGOI+39jkhGoEVZjCCRcSof3l2Arioa0bx9w==}
     peerDependencies:
-      react: "^15.3.0 ||\_^16.0.0 || ^17"
+      react: 15 - 17
     dependencies:
       prop-types: 15.8.1
       react: 17.0.2
