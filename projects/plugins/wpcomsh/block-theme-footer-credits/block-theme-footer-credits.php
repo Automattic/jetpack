@@ -22,4 +22,4 @@ require_once __DIR__ . '/class-wpcom-block-theme-footer-credits.php';
 
 $wpcom_block_theme_footer_credits = new WPCOM_Block_Theme_Footer_Credits();
 
-add_action( 'init', [ $wpcom_block_theme_footer_credits, 'init' ] );
+add_action( 'init', array( $wpcom_block_theme_footer_credits, 'init' ) );

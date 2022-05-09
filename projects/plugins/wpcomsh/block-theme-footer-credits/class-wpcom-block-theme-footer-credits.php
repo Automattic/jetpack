@@ -24,7 +24,7 @@ class WPCOM_Block_Theme_Footer_Credits {
 		}
 
 		// Filter render blocks and find the footer.
-		add_filter( 'render_block', [ $this, 'maybe_add_markup_to_footer_template' ], 10, 2 );
+		add_filter( 'render_block', array( $this, 'maybe_add_markup_to_footer_template' ), 10, 2 );
 	}
 
 	/**

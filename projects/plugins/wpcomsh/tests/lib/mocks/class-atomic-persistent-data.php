@@ -14,7 +14,7 @@ final class Atomic_Persistent_Data {
 	 *
 	 * @var array
 	 */
-	public static $data = [];
+	public static $data = array();
 
 	/**
 	 * Set data.

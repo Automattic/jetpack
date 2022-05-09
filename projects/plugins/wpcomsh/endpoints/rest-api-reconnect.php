@@ -137,7 +137,7 @@ function wpcomsh_rest_api_reconnect( $request = null ) { // phpcs:ignore Generic
 
 	// Restore user_tokens if missing.
 	if ( isset( $package->user_tokens ) ) {
-		$user_tokens = [];
+		$user_tokens = array();
 		foreach ( $package->user_tokens as $user_id => $user_token ) {
 			$user_tokens[ intval( $user_id ) ] = $user_token;
 		}
@@ -145,9 +145,9 @@ function wpcomsh_rest_api_reconnect( $request = null ) { // phpcs:ignore Generic
 	}
 
 	return new WP_REST_Response(
-		[
+		array(
 			'reconnected' => true,
-		],
+		),
 		200
 	);
 }

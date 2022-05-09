@@ -117,17 +117,17 @@ require_once __DIR__ . '/jetpack-require-connection-owner/class-wpcomsh-require-
 // Jetpack Token Migration Cleanup.
 require_once __DIR__ . '/jetpack-token-migration-cleanup/class-wpcomsh-token-migration-cleanup.php';
 
-const WPCOM_CORE_ATOMIC_PLUGINS = [
+const WPCOM_CORE_ATOMIC_PLUGINS = array(
 	'jetpack/jetpack.php',
 	'akismet/akismet.php',
-];
-const WPCOM_FEATURE_PLUGINS     = [
+);
+const WPCOM_FEATURE_PLUGINS     = array(
 	'coblocks/class-coblocks.php',
 	'full-site-editing/full-site-editing-plugin.php',
 	'gutenberg/gutenberg.php',
 	'layout-grid/index.php',
 	'page-optimize/page-optimize.php',
-];
+);
 
 if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 	$wpcomsh_incompatible_plugins = array(
@@ -510,10 +510,10 @@ function wpcomsh_remove_plugin_autoupdates() {
 	if ( ! class_exists( 'Jetpack_Calypsoify' ) ) {
 		return;
 	}
-	remove_action( 'manage_plugins_columns', [ Jetpack_Calypsoify::get_instance(), 'manage_plugins_columns_header' ] );
-	remove_action( 'manage_plugins_custom_column', [ Jetpack_Calypsoify::get_instance(), 'manage_plugins_custom_column' ] );
-	remove_action( 'bulk_actions-plugins', [ Jetpack_Calypsoify::get_instance(), 'bulk_actions_plugins' ] );
-	remove_action( 'handle_bulk_actions-plugins', [ Jetpack_Calypsoify::get_instance(), 'handle_bulk_actions_plugins' ] );
+	remove_action( 'manage_plugins_columns', array( Jetpack_Calypsoify::get_instance(), 'manage_plugins_columns_header' ) );
+	remove_action( 'manage_plugins_custom_column', array( Jetpack_Calypsoify::get_instance(), 'manage_plugins_custom_column' ) );
+	remove_action( 'bulk_actions-plugins', array( Jetpack_Calypsoify::get_instance(), 'bulk_actions_plugins' ) );
+	remove_action( 'handle_bulk_actions-plugins', array( Jetpack_Calypsoify::get_instance(), 'handle_bulk_actions_plugins' ) );
 }
 add_action( 'admin_init', 'wpcomsh_remove_plugin_autoupdates' );
 
@@ -729,11 +729,11 @@ add_action( 'map_meta_cap', 'wpcomsh_map_caps', 10, 2 );
  */
 function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) { //phpcs:ignore
 	// Trying to edit or delete a user other than yourself?
-	if ( in_array( $args[0], [ 'edit_user', 'delete_user', 'remove_user', 'promote_user' ], true ) ) {
+	if ( in_array( $args[0], array( 'edit_user', 'delete_user', 'remove_user', 'promote_user' ), true ) ) {
 		$jetpack = get_option( 'jetpack_options' );
 
 		if ( ! empty( $jetpack['master_user'] ) && $args[2] == $jetpack['master_user'] ) { //phpcs:ignore
-			return [];
+			return array();
 		}
 	}
 
@@ -1242,18 +1242,18 @@ function wpcomsh_get_at_site_info() {
 	$at_site_info_file = sys_get_temp_dir() . '/.at-site-info';
 
 	if ( ! is_file( $at_site_info_file ) ) {
-		return [];
+		return array();
 	}
 
 	$site_info_json = file_get_contents( $at_site_info_file ); //phpcs:ignore
 
 	if ( empty( $site_info_json ) ) {
-		return [];
+		return array();
 	}
 
 	$site_info = json_decode( $site_info_json, true );
 	if ( empty( $site_info ) ) {
-		return [];
+		return array();
 	}
 
 	return $site_info;
@@ -1487,7 +1487,7 @@ add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
  */
 function wpcomsh_hide_scan_threats_from_transients( $response ) {
 	if ( ! empty( $response->threats ) ) {
-		$response->threats = [];
+		$response->threats = array();
 	}
 	return $response;
 }
@@ -1517,7 +1517,7 @@ function wpcom_hide_scan_threats_from_api( $response ) {
 		return $response;
 	}
 
-	$json_body['threats']  = [];
+	$json_body['threats']  = array();
 	$response_data['data'] = json_encode( $json_body ); //phpcs:ignore
 	$response->set_data( $response_data );
 

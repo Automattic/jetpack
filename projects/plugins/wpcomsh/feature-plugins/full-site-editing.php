@@ -83,11 +83,11 @@ function wpcom_public_coming_soon_replace_yoast_seo_notice() {
 
 	$pagenow             = $GLOBALS['pagenow'];
 	$on_wpseo_admin_page = $pagenow === 'admin.php' && strpos( filter_input( INPUT_GET, 'page' ), 'wpseo' ) === 0;
-	$notice_pages        = [
+	$notice_pages        = array(
 		'index.php',
 		'plugins.php',
 		'update-core.php',
-	];
+	);
 
 	// Only show the notice on certain admin pages and Yoast SEO admin pages.
 	if (
@@ -134,7 +134,7 @@ function wpcom_fse_spt_add_tracking_identity_to_config( $config ) {
 		wp_enqueue_script(
 			'jp-tracks',
 			'//stats.wp.com/w.js',
-			[],
+			array(),
 			gmdate( 'YW' ),
 			true
 		);

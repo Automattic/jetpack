@@ -28,7 +28,6 @@
 	</rule>
 
 	<rule ref="WordPress-Extra">
-		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
 		<exclude name="WordPress.PHP.YodaConditions"/>
 	</rule>
 

@@ -45,7 +45,7 @@ function add_logotool_button( $wp_customize ) {
 				// Control has the name logo in it.
 				false !== strpos( $control->id, 'logo' ) &&
 				// Control is not a `site_logo` or `custom_logo` (those are handled above).
-				! in_array( $control->id, [ 'custom_logo', 'site_logo' ], true ) &&
+				! in_array( $control->id, array( 'custom_logo', 'site_logo' ), true ) &&
 				// Control is an instance of `WP_Customize_Image_Control` so we know how the UI is rendered to add the button.
 				is_a( $control, 'WP_Customize_Image_Control' )
 			) {
@@ -72,15 +72,15 @@ function add_logotool_button( $wp_customize ) {
 	add_action(
 		'customize_controls_enqueue_scripts',
 		function() use ( $logo_control ) {
-			wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), [ 'customize-controls' ], '20210706', true );
+			wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), array( 'customize-controls' ), '20210706', true );
 			wp_localize_script(
 				'wpcom-logo-tool',
 				'_LogoTool_',
-				[
-					'l10n'      => [ 'create' => __( 'Create logo', 'wpcomsh' ) ],
+				array(
+					'l10n'      => array( 'create' => __( 'Create logo', 'wpcomsh' ) ),
 					'controlId' => $logo_control->id,
 					'settingId' => $logo_control->setting->id,
-				]
+				)
 			);
 		}
 	);
