@@ -17,21 +17,7 @@ add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
 // This exists only on the Atomic platform. Blank if migrated elsewhere, so it doesn't fatal.
 if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
-	/**
-	 * The class Atomic_Persistent_Data
-	 */
-	final class Atomic_Persistent_Data {
-		/**
-		 * The get function
-		 *
-		 * @param mixed $name The persistent data key
-		 *
-		 * @return null
-		 */
-		public function __get( $name ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-			return null;
-		}
-	}
+	require_once __DIR__ . '/class-atomic-persistent-data.php';
 }
 
 require_once __DIR__ . '/constants.php';
@@ -51,7 +37,7 @@ require_once __DIR__ . '/feature-manager/bootstrap.php';
 require_once __DIR__ . '/feature-manager/feature-hooks.php';
 
 // Interoperability with the core WordPress data privacy functionality (See also "GDPR")
-require_once __DIR__ . '/privacy/participating-plugins.php';
+require_once __DIR__ . '/privacy/class-wp-privacy-participating-plugins.php';
 
 // Functionality to make sites private and only accessible to members with appropriate capabilities
 require_once __DIR__ . '/private-site/private-site.php';
@@ -59,33 +45,33 @@ require_once __DIR__ . '/private-site/private-site.php';
 // Updates customizer Save/Publish labels to avoid confusion on launching vs saving changes on a site.
 require_once __DIR__ . '/customizer-fixes/customizer-fixes.php';
 
-require_once __DIR__ . '/class.wpcomsh-log.php';
+require_once __DIR__ . '/class-wpcomsh-log.php';
 require_once __DIR__ . '/safeguard/plugins.php';
 require_once __DIR__ . '/logo-tool/logo-tool.php';
-require_once __DIR__ . '/jetpack-token-error-header/jetpack-token-header-error.php';
+require_once __DIR__ . '/jetpack-token-error-header/class-atomic-record-jetpack-token-errors.php';
 
 /**
  * WP.com Widgets (in alphabetical order)
  */
-require_once __DIR__ . '/widgets/aboutme.php';
-require_once __DIR__ . '/widgets/author-grid.php';
-require_once __DIR__ . '/widgets/freshly-pressed.php';
-require_once __DIR__ . '/widgets/gravatar.php';
-require_once __DIR__ . '/widgets/i-voted.php';
-require_once __DIR__ . '/widgets/music-player.php';
-require_once __DIR__ . '/widgets/posts-i-like.php';
-require_once __DIR__ . '/widgets/recent-comments-widget.php';
-require_once __DIR__ . '/widgets/reservations.php';
+require_once __DIR__ . '/widgets/class-aboutme-widget.php';
+require_once __DIR__ . '/widgets/class-gravatar-widget.php';
+require_once __DIR__ . '/widgets/class-jetpack-i-voted-widget.php';
+require_once __DIR__ . '/widgets/class-jetpack-posts-i-like-widget.php';
+require_once __DIR__ . '/widgets/class-music-player-widget.php';
+require_once __DIR__ . '/widgets/class-widget-authors-grid.php';
+require_once __DIR__ . '/widgets/class-wpcom-freshly-pressed-widget.php';
+require_once __DIR__ . '/widgets/class-wpcom-widget-recent-comments.php';
+require_once __DIR__ . '/widgets/class-wpcom-widget-reservations.php';
 
 // WP.com Category Cloud widget
-require_once __DIR__ . '/widgets/category-cloud.php';
+require_once __DIR__ . '/widgets/class-wpcom-category-cloud-widget.php';
 // Override core tag cloud widget to add a settable `limit` parameter
-require_once __DIR__ . '/widgets/tag-cloud-widget.php';
+require_once __DIR__ . '/widgets/class-wpcom-tag-cloud-widget.php';
 
-require_once __DIR__ . '/widgets/tlkio/tlkio.php';
-require_once __DIR__ . '/widgets/top-clicks.php';
-require_once __DIR__ . '/widgets/top-rated.php';
-require_once __DIR__ . '/widgets/twitter.php';
+require_once __DIR__ . '/widgets/tlkio/class-tlkio-widget.php';
+require_once __DIR__ . '/widgets/class-widget-top-clicks.php';
+require_once __DIR__ . '/widgets/class-pd-top-rated.php';
+require_once __DIR__ . '/widgets/class-jetpack-widget-twitter.php';
 
 // autoload composer sourced plugins
 require_once __DIR__ . '/vendor/autoload.php';
@@ -100,19 +86,22 @@ require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/masterbar.php';
-require_once __DIR__ . '/feature-plugins/jetpack-data.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
+
+if ( ! class_exists( 'Jetpack_Data' ) ) {
+	require_once __DIR__ . '/feature-plugins/class-jetpack-data.php';
+}
 
 // wp-admin Notices
 require_once __DIR__ . '/notices/plan-notices.php';
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once __DIR__ . '/class.cli-commands.php';
+	require_once __DIR__ . '/class-wpcomsh-cli-commands.php';
 }
 
 require_once __DIR__ . '/wpcom-migration-helpers/site-migration-helpers.php';
 
-require_once __DIR__ . '/class.jetpack-plugin-compatibility.php';
+require_once __DIR__ . '/class-jetpack-plugin-compatibility.php';
 
 require_once __DIR__ . '/support-session.php';
 

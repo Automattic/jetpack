@@ -257,7 +257,7 @@ But, logging needs to be turned on via `at_options_logging_on`. You can do that 
 
 ### WP CLI Commands
 
-wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the `./class.cli-commands.php`.
+wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the `./class-wpcomsh-cli-commands.php` file.
 
 - `wp wpcomsh deactivate-user-plugins`: Bulk deactivate user installed plugins. Supports an `--interactive` mode that asks for each plugin.
 - `wp wpcomsh reactivate-user-plugins`: Bulk re-activate user installed plugins. Supports an `--interactive` mode that asks for each plugin.
