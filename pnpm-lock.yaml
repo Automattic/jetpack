@@ -908,7 +908,7 @@ importers:
       qss: 2.0.3
       react: 17.0.2
       react-dom: 17.0.2
-      react-redux: 7.2.6
+      react-redux: 7.2.8
       redux: 4.1.1
       refx: 3.1.1
       sass: 1.43.3
@@ -943,7 +943,7 @@ importers:
       qss: 2.0.3
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-      react-redux: 7.2.6_react-dom@17.0.2+react@17.0.2
+      react-redux: 7.2.8_react-dom@17.0.2+react@17.0.2
       redux: 4.1.1
       refx: 3.1.1
       strip: 3.0.0
@@ -1027,7 +1027,7 @@ importers:
       qss: 2.0.3
       react: 17.0.2
       react-dom: 17.0.2
-      react-redux: 7.2.6
+      react-redux: 7.2.8
       redux: 4.1.1
       refx: 3.1.1
       sass: 1.43.3
@@ -1060,7 +1060,7 @@ importers:
       qss: 2.0.3
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-      react-redux: 7.2.6_react-dom@17.0.2+react@17.0.2
+      react-redux: 7.2.8_react-dom@17.0.2+react@17.0.2
       redux: 4.1.1
       refx: 3.1.1
       strip: 3.0.0
@@ -1229,7 +1229,7 @@ importers:
       '@testing-library/react-hooks': 8.0.0
       '@testing-library/user-event': 14.1.1
       '@types/react': 17.0.44
-      '@types/react-redux': 7.1.23
+      '@types/react-redux': 7.1.24
       '@wojtekmaj/enzyme-adapter-react-17': 0.6.3
       '@wordpress/annotations': 2.8.0
       '@wordpress/api-fetch': 6.5.0
@@ -1443,7 +1443,7 @@ importers:
       '@testing-library/react-hooks': 8.0.0_9c4875ab9a52476f0be64c27d36d3f21
       '@testing-library/user-event': 14.1.1_@testing-library+dom@8.13.0
       '@types/react': 17.0.44
-      '@types/react-redux': 7.1.23
+      '@types/react-redux': 7.1.24
       '@wojtekmaj/enzyme-adapter-react-17': 0.6.3_fae758709a8810ba97b4c03852dde4d0
       '@wordpress/api-fetch': 6.5.0
       '@wordpress/babel-plugin-import-jsx-pragma': 3.1.2_@babel+core@7.17.10
@@ -6888,7 +6888,7 @@ packages:
   /@types/hoist-non-react-statics/3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
     dependencies:
-      '@types/react': 17.0.44
+      '@types/react': 18.0.9
       hoist-non-react-statics: 3.3.2
 
   /@types/html-minifier-terser/6.1.0:
@@ -7029,23 +7029,13 @@ packages:
     dependencies:
       '@types/react': 17.0.45
 
-  /@types/react-redux/7.1.23:
-    resolution: {integrity: sha512-D02o3FPfqQlfu2WeEYwh3x2otYd2Dk1o8wAfsA0B1C2AJEFxE663Ozu7JzuWbznGgW248NaOF6wsqCGNq9d3qw==}
-    dependencies:
-      '@types/hoist-non-react-statics': 3.3.1
-      '@types/react': 18.0.9
-      hoist-non-react-statics: 3.3.2
-      redux: 4.2.0
-    dev: true
-
   /@types/react-redux/7.1.24:
     resolution: {integrity: sha512-7FkurKcS1k0FHZEtdbbgN8Oc6b+stGSfZYjQGicofJ0j4U0qIn/jaSvnP2pLwZKiai3/17xqqxkkrxTgN8UNbQ==}
     dependencies:
       '@types/hoist-non-react-statics': 3.3.1
       '@types/react': 18.0.9
       hoist-non-react-statics: 3.3.2
-      redux: 4.1.1
-    dev: false
+      redux: 4.2.0
 
   /@types/react-syntax-highlighter/11.0.5:
     resolution: {integrity: sha512-VIOi9i2Oj5XsmWWoB72p3KlZoEbdRAcechJa8Ztebw7bDl2YmR+odxIqhtJGp1q2EozHs02US+gzxJ9nuf56qg==}
@@ -7065,6 +7055,7 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
       csstype: 3.0.11
+    dev: true
 
   /@types/react/17.0.45:
     resolution: {integrity: sha512-YfhQ22Lah2e3CHPsb93tRwIGNiSwkuz1/blk4e6QrWS0jQzCSNbGLtOEYhPg02W0yGTTmpajp7dCTbBAMN3qsg==}
@@ -17971,10 +17962,10 @@ packages:
       redux: 4.0.5
     dev: false
 
-  /react-redux/7.2.6_react-dom@17.0.2+react@17.0.2:
-    resolution: {integrity: sha512-10RPdsz0UUrRL1NZE0ejTkucnclYSgXp5q+tB5SWx2qeG2ZJQJyymgAhwKy73yiL/13btfB6fPr+rgbMAaZIAQ==}
+  /react-redux/7.2.8_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-6+uDjhs3PSIclqoCk0kd6iX74gzrGc3W5zcAjbrFgEdIjRSQObdIwfx80unTkVUYvbQ95Y8Av3OvFHq1w5EOUw==}
     peerDependencies:
-      react: ^16.8.3 || ^17
+      react: ^16.8.3 || ^17 || ^18
       react-dom: '*'
       react-native: '*'
     peerDependenciesMeta:
@@ -17987,7 +17978,7 @@ packages:
       '@types/react-redux': 7.1.24
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-is: 17.0.2
