@@ -2,7 +2,7 @@
 /**
  * Initialize the testing environment.
  *
- * @package automattic/jetpack-backup
+ * @package automattic/jetpack-publicize
  */
 
 /**
