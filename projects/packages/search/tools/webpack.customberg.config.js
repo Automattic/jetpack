@@ -29,7 +29,11 @@ module.exports = {
 			fs: false,
 			'instant-search': path.join( __dirname, '../src/instant-search' ),
 		},
-		modules: [ path.resolve( __dirname, '../src/customberg' ), 'node_modules' ],
+		modules: [
+			path.resolve( __dirname, '../src/customberg' ),
+			'node_modules',
+			path.resolve( __dirname, '../node_modules' ), // For core-js
+		],
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {

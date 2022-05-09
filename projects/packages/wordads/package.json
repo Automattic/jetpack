@@ -76,6 +76,7 @@
 		"@wordpress/dependency-extraction-webpack-plugin": "3.4.1",
 		"babel-jest": "28.1.0",
 		"concurrently": "6.4.0",
+		"core-js": "3.22.4",
 		"jest": "28.1.0",
 		"jest-environment-jsdom": "28.1.0",
 		"postcss": "8.4.13",
