@@ -137,6 +137,12 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ 'js-git' ] = '*';
 	}
 
+	// Override @types/react^17 peer dependency for @testing-library/react-hooks
+	// in order to use @types/react^18
+	if ( pkg.name === '@testing-library/react-hooks' && pkg.peerDependencies?.[ '@types/react' ] ) {
+		pkg.peerDependencies[ '@types/react' ] = '*';
+	}
+
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with
 	// eslint-plugin-wpcalypso 5.1.0, but they haven't released that yet.
 	if ( pkg.name === 'eslint-config-wpcalypso' ) {
