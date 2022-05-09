@@ -85,6 +85,45 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
+	 * Testing the `POST /jetpack/v4/publicize/connections` endpoint with proper permissions.
+	 */
+	public function test_get_publicize_connections_with_proper_permission() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/publicize/connections' );
+		$user    = wp_get_current_user( $this->admin_id );
+		$user->add_cap( 'manage_options' );
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$response = $this->dispatch_request_signed_with_blog_token( $request );
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$this->assertEquals( $response->get_data()['body'], $this->mock_success_data()['body'] );
+	}
+
+	/**
+	 * Mocks a successful response from WPCOM
+	 */
+	public function mock_success_response() {
+		return array(
+			'body'     => wp_json_encode( $this->mock_success_data() ),
+			'response' => array(
+				'code'    => 200,
+				'message' => '',
+			),
+		);
+	}
+
+	/**
+	 * Mock fixture for publicize connections.
+	 */
+	public function mock_success_data() {
+		return array(
+			'body'     => wp_json_encode( array( 'facebook' => array( 'connection_id' => 1234 ) ) ),
+			'response' => array(
+				'code'    => 200,
+				'message' => '',
+			),
+		);
+	}
+
+	/**
 	 * Signs a request with a blog token before dispatching it.
 	 *
 	 * Ensures that these tests pass through Connection_Rest_Authentication::wp_rest_authenticate,
