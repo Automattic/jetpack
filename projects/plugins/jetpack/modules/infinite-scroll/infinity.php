@@ -12,6 +12,7 @@ Author: Automattic
 Author URI: https://automattic.com/
 License: GNU General Public License v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: jetpack
 */
 
 /**
@@ -69,7 +70,7 @@ class The_Neverending_Home_Page {
 	 * @return object
 	 */
 	static function get_settings() {
-		if ( is_null( self::$settings ) ) {
+		if ( self::$settings === null ) {
 			$css_pattern = '#[^A-Z\d\-_]#i';
 
 			$settings = $defaults = array(
@@ -93,69 +94,75 @@ class The_Neverending_Home_Page {
 				if ( isset( $_settings[0] ) && is_array( $_settings[0] ) ) {
 					foreach ( $_settings[0] as $key => $value ) {
 						switch ( $key ) {
-							case 'type' :
-								if ( in_array( $value, array( 'scroll', 'click' ) ) )
+							case 'type':
+								if ( in_array( $value, array( 'scroll', 'click' ) ) ) {
 									$settings[ $key ] = $settings['requested_type'] = $value;
+								}
 
 								break;
 
-							case 'footer_widgets' :
-								if ( is_string( $value ) )
+							case 'footer_widgets':
+								if ( is_string( $value ) ) {
 									$settings[ $key ] = sanitize_title( $value );
-								elseif ( is_array( $value ) )
+								} elseif ( is_array( $value ) ) {
 									$settings[ $key ] = array_map( 'sanitize_title', $value );
-								elseif ( is_bool( $value ) )
+								} elseif ( is_bool( $value ) ) {
 									$settings[ $key ] = $value;
+								}
 
 								break;
 
-							case 'container' :
-							case 'wrapper' :
+							case 'container':
+							case 'wrapper':
 								if ( 'wrapper' == $key && is_bool( $value ) ) {
 									$settings[ $key ] = $value;
 								} else {
 									$value = preg_replace( $css_pattern, '', $value );
 
-									if ( ! empty( $value ) )
+									if ( ! empty( $value ) ) {
 										$settings[ $key ] = $value;
+									}
 								}
 
 								break;
 
-							case 'render' :
+							case 'render':
 								if ( false !== $value && is_callable( $value ) ) {
 									$settings[ $key ] = $value;
 								}
 
 								break;
 
-							case 'footer' :
+							case 'footer':
 								if ( is_bool( $value ) ) {
 									$settings[ $key ] = $value;
 								} elseif ( is_string( $value ) ) {
 									$value = preg_replace( $css_pattern, '', $value );
 
-									if ( ! empty( $value ) )
+									if ( ! empty( $value ) ) {
 										$settings[ $key ] = $value;
+									}
 								}
 
 								break;
 
-							case 'footer_callback' :
-								if ( is_callable( $value ) )
+							case 'footer_callback':
+								if ( is_callable( $value ) ) {
 									$settings[ $key ] = $value;
-								else
+								} else {
 									$settings[ $key ] = false;
+								}
 
 								break;
 
-							case 'posts_per_page' :
-								if ( is_numeric( $value ) )
+							case 'posts_per_page':
+								if ( is_numeric( $value ) ) {
 									$settings[ $key ] = (int) $value;
+								}
 
 								break;
 
-							case 'click_handle' :
+							case 'click_handle':
 								if ( is_bool( $value ) ) {
 									$settings[ $key ] = $value;
 								}
@@ -173,8 +180,9 @@ class The_Neverending_Home_Page {
 					$settings['container'] = preg_replace( $css_pattern, '', $_settings[0] );
 
 					// Wrap IS elements?
-					if ( isset( $_settings[1] ) )
+					if ( isset( $_settings[1] ) ) {
 						$settings['wrapper'] = (bool) $_settings[1];
+					}
 				}
 			}
 
@@ -187,7 +195,7 @@ class The_Neverending_Home_Page {
 			if ( function_exists( 'infinite_scroll_has_footer_widgets' ) ) {
 				$settings['footer_widgets'] = (bool) infinite_scroll_has_footer_widgets();
 			} elseif ( is_array( $settings['footer_widgets'] ) ) {
-				$sidebar_ids = $settings['footer_widgets'];
+				$sidebar_ids                = $settings['footer_widgets'];
 				$settings['footer_widgets'] = false;
 
 				foreach ( $sidebar_ids as $sidebar_id ) {
@@ -215,8 +223,9 @@ class The_Neverending_Home_Page {
 			$settings['footer_widgets'] = apply_filters( 'infinite_scroll_has_footer_widgets', $settings['footer_widgets'] );
 
 			// Finally, after all of the sidebar checks and filtering, ensure that a boolean value is present, otherwise set to default of `false`.
-			if ( ! is_bool( $settings['footer_widgets'] ) )
+			if ( ! is_bool( $settings['footer_widgets'] ) ) {
 				$settings['footer_widgets'] = false;
+			}
 
 			// Ensure that IS is enabled and no footer widgets exist if the IS type isn't already "click".
 			if ( 'click' != $settings['type'] ) {
@@ -224,8 +233,9 @@ class The_Neverending_Home_Page {
 				$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
 
 				// Footer content or Reading option check
-				if ( $settings['footer_widgets'] || $disabled )
+				if ( $settings['footer_widgets'] || $disabled ) {
 					$settings['type'] = 'click';
+				}
 			}
 
 			// Force display of the click handler and attendant bits when the type isn't `click`
@@ -322,7 +332,7 @@ class The_Neverending_Home_Page {
 		 *
 		 * @param bool isset( $_GET[ 'infinity' ] ) Return true if the "infinity" parameter is set.
 		 */
-		return apply_filters( 'infinite_scroll_got_infinity', isset( $_GET[ 'infinity' ] ) );
+		return apply_filters( 'infinite_scroll_got_infinity', isset( $_GET['infinity'] ) );
 	}
 
 	/**
@@ -345,7 +355,7 @@ class The_Neverending_Home_Page {
 			return $override;
 		}
 
-		$entries = (int) self::wp_query()->found_posts;
+		$entries        = (int) self::wp_query()->found_posts;
 		$posts_per_page = self::posts_per_page();
 
 		// This is to cope with an issue in certain themes or setups where posts are returned but found_posts is 0.
@@ -375,8 +385,9 @@ class The_Neverending_Home_Page {
 	function preserve_more_tag( $array ) {
 		global $more;
 
-		if ( self::got_infinity() )
-			$more = 0; //0 = show content up to the more tag. Add more link.
+		if ( self::got_infinity() ) {
+			$more = 0; // 0 = show content up to the more tag. Add more link.
+		}
 
 		return $array;
 	}
@@ -392,12 +403,14 @@ class The_Neverending_Home_Page {
 	 * @return null
 	 */
 	function settings_api_init() {
-		if ( ! current_theme_supports( 'infinite-scroll' ) )
+		if ( ! current_theme_supports( 'infinite-scroll' ) ) {
 			return;
+		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			// This setting is no longer configurable in wp-admin on WordPress.com -- leave a pointer
-			add_settings_field( self::$option_name_enabled,
+			add_settings_field(
+				self::$option_name_enabled,
 				'<span id="infinite-scroll-options">' . esc_html__( 'Infinite Scroll Behavior', 'jetpack' ) . '</span>',
 				array( $this, 'infinite_setting_html_calypso_placeholder' ),
 				'reading'
@@ -446,14 +459,16 @@ class The_Neverending_Home_Page {
 	 */
 	function action_template_redirect() {
 		// Check that we support infinite scroll, and are on the home page.
-		if ( ! current_theme_supports( 'infinite-scroll' ) || ! self::archive_supports_infinity() )
+		if ( ! current_theme_supports( 'infinite-scroll' ) || ! self::archive_supports_infinity() ) {
 			return;
+		}
 
 		$id = self::get_settings()->container;
 
 		// Check that we have an id.
-		if ( empty( $id ) )
+		if ( empty( $id ) ) {
 			return;
+		}
 
 		// AMP infinite scroll functionality will start on amp_load_hooks().
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
@@ -528,8 +543,9 @@ class The_Neverending_Home_Page {
 		if ( ! $disabled || 'click' == self::get_settings()->type ) {
 			$classes = 'infinite-scroll';
 
-			if ( 'scroll' == self::get_settings()->type )
+			if ( 'scroll' == self::get_settings()->type ) {
 				$classes .= ' neverending';
+			}
 		}
 
 		return $classes;
@@ -546,17 +562,17 @@ class The_Neverending_Home_Page {
 	function get_excluded_posts() {
 
 		$excluded_posts = array();
-		//loop through posts returned by wp_query call
-		foreach( self::wp_query()->get_posts() as $post ) {
+		// loop through posts returned by wp_query call
+		foreach ( self::wp_query()->get_posts() as $post ) {
 
-			$orderby = isset( self::wp_query()->query_vars['orderby'] ) ? self::wp_query()->query_vars['orderby'] : '';
+			$orderby   = isset( self::wp_query()->query_vars['orderby'] ) ? self::wp_query()->query_vars['orderby'] : '';
 			$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
 			if ( 'modified' === $orderby || false === $post_date ) {
 				$post_date = $post->post_modified;
 			}
 
-			//in case all posts initially displayed match the keyword by title we add em all to excluded posts array
-			//else, we add only posts which are older than last_post_date param as newer are natually excluded by last_post_date condition in the SQL query
+			// in case all posts initially displayed match the keyword by title we add em all to excluded posts array
+			// else, we add only posts which are older than last_post_date param as newer are natually excluded by last_post_date condition in the SQL query
 			if ( self::has_only_title_matching_posts() || $post_date <= self::get_last_post_date() ) {
 				array_push( $excluded_posts, $post->ID );
 			}
@@ -574,15 +590,15 @@ class The_Neverending_Home_Page {
 	function get_query_vars() {
 
 		$query_vars = self::wp_query()->query_vars;
-		//applies to search page only
+		// applies to search page only
 		if ( true === self::wp_query()->is_search() ) {
-			//set post__not_in array in query_vars in case it does not exists
+			// set post__not_in array in query_vars in case it does not exists
 			if ( false === isset( $query_vars['post__not_in'] ) ) {
 				$query_vars['post__not_in'] = array();
 			}
-			//get excluded posts
+			// get excluded posts
 			$excluded = self::get_excluded_posts();
-			//merge them with other post__not_in posts (eg.: sticky posts)
+			// merge them with other post__not_in posts (eg.: sticky posts)
 			$query_vars['post__not_in'] = array_merge( $query_vars['post__not_in'], $excluded );
 		}
 		return $query_vars;
@@ -597,15 +613,15 @@ class The_Neverending_Home_Page {
 	 */
 	function has_only_title_matching_posts() {
 
-		//apply following logic for search page results only
+		// apply following logic for search page results only
 		if ( false === self::wp_query()->is_search() ) {
 			return false;
 		}
 
-		//grab the last posts in the stack as if the last one is title-matching the rest is title-matching as well
+		// grab the last posts in the stack as if the last one is title-matching the rest is title-matching as well
 		$post = end( self::wp_query()->posts );
 
-		//code inspired by WP_Query class
+		// code inspired by WP_Query class
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
 			$search_terms = self::wp_query()->query_vars['search_terms'];
 			// if the search string has only short terms or stopwords, or is 10+ terms long, match it as sentence
@@ -616,7 +632,7 @@ class The_Neverending_Home_Page {
 			$search_terms = array( self::wp_query()->get( 's' ) );
 		}
 
-		//actual testing. As search query combines multiple keywords with AND, it's enough to check if any of the keywords is present in the title
+		// actual testing. As search query combines multiple keywords with AND, it's enough to check if any of the keywords is present in the title
 		$term = current( $search_terms );
 		if ( ! empty( $term ) && false !== strpos( $post->post_title, $term ) ) {
 			return true;
@@ -637,20 +653,21 @@ class The_Neverending_Home_Page {
 	 * @return string 'Y-m-d H:i:s' or false
 	 */
 	function get_last_post_date() {
-		if ( self::got_infinity() )
+		if ( self::got_infinity() ) {
 			return;
+		}
 
 		if ( ! self::wp_query()->have_posts() ) {
 			return null;
 		}
 
-		//In case there are only title-matching posts in the initial WP_Query result, we don't want to use the last_post_date param yet
+		// In case there are only title-matching posts in the initial WP_Query result, we don't want to use the last_post_date param yet
 		if ( true === self::has_only_title_matching_posts() ) {
 			return false;
 		}
 
-		$post = end( self::wp_query()->posts );
-		$orderby = isset( self::wp_query()->query_vars['orderby'] ) ?
+		$post      = end( self::wp_query()->posts );
+		$orderby   = isset( self::wp_query()->query_vars['orderby'] ) ?
 			self::wp_query()->query_vars['orderby'] : '';
 		$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
 		switch ( $orderby ) {
@@ -673,8 +690,9 @@ class The_Neverending_Home_Page {
 	 * @return string or false
 	 */
 	function get_query_sort_field( $query = null ) {
-		if ( empty( $query ) )
+		if ( empty( $query ) ) {
 			$query = self::wp_query();
+		}
 
 		$orderby = isset( $query->query_vars['orderby'] ) ? $query->query_vars['orderby'] : '';
 
@@ -748,8 +766,9 @@ class The_Neverending_Home_Page {
 	 * @return null
 	 */
 	function posts_per_page_query( $query ) {
-		if ( ! is_admin() && self::archive_supports_infinity() && $query->is_main_query() )
+		if ( ! is_admin() && self::archive_supports_infinity() && $query->is_main_query() ) {
 			$query->set( 'posts_per_page', self::posts_per_page() );
+		}
 	}
 
 	/**
@@ -792,8 +811,9 @@ class The_Neverending_Home_Page {
 	 */
 	function ajax_response() {
 		// Only proceed if the url query has a key of "Infinity"
-		if ( ! self::got_infinity() )
+		if ( ! self::got_infinity() ) {
 			return false;
+		}
 
 		// This should already be defined below, but make sure.
 		if ( ! defined( 'DOING_AJAX' ) ) {
@@ -906,19 +926,20 @@ class The_Neverending_Home_Page {
 				'use_trailing_slashes' => $wp_rewrite->use_trailing_slashes,
 				'parameters'           => self::get_request_parameters(),
 			),
-			'query_args'      => self::get_query_vars(),
-			'query_before'    => current_time( 'mysql' ),
-			'last_post_date'  => self::get_last_post_date(),
-			'body_class'	  => self::body_class(),
-			'loading_text'	  => esc_js( __( 'Loading new page', 'jetpack' ) ),
+			'query_args'       => self::get_query_vars(),
+			'query_before'     => current_time( 'mysql' ),
+			'last_post_date'   => self::get_last_post_date(),
+			'body_class'       => self::body_class(),
+			'loading_text'     => esc_js( __( 'Loading new page', 'jetpack' ) ),
 		);
 
 		// Optional order param
 		if ( isset( $_REQUEST['order'] ) ) {
 			$order = strtoupper( $_REQUEST['order'] );
 
-			if ( in_array( $order, array( 'ASC', 'DESC' ) ) )
+			if ( in_array( $order, array( 'ASC', 'DESC' ) ) ) {
 				$js_settings['order'] = $order;
+			}
 		}
 
 		/**
@@ -968,18 +989,21 @@ class The_Neverending_Home_Page {
 			global $wp;
 
 			// If called too early, bail
-			if ( ! isset( $wp->request ) )
+			if ( ! isset( $wp->request ) ) {
 				return false;
+			}
 
 			// Determine path for paginated version of current request
-			if ( false != preg_match( '#' . $wp_rewrite->pagination_base . '/\d+/?$#i', $wp->request ) )
+			if ( false != preg_match( '#' . $wp_rewrite->pagination_base . '/\d+/?$#i', $wp->request ) ) {
 				$path = preg_replace( '#' . $wp_rewrite->pagination_base . '/\d+$#i', $wp_rewrite->pagination_base . '/%d', $wp->request );
-			else
+			} else {
 				$path = $wp->request . '/' . $wp_rewrite->pagination_base . '/%d';
+			}
 
 			// Slashes everywhere we need them
-			if ( 0 !== strpos( $path, '/' ) )
+			if ( 0 !== strpos( $path, '/' ) ) {
 				$path = '/' . $path;
+			}
 
 			$path = user_trailingslashit( $path );
 		} else {
@@ -1001,10 +1025,11 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	private function get_request_parameters() {
-		$uri = $_SERVER[ 'REQUEST_URI' ];
+		$uri = $_SERVER['REQUEST_URI'];
 		$uri = preg_replace( '/^[^?]*(\?.*$)/', '$1', $uri, 1, $count );
-		if ( $count != 1 )
+		if ( $count != 1 ) {
 			return '';
+		}
 		return $uri;
 	}
 
@@ -1043,7 +1068,8 @@ class The_Neverending_Home_Page {
 		 */
 		$styles = apply_filters( 'infinite_scroll_existing_stylesheets', $styles );
 
-		?><script type="text/javascript">
+		?>
+		<script type="text/javascript">
 			(function() {
 				var extend = function(out) {
 					out = out || {};
@@ -1084,8 +1110,9 @@ class The_Neverending_Home_Page {
 	 */
 	function filter_infinite_scroll_results( $results, $query_args, $wp_query ) {
 		// Don't bother unless there are posts to display
-		if ( 'success' != $results['type'] )
+		if ( 'success' != $results['type'] ) {
 			return $results;
+		}
 
 		// Parse and sanitize the script handles already output
 		$initial_scripts = isset( $_REQUEST['scripts'] ) && is_array( $_REQUEST['scripts'] ) ? array_map( 'sanitize_text_field', $_REQUEST['scripts'] ) : false;
@@ -1134,17 +1161,20 @@ class The_Neverending_Home_Page {
 					$src = $wp_scripts->registered[ $handle ]->src;
 
 					// Take base_url into account
-					if ( strpos( $src, 'http' ) !== 0 )
+					if ( strpos( $src, 'http' ) !== 0 ) {
 						$src = $wp_scripts->base_url . $src;
+					}
 
 					// Version and additional arguments
-					if ( null === $wp_scripts->registered[ $handle ]->ver )
+					if ( null === $wp_scripts->registered[ $handle ]->ver ) {
 						$ver = '';
-					else
+					} else {
 						$ver = $wp_scripts->registered[ $handle ]->ver ? $wp_scripts->registered[ $handle ]->ver : $wp_scripts->default_version;
+					}
 
-					if ( isset( $wp_scripts->args[ $handle ] ) )
-						$ver = $ver ? $ver . '&amp;' . $wp_scripts->args[$handle] : $wp_scripts->args[$handle];
+					if ( isset( $wp_scripts->args[ $handle ] ) ) {
+						$ver = $ver ? $ver . '&amp;' . $wp_scripts->args[ $handle ] : $wp_scripts->args[ $handle ];
+					}
 
 					// Full script source with version info
 					$script_data['src'] = add_query_arg( 'ver', $ver, $src );
@@ -1156,8 +1186,9 @@ class The_Neverending_Home_Page {
 		}
 
 		// Expose additional script data to filters, but only include in final `$results` array if needed.
-		if ( ! isset( $results['scripts'] ) )
+		if ( ! isset( $results['scripts'] ) ) {
 			$results['scripts'] = array();
+		}
 
 		/**
 		 * Filter the additional scripts required by the latest set of IS posts.
@@ -1181,8 +1212,9 @@ class The_Neverending_Home_Page {
 			$wp_query
 		);
 
-		if ( empty( $results['scripts'] ) )
-			unset( $results['scripts' ] );
+		if ( empty( $results['scripts'] ) ) {
+			unset( $results['scripts'] );
+		}
 
 		// Parse and sanitize the style handles already output
 		$initial_styles = isset( $_REQUEST['styles'] ) && is_array( $_REQUEST['styles'] ) ? array_map( 'sanitize_text_field', $_REQUEST['styles'] ) : false;
@@ -1199,30 +1231,34 @@ class The_Neverending_Home_Page {
 
 				foreach ( $new_styles as $handle ) {
 					// Abort if somehow the handle doesn't correspond to a registered stylesheet
-					if ( ! isset( $wp_styles->registered[ $handle ] ) )
+					if ( ! isset( $wp_styles->registered[ $handle ] ) ) {
 						continue;
+					}
 
 					// Provide basic style data
 					$style_data = array(
 						'handle' => $handle,
-						'media'  => 'all'
+						'media'  => 'all',
 					);
 
 					// Base source
 					$src = $wp_styles->registered[ $handle ]->src;
 
 					// Take base_url into account
-					if ( strpos( $src, 'http' ) !== 0 )
+					if ( strpos( $src, 'http' ) !== 0 ) {
 						$src = $wp_styles->base_url . $src;
+					}
 
 					// Version and additional arguments
-					if ( null === $wp_styles->registered[ $handle ]->ver )
+					if ( null === $wp_styles->registered[ $handle ]->ver ) {
 						$ver = '';
-					else
+					} else {
 						$ver = $wp_styles->registered[ $handle ]->ver ? $wp_styles->registered[ $handle ]->ver : $wp_styles->default_version;
+					}
 
-					if ( isset($wp_styles->args[ $handle ] ) )
-						$ver = $ver ? $ver . '&amp;' . $wp_styles->args[$handle] : $wp_styles->args[$handle];
+					if ( isset( $wp_styles->args[ $handle ] ) ) {
+						$ver = $ver ? $ver . '&amp;' . $wp_styles->args[ $handle ] : $wp_styles->args[ $handle ];
+					}
 
 					// Full stylesheet source with version info
 					$style_data['src'] = add_query_arg( 'ver', $ver, $src );
@@ -1230,17 +1266,21 @@ class The_Neverending_Home_Page {
 					// Parse stylesheet's conditional comments if present, converting to logic executable in JS
 					if ( isset( $wp_styles->registered[ $handle ]->extra['conditional'] ) && $wp_styles->registered[ $handle ]->extra['conditional'] ) {
 						// First, convert conditional comment operators to standard logical operators. %ver is replaced in JS with the IE version
-						$style_data['conditional'] = str_replace( array(
-							'lte',
-							'lt',
-							'gte',
-							'gt'
-						), array(
-							'%ver <=',
-							'%ver <',
-							'%ver >=',
-							'%ver >',
-						), $wp_styles->registered[ $handle ]->extra['conditional'] );
+						$style_data['conditional'] = str_replace(
+							array(
+								'lte',
+								'lt',
+								'gte',
+								'gt',
+							),
+							array(
+								'%ver <=',
+								'%ver <',
+								'%ver >=',
+								'%ver >',
+							),
+							$wp_styles->registered[ $handle ]->extra['conditional']
+						);
 
 						// Next, replace any !IE checks. These shouldn't be present since WP's conditional stylesheet implementation doesn't support them, but someone could be _doing_it_wrong().
 						$style_data['conditional'] = preg_replace( '#!\s*IE(\s*\d+){0}#i', '1==2', $style_data['conditional'] );
@@ -1250,8 +1290,9 @@ class The_Neverending_Home_Page {
 					}
 
 					// Parse requested media context for stylesheet
-					if ( isset( $wp_styles->registered[ $handle ]->args ) )
+					if ( isset( $wp_styles->registered[ $handle ]->args ) ) {
 						$style_data['media'] = esc_attr( $wp_styles->registered[ $handle ]->args );
+					}
 
 					// Add stylesheet to data that will be returned to IS JS
 					array_push( $results['styles'], $style_data );
@@ -1260,8 +1301,9 @@ class The_Neverending_Home_Page {
 		}
 
 		// Expose additional stylesheet data to filters, but only include in final `$results` array if needed.
-		if ( ! isset( $results['styles'] ) )
+		if ( ! isset( $results['styles'] ) ) {
 			$results['styles'] = array();
+		}
 
 		/**
 		 * Filter the additional styles required by the latest set of IS posts.
@@ -1285,8 +1327,9 @@ class The_Neverending_Home_Page {
 			$wp_query
 		);
 
-		if ( empty( $results['styles'] ) )
-			unset( $results['styles' ] );
+		if ( empty( $results['styles'] ) ) {
+			unset( $results['styles'] );
+		}
 
 		// Lastly, return the IS results array
 		return $results;
@@ -1302,8 +1345,9 @@ class The_Neverending_Home_Page {
 	 * @return string or null
 	 */
 	function query() {
-		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
+		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) ) {
 			die;
+		}
 
 		$page = (int) $_REQUEST['page'];
 
@@ -1314,17 +1358,21 @@ class The_Neverending_Home_Page {
 		}
 
 		$post_status = array( 'publish' );
-		if ( current_user_can( 'read_private_posts' ) )
+		if ( current_user_can( 'read_private_posts' ) ) {
 			array_push( $post_status, 'private' );
+		}
 
 		$order = in_array( $_REQUEST['order'], array( 'ASC', 'DESC' ) ) ? $_REQUEST['order'] : 'DESC';
 
-		$query_args = array_merge( self::wp_query()->query_vars, array(
-			'paged'          => $page,
-			'post_status'    => $post_status,
-			'posts_per_page' => self::posts_per_page(),
-			'order'          => $order
-		) );
+		$query_args = array_merge(
+			self::wp_query()->query_vars,
+			array(
+				'paged'          => $page,
+				'post_status'    => $post_status,
+				'posts_per_page' => self::posts_per_page(),
+				'order'          => $order,
+			)
+		);
 
 		// 4.0 ?s= compatibility, see https://core.trac.wordpress.org/ticket/11330#comment:50
 		if ( empty( $query_args['s'] ) && ! isset( self::wp_query()->query['s'] ) ) {
@@ -1427,10 +1475,10 @@ class The_Neverending_Home_Page {
 				do_action( 'infinite_scroll_empty' );
 				$results['type'] = 'empty';
 			} elseif ( $this->has_wrapper() ) {
-				$wrapper_classes = is_string( self::get_settings()->wrapper ) ? self::get_settings()->wrapper : 'infinite-wrap';
+				$wrapper_classes  = is_string( self::get_settings()->wrapper ) ? self::get_settings()->wrapper : 'infinite-wrap';
 				$wrapper_classes .= ' infinite-view-' . $page;
-				$wrapper_classes = trim( $wrapper_classes );
-				$aria_label = sprintf(
+				$wrapper_classes  = trim( $wrapper_classes );
+				$aria_label       = sprintf(
 					/* translators: %1$s is the page count */
 					__( 'Page: %1$d.', 'jetpack' ),
 					$page
@@ -1448,7 +1496,7 @@ class The_Neverending_Home_Page {
 
 			if ( 'success' == $results['type'] ) {
 				global $currentday;
-				$results['lastbatch'] = self::is_last_batch();
+				$results['lastbatch']  = self::is_last_batch();
 				$results['currentday'] = $currentday;
 			}
 
@@ -1456,7 +1504,7 @@ class The_Neverending_Home_Page {
 			if ( 'success' == $results['type'] && function_exists( 'sharing_register_post_for_share_counts' ) ) {
 				global $jetpack_sharing_counts;
 
-				while( have_posts() ) {
+				while ( have_posts() ) {
 					the_post();
 
 					sharing_register_post_for_share_counts( get_the_ID() );
@@ -1520,8 +1568,9 @@ class The_Neverending_Home_Page {
 
 		$taxonomy_vars = array();
 		foreach ( $wp_taxonomies as $taxonomy => $t ) {
-			if ( $t->query_var )
+			if ( $t->query_var ) {
 				$taxonomy_vars[] = $t->query_var;
+			}
 		}
 
 		// still needed?
@@ -1550,14 +1599,18 @@ class The_Neverending_Home_Page {
 		 */
 		$allowed_vars = apply_filters( 'infinite_scroll_allowed_vars', array(), $query_args );
 
-		$query_args = array_merge( $query_args, array(
-			'suppress_filters' => false,
-		) );
+		$query_args = array_merge(
+			$query_args,
+			array(
+				'suppress_filters' => false,
+			)
+		);
 
-		if ( is_array( $_REQUEST[ 'query_args' ] ) ) {
-			foreach ( $_REQUEST[ 'query_args' ] as $var => $value ) {
-				if ( in_array( $var, $allowed_vars ) && ! empty( $value ) )
+		if ( is_array( $_REQUEST['query_args'] ) ) {
+			foreach ( $_REQUEST['query_args'] as $var => $value ) {
+				if ( in_array( $var, $allowed_vars ) && ! empty( $value ) ) {
 					$query_args[ $var ] = $value;
+				}
 			}
 		}
 
@@ -1618,22 +1671,25 @@ class The_Neverending_Home_Page {
 		}
 
 		// Bail if theme requested footer not show
-		if ( false == self::get_settings()->footer )
+		if ( false == self::get_settings()->footer ) {
 			return;
+		}
 
 		// We only need the new footer for the 'scroll' type
-		if ( 'scroll' != self::get_settings()->type || ! self::archive_supports_infinity() )
+		if ( 'scroll' != self::get_settings()->type || ! self::archive_supports_infinity() ) {
 			return;
+		}
 
 		if ( self::is_last_batch() ) {
 			return;
 		}
 
 		// Display a footer, either user-specified or a default
-		if ( false !== self::get_settings()->footer_callback && is_callable( self::get_settings()->footer_callback ) )
+		if ( false !== self::get_settings()->footer_callback && is_callable( self::get_settings()->footer_callback ) ) {
 			call_user_func( self::get_settings()->footer_callback, self::get_settings() );
-		else
+		} else {
 			self::default_footer();
+		}
 	}
 
 	/**
@@ -1641,7 +1697,6 @@ class The_Neverending_Home_Page {
 	 *
 	 * @uses __, wp_get_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
 	 * @return string
-	 *
 	 */
 	private function default_footer() {
 		if ( '' !== get_privacy_policy_url() ) {
@@ -1697,14 +1752,17 @@ class The_Neverending_Home_Page {
 	public function filter_grunion_redirect_url( $url ) {
 		// Remove IS query args, if present
 		if ( false !== strpos( $url, 'infinity=scrolling' ) ) {
-			$url = remove_query_arg( array(
-				'infinity',
-				'action',
-				'page',
-				'order',
-				'scripts',
-				'styles'
-			), $url );
+			$url = remove_query_arg(
+				array(
+					'infinity',
+					'action',
+					'page',
+					'order',
+					'scripts',
+					'styles',
+				),
+				$url
+			);
 		}
 
 		return $url;
@@ -2000,14 +2058,15 @@ class The_Neverending_Home_Page {
 	protected static function amp_is_last_page() {
 		return 0 === static::amp_get_max_pages();
 	}
-};
+}
 
 /**
  * Initialize The_Neverending_Home_Page
  */
 function the_neverending_home_page_init() {
-	if ( ! current_theme_supports( 'infinite-scroll' ) )
+	if ( ! current_theme_supports( 'infinite-scroll' ) ) {
 		return;
+	}
 
 	new The_Neverending_Home_Page();
 }
@@ -2038,10 +2097,11 @@ function the_neverending_home_page_theme_support() {
 	 * @param string $str IS compatibility file path.
 	 * @param string $theme_name Theme name.
 	 */
-	$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/themes/{$theme_name}.php", $theme_name );
+	$customization_file = apply_filters( 'infinite_scroll_customization_file', __DIR__ . "/themes/{$theme_name}.php", $theme_name );
 
-	if ( is_readable( $customization_file ) )
-		require_once( $customization_file );
+	if ( is_readable( $customization_file ) ) {
+		require_once $customization_file;
+	}
 }
 add_action( 'after_setup_theme', 'the_neverending_home_page_theme_support', 5 );
 
