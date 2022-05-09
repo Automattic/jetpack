@@ -22,7 +22,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:* || ^0.12",
-		"@babel/core": "7.17.9",
+		"@babel/core": "7.17.10",
 		"@babel/plugin-syntax-jsx": "7.16.7",
 		"@babel/preset-react": "7.16.7",
 		"@babel/runtime": "7.17.9",
@@ -47,7 +47,7 @@
 		"@wordpress/element": "4.5.0",
 		"@wordpress/format-library": "3.5.0",
 		"@wordpress/postcss-plugins-preset": "3.7.0",
-		"babel-loader": "8.2.4",
+		"babel-loader": "8.2.5",
 		"babel-plugin-inline-json-import": "0.3.2",
 		"css-loader": "6.5.1",
 		"jest": "28.1.0",
