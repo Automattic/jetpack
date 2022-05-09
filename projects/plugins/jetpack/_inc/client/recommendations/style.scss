@@ -1,3 +1,4 @@
+@import './mixin';
 @import '../scss/mixin_breakpoint.scss';
 @import '../scss/mixins/rna';
 @import 'node_modules/@automattic/jetpack-base-styles/style';
@@ -17,19 +18,10 @@
 	display: grid;
 	grid-template-columns: repeat( 2, 1fr );
 
-	@include breakpoint( '<782px' ) {
+	@include breakpoint( '<1040px' ) {
 		grid-template-columns: auto;
 		background: var( --jp-white );
 	}
-}
-
-.jp-recommendations-question__main--with-illustration:not( .jp-recommendations-question__main--with-illustration--rna ) {
-	background: linear-gradient(
-		130deg,
-		var( --jp-white ) 0%,
-		var( --jp-white ) 60%,
-		var( --jp-white-off ) 60%
-	);
 }
 
 .jp-recommendations__loading {
@@ -45,4 +37,12 @@
 	font-weight: 500;
 	border-radius: 3px;
 	font-size: 12px;
+}
+
+.jp-recommendations-question__sidebar {
+	@include recommendation-sidebar-blob;
+
+	@include breakpoint( '<1040px' ) {
+		background: none;
+	}
 }

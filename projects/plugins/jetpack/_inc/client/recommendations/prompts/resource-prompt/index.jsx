@@ -22,6 +22,7 @@ import {
 } from 'state/recommendations';
 import analytics from 'lib/analytics';
 import { PromptLayout } from '../prompt-layout';
+import { DEFAULT_ILLUSTRATION } from '../../constants';
 import { getStepContent } from '../../feature-utils';
 import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
 
@@ -45,8 +46,6 @@ const ResourcePromptComponent = props => {
 		nextRoute,
 		ctaText,
 		ctaLink,
-		illustrationPath,
-		rnaIllustration,
 		stepSlug,
 		stateStepSlug,
 		updatingStep,
@@ -153,13 +152,12 @@ const ResourcePromptComponent = props => {
 					</div>
 				</div>
 			}
-			illustrationPath={ ! spotlightProduct ? illustrationPath : null }
 			sidebarCard={
 				spotlightProduct ? (
 					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
 				) : null
 			}
-			rna={ rnaIllustration }
+			illustration={ DEFAULT_ILLUSTRATION }
 		/>
 	);
 };
