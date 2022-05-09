@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Sync\Data_Settings;
@@ -121,5 +122,18 @@ class Jetpack_Starter_Plugin {
 		?>
 			<div id="jetpack-starter-plugin-root"></div>
 		<?php
+	}
+
+	/**
+	 * Removes plugin from the connection manager
+	 * If it's the last plugin using the connection, the site will be disconnected.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function plugin_deactivation() {
+		$manager = new Connection_Manager( 'jetpack-starter-plugin' );
+		$manager->disconnect_site_wpcom();
+		$manager->delete_all_connection_tokens();
 	}
 }

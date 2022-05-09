@@ -38,6 +38,16 @@ function buildInitialState( { recommendationsStep } = {} ) {
 			settings: {
 				items: [],
 			},
+			siteData: {
+				requests: {
+					isFetchingSiteDiscount: false
+				},
+			},
+			introOffers: {
+				requests: {
+					isFetching: false
+				},
+			},
 		}
 	};
 }

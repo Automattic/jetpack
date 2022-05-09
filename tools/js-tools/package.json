@@ -12,7 +12,7 @@
 	"devDependencies": {
 		"@automattic/eslint-changed": "workspace:*",
 		"@automattic/eslint-config-target-es": "workspace:*",
-		"@babel/core": "7.17.9",
+		"@babel/core": "7.17.10",
 		"@babel/eslint-parser": "7.17.0",
 		"@octokit/auth-token": "2.5.0",
 		"@octokit/rest": "18.12.0",
@@ -20,7 +20,7 @@
 		"@sveltejs/eslint-config": "github:sveltejs/eslint-config",
 		"@typescript-eslint/eslint-plugin": "5.18.0",
 		"@typescript-eslint/parser": "5.18.0",
-		"@wordpress/eslint-plugin": "12.1.0",
+		"@wordpress/eslint-plugin": "12.2.0",
 		"chalk": "4.1.2",
 		"debug": "4.3.3",
 		"eslint-config-prettier": "8.5.0",

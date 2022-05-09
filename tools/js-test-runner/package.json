@@ -8,9 +8,9 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.17.9",
-		"@babel/plugin-transform-runtime": "7.17.0",
-		"@babel/preset-env": "7.16.11",
+		"@babel/core": "7.17.10",
+		"@babel/plugin-transform-runtime": "7.17.10",
+		"@babel/preset-env": "7.17.10",
 		"@babel/preset-react": "7.16.7",
 		"@babel/register": "7.17.7",
 		"@babel/runtime": "7.17.9",
