@@ -1,12 +1,17 @@
 <?php
-
 /**
- * WordPress.com Site Helper Private Site Logged-in Banner
+ * WordPress.com Site Helper Private Site Logged-in Banner.
+ *
+ * @package private-site
  */
+
 namespace Private_Site;
 
+/**
+ * Shows the logged-in banner.
+ */
 function show_logged_in_banner() {
-	// Launching a site and all privacy features only work properly when Jetpack is connected
+	// Launching a site and all privacy features only work properly when Jetpack is connected.
 	if ( ! is_jetpack_connected() ) {
 		return;
 	}

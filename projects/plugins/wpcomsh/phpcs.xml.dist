@@ -12,7 +12,6 @@
 	<exclude-pattern>/footer-credit</exclude-pattern>
 
 	<!-- Exclude folders that have not been fixed yet -->
-	<exclude-pattern>/private-site</exclude-pattern>
 	<exclude-pattern>/widgets</exclude-pattern>
 	<exclude-pattern>/support-session.php</exclude-pattern>
 

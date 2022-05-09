@@ -1,8 +1,10 @@
 <?php
-
 /**
- * WordPress.com Site Helper Private Site Template
+ * WordPress.com Site Helper Private Site Template.
+ *
+ * @package private-site
  */
+
 namespace Private_Site;
 
 nocache_headers();

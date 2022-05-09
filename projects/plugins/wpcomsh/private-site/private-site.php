@@ -1,8 +1,9 @@
 <?php
-
 /**
  * Private Site
- * Functionality to make sites private and only accessible to members with appropriate capabilities
+ * Functionality to make sites private and only accessible to members with appropriate capabilities.
+ *
+ * @package private-site
  */
 
 namespace Private_Site;
@@ -11,15 +12,12 @@ use Jetpack;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
 use WP_REST_Request;
-use function checked;
 use function get_home_url;
-use function doing_filter;
 use function esc_html_e;
 use function get_current_blog_id;
 use function get_option;
 use function remove_filter;
 use function status_header;
-use function wp_clone;
 use function wp_get_current_user;
 use function wp_send_json_error;
 
@@ -53,12 +51,15 @@ function is_module_active() {
 	return true;
 }
 
+/**
+ * Setup when wp-admin gets initialized.
+ */
 function admin_init() {
 	if ( ! is_module_active() ) {
 		return;
 	}
 
-	/**
+	/*
 	 * Don't add the action when we don't intend to alter core behavior.
 	 * The mere presence of a `blog_privacy_selector` hook changes things!
 	 *
@@ -66,7 +67,7 @@ function admin_init() {
 	 */
 	if ( ( is_jetpack_connected() || site_is_private() ) && should_update_privacy_selector() ) {
 		add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
-		// Prevent wp-admin from touching blog_public option
+		// Prevent wp-admin from touching blog_public option.
 		add_action( 'whitelist_options', '\Private_Site\remove_privacy_option_from_whitelist' );
 		add_action( 'admin_print_scripts', '\Private_Site\hide_videopress_from_jetpack_plans_page' );
 	}
@@ -84,12 +85,15 @@ function admin_init() {
 }
 add_action( 'admin_init', '\Private_Site\admin_init' );
 
+/**
+ * Setup when WordPress gets initialized.
+ */
 function init() {
 	if ( ! is_module_active() ) {
 		return;
 	}
 
-	// Update `wpcom_coming_soon` cached value when it's updated on WP.com
+	// Update `wpcom_coming_soon` cached value when it's updated on WP.com.
 	add_filter( 'rest_api_update_site_settings', '\Private_Site\cache_option_on_update_site_settings', 10, 2 );
 
 	// Logged-in blog users for an 'unlaunched' or 'coming soon' site see a banner.
@@ -103,22 +107,22 @@ function init() {
 		return;
 	}
 
-	// Scrutinize most requests
+	// Scrutinize most requests.
 	add_action( 'parse_request', '\Private_Site\parse_request', 100 );
 
-	// Scrutinize REST API requests
-	add_filter( 'rest_dispatch_request', '\Private_Site\rest_dispatch_request', 10, 4 );
+	// Scrutinize REST API requests.
+	add_filter( 'rest_dispatch_request', '\Private_Site\rest_dispatch_request', 10, 3 );
 
-	// Prevent Pinterest pinning
+	// Prevent Pinterest pinning.
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
 
-	// Prevent leaking site information via OPML
+	// Prevent leaking site information via OPML.
 	add_action( 'opml_head', '\Private_Site\hide_opml' );
 
 	// Mask the blog name on the login screen etc.
 	add_filter( 'bloginfo', '\Private_Site\mask_site_name', 3, 2 );
 
-	// Block incoming comments for non-users
+	// Block incoming comments for non-users.
 	add_filter( 'preprocess_comment', '\Private_Site\preprocess_comment', 0 );
 
 	// Robots requests are allowed via parse_request / maybe_print_robots_txt
@@ -130,8 +134,9 @@ function init() {
 }
 add_action( 'init', '\Private_Site\init' );
 
-
-/** Jetpack-specific hooks **/
+/**
+ * Jetpack-specific hooks.
+ */
 function muplugins_loaded() {
 	if ( ! is_module_active() ) {
 		return;
@@ -144,14 +149,14 @@ function muplugins_loaded() {
 	// Only allow Jetpack XMLRPC methods -- Jetpack handles verifying the token, request signature, etc.
 	add_filter( 'xmlrpc_methods', '\Private_Site\xmlrpc_methods_limit_to_allowed_list' );
 
-	// Register additional Jetpack XMLRPC methods
+	// Register additional Jetpack XMLRPC methods.
 	add_filter( 'jetpack_xmlrpc_methods', '\Private_Site\register_additional_jetpack_xmlrpc_methods' );
 
-	// Lift the blog name mask prior to Jetpack sync activity
+	// Lift the blog name mask prior to Jetpack sync activity.
 	add_action( 'jetpack_sync_before_send_queue_full_sync', '\Private_Site\remove_mask_site_name_filter' );
 	add_action( 'jetpack_sync_before_send_queue_sync', '\Private_Site\remove_mask_site_name_filter' );
 
-	// Prevent Jetpack certain modules from running while the site is private
+	// Prevent Jetpack certain modules from running while the site is private.
 	add_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules' );
 	add_filter( 'jetpack_get_available_modules', '\Private_Site\filter_jetpack_get_available_modules' );
 	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
@@ -183,7 +188,7 @@ function privatize_blog_priv_selector() {
 ( function() {
 	var widgetArea = document.querySelector( '.option-site-visibility td' );
 	if ( ! widgetArea ) {
-	  return;
+		return;
 	}
 	widgetArea.innerHTML = '<?php echo wp_kses_post( $escaped_content ); ?>';
 } )()
@@ -194,7 +199,7 @@ function privatize_blog_priv_selector() {
 /**
  * Fetches an option from the Jetpack cloud site.
  *
- * @param $option  String  Name of option to be retrieved.
+ * @param string $option Name of option to be retrieved.
  *
  * @return mixed  Option value.
  */
@@ -261,8 +266,7 @@ function site_is_public_coming_soon() : bool {
  * @return string
  */
 function site_launch_status() : string {
-	// We need to check for launch status for private by default sites
-	// and coming soon + public by default sites
+	// We need to check for launch status for private by default sites and coming soon + public by default sites.
 	if ( ! site_is_private() && ! site_is_public_coming_soon() ) {
 		return '';
 	}
@@ -277,12 +281,18 @@ function site_launch_status() : string {
 	return (string) $launch_status;
 }
 
+/**
+ * Whether the site is launched.
+ *
+ * @return bool
+ */
 function is_launched() {
 	return 'launched' === site_launch_status();
 }
 
 /**
- * Hooked into filter: `pre_update_option_blog_public`
+ * Hooked into filter: `pre_update_option_blog_public`.
+ *
  * Sets a secondary option (`wpcom_blog_public_updated`) to `1` when the `blog_public` option is updated
  * This will be used to determine that the option has been set after the launch of the Private Site module.
  *
@@ -311,23 +321,28 @@ function should_prevent_site_access() {
 		return $cached;
 	}
 
-	// If Jetpack is enabled, check to see if blog token requests are authenticated before disallowing access
-	// This allows Jetpack Sync to run for private sites
+	/*
+	 * If Jetpack is enabled, check to see if blog token requests are authenticated before disallowing access.
+	 * This allows Jetpack Sync to run for private sites.
+	 */
 	if ( class_exists( 'Automattic\Jetpack\Connection\Rest_Authentication' ) && Rest_Authentication::is_signed_with_blog_token() ) {
-		return $cached = false;
+		return $cached = false; // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments
 	}
 
 	if (
 		( defined( 'WP_CLI' ) && WP_CLI ) ||
 		( defined( 'WP_IMPORTING' ) && WP_IMPORTING )
 	) {
-		// WP-CLI & Importers are always allowed
-		return $cached = false;
+		// WP-CLI & Importers are always allowed.
+		return $cached = false; // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments
 	}
 
-	return $cached = ! is_private_blog_user();
+	return $cached = ! is_private_blog_user(); // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments
 }
 
+/**
+ * Hides the Videopress feature on Jetpack plan pages.
+ */
 function hide_videopress_from_jetpack_plans_page() {
 	wp_add_inline_script(
 		'react-plugin',
@@ -341,8 +356,15 @@ function hide_videopress_from_jetpack_plans_page() {
 		',
 		'before'
 	);
-};
+}
 
+/**
+ * Adds custom XML-RPC endpoints for private-site.
+ *
+ * @param array $methods A list of registered XML-RPC methods.
+ *
+ * @return array
+ */
 function register_additional_jetpack_xmlrpc_methods( $methods ) {
 	return array_merge(
 		$methods,
@@ -353,6 +375,13 @@ function register_additional_jetpack_xmlrpc_methods( $methods ) {
 	);
 }
 
+/**
+ * Returns the closest thumbnail size URL.
+ *
+ * @param array $args Image arguments.
+ *
+ * @return array|false
+ */
 function get_closest_thumbnail_size_url( $args ) {
 	[ $url, $width, $height ] = $args;
 	$id                       = attachment_url_to_postid( $url );
@@ -371,6 +400,10 @@ function get_closest_thumbnail_size_url( $args ) {
 /**
  * We use this XMLPC method to ensure wp.com is able to fetch read access cookies even
  * when Jetpack SSO module is disabled.
+ *
+ * @param array $args Cookie args.
+ *
+ * @return array|WP_Error
  */
 function get_read_access_cookies( $args ) {
 	[ $user_id, $expiration ] = $args;
@@ -420,12 +453,14 @@ function get_read_access_cookies( $args ) {
  * @return bool
  */
 function is_jetpack_admin_ajax_request() {
+	// phpcs:disable WordPress.Security
 	return (
 		substr( $_SERVER['REQUEST_URI'], 0, 24 ) === '/wp-admin/admin-ajax.php' &&
 		substr( $_SERVER['HTTP_AUTHORIZATION'], 0, 9 ) === 'X_JETPACK' &&
 		array_key_exists( 'action', $_POST ) &&
 		substr( $_POST['action'], 0, 8 ) === 'jetpack_'
 	);
+	// phpcs:enable
 }
 
 /**
@@ -435,9 +470,7 @@ function is_jetpack_admin_ajax_request() {
 function send_access_denied_error_response() {
 	global $wp;
 
-	if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ||
-		 'admin-ajax.php' === ( $wp->query_vars['pagename'] ?? '' )
-	) {
+	if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) || 'admin-ajax.php' === ( $wp->query_vars['pagename'] ?? '' ) ) {
 		wp_send_json_error(
 			[
 				'code'    => 'private_site',
@@ -453,6 +486,9 @@ function send_access_denied_error_response() {
 	exit;
 }
 
+/**
+ * Prints robots.txt and prevents access if necessary.
+ */
 function parse_request() {
 	if ( maybe_print_robots_txt() ) {
 		// If robots.txt was requested, go ahead & serve our hard-coded version & bail
@@ -464,14 +500,21 @@ function parse_request() {
 	}
 }
 
+/**
+ * Returns the original request URL.
+ *
+ * @return string
+ */
 function original_request_url() {
+	// phpcs:disable WordPress.Security
 	$origin = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['SERVER_NAME'];
 
-	if ( ! empty( $_SERVER['SERVER_PORT'] ) && ! in_array( $_SERVER['SERVER_PORT'], [ 80, 443 ] ) ) {
+	if ( ! empty( $_SERVER['SERVER_PORT'] ) && ! in_array( $_SERVER['SERVER_PORT'], [ 80, 443 ] ) ) { //phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 		$origin .= ':' . $_SERVER['SERVER_PORT'];
 	}
 
 	return $origin . strtok( $_SERVER['REQUEST_URI'], '?' );
+	// phpcs:enable
 }
 
 /**
@@ -481,10 +524,10 @@ function original_request_url() {
  * whenever `wpcom_coming_soon` option is changed on WP.com and this plugin
  * is notified via Jetpack-WPCOM REST API bridge.
  *
- * @param $input Filtered POST input
- * @param $unfiltered_input Raw and unfiltered POST input
+ * @param array $input            Filtered POST input
+ * @param array $unfiltered_input Raw and unfiltered POST input
  *
- * @return mixed
+ * @return array
  */
 function cache_option_on_update_site_settings( $input, $unfiltered_input ) {
 	if ( array_key_exists( 'wpcom_coming_soon', $unfiltered_input ) ) {
@@ -525,18 +568,19 @@ function maybe_print_robots_txt() {
  * @param mixed           $dispatch_result Dispatch result, will be used if not empty.
  * @param WP_REST_Request $request         Request used to generate the response.
  * @param string          $route           Route matched for the request.
- * @param array           $handler         Route handler used for the request.
  *
  * @return WP_Error|null  WP_Error on disallowed, null on ok
  */
-function rest_dispatch_request( $dispatch_result, $request, $route, $handler ) {
-	// Don't clobber other plugins
+function rest_dispatch_request( $dispatch_result, $request, $route ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	// Don't clobber other plugins.
 	if ( $dispatch_result !== null ) {
 		return $dispatch_result;
 	}
 
-	// Allow certain endpoints for plugin-based authentication methods
-	// These are "anchored" on the left side with `^/`, but not the right, so include the trailing `/`
+	/*
+	 * Allow certain endpoints for plugin-based authentication methods.
+	 * These are "anchored" on the left side with `^/`, but not the right, so include the trailing `/`
+	 */
 	$allowed_routes = [
 		'2fa/', // https://wordpress.org/plugins/application-passwords/
 		'jwt-auth/', // https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/
@@ -554,21 +598,25 @@ function rest_dispatch_request( $dispatch_result, $request, $route, $handler ) {
 	return null;
 }
 
+/**
+ * Limits XML-RPC endpoints to the ones that are allowed.
+ *
+ * @param array $methods List of XML-RPC methods.
+ *
+ * @return array
+ */
 function xmlrpc_methods_limit_to_allowed_list( $methods ) {
 	if ( should_prevent_site_access() ) {
 		return array_filter(
 			$methods,
 			function ( $key ) {
-				return in_array(
-					$key,
-					[
-						'demo.sayHello', // Permits the Jetpack debug tool. See: p58i-8OX-p2#comment-46085
-					]
-				) || preg_match( '/^jetpack\..+/', $key );
+				// Permits the Jetpack debug tool. @see p58i-8OX-p2#comment-46085.
+				return 'demo.sayHello' === $key || preg_match( '/^jetpack\..+/', $key );
 			},
 			ARRAY_FILTER_USE_KEY
 		);
 	}
+
 	return $methods;
 }
 
@@ -578,7 +626,7 @@ function xmlrpc_methods_limit_to_allowed_list( $methods ) {
  * @return bool
  */
 function is_private_blog_user() {
-	return (bool) blog_user_can( 'read' );
+	return blog_user_can();
 }
 
 /**
@@ -587,7 +635,7 @@ function is_private_blog_user() {
  * Does not check whether the blog is private. Works on current blog & user.
  * Returns true for super admins.
  *
- * @param $capability string  Capability name.
+ * @param string $capability Capability name.
  * @return bool
  */
 function blog_user_can( $capability = 'read' ) {
@@ -601,10 +649,10 @@ function blog_user_can( $capability = 'read' ) {
 		return false;
 	}
 
-	// check if the user has read permissions
+	// Check if the user has read permissions.
 	$the_user = clone( $user );
 	$the_user->for_site( $blog_id );
-	return (bool) $the_user->has_cap( $capability );
+	return $the_user->has_cap( $capability );
 }
 
 /**
@@ -624,14 +672,14 @@ function mask_site_name( $value, $what ) {
 }
 
 /**
- * Remove the mask_site_name filter
+ * Remove the mask_site_name filter.
  */
 function remove_mask_site_name_filter() {
 	remove_filter( 'bloginfo', '\Private_Site\mask_site_name' );
 }
 
 /**
- * Filters new comments so that users can't comment on private blogs
+ * Filters new comments so that users can't comment on private blogs.
  *
  * @param array $comment Documented in wp-includes/comment.php.
  *
@@ -645,15 +693,31 @@ function preprocess_comment( $comment ) {
 	return $comment;
 }
 
+/**
+ * Whether the current site is connected to Jetpack.
+ *
+ * @return bool
+ */
 function is_jetpack_connected() {
-	return is_callable( 'Jetpack::is_connection_ready' ) && \Jetpack::is_connection_ready();
+	return is_callable( 'Jetpack::is_connection_ready' ) && Jetpack::is_connection_ready();
 }
 
+/**
+ * Whether we're in preview mode.
+ *
+ * @return bool
+ */
 function is_site_preview() {
 	return site_preview_source() !== false;
 }
 
+/**
+ * Returns the site preview source.
+ *
+ * @return false|string
+ */
 function site_preview_source() {
+	// phpcs:disable WordPress.Security
 	$ua                = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
 	$apps_ua_fragments = [
 		'iphone-app'  => ' wp-iphone/',
@@ -676,12 +740,13 @@ function site_preview_source() {
 	) {
 		return 'browser-iframe';
 	}
+	// phpcs:enable
 
 	return false;
 }
 
 /**
- * Grabs a proper access denied template and returns it's path
+ * Grabs a proper access-denied template and returns its path.
  */
 function access_denied_template_path() {
 	if ( is_site_preview() ) {
@@ -695,23 +760,22 @@ function access_denied_template_path() {
 	}
 }
 
-
 /**
- * Hooked into filter: `whitelist_options`
+ * Hooked into filter: `whitelist_options`.
  *
  * Prevents WordPress from saving blog_public option when site options are saved.
  *
  * This plugin disables the 'Site Visibility' selector in wp-admin and shows a link to Calypso instead. This function
  * effectively prevents wp-admin from accidentally updating 'blog_public' option when other site options are updated.
  *
- * @param array $whitelist
+ * @param array $allow_list Options allow list.
  * @return array
  */
-function remove_privacy_option_from_whitelist( $whitelist ) {
-	$blog_public_index = array_search( 'blog_public', $whitelist['reading'], true );
-	unset( $whitelist['reading'][ $blog_public_index ] );
+function remove_privacy_option_from_whitelist( $allow_list ) {
+	$blog_public_index = array_search( 'blog_public', $allow_list['reading'], true );
+	unset( $allow_list['reading'][ $blog_public_index ] );
 
-	return $whitelist;
+	return $allow_list;
 }
 
 /**
@@ -724,15 +788,13 @@ function should_update_privacy_selector() {
 	return apply_filters( 'wpcom_should_update_privacy_selector', true );
 }
 
-
 /**
  * Don't let search engines index private sites.
  * If the site is not private, do nothing.
  *
- * @param string $output Robots.txt output.
- * @return string the Robots.txt information
+ * @return string The Robots.txt information.
  */
-function private_robots_txt( $output ) {
+function private_robots_txt() {
 	// Purposefully overriding current output; we only want these rules.
 	return "User-agent: *\nDisallow: /\n";
 }
@@ -762,7 +824,7 @@ function hide_opml() {
 }
 
 /**
- * Removes disabled modules from the active list for private sites
+ * Removes disabled modules from the active list for private sites.
  *
  * @param array $modules Active modules.
  *
@@ -772,13 +834,13 @@ function filter_jetpack_active_modules( $modules ) {
 	return array_filter(
 		$modules,
 		function( $module_name ) {
-			return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE );
+			return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE, true );
 		}
 	);
 }
 
 /**
- * Disables modules for private sites
+ * Disables modules for private sites.
  *
  * @param array $modules Available modules.
  *
@@ -788,7 +850,7 @@ function filter_jetpack_get_available_modules( $modules ) {
 	return array_filter(
 		$modules,
 		function( $module_name ) {
-			return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE );
+			return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE, true );
 		},
 		ARRAY_FILTER_USE_KEY
 	);
@@ -796,7 +858,7 @@ function filter_jetpack_get_available_modules( $modules ) {
 
 /**
  * Classic editor in calypso don't support displaying private media files because of CORS issues. Adding
- * a support would be super complex and probably not worth it considering that we're phasing out the classical
+ * a support would be super complex and probably not worth it, considering that we're phasing out the classical
  * editor altogether. Classic editor in wp-admin handles private files out of the box so we're redirecting all
  * private+atomic+classic editor users from calypso to wp-admin with ?classic_editor.
  *
@@ -830,24 +892,27 @@ function use_classic_editor_if_requested() {
 	require dirname( __DIR__ ) . '/vendor/wordpress/classic-editor-plugin/classic-editor.php';
 	\Classic_Editor::init_actions();
 
-	// Classic editor registers itself to plugins_loaded action. By now it was already executed, but
-	// let's remove it just to be safe.
+	/*
+	 * Classic editor registers itself to plugins_loaded action.
+	 * By now it was already executed, but let's remove it just to be safe.
+	 */
 	remove_action( 'plugins_loaded', array( 'Classic_Editor', 'init_actions' ) );
 
-	// In allow-users => false mode, these redirection helpers aren't used. Let's
-	// apply them manually
+	// In allow-users => false mode, these redirection helpers aren't used. Let's apply them manually.
 	add_filter( 'get_edit_post_link', array( 'Classic_Editor', 'get_edit_post_link' ) );
 	add_filter( 'redirect_post_location', array( 'Classic_Editor', 'redirect_location' ) );
 	add_action( 'edit_form_top', array( 'Classic_Editor', 'add_redirect_helper' ) );
 	add_action( 'admin_head-edit.php', array( 'Classic_Editor', 'add_edit_php_inline_style' ) );
 
-	// Let's disable Calypsoify - it gets triggered when the user:
-	// 1. Opens Gutenberg
-	// 2. Clicks "Switch to classic editor"
-	// 3. Clicks "Use Classic editor" in the prompt
+	/*
+	 * Let's disable Calypsoify - it gets triggered when the user:
+	 * 1. Opens Gutenberg.
+	 * 2. Clicks "Switch to classic editor".
+	 * 3. Clicks "Use Classic editor" in the prompt.
+	 */
 	add_filter(
 		'get_user_metadata',
-		function( $value, $object_id, $meta_key, $single ) {
+		function( $value, $object_id, $meta_key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 			if ( $meta_key === 'calypsoify' ) {
 				return 0;
 			}
@@ -855,10 +920,17 @@ function use_classic_editor_if_requested() {
 			return $value;
 		},
 		10,
-		4
+		3
 	);
 }
 
+/**
+ * Disables the classic editor plugin when active.
+ *
+ * @param array $plugins List of active plugins.
+ *
+ * @return array
+ */
 function disable_classic_editor_plugin_when_needed( $plugins ) {
 	if ( ! is_module_active() ) {
 		return $plugins;
@@ -868,16 +940,20 @@ function disable_classic_editor_plugin_when_needed( $plugins ) {
 		return $plugins;
 	}
 
-	$key = array_search( 'classic-editor/classic-editor.php', $plugins );
+	$key = array_search( 'classic-editor/classic-editor.php', $plugins, true );
 	if ( false !== $key ) {
 		unset( $plugins[ $key ] );
 	}
 
 	return $plugins;
 }
-
 add_filter( 'option_active_plugins', '\Private_Site\disable_classic_editor_plugin_when_needed', 1000 );
 
+/**
+ * Determines whether to override the editor with the Classic Editor.
+ *
+ * @return bool
+ */
 function should_override_editor_with_classic_editor() {
 	if ( ! site_is_private() ) {
 		return false;
@@ -892,11 +968,11 @@ function should_override_editor_with_classic_editor() {
 		return false;
 	}
 
-	if ( ! array_key_exists( 'classic-editor', $_REQUEST ) ) {
+	if ( ! array_key_exists( 'classic-editor', $_REQUEST ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		return false;
 	}
 
-	if ( array_key_exists( 'classic-editor__forget', $_REQUEST ) ) {
+	if ( array_key_exists( 'classic-editor__forget', $_REQUEST ) ) {  // phpcs:ignore WordPress.Security.NonceVerification
 		return false;
 	}
 

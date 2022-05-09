@@ -1,7 +1,10 @@
 <?php
 /**
- * WordPress.com Site Helper Private Site Template
+ * WordPress.com Site Helper Private Site Template.
+ *
+ * @package private-site
  */
+
 namespace Private_Site;
 
 add_filter( 'jetpack_implode_frontend_css', '__return_false', 99 );
@@ -22,8 +25,8 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 	<title><?php echo bloginfo( 'name' ); ?></title>
 
 	<?php
-	wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css' );
-	wp_enqueue_style( 'wpcomsh-coming-soon-style', plugins_url( 'style.css', __FILE__ ) );
+	wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), WPCOMSH_VERSION );
+	wp_enqueue_style( 'wpcomsh-coming-soon-style', plugins_url( 'style.css', __FILE__ ), array(), WPCOMSH_VERSION );
 	do_action( 'login_enqueue_scripts' );
 	do_action( 'login_head' );
 

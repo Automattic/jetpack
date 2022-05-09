@@ -1,8 +1,10 @@
 <?php
-
 /**
- * WordPress.com Site Helper Private Site Template
+ * WordPress.com Site Helper Private Site Template.
+ *
+ * @package private-site
  */
+
 namespace Private_Site;
 
 nocache_headers();
@@ -53,35 +55,35 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 					// non-english users
 				?>
 				This site is private. Private sites cannot be previewed from the app yet. Log in using your web browser to preview the site. <br>
-				<?php $button_text = esc_html( 'Log in using browser', 'wpcomsh' ); ?>
+				<?php $button_text = 'Log in using browser'; ?>
 			<?php } elseif ( is_user_logged_in() ) { ?>
 				<?php esc_html_e( 'This site is private. You need to log in as a user with permissions before previewing it.', 'wpcomsh' ); ?><br>
-				<?php $button_text = esc_html( 'Switch user', 'wpcomsh' ); ?>
+				<?php $button_text = 'Switch user'; ?>
 			<?php } else { ?>
 				<?php esc_html_e( 'This site is private. You need to log in to the preview to see it.', 'wpcomsh' ); ?><br>
-				<?php $button_text = esc_html( 'Log in', 'wpcomsh' ); ?>
+				<?php $button_text = 'Log in'; ?>
 			<?php } ?>
 
 			<br>
 			<?php if ( $preview_source === 'browser-iframe' ) { ?>
 				<script>
 					function handleClick() {
-						<?php if ( isset( $_GET['calypso_token'] ) ) { ?>
+						<?php if ( isset( $_GET['calypso_token'] ) ) { /* phpcs:ignore WordPress.Security */ ?>
 							window.calypso.postMessage(JSON.stringify({
-							  type: 'needs-auth',
-							  channel: "preview-" + <?php echo json_encode( $_GET['calypso_token'] ); ?>
+								type: 'needs-auth',
+								channel: "preview-" + <?php echo wp_json_encode( $_GET['calypso_token'] ); /* phpcs:ignore WordPress.Security */ ?>
 							}), '*');
 						<?php } else { ?>
-							window.location.href = <?php echo json_encode( $login_link ); ?>;
+							window.location.href = <?php echo wp_json_encode( $login_link ); ?>;
 						<?php } ?>
 					}
 				</script>
 				<span class="button-primary" onclick="handleClick()">
-					<?php echo $button_text; ?>
+					<?php echo esc_html( $button_text ); ?>
 				</span>
 			<?php } else { ?>
 				<a class="button-primary" href="<?php echo esc_url( $login_link ); ?>">
-					<?php echo $button_text; ?>
+					<?php echo esc_html( $button_text ); ?>
 				</a>
 			<?php } ?>
 		</p>
