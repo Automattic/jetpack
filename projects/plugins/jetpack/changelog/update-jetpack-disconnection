@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Update disconnect method on deactivation
