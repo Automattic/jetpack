@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix version conflicts for @types/react
