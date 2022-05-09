@@ -19,7 +19,7 @@ describe( 'with notices to display', () => {
 		render(
 			<NoticeBox
 				recordCount={ 20 }
-				planRecordLimit={ 100 }
+				tierMaximumRecords={ 100 }
 				hasBeenIndexed={ false }
 				hasValidData={ true }
 				hasItems={ true }
@@ -32,7 +32,7 @@ describe( 'with notices to display', () => {
 		render(
 			<NoticeBox
 				recordCount={ 20 }
-				planRecordLimit={ 100 }
+				tierMaximumRecords={ 100 }
 				hasBeenIndexed={ true }
 				hasValidData={ false }
 				hasItems={ true }
@@ -46,7 +46,7 @@ describe( 'with notices to display', () => {
 		render(
 			<NoticeBox
 				recordCount={ 20 }
-				planRecordLimit={ 100 }
+				tierMaximumRecords={ 100 }
 				hasBeenIndexed={ true }
 				hasValidData={ true }
 				hasItems={ false }
@@ -60,7 +60,7 @@ describe( 'with notices to display', () => {
 		render(
 			<NoticeBox
 				recordCount={ 120 }
-				planRecordLimit={ 100 }
+				tierMaximumRecords={ 100 }
 				hasBeenIndexed={ true }
 				hasValidData={ true }
 				hasItems={ true }
@@ -74,7 +74,7 @@ describe( 'with notices to display', () => {
 		render(
 			<NoticeBox
 				recordCount={ 95 }
-				planRecordLimit={ 100 }
+				tierMaximumRecords={ 100 }
 				hasBeenIndexed={ true }
 				hasValidData={ true }
 				hasItems={ true }
@@ -89,7 +89,7 @@ test( "with no notices to display, notice box container doesn't render", () => {
 	render(
 		<NoticeBox
 			recordCount={ 20 }
-			planRecordLimit={ 100 }
+			tierMaximumRecords={ 100 }
 			hasBeenIndexed={ true }
 			hasValidData={ true }
 			hasItems={ true }
