@@ -16,7 +16,7 @@ use WP_REST_Server;
 /**
  * Registers the REST routes for Search.
  */
-class Publicize_REST_Controller {
+class REST_Controller {
 	/**
 	 * Whether it's run on WPCOM.
 	 *
