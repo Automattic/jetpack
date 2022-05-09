@@ -101,7 +101,7 @@
 		"qss": "2.0.3",
 		"query-string": "7.0.0",
 		"react-page-visibility": "6.4.0",
-		"react-redux": "6.0.1",
+		"react-redux": "7.2.8",
 		"react-router-dom": "5.2.0",
 		"react-tagsinput": "3.19.0",
 		"redux": "4.0.5",

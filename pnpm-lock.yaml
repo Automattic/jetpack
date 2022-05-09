@@ -1313,7 +1313,7 @@ importers:
       react-click-outside: 3.0.1
       react-dom: 17.0.2
       react-page-visibility: 6.4.0
-      react-redux: 6.0.1
+      react-redux: 7.2.8
       react-router-dom: 5.2.0
       react-tagsinput: 3.19.0
       react-test-renderer: 17.0.2
@@ -1398,7 +1398,7 @@ importers:
       qss: 2.0.3
       query-string: 7.0.0
       react-page-visibility: 6.4.0_react@17.0.2
-      react-redux: 6.0.1_react@17.0.2+redux@4.0.5
+      react-redux: 7.2.8_react-dom@17.0.2+react@17.0.2
       react-router-dom: 5.2.0_react@17.0.2
       react-tagsinput: 3.19.0_react@17.0.2
       redux: 4.0.5
@@ -13676,6 +13676,7 @@ packages:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
     dependencies:
       loose-envify: 1.4.0
+    dev: true
 
   /ip/1.1.5:
     resolution: {integrity: sha1-vd7XARQpCCjAoDnnLvJfWq7ENUo=}
@@ -17945,22 +17946,6 @@ packages:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-
-  /react-redux/6.0.1_react@17.0.2+redux@4.0.5:
-    resolution: {integrity: sha512-T52I52Kxhbqy/6TEfBv85rQSDz6+Y28V/pf52vDWs1YRXG19mcFOGfHnY2HsNFHyhP+ST34Aih98fvt6tqwVcQ==}
-    peerDependencies:
-      react: ^16.4.0-0 || ^17
-      redux: ^2.0.0 || ^3.0.0 || ^4.0.0-0
-    dependencies:
-      '@babel/runtime': 7.17.9
-      hoist-non-react-statics: 3.3.2
-      invariant: 2.2.4
-      loose-envify: 1.4.0
-      prop-types: 15.8.1
-      react: 17.0.2
-      react-is: 16.13.1
-      redux: 4.0.5
-    dev: false
 
   /react-redux/7.2.8_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-6+uDjhs3PSIclqoCk0kd6iX74gzrGc3W5zcAjbrFgEdIjRSQObdIwfx80unTkVUYvbQ95Y8Av3OvFHq1w5EOUw==}
