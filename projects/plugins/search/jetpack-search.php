@@ -23,6 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Constant definitions.
 define( 'JETPACK_SEARCH_PLUGIN__DIR', plugin_dir_path( __FILE__ ) );
+define( 'JETPACK_SEARCH_PLUGIN__FILE', __FILE__ );
+define( 'JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'jetpack-search' );
 define( 'JETPACK_SEARCH_PLUGIN__VERSION', '0.1.0-alpha' );
 
