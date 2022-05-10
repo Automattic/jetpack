@@ -4,22 +4,17 @@
 
 ## 11.0-a.3 - 2022-05-10
 ### Enhancements
-- Added unit tests for membership product store [#23873]
-- Adding the 'Additional CSS' menu item on Jetpack connection instead of Custom CSS feature enablement, and adding a Customizer link from the Settings page. [#23670]
-- Assistant: Update illustrations [#24061]
 - Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset. [#24057]
-- Improve Extensibility of VideoPress Privacy Setting filter by adding the embedded post id. [#23949]
-- Improve help message of VideoPress Privacy Setting at the block level. [#24184]
-- Latest Instagram Posts block: lazy load the images. [#24279]
-- Reset form data to default values after creating a subscription. [#24175]
-- Updates entrypoints in to My Jetpack licensing activation [#24189]
+- Latest Instagram Posts Block: improve performance of the block by adding lazy load for the images. [#24279]
+- Payment Blocks: reset form data to default values after creating a subscription. [#24175]
+- VideoPress: improve Extensibility of Privacy Setting filter by adding the embedded post id. [#23949]
+- VideoPress: improve help message of VideoPress Privacy Setting at the block level. [#24184]
 
 ### Improved compatibility
-- Do not hard disconnect Jetpack on deactivation [#24272]
+- General: improve connection sharing between Jetpack and Jetpack standalone plugins. [#24272]
 
 ### Bug fixes
-- Better Video Privacy Section Label for the Video Block [#24241]
-- Removed keepPlaceholderOnFocus property from donations form and dialogue blocks since the property was removed from Gutenberg. [#24269]
+- Custom CSS: ensure the Additional CSS sub-menu link displays correctly. [#23670]
 - Subscriptions: fix typo in confirmation message. [#24291]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
@@ -32,6 +27,10 @@
 - Replace Akismet plan check with feature check [#24211]
 - Updated package dependencies. [#24167]
 - Use browser URL API instead of polyfills. [#24234]
+- Added unit tests for membership product store [#23873]
+- Assistant: Update illustrations [#24061]
+- Updates entrypoints in to My Jetpack licensing activation [#24189]
+- Removed keepPlaceholderOnFocus property from donations form and dialogue blocks since the property was removed from Gutenberg. [#24269]
 
 ## 11.0-a.1 - 2022-05-04
 ### Enhancements
