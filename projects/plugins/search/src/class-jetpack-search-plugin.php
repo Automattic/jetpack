@@ -12,7 +12,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
-use Automattic\Jetpack\Search\Options as Search_Options;
 
 /**
  * Class to bootstrap Jetpack Search Plugin
@@ -20,8 +19,6 @@ use Automattic\Jetpack\Search\Options as Search_Options;
  * @package automattic/jetpack-search
  */
 class Jetpack_Search_Plugin {
-	const ACTIVATION_OPTION_NAME = Search_Options::OPTION_PREFIX . 'plugin_is_activated';
-
 	/**
 	 * Register hooks to initialize the plugin
 	 */
