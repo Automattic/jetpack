@@ -15,7 +15,7 @@ class Tracking {
 	 * The assets version.
 	 *
 	 * @since 1.13.1
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 1.40.1
 	 *
 	 * @var string Assets version.
 	 */

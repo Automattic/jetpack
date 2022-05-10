@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fixed an issue that was setting a wrong site suffix for WoA sites. These changes doesn't affect self-hosted Jetpack sites.
-
-
