@@ -2,7 +2,7 @@
 /**
  * Put your classes in this `src` folder!
  *
- * @package automattic/jetpack-search
+ * @package automattic/jetpack-search-plugin
  */
 
 namespace Automattic\Jetpack\Search_Plugin;

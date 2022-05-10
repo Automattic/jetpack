@@ -2,7 +2,7 @@
 /**
  * Jetpack compatibility
  *
- * @package automattic/jetpack-search
+ * @package automattic/jetpack-search-plugin
  */
 
 namespace Automattic\Jetpack\Search_Plugin\Compatibility\Jetpack;
