@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.9.3
+ * Version: 2.9.4
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.9.3' );
+define( 'WPCOMSH_VERSION', '2.9.4' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -499,6 +499,43 @@ function wpcomsh_managed_plugins_action_links() {
 			add_action( "after_plugin_row_{$plugin}", 'wpcomsh_show_unmanaged_plugin_separator', PHP_INT_MAX );
 		}
 	}
+
+	// Remove `delete` link for all managed plugins purchased from Wordpress.com Marketplace.
+	$all_plugin_files     = array_keys( get_plugins() );
+	$active_subscriptions = get_option( 'wpcom_active_subscriptions', array() );
+	foreach ( $active_subscriptions as $plugin_slug => $subscription ) {
+		if ( 'marketplace_plugin' !== $subscription->product_type ) {
+			continue;
+		}
+
+		// Get installed plugin.
+		$installed_plugin = array_values(
+			array_filter(
+				$all_plugin_files,
+				function( $plugin_file ) use ( $plugin_slug ) {
+					if ( wpcomsh_is_managed_plugin( $plugin_file ) && str_starts_with( $plugin_file, $plugin_slug ) ) {
+						return true;
+					}
+				}
+			)
+		);
+
+		if ( ! $installed_plugin ) {
+			continue;
+		}
+
+		add_filter(
+			"plugin_action_links_{$installed_plugin[0]}",
+			'wpcomsh_hide_plugin_remove_link'
+		);
+
+		add_action(
+			"after_plugin_row_{$installed_plugin[0]}",
+			'wpcomsh_show_plugin_auto_managed_notice',
+			10,
+			2
+		);
+	}
 }
 add_action( 'admin_init', 'wpcomsh_managed_plugins_action_links' );
 
@@ -593,6 +630,23 @@ function wpcomsh_hide_plugin_deactivate_edit_links( $links ) {
 
 	unset( $links['deactivate'] );
 	unset( $links['edit'] );
+
+	return $links;
+}
+
+/**
+ * Hide plugin removal link
+ *
+ * @param mixed $links The nav links
+ *
+ * @return array
+ */
+function wpcomsh_hide_plugin_remove_link( $links ) {
+	if ( ! is_array( $links ) ) {
+		return array();
+	}
+
+	unset( $links['delete'] );
 
 	return $links;
 }
