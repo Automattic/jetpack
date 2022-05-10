@@ -1,7 +1,6 @@
 /**
  * External Dependencies
  */
-import 'url-polyfill';
 import { isEqual } from 'lodash';
 import queryString from 'query-string';
 

@@ -4,7 +4,6 @@
 import photon from 'photon';
 import { __, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
-import { format as formatUrl, parse as parseUrl } from 'url';
 import { isBlobURL } from '@wordpress/blob';
 
 /**
@@ -99,7 +98,7 @@ function isSquareishLayout( layout ) {
 }
 
 function isWpcomFilesUrl( url ) {
-	const { host } = parseUrl( url );
+	const { host } = new URL( url, window.location.href );
 	return /\.files\.wordpress\.com$/.test( host );
 }
 
@@ -128,17 +127,21 @@ function photonWpcomImage( url, opts = {} ) {
 	};
 
 	// Discard some param parts
-	const { auth, hash, port, query, search, ...urlParts } = parseUrl( url );
+	const urlObj = Object.assign( new URL( url, window.location.href ), {
+		username: '',
+		password: '',
+		port: '',
+		search: '',
+		hash: '',
+	} );
 
 	// Build query
-	// This reduction intentionally mutates the query as it is built internally.
-	urlParts.query = Object.keys( opts ).reduce(
-		( q, key ) =>
-			Object.assign( q, {
-				[ photonLibMappings.hasOwnProperty( key ) ? photonLibMappings[ key ] : key ]: opts[ key ],
-			} ),
-		{}
-	);
+	for ( const [ k, v ] of Object.entries( opts ) ) {
+		urlObj.searchParams.set(
+			photonLibMappings.hasOwnProperty( k ) ? photonLibMappings[ k ] : k,
+			v
+		);
+	}
 
-	return formatUrl( urlParts );
+	return urlObj.toString();
 }

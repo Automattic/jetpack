@@ -86,5 +86,33 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	return;
 }
 
+// Redirect to plugin page when the plugin is activated.
+add_action( 'activated_plugin', 'jetpack_starter_plugin_activation' );
+
+/**
+ * Redirects to plugin page when the plugin is activated
+ *
+ * @param string $plugin Path to the plugin file relative to the plugins directory.
+ */
+function jetpack_starter_plugin_activation( $plugin ) {
+	if ( JETPACK_STARTER_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
+		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-starter-plugin' ) ) );
+		exit;
+	}
+}
+
+// Add "Settings" link to plugins page.
+add_filter(
+	'plugin_action_links_' . JETPACK_STARTER_PLUGIN_FOLDER . '/jetpack-starter-plugin.php',
+	function ( $actions ) {
+		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-starter-plugin' ) ) . '">' . __( 'Settings', 'jetpack-starter-plugin' ) . '</a>';
+		array_unshift( $actions, $settings_link );
+
+		return $actions;
+	}
+);
+
+register_deactivation_hook( __FILE__, array( 'Jetpack_Starter_Plugin', 'plugin_deactivation' ) );
+
 // Main plugin class.
 new Jetpack_Starter_Plugin();
