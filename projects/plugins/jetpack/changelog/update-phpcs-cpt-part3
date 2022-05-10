@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-PHPCS: fix linting errors in the Comic CPT file.

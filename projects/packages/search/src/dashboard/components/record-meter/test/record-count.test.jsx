@@ -16,7 +16,7 @@ import { RecordCount } from 'components/record-meter/record-count';
 
 describe( 'record count', () => {
 	test( 'outputs correct record counts', () => {
-		render( <RecordCount recordCount={ 20 } planRecordLimit={ 100 } /> );
+		render( <RecordCount recordCount={ 20 } tierMaximumRecords={ 100 } /> );
 
 		expect( screen.getByText( /20/i ) ).toBeInTheDocument();
 

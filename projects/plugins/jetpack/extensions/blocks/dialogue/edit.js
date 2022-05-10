@@ -261,7 +261,6 @@ export default function DialogueEdit( {
 				} }
 				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
-				keepPlaceholderOnFocus={ true }
 			/>
 		</div>
 	);
