@@ -264,8 +264,5 @@ export function getIconBySlug( slug ) {
 
 export const SocialServiceIcon = ( { serviceName, className } ) => {
 	const Icon = getIconBySlug( serviceName );
-	if ( Icon ) {
-		return <Icon className={ className } />;
-	}
-	return null;
+	return Icon ? <Icon className={ className } /> : null;
 };
