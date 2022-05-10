@@ -28,8 +28,7 @@ class Jetpack_Search_Plugin {
 	public static function bootstrap() {
 		add_action( 'plugins_loaded', array( self::class, 'ensure_dependencies_configured' ), 1 );
 		add_action( 'plugins_loaded', array( self::class, 'initialize' ) );
-		register_activation_hook( JETPACK_SEARCH_PLUGIN__FILE, array( self::class, 'handle_plugin_activation' ) );
-		add_action( 'admin_init', array( self::class, 'redirect_on_activation' ) );
+		add_action( 'activated_plugin', array( self::class, 'handle_plugin_activation' ) );
 	}
 
 	/**
@@ -65,9 +64,11 @@ class Jetpack_Search_Plugin {
 	}
 
 	/**
-	 * Activation hook.
+	 * Redirects to the Search Dashboard when the Search plugin is activated.
+	 *
+	 * @param string $plugin Path to the plugin file relative to the plugins directory.
 	 */
-	public static function handle_plugin_activation() {
+	public static function handle_plugin_activation( $plugin ) {
 		// If site is already connected, enable the search module and enable instant search.
 		if ( ( new Connection_Manager() )->is_connected() ) {
 			$controller        = new Search_Module_Control();
@@ -78,17 +79,9 @@ class Jetpack_Search_Plugin {
 			}
 		}
 
-		// Used for redirecting to the search dashboard following plugin activation.
-		add_option( self::ACTIVATION_OPTION_NAME, true );
-	}
-
-	/**
-	 * Runs after the plugin activation hook for page redirection.
-	 */
-	public static function redirect_on_activation() {
-		if ( get_option( self::ACTIVATION_OPTION_NAME ) ) {
-			delete_option( self::ACTIVATION_OPTION_NAME );
-			wp_safe_redirect( admin_url( 'admin.php?page=jetpack-search' ) );
+		if ( JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH === $plugin ) {
+			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-search' ) ) );
+			exit;
 		}
 	}
 }
