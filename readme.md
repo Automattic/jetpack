@@ -54,8 +54,8 @@ Jetpack is developed and maintained by various teams at Automattic. The Jetpack 
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
-@aldavigdis, @allendav, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @chaosexanima, @ebinnion, @enejb, @eoigal, @georgestephanis, @gibrown, @gititon, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @mdawaffe, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu and @yoavf.
+@aldavigdis, @allendav, @apeatling, @azaozz, @bazza, @beaulebens, @bindlegirl, @cfinke, @coder-karen, @daniloercoli, @chaosexanima, @ebinnion, @enejb, @eoigal, @georgestephanis, @gibrown, @gititon, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @mdawaffe, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu and @yoavf.
 
-Our _awesome_ happiness engineers are @a8ck3n, @aicee, @bindlegirl, @bizanimesh, @brucea8c, @cena, @coder-karen, @danjjohnson, @dericleeyy, @dkmyta, @gaurav1984, @jenhooks, @JenSwish, @julsyd, @kristinaplauche, @lizthefair, @madhattermattic, @mbhthompson, @mzakariya, @pranali333, @rcowles, @snowmads, @stefmattana, and @tmmbecker.
+Our _awesome_ happiness engineers are @a8ck3n, @aicee, @bizanimesh, @brucea8c, @cena, @danjjohnson, @dericleeyy, @dkmyta, @gaurav1984, @jenhooks, @JenSwish, @julsyd, @kristinaplauche, @lizthefair, @madhattermattic, @mbhthompson, @mzakariya, @pranali333, @rcowles, @snowmads, @stefmattana, and @tmmbecker.
 
 Interested in working on awesome open-source code all day? [Join us](https://automattic.com/work-with-us/)!
