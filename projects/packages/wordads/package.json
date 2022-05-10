@@ -59,7 +59,7 @@
 		"tiny-lru": "7.0.6"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.2",
 		"@babel/core": "7.17.10",
 		"@babel/plugin-proposal-nullish-coalescing-operator": "7.16.7",
 		"@babel/plugin-transform-react-jsx": "7.17.3",
