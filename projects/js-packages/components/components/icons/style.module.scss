@@ -16,6 +16,7 @@
 .socialIcon {
 	fill: $gray-700;
 	&.facebook {
+		border-radius: 50%;
 		fill: var( --color-facebook );
 	}
 	&.twitter {
