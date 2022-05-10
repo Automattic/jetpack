@@ -69,6 +69,8 @@ const ConnectionScreen = () => {
 						apiNonce={ apiNonce }
 						images={ [ connectImage ] }
 						footer={ <ConnectionScreenFooter /> }
+						from="my-jetpack"
+						redirectUri="admin.php?page=my-jetpack"
 					>
 						<ul>
 							<li>{ __( 'Receive instant downtime alerts', 'jetpack-my-jetpack' ) }</li>
