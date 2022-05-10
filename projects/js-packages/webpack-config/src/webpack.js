@@ -11,6 +11,7 @@ const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
 const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
 const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
 const I18nCheckWebpackPlugin = require( '@automattic/i18n-check-webpack-plugin' );
+const PnpmDeterministicModuleIdsPlugin = require( './webpack/pnpm-deterministic-ids.js' );
 
 const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
 
@@ -28,6 +29,7 @@ const optimization = {
 	minimize: isProduction,
 	minimizer: [ TerserPlugin(), MyCssMinimizerPlugin() ],
 	concatenateModules: false,
+	moduleIds: isProduction ? false : 'named',
 	emitOnErrors: true,
 };
 const resolve = {
@@ -107,9 +109,16 @@ const I18nCheckPlugin = options => {
 };
 I18nCheckPlugin.defaultFilter = i18nFilterFunction;
 
+const MyPnpmDeterministicModuleIdsPlugin = options => [
+	new PnpmDeterministicModuleIdsPlugin( options ),
+];
+
 const StandardPlugins = ( options = {} ) => {
 	if ( typeof options.I18nCheckPlugin === 'undefined' && isDevelopment ) {
 		options.I18nCheckPlugin = false;
+	}
+	if ( typeof options.PnpmDeterministicModuleIdsPlugin === 'undefined' && isDevelopment ) {
+		options.PnpmDeterministicModuleIdsPlugin = false;
 	}
 
 	return [
@@ -132,6 +141,9 @@ const StandardPlugins = ( options = {} ) => {
 			: DependencyExtractionPlugin( options.DependencyExtractionPlugin ) ),
 		...( options.I18nLoaderPlugin === false ? [] : I18nLoaderPlugin( options.I18nLoaderPlugin ) ),
 		...( options.I18nCheckPlugin === false ? [] : I18nCheckPlugin( options.I18nCheckPlugin ) ),
+		...( options.PnpmDeterministicModuleIdsPlugin === false
+			? []
+			: MyPnpmDeterministicModuleIdsPlugin( options.PnpmDeterministicModuleIdsPlugin ) ),
 	];
 };
 
@@ -166,6 +178,7 @@ module.exports = {
 	DependencyExtractionPlugin,
 	DuplicatePackageCheckerPlugin,
 	I18nLoaderPlugin,
+	PnpmDeterministicModuleIdsPlugin: MyPnpmDeterministicModuleIdsPlugin,
 	// Module rules and loaders.
 	TranspileRule,
 	CssRule,

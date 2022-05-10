@@ -245,7 +245,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						printf(
 							wp_kses(
 								/* translators: 1: Link to Subscription Management page https://subscribe.wordpress.com/, 2: Description of this link */
-								__( 'You subscribed this site before but you have not clicked the confirmation link yet. Please check your inbox. <br /> Otherwise, you can manage your preferences at <a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferrer">subscribe.wordpress.com</a>.', 'jetpack' ),
+								__( 'You subscribed to this site before but you have not clicked the confirmation link yet. Please check your inbox. <br /> Otherwise, you can manage your preferences at <a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferrer">subscribe.wordpress.com</a>.', 'jetpack' ),
 								self::$allowed_html_tags_for_message
 							),
 							'https://subscribe.wordpress.com/',
