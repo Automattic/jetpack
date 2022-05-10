@@ -317,8 +317,10 @@ class Waf_Runner {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			throw new \Exception( 'API connection failed.' );
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			throw new \Exception( 'API connection failed.', $response_code );
 		}
 
 		$rules_json = wp_remote_retrieve_body( $response );
@@ -347,11 +349,17 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
-		$api_exception = null;
+		$api_exception       = null;
+		$throw_api_exception = true;
 		try {
 			$rules = self::get_rules_from_api();
 		} catch ( \Exception $e ) {
-			if ( $wp_filesystem->exists( self::RULES_FILE ) ) {
+			if ( 401 === $e->getCode() ) {
+				// do not throw API exceptions for users who do not have access
+				$throw_api_exception = false;
+			}
+
+			if ( $wp_filesystem->exists( self::RULES_FILE ) && $throw_api_exception ) {
 				throw $e;
 			}
 
@@ -379,7 +387,7 @@ class Waf_Runner {
 			throw new \Exception( 'Failed writing rules file to: ' . self::RULES_FILE );
 		}
 
-		if ( null !== $api_exception ) {
+		if ( null !== $api_exception && $throw_api_exception ) {
 			throw $api_exception;
 		}
 	}
