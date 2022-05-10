@@ -12,6 +12,7 @@ import { registerPlugin } from '@wordpress/plugins';
 import { dispatch } from '@wordpress/data';
 import { getQueryArg } from '@wordpress/url';
 import domReady from '@wordpress/dom-ready';
+import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Open Jetpack Spcoal; sidebar by default when URL includes jetpackSidebarIsOpen=true.
@@ -30,9 +31,18 @@ const PublicizePanel = () => <span>This is a placeholder panel</span>;
 registerPlugin( 'jetpack-social', {
 	render: () => (
 		<PostTypeSupportCheck supportKeys="publicize">
-			<PluginSidebarMoreMenuItem target="jetpack-social">Jetpack Social</PluginSidebarMoreMenuItem>
+			<PluginSidebarMoreMenuItem
+				target="jetpack-social"
+				icon={ <JetpackLogo showText={ false } /> }
+			>
+				Jetpack Social
+			</PluginSidebarMoreMenuItem>
 
-			<PluginSidebar name="jetpack-social" title="Jetpack Social">
+			<PluginSidebar
+				name="jetpack-social"
+				title="Jetpack Social"
+				icon={ <JetpackLogo showText={ false } /> }
+			>
 				<PublicizePanel />
 			</PluginSidebar>
 
