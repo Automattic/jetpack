@@ -16,7 +16,7 @@ import { createInterpolateElement } from '@wordpress/element';
  * @returns {React.Component} record count component.
  */
 export function RecordCount( props ) {
-	if ( ! props.recordCount || ! props.planRecordLimit ) {
+	if ( ! props.recordCount ) {
 		return null;
 	}
 
@@ -24,24 +24,39 @@ export function RecordCount( props ) {
 		typeof props.recordCount === 'number' ? props.recordCount?.toLocaleString() : props.recordCount;
 
 	const recordLimit =
-		typeof props.planRecordLimit === 'number'
-			? props.planRecordLimit?.toLocaleString()
-			: props.planRecordLimit;
+		typeof props.tierMaximumRecords === 'number'
+			? props.tierMaximumRecords?.toLocaleString()
+			: props.tierMaximumRecords;
 
-	const message = createInterpolateElement(
-		sprintf(
-			// translators: %1$s: site's current record count, %2$s: record limit of the current plan
-			__(
-				'<s>%1$s</s> records indexed out of the <s>%2$s</s> allotted for your current plan',
-				'jetpack-search-pkg'
+	let message;
+
+	if ( recordLimit ) {
+		message = createInterpolateElement(
+			sprintf(
+				// translators: %1$s: site's current record count, %2$s: record limit of the current plan
+				__(
+					'<s>%1$s</s> records indexed out of the <s>%2$s</s> allotted for your current plan',
+					'jetpack-search-pkg'
+				),
+				recordCount,
+				recordLimit
 			),
-			recordCount,
-			recordLimit
-		),
-		{
-			s: <strong />,
-		}
-	);
+			{
+				s: <strong />,
+			}
+		);
+	} else {
+		message = createInterpolateElement(
+			sprintf(
+				// translators: %1$s: site's current record count, %2$s: record limit of the current plan
+				__( '<s>%1$s</s> records indexed', 'jetpack-search-pkg' ),
+				recordCount
+			),
+			{
+				s: <strong />,
+			}
+		);
+	}
 
 	return (
 		<div data-testid="record-count" className="jp-search-record-count">

@@ -2,6 +2,36 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.0-a.3 - 2022-05-10
+### Enhancements
+- Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset. [#24057]
+- Latest Instagram Posts Block: improve performance of the block by adding lazy load for the images. [#24279]
+- Payment Blocks: reset form data to default values after creating a subscription. [#24175]
+- VideoPress: improve Extensibility of Privacy Setting filter by adding the embedded post id. [#23949]
+- VideoPress: improve help message of VideoPress Privacy Setting at the block level. [#24184]
+
+### Improved compatibility
+- General: improve connection sharing between Jetpack and Jetpack standalone plugins. [#24272]
+
+### Bug fixes
+- Custom CSS: ensure the Additional CSS sub-menu link displays correctly. [#23670]
+- Subscriptions: fix typo in confirmation message. [#24291]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Custom Content Types: fix PHPCS errors with Nova restaurant menu management. [#24212]
+- Fix the changelog and readme [#24246]
+- Init for 11.0-a.1 [#24245]
+- PHPCS: fix linting errors in the Comic CPT file. [#24186]
+- Publicize filter comment edited to move the relevant @since tag to the top [#24242]
+- Remove use of `node-polyfill-webpack-plugin`. [#24233]
+- Replace Akismet plan check with feature check [#24211]
+- Updated package dependencies. [#24167]
+- Use browser URL API instead of polyfills. [#24234]
+- Added unit tests for membership product store [#23873]
+- Assistant: Update illustrations [#24061]
+- Updates entrypoints in to My Jetpack licensing activation [#24189]
+- Removed keepPlaceholderOnFocus property from donations form and dialogue blocks since the property was removed from Gutenberg. [#24269]
+
 ## 11.0-a.1 - 2022-05-04
 ### Enhancements
 - WAF: add settings UI for Jetpack Firewall [#23769]
