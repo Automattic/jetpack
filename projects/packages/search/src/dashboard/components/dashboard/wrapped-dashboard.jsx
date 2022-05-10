@@ -3,17 +3,17 @@
  */
 import React, { useMemo } from 'react';
 import { useSelect, select as syncSelect } from '@wordpress/data';
+import analytics from '@automattic/jetpack-analytics';
+import restApi from '@automattic/jetpack-api';
 
 /**
  * Internal dependencies
  */
-import analytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
-import useConnection from './use-connection';
+import useConnection from 'hooks/use-connection';
 import { STORE_ID } from 'store';
-import SearchConnectionPage from './pages/connection-page';
-import UpsellPage from './pages/upsell-page';
-import SearchDashboardPage from './pages/dashboard-page';
+import SearchConnectionPage from 'components/pages/connection-page';
+import UpsellPage from 'components/pages/upsell-page';
+import SearchDashboardPage from 'components/pages/dashboard-page';
 
 /**
  * Return appropriate components.

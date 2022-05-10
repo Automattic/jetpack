@@ -18,7 +18,7 @@ import {
 import { STORE_ID } from 'store';
 import getProductCheckoutUrl from 'utils/get-product-checkout-url';
 import SearchPromotionBlock from 'components/search-promotion';
-import Loading from 'components//loading';
+import Loading from 'components/loading';
 
 import './upsell-page.scss';
 
