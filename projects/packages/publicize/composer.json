@@ -28,6 +28,7 @@
 		"test-php": [
 			"@composer phpunit"
 		],
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
 		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"build-development": "echo 'Add your build step to composer.json, please!'"
 	},
@@ -55,8 +56,9 @@
 	},
 	"config": {
 		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
 			"automattic/jetpack-autoloader": true,
-			"roots/wordpress-core-installer": true
+			"automattic/jetpack-composer-plugin": true
 		}
 	}
 }
