@@ -2,22 +2,11 @@
  * External dependencies
  */
 import type React from 'react';
+import type { ButtonProps } from './types';
 import { Button as WPButton, Spinner } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
 import classNames from 'classnames';
 import styles from './style.module.scss';
-
-export type ButtonProps = Omit< WPButton.Props, 'size' | 'variant' > & {
-	className?: string;
-	children?: React.ReactNode;
-	disabled?: boolean;
-	isDestructive?: boolean;
-	isLoading?: boolean;
-	size?: 'normal' | 'small';
-	text?: string;
-	variant?: 'primary' | 'secondary' | 'link' | 'external-link';
-	weight?: 'bold' | 'regular';
-};
 
 /**
  * Button component
@@ -64,8 +53,7 @@ export const Button: React.FC< ButtonProps > = ( {
 			disabled={ disabled }
 			isDestructive={ isDestructive }
 			text={ text }
-			// cast as unknown to make TS happy about this being used both <a /> and <button /> 🤷‍♂️
-			{ ...( componentProps as unknown ) }
+			{ ...componentProps }
 		>
 			{ isLoading && <Spinner /> }
 			<span>{ children }</span>
