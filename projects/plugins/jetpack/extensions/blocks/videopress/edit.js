@@ -636,7 +636,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
 							/>
 							<SelectControl
-								label={ __( 'Privacy', 'jetpack' ) }
+								label={ __( 'Video Privacy', 'jetpack' ) }
 								help={ this.getPrivacySettingHelp( privacySetting ) }
 								onChange={ this.onChangePrivacySetting }
 								value={ privacySetting }
@@ -826,7 +826,7 @@ const VpBlock = props => {
 
 	if ( window.videopressAjax ) {
 		const videopresAjaxURLBlob = new Blob(
-			[ `var videopressAjax = { ajaxUrl: '${ window.videopressAjax.ajaxUrl }' };` ],
+			[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
 			{
 				type: 'text/javascript',
 			}

@@ -15,6 +15,7 @@ class Tracking {
 	 * The assets version.
 	 *
 	 * @since 1.13.1
+	 * @deprecated since 1.40.1
 	 *
 	 * @var string Assets version.
 	 */
@@ -116,38 +117,33 @@ class Tracking {
 			true
 		);
 
-		if ( $enqueue ) {
-			// Enqueue jp-tracks-functions script.
-			wp_enqueue_script(
-				'jp-tracks-functions',
-				Assets::get_file_url_for_environment( 'js/tracks-callables.js', 'js/tracks-callables.js', __FILE__ ),
-				array( 'jp-tracks' ),
-				self::ASSETS_VERSION,
-				true
-			);
-		} else {
-			// Register jp-tracks-functions script.
-			wp_register_script(
-				'jp-tracks-functions',
-				Assets::get_file_url_for_environment( 'js/tracks-callables.js', 'js/tracks-callables.js', __FILE__ ),
-				array( 'jp-tracks' ),
-				self::ASSETS_VERSION,
-				true
-			);
-		}
-
+		Assets::register_script(
+			'jp-tracks-functions',
+			'../dist/tracks-callables.js',
+			__FILE__,
+			array(
+				'dependencies' => array( 'jp-tracks' ),
+				'enqueue'      => $enqueue,
+				'in_footer'    => true,
+				'nonmin_path'  => 'js/tracks-callables.js',
+			)
+		);
 	}
 
 	/**
 	 * Enqueue script necessary for tracking.
 	 */
 	public function enqueue_tracks_scripts() {
-		wp_enqueue_script(
+		Assets::register_script(
 			'jptracks',
-			Assets::get_file_url_for_environment( 'js/tracks-ajax.js', 'js/tracks-ajax.js', __FILE__ ),
-			array( 'jquery' ),
-			self::ASSETS_VERSION,
-			true
+			'../dist/tracks-ajax.js',
+			__FILE__,
+			array(
+				'dependencies' => array( 'jquery' ),
+				'enqueue'      => true,
+				'in_footer'    => true,
+				'nonmin_path'  => 'js/tracks-ajax.js',
+			)
 		);
 
 		wp_localize_script(
