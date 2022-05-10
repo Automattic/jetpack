@@ -133,7 +133,6 @@ class Jetpack_Starter_Plugin {
 	 */
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-starter-plugin' );
-		$manager->disconnect_site_wpcom();
-		$manager->delete_all_connection_tokens();
+		$manager->remove_connection();
 	}
 }

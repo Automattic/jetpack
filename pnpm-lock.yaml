@@ -1329,7 +1329,6 @@ importers:
       react-page-visibility: 6.4.0
       react-redux: 6.0.1
       react-router-dom: 5.2.0
-      react-tagsinput: 3.19.0
       react-test-renderer: 17.0.2
       redux: 4.0.5
       redux-thunk: 2.3.0
@@ -1414,7 +1413,6 @@ importers:
       react-page-visibility: 6.4.0_react@17.0.2
       react-redux: 6.0.1_react@17.0.2+redux@4.0.5
       react-router-dom: 5.2.0_react@17.0.2
-      react-tagsinput: 3.19.0_react@17.0.2
       redux: 4.0.5
       redux-thunk: 2.3.0
       refx: 3.1.1
@@ -18137,14 +18135,6 @@ packages:
       react: 17.0.2
       refractor: 3.6.0
     dev: true
-
-  /react-tagsinput/3.19.0_react@17.0.2:
-    resolution: {integrity: sha512-ni+/qnZrYrvLg83LtTFHErKy1KQHL0fi0Y6C5jgC1dNUePE9cS/OlQ4XH6JRSjv9GGoeVE0R/ujSBaS1uzCRYQ==}
-    peerDependencies:
-      react: ^16.0.0 || ^15.0.0 || ^0.14.0 || ^17
-    dependencies:
-      react: 17.0.2
-    dev: false
 
   /react-test-renderer/17.0.2_react@17.0.2:
     resolution: {integrity: sha512-yaQ9cB89c17PUb0x6UfWRs7kQCorVdHlutU1boVPEsB8IDZH6n9tHxMacc3y0JoXOJUsZb/t/Mb8FUWMKaM7iQ==}

@@ -1,0 +1,31 @@
+.jp-upgrade-notice__content {
+	.jp-upgrade-notice__enable-module {
+		.jp-form-has-child {
+			padding-left: 30px;
+
+			.jp-form-fieldset {
+				margin-bottom: 0.4rem;
+			}
+		}
+	}
+}
+
+.jp-upgrade-notice__enable-module {
+	margin-bottom: calc(1em + 8px);
+
+	.jp-form-settings-group {
+		margin: 0px auto;
+		max-width: 400px;
+		text-align: left;
+	}
+
+	.jp-form-has-child {
+		padding: 10px;
+		padding-right: 30px;
+	}
+
+	.jp-support-info {
+		top: rem( 15px );
+		right: rem( 15px );
+	}
+}
