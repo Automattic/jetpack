@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Do not hard disconnect Jetpack on deactivation

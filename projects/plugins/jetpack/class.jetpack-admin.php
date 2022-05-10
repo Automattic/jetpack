@@ -125,7 +125,7 @@ class Jetpack_Admin {
 	/**
 	 * Handle our Additional CSS menu item and legacy page declaration.
 	 *
-	 * @since $$next-version$$ . Prior to that, this function was located in custom-css-4.7.php.
+	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php.
 	 */
 	public static function additional_css_menu() {
 
@@ -150,7 +150,7 @@ class Jetpack_Admin {
 	 * Handle the redirect for the customizer.  This is necessary because
 	 * we can't directly add customizer links to the admin menu.
 	 *
-	 * @since $$next-version$$ . Prior to that, this function was located in custom-css-4.7.php.
+	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php.
 	 *
 	 * There is a core patch in trac that would make this unnecessary.
 	 *
@@ -170,7 +170,7 @@ class Jetpack_Admin {
 	/**
 	 * Handle the Additional CSS redirect to the Jetpack settings Theme Enhancements section.
 	 *
-	 * @since $$next-version$$
+	 * @since 11.0
 	 */
 	public static function theme_enhancements_redirect() {
 		wp_safe_redirect(
@@ -184,7 +184,7 @@ class Jetpack_Admin {
 	 *
 	 * You can modify the return url via $args.
 	 *
-	 * @since $$next-version$$ in this file. This method is also located in custom-css-4.7.php to cover legacy scenarios.
+	 * @since 11.0 in this file. This method is also located in custom-css-4.7.php to cover legacy scenarios.
 	 *
 	 * @param array $args Array of parameters.
 	 * @return string
