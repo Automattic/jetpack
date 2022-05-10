@@ -14,12 +14,11 @@ import {
 	PanelColorSettings,
 } from '@wordpress/block-editor';
 import { PanelBody, RangeControl } from '@wordpress/components';
-import { ENTER } from '@wordpress/keycodes';
 
 export const Rating = ( { id, setRating, children } ) => {
 	const setNewRating = newRating => () => setRating( newRating );
-	const maybeSetNewRating = newRating => ( { keyCode } ) =>
-		keyCode === ENTER ? setRating( newRating ) : null;
+	const maybeSetNewRating = newRating => ( { code } ) =>
+		code === 'Enter' ? setRating( newRating ) : null;
 
 	return (
 		<span

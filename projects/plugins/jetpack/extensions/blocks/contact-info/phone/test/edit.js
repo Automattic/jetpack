@@ -60,10 +60,12 @@ describe( 'Phone', () => {
 		expect( screen.getByText( 'call me on:' ) ).toBeInTheDocument();
 	} );
 
-	test( 'entering value into the phone field updates the phone attribute', () => {
+	test( 'entering value into the phone field updates the phone attribute', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <PhoneEdit { ...propsSelected } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'Phone number' ), '123-456-7890' );
+		await user.click( screen.getByPlaceholderText( 'Phone number' ) );
+		await user.paste( '123-456-7890' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { phone: '123-456-7890' } );
 	} );

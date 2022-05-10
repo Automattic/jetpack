@@ -1,4 +1,5 @@
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import '../mixin';
 @import '../../scss/mixin_breakpoint.scss';
 @import '../../scss/calypso-colors';
 @import '../../scss/mixins/rna';
@@ -43,7 +44,7 @@
 
 	h1 {
 		font-size: $font-title-medium;
-	
+
 		color: var( --jp-gray-80 );
 	}
 
@@ -63,6 +64,8 @@
 }
 
 .jp-recommendations-summary__sidebar {
+	@include recommendation-sidebar-blob;
+
 	padding: 2rem 2.5rem;
 
 	@include breakpoint( '<660px' ) {

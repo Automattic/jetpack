@@ -60,10 +60,11 @@ describe( '', () => {
 	} );
 
 	test( 'changing visit count threshold updates attributes and notice', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		const { rerender } = render( <RepeatVisitorEdit { ...propsSelected } /> );
 
-		userEvent.type( screen.getByLabelText( 'Visit count threshold' ), '0' );
+		await user.type( screen.getByLabelText( 'Visit count threshold' ), '0' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { threshold: 30 } );
 
@@ -80,13 +81,14 @@ describe( '', () => {
 	} );
 
 	test( 'clicking show before threshold updates attributes and notice', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		const { rerender } = render( <RepeatVisitorEdit { ...propsSelected } /> );
 
 		expect( screen.getByLabelText( 'Show before threshold' ) ).not.toBeChecked();
 		expect( screen.getByLabelText( 'Show after threshold' ) ).toBeChecked();
 
-		userEvent.click( screen.getByLabelText( 'Show before threshold' ) );
+		await user.click( screen.getByLabelText( 'Show before threshold' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { criteria: CRITERIA_BEFORE } );
 
@@ -108,6 +110,7 @@ describe( '', () => {
 	} );
 
 	test( 'clicking show after threshold updates attributes and notice', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		propsSelected.attributes = { ...defaultAttributes, criteria: CRITERIA_BEFORE };
 
@@ -116,7 +119,7 @@ describe( '', () => {
 		expect( screen.getByLabelText( 'Show before threshold' ) ).toBeChecked();
 		expect( screen.getByLabelText( 'Show after threshold' ) ).not.toBeChecked();
 
-		userEvent.click( screen.getByLabelText( 'Show after threshold' ) );
+		await user.click( screen.getByLabelText( 'Show after threshold' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { criteria: CRITERIA_AFTER } );
 
