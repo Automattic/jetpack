@@ -260,7 +260,6 @@ export function SpeakerEditControl( {
 				withoutInteractiveFormatting={ true }
 				onChange={ onChangeHandler }
 				placeholder={ __( 'Speaker', 'jetpack' ) }
-				keepPlaceholderOnFocus={ true }
 				onSplit={ () => {} }
 				onReplace={ replaceValue => {
 					setTimeout( () => transcriptRef?.current?.focus(), 10 );
