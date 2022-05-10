@@ -111,9 +111,9 @@ importers:
       '@testing-library/react': 12.1.5
       '@types/chai': 4.3.0
       '@types/jest': 27.4.1
-      '@types/react': 18.0.8
-      '@types/react-dom': 18.0.3
-      '@types/react-test-renderer': 18.0.0
+      '@types/react': 17.0.44
+      '@types/react-dom': 17.0.15
+      '@types/react-test-renderer': 17.0.1
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.10.0
       '@wordpress/compose': 5.5.0
@@ -7031,7 +7031,7 @@ packages:
   /@types/react-dom/17.0.15:
     resolution: {integrity: sha512-Tr9VU9DvNoHDWlmecmcsE5ZZiUkYx+nKBzum4Oxe1K0yJVyBlfbq7H3eXjxXqJczBKqPGq3EgfTru4MgKb9+Yw==}
     dependencies:
-      '@types/react': 17.0.44
+      '@types/react': 17.0.45
     dev: true
 
   /@types/react-dom/17.0.16:
@@ -7066,7 +7066,7 @@ packages:
   /@types/react-test-renderer/17.0.1:
     resolution: {integrity: sha512-3Fi2O6Zzq/f3QR9dRnlnHso9bMl7weKCviFmfF6B4LS1Uat6Hkm15k0ZAQuDz+UBq6B3+g+NM6IT2nr5QgPzCw==}
     dependencies:
-      '@types/react': 17.0.44
+      '@types/react': 18.0.9
     dev: true
 
   /@types/react/17.0.44:
