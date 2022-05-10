@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Allow the rules API to return 401 responses without throwing an exception.

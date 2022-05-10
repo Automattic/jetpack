@@ -30,9 +30,10 @@ describe( 'ErrorNotice', () => {
 		onClick.mockClear();
 	} );
 
-	test( 'calls onClick when clicking button', () => {
+	test( 'calls onClick when clicking button', async () => {
+		const user = userEvent.setup();
 		render( <ErrorNotice { ...defaultProps } /> );
-		userEvent.click( screen.getByText( 'Convert block to link' ) );
+		await user.click( screen.getByText( 'Convert block to link' ) );
 		expect( onClick ).toHaveBeenCalledWith( {
 			blockName: 'core/paragraph',
 			contentObj: {

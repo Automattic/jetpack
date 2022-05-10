@@ -42,9 +42,10 @@ describe( 'RelatedPostsControls', () => {
 			expect( screen.getByLabelText( 'Display thumbnails' ) ).toBeInTheDocument();
 		} );
 
-		test( 'sets displayThumbnails attribute', () => {
+		test( 'sets displayThumbnails attribute', async () => {
+			const user = userEvent.setup();
 			render( <RelatedPostsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByLabelText( 'Display thumbnails' ) );
+			await user.click( screen.getByLabelText( 'Display thumbnails' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { displayThumbnails: true } );
 		} );
@@ -55,9 +56,10 @@ describe( 'RelatedPostsControls', () => {
 			expect( screen.getByLabelText( 'Display date' ) ).toBeInTheDocument();
 		} );
 
-		test( 'sets displayDate attribute', () => {
+		test( 'sets displayDate attribute', async () => {
+			const user = userEvent.setup();
 			render( <RelatedPostsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByLabelText( 'Display date' ) );
+			await user.click( screen.getByLabelText( 'Display date' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { displayDate: true } );
 		} );
@@ -68,9 +70,10 @@ describe( 'RelatedPostsControls', () => {
 			expect( screen.getByLabelText( 'Display context (category or tag)' ) ).toBeInTheDocument();
 		} );
 
-		test( 'sets displayContext attribute', () => {
+		test( 'sets displayContext attribute', async () => {
+			const user = userEvent.setup();
 			render( <RelatedPostsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByLabelText( 'Display context (category or tag)' ) );
+			await user.click( screen.getByLabelText( 'Display context (category or tag)' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { displayContext: true } );
 		} );
@@ -86,7 +89,7 @@ describe( 'RelatedPostsControls', () => {
 			const input = screen.getAllByLabelText( 'Number of posts' )[ 1 ];
 			input.focus();
 			fireEvent.change( input, { target: { value: '3' } } );
-			
+
 			expect( setAttributes ).toHaveBeenCalledWith( { postsToShow: 3 } );
 		} );
 	} );
@@ -102,8 +105,9 @@ describe( 'RelatedPostsControls', () => {
 		} );
 
 		test( 'sets the postLayout attribute', async () => {
+			const user = userEvent.setup();
 			render( <RelatedPostsBlockControls { ...props } /> );
-			userEvent.click( screen.getByLabelText( 'List View' ) );
+			await user.click( screen.getByLabelText( 'List View' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { postLayout: 'list' } );
 		} );

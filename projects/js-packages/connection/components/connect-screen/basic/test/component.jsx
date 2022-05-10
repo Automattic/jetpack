@@ -63,11 +63,12 @@ describe( 'ConnectScreen', () => {
 	// we have an acessibility breach into our loading state
 	it.skip( 'shows loading into button', () => {} );
 
-	it( 'calls handleButtonClick', () => {
+	it( 'calls handleButtonClick', async () => {
+		const user = userEvent.setup();
 		const handleButtonClick = sinon.stub();
 		render( <ConnectScreen { ...requiredProps } handleButtonClick={ handleButtonClick } /> );
 		const button = screen.getByRole( 'button', { name: 'Setup Jetpack' } );
-		userEvent.click( button );
+		await user.click( button );
 		expect( handleButtonClick.called ).to.be.true;
 	} );
 } );

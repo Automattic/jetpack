@@ -13,8 +13,8 @@ import styles from './style.module.scss';
 /**
  * The basic Col component.
  *
- * @param {object} props - Component properties.
- * @returns {React.Component} Col component.
+ * @param {object} props         - Component properties.
+ * @returns {React.ReactElement}   Col component.
  */
 const Col = props => {
 	const { children, className } = props;
@@ -41,6 +41,8 @@ Col.proptypes = {
 	md: PropTypes.number,
 	/** Colspan for large viewport. Needs to be an integer. */
 	lg: PropTypes.number,
+	/** Children to be inserted. */
+	children: PropTypes.node,
 };
 
 export default Col;

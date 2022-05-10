@@ -98,7 +98,7 @@ export function IconsCard( { products, icon } ) {
  * @param {string} props.addProductUrl    - The checkout URL to add/buy the product.
  * @param {string} props.buttonText       - The text to be displayed on the Add button.
  * @param {string} props.error            - Error message.
- * @returns {React.Component}               ProductOffer react component. Optional.
+ * @returns {React.ReactElement}            ProductOffer react component. Optional.
  */
 const ProductOffer = ( {
 	className,

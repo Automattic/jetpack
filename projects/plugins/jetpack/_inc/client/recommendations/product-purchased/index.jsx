@@ -107,8 +107,9 @@ const ProductPurchasedComponent = props => {
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ '33' } /> }
 			question={ __( 'Your plan has been upgraded!', 'jetpack' ) }
 			description={ __( 'You now have access to these benefits:', 'jetpack' ) }
-			illustrationPath={ 'recommendations/product-purchased-illustration.svg' }
 			answer={ answerSection }
+			illustration="assistant-product-purchased"
+			illustrationClassName="jp-recommendations-product-purchased__illustration"
 		/>
 	);
 };

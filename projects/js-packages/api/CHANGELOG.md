@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.13.2 - 2022-05-10
+### Changed
+- Updated package dependencies [#24301]
+
 ## 0.13.1 - 2022-05-04
 ### Added
 - Added an endpoint to load the firewall's settings. [#23769]

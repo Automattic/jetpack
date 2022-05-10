@@ -8,6 +8,8 @@ import { useSelect } from '@wordpress/data';
  */
 import { STORE_ID } from '../../state/store';
 
+let hasUncheckedItems = false;
+
 /**
  * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
  *
@@ -32,6 +34,7 @@ function mergeInstalledAndCheckedLists( installed, checked ) {
 				vulnerabilities: [],
 				notChecked: true,
 			} );
+			hasUncheckedItems = true;
 		}
 	}
 	newList.sort( ( a, b ) => {
@@ -59,8 +62,10 @@ function normalizeCoreInformation( wpVersion, coreCheck ) {
 		core = {
 			version: wpVersion,
 			vulnerabilities: [],
+			notChecked: true,
 			name: 'WordPress',
 		};
+		hasUncheckedItems = true;
 	}
 	return core;
 }
@@ -92,7 +97,7 @@ export default function useProtectData() {
 	const core = normalizeCoreInformation( wpVersion, status.wordpress );
 
 	let currentStatus = 'error';
-	if ( statusIsFetching ) {
+	if ( true === statusIsFetching ) {
 		currentStatus = 'loading';
 	} else if ( status.status ) {
 		currentStatus = status.status;
@@ -104,10 +109,13 @@ export default function useProtectData() {
 		numPluginsVulnerabilities: status.numPluginsVulnerabilities || 0,
 		numThemesVulnerabilities: status.numThemesVulnerabilities || 0,
 		lastChecked: status.lastChecked || null,
+		errorCode: status.errorCode || null,
+		errorMessage: status.errorMessage || null,
 		core,
 		plugins,
 		themes,
 		currentStatus,
+		hasUncheckedItems,
 		securityBundle,
 	};
 }

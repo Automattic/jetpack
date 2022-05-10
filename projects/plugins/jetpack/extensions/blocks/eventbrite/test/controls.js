@@ -31,9 +31,10 @@ describe( 'Eventbrite block controls', () => {
 		expect( screen.getByRole( 'button' ) ).toBeInTheDocument();
 	} );
 
-	test( 'fires click handler okay', () => {
+	test( 'fires click handler okay', async () => {
+		const user = userEvent.setup();
 		render( <ToolbarControls { ...defaultProps } /> );
-		userEvent.click( screen.getByRole( 'button' ) );
+		await user.click( screen.getByRole( 'button' ) );
 
 		expect( setEditingUrl ).toHaveBeenCalledWith( true );
 
