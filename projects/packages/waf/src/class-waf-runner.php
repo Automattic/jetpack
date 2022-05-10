@@ -26,6 +26,7 @@ class Waf_Runner {
 	const BLOCK_IP_FILE                 = __DIR__ . '/../rules/block-ip.php';
 	const VERSION_OPTION_NAME           = 'jetpack_waf_rules_version';
 	const RULE_LAST_UPDATED_OPTION_NAME = 'jetpack_waf_last_updated_timestamp';
+	const SHARE_DATA_OPTION_NAME        = 'jetpack_waf_share_data';
 
 	/**
 	 * Set the mode definition if it has not been set.
@@ -36,6 +37,18 @@ class Waf_Runner {
 		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
 			$mode_option = get_option( self::MODE_OPTION_NAME );
 			define( 'JETPACK_WAF_MODE', $mode_option );
+		}
+	}
+
+	/**
+	 * Set the mode definition if it has not been set.
+	 *
+	 * @return void
+	 */
+	public static function define_share_data() {
+		if ( ! defined( 'JETPACK_WAF_SHARE_DATA' ) ) {
+			$share_data_option = get_option( self::SHARE_DATA_OPTION_NAME, false );
+			define( 'JETPACK_WAF_SHARE_DATA', $share_data_option );
 		}
 	}
 
@@ -175,6 +188,8 @@ class Waf_Runner {
 		if ( ! $version ) {
 			add_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 		}
+
+		add_option( self::SHARE_DATA_OPTION_NAME, true );
 
 		self::initialize_filesystem();
 		self::create_waf_directory();

@@ -13,6 +13,7 @@ if ( ! Waf_Runner::is_enabled() ) {
 }
 
 Waf_Runner::define_mode();
+Waf_Runner::define_share_data();
 
 if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 	return;
