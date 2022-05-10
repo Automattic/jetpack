@@ -1,0 +1,13 @@
+// Small values
+@value sm-min: 0px;
+@value sm-max: 599px;
+@value sm: (max-width: sm-max);
+
+// MD Values
+@value md-min: 600px;
+@value md-max: 959px;
+@value md: (min-width: md-min) and (max-width: md-max);
+
+// LG Values
+@value lg-min: 960px;
+@value lg: (min-width: lg-min);

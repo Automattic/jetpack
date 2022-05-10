@@ -193,8 +193,7 @@ class Jetpack_Protect {
 		Sender::get_instance()->uninstall();
 
 		$manager = new Connection_Manager( 'jetpack-protect' );
-		$manager->disconnect_site_wpcom();
-		$manager->delete_all_connection_tokens();
+		$manager->remove_connection();
 
 		Protect_Status::delete_option();
 	}
