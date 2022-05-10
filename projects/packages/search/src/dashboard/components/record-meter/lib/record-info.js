@@ -62,43 +62,43 @@ export default function getRecordInfo(
 		}
 
 		// sort & split items into included and other
-		const postTypeItems = splitUsablePostTypes(
+		const PostTypeItems = splitUsablePostTypes(
 			chartPostTypeBreakdown,
 			numItems,
 			maxPostTypeCount
 		);
 
 		// push includedItems into the recordInfo
-		for ( const item in postTypeItems.includedItems ) {
-			recordInfo.push( {
-				data: createData(
-					postTypeItems.includedItems[ item ].data.data[ 0 ],
+		for ( const item in PostTypeItems.includedItems ) {
+			recordInfo.push(
+				createData(
+					PostTypeItems.includedItems[ item ].data.count,
 					colors[ item ],
-					postTypeItems.includedItems[ item ].data.label
-				),
-			} );
+					PostTypeItems.includedItems[ item ].data.label
+				)
+			);
 		}
 
 		// populate the 'other' category with combined remaining items and push to end of data array
-		if ( postTypeItems.otherItems.length > 0 ) {
-			recordInfo.push( {
-				data: createData(
-					combineOtherCount( postTypeItems.otherItems ),
+		if ( PostTypeItems.otherItems.length > 0 ) {
+			recordInfo.push(
+				createData(
+					combineOtherCount( PostTypeItems.otherItems ),
 					PALETTE.colors[ 'Gray 30' ],
-					'other'
-				),
-			} );
+					__( 'other', 'jetpack-search-pkg' )
+				)
+			);
 		}
 
 		// if there is remaining unused space in tier, add filler spacing to chart
-		if ( typeof tierMaximumRecords === 'number' && tierMaximumRecords - currentCount > 0 ) {
-			recordInfo.push( {
-				data: createData(
+		if ( tierMaximumRecords - currentCount > 0 ) {
+			recordInfo.push(
+				createData(
 					tierMaximumRecords - currentCount,
 					PALETTE.colors[ 'Gray 0' ],
 					__( 'remaining', 'jetpack-search-pkg' )
-				),
-			} );
+				)
+			);
 		}
 	}
 
@@ -125,7 +125,7 @@ export default function getRecordInfo(
  * @returns {object} containing included items with post type and count, and other items, split.
  */
 export function splitUsablePostTypes( postTypeBreakdown, numItems, maxPostTypeCount ) {
-	postTypeBreakdown.sort( ( a, b ) => ( a.data.data[ 0 ] < b.data.data[ 0 ] ? 1 : -1 ) );
+	postTypeBreakdown.sort( ( a, b ) => ( a.data.count[ 0 ] < b.data.count[ 0 ] ? 1 : -1 ) );
 
 	const count = maxPostTypeCount <= numItems ? maxPostTypeCount : numItems;
 
@@ -145,9 +145,8 @@ export function combineOtherCount( otherItems ) {
 	let runningTotal = 0;
 
 	for ( const item in otherItems ) {
-		runningTotal = otherItems[ item ].data.data[ 0 ] + runningTotal;
+		runningTotal = otherItems[ item ].data.count + runningTotal;
 	}
-
 	return runningTotal;
 }
 
@@ -161,7 +160,7 @@ export function combineOtherCount( otherItems ) {
  */
 export function createData( data, color, name ) {
 	return {
-		data: [ data ],
+		count: data,
 		label: name,
 		backgroundColor: color,
 	};

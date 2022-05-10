@@ -1,6 +1,6 @@
+import { RecordMeterBar } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { useState } from 'react';
-import { BarChart } from './bar-chart';
+import React from 'react';
 import getRecordInfo from './lib/record-info';
 import { NoticeBox } from './notice-box';
 import { RecordCount } from './record-count';
@@ -23,10 +23,11 @@ export default function RecordMeter( {
 	tierMaximumRecords,
 	lastIndexedDate,
 } ) {
-	// TODO: use setRecordInfo var
-	// eslint-disable-next-line no-unused-vars
-	const [ recordInfo, setRecordInfo ] = useState(
-		getRecordInfo( postCount, postTypeBreakdown, tierMaximumRecords, lastIndexedDate )
+	const recordInfo = getRecordInfo(
+		postCount,
+		postTypeBreakdown,
+		tierMaximumRecords,
+		lastIndexedDate
 	);
 
 	return (
@@ -48,11 +49,7 @@ export default function RecordMeter( {
 							recordCount={ recordInfo.recordCount }
 							tierMaximumRecords={ tierMaximumRecords }
 						/>
-						<BarChart
-							data={ recordInfo.data }
-							isValid={ recordInfo.isValid }
-							postTypeBreakdown={ postTypeBreakdown }
-						/>
+						<RecordMeterBar items={ recordInfo.data } />
 						<NoticeBox
 							recordCount={ recordInfo.recordCount }
 							tierMaximumRecords={ tierMaximumRecords }

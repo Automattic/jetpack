@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+record meter: switches from using chartJS to the Jetpack RecordMeterBar component
