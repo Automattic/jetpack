@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Removed keepPlaceholderOnFocus property from donations form and dialogue blocks since the property was removed from Gutenberg.
