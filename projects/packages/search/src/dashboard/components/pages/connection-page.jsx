@@ -3,31 +3,42 @@
  */
 import React from 'react';
 import { useSelect } from '@wordpress/data';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Container, Col, AdminSectionHero, getRedirectUrl } from '@automattic/jetpack-components';
+import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import Loading from 'components/loading';
+import SearchPromotionBlock from 'components/search-promotion';
 import { STORE_ID } from 'store';
-import SearchPromotionBlock from './search-promotion';
+
+import './connection-page.scss';
 
 /**
- * Expose the `connectionStatus` state object and `renderConnectScreen()` to show a component used for connection.
+ * defines ConnectionPage.
  *
- * @returns {Array} connectionStatus, renderConnectScreen
+ * @param {object} props - Component properties.
+ * @param {string} props.isLoading - should page show Loading spinner.
+ * @returns {React.Component} ConnectionPage component.
  */
-export default function useConnection() {
+export default function ConnectionPage( { isLoading = false } ) {
+	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
+
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRootUrl(), [] );
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore(), [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter(), [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
-	const connectionStatus = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
-		[]
+
+	const isPageLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' ) ||
+			isLoading,
+		[ isLoading ]
 	);
 
 	const renderConnectScreen = () => {
@@ -76,5 +87,24 @@ export default function useConnection() {
 		);
 	};
 
-	return { connectionStatus, renderConnectScreen, renderConnectionFooter };
+	return (
+		<>
+			{ isPageLoading && <Loading /> }
+			{ ! isPageLoading && (
+				<div className="jp-search-dashboard-connection-screen">
+					{ /* WARNING: Update styles if AdminSectionHero is no longer targeted via > selector. */ }
+					<AdminSectionHero>
+						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+							<Col lg={ 12 } md={ 8 } sm={ 4 }>
+								{ renderConnectScreen() }
+							</Col>
+							<Col lg={ 12 } md={ 8 } sm={ 4 }>
+								{ renderConnectionFooter() }
+							</Col>
+						</Container>
+					</AdminSectionHero>
+				</div>
+			) }
+		</>
+	);
 }

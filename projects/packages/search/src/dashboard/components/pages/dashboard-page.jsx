@@ -8,25 +8,44 @@ import React from 'react';
  */
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
-import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
 import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
 import RecordMeter from 'components/record-meter';
+import Loading from 'components/loading';
 
-import './style.scss';
+import './dashboard-page.scss';
 
 /**
  * SearchDashboard component definition.
  *
+ * @param {object} props - Component properties.
+ * @param {string} props.isLoading - should page show Loading spinner.
  * @returns {React.Component} Search dashboard component.
  */
-export default function SearchDashboard() {
+export default function DashboardPage( { isLoading = false } ) {
+	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
+	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
+	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
+
+	const isPageLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' ) ||
+			select( STORE_ID ).isResolving( 'getSearchStats' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' ) ||
+			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
+			isLoading,
+		[ isLoading ]
+	);
+
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
 
@@ -145,23 +164,28 @@ export default function SearchDashboard() {
 	);
 
 	return (
-		<div className="jp-search-dashboard-page">
-			{ renderHeader() }
-			{ renderMockedSearchInterface() }
-			{ isRecordMeterEnabled && (
-				<RecordMeter
-					postCount={ postCount }
-					postTypeBreakdown={ postTypeBreakdown }
-					tierMaximumRecords={ tierMaximumRecords }
-					lastIndexedDate={ lastIndexedDate }
-				/>
+		<>
+			{ isPageLoading && <Loading /> }
+			{ ! isPageLoading && (
+				<div className="jp-search-dashboard-page">
+					{ renderHeader() }
+					{ renderMockedSearchInterface() }
+					{ isRecordMeterEnabled && (
+						<RecordMeter
+							postCount={ postCount }
+							postTypeBreakdown={ postTypeBreakdown }
+							tierMaximumRecords={ tierMaximumRecords }
+							lastIndexedDate={ lastIndexedDate }
+						/>
+					) }
+					{ renderModuleControl() }
+					{ renderFooter() }
+					<NoticesList
+						notices={ notices }
+						handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+					/>
+				</div>
 			) }
-			{ renderModuleControl() }
-			{ renderFooter() }
-			<NoticesList
-				notices={ notices }
-				handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
-			/>
-		</div>
+		</>
 	);
 }
