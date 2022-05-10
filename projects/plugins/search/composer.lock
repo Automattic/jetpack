@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7a1275a39c39cf84bbedad6640ce2644",
+    "content-hash": "90991d3de9424680d116f98dd2a5c970",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -288,7 +288,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "8f639bfbb987d11ece18b5fecb5e5860cded91b2"
+                "reference": "f4b75345fa44397c0b326856f98ae0d8077f3da4"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1"
@@ -302,7 +302,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.8.x-dev"
+                    "dev-master": "1.9.x-dev"
                 }
             },
             "autoload": {
@@ -324,7 +324,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "5751ff3191734375ecbbcfc59ff1e73bb82999a8"
+                "reference": "a4ecc94e298664a623d5b9e5568b4f0af4263cfc"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -363,6 +363,12 @@
                 ]
             },
             "scripts": {
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
@@ -897,11 +903,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "3d74a8586446a1c45a3ec5cd8d11e98b60d21746"
+                "reference": "ff95c5de2b54e36f93995505ebf61c60376293ce"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-config": "^1.8",
+                "automattic/jetpack-config": "^1.9",
                 "automattic/jetpack-connection": "^1.40",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-status": "^1.13"

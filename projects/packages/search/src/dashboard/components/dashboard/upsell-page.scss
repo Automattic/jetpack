@@ -4,4 +4,9 @@
 	h1 {
 		line-height: 1.2;
 	}
+
+	// Targets AdminPage component, which uses obfuscated CSS names.
+	> div {
+		margin-left: 0;
+	}
 }

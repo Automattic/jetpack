@@ -235,14 +235,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "92e629ee292cfce252315f6977c0b8573ea0f7c0"
+                "reference": "bc25fe4dc1a5db053d0dea48d3c26996385ecbbf"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-autoloader": "^2.11",
                 "automattic/jetpack-composer-plugin": "^1.1",
-                "automattic/jetpack-config": "^1.8",
+                "automattic/jetpack-config": "^1.9",
                 "automattic/jetpack-connection": "^1.40",
                 "automattic/jetpack-connection-ui": "^2.4",
                 "automattic/jetpack-identity-crisis": "^0.8",
@@ -369,7 +369,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "8f639bfbb987d11ece18b5fecb5e5860cded91b2"
+                "reference": "f4b75345fa44397c0b326856f98ae0d8077f3da4"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1"
@@ -383,7 +383,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.8.x-dev"
+                    "dev-master": "1.9.x-dev"
                 }
             },
             "autoload": {
@@ -405,7 +405,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "5751ff3191734375ecbbcfc59ff1e73bb82999a8"
+                "reference": "a4ecc94e298664a623d5b9e5568b4f0af4263cfc"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -444,6 +444,12 @@
                 ]
             },
             "scripts": {
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],

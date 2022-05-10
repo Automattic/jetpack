@@ -19,7 +19,7 @@
 		"automattic/jetpack-blocks": "1.4.x-dev",
 		"automattic/jetpack-compat": "1.7.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.8.x-dev",
+		"automattic/jetpack-config": "1.9.x-dev",
 		"automattic/jetpack-connection": "1.40.x-dev",
 		"automattic/jetpack-connection-ui": "2.4.x-dev",
 		"automattic/jetpack-constants": "1.6.x-dev",
@@ -40,7 +40,7 @@
 		"automattic/jetpack-search": "0.13.x-dev",
 		"automattic/jetpack-status": "1.13.x-dev",
 		"automattic/jetpack-sync": "1.32.x-dev",
-		"automattic/jetpack-waf": "0.5.x-dev",
+		"automattic/jetpack-waf": "0.6.x-dev",
 		"automattic/jetpack-wordads": "0.2.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"
 	},
@@ -97,7 +97,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_0_a_2",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_0_a_6",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
