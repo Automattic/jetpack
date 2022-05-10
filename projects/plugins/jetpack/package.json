@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "11.0.0-a.4",
+	"version": "11.0.0-a.6",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -103,7 +103,6 @@
 		"react-page-visibility": "6.4.0",
 		"react-redux": "6.0.1",
 		"react-router-dom": "5.2.0",
-		"react-tagsinput": "3.19.0",
 		"redux": "4.0.5",
 		"redux-thunk": "2.3.0",
 		"refx": "3.1.1",

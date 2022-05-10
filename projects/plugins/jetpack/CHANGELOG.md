@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.0-a.5 - 2022-05-10
+### Other changes
+- Publicize: Fix namespacing. [#24317]
+
 ## 11.0-a.3 - 2022-05-10
 ### Enhancements
 - Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset. [#24057]
