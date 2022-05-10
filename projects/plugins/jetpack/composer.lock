@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "29b34f6e19e5eaa9e76805f42636c0d6",
+    "content-hash": "fd98f7f26d0d69472bb204a0aa3ab1e8",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1415,7 +1415,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "cfaba9cf7436d9dde3865dc8f74d51e87edaa52c"
+                "reference": "f5df821b8096f6f8b997913db23ad61aac7c3cb1"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",
@@ -1424,6 +1424,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
+                "automattic/wordbless": "^0.3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -1435,7 +1436,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "0.2.x-dev"
+                    "dev-master": "0.3.x-dev"
                 }
             },
             "autoload": {
@@ -1452,6 +1453,9 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ],
                 "build-production": [
                     "echo 'Add your build step to composer.json, please!'"
