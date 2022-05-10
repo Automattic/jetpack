@@ -73,7 +73,7 @@ class Jetpack_Search_Plugin {
 			$controller        = new Search_Module_Control();
 			$activation_result = $controller->activate();
 
-			if ( ! is_wp_error( $activation_result ) && true === $activation_result ) {
+			if ( true === $activation_result ) {
 				$controller->enable_instant_search();
 			}
 		}
