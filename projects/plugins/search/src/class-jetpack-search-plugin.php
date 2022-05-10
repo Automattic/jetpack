@@ -23,15 +23,24 @@ class Jetpack_Search_Plugin {
 	 * Register hooks to initialize the plugin
 	 */
 	public static function bootstrap() {
-		add_action( 'plugins_loaded', array( self::class, 'ensure_dependencies_configured' ), 1 );
-		add_action( 'plugins_loaded', array( self::class, 'initialize' ) );
+		add_action( 'plugins_loaded', array( self::class, 'include_compatibility_files' ), 10 );
+		add_action( 'plugins_loaded', array( self::class, 'initialize' ), 20 );
 		add_action( 'activated_plugin', array( self::class, 'handle_plugin_activation' ) );
 	}
 
 	/**
-	 * Ensure plugin dependencies are configured.
+	 * Extra tweaks to make Jetpack Search play well with others.
 	 */
-	public static function ensure_dependencies_configured() {
+	public static function include_compatibility_files() {
+		if ( class_exists( 'Jetpack' ) ) {
+			require_once JETPACK_SEARCH_PLUGIN__DIR . '/compatibility/jetpack.php';
+		}
+	}
+
+	/**
+	 * Initialize the plugin
+	 */
+	public static function initialize() {
 		$config = new Config();
 		// Connection package.
 		$config->ensure(
@@ -48,12 +57,6 @@ class Jetpack_Search_Plugin {
 		$config->ensure( 'identity_crisis' );
 		// Search package.
 		$config->ensure( 'search' );
-	}
-
-	/**
-	 * Initialize the plugin
-	 */
-	public static function initialize() {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 		// Initialize My Jetpack.
