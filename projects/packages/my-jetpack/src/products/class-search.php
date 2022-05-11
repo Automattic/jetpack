@@ -134,7 +134,7 @@ class Search extends Hybrid_Product {
 			}
 		}
 
-		// Computhe the minimum price.
+		// Compute the minimum price.
 		$minimum_price = $price_tier->minimum_price / 100;
 
 		// Re define the display price based on the tier.
