@@ -2,7 +2,7 @@
 /**
  * Get search stats for use in the wp-admin dashboard.
  *
- * @package automattic/jetpack-search
+ * @package my-jetpack
  */
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
