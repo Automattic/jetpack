@@ -1572,18 +1572,18 @@ class The_Neverending_Home_Page {
 	 * query vars, as well as taxonomy vars
 	 *
 	 * @global $wp
-	 * @param array $allowed_vars
+	 * @param array $allowed_vars - the allowed variables array.
 	 * @filter infinite_scroll_allowed_vars
 	 * @return array
 	 */
-	function allowed_query_vars( $allowed_vars ) {
+	public function allowed_query_vars( $allowed_vars ) {
 		global $wp;
 
 		$allowed_vars += $wp->public_query_vars;
 		$allowed_vars += $wp->private_query_vars;
 		$allowed_vars += $this->get_taxonomy_vars();
 
-		foreach ( array_keys( $allowed_vars, 'paged' ) as $key ) {
+		foreach ( array_keys( $allowed_vars, 'paged', true ) as $key ) {
 			unset( $allowed_vars[ $key ] );
 		}
 
@@ -1596,11 +1596,11 @@ class The_Neverending_Home_Page {
 	 * @global $wp_taxonomies
 	 * @return array
 	 */
-	function get_taxonomy_vars() {
+	public function get_taxonomy_vars() {
 		global $wp_taxonomies;
 
 		$taxonomy_vars = array();
-		foreach ( $wp_taxonomies as $taxonomy => $t ) {
+		foreach ( $wp_taxonomies as $t ) {
 			if ( $t->query_var ) {
 				$taxonomy_vars[] = $t->query_var;
 			}
@@ -1615,11 +1615,11 @@ class The_Neverending_Home_Page {
 	/**
 	 * Update the $query_args array with the parameters provided via AJAX/GET.
 	 *
-	 * @param array $query_args
+	 * @param array $query_args - the query args.
 	 * @filter infinite_scroll_query_args
 	 * @return array
 	 */
-	function inject_query_args( $query_args ) {
+	public function inject_query_args( $query_args ) {
 		/**
 		 * Filter the array of allowed Infinite Scroll query arguments.
 		 *
@@ -1639,9 +1639,9 @@ class The_Neverending_Home_Page {
 			)
 		);
 
-		if ( is_array( $_REQUEST['query_args'] ) ) {
-			foreach ( $_REQUEST['query_args'] as $var => $value ) {
-				if ( in_array( $var, $allowed_vars ) && ! empty( $value ) ) {
+		if ( is_array( $_REQUEST['query_args'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no site changes.
+			foreach ( $_REQUEST['query_args'] as $var => $value ) { // phpcs:ignore -- no site changes.
+				if ( in_array( $var, $allowed_vars, true ) && ! empty( $value ) ) {
 					$query_args[ $var ] = $value;
 				}
 			}
@@ -1655,9 +1655,8 @@ class The_Neverending_Home_Page {
 	 *
 	 * @uses have_posts, the_post, get_template_part, get_post_format
 	 * @action infinite_scroll_render
-	 * @return string
 	 */
-	function render() {
+	public function render() {
 		while ( have_posts() ) {
 			the_post();
 
@@ -1698,18 +1697,18 @@ class The_Neverending_Home_Page {
 	 * @uses self::get_settings, self::archive_supports_infinity, self::default_footer
 	 * @return string or null
 	 */
-	function footer() {
+	public function footer() {
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
 
 		// Bail if theme requested footer not show
-		if ( false == self::get_settings()->footer ) {
+		if ( false === self::get_settings()->footer ) {
 			return;
 		}
 
 		// We only need the new footer for the 'scroll' type
-		if ( 'scroll' != self::get_settings()->type || ! self::archive_supports_infinity() ) {
+		if ( 'scroll' !== self::get_settings()->type || ! self::archive_supports_infinity() ) {
 			return;
 		}
 
@@ -1729,7 +1728,6 @@ class The_Neverending_Home_Page {
 	 * Render default IS footer
 	 *
 	 * @uses __, wp_get_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
-	 * @return string
 	 */
 	private function default_footer() {
 		if ( '' !== get_privacy_policy_url() ) {
@@ -1761,12 +1759,12 @@ class The_Neverending_Home_Page {
 		<div id="infinite-footer">
 			<div class="container">
 				<div class="blog-info">
-					<a id="infinity-blog-title" href="<?php echo home_url( '/' ); ?>" rel="home">
+					<a id="infinity-blog-title" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
 						<?php bloginfo( 'name' ); ?>
 					</a>
 				</div>
 				<div class="blog-credits">
-					<?php echo $credits; ?>
+					<?php echo $credits; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 			</div>
 		</div><!-- #infinite-footer -->
@@ -1777,7 +1775,7 @@ class The_Neverending_Home_Page {
 	 * Ensure that IS doesn't interfere with Grunion by stripping IS query arguments from the Grunion redirect URL.
 	 * When arguments are present, Grunion redirects to the IS AJAX endpoint.
 	 *
-	 * @param string $url
+	 * @param string $url - the Grunion redirect URL.
 	 * @uses remove_query_arg
 	 * @filter grunion_contact_form_redirect_url
 	 * @return string
@@ -2148,7 +2146,7 @@ if ( The_Neverending_Home_Page::got_infinity() ) {
 	 */
 	if ( ! defined( 'DOING_AJAX' ) &&
 		isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) &&
-		strtoupper( $_SERVER['HTTP_X_REQUESTED_WITH'] ) == 'XMLHTTPREQUEST'
+		strtoupper( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) ) === 'XMLHTTPREQUEST'
 	) {
 		define( 'DOING_AJAX', true );
 	}
