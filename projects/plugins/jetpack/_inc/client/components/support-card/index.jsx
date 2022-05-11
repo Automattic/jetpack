@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**
@@ -86,10 +86,10 @@ class SupportCard extends React.Component {
 						<h3 className="jp-support-card__header">{ __( "We're here to help", 'jetpack' ) }</h3>
 						<p className="jp-support-card__description">
 							{ hasSupport
-								? __(
-										'Your paid plan gives you access to prioritized Jetpack support.',
-										'jetpack',
-										/* dummy arg to avoid bad minification */ 0
+								? sprintf(
+										/* translators: placeholder either Jetpack or WordPress.com */
+										__( 'Your paid plan gives you access to prioritized %s support.', 'jetpack' ),
+										this.props.isAtomicSite ? 'WordPress.com' : 'Jetpack'
 								  )
 								: __(
 										'Jetpack offers support via community forums for any site without a paid product.',
