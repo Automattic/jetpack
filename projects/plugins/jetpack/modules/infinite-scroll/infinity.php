@@ -1000,6 +1000,8 @@ class The_Neverending_Home_Page {
 		// phpcs:enable -- end inline javascript.
 	}
 
+	// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+
 	/**
 	 * Build path data for current request.
 	 * Used for Google Analytics and pushState history tracking.
@@ -1021,7 +1023,7 @@ class The_Neverending_Home_Page {
 			}
 
 			// Determine path for paginated version of current request
-			if ( false != preg_match( '#' . $wp_rewrite->pagination_base . '/\d+/?$#i', $wp->request ) ) {
+			if ( false != preg_match( '#' . $wp_rewrite->pagination_base . '/\d+/?$#i', $wp->request ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- strict comparison breaks pagination.
 				$path = preg_replace( '#' . $wp_rewrite->pagination_base . '/\d+$#i', $wp_rewrite->pagination_base . '/%d', $wp->request );
 			} else {
 				$path = $wp->request . '/' . $wp_rewrite->pagination_base . '/%d';
@@ -1035,7 +1037,7 @@ class The_Neverending_Home_Page {
 			$path = user_trailingslashit( $path );
 		} else {
 			// Clean up raw $_REQUEST input
-			$path = array_map( 'sanitize_text_field', $_REQUEST );
+			$path = array_map( 'sanitize_text_field', $_REQUEST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- seems this is used for Google Analytics and browser history tracking.
 			$path = array_filter( $path );
 
 			$path['paged'] = '%d';
@@ -1052,9 +1054,9 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	private function get_request_parameters() {
-		$uri = $_SERVER['REQUEST_URI'];
+		$uri = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$uri = preg_replace( '/^[^?]*(\?.*$)/', '$1', $uri, 1, $count );
-		if ( $count != 1 ) {
+		if ( $count !== 1 ) {
 			return '';
 		}
 		return $uri;
@@ -1066,9 +1068,8 @@ class The_Neverending_Home_Page {
 	 *
 	 * @global $wp_scripts, $wp_styles
 	 * @action wp_footer
-	 * @return string
 	 */
-	function action_wp_footer() {
+	public function action_wp_footer() {
 		global $wp_scripts, $wp_styles;
 
 		$scripts = is_a( $wp_scripts, 'WP_Scripts' ) ? $wp_scripts->done : array();
@@ -1130,19 +1131,22 @@ class The_Neverending_Home_Page {
 	/**
 	 * Identify additional scripts required by the latest set of IS posts and provide the necessary data to the IS response handler.
 	 *
+	 * @param array $results - the results.
+	 * @param array $query_args - Array of Query arguments.
+	 * @param array $wp_query - the WP query.
 	 * @global $wp_scripts
 	 * @uses sanitize_text_field, add_query_arg
 	 * @filter infinite_scroll_results
 	 * @return array
 	 */
-	function filter_infinite_scroll_results( $results, $query_args, $wp_query ) {
+	public function filter_infinite_scroll_results( $results, $query_args, $wp_query ) {
 		// Don't bother unless there are posts to display
-		if ( 'success' != $results['type'] ) {
+		if ( 'success' !== $results['type'] ) {
 			return $results;
 		}
 
 		// Parse and sanitize the script handles already output
-		$initial_scripts = isset( $_REQUEST['scripts'] ) && is_array( $_REQUEST['scripts'] ) ? array_map( 'sanitize_text_field', $_REQUEST['scripts'] ) : false;
+		$initial_scripts = isset( $_REQUEST['scripts'] ) && is_array( $_REQUEST['scripts'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_REQUEST['scripts'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes made.
 
 		if ( is_array( $initial_scripts ) ) {
 			global $wp_scripts;
@@ -1244,7 +1248,7 @@ class The_Neverending_Home_Page {
 		}
 
 		// Parse and sanitize the style handles already output
-		$initial_styles = isset( $_REQUEST['styles'] ) && is_array( $_REQUEST['styles'] ) ? array_map( 'sanitize_text_field', $_REQUEST['styles'] ) : false;
+		$initial_styles = isset( $_REQUEST['styles'] ) && is_array( $_REQUEST['styles'] ) ? array_map( 'sanitize_text_field', $_REQUEST['styles'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- no site changes made, unslashing breaks styling.
 
 		if ( is_array( $initial_styles ) ) {
 			global $wp_styles;
@@ -1369,19 +1373,19 @@ class The_Neverending_Home_Page {
 	 * @global $wp_query
 	 * @global $wp_the_query
 	 * @uses current_theme_supports, get_option, self::wp_query, current_user_can, apply_filters, self::get_settings, add_filter, WP_Query, remove_filter, have_posts, wp_head, do_action, add_action, this::render, this::has_wrapper, esc_attr, wp_footer, sharing_register_post_for_share_counts, get_the_id
-	 * @return string or null
 	 */
-	function query() {
-		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) ) {
+	public function query() {
+		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes to the site.
 			die;
 		}
 
-		$page = (int) $_REQUEST['page'];
+		// @todo see if we should validate this nonce since we use it to form a query.
+		$page = (int) $_REQUEST['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're casting this to an int and not making changes to the site.
 
 		// Sanitize and set $previousday. Expected format: dd.mm.yy
-		if ( preg_match( '/^\d{2}\.\d{2}\.\d{2}$/', $_REQUEST['currentday'] ) ) {
+		if ( preg_match( '/^\d{2}\.\d{2}\.\d{2}$/', $_REQUEST['currentday'] ) ) { // phpcs:ignore
 			global $previousday;
-			$previousday = $_REQUEST['currentday'];
+			$previousday = $_REQUEST['currentday']; // phpcs:ignore -- I don't think this is even used?
 		}
 
 		$post_status = array( 'publish' );
@@ -1389,14 +1393,14 @@ class The_Neverending_Home_Page {
 			array_push( $post_status, 'private' );
 		}
 
-		$order = in_array( $_REQUEST['order'], array( 'ASC', 'DESC' ) ) ? $_REQUEST['order'] : 'DESC';
+		$order = in_array( $_REQUEST['order'], array( 'ASC', 'DESC' ), true ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'DESC'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes made to the site.
 
 		$query_args = array_merge(
 			self::wp_query()->query_vars,
 			array(
 				'paged'          => $page,
 				'post_status'    => $post_status,
-				'posts_per_page' => self::posts_per_page(),
+				'posts_per_page' => self::posts_per_page(), // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 				'order'          => $order,
 			)
 		);
@@ -1424,7 +1428,9 @@ class The_Neverending_Home_Page {
 
 		add_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
 
-		$GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = $infinite_scroll_query = new WP_Query();
+		$infinite_scroll_query   = new WP_Query();
+		$GLOBALS['wp_the_query'] = $infinite_scroll_query;
+		$GLOBALS['wp_query']     = $infinite_scroll_query;
 
 		$infinite_scroll_query->query( $query_args );
 
@@ -1521,14 +1527,14 @@ class The_Neverending_Home_Page {
 				ob_end_clean();
 			}
 
-			if ( 'success' == $results['type'] ) {
+			if ( 'success' === $results['type'] ) {
 				global $currentday;
 				$results['lastbatch']  = self::is_last_batch();
 				$results['currentday'] = $currentday;
 			}
 
 			// Loop through posts to capture sharing data for new posts loaded via Infinite Scroll
-			if ( 'success' == $results['type'] && function_exists( 'sharing_register_post_for_share_counts' ) ) {
+			if ( 'success' === $results['type'] && function_exists( 'sharing_register_post_for_share_counts' ) ) {
 				global $jetpack_sharing_counts;
 
 				while ( have_posts() ) {
