@@ -85,32 +85,29 @@
 				}
 			} );
 
-			var xhr = new XMLHttpRequest();
-			xhr.open(
+			makeAjaxRequest(
 				'GET',
 				ajaxurl + '?action=upsell_nudge_jitm&_ajax_nonce=' + jetpackAdminMenu.upsellNudgeJitm,
-				true
-			);
-			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-			xhr.withCredentials = true;
-			xhr.onreadystatechange = function () {
-				try {
-					if ( xhr.readyState === XMLHttpRequest.DONE ) {
-						if ( xhr.status === 200 ) {
-							adminMenu
-								.querySelector( '#toplevel_page_site_card' )
-								.insertAdjacentHTML( 'afterend', xhr.responseText );
+				undefined,
+				null,
+				function ( xhr ) {
+					try {
+						if ( xhr.readyState === XMLHttpRequest.DONE ) {
+							if ( xhr.status === 200 ) {
+								adminMenu
+									.querySelector( '#toplevel_page_site_card' )
+									.insertAdjacentHTML( 'afterend', xhr.responseText );
+							}
 						}
+					} catch ( error ) {
+						// On failure, we just won't display an upsell nudge
 					}
-				} catch ( error ) {
-					// On failure, we just won't display an upsell nudge
 				}
-			};
-			xhr.send();
+			);
 		}
 	}
 
-	function makeAjaxRequest( method, url, contentType, body ) {
+	function makeAjaxRequest( method, url, contentType, body = null, callback = null ) {
 		var xhr = new XMLHttpRequest();
 		xhr.open( method, url, true );
 		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
@@ -118,6 +115,11 @@
 			xhr.setRequestHeader( 'Content-Type', contentType );
 		}
 		xhr.withCredentials = true;
+		if ( callback ) {
+			xhr.onreadystatechange = function () {
+				callback( xhr );
+			};
+		}
 		xhr.send( body );
 	}
 
