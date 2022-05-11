@@ -114,6 +114,7 @@ importers:
       '@types/react': 17.0.44
       '@types/react-dom': 17.0.15
       '@types/react-test-renderer': 17.0.1
+      '@types/wordpress__components': 19.10.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.10.0
       '@wordpress/compose': 5.5.0
@@ -155,6 +156,7 @@ importers:
       '@types/react': 17.0.44
       '@types/react-dom': 17.0.15
       '@types/react-test-renderer': 17.0.1
+      '@types/wordpress__components': 19.10.0_react-dom@17.0.2+react@17.0.2
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
       react: 17.0.2
@@ -7118,6 +7120,10 @@ packages:
       '@types/jest': 27.5.0
     dev: true
 
+  /@types/tinycolor2/1.4.3:
+    resolution: {integrity: sha512-Kf1w9NE5HEgGxCRyIcRXR/ZYtDv0V8FVPtYHwLxl0O+maGX0erE77pQlD0gpP+/KByMZ87mOA79SjifhSB3PjQ==}
+    dev: true
+
   /@types/tough-cookie/4.0.2:
     resolution: {integrity: sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==}
     dev: true
@@ -7141,6 +7147,41 @@ packages:
       - esbuild
       - uglify-js
       - webpack-cli
+    dev: true
+
+  /@types/wordpress__components/19.10.0_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-hnJHwYJfjUSJ79ompvBmGWsJdP/P4OGv1Yz2fuFXHYLS7k2eNba31cy51sI/q7+czSb6wG+Y5cssxNcA3Nrxbg==}
+    dependencies:
+      '@types/react': 18.0.9
+      '@types/tinycolor2': 1.4.3
+      '@types/wordpress__notices': 3.3.0
+      '@types/wordpress__rich-text': 3.4.6
+      '@wordpress/element': 4.6.0
+      downshift: 6.1.7_react@17.0.2
+      re-resizable: 6.9.9_react-dom@17.0.2+react@17.0.2
+    transitivePeerDependencies:
+      - react
+      - react-dom
+    dev: true
+
+  /@types/wordpress__data/6.0.0:
+    resolution: {integrity: sha512-+J6uLQjhT6zqDgOx4EtqJLMajYFP/thwW+WtZWX/SYZu8e3MqPnc1HaRdz6JGeKpjlpPr4UOpTB2nf/bWKrsGA==}
+    dependencies:
+      '@types/react': 18.0.9
+      redux: 4.2.0
+    dev: true
+
+  /@types/wordpress__notices/3.3.0:
+    resolution: {integrity: sha512-XR9WE4qes2wJCLuStD5Vm9yh/DMsELpcgYmmQW4Rs+zP+bIc6NMnKeDhr9OAhdkWNPVZ/YVshBz1GGjOdNSqDA==}
+    dependencies:
+      '@types/react': 18.0.9
+    dev: true
+
+  /@types/wordpress__rich-text/3.4.6:
+    resolution: {integrity: sha512-MeLSATBHrcN3fp8cVylbpx+BKRJ1aootPNtbTblcUAHcuRo6avKu1kaDLxIZb/8YbsD+/3Wm8d1uldeNz9/lhw==}
+    dependencies:
+      '@types/react': 18.0.9
+      '@types/wordpress__data': 6.0.0
     dev: true
 
   /@types/yargs-parser/21.0.0:
