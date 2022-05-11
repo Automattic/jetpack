@@ -1,13 +1,12 @@
 /**
  * External dependencies
  */
-import React from 'react';
 import * as allIcons from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import Button from '../index.jsx';
+import Button from '../index';
 import Doc from './Button.mdx';
 
 const { Icon: WPIcon, ...icons } = allIcons;

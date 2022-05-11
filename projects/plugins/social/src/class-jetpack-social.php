@@ -82,6 +82,9 @@ class Jetpack_Social {
 		My_Jetpack_Initializer::init();
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
+
+		// Add block editor assets
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
 	}
 
 	/**
@@ -136,6 +139,23 @@ class Jetpack_Social {
 			'connections'                      => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 			'jetpackSocialConnectionsAdminUrl' => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 		);
+	}
+
+	/**
+	 * Enqueue block editor scripts and styles.
+	 */
+	public function enqueue_block_editor_scripts() {
+		Assets::register_script(
+			'jetpack-social-editor',
+			'build/editor.js',
+			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-social',
+			)
+		);
+
+		Assets::enqueue_script( 'jetpack-social-editor' );
 	}
 
 	/**
