@@ -184,11 +184,13 @@ class Wpcom_Products {
 			return $pricing;
 		}
 
+		$coupon_discount = intval( $coupon->discount );
+
 		// Populate response with coupon discount.
-		$pricing['coupon_discount'] = $coupon->discount;
+		$pricing['coupon_discount'] = $coupon_discount;
 
 		// Apply coupon discount to discount price.
-		$pricing['discount_price'] = $discount_price * ( 100 - $coupon->discount ) / 100;
+		$pricing['discount_price'] = $discount_price * ( 100 - $coupon_discount ) / 100;
 
 		return $pricing;
 	}
