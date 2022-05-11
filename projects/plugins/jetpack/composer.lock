@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "27bfa12e8665a1d59d476b995cb840ff",
+    "content-hash": "28c7ec660683c302800a90de1a0f0e2c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -290,7 +290,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "bc25fe4dc1a5db053d0dea48d3c26996385ecbbf"
+                "reference": "fa588c7b40d284d2c6f51979254853567dc73cc9"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -301,7 +301,7 @@
                 "automattic/jetpack-connection": "^1.40",
                 "automattic/jetpack-connection-ui": "^2.4",
                 "automattic/jetpack-identity-crisis": "^0.8",
-                "automattic/jetpack-my-jetpack": "^1.3",
+                "automattic/jetpack-my-jetpack": "^1.4",
                 "automattic/jetpack-status": "^1.13",
                 "automattic/jetpack-sync": "^1.32"
             },
@@ -1173,7 +1173,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "1850f7b082c85cddc144272e4e15f279ff0d0ca5"
+                "reference": "725ef878f070c99a8b213fb6398448427c398ffb"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1198,7 +1198,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.3.x-dev"
+                    "dev-master": "1.4.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
