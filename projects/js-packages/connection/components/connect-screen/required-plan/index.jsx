@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import ConnectScreenRequiredPlanVisual from './visual';
 import useConnection from '../../use-connection';
+import useProductCheckoutWorkflow from '../../../hooks/use-product-checkout-workflow';
 
 /**
  * The Connection Screen Visual component for consumers that require a Plan.
@@ -33,6 +34,7 @@ const ConnectScreenRequiredPlan = props => {
 		pricingIcon,
 		pricingTitle,
 		pricingCurrencyCode,
+		wpcomProductSlug,
 	} = props;
 
 	const {
@@ -51,9 +53,17 @@ const ConnectScreenRequiredPlan = props => {
 		from,
 	} );
 
+	const productSlug = wpcomProductSlug ? wpcomProductSlug : '';
+
+	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug,
+		redirectUrl: redirectUri,
+	} );
+
 	const showConnectButton = ! isRegistered || ! isUserConnected;
 	const displayButtonError = Boolean( registrationError );
-	const buttonIsLoading = siteIsRegistering || userIsConnecting;
+	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
+	const handleButtonClick = productSlug ? run : handleRegisterSite;
 
 	return (
 		<ConnectScreenRequiredPlanVisual
@@ -64,7 +74,7 @@ const ConnectScreenRequiredPlan = props => {
 			pricingIcon={ pricingIcon }
 			pricingTitle={ pricingTitle }
 			pricingCurrencyCode={ pricingCurrencyCode }
-			handleButtonClick={ handleRegisterSite }
+			handleButtonClick={ handleButtonClick }
 			showConnectButton={ showConnectButton }
 			displayButtonError={ displayButtonError }
 			buttonIsLoading={ buttonIsLoading }
@@ -101,6 +111,8 @@ ConnectScreenRequiredPlan.propTypes = {
 	priceAfter: PropTypes.number.isRequired,
 	/** The Currency code, eg 'USD'. */
 	pricingCurrencyCode: PropTypes.string,
+	/** The WordPress.com product slug. If informed, the connection/authorization flow will go through the Checkout page for this product'. */
+	wpcomProductSlug: PropTypes.string,
 };
 
 ConnectScreenRequiredPlan.defaultProps = {

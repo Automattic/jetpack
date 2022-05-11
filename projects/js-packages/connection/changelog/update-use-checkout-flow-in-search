@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add option to use the checkout workflow from the ConnectionScreenRequirePlan component
