@@ -46,7 +46,7 @@ export const Button: React.FC< ButtonProps > = ( {
 	return (
 		<WPButton
 			target={ externalTarget }
-			variant={ isExternalLink ? 'link' : variant }
+			variant={ variant === 'external-link' ? 'link' : variant }
 			className={ className }
 			icon={ ! isExternalLink ? icon : undefined }
 			iconSize={ iconSize }
