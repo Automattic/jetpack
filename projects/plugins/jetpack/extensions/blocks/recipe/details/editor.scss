@@ -1,0 +1,13 @@
+/**
+ * Editor styles for Recipe-details
+ */
+
+.wp-block-jetpack-recipe-details {
+  display: block;
+
+  .wp-recipe-block-details {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 150px));
+  }
+}
