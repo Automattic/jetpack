@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.12.0",
+	"version": "0.12.1-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -8,6 +8,7 @@
 		"@automattic/format-currency": "1.0.1",
 		"@wordpress/browserslist-config": "4.1.2",
 		"@wordpress/components": "19.10.0",
+		"@wordpress/compose": "5.5.0",
 		"@wordpress/date": "4.8.0",
 		"@wordpress/i18n": "4.8.0",
 		"@wordpress/icons": "8.4.0",
@@ -27,6 +28,7 @@
 		"@types/react": "18.0.8",
 		"@types/react-dom": "18.0.3",
 		"@types/react-test-renderer": "18.0.0",
+		"@types/wordpress__components": "19.10.0",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
 		"react": "17.0.2",
@@ -42,7 +44,7 @@
 	},
 	"type": "module",
 	"exports": {
-		".": "./index.jsx"
+		".": "./index.ts"
 	},
 	"sideEffects": [
 		"*.css",

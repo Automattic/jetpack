@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Changed method used to disconnect upon deactivation

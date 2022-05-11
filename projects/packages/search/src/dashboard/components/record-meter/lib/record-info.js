@@ -88,7 +88,7 @@ export default function getRecordInfo(
 				data: createData(
 					combineOtherCount( postTypeItems.otherItems ),
 					PALETTE.colors[ 'Gray 30' ],
-					'Other'
+					'other'
 				),
 			} );
 		}

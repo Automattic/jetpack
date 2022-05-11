@@ -3,18 +3,17 @@
  */
 import React, { useMemo } from 'react';
 import { useSelect, select as syncSelect } from '@wordpress/data';
+import analytics from '@automattic/jetpack-analytics';
+import restApi from '@automattic/jetpack-api';
 
 /**
  * Internal dependencies
  */
-import analytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
-import { Spinner } from '@automattic/jetpack-components';
-import useConnection from './use-connection';
+import useConnection from 'hooks/use-connection';
 import { STORE_ID } from 'store';
-import UpsellPage from './upsell-page';
-import SearchConnectionPage from './connection-page';
-import SearchDashboard from './index';
+import SearchConnectionPage from 'components/pages/connection-page';
+import UpsellPage from 'components/pages/upsell-page';
+import SearchDashboardPage from 'components/pages/dashboard-page';
 
 /**
  * Return appropriate components.
@@ -22,30 +21,7 @@ import SearchDashboard from './index';
  * @returns {React.Component} WrappedDashboard component.
  */
 export default function WrappedDashboard() {
-	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
-	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
-	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
-	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
-	const { connectionStatus } = useConnection();
-
-	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
-
-	const isFullyConnected =
-		Object.keys( connectionStatus ).length &&
-		connectionStatus.isUserConnected &&
-		connectionStatus.isRegistered;
-
-	const isLoading = useSelect(
-		select =>
-			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
-			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchModuleStatus' ) ||
-			select( STORE_ID ).isResolving( 'getSearchStats' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' ) ||
-			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' )
-	);
+	const { isFullyConnected } = useConnection();
 
 	const initializeAnalytics = () => {
 		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
@@ -69,19 +45,34 @@ export default function WrappedDashboard() {
 		} );
 	}, [] );
 
-	if ( isLoading ) {
-		return (
-			<Spinner className="jp-search-dashboard-page-loading-spinner" color="#000" size={ 32 } />
-		);
-	}
+	return (
+		<>
+			{ ! isFullyConnected && <SearchConnectionPage /> }
+			{ isFullyConnected && <AfterConnectionPage /> }
+		</>
+	);
+}
 
-	if ( ! isFullyConnected ) {
-		return <SearchConnectionPage />;
-	}
+/**
+ * Returns SearchDashboard component if supports search otherwise UpsellPage component
+ *
+ * @returns {React.Component} AfterConnectionPage component.
+ */
+function AfterConnectionPage() {
+	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 
-	if ( ! supportsSearch ) {
-		return <UpsellPage />;
-	}
+	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
 
-	return <SearchDashboard />;
+	const isLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' )
+	);
+
+	return (
+		<>
+			{ supportsSearch && <SearchDashboardPage isLoading={ isLoading } /> }
+			{ ! supportsSearch && <UpsellPage isLoading={ isLoading } /> }
+		</>
+	);
 }
