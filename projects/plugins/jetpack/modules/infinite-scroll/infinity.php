@@ -563,14 +563,14 @@ class The_Neverending_Home_Page {
 	 *
 	 * @return string
 	 */
-	function body_class() {
+	public function body_class() {
 		$classes = '';
 		// Do not add infinity-scroll class if disabled through the Reading page
 		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
-		if ( ! $disabled || 'click' == self::get_settings()->type ) {
+		if ( ! $disabled || 'click' === self::get_settings()->type ) {
 			$classes = 'infinite-scroll';
 
-			if ( 'scroll' == self::get_settings()->type ) {
+			if ( 'scroll' === self::get_settings()->type ) {
 				$classes .= ' neverending';
 			}
 		}
@@ -586,7 +586,7 @@ class The_Neverending_Home_Page {
 	 * @uses self::has_only_title_matching_posts
 	 * @return array
 	 */
-	function get_excluded_posts() {
+	public function get_excluded_posts() {
 
 		$excluded_posts = array();
 		// loop through posts returned by wp_query call
@@ -614,7 +614,7 @@ class The_Neverending_Home_Page {
 	 * @uses self::get_excluded_posts
 	 * @return array
 	 */
-	function get_query_vars() {
+	public function get_query_vars() {
 
 		$query_vars = self::wp_query()->query_vars;
 		// applies to search page only
@@ -638,7 +638,7 @@ class The_Neverending_Home_Page {
 	 * @uses self::wp_query
 	 * @return bool
 	 */
-	function has_only_title_matching_posts() {
+	public function has_only_title_matching_posts() {
 
 		// apply following logic for search page results only
 		if ( false === self::wp_query()->is_search() ) {
@@ -679,7 +679,7 @@ class The_Neverending_Home_Page {
 	 * @uses self::wp_query
 	 * @return string 'Y-m-d H:i:s' or false
 	 */
-	function get_last_post_date() {
+	public function get_last_post_date() {
 		if ( self::got_infinity() ) {
 			return;
 		}
@@ -712,11 +712,11 @@ class The_Neverending_Home_Page {
 	 * Returns the appropriate `wp_posts` table field for a given query's
 	 * 'orderby' parameter, if applicable.
 	 *
-	 * @param optional object $query
+	 * @param object $query - an optional query object.
 	 * @uses self::wp_query
 	 * @return string or false
 	 */
-	function get_query_sort_field( $query = null ) {
+	public function get_query_sort_field( $query = null ) {
 		if ( empty( $query ) ) {
 			$query = self::wp_query();
 		}
@@ -740,8 +740,8 @@ class The_Neverending_Home_Page {
 	 * and we're sorting by post date.
 	 *
 	 * @global $wpdb
-	 * @param string $where
-	 * @param object $query
+	 * @param string $where - the where clause.
+	 * @param object $query - the query.
 	 * @uses apply_filters
 	 * @filter posts_where
 	 * @return string
@@ -752,11 +752,11 @@ class The_Neverending_Home_Page {
 
 			$sort_field = self::get_query_sort_field( $query );
 
-			if ( 'post_date' !== $sort_field || 'DESC' !== $_REQUEST['query_args']['order'] ) {
+			if ( 'post_date' !== $sort_field || 'DESC' !== $_REQUEST['query_args']['order'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes made to the site.
 				return $where;
 			}
 
-			$query_before = sanitize_text_field( wp_unslash( $_REQUEST['query_before'] ) );
+			$query_before = sanitize_text_field( wp_unslash( $_REQUEST['query_before'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes made to the site.
 
 			if ( empty( $query_before ) ) {
 				return $where;
@@ -777,8 +777,8 @@ class The_Neverending_Home_Page {
 			 * @param string $operator @deprecated Query operator.
 			 * @param string $last_post_date @deprecated Last Post Date timestamp.
 			 */
-			$operator       = 'ASC' === $_REQUEST['query_args']['order'] ? '>' : '<';
-			$last_post_date = sanitize_text_field( wp_unslash( $_REQUEST['last_post_date'] ) );
+			$operator       = 'ASC' === $_REQUEST['query_args']['order'] ? '>' : '<'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes to the site.
+			$last_post_date = sanitize_text_field( wp_unslash( $_REQUEST['last_post_date'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes to the site.
 			$where         .= apply_filters( 'infinite_scroll_posts_where', $clause, $query, $operator, $last_post_date );
 		}
 
