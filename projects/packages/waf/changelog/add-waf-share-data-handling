@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+handle share data option to decide if we should write to log file

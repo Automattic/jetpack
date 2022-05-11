@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Update usage of the connection package by Jetpack

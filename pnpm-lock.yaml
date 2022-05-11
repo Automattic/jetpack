@@ -116,6 +116,7 @@ importers:
       '@types/react-test-renderer': 17.0.1
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.10.0
+      '@wordpress/compose': 5.5.0
       '@wordpress/date': 4.8.0
       '@wordpress/i18n': 4.8.0
       '@wordpress/icons': 8.4.0
@@ -135,6 +136,7 @@ importers:
       '@automattic/format-currency': 1.0.1
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.10.0_288661f573e9d1f632fd8574f13f5a41
+      '@wordpress/compose': 5.5.0_react@17.0.2
       '@wordpress/date': 4.8.0
       '@wordpress/i18n': 4.8.0
       '@wordpress/icons': 8.4.0
@@ -1327,7 +1329,6 @@ importers:
       react-page-visibility: 6.4.0
       react-redux: 6.0.1
       react-router-dom: 5.2.0
-      react-tagsinput: 3.19.0
       react-test-renderer: 17.0.2
       redux: 4.0.5
       redux-thunk: 2.3.0
@@ -1412,7 +1413,6 @@ importers:
       react-page-visibility: 6.4.0_react@17.0.2
       react-redux: 6.0.1_react@17.0.2+redux@4.0.5
       react-router-dom: 5.2.0_react@17.0.2
-      react-tagsinput: 3.19.0_react@17.0.2
       redux: 4.0.5
       redux-thunk: 2.3.0
       refx: 3.1.1
@@ -7943,6 +7943,29 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/react'
+
+  /@wordpress/compose/5.5.0_react@17.0.2:
+    resolution: {integrity: sha512-jg/7cXTMr+40xf7uf/Vih7A/7EpP786veVxbeFfZu08K/0qe5kt86UNxI9i2wWI62yOTPfM5x87AFUD+SRP/Jw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: ^17.0.0
+    dependencies:
+      '@babel/runtime': 7.17.9
+      '@types/lodash': 4.14.182
+      '@types/mousetrap': 1.6.9
+      '@wordpress/deprecated': 3.8.0
+      '@wordpress/dom': 3.8.0
+      '@wordpress/element': 4.6.0
+      '@wordpress/is-shallow-equal': 4.8.0
+      '@wordpress/keycodes': 3.8.0
+      '@wordpress/priority-queue': 2.8.0
+      clipboard: 2.0.11
+      lodash: 4.17.21
+      mousetrap: 1.6.5
+      react: 17.0.2
+      react-resize-aware: 3.1.1_react@17.0.2
+      use-memo-one: 1.1.2_react@17.0.2
+    dev: false
 
   /@wordpress/compose/5.6.0_react@17.0.2:
     resolution: {integrity: sha512-+WssY8aJsOmmVQ7njve/HMjjpL4wDGm5an0i2GGOyYOv2O4gQg08Eg/P+0EhXuLXKMvYarnXGeQg2JZxg88YRg==}
@@ -18112,14 +18135,6 @@ packages:
       react: 17.0.2
       refractor: 3.6.0
     dev: true
-
-  /react-tagsinput/3.19.0_react@17.0.2:
-    resolution: {integrity: sha512-ni+/qnZrYrvLg83LtTFHErKy1KQHL0fi0Y6C5jgC1dNUePE9cS/OlQ4XH6JRSjv9GGoeVE0R/ujSBaS1uzCRYQ==}
-    peerDependencies:
-      react: ^16.0.0 || ^15.0.0 || ^0.14.0 || ^17
-    dependencies:
-      react: 17.0.2
-    dev: false
 
   /react-test-renderer/17.0.2_react@17.0.2:
     resolution: {integrity: sha512-yaQ9cB89c17PUb0x6UfWRs7kQCorVdHlutU1boVPEsB8IDZH6n9tHxMacc3y0JoXOJUsZb/t/Mb8FUWMKaM7iQ==}

@@ -26,6 +26,7 @@ class Waf_Runner {
 	const BLOCK_IP_FILE                 = __DIR__ . '/../rules/block-ip.php';
 	const VERSION_OPTION_NAME           = 'jetpack_waf_rules_version';
 	const RULE_LAST_UPDATED_OPTION_NAME = 'jetpack_waf_last_updated_timestamp';
+	const SHARE_DATA_OPTION_NAME        = 'jetpack_waf_share_data';
 
 	/**
 	 * Set the mode definition if it has not been set.
@@ -36,6 +37,18 @@ class Waf_Runner {
 		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
 			$mode_option = get_option( self::MODE_OPTION_NAME );
 			define( 'JETPACK_WAF_MODE', $mode_option );
+		}
+	}
+
+	/**
+	 * Set the mode definition if it has not been set.
+	 *
+	 * @return void
+	 */
+	public static function define_share_data() {
+		if ( ! defined( 'JETPACK_WAF_SHARE_DATA' ) ) {
+			$share_data_option = get_option( self::SHARE_DATA_OPTION_NAME, false );
+			define( 'JETPACK_WAF_SHARE_DATA', $share_data_option );
 		}
 	}
 
@@ -176,6 +189,8 @@ class Waf_Runner {
 			add_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 		}
 
+		add_option( self::SHARE_DATA_OPTION_NAME, true );
+
 		self::initialize_filesystem();
 		self::create_waf_directory();
 		self::generate_ip_rules();
@@ -302,8 +317,10 @@ class Waf_Runner {
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			throw new \Exception( 'API connection failed.' );
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			throw new \Exception( 'API connection failed.', $response_code );
 		}
 
 		$rules_json = wp_remote_retrieve_body( $response );
@@ -332,11 +349,17 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
-		$api_exception = null;
+		$api_exception       = null;
+		$throw_api_exception = true;
 		try {
 			$rules = self::get_rules_from_api();
 		} catch ( \Exception $e ) {
-			if ( $wp_filesystem->exists( self::RULES_FILE ) ) {
+			if ( 401 === $e->getCode() ) {
+				// do not throw API exceptions for users who do not have access
+				$throw_api_exception = false;
+			}
+
+			if ( $wp_filesystem->exists( self::RULES_FILE ) && $throw_api_exception ) {
 				throw $e;
 			}
 
@@ -364,7 +387,7 @@ class Waf_Runner {
 			throw new \Exception( 'Failed writing rules file to: ' . self::RULES_FILE );
 		}
 
-		if ( null !== $api_exception ) {
+		if ( null !== $api_exception && $throw_api_exception ) {
 			throw $api_exception;
 		}
 	}
