@@ -23,11 +23,6 @@ import { name as ingredientItemName, settings as ingredientItemSettings } from '
 import { name as stepsName, settings as stepsSettings } from './steps/';
 import { name as stepName, settings as stepSettings } from './step/';
 
-/**
- * Style dependencies
- */
-import './editor.scss';
-
 export const name = 'recipe';
 export const title = __( 'Recipe', 'jetpack' );
 export const settings = {

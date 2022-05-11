@@ -9,11 +9,6 @@ import {
 	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 
-/**
- * Internal dependencies
- */
-import './editor.scss';
-
 function RecipeEdit( { className, attributes, setAttributes } ) {
 	const { prepTime, cookTime, servings } = attributes;
 
