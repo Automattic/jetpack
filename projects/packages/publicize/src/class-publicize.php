@@ -91,7 +91,7 @@ class Publicize extends Publicize_Base {
 	 * Show a warning when Publicize does not have a connection.
 	 */
 	public function admin_page_warning() {
-		$jetpack   = Jetpack::init();
+		$jetpack   = \Jetpack::init();
 		$blog_name = get_bloginfo( 'blogname' );
 		if ( empty( $blog_name ) ) {
 			$blog_name = home_url( '/' );
@@ -309,7 +309,7 @@ class Publicize extends Publicize_Base {
 						break;
 					case 'empty_state':
 						/* translators: %s is the URL of the Jetpack admin page */
-						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), Jetpack::admin_url() );
+						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), \Jetpack::admin_url() );
 						break;
 					default:
 						$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack-publicize-pkg' );

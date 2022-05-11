@@ -11,10 +11,10 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import Text, { H3, Title } from '../text/index';
-import { getIconBySlug, CheckmarkIcon } from '../product-icons/index.jsx';
-import ProductPrice from '../product-price/index.jsx';
+import { getIconBySlug, CheckmarkIcon } from '../product-icons/index';
+import ProductPrice from '../product-price/index';
 import styles from './style.module.scss';
-import Button from '../button/index.jsx';
+import Button from '../button/index';
 import Alert from '../alert';
 
 /**

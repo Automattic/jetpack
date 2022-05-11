@@ -68,8 +68,7 @@ class Connection {
 	 * Deactivate the connection on plugin disconnect.
 	 */
 	public function deactivate_disconnect() {
-		$this->manager->disconnect_site_wpcom();
-		$this->manager->delete_all_connection_tokens();
+		$this->manager->remove_connection();
 	}
 
 	/**
@@ -127,7 +126,7 @@ class Connection {
 			$is_connected = $this->manager->is_registered();
 		}
 
-		return $is_connected && $this->manager->is_plugin_enabled();
+		return $is_connected;
 	}
 
 	/**
@@ -136,8 +135,6 @@ class Connection {
 	 * @return true|\WP_Error The error object.
 	 */
 	public function register() {
-		$this->manager->enable_plugin();
-
 		if ( $this->is_connected() ) {
 			Analytics::record_user_event( 'connect_site' );
 
@@ -164,24 +161,6 @@ class Connection {
 
 		$this->manager->remove_connection();
 
-		// @todo: implement clearing of IDC options
-		// Jetpack_IDC::clear_all_idc_options();
-
-		// @todo: implement check of updating activated state?
-		// if ( $update_activated_state ) {
-		// Jetpack_Options::update_option( 'activated', 4 );
-		// }
-
-		// @todo: implement check of unique connection increment/decrement
-		// if ( $jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' ) ) {
-		// ...
-		// }
-
-		// @todo: Delete all the sync related data. Since it could be taking up space.
-		// Sender::get_instance()->uninstall();
-
-		// @todo: Disable the Heartbeat cron
-		// Jetpack_Heartbeat::init()->deactivate();
 		return true;
 	}
 

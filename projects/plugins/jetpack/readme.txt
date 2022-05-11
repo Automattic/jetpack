@@ -242,21 +242,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.0-a.1 - 2022-05-04
+### 11.0-a.3 - 2022-05-10
 #### Enhancements
-- WAF: add settings UI for Jetpack Firewall
-- Google Fonts: add additional fonts to the list of available fonts.
-- Payment Block: refactors the donation block by unifying Stripe Nudge component.
+- Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset.
+- Latest Instagram Posts Block: improve performance of the block by adding lazy load for the images.
+- Payment Blocks: reset form data to default values after creating a subscription.
+- VideoPress: improve Extensibility of Privacy Setting filter by adding the embedded post id.
+- VideoPress: improve help message of VideoPress Privacy Setting at the block level.
 
 #### Improved compatibility
-- Contact Form: ensure the option to export forms to a csv file works with the upcoming version of WordPress, 6.0.
-- General: Jetpack is now fully compatible with the upcoming version of WordPress, 6.0.
-- General: Jetpack now requires a more recent version of WordPress (5.9), since a new version of WordPress (6.0) will be available soon.
-- General: remove backwards compatibility code now that Jetpack requires WordPress 5.9.
+- General: improve connection sharing between Jetpack and Jetpack standalone plugins.
 
 #### Bug fixes
-- Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+.
-- VaultPress: fixes a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active.
+- Custom CSS: ensure the Additional CSS sub-menu link displays correctly.
+- Subscriptions: fix typo in confirmation message.
 
 --------
 

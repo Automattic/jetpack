@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.0 - 2022-05-10
+### Changed
+- Updated package dependencies [#24296]
+
+### Fixed
+- Add a plugin to make module IDs more deterministic with pnpm. [#24302]
+
 ## 1.1.10 - 2022-05-04
 ### Added
 - Add missing JavaScript dependencies. [#24096]

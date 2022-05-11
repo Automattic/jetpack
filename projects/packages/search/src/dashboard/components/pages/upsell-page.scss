@@ -1,0 +1,12 @@
+.jp-search-dashboard-upsell-page {
+	line-height: 1.5;
+	width: 100%;
+	h1 {
+		line-height: 1.2;
+	}
+
+	// Targets AdminPage component, which uses obfuscated CSS names.
+	> div {
+		margin-left: 0;
+	}
+}

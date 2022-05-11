@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+fix bootstrap generation in cases file.php is not required yet

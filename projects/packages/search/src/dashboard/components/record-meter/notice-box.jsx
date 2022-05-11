@@ -14,12 +14,12 @@ import NoticeAction from 'components/notice/notice-action.jsx';
 const CLOSE_TO_LIMIT_PERCENT = 0.8;
 const DISMISSED_NOTICES = 'jetpack-search-dismissed-notices';
 
-const getNotices = ( planRecordLimit = null ) => {
+const getNotices = ( tierMaximumRecords = null ) => {
 	return {
 		1: {
 			id: 1,
 			message: __(
-				"We weren't able to properly locate your content for Search",
+				"Search was unable to locate your content. Jetpack's servers ran into a problem when trying to communicate with your site, which is needed for Search to work properly.",
 				'jetpack-search-pkg'
 			),
 			isImportant: true,
@@ -40,10 +40,10 @@ const getNotices = ( planRecordLimit = null ) => {
 			message: sprintf(
 				// translators: %s: site's current plan record limit
 				__(
-					'You recently surpassed %d records and will be automatically upgraded to the next billing tier',
+					'You recently surpassed %d records and will be automatically upgraded to the next billing tier <p> learn more <p>',
 					'jetpack-search-pkg'
 				),
-				planRecordLimit
+				tierMaximumRecords
 			),
 			link: {
 				text: __( 'learn more', 'jetpack-search-pkg' ),
@@ -55,10 +55,10 @@ const getNotices = ( planRecordLimit = null ) => {
 			message: sprintf(
 				// translators: %s: site's current plan record limit
 				__(
-					"You're close to the max amount of records for this billing tier. Once you hit %s indexed records, you'll automatically be billed for the next tier",
+					"You're close to the max amount of records for this billing tier. Once you hit %s indexed records, you'll automatically be billed for <br> the next tier <p> learn more <p>",
 					'jetpack-search-pkg'
 				),
-				planRecordLimit
+				tierMaximumRecords
 			),
 			link: {
 				text: __( 'learn more', 'jetpack-search-pkg' ),
@@ -81,7 +81,7 @@ const getNotices = ( planRecordLimit = null ) => {
  */
 export function NoticeBox( props ) {
 	const activeNoticeIds = [];
-	const NOTICES = getNotices( props.planRecordLimit );
+	const NOTICES = getNotices( props.tierMaximumRecords );
 	const [ showNotice, setShowNotice ] = useState( true );
 
 	// deal with localStorage for ensuring dismissed notice boxs are not re-displayed
@@ -109,13 +109,15 @@ export function NoticeBox( props ) {
 		activeNoticeIds.push( NO_INDEXABLE_ITEMS );
 
 	// check if over limit
-	props.recordCount > props.planRecordLimit &&
+	typeof props.tierMaximumRecords === 'number' &&
+		props.recordCount > props.tierMaximumRecords &&
 		! dismissedNoticesString.includes( OVER_RECORD_LIMIT ) &&
 		activeNoticeIds.push( OVER_RECORD_LIMIT );
 
 	// check if close to reaching limit
-	props.recordCount > props.planRecordLimit * CLOSE_TO_LIMIT_PERCENT &&
-		props.recordCount < props.planRecordLimit &&
+	typeof props.tierMaximumRecords === 'number' &&
+		props.recordCount > props.tierMaximumRecords * CLOSE_TO_LIMIT_PERCENT &&
+		props.recordCount < props.tierMaximumRecords &&
 		! dismissedNoticesString.includes( CLOSE_TO_LIMIT ) &&
 		activeNoticeIds.push( CLOSE_TO_LIMIT );
 

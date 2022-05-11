@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-wordads",
-	"version": "0.2.1-alpha",
+	"version": "0.2.2-alpha",
 	"description": "Earn income by allowing Jetpack to display high quality ads.",
 	"main": "main.js",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wordads/#readme",
@@ -59,7 +59,7 @@
 		"tiny-lru": "7.0.6"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:* || ^1.1",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.2",
 		"@babel/core": "7.17.10",
 		"@babel/plugin-proposal-nullish-coalescing-operator": "7.16.7",
 		"@babel/plugin-transform-react-jsx": "7.17.3",
@@ -76,6 +76,7 @@
 		"@wordpress/dependency-extraction-webpack-plugin": "3.4.1",
 		"babel-jest": "28.1.0",
 		"concurrently": "6.4.0",
+		"core-js": "3.22.4",
 		"jest": "28.1.0",
 		"jest-environment-jsdom": "28.1.0",
 		"postcss": "8.4.13",
