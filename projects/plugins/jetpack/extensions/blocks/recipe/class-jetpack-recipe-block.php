@@ -16,8 +16,8 @@ class Jetpack_Recipe_Block {
 	/**
 	 * Adds recipe schema attributes.
 	 *
-	 * @param array  $attr    Array containing the contact info block attributes.
-	 * @param string $content String containing the contact info block content.
+	 * @param array  $attr    Array containing the recipe block attributes.
+	 * @param string $content String containing the recipe block content.
 	 *
 	 * @return string
 	 */
@@ -29,8 +29,8 @@ class Jetpack_Recipe_Block {
 	/**
 	 * Adds recipe hero schema attributes.
 	 *
-	 * @param array  $attr    Array containing the details block attributes.
-	 * @param string $content String containing the details block content.
+	 * @param array  $attr    Array containing the recipe-hero block attributes.
+	 * @param string $content String containing the recipe-hero block content.
 	 *
 	 * @return string
 	 */
@@ -41,20 +41,21 @@ class Jetpack_Recipe_Block {
 	/**
 	 * Adds recipe details schema attributes.
 	 *
-	 * @param array  $attr    Array containing the details block attributes.
-	 * @param string $content String containing the details block content.
+	 * @param array  $attr    Array containing the recipe-details block attributes.
+	 * @param string $content String containing the recipe-details block content.
 	 *
 	 * @return string
 	 */
 	public static function render_details( $attr, $content ) {
+		Jetpack_Gutenberg::load_styles_as_required( 'recipe-details' );
 		return $content;
 	}
 
 	/**
 	 * Adds recipe ingredients list schema attributes.
 	 *
-	 * @param array  $attr    Array containing the details block attributes.
-	 * @param string $content String containing the details block content.
+	 * @param array  $attr    Array containing the recipe-ingredients-list block attributes.
+	 * @param string $content String containing the recipe-ingredients-list block content.
 	 *
 	 * @return string
 	 */
@@ -65,8 +66,8 @@ class Jetpack_Recipe_Block {
 	/**
 	 * Adds recipe ingredient item schema attributes.
 	 *
-	 * @param array  $attr    Array containing the details block attributes.
-	 * @param string $content String containing the details block content.
+	 * @param array  $attr    Array containing the recipe-ingredient-item block attributes.
+	 * @param string $content String containing the recipe-ingredient-item block content.
 	 *
 	 * @return string
 	 */
@@ -77,8 +78,8 @@ class Jetpack_Recipe_Block {
 	/**
 	 * Adds recipe steps schema attributes.
 	 *
-	 * @param array  $attr    Array containing the details block attributes.
-	 * @param string $content String containing the details block content.
+	 * @param array  $attr    Array containing the recipe-steps block attributes.
+	 * @param string $content String containing the recipe-steps block content.
 	 *
 	 * @return string
 	 */
@@ -89,12 +90,13 @@ class Jetpack_Recipe_Block {
 	/**
 	 * Adds recipe step schema attributes.
 	 *
-	 * @param array  $attr    Array containing the details block attributes.
-	 * @param string $content String containing the details block content.
+	 * @param array  $attr    Array containing the recipe-step block attributes.
+	 * @param string $content String containing the recipe-step block content.
 	 *
 	 * @return string
 	 */
 	public static function render_step( $attr, $content ) {
+		Jetpack_Gutenberg::load_styles_as_required( 'recipe-step' );
 		return $content;
 	}
 
