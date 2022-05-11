@@ -788,11 +788,10 @@ class The_Neverending_Home_Page {
 	/**
 	 * Let's overwrite the default post_per_page setting to always display a fixed amount.
 	 *
-	 * @param object $query
+	 * @param object $query - the query.
 	 * @uses is_admin, self::archive_supports_infinity, self::get_settings
-	 * @return null
 	 */
-	function posts_per_page_query( $query ) {
+	public function posts_per_page_query( $query ) {
 		if ( ! is_admin() && self::archive_supports_infinity() && $query->is_main_query() ) {
 			$query->set( 'posts_per_page', self::posts_per_page() );
 		}
@@ -805,7 +804,7 @@ class The_Neverending_Home_Page {
 	 * @uses self::get_settings
 	 * @return bool
 	 */
-	function has_wrapper() {
+	public function has_wrapper() {
 		return (bool) self::get_settings()->wrapper;
 	}
 
@@ -816,7 +815,7 @@ class The_Neverending_Home_Page {
 	 * @uses home_url, add_query_arg, apply_filters
 	 * @return string
 	 */
-	function ajax_url() {
+	public function ajax_url() {
 		$base_url = set_url_scheme( home_url( '/' ) );
 
 		$ajaxurl = add_query_arg( array( 'infinity' => 'scrolling' ), $base_url );
@@ -847,7 +846,7 @@ class The_Neverending_Home_Page {
 			define( 'DOING_AJAX', true );
 		}
 
-		@header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+		@header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		send_nosniff_header();
 
 		/**
@@ -867,7 +866,7 @@ class The_Neverending_Home_Page {
 	 * Previously, JS settings object was unnecessarily output in the document head.
 	 * When the hook was changed, the method name no longer made sense.
 	 */
-	function action_wp_head() {
+	public function action_wp_head() {
 		$this->action_wp_footer_settings();
 	}
 
@@ -877,9 +876,8 @@ class The_Neverending_Home_Page {
 	 * @global $wp_rewrite
 	 * @uses self::get_settings, esc_js, esc_url_raw, self::has_wrapper, __, apply_filters, do_action, self::get_query_vars
 	 * @action wp_footer
-	 * @return string
 	 */
-	function action_wp_footer_settings() {
+	public function action_wp_footer_settings() {
 		global $wp_rewrite;
 		global $currentday;
 
@@ -961,10 +959,10 @@ class The_Neverending_Home_Page {
 		);
 
 		// Optional order param
-		if ( isset( $_REQUEST['order'] ) ) {
-			$order = strtoupper( $_REQUEST['order'] );
+		if ( isset( $_REQUEST['order'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
+			$order = strtoupper( sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
 
-			if ( in_array( $order, array( 'ASC', 'DESC' ) ) ) {
+			if ( in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
 				$js_settings['order'] = $order;
 			}
 		}
@@ -989,15 +987,17 @@ class The_Neverending_Home_Page {
 		 */
 		do_action( 'infinite_scroll_wp_head' );
 
+		// phpcs:disable -- inline javascript.
 		?>
 		<script type="text/javascript">
 		//<![CDATA[
 		var infiniteScroll = JSON.parse( decodeURIComponent( '<?php echo
-			rawurlencode( json_encode( array( 'settings' => $js_settings ) ) );
+			rawurlencode( wp_json_encode( array( 'settings' => $js_settings ) ) );
 		?>' ) );
 		//]]>
 		</script>
 		<?php
+		// phpcs:enable -- end inline javascript.
 	}
 
 	/**
