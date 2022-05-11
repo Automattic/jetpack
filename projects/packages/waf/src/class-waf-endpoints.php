@@ -63,16 +63,19 @@ class Waf_Endpoints {
 	 */
 	public static function update_rules() {
 		$success = true;
+		$message = 'Rules updated succesfully';
 
 		try {
 			Waf_Runner::generate_rules();
 		} catch ( Exception $e ) {
 			$success = false;
+			$message = $e->getMessage();
 		}
 
 		return rest_ensure_response(
 			array(
 				'success' => $success,
+				'message' => $message,
 			)
 		);
 	}
