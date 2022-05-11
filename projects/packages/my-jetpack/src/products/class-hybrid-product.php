@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Plugins_Installer;
 use WP_Error;
 
 /**
@@ -74,7 +75,14 @@ abstract class Hybrid_Product extends Product {
 		$product_activation = parent::activate();
 
 		if ( is_wp_error( $product_activation ) ) {
-			return $product_activation;
+			// If we failed to install the stand-alone plugin because the package was not found, let's try and install Jetpack plugin instead.
+			// This might happens, for example, while the stand-alone plugin was not released to the WP.org repository yet.
+			if ( 'no_package' === $product_activation->get_error_message() ) {
+				$product_activation = Plugins_Installer::install_plugin( self::JETPACK_PLUGIN_SLUG );
+			}
+			if ( is_wp_error( $product_activation ) ) {
+				return $product_activation;
+			}
 		}
 
 		if ( ! empty( static::$module_name ) && class_exists( 'Jetpack' ) ) {
