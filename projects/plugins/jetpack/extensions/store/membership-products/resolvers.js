@@ -105,8 +105,8 @@ export const getProducts = (
 		return;
 	}
 
+	const lock = executionLock.acquire( EXECUTION_KEY );
 	try {
-		const lock = executionLock.acquire( EXECUTION_KEY );
 		const response = await fetchMemberships();
 		hydrateMembershipProductsStoreData( response, registry, dispatch );
 
@@ -122,10 +122,10 @@ export const getProducts = (
 		setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
 
 		hydratedFromAPI = true;
-		executionLock.release( lock );
 	} catch ( error ) {
 		dispatch( setConnectUrl( null ) );
 		dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 		onError( error.message, registry );
 	}
+	executionLock.release( lock );
 };
