@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+gitignore wordpress directory within the publicize package
