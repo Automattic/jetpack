@@ -51,6 +51,8 @@
 		"*.scss"
 	],
 	"scripts": {
+		"build": "pnpm run compile-ts",
+		"compile-ts": "tsc --pretty",
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.[jt]sx'"
 	},
 	"engines": {
