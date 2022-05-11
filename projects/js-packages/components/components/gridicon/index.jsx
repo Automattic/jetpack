@@ -25,6 +25,7 @@ class Gridicon extends Component {
 			'gridicons-cart',
 			'gridicons-folder',
 			'gridicons-info',
+			'gridicons-info-outline',
 			'gridicons-posts',
 			'gridicons-star-outline',
 			'gridicons-star',
@@ -159,6 +160,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+					</g>
+				);
+			case 'gridicons-info-outline':
+				return (
+					<g>
+						<path d="M13 9h-2V7h2v2zm0 2h-2v6h2v-6zm-1-7c-4.411 0-8 3.589-8 8s3.589 8 8 8 8-3.589 8-8-3.589-8-8-8m0-2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
 					</g>
 				);
 			case 'gridicons-jetpack-search':
