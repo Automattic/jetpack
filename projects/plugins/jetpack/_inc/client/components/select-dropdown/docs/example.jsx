@@ -123,7 +123,7 @@ class SelectDropdownDemo extends React.PureComponent {
 		} );
 	}
 
-	onDropdownSelect: () => {};
+	onDropdownSelect() {}
 }
 
 export default SelectDropdownDemo;
