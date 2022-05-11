@@ -62,6 +62,9 @@ class Gridicon extends Component {
 				return <title>{ __( 'Toggle search filters.', 'jetpack' ) }</title>;
 			case 'gridicons-folder':
 				return <title>{ __( 'Category', 'jetpack' ) }</title>;
+			case 'gridicons-info':
+			case 'gridicons-info-outline':
+				return <title>{ __( 'Information.', 'jetpack' ) }</title>;
 			case 'gridicons-image-multiple':
 				return <title>{ __( 'Has multiple images.', 'jetpack' ) }</title>;
 			case 'gridicons-image':
