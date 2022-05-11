@@ -5,6 +5,7 @@
 		var adminbar = document.querySelector( '#wpadminbar' );
 		var wpwrap = document.querySelector( '#wpwrap' );
 		var adminMenu = document.querySelector( '#adminmenu' );
+		var dismissClass = 'dismissible-card__close-icon';
 
 		if ( ! adminbar ) {
 			return;
@@ -60,7 +61,10 @@
 			}
 
 			adminMenu.addEventListener( 'click', function ( event ) {
-				if ( event.target.classList.contains( 'dismissible-card__close-icon' ) ) {
+				if (
+					event.target.classList.contains( dismissClass ) ||
+					event.target.parentElement.classList.contains( dismissClass )
+				) {
 					event.preventDefault();
 
 					const siteNotice = document.getElementById( 'toplevel_page_site-notices' );
