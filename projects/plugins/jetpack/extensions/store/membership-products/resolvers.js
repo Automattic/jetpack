@@ -57,7 +57,7 @@ const fetchMemberships = async () => {
 	return response;
 };
 
-const hydrateMembershipProductsStoreData = ( response, registry, dispatch ) => {
+const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispatch ) => {
 	const postId = registry.select( editorStore ).getCurrentPostId();
 
 	dispatch( setConnectUrl( getConnectUrl( postId, response.connect_url ) ) );
@@ -65,6 +65,9 @@ const hydrateMembershipProductsStoreData = ( response, registry, dispatch ) => {
 	dispatch( setSiteSlug( response.site_slug ) );
 	dispatch( setUpgradeUrl( response.upgrade_url ) );
 	dispatch( setProducts( response.products ) );
+	dispatch(
+		setApiState( response.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED )
+	);
 };
 
 const createDefaultProduct = async ( productType, setSelectedProductId, dispatch ) => {
@@ -108,16 +111,12 @@ export const getProducts = (
 	const lock = executionLock.acquire( EXECUTION_KEY );
 	try {
 		const response = await fetchMemberships();
-		hydrateMembershipProductsStoreData( response, registry, dispatch );
+		mapAPIResponseToMembershipProductsStoreData( response, registry, dispatch );
 
 		if ( shouldCreateDefaultProduct( response ) ) {
 			// Is ready to use and has no product set up yet. Let's create one!
 			await createDefaultProduct( productType, setSelectedProductId, dispatch );
 		}
-
-		dispatch(
-			setApiState( response.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED )
-		);
 
 		setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
 
