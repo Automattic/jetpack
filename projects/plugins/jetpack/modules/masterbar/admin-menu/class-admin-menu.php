@@ -491,4 +491,15 @@ class Admin_Menu extends Base_Admin_Menu {
 		<?php
 		wp_die();
 	}
+
+	/**
+	 * Returns the first available upsell nudge.
+	 * Needs to be implemented separately for each child menu class.
+	 * Empty by default.
+	 *
+	 * @return array
+	 */
+	public function get_upsell_nudge() {
+		return array();
+	}
 }

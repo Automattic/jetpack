@@ -751,15 +751,6 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
-	 * Returns the first available upsell nudge.
-	 *
-	 * @return array
-	 */
-	public function get_upsell_nudge() {
-		return array();
-	}
-
-	/**
 	 * Create the desired menu output.
 	 */
 	abstract public function reregister_menu_items();
