@@ -56,6 +56,7 @@ export default function ConnectionPage( { isLoading = false } ) {
 				registrationNonce={ registrationNonce }
 				from="jetpack-search"
 				redirectUri="admin.php?page=jetpack-search"
+				wpcomProductSlug="jetpack_search"
 			>
 				<SearchPromotionBlock />
 			</ConnectScreenRequiredPlan>
