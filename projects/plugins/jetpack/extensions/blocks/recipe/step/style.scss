@@ -1,0 +1,22 @@
+.wp-block-jetpack-recipe-step {
+  counter-increment: list;
+  list-style-type: none;
+  position: relative;
+  padding-bottom: 1rem;
+
+  &::before {
+    align-items: center;
+    background-color: var(--wp--preset--color--tertiary);
+    border-radius: 50%;
+    content: counter(list);
+    display: flex;
+    font-size: 0.875rem;
+    height: 28px;
+    justify-content: center;
+    left: -2rem;
+    line-height: 1;
+    position: absolute;
+    text-align: center;
+    width: 28px;
+  }
+}
