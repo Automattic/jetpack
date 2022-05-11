@@ -93,7 +93,7 @@
 				function ( xhr ) {
 					try {
 						if ( xhr.readyState === XMLHttpRequest.DONE ) {
-							if ( xhr.status === 200 ) {
+							if ( xhr.status === 200 && xhr.responseText ) {
 								adminMenu
 									.querySelector( '#toplevel_page_site_card' )
 									.insertAdjacentHTML( 'afterend', xhr.responseText );
