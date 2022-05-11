@@ -27,5 +27,8 @@ class Publicize_Setup {
 			$publicize_ui = new Publicize_UI();
 
 		}
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 	}
 }
+
+
