@@ -455,7 +455,7 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$nudge = $this->get_upsell_nudge();
 		if ( ! $nudge ) {
-			return;
+			wp_die();
 		}
 
 		$link = $nudge['link'];
