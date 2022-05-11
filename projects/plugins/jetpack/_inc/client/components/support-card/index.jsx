@@ -87,7 +87,7 @@ class SupportCard extends React.Component {
 						<p className="jp-support-card__description">
 							{ hasSupport
 								? sprintf(
-										/* translators: placeholder either Jetpack or WordPress.com */
+										/* translators: placeholder is either Jetpack or WordPress.com */
 										__( 'Your paid plan gives you access to prioritized %s support.', 'jetpack' ),
 										this.props.isAtomicSite ? 'WordPress.com' : 'Jetpack'
 								  )
