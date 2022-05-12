@@ -255,7 +255,8 @@ class Jetpack_VideoPress {
 					'jquery',
 					'wp-plupload',
 				),
-				$this->version
+				$this->version,
+				true
 			);
 
 			wp_enqueue_script(
@@ -267,7 +268,8 @@ class Jetpack_VideoPress {
 				array(
 					'videopress-plupload',
 				),
-				$this->version
+				$this->version,
+				true
 			);
 
 			wp_enqueue_script(
