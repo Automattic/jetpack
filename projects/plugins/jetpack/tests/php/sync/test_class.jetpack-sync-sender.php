@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		// Reset queue.
 		$this->sender->get_sync_queue()->reset();
 
-		unset( $_SERVER['REQUEST_METHOD'] );
+		unset( $_SERVER['REQUEST_URI'] );
 	}
 
 	public function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
@@ -669,8 +669,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 		$this->factory->post->create();
 		// Current "request" is dedicated Sync request.
-		$_SERVER['REQUEST_METHOD']               = 'POST';
-		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_dedicated_sync_and_exit();
@@ -691,8 +690,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->get_sync_queue()->lock( 0 );
 		$this->factory->post->create();
 		// Current "request" is dedicated Sync request.
-		$_SERVER['REQUEST_METHOD']               = 'POST';
-		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_dedicated_sync_and_exit();
@@ -716,8 +714,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->factory->post->create();
 		// Current "request" is dedicated Sync request.
-		$_SERVER['REQUEST_METHOD']               = 'POST';
-		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_dedicated_sync_and_exit();
@@ -772,8 +769,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * @return array
 	 */
 	public function pre_http_sync_request_spawned( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->dedicated_sync_request_spawned = 'POST' === $args['method'] &&
-			isset( $args['body']['jetpack_dedicated_sync_request'] );
+		$this->dedicated_sync_request_spawned = rest_url( 'jetpack/v4/sync/spawn-sync' ) === $url;
 
 		return array(
 			'success' => true,

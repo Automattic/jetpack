@@ -28,9 +28,8 @@ class Dedicated_Sender {
 	 */
 	public static function is_dedicated_sync_request() {
 
-		$is_dedicated_sync_request = isset( $_SERVER['REQUEST_METHOD'] ) &&
-			'POST' === $_SERVER['REQUEST_METHOD'] &&
-			isset( $_POST['jetpack_dedicated_sync_request'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$is_dedicated_sync_request = isset( $_SERVER['REQUEST_URI'] ) &&
+			strpos( wp_unslash( $_SERVER['REQUEST_URI'] ), 'jetpack/v4/sync/spawn-sync' ) > 0;  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		return $is_dedicated_sync_request;
 	}
@@ -70,18 +69,16 @@ class Dedicated_Sender {
 			return new WP_Error( 'sync_throttled_' . $queue->id );
 		}
 
+		$url  = rest_url( 'jetpack/v4/sync/spawn-sync' );
 		$args = array(
 			'cookies'   => $_COOKIE,
-			'body'      => array(
-				'jetpack_dedicated_sync_request' => 1,
-			),
 			'blocking'  => false,
 			'timeout'   => 0.01,
 			/** This filter is documented in wp-includes/class-wp-http-streams.php */
 			'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
 		);
 
-		$result = wp_remote_post( site_url(), $args );
+		$result = wp_remote_get( $url, $args );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}

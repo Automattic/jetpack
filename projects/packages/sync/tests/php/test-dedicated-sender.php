@@ -40,16 +40,14 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
-		unset( $_SERVER['REQUEST_METHOD'] );
-		unset( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		unset( $_SERVER['REQUEST_URI'] );
 	}
 
 	/**
 	 * Tests Dedicated_Sender::is_dedicated_sync_request.
 	 */
 	public function test_is_dedicated_sync_request() {
-		$_SERVER['REQUEST_METHOD']               = 'POST';
-		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
 
 		$result = Dedicated_Sender::is_dedicated_sync_request();
 
@@ -60,7 +58,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 * Tests Dedicated_Sender::is_dedicated_sync_request with a random request.
 	 */
 	public function test_is_dedicated_sync_request_with_random_request() {
-		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['REQUEST_URI'] = '/';
 
 		$result = Dedicated_Sender::is_dedicated_sync_request();
 
@@ -181,8 +179,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 * @return array
 	 */
 	public function pre_http_request_success( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->dedicated_sync_request_spawned = 'POST' === $args['method'] &&
-			isset( $args['body']['jetpack_dedicated_sync_request'] );
+		$this->dedicated_sync_request_spawned = rest_url( 'jetpack/v4/sync/spawn-sync' ) === $url;
 
 		return array(
 			'success' => true,
