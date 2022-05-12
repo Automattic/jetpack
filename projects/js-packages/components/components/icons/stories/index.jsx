@@ -1,16 +1,11 @@
 /**
- * External dependencies
- */
-import React from 'react';
-
-/**
  * Internal dependencies
  */
 import * as allIcons from '../index.jsx';
 import styles from './style.module.scss';
 
 export default {
-	title: 'JS Packages/Components/Product Icons',
+	title: 'JS Packages/Components/Icons',
 	component: allIcons,
 	parameters: {},
 };
