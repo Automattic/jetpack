@@ -113,7 +113,7 @@ class Jetpack_Infinite_Scroll_Extras {
 	public function action_after_setup_theme() {
 		$theme = wp_get_theme();
 
-		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) ) {
+		if ( ! $theme instanceof WP_Theme && ! is_array( $theme ) ) {
 			return;
 		}
 
