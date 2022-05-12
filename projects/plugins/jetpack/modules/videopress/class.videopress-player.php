@@ -118,11 +118,11 @@ class VideoPress_Player {
 					unset( $expires_diff );
 				}
 
-				wp_cache_set( $cache_key, serialize( $this->video ), 'video', $expire );
+				wp_cache_set( $cache_key, serialize( $this->video ), 'video', $expire ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				unset( $expire );
 			}
 		} else {
-			$this->video = unserialize( $cached_video );
+			$this->video = unserialize( $cached_video ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Make sure to unserialize as VideoPress_Video class.
 		}
 		unset( $cache_key );
 		unset( $cached_video );
