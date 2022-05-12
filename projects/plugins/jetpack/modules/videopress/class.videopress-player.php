@@ -658,9 +658,9 @@ class VideoPress_Player {
 				case 'controls':
 				case 'playsinline':
 				case 'useAverageColor':
-					if ( in_array( $value, array( 1, 'true' ) ) ) {
+					if ( in_array( $value, array( 1, 'true' ), true ) ) {
 						$videopress_options[ $option ] = true;
-					} elseif ( in_array( $value, array( 0, 'false' ) ) ) {
+					} elseif ( in_array( $value, array( 0, 'false' ), true ) ) {
 						$videopress_options[ $option ] = false;
 					}
 					break;
@@ -677,7 +677,7 @@ class VideoPress_Player {
 			$iframe_url = "https://videopress.com/embed/{$this->video->guid}";
 
 			foreach ( $videopress_options as $option => $value ) {
-				if ( ! in_array( $option, array( 'width', 'height' ) ) ) {
+				if ( ! in_array( $option, array( 'width', 'height' ), true ) ) {
 
 					// add_query_arg ignores false as a value, so replacing it with 0
 					$iframe_url = add_query_arg( $option, ( false === $value ) ? 0 : $value, $iframe_url );
@@ -748,10 +748,10 @@ class VideoPress_Player {
 				continue;
 			}
 			$param = strtolower( $param );
-			if ( in_array( $param, $allowed_params_keys ) ) {
+			if ( in_array( $param, $allowed_params_keys, true ) ) {
 				if ( isset( $allowed_params[ $param ] ) && is_array( $allowed_params[ $param ] ) ) {
 					$value = strtolower( $value );
-					if ( in_array( $value, $allowed_params[ $param ] ) ) {
+					if ( in_array( $value, $allowed_params[ $param ], true ) ) {
 						$filtered_params[ $param ] = $value;
 					}
 				} else {
