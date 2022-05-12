@@ -1,4 +1,4 @@
-## Jetpack Product Icons
+## Jetpack Icons
 
 Exports:
 
@@ -15,6 +15,12 @@ Available slugs are:
 * search
 * star
 * videopress
+* jetpack
+* facebook
+* twitter
+* linkedin
+* tumblr
+* google
 
 ```es6
 import {
@@ -40,6 +46,12 @@ return (
 * SearchIcon
 * StarIcon
 * VideopressIcon
+* JetpackIcon
+* FacebookIcon
+* TwitterIcon
+* LinkedinIcon
+* TumblrIcon
+* GoogleIcon
 
 ```es6
 import {
@@ -51,7 +63,13 @@ import {
 	ScanIcon,
 	SearchIcon,
 	StarIcon,
-	VideoPressIcon
+	VideoPressIcon,
+	JetpackIcon,
+	FacebookIcon,
+	TwitterIcon,
+	LinkedinIcon,
+	TumblrIcon,
+	GoogleIcon
 } from '@automattic/jetpack-components';
 
 return (
@@ -65,6 +83,12 @@ return (
 		<SearchIcon />
 		<StarIcon />
 		<VideoPressIcon />
+		<JetpackIcon />
+		<FacebookIcon />
+		<TwitterIcon />
+		<LinkedinIcon />
+		<TumblrIcon />
+		<GoogleIcon />
 	</div>
 )
 ```
