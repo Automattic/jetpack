@@ -14,8 +14,16 @@ class FeatureHookTest extends WP_UnitTestCase {
 	 * an atomic supported plan.
 	 */
 	public function test_wpcomsh_map_feature_cap_with_atomic_supported_plan() {
+		$purchase = array(
+			'product_slug'    => 'ecommerce-bundle',
+			'product_id'      => 1011,
+			'product_type'    => 'bundle',
+			'subscribed_date' => '2021-10-12T19:51:25+00:00',
+			'expiry_date'     => '2022-10-12T00:00:00+00:00',
+		);
+
 		// Give the site an atomic supported plan.
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', 'ecommerce-bundle' );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ) ) );
 
 		$input_caps = array( 'edit_themes' );
 		$theme_caps = wpcomsh_map_feature_cap( $input_caps, 'edit_themes' );
@@ -31,8 +39,16 @@ class FeatureHookTest extends WP_UnitTestCase {
 	 * does not have a plan with those features.
 	 */
 	public function test_wpcomsh_map_feature_cap_without_the_required_features() {
+		$purchase = array(
+			'product_slug'    => 'personal-bundle',
+			'product_id'      => 1009,
+			'product_type'    => 'bundle',
+			'subscribed_date' => '2021-10-12T19:12:28+00:00',
+			'expiry_date'     => '2022-10-12T00:00:00+00:00',
+		);
+
 		// Give the site no purchases.
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', 'personal-bundle' );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ) ) );
 
 		$input_caps   = array( 'edit_themes' );
 		$theme_caps   = wpcomsh_map_feature_cap( $input_caps, 'edit_themes' );

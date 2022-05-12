@@ -952,7 +952,7 @@ class WPCOM_Features {
 		}
 
 		foreach ( $purchases as $purchase ) {
-			if ( self::in_array_recursive( $purchase, $eligible_purchases ) ) {
+			if ( self::in_array_recursive( $purchase->product_slug, $eligible_purchases ) ) {
 				return true;
 			}
 		}

@@ -45,7 +45,7 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 }
 
 /**
- * Returns a list of purchased product slugs.
+ * Returns a list of purchased products.
  *
  * This function checks if we're on an Atomic (WPCOMSH) or Simple (WPCOM) site, and pulls the purchases for that current
  * site.
@@ -54,7 +54,7 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
  *
  * @param int $blog_id Optional. Blog ID. Defaults to current blog.
  *
- * @return string[] An array of product slugs.
+ * @return array An array of product objects containing product_slug, product_id, subscribed_date, and expiry_date.
  */
 function wpcom_get_site_purchases( $blog_id = 0 ) {
 	if ( ! $blog_id ) {
@@ -70,14 +70,8 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 
 		// Atomic site (WPCOMSH) purchases are stored in Atomic Persistent Data as a JSON encoded string.
 		$persistent_data = new Atomic_Persistent_Data();
-		$purchases       = json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
-		if ( null !== $purchases ) {
-			// Each purchase has several fields, but we only want the product slug.
-			$purchases = wp_list_pluck( $purchases, 'product_slug' );
-		} else {
-			// Fallback to old CSV format if the string cannot be JSON decoded.
-			$purchases = str_getcsv( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
-		}
+		$purchases       = (array) json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+
 	} else {
 		global $wpdb;
 
@@ -88,33 +82,67 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 		$wp_cache_group = 'site_purchases';
 		$wp_cache_found = false;
 
+		// The DB table is included in $wp_cache_key to avoid cache pollution between the production and test store.
+		$wp_cache_key = "$blog_id-{$wpdb->store_subscriptions}";
+
 		// Check wp_cache_get for $purchases. If none exist $wp_cache_found will return false.
-		$purchases = wp_cache_get( $blog_id, $wp_cache_group, false, $wp_cache_found );
+		$purchases = wp_cache_get( $wp_cache_key, $wp_cache_group, false, $wp_cache_found );
 
 		if ( false === $wp_cache_found ) {
 			// For optimal performance, get $purchases with a direct SQL query.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$purchases = $wpdb->get_col(
+			$purchases = $wpdb->get_results(
 				$wpdb->prepare(
 					"
-					SELECT sp.product_slug FROM `$wpdb->store_subscriptions` AS ss
-						LEFT JOIN `$wpdb->store_products` AS sp ON ss.product_id = sp.product_id
+					SELECT sp.product_slug, sp.product_id, sp.product_type, ss.subscribed_date, ss.expiry as 'expiry_date'
+					FROM `$wpdb->store_subscriptions` AS ss
+					LEFT JOIN `$wpdb->store_products` AS sp ON ss.product_id = sp.product_id
 					WHERE ss.blog_id=%d AND ss.active=1
 					",
 					$blog_id
 				)
 			);
 
+			// Format the dates to match WPCOMSH data.
+			foreach ( $purchases as $purchase ) {
+				$purchase->subscribed_date = wpcom_datetime_to_iso8601( $purchase->subscribed_date );
+				$purchase->expiry_date     = wpcom_datetime_to_iso8601( $purchase->expiry_date );
+			}
+
 			/*
 			 * Cache the $purchases for 3 hours. Otherwise, the cache is invalidated when a purchase is made, using:
 			 * add_action( 'subscription_changed', 'clear_wp_cache_site_purchases', 10, 1 );
 			 * Found in ./wp-content/mu-plugins/wpcom-features.php
 			 */
-			wp_cache_set( $blog_id, $purchases, $wp_cache_group, 60 * 60 * 3 );
+			wp_cache_set( $wp_cache_key, $purchases, $wp_cache_group, 60 * 60 * 3 );
 		}
 	}
 
 	return $purchases;
+}
+
+/**
+ * Parse and format a date string to ISO8601, but fall back to $default if the string is bad or '0000-00-00'.
+ *
+ * @param string $date A string representing a datetime that we wish to format to ISO8601.
+ * @param string $default Use this datetime if $date errors. Useful for predictable unit testing. Defaults to 'now'.
+ *
+ * @return string A date string in ISO8601 format.
+ */
+function wpcom_datetime_to_iso8601( $date, $default = 'now' ) {
+	/*
+	 * Datetimes containing '0000-00-00' convert to '-001-11-30T00:00:00+00:00' which is not useful, so set it or
+	 * empty $date to $default.
+	 */
+	if ( empty( $date ) || false !== strpos( $date, '0000-00-00' ) ) {
+		$date = $default;
+	}
+
+	try {
+		return ( new DateTime( $date ) )->format( 'c' );
+	} catch ( Exception $e ) {
+		return ( new DateTime( $default ) )->format( 'c' );
+	}
 }
 
 /**
@@ -163,7 +191,10 @@ function wpcom_product_has_feature( $product_slug, $feature, $is_wpcom_product =
 		$product_slug = $atomic_plan_aliases[ $product_slug ];
 	}
 
-	return WPCOM_Features::has_feature( $feature, array( $product_slug ), $is_wpcom_product );
+	// has_feature expects an object with a product_slug.
+	$product = (object) array( 'product_slug' => $product_slug );
+
+	return WPCOM_Features::has_feature( $feature, array( $product ), $is_wpcom_product );
 }
 
 /**
