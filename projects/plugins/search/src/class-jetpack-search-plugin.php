@@ -43,7 +43,7 @@ class Jetpack_Search_Plugin {
 	 *
 	 * Note: the function only configures the packages, but doesn't initialize them.
 	 * The actual initialization is done on 'plugins_loaded' priority 2, which is the
-	 * reason the function hooked on priority 1.
+	 * reason the function is hooked on priority 1.
 	 */
 	public static function configure_packages() {
 		$config = new Config();
