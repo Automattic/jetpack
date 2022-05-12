@@ -63,7 +63,7 @@
 			adminMenu.addEventListener( 'click', function ( event ) {
 				if (
 					event.target.classList.contains( dismissClass ) ||
-					event.target.parentElement.classList.contains( dismissClass )
+					event.target.closest( '.' + dismissClass )
 				) {
 					event.preventDefault();
 
