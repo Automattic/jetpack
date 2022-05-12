@@ -74,8 +74,7 @@ export function NoticeBox( props ) {
 	const DATA_NOT_VALID = '1',
 		HAS_NOT_BEEN_INDEXED = '2',
 		NO_INDEXABLE_ITEMS = '3',
-		OVER_RECORD_LIMIT = '4',
-		CLOSE_TO_LIMIT = '5';
+		CLOSE_TO_LIMIT = '4';
 
 	// check if data is valid
 	props.hasValidData === false &&
@@ -91,12 +90,6 @@ export function NoticeBox( props ) {
 	props.hasItems === false &&
 		! dismissedNoticesString.includes( NO_INDEXABLE_ITEMS ) &&
 		activeNoticeIds.push( NO_INDEXABLE_ITEMS );
-
-	// check if over limit
-	typeof props.tierMaximumRecords === 'number' &&
-		props.recordCount > props.tierMaximumRecords &&
-		! dismissedNoticesString.includes( OVER_RECORD_LIMIT ) &&
-		activeNoticeIds.push( OVER_RECORD_LIMIT );
 
 	// check if close to reaching limit
 	typeof props.tierMaximumRecords === 'number' &&
