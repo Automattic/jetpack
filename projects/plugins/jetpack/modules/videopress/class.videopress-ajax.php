@@ -1,10 +1,15 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Connection\Client;
 
+/**
+ * VideoPress AJAX action handlers and utilities.
+ */
 class VideoPress_AJAX {
 
 	/**
+	 * Singleton VideoPress_AJAX instance.
+	 *
 	 * @var VideoPress_AJAX
 	 **/
 	private static $instance = null;
@@ -196,7 +201,6 @@ class VideoPress_AJAX {
 
 		$args = array(
 			'method' => 'POST',
-			// 'sslverify' => false,
 		);
 
 		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-upload-jwt";
