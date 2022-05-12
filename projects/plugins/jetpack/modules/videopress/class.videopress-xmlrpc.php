@@ -33,7 +33,7 @@ class VideoPress_XMLRPC {
 	 * @return VideoPress_XMLRPC
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new VideoPress_XMLRPC();
 		}
 

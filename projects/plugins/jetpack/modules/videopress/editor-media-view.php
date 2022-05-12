@@ -119,7 +119,7 @@ function videopress_media_list_table_query( $query ) {
 
 	if (
 		! function_exists( 'get_current_screen' )
-		|| is_null( get_current_screen() )
+		|| get_current_screen() === null
 	) {
 		return;
 	}

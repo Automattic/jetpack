@@ -64,7 +64,6 @@ class VideoPress_Edit_Attachment {
 	 * @param array|null $attachment
 	 *
 	 * Disable phpcs rule for nonce verification since it's already done by Core.
-	 * @phpcs:disable WordPress.Security.NonceVerification
 	 *
 	 * @return array
 	 */
@@ -135,7 +134,6 @@ class VideoPress_Edit_Attachment {
 			$guid
 		);
 	}
-
 
 	/**
 	 * Creates an array of video fields to edit based on transcoded videos.
