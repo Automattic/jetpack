@@ -15,7 +15,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 	/**
 	 * Constructor function.
 	 *
-	 * @param object $attachment_image - the attachmed image.
+	 * @param object $attachment_image - the attachment image.
 	 * @param string $needs_attachment_link - the attachment link.
 	 * @param bool   $grayscale - if the image is in grayscale.
 	 */
@@ -123,7 +123,7 @@ class Jetpack_Tiled_Gallery_Rectangular_Item extends Jetpack_Tiled_Gallery_Item 
 	/**
 	 * Constructor function.
 	 *
-	 * @param object $attachment_image - the attachmed image.
+	 * @param object $attachment_image - the attachment image.
 	 * @param string $needs_attachment_link - the attachment link.
 	 * @param bool   $grayscale - if the image is in grayscale.
 	 */
@@ -146,7 +146,7 @@ class Jetpack_Tiled_Gallery_Square_Item extends Jetpack_Tiled_Gallery_Item { // 
 	/**
 	 * Constructor function.
 	 *
-	 * @param object $attachment_image - the attachmed image.
+	 * @param object $attachment_image - the attachment image.
 	 * @param string $needs_attachment_link - the attachment link.
 	 * @param bool   $grayscale - if the image is in grayscale.
 	 */
