@@ -161,9 +161,9 @@ class VideoPress_Shortcode {
 		$player = new VideoPress_Player( $guid, $attr['width'], $options );
 
 		if ( is_feed() ) {
-			return $player->asXML();
+			return $player->as_xml();
 		} else {
-			return $player->asHTML();
+			return $player->as_html();
 		}
 	}
 
