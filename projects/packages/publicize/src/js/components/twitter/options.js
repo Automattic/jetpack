@@ -7,8 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { NoticeList, RadioControl, PanelRow } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 
 // Because the wp-annotations script isn't loaded by default in the block editor, importing
 // it here tells webpack to add it as a dependency to be loaded before Jetpack blocks.
@@ -18,37 +17,62 @@ import '@wordpress/annotations';
  * Internal dependencies
  */
 import './editor.scss';
+import { useCallback } from 'react';
 
-export const PublicizeTwitterOptions = ( {
-	connections,
-	isTweetStorm,
-	tweetStormLength,
-	setTweetstorm,
-	prePublish,
-} ) => {
+const generateLabel = ( label, help ) => {
+	return (
+		<>
+			<strong>{ label }</strong>
+			<br />
+			{ help }
+		</>
+	);
+};
+
+const PublicizeTwitterOptions = ( { prePublish } ) => {
+	const { connections, isTweetStorm, tweetStormLength } = useSelect( select => {
+		const publicizeStore = select( 'jetpack/publicize' );
+		return {
+			connections: select( 'core/editor' ).getEditedPostAttribute(
+				'jetpack_publicize_connections'
+			),
+			isTweetStorm: publicizeStore.isTweetStorm(),
+			tweetStormLength: publicizeStore.getTweetStorm().length,
+		};
+	}, [] );
+
+	const { refreshTweets } = useDispatch( 'jetpack/publicize' );
+	const { editPost } = useDispatch( 'core/editor' );
+	const { __experimentalRemoveAnnotationsBySource } = useDispatch( 'core/annotations' );
+	const setTweetstorm = useCallback(
+		value => {
+			editPost( { meta: { jetpack_is_tweetstorm: value } } );
+			if ( value ) {
+				refreshTweets();
+			} else {
+				// Clean up all of the tweet boundary annotations that might be left over.
+				__experimentalRemoveAnnotationsBySource( 'jetpack-tweetstorm' );
+				__experimentalRemoveAnnotationsBySource( 'jetpack-tweetstorm-line-break' );
+			}
+		},
+		[ __experimentalRemoveAnnotationsBySource, editPost, refreshTweets ]
+	);
+	const tweetTypeChange = useCallback(
+		value => {
+			if ( 'tweetstorm' === value ) {
+				setTweetstorm( true );
+			} else {
+				setTweetstorm( false );
+			}
+		},
+		[ setTweetstorm ]
+	);
+
 	if (
 		! connections?.some( connection => 'twitter' === connection.service_name && connection.enabled )
 	) {
 		return null;
 	}
-
-	const tweetTypeChange = value => {
-		if ( 'tweetstorm' === value ) {
-			setTweetstorm( true );
-		} else {
-			setTweetstorm( false );
-		}
-	};
-
-	const generateLabel = ( label, help ) => {
-		return (
-			<>
-				<strong>{ label }</strong>
-				<br />
-				{ help }
-			</>
-		);
-	};
 
 	const notices = [];
 
@@ -111,31 +135,4 @@ export const PublicizeTwitterOptions = ( {
 	);
 };
 
-export default compose( [
-	withSelect( select => {
-		const { isTweetStorm, getTweetStorm } = select( 'jetpack/publicize' );
-		return {
-			connections: select( 'core/editor' ).getEditedPostAttribute(
-				'jetpack_publicize_connections'
-			),
-			isTweetStorm: isTweetStorm(),
-			tweetStormLength: getTweetStorm().length,
-		};
-	} ),
-	withDispatch( dispatch => ( {
-		setTweetstorm: value => {
-			dispatch( 'core/editor' ).editPost( { meta: { jetpack_is_tweetstorm: value } } );
-			if ( value ) {
-				dispatch( 'jetpack/publicize' ).refreshTweets();
-			} else {
-				// Clean up all of the tweet boundary annotations that might be left over.
-				dispatch( 'core/annotations' ).__experimentalRemoveAnnotationsBySource(
-					'jetpack-tweetstorm'
-				);
-				dispatch( 'core/annotations' ).__experimentalRemoveAnnotationsBySource(
-					'jetpack-tweetstorm-line-break'
-				);
-			}
-		},
-	} ) ),
-] )( PublicizeTwitterOptions );
+export default PublicizeTwitterOptions;

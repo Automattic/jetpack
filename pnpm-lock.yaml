@@ -871,7 +871,29 @@ importers:
     specifiers: {}
 
   projects/packages/publicize:
-    specifiers: {}
+    specifiers:
+      '@automattic/jetpack-base-styles': workspace:* || ^0.3
+      '@automattic/jetpack-components': workspace:* || ^0.13
+      '@automattic/jetpack-shared-extension-utils': workspace:0.4.5
+      '@babel/core': 7.17.10
+      '@babel/preset-react': 7.16.7
+      classnames: 2.3.1
+      prop-types: 15.8.1
+      react: 17.0.2
+      refx: 3.1.1
+      rememo: 3.0.0
+    dependencies:
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
+      '@automattic/jetpack-components': link:../../js-packages/components
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
+      classnames: 2.3.1
+      prop-types: 15.8.1
+      refx: 3.1.1
+      rememo: 3.0.0
+    devDependencies:
+      '@babel/core': 7.17.10
+      '@babel/preset-react': 7.16.7_@babel+core@7.17.10
+      react: 17.0.2
 
   projects/packages/search:
     specifiers:
@@ -1221,6 +1243,7 @@ importers:
       '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-licensing': workspace:* || ^0.4
       '@automattic/jetpack-partner-coupon': workspace:* || ^0.2
+      '@automattic/jetpack-publicize': workspace:* || ^0.3
       '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.4
       '@automattic/jetpack-webpack-config': workspace:* || ^1.2
       '@automattic/popup-monitor': 1.0.0
@@ -1367,6 +1390,7 @@ importers:
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/jetpack-licensing': link:../../js-packages/licensing
       '@automattic/jetpack-partner-coupon': link:../../js-packages/partner-coupon
+      '@automattic/jetpack-publicize': link:../../packages/publicize
       '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
