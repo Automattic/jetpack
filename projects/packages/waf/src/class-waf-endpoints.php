@@ -47,6 +47,37 @@ class Waf_Endpoints {
 				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
 			)
 		);
+		register_rest_route(
+			'jetpack/v4',
+			'/waf/update-rules',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_rules',
+				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
+			)
+		);
+	}
+
+	/**
+	 * Update rules endpoint
+	 */
+	public static function update_rules() {
+		$success = true;
+		$message = 'Rules updated succesfully';
+
+		try {
+			Waf_Runner::generate_rules();
+		} catch ( Exception $e ) {
+			$success = false;
+			$message = $e->getMessage();
+		}
+
+		return rest_ensure_response(
+			array(
+				'success' => $success,
+				'message' => $message,
+			)
+		);
 	}
 
 	/**

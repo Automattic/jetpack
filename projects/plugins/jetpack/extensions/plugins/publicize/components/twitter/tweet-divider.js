@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { isEqual } from 'lodash';
+import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
@@ -13,8 +14,6 @@ import '@wordpress/annotations';
 /**
  * Internal dependencies
  */
-import { SocialServiceIcon } from '../../../../shared/icons';
-
 import './editor.scss';
 
 /**

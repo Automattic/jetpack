@@ -85,6 +85,7 @@ class VideoPress_Shortcode {
 			'muted'           => false, // Whether the video should start without sound.
 			'controls'        => true,  // Whether the video should display controls.
 			'playsinline'     => false, // Whether the video should be allowed to play inline (for browsers that support this).
+			'useaveragecolor' => false, // Whether the video should use the seekbar automatic average color.
 		);
 
 		$attr = shortcode_atts( $defaults, $attr, 'videopress' );
@@ -146,6 +147,7 @@ class VideoPress_Shortcode {
 				'muted'           => $attr['muted'],
 				'controls'        => $attr['controls'],
 				'playsinline'     => $attr['playsinline'],
+				'useAverageColor' => (bool) $attr['useaveragecolor'], // The casing is intentional, shortcode params are lowercase, but player expects useAverageColor
 			// accessible via the `videopress_shortcode_options` filter.
 			)
 		);

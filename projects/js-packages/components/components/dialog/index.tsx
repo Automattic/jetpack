@@ -33,10 +33,10 @@ const Dialog: React.FC< DialogProps > = ( { primary, secondary, split = false } 
 
 	return (
 		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
-			<Col sm={ 4 } md={ 4 } lg={ 7 } className={ styles.primary }>
+			<Col sm={ 4 } md={ 5 } lg={ 7 } className={ styles.primary }>
 				{ primary }
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.secondary }>
+			<Col sm={ 4 } md={ 3 } lg={ 5 } className={ styles.secondary }>
 				{ secondary }
 			</Col>
 		</Container>
