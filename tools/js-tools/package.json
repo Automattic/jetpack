@@ -17,7 +17,6 @@
 		"@octokit/auth-token": "2.5.0",
 		"@octokit/rest": "18.12.0",
 		"@rushstack/eslint-patch": "1.1.1",
-		"@sveltejs/eslint-config": "github:sveltejs/eslint-config",
 		"@typescript-eslint/eslint-plugin": "5.18.0",
 		"@typescript-eslint/parser": "5.18.0",
 		"@wordpress/eslint-plugin": "12.2.0",
