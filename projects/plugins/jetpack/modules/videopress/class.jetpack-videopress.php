@@ -387,7 +387,7 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
-		if ( ! isset( $_GET['action'] ) || $_GET['action'] !== 'add-new' ) {
+		if ( ! isset( $_GET['action'] ) || $_GET['action'] !== 'add-new' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 
