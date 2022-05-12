@@ -44,8 +44,9 @@
 
   &::before {
     align-items: center;
-    background-color: var(--wp--preset--color--tertiary);
+    background-color: var(--step-highlight-color);
     border-radius: 50%;
+    color: var(--step-text-color);
     content: counter(list);
     display: flex;
     font-size: 0.875rem;

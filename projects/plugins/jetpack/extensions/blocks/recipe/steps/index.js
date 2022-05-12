@@ -8,6 +8,7 @@ import { Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import icon from './icon';
@@ -34,6 +35,7 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 	category: 'jetpack',
+	attributes,
 	edit,
 	save,
 	parent: [ 'jetpack/recipe' ],

@@ -3,9 +3,21 @@
  */
 import { InnerBlocks } from '@wordpress/block-editor';
 
-const RecipeStepsSave = () => {
+const RecipeStepsSave = ( { attributes } ) => {
+	const { stepHighlightColor, stepTextColor } = attributes;
+
+	const styles = {
+		'--step-highlight-color': stepHighlightColor,
+		'--step-text-color': stepTextColor,
+	};
+
 	return (
-		<ol itemscope="" itemprop="recipeInstructions" itemtype="https://schema.org/HowTo">
+		<ol
+			style={ styles }
+			itemscope=""
+			itemprop="recipeInstructions"
+			itemtype="https://schema.org/HowTo"
+		>
 			<InnerBlocks.Content />
 		</ol>
 	);
