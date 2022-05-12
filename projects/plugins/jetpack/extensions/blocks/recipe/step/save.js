@@ -5,7 +5,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
 
 const RecipeStepSave = () => {
 	return (
-		<li>
+		<li itemprop="step" itemscope itemtype="https://schema.org/HowToStep">
 			<InnerBlocks.Content />
 		</li>
 	);

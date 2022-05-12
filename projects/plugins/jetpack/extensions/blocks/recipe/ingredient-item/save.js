@@ -3,7 +3,7 @@ const RecipeIngredientItemSave = ( { className, attributes } ) => {
 
 	return (
 		<div className={ className }>
-			<p>{ ingredient }</p>
+			<p itemprop="recipeIngredient">{ ingredient }</p>
 		</div>
 	);
 };
