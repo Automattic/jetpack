@@ -424,6 +424,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 
 		define( 'JETPACK_WAF_DIR', $tmp_dir );
 		define( 'JETPACK_WAF_WPCONFIG', $tmp_dir . '/wp-config.php' );
+		define( 'JETPACK_WAF_SHARE_DATA', true );
 
 		$this->runtime->write_blocklog( 1337, 'test block' );
 		$file_content = file_get_contents( $waf_log_path );

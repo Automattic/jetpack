@@ -14,3 +14,5 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	VIDEOPRESS: 'videopress',
 	SUMMARY: 'summary',
 };
+
+export const DEFAULT_ILLUSTRATION = 'assistant-site-type';

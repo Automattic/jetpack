@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-licensing",
-	"version": "0.4.18-alpha",
+	"version": "0.4.19-alpha",
 	"description": "Jetpack licensing flow",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/licensing/#readme",
 	"bugs": {
@@ -18,7 +18,7 @@
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
 	},
 	"devDependencies": {
-		"@babel/core": "7.17.9",
+		"@babel/core": "7.17.10",
 		"@babel/preset-react": "7.16.7",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
@@ -39,11 +39,11 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:* || ^0.13",
-		"@automattic/jetpack-components": "workspace:* || ^0.12",
-		"@wordpress/i18n": "4.7.0",
-		"@wordpress/element": "4.5.0",
+		"@automattic/jetpack-components": "workspace:* || ^0.13",
+		"@wordpress/i18n": "4.8.0",
+		"@wordpress/element": "4.6.0",
 		"prop-types": "15.7.2",
-		"@wordpress/components": "19.9.0",
-		"@wordpress/icons": "8.3.0"
+		"@wordpress/components": "19.10.0",
+		"@wordpress/icons": "8.4.0"
 	}
 }

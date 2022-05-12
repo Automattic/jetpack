@@ -8,18 +8,21 @@
 // Load tracking scripts
 window._tkq = window._tkq || [];
 
-var _user;
-var debug = console.error; // eslint-disable-line no-console
+let _user;
+const debug = console.error; // eslint-disable-line no-console
 
 /**
- * @param group
- * @param name
+ * Build a query string.
+ *
+ * @param {string|object} group - Stat group, or object mapping groups to names.
+ * @param {string} [name] - Stat name, when `group` is a string.
+ * @returns {string} Query string fragment.
  */
 function buildQuerystring( group, name ) {
-	var uriComponent = '';
+	let uriComponent = '';
 
 	if ( 'object' === typeof group ) {
-		for ( var key in group ) {
+		for ( const key in group ) {
 			uriComponent += '&x_' + encodeURIComponent( key ) + '=' + encodeURIComponent( group[ key ] );
 		}
 	} else {
@@ -29,7 +32,7 @@ function buildQuerystring( group, name ) {
 	return uriComponent;
 }
 
-var analytics = {
+const analytics = {
 	initialize: function ( userId, username ) {
 		analytics.setUser( userId, username );
 		analytics.identifyUser();
@@ -37,7 +40,7 @@ var analytics = {
 
 	mc: {
 		bumpStat: function ( group, name ) {
-			var uriComponent = buildQuerystring( group, name ); // prints debug info
+			const uriComponent = buildQuerystring( group, name ); // prints debug info
 			new Image().src =
 				document.location.protocol +
 				'//pixel.wp.com/g.gif?v=wpcom-no-pv' +
@@ -81,3 +84,11 @@ var analytics = {
 		window._tkq.push( [ 'clearIdentity' ] );
 	},
 };
+
+if ( typeof module !== 'undefined' ) {
+	// Bundled by Webpack.
+	module.exports = analytics;
+} else {
+	// Direct load.
+	window.analytics = analytics;
+}

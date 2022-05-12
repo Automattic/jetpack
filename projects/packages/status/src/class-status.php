@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Status\Cache;
+use Automattic\Jetpack\Status\Host;
 use WPCOM_Masterbar;
 
 /**
@@ -330,7 +331,19 @@ class Status {
 			return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
 		}
 
+		// Grab the 'site_url' option for WoA sites to avoid plugins to interfere with the site
+		// identifier (e.g. i18n plugins may change the main url to '<DOMAIN>/<LOCALE>', but we
+		// want to exclude the locale since it's not part of the site suffix).
+		if ( ( new Host() )->is_woa_site() ) {
+			$url = \site_url();
+		}
+
 		if ( empty( $url ) ) {
+			// WordPress can be installed in subdirectories (e.g. make.wordpress.org/plugins)
+			// where the 'site_url' option points to the root domain (e.g. make.wordpress.org)
+			// which could collide with another site in the same domain but with WordPress
+			// installed in a different subdirectory (e.g. make.wordpress.org/core). To avoid
+			// such collision, we identify the site with the 'home_url' option.
 			$url = \home_url();
 		}
 

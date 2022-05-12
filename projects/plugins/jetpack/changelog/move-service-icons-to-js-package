@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Moved SocialServiceIcon component from Jetpack Icons.js file to js-package/components. Updated it's ref in the Jetpack plugin directory
