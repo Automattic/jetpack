@@ -57,7 +57,7 @@ Blocks::jetpack_register_block(
 );
 
 Blocks::jetpack_register_block(
-	'jetpack/recipe0step',
+	'jetpack/recipe-step',
 	array(
 		'parent'          => array( 'jetpack/recipe' ),
 		'render_callback' => array( 'Jetpack_Recipe_Block', 'render_step' ),
