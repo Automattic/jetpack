@@ -10,7 +10,7 @@
  * License: GPLv2 or later
  * Text Domain: jetpack-search
  *
- * @package automattic/jetpack-search
+ * @package automattic/jetpack-search-plugin
  */
 
 namespace Automattic\Jetpack\Search_Plugin;
