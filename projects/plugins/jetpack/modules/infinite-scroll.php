@@ -35,7 +35,7 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$instance, 'Jetpack_Infinite_Scroll_Extras' ) ) {
+		if ( ! self::$instance instanceof Jetpack_Infinite_Scroll_Extras ) {
 			self::$instance = new Jetpack_Infinite_Scroll_Extras();
 		}
 
