@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Connection\Client;
 
@@ -39,8 +39,10 @@ class VideoPress_Edit_Attachment {
 	}
 
 	/**
-	 * @param string $post_type
-	 * @param object $post
+	 * Add VideoPress meta box.
+	 *
+	 * @param string $post_type Post type.
+	 * @param object $post Post object.
 	 */
 	public function configure_meta_boxes( $post_type = 'unknown', $post = null ) {
 		if ( null == $post ) {
@@ -60,14 +62,15 @@ class VideoPress_Edit_Attachment {
 	}
 
 	/**
-	 * @param array      $post
-	 * @param array|null $attachment
+	 * Filter attachment fields data to save.
 	 *
-	 * Disable phpcs rule for nonce verification since it's already done by Core.
+	 * @param array      $post Post data.
+	 * @param array|null $attachment Attachment metadata.
 	 *
 	 * @return array
 	 */
 	public function save_fields( $post, $attachment = null ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification already done by core.
 		if ( null === $attachment && isset( $_POST['attachment'] ) ) {
 			$attachment = $_POST['attachment'];
 		}
@@ -107,6 +110,7 @@ class VideoPress_Edit_Attachment {
 		}
 
 		return $post;
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
 
 	/**
@@ -123,7 +127,7 @@ class VideoPress_Edit_Attachment {
 	/**
 	 * Get the upload api path.
 	 *
-	 * @param string $guid
+	 * @param string $guid The guid of the video.
 	 * @return string
 	 */
 	public function make_video_api_path( $guid ) {
@@ -138,8 +142,8 @@ class VideoPress_Edit_Attachment {
 	/**
 	 * Creates an array of video fields to edit based on transcoded videos.
 	 *
-	 * @param array    $fields video fields of interest
-	 * @param stdClass $post post object
+	 * @param array    $fields video fields of interest.
+	 * @param stdClass $post Post object.
 	 * @return array modified version of video fields for administrative interface display
 	 */
 	public function fields_to_edit( $fields, $post ) {
@@ -220,7 +224,9 @@ class VideoPress_Edit_Attachment {
 	}
 
 	/**
-	 * @param stdClass $post
+	 * Meta box output.
+	 *
+	 * @param stdClass $post Post object.
 	 */
 	public function videopress_information_box( $post ) {
 		$post_id = absint( $post->ID );
@@ -291,8 +297,8 @@ HTML;
 	/**
 	 * Build HTML to display a form checkbox for embedcode display preference
 	 *
-	 * @param object $info database row from the videos table
-	 * @return string input element of type checkbox set to checked state based on stored embed preference
+	 * @param object $info Database row from the videos table.
+	 * @return string Input element of type checkbox set to checked state based on stored embed preference.
 	 */
 	protected function display_embed_choice( $info ) {
 		return $this->create_checkbox_for_option(
@@ -352,8 +358,8 @@ HTML;
 	/**
 	 * Build HTML to display a form input radio button for video ratings
 	 *
-	 * @param object $info database row from the videos table
-	 * @return string input elements of type radio with existing stored value selected
+	 * @param object $info Database row from the videos table.
+	 * @return string Input elements of type radio with existing stored value selected.
 	 */
 	protected function display_rating( $info ) {
 		$out = '';
