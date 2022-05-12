@@ -610,7 +610,7 @@ class VideoPress_Player {
 		$video_container_id = 'v-' . $this->video->guid;
 
 		// Must not use iframes for IE11 due to a fullscreen bug
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( $_SERVER['HTTP_USER_AGENT'], 'Trident/7.0; rv:11.0' ) ) {
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 'Trident/7.0; rv:11.0' ) ) {
 			$iframe_embed = false;
 		} else {
 
