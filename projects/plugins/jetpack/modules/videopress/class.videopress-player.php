@@ -500,16 +500,16 @@ class VideoPress_Player {
 		unset( $locale );
 
 		$guid    = $this->video->guid;
-		$guid_js = json_encode( $guid );
+		$guid_js = wp_json_encode( $guid );
 		$html   .= '<script type="text/javascript">' . PHP_EOL;
 		$html   .= 'jQuery(document).ready(function() {';
 
-		$html .= 'if ( !jQuery.VideoPress.data[' . json_encode( $guid ) . '] ) { jQuery.VideoPress.data[' . json_encode( $guid ) . '] = new Array(); }' . PHP_EOL;
-		$html .= 'jQuery.VideoPress.data[' . json_encode( $guid ) . '][' . self::$shown[ $guid ] . ']=' . json_encode( $data ) . ';' . PHP_EOL;
+		$html .= 'if ( !jQuery.VideoPress.data[' . wp_json_encode( $guid ) . '] ) { jQuery.VideoPress.data[' . wp_json_encode( $guid ) . '] = new Array(); }' . PHP_EOL;
+		$html .= 'jQuery.VideoPress.data[' . wp_json_encode( $guid ) . '][' . self::$shown[ $guid ] . ']=' . wp_json_encode( $data ) . ';' . PHP_EOL;
 		unset( $data );
 
-		$jq_container   = json_encode( '#' . $this->video_container_id );
-		$jq_placeholder = json_encode( '#' . $video_placeholder_id );
+		$jq_container   = wp_json_encode( '#' . $this->video_container_id );
+		$jq_placeholder = wp_json_encode( '#' . $video_placeholder_id );
 		$player_config  = "{width:{$width},height:{$height},";
 		if ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true ) {
 			$player_config .= 'freedom:"true",';
@@ -529,9 +529,9 @@ class VideoPress_Player {
 				',',
 				array(
 					'jQuery.VideoPress.video.flash.player_uri',
-					json_encode( $this->video_container_id ),
-					json_encode( $width ),
-					json_encode( $height ),
+					wp_json_encode( $this->video_container_id ),
+					wp_json_encode( $width ),
+					wp_json_encode( $height ),
 					'jQuery.VideoPress.video.flash.min_version',
 					'jQuery.VideoPress.video.flash.expressinstall', // attempt to upgrade the Flash player if less than min_version. requires a 310x137 container or larger but we will always try to include
 					'{guid:' . $guid_js . '}', // FlashVars
@@ -542,9 +542,9 @@ class VideoPress_Player {
 			) . ');';
 			$html .= '} else {' . PHP_EOL;
 			$html .= "if ( jQuery.VideoPress.video.prepare({$guid_js},{$player_config}," . self::$shown[ $guid ] . ') ) {' . PHP_EOL;
-			$html .= 'if ( jQuery(' . $jq_container . ').data( "player" ) === "flash" ){jQuery.VideoPress.video.play(jQuery(' . json_encode( '#' . $this->video_container_id ) . '));}else{';
-			$html .= 'jQuery(' . $jq_placeholder . ').html(' . json_encode( $this->html_age_date() ) . ');' . PHP_EOL;
-			$html .= 'jQuery(' . json_encode( '#' . $video_placeholder_id . ' input[type=submit]' ) . ').one("click", function(event){jQuery.VideoPress.requirements.isSufficientAge(jQuery(' . $jq_container . '),' . absint( $this->video->age_rating ) . ')});' . PHP_EOL;
+			$html .= 'if ( jQuery(' . $jq_container . ').data( "player" ) === "flash" ){jQuery.VideoPress.video.play(jQuery(' . wp_json_encode( '#' . $this->video_container_id ) . '));}else{';
+			$html .= 'jQuery(' . $jq_placeholder . ').html(' . wp_json_encode( $this->html_age_date() ) . ');' . PHP_EOL;
+			$html .= 'jQuery(' . wp_json_encode( '#' . $video_placeholder_id . ' input[type=submit]' ) . ').one("click", function(event){jQuery.VideoPress.requirements.isSufficientAge(jQuery(' . $jq_container . '),' . absint( $this->video->age_rating ) . ')});' . PHP_EOL;
 			$html .= '}}}' . PHP_EOL;
 		} else {
 			$html .= "if ( jQuery.VideoPress.video.prepare({$guid_js}, {$player_config}," . self::$shown[ $guid ] . ') ) {' . PHP_EOL;
@@ -695,7 +695,7 @@ class VideoPress_Player {
 				. "<script src='" . esc_attr( $js_url ) . "'></script>";
 
 		} else {
-			$videopress_options = json_encode( $videopress_options );
+			$videopress_options = wp_json_encode( $videopress_options );
 			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress.js';
 
 			return "<div id='{$video_container_id}'></div>
