@@ -5,12 +5,12 @@ use Automattic\Jetpack\Status;
 
 // Include the class file containing methods for rounding constrained array elements.
 // Here the constrained array element is the dimension of a row, group or an image in the tiled gallery.
-require_once dirname( __FILE__ ) . '/math/class-constrained-array-rounding.php';
+require_once __DIR__ . '/math/class-constrained-array-rounding.php';
 
 // Layouts
-require_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-rectangular.php';
-require_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-square.php';
-require_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-circle.php';
+require_once __DIR__ . '/tiled-gallery/tiled-gallery-rectangular.php';
+require_once __DIR__ . '/tiled-gallery/tiled-gallery-square.php';
+require_once __DIR__ . '/tiled-gallery/tiled-gallery-circle.php';
 
 class Jetpack_Tiled_Gallery {
 	private static $talaveras = array( 'rectangular', 'square', 'circle', 'rectangle', 'columns' );
