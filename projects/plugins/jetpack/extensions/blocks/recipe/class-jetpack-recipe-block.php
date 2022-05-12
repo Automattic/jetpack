@@ -23,7 +23,18 @@ class Jetpack_Recipe_Block {
 	 */
 	public static function render( $attr, $content ) {
 		Jetpack_Gutenberg::load_styles_as_required( 'recipe' );
-		return $content;
+		$find    = array(
+			'class="wp-block-jetpack-recipe"',
+			'class="wp-block-jetpack-recipe-title"',
+			'class="wp-block-jetpack-recipe-description"',
+		);
+		$replace = array(
+			'itemscope itemtype="https://schema.org/Recipe" class="wp-block-jetpack-recipe"',
+			'itemprop="name" class="wp-block-jetpack-recipe-title"',
+			'itemprop="description" class="wp-block-jetpack-recipe-description"',
+		);
+
+		return str_replace( $find, $replace, $content );
 	}
 
 	/**
@@ -35,7 +46,14 @@ class Jetpack_Recipe_Block {
 	 * @return string
 	 */
 	public static function render_hero( $attr, $content ) {
-		return $content;
+		$find    = array(
+			'<img',
+		);
+		$replace = array(
+			'<img itemprop="image" ',
+		);
+
+		return str_replace( $find, $replace, $content );
 	}
 
 	/**
@@ -47,7 +65,6 @@ class Jetpack_Recipe_Block {
 	 * @return string
 	 */
 	public static function render_details( $attr, $content ) {
-		Jetpack_Gutenberg::load_styles_as_required( 'recipe-details' );
 		return $content;
 	}
 
@@ -96,8 +113,18 @@ class Jetpack_Recipe_Block {
 	 * @return string
 	 */
 	public static function render_step( $attr, $content ) {
-		Jetpack_Gutenberg::load_styles_as_required( 'recipe-step' );
-		return $content;
+		$find    = array(
+			'class="wp-block-jetpack-recipe-step-name"',
+			'class="wp-block-jetpack-recipe-step-desc"',
+			'class="wp-image',
+		);
+		$replace = array(
+			'itemprop="name" class="wp-block-jetpack-recipe-step-name"',
+			'itemprop="text" class="wp-block-jetpack-recipe-step-desc"',
+			'itemprop="image" class="wp-image',
+		);
+
+		return str_replace( $find, $replace, $content );
 	}
 
 	/**
