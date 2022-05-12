@@ -45,11 +45,11 @@ class VideoPress_Edit_Attachment {
 	 * @param object $post Post object.
 	 */
 	public function configure_meta_boxes( $post_type = 'unknown', $post = null ) {
-		if ( null == $post ) {
+		if ( null === $post ) {
 			$post = (object) array( 'ID' => 0 );
 		}
 
-		if ( 'attachment' != $post_type ) {
+		if ( 'attachment' !== $post_type ) {
 			return;
 		}
 
