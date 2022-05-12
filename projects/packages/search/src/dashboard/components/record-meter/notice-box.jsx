@@ -84,8 +84,8 @@ export function NoticeBox( props ) {
 	const NOTICES = getNotices( props.tierMaximumRecords );
 	const [ showNotice, setShowNotice ] = useState( true );
 
-	// deal with localStorage for ensuring dismissed notice boxs are not re-displayed
-	const dismissedNoticesString = localStorage.getItem( DISMISSED_NOTICES ) ?? '';
+	// deal with sessionStorage for ensuring dismissed notice boxs are not re-displayed
+	const dismissedNoticesString = sessionStorage.getItem( DISMISSED_NOTICES ) ?? '';
 
 	const DATA_NOT_VALID = '1',
 		HAS_NOT_BEEN_INDEXED = '2',
@@ -134,7 +134,7 @@ export function NoticeBox( props ) {
 	const dismissNoticeBox = () => {
 		setShowNotice( false );
 		if ( ! dismissedNoticesString.includes( notice.id ) ) {
-			localStorage.setItem( DISMISSED_NOTICES, dismissedNoticesString + notice.id );
+			sessionStorage.setItem( DISMISSED_NOTICES, dismissedNoticesString + notice.id );
 		}
 	};
 
