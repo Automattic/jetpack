@@ -210,6 +210,19 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
 					</div>
 				) }
+
+				{ 'search' === slug && (
+					<Text className={ styles[ 'search-price-disclaimer' ] } variant="body-extra-small">
+						{ __(
+							'Pricing will automatically adjust based on the number of records in your search index.',
+							'jetpack-my-jetpack'
+						) }{ ' ' }
+						{ __(
+							"If you grow into a new pricing tier, we'll let you know before your next billing cycle.",
+							'jetpack-my-jetpack'
+						) }
+					</Text>
+				) }
 			</div>
 		</div>
 	);
