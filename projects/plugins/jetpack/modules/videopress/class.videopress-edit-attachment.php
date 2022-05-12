@@ -72,7 +72,7 @@ class VideoPress_Edit_Attachment {
 	public function save_fields( $post, $attachment = null ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification already done by core.
 		if ( null === $attachment && isset( $_POST['attachment'] ) ) {
-			$attachment = $_POST['attachment'];
+			$attachment = filter_var( wp_unslash( $_POST['attachment'] ) );
 		}
 
 		if ( ! isset( $attachment['is_videopress_attachment'] ) || 'yes' !== $attachment['is_videopress_attachment'] ) {
@@ -85,8 +85,8 @@ class VideoPress_Edit_Attachment {
 			return $post;
 		}
 
-		$post_title      = isset( $_POST['post_title'] ) ? $_POST['post_title'] : null;
-		$post_excerpt    = isset( $_POST['post_excerpt'] ) ? $_POST['post_excerpt'] : null;
+		$post_title      = isset( $_POST['post_title'] ) ? sanitize_text_field( wp_unslash( $_POST['post_title'] ) ) : null;
+		$post_excerpt    = isset( $_POST['post_excerpt'] ) ? sanitize_textarea_field( wp_unslash( $_POST['post_excerpt'] ) ) : null;
 		$rating          = isset( $attachment['rating'] ) ? $attachment['rating'] : null;
 		$display_embed   = isset( $attachment['display_embed'] ) ? $attachment['display_embed'] : 0;
 		$allow_download  = isset( $attachment['allow_download'] ) ? $attachment['allow_download'] : 0;
