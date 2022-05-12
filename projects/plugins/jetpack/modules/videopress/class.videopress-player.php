@@ -685,7 +685,7 @@ class VideoPress_Player {
 			}
 
 			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
-
+			// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			return "<iframe title='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' aria-label='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' width='" . esc_attr( $videopress_options['width'] )
@@ -703,6 +703,7 @@ class VideoPress_Player {
 				<script>
 					videopress('{$this->video->guid}', document.querySelector('#{$video_container_id}'), {$videopress_options});
 				</script>";
+			// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		}
 	}
 
