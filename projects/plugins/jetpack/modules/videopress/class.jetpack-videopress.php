@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
@@ -7,10 +7,17 @@ use Automattic\Jetpack\Connection\Client;
  * VideoPress in Jetpack
  */
 class Jetpack_VideoPress {
-	/** @var string */
+	/**
+	 * Module name.
+	 *
+	 * @var string
+	 * */
 	public $module = 'videopress';
 
-	/** @var int */
+	/**
+	 * Version number used for cache busting.
+	 *
+	 * @var int */
 	public $version = 6;
 
 	/**
@@ -32,7 +39,6 @@ class Jetpack_VideoPress {
 	 * Sets up the initializer and makes sure that videopress activates and deactivates properly.
 	 */
 	private function __construct() {
-		// $this->version = time(); // <s>ghost</s> cache busters!
 		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
 	}
@@ -133,10 +139,11 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * A can of coke
+	 * Similar to current_user_can, but internal to VideoPress.
 	 *
-	 * Similar to current_user_can, but internal to VideoPress. Returns
-	 * true if the given VideoPress capability is allowed by the given user.
+	 * @param string $cap Capability name.
+	 * @param int    $user_id User ID.
+	 * @return bool Returns true if the given VideoPress capability is allowed by the given user.
 	 */
 	public function can( $cap, $user_id = false ) {
 		if ( ! $user_id ) {
@@ -302,7 +309,9 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * Modify the default plupload config to turn on videopress specific filters.
+	 * Modify the default plupload config to turn on VideoPress specific filters.
+	 *
+	 * @param array $config The plupload config.
 	 */
 	public function videopress_pluploder_config( $config ) {
 
@@ -395,7 +404,7 @@ class Jetpack_VideoPress {
 	/**
 	 * Makes sure that all video mimes are added in, as multi site installs can remove them.
 	 *
-	 * @param array $existing_mimes
+	 * @param array $existing_mimes Mime types to extend/filter.
 	 * @return array
 	 */
 	public function add_video_upload_mimes( $existing_mimes = array() ) {
@@ -415,7 +424,7 @@ class Jetpack_VideoPress {
 	/**
 	 * Filter designed to get rid of non video mime types.
 	 *
-	 * @param string $value
+	 * @param string $value Mime type to filter.
 	 * @return int
 	 */
 	public function filter_video_mimes( $value ) {
@@ -423,9 +432,11 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * @param string $icon
-	 * @param string $mime
-	 * @param int    $post_id
+	 * Filter the mime type icon.
+	 *
+	 * @param string $icon Icon path.
+	 * @param string $mime Mime type.
+	 * @param int    $post_id Post ID.
 	 *
 	 * @return string
 	 */
@@ -445,7 +456,9 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * @param array $extensions
+	 * Filter the list of supported video formats.
+	 *
+	 * @param array $extensions Supported video formats.
 	 *
 	 * @return array
 	 */
