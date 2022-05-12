@@ -290,7 +290,7 @@ class VideoPress_Player {
 		 * Default to 13
 		 */
 		$html        .= '<select name="year" style="' . $inputs_style . '">';
-		$start_year   = date( 'Y' ) - 2;
+		$start_year   = gmdate( 'Y' ) - 2;
 		$default_year = $start_year - 11;
 		$end_year     = $start_year - 128;
 		for ( $year = $start_year; $year > $end_year; $year-- ) {
