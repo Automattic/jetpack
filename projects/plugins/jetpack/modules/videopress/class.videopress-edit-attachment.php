@@ -272,7 +272,7 @@ class VideoPress_Edit_Attachment {
 </div>
 HTML;
 
-		echo $html;
+		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Variables built above.
 	}
 
 	/**
