@@ -40,7 +40,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
-		unset( $_SERVER['REQUEST_URI'] );
+		$_SERVER['REQUEST_URI'] = '';
 	}
 
 	/**

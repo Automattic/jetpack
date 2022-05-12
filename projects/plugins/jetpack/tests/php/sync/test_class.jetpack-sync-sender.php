@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		// Reset queue.
 		$this->sender->get_sync_queue()->reset();
 
-		unset( $_SERVER['REQUEST_URI'] );
+		$_SERVER['REQUEST_URI'] = '';
 	}
 
 	public function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
