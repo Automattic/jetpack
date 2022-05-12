@@ -11,8 +11,9 @@ const getNotices = ( tierMaximumRecords = null ) => {
 	return {
 		1: {
 			id: 1,
+			header: __( 'Search was unable to index your content', 'jetpack-search-pkg' ),
 			message: __(
-				"Search was unable to locate your content. Jetpack's servers ran into a problem when trying to communicate with your site, which is needed for Search to work properly.",
+				"Jetpack's servers ran into a problem when trying to communicate with your site, which is needed for Search to work properly.",
 				'jetpack-search-pkg'
 			),
 			isImportant: true,
@@ -23,32 +24,22 @@ const getNotices = ( tierMaximumRecords = null ) => {
 		},
 		3: {
 			id: 3,
-			message: __(
-				"We weren't able to locate any content for Search to index. Perhaps you don't yet have any posts or pages?",
+			header: __(
+				"We weren't able to locate any content for Search to index",
 				'jetpack-search-pkg'
 			),
+			message: __( "Perhaps you don't yet have any posts or pages?", 'jetpack-search-pkg' ),
 		},
 		4: {
-			id: 4,
-			message: sprintf(
-				// translators: %s: site's current plan record limit
-				__(
-					'You recently surpassed %d records and will be automatically upgraded to the next billing tier <p> learn more <p>',
-					'jetpack-search-pkg'
-				),
-				tierMaximumRecords
-			),
-			link: {
-				text: __( 'learn more', 'jetpack-search-pkg' ),
-				url: 'https://jetpack.com/support/search/product-pricing/',
-			},
-		},
-		5: {
 			id: 5,
+			header: __(
+				"You're close to the max amount of records for this billing tier",
+				'jetpack-search-pkg'
+			),
 			message: sprintf(
 				// translators: %s: site's current plan record limit
 				__(
-					"You're close to the max amount of records for this billing tier. Once you hit %s indexed records, you'll automatically be billed for <br> the next tier <p> learn more <p>",
+					"Once you hit %s indexed records, you'll automatically be billed for the next tier",
 					'jetpack-search-pkg'
 				),
 				tierMaximumRecords
@@ -139,7 +130,8 @@ export function NoticeBox( props ) {
 			onDismissClick={ dismissNoticeBox }
 			icon={ 'info-outline' }
 		>
-			{ notice.message }
+			{ notice.header && <span className="dops-notice__header">{ notice.header }</span> }
+			<span className="dops-notice__body">{ notice.message }</span>
 			{ notice.link && (
 				<NoticeAction href={ notice.link.url } external={ true }>
 					{ notice.link.text }
