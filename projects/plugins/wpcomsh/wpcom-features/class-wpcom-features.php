@@ -568,8 +568,20 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_PLANS,
 			self::WPCOM_ECOMMERCE_PLANS,
 		),
+		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2
 		self::LIVE_SUPPORT                  => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			// Premium (Excluding Monthly)
+			self::BUNDLE_PRO,
+			self::VALUE_BUNDLE,
+			self::VALUE_BUNDLE_2Y,
+			// Pro
+			self::PRO_PLAN,
+			// Business (Excluding Monthly)
+			self::BUSINESS_BUNDLE,
+			self::BUSINESS_BUNDLE_2Y,
+			// Ecommerce (Excluding Monthly)
+			self::ECOMMERCE_BUNDLE,
+			self::ECOMMERCE_BUNDLE_2Y,
 		),
 		// MANAGE_PLUGINS - Atomic only feature. Can upload, install, and activate any 3rd party plugin.
 		self::MANAGE_PLUGINS                => array(
