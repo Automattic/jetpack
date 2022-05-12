@@ -312,7 +312,7 @@ class REST_Endpoints {
 			'/sync/spawn-sync',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::spawn_sync',
+				'callback'            => __CLASS__ . '::dedicated_sync',
 				'permission_callback' => '__return_true',
 			)
 		);
