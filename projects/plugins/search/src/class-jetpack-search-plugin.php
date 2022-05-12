@@ -23,24 +23,29 @@ class Jetpack_Search_Plugin {
 	 * Register hooks to initialize the plugin
 	 */
 	public static function bootstrap() {
-		add_action( 'plugins_loaded', array( self::class, 'include_compatibility_files' ), 10 );
-		add_action( 'plugins_loaded', array( self::class, 'initialize' ), 20 );
+		add_action( 'plugins_loaded', array( self::class, 'load_compatibility_files' ), 1 );
+		add_action( 'plugins_loaded', array( self::class, 'configure_packages' ), 1 );
+		add_action( 'plugins_loaded', array( self::class, 'initialize_other_packages' ) );
 		add_action( 'activated_plugin', array( self::class, 'handle_plugin_activation' ) );
 	}
 
 	/**
 	 * Extra tweaks to make Jetpack Search play well with others.
 	 */
-	public static function include_compatibility_files() {
+	public static function load_compatibility_files() {
 		if ( class_exists( 'Jetpack' ) ) {
 			require_once JETPACK_SEARCH_PLUGIN__DIR . '/compatibility/jetpack.php';
 		}
 	}
 
 	/**
-	 * Initialize the plugin
+	 * Configure packages controlled by the `Config` class.
+	 *
+	 * Note: the function only configures the packages, but doesn't initialize them.
+	 * The actual initialization is done on 'plugins_loaded' priority 2, which is the
+	 * reason the function hooked on priority 1.
 	 */
-	public static function initialize() {
+	public static function configure_packages() {
 		$config = new Config();
 		// Connection package.
 		$config->ensure(
@@ -57,6 +62,12 @@ class Jetpack_Search_Plugin {
 		$config->ensure( 'identity_crisis' );
 		// Search package.
 		$config->ensure( 'search' );
+	}
+
+	/**
+	 * Initialize packages not controlled by the `Config` class.
+	 */
+	public static function initialize_other_packages() {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 		// Initialize My Jetpack.
