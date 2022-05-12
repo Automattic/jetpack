@@ -51,8 +51,21 @@ ul.jp-search-chart-legend {
 	border-radius: 5px;
 }
 
+.jp-search-notice-box span.dops-notice__content {
+	padding: 24px 16px;
+}
+
+.jp-search-notice-box .dops-notice__content .dops-notice__header {
+	padding-bottom: 24px;
+	display: block;
+}
+
 .jp-search-notice-box__important {
 	border: $studio-red-50 0.5px solid;
+}
+
+.jp-search-notice-box__important .dops-notice__content .dops-notice__header {
+	font-weight: bold;
 }
 
 .jp-search-notice-box a.dops-notice__action {
