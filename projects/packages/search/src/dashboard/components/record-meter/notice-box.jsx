@@ -137,6 +137,7 @@ export function NoticeBox( props ) {
 			status={ 'is-info' }
 			className={ noticeBoxClassName }
 			onDismissClick={ dismissNoticeBox }
+			icon={ 'info-outline' }
 		>
 			{ notice.message }
 			{ notice.link && (
