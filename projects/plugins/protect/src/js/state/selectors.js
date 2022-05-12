@@ -5,6 +5,7 @@ const selectors = {
 	getStatusIsFetching: state => state.statusIsFetching || false,
 	getWpVersion: state => state.wpVersion || '',
 	getSecurityBundle: state => state.securityBundle || {},
+	getProduct: state => state.productData || {},
 };
 
 export default selectors;
