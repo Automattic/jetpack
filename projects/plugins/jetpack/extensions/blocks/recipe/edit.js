@@ -15,7 +15,6 @@ function RecipeEdit( { className, attributes, setAttributes } ) {
 	const units = [
 		{ value: 'm', label: 'min' },
 		{ value: 'h', label: 'hours' },
-		{ value: 'd', label: 'days' },
 	];
 
 	const RECIPE_TEMPLATE = [
@@ -25,6 +24,7 @@ function RecipeEdit( { className, attributes, setAttributes } ) {
 			{
 				level: 2,
 				placeholder: 'Recipe Title',
+				className: 'wp-block-jetpack-recipe-title',
 			},
 		],
 		[
@@ -39,6 +39,7 @@ function RecipeEdit( { className, attributes, setAttributes } ) {
 			'core/paragraph',
 			{
 				placeholder: 'Recipe Description',
+				className: 'wp-block-jetpack-recipe-description',
 			},
 		],
 		[
