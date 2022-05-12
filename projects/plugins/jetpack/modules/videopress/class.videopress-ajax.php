@@ -261,12 +261,12 @@ class VideoPress_AJAX {
 	 * @return void
 	 */
 	public function wp_ajax_update_transcoding_status() {
-		if ( ! isset( $_POST['post_id'] ) ) {
+		if ( ! isset( $_POST['post_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Informational AJAX response.
 			wp_send_json_error( array( 'message' => __( 'A valid post_id is required.', 'jetpack' ) ) );
 			return;
 		}
 
-		$post_id = (int) $_POST['post_id'];
+		$post_id = (int) $_POST['post_id']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		if ( ! videopress_update_meta_data( $post_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'That post does not have a VideoPress video associated to it.', 'jetpack' ) ) );
