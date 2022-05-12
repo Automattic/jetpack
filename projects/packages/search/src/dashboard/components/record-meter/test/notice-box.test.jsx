@@ -32,7 +32,7 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect( screen.getByText( /locate your content/i ) ).toBeVisible();
+		expect( screen.getByText( /index your content/i ) ).toBeVisible();
 	} );
 
 	test( 'unable to locate content notice is displayed', () => {
@@ -48,21 +48,6 @@ describe( 'with notices to display', () => {
 
 		expect( screen.getByText( /locate any content/i ) ).toBeVisible();
 	} );
-
-	test( 'recently surpassed record limit notice is displayed', () => {
-		render(
-			<NoticeBox
-				recordCount={ 120 }
-				tierMaximumRecords={ 100 }
-				hasBeenIndexed={ true }
-				hasValidData={ true }
-				hasItems={ true }
-			></NoticeBox>
-		);
-
-		expect( screen.getByText( /automatically upgraded to the next billing tier/i ) ).toBeVisible();
-	} );
-
 	test( 'getting close to record limit notice is displayed', () => {
 		render(
 			<NoticeBox
