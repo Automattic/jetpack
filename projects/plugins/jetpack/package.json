@@ -118,7 +118,7 @@
 		"tinycolor2": "1.4.2",
 		"tus-js-client": "2.3.0",
 		"uuid": "8.3.2",
-		"webpack": "5.65.0",
+		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"
 	},
 	"devDependencies": {
