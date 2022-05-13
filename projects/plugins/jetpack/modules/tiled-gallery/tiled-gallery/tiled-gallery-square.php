@@ -81,6 +81,7 @@ class Jetpack_Tiled_Gallery_Layout_Square extends Jetpack_Tiled_Gallery_Layout {
 	 * The html.
 	 *
 	 * @param array $context - the context, unused.
+	 * @return string HTML
 	 */
 	public function HTML( $context = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return parent::HTML( array( 'rows' => $this->compute_items() ) );
