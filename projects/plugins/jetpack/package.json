@@ -124,7 +124,7 @@
 	"devDependencies": {
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@automattic/jetpack-webpack-config": "workspace:* || ^1.2",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.3",
 		"@automattic/remove-asset-webpack-plugin": "workspace:* || ^1.0",
 		"@babel/core": "7.17.10",
 		"@babel/plugin-proposal-nullish-coalescing-operator": "7.16.7",
