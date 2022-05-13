@@ -2,11 +2,7 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
-import { SocialServiceIcon } from '../../../../shared/icons';
+import { SocialServiceIcon } from '@automattic/jetpack-components';
 
 /**
  * Style dependencies
