@@ -16,7 +16,7 @@ concurrency:
 jobs:
   # review-crew-afk:
   #   name: "Review check"
-  #   runs-on: ubuntu-latest
+  #   runs-on: ubuntu-22.04
   #   if: github.event_name == 'pull_request_target' && github.event.action == 'labeled' && github.event.label.name == '[Status] Needs Review'
   #   timeout-minutes: 1  # 2021-01-18: Successful runs probably take a few seconds
   #   steps:
@@ -33,7 +33,7 @@ jobs:
   #           })
   repo-gardening:
     name: "Manage labels and assignees"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.event_name == 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     timeout-minutes: 10  # 2021-03-12: Successful runs seem to take a few seconds, but can sometimes take a lot longer since we wait for previous runs to complete.
     steps:

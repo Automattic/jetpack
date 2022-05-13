@@ -17,7 +17,7 @@ env:
 jobs:
   build:
     name: Build all projects
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 20  # 2022-02-10: We've gotten the build down to ~9-15 minutes now! p9dueE-4dJ-p2
     env:
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
@@ -98,7 +98,7 @@ jobs:
 
   upgrade_test:
     name: Test plugin upgrades
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: build
     if: needs.build.outputs.any_plugins == 'true'
     timeout-minutes: 10  # 2022-03-04: Successful runs seem to take about 3 minutes, but give some extra time for the downloads.
@@ -148,7 +148,7 @@ jobs:
 
   jetpack_beta:
     name: Create artifact for Jetpack Beta plugin
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: build
     if: ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'Automattic/jetpack' ) && needs.build.outputs.any_plugins == 'true'
     timeout-minutes: 10  # 2021-06-24: Successful runs should take just a few seconds now. But sometimes the upload is slow.
@@ -247,7 +247,7 @@ jobs:
 
   update_mirrors:
     name: Push to mirror repos
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: build
 
     if: github.event_name == 'push' && github.repository == 'Automattic/jetpack'

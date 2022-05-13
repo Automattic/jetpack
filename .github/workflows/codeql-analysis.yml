@@ -14,7 +14,7 @@ concurrency:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 7  # 2021-01-18: Successful runs seem to take 3-5 minutes
 
     strategy:

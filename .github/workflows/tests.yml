@@ -14,7 +14,7 @@ env:
 jobs:
   create-matrix:
     name: "Determine tests matrix"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 1  # 2021-02-03: Should only take a second.
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
@@ -27,7 +27,7 @@ jobs:
 
   run-tests:
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: create-matrix
     services:
       database:

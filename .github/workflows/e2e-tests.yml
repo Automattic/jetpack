@@ -19,7 +19,7 @@ concurrency:
 jobs:
   create-test-matrix:
     name: "Determine tests matrix"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 3
     outputs:
       matrix: ${{ steps.evaluate.outputs.matrix }}
@@ -58,7 +58,7 @@ jobs:
 
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: create-test-matrix
     timeout-minutes: 25
     strategy:
@@ -153,7 +153,7 @@ jobs:
 
   test-report:
     name: "Test report"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: ${{ ! cancelled() }}
     needs: [create-test-matrix, e2e-tests]
 

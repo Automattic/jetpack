@@ -22,7 +22,7 @@ concurrency:
 jobs:
   build:
     name: Build and publish Jetpack Dev Environment
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       packages: write
       contents: read

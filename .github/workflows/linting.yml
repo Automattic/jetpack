@@ -19,7 +19,7 @@ jobs:
   ### Job to categorize changed files. Other jobs depend on this to know when they should run.
   changed_files:
     name: detect changed files
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
     outputs:
       # Whether any PHP files have changed.
@@ -163,7 +163,7 @@ jobs:
   # Local equivalent: `composer php:lint`
   php_lint:
     name: PHP lint (${{ matrix.php-versions }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changed_files
     continue-on-error: ${{ matrix.experimental }}
     timeout-minutes: 3  # 2021-01-18: Successful runs seem to take ~1 minute
@@ -201,7 +201,7 @@ jobs:
   # Local equivalent: `composer phpcs:lint:required`
   phpcs:
     name: PHP Code Sniffer (non-excluded files only)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changed_files
     if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
@@ -227,7 +227,7 @@ jobs:
   # Local equivalent: `composer phpcs:compatibility`
   phpcompatibility:
     name: PHP Compatibility
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changed_files
     if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
@@ -256,7 +256,7 @@ jobs:
   # Pre-commit, you might also `git add` the relevant files and run `composer phpcs:changed`
   phpcs_changed:
     name: PHP Code Sniffer (changes to excluded files only)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changed_files
     if: needs.changed_files.outputs.php_excluded_files != '[]'
     continue-on-error: true
@@ -293,7 +293,7 @@ jobs:
   # Local equivalent: `pnpm run lint-required`
   eslint:
     name: ESLint (non-excluded files only)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changed_files
     if: needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
     timeout-minutes: 10  # 2021-03-05: Runs now take ~5 minutes due to now installing all php/js deps to ensure valid linting.
@@ -315,7 +315,7 @@ jobs:
   # Pre-commit, you might also `git add` the relevant files and run `pnpm run lint-changed`
   eslint_changed:
     name: ESLint (changes to excluded files only)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changed_files
     if: needs.changed_files.outputs.js_excluded_files != '[]'
     continue-on-error: true
@@ -344,7 +344,7 @@ jobs:
   # Local equivalent: `./tools/js-tools/lint-gh-actions.js <files>`
   lint_gh_actions:
     name: Lint GitHub Actions yaml files
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changed_files
     if: needs.changed_files.outputs.ghactionsfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 5  # 2021-03-24: Pnpm stuff takes about a minute.
@@ -364,7 +364,7 @@ jobs:
   # Local equivalent: `./tools/check-copied-files.sh`
   copied_files:
     name: Copied files are in sync
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds.
 
     steps:
@@ -375,7 +375,7 @@ jobs:
   # Local equivalent: `tools/cleanup-excludelists.sh`
   check_excludelists:
     name: Check linter exclude lists
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changed_files
     if: needs.changed_files.outputs.excludelist == 'true'
     timeout-minutes: 10  # 2022-05-11: The check itself takes 4 minutes.
@@ -398,7 +398,7 @@ jobs:
   # Local equivalent: Probably `tools/check-changelogger-use.php origin/master HEAD`
   changelogger_used:
     name: Changelogger use
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 5  # 2021-03-24: Takes about a minute.
     steps:
       # We don't need full git history, but tools/check-changelogger-use.php does need everything up to the merge-base.
@@ -423,7 +423,7 @@ jobs:
   # Local equivalent: `./tools/changelogger-validate-all.sh`
   changelogger_valid:
     name: Changelogger validity
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 5  # 2021-03-24: Takes about a minute
     steps:
       - uses: actions/checkout@v3
@@ -441,7 +441,7 @@ jobs:
   # Note that may modify lock files in your working tree!
   lock_files:
     name: "Lock files are up to date"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changed_files
     if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 7  # 2021-03-17: Successful runs seem to take 3+ minutes, thanks to pnpm building stuff.
@@ -457,7 +457,7 @@ jobs:
   # Local equivalent: tools/check-intra-monorepo-deps.sh -v && .github/files/check-monorepo-package-repos.sh
   monorepo_package_refs:
     name: Monorepo package version refs
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changed_files
     if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 5  # 2022-03-25: The pnpm install will probably take a minute or so.
@@ -475,7 +475,7 @@ jobs:
   # Local equivalent: `./.github/files/lint-project-structure.sh`
   project_structure:
     name: Project structure
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 5  # 2021-03-24: Pnpm stuff takes about a minute.
     steps:
       - uses: actions/checkout@v3
