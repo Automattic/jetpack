@@ -306,7 +306,6 @@ jobs:
 
       - name: Monorepo pnpm install
         run: pnpm install
-      - run: pnpm jetpack install --all -v # Ensure there are no unresolved import errors.
       - run: pnpm run lint-required
 
   ### Runs eslint-changed on JS files listed in eslint-excludelist.json.
@@ -335,7 +334,6 @@ jobs:
 
       - name: Monorepo pnpm install
         run: pnpm install
-      - run: pnpm jetpack install --all -v # Ensure there are no unresolved import errors.
       - name: Run eslint-changed
         env:
           SHA: ${{ github.event.pull_request.base.sha }}
@@ -380,7 +378,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.excludelist == 'true'
-    timeout-minutes: 15  # 2021-05-06: The "install --all" step sometimes takes 4+ minutes, then the check itself takes another 4.
+    timeout-minutes: 10  # 2022-05-11: The check itself takes 4 minutes.
     steps:
       - uses: actions/checkout@v3
 
@@ -390,7 +388,6 @@ jobs:
       - run: composer install
       - name: Monorepo pnpm install
         run: pnpm install
-      - run: pnpm jetpack install --all -v # Ensure there are no unresolved import errors.
 
       - name: Cleanup excludelists
         run: tools/cleanup-excludelists.sh
