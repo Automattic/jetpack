@@ -1393,7 +1393,7 @@ class The_Neverending_Home_Page {
 			array_push( $post_status, 'private' );
 		}
 
-		$order = in_array( $_REQUEST['order'], array( 'ASC', 'DESC' ), true ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'DESC'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no changes made to the site.
+		$order = isset( $_REQUEST['order'] ) && in_array( $_REQUEST['order'], array( 'ASC', 'DESC' ), true ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'DESC'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site.
 
 		$query_args = array_merge(
 			self::wp_query()->query_vars,
