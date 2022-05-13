@@ -1223,7 +1223,7 @@ importers:
       '@automattic/jetpack-partner-coupon': workspace:* || ^0.2
       '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.4
       '@automattic/jetpack-webpack-config': workspace:* || ^1.2
-      '@automattic/popup-monitor': 1.0.0
+      '@automattic/popup-monitor': 1.0.1
       '@automattic/remove-asset-webpack-plugin': workspace:* || ^1.0
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1
@@ -1368,7 +1368,7 @@ importers:
       '@automattic/jetpack-licensing': link:../../js-packages/licensing
       '@automattic/jetpack-partner-coupon': link:../../js-packages/partner-coupon
       '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
-      '@automattic/popup-monitor': 1.0.0
+      '@automattic/popup-monitor': 1.0.1
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.1_288661f573e9d1f632fd8574f13f5a41
       '@automattic/viewport': 1.0.0
@@ -1996,8 +1996,8 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@automattic/popup-monitor/1.0.0:
-    resolution: {integrity: sha512-hZzcOOfNB150rq/mTEWjDHM16Kuuia8OlAAHosylpacPDYJnh2zjPg910fpApuUrhRnOSaiZ+sv3Ydkt0LdTZg==}
+  /@automattic/popup-monitor/1.0.1:
+    resolution: {integrity: sha512-eWtZRKrJ9RE/EHf6UDahot5inc9R5Z9WFMJPyZ+y0NFvd6RXh93c0RCNuGiiNBbL4zTAJlTI+yX+VzQJWrdRiQ==}
     dependencies:
       events: 3.3.0
       lodash: 4.17.21
@@ -2006,7 +2006,7 @@ packages:
   /@automattic/request-external-access/1.0.0:
     resolution: {integrity: sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==}
     dependencies:
-      '@automattic/popup-monitor': 1.0.0
+      '@automattic/popup-monitor': 1.0.1
     dev: false
 
   /@automattic/social-previews/1.1.1_288661f573e9d1f632fd8574f13f5a41:
