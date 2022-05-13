@@ -76,7 +76,7 @@ class Test_Status extends BaseTestCase {
 	 */
 	public function get_sample_response() {
 		return (object) array(
-			'last_checked'                => gmdate( 'Y-m-d H:i:s', time() - 12 * 60 * 60 ),
+			'last_checked'                => '2003-03-03 03:03:03',
 			'num_vulnerabilities'         => 4,
 			'num_themes_vulnerabilities'  => 1,
 			'num_plugins_vulnerabilities' => 2,
