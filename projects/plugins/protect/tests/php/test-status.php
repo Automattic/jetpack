@@ -87,7 +87,7 @@ class Test_Status extends BaseTestCase {
 				'plugin-1' => $this->get_sample_item_response(),
 				'plugin-2' => $this->get_sample_item_response(),
 			),
-			'wordpress'                   => $this->get_sample_item_response(),
+			'core'                        => $this->get_sample_item_response(),
 		);
 	}
 

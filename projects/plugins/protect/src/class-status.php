@@ -124,7 +124,7 @@ class Status {
 	 * @return array
 	 */
 	public static function get_wordpress_vulnerabilities() {
-		return self::get_vulnerabilities( 'WordPress' );
+		return self::get_vulnerabilities( 'core' );
 	}
 
 	/**
@@ -148,13 +148,13 @@ class Status {
 	/**
 	 * Get the vulnerabilities for one type of extension or core
 	 *
-	 * @param string $type What vulnerabilities you want to get. Possible values are 'WordPress', 'themes' and 'plugins'.
+	 * @param string $type What vulnerabilities you want to get. Possible values are 'core', 'themes' and 'plugins'.
 	 *
 	 * @return array
 	 */
 	public static function get_vulnerabilities( $type ) {
 		$status = self::get_status();
-		if ( 'WordPress' === $type ) {
+		if ( 'core' === $type ) {
 			return isset( $status->$type ) && ! empty( $status->$type->vulnerabilities ) ? $status->$type->vulnerabilities : array();
 		}
 
