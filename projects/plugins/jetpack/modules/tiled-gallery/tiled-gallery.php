@@ -208,13 +208,7 @@ class Jetpack_Tiled_Gallery {
 		 */
 		$talaveras = apply_filters( 'jetpack_tiled_gallery_types', self::$talaveras );
 
-		if (
-			in_array(
-				$this->atts['type'],
-				$talaveras,
-				true
-			)
-		) {
+		if ( in_array( $this->atts['type'], $talaveras, true ) ) {
 			// Enqueue styles and scripts
 			self::default_scripts_and_styles();
 
