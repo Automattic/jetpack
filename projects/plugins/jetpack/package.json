@@ -142,7 +142,7 @@
 		"@testing-library/react": "12.1.5",
 		"@testing-library/react-hooks": "8.0.0",
 		"@testing-library/user-event": "14.1.1",
-		"@types/react": "18.0.8",
+		"@types/react": "17.0.44",
 		"@types/react-redux": "7.1.23",
 		"@wojtekmaj/enzyme-adapter-react-17": "0.6.3",
 		"@wordpress/api-fetch": "6.5.0",
