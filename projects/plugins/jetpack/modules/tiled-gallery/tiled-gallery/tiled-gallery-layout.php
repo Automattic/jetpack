@@ -64,7 +64,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 	public function __construct( $attachments, $link, $grayscale, $columns ) {
 		$this->attachments           = $attachments;
 		$this->link                  = $link;
-		$this->needs_attachment_link = ! ( isset( $link ) && $link === 'file' );
+		$this->needs_attachment_link = $link !== 'file';
 		$this->grayscale             = $grayscale;
 		$this->columns               = $columns;
 	}
@@ -73,6 +73,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 	 * Render carousel container template.
 	 *
 	 * @param array $context - the context.
+	 * @return string HTML
 	 */
 	public function HTML( $context = array() ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		// Render the carousel container template, which will take the

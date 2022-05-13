@@ -20,6 +20,7 @@ class Jetpack_Tiled_Gallery_Layout_Rectangular extends Jetpack_Tiled_Gallery_Lay
 	 * The HTML function.
 	 *
 	 * @param array $context - the context array, unused.
+	 * @return string HTML
 	 */
 	public function HTML( $context = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$grouper = new Jetpack_Tiled_Gallery_Grouper( $this->attachments );
@@ -45,6 +46,7 @@ class Jetpack_Tiled_Gallery_Layout_Columns extends Jetpack_Tiled_Gallery_Layout 
 	 * The HTML function.
 	 *
 	 * @param array $context - the context array, unused.
+	 * @return string HTML
 	 */
 	public function HTML( $context = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$grouper = new Jetpack_Tiled_Gallery_Grouper( $this->attachments, array( 'Three_Columns', 'Two' ) );
