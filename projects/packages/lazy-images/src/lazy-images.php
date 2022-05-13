@@ -114,7 +114,7 @@ class Jetpack_Lazy_Images {
 			return;
 		}
 
-		add_action( 'wp_head', array( $this, 'setup_filters' ), 9999 ); // We don't really want to modify anything in <head> since it's mostly all metadata.
+		add_action( 'the_post', array( $this, 'setup_filters' ), 9999 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		// Do not lazy load avatar in admin bar.
