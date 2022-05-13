@@ -1639,7 +1639,7 @@ class The_Neverending_Home_Page {
 			)
 		);
 
-		if ( is_array( $_REQUEST['query_args'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no site changes.
+		if ( isset( $_REQUEST['query_args'] ) && is_array( $_REQUEST['query_args'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			foreach ( $_REQUEST['query_args'] as $var => $value ) { // phpcs:ignore -- no site changes.
 				if ( in_array( $var, $allowed_vars, true ) && ! empty( $value ) ) {
 					$query_args[ $var ] = $value;
