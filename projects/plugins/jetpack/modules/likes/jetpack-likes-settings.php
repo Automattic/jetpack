@@ -331,7 +331,7 @@ class Jetpack_Likes_Settings {
 	 * Some of this code was taken and modified from sharing_display() to ensure
 	 * similar logic and filters apply here, too.
 	 */
-	function is_likes_visible() {
+	public function is_likes_visible() {
 		if ( Settings::is_syncing() ) {
 			return false;
 		}
@@ -359,7 +359,7 @@ class Jetpack_Likes_Settings {
 				$enabled = false;
 			}
 
-			if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
+			if ( in_array( 'get_the_excerpt', (array) $wp_current_filter, true ) ) {
 				$enabled = false;
 			}
 			// Sharing Setting Overrides ****************************************
@@ -389,12 +389,12 @@ class Jetpack_Likes_Settings {
 
 		if ( $post instanceof WP_Post ) {
 			// Check that the post is a public, published post.
-			if ( 'attachment' == $post->post_type ) {
+			if ( 'attachment' === $post->post_type ) {
 				$post_status = get_post_status( $post->post_parent );
 			} else {
 				$post_status = $post->post_status;
 			}
-			if ( 'publish' != $post_status ) {
+			if ( 'publish' !== $post_status ) {
 				$enabled = false;
 			}
 		}
@@ -419,10 +419,10 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Are Post Likes enabled on single posts?
 	 *
-	 * @param String $post_type custom post type identifier
+	 * @param string $post_type custom post type identifier.
 	 * @return bool
 	 */
-	function is_single_post_enabled( $post_type = 'post' ) {
+	public function is_single_post_enabled( $post_type = 'post' ) {
 		$options = $this->get_options();
 		return (bool) apply_filters(
 		/**
@@ -437,7 +437,7 @@ class Jetpack_Likes_Settings {
 		 * @param bool $enabled Are Post Likes enabled on single posts?
 		 */
 			"wpl_is_single_{$post_type}_disabled",
-			(bool) in_array( $post_type, $options['show'] )
+			(bool) in_array( $post_type, $options['show'], true )
 		);
 	}
 
@@ -446,7 +446,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return array
 	 */
-	function get_options() {
+	public function get_options() {
 		$setting             = array();
 		$setting['disabled'] = get_option( 'disabled_likes' );
 		$sharing             = get_option( 'sharing-options', array() );
@@ -490,7 +490,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return bool
 	 */
-	function is_index_enabled() {
+	public function is_index_enabled() {
 		$options = $this->get_options();
 		/**
 		 * Filters whether Likes should be enabled on archive/front/search pages.
@@ -501,7 +501,7 @@ class Jetpack_Likes_Settings {
 		 *
 		 * @param bool $enabled Are Post Likes enabled on archive/front/search pages?
 		 */
-		return (bool) apply_filters( 'wpl_is_index_disabled', (bool) in_array( 'index', $options['show'] ) );
+		return (bool) apply_filters( 'wpl_is_index_disabled', (bool) in_array( 'index', $options['show'], true ) );
 	}
 
 	/**
@@ -509,7 +509,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return bool
 	 */
-	function is_single_page_enabled() {
+	public function is_single_page_enabled() {
 		$options = $this->get_options();
 		/**
 		 * Filters whether Likes should be enabled on single pages.
@@ -520,7 +520,7 @@ class Jetpack_Likes_Settings {
 		 *
 		 * @param bool $enabled Are Post Likes enabled on single pages?
 		 */
-		return (bool) apply_filters( 'wpl_is_single_page_disabled', (bool) in_array( 'page', $options['show'] ) );
+		return (bool) apply_filters( 'wpl_is_single_page_disabled', (bool) in_array( 'page', $options['show'], true ) );
 	}
 
 	/**
@@ -528,7 +528,7 @@ class Jetpack_Likes_Settings {
 	 *
 	 * @return bool
 	 */
-	function is_attachment_enabled() {
+	public function is_attachment_enabled() {
 		$options = $this->get_options();
 		/**
 		 * Filters whether Likes should be enabled on attachment pages.
@@ -539,7 +539,7 @@ class Jetpack_Likes_Settings {
 		 *
 		 * @param bool $enabled Are Post Likes enabled on attachment pages?
 		 */
-		return (bool) apply_filters( 'wpl_is_attachment_disabled', (bool) in_array( 'attachment', $options['show'] ) );
+		return (bool) apply_filters( 'wpl_is_attachment_disabled', (bool) in_array( 'attachment', $options['show'], true ) );
 	}
 
 	/**
