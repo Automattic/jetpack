@@ -395,7 +395,7 @@ class WP_Test_IJetpack_Sync_Replicastore extends TestCase {
 		if ( ! empty( $histogram ) ) {
 			$this->assertTrue( is_wp_error( $histogram ) );
 		} else {
-			$this->assertTrue( is_array( $histogram ) );
+			$this->assertIsArray( $histogram );
 		}
 
 		$wpdb->suppress_errors = $suppressed;
