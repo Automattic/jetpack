@@ -137,7 +137,7 @@ class Connections_Post_Field {
 		global $publicize;
 
 		if ( ! $publicize ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'publicize_not_available',
 				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack-publicize-pkg' ),
 				array( 'status' => rest_authorization_required_code() )
@@ -148,7 +148,7 @@ class Connections_Post_Field {
 			return true;
 		}
 
-		return new WP_Error(
+		return new \WP_Error(
 			'invalid_user_permission_publicize',
 			__( 'Sorry, you are not allowed to access Publicize data for this post.', 'jetpack-publicize-pkg' ),
 			array( 'status' => rest_authorization_required_code() )
@@ -160,11 +160,12 @@ class Connections_Post_Field {
 	 *
 	 * @see Publicize::get_filtered_connection_data()
 	 *
-	 * @param array $post_array Response from Post Endpoint.
+	 * @param array           $post_array Response from Post Endpoint.
+	 * @param WP_REST_Request $request API request.
 	 *
 	 * @return array List of connections
 	 */
-	public function get( $post_array ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get( $post_array, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $publicize;
 
 		$full_schema      = $this->get_schema();
@@ -197,7 +198,8 @@ class Connections_Post_Field {
 			return $is_valid;
 		}
 
-		return $output_connections;
+		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
+		return $this->filter_response_by_context( $output_connections, $full_schema, $context );
 	}
 
 	/**
@@ -368,4 +370,93 @@ class Connections_Post_Field {
 		}
 		$this->meta_saved[ $post->ID ] = true;
 	}
+
+	/**
+	 * Removes properties that should not appear in the current
+	 * request's context
+	 *
+	 * $context is a Core REST API Framework request attribute that is
+	 * always one of:
+	 * * view (what you see on the blog)
+	 * * edit (what you see in an editor)
+	 * * embed (what you see in, e.g., an oembed)
+	 *
+	 * Fields (and sub-fields, and sub-sub-...) can be flagged for a
+	 * set of specific contexts via the field's schema.
+	 *
+	 * The Core API will filter out top-level fields with the wrong
+	 * context, but will not recurse deeply enough into arrays/objects
+	 * to remove all levels of sub-fields with the wrong context.
+	 *
+	 * This function handles that recursion.
+	 *
+	 * @param mixed  $value   Value passed to API request.
+	 * @param array  $schema  Schema to validate against.
+	 * @param string $context REST API Request context.
+	 *
+	 * @return mixed Filtered $value
+	 */
+	public function filter_response_by_context( $value, $schema, $context ) {
+		if ( ! $this->is_valid_for_context( $schema, $context ) ) {
+			// We use this intentionally odd looking WP_Error object
+			// internally only in this recursive function (see below
+			// in the `object` case). It will never be output by the REST API.
+			// If we return this for the top level object, Core
+			// correctly remove the top level object from the response
+			// for us.
+			return new \WP_Error( '__wrong-context__' );
+		}
+
+		switch ( $schema['type'] ) {
+			case 'array':
+				if ( ! isset( $schema['items'] ) ) {
+					return $value;
+				}
+
+				// Shortcircuit if we know none of the items are valid for this context.
+				// This would only happen in a strangely written schema.
+				if ( ! $this->is_valid_for_context( $schema['items'], $context ) ) {
+					return array();
+				}
+
+				// Recurse to prune sub-properties of each item.
+				foreach ( $value as $key => $item ) {
+					$value[ $key ] = $this->filter_response_by_context( $item, $schema['items'], $context );
+				}
+
+				return $value;
+			case 'object':
+				if ( ! isset( $schema['properties'] ) ) {
+					return $value;
+				}
+
+				foreach ( $value as $field_name => $field_value ) {
+					if ( isset( $schema['properties'][ $field_name ] ) ) {
+						$field_value = $this->filter_response_by_context( $field_value, $schema['properties'][ $field_name ], $context );
+						if ( is_wp_error( $field_value ) && '__wrong-context__' === $field_value->get_error_code() ) {
+							unset( $value[ $field_name ] );
+						} else {
+							// Respect recursion that pruned sub-properties of each property.
+							$value[ $field_name ] = $field_value;
+						}
+					}
+				}
+
+				return (object) $value;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Ensure that our request matches its expected context.
+	 *
+	 * @param array  $schema  Schema to validate against.
+	 * @param string $context REST API Request context.
+	 * @return bool
+	 */
+	private function is_valid_for_context( $schema, $context ) {
+		return empty( $schema['context'] ) || in_array( $context, $schema['context'], true );
+	}
+
 }
