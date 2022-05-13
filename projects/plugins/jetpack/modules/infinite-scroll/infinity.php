@@ -1024,7 +1024,7 @@ class The_Neverending_Home_Page {
 
 			// Determine path for paginated version of current request
 			if ( preg_match( '#' . preg_quote( $wp_rewrite->pagination_base, '#' ) . '/\d+/?$#i', $wp->request ) ) {
-				$path = preg_replace( '#' . $wp_rewrite->pagination_base . '/\d+$#i', $wp_rewrite->pagination_base . '/%d', $wp->request );
+				$path = preg_replace( '#' . preg_quote( $wp_rewrite->pagination_base, '#' ) . '/\d+$#i', $wp_rewrite->pagination_base . '/%d', $wp->request );
 			} else {
 				$path = $wp->request . '/' . $wp_rewrite->pagination_base . '/%d';
 			}
