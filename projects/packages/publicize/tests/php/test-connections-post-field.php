@@ -66,11 +66,13 @@ class Test_Connections_Post_Field  extends TestCase {
 	public function set_up() {
 		$this->setup_jetpack_connections();
 		global $publicize;
-		$this->publicize = \Mockery::mock( Publicize::class )->makePartial();
-		$publicize       = $this->publicize;
+		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'refresh_connections' ) )->getMock();
 
-		$this->publicize->shouldReceive( 'refresh_connections' )->andReturn( true );
+		$this->publicize->method( 'refresh_connections' )
+			->withAnyParameters()
+			->willReturn( null );
 
+		$publicize = $this->publicize;
 		register_post_type(
 			'example-with',
 			array(
