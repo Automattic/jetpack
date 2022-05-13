@@ -96,6 +96,7 @@ class WPCOM_Features {
 	private const BLOGGER_BUNDLE_2Y                           = 'blogger-bundle-2y'; // 1030
 	private const ECOMMERCE_BUNDLE_2Y                         = 'ecommerce-bundle-2y'; // 1031
 	private const PRO_PLAN                                    = 'pro-plan'; // 1032
+	private const STARTER_PLAN                                = 'starter-plan'; // 1033
 	private const WP_P2_PLUS_MONTHLY                          = 'wp_p2_plus_monthly'; // 1040
 	private const JETPACK_PREMIUM                             = 'jetpack_premium'; // 2000
 	private const JETPACK_BUSINESS                            = 'jetpack_business'; // 2001
@@ -147,6 +148,7 @@ class WPCOM_Features {
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS       = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
 	private const WPCOM_PERSONAL_PLANS      = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y );
+	private const WPCOM_STARTER_PLANS       = array( self::STARTER_PLAN );
 	private const WPCOM_PREMIUM_PLANS       = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y );
 	private const WPCOM_PRO_PLANS           = array( self::PRO_PLAN );
 	private const WPCOM_BUSINESS_PLANS      = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y );
@@ -205,8 +207,8 @@ class WPCOM_Features {
 	private const WPCOM_TITAN_MAIL_PRODUCTS = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
 
 	// WPCOM "Level 3": Groups of level 2s.
-	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
-	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
+	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
+	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = array( self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = array( self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_EMAIL_PRODUCTS            = array( self::GOOGLE_WORKSPACE_PRODUCTS, self::GSUITE_PRODUCTS, self::WPCOM_TITAN_MAIL_PRODUCTS );
@@ -588,9 +590,11 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
+		// Deliberately leaves out the Starter plan
 		self::NO_ADVERTS_NO_ADVERTS_PHP     => array(
-			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
-			self::WPCOM_PRO_PLANS,
+			self::WPCOM_BLOGGER_PLANS,
+			self::WPCOM_PERSONAL_PLANS,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
 		// NO_WPCOM_BRANDING - Enable the ability to hide the WP.com branding in the site footer.
 		self::NO_WPCOM_BRANDING             => array(
@@ -701,9 +705,7 @@ class WPCOM_Features {
 		 * It allows to set a custom domain of the site as primary.
 		 *
 		 * Active for:
-		 * - Simple and Atomic sites with Premium or up plan.
-		 * - Blogger plans
-		 * - Personal plans
+		 * - Simple and Atomic sites with any standard WordPress.com plan
 		 */
 		self::SET_PRIMARY_CUSTOM_DOMAIN     => array(
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
