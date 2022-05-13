@@ -17,7 +17,6 @@ use WP_Error;
  * Class responsible for handling the Search product
  */
 class Search extends Hybrid_Product {
-
 	/**
 	 * The product slug
 	 *
@@ -106,12 +105,51 @@ class Search extends Hybrid_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array_merge(
+		// Basic pricing info.
+		$pricing = array_merge(
 			array(
 				'available'          => true,
 				'wpcom_product_slug' => static::get_wpcom_product_slug(),
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
+		);
+
+		$record_count = intval( Search_Stats::estimate_count() );
+
+		// Check whether the price is available.
+		// Bail early return the pricing info if not.
+		$product = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
+		if ( ! isset( $product->price_tier_list ) ) {
+			return $pricing;
+		}
+
+		// Sort the tiers.
+		$price_tier_list = $product->price_tier_list;
+		array_multisort( array_column( $price_tier_list, 'maximum_units' ), SORT_ASC, $price_tier_list );
+
+		// Pick the first tier that is less than or equal to the record count.
+		foreach ( $product->price_tier_list as $price_tier ) {
+			if ( $record_count <= $price_tier->maximum_units ) {
+				break;
+			}
+		}
+
+		// Compute the minimum price.
+		$minimum_price = $price_tier->minimum_price / 100;
+
+		// Re define the display price based on the tier.
+		$pricing = Wpcom_Products::populate_with_discount( $product, $pricing, $minimum_price );
+
+		// 1. Flat fee in the same tier, so for search, `minimum_price == maximum_price`.
+		// 2. `maximum_units` is empty on the highest tier, so the logic displays the highest or the highest matching tier.
+		return array_merge(
+			$pricing,
+			array(
+				'minimum_units'   => $price_tier->minimum_units,
+				'maximum_units'   => $price_tier->maximum_units,
+				'estimated_count' => $record_count,
+				'full_price'      => $minimum_price, // reset the full price to the minimum price.
+			)
 		);
 	}
 
