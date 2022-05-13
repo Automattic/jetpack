@@ -98,6 +98,13 @@ function fixDeps( pkg ) {
 		pkg.dependencies.browserslist = '^' + pkg.dependencies.browserslist;
 	}
 
+	// Override @types/react* dependencies in order to use their specific versions
+	for ( const dep of [ '@types/react', '@types/react-dom', '@types/react-test-renderer' ] ) {
+		if ( pkg.dependencies?.[ dep ] ) {
+			pkg.dependencies[ dep ] = '17.x';
+		}
+	}
+
 	// Regular expression DOS.
 	if ( pkg.dependencies.trim === '0.0.1' ) {
 		pkg.dependencies.trim = '^0.0.3';
@@ -135,12 +142,6 @@ function fixPeerDeps( pkg ) {
 	// https://github.com/creationix/git-node-fs/pull/8
 	if ( pkg.name === 'git-node-fs' && ! pkg.peerDependencies?.[ 'js-git' ] ) {
 		pkg.peerDependencies[ 'js-git' ] = '*';
-	}
-
-	// Override @types/react^17 peer dependency for @testing-library/react-hooks
-	// in order to use @types/react^18
-	if ( pkg.name === '@testing-library/react-hooks' && pkg.peerDependencies?.[ '@types/react' ] ) {
-		pkg.peerDependencies[ '@types/react' ] = '*';
 	}
 
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with
