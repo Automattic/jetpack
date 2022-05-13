@@ -33,7 +33,9 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	/**
-	 * Check the setting status.
+	 * Check whether tiling is enabled.
+	 *
+	 * @return bool
 	 */
 	public function tiles_enabled() {
 		return '' !== Jetpack_Options::get_option_and_ensure_autoload( 'tiled_galleries', '' );
@@ -91,6 +93,8 @@ class Jetpack_Tiled_Gallery {
 
 	/**
 	 * Get the media attachments.
+	 *
+	 * @return WP_Post[]
 	 */
 	public function get_attachments() {
 		$atts = $this->atts;
@@ -235,6 +239,8 @@ class Jetpack_Tiled_Gallery {
 
 	/**
 	 * See if gallery is already defined.
+	 *
+	 * @return bool
 	 */
 	public static function gallery_already_redefined() {
 		global $shortcode_tags;
@@ -352,12 +358,12 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	/**
-	 * Set the HTML.
+	 * Render the settings HTML.
 	 */
 	public function setting_html() {
 		echo '<label><input name="tiled_galleries" type="checkbox" value="1" ' .
 			checked( 1, '' !== get_option( 'tiled_galleries' ), false ) . ' /> ' .
-			__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ) . '</br></label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we set the text here.
+			esc_html__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ) . '</br></label>';
 	}
 }
 
