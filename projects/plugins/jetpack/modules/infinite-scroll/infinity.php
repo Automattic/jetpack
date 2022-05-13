@@ -464,12 +464,10 @@ class The_Neverending_Home_Page {
 	 * for the infinite_scroll setting.
 	 */
 	public function infinite_setting_html() {
-		$notice = '<em>' . __( 'We&rsquo;ve changed this option to a click-to-scroll version for you since you have footer widgets in Appearance &rarr; Widgets, or your theme uses click-to-scroll as the default behavior.', 'jetpack' ) . '</em>';
 
 		// If the blog has footer widgets, show a notice instead of the checkbox
 		if ( self::get_settings()->footer_widgets || 'click' === self::get_settings()->requested_type ) {
-			// @todo find out if this is even rendered any more and escape it if so.
-			echo '<label>' . $notice . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we know what the HTML is.
+			echo '<label><em>' . esc_html__( 'We&rsquo;ve changed this option to a click-to-scroll version for you since you have footer widgets in Appearance &rarr; Widgets, or your theme uses click-to-scroll as the default behavior.', 'jetpack' ) . '</em></label>';
 		} else {
 			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
 			// translators: the number of posts to show on each page load.
