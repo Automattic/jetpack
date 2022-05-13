@@ -162,7 +162,7 @@ class Jetpack_Tiled_Gallery {
 				'modules/tiled-gallery/tiled-gallery/tiled-gallery.js'
 			),
 			array(),
-			gmdate( 'YW' ),
+			JETPACK__VERSION,
 			false
 		);
 		wp_enqueue_style( 'tiled-gallery', plugins_url( 'tiled-gallery/tiled-gallery.css', __FILE__ ), array(), '2012-09-21' );
