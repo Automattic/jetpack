@@ -39,7 +39,7 @@ class UtilsTest extends TestCase {
 
 		Utils::error_clear_last();
 		$err = error_get_last();
-		$this->assertTrue( empty( $err['message'] ) );
+		$this->assertEmpty( $err['message'] );
 	}
 
 	/**
