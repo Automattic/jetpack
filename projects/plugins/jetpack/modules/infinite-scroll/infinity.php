@@ -1240,7 +1240,7 @@ class The_Neverending_Home_Page {
 		}
 
 		// Parse and sanitize the style handles already output
-		$initial_styles = isset( $_REQUEST['styles'] ) && is_array( $_REQUEST['styles'] ) ? array_map( 'sanitize_text_field', $_REQUEST['styles'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- no site changes made, unslashing breaks styling.
+		$initial_styles = isset( $_REQUEST['styles'] ) && is_array( $_REQUEST['styles'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_REQUEST['styles'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( is_array( $initial_styles ) ) {
 			global $wp_styles;
