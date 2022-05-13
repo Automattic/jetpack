@@ -1054,7 +1054,7 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	private function get_request_parameters() {
-		$uri = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		$uri = preg_replace( '/^[^?]*(\?.*$)/', '$1', $uri, 1, $count );
 		if ( $count !== 1 ) {
 			return '';
