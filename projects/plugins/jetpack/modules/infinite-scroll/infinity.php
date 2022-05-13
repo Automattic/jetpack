@@ -1037,7 +1037,7 @@ class The_Neverending_Home_Page {
 			$path = user_trailingslashit( $path );
 		} else {
 			// Clean up raw $_REQUEST input
-			$path = array_map( 'sanitize_text_field', $_REQUEST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- seems this is used for Google Analytics and browser history tracking.
+			$path = array_map( 'sanitize_text_field', wp_unslash( $_REQUEST ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- seems this is used for Google Analytics and browser history tracking.
 			$path = array_filter( $path );
 
 			$path['paged'] = '%d';
