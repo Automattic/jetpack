@@ -114,8 +114,8 @@ class The_Neverending_Home_Page {
 						switch ( $key ) {
 							case 'type':
 								if ( in_array( $value, array( 'scroll', 'click' ), true ) ) {
-									$settings[ $key ]           = $settings['requested_type'];
 									$settings['requested_type'] = $value;
+									$settings[ $key ]           = $settings['requested_type'];
 								}
 
 								break;
