@@ -647,53 +647,35 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * Saves the setting in the database, bumps a stat on WordPress.com
+	 * Saves the setting in the database.
 	 */
 	public function admin_settings_callback() {
 		// We're looking for these, and doing a dance to set some stats and save
 		// them together in array option.
-		$new_state = ! empty( $_POST['wpl_default'] ) ? sanitize_text_field( wp_unslash( $_POST['wpl_default'] ) ) : 'on'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-		$db_state  = $this->is_enabled_sitewide();
-
+		$new_state         = ! empty( $_POST['wpl_default'] ) ? sanitize_text_field( wp_unslash( $_POST['wpl_default'] ) ) : 'on'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 		$reblogs_new_state = ! empty( $_POST['jetpack_reblogs_enabled'] ) ? sanitize_text_field( wp_unslash( $_POST['jetpack_reblogs_enabled'] ) ) : 'on'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-		$reblogs_db_state  = $this->reblogs_enabled_sitewide();
-		/** Default State */
 
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- doesn't seem the $g_gif variable is used, but disabling phpcs check for now.
 		// Checked (enabled)
 		switch ( $new_state ) {
 			case 'off':
-				if ( true === $db_state && ! $this->in_jetpack ) {
-					$g_gif = wp_remote_get( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_likes=disabled_likes' );
-				}
 				update_option( 'disabled_likes', 1 );
 				break;
 			case 'on':
 			default:
-				if ( false === $db_state && ! $this->in_jetpack ) {
-					$g_gif = wp_remote_get( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_likes=reenabled_likes' );
-				}
 				delete_option( 'disabled_likes' );
 				break;
 		}
 
 		switch ( $reblogs_new_state ) {
 			case 'off':
-				if ( true === $reblogs_db_state && ! $this->in_jetpack ) {
-					$g_gif = wp_remote_get( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_reblogs=disabled_reblogs' );
-				}
 				update_option( 'disabled_reblogs', 1 );
 				break;
 			case 'on':
 			default:
-				if ( false === $reblogs_db_state && ! $this->in_jetpack ) {
-					$g_gif = wp_remote_get( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_reblogs=reenabled_reblogs' );
-				}
 				delete_option( 'disabled_reblogs' );
 				break;
 		}
 
-		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// WPCOM only: Comment Likes
 		if ( ! $this->in_jetpack ) {
 			$new_comments_state = ! empty( $_POST['jetpack_comment_likes_enabled'] ) ? sanitize_option( wp_unslash( $_POST['jetpack_comment_likes_enabled'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no changes to the site, only enable or disabling comment likes.
