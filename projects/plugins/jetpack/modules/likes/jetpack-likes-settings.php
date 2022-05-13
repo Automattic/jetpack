@@ -1,9 +1,16 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Sync\Settings;
 
+/**
+ * Jetpack likes settings class.
+ */
 class Jetpack_Likes_Settings {
-	function __construct() {
+
+	/**
+	 * Constructor function.
+	 */
+	public function __construct() {
 		$this->in_jetpack = ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 	}
 
@@ -51,6 +58,8 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Shows the likes option in the post screen metabox.
+	 *
+	 * @param object $post - the post object.
 	 */
 	public function meta_box_content( $post ) {
 		$post_id         = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
@@ -113,19 +122,24 @@ class Jetpack_Likes_Settings {
 		return (bool) apply_filters( 'wpl_is_enabled_sitewide', ! Jetpack_Options::get_option_and_ensure_autoload( 'disabled_likes', 0 ) );
 	}
 
+	/**
+	 * Handle meta box saving.
+	 *
+	 * @param int $post_id - the post ID.
+	 */
 	public function meta_box_save( $post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return $post_id;
 		}
 
-		if ( empty( $_POST['wpl_like_status_hidden'] ) ) {
+		if ( empty( $_POST['wpl_like_status_hidden'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we're not changing anything on the site.
 			return $post_id;
 		}
 
 		// Record sharing disable. Only needs to be done for WPCOM.
 		if ( ! $this->in_jetpack ) {
-			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ) ) ) {
-				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) ) {
+			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 					update_post_meta( $post_id, 'sharing_disabled', 1 );
 				} else {
 					delete_post_meta( $post_id, 'sharing_disabled' );
@@ -133,7 +147,7 @@ class Jetpack_Likes_Settings {
 			}
 		}
 
-		if ( 'post' == $_POST['post_type'] ) {
+		if ( 'post' === $_POST['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
 				return $post_id;
 			}
@@ -165,7 +179,9 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * WordPress.com: Metabox option for sharing (sharedaddy will handle this on the JP blog)
+	 * WordPress.com: Metabox option for sharing (sharedaddy will handle this on the JP blog).
+	 *
+	 * @param object $post - the post object.
 	 */
 	public function sharing_meta_box_content( $post ) {
 		$post_id  = ! empty( $post->ID ) ? (int) $post->ID : get_the_ID();
@@ -174,7 +190,7 @@ class Jetpack_Likes_Settings {
 		<p>
 			<label for="wpl_enable_post_sharing">
 				<input type="checkbox" name="wpl_enable_post_sharing" id="wpl_enable_post_sharing" value="1" <?php checked( ! $disabled ); ?>>
-				<?php _e( 'Show sharing buttons.', 'jetpack' ); ?>
+				<?php esc_html_e( 'Show sharing buttons.', 'jetpack' ); ?>
 			</label>
 			<input type="hidden" name="wpl_sharing_status_hidden" value="1" />
 		</p> 
@@ -245,10 +261,10 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Are likes enabled for this post?
 	 *
-	 * @param int $post_id
+	 * @param int $post_id - the post ID.
 	 * @return bool
 	 */
-	function is_post_likeable( $post_id = 0 ) {
+	public function is_post_likeable( $post_id = 0 ) {
 		$post = get_post( $post_id );
 		if ( ! $post || is_wp_error( $post ) ) {
 			return false;
