@@ -51,7 +51,7 @@
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
 		"@babel/runtime": "7.17.9",
-		"webpack": "^5.51.1"
+		"webpack": "^5.67.0"
 	},
 	"peerDependenciesMeta": {
 		"@babel/core": {
