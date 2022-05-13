@@ -260,7 +260,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		switch ( $action ) {
 			case 'blog':
 				Jetpack::log( 'disconnect' );
-				Jetpack::disconnect();
+				( new Connection_Manager( 'jetpack' ) )->disconnect_site();
 				WP_CLI::success(
 					sprintf(
 						/* translators: %s is the site URL */

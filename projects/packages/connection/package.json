@@ -1,0 +1,37 @@
+{
+	"private": true,
+	"description": "Everything needed to connect to the Jetpack infrastructure",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/connection/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Connection"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/connection"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-js",
+		"build-js": "webpack",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
+		"clean": "rm -rf dist",
+		"validate": "pnpm exec validate-es dist/"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.2",
+		"@wordpress/browserslist-config": "4.1.2",
+		"webpack": "5.65.0",
+		"webpack-cli": "4.9.1"
+	},
+	"engines": {
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.32.3",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

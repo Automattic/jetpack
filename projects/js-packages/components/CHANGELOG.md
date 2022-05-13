@@ -2,6 +2,16 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.12.0 - 2022-05-10
+### Changed
+- Converted Text component to TypeScript [#24256]
+- JS Components: re-write Alter component with TS [#24204]
+- JS Components: typescriptify Dialog component [#24257]
+- Updated package dependencies [#24276]
+
+### Fixed
+- JS Components: fix Warning when defining AdminPage header prop [#24236]
+
 ## 0.11.4 - 2022-05-04
 ### Added
 - Add missing JavaScript dependencies. [#24096]

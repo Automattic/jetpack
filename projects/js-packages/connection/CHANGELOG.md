@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.18.0 - 2022-05-10
+### Changed
+- Do not hard disconnect Jetpack on deactivation [#24272]
+- Updated package dependencies. [#24204]
+- Updated references to old licensing activation UI to licensing activation UI in My Jetpack [#24189]
+- Update tests for updated `@testing-library/user-event`. [#24276]
+
 ## 0.17.12 - 2022-05-04
 ### Added
 - Add missing JavaScript dependencies. [#24096]

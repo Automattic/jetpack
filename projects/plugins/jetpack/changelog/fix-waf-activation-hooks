@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Add activation/deactivation hooks for proper setup of the waf module

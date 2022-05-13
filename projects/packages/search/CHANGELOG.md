@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.3] - 2022-05-10
+### Added
+- Add missing JS dep on `core-js`. [#24288]
+
+### Changed
+- Search: refactored Settings to expose the settings array for sync [#24167]
+- Updated package dependencies. [#24189]
+- Updated package dependencies. [#24204]
+- Updated package dependencies. [#24302]
+- Updated package dependencies [#24276]
+- Updated package dependencies [#24296]
+- Updated package dependencies [#24301]
+
+### Fixed
+- Search: Fix left padding for upsell page [#24285]
+- Search: handle tiers without a record limit in Record Meter [#24264]
+
 ## [0.13.2] - 2022-05-04
 ### Added
 - Add missing JavaScript dependencies. [#24096]
@@ -259,6 +276,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.13.3]: https://github.com/Automattic/jetpack-search/compare/v0.13.2...v0.13.3
 [0.13.2]: https://github.com/Automattic/jetpack-search/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/Automattic/jetpack-search/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/Automattic/jetpack-search/compare/v0.12.3...v0.13.0

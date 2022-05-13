@@ -646,6 +646,7 @@ class VideoPress_Player {
 				case 'muted':
 				case 'controls':
 				case 'playsinline':
+				case 'useAverageColor':
 					if ( in_array( $value, array( 1, 'true' ) ) ) {
 						$videopress_options[ $option ] = true;
 					} elseif ( in_array( $value, array( 0, 'false' ) ) ) {

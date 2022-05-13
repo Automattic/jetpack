@@ -31,18 +31,20 @@ describe( 'Rating', () => {
 		expect( screen.getByText( 'Things are just fine!' ) ).toBeInTheDocument();
 	} );
 
-	test( 'fires click event handler callbacks', () => {
+	test( 'fires click event handler callbacks', async () => {
+		const user = userEvent.setup();
 		render( <Rating { ...defaultProps } /> );
-		userEvent.click( screen.getByRole( 'button' ) );
-		expect( setRatingMock ).toBeCalledTimes(1 );
+		await user.click( screen.getByRole( 'button' ) );
+		expect( setRatingMock ).toBeCalledTimes( 1 );
 		expect( setRatingMock ).toBeCalledWith( defaultProps.id );
 	} );
 
-	test( 'fires keydown event handler callbacks', () => {
+	test.only( 'fires keydown event handler callbacks', async () => {
+		const user = userEvent.setup();
 		render( <Rating { ...defaultProps } /> );
-		userEvent.type( screen.getByRole( 'button' ), '{enter}' );
+		await user.type( screen.getByRole( 'button' ), '{enter}' );
 		// A focused keypress event fires both keydown and click so we expect two executions
-		expect( setRatingMock ).toBeCalledTimes(2 );
+		expect( setRatingMock ).toBeCalledTimes( 2 );
 		expect( setRatingMock.mock.calls[0][0] ).toBe( defaultProps.id );
 		expect( setRatingMock.mock.calls[1][0] ).toBe( defaultProps.id );
 	} );

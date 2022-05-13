@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Setup lazy-images filters to run on 'the_post' hook not 'wp_head' to fix a variety of issues.
