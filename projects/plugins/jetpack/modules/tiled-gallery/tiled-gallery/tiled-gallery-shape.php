@@ -401,7 +401,10 @@ class Jetpack_Tiled_Gallery_Three_Columns extends Jetpack_Tiled_Gallery_Shape {
 
 		$total_ratio              = $this->sum_ratios( $this->images_left );
 		$approximate_column_ratio = $total_ratio / 3;
-		$column_one_images        = $column_two_images = $column_three_images = $sum = 0; // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found
+		$column_one_images        = 0;
+		$column_two_images        = 0;
+		$column_three_images      = 0;
+		$sum                      = 0;
 
 		foreach ( $this->images as $image ) {
 			if ( $sum <= $approximate_column_ratio ) {
