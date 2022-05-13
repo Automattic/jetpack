@@ -40,7 +40,7 @@ if ( isset( $item->size ) ) {
 	</a>
 	<?php endif; ?>
 
-	<?php if ( $this->grayscale ) :  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable ?>
+	<?php if ( ! empty( $this->grayscale ) ) : ?>
 		<?php if ( $add_link ) : ?>
 		<a href="<?php echo esc_url( $item->link ); ?>" border="0" itemprop="url">
 		<?php endif; ?>
@@ -66,7 +66,7 @@ if ( isset( $item->size ) ) {
 
 	<?php if ( trim( $item->image->post_excerpt ) ) : ?>
 		<div class="tiled-gallery-caption" itemprop="caption description">
-			<?php echo esc_html( wptexturize( $item->image->post_excerpt ) ); ?>
+			<?php echo wptexturize( $item->image->post_excerpt ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</div>
 	<?php endif; ?>
 </div>
