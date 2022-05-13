@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -28,7 +29,7 @@ class Test_Connections_Post_Field  extends TestCase {
 	 *
 	 * @var array
 	 */
-	private static $connection_ids = array();
+	private static $connection_ids = array( 'test-unique-id456', 'test-unique-id123' );
 
 	/**
 	 * Draft ID.
@@ -63,7 +64,12 @@ class Test_Connections_Post_Field  extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
+		$this->setup_jetpack_connections();
+		global $publicize;
 		$this->publicize = \Mockery::mock( Publicize::class )->makePartial();
+		$publicize       = $this->publicize;
+
+		$this->publicize->shouldReceive( 'refresh_connections' )->andReturn( true );
 
 		register_post_type(
 			'example-with',
@@ -88,7 +94,6 @@ class Test_Connections_Post_Field  extends TestCase {
 				'role'       => 'susbcriber',
 			)
 		);
-		wp_set_current_user( $this->admin_id );
 
 		global $wp_rest_server;
 
@@ -103,6 +108,9 @@ class Test_Connections_Post_Field  extends TestCase {
 		do_action( 'rest_api_init' );
 
 		wp_set_current_user( $this->admin_id );
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+		$user->set_role( 'administrator' );
 
 		$this->draft_id = wp_insert_post(
 			array(
@@ -136,7 +144,6 @@ class Test_Connections_Post_Field  extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
-
 		unregister_post_type( 'example-with' );
 		unregister_post_type( 'example-without' );
 		$publicizeable_post_types = array();
@@ -196,5 +203,135 @@ class Test_Connections_Post_Field  extends TestCase {
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
 		$this->assertArrayHasKey( 'meta', $schema['properties'] );
 		$this->assertArrayHasKey( 'jetpack_publicize_message', $schema['properties']['meta']['properties'] );
+	}
+
+	/**
+	 * Test the response of a post
+	 */
+	public function test_response() {
+
+		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'jetpack_publicize_connections', $data );
+		$this->assertIsArray( $data['jetpack_publicize_connections'] );
+		$this->assertSame( self::$connection_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
+
+		$this->assertArrayHasKey( 'meta', $data );
+		$this->assertArrayHasKey( 'jetpack_publicize_message', $data['meta'] );
+		$this->assertIsString( $data['meta']['jetpack_publicize_message'] );
+		$this->assertEmpty( $data['meta']['jetpack_publicize_message'] );
+	}
+
+	/**
+	 * Dummy function to initialize publicize connections.
+	 */
+	public function get_connections() {
+		return array(
+			'publicize_connections' => array(
+				// Normally connected facebook.
+				'facebook' => array(
+					'id_number' => array(
+						'connection_data' => array(
+							'user_id'  => self::$user_id,
+							'token_id' => 'test-unique-id456',
+							'meta'     => array(
+								'display_name' => 'test-display-name456',
+							),
+						),
+					),
+				),
+				// Globally connected tumblr.
+				'tumblr'   => array(
+					'id_number' => array(
+						'connection_data' => array(
+							'user_id'  => 0,
+							'token_id' => 'test-unique-id123',
+							'meta'     => array(
+								'display_name' => 'test-display-name123',
+							),
+						),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Dummy function to initialize publicize connections.
+	 */
+	public function setup_jetpack_connections() {
+		Jetpack_Options::update_options(
+			$this->get_connections()
+		);
+	}
+
+	/**
+	 * Test updating jetpack_publicize_message.
+	 */
+	public function test_update_message() {
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request->set_body_params(
+			array(
+				'meta' => array(
+					'jetpack_publicize_message' => 'example',
+				),
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame( 'example', $data['meta']['jetpack_publicize_message'] );
+	}
+
+	/**
+	 * Test updating by connection id.
+	 */
+	public function test_update_connections_by_id() {
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request->set_body_params(
+			array(
+				'jetpack_publicize_connections' => array(
+					array(
+						'id'      => 'test-unique-id123',
+						'enabled' => false,
+					),
+				),
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertNotEmpty( $data['jetpack_publicize_connections'] );
+
+		foreach ( $data['jetpack_publicize_connections'] as $connection ) {
+			$this->assertSame( 'test-unique-id123' !== $connection->id, $connection->enabled );
+		}
+	}
+
+	/**
+	 * Test updating by service name.
+	 */
+	public function test_update_connections_by_service_name() {
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request->set_body_params(
+			array(
+				'jetpack_publicize_connections' => array(
+					array(
+						'service_name' => 'facebook',
+						'enabled'      => false,
+					),
+				),
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertNotEmpty( $data['jetpack_publicize_connections'] );
+
+		foreach ( $data['jetpack_publicize_connections'] as $connection ) {
+			$this->assertSame( 'facebook' !== $connection->service_name, $connection->enabled );
+		}
 	}
 }
