@@ -258,7 +258,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( $events[0]->args[1]['role_changed'] );
 		$this->assertEquals( $events[0]->args[1]['previous_role'], array( 'subscriber' ) );
-		$this->assertEmpty( $events[1] );
+		$this->assertCount( 1, $events );
 	}
 
 	public function test_user_remove_role_is_synced() {
