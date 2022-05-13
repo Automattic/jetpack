@@ -65,6 +65,22 @@ class Test_Connections_Post_Field  extends TestCase {
 	public function set_up() {
 		$this->publicize = \Mockery::mock( Publicize::class )->makePartial();
 
+		register_post_type(
+			'example-with',
+			array(
+				'show_in_rest' => true,
+				'supports'     => array( 'publicize', 'custom-fields' ),
+			)
+		);
+
+		register_post_type(
+			'example-without',
+			array(
+				'show_in_rest' => true,
+				'supports'     => array( 'publicize' ),
+			)
+		);
+
 		$this->admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_user3',
@@ -81,9 +97,9 @@ class Test_Connections_Post_Field  extends TestCase {
 		add_post_type_support( 'post', 'publicize' );
 
 		// Register REST routes.
-		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ), 6 );
+		$this->publicize->register_post_meta();
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ), 4 );
 		add_action( 'rest_api_init', array( new Connections_Post_Field(), 'register_fields' ), 5 );
-
 		do_action( 'rest_api_init' );
 
 		wp_set_current_user( $this->admin_id );
@@ -120,6 +136,9 @@ class Test_Connections_Post_Field  extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
+
+		unregister_post_type( 'example-with' );
+		unregister_post_type( 'example-without' );
 		$publicizeable_post_types = array();
 		foreach ( get_post_types() as $post_type ) {
 			if ( ! $this->publicize->post_type_is_publicizeable( $post_type ) ) {
@@ -137,16 +156,45 @@ class Test_Connections_Post_Field  extends TestCase {
 	}
 
 	/**
-	 * Test the schema.
-	 *
-	 * @after
+	 * Test register fields post
 	 */
-	public function test_post_fields_schema() {
-
+	public function test_register_fields_posts() {
 		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/posts' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 		$schema   = $data['schema'];
+
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
+		$this->assertArrayHasKey( 'meta', $schema['properties'] );
+		$this->assertArrayHasKey( 'jetpack_publicize_message', $schema['properties']['meta']['properties'] );
+	}
+
+	/**
+	 * Test register fields post with custom fields
+	 */
+	public function test_register_fields_custom_post_type_with_custom_fields_support() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-with' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$schema = $data['schema'];
+
+		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
+		$this->assertArrayHasKey( 'meta', $schema['properties'] );
+		$this->assertArrayHasKey( 'jetpack_publicize_message', $schema['properties']['meta']['properties'] );
+	}
+
+	/**
+	 * Test register fields post without custom fields
+	 */
+	public function test_register_fields_custom_post_type_without_custom_fields_support() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-without' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$schema   = $data['schema'];
+
+		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
+		$this->assertArrayHasKey( 'meta', $schema['properties'] );
+		$this->assertArrayHasKey( 'jetpack_publicize_message', $schema['properties']['meta']['properties'] );
 	}
 }
