@@ -179,7 +179,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 * @return array
 	 */
 	public function pre_http_request_success( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->dedicated_sync_request_spawned = rest_url( 'jetpack/v4/sync/spawn-sync' ) === $url;
+		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(
 			'success' => true,

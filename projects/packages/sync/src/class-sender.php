@@ -336,6 +336,8 @@ class Sender {
 	 * @access public
 	 */
 	public function do_dedicated_sync_and_exit() {
+		nocache_headers();
+
 		if ( ! Settings::is_dedicated_sync_enabled() ) {
 			return new WP_Error( 'dedicated_sync_disabled', 'Dedicated Sync flow is disabled.' );
 		}

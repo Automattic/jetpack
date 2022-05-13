@@ -27,7 +27,6 @@ class Dedicated_Sender {
 	 * jetpack_dedicated_sync_request is set, false otherwise.
 	 */
 	public static function is_dedicated_sync_request() {
-
 		$is_dedicated_sync_request = isset( $_SERVER['REQUEST_URI'] ) &&
 			strpos( wp_unslash( $_SERVER['REQUEST_URI'] ), 'jetpack/v4/sync/spawn-sync' ) > 0;  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
@@ -70,6 +69,7 @@ class Dedicated_Sender {
 		}
 
 		$url  = rest_url( 'jetpack/v4/sync/spawn-sync' );
+		$url  = add_query_arg( 'time', time(), $url ); // Enforce Cache busting.
 		$args = array(
 			'cookies'   => $_COOKIE,
 			'blocking'  => false,
