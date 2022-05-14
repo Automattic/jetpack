@@ -148,6 +148,10 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 			}
 		}
 		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $position );
+
+		if ( defined( 'JETPACK_CLONE_SETTINGS_ENABLE' ) && JETPACK_CLONE_SETTINGS_ENABLE ) {
+			add_submenu_page( 'jetpack', esc_attr__( 'Clone Settings', 'jetpack' ), __( 'Clone Settings', 'jetpack' ), 'manage_options', 'https://wordpress.com/jetpack-clone-settings/' . $this->domain, null, $position + 1 );
+		}
 	}
 
 	/**
