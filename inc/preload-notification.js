@@ -12,7 +12,7 @@ function load_preload_status() {
 	jQuery.get({
 		url: wpsc_preload_ajax.preload_permalink_url + '?' + Math.random(),
 		success: function( response ) {
-			jQuery( '#preload_status' ).html( response );
+			jQuery( '#preload_status' ).text( response );
 		}
 	})
 }
