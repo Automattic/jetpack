@@ -27,6 +27,12 @@ import { getMessageByProductType } from './utils';
 import { CURRENCY_OPTIONS } from '../../currencies';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 
+const DEFAULT_CURRENCY = 'USD';
+const DEFAULT_PRICE = 5;
+const DEFAULT_INTERVAL = '1 month';
+const DEFAULT_IS_MARKED_AS_DONATION = false;
+const DEFAULT_IS_CUSTOM_AMOUNT = false;
+
 export default function ProductManagementInspectorControl() {
 	const { productType, setSelectedProductId } = useProductManagementContext();
 	const { shouldUpgrade, siteSlug } = useSelect( select => {
@@ -42,11 +48,11 @@ export default function ProductManagementInspectorControl() {
 	const [ title, setTitle ] = useState(
 		getMessageByProductType( 'default new product title', productType )
 	);
-	const [ currency, setCurrency ] = useState( 'USD' );
-	const [ price, setPrice ] = useState( 5 );
-	const [ interval, setInterval ] = useState( '1 month' );
-	const [ isMarkedAsDonation, setIsMarkedAsDonation ] = useState( false );
-	const [ isCustomAmount, setIsCustomAmount ] = useState( false );
+	const [ currency, setCurrency ] = useState( DEFAULT_CURRENCY );
+	const [ price, setPrice ] = useState( DEFAULT_PRICE );
+	const [ interval, setInterval ] = useState( DEFAULT_INTERVAL );
+	const [ isMarkedAsDonation, setIsMarkedAsDonation ] = useState( DEFAULT_IS_MARKED_AS_DONATION );
+	const [ isCustomAmount, setIsCustomAmount ] = useState( DEFAULT_IS_CUSTOM_AMOUNT );
 
 	const intervalOptions = [
 		{ label: __( 'Month', 'jetpack' ), value: '1 month' },
@@ -72,8 +78,13 @@ export default function ProductManagementInspectorControl() {
 			success => {
 				setApiState( API_STATE_NOT_REQUESTING );
 				if ( success ) {
-					setPrice( 5 );
-					setTitle( '' );
+					const defaultTitle = getMessageByProductType( 'default new product title', productType );
+					setPrice( DEFAULT_PRICE );
+					setTitle( defaultTitle );
+					setInterval( DEFAULT_INTERVAL );
+					setIsMarkedAsDonation( DEFAULT_IS_MARKED_AS_DONATION );
+					setIsCustomAmount( DEFAULT_IS_CUSTOM_AMOUNT );
+					setCurrency( DEFAULT_CURRENCY );
 				}
 			}
 		);

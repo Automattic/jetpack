@@ -51,6 +51,10 @@ class Waf_Standalone_Bootstrap {
 	 * @return void
 	 */
 	protected function initialize_filesystem() {
+		if ( ! function_exists( '\\WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
 		WP_Filesystem();
 	}
 
@@ -124,12 +128,16 @@ class Waf_Standalone_Bootstrap {
 			throw new Exception( 'Can not work without the file system being initialized.' );
 		}
 
-		$bootstrap_file = $this->get_bootstrap_file_path();
-		$mode_option    = get_option( Waf_Runner::MODE_OPTION_NAME, false );
+		$bootstrap_file    = $this->get_bootstrap_file_path();
+		$mode_option       = get_option( Waf_Runner::MODE_OPTION_NAME, false );
+		$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
 
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
 		$code = "<?php\n"
+			. sprintf( "define( 'DISABLE_JETPACK_WAF', %s );\n", var_export( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF, true ) )
+			. "if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) return;\n"
 			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( $mode_option ? $mode_option : 'silent', true ) )
+			. sprintf( "define( 'JETPACK_WAF_SHARE_DATA', %s );\n", var_export( $share_data_option, true ) )
 			. sprintf( "define( 'JETPACK_WAF_DIR', %s );\n", var_export( JETPACK_WAF_DIR, true ) )
 			. sprintf( "define( 'JETPACK_WAF_WPCONFIG', %s );\n", var_export( JETPACK_WAF_WPCONFIG, true ) )
 			. 'require_once ' . var_export( $this->locate_autoloader_file(), true ) . ";\n"

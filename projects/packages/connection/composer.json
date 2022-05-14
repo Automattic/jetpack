@@ -25,6 +25,12 @@
 		]
 	},
 	"scripts": {
+		"build-production": [
+			"pnpm run build-production"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],

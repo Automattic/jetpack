@@ -39,7 +39,7 @@ class UtilsTest extends TestCase {
 
 		Utils::error_clear_last();
 		$err = error_get_last();
-		$this->assertTrue( empty( $err['message'] ) );
+		$this->assertTrue( empty( $err['message'] ) ); // phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertEmpty -- We need the potential error suppression, behavior varies by PHP version.
 	}
 
 	/**

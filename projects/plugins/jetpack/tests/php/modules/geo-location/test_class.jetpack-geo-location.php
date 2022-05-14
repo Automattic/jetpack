@@ -92,7 +92,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance    = $this->get_instance();
 		$meta_values = $instance->get_meta_values( 100 );
 
-		$this->assertTrue( is_array( $meta_values ) );
+		$this->assertIsArray( $meta_values );
 
 		$this->assertArrayHasKey( 'is_public', $meta_values );
 		$this->assertArrayHasKey( 'latitude', $meta_values );
@@ -111,7 +111,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance    = $this->get_instance();
 		$meta_values = $instance->get_meta_values( null );
 
-		$this->assertTrue( is_array( $meta_values ) );
+		$this->assertIsArray( $meta_values );
 
 		$this->assertArrayHasKey( 'is_public', $meta_values );
 		$this->assertArrayHasKey( 'latitude', $meta_values );
@@ -130,7 +130,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance    = $this->get_instance_with_mock_public_post();
 		$meta_values = $instance->get_meta_values( 1 );
 
-		$this->assertTrue( is_array( $meta_values ) );
+		$this->assertIsArray( $meta_values );
 
 		$this->assertArrayHasKey( 'is_public', $meta_values );
 		$this->assertArrayHasKey( 'latitude', $meta_values );

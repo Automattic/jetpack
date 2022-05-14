@@ -22,7 +22,7 @@ describe( 'load the app', () => {
 	test( 'container renders', () => {
 		render( <RecordMeter /> );
 
-		const recordmetercontainer = screen.queryByTestId( 'record-meter' );
-		expect( recordmetercontainer ).toBeInTheDocument();
+		const container = screen.queryByTestId( 'record-meter' );
+		expect( container ).toBeInTheDocument();
 	} );
 } );
