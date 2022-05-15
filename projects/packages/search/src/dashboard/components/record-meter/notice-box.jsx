@@ -123,7 +123,7 @@ export function NoticeBox( props ) {
 			onDismissClick={ dismissNoticeBox }
 			icon={ 'info-outline' }
 		>
-			{ notice.header && <span className="dops-notice__header">{ notice.header }</span> }
+			{ notice.header && <h3 className="dops-notice__header">{ notice.header }</h3> }
 			<span className="dops-notice__body">{ notice.message }</span>
 			{ notice.link && (
 				<NoticeAction href={ notice.link.url } external={ true }>
