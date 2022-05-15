@@ -73,17 +73,22 @@ InterstitialJetpackBackup.parameters = {};
 InterstitialJetpackBackup.args = {
 	primary: (
 		<ProductOffer
-			slug="boost"
-			name="Boost"
-			title="Jepack Boost"
-			description="Jetpack Boost gives your site the same performance advantages as the world’s leading websites, no developer required."
+			slug={ 'backup' }
+			name={ 'Backup' }
+			title={ 'Jepack Backup' }
+			description={
+				'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.'
+			}
 			features={ [
-				'Check your site performance',
-				'Enable improvements in one click',
-				'Standalone free plugin for those focused on speed',
+				'Real-time cloud backups',
+				'10GB of backup storage',
+				'30-day archive & activity log',
+				'One-click restores',
 			] }
 			pricing={ {
-				isFree: true,
+				currency: 'USD',
+				price: 24.92,
+				offPrice: 12.42,
 			} }
 			isCard={ true }
 			className={ '' }
