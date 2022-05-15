@@ -108,18 +108,18 @@ class Connections_Post_Field {
 				'enabled'         => array(
 					'description' => __( 'Whether to share to this connection', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
+					'context'     => array( 'view', 'edit' ),
 				),
 				'done'            => array(
 					'description' => __( 'Whether Publicize has already finished sharing for this post', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
+					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'toggleable'      => array(
 					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
+					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 			),
