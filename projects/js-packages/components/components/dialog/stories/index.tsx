@@ -39,9 +39,9 @@ export default {
 
 const Template = args => <Dialog { ...args } />;
 
-export const InterstitialJetpackBoost = Template.bind( {} );
-InterstitialJetpackBoost.parameters = {};
-InterstitialJetpackBoost.args = {
+export const JetpackBoost = Template.bind( {} );
+JetpackBoost.parameters = {};
+JetpackBoost.args = {
 	primary: (
 		<ProductOffer
 			slug="boost"
@@ -68,9 +68,9 @@ InterstitialJetpackBoost.args = {
 	isTwoSections: false,
 };
 
-export const InterstitialJetpackBackup = Template.bind( {} );
-InterstitialJetpackBackup.parameters = {};
-InterstitialJetpackBackup.args = {
+export const JetpackBackup = Template.bind( {} );
+JetpackBackup.parameters = {};
+JetpackBackup.args = {
 	primary: (
 		<ProductOffer
 			slug={ 'backup' }
