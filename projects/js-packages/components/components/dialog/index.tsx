@@ -14,7 +14,7 @@ import Col from '../layout/col';
 type DialogProps = {
 	primary: React.ReactNode;
 	secondary: React.ReactNode;
-	split?: boolean;
+	twoColumns?: boolean;
 };
 
 /**
@@ -23,12 +23,12 @@ type DialogProps = {
  * @param {object} props                    - React component props.
  * @param {React.ReactNode} props.primary   - Primary content.
  * @param {React.ReactNode} props.secondary - Secondary content.
- * @param {boolean} props.split			    - Split the sections.
+ * @param {boolean} props.twoColumns        - Whether to display the dialog in two columns.
  * @returns {React.ReactNode}                 Rendered dialog
  */
-const Dialog: React.FC< DialogProps > = ( { primary, secondary, split = false } ) => {
+const Dialog: React.FC< DialogProps > = ( { primary, secondary, twoColumns = false } ) => {
 	const classNames = classnames( {
-		[ styles.container ]: ! split,
+		[ styles[ 'one-column-style' ] ]: ! twoColumns,
 	} );
 
 	return (
