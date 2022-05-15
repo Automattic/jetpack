@@ -14,7 +14,7 @@ import useBreakpointMatch from '../layout/use-breakpoint-match';
 
 type DialogProps = {
 	primary: React.ReactNode;
-	secondary: React.ReactNode;
+	secondary?: React.ReactNode;
 	isTwoSections?: boolean;
 };
 
@@ -22,8 +22,8 @@ type DialogProps = {
  * Dialog component.
  *
  * @param {object} props                    - React component props.
- * @param {React.ReactNode} props.primary   - Primary content.
- * @param {React.ReactNode} props.secondary - Secondary content.
+ * @param {React.ReactNode} props.primary   - Primary-section content.
+ * @param {React.ReactNode} props.secondary - Secondary-section content.
  * @param {boolean} props.isTwoSections     - Handle two sections layout when true.
  * @returns {React.ReactNode}                 Rendered dialog
  */

@@ -8,9 +8,8 @@ import React from 'react';
  * Internal dependencies
  */
 import ProductOffer from '../../product-offer';
-import Dialog from '../';
+import Dialog from '..';
 import BoostImage from './boost.png';
-import styles from './style.module.scss';
 
 export default {
 	title: 'JS Packages/Components/Dialog',
@@ -39,21 +38,6 @@ export default {
 };
 
 const Template = args => <Dialog { ...args } />;
-
-export const _default = Template.bind( {} );
-_default.args = {
-	primary: (
-		<div className={ styles.primary }>
-			<h3>4 | 5 | 7</h3>
-		</div>
-	),
-	secondary: (
-		<div className={ styles.secondary }>
-			<h3>4 | 3 | 5</h3>
-		</div>
-	),
-	isTwoSections: true,
-};
 
 export const InterstitialJetpackBoost = Template.bind( {} );
 InterstitialJetpackBoost.parameters = {};
