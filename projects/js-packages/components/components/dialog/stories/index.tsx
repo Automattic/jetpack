@@ -30,7 +30,7 @@ export default {
 				disable: true,
 			},
 		},
-		twoColumns: {
+		isTwoSections: {
 			table: {
 				disable: true,
 			},
@@ -52,7 +52,7 @@ _default.args = {
 			<h3>4 | 3 | 5</h3>
 		</div>
 	),
-	twoColumns: true,
+	isTwoSections: true,
 };
 
 export const InterstitialJetpackBoost = Template.bind( {} );
@@ -81,7 +81,7 @@ InterstitialJetpackBoost.args = {
 		/>
 	),
 	secondary: <img src={ BoostImage } alt="Boost" />,
-	twoColumns: false,
+	isTwoSections: false,
 };
 
 export const InterstitialJetpackBackup = Template.bind( {} );
@@ -136,5 +136,5 @@ InterstitialJetpackBackup.args = {
 			addProductUrl={ '' }
 		/>
 	),
-	twoColumns: true,
+	isTwoSections: true,
 };
