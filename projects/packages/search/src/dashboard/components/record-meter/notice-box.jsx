@@ -39,7 +39,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 			message: sprintf(
 				// translators: %s: site's current plan record limit
 				__(
-					"Once you hit %s indexed records, you'll automatically be billed for the next tier",
+					"Once you hit %s indexed records, you'll automatically be billed for the next tier.",
 					'jetpack-search-pkg'
 				),
 				tierMaximumRecords
