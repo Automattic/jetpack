@@ -32,8 +32,13 @@ const Dialog: React.FC< DialogProps > = ( { primary, secondary, isTwoSections = 
 		[ styles[ 'one-section-style' ] ]: ! isTwoSections,
 	} );
 
-	// By convention, secondary section is not shown on mobile (`sm` breakpoint).
-	const [ hideSecondarySection ] = useBreakpointMatch( 'sm' );
+	/*
+	 * By convention, secondary section is not shown when:
+	 * - layout is two sections
+	 * - on mobile breakpoint (sm)
+	 */
+	const [ isSmallBreakpoint ] = useBreakpointMatch( 'sm' );
+	const hideSecondarySection = ! isTwoSections && isSmallBreakpoint;
 
 	return (
 		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
