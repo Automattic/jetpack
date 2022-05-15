@@ -10,7 +10,7 @@ import classnames from 'classnames';
 import styles from './style.module.scss';
 import Container from '../layout/container';
 import Col from '../layout/col';
-import useBreakpointMatch from '../layout/use-breakpoint-match';
+import useBreakpointMatch, { useBreakpointClass } from '../layout/use-breakpoint-match';
 
 type DialogProps = {
 	primary: React.ReactNode;
@@ -28,7 +28,8 @@ type DialogProps = {
  * @returns {React.ReactNode}                 Rendered dialog
  */
 const Dialog: React.FC< DialogProps > = ( { primary, secondary, isTwoSections = false } ) => {
-	const classNames = classnames( {
+	const breakpointClass = useBreakpointClass();
+	const classNames = classnames( styles[ breakpointClass ], {
 		[ styles[ 'one-section-style' ] ]: ! isTwoSections,
 	} );
 
