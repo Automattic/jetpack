@@ -453,7 +453,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( '[foo]', $post_on_server->post_content );
-		$this->assertTrue( empty( $post_on_server->post_content_filtered ) );
+		$this->assertEmpty( $post_on_server->post_content_filtered );
 
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 	}
