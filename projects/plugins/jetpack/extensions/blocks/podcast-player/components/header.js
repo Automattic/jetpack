@@ -25,8 +25,8 @@ const Header = memo(
 		showCoverArt,
 		showEpisodeDescription,
 		colors,
-	} ) => {
-		return showCoverArt || showEpisodeTitle || showEpisodeDescription ? (
+	} ) =>
+		showCoverArt || showEpisodeTitle || showEpisodeDescription ? (
 			<div className="jetpack-podcast-player__header">
 				<div className="jetpack-podcast-player__current-track-info">
 					{ showCoverArt && cover && (
@@ -68,8 +68,7 @@ const Header = memo(
 			</div>
 		) : (
 			children
-		);
-	}
+		)
 );
 
 const Title = memo(
