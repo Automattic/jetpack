@@ -4,6 +4,7 @@
 import debugFactory from 'debug';
 import { debounce, noop } from 'lodash';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import classnames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -50,6 +51,7 @@ import { podcastPlayerReducer, actions } from './state';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
+import { getPodcastProvider } from './providers';
 
 const DEFAULT_MIN_ITEMS = 1;
 const debug = debugFactory( 'jetpack:podcast-player:edit' );
@@ -88,7 +90,10 @@ const PodcastPlayerEdit = ( {
 		showEpisodeTitle,
 		showEpisodeDescription,
 		exampleFeedData,
+		providerNameSlug,
 	} = validatedAttributes;
+
+	const podcastProvider = getPodcastProvider( providerNameSlug );
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
@@ -267,12 +272,19 @@ const PodcastPlayerEdit = ( {
 	};
 
 	if ( state.isEditing ) {
+		const {
+			className: providerClassName,
+			placeholderIcon,
+			placeholderLabel,
+			placeholderInstructions,
+		} = podcastProvider;
+
 		return (
 			<Placeholder
-				icon={ queueMusic }
-				label={ __( 'Podcast Player', 'jetpack' ) }
-				instructions={ __( 'Enter your podcast RSS feed URL.', 'jetpack' ) }
-				className={ 'jetpack-podcast-player__placeholder' }
+				icon={ placeholderIcon }
+				label={ placeholderLabel }
+				instructions={ placeholderInstructions }
+				className={ classnames( 'jetpack-podcast-player__placeholder', providerClassName ) }
 			>
 				<form onSubmit={ checkPodcastLink }>
 					{ noticeUI }
@@ -407,6 +419,7 @@ const PodcastPlayerEdit = ( {
 					cover={ state.feedData.cover }
 					title={ state.feedData.title }
 					link={ state.feedData.link }
+					provider={ podcastProvider }
 				/>
 				{ /*
 				 * Disabled because the overlay div doesn't actually have a role or

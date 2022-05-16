@@ -1,0 +1,17 @@
+.jetpack-pocket-casts__footer-toolbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	> a {
+		// Always use red as part of branding color.
+		// background-color: var( --jetpack-audio-player-primary );
+		background-color: #f44336;
+		color: #fff !important;
+		padding: 0 18px;
+		border-radius: 20px;
+		height: 32px;
+		font-size: 14px;
+		line-height: 32px;
+	}
+}

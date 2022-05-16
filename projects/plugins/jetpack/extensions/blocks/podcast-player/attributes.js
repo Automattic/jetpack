@@ -11,6 +11,7 @@ import { isUrl } from '@wordpress/url';
  * Internal dependencies
  */
 import colorValidator from '../../shared/colorValidator';
+import { JETPACK_PODCAST_PROVIDER_NAME_SLUG, PODCAST_PROVIDERS_NAME_SLUGS } from './providers';
 
 export default {
 	url: {
@@ -72,5 +73,10 @@ export default {
 	},
 	exampleFeedData: {
 		type: 'object',
+	},
+	providerNameSlug: {
+		type: 'string',
+		default: JETPACK_PODCAST_PROVIDER_NAME_SLUG,
+		validValues: PODCAST_PROVIDERS_NAME_SLUGS,
 	},
 };

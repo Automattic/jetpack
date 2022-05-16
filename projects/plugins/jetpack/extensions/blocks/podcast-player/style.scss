@@ -291,6 +291,13 @@ $jetpack-podcast-player-error: $alert-red;
 	}
 
 	/**
+	 * Footer element
+	 */
+	.jetpack-podcast-player__footer {
+		padding: $gutter-l;
+	}
+
+	/**
 	 * Error element, appended as the last child of the Episode element
 	 * (.jetpack-podcast-player__track) when Player's error has been caught.
 	 */

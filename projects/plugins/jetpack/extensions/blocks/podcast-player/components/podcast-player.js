@@ -21,6 +21,7 @@ import Playlist from './playlist';
 import Header from './header';
 import { getColorsObject } from '../utils';
 import withErrorBoundary from './with-error-boundary';
+import { withPodcastProvider } from '../providers';
 
 export class PodcastPlayer extends Component {
 	state = {
@@ -264,6 +265,7 @@ export class PodcastPlayer extends Component {
 			attributes,
 			currentTime,
 			playerState,
+			footerToolbar,
 		} = this.props;
 		const {
 			itemsToShow,
@@ -384,6 +386,8 @@ export class PodcastPlayer extends Component {
 						/>
 					</>
 				) }
+				{ /* Slot for footer toolbar customizable by providers. */ }
+				{ !! footerToolbar && <div class="jetpack-podcast-player__footer">{ footerToolbar }</div> }
 			</section>
 		);
 	}
@@ -438,4 +442,5 @@ export default compose( [
 			setMediaSourceCurrentTime,
 		};
 	} ),
+	withPodcastProvider,
 ] )( PodcastPlayer );
