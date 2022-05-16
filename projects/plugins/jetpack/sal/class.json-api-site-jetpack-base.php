@@ -174,11 +174,13 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	public function after_render_options( &$options ) {
 		$options['jetpack_version'] = $this->get_jetpack_version();
 
-		if ( $main_network_site = $this->main_network_site() ) {
+		$main_network_site = $this->main_network_site();
+		if ( isset( $main_network_site ) ) {
 			$options['main_network_site'] = (string) rtrim( $main_network_site, '/' );
 		}
 
-		if ( is_array( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) ) {
+		$active_modules = Jetpack_Options::get_option( 'active_modules' );
+		if ( is_array( $active_modules ) ) {
 			$options['active_modules'] = (array) array_values( $active_modules );
 		}
 
@@ -335,7 +337,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 *
 	 * @return bool
 	 */
-	protected function is_a8c_publication( $post_id ) {
+	protected function is_a8c_publication( $post_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Extended and used in WordPress.com.
 		return false;
 	}
 }
