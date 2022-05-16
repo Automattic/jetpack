@@ -19,6 +19,12 @@ use WP_Error;
 class Dedicated_Sender {
 
 	/**
+	 * The transient name for storing the response code
+	 * after spawning a dedicated sync test request.
+	 */
+	const DEDICATED_SYNC_CHECK_TRANSIENT = 'jetpack_sync_dedicated_sync_spawn_check';
+
+	/**
 	 * Check if this request should trigger Sync to run.
 	 *
 	 * @access public
@@ -84,6 +90,38 @@ class Dedicated_Sender {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Test Sync spawning functionality by making a request to the
+	 * Sync spawning endpoint and storing the result (status code) in a transient.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return bool True if we got a successful response, false otherwise.
+	 */
+	public static function can_spawn_dedicated_sync_request() {
+		$dedicated_sync_check_transient = self::DEDICATED_SYNC_CHECK_TRANSIENT;
+
+		$dedicated_sync_response_code = get_transient( $dedicated_sync_check_transient );
+
+		if ( false === $dedicated_sync_response_code ) {
+			$url  = rest_url( 'jetpack/v4/sync/spawn-sync' );
+			$url  = add_query_arg( 'time', time(), $url ); // Enforce Cache busting.
+			$args = array(
+				'cookies'   => $_COOKIE,
+				'timeout'   => 30,
+				/** This filter is documented in wp-includes/class-wp-http-streams.php */
+				'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
+			);
+
+			$response                     = wp_remote_get( $url, $args );
+			$dedicated_sync_response_code = wp_remote_retrieve_response_code( $response );
+
+			set_transient( $dedicated_sync_check_transient, $dedicated_sync_response_code, HOUR_IN_SECONDS );
+		}
+
+		return 200 === (int) $dedicated_sync_response_code;
 	}
 
 }

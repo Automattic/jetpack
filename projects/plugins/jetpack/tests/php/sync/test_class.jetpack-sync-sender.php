@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Dedicated_Sender;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules;
@@ -27,6 +28,10 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	public function set_up() {
 		parent::set_up();
 
+		// Setting the Dedicated Sync check transient here to avoid making a test
+		// request every time dedicated Sync setting is updated.
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 200 );
+
 		$this->dedicated_sync_request_spawned = false;
 	}
 
@@ -38,6 +43,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		// Restore default setting.
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
+
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
+
 		// Reset queue.
 		$this->sender->get_sync_queue()->reset();
 
