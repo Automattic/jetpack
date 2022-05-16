@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Connection\Client;
 
@@ -20,7 +20,7 @@ abstract class VIDEOPRESS_PRIVACY {
  * Validate user-supplied guid values against expected inputs
  *
  * @since 1.1
- * @param string $guid video identifier
+ * @param string $guid video identifier.
  * @return bool true if passes validation test
  */
 function videopress_is_valid_guid( $guid ) {
@@ -33,7 +33,7 @@ function videopress_is_valid_guid( $guid ) {
 /**
  * Get details about a specific video by GUID:
  *
- * @param $guid string
+ * @param string $guid Video GUID.
  * @return object
  */
 function videopress_get_video_details( $guid ) {
@@ -79,8 +79,8 @@ function videopress_get_video_details( $guid ) {
 /**
  * Similar to `media_sideload_image` -- but returns an ID.
  *
- * @param $url
- * @param $attachment_id
+ * @param string $url Image URL.
+ * @param int    $attachment_id Post ID.
  *
  * @return int|mixed|object|WP_Error
  */
@@ -112,8 +112,8 @@ function videopress_download_poster_image( $url, $attachment_id ) {
 /**
  * Creates a local media library item of a remote VideoPress video.
  *
- * @param $guid
- * @param int  $parent_id
+ * @param string $guid Video GUID.
+ * @param int    $parent_id Parent post ID.
  *
  * @return int|object
  */
@@ -202,8 +202,8 @@ function videopress_cleanup_media_library() {
  * Return an absolute URI for a given filename and guid on the CDN.
  * No check is performed to ensure the guid exists or the file is present. Simple centralized string builder.
  *
- * @param string $guid     VideoPress identifier
- * @param string $filename name of file associated with the guid (video file name or thumbnail file name)
+ * @param string $guid     VideoPress identifier.
+ * @param string $filename name of file associated with the guid (video file name or thumbnail file name).
  *
  * @return string Absolute URL of VideoPress file for the given guid.
  */
@@ -215,7 +215,7 @@ function videopress_cdn_file_url( $guid, $filename ) {
  * Get an array of the transcoding status for the given video post.
  *
  * @since 4.4
- * @param int $post_id
+ * @param int $post_id Post ID.
  * @return array|bool Returns an array of statuses if this is a VideoPress post, otherwise it returns false.
  */
 function videopress_get_transcoding_status( $post_id ) {
@@ -242,7 +242,7 @@ function videopress_get_transcoding_status( $post_id ) {
  * Get the direct url to the video.
  *
  * @since 4.4
- * @param string $guid
+ * @param string $guid VideoPress GUID.
  * @return string
  */
 function videopress_build_url( $guid ) {
@@ -260,7 +260,8 @@ function videopress_build_url( $guid ) {
  * callback from the VideoPress servers.
  *
  * @since 4.4
- * @param string $title
+ * @param string $title The post_title.
+ * @param string $guid The VideoPress guid.
  * @return int|WP_Error
  */
 function videopress_create_new_media_item( $title, $guid = null ) {
@@ -282,8 +283,10 @@ function videopress_create_new_media_item( $title, $guid = null ) {
 }
 
 /**
- * @param array $current_status
- * @param array $new_meta
+ * Merge VideoPress file status metadata.
+ *
+ * @param array $current_status The current status of the video.
+ * @param array $new_meta The new meta data to merge with the current status.
  * @return array
  */
 function videopress_merge_file_status( $current_status, $new_meta ) {
@@ -323,7 +326,7 @@ function videopress_merge_file_status( $current_status, $new_meta ) {
  * Check to see if a video has completed processing.
  *
  * @since 4.4
- * @param int $post_id
+ * @param int $post_id Post ID.
  * @return bool
  */
 function videopress_is_finished_processing( $post_id ) {
@@ -345,7 +348,7 @@ function videopress_is_finished_processing( $post_id ) {
  * Update the meta information  status for the given video post.
  *
  * @since 4.4
- * @param int $post_id
+ * @param int $post_id Post ID.
  * @return bool
  */
 function videopress_update_meta_data( $post_id ) {
@@ -378,7 +381,7 @@ function videopress_update_meta_data( $post_id ) {
 /**
  * Check to see if this is a VideoPress post that hasn't had a guid set yet.
  *
- * @param int $post_id
+ * @param int $post_id Post ID.
  * @return bool
  */
 function videopress_is_attachment_without_guid( $post_id ) {
@@ -404,7 +407,7 @@ function videopress_is_attachment_without_guid( $post_id ) {
 /**
  * Check to see if this is a VideoPress attachment.
  *
- * @param int $post_id
+ * @param int $post_id Post ID.
  * @return bool
  */
 function is_videopress_attachment( $post_id ) {
@@ -425,7 +428,7 @@ function is_videopress_attachment( $post_id ) {
  * Get the video update path
  *
  * @since 4.4
- * @param string $guid
+ * @param string $guid VideoPress GUID.
  * @return string
  */
 function videopress_make_video_get_path( $guid ) {
@@ -521,8 +524,8 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
  * Note: This mimics the WPCOM function of the same name and helps the media
  * API endpoint add all needed VideoPress data.
  *
- * @param stdClass $info
- * @param string   $format
+ * @param stdClass $info Info object.
+ * @param string   $format Video format.
  * @return bool
  */
 function video_format_done( $info, $format ) {
@@ -564,8 +567,8 @@ function video_format_done( $info, $format ) {
  * Note: This mimics the WPCOM function of the same name and helps the media
  * API endpoint add all needed VideoPress data.
  *
- * @param string $guid
- * @param string $format
+ * @param string $guid VideoPress GUID.
+ * @param string $format Video format.
  * @return string
  */
 function video_image_url_by_guid( $guid, $format ) {
