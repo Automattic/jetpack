@@ -18,6 +18,10 @@
   	overflow-x: hidden;
 }
 
+*:focus-visible {
+	outline: none;
+}
+
 .jb-section {
 	padding-top: $padding;
 	padding-bottom: $padding;
