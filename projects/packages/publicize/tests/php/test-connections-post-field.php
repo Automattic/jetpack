@@ -222,7 +222,7 @@ class Test_Connections_Post_Field  extends TestCase {
 
 		$this->assertArrayHasKey( 'meta', $data );
 		$this->assertArrayHasKey( 'jetpack_publicize_message', $data['meta'] );
-		$this->assertIsString( $data['meta']['jetpack_publicize_message'] );
+		$this->assertTrue( gettype( $data['meta']['jetpack_publicize_message'] ) === 'string' );
 		$this->assertEmpty( $data['meta']['jetpack_publicize_message'] );
 	}
 
