@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Trigger an initial Sync when the list of connected plugins change

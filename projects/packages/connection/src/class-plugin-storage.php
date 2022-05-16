@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Sync\Actions as Sync_Actions;
 use WP_Error;
 
 /**
@@ -194,7 +195,10 @@ class Plugin_Storage {
 
 		if ( ! class_exists( 'Automattic\Jetpack\Sync\Settings' ) || ! \Automattic\Jetpack\Sync\Settings::is_sync_enabled() ) {
 			self::update_active_plugins_wpcom_no_sync_fallback();
+		} elseif ( ! class_exists( 'Jetpack' ) && class_exists( 'Automattic\Jetpack\Sync\Actions' ) ) {
+			Sync_Actions::do_initial_sync();
 		}
+
 	}
 
 	/**
