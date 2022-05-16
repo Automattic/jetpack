@@ -28,11 +28,6 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Depends on events but doesn't declare it.
-	if ( pkg.name === '@automattic/popup-monitor' && ! pkg.dependencies.events ) {
-		pkg.dependencies.events = '^3.3.0';
-	}
-
 	// Depends on punycode but doesn't declare it.
 	// https://github.com/markdown-it/markdown-it/issues/230
 	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {

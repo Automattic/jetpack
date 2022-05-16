@@ -46,6 +46,13 @@ class Status {
 	const OPTION_EXPIRES_AFTER = 43200; // 12 hours.
 
 	/**
+	 * Time in seconds that the cache for the initial empty response should last
+	 *
+	 * @var int
+	 */
+	const INITIAL_OPTION_EXPIRES_AFTER = 5 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Memoization for the current status
 	 *
 	 * @var null|array
@@ -117,7 +124,7 @@ class Status {
 	 * @return array
 	 */
 	public static function get_wordpress_vulnerabilities() {
-		return self::get_vulnerabilities( 'WordPress' );
+		return self::get_vulnerabilities( 'core' );
 	}
 
 	/**
@@ -141,13 +148,13 @@ class Status {
 	/**
 	 * Get the vulnerabilities for one type of extension or core
 	 *
-	 * @param string $type What vulnerabilities you want to get. Possible values are 'WordPress', 'themes' and 'plugins'.
+	 * @param string $type What vulnerabilities you want to get. Possible values are 'core', 'themes' and 'plugins'.
 	 *
 	 * @return array
 	 */
 	public static function get_vulnerabilities( $type ) {
 		$status = self::get_status();
-		if ( 'WordPress' === $type ) {
+		if ( 'core' === $type ) {
 			return isset( $status->$type ) && ! empty( $status->$type->vulnerabilities ) ? $status->$type->vulnerabilities : array();
 		}
 
@@ -169,10 +176,12 @@ class Status {
 	 */
 	public static function is_cache_expired() {
 		$option_timestamp = get_option( self::OPTION_TIMESTAMP_NAME );
+
 		if ( ! $option_timestamp ) {
 			return true;
 		}
-		return time() - $option_timestamp > self::OPTION_EXPIRES_AFTER;
+
+		return time() > (int) $option_timestamp;
 	}
 
 	/**
@@ -256,7 +265,23 @@ class Status {
 	public static function update_option( $status ) {
 		// TODO: Sanitize $status.
 		update_option( self::OPTION_NAME, $status );
-		update_option( self::OPTION_TIMESTAMP_NAME, time() );
+		$end_date = self::get_cache_end_date_by_status( $status );
+		update_option( self::OPTION_TIMESTAMP_NAME, $end_date );
+	}
+
+	/**
+	 * Returns the timestamp the cache should expire depending on the current status
+	 *
+	 * Initial empty status, which are returned before the first check was performed, should be cache for less time
+	 *
+	 * @param object $status The response from the server being cached.
+	 * @return int The timestamp when the cache should expire.
+	 */
+	public static function get_cache_end_date_by_status( $status ) {
+		if ( ! is_object( $status ) || empty( $status->last_checked ) ) {
+			return time() + self::INITIAL_OPTION_EXPIRES_AFTER;
+		}
+		return time() + self::OPTION_EXPIRES_AFTER;
 	}
 
 	/**

@@ -10,7 +10,8 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.1"
+		"automattic/jetpack-changelogger": "^3.1",
+		"automattic/wordbless": "0.3.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -27,6 +28,7 @@
 		"test-php": [
 			"@composer phpunit"
 		],
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
 		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"build-development": "echo 'Add your build step to composer.json, please!'"
 	},
@@ -49,12 +51,14 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.2.x-dev"
+			"dev-master": "0.3.x-dev"
 		}
 	},
 	"config": {
 		"allow-plugins": {
-			"automattic/jetpack-autoloader": true
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
 		}
 	}
 }
