@@ -19,7 +19,12 @@ function videopress_handle_editor_view_js() {
 
 	add_action( 'admin_print_footer_scripts', 'videopress_editor_view_js_templates' );
 
-	wp_enqueue_style( 'videopress-editor-ui', plugins_url( 'css/editor.css', __FILE__ ) );
+	wp_enqueue_style(
+		'videopress-editor-ui',
+		plugins_url( 'css/editor.css', __FILE__ ),
+		array(),
+		Jetpack_VideoPress::VERSION
+	);
 	wp_enqueue_script(
 		'videopress-editor-view',
 		Assets::get_file_url_for_environment(
@@ -27,7 +32,7 @@ function videopress_handle_editor_view_js() {
 			'modules/videopress/js/editor-view.js'
 		),
 		array( 'wp-util', 'jquery' ),
-		false,
+		Jetpack_VideoPress::VERSION,
 		true
 	);
 	wp_localize_script(
