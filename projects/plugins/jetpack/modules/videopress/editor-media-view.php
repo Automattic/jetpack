@@ -140,7 +140,8 @@ function videopress_media_list_table_query( $query ) {
 			),
 		);
 
-		if ( $old_meta_query = $query->get( 'meta_query' ) ) {
+		$old_meta_query = $query->get( 'meta_query' );
+		if ( $old_meta_query ) {
 			$meta_query[] = $old_meta_query;
 		}
 
