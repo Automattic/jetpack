@@ -10,7 +10,7 @@ import classnames from 'classnames';
 import styles from './style.module.scss';
 import Container from '../layout/container';
 import Col from '../layout/col';
-import useBreakpointMatch, { useBreakpointClass } from '../layout/use-breakpoint-match';
+import useBreakpointMatch from '../layout/use-breakpoint-match';
 
 type DialogProps = {
 	primary: React.ReactNode;
@@ -28,11 +28,6 @@ type DialogProps = {
  * @returns {React.ReactNode}                 Rendered dialog
  */
 const Dialog: React.FC< DialogProps > = ( { primary, secondary, isTwoSections = false } ) => {
-	const breakpointClass = useBreakpointClass();
-	const classNames = classnames( styles[ breakpointClass ], {
-		[ styles[ 'one-section-style' ] ]: ! isTwoSections,
-	} );
-
 	/*
 	 * By convention, secondary section is not shown when:
 	 * - layout is two sections
@@ -40,6 +35,11 @@ const Dialog: React.FC< DialogProps > = ( { primary, secondary, isTwoSections = 
 	 */
 	const [ isSmallBreakpoint ] = useBreakpointMatch( 'sm' );
 	const hideSecondarySection = ! isTwoSections && isSmallBreakpoint;
+
+	const classNames = classnames( {
+		[ styles[ 'one-section-style' ] ]: ! isTwoSections,
+		[ styles[ 'is-viewport-small' ] ]: isSmallBreakpoint,
+	} );
 
 	return (
 		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
