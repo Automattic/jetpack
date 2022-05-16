@@ -27,7 +27,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * @return mixed
 	 */
 	protected function get_mock_option( $name ) {
-		return get_option( 'jetpack_'.$name );
+		return get_option( 'jetpack_' . $name );
 	}
 
 	/**
@@ -38,7 +38,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * @return mixed
 	 */
 	protected function get_constant( $name ) {
-		if ( defined( $name) ) {
+		if ( defined( $name ) ) {
 			return constant( $name );
 		}
 		return null;
