@@ -436,6 +436,9 @@ class Modules {
 			$state->state( 'error', false ); // the override.
 			ob_end_clean();
 			$errors->catch_errors( false );
+		} else { // Not a Jetpack plugin.
+			$active[] = $module;
+			$this->update_active( $active );
 		}
 
 		if ( $redirect ) {
