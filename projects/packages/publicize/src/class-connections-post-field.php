@@ -156,16 +156,18 @@ class Connections_Post_Field {
 	}
 
 	/**
-	 * Getter: Retrieve current list of connected social accounts for a given post.
+	 * The field's wrapped getter. Does permission checks and output preparation.
 	 *
-	 * @see Publicize::get_filtered_connection_data()
+	 * This cannot be extended: implement `->get()` instead.
 	 *
-	 * @param array           $post_array Response from Post Endpoint.
-	 * @param WP_REST_Request $request API request.
+	 * @param mixed           $post_array Probably an array. Whatever the endpoint returns.
+	 * @param string          $field_name  Should always match `->field_name`.
+	 * @param WP_REST_Request $request     WP API request.
+	 * @param string          $object_type Should always match `->object_type`.
 	 *
-	 * @return array List of connections
+	 * @return mixed
 	 */
-	public function get( $post_array, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get( $post_array, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $publicize;
 
 		$full_schema      = $this->get_schema();
@@ -198,7 +200,7 @@ class Connections_Post_Field {
 			return $is_valid;
 		}
 
-		$context = ! empty( $request['context'] ) ? $request['context'] : ( $request === 'jetpack_publicize_connections' ? 'edit' : 'view' );
+		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
 		return $this->filter_response_by_context( $output_connections, $full_schema, $context );
 	}
 
