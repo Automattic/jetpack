@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * VideoPress playback module markup generator.
  *
@@ -7,6 +7,8 @@
 class VideoPress_XMLRPC {
 
 	/**
+	 * Singleton VideoPress_XMLRPC instance.
+	 *
 	 * @var VideoPress_XMLRPC
 	 **/
 	private static $instance = null;
@@ -69,7 +71,7 @@ class VideoPress_XMLRPC {
 	 * Note: This method technically handles the creation of multiple media objects, though
 	 * in practice this is never done.
 	 *
-	 * @param array $media
+	 * @param array $media Media items being uploaded.
 	 * @return array
 	 */
 	public function create_media_item( $media ) {
@@ -97,7 +99,9 @@ class VideoPress_XMLRPC {
 	}
 
 	/**
-	 * @param array $request
+	 * Update VideoPress metadata for a media item.
+	 *
+	 * @param array $request Media item to update.
 	 *
 	 * @return bool
 	 */
@@ -154,7 +158,9 @@ class VideoPress_XMLRPC {
 	}
 
 	/**
-	 * @param array $request
+	 * Update poster image for a VideoPress media item.
+	 *
+	 * @param array $request The media item to update.
 	 * @return bool
 	 */
 	public function update_poster_image( $request ) {
