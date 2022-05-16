@@ -193,3 +193,23 @@ export function getScoreImprovementPercentage( scores: SpeedScoresSet ): number 
 
 	return Math.round( improvement * 100 );
 }
+
+/**
+ * Find out if scores were made worse.
+ *
+ * Only show the speed score reduction message if the scores got worse.
+ *
+ * @param {SpeedScoresSet} scores
+ * @return boolean
+ */
+ export function didScoresWorsen( scores: SpeedScoresSet ): boolean {
+	const current = scores.current;
+	const noBoost = scores.noBoost;
+
+	// Consider the score got worse if combined score fell.
+	return (
+		null !== current &&
+		null !== noBoost &&
+		( getScoreImprovementPercentage( scores ) < 0 )
+	);
+}

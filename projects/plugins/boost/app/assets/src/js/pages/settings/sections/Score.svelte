@@ -12,6 +12,7 @@
 		getScoreLetter,
 		requestSpeedScores,
 		didScoresImprove,
+		didScoresWorsen,
 		getScoreImprovementPercentage,
 	} from '../../../api/speed-scores';
 	import debounce from '../../../utils/debounce';
@@ -19,6 +20,7 @@
 	import { modules } from '../../../stores/modules';
 	import { derived, writable } from 'svelte/store';
 	import RatingCard from '../elements/RatingCard.svelte';
+	import ScoreDrop from '../elements/ScoreDrop.svelte';
 
 	/**
 	 * WordPress dependencies
@@ -123,6 +125,8 @@
 
 	// eslint-disable-next-line camelcase
 	const respawnRatingPrompt = writable( Jetpack_Boost.preferences.showRatingPrompt );
+	// eslint-disable-next-line camelcase
+	const respawnScorePrompt = writable( Jetpack_Boost.preferences.showScorePrompt );
 
 	const showRatingCard = derived(
 		[ scores, respawnRatingPrompt, isLoading ],
@@ -131,11 +135,19 @@
 			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading && ! $scores.isStale
 	);
 
+	const showScoreDrop = derived(
+		[ scores, respawnScorePrompt, isLoading ],
+		// eslint-disable-next-line no-shadow
+		( [ $scores, $respawnScorePrompt, $isLoading ] ) =>
+			didScoresWorsen( $scores ) && $respawnScorePrompt && ! $isLoading && ! $scores.isStale
+	);
+
+
 	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
-	$: if ( $showRatingCard ) {
+	$: if ( $showRatingCard || $showScoreDrop) {
 		improvementPercentage = getScoreImprovementPercentage( $scores );
 		currentPercentage = ( $scores.current.mobile + $scores.current.desktop ) / 2;
 	}
@@ -228,3 +240,8 @@
 		{currentPercentage}
 	/>
 {/if}
+
+<ScoreDrop
+	on:dismiss={() => respawnScorePrompt.set( false )}
+	improvement={improvementPercentage}
+/>
