@@ -280,7 +280,10 @@ abstract class Base_Admin_Menu {
 		wp_localize_script(
 			'jetpack-admin-menu',
 			'jetpackAdminMenu',
-			array( 'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ) )
+			array(
+				'upsellNudgeJitm'  => wp_create_nonce( 'upsell_nudge_jitm' ),
+				'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ),
+			)
 		);
 	}
 

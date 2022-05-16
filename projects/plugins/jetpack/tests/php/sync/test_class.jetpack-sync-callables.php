@@ -170,7 +170,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Are we testing all the callables in the defaults?
 		$whitelist_and_callable_keys_difference = array_diff( $whitelist_keys, $callables_keys );
-		$this->assertTrue( empty( $whitelist_and_callable_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_callable_keys_difference, 1 ) );
+		$this->assertEmpty( $whitelist_and_callable_keys_difference, 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_callable_keys_difference, 1 ) );
 
 		// Are there any duplicate keys?
 		$unique_whitelist = array_unique( $whitelist_keys );
@@ -696,7 +696,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $sanitized->can_export );
 		$this->assertTrue( $sanitized->map_meta_cap );
 		$this->assertTrue( is_object( $sanitized->labels ) );
-		$this->assertTrue( is_array( $sanitized->rewrite ) );
+		$this->assertIsArray( $sanitized->rewrite );
 		$this->assertTrue( is_object( $sanitized->cap ) );
 
 	}
@@ -884,7 +884,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
 
 		// Nothing should have changed since we cache the results.
-		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
+		$this->assertEquals( $expected_array, $this->extract_plugins_we_are_testing( $plugins_action_links ) );
 
 		if ( file_exists( WP_PLUGIN_DIR . '/hello.php' ) ) {
 			activate_plugin( 'hello.php', '', false, true );
@@ -901,7 +901,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Links should have changes now since we activated the plugin.
 		$expected_array['hello.php'] = array( 'not fun' => admin_url( 'not-fun.php' ) );
-		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array, 'Array was not updated to the new value as expected' );
+		$this->assertEquals( $expected_array, $this->extract_plugins_we_are_testing( $plugins_action_links ), 'Array was not updated to the new value as expected' );
 	}
 
 	public function extract_plugins_we_are_testing( $plugins_action_links ) {
