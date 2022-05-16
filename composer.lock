@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "04335a17b76ff86aef97e11e584daeac",
+    "content-hash": "f186284f51769e3afe267074d8c2b48c",
     "packages": [],
     "packages-dev": [
         {
@@ -13,10 +13,10 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "b69a4e0a795222b6ca485926daf15c9bf7075955"
+                "reference": "83df3961934b8068249d09ef1d4167e5e537eca4"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^3.1",
                 "wikimedia/at-ease": "^1.2 || ^2.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -61,18 +61,18 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "66265d03f4812275b907a08ee58ce6ee2d395bd6"
+                "reference": "51829660678dddaafa5c6c1397da13cf6fbc2c44"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-                "mediawiki/mediawiki-codesniffer": "^38.0",
+                "mediawiki/mediawiki-codesniffer": "^39.0",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
                 "wp-coding-standards/wpcs": "^2.3"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^3.1",
                 "wp-coding-standards/wpcs": "dev-develop#7b39722c38cbf2fe64c55be7154ee6f1807d304c as 2.3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -123,14 +123,14 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "3fa5cd8a60532b0c07839554fad8918691dd76e4"
+                "reference": "b3777393b31aa50e37f3f2f92af1d668fca3c826"
             },
             "require": {
                 "automattic/ignorefile": "^1.0",
                 "squizlabs/php_codesniffer": "^3.6.1"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.0",
+                "automattic/jetpack-changelogger": "^3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "library",
@@ -453,30 +453,31 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "v38.0.0",
+            "version": "v39.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "059db7ef17adf2fd1088c42a05e6736e5c2aab2a"
+                "reference": "9d6d7ea4314f928e8967bb386bb54c17bb96fb77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/059db7ef17adf2fd1088c42a05e6736e5c2aab2a",
-                "reference": "059db7ef17adf2fd1088c42a05e6736e5c2aab2a",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/9d6d7ea4314f928e8967bb386bb54c17bb96fb77",
+                "reference": "9d6d7ea4314f928e8967bb386bb54c17bb96fb77",
                 "shasum": ""
             },
             "require": {
-                "composer/semver": "^1.7.2|^3.2.4",
+                "composer/semver": "3.3.2",
                 "composer/spdx-licenses": "~1.5.2",
+                "ext-json": "*",
                 "ext-mbstring": "*",
                 "php": ">=7.2.0",
-                "squizlabs/php_codesniffer": "3.6.1"
+                "squizlabs/php_codesniffer": "3.6.2"
             },
             "require-dev": {
-                "mediawiki/mediawiki-phan-config": "0.11.0",
+                "mediawiki/mediawiki-phan-config": "0.11.1",
                 "mediawiki/minus-x": "1.1.1",
-                "php-parallel-lint/php-console-highlighter": "0.5.0",
-                "php-parallel-lint/php-parallel-lint": "1.3.1",
+                "php-parallel-lint/php-console-highlighter": "1.0.0",
+                "php-parallel-lint/php-parallel-lint": "1.3.2",
                 "phpunit/phpunit": "^8.5"
             },
             "type": "phpcodesniffer-standard",
@@ -497,9 +498,9 @@
                 "mediawiki"
             ],
             "support": {
-                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v38.0.0"
+                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v39.0.0"
             },
-            "time": "2021-10-21T18:15:41+00:00"
+            "time": "2022-05-04T16:19:01+00:00"
         },
         {
             "name": "php-parallel-lint/php-parallel-lint",
@@ -966,16 +967,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.6.1",
+            "version": "3.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/PHP_CodeSniffer.git",
-                "reference": "cbb40b00601f0d9cf607b252ea4b5fa920a0059f"
+                "reference": "ea57e56ab3b5e23fe543c6a47154e2a17728a03f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/cbb40b00601f0d9cf607b252ea4b5fa920a0059f",
-                "reference": "cbb40b00601f0d9cf607b252ea4b5fa920a0059f",
+                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/ea57e56ab3b5e23fe543c6a47154e2a17728a03f",
+                "reference": "ea57e56ab3b5e23fe543c6a47154e2a17728a03f",
                 "shasum": ""
             },
             "require": {
@@ -1017,7 +1018,7 @@
                 "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki",
                 "source": "https://github.com/squizlabs/PHP_CodeSniffer"
             },
-            "time": "2022-03-23T15:14:06+00:00"
+            "time": "2022-03-23T15:14:42+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -1040,8 +1041,8 @@
                 "squizlabs/php_codesniffer": "^3.5.0"
             },
             "require-dev": {
-                "php-parallel-lint/php-console-highlighter": "^0.5",
-                "php-parallel-lint/php-parallel-lint": "^1.0",
+                "php-parallel-lint/php-console-highlighter": "^1.0.0",
+                "php-parallel-lint/php-parallel-lint": "^1.3.2",
                 "phpcompatibility/php-compatibility": "^9.0",
                 "phpcsstandards/phpcsdevtools": "^1.0",
                 "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
@@ -1069,7 +1070,7 @@
                 "source": "https://github.com/WordPress/WordPress-Coding-Standards",
                 "wiki": "https://github.com/WordPress/WordPress-Coding-Standards/wiki"
             },
-            "time": "2022-03-19T20:20:18+00:00"
+            "time": "2022-04-26T07:13:06+00:00"
         }
     ],
     "aliases": [
@@ -1090,5 +1091,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

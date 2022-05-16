@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Record Meter: switch noticebox persistence storage from localStorage to sessionStorage

@@ -1,10 +1,10 @@
 // eslint config for normal projects. If for some reason you can't just inherit from .eslintrc.js, extend this instead of .eslintrc.js, probably like this:
 //
 // ```
-// const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+// const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 // module.exports = {
 // 	root: true,
-// 	extends: [ '../../../tools/js-tools/eslintrc/base.js' ],
+// 	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/base' ) ],
 // 	ignorePatterns: loadIgnorePatterns( __dirname ),
 // 	parserOptions: {
 // 		babelOptions: {

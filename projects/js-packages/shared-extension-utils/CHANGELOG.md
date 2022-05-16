@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] - 2022-05-10
+### Changed
+- Updated package dependencies [#24296]
+
+## [0.4.4] - 2022-05-04
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+## [0.4.3] - 2022-04-26
+### Changed
+- Update package.json metadata.
+
 ## [0.4.2] - 2022-04-12
 ### Changed
 - Updated package dependencies.
@@ -48,6 +61,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.4.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.4.4...0.4.5
+[0.4.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.4.3...0.4.4
+[0.4.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.4.2...0.4.3
 [0.4.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.4.1...0.4.2
 [0.4.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.3.1...0.4.0

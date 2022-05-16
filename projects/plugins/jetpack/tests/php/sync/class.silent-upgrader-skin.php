@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
 
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader-skin.php';
 

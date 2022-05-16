@@ -40,6 +40,8 @@ class RedirectTest extends TestCase {
 	 */
 	public function test_get_url() {
 		Functions\when( 'home_url' )->justReturn( 'https://example.org' );
+		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
+		Functions\when( 'get_option' )->justReturn();
 
 		$url = Redirect::get_url( 'simple' );
 		$this->assertEquals( 'https://jetpack.com/redirect/?source=simple&site=example.org', $url );

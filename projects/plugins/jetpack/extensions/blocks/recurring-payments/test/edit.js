@@ -16,6 +16,9 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	InnerBlocks: () => <button>Mocked button</button>,
 } ) );
 
+// Mock the @wordpress/edit-post, used internally to resolve the fallback URL.
+jest.mock( '@wordpress/edit-post', () => jest.fn() );
+
 /**
  * Internal dependencies
  */
@@ -23,7 +26,6 @@ import Edit from '../edit';
 
 import { settings } from '../../button';
 import { registerBlocks } from '../../../shared/test/block-fixtures';
-import userEvent from '@testing-library/user-event';
 
 registerBlocks( [ { name: 'jetpack/button', settings } ] );
 

@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.10.10 - 2022-05-10
+### Changed
+- Updated package dependencies. [#24204]
+
+## 0.10.9 - 2022-05-04
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+## 0.10.8 - 2022-04-26
+### Changed
+- Updated package dependencies.
+
+## 0.10.7 - 2022-04-19
+### Changed
+- Updated package dependencies.
+
 ## 0.10.6 - 2022-04-12
 ### Changed
 - Updated package dependencies.

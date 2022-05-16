@@ -50,7 +50,7 @@ class Jetpack_Tiled_Gallery {
 
 		// Default to rectangular is tiled galleries are checked
 		if ( $this->tiles_enabled() && ( ! $this->atts['type'] || 'default' == $this->atts['type'] ) ) {
-			/** This filter is already documented in functions.gallery.php */
+			/** This filter is already documented in class-jetpack-gallery-settings.php */
 			$this->atts['type'] = apply_filters( 'jetpack_default_gallery_type', 'rectangular' );
 		}
 

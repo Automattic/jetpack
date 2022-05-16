@@ -6,7 +6,6 @@ const glob = require( 'glob' );
 const path = require( 'path' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
-const NodePolyfillPlugin = require( 'node-polyfill-webpack-plugin' );
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -23,6 +22,7 @@ const sharedWebpackConfig = {
 		modules: [ path.resolve( __dirname, '../_inc/client' ), 'node_modules' ],
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
+			crypto: false,
 			fs: false,
 		},
 	},
@@ -154,7 +154,6 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
-			new NodePolyfillPlugin(),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,
@@ -170,6 +169,13 @@ module.exports = [
 		output: {
 			...sharedWebpackConfig.output,
 			libraryTarget: 'commonjs2',
+		},
+		resolve: {
+			...sharedWebpackConfig.resolve,
+			alias: {
+				...sharedWebpackConfig.resolve.alias,
+				'react-redux': require.resolve( 'react-redux/lib/alternate-renderers' ),
+			},
 		},
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {

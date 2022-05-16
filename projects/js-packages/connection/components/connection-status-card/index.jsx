@@ -3,10 +3,9 @@
  */
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
-import { H3, Text } from '@automattic/jetpack-components';
+import { Button, H3, Text } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
@@ -45,6 +44,7 @@ const ConnectionStatusCard = props => {
 		apiNonce,
 	} );
 
+	const missingConnectedOwner = requiresUserConnection && ! hasConnectedOwner;
 	const avatarRef = useRef();
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
@@ -131,6 +131,7 @@ const ConnectionStatusCard = props => {
 					{ __( 'Site connected.', 'jetpack' ) }&nbsp;
 					<Button
 						variant="link"
+						weight="regular"
 						onClick={ openDisconnectDialog }
 						className="jp-connection__disconnect-dialog__link"
 					>
@@ -156,13 +157,13 @@ const ConnectionStatusCard = props => {
 					</li>
 				) }
 
-				{ ! hasConnectedOwner && (
+				{ ( ! isUserConnected || ! hasConnectedOwner ) && (
 					<li
 						className={ `jp-connection-status-card--list-item-${
-							requiresUserConnection ? 'error' : 'info'
+							missingConnectedOwner ? 'error' : 'info'
 						}` }
 					>
-						{ requiresUserConnection && __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
+						{ missingConnectedOwner && __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
 						<Button
 							variant="link"
 							disabled={ userIsConnecting }

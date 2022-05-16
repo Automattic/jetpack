@@ -32,10 +32,9 @@ class WP_Test_Jetpack_Widget_Conditions extends WP_UnitTestCase {
 		. "\n" . '<!-- /wp:paragraph -->';
 		$block         = array( 'content' => $block_content );
 		// Expect to see the same block. Clone it, just in case the function modifies its parameters.
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize,WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		$expected   = unserialize( serialize( $block ) );
 		$return_val = Jetpack_Widget_Conditions::filter_widget( $block );
-		$this->assertSame( $return_val, $expected );
+		$this->assertSame( $expected, $return_val );
 
 		// Block with rule for "Display only when logged in" (Will fail during unit tests).
 		// Expect to see: False ("Not allowed to display").
@@ -45,7 +44,7 @@ class WP_Test_Jetpack_Widget_Conditions extends WP_UnitTestCase {
 		$block         = array( 'content' => $block_content );
 		$expected      = false;
 		$return_val    = Jetpack_Widget_Conditions::filter_widget( $block );
-		$this->assertSame( $return_val, $expected );
+		$this->assertSame( $expected, $return_val );
 
 		// Block with no rules:.
 		$block_content = '<!-- wp:paragraph -->'
@@ -53,9 +52,8 @@ class WP_Test_Jetpack_Widget_Conditions extends WP_UnitTestCase {
 		. "\n" . '<!-- /wp:paragraph -->';
 		$block         = array( 'content' => $block_content );
 		// Expect to see the same block. Clone it, just in case the function modifies its parameters.
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize,WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		$expected   = unserialize( serialize( $block ) );
 		$return_val = Jetpack_Widget_Conditions::filter_widget( $block );
-		$this->assertSame( $return_val, $expected );
+		$this->assertSame( $expected, $return_val );
 	}
 }

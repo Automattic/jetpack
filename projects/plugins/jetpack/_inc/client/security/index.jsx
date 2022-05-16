@@ -18,12 +18,12 @@ import { isModuleFound } from 'state/search';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
 import QuerySite from 'components/data/query-site';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
-import { getPlanClass } from 'lib/plans/constants';
-import { getActiveSitePurchases, getSitePlan } from 'state/site';
+import { hasActiveSiteFeature } from 'state/site';
 import BackupsScan from './backups-scan';
 import Antispam from './antispam';
 import { JetpackBackup } from './jetpack-backup';
 import { Monitor } from './monitor';
+import Waf from './waf';
 import { Protect } from './protect';
 import { SSO } from './sso';
 
@@ -71,7 +71,8 @@ export class Security extends Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
-		const foundProtect = this.props.isModuleFound( 'protect' ),
+		const foundWaf = this.props.isModuleFound( 'waf' ),
+			foundProtect = this.props.isModuleFound( 'protect' ),
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
@@ -87,24 +88,7 @@ export class Security extends Component {
 			return null;
 		}
 
-		const planClass = getPlanClass( get( this.props.sitePlan, [ 'product_slug' ] ) );
-		const activePlanClasses = this.props.activeSitePurchases.map( purchase =>
-			getPlanClass( purchase.product_slug )
-		);
-
-		const isPersonalPlan = 'is-personal-plan' === planClass;
-		const isFreePlanWithBackup =
-			'is-free-plan' === planClass &&
-			[
-				'is-daily-backup-plan',
-				'is-realtime-backup-plan',
-				'is-backup-t1-plan',
-				'is-backup-t2-plan',
-			].filter( plan => activePlanClasses.includes( plan ) ).length > 0;
-
-		const backupsOnly = isPersonalPlan || isFreePlanWithBackup;
-
-		const backupsContent = backupsOnly ? (
+		const backupsContent = this.props.backupsOnly ? (
 			<JetpackBackup { ...commonProps } vaultPressData={ this.props.vaultPressData } />
 		) : (
 			<BackupsScan { ...commonProps } />
@@ -133,6 +117,7 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</>
 				) }
+				{ foundWaf && <Waf { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>
@@ -142,10 +127,10 @@ export class Security extends Component {
 
 export default connect( state => {
 	return {
-		activeSitePurchases: getActiveSitePurchases( state ),
+		backupsOnly:
+			hasActiveSiteFeature( state, 'backups' ) && ! hasActiveSiteFeature( state, 'scan' ),
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
-		sitePlan: getSitePlan( state ),
 		isOfflineMode: isOfflineMode( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),

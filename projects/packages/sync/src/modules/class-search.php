@@ -45,6 +45,8 @@ class Search extends Module {
 	public function __construct() {
 		// Post meta whitelists.
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_search_post_meta_whitelist' ), 10 );
+		// Add options
+		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_search_options_whitelist' ), 10 );
 	}
 
 	/**
@@ -1700,6 +1702,27 @@ class Search extends Module {
 
 	); // end taxonomies.
 
+	/**
+	 * List of options to sync
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @var array
+	 */
+	private static $options_to_sync = array(
+		'jetpack_search_color_theme',
+		'jetpack_search_result_format',
+		'jetpack_search_default_sort',
+		'jetpack_search_overlay_trigger',
+		'jetpack_search_excluded_post_types',
+		'jetpack_search_highlight_color',
+		'jetpack_search_enable_sort',
+		'jetpack_search_inf_scroll',
+		'jetpack_search_show_powered_by',
+		'instant_search_enabled',
+	); // end options.
+
 	/*
 	 * Taxonomies we know don't sync.
 	 * See also sync/src/class-defaults.php
@@ -1722,6 +1745,16 @@ class Search extends Module {
 	 */
 	public function add_search_post_meta_whitelist( $list ) {
 		return array_merge( $list, $this->get_all_postmeta_keys() );
+	}
+
+	/**
+	 * Add Search options to the options whitelist.
+	 *
+	 * @param array $list Existing options whitelist.
+	 * @return array Updated options whitelist.
+	 */
+	public function add_search_options_whitelist( $list ) {
+		return array_merge( $list, $this->get_all_option_keys() );
 	}
 
 	//
@@ -1773,6 +1806,17 @@ class Search extends Module {
 	 */
 	public static function get_all_postmeta_keys() {
 		return array_keys( self::$postmeta_to_sync );
+	}
+
+	/**
+	 * Get all option keys that get synced.
+	 *
+	 * @access public
+	 *
+	 * @return array List of option keys that get synced.
+	 */
+	public static function get_all_option_keys() {
+		return self::$options_to_sync;
 	}
 
 	/**

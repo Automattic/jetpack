@@ -17,10 +17,14 @@ import {
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
+	isStepViewed,
+	getProductSlugForStep,
 } from 'state/recommendations';
 import analytics from 'lib/analytics';
 import { PromptLayout } from '../prompt-layout';
+import { DEFAULT_ILLUSTRATION } from '../../constants';
 import { getStepContent } from '../../feature-utils';
+import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
 
 /**
  * Provide a recommendation step that gives a resource.
@@ -42,13 +46,13 @@ const ResourcePromptComponent = props => {
 		nextRoute,
 		ctaText,
 		ctaLink,
-		illustrationPath,
-		rnaIllustration,
 		stepSlug,
 		stateStepSlug,
 		updatingStep,
+		spotlightProduct,
 		updateRecommendationsStep,
 		addViewedRecommendation,
+		summaryViewed,
 	} = props;
 
 	useEffect( () => {
@@ -58,6 +62,9 @@ const ResourcePromptComponent = props => {
 			updateRecommendationsStep( stepSlug );
 		} else if ( stepSlug === stateStepSlug && ! updatingStep ) {
 			addViewedRecommendation( stepSlug );
+			analytics.tracks.recordEvent( 'jetpack_recommendations_recommendation_viewed', {
+				feature: stepSlug,
+			} );
 		}
 	}, [
 		stepSlug,
@@ -83,6 +90,12 @@ const ResourcePromptComponent = props => {
 
 	const onResourceSkipClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_resource_skip_click', {
+			feature: stepSlug,
+		} );
+	}, [ stepSlug ] );
+
+	const onBackToSummaryClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommended_resource_back_to_summary_click', {
 			feature: stepSlug,
 		} );
 	}, [ stepSlug ] );
@@ -124,13 +137,27 @@ const ResourcePromptComponent = props => {
 					>
 						{ ctaText }
 					</ExternalLink>
-					<a href={ nextRoute } onClick={ onResourceSkipClick }>
-						{ __( 'Read Later', 'jetpack' ) }
-					</a>
+					<div className="jp-recommendations-question__jump-nav">
+						<a href={ nextRoute } onClick={ onResourceSkipClick }>
+							{ __( 'Read Later', 'jetpack' ) }
+						</a>
+						{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
+							<>
+								<span className="jp-recommendations-question__jump-nav-separator">|</span>
+								<a onClick={ onBackToSummaryClick } href={ '#/recommendations/summary' }>
+									{ __( 'View Summary', 'jetpack' ) }{ ' ' }
+								</a>
+							</>
+						) }
+					</div>
 				</div>
 			}
-			illustrationPath={ illustrationPath }
-			rna={ rnaIllustration }
+			sidebarCard={
+				spotlightProduct ? (
+					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
+				) : null
+			}
+			illustration={ DEFAULT_ILLUSTRATION }
 		/>
 	);
 };
@@ -141,6 +168,8 @@ const ResourcePrompt = connect(
 		...getStepContent( ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
+		summaryViewed: isStepViewed( state, 'summary' ),
+		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 	} ),
 	dispatch => ( {
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),

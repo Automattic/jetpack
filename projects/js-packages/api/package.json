@@ -1,17 +1,18 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.12.0-alpha",
+	"version": "0.13.2",
 	"description": "Jetpack Api Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@wordpress/url": "3.7.0",
+		"@wordpress/url": "3.9.0",
 		"@automattic/jetpack-config": "workspace:* || ^0.1",
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
 		"fetch-mock": "9.11.0",
 		"jetpack-js-test-runner": "workspace:*",
+		"node-fetch": "2.6.7",
 		"nyc": "15.1.0"
 	},
 	"type": "module",

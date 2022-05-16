@@ -165,6 +165,10 @@ export function changelogDefine( yargs ) {
 							.option( 'link', {
 								describe: 'Link for the new changelog entry',
 								type: 'string',
+							} )
+							.option( 'add-pr-num', {
+								describe: 'Append the GH PR number to each entry',
+								type: 'boolean',
 							} );
 					},
 					async argv => {
@@ -408,9 +412,14 @@ async function changelogArgs( argv ) {
 		argv.args.push( ...argv.pass );
 	}
 
-	// Check for required command specific arguements.
+	// Check for required command specific arguments.
 	switch ( argv.args[ 0 ] ) {
 		case 'add':
+			console.log(
+				"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
+					'Here is an example of a good changelog entry:\n' +
+					'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
+			);
 			if ( ( argv.s && argv.t && argv.e ) || argv.auto ) {
 				argv.args.push( '--no-interaction' );
 			} else if ( argv.s || argv.t || argv.e ) {

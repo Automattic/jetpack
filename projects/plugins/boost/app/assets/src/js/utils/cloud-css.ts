@@ -5,14 +5,23 @@ import api from '../api/api';
 import {
 	getStatus,
 	updateGenerateStatus,
-	resetGenerateStatus,
+	resetCloudStatus,
+	resetCloudRetryStatus,
 	setError,
 	CriticalCssStatus,
 } from '../stores/critical-css-status';
 
 export async function requestCloudCss(): Promise< void > {
-	// Todo: Debounce request.
-	resetGenerateStatus( true );
+	resetCloudStatus();
+	await startCloudCssRequest();
+}
+
+export async function retryCloudCss(): Promise< void > {
+	resetCloudRetryStatus();
+	await startCloudCssRequest();
+}
+
+async function startCloudCssRequest(): Promise< void > {
 	try {
 		await api.post( '/cloud-css/request-generate' );
 	} catch ( e ) {

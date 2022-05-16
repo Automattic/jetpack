@@ -39,7 +39,7 @@ class UtilsTest extends TestCase {
 
 		Utils::error_clear_last();
 		$err = error_get_last();
-		$this->assertTrue( empty( $err['message'] ) );
+		$this->assertTrue( empty( $err['message'] ) ); // phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertEmpty -- We need the potential error suppression, behavior varies by PHP version.
 	}
 
 	/**
@@ -348,9 +348,9 @@ class UtilsTest extends TestCase {
 	}
 
 	/**
-	 * Test getTimestamp.
+	 * Test getRepoData
 	 */
-	public function testGetTimestamp() {
+	public function testGetRepoData() {
 		$this->useTempDir();
 
 		if ( in_array( '--debug', $GLOBALS['argv'], true ) ) {
@@ -363,7 +363,13 @@ class UtilsTest extends TestCase {
 
 		// Create a non-git file in a non-git checkout.
 		touch( 'not-in-git.txt', 1614124800 );
-		$this->assertSame( '2021-02-24T00:00:00Z', Utils::getTimestamp( 'not-in-git.txt', $output, $helper ) );
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-24T00:00:00Z',
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'not-in-git.txt', $output, $helper )
+		);
 
 		// Create a file in a git checkout.
 		file_put_contents( 'in-git.txt', '' );
@@ -384,14 +390,33 @@ class UtilsTest extends TestCase {
 		);
 		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
 		Utils::runCommand( array( 'git', 'add', 'in-git.txt' ), ...$args );
-		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit' ), ...$args );
-		$this->assertSame( '2021-02-02T22:22:22+00:00', Utils::getTimestamp( 'in-git.txt', $output, $helper ) );
+		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#123)' ), ...$args );
+
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'pr-num'    => '123',
+			),
+			Utils::getRepoData( 'in-git.txt', $output, $helper )
+		);
 
 		// Test our non-git file again.
-		$this->assertSame( '2021-02-24T00:00:00Z', Utils::getTimestamp( 'not-in-git.txt', $output, $helper ) );
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-24T00:00:00Z',
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'not-in-git.txt', $output, $helper )
+		);
 
 		// Nonexistent file.
-		$this->assertNull( Utils::getTimestamp( 'missing.txt', $output, $helper ) );
+		$this->assertSame(
+			array(
+				'timestamp' => null,
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'missing.txt', $output, $helper )
+		);
 	}
 
 	/**

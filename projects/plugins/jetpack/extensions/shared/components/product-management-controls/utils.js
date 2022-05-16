@@ -89,6 +89,10 @@ const messages = {
 			'jetpack'
 		),
 	},
+	'mark this product as a donation': {
+		[ PRODUCT_TYPE_PAYMENT_PLAN ]: __( 'Mark this payment plan as a donation', 'jetpack' ),
+		[ PRODUCT_TYPE_SUBSCRIPTION ]: __( 'Mark this subscription as a donation', 'jetpack' ),
+	},
 };
 
 export function getMessageByProductType( message, productType = PRODUCT_TYPE_PAYMENT_PLAN ) {

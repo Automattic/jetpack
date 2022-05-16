@@ -680,6 +680,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		// Get site discount.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/discount',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_discount',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			)
+		);
+
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -733,6 +744,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::set_has_seen_wc_connection_modal',
 				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+			)
+		);
+
+		// Get Jetpack introduction offers
+		register_rest_route(
+			'jetpack/v4',
+			'/intro-offers',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_intro_offers',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
 	}
@@ -1401,13 +1423,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'] ) ) {
 			return false;
 		}
-		$signature = base64_decode( $_GET['signature'] ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		$signature = base64_decode( wp_unslash( $_GET['signature'] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$signature_data = wp_json_encode(
 			array(
-				'rest_route' => $_GET['rest_route'],
+				'rest_route' => isset( $_GET['rest_route'] ) ? filter_var( wp_unslash( $_GET['rest_route'] ) ) : null,
 				'timestamp'  => (int) $_GET['timestamp'],
-				'url'        => wp_unslash( $_GET['url'] ),
+				'url'        => esc_url_raw( wp_unslash( $_GET['url'] ) ),
 			)
 		);
 
@@ -1701,7 +1723,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return rest_ensure_response(
 			array(
-				'authorizeUrl' => Jetpack::build_authorize_url( false, true ),
+				'authorizeUrl' => Jetpack::build_authorize_url( false ),
 			)
 		);
 	}
@@ -1868,7 +1890,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
 		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
-			$secret                    = $_COOKIE['store_sandbox'];
+			$secret                    = filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) );
 			$args['headers']['Cookie'] = "store_sandbox=$secret;";
 		}
 
@@ -1994,6 +2016,62 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'code' => 'success',
 				'data' => $data->current->orderedItems,
+			)
+		);
+	}
+
+	/**
+	 * Fetch the discount for this site and return it.
+	 *
+	 * @since 10.8
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_site_discount() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error(
+				'site_id_missing',
+				esc_html__( 'Site ID is missing.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			"/sites/$site_id/discount",
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$data          = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'discount_fetch_failed',
+				is_object( $data ) && property_exists( $data, 'error' ) ? $data->error : esc_html__( 'Could not retrieve site discount.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+
+		if ( ! isset( $data ) ) {
+			return new WP_Error(
+				'discount_parse_error',
+				esc_html__( 'Could not parse discount', 'jetpack' ),
+				array( 'status' => 204 ) // no content.
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+				'data' => $data,
 			)
 		);
 	}
@@ -2201,6 +2279,37 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'custom-content-types',
 			),
 
+			// WAF.
+			'jetpack_waf_ip_list'                  => array(
+				'description'       => esc_html__( 'Allow / Block list - Block or allow a specific request IP.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'waf',
+			),
+			'jetpack_waf_ip_block_list'            => array(
+				'description'       => esc_html__( 'Blocked IP addresses', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_string',
+				'sanitize_callback' => 'esc_textarea',
+				'jp_group'          => 'waf',
+			),
+			'jetpack_waf_ip_allow_list'            => array(
+				'description'       => esc_html__( 'Always allowed IP addresses', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_string',
+				'sanitize_callback' => 'esc_textarea',
+				'jp_group'          => 'waf',
+			),
+			'jetpack_waf_share_data'               => array(
+				'description'       => esc_html__( 'Share data with Jetpack.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'waf',
+			),
 			// Galleries.
 			'tiled_galleries'                      => array(
 				'description'       => esc_html__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ),
@@ -4052,6 +4161,63 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$updated_option = Jetpack_Options::update_option( 'has_seen_wc_connection_modal', true );
 
 		return rest_ensure_response( array( 'success' => $updated_option ) );
+	}
+
+	/**
+	 * Fetch introdution offers.
+	 *
+	 * @since 10.9
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_intro_offers() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error(
+				'site_id_missing',
+				esc_html__( 'Site ID is missing.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			'/introductory-offers',
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'intro_offers_fetch_failed',
+				esc_html__( 'Could not retrieve intro offers.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( ! isset( $data ) ) {
+			return new WP_Error(
+				'intro_offers_error',
+				esc_html__( 'Could not parse intro offers.', 'jetpack' ),
+				array( 'status' => 204 ) // no content.
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+				'data' => $data,
+			)
+		);
 	}
 
 } // class end

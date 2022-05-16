@@ -55,9 +55,6 @@ class Publicize extends Publicize_Base {
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
 		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
-
-		// TODO: Move enhanced Open Graph to the Jetpack plugin.
-		// include_once __DIR__ . '/enhanced-open-graph.php';
 	}
 
 	/**
@@ -94,7 +91,7 @@ class Publicize extends Publicize_Base {
 	 * Show a warning when Publicize does not have a connection.
 	 */
 	public function admin_page_warning() {
-		$jetpack   = Jetpack::init();
+		$jetpack   = \Jetpack::init();
 		$blog_name = get_bloginfo( 'blogname' );
 		if ( empty( $blog_name ) ) {
 			$blog_name = home_url( '/' );
@@ -312,7 +309,7 @@ class Publicize extends Publicize_Base {
 						break;
 					case 'empty_state':
 						/* translators: %s is the URL of the Jetpack admin page */
-						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), Jetpack::admin_url() );
+						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), \Jetpack::admin_url() );
 						break;
 					default:
 						$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack-publicize-pkg' );
@@ -548,6 +545,8 @@ class Publicize extends Publicize_Base {
 			return;
 		}
 
+		$should_publicize = $this->should_submit_post_pre_checks( $post );
+
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			/**
 			 * Determines whether a post being published gets publicized.
@@ -556,12 +555,13 @@ class Publicize extends Publicize_Base {
 			 *
 			 * @module publicize
 			 *
+			 * @since 0.1.0 No longer defaults to true. Adds checks to not publicize based on different contexts.
 			 * @since 4.1.0
 			 *
 			 * @param bool $should_publicize Should the post be publicized? Default to true.
 			 * @param WP_POST $post Current Post object.
 			 */
-			$should_publicize = apply_filters( 'publicize_should_publicize_published_post', true, $post );
+			$should_publicize = apply_filters( 'publicize_should_publicize_published_post', $should_publicize, $post );
 
 			if ( $should_publicize ) {
 				update_post_meta( $post->ID, $this->PENDING, true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -661,8 +661,11 @@ class Publicize extends Publicize_Base {
 		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
 			return $flags;
 		}
+
+		$should_publicize = $this->should_submit_post_pre_checks( $post );
+
 		/** This filter is already documented in modules/publicize/publicize-jetpack.php */
-		if ( ! apply_filters( 'publicize_should_publicize_published_post', true, $post ) ) {
+		if ( ! apply_filters( 'publicize_should_publicize_published_post', $should_publicize, $post ) ) {
 			return $flags;
 		}
 

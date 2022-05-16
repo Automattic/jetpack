@@ -8,9 +8,14 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
+import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
+import {
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_VIDEOPRESS,
+	PLAN_JETPACK_ANTI_SPAM,
+} from 'lib/plans/constants';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
@@ -164,7 +169,7 @@ export const getStepContent = stepSlug => {
 				descriptionLink:
 					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
 				ctaText: __( 'Install Creative Mail', 'jetpack' ),
-				illustrationPath: '/recommendations/creative-mail-illustration.svg',
+				illustration: 'assistant-creative-mail',
 			};
 		case 'monitor':
 			return {
@@ -179,7 +184,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/monitor/',
 				ctaText: __( 'Enable Downtime Monitoring', 'jetpack' ),
-				illustrationPath: '/recommendations/monitor-illustration.svg',
+				illustration: 'assistant-downtime-monitoring',
 			};
 		case 'related-posts':
 			return {
@@ -194,7 +199,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/related-posts/',
 				ctaText: __( 'Enable Related Posts', 'jetpack' ),
-				illustrationPath: '/recommendations/related-posts-illustration.jpg',
+				illustration: 'assistant-related-post',
 			};
 		case 'site-accelerator':
 			return {
@@ -206,7 +211,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/site-accelerator/',
 				ctaText: __( 'Enable Site Accelerator', 'jetpack' ),
-				illustrationPath: '/recommendations/site-accelerator-illustration.svg',
+				illustration: 'assistant-site-accelerator',
 			};
 		case 'publicize':
 			return {
@@ -220,8 +225,6 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-blog-social-sharing' ),
 				ctaText: __( 'Enable Social Media Sharing', 'jetpack' ),
-				illustrationPath: '/recommendations/general-illustration.png',
-				rnaIllustration: true,
 			};
 		case 'security-plan':
 			return {
@@ -241,8 +244,6 @@ export const getStepContent = stepSlug => {
 				),
 				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
-				illustrationPath: '/recommendations/general-illustration.png',
-				rnaIllustration: true,
 			};
 		case 'anti-spam':
 			return {
@@ -253,8 +254,6 @@ export const getStepContent = stepSlug => {
 				),
 				ctaText: __( 'Learn how to block spam', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
-				illustrationPath: '/recommendations/general-illustration.png',
-				rnaIllustration: true,
 			};
 		case 'videopress':
 			return {
@@ -268,8 +267,6 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-videopress' ),
 				ctaText: __( 'Try VideoPress for free', 'jetpack' ),
-				illustrationPath: '/recommendations/general-illustration.png',
-				rnaIllustration: true,
 			};
 		case 'woocommerce':
 			return {
@@ -281,9 +278,76 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
-				illustrationPath: '/recommendations/woocommerce-illustration.jpg',
 			};
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;
 	}
+};
+
+// Gets data for the product suggestion card that can show on a recommendation step.
+export const getProductCardData = ( state, productSlug ) => {
+	const siteRawUrl = getSiteRawUrl( state );
+	const products = getStaticProductsForPurchase( state );
+
+	switch ( productSlug ) {
+		// Security Plan
+		case PLAN_JETPACK_SECURITY_T1_YEARLY:
+			return {
+				productCardTitle: __( 'Increase your site security!', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get Jetpack Security', 'jetpack' ),
+				productCardList: products.security ? products.security.features : [],
+				productCardIcon: '/recommendations/cloud-icon.svg',
+			};
+		case PLAN_JETPACK_ANTI_SPAM:
+			return {
+				productCardTitle: __( 'Block spam automatically with Jetpack Anti-spam', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get Anti-spam', 'jetpack' ),
+				productCardList: products.akismet ? products.akismet.features : [],
+				productCardIcon: '/recommendations/bug-icon.svg',
+			};
+		case PLAN_JETPACK_VIDEOPRESS:
+			return {
+				productCardTitle: __( 'Upgrade for more videos and storage', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get VideoPress', 'jetpack' ),
+				productCardList: products.videopress ? products.videopress.features : [],
+				productCardIcon: '/recommendations/video-icon.svg',
+			};
+		default:
+			throw `Unknown product slug for getProductCardData: ${ productSlug }`;
+	}
+};
+
+// Sets step-specific props for when products are shown on different recommendation steps
+// Important that this be called after getProductCardData when setting up props
+export const getProductCardDataStepOverrides = ( state, productSlug, stepSlug ) => {
+	switch ( productSlug ) {
+		case PLAN_JETPACK_SECURITY_T1_YEARLY:
+			if ( stepSlug === 'publicize' ) {
+				return {
+					productCardTitle: __( 'Your site is growing. It’s time for a security plan.', 'jetpack' ),
+				};
+			} else if ( stepSlug === 'security-plan' ) {
+				return {
+					productCardTitle: __(
+						'Jetpack Security gives you complete site protection and backups.',
+						'jetpack'
+					),
+				};
+			}
+			break;
+	}
+
+	return {};
 };

@@ -29,6 +29,7 @@ import {
 } from 'state/modules';
 import { updateSettings } from 'state/settings/actions';
 import { getSetting, isUpdatingSetting } from 'state/settings/reducer';
+import { hasActiveSiteFeature } from 'state/site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { showBackups } from 'state/initial-state';
 
@@ -301,7 +302,7 @@ class MyPlanBody extends React.Component {
 						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
 						{ 'is-premium-plan' === planClass && getRewindVaultPressCard() }
 						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
-						{ this.props.hasActiveSearchPurchase && getSearchCard() }
+						{ this.props.hasInstantSearch && getSearchCard() }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
@@ -575,7 +576,7 @@ class MyPlanBody extends React.Component {
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ jetpackBackupCard }
-						{ this.props.hasActiveSearchPurchase && getSearchCard() }
+						{ this.props.hasInstantSearch && getSearchCard() }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
@@ -794,6 +795,7 @@ class MyPlanBody extends React.Component {
 export default connect(
 	state => {
 		return {
+			hasInstantSearch: hasActiveSiteFeature( state, 'instant-search' ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 			isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),

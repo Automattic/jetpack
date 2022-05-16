@@ -12,14 +12,6 @@
  */
 function fixDeps( pkg ) {
 	// Why do they not publish new versions from their monorepo?
-	if ( pkg.name === '@automattic/format-currency' ) {
-		// 1.0.0-alpha.0 published 2019-03-21
-		pkg.dependencies[ 'i18n-calypso' ] = '^5';
-	}
-	if ( pkg.name === 'i18n-calypso' && pkg.dependencies[ 'interpolate-components' ] ) {
-		// 5.0.0 published 2020-07-01
-		pkg.dependencies[ 'interpolate-components' ] = 'npm:@automattic/interpolate-components@^1.2.0';
-	}
 	if ( pkg.name === '@automattic/social-previews' ) {
 		// 1.1.1 published 2021-04-08
 		if ( pkg.dependencies[ '@wordpress/components' ] === '^12.0.8' ) {
@@ -27,6 +19,19 @@ function fixDeps( pkg ) {
 			// This dep update is in their monorepo as of 2022-03-10 with no code changes.
 			pkg.dependencies[ '@wordpress/components' ] = '^19.2.0';
 		}
+	}
+	if ( pkg.name === '@automattic/components' ) {
+		// 1.0.0-alpha.3 published 2020-11-11. Not that we want alpha.4, they added an i18n-calypso dep (ugh).
+		if ( ! pkg.dependencies[ '@wordpress/base-styles' ] ) {
+			// Depends on this but doesn't specify it.
+			pkg.dependencies[ '@wordpress/base-styles' ] = '^4.0.4';
+		}
+	}
+
+	// Depends on punycode but doesn't declare it.
+	// https://github.com/markdown-it/markdown-it/issues/230
+	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {
+		pkg.dependencies.punycode = '^2.1.1';
 	}
 
 	// Even though Storybook works with webpack 5, they still have a bunch of deps on webpack4.
@@ -45,11 +50,29 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Outdated dep.
+	// https://github.com/SamVerschueren/stream-to-observable/pull/9
+	if (
+		pkg.name === '@samverschueren/stream-to-observable' &&
+		pkg.dependencies[ 'any-observable' ] === '^0.3.0'
+	) {
+		pkg.dependencies[ 'any-observable' ] = '^0.5.1';
+	}
+
 	// Project is supposedly not dead, but still isn't being updated.
-	// For our purposes at least it seems to work fine with jest-environment-jsdom 27.
+	// For our purposes at least it seems to work fine with jest-environment-jsdom 28.
 	// https://github.com/enzymejs/enzyme-matchers/issues/353
 	if ( pkg.name === 'jest-environment-enzyme' ) {
-		pkg.dependencies[ 'jest-environment-jsdom' ] = '^27';
+		pkg.dependencies[ 'jest-environment-jsdom' ] = '^28';
+	}
+
+	// Need to match the version of jest used everywhere else.
+	if (
+		pkg.name === '@wordpress/jest-preset-default' &&
+		pkg.dependencies[ 'babel-jest' ] &&
+		pkg.dependencies[ 'babel-jest' ].startsWith( '^27' )
+	) {
+		pkg.dependencies[ 'babel-jest' ] = '^28';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
@@ -101,6 +124,12 @@ function fixPeerDeps( pkg ) {
 	// @sveltejs/eslint-config peer-depends on eslint-plugin-node but doesn't seem to actually use it.
 	if ( pkg.name === '@sveltejs/eslint-config' ) {
 		delete pkg.peerDependencies?.[ 'eslint-plugin-node' ];
+	}
+
+	// Peer-depends on js-git but doesn't declare it.
+	// https://github.com/creationix/git-node-fs/pull/8
+	if ( pkg.name === 'git-node-fs' && ! pkg.peerDependencies?.[ 'js-git' ] ) {
+		pkg.peerDependencies[ 'js-git' ] = '*';
 	}
 
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with

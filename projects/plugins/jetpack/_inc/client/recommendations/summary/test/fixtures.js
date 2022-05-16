@@ -8,12 +8,42 @@ function rewindFixture( rewindStatus ) {
 
 function siteDataFixture( { productSlug } ) {
 	return {
+		requests: {
+			isFetchingSiteDiscount: false,
+		},
 		data: {
 			plan: {
 				product_slug: productSlug,
 			},
 		},
 	};
+}
+
+function introOffersFixture() {
+	return {
+		requests: {
+			isFetching: false
+		},
+		data: [ {
+			product_id:2016,
+			product_slug: "jetpack_security_t1_yearly",
+			currency_code: "USD",
+			formatted_price: "US$107.40",
+			original_price: 299.4,
+			raw_price: 107.4,
+			discount_percentage: 64,
+			ineligible_reason: null,
+		}, {
+			product_id: 2112,
+			product_slug: "jetpack_backup_t1_yearly",
+			currency_code: "USD",
+			formatted_price: "US$47.40",
+			original_price:119.4,
+			raw_price: 47.4,
+			discount_percentage: 60,
+			ineligible_reason: null,
+		}]
+	}
 }
 
 function upsellFixture( { hideUpsell } ) {
@@ -80,12 +110,15 @@ export function buildInitialState( {
 			},
 			recommendations: {
 				upsell: upsellFixture( { hideUpsell } ),
+				requests: {},
+				data: {},
 			},
 			rewind: rewindFixture( rewindStatus ),
 			settings: {
 				items: enabledRecommendations,
 			},
 			siteData: siteDataFixture( { productSlug } ),
+			introOffers: introOffersFixture()
 		},
 	};
 }

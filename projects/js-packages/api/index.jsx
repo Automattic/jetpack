@@ -322,6 +322,12 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchSiteDiscount: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/discount`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => body.data ),
+
 		fetchSetupQuestionnaire: () =>
 			getRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, getParams )
 				.then( checkStatus )
@@ -378,6 +384,11 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchPluginsData: () =>
 			getRequest( `${ apiRoot }jetpack/v4/plugins`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchIntroOffers: () =>
+			getRequest( `${ apiRoot }jetpack/v4/intro-offers`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -490,6 +501,10 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 		fetchSearchStats: () =>
 			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchWafSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/waf`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchWordAdsSettings: () =>

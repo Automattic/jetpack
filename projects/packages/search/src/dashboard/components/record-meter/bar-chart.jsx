@@ -12,11 +12,17 @@ import { __ } from '@wordpress/i18n';
 const CHART_OPTIONS = {
 	type: 'bar',
 	options: {
+		layout: {
+			padding: {
+				left: -10,
+			},
+		},
 		borderRadius: 100,
 		borderSkipped: 'middle',
 		indexAxis: 'y',
 		maintainAspectRatio: false,
 		aspectRatio: 1.3,
+		barThickness: 24,
 		scales: {
 			x: {
 				stacked: true,
@@ -52,7 +58,7 @@ const CHART_OPTIONS = {
 
 				labels: {
 					filter: function ( legendItem ) {
-						return ! legendItem.text.includes( __( 'Remaining', 'jetpack-search-pkg' ) );
+						return ! legendItem.text.includes( __( 'remaining', 'jetpack-search-pkg' ) );
 					},
 				},
 			},
@@ -136,6 +142,8 @@ export class BarChart extends React.Component {
 				<div className="jp-search-chart-legend__container">
 					<ul className="jp-search-chart-legend">
 						{ this.getLegendItems().map( item => {
+							const legendItemData = this.props.data[ item.datasetIndex ]?.data?.data;
+							const legendItemCount = Array.isArray( legendItemData ) ? legendItemData[ 0 ] : null;
 							return (
 								<li key={ item.text }>
 									<div
@@ -146,7 +154,11 @@ export class BarChart extends React.Component {
 									/>
 									<span className="jp-search-chart-legend__label" children={ item.text } />
 									<span className="jp-search-chart-legend__count">
-										({ this.props.data[ item.datasetIndex ].data.data })
+										(
+										{ typeof legendItemCount === 'number'
+											? legendItemCount.toLocaleString()
+											: legendItemCount }
+										)
 									</span>
 								</li>
 							);

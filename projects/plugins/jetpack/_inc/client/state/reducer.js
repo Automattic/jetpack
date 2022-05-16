@@ -11,6 +11,7 @@ import { initialState } from 'state/initial-state/reducer';
 import { dashboard } from 'state/at-a-glance/reducer';
 import { reducer as connection } from 'state/connection/reducer';
 import { reducer as devCard } from 'state/dev-version/reducer';
+import { reducer as introOffers } from 'state/intro-offers';
 import { reducer as plans } from 'state/plans/reducer';
 import { reducer as jetpackNotices } from 'state/jetpack-notices/reducer';
 import { reducer as modules } from 'state/modules/reducer';
@@ -29,6 +30,7 @@ import { reducer as disconnectSurvey } from 'state/disconnect-survey/reducer';
 import { reducer as trackingSettings } from 'state/tracking/reducer';
 import { reducer as mobile } from 'state/mobile/reducer';
 import { reducer as licensing } from 'state/licensing/reducer';
+import { reducer as waf } from 'state/waf';
 
 const jetpackReducer = combineReducers( {
 	connection,
@@ -53,6 +55,8 @@ const jetpackReducer = combineReducers( {
 	trackingSettings,
 	mobile,
 	licensing,
+	waf,
+	introOffers,
 } );
 
 export default combineReducers( {

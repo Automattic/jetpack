@@ -1,9 +1,9 @@
-=== Jetpack Boost ===
+=== Jetpack Boost - Website Speed, Performance and Critical CSS  ===
 Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
-Tested up to: 5.9
+Tested up to: 6.0
 Requires PHP: 7.0
 Stable tag: 1.4.2
 License: GPLv2 or later
@@ -13,11 +13,27 @@ Speed up your website by optimizing page performance with Jetpack Boost!
 
 == Description ==
 
-Jetpack Boost provides one-click optimizations that supercharge your WordPress site’s performance and improve web vitals scores for better SEO.
+Speed up your website by optimizing page performance with Jetpack Boost!
+
+Did you know that a faster website:-
+
+- Ranks higher on Google.
+- Improves bounce rate (people stay on your site for longer).
+- Increases your conversion rate.
+
+Increase your website performance and speed up your website with one-click optimizations that supercharge your WordPress site’s performance and improve core web vitals scores for better search engine listings.
+
+Improving Core Web Vitals helps you rank higher on Google. A faster website also improves your SEO, helps you reduce your bounce rate and increase your ecommerce conversion rate. 
+
+- Largest Contentful Paint (LCP): Measures loading performance. Improve your LCP and improve your website loading speed.
+- First Input Delay (FID): Measures interactivity. To improve user experience pages should have a low FID.
+- Cumilative Layout Shift (CLS): Measures visual stability. Lowering your CLS helps improve your user experience.
 
 ### Performance Modules
 
-Optimize your site with the same techniques used on the world's most successful websites. Each technique is packaged up as a module that you can activate and try out.
+Optimise your website with the same techniques used on the world's most successful websites.
+
+Each technique that is used to increase website performance is packaged up as a module that you can activate and try out.
 
 Currently the plugin has 3 performance modules available:
 
@@ -25,23 +41,17 @@ Currently the plugin has 3 performance modules available:
 
    Read more about critical CSS generation at [web.dev](https://web.dev/extract-critical-css/)
 
-1. *Defer Non-Essential Javascript* moves some tasks to after the page loads, so that important visual information can be seen sooner.
+2. *Defer Non-Essential Javascript* moves some tasks to after the page loads, so that important visual information can be seen sooner and your website loads quicker.
 
    Read more about deferring javascript at [web.dev](https://web.dev/efficiently-load-third-party-javascript/)
 
-1. *Lazy Image Loading* only loads the images the user can see. As the user scrolls, images are loaded just before they show up on the page. This simple optimization makes sites faster and saves bandwidth for your host and your customers.
+3. *Lazy Image Loading* only loads the images the user can see. As the user scrolls, images are loaded just before they show up on the page. This simple optimization makes websites faster and saves bandwidth for your host and your customers.
 
    Read more about lazy image loading at [web.dev](https://web.dev/lazy-loading-images/)
 
-### Easy Setup
+ Google PageSpeed API is used to measure the performance score of a site. It's important to look at the Page Speed score because Core Web Vitals are going to be used as a ranking factor in search engines which means improving your SERP listing and increase your website visitors.
 
-There's nothing to configure - the setup process is as easy as:
-
- 1. Install the plugin
- 2. Activate Jetpack Connection
- 3. Turn on performance modules one by one and observe how the performance score changes
-
- Google PageSpeed API is used to measure the performance score of a site. It's important to look at the PageSpeed score because Core Web Vitals are going to be used as a ranking factor in search engines.
+Don’t want to have to manually generate your critical CSS each time you update your site? Let us do the heavy lifting for you with automated critical CSS – each time you update your site we will automatically regenerate your critical CSS and update your performance scores. Upgrading also gives you dedicated email support access.
 
 ### With 💚 by Jetpack
 
@@ -53,7 +63,7 @@ We'd also like to give a special THANK YOU to the XWP team who provided help wit
 
 == Frequently Asked Questions ==
 
-= What does the Jetpack Boost plugin do to help speed up my site? =
+= What does the Jetpack Boost plugin do to help speed up my WordPress site? =
 
 Jetpack Boost makes small changes to the way that data is sent from your WordPress site to your users’ browser, to enable the browser to display your site faster.
 
@@ -157,12 +167,13 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 == Installation ==
 
 1. Install Jetpack Boost via the plugin directory, and activate it.
-2. Visit the "Jetpack Boost" section of your site's WP Admin.
-3. Turn on the performance features you would like to try out on your site.
+2. Activate Jetpack Connection
+3. Turn on performance modules one by one and observe how the performance score changes
 
 == Screenshots ==
 
-1. Manage your Jetpack Boost settings
+1. Jetpack Boost Critical CSS Generation
+2. Jetpack Boost Speed Improvement
 
 == Changelog ==
 ### 1.4.2 - 2022-04-11

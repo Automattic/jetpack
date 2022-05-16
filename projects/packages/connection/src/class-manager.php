@@ -116,7 +116,6 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
-
 	}
 
 	/**
@@ -977,21 +976,6 @@ class Manager {
 		$api_version = '/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/';
 
 		/**
-		 * Filters whether the connection manager should use the iframe authorization
-		 * flow instead of the regular redirect-based flow.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to false.
-		 */
-		$iframe_flow = apply_filters( 'jetpack_use_iframe_authorization_flow', false );
-
-		// Do not modify anything that is not related to authorize requests.
-		if ( 'authorize' === $relative_url && $iframe_flow ) {
-			$relative_url = 'authorize_iframe';
-		}
-
-		/**
 		 * Filters the API URL that Jetpack uses for server communication.
 		 *
 		 * @since 1.7.0
@@ -1160,19 +1144,12 @@ class Manager {
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
-		$allow_inplace_authorization = isset( $registration_details->allow_inplace_authorization ) ? $registration_details->allow_inplace_authorization : false;
 		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
-
-		if ( ! $allow_inplace_authorization ) {
-			// Forces register_site REST endpoint to return the Calypso authorization URL.
-			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
-		}
 
 		add_filter(
 			'jetpack_register_site_rest_response',
-			function ( $response ) use ( $allow_inplace_authorization, $alternate_authorization_url ) {
-				$response['allowInplaceAuthorization'] = $allow_inplace_authorization;
-				$response['alternateAuthorizeUrl']     = $alternate_authorization_url;
+			function ( $response ) use ( $alternate_authorization_url ) {
+				$response['alternateAuthorizeUrl'] = $alternate_authorization_url;
 				return $response;
 			}
 		);
@@ -1659,16 +1636,15 @@ class Manager {
 	 * This function will automatically perform "soft" or "hard" disconnect depending on whether other plugins are using the connection.
 	 * This is a proxy method to simplify the Connection package API.
 	 *
-	 * @see Manager::disable_plugin()
-	 * @see Manager::disconnect_site_wpcom()
-	 * @see Manager::delete_all_connection_tokens()
+	 * @see Manager::disconnect_site()
 	 *
+	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
+	 * @param bool    $ignore_connected_plugins Delete the tokens even if there are other connected plugins.
 	 * @return bool
 	 */
-	public function remove_connection() {
-		$this->disable_plugin();
-		$this->disconnect_site_wpcom();
-		$this->delete_all_connection_tokens();
+	public function remove_connection( $disconnect_wpcom = true, $ignore_connected_plugins = false ) {
+
+		$this->disconnect_site( $disconnect_wpcom, $ignore_connected_plugins );
 
 		return true;
 	}
@@ -1999,8 +1975,13 @@ class Manager {
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
 	 *
 	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
+	 * @param bool    $ignore_connected_plugins Delete the tokens even if there are other connected plugins.
 	 */
-	public function disconnect_site( $disconnect_wpcom = true ) {
+	public function disconnect_site( $disconnect_wpcom = true, $ignore_connected_plugins = true ) {
+		if ( ! $ignore_connected_plugins && null !== $this->plugin && ! $this->plugin->is_only() ) {
+			return false;
+		}
+
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 
 		( new Nonce_Handler() )->clean_all();
@@ -2018,10 +1999,10 @@ class Manager {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$this->disconnect_site_wpcom( true );
+			$this->disconnect_site_wpcom( $ignore_connected_plugins );
 		}
 
-		$this->delete_all_connection_tokens( true );
+		$this->delete_all_connection_tokens( $ignore_connected_plugins );
 
 		// Remove tracked package versions, since they depend on the Jetpack Connection.
 		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
@@ -2347,14 +2328,11 @@ class Manager {
 	 * Force plugin disconnect. After its called, the plugin will not be allowed to use the connection.
 	 * Note: this method does not remove any access tokens.
 	 *
+	 * @deprecated since 1.39.0
 	 * @return bool
 	 */
 	public function disable_plugin() {
-		if ( ! $this->plugin ) {
-			return false;
-		}
-
-		return $this->plugin->disable();
+		return null;
 	}
 
 	/**
@@ -2362,14 +2340,11 @@ class Manager {
 	 * After its called, the plugin will be allowed to use the connection again.
 	 * Note: this method does not initialize access tokens.
 	 *
+	 * @deprecated since 1.39.0.
 	 * @return bool
 	 */
 	public function enable_plugin() {
-		if ( ! $this->plugin ) {
-			return false;
-		}
-
-		return $this->plugin->enable();
+		return null;
 	}
 
 	/**
@@ -2489,5 +2464,4 @@ class Manager {
 		}
 		return $stats;
 	}
-
 }

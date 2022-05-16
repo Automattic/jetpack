@@ -83,6 +83,15 @@ export const isFinished = derived( { subscribe }, state =>
 	[ SUCCESS, FAIL ].includes( state.status )
 );
 
+/**
+ * Derived datastore: Returns whether to show an error.
+ * Show an error if in error state, or if a success has 0 results.
+ */
+export const showError = derived(
+	{ subscribe },
+	state => state.status === 'error' || ( state.status === 'success' && state.success_count === 0 )
+);
+
 export const isGenerating = derived( [ store, modules ], ( [ $store, $modules ] ) => {
 	const statusIsRequesting = REQUESTING === $store.status;
 	const criticalCssIsEnabled = $modules[ 'critical-css' ] && $modules[ 'critical-css' ].enabled;
@@ -184,11 +193,20 @@ export function storeGenerateError( error: Error ): void {
 	} ) );
 }
 
-export function resetGenerateStatus( forceRequest = true ): void {
+export function resetCloudStatus(): void {
 	return update( state => ( {
 		...state,
 		...resetState,
-		status: forceRequest ? REQUESTING : resetState.status,
+		status: REQUESTING,
+	} ) );
+}
+
+export function resetCloudRetryStatus(): void {
+	return update( state => ( {
+		...state,
+		...resetState,
+		status: REQUESTING,
+		retried_show_stopper: true,
 	} ) );
 }
 
