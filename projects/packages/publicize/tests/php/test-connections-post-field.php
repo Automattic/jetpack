@@ -66,7 +66,7 @@ class Test_Connections_Post_Field  extends TestCase {
 	public function set_up() {
 		$this->setup_jetpack_connections();
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( Publicize::class )->onlyMethods( array( 'refresh_connections' ) )->getMock();
+		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'refresh_connections' ) )->getMock();
 
 		$this->publicize->method( 'refresh_connections' )
 			->withAnyParameters()
