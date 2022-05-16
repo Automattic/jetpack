@@ -59,6 +59,10 @@ class Module_Control {
 	 * Activiate Search module
 	 */
 	public function activate() {
+		if ( ! $this->plan->supports_search() ) {
+			return new WP_Error( 'not_supported', __( 'Your plan does not support Jetpack Search.', 'jetpack-search-pkg' ) );
+		}
+
 		return ( new Modules() )->activate( self::JETPACK_SEARCH_MODULE_SLUG, false, false );
 	}
 
