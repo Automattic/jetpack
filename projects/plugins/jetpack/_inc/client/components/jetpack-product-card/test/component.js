@@ -52,8 +52,8 @@ describe( 'Jetpack Product Card', () => {
 	} );
 
 	it( 'discounted price is shown', () => {
-		const discount = 50;
-		const { container } = render( <JetpackProductCard { ...mockAttributes } discount={ discount }/> );
+		const discountedPrice = 1;
+		const { container } = render( <JetpackProductCard { ...mockAttributes } discountedPrice={ discountedPrice }/> );
 
 		// Show original price.
 		const originalPriceObject = getCurrencyObject( mockAttributes.price, mockAttributes.currencyCode );
@@ -62,7 +62,7 @@ describe( 'Jetpack Product Card', () => {
 		expect( getNodeText( container.querySelector( '.jp-product-card__raw-price.jp-product-card__raw-price--is-old-price .jp-product-card__price-fraction' ) ) ).to.be.equal( originalPriceObject.fraction );
 
 		// Show discounted price.
-		const discountedPriceObject = getCurrencyObject( ( mockAttributes.price * ( 100 - discount ) / 100 ), mockAttributes.currencyCode );
+		const discountedPriceObject = getCurrencyObject( discountedPrice, mockAttributes.currencyCode );
 		expect( getNodeText( container.querySelector( '.jp-product-card__raw-price:not( .jp-product-card__raw-price--is-old-price ) .jp-product-card__currency-symbol' ) ) ).to.be.equal( discountedPriceObject.symbol );
 		expect( getNodeText( container.querySelector( '.jp-product-card__raw-price:not( .jp-product-card__raw-price--is-old-price ) .jp-product-card__price-integer' ) ) ).to.be.equal( discountedPriceObject.integer );
 		expect( getNodeText( container.querySelector( '.jp-product-card__raw-price:not( .jp-product-card__raw-price--is-old-price ) .jp-product-card__price-fraction' ) ) ).to.be.equal( discountedPriceObject.fraction );
