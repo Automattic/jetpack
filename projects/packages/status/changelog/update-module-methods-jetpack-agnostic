@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Modules: Make activate() method Jetpack plugin agnostic. Allowing standalone plugins to use it without Jetpack.
