@@ -113,7 +113,8 @@ class VideoPress_XMLRPC {
 		$format = $request['format'];
 		$info   = $request['info'];
 
-		if ( ! $attachment = get_post( $id ) ) {
+		$attachment = get_post( $id );
+		if ( ! $attachment ) {
 			return false;
 		}
 
@@ -169,7 +170,8 @@ class VideoPress_XMLRPC {
 		$post_id = $request['post_id'];
 		$poster  = $request['poster'];
 
-		if ( ! $attachment = get_post( $post_id ) ) {
+		$attachment = get_post( $post_id );
+		if ( ! $attachment ) {
 			return false;
 		}
 
