@@ -9,7 +9,7 @@
  *
  * @package automattic/jetpack
  */
-require_once dirname( __FILE__ ) . '/class.json-api-site-base.php';
+require_once __DIR__ . '/class.json-api-site-base.php';
 
 /**
  * Base class for Abstract_Jetpack_Site.
@@ -124,7 +124,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 *
 	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php.
 	 */
-	function before_render() {
+	public function before_render() {
 	}
 
 	/**
@@ -152,7 +152,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 *
 	 * @param array $response an array of the response keys.
 	 */
-	function after_render( &$response ) {
+	public function after_render( &$response ) {
 		if ( current_user_can( 'manage_options' ) && $this->is_main_site( $response ) ) {
 			$jetpack_update = $this->get_updates();
 			if ( ! empty( $jetpack_update ) ) {
@@ -171,7 +171,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 *
 	 * @param array $options an array of the Jetpack options.
 	 */
-	function after_render_options( &$options ) {
+	public function after_render_options( &$options ) {
 		$options['jetpack_version'] = $this->get_jetpack_version();
 
 		if ( $main_network_site = $this->main_network_site() ) {
@@ -216,7 +216,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 *
 	 * @return array
 	 */
-	function get_jetpack_modules() {
+	public function get_jetpack_modules() {
 		return array_values( Jetpack_Options::get_option( 'active_modules', array() ) );
 	}
 
@@ -227,7 +227,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 *
 	 * @return bool
 	 */
-	function is_module_active( $module ) {
+	public function is_module_active( $module ) {
 		return in_array( $module, Jetpack_Options::get_option( 'active_modules', array() ), true );
 	}
 
@@ -236,7 +236,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 *
 	 * @return bool Always returns false.
 	 */
-	function is_vip() {
+	public function is_vip() {
 		return false; // this may change for VIP Go sites, which sync using Jetpack.
 	}
 
@@ -245,7 +245,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 *
 	 * @return bool
 	 */
-	function featured_images_enabled() {
+	public function featured_images_enabled() {
 		return $this->current_theme_supports( 'post-thumbnails' );
 	}
 
@@ -254,7 +254,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 *
 	 * @return array
 	 */
-	function get_post_formats() {
+	public function get_post_formats() {
 		// deprecated - see separate endpoint. get a list of supported post formats.
 		$all_formats = get_post_format_strings();
 		$supported   = $this->get_theme_support( 'post-formats' );
@@ -275,7 +275,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	 *
 	 * @return array
 	 */
-	function get_icon() {
+	public function get_icon() {
 		$icon_id = get_option( 'site_icon' );
 		if ( empty( $icon_id ) ) {
 			$icon_id = Jetpack_Options::get_option( 'site_icon_id' );
