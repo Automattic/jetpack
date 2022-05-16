@@ -25,7 +25,7 @@ declare global {
 	const Jetpack_Boost: {
 		preferences: {
 			showRatingPrompt: boolean;
-			showScorePromot: boolean;
+			showScorePrompt: boolean;
 			prioritySupport: boolean;
 		};
 		version: string;
