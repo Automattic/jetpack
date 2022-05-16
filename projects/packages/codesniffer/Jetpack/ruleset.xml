@@ -70,8 +70,8 @@
 	</rule>
 
 	<!-- This rule, while useful, is not one we'd want to run automatically in a pre-commit hook. -->
-	<rule ref="WordPress.WP.CapitalPDangit.Misspelled">
-		<exclude name="WordPress.WP.CapitalPDangit.Misspelled" />
+	<rule ref="WordPress.WP.CapitalPDangit" phpcbf-only="true">
+		<exclude name="WordPress.WP.CapitalPDangit" />
 	</rule>
 
 </ruleset>
