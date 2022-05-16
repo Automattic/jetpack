@@ -116,11 +116,26 @@ class Dedicated_Sender {
 			);
 
 			$response                     = wp_remote_get( $url, $args );
+			$dedicated_sync_response_code = wp_remote_retrieve_response_code( $response );
 			$dedicated_sync_response_body = trim( wp_remote_retrieve_body( $response ) );
 
 			set_transient( $dedicated_sync_check_transient, $dedicated_sync_response_body, HOUR_IN_SECONDS );
 
-			// TODO add logging to WPCOM that there is an issue with the request
+			// Send a bit more information to WordPress.com to help debugging issues.
+			if ( 'OK' !== $dedicated_sync_response_body ) {
+				$data = array(
+					'timestamp'      => microtime( true ),
+					'response_code'  => $dedicated_sync_response_code,
+					'response_body'  => $dedicated_sync_response_body,
+
+					// Send the flow type that was attempted.
+					'sync_flow_type' => 'dedicated',
+				);
+
+				$sender = Sender::get_instance();
+
+				$sender->send_action( 'jetpack_sync_flow_error_enable', $data );
+			}
 		}
 
 		return 'OK' === $dedicated_sync_response_body;
