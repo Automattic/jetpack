@@ -53,14 +53,15 @@ function Price( { value, currency, isOld } ) {
 /**
  * Product Detail component.
  *
- * @param {object} props                    - Component props.
- * @param {string} props.slug               - Product slug
- * @param {Function} props.onClick          - Callback for Call To Action button click
- * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @param {string} props.className					- A className to be concat with default ones
- * @returns {object}                          ProductDetailCard react component.
+ * @param {object} props                         - Component props.
+ * @param {string} props.slug                    - Product slug
+ * @param {Function} props.onClick               - Callback for Call To Action button click
+ * @param {Function} props.trackButtonClick      - Function to call for tracking clicks on Call To Action button
+ * @param {string} props.className               - A className to be concat with default ones
+ * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
+ * @returns {object}                               ProductDetailCard react component.
  */
-const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => {
+const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
@@ -211,12 +212,9 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 					</div>
 				) }
 
-				{ 'search' === slug && (
-					<Text className={ styles[ 'search-price-disclaimer' ] } variant="body-extra-small">
-						{ __(
-							"Pricing will automatically adjust based on the number of records in your search index. If you grow into a new pricing tier, we'll let you know before your next billing cycle.",
-							'jetpack-my-jetpack'
-						) }
+				{ supportingInfo && (
+					<Text className={ styles[ 'supporting-info' ] } variant="body-extra-small">
+						{ supportingInfo }
 					</Text>
 				) }
 			</div>
