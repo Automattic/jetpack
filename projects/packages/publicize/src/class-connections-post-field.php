@@ -102,24 +102,24 @@ class Connections_Post_Field {
 				'profile_picture' => array(
 					'description' => __( 'Profile picture of the connected account', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
+					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'enabled'         => array(
 					'description' => __( 'Whether to share to this connection', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
-					'context'     => array( 'view', 'edit' ),
+					'context'     => array( 'edit' ),
 				),
 				'done'            => array(
 					'description' => __( 'Whether Publicize has already finished sharing for this post', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
-					'context'     => array( 'view', 'edit' ),
+					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'toggleable'      => array(
 					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
-					'context'     => array( 'view', 'edit' ),
+					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 			),
@@ -198,7 +198,7 @@ class Connections_Post_Field {
 			return $is_valid;
 		}
 
-		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
+		$context = ! empty( $request['context'] ) ? $request['context'] : ( $request === 'jetpack_publicize_connections' ? 'edit' : 'view' );
 		return $this->filter_response_by_context( $output_connections, $full_schema, $context );
 	}
 
