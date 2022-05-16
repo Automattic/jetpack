@@ -377,7 +377,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 			return false;
 		}
 
-		$result = $jetpack->get_cloud_site_options( [ $option ] );
+		$result = $jetpack->get_cloud_site_options( array( $option ) );
 		if ( ! array_key_exists( $option, $result ) ) {
 			return false;
 		}
