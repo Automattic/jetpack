@@ -572,7 +572,7 @@ function video_format_done( $info, $format ) {
  * @param string $format Video format.
  * @return string
  */
-function video_image_url_by_guid( $guid, $format ) {
+function video_image_url_by_guid( $guid, $format ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 	$post = videopress_get_post_by_guid( $guid );
 
@@ -706,7 +706,7 @@ function jetpack_videopress_flash_embed_filter( $content ) {
 	$regex   = '%<embed[^>]*+>(?:\s*</embed>)?%i';
 	$content = preg_replace_callback(
 		$regex,
-		function ( $matches, $orig_html = null ) {
+		function ( $matches ) {
 			$embed_code  = $matches[0];
 			$url_matches = array();
 
