@@ -217,7 +217,7 @@ class Test_Connections_Post_Field  extends TestCase {
 		$data     = $response->get_data();
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $data );
-		$this->assertIsArray( $data['jetpack_publicize_connections'] );
+		$this->assertTrue( true, gettype( $data['jetpack_publicize_connections'] ) === 'array' );
 		$this->assertSame( self::$connection_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
 
 		$this->assertArrayHasKey( 'meta', $data );
