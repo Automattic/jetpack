@@ -750,7 +750,9 @@ class REST_Endpoints {
 	 *
 	 * @return \WP_REST_Response
 	 */
-	public static function dedicated_sync() {
+	public static function spawn_sync() {
+		nocache_headers();
+
 		if ( ! Settings::is_dedicated_sync_enabled() ) {
 			return new WP_Error(
 				'dedicated_sync_disabled',

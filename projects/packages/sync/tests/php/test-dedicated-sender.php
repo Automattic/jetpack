@@ -28,6 +28,10 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	public function set_up() {
 		$this->dedicated_sync_request_spawned = false;
 
+		// Setting the Dedicated Sync check transient here to avoid making a test
+		// request every time dedicated Sync setting is updated.
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 200 );
+
 		$this->queue = $this->getMockBuilder( 'Automattic\Jetpack\Sync\Queue' )
 			->setConstructorArgs( array( 'sync' ) )
 			->setMethods( array( 'is_locked', 'size' ) )
@@ -169,6 +173,66 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	}
 
 	/**
+	 * Tests Dedicated_Sender::can_spawn_dedicated_sync_request will return true if request succeeds.
+	 */
+	public function test_can_spawn_dedicated_sync_request_will_return_true_if_request_succeeds() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
+		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		$this->assertSame( 200, get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( $can_spawn );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::can_spawn_dedicated_sync_request will return false if request fails.
+	 */
+	public function test_can_spawn_dedicated_sync_request_will_return_false_if_request_fails() {
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_failure' ), 10, 3 );
+		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_failure' ) );
+
+		$this->assertSame( 500, get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertFalse( $can_spawn );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::can_spawn_dedicated_sync_request caching.
+	 */
+	public function test_can_spawn_dedicated_sync_request_with_cached_200_response_code() {
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
+		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		// Actual request should not be spawned if we already have a cached response code.
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertSame( 200, get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertTrue( $can_spawn );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::can_spawn_dedicated_sync_request caching.
+	 */
+	public function test_can_spawn_dedicated_sync_request_with_cached_422_response_code() {
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 422 );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
+		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		// Actual request should not be spawned if we already have a cached response code.
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertSame( 422, get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertFalse( $can_spawn );
+	}
+
+	/**
 	 * Intercept HTTP request to run Sync and mock the response.
 	 * Should be hooked on the `pre_http_request` filter.
 	 *
@@ -179,10 +243,34 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 * @return array
 	 */
 	public function pre_http_request_success( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->dedicated_sync_request_spawned = rest_url( 'jetpack/v4/sync/spawn-sync' ) === $url;
+		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(
-			'success' => true,
+			'response'    => array(
+				'code' => 200,
+			),
+			'status_code' => 200,
+		);
+	}
+
+	/**
+	 * Intercept HTTP request to run Sync and mock the response.
+	 * Should be hooked on the `pre_http_request` filter.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args The request arguments.
+	 * @param string $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function pre_http_request_failure( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
+
+		return array(
+			'response'    => array(
+				'code' => 500,
+			),
+			'status_code' => 500,
 		);
 	}
 }
