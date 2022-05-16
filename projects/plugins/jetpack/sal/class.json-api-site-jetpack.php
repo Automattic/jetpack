@@ -11,8 +11,8 @@
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Functions;
 
-require_once dirname( __FILE__ ) . '/class.json-api-site-jetpack-base.php';
-require_once dirname( __FILE__ ) . '/class.json-api-post-jetpack.php';
+require_once __DIR__ . '/class.json-api-site-jetpack-base.php';
+require_once __DIR__ . '/class.json-api-post-jetpack.php';
 
 /**
  * Base class for Jetpack_Site. This code runs on Jetpack (.org) sites.
@@ -188,7 +188,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return int
 	 */
-	function get_id() {
+	public function get_id() {
 		return $this->platform->token->blog_id;
 	}
 
@@ -197,7 +197,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function has_videopress() {
+	public function has_videopress() {
 		// TODO - this only works on wporg site - need to detect videopress option for remote Jetpack site on WPCOM.
 		$videopress = Jetpack_Options::get_option( 'videopress', array() );
 		if ( isset( $videopress['blog_id'] ) && $videopress['blog_id'] > 0 ) {
@@ -212,7 +212,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function upgraded_filetypes_enabled() {
+	public function upgraded_filetypes_enabled() {
 		return true;
 	}
 
@@ -225,7 +225,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function is_mapped_domain() {
+	public function is_mapped_domain() {
 		return true;
 	}
 
@@ -234,7 +234,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return string
 	 */
-	function get_unmapped_url() {
+	public function get_unmapped_url() {
 		// Fallback to the home URL since all Jetpack sites don't have an unmapped *.wordpress.com domain.
 		return $this->get_url();
 	}
@@ -248,7 +248,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function is_redirect() {
+	public function is_redirect() {
 		return false;
 	}
 
@@ -257,7 +257,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function is_following() {
+	public function is_following() {
 		return false;
 	}
 
@@ -275,7 +275,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function has_wordads() {
+	public function has_wordads() {
 		return Jetpack::is_module_active( 'wordads' );
 	}
 
@@ -286,7 +286,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function get_frame_nonce() {
+	public function get_frame_nonce() {
 		return false;
 	}
 
@@ -297,7 +297,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function get_jetpack_frame_nonce() {
+	public function get_jetpack_frame_nonce() {
 		return false;
 	}
 
@@ -308,7 +308,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function is_headstart_fresh() {
+	public function is_headstart_fresh() {
 		return false;
 	}
 
@@ -317,7 +317,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return array
 	 */
-	function allowed_file_types() {
+	public function allowed_file_types() {
 		$allowed_file_types = array();
 
 		// https://codex.wordpress.org/Uploading_Files.
@@ -337,7 +337,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool  Is site private?
 	 */
-	function is_private() {
+	public function is_private() {
 		return (int) $this->get_atomic_cloud_site_option( 'blog_public' ) === -1;
 	}
 
@@ -346,7 +346,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool  Is site "Coming soon"?
 	 */
-	function is_coming_soon() {
+	public function is_coming_soon() {
 		return $this->is_private() && (int) $this->get_atomic_cloud_site_option( 'wpcom_coming_soon' ) === 1;
 	}
 
@@ -355,7 +355,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return string|bool  Launch status ('launched', 'unlaunched', or false).
 	 */
-	function get_launch_status() {
+	public function get_launch_status() {
 		return $this->get_atomic_cloud_site_option( 'launch-status' );
 	}
 
@@ -367,7 +367,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return string|bool
 	 */
-	function get_atomic_cloud_site_option( $option ) {
+	public function get_atomic_cloud_site_option( $option ) {
 		if ( ! ( new Host() )->is_woa_site() ) {
 			return false;
 		}
@@ -392,7 +392,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function get_plan() {
+	public function get_plan() {
 		return false;
 	}
 
@@ -403,7 +403,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return int
 	 */
-	function get_subscribers_count() {
+	public function get_subscribers_count() {
 		return 0;
 	}
 
@@ -412,7 +412,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function get_capabilities() {
+	public function get_capabilities() {
 		return false;
 	}
 
@@ -421,7 +421,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return string
 	 */
-	function get_locale() {
+	public function get_locale() {
 		return get_bloginfo( 'language' );
 	}
 
@@ -457,7 +457,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php.
 	 */
-	function get_ak_vp_bundle_enabled() {}
+	public function get_ak_vp_bundle_enabled() {}
 
 	/**
 	 * Returns the front page meta description for current site.
@@ -466,7 +466,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return string
 	 */
-	function get_jetpack_seo_front_page_description() {
+	public function get_jetpack_seo_front_page_description() {
 		return Jetpack_SEO_Utils::get_front_page_meta_description();
 	}
 
@@ -477,7 +477,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return array
 	 */
-	function get_jetpack_seo_title_formats() {
+	public function get_jetpack_seo_title_formats() {
 		return Jetpack_SEO_Titles::get_custom_title_formats();
 	}
 
@@ -488,7 +488,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return array
 	 */
-	function get_verification_services_codes() {
+	public function get_verification_services_codes() {
 		return get_option( 'verification_services_codes', null );
 	}
 
@@ -499,7 +499,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return null
 	 */
-	function get_podcasting_archive() {
+	public function get_podcasting_archive() {
 		return null;
 	}
 
@@ -510,7 +510,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function is_connected_site() {
+	public function is_connected_site() {
 		return true;
 	}
 
@@ -521,7 +521,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function is_wpforteams_site() {
+	public function is_wpforteams_site() {
 		return false;
 	}
 
@@ -532,7 +532,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool
 	 */
-	function current_user_can( $role ) {
+	public function current_user_can( $role ) {
 		return current_user_can( $role );
 	}
 
@@ -546,7 +546,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return bool true if full site editing is currently active.
 	 */
-	function is_fse_active() {
+	public function is_fse_active() {
 		if ( ! Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) ) {
 			return false;
 		}
@@ -587,7 +587,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return null
 	 */
-	function get_import_engine() {
+	public function get_import_engine() {
 		return null;
 	}
 
@@ -603,7 +603,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 *
 	 * @return Jetpack_Post
 	 */
-	function wrap_post( $post, $context ) {
+	public function wrap_post( $post, $context ) {
 		return new Jetpack_Post( $this, $post, $context );
 	}
 
