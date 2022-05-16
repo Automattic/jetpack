@@ -103,9 +103,9 @@ class Dedicated_Sender {
 	public static function can_spawn_dedicated_sync_request() {
 		$dedicated_sync_check_transient = self::DEDICATED_SYNC_CHECK_TRANSIENT;
 
-		$dedicated_sync_response_code = get_transient( $dedicated_sync_check_transient );
+		$dedicated_sync_response_body = get_transient( $dedicated_sync_check_transient );
 
-		if ( false === $dedicated_sync_response_code ) {
+		if ( false === $dedicated_sync_response_body ) {
 			$url  = rest_url( 'jetpack/v4/sync/spawn-sync' );
 			$url  = add_query_arg( 'time', time(), $url ); // Enforce Cache busting.
 			$args = array(
@@ -116,12 +116,14 @@ class Dedicated_Sender {
 			);
 
 			$response                     = wp_remote_get( $url, $args );
-			$dedicated_sync_response_code = wp_remote_retrieve_response_code( $response );
+			$dedicated_sync_response_body = trim( wp_remote_retrieve_body( $response ) );
 
-			set_transient( $dedicated_sync_check_transient, $dedicated_sync_response_code, HOUR_IN_SECONDS );
+			set_transient( $dedicated_sync_check_transient, $dedicated_sync_response_body, HOUR_IN_SECONDS );
+
+			// TODO add logging to WPCOM that there is an issue with the request
 		}
 
-		return 200 === (int) $dedicated_sync_response_code;
+		return 'OK' === $dedicated_sync_response_body;
 	}
 
 }

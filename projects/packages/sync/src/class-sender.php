@@ -346,11 +346,25 @@ class Sender {
 			return new WP_Error( 'non_dedicated_sync_request', 'Not a Dedicated Sync request.' );
 		}
 
+		/**
+		 * Output an `OK` to show that Dedicated Sync is enabled and we can process events.
+		 * This is used to test the feature is working.
+		 *
+		 * @see \Automattic\Jetpack\Sync\Dedicated_Sender::can_spawn_dedicated_sync_request
+		 */
+		echo 'OK';
+
+		// Try to disconnect the request as quickly as possible and process things in the background.
+		$this->fastcgi_finish_request();
+
+		// Actually try to send Sync events.
 		$result = $this->do_sync_and_set_delays( $this->sync_queue );
+
 		// If no errors occurred, re-spawn a dedicated Sync request.
 		if ( true === $result ) {
 			Dedicated_Sender::spawn_sync( $this->sync_queue );
 		}
+
 		exit;
 	}
 
