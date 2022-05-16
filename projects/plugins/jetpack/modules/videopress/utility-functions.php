@@ -160,7 +160,7 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
  * @return int The number of items that were cleaned up.
  */
 function videopress_cleanup_media_library() {
-
+	// phpcs:disable Squiz.PHP.NonExecutableCode.Unreachable -- Function is disabled currently.
 	// Disable this job for now.
 	return 0;
 	$query_args = array(
@@ -179,7 +179,7 @@ function videopress_cleanup_media_library() {
 
 	$cleaned = 0;
 
-	$now = current_time( 'timestamp' );
+	$now = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- Probably should refactor, but this function is disabled.
 
 	if ( $query->have_posts() ) {
 		foreach ( $query->posts as $post ) {
@@ -196,6 +196,7 @@ function videopress_cleanup_media_library() {
 	}
 
 	return $cleaned;
+	// phpcs:enable Squiz.PHP.NonExecutableCode.Unreachable
 }
 
 /**
