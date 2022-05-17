@@ -12,7 +12,7 @@ import Accordion, { AccordionItem } from '../accordion';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
 const VulAccordionItem = ( { id, name, version, title, icon, fixedIn, type } ) => {
-	const { recordEventHandler } = useAnalyticsTracks();
+	const { recordEvent } = useAnalyticsTracks();
 
 	return (
 		<AccordionItem
@@ -24,8 +24,8 @@ const VulAccordionItem = ( { id, name, version, title, icon, fixedIn, type } ) =
 				if ( ! [ 'core', 'plugin', 'theme' ].includes( type ) ) {
 					return;
 				}
-				recordEventHandler( `jetpack_protect_${ type }_vulnerability_open` );
-			}, [ recordEventHandler, type ] ) }
+				recordEvent( `jetpack_protect_${ type }_vulnerability_open` );
+			}, [ recordEvent, type ] ) }
 		>
 			<Text variant="title-small" mb={ 2 }>
 				{ __( 'How to fix it?', 'jetpack-protect' ) }

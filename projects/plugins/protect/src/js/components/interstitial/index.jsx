@@ -59,11 +59,11 @@ const SecurityBundle = ( { onAdd, redirecting, rest } ) => {
  * @returns {React.Component} Interstitial react component.
  */
 const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
-	const { recordEventHandler } = useAnalyticsTracks();
+	const { recordEvent } = useAnalyticsTracks();
 
 	const onConnectedProductAdd = useCallback( () => {
-		recordEventHandler( 'jetpack_protect_connected_product_activated' );
-	}, [ recordEventHandler ] );
+		recordEvent( 'jetpack_protect_connected_product_activated' );
+	}, [ recordEvent ] );
 
 	return (
 		<Dialog

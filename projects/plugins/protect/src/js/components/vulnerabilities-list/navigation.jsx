@@ -15,23 +15,23 @@ import { useCallback } from 'react';
 const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 	const { plugins, themes, numVulnerabilities, numCoreVulnerabilities } = useProtectData();
 
-	const { recordEventHandler } = useAnalyticsTracks();
+	const { recordEvent } = useAnalyticsTracks();
 
 	const trackNavigationClickAll = useCallback( () => {
-		recordEventHandler( 'jetpack_protect_navigation_all_click' );
-	}, [ recordEventHandler ] );
+		recordEvent( 'jetpack_protect_navigation_all_click' );
+	}, [ recordEvent ] );
 
 	const trackNavigationClickCore = useCallback( () => {
-		recordEventHandler( 'jetpack_protect_navigation_core_click' );
-	}, [ recordEventHandler ] );
+		recordEvent( 'jetpack_protect_navigation_core_click' );
+	}, [ recordEvent ] );
 
 	const trackNavigationClickPlugin = useCallback( () => {
-		recordEventHandler( 'jetpack_protect_navigation_plugin_click' );
-	}, [ recordEventHandler ] );
+		recordEvent( 'jetpack_protect_navigation_plugin_click' );
+	}, [ recordEvent ] );
 
 	const trackNavigationClickTheme = useCallback( () => {
-		recordEventHandler( 'jetpack_protect_navigation_theme_click' );
-	}, [ recordEventHandler ] );
+		recordEvent( 'jetpack_protect_navigation_theme_click' );
+	}, [ recordEvent ] );
 
 	return (
 		<Navigation selected={ selected } onSelect={ onSelect }>
