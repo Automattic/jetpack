@@ -1076,7 +1076,6 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		// On quick edit, autosave, etc but do fire on p2, quickpress, and instapost ajax.
 		if (
 			defined( 'DOING_AUTOSAVE' )
 		&&
