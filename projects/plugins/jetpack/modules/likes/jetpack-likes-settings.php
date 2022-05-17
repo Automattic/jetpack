@@ -89,6 +89,7 @@ class Jetpack_Likes_Settings {
 				<?php esc_html_e( 'Show likes.', 'jetpack' ); ?>
 			</label>
 			<input type="hidden" name="wpl_like_status_hidden" value="1" />
+			<?php wp_nonce_field( 'likes-and-shares', '_likesharenonce' ); ?>
 		</p> 
 		<?php
 		/**
@@ -139,7 +140,7 @@ class Jetpack_Likes_Settings {
 		// Record sharing disable. Only needs to be done for WPCOM.
 		if ( ! $this->in_jetpack ) {
 			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) && isset( $_POST['_likesharenonce'] ) && wp_verify_nonce( $_POST['_likesharenonce'], 'likes-and-shares' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
 					update_post_meta( $post_id, 'sharing_disabled', 1 );
 				} else {
 					delete_post_meta( $post_id, 'sharing_disabled' );
@@ -652,8 +653,17 @@ class Jetpack_Likes_Settings {
 	public function admin_settings_callback() {
 		// We're looking for these, and doing a dance to set some stats and save
 		// them together in array option.
-		$new_state         = ! empty( $_POST['wpl_default'] ) ? sanitize_text_field( wp_unslash( $_POST['wpl_default'] ) ) : 'on'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-		$reblogs_new_state = ! empty( $_POST['jetpack_reblogs_enabled'] ) ? sanitize_text_field( wp_unslash( $_POST['jetpack_reblogs_enabled'] ) ) : 'on'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+		if ( ! empty( $_POST['wpl_default'] ) && isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+			$new_state = sanitize_text_field( wp_unslash( $_POST['wpl_default'] ) );
+		} else {
+			$new_state = 'on';
+		}
+
+		if ( ! empty( $_POST['jetpack_reblogs_enabled'] ) && isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-reblog-option' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+			$reblogs_new_state = sanitize_text_field( wp_unslash( $_POST['jetpack_reblogs_enabled'] ) );
+		} else {
+			$reblogs_new_state = 'on';
+		}
 
 		// Checked (enabled)
 		switch ( $new_state ) {
