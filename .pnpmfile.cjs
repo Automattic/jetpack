@@ -93,6 +93,13 @@ function fixDeps( pkg ) {
 		pkg.dependencies.browserslist = '^' + pkg.dependencies.browserslist;
 	}
 
+	// Override @types/react* dependencies in order to use their specific versions
+	for ( const dep of [ '@types/react', '@types/react-dom', '@types/react-test-renderer' ] ) {
+		if ( pkg.dependencies?.[ dep ] ) {
+			pkg.dependencies[ dep ] = '17.x';
+		}
+	}
+
 	// Regular expression DOS.
 	if ( pkg.dependencies.trim === '0.0.1' ) {
 		pkg.dependencies.trim = '^0.0.3';
