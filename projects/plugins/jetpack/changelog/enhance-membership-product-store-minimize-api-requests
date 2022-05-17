@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+We now only perform one network request when utilizing any number of premium content and or payment blocks. Refactored the product memberships store to reduce complexity.

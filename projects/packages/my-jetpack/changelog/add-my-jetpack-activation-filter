@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a filter to allow stand-alone plugins to add product specific activation routines

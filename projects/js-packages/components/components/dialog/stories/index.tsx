@@ -8,9 +8,8 @@ import React from 'react';
  * Internal dependencies
  */
 import ProductOffer from '../../product-offer';
-import Dialog from '../';
+import Dialog from '..';
 import BoostImage from './boost.png';
-import styles from './style.module.scss';
 
 export default {
 	title: 'JS Packages/Components/Dialog',
@@ -30,7 +29,7 @@ export default {
 				disable: true,
 			},
 		},
-		split: {
+		isTwoSections: {
 			table: {
 				disable: true,
 			},
@@ -40,24 +39,9 @@ export default {
 
 const Template = args => <Dialog { ...args } />;
 
-export const _default = Template.bind( {} );
-_default.args = {
-	primary: (
-		<div className={ styles.primary }>
-			<h3>4 | 5 | 7</h3>
-		</div>
-	),
-	secondary: (
-		<div className={ styles.secondary }>
-			<h3>4 | 3 | 5</h3>
-		</div>
-	),
-	split: true,
-};
-
-export const InterstitialJetpackBoost = Template.bind( {} );
-InterstitialJetpackBoost.parameters = {};
-InterstitialJetpackBoost.args = {
+export const JetpackBoost = Template.bind( {} );
+JetpackBoost.parameters = {};
+JetpackBoost.args = {
 	primary: (
 		<ProductOffer
 			slug="boost"
@@ -81,25 +65,30 @@ InterstitialJetpackBoost.args = {
 		/>
 	),
 	secondary: <img src={ BoostImage } alt="Boost" />,
-	split: false,
+	isTwoSections: false,
 };
 
-export const InterstitialJetpackBackup = Template.bind( {} );
-InterstitialJetpackBackup.parameters = {};
-InterstitialJetpackBackup.args = {
+export const JetpackBackup = Template.bind( {} );
+JetpackBackup.parameters = {};
+JetpackBackup.args = {
 	primary: (
 		<ProductOffer
-			slug="boost"
-			name="Boost"
-			title="Jepack Boost"
-			description="Jetpack Boost gives your site the same performance advantages as the world’s leading websites, no developer required."
+			slug={ 'backup' }
+			name={ 'Backup' }
+			title={ 'Jepack Backup' }
+			description={
+				'Never lose a word, image, page, or time worrying about your site with automated backups & one-click restores.'
+			}
 			features={ [
-				'Check your site performance',
-				'Enable improvements in one click',
-				'Standalone free plugin for those focused on speed',
+				'Real-time cloud backups',
+				'10GB of backup storage',
+				'30-day archive & activity log',
+				'One-click restores',
 			] }
 			pricing={ {
-				isFree: true,
+				currency: 'USD',
+				price: 24.92,
+				offPrice: 12.42,
 			} }
 			isCard={ true }
 			className={ '' }
@@ -136,5 +125,5 @@ InterstitialJetpackBackup.args = {
 			addProductUrl={ '' }
 		/>
 	),
-	split: true,
+	isTwoSections: true,
 };
