@@ -83,13 +83,14 @@ class Initializer {
 		/**
 		 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
 		 *
-		 * @param bool $is_enabled Defaults to the JETPACK_ENABLE_MY_JETPACK_LICENSE when set, or false.
+		 * @param bool $is_enabled Defaults to true.
 		 *
 		 * @since 1.2.0
+		 * @since $$next-version$$ Update default value to true.f
 		 */
 		return apply_filters(
 			'jetpack_my_jetpack_should_enable_add_license_screen',
-			defined( 'JETPACK_ENABLE_MY_JETPACK_LICENSE' ) && JETPACK_ENABLE_MY_JETPACK_LICENSE
+			true
 		);
 	}
 
