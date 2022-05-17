@@ -42,15 +42,6 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dep.
-	// https://github.com/SamVerschueren/stream-to-observable/pull/9
-	if (
-		pkg.name === '@samverschueren/stream-to-observable' &&
-		pkg.dependencies[ 'any-observable' ] === '^0.3.0'
-	) {
-		pkg.dependencies[ 'any-observable' ] = '^0.5.1';
-	}
-
 	// Project is supposedly not dead, but still isn't being updated.
 	// For our purposes at least it seems to work fine with jest-environment-jsdom 28.
 	// https://github.com/enzymejs/enzyme-matchers/issues/353
@@ -75,14 +66,6 @@ function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
-	}
-
-	// Unpin browserslist here.
-	if (
-		pkg.name === 'react-dev-utils' &&
-		pkg.dependencies.browserslist.match( /^\d+\.\d+\.\d+$/ )
-	) {
-		pkg.dependencies.browserslist = '^' + pkg.dependencies.browserslist;
 	}
 
 	// Override @types/react* dependencies in order to use their specific versions
@@ -118,36 +101,6 @@ function fixPeerDeps( pkg ) {
 		) {
 			pkg.peerDependencies[ p ] += ' || ^17';
 		}
-	}
-
-	// Peer-depends on js-git but doesn't declare it.
-	// https://github.com/creationix/git-node-fs/pull/8
-	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
-	if ( pkg.name === 'git-node-fs' && ! pkg.peerDependencies?.[ 'js-git' ] ) {
-		pkg.peerDependencies[ 'js-git' ] = '*';
-	}
-
-	// Undeclared peer dependencies.
-	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
-	if ( pkg.name === 'eslint-module-utils' ) {
-		pkg.peerDependenciesMeta ||= {};
-		for ( const dep of [
-			'@typescript-eslint/parser',
-			'eslint-import-resolver-node',
-			'eslint-import-resolver-typescript',
-			'eslint-import-resolver-webpack',
-		] ) {
-			pkg.peerDependencies[ dep ] = '*';
-			pkg.peerDependenciesMeta[ dep ] = { optional: true };
-		}
-	}
-	if (
-		pkg.name === 'eslint-plugin-import' &&
-		! pkg.peerDependencies?.[ '@typescript-eslint/parser' ]
-	) {
-		pkg.peerDependenciesMeta ||= {};
-		pkg.peerDependencies[ '@typescript-eslint/parser' ] = '*';
-		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
 	}
 
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with
