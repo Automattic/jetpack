@@ -198,7 +198,9 @@ class Test_Dedicated_Sender extends BaseTestCase {
 		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_failure' ) );
 
-		$this->assertEqualsWithDelta( get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ), time(), 10 );
+		$transient = get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
+		$delta     = abs( time() - $transient );
+		$this->assertTrue( $delta < 10 );
 		$this->assertFalse( $can_spawn );
 	}
 
