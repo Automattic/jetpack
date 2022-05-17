@@ -6,8 +6,6 @@
 	"projects/plugins/jetpack/modules/contact-form/grunion-contact-form.php",
 	"projects/plugins/jetpack/modules/contact-form/grunion-editor-view.php",
 	"projects/plugins/jetpack/modules/contact-form/grunion-form-view.php",
-	"projects/plugins/jetpack/modules/likes/jetpack-likes-master-iframe.php",
-	"projects/plugins/jetpack/modules/likes/jetpack-likes-settings.php",
 	"projects/plugins/jetpack/modules/sharedaddy/recaptcha.php",
 	"projects/plugins/jetpack/modules/sharedaddy/sharedaddy.php",
 	"projects/plugins/jetpack/modules/sharedaddy/sharing-service.php",
