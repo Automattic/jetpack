@@ -757,7 +757,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 **/
-	function user_can_manage() {
+	public function user_can_manage() {
 		return current_user_can( 'manage_options' );
 	}
 
@@ -766,7 +766,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_xmlrpc_url() {
+	public function get_xmlrpc_url() {
 		$xmlrpc_scheme = apply_filters( 'wpcom_json_api_xmlrpc_scheme', wp_parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
 		return site_url( 'xmlrpc.php', $xmlrpc_scheme );
 	}
@@ -776,7 +776,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_registered_date() {
+	public function get_registered_date() {
 		if ( function_exists( 'get_blog_details' ) ) {
 			$blog_details = get_blog_details();
 			if ( ! empty( $blog_details->registered ) ) {
@@ -792,7 +792,7 @@ abstract class SAL_Site {
 	 *
 	 * @return array
 	 **/
-	function get_capabilities() {
+	public function get_capabilities() {
 		$is_wpcom_blog_owner = wpcom_get_blog_owner() === (int) get_current_user_id();
 
 		return array(
@@ -835,7 +835,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 **/
-	function is_visible() {
+	public function is_visible() {
 		if ( is_user_logged_in() ) {
 			$current_user = wp_get_current_user();
 			$visible      = (array) get_user_meta( $current_user->ID, 'blog_visibility', true );
@@ -857,7 +857,7 @@ abstract class SAL_Site {
 	 *
 	 * @return array
 	 **/
-	function get_logo() {
+	public function get_logo() {
 		// Set an empty response array.
 		$logo_setting = array(
 			'id'    => (int) 0,
@@ -882,7 +882,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_timezone() {
+	public function get_timezone() {
 		return (string) get_option( 'timezone_string' );
 	}
 
@@ -891,7 +891,7 @@ abstract class SAL_Site {
 	 *
 	 * @return float
 	 **/
-	function get_gmt_offset() {
+	public function get_gmt_offset() {
 		return (float) get_option( 'gmt_offset' );
 	}
 
@@ -900,7 +900,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_login_url() {
+	public function get_login_url() {
 		return wp_login_url();
 	}
 
@@ -909,7 +909,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_admin_url() {
+	public function get_admin_url() {
 		return get_admin_url();
 	}
 
@@ -918,7 +918,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_theme_slug() {
+	public function get_theme_slug() {
 		return get_option( 'stylesheet' );
 	}
 
@@ -927,7 +927,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool|object
 	 **/
-	function get_header_image() {
+	public function get_header_image() {
 		return get_theme_mod( 'header_image_data' );
 	}
 
@@ -936,7 +936,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool|string
 	 **/
-	function get_background_color() {
+	public function get_background_color() {
 		return get_theme_mod( 'background_color' );
 	}
 
@@ -945,7 +945,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_image_default_link_type() {
+	public function get_image_default_link_type() {
 		return get_option( 'image_default_link_type' );
 	}
 
@@ -954,7 +954,7 @@ abstract class SAL_Site {
 	 *
 	 * @return int
 	 **/
-	function get_image_thumbnail_width() {
+	public function get_image_thumbnail_width() {
 		return (int) get_option( 'thumbnail_size_w' );
 	}
 
@@ -963,7 +963,7 @@ abstract class SAL_Site {
 	 *
 	 * @return int
 	 **/
-	function get_image_thumbnail_height() {
+	public function get_image_thumbnail_height() {
 		return (int) get_option( 'thumbnail_size_h' );
 	}
 
@@ -972,7 +972,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_image_thumbnail_crop() {
+	public function get_image_thumbnail_crop() {
 		return get_option( 'thumbnail_crop' );
 	}
 
@@ -981,7 +981,7 @@ abstract class SAL_Site {
 	 *
 	 * @return int
 	 **/
-	function get_image_medium_width() {
+	public function get_image_medium_width() {
 		return (int) get_option( 'medium_size_w' );
 	}
 
@@ -990,7 +990,7 @@ abstract class SAL_Site {
 	 *
 	 * @return int
 	 **/
-	function get_image_medium_height() {
+	public function get_image_medium_height() {
 		return (int) get_option( 'medium_size_h' );
 	}
 
@@ -999,7 +999,7 @@ abstract class SAL_Site {
 	 *
 	 * @return int
 	 **/
-	function get_image_large_width() {
+	public function get_image_large_width() {
 		return (int) get_option( 'large_size_w' );
 	}
 
@@ -1008,7 +1008,7 @@ abstract class SAL_Site {
 	 *
 	 * @return int
 	 **/
-	function get_image_large_height() {
+	public function get_image_large_height() {
 		return (int) get_option( 'large_size_h' );
 	}
 
@@ -1017,7 +1017,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_permalink_structure() {
+	public function get_permalink_structure() {
 		return get_option( 'permalink_structure' );
 	}
 
@@ -1026,7 +1026,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_default_post_format() {
+	public function get_default_post_format() {
 		return get_option( 'default_post_format' );
 	}
 
@@ -1035,7 +1035,7 @@ abstract class SAL_Site {
 	 *
 	 * @return int
 	 **/
-	function get_default_category() {
+	public function get_default_category() {
 		return (int) get_option( 'default_category' );
 	}
 
@@ -1044,7 +1044,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_show_on_front() {		
+	public function get_show_on_front() {		
 		return get_option( 'show_on_front' );
 	}
 
@@ -1053,7 +1053,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 **/
-	function is_custom_front_page() {
+	public function is_custom_front_page() {
 		return ( 'page' === $this->get_show_on_front() );
 	}
 
@@ -1062,7 +1062,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 **/
-	function get_default_likes_enabled() {
+	public function get_default_likes_enabled() {
 		return (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 	}
 
@@ -1071,7 +1071,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 **/
-	function get_default_sharing_status() {
+	public function get_default_sharing_status() {
 		$default_sharing_status = false;
 		if ( class_exists( 'Sharing_Service' ) ) {
 			$ss                     = new Sharing_Service();
@@ -1086,7 +1086,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool  False if closed, true for all other comment statuses.
 	 **/
-	function get_default_comment_status() {
+	public function get_default_comment_status() {
 		return 'closed' !== get_option( 'default_comment_status' );
 	}
 
@@ -1095,7 +1095,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool  False if closed, true for all other ping statuses.
 	 **/
-	function default_ping_status() {
+	public function default_ping_status() {
 		return 'closed' !== get_option( 'default_ping_status' );
 	}
 
@@ -1106,7 +1106,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool  Default false.
 	 **/
-	function is_publicize_permanently_disabled() {
+	public function is_publicize_permanently_disabled() {
 		$publicize_permanently_disabled = false;
 		if ( function_exists( 'is_publicize_permanently_disabled' ) ) {
 			$publicize_permanently_disabled = is_publicize_permanently_disabled( $this->blog_id );
@@ -1119,7 +1119,7 @@ abstract class SAL_Site {
 	 *
 	 * @return int
 	 **/
-	function get_page_on_front() {
+	public function get_page_on_front() {
 		return (int) get_option( 'page_on_front' );
 	}
 
@@ -1128,7 +1128,7 @@ abstract class SAL_Site {
 	 *
 	 * @return int
 	 **/
-	function get_page_for_posts() {
+	public function get_page_for_posts() {
 		return (int) get_option( 'page_for_posts' );
 	}
 
@@ -1137,7 +1137,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 **/
-	function is_headstart() {
+	public function is_headstart() {
 		return get_option( 'headstart' );
 	}
 
@@ -1147,7 +1147,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	function get_wordpress_version() {
+	public function get_wordpress_version() {
 		global $wp_version;
 		return $wp_version;
 	}
@@ -1157,7 +1157,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 **/
-	function is_domain_only() {
+	public function is_domain_only() {
 		$options = get_option( 'options' );
 		return ! empty ( $options['is_domain_only'] ) ? (bool) $options['is_domain_only'] : false;
 	}
@@ -1167,7 +1167,7 @@ abstract class SAL_Site {
 	 *
 	 * @return int 1 for true, 0 for false.
 	 **/
-	function get_blog_public() {
+	public function get_blog_public() {
 		return (int) get_option( 'blog_public' );
 	}
 
@@ -1176,7 +1176,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 **/
-	function has_pending_automated_transfer() {
+	public function has_pending_automated_transfer() {
 		/**
 		 * Filter if a site is in pending automated transfer state.
 		 *
@@ -1199,7 +1199,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 **/
-	function signup_is_store() {
+	public function signup_is_store() {
 		return $this->get_design_type() === 'store';
 	}
 
@@ -1208,7 +1208,7 @@ abstract class SAL_Site {
 	 *
 	 * @return WP_Roles
 	 **/
-	function get_roles() {
+	public function get_roles() {
 		return new WP_Roles();
 	}
 
@@ -1217,7 +1217,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string|null
 	 **/
-	function get_design_type() {
+	public function get_design_type() {
 		$options = get_option( 'options' );
 		return empty( $options[ 'designType'] ) ? null : $options[ 'designType' ];
 	}
@@ -1227,7 +1227,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string|null
 	 **/
-	function get_site_goals() {
+	public function get_site_goals() {
 		$options = get_option( 'options' );
 		return empty( $options[ 'siteGoals'] ) ? null : $options[ 'siteGoals' ];
 	}
@@ -1237,7 +1237,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool False in this case.
 	 */
-	function get_launch_status() {
+	public function get_launch_status() {
 		return false;
 	}
 
@@ -1248,7 +1248,7 @@ abstract class SAL_Site {
 	 *
 	 * @return null
 	 */
-	function get_migration_meta() {
+	public function get_migration_meta() {
 		return null;
 	}
 
@@ -1259,7 +1259,7 @@ abstract class SAL_Site {
 	 *
 	 * @return false
 	 */
-	function get_site_segment() {
+	public function get_site_segment() {
 		return false;
 	}
 
@@ -1270,7 +1270,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 */
-	function get_site_creation_flow() {
+	public function get_site_creation_flow() {
 		return get_option( 'site_creation_flow' );
 	}
 
