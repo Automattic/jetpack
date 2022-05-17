@@ -1072,7 +1072,7 @@ abstract class Publicize_Base {
 		}
 
 		// To prevent quick edits from getting publicized.
-		if ( did_action( 'wp_ajax_inline_save' ) ) {
+		if ( did_action( 'wp_ajax_inline-save' ) ) {
 			$submit_post = false;
 		}
 
