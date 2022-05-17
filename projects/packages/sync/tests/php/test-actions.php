@@ -29,7 +29,7 @@ class Test_Actions extends BaseTestCase {
 
 		// Setting the Dedicated Sync check transient here to avoid making a test
 		// request every time dedicated Sync setting is updated.
-		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 200 );
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 'OK' );
 	}
 
 	/**

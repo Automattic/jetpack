@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		// Setting the Dedicated Sync check transient here to avoid making a test
 		// request every time dedicated Sync setting is updated.
-		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 200 );
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 'OK' );
 
 		$this->dedicated_sync_request_spawned = false;
 	}
@@ -780,7 +780,11 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(
-			'success' => true,
+			'response'    => array(
+				'code' => 200,
+			),
+			'status_code' => 200,
+			'body'        => 'OK',
 		);
 	}
 }

@@ -30,7 +30,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 
 		// Setting the Dedicated Sync check transient here to avoid making a test
 		// request every time dedicated Sync setting is updated.
-		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 200 );
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 'OK' );
 
 		$this->queue = $this->getMockBuilder( 'Automattic\Jetpack\Sync\Queue' )
 			->setConstructorArgs( array( 'sync' ) )
@@ -183,7 +183,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
-		$this->assertSame( 200, get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertSame( 'OK', get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
 		$this->assertTrue( $this->dedicated_sync_request_spawned );
 		$this->assertTrue( $can_spawn );
 	}
@@ -198,29 +198,29 @@ class Test_Dedicated_Sender extends BaseTestCase {
 		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_failure' ) );
 
-		$this->assertSame( 500, get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertSame( '', get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
 		$this->assertFalse( $can_spawn );
 	}
 
 	/**
 	 * Tests Dedicated_Sender::can_spawn_dedicated_sync_request caching.
 	 */
-	public function test_can_spawn_dedicated_sync_request_with_cached_200_response_code() {
+	public function test_can_spawn_dedicated_sync_request_with_cached_OK_response_body() {
 		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
 		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
 		// Actual request should not be spawned if we already have a cached response code.
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
-		$this->assertSame( 200, get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertSame( 'OK', get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
 		$this->assertTrue( $can_spawn );
 	}
 
 	/**
 	 * Tests Dedicated_Sender::can_spawn_dedicated_sync_request caching.
 	 */
-	public function test_can_spawn_dedicated_sync_request_with_cached_422_response_code() {
-		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 422 );
+	public function test_can_spawn_dedicated_sync_request_with_cached_empty_response_body() {
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, '' );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
 		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
@@ -228,7 +228,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 
 		// Actual request should not be spawned if we already have a cached response code.
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
-		$this->assertSame( 422, get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertSame( '', get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
 		$this->assertFalse( $can_spawn );
 	}
 
@@ -250,6 +250,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 				'code' => 200,
 			),
 			'status_code' => 200,
+			'body'        => 'OK',
 		);
 	}
 
