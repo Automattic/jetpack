@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
 
@@ -9,10 +9,24 @@ import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import Accordion, { AccordionItem } from '../accordion';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
-const VulAccordionItem = ( { id, name, version, title, icon, fixedIn } ) => {
+const VulAccordionItem = ( { id, name, version, title, icon, fixedIn, type } ) => {
+	const { recordEventHandler } = useAnalyticsTracks();
+
 	return (
-		<AccordionItem id={ id } label={ `${ name } (${ version })` } title={ title } icon={ icon }>
+		<AccordionItem
+			id={ id }
+			label={ `${ name } (${ version })` }
+			title={ title }
+			icon={ icon }
+			onOpen={ useCallback( () => {
+				if ( ! [ 'core', 'plugin', 'theme' ].includes( type ) ) {
+					return;
+				}
+				recordEventHandler( `jetpack_protect_${ type }_vulnerability_open` );
+			}, [ recordEventHandler, type ] ) }
+		>
 			<Text variant="title-small" mb={ 2 }>
 				{ __( 'How to fix it?', 'jetpack-protect' ) }
 			</Text>
@@ -35,7 +49,7 @@ const VulAccordionItem = ( { id, name, version, title, icon, fixedIn } ) => {
 const List = ( { list } ) => {
 	return (
 		<Accordion>
-			{ list.map( ( { id, name, title, version, fixedIn, icon } ) => (
+			{ list.map( ( { id, name, title, version, fixedIn, icon, type } ) => (
 				<VulAccordionItem
 					key={ id }
 					id={ id }
@@ -44,6 +58,7 @@ const List = ( { list } ) => {
 					title={ title }
 					icon={ icon }
 					fixedIn={ fixedIn }
+					type={ type }
 				/>
 			) ) }
 		</Accordion>
