@@ -4066,7 +4066,7 @@ p {
 			}
 		}
 
-		$error ? $error : self::state( 'error' );
+		$error = $error ? $error : self::state( 'error' );
 		if ( ! $error ) {
 			self::activate_new_modules( true );
 		}
