@@ -17,7 +17,7 @@ const VulnerabilitiesList = () => {
 	const { item, list, selected, setSelected } = useVulsList();
 
 	return (
-		<Container fluid>
+		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 5 }>
 			<Col lg={ 4 }>
 				<VulnerabilitiesNavigation selected={ selected } onSelect={ setSelected } />
 			</Col>
