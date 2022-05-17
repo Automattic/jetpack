@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Dialog, ProductOffer } from '@automattic/jetpack-components';
 
 /**
@@ -9,6 +9,7 @@ import { Dialog, ProductOffer } from '@automattic/jetpack-components';
  */
 import ConnectedProductOffer from '../product-offer';
 import useProtectData from '../../hooks/use-protect-data';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 
 const SecurityBundle = ( { onAdd, redirecting, rest } ) => {
 	const { securityBundle } = useProtectData();
@@ -58,9 +59,15 @@ const SecurityBundle = ( { onAdd, redirecting, rest } ) => {
  * @returns {React.Component} Interstitial react component.
  */
 const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
+	const { recordEventHandler } = useAnalyticsTracks();
+
+	const onConnectedProductAdd = useCallback( () => {
+		recordEventHandler( 'jetpack_protect_connected_product_activated' );
+	}, [ recordEventHandler ] );
+
 	return (
 		<Dialog
-			primary={ <ConnectedProductOffer isCard={ true } /> }
+			primary={ <ConnectedProductOffer onAdd={ onConnectedProductAdd } isCard={ true } /> }
 			secondary={ <SecurityBundle onAdd={ onSecurityAdd } redirecting={ securityJustAdded } /> }
 			isTwoSections={ true }
 		/>
