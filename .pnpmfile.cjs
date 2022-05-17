@@ -28,11 +28,6 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Depends on events but doesn't declare it.
-	if ( pkg.name === '@automattic/popup-monitor' && ! pkg.dependencies.events ) {
-		pkg.dependencies.events = '^3.3.0';
-	}
-
 	// Depends on punycode but doesn't declare it.
 	// https://github.com/markdown-it/markdown-it/issues/230
 	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {
@@ -96,6 +91,13 @@ function fixDeps( pkg ) {
 		pkg.dependencies.browserslist.match( /^\d+\.\d+\.\d+$/ )
 	) {
 		pkg.dependencies.browserslist = '^' + pkg.dependencies.browserslist;
+	}
+
+	// Override @types/react* dependencies in order to use their specific versions
+	for ( const dep of [ '@types/react', '@types/react-dom', '@types/react-test-renderer' ] ) {
+		if ( pkg.dependencies?.[ dep ] ) {
+			pkg.dependencies[ dep ] = '17.x';
+		}
 	}
 
 	// Regular expression DOS.
