@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Added check for wp_ajax_elementor_ajax to allow publicizing via elementor.
