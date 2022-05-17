@@ -98,6 +98,7 @@ async function activateModule( page, module ) {
 	}
 
 	// todo we shouldn't have page references in here. these methods could be called without a browser being opened
+	// eslint-disable-next-line playwright/no-wait-for-timeout
 	await page.waitForTimeout( 1000 );
 	await page.reload( { waitUntil: 'domcontentloaded' } );
 
