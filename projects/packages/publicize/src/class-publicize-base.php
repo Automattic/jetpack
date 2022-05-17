@@ -1063,7 +1063,7 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		// On quick edit, autosave, etc but do fire on p2, quickpress, and instapost ajax.
+		// On quick edit, autosave, etc but do fire on p2, quickpress, instapost ajax and elementor ajax.
 		if (
 			defined( 'DOING_AJAX' )
 		&&
@@ -1078,6 +1078,8 @@ abstract class Publicize_Base {
 			! did_action( 'wp_ajax_post_reblog' )
 		&&
 			! did_action( 'wp_ajax_press-this-save-post' )
+		&&
+			! did_action( 'wp_ajax_elementor_ajax' )
 		) {
 			$submit_post = false;
 		}
