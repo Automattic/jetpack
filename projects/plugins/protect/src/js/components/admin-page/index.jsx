@@ -50,8 +50,23 @@ const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 
 const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
+
+	let currentScanStatus;
+	if ( 'error' === currentStatus ) {
+		currentScanStatus = 'error';
+	} else if ( ! lastChecked ) {
+		currentScanStatus = 'in_progress';
+	} else {
+		currentScanStatus = 'active';
+	}
+
 	// Track view for Protect admin page.
-	useAnalyticsTracks( { pageViewEventName: 'protect_admin' } );
+	useAnalyticsTracks( {
+		pageViewEventName: 'protect_admin',
+		pageViewEventProperties: {
+			scan_status: currentScanStatus,
+		},
+	} );
 
 	// Error
 	if ( 'error' === currentStatus ) {
