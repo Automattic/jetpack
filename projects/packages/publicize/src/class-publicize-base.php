@@ -1071,6 +1071,11 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
+		// To prevent quick edits from getting publicized.
+		if ( did_action( 'wp_ajax_inline_save' ) ) {
+			$submit_post = false;
+		}
+
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $_GET['bulk_edit'] ) ) {
 			$submit_post = false;
