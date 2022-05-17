@@ -943,21 +943,83 @@ class WPCOM_Features {
 			return false;
 		}
 
-		$eligible_purchases = self::FEATURES_MAP[ $feature ];
+		$products_map = self::FEATURES_MAP[ $feature ];
 
 		// Automatically grant features that don't require any purchase.
 		if (
-			( $is_wpcom_site && in_array( self::WPCOM_ALL_SITES, $eligible_purchases, true ) ) ||
-			( ! $is_wpcom_site && in_array( self::JETPACK_ALL_SITES, $eligible_purchases, true ) )
+			( $is_wpcom_site && in_array( self::WPCOM_ALL_SITES, $products_map, true ) ) ||
+			( ! $is_wpcom_site && in_array( self::JETPACK_ALL_SITES, $products_map, true ) )
 		) {
 			return true;
 		}
 
 		foreach ( $purchases as $purchase ) {
-			if ( self::in_array_recursive( $purchase->product_slug, $eligible_purchases ) ) {
+			if ( self::purchase_in_products_map( $purchase, $products_map ) ) {
 				return true;
 			}
 		}
+		return false;
+	}
+
+	/**
+	 * The products definition array ($products_map) may contain 1st-level sub-arrays with 'before' and/or 'after' keys
+	 * used to restrict access to a feature based on when the purchase was made. If the $purchase is included in
+	 * $products_map, and it was purchased within the defined date range (if a date range is defined), return true.
+	 *
+	 * @param object $purchase A single purchase.
+	 * @param array  $products_map A feature map definition array.
+	 *
+	 * @return bool If the purchase is included in $products_map and meets any purchase date-range rules.
+	 */
+	public static function purchase_in_products_map( $purchase, $products_map ) {
+		// Loop through the first level of the $products_map array to identify potential date ranges.
+		foreach ( $products_map as $product_definition ) {
+			$purchase_eligible_by_date = false;
+
+			// If 'before' and 'after', or subscribed_date are empty, there is insufficient data to limit by date.
+			if ( ( empty( $product_definition['before'] ) && empty( $product_definition['after'] ) ) || empty( $purchase->subscribed_date ) ) {
+				$purchase_eligible_by_date = true;
+			} else {
+				// If the date key is defined set its variable to its Unix timestamp, else set invalid or undefined dates to false.
+				$before = isset( $product_definition['before'] ) ? strtotime( $product_definition['before'] ) : false;
+				$after  = isset( $product_definition['after'] ) ? strtotime( $product_definition['after'] ) : false;
+
+				// Remove the date keys so $product_definition is clean for in_array_recursive search.
+				unset( $product_definition['before'], $product_definition['after'] );
+
+				$subscribed_date = strtotime( $purchase->subscribed_date );
+
+				// If 'before' & 'after', or subscribed_date are invalid, there is insufficient data to limit by date.
+				if ( ( false === $before && false === $after ) || false === $subscribed_date ) {
+					$purchase_eligible_by_date = true;
+				}
+
+				// Check if $subscribed_date meets any defined date rules.
+				if ( false !== $before && false !== $after ) {
+					if (
+						$subscribed_date >= $after &&
+						$subscribed_date <= $before ) {
+						$purchase_eligible_by_date = true;
+					}
+				} elseif ( false !== $before ) {
+					if ( $subscribed_date <= $before ) {
+						$purchase_eligible_by_date = true;
+					}
+				} elseif ( false !== $after ) {
+					if ( $subscribed_date >= $after ) {
+						$purchase_eligible_by_date = true;
+					}
+				}
+			}
+
+			// If the date range hurtle is cleared, check if the purchase is included in the $product_definition.
+			if ( $purchase_eligible_by_date ) {
+				if ( self::in_array_recursive( $purchase->product_slug, array( $product_definition ) ) ) {
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 
