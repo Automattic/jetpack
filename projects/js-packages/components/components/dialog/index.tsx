@@ -28,10 +28,6 @@ type DialogProps = {
  * @returns {React.ReactNode}                 Rendered dialog
  */
 const Dialog: React.FC< DialogProps > = ( { primary, secondary, isTwoSections = false } ) => {
-	const classNames = classnames( {
-		[ styles[ 'one-section-style' ] ]: ! isTwoSections,
-	} );
-
 	/*
 	 * By convention, secondary section is not shown when:
 	 * - layout is two sections
@@ -39,6 +35,11 @@ const Dialog: React.FC< DialogProps > = ( { primary, secondary, isTwoSections = 
 	 */
 	const [ isSmallBreakpoint ] = useBreakpointMatch( 'sm' );
 	const hideSecondarySection = ! isTwoSections && isSmallBreakpoint;
+
+	const classNames = classnames( {
+		[ styles[ 'one-section-style' ] ]: ! isTwoSections,
+		[ styles[ 'is-viewport-small' ] ]: isSmallBreakpoint,
+	} );
 
 	return (
 		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
