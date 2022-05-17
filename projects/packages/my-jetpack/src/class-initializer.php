@@ -86,7 +86,7 @@ class Initializer {
 		 * @param bool $is_enabled Defaults to true.
 		 *
 		 * @since 1.2.0
-		 * @since $$next-version$$ Update default value to true.f
+		 * @since $$next-version$$ Update default value to true.
 		 */
 		return apply_filters(
 			'jetpack_my_jetpack_should_enable_add_license_screen',
