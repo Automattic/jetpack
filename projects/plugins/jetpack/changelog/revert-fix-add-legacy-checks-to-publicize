@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Reverting the change which ensured bulk edits don't get publicized, since it's causing other issues.
