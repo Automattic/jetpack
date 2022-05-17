@@ -119,7 +119,12 @@ class Dedicated_Sender {
 			$dedicated_sync_response_code = wp_remote_retrieve_response_code( $response );
 			$dedicated_sync_response_body = trim( wp_remote_retrieve_body( $response ) );
 
-			set_transient( $dedicated_sync_check_transient, $dedicated_sync_response_body, HOUR_IN_SECONDS );
+			/**
+			 * Limit the size of the body that we save in the transient to avoid cases where an error
+			 * occurs and a whole generated HTML page is returned. We don't need to store the whole thing.
+			 */
+			$saved_response_body = substr( $dedicated_sync_response_body, 0, 50 );
+			set_transient( $dedicated_sync_check_transient, $saved_response_body, HOUR_IN_SECONDS );
 
 			// Send a bit more information to WordPress.com to help debugging issues.
 			if ( 'OK' !== $dedicated_sync_response_body ) {
@@ -140,5 +145,4 @@ class Dedicated_Sender {
 
 		return 'OK' === $dedicated_sync_response_body;
 	}
-
 }
