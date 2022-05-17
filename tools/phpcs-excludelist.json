@@ -34,7 +34,6 @@
 	"projects/plugins/jetpack/modules/videopress/editor-media-view.php",
 	"projects/plugins/jetpack/modules/videopress/shortcode.php",
 	"projects/plugins/jetpack/modules/videopress/utility-functions.php",
-	"projects/plugins/jetpack/sal/class.json-api-site-base.php",
 	"projects/plugins/jetpack/sal/class.json-api-site-jetpack-base.php",
 	"projects/plugins/jetpack/sal/class.json-api-site-jetpack.php",
 	"projects/plugins/jetpack/sal/class.json-api-token.php",
