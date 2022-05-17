@@ -104,8 +104,6 @@ class Dedicated_Sender {
 		$dedicated_sync_check_transient = self::DEDICATED_SYNC_CHECK_TRANSIENT;
 
 		$dedicated_sync_response_body = get_transient( $dedicated_sync_check_transient );
-		var_dump( 'CAN SPAWN' );
-		var_dump( $dedicated_sync_response_body );
 
 		if ( false === $dedicated_sync_response_body ) {
 			$url  = rest_url( 'jetpack/v4/sync/spawn-sync' );
@@ -125,10 +123,8 @@ class Dedicated_Sender {
 			 * Limit the size of the body that we save in the transient to avoid cases where an error
 			 * occurs and a whole generated HTML page is returned. We don't need to store the whole thing.
 			 */
-			var_dump( $dedicated_sync_response_body );
-			$saved_response_body = substr( $dedicated_sync_response_body, 0, 50 );
+			$saved_response_body = $dedicated_sync_response_body === 'OK' ? 'OK' : time();
 
-			var_dump( $saved_response_body );
 			set_transient( $dedicated_sync_check_transient, $saved_response_body, HOUR_IN_SECONDS );
 
 			// Send a bit more information to WordPress.com to help debugging issues.
@@ -147,8 +143,6 @@ class Dedicated_Sender {
 				$sender->send_action( 'jetpack_sync_flow_error_enable', $data );
 			}
 		}
-
-		var_dump( 'At the end of the check' );
 
 		return 'OK' === $dedicated_sync_response_body;
 	}
