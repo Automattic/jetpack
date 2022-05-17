@@ -138,63 +138,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_upsell_nudge
-	 *
-	 * @covers ::add_upsell_nudge
-	 */
-	public function test_add_upsell_nudge() {
-		global $menu;
-		$nudge = array(
-			'content'     => 'Free domain with an <a href="somehref">annual plan</a>',
-			'cta'         => '<b>Upgrade</b>',
-			'link'        => '/plans/example.com?addDomainFlow=true',
-			'dismissible' => false,
-		);
-		static::$admin_menu->add_upsell_nudge( $nudge );
-
-		$markup = '
-<div class="upsell_banner">
-	<div class="banner__info">
-		<div class="banner__title">Free domain with an annual plan</div>
-	</div>
-	<div class="banner__action">
-		<button type="button" class="button">Upgrade</button>
-	</div>
-</div>';
-		$link   = 'https://wordpress.com/plans/example.com?addDomainFlow=true';
-
-		$this->assertSame( $markup, $menu[1][0] );
-		$this->assertSame( $link, $menu[1][2] );
-
-		// Reset.
-		$menu = static::$menu_data;
-
-		$nudge = array(
-			'content'     => 'Some content',
-			'cta'         => '<b>CTA</b>',
-			'link'        => 'https://wordpress.org',
-			'dismissible' => false,
-		);
-		static::$admin_menu->add_upsell_nudge( $nudge );
-		$this->assertSame( 'https://wordpress.org', $menu[1][2] );
-
-		// Reset.
-		$menu = static::$menu_data;
-
-		$nudge = array(
-			'content'       => 'Some content',
-			'cta'           => '<b>CTA</b>',
-			'link'          => 'https://wordpress.org',
-			'dismissible'   => true,
-			'id'            => 'an_identifier',
-			'feature_class' => 'the_feature_class',
-		);
-		static::$admin_menu->add_upsell_nudge( $nudge );
-
-		$this->assertStringContainsString( '<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="the_feature_class" data-feature_id="an_identifier"', $menu[1][0] );
-	}
-
-	/**
 	 * Tests add_stats_menu
 	 *
 	 * @covers ::add_stats_menu

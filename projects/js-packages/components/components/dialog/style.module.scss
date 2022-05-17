@@ -1,5 +1,4 @@
-.container {
-	// Card main wrapper
+.one-section-style {
 	--product-card-shadow: rgb(0 0 0 / 3%);
 	background-color: var( --jp-white );
 	border: 1px solid var( --jp-gray );
@@ -19,6 +18,7 @@
 	}
 }
 
+// Fit images in secondary section.
 .secondary {
 	align-items: center;
 	img {

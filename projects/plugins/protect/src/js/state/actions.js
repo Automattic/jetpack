@@ -10,6 +10,7 @@ const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
 const SET_WP_VERSION = 'SET_WP_VERSION';
 const SET_SECURITY_BUNDLE = 'SET_SECURITY_BUNDLE';
+const SET_PRODUCT_DATA = 'SET_PRODUCT_DATA';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -58,6 +59,10 @@ const setSecurityBundle = bundle => {
 	return { type: SET_SECURITY_BUNDLE, bundle };
 };
 
+const setProductData = productData => {
+	return { type: SET_PRODUCT_DATA, productData };
+};
+
 const actions = {
 	setStatus,
 	refreshStatus,
@@ -66,6 +71,7 @@ const actions = {
 	setInstalledThemes,
 	setwpVersion,
 	setSecurityBundle,
+	setProductData,
 };
 
 export {

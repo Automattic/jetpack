@@ -67,7 +67,7 @@ class WP_Test_Json_Api_Update_Post_Endpoints extends WP_UnitTestCase {
 
 		$updated_input = $this->invoke_method( $endpoint, 'untrash_post', array( $post, $input ) );
 		// Tests that we remove the slug id it contains the '__trashed' suffix.
-		$this->assertTrue( empty( $updated_input ) );
+		$this->assertEmpty( $updated_input );
 	}
 
 	/**
