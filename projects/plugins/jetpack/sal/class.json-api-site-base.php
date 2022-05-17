@@ -44,7 +44,7 @@ abstract class SAL_Site {
 	 * @param WPORG_Platform $platform  A new WPORG_Platform instance.
 	 */
 	public function __construct( $blog_id, $platform ) {
-		$this->blog_id = $blog_id;
+		$this->blog_id  = $blog_id;
 		$this->platform = $platform;
 	}
 
@@ -520,19 +520,19 @@ abstract class SAL_Site {
 		}
 
 		switch ( $context ) {
-		case 'edit' :
-			if ( ! current_user_can( 'edit_post', $post->ID ) ) {
-				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
-			}
-			break;
-		case 'display' :
-			$can_view = $this->user_can_view_post( $post );
-			if ( is_wp_error( $can_view ) ) {
-				return $can_view;
-			}
-			break;
-		default :
-			return new WP_Error( 'invalid_context', 'Invalid API CONTEXT', 400 );
+			case 'edit':
+				if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+					return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
+				}
+				break;
+			case 'display':
+				$can_view = $this->user_can_view_post( $post );
+				if ( is_wp_error( $can_view ) ) {
+					return $can_view;
+				}
+				break;
+			default:
+				return new WP_Error( 'invalid_context', 'Invalid API CONTEXT', 400 );
 		}
 
 		return $post;
@@ -552,7 +552,7 @@ abstract class SAL_Site {
 			return false;
 		}
 
-		switch( $context ) {
+		switch ( $context ) {
 			case 'edit':
 				return current_user_can( $post_type_object->cap->edit_posts );
 			case 'display':
@@ -643,12 +643,12 @@ abstract class SAL_Site {
 	 * @return bool|WP_Error
 	 */
 	private function user_can_view_post( $post ) {
-		if ( !$post || is_wp_error( $post ) ) {
+		if ( ! $post || is_wp_error( $post ) ) {
 			return false;
 		}
 
 		if ( 'inherit' === $post->post_status ) {
-			$parent_post = get_post( $post->post_parent );
+			$parent_post     = get_post( $post->post_parent );
 			$post_status_obj = get_post_status_object( $parent_post->post_status );
 		} else {
 			$post_status_obj = get_post_status_object( $post->post_status );
@@ -658,8 +658,8 @@ abstract class SAL_Site {
 			$post_status_obj->public ||
 			( is_user_logged_in() &&
 				(
-					( $post_status_obj->protected    && current_user_can( 'edit_post', $post->ID ) ) ||
-					( $post_status_obj->private      && current_user_can( 'read_post', $post->ID ) ) ||
+					( $post_status_obj->protected && current_user_can( 'edit_post', $post->ID ) ) ||
+					( $post_status_obj->private && current_user_can( 'read_post', $post->ID ) ) ||
 					( 'trash' === $post->post_status && current_user_can( 'edit_post', $post->ID ) ) ||
 					'auto-draft' === $post->post_status
 				)
@@ -688,11 +688,25 @@ abstract class SAL_Site {
 				$post
 			)
 		) {
-			return new WP_Error( 'unauthorized', 'User cannot view post', array( 'status_code' => 403, 'error' => 'private_blog' ) );
+			return new WP_Error(
+				'unauthorized',
+				'User cannot view post',
+				array(
+					'status_code' => 403,
+					'error'       => 'private_blog',
+				)
+			);
 		}
 
-		if ( strlen( $post->post_password ) && !current_user_can( 'edit_post', $post->ID ) ) {
-			return new WP_Error( 'unauthorized', 'User cannot view password protected post', array( 'status_code' => 403, 'error' => 'password_protected' ) );
+		if ( strlen( $post->post_password ) && ! current_user_can( 'edit_post', $post->ID ) ) {
+			return new WP_Error(
+				'unauthorized',
+				'User cannot view password protected post',
+				array(
+					'status_code' => 403,
+					'error'       => 'password_protected',
+				)
+			);
 		}
 
 		return true;
@@ -714,11 +728,13 @@ abstract class SAL_Site {
 			return new WP_Error( 'invalid_post', 'Invalid post', 400 );
 		}
 
-		$posts = get_posts( array(
-			'name' => $name,
-			'numberposts' => 1,
-			'post_type' => $this->get_whitelisted_post_types(),
-		) );
+		$posts = get_posts(
+			array(
+				'name'        => $name,
+				'numberposts' => 1,
+				'post_type'   => $this->get_whitelisted_post_types(),
+			)
+		);
 
 		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {
 			$page = get_page_by_path( $name );
@@ -816,7 +832,7 @@ abstract class SAL_Site {
 			'remove_users'        => current_user_can( 'remove_users' ),
 			'own_site'            => $is_wpcom_blog_owner,
 			/**
-		 	 * Filter whether the Hosting section in Calypso should be available for site.
+			 * Filter whether the Hosting section in Calypso should be available for site.
 			 *
 			 * @module json-api
 			 *
@@ -1044,7 +1060,7 @@ abstract class SAL_Site {
 	 *
 	 * @return string
 	 **/
-	public function get_show_on_front() {		
+	public function get_show_on_front() {
 		return get_option( 'show_on_front' );
 	}
 
@@ -1141,7 +1157,6 @@ abstract class SAL_Site {
 		return get_option( 'headstart' );
 	}
 
-
 	/**
 	 * The WordPress version on the site.
 	 *
@@ -1159,7 +1174,7 @@ abstract class SAL_Site {
 	 **/
 	public function is_domain_only() {
 		$options = get_option( 'options' );
-		return ! empty ( $options['is_domain_only'] ) ? (bool) $options['is_domain_only'] : false;
+		return ! empty( $options['is_domain_only'] ) ? (bool) $options['is_domain_only'] : false;
 	}
 
 	/**
@@ -1219,7 +1234,7 @@ abstract class SAL_Site {
 	 **/
 	public function get_design_type() {
 		$options = get_option( 'options' );
-		return empty( $options[ 'designType'] ) ? null : $options[ 'designType' ];
+		return empty( $options['designType'] ) ? null : $options['designType'];
 	}
 
 	/**
@@ -1229,7 +1244,7 @@ abstract class SAL_Site {
 	 **/
 	public function get_site_goals() {
 		$options = get_option( 'options' );
-		return empty( $options[ 'siteGoals'] ) ? null : $options[ 'siteGoals' ];
+		return empty( $options['siteGoals'] ) ? null : $options['siteGoals'];
 	}
 
 	/**
@@ -1264,7 +1279,7 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Whether a site has a 'site_creation_flow' option set (eg gutenboarding, mobile) - only applicable on WordPress.com 
+	 * Whether a site has a 'site_creation_flow' option set (eg gutenboarding, mobile) - only applicable on WordPress.com
 	 *
 	 * @see /wpcom-json-endpoints/class.wpcom-json-api-new-site-endpoint.php for more on the option.
 	 *
