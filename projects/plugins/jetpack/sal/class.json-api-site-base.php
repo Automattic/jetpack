@@ -110,7 +110,7 @@ abstract class SAL_Site {
 	abstract public function has_videopress();
 
 	/**
-	 * Sets the upgraded_filetypes_enabled Jetpack option to true as a default.
+	 * Sets the upgraded_filetypes_enabled Jetpack option to true as a default. Only relevant for WordPress.com sites.
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
@@ -142,7 +142,7 @@ abstract class SAL_Site {
 	abstract public function is_redirect();
 
 	/**
-	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites.
+	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites, where it returns true if the headstart-fresh blog sticker is present.
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
@@ -163,14 +163,15 @@ abstract class SAL_Site {
 	abstract public function has_wordads();
 
 	/**
-	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites.
+	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites. This nonce is used for previews on Jetpack sites.
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
 	abstract public function get_frame_nonce();
 
 	/**
-	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites.
+	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites where
+	 * it creates a nonce to be used with iframed block editor requests to a Jetpack site.
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
@@ -205,7 +206,7 @@ abstract class SAL_Site {
 	abstract public function is_coming_soon();
 
 	/**
-	 * Whether or not the current user following this blog. Defaults to false.
+	 * Whether or not the current user is following this blog. Defaults to false.
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
