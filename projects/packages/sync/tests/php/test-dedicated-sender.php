@@ -272,6 +272,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 				'code' => 500,
 			),
 			'status_code' => 500,
+			'body'        => '',
 		);
 	}
 }
