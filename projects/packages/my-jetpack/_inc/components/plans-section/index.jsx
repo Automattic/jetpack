@@ -96,7 +96,7 @@ function PlanSectionFooter( { purchases } ) {
 	let activateLicenceDescription = __( 'Activate a license', 'jetpack-my-jetpack' );
 	if ( ! isUserConnected ) {
 		activateLicenceDescription = __(
-			'Connect your user account to activate a license',
+			'Activate a license (requires a user connection)',
 			'jetpack-my-jetpack'
 		);
 	}
