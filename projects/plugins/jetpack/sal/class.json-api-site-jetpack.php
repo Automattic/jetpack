@@ -283,7 +283,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
-	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites.
+	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites. This nonce is used for previews on Jetpack sites.
 	 *
 	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php.
 	 *
@@ -294,7 +294,8 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
-	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites.
+	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites,
+	 * where it creates a nonce to be used with iframed block editor requests to a Jetpack site.
 	 *
 	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php.
 	 *
@@ -305,7 +306,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
-	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites.
+	 * Defaults to false on Jetpack sites, however is used on WordPress.com sites, where it returns true if the headstart-fresh blog sticker is present.
 	 *
 	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
 	 *
