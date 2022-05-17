@@ -209,6 +209,7 @@ class WPCOM_Features {
 	// WPCOM "Level 3": Groups of level 2s.
 	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
+	private const WPCOM_STARTER_AND_HIGHER_PLANS = array( self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = array( self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = array( self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_EMAIL_PRODUCTS            = array( self::GOOGLE_WORKSPACE_PRODUCTS, self::GSUITE_PRODUCTS, self::WPCOM_TITAN_MAIL_PRODUCTS );
@@ -332,7 +333,6 @@ class WPCOM_Features {
 	public const SPACE                         = 'space';
 	public const SPACE_UPGRADED_STORAGE        = 'space-upgraded-storage';
 	public const SUPPORT                       = 'support';
-	public const UNLIMITED_THEMES              = 'unlimited_themes';
 	public const UPGRADED_UPLOAD_FILETYPES     = 'upgraded_upload_filetypes';
 	public const UPLOAD_AUDIO_FILES            = 'upload-audio-files';
 	public const UPLOAD_PLUGINS                = 'upload-plugins';
@@ -533,8 +533,7 @@ class WPCOM_Features {
 		),
 		self::GOOGLE_ANALYTICS              => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::WPCOM_PRO_PLANS,
+			self::WPCOM_STARTER_AND_HIGHER_PLANS,
 		),
 		self::GOOGLE_MY_BUSINESS            => array(
 			self::WPCOM_PRO_PLANS,
@@ -755,9 +754,6 @@ class WPCOM_Features {
 		self::SUPPORT                       => array(
 			self::WPCOM_ALL_SITES,
 			self::JETPACK_PERSONAL_AND_HIGHER,
-		),
-		self::UNLIMITED_THEMES              => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
 		self::UPGRADED_UPLOAD_FILETYPES     => array(
 			self::SPACE_3GB,
