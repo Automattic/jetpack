@@ -210,6 +210,9 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	/**
 	 * Sets the upgraded_filetypes_enabled Jetpack option to true as a default.
 	 *
+	 * Only relevant for WordPress.com sites:
+	 * See wpcom_site_has_upgraded_upload_filetypes at /wpcom/wp-content/mu-plugins/misc.php.
+	 *
 	 * @return bool
 	 */
 	public function upgraded_filetypes_enabled() {
@@ -253,7 +256,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
-	 * Whether or not the current user following this blog. Defaults to false.
+	 * Whether or not the current user is following this blog. Defaults to false.
 	 *
 	 * @return bool
 	 */
