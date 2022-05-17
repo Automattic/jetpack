@@ -9,9 +9,30 @@ import { wordpress, plugins as pluginsIcon, warning, color } from '@wordpress/ic
  */
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 import useProtectData from '../../hooks/use-protect-data';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import { useCallback } from 'react';
 
 const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 	const { plugins, themes, numVulnerabilities, numCoreVulnerabilities } = useProtectData();
+
+	const { recordEventHandler } = useAnalyticsTracks();
+
+	const trackNavigationClickAll = useCallback( () => {
+		recordEventHandler( 'jetpack_protect_navigation_all_click' );
+	}, [ recordEventHandler ] );
+
+	const trackNavigationClickCore = useCallback( () => {
+		recordEventHandler( 'jetpack_protect_navigation_core_click' );
+	}, [ recordEventHandler ] );
+
+	const trackNavigationClickPlugin = useCallback( () => {
+		recordEventHandler( 'jetpack_protect_navigation_plugin_click' );
+	}, [ recordEventHandler ] );
+
+	const trackNavigationClickTheme = useCallback( () => {
+		recordEventHandler( 'jetpack_protect_navigation_theme_click' );
+	}, [ recordEventHandler ] );
+
 	return (
 		<Navigation selected={ selected } onSelect={ onSelect }>
 			<NavigationItem
@@ -21,6 +42,7 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				icon={ warning }
 				badge={ numVulnerabilities }
 				disabled={ numVulnerabilities <= 0 }
+				onClick={ trackNavigationClickAll }
 			/>
 			<NavigationItem
 				id="wordpress"
@@ -28,6 +50,7 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				icon={ wordpress }
 				badge={ numCoreVulnerabilities }
 				disabled={ numCoreVulnerabilities <= 0 }
+				onClick={ trackNavigationClickCore }
 			/>
 			<NavigationGroup label={ __( 'Plugins', 'jetpack-protect' ) } icon={ pluginsIcon }>
 				{ plugins.map( ( { name, vulnerabilities, notChecked } ) => (
@@ -38,6 +61,7 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 						notChecked={ notChecked }
 						badge={ vulnerabilities?.length }
 						disabled={ vulnerabilities?.length <= 0 }
+						onClick={ trackNavigationClickPlugin }
 					/>
 				) ) }
 			</NavigationGroup>
@@ -50,6 +74,7 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 						notChecked={ notChecked }
 						badge={ vulnerabilities?.length }
 						disabled={ vulnerabilities?.length <= 0 }
+						onClick={ trackNavigationClickTheme }
 					/>
 				) ) }
 			</NavigationGroup>
