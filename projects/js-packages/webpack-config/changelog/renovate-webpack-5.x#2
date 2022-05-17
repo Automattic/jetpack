@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Update PnpmDeterministicModuleIdsPlugin for Webpack 5.67.0.

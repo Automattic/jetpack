@@ -658,7 +658,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$this->assertNull( $this->server_replica_storage->get_constant( 'FOO_SYNC_ALL_CONSTANTS' ) );
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_constant' );
-		$this->assertTrue( empty( $events ) );
+		$this->assertEmpty( $events );
 	}
 
 	public function test_full_sync_sends_all_functions() {
@@ -694,7 +694,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertNull( $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_callable' );
-		$this->assertTrue( empty( $events ) );
+		$this->assertEmpty( $events );
 
 	}
 
@@ -1248,9 +1248,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$non_existent_comment = get_comment( $non_existent_id );
 		$non_existent_user    = get_user_by( 'id', $non_existent_id );
 
-		$this->assertTrue( empty( $non_existent_post ) );
-		$this->assertTrue( empty( $non_existent_comment ) );
-		$this->assertTrue( empty( $non_existent_user ) );
+		$this->assertEmpty( $non_existent_post );
+		$this->assertEmpty( $non_existent_comment );
+		$this->assertEmpty( $non_existent_user );
 
 		$this->full_sync->start(
 			array(
@@ -1516,11 +1516,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_call_ables_does_not_modify_globals() {
 		global $wp_taxonomies;
 		// assert that $wp_taxonomy object stays an array.
-		$this->assertTrue( is_array( $wp_taxonomies['category']->rewrite ) );
+		$this->assertIsArray( $wp_taxonomies['category']->rewrite );
 		$this->setSyncClientDefaults();
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
-		$this->assertTrue( is_array( $wp_taxonomies['category']->rewrite ) );
+		$this->assertIsArray( $wp_taxonomies['category']->rewrite );
 	}
 
 	public function test_initial_sync_doesnt_sync_subscribers() {

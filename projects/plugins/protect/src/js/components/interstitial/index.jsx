@@ -62,7 +62,7 @@ const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
 		<Dialog
 			primary={ <ConnectedProductOffer isCard={ true } /> }
 			secondary={ <SecurityBundle onAdd={ onSecurityAdd } redirecting={ securityJustAdded } /> }
-			split={ true }
+			isTwoSections={ true }
 		/>
 	);
 };

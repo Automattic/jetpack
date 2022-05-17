@@ -30,6 +30,7 @@ class Products {
 			Products\Search::class,
 			Products\Videopress::class,
 			Products\Security::class,
+			Products\Protect::class,
 		);
 	}
 

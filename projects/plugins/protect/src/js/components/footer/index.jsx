@@ -120,7 +120,7 @@ const Footer = () => {
 						/>
 					}
 					secondary={ <FooterInfo /> }
-					split={ true }
+					isTwoSections={ true }
 				/>
 			</Col>
 		</Container>
