@@ -688,7 +688,11 @@ class Jetpack_Likes_Settings {
 
 		// WPCOM only: Comment Likes
 		if ( ! $this->in_jetpack ) {
-			$new_comments_state = ! empty( $_POST['jetpack_comment_likes_enabled'] ) ? sanitize_option( wp_unslash( $_POST['jetpack_comment_likes_enabled'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no changes to the site, only enable or disabling comment likes.
+			if ( ! empty( $_POST['jetpack_comment_likes_enabled'] ) && isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+				$new_comments_state = sanitize_text_field( wp_unslash( $_POST['jetpack_comment_likes_enabled'] ) );
+			} else {
+				$new_comments_state = false;
+			}
 			switch ( (bool) $new_comments_state ) {
 				case true:
 					update_option( 'jetpack_comment_likes_enabled', 1 );
