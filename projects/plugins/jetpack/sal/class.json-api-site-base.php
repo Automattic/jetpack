@@ -589,16 +589,17 @@ abstract class SAL_Site {
 		}
 
 		// allow special 'any' type
-		if ( 'any' == $post_type ) {
+		if ( 'any' === $post_type ) {
 			return true;
 		}
 
 		// check for allowed types
-		if ( in_array( $post_type, $this->get_whitelisted_post_types() ) ) {
+		if ( in_array( $post_type, $this->get_whitelisted_post_types(), true ) ) {
 			return true;
 		}
 
-		if ( $post_type_object = get_post_type_object( $post_type ) ) {
+		$post_type_object = get_post_type_object( $post_type );
+		if ( $post_type_object ) {
 			if ( ! empty( $post_type_object->show_in_rest ) ) {
 				return $post_type_object->show_in_rest;
 			}
@@ -671,7 +672,7 @@ abstract class SAL_Site {
 		}
 
 		if (
-			-1 == get_option( 'blog_public' ) &&
+			-1 == get_option( 'blog_public' ) && // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Could be a string or int.
 			/**
 			 * Filter access to a specific post.
 			 *
