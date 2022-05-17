@@ -12,8 +12,8 @@
  **/
 use Automattic\Jetpack\Status\Host;
 
-require_once dirname( __FILE__ ) . '/class.json-api-date.php';
-require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
+require_once __DIR__ . '/class.json-api-date.php';
+require_once __DIR__ . '/class.json-api-post-base.php';
 
 /**
  * Base class for SAL_Site.
