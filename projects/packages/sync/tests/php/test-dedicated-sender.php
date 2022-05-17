@@ -194,6 +194,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	public function test_can_spawn_dedicated_sync_request_will_return_false_if_request_fails() {
 		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
 
+		var_dump('test_can_spawn_dedicated_sync_request_will_return_false_if_request_fails');
 		add_filter( 'pre_http_request', array( $this, 'pre_http_request_failure' ), 10, 3 );
 		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_failure' ) );
