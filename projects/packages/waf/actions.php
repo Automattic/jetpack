@@ -12,6 +12,13 @@ if ( ! function_exists( 'add_action' ) ) {
 	return;
 }
 
+/**
+ * Check if killswitch is defined as true
+ */
+if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
+	return;
+}
+
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	return;
 }

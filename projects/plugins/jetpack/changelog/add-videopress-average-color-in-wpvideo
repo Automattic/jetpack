@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+VideoPress: add useAverageColor to wpvideo shortcode to support automatic seekbar color.
