@@ -60,8 +60,8 @@ const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
  * @returns {React.Component} Interstitial react component.
  */
 const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
-  const { recordEvent } = useAnalyticsTracks();
-  const [ isMediumSize ] = useBreakpointMatch( 'md' );
+	const { recordEvent } = useAnalyticsTracks();
+	const [ isMediumSize ] = useBreakpointMatch( 'md' );
 	const mediaClassName = isMediumSize ? styles[ 'is-viewport-medium' ] : null;
 
 	const onConnectedProductAdd = useCallback( () => {
@@ -70,7 +70,13 @@ const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
 
 	return (
 		<Dialog
-			primary={ <ConnectedProductOffer className={ mediaClassName } onAdd={ onConnectedProductAdd } isCard={ true } /> }
+			primary={
+				<ConnectedProductOffer
+					className={ mediaClassName }
+					onAdd={ onConnectedProductAdd }
+					isCard={ true }
+				/>
+			}
 			secondary={
 				<SecurityBundle
 					className={ mediaClassName }

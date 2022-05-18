@@ -15,7 +15,7 @@ import { useCallback } from 'react';
 
 const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 	const { plugins, themes, numVulnerabilities, numCoreVulnerabilities } = useProtectData();
-  const { recordEvent } = useAnalyticsTracks();
+	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
 
 	const trackNavigationClickAll = useCallback( () => {
