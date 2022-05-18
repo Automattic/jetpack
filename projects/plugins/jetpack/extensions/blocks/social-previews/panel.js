@@ -9,12 +9,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
+import { SocialServiceIcon } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import { AVAILABLE_SERVICES } from './constants';
-import { SocialServiceIcon } from '../../shared/icons';
 
 const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgradeNudge } ) {
 	const buttonText = showUpgradeNudge

@@ -1,10 +1,15 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Connection\Client;
 
+/**
+ * VideoPress AJAX action handlers and utilities.
+ */
 class VideoPress_AJAX {
 
 	/**
+	 * Singleton VideoPress_AJAX instance.
+	 *
 	 * @var VideoPress_AJAX
 	 **/
 	private static $instance = null;
@@ -36,7 +41,7 @@ class VideoPress_AJAX {
 	 * @return VideoPress_AJAX
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new VideoPress_AJAX();
 		}
 
@@ -196,7 +201,6 @@ class VideoPress_AJAX {
 
 		$args = array(
 			'method' => 'POST',
-			// 'sslverify' => false,
 		);
 
 		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-upload-jwt";
@@ -257,12 +261,12 @@ class VideoPress_AJAX {
 	 * @return void
 	 */
 	public function wp_ajax_update_transcoding_status() {
-		if ( ! isset( $_POST['post_id'] ) ) {
+		if ( ! isset( $_POST['post_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Informational AJAX response.
 			wp_send_json_error( array( 'message' => __( 'A valid post_id is required.', 'jetpack' ) ) );
 			return;
 		}
 
-		$post_id = (int) $_POST['post_id'];
+		$post_id = (int) $_POST['post_id']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		if ( ! videopress_update_meta_data( $post_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'That post does not have a VideoPress video associated to it.', 'jetpack' ) ) );

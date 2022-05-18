@@ -2,7 +2,7 @@
 /**
  * Put your classes in this `src` folder!
  *
- * @package automattic/jetpack-search
+ * @package automattic/jetpack-search-plugin
  */
 
 namespace Automattic\Jetpack\Search_Plugin;
@@ -23,15 +23,29 @@ class Jetpack_Search_Plugin {
 	 * Register hooks to initialize the plugin
 	 */
 	public static function bootstrap() {
-		add_action( 'plugins_loaded', array( self::class, 'ensure_dependencies_configured' ), 1 );
-		add_action( 'plugins_loaded', array( self::class, 'initialize' ) );
+		add_action( 'plugins_loaded', array( self::class, 'load_compatibility_files' ), 1 );
+		add_action( 'plugins_loaded', array( self::class, 'configure_packages' ), 1 );
+		add_action( 'plugins_loaded', array( self::class, 'initialize_other_packages' ) );
 		add_action( 'activated_plugin', array( self::class, 'handle_plugin_activation' ) );
 	}
 
 	/**
-	 * Ensure plugin dependencies are configured.
+	 * Extra tweaks to make Jetpack Search play well with others.
 	 */
-	public static function ensure_dependencies_configured() {
+	public static function load_compatibility_files() {
+		if ( class_exists( 'Jetpack' ) ) {
+			require_once JETPACK_SEARCH_PLUGIN__DIR . '/compatibility/jetpack.php';
+		}
+	}
+
+	/**
+	 * Configure packages controlled by the `Config` class.
+	 *
+	 * Note: the function only configures the packages, but doesn't initialize them.
+	 * The actual initialization is done on 'plugins_loaded' priority 2, which is the
+	 * reason the function is hooked on priority 1.
+	 */
+	public static function configure_packages() {
 		$config = new Config();
 		// Connection package.
 		$config->ensure(
@@ -51,9 +65,9 @@ class Jetpack_Search_Plugin {
 	}
 
 	/**
-	 * Initialize the plugin
+	 * Initialize packages not controlled by the `Config` class.
 	 */
-	public static function initialize() {
+	public static function initialize_other_packages() {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 		// Initialize My Jetpack.

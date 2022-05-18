@@ -53,14 +53,15 @@ function Price( { value, currency, isOld } ) {
 /**
  * Product Detail component.
  *
- * @param {object} props                    - Component props.
- * @param {string} props.slug               - Product slug
- * @param {Function} props.onClick          - Callback for Call To Action button click
- * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @param {string} props.className					- A className to be concat with default ones
- * @returns {object}                          ProductDetailCard react component.
+ * @param {object} props                         - Component props.
+ * @param {string} props.slug                    - Product slug
+ * @param {Function} props.onClick               - Callback for Call To Action button click
+ * @param {Function} props.trackButtonClick      - Function to call for tracking clicks on Call To Action button
+ * @param {string} props.className               - A className to be concat with default ones
+ * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
+ * @returns {object}                               ProductDetailCard react component.
  */
-const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => {
+const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
@@ -209,6 +210,12 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 						<CheckmarkIcon size={ 36 } />
 						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
 					</div>
+				) }
+
+				{ supportingInfo && (
+					<Text className={ styles[ 'supporting-info' ] } variant="body-extra-small">
+						{ supportingInfo }
+					</Text>
 				) }
 			</div>
 		</div>

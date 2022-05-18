@@ -541,5 +541,6 @@ export async function syncPlanData( page ) {
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
 	} while ( ! isSame );
 
+	// eslint-disable-next-line playwright/no-wait-for-timeout
 	await page.waitForTimeout( 1000 );
 }
