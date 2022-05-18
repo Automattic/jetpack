@@ -1,8 +1,6 @@
 /**
  * External dependencies
  */
-/*eslint lodash/import-scope: [2, "method"]*/
-import pick from 'lodash/pick';
 import { select } from '@wordpress/data';
 
 /**
@@ -33,10 +31,8 @@ export function* updateJetpackSettings( settings ) {
 		yield setJetpackSettings( updatedSettings );
 		return true;
 	} catch ( e ) {
-		const oldSettings = pick( select( STORE_ID ).getPublicizeModuleStatus(), [
-			'publicize_active',
-		] );
-		yield setJetpackSettings( oldSettings );
+		const oldSettings = select( STORE_ID ).getPublicizeModuleStatus();
+		yield setJetpackSettings( { publicize_active: oldSettings?.publicize_active } );
 		return false;
 	} finally {
 		yield setUpdatingJetpackSettingsDone();

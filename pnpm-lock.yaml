@@ -173,7 +173,7 @@ importers:
   projects/js-packages/connection:
     specifiers:
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
       '@automattic/jetpack-config': workspace:* || ^0.1
@@ -286,7 +286,7 @@ importers:
   projects/js-packages/idc:
     specifiers:
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
       '@babel/core': 7.17.9
@@ -328,7 +328,7 @@ importers:
 
   projects/js-packages/licensing:
     specifiers:
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
       '@babel/core': 7.17.9
@@ -602,7 +602,7 @@ importers:
 
   projects/packages/backup:
     specifiers:
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
       '@automattic/jetpack-connection': workspace:* || ^0.18
@@ -651,7 +651,7 @@ importers:
 
   projects/packages/connection-ui:
     specifiers:
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
@@ -764,7 +764,7 @@ importers:
     specifiers:
       '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
       '@automattic/jetpack-connection': workspace:* || ^0.18
@@ -860,7 +860,7 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
       '@automattic/jetpack-connection': workspace:* || ^0.18
@@ -981,7 +981,7 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-components': workspace:* || ^0.12
       '@automattic/jetpack-webpack-config': workspace:* || ^1.1
       '@babel/core': 7.17.9
@@ -1585,7 +1585,7 @@ importers:
 
   projects/plugins/social:
     specifiers:
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.12
       '@automattic/jetpack-connection': workspace:* || ^0.18
@@ -1600,7 +1600,6 @@ importers:
       '@wordpress/element': 4.5.0
       '@wordpress/i18n': 4.7.0
       concurrently: 6.0.2
-      lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -1616,7 +1615,6 @@ importers:
       '@wordpress/date': 4.7.0
       '@wordpress/element': 4.5.0
       '@wordpress/i18n': 4.7.0
-      lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:
