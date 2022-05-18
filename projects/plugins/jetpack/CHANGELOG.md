@@ -4,43 +4,30 @@
 
 ## 11.0-a.7 - 2022-05-18
 ### Enhancements
-- Added jetpack v4 publicize end-point. [#24293]
-- Admin Menu: Refactor upsell nudge to be async [#24304]
-- Email subscriptions: Update the default body of the "Confirmation request" email [#24389]
-- Moved SocialServiceIcon component from Jetpack Icons.js file to js-package/components. Updated it's ref in the Jetpack plugin directory [#23795]
-- Updated Jetpack Scan feature list. [#23863]
-- We now only perform one network request when utilizing any number of premium content and or payment blocks. Refactored the product memberships store to reduce complexity. [#24333]
+- Email subscriptions: update the default body of the "Confirmation request" email. [#24389]
+- Payments Blocks: refactor the product memberships store to reduce complexity and improve speed. [#24333]
+- VideoPress: add support for automatic seekbar color. [#24330]
 
 ### Improved compatibility
-- JSON API: update the theme endpoint with information concerning pending updates. [#24392]
-- Update usage of the connection package by Jetpack [#24309]
-- VideoPress: add useAverageColor to wpvideo shortcode to support automatic seekbar color. [#24330]
+- General: improve the connection sharing between Jetpack and standalone plugins. [#24309]
 
 ### Bug fixes
-- Add activation/deactivation hooks for proper setup of the waf module [#24153]
-- Changed the logic in should_submit_post_pre_checks to allow publiscizing via ajax requests. [#24387]
-- Make sure payment blocks only attempt to auto-select a product if it exists. [#24407]
-- Remove search widget CTA on uneligible themes [#24386]
+- WAF: add activation/deactivation hooks for WAF feature. [#24153]
+- Publicize: add logic to allow sharing via ajax requests. [#24387]
+- Payment Block: ensure payment block can only auto-select an existing product. [#24407]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Moved SocialServiceIcon component from Jetpack Icons.js file to js-package/components. Updated it's ref in the Jetpack plugin directory [#23795]
+- Added jetpack v4 publicize end-point. [#24293]
+- Admin Menu: Refactor upsell nudge to be async [#24304]
 - Dashboard: adapt support message wording based on the platform where it is displayed. [#24332]
-- Fix changelog and readme [#24316]
+- Updated Jetpack Scan feature list. [#23863]
 - Fix new PHPCS sniffs. [#24366]
-- Init 11.0-a.4 [#24315]
-- PHPCS: cleanup VideoPress module files. [#24351]
-- PHPCS Fixes for infinite scroll [#24342]
-- phpcs fixes for tiled gallery [#24352]
+- JSON API: update the theme endpoint with information concerning pending updates. [#24392]
+- PHPCS: cleanup VideoPress module files, fixes for infinite scroll and tiled gallery. [#24351] [#24342] [#24352]
 - Remove unused JS client components. [#24319]
+- Remove search widget CTA on uneligible themes [#24386]
 - Updated package dependencies.
-- Updated package dependencies. [#24153]
-- Updated package dependencies. [#24218]
-- Updated package dependencies. [#24334]
-- Updated package dependencies. [#24344]
-- Updated package dependencies. [#24347]
-- Updated package dependencies [#24306]
-- Updated package dependencies [#24361]
-- Updated package dependencies [#24367]
-- Updated package dependencies [#24372]
 
 ## 11.0-a.5 - 2022-05-10
 ### Other changes

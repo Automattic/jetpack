@@ -242,20 +242,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.0-a.3 - 2022-05-10
+### 11.0-a.7 - 2022-05-18
 #### Enhancements
-- Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset.
-- Latest Instagram Posts Block: improve performance of the block by adding lazy load for the images.
-- Payment Blocks: reset form data to default values after creating a subscription.
-- VideoPress: improve Extensibility of Privacy Setting filter by adding the embedded post id.
-- VideoPress: improve help message of VideoPress Privacy Setting at the block level.
+- Email subscriptions: update the default body of the "Confirmation request" email.
+- Payments Blocks: refactor the product memberships store to reduce complexity and improve speed.
+- VideoPress: add support for automatic seekbar color.
 
 #### Improved compatibility
-- General: improve connection sharing between Jetpack and Jetpack standalone plugins.
+- General: improve the connection sharing between Jetpack and standalone plugins.
 
 #### Bug fixes
-- Custom CSS: ensure the Additional CSS sub-menu link displays correctly.
-- Subscriptions: fix typo in confirmation message.
+- WAF: add activation/deactivation hooks for WAF feature.
+- Publicize: add logic to allow sharing via ajax requests.
+- Payment Block: ensure payment block can only auto-select an existing product.
 
 --------
 
