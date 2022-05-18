@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useCallback } from 'react';
-import { Dialog, ProductOffer } from '@automattic/jetpack-components';
+import { Dialog, ProductOffer, useBreakpointMatch } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -10,8 +10,9 @@ import { Dialog, ProductOffer } from '@automattic/jetpack-components';
 import ConnectedProductOffer from '../product-offer';
 import useProtectData from '../../hooks/use-protect-data';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import styles from './styles.module.scss';
 
-const SecurityBundle = ( { onAdd, redirecting, rest } ) => {
+const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
 	const { securityBundle } = useProtectData();
 	const {
 		name,
@@ -59,7 +60,9 @@ const SecurityBundle = ( { onAdd, redirecting, rest } ) => {
  * @returns {React.Component} Interstitial react component.
  */
 const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
-	const { recordEvent } = useAnalyticsTracks();
+  const { recordEvent } = useAnalyticsTracks();
+  const [ isMediumSize ] = useBreakpointMatch( 'md' );
+	const mediaClassName = isMediumSize ? styles[ 'is-viewport-medium' ] : null;
 
 	const onConnectedProductAdd = useCallback( () => {
 		recordEvent( 'jetpack_protect_connected_product_activated' );
@@ -67,8 +70,14 @@ const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
 
 	return (
 		<Dialog
-			primary={ <ConnectedProductOffer onAdd={ onConnectedProductAdd } isCard={ true } /> }
-			secondary={ <SecurityBundle onAdd={ onSecurityAdd } redirecting={ securityJustAdded } /> }
+			primary={ <ConnectedProductOffer className={ mediaClassName } onAdd={ onConnectedProductAdd } isCard={ true } /> }
+			secondary={
+				<SecurityBundle
+					className={ mediaClassName }
+					onAdd={ onSecurityAdd }
+					redirecting={ securityJustAdded }
+				/>
+			}
 			isTwoSections={ true }
 		/>
 	);

@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { wordpress, plugins as pluginsIcon, warning, color } from '@wordpress/icons';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -14,8 +15,8 @@ import { useCallback } from 'react';
 
 const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 	const { plugins, themes, numVulnerabilities, numCoreVulnerabilities } = useProtectData();
-
-	const { recordEvent } = useAnalyticsTracks();
+  const { recordEvent } = useAnalyticsTracks();
+	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
 
 	const trackNavigationClickAll = useCallback( () => {
 		recordEvent( 'jetpack_protect_navigation_all_click' );
@@ -34,7 +35,11 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 	}, [ recordEvent ] );
 
 	return (
-		<Navigation selected={ selected } onSelect={ onSelect }>
+		<Navigation
+			selected={ selected }
+			onSelect={ onSelect }
+			mode={ isSmallOrLarge ? 'dropdown' : 'list' }
+		>
 			<NavigationItem
 				initial
 				id="all"

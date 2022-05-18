@@ -1,11 +1,9 @@
-// Additional eslint config for react-using projects.
-require( '@rushstack/eslint-patch/modern-module-resolution' );
-
 /**
  * @type {import("eslint").Linter.Config}
  */
 module.exports = {
 	extends: [
+		'./preload.js',
 		'wpcalypso/react',
 		// Re-extend our base to re-override wpcalypso.
 		'./base.js',
