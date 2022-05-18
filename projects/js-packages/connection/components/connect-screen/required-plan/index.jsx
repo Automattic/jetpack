@@ -66,7 +66,7 @@ const ConnectScreenRequiredPlan = props => {
 	const showConnectButton = ! isRegistered || ! isUserConnected;
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
-	const handleButtonClick = handleCheckoutWorkflow; //! productSlug ? handleCheckoutWorkflow : handleRegisterSite;
+	const handleButtonClick = productSlug ? handleCheckoutWorkflow : handleRegisterSite;
 
 	return (
 		<ConnectScreenRequiredPlanVisual
