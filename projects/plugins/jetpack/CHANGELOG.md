@@ -5,14 +5,14 @@
 ## 11.0-a.7 - 2022-05-18
 ### Enhancements
 - Email subscriptions: update the default body of the "Confirmation request" email. [#24389]
-- Membership Products Store: refactor the product memberships store to reduce complexity and improve speed. [#24333]
+- Payments Blocks: refactor the product memberships store to reduce complexity and improve speed. [#24333]
 - VideoPress: add support for automatic seekbar color. [#24330]
 
 ### Improved compatibility
 - General: improve the connection sharing between Jetpack and standalone plugins. [#24309]
 
 ### Bug fixes
-- WAF: add activation/deactivation hooks for waf module. [#24153]
+- WAF: add activation/deactivation hooks for WAF feature. [#24153]
 - Publicize: add logic to allow sharing via ajax requests. [#24387]
 - Payment Block: ensure payment block can only auto-select an existing product. [#24407]
 
