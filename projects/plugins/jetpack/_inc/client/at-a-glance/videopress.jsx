@@ -30,6 +30,7 @@ import {
 	isFetchingSitePurchases,
 	getSitePlan,
 	getVideoPressStorageUsed,
+	hasActiveSiteFeature,
 	hasActiveVideoPressFeature,
 } from 'state/site';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
@@ -62,13 +63,16 @@ class DashVideoPress extends Component {
 		const {
 			hasConnectedOwner,
 			hasVideoPressFeature,
+			hasVideoPressUnlimitedStorage,
 			isFetching,
 			isOffline,
 			upgradeUrl,
 			videoPressStorageUsed,
 		} = this.props;
 
-		const shouldDisplayStorage = hasVideoPressFeature && null !== videoPressStorageUsed;
+		console.log( '=======> ' + hasVideoPressUnlimitedStorage );
+
+		const shouldDisplayStorage = ! hasVideoPressUnlimitedStorage && null !== videoPressStorageUsed;
 		const shouldDisplayBanner =
 			hasConnectedOwner && ! hasVideoPressFeature && ! isOffline && ! isFetching;
 
@@ -181,6 +185,7 @@ export default connect(
 	state => ( {
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		hasVideoPressFeature: hasActiveVideoPressFeature( state ),
+		hasVideoPressUnlimitedStorage: hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),
 		isFetching: isFetchingSitePurchases( state ),
