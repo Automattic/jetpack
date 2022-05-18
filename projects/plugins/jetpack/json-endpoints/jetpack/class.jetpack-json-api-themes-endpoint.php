@@ -47,6 +47,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		'author_uri'             => '(string) The website of the theme author.',
 		'tags'                   => '(array) Tags indicating styles and features of the theme.',
 		'log'                    => '(array) An array of log strings',
+		'update'                 => '(array|null) An object containing information about the available update if there is an update available, null otherwise.',
 		'autoupdate'             => '(bool) Whether the theme is automatically updated',
 		'autoupdate_translation' => '(bool) Whether the theme is automatically updating translations',
 	);

@@ -91,8 +91,11 @@ const shouldCreateDefaultProduct = response =>
 	response.connected_account_id;
 
 const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, select ) => {
-	if ( ! selectedProductId ) {
-		const defaultProductId = select.getProductsNoResolver()[ 0 ].id;
+	if ( selectedProductId ) {
+		return;
+	}
+	const defaultProductId = select.getProductsNoResolver()[ 0 ]?.id;
+	if ( defaultProductId ) {
 		setSelectedProductId( defaultProductId );
 	}
 };
