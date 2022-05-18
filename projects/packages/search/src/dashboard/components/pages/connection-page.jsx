@@ -33,7 +33,7 @@ export default function ConnectionPage( { isLoading = false } ) {
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
-	const supportsCheck = useCallback(
+	const checkSiteHasWpcomProduct = useCallback(
 		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
 		[ fetchSearchPlanInfo ]
 	);
@@ -62,7 +62,7 @@ export default function ConnectionPage( { isLoading = false } ) {
 				from="jetpack-search"
 				redirectUri="admin.php?page=jetpack-search"
 				wpcomProductSlug="jetpack_search"
-				supportsCheck={ supportsCheck }
+				checkSiteHasWpcomProduct={ checkSiteHasWpcomProduct }
 			>
 				<SearchPromotionBlock />
 			</ConnectScreenRequiredPlan>

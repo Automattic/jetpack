@@ -35,7 +35,7 @@ const ConnectScreenRequiredPlan = props => {
 		pricingTitle,
 		pricingCurrencyCode,
 		wpcomProductSlug,
-		supportsCheck,
+		checkSiteHasWpcomProduct,
 	} = props;
 
 	const {
@@ -59,7 +59,7 @@ const ConnectScreenRequiredPlan = props => {
 	const { run: handleCheckoutWorkflow, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug,
 		redirectUrl: redirectUri,
-		supportsCheck,
+		checkSiteHasWpcomProduct,
 		handleRegisterSite,
 	} );
 
@@ -116,6 +116,8 @@ ConnectScreenRequiredPlan.propTypes = {
 	pricingCurrencyCode: PropTypes.string,
 	/** The WordPress.com product slug. If informed, the connection/authorization flow will go through the Checkout page for this product'. */
 	wpcomProductSlug: PropTypes.string,
+	/** A callback that will be used to check whether the site already has the wpcomProductSlug. This will be checked after registration and the checkout will be skipped if it returns true. */
+	checkSiteHasWpcomProduct: PropTypes.func,
 };
 
 ConnectScreenRequiredPlan.defaultProps = {
