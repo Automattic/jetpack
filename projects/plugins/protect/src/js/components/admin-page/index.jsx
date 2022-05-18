@@ -64,7 +64,7 @@ const ProtectAdminPage = () => {
 	useAnalyticsTracks( {
 		pageViewEventName: 'protect_admin',
 		pageViewEventProperties: {
-			scan_status: currentScanStatus,
+			check_status: currentScanStatus,
 		},
 	} );
 
