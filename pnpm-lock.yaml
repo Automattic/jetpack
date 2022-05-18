@@ -1128,6 +1128,7 @@ importers:
       '@wordpress/components': 19.10.0
       '@wordpress/element': 4.6.0
       '@wordpress/i18n': 4.8.0
+      concurrently: 6.0.2
       eslint-plugin-import: 2.26.0
       eslint-plugin-svelte3: 3.4.1
       history: 5.3.0
@@ -1174,6 +1175,7 @@ importers:
       '@rollup/plugin-typescript': 8.2.5_d5b4c212067eb4489bd764c22d3b50b7
       '@tsconfig/svelte': 2.0.1
       '@wordpress/i18n': 4.8.0
+      concurrently: 6.0.2
       eslint-plugin-import: 2.26.0_eslint@8.15.0
       eslint-plugin-svelte3: 3.4.1_eslint@8.15.0+svelte@3.42.4
       node-wp-i18n: 1.2.6
