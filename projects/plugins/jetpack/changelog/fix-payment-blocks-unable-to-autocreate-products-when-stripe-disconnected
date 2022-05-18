@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Make sure payment blocks only attempt to auto-select a product if it exists.
