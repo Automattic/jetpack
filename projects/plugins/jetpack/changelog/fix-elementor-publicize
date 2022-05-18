@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Changed the logic in should_submit_post_pre_checks to allow publiscizing via ajax requests.
