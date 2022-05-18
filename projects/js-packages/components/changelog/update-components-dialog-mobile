@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Replace CSS @media by using useBreakpointsMatch() hook in Dialog component
