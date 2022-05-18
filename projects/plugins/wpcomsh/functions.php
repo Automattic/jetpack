@@ -320,7 +320,18 @@ function wpcomsh_get_atomic_client_id() {
  */
 function wpcomsh_get_wpcom_active_subscriptions() {
 	$persistent_data = new Atomic_Persistent_Data();
+
+	if ( ! $persistent_data || ! $persistent_data->WPCOM_PURCHASES ) { // phpcs:ignore WordPress.NamingConventions
+		return array();
+	}
+
 	$wpcom_purchases = json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+
+	// If ( for any reason ) $wpcom_purchases is not an array, return early an empty array so that array_reduce doesn't throw an error.
+	if ( ! is_array( $wpcom_purchases ) ) {
+		return array();
+	}
+
 	return array_reduce(
 		$wpcom_purchases,
 		function ( $assoc_array, $purchase ) {

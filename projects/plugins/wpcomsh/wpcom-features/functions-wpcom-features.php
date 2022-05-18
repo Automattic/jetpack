@@ -70,7 +70,12 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 
 		// Atomic site (WPCOMSH) purchases are stored in Atomic Persistent Data as a JSON encoded string.
 		$persistent_data = new Atomic_Persistent_Data();
-		$purchases       = (array) json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+
+		if ( ! $persistent_data || ! $persistent_data->WPCOM_PURCHASES ) { // phpcs:ignore WordPress.NamingConventions
+			return array();
+		}
+
+		$purchases = (array) json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
 
 	} else {
 		global $wpdb;
