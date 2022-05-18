@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Allow plugins to override a product class
