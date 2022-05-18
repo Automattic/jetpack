@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-publicize",
+	"name": "automattic/jetpack-publicize-components",
 	"description": "A library of JS components required by the Publicize editor plugin",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
@@ -33,9 +33,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-publicize",
+		"mirror-repo": "Automattic/jetpack-publicize-components",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-publicize-components/compare/v${old}...v${new}"
 		},
 		"autotagger": true
 	}
