@@ -20,6 +20,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { currentThemeSupports } from 'state/initial-state';
 
 const SEARCH_DESCRIPTION = __(
 	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
@@ -119,6 +120,7 @@ function Search( props ) {
 				) }
 			</SettingsGroup>
 			{ ! props.isLoading &&
+				props.isWidgetsSupported &&
 				( props.hasClassicSearch || props.hasInstantSearch ) &&
 				isModuleEnabled &&
 				! isInstantSearchEnabled && (
@@ -153,5 +155,6 @@ export default connect( state => {
 			! isSettingActivated( state, 'search' ) &&
 			! isUpdatingSetting( state, 'search' ) &&
 			false === hasUpdatedSetting( state, 'search' ),
+		isWidgetsSupported: currentThemeSupports( state, 'widgets' ),
 	};
 } )( withModuleSettingsFormHelpers( Search ) );

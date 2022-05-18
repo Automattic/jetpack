@@ -90,7 +90,7 @@ class Critical_CSS_State {
 	 */
 	private function check_for_timeout() {
 		if ( self::REQUESTING === $this->state && ( microtime( true ) - $this->created ) > HOUR_IN_SECONDS ) {
-			$this->set_as_failed( 'timeout' );
+			$this->set_as_failed( __( 'Timeout while waiting for Critical CSS from the Boost Service.', 'jetpack-boost' ) );
 		}
 	}
 
