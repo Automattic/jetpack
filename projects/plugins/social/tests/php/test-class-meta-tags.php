@@ -41,8 +41,6 @@ class Meta_Tags_Test extends BaseTestCase {
 	 * @before
 	 */
 	public function set_up() {
-		Monkey\Functions\when( 'is_singular' )->justReturn( true );
-
 		$this->meta_tags           = new Automattic\Jetpack\Social\Meta_Tags();
 		self::$post                = wp_insert_post(
 			array(
