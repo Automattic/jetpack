@@ -20,6 +20,7 @@ Since the service is still under development, WPCOM is still responding with sam
 * complete: Response will include all plugins and 2 of them will have vulnerabilities
 * incomplete: Response will miss one plugin and 2 of them will have vulnerabilities
 * empty: Response as if the first check was not performed yet
+* error: Response as if there was an error checking vulnerabilities
 
 Example:
 

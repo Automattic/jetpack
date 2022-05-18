@@ -9,6 +9,8 @@ Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
+Speed up your website by optimizing page performance with Jetpack Boost!
+
 == Description ==
 
 Speed up your website by optimizing page performance with Jetpack Boost!
@@ -170,7 +172,8 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 
 == Screenshots ==
 
-1. Manage your Jetpack Boost settings
+1. Jetpack Boost Critical CSS Generation
+2. Jetpack Boost Speed Improvement
 
 == Changelog ==
 ### 1.4.2 - 2022-04-11

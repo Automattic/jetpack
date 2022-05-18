@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.13.0 - 2022-05-18
+### Added
+- Components: Add useBreakpointMach hook [#24263]
+- Gridicon: added info-outline gridicon to the available subset of icons [#24328]
+- JS Components: tweak and improve Dialog component [#24280]
+- Replace CSS @media by using useBreakpointsMatch() hook in Dialog component [#24375]
+
+### Changed
+- Convert JS Components Button to TypeScript [#24267]
+- JS Components: iterate over Dialog component [#24374]
+- Moved SocialServiceIcon component from Jetpack Icons.js file to js-package/components. Updated it's ref in the Jetpack plugin directory [#23795]
+- Protect: improve Dialog layout in medium viewport size [#24390]
+- Updated package dependencies [#24361]
+
+## 0.12.0 - 2022-05-10
+### Changed
+- Converted Text component to TypeScript [#24256]
+- JS Components: re-write Alter component with TS [#24204]
+- JS Components: typescriptify Dialog component [#24257]
+- Updated package dependencies [#24276]
+
+### Fixed
+- JS Components: fix Warning when defining AdminPage header prop [#24236]
+
 ## 0.11.4 - 2022-05-04
 ### Added
 - Add missing JavaScript dependencies. [#24096]

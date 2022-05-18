@@ -7,20 +7,10 @@ import { __ } from '@wordpress/i18n';
 import { ProductOffer } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 
-const PROTECT_PRODUCT_MOCK = {
-	slug: 'protect',
-	title: __( 'Protect', 'jetpack-protect' ),
-	description: __(
-		'Protect your site and scan for security vulnerabilities listed in our database.',
-		'jetpack-protect'
-	),
-	features: [
-		__( 'Over 20,000 listed vulnerabilities', 'jetpack-protect' ),
-		__( 'Daily automatic scans', 'jetpack-protect' ),
-		__( 'Check plugin and theme version status', 'jetpack-protect' ),
-		__( 'Easy to navigate and use', 'jetpack-protect' ),
-	],
-};
+/**
+ * Internal dependencies
+ */
+import useProtectData from '../../hooks/use-protect-data';
 
 /**
  * Product Detail component.
@@ -35,6 +25,9 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 		skipUserConnection: true,
 	} );
 
+	const { productData } = useProtectData();
+	const { slug, title, longDescription, features, pricingForUi } = productData;
+
 	const onAddHandler = useCallback( () => {
 		if ( onAdd ) {
 			onAdd();
@@ -45,11 +38,11 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 
 	return (
 		<ProductOffer
-			slug={ PROTECT_PRODUCT_MOCK.slug }
-			title={ PROTECT_PRODUCT_MOCK.title }
-			description={ PROTECT_PRODUCT_MOCK.description }
-			features={ PROTECT_PRODUCT_MOCK.features }
-			pricing={ { isFree: true } }
+			slug={ slug }
+			title={ title }
+			description={ longDescription }
+			features={ features }
+			pricing={ pricingForUi }
 			isBundle={ false }
 			onAdd={ onAddHandler }
 			buttonText={ __( 'Get started with Jetpack Protect', 'jetpack-protect' ) }

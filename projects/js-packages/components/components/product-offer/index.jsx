@@ -10,11 +10,11 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Text, { H3, Title } from '../text/index.jsx';
-import { getIconBySlug, CheckmarkIcon } from '../product-icons/index.jsx';
-import ProductPrice from '../product-price/index.jsx';
+import Text, { H3, Title } from '../text/index';
+import { getIconBySlug, CheckmarkIcon } from '../icons/index.jsx';
+import ProductPrice from '../product-price/index';
 import styles from './style.module.scss';
-import Button from '../button/index.jsx';
+import Button from '../button/index';
 import Alert from '../alert';
 
 /**
@@ -98,7 +98,7 @@ export function IconsCard( { products, icon } ) {
  * @param {string} props.addProductUrl    - The checkout URL to add/buy the product.
  * @param {string} props.buttonText       - The text to be displayed on the Add button.
  * @param {string} props.error            - Error message.
- * @returns {React.Component}               ProductOffer react component. Optional.
+ * @returns {React.ReactElement}            ProductOffer react component. Optional.
  */
 const ProductOffer = ( {
 	className,

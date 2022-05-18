@@ -8,6 +8,8 @@ import { useSelect } from '@wordpress/data';
  */
 import { STORE_ID } from '../../state/store';
 
+let hasUncheckedItems = false;
+
 /**
  * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
  *
@@ -32,6 +34,7 @@ function mergeInstalledAndCheckedLists( installed, checked ) {
 				vulnerabilities: [],
 				notChecked: true,
 			} );
+			hasUncheckedItems = true;
 		}
 	}
 	newList.sort( ( a, b ) => {
@@ -59,8 +62,10 @@ function normalizeCoreInformation( wpVersion, coreCheck ) {
 		core = {
 			version: wpVersion,
 			vulnerabilities: [],
+			notChecked: true,
 			name: 'WordPress',
 		};
+		hasUncheckedItems = true;
 	}
 	return core;
 }
@@ -71,22 +76,30 @@ function normalizeCoreInformation( wpVersion, coreCheck ) {
  * @returns {object} The information available in Protect's initial state.
  */
 export default function useProtectData() {
-	const { installedPlugins, installedThemes, wpVersion, statusIsFetching, status } = useSelect(
-		select => ( {
-			installedPlugins: select( STORE_ID ).getInstalledPlugins(),
-			installedThemes: select( STORE_ID ).getInstalledThemes(),
-			wpVersion: select( STORE_ID ).getWpVersion(),
-			statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
-			status: select( STORE_ID ).getStatus(),
-		} )
-	);
+	const {
+		installedPlugins,
+		installedThemes,
+		wpVersion,
+		statusIsFetching,
+		status,
+		securityBundle,
+		productData,
+	} = useSelect( select => ( {
+		installedPlugins: select( STORE_ID ).getInstalledPlugins(),
+		installedThemes: select( STORE_ID ).getInstalledThemes(),
+		wpVersion: select( STORE_ID ).getWpVersion(),
+		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+		status: select( STORE_ID ).getStatus(),
+		securityBundle: select( STORE_ID ).getSecurityBundle(),
+		productData: select( STORE_ID ).getProductData(),
+	} ) );
 
 	const plugins = mergeInstalledAndCheckedLists( installedPlugins, status.plugins || {} );
 	const themes = mergeInstalledAndCheckedLists( installedThemes, status.themes || {} );
 	const core = normalizeCoreInformation( wpVersion, status.wordpress );
 
 	let currentStatus = 'error';
-	if ( statusIsFetching ) {
+	if ( true === statusIsFetching ) {
 		currentStatus = 'loading';
 	} else if ( status.status ) {
 		currentStatus = status.status;
@@ -98,9 +111,14 @@ export default function useProtectData() {
 		numPluginsVulnerabilities: status.numPluginsVulnerabilities || 0,
 		numThemesVulnerabilities: status.numThemesVulnerabilities || 0,
 		lastChecked: status.lastChecked || null,
+		errorCode: status.errorCode || null,
+		errorMessage: status.errorMessage || null,
 		core,
 		plugins,
 		themes,
 		currentStatus,
+		hasUncheckedItems,
+		securityBundle,
+		productData,
 	};
 }

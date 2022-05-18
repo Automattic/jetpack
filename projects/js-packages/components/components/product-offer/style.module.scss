@@ -1,16 +1,16 @@
 .wrapper {
 	padding: calc( var( --spacing-base ) * 8 );
 	position: relative;
+}
 
-	&.is-card {
-		background-color: var( --jp-white );
-		border: 1px solid var( --jp-gray );
-		border-radius: var( --jp-border-radius );
-		box-shadow: 0 2px 6px var( --product-card-shadow ), 0 1px 2px var( --product-card-shadow );
+.is-card {
+	background-color: var( --jp-white );
+	border: 1px solid var( --jp-gray );
+	border-radius: var( --jp-border-radius );
+	box-shadow: 0 2px 6px var( --product-card-shadow ), 0 1px 2px var( --product-card-shadow );
 
-		.card-header {
-			border-radius: var( --jp-border-radius ) var( --jp-border-radius ) 0 0;
-		}
+	.card-header {
+		border-radius: var( --jp-border-radius ) var( --jp-border-radius ) 0 0;
 	}
 }
 

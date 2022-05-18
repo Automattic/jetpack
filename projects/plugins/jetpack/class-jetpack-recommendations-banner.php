@@ -245,14 +245,16 @@ class Jetpack_Recommendations_Banner {
 						</mask><g mask="url(#jp-dismiss-mask0)"><rect x="0.582031" width="23.8823" height="24" /></g></svg>
 					<span><?php esc_attr_e( 'Dismiss', 'jetpack' ); ?></span>
 				</div>
-				<img
-						src="<?php echo esc_url( plugins_url( 'images/recommendations/background.svg', JETPACK__PLUGIN_FILE ), 'jetpack' ); ?>"
-						class="jp-recommendations-banner__illustration-background"
-				/>
-				<img
-						src="<?php echo esc_url( plugins_url( 'images/recommendations/site-type-illustration.jpg', JETPACK__PLUGIN_FILE ), 'jetpack' ); ?>"
+				<picture>
+					<source
+						type="image/webp"
+						srcset="<?php echo esc_url( $this->img_path( 1, 'webp' ) ); ?> 1x, <?php echo esc_url( $this->img_path( 2, 'webp' ) ); ?> 2x">
+					<img
 						class="jp-recommendations-banner__illustration-foreground"
-				/>
+						srcset="<?php echo esc_url( $this->img_path( 2 ) ); ?> 2x"
+						src="<?php echo esc_url( $this->img_path() ); ?>"
+						alt="">
+				</picture>
 			</div>
 		</div>
 		<?php
@@ -273,5 +275,19 @@ class Jetpack_Recommendations_Banner {
 			</div>
 		</label>
 		<?php
+	}
+
+	/**
+	 * Returns the path of the banner image for the specified version.
+	 *
+	 * @param string $res Requested resolution.
+	 * @param string $format Requested format.
+	 * @return string Path
+	 */
+	private function img_path( $res = 1, $format = 'png' ) {
+		$suffix = 2 === $res ? '-2x' : '';
+		$ext    = in_array( $format, array( 'webp', 'png' ), true ) ? $format : 'png';
+
+		return plugins_url( "images/recommendations/assistant-site-type$suffix.$ext", JETPACK__PLUGIN_FILE );
 	}
 }

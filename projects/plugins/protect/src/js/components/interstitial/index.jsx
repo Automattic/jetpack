@@ -2,36 +2,45 @@
  * External dependencies
  */
 import React from 'react';
-import { __ } from '@wordpress/i18n';
-import { Dialog, ProductOffer } from '@automattic/jetpack-components';
+import { Dialog, ProductOffer, useBreakpointMatch } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
  */
 import ConnectedProductOffer from '../product-offer';
+import useProtectData from '../../hooks/use-protect-data';
+import styles from './styles.module.scss';
 
-const SecurityBundle = ( { onAdd, redirecting, rest } ) => {
+const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
+	const { securityBundle } = useProtectData();
+	const {
+		name,
+		title,
+		longDescription,
+		isBundle,
+		supportedProducts,
+		features,
+		pricingForUi,
+	} = securityBundle;
+
+	// Compute the price per month.
+	const price = Math.ceil( ( pricingForUi.fullPrice / 12 ) * 100 ) / 100;
+	const offPrice = Math.ceil( ( pricingForUi.discountPrice / 12 ) * 100 ) / 100;
+	const { currencyCode: currency = 'USD' } = pricingForUi;
+
 	return (
 		<ProductOffer
 			slug="security"
-			name={ __( 'Security', 'jetpack-protect' ) }
-			title={ __( 'Security', 'jetpack-protect' ) }
-			description={ __(
-				'Comprehensive site security, including Backup, Scan, and Anti-spam.',
-				'jetpack-protect'
-			) }
-			isBundle={ true }
-			supportedProducts={ [ 'backup', 'scan', 'anti-spam' ] }
-			features={ [
-				__( 'Real time cloud backups with 10GB storage', 'jetpack-protect' ),
-				__( 'Automated real-time malware scan', 'jetpack-protect' ),
-				__( 'One click fixes for most threats', 'jetpack-protect' ),
-				__( 'Comment & form spam protection', 'jetpack-protect' ),
-			] }
+			name={ name }
+			title={ title }
+			description={ longDescription }
+			isBundle={ isBundle }
+			supportedProducts={ supportedProducts }
+			features={ features }
 			pricing={ {
-				currency: 'USD',
-				price: 24.92,
-				offPrice: 12.42,
+				currency,
+				price,
+				offPrice,
 			} }
 			hasRequiredPlan={ false }
 			onAdd={ onAdd }
@@ -50,11 +59,20 @@ const SecurityBundle = ( { onAdd, redirecting, rest } ) => {
  * @returns {React.Component} Interstitial react component.
  */
 const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
+	const [ isMediumSize ] = useBreakpointMatch( 'md' );
+	const mediaClassName = isMediumSize ? styles[ 'is-viewport-medium' ] : null;
+
 	return (
 		<Dialog
-			primary={ <ConnectedProductOffer isCard={ true } /> }
-			secondary={ <SecurityBundle onAdd={ onSecurityAdd } redirecting={ securityJustAdded } /> }
-			split={ true }
+			primary={ <ConnectedProductOffer className={ mediaClassName } isCard={ true } /> }
+			secondary={
+				<SecurityBundle
+					className={ mediaClassName }
+					onAdd={ onSecurityAdd }
+					redirecting={ securityJustAdded }
+				/>
+			}
+			isTwoSections={ true }
 		/>
 	);
 };

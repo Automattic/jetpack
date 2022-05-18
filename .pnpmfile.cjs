@@ -28,11 +28,6 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Depends on events but doesn't declare it.
-	if ( pkg.name === '@automattic/popup-monitor' && ! pkg.dependencies.events ) {
-		pkg.dependencies.events = '^3.3.0';
-	}
-
 	// Depends on punycode but doesn't declare it.
 	// https://github.com/markdown-it/markdown-it/issues/230
 	if ( pkg.name === 'markdown-it' && ! pkg.dependencies.punycode ) {
@@ -65,10 +60,19 @@ function fixDeps( pkg ) {
 	}
 
 	// Project is supposedly not dead, but still isn't being updated.
-	// For our purposes at least it seems to work fine with jest-environment-jsdom 27.
+	// For our purposes at least it seems to work fine with jest-environment-jsdom 28.
 	// https://github.com/enzymejs/enzyme-matchers/issues/353
 	if ( pkg.name === 'jest-environment-enzyme' ) {
-		pkg.dependencies[ 'jest-environment-jsdom' ] = '^27';
+		pkg.dependencies[ 'jest-environment-jsdom' ] = '^28';
+	}
+
+	// Need to match the version of jest used everywhere else.
+	if (
+		pkg.name === '@wordpress/jest-preset-default' &&
+		pkg.dependencies[ 'babel-jest' ] &&
+		pkg.dependencies[ 'babel-jest' ].startsWith( '^27' )
+	) {
+		pkg.dependencies[ 'babel-jest' ] = '^28';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
@@ -87,6 +91,13 @@ function fixDeps( pkg ) {
 		pkg.dependencies.browserslist.match( /^\d+\.\d+\.\d+$/ )
 	) {
 		pkg.dependencies.browserslist = '^' + pkg.dependencies.browserslist;
+	}
+
+	// Override @types/react* dependencies in order to use their specific versions
+	for ( const dep of [ '@types/react', '@types/react-dom', '@types/react-test-renderer' ] ) {
+		if ( pkg.dependencies?.[ dep ] ) {
+			pkg.dependencies[ dep ] = '17.x';
+		}
 	}
 
 	// Regular expression DOS.
@@ -117,15 +128,34 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
-	// @sveltejs/eslint-config peer-depends on eslint-plugin-node but doesn't seem to actually use it.
-	if ( pkg.name === '@sveltejs/eslint-config' ) {
-		delete pkg.peerDependencies?.[ 'eslint-plugin-node' ];
-	}
-
 	// Peer-depends on js-git but doesn't declare it.
 	// https://github.com/creationix/git-node-fs/pull/8
+	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
 	if ( pkg.name === 'git-node-fs' && ! pkg.peerDependencies?.[ 'js-git' ] ) {
 		pkg.peerDependencies[ 'js-git' ] = '*';
+	}
+
+	// Undeclared peer dependencies.
+	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
+	if ( pkg.name === 'eslint-module-utils' ) {
+		pkg.peerDependenciesMeta ||= {};
+		for ( const dep of [
+			'@typescript-eslint/parser',
+			'eslint-import-resolver-node',
+			'eslint-import-resolver-typescript',
+			'eslint-import-resolver-webpack',
+		] ) {
+			pkg.peerDependencies[ dep ] = '*';
+			pkg.peerDependenciesMeta[ dep ] = { optional: true };
+		}
+	}
+	if (
+		pkg.name === 'eslint-plugin-import' &&
+		! pkg.peerDependencies?.[ '@typescript-eslint/parser' ]
+	) {
+		pkg.peerDependenciesMeta ||= {};
+		pkg.peerDependencies[ '@typescript-eslint/parser' ] = '*';
+		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
 	}
 
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with
@@ -134,6 +164,8 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies.eslint = '^8';
 		pkg.peerDependencies[ 'eslint-plugin-inclusive-language' ] = '*';
 		pkg.peerDependencies[ 'eslint-plugin-jsdoc' ] = '*';
+		pkg.peerDependencies[ 'eslint-plugin-react' ] = '*';
+		pkg.peerDependencies[ 'eslint-plugin-react-hooks' ] = '*';
 		pkg.peerDependencies[ 'eslint-plugin-wpcalypso' ] = '*';
 	}
 

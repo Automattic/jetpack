@@ -12,11 +12,17 @@ import { __ } from '@wordpress/i18n';
 const CHART_OPTIONS = {
 	type: 'bar',
 	options: {
+		layout: {
+			padding: {
+				left: -10,
+			},
+		},
 		borderRadius: 100,
 		borderSkipped: 'middle',
 		indexAxis: 'y',
 		maintainAspectRatio: false,
 		aspectRatio: 1.3,
+		barThickness: 24,
 		scales: {
 			x: {
 				stacked: true,
