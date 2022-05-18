@@ -62,7 +62,7 @@ export default function useProductCheckoutWorkflow( {
 		event && event.preventDefault();
 		setCheckoutStarted( true );
 
-		Promise.resolve( () => isRegistered && registerSite( { registrationNonce, redirectUrl } ) )
+		Promise.resolve( () => isRegistered || registerSite( { registrationNonce, redirectUrl } ) )
 			.then( () => supportsCheck && supportsCheck() )
 			.then( supportsProduct => {
 				if ( ! supportsProduct ) {
