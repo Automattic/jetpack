@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import { useSelect } from '@wordpress/data';
+import React, { useCallback } from 'react';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { Container, Col, AdminSectionHero, getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
@@ -32,6 +32,11 @@ export default function ConnectionPage( { isLoading = false } ) {
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter(), [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
+	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
+	const supportsCheck = useCallback(
+		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
+		[ fetchSearchPlanInfo ]
+	);
 
 	const isPageLoading = useSelect(
 		select =>
@@ -57,6 +62,7 @@ export default function ConnectionPage( { isLoading = false } ) {
 				from="jetpack-search"
 				redirectUri="admin.php?page=jetpack-search"
 				wpcomProductSlug="jetpack_search"
+				supportsCheck={ supportsCheck }
 			>
 				<SearchPromotionBlock />
 			</ConnectScreenRequiredPlan>

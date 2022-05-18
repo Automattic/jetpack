@@ -26,12 +26,16 @@ const {
  * @param {string} props.productSlug  - The WordPress product slug.
  * @param {string} props.redirectUrl  - The URI to redirect to after checkout.
  * @param {string} [props.siteSuffix] - The site suffix.
+ * @param {Function} props.supportsCheck         - The function to check product supports.
+ * @param {Function} props.handleRegisterSite    - The function to register site.
  * @returns {Function}				  - The useEffect hook.
  */
 export default function useProductCheckoutWorkflow( {
 	productSlug,
 	redirectUrl,
 	siteSuffix = defaultSiteSuffix,
+	supportsCheck = null,
+	handleRegisterSite,
 } = {} ) {
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
@@ -56,15 +60,29 @@ export default function useProductCheckoutWorkflow( {
 	 */
 	const run = event => {
 		event && event.preventDefault();
-		setCheckoutStarted( true );
 
 		if ( isRegistered ) {
-			return ( window.location.href = checkoutProductUrl );
+			Promise.resolve( () => supportsCheck && supportsCheck() ).then( supportsProduct => {
+				if ( ! supportsProduct ) {
+					setCheckoutStarted( true );
+					window.location.href = checkoutProductUrl;
+				} else {
+					window.location.reload();
+				}
+			} );
+			return;
 		}
 
-		registerSite( { registrationNonce, redirectUrl } ).then( () => {
-			window.location = checkoutProductUrl;
-		} );
+		registerSite( { registrationNonce, redirectUrl } )
+			.then( () => supportsCheck && supportsCheck() )
+			.then( supportsProduct => {
+				if ( ! supportsProduct ) {
+					setCheckoutStarted( true );
+					window.location = checkoutProductUrl;
+				} else {
+					handleRegisterSite();
+				}
+			} );
 	};
 
 	// Initialize/Setup the REST API.

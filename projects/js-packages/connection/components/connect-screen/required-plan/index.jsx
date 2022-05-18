@@ -35,6 +35,7 @@ const ConnectScreenRequiredPlan = props => {
 		pricingTitle,
 		pricingCurrencyCode,
 		wpcomProductSlug,
+		supportsCheck,
 	} = props;
 
 	const {
@@ -55,15 +56,17 @@ const ConnectScreenRequiredPlan = props => {
 
 	const productSlug = wpcomProductSlug ? wpcomProductSlug : '';
 
-	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+	const { run: handleCheckoutWorkflow, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug,
 		redirectUrl: redirectUri,
+		supportsCheck,
+		handleRegisterSite,
 	} );
 
 	const showConnectButton = ! isRegistered || ! isUserConnected;
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
-	const handleButtonClick = productSlug ? run : handleRegisterSite;
+	const handleButtonClick = handleCheckoutWorkflow; //! productSlug ? handleCheckoutWorkflow : handleRegisterSite;
 
 	return (
 		<ConnectScreenRequiredPlanVisual
