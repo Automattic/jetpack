@@ -402,6 +402,71 @@ importers:
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
 
+  projects/js-packages/publicize-components:
+    specifiers:
+      '@automattic/jetpack-base-styles': workspace:* || ^0.3
+      '@automattic/jetpack-components': workspace:* || ^0.13
+      '@automattic/jetpack-shared-extension-utils': workspace:0.4.5
+      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@babel/core': 7.17.10
+      '@babel/plugin-transform-react-jsx': 7.17.3
+      '@babel/preset-react': 7.16.7
+      '@wojtekmaj/enzyme-adapter-react-17': 0.6.3
+      '@wordpress/annotations': 2.8.0
+      '@wordpress/babel-plugin-import-jsx-pragma': 3.1.2
+      '@wordpress/components': 19.10.0
+      '@wordpress/compose': 5.6.0
+      '@wordpress/data': 6.8.0
+      '@wordpress/element': 4.6.0
+      '@wordpress/hooks': 3.8.0
+      '@wordpress/i18n': 4.8.0
+      babel-jest: 28.1.0
+      classnames: 2.3.1
+      enzyme: 3.11.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
+      jest-enzyme: 7.1.2
+      jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
+      nyc: 15.1.0
+      prop-types: 15.8.1
+      react: 17.0.2
+      react-dom: 17.0.2
+      refx: 3.1.1
+      rememo: 3.0.0
+    dependencies:
+      '@automattic/jetpack-base-styles': link:../base-styles
+      '@automattic/jetpack-components': link:../components
+      '@automattic/jetpack-shared-extension-utils': link:../shared-extension-utils
+      '@wordpress/annotations': 2.8.0_react@17.0.2
+      '@wordpress/components': 19.10.0_9b0027aae606c22bf55a7fd89836f009
+      '@wordpress/compose': 5.6.0_react@17.0.2
+      '@wordpress/data': 6.8.0_react@17.0.2
+      '@wordpress/element': 4.6.0
+      '@wordpress/hooks': 3.8.0
+      '@wordpress/i18n': 4.8.0
+      classnames: 2.3.1
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      refx: 3.1.1
+      rememo: 3.0.0
+    devDependencies:
+      '@automattic/jetpack-webpack-config': link:../webpack-config
+      '@babel/core': 7.17.10
+      '@babel/plugin-transform-react-jsx': 7.17.3_@babel+core@7.17.10
+      '@babel/preset-react': 7.16.7_@babel+core@7.17.10
+      '@wojtekmaj/enzyme-adapter-react-17': 0.6.3_fae758709a8810ba97b4c03852dde4d0
+      '@wordpress/babel-plugin-import-jsx-pragma': 3.1.2_@babel+core@7.17.10
+      babel-jest: 28.1.0_@babel+core@7.17.10
+      enzyme: 3.11.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
+      jest-enzyme: 7.1.2_becb7f4948fb6088b9e707e84486a20a
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+
   projects/js-packages/remove-asset-webpack-plugin:
     specifiers:
       debug: ^4.3.2
@@ -1221,6 +1286,7 @@ importers:
       '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-licensing': workspace:* || ^0.4
       '@automattic/jetpack-partner-coupon': workspace:* || ^0.2
+      '@automattic/jetpack-publicize-components': workspace:* || ^0.1
       '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.4
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@automattic/popup-monitor': 1.0.1
@@ -1367,6 +1433,7 @@ importers:
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/jetpack-licensing': link:../../js-packages/licensing
       '@automattic/jetpack-partner-coupon': link:../../js-packages/partner-coupon
+      '@automattic/jetpack-publicize-components': link:../../js-packages/publicize-components
       '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@automattic/popup-monitor': 1.0.1
       '@automattic/request-external-access': 1.0.0
@@ -9040,7 +9107,7 @@ packages:
     dev: true
 
   /archy/1.0.0:
-    resolution: {integrity: sha1-+cjBN1fMHde8N5rHeyxipcKGjEA=}
+    resolution: {integrity: sha512-Xg+9RwCg/0p32teKdGMPTPnVXKD0w3DfHnFTficozsAgsvq2XenPJq/MYpzzQ/v8zrOyJn6Ds39VA4JIDwFfqw==}
     dev: true
 
   /are-we-there-yet/2.0.0:
@@ -9225,7 +9292,7 @@ packages:
     dev: true
 
   /asynckit/0.4.0:
-    resolution: {integrity: sha1-x57Zf380y48robyXkLzDZkdLS3k=}
+    resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
   /at-least-node/1.0.0:
     resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
@@ -9617,7 +9684,7 @@ packages:
     resolution: {integrity: sha512-Yi1Xaml0EvNA0OYWxXiYNqY24AfWkbA6w5vxE7GWxtKfzIbZM+Qw+aSmkgsbWzbHiy/RCSkUZBplVxTA+E4jJg==}
 
   /boolbase/1.0.0:
-    resolution: {integrity: sha1-aN/1++YMUes3cl6p4+0xDcwed24=}
+    resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
 
   /bounding-client-rect/1.0.5:
     resolution: {integrity: sha1-meLNJgLQfyLqO+7kIFNFBP1EJM8=}
