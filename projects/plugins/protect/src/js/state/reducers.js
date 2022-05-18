@@ -63,6 +63,14 @@ const securityBundle = ( state = {}, action ) => {
 	return state;
 };
 
+const productData = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_SECURITY_BUNDLE:
+			return action.productData;
+	}
+	return state;
+};
+
 const reducers = combineReducers( {
 	status,
 	statusIsFetching,
@@ -70,6 +78,7 @@ const reducers = combineReducers( {
 	installedThemes,
 	wpVersion,
 	securityBundle,
+	productData,
 } );
 
 export default reducers;

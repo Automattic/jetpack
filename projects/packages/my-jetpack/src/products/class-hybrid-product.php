@@ -68,11 +68,10 @@ abstract class Hybrid_Product extends Product {
 	/**
 	 * Activates the product. If the Hybrid product has declared a jetpack module name, let's try to activate it if Jetpack plugin is active
 	 *
-	 * @return boolean|\WP_Error
+	 * @param bool|WP_Error $product_activation Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @return bool|WP_Error
 	 */
-	public static function activate() {
-
-		$product_activation = parent::activate();
+	public static function do_product_specific_activation( $product_activation ) {
 
 		if ( is_wp_error( $product_activation ) ) {
 			// If we failed to install the stand-alone plugin because the package was not found, let's try and install Jetpack plugin instead.
