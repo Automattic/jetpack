@@ -93,6 +93,13 @@ function fixDeps( pkg ) {
 		pkg.dependencies.browserslist = '^' + pkg.dependencies.browserslist;
 	}
 
+	// Override @types/react* dependencies in order to use their specific versions
+	for ( const dep of [ '@types/react', '@types/react-dom', '@types/react-test-renderer' ] ) {
+		if ( pkg.dependencies?.[ dep ] ) {
+			pkg.dependencies[ dep ] = '17.x';
+		}
+	}
+
 	// Regular expression DOS.
 	if ( pkg.dependencies.trim === '0.0.1' ) {
 		pkg.dependencies.trim = '^0.0.3';
@@ -121,15 +128,34 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
-	// @sveltejs/eslint-config peer-depends on eslint-plugin-node but doesn't seem to actually use it.
-	if ( pkg.name === '@sveltejs/eslint-config' ) {
-		delete pkg.peerDependencies?.[ 'eslint-plugin-node' ];
-	}
-
 	// Peer-depends on js-git but doesn't declare it.
 	// https://github.com/creationix/git-node-fs/pull/8
+	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
 	if ( pkg.name === 'git-node-fs' && ! pkg.peerDependencies?.[ 'js-git' ] ) {
 		pkg.peerDependencies[ 'js-git' ] = '*';
+	}
+
+	// Undeclared peer dependencies.
+	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
+	if ( pkg.name === 'eslint-module-utils' ) {
+		pkg.peerDependenciesMeta ||= {};
+		for ( const dep of [
+			'@typescript-eslint/parser',
+			'eslint-import-resolver-node',
+			'eslint-import-resolver-typescript',
+			'eslint-import-resolver-webpack',
+		] ) {
+			pkg.peerDependencies[ dep ] = '*';
+			pkg.peerDependenciesMeta[ dep ] = { optional: true };
+		}
+	}
+	if (
+		pkg.name === 'eslint-plugin-import' &&
+		! pkg.peerDependencies?.[ '@typescript-eslint/parser' ]
+	) {
+		pkg.peerDependenciesMeta ||= {};
+		pkg.peerDependencies[ '@typescript-eslint/parser' ] = '*';
+		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
 	}
 
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with
@@ -138,6 +164,8 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies.eslint = '^8';
 		pkg.peerDependencies[ 'eslint-plugin-inclusive-language' ] = '*';
 		pkg.peerDependencies[ 'eslint-plugin-jsdoc' ] = '*';
+		pkg.peerDependencies[ 'eslint-plugin-react' ] = '*';
+		pkg.peerDependencies[ 'eslint-plugin-react-hooks' ] = '*';
 		pkg.peerDependencies[ 'eslint-plugin-wpcalypso' ] = '*';
 	}
 
