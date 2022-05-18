@@ -18,13 +18,13 @@ export function setSearchPlanInfo( options ) {
  * fetchSearchPlanInfo action
  *
  * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @returns {object} - an search plan object.
  */
 export function* fetchSearchPlanInfo() {
 	const response = yield {
 		type: FETCH_SEARCH_PLAN_INFO,
 	};
-	return Promise.resolve( response );
+	return response;
 }
 
 export default { setSearchPlanInfo, fetchSearchPlanInfo };
