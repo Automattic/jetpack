@@ -2968,7 +2968,7 @@ p {
 	 *
 	 * Will not disconnect if there are other plugins using the connection.
 	 *
-	 * @since $$next-version$$ Do not disconnect if other plugins are using the connection.
+	 * @since 11.0 Do not disconnect if other plugins are using the connection.
 	 *
 	 * @static
 	 */
