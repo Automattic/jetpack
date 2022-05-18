@@ -60,12 +60,12 @@ export default function useProductCheckoutWorkflow( {
 	 */
 	const run = event => {
 		event && event.preventDefault();
+		setCheckoutStarted( true );
 
 		Promise.resolve( () => isRegistered && registerSite( { registrationNonce, redirectUrl } ) )
 			.then( () => supportsCheck && supportsCheck() )
 			.then( supportsProduct => {
 				if ( ! supportsProduct ) {
-					setCheckoutStarted( true );
 					window.location.href = checkoutProductUrl;
 				} else {
 					handleRegisterSite();
