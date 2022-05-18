@@ -25,7 +25,6 @@
 		"@rollup/plugin-node-resolve": "13.0.6",
 		"@rollup/plugin-replace": "4.0.0",
 		"@rollup/plugin-typescript": "8.2.5",
-		"@tsconfig/svelte": "2.0.1",
 		"@wordpress/i18n": "4.8.0",
 		"concurrently": "6.0.2",
 		"node-wp-i18n": "1.2.6",

@@ -1124,7 +1124,6 @@ importers:
       '@rollup/plugin-node-resolve': 13.0.6
       '@rollup/plugin-replace': 4.0.0
       '@rollup/plugin-typescript': 8.2.5
-      '@tsconfig/svelte': 2.0.1
       '@wordpress/components': 19.10.0
       '@wordpress/element': 4.6.0
       '@wordpress/i18n': 4.8.0
@@ -1171,7 +1170,6 @@ importers:
       '@rollup/plugin-node-resolve': 13.0.6_rollup@2.56.3
       '@rollup/plugin-replace': 4.0.0_rollup@2.56.3
       '@rollup/plugin-typescript': 8.2.5_d5b4c212067eb4489bd764c22d3b50b7
-      '@tsconfig/svelte': 2.0.1
       '@wordpress/i18n': 4.8.0
       concurrently: 6.0.2
       node-wp-i18n: 1.2.6
@@ -6788,10 +6786,6 @@ packages:
   /@trysound/sax/0.2.0:
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
-
-  /@tsconfig/svelte/2.0.1:
-    resolution: {integrity: sha512-aqkICXbM1oX5FfgZd2qSSAGdyo/NRxjWCamxoyi3T8iVQnzGge19HhDYzZ6NrVOW7bhcWNSq9XexWFtMzbB24A==}
-    dev: true
 
   /@types/aria-query/4.2.2:
     resolution: {integrity: sha512-HnYpAE1Y6kRyKM/XkEuiRQhTHvkzMBurTHnpFLYLBGPIylZNPs9jJcuOOYWxPLJCSEtmZT0Y8rHDokKN7rRTig==}
