@@ -61,24 +61,12 @@ export default function useProductCheckoutWorkflow( {
 	const run = event => {
 		event && event.preventDefault();
 
-		if ( isRegistered ) {
-			Promise.resolve( () => supportsCheck && supportsCheck() ).then( supportsProduct => {
-				if ( ! supportsProduct ) {
-					setCheckoutStarted( true );
-					window.location.href = checkoutProductUrl;
-				} else {
-					window.location.reload();
-				}
-			} );
-			return;
-		}
-
-		registerSite( { registrationNonce, redirectUrl } )
+		Promise.resolve( () => isRegistered && registerSite( { registrationNonce, redirectUrl } ) )
 			.then( () => supportsCheck && supportsCheck() )
 			.then( supportsProduct => {
 				if ( ! supportsProduct ) {
 					setCheckoutStarted( true );
-					window.location = checkoutProductUrl;
+					window.location.href = checkoutProductUrl;
 				} else {
 					handleRegisterSite();
 				}
