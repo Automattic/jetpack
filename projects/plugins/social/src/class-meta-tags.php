@@ -105,6 +105,36 @@ class Meta_Tags {
 	}
 
 	/**
+	 * Check if meta tags should be rendered.
+	 *
+	 * @return bool True if meta tags should be rendered.
+	 */
+	public function should_render_meta_tags() {
+		if ( ! empty( array_intersect( $this->get_active_plugins(), $this->open_graph_conflicting_plugins ) ) ) {
+			return false;
+		}
+
+		if ( ! is_singular() ) {
+			return false;
+		}
+
+		if ( ! apply_filters( 'jetpack_enable_open_graph', true ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if Twitter Cards tags should be rendered.
+	 *
+	 * @return bool True if Twitter Cards tags should be rendered.
+	 */
+	public function should_render_twitter_cards_tags() {
+		return empty( array_intersect( $this->get_active_plugins(), $this->twitter_cards_conflicting_plugins ) );
+	}
+
+	/**
 	 * Get the featured image for a post.
 	 *
 	 * @param int $post_id The post ID. Optional. Defaults to global $post.
@@ -152,18 +182,7 @@ class Meta_Tags {
 	 * Render meta tags in head.
 	 */
 	public function render_tags() {
-		if ( ! is_singular() ) {
-			return;
-		}
-
-		if ( ! apply_filters( 'jetpack_enable_open_graph', true ) ) {
-			return;
-		}
-
-		$active_plugins = $this->get_active_plugins();
-
-		// Don't render tags if any conflicting plugins are active.
-		if ( ! empty( array_intersect( $active_plugins, $this->open_graph_conflicting_plugins ) ) ) {
+		if ( ! $this->should_render_meta_tags() ) {
 			return;
 		}
 
@@ -179,8 +198,7 @@ class Meta_Tags {
 			'og:image:height' => $image['height'],
 		);
 
-		// Add Twitter tags if no conflicting plugins are active.
-		if ( empty( array_intersect( $active_plugins, $this->twitter_cards_conflicting_plugins ) ) ) {
+		if ( $this->should_render_twitter_cards_tags() ) {
 			$tags = array_merge(
 				$tags,
 				array(
