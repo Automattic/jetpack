@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Revert and make Jetpack hard disconnect on deactivation
