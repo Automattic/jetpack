@@ -49,6 +49,28 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ 'jest-environment-jsdom' ] = '^28';
 	}
 
+	// Missing dep or peer dep on @wordpress/element.
+	// https://github.com/WordPress/gutenberg/issues/41341
+	// https://github.com/WordPress/gutenberg/issues/41346
+	if (
+		( pkg.name === '@wordpress/preferences' || pkg.name === '@wordpress/viewport' ) &&
+		! pkg.dependencies?.[ '@wordpress/element' ] &&
+		! pkg.peerDependencies?.[ '@wordpress/element' ]
+	) {
+		pkg.peerDependencies[ '@wordpress/element' ] = '*';
+	}
+
+	// Missing dep or peer dep on @babel/runtime
+	// https://github.com/WordPress/gutenberg/issues/41343
+	// https://github.com/Automattic/wp-calypso/issues/64034
+	if (
+		( pkg.name === '@wordpress/reusable-blocks' || pkg.name === '@automattic/popup-monitor' ) &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
+	) {
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	}
+
 	// Need to match the version of jest used everywhere else.
 	if (
 		pkg.name === '@wordpress/jest-preset-default' &&
