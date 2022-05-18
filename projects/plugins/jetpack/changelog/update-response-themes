@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+JSON API: update the theme endpoint with information concerning pending updates.
