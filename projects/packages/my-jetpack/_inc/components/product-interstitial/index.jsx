@@ -59,7 +59,10 @@ export default function ProductInterstitial( {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
 	}, [ recordEvent, bundle ] );
 
-	const { isUserConnected } = useMyJetpackConnection();
+	// Search exception 1/2: Search checkout flow won't work with the unlinked=1 approach.
+	const from = 'search' === slug ? 'jetpack-search' : 'my-jetpack';
+
+	const { isUserConnected, handleConnectUser } = useMyJetpackConnection( { from } );
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
@@ -81,10 +84,15 @@ export default function ProductInterstitial( {
 				return navigateToMyJetpackOverviewPage();
 			}
 
+			// Search exception 2/2: Search checkout flow won't work with the unlinked=1 approach. We rely on the redirect in calypso instead.
+			if ( 'search' === slug && ! isUserConnected && needsPurchase ) {
+				return handleConnectUser();
+			}
+
 			// Redirect to the checkout page.
 			window.location.href = getProductCheckoutUrl( wpcomProductSlug, isUserConnected );
 		} );
-	}, [ navigateToMyJetpackOverviewPage, activate, isUserConnected, slug ] );
+	}, [ navigateToMyJetpackOverviewPage, activate, isUserConnected, handleConnectUser, slug ] );
 
 	const onClickGoBack = useCallback( () => {
 		if ( slug ) {
