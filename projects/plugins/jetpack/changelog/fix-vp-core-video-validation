@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: avoid validation errors for core video block usage.
