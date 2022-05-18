@@ -101,8 +101,9 @@ const ModuleToggle = () => {
 
 const Admin = () => {
 	useEffect( () => {
-		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
-		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
+		const store = syncSelect( STORE_ID )
+		const apiRootUrl = store.getAPIRootUrl();
+		const apiNonce = store.getAPINonce();
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
 	}, [] );
