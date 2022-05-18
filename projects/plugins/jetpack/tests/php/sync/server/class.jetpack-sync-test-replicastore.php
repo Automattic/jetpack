@@ -328,7 +328,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		foreach ( $this->meta[ get_current_blog_id() ][ $type ] as $meta_id => $meta_data ) {
 			if (
 				$meta_data->meta_key === $meta_key &&
-				in_array( $meta_data->object_id, $object_ids, true )
+				in_array( $meta_data->object_id, $object_ids ) // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 			) {
 				$meta_ids[] = $meta_id;
 			}
@@ -413,10 +413,10 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		foreach ( $this->terms[ get_current_blog_id() ][ $taxonomy ] as $term_object ) {
 			switch ( $term_key ) {
 				case 'term_id':
-					$term = ( $term_id === $term_object->term_id ) ? $term_object : null;
+					$term = ( $term_id == $term_object->term_id ) ? $term_object : null; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					break;
 				case 'term_taxonomy_id':
-					$term = ( $term_id === $term_object->term_taxonomy_id ) ? $term_object : null;
+					$term = ( $term_id == $term_object->term_taxonomy_id ) ? $term_object : null; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					break;
 				case 'slug':
 					$term = ( $term_id === $term_object->slug ) ? $term_object : null;
@@ -516,7 +516,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 					$term = $this->get_term( $taxonomy, $saved_term_id, 'term_id' );
 					if (
 						isset( $term->term_taxonomy_id )
-						&& ! in_array( $term->term_taxonomy_id, $tt_ids, true )
+						&& ! in_array( $term->term_taxonomy_id, $tt_ids ) // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 						&& $object_id === $saved_object_id
 					) {
 						$saved_data[ $taxonomy ] [ $saved_object_id ][] = $saved_term_id;
