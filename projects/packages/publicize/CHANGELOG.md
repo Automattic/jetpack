@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2022-05-18
+### Added
+- Added new jetpack v4 end-point to list publicize connections. [#24293]
+
+### Changed
+- Updated package dependencies. [#24153] [#24360]
+
+### Fixed
+- Added check for wp_ajax_elementor_ajax to allow publicizing via elementor. [#24387]
+- gitignore wordpress directory within the publicize package [#24339]
+
 ## [0.2.1] - 2022-05-10
 ### Fixed
 - Publicize: Correct bad namespaces
@@ -18,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 - Moved the options class into Connection. [#24095]
+
+## [0.1.1] - 2022-05-19
+### Fixed
+- Added check for wp_ajax_elementor_ajax to allow publicizing via elementor.
+- Publicize: Correct bad namespaces
 
 ## 0.1.0 - 2022-04-26
 ### Added
@@ -36,5 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.3.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.1.0...v0.2.0
+[0.1.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.1.0...v0.1.1

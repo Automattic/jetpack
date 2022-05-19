@@ -199,10 +199,10 @@ class Settings {
 
 			if ( self::is_network_setting( $setting ) ) {
 				if ( is_multisite() && is_main_site() ) {
-					$updated = update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
+					update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
 				}
 			} else {
-				$updated = update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 			}
 
 			// If we set the disabled option to true, clear the queues.
@@ -210,13 +210,6 @@ class Settings {
 				$listener = Listener::get_instance();
 				$listener->get_sync_queue()->reset();
 				$listener->get_full_sync_queue()->reset();
-			}
-
-			// Do not enable Dedicated Sync if we cannot spawn a Dedicated Sync request.
-			if ( 'dedicated_sync_enabled' === $setting && $updated && (bool) $value ) {
-				if ( ! Dedicated_Sender::can_spawn_dedicated_sync_request() ) {
-					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
-				}
 			}
 		}
 	}
