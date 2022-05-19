@@ -12,6 +12,7 @@ import {
 	Col,
 	H3,
 	Text,
+	Dialog,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
 
@@ -63,17 +64,18 @@ const ProtectAdminPage = () => {
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
-						<Col sm={ 4 } md={ 4 } lg={ 6 }>
-							<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } />
-							<H3>{ __( 'We’re having problems scanning your site', 'jetpack-protect' ) }</H3>
-							<Text>{ displayErrorMessage }</Text>
-						</Col>
-						<Col sm={ 0 } md={ 0 } lg={ 1 }></Col>
-						<Col sm={ 4 } md={ 3 } lg={ 5 }>
-							<img src={ inProgressImage } alt="" />
-						</Col>
-					</Container>
+					<Dialog
+						primary={
+							<div className={ styles.primary }>
+								<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } />
+								<H3>{ __( 'We’re having problems scanning your site', 'jetpack-protect' ) }</H3>
+								<Text>{ displayErrorMessage }</Text>
+							</div>
+						}
+						secondary={ <img src={ inProgressImage } alt="" /> }
+						isTwoSections={ false }
+						isCard={ false }
+					/>
 				</AdminSectionHero>
 				<Footer />
 			</AdminPage>
