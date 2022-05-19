@@ -39,7 +39,9 @@ export default function useProductCheckoutWorkflow( {
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
 
-	const { isUserConnected, isRegistered, handleConnectUser } = useConnection();
+	const { isUserConnected, isRegistered, handleConnectUser } = useConnection( {
+		redirectUri: redirectUrl,
+	} );
 
 	// Build the checkout URL.
 	const checkoutProductUrl = getProductCheckoutUrl(
@@ -75,7 +77,7 @@ export default function useProductCheckoutWorkflow( {
 			return handleAfterRegistration();
 		}
 
-		registerSite( { registrationNonce, redirectUrl } ).then( handleAfterRegistration );
+		registerSite( { registrationNonce, redirectUri: redirectUrl } ).then( handleAfterRegistration );
 	};
 
 	// Initialize/Setup the REST API.
