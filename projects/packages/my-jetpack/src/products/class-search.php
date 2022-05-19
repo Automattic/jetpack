@@ -64,7 +64,7 @@ class Search extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Site Search', 'jetpack-my-jetpack' );
+		return __( 'Jetpack Search', 'jetpack-my-jetpack' );
 	}
 
 	/**

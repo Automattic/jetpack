@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2022-05-19
+### Changed
+- Updated package dependencies. [#24395]
+
+## [1.4.0] - 2022-05-18
+### Added
+- Added a filter to allow stand-alone plugins to add product specific activation routines [#24334]
+- My Jetpack: Add Protect class [#24347]
+- My Jetpack: compute Search plugin price based on price tier [#24337]
+
+### Changed
+- Add tiered pricing copy and update titles for Jetpack Search [#24357]
+- Hide Activate a license link if there is no user connection since user connection is required [#24251]
+- My Jetpack Hybrid products: Install Jetpack if stand-alone plugin installation fails [#24335]
+- Updated Jetpack Scan feature list. [#23863] [#23795] [#24361] [#24372]
+
 ## [1.3.0] - 2022-05-10
 ### Changed
 - Adds from arg to connection screen in My Jetpack so that we can begin tracking connections originating from My Jetpack [#24283]
@@ -463,6 +479,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[1.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.4.0...1.4.1
+[1.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.3.0...1.4.0
 [1.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.2.1...1.3.0
 [1.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.1.0...1.2.0
