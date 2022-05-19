@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Disable whitespace optimization as it can cause invalidation errors with Gutenberg blocks that use inline CSS.
