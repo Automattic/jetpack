@@ -36,13 +36,15 @@ export const updateJetpackSettings = settings => {
 /**
  * fetchSearchPlanInfo action
  *
- * @returns {object} - an action object.
+ * @yields {object} - an action object.
+ * @returns {object} - an search plan object.
  */
-export const fetchSearchPlanInfo = () => {
-	return {
+export function* fetchSearchPlanInfo() {
+	const response = yield {
 		type: FETCH_SEARCH_PLAN_INFO,
 	};
-};
+	return response;
+}
 
 /**
  * fetchSearchStats action
