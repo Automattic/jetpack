@@ -175,7 +175,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 		$options['jetpack_version'] = $this->get_jetpack_version();
 
 		$main_network_site = $this->main_network_site();
-		if ( isset( $main_network_site ) ) {
+		if ( $main_network_site ) {
 			$options['main_network_site'] = (string) rtrim( $main_network_site, '/' );
 		}
 
