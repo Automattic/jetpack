@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Stats: remove unnecessary type attribute from style element.
