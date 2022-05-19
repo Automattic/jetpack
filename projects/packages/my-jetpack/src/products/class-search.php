@@ -233,7 +233,22 @@ class Search extends Hybrid_Product {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return parent::is_active() && static::has_required_plan();
+		return class_exists( 'Automattic\Jetpack\Search\Module_Control' ) && ( new \Automattic\Jetpack\Search\Module_Control() )->is_active();
+	}
+
+	/**
+	 * Activates the product. If the Hybrid product has declared a jetpack module name, let's try to activate it if Jetpack plugin is active
+	 *
+	 * @param bool|WP_Error $product_activation Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $product_activation ) {
+		// This surely could be optimised.
+		$error = parent::do_product_specific_activation( $product_activation );
+		if ( is_wp_error( $error ) ) {
+			return $error;
+		}
+		return class_exists( 'Automattic\Jetpack\Search\Module_Control' ) && ( new \Automattic\Jetpack\Search\Module_Control() )->activate();
 	}
 
 }
