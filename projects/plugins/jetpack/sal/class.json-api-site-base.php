@@ -49,7 +49,7 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Returns the post metadata key value.
+	 * Get the blog_id property.
 	 *
 	 * @return int
 	 */
