@@ -22,7 +22,7 @@ require_once __DIR__ . '/class.json-api-post-base.php';
 abstract class SAL_Site {
 
 	/**
-	 *  A post metadata key value to check.
+	 *  The Jetpack blog ID for the site.
 	 *
 	 * @var int
 	 */
