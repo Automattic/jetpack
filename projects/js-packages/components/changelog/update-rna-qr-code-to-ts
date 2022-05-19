@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Converted QRCode component to TypeScript
