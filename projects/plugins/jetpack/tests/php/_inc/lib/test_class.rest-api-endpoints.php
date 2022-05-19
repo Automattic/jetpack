@@ -96,7 +96,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param string $route       REST API path to be append to /jetpack/v4/.
+	 * @param string $route       REST API path to be appended to /jetpack/v4/.
 	 * @param array  $json_params When present, parameters are added to request in JSON format.
 	 * @param string $method      Request method to use, GET or POST.
 	 * @param array  $params      Parameters to add to endpoint.
