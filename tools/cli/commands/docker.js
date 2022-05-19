@@ -481,11 +481,14 @@ const execJtCmdHandler = argv => {
 	}
 
 	checkProcessResult( jtResult );
-	console.warn(
-		chalk.yellow(
-			'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
-		)
-	);
+
+	if ( arg !== 'jt-down' ) {
+		console.warn(
+			chalk.yellow(
+				'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
+			)
+		);
+	}
 };
 
 /**
