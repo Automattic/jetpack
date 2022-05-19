@@ -1,13 +1,7 @@
-/* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
-import React from 'react';
-
 /**
  * Internal dependencies
  */
-import Spinner from '../index.jsx';
+import Spinner from '../index';
 
 export default {
 	title: 'JS Packages/Components/Spinner',
