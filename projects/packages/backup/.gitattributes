@@ -10,4 +10,4 @@ tests/           export-ignore
 /changelog/**    production-exclude
 
 # Files needed in the production build.
-build/           production-include
+build/**         production-include
