@@ -20,7 +20,7 @@ require_once __DIR__ . '/class.json-api-post-jetpack.php';
 class Jetpack_Site extends Abstract_Jetpack_Site {
 
 	/**
-	 * Retrieves a Jetpack option's value, given the option name. Firs
+	 * Retrieves a Jetpack option's value, given the option name.
 	 *
 	 * @param string $name the name of the Jetpack option, without the 'jetpack' prefix (eg. 'log' for 'jetpack_log').
 	 *
