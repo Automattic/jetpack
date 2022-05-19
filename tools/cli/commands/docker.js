@@ -457,11 +457,26 @@ const execJtCmdHandler = argv => {
 	const jtResult = executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
 
 	if ( jtResult.status !== 0 ) {
-		console.warn(
-			chalk.yellow(
-				'Unable to establish Jurassic Tube connection. Is your Jetpack Docker container up? If not try: jetpack docker up -d'
-			)
+		// Try to check if the default named Jetpack container is up.
+		const dockerPs = spawnSync(
+			'docker',
+			[
+				"ps --filter 'name=jetpack_dev_wordpress' --filter 'status=running' --format='{{.ID}} {{.Names}}'",
+			],
+			{
+				encoding: 'utf8',
+				shell: true,
+			}
 		);
+
+		if ( dockerPs.status === 0 && dockerPs.stdout.length === 0 ) {
+			console.warn(
+				chalk.yellow(
+					'Unable to establish Jurassic Tube connection. Is your Jetpack Docker container up? If not, try: jetpack docker up -d'
+				)
+			);
+		}
+
 		process.exit( jtResult.status );
 	}
 
