@@ -111,6 +111,7 @@ importers:
       '@testing-library/react': 12.1.5
       '@types/chai': 4.3.0
       '@types/jest': 27.4.1
+      '@types/qrcode.react': 1.0.2
       '@types/react': 17.0.44
       '@types/react-dom': 17.0.15
       '@types/react-test-renderer': 17.0.1
@@ -153,6 +154,7 @@ importers:
       '@testing-library/react': 12.1.5_react-dom@17.0.2+react@17.0.2
       '@types/chai': 4.3.0
       '@types/jest': 27.4.1
+      '@types/qrcode.react': 1.0.2
       '@types/react': 17.0.44
       '@types/react-dom': 17.0.15
       '@types/react-test-renderer': 17.0.1
@@ -7009,6 +7011,12 @@ packages:
 
   /@types/pug/2.0.6:
     resolution: {integrity: sha512-SnHmG9wN1UVmagJOnyo/qkk0Z7gejYxOYYmaAwr5u2yFYfsupN3sg10kyzN8Hep/2zbHxCnsumxOoRIRMBwKCg==}
+    dev: true
+
+  /@types/qrcode.react/1.0.2:
+    resolution: {integrity: sha512-I9Oq5Cjlkgy3Tw7krCnCXLw2/zMhizkTere49OOcta23tkvH0xBTP0yInimTh0gstLRtb8Ki9NZVujE5UI6ffQ==}
+    dependencies:
+      '@types/react': 17.0.45
     dev: true
 
   /@types/qs/6.9.7:
