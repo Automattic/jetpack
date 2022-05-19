@@ -40,7 +40,7 @@ abstract class SAL_Site {
 	/**
 	 * Contructs the SAL_Site instance.
 	 *
-	 * @param int            $blog_id A post metadata key value to check.
+	 * @param int            $blog_id The Jetpack blog ID for the site.
 	 * @param WPORG_Platform $platform  A new WPORG_Platform instance.
 	 */
 	public function __construct( $blog_id, $platform ) {
