@@ -248,6 +248,8 @@ class Search extends Hybrid_Product {
 		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
+		// !! Directly after plugin activation, the class might not be available yet.
+		// !! So we might need to implicitly require it???
 		if ( ! class_exists( 'Automattic\Jetpack\Search\Module_Control' ) ) {
 			return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack Search: module not exists', 'jetpack-my-jetpack' ) );
 		}
