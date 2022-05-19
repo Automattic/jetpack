@@ -528,7 +528,7 @@ function stats_reports_load() {
 	if ( isset( $_GET['nojs'] ) && $_GET['nojs'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$parsed = wp_parse_url( admin_url() );
 		// Remember user doesn't want JS.
-		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'] ); // 2 days.
+		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'], COOKIE_DOMAIN, is_ssl(), true ); // 2 days.
 	}
 
 	if ( isset( $_COOKIE['stnojs'] ) && $_COOKIE['stnojs'] ) {
