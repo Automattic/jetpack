@@ -959,7 +959,7 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Gets the theme background color.
+	 * Get the image default link type.
 	 *
 	 * @return string
 	 **/
