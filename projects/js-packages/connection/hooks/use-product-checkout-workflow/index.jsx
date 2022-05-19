@@ -52,7 +52,7 @@ export default function useProductCheckoutWorkflow( {
 	);
 
 	const handleAfterRegistration = () => {
-		Promise.resolve( checkSiteHasWpcomProduct && checkSiteHasWpcomProduct() ).then(
+		return Promise.resolve( checkSiteHasWpcomProduct && checkSiteHasWpcomProduct() ).then(
 			siteHasWpcomProduct => {
 				if ( siteHasWpcomProduct ) {
 					handleConnectUser();
@@ -77,7 +77,9 @@ export default function useProductCheckoutWorkflow( {
 			return handleAfterRegistration();
 		}
 
-		registerSite( { registrationNonce, redirectUri: redirectUrl } ).then( handleAfterRegistration );
+		return registerSite( { registrationNonce, redirectUri: redirectUrl } ).then(
+			handleAfterRegistration
+		);
 	};
 
 	// Initialize/Setup the REST API.
