@@ -135,6 +135,24 @@ export const JetpackIcon = ( { size, className = styles.jetpack } ) => {
 	);
 };
 
+export const JetpackSocialIcon = () => {
+	return (
+		<svg width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path
+				d="M21.667 10V8.652l-1.29.391-13.72 4.158A2.333 2.333 0 0 0 5 15.434V17.9c0 1.028.673 1.935 1.657 2.233l13.72 4.157 1.29.391V10ZM11 11.333v17.334"
+				stroke="#1E1E1E"
+				stroke-width="2"
+			/>
+			<path
+				fill-rule="evenodd"
+				clip-rule="evenodd"
+				d="M30.667 17.667h-5.334v-2h5.334v2ZM30.667 23.333 25.333 22v-2l5.334 1.333v2ZM30.667 12l-5.334 1.333v-2L30.667 10v2Z"
+				fill="#1E1E1E"
+			/>
+		</svg>
+	);
+};
+
 /**
  * Wrapper of the Social Icons. Adds a default CSS class.
  *
@@ -238,7 +256,7 @@ const iconsMap = {
 	protect: ProtectIcon,
 	scan: ScanIcon,
 	search: SearchIcon,
-	social: SearchIcon,
+	social: JetpackSocialIcon,
 	star: StarIcon,
 	videopress: VideopressIcon,
 	jetpack: JetpackIcon,
