@@ -352,7 +352,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
+		if (
+			function_exists( 'wpcom_site_has_feature' ) &&
+			wpcom_site_has_feature( \WPCOM_Features::SFTP )
+		) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
+		}
 
 		if (
 			function_exists( 'wpcom_site_has_feature' ) &&

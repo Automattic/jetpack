@@ -31,6 +31,7 @@ if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 		switch ( $feature ) {
 			case WPCOM_Features::ATOMIC:
 			case WPCOM_Features::MANAGE_PLUGINS:
+			case WPCOM_Features::SFTP:
 				return true;
 		}
 

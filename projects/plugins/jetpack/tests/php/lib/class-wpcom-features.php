@@ -11,4 +11,5 @@
 class WPCOM_Features {
 	const ATOMIC         = 'atomic';
 	const MANAGE_PLUGINS = 'manage-plugins';
+	const SFTP           = 'sftp';
 }
