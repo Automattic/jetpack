@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPCS updates. [#24418]
 
 ## [1.13.3] - 2022-05-10
+### Changed
+- Updated package dependencies.
+
+## [1.13.2.1] - 2022-05-19
+### Added
+- PHPCS updates.
 
 ## [1.13.2] - 2022-04-26
 ### Changed
@@ -186,6 +192,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [1.13.4]: https://github.com/Automattic/jetpack-status/compare/v1.13.3...v1.13.4
 [1.13.3]: https://github.com/Automattic/jetpack-status/compare/v1.13.2...v1.13.3
+[1.13.2.1]: https://github.com/Automattic/jetpack-status/compare/v1.13.2...v1.13.3
 [1.13.2]: https://github.com/Automattic/jetpack-status/compare/v1.13.1...v1.13.2
 [1.13.1]: https://github.com/Automattic/jetpack-status/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/Automattic/jetpack-status/compare/v1.12.0...v1.13.0
