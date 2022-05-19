@@ -148,21 +148,29 @@ const useStatusPolling = () => {
 	const status = useSelect( select => select( STORE_ID ).getStatus() );
 
 	useEffect( () => {
+		let pollTimeout;
+
 		const pollStatus = () => {
 			refreshStatus()
-				.then( () => {
-					// Do nothing - the refreshed status will re-trigger this useEffect().
+				.then( latestStatus => {
+					if ( 'scheduled' === latestStatus.status ) {
+						clearTimeout( pollTimeout );
+						pollTimeout = setTimeout( pollStatus, pollingDuration );
+					}
 				} )
 				.catch( () => {
 					// Keep trying when unable to fetch the status.
-					setTimeout( pollStatus, pollingDuration );
+					clearTimeout( pollTimeout );
+					pollTimeout = setTimeout( pollStatus, pollingDuration );
 				} );
 		};
 
 		if ( 'scheduled' === status.status ) {
 			setTimeout( pollStatus, pollingDuration );
 		}
-	}, [ status, refreshStatus ] );
+
+		return () => clearTimeout( pollTimeout );
+	}, [ status.status, refreshStatus ] );
 };
 
 const Admin = () => {
