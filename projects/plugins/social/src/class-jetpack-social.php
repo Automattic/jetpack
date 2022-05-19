@@ -192,6 +192,7 @@ class Jetpack_Social {
 	public function activate_module_on_plugin_activation() {
 		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) && $this->is_connected() ) {
 			delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
+			error_log( 'Social trying to activate' );
 			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		}
 	}
