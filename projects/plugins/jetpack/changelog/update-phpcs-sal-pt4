@@ -1,4 +1,4 @@
 Significance: patch
-Type: compat
+Type: other
 
-PHPCS updates to bring in line with WordPress standards.
+PHPCS: cleanup SAL files.
