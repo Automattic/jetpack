@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { wordpress, plugins as pluginsIcon, warning, color } from '@wordpress/icons';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -12,8 +13,14 @@ import useProtectData from '../../hooks/use-protect-data';
 
 const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 	const { plugins, themes, numVulnerabilities, numCoreVulnerabilities } = useProtectData();
+	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
+
 	return (
-		<Navigation selected={ selected } onSelect={ onSelect }>
+		<Navigation
+			selected={ selected }
+			onSelect={ onSelect }
+			mode={ isSmallOrLarge ? 'dropdown' : 'list' }
+		>
 			<NavigationItem
 				initial
 				id="all"
