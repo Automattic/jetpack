@@ -158,7 +158,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$event           = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_user' );
 		$save_user_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
-		$this->assertTrue( empty( $save_user_event ) );
+		$this->assertEmpty( $save_user_event );
 		$this->assertEquals( $this->user_id, $event->args[0] );
 		$this->assertNull( $event->args[1] ); // reassign user_id
 
@@ -258,7 +258,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( $events[0]->args[1]['role_changed'] );
 		$this->assertEquals( $events[0]->args[1]['previous_role'], array( 'subscriber' ) );
-		$this->assertTrue( empty( $events[1] ) );
+		$this->assertCount( 1, $events );
 	}
 
 	public function test_user_remove_role_is_synced() {

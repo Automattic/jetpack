@@ -242,20 +242,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.0-a.3 - 2022-05-10
-#### Enhancements
-- Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset.
-- Latest Instagram Posts Block: improve performance of the block by adding lazy load for the images.
-- Payment Blocks: reset form data to default values after creating a subscription.
-- VideoPress: improve Extensibility of Privacy Setting filter by adding the embedded post id.
-- VideoPress: improve help message of VideoPress Privacy Setting at the block level.
-
+### 11.0-a.9 - 2022-05-19
 #### Improved compatibility
-- General: improve connection sharing between Jetpack and Jetpack standalone plugins.
+- Stats: remove unnecessary type attribute from style element.
 
 #### Bug fixes
-- Custom CSS: ensure the Additional CSS sub-menu link displays correctly.
-- Subscriptions: fix typo in confirmation message.
+- VideoPress: fix validation errors for core video block usage.
 
 --------
 

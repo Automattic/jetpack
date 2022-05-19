@@ -1,10 +1,15 @@
 {
-	"extends": "@tsconfig/svelte/tsconfig.json",
+	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"include": [ "app/assets/src/js/**/*" ],
 	"exclude": [ "node_modules/*", "app/assets/dist/*", "tests/e2e/*" ],
 	"compilerOptions": {
 		"types": [ "svelte" ],
 		"typeRoots": [ "./node_modules/@types/", "./app/assets/src/js" ],
-		"lib": [ "dom", "es2018" ]
+		/**
+		 * Values from "@tsconfig/svelte/tsconfig.json"
+		 */
+		"importsNotUsedAsValues": "error",
+		"sourceMap": true,
+		"forceConsistentCasingInFileNames": true
 	}
 }
