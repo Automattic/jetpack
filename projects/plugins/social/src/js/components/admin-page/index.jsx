@@ -4,14 +4,13 @@
 import { __ } from '@wordpress/i18n';
 import { Button, ToggleControl } from '@wordpress/components';
 import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
-import { useSelect, select as syncSelect, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 /**
  * Internal dependencies
  */
-import restApi from '@automattic/jetpack-api';
 import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
@@ -100,14 +99,6 @@ const ModuleToggle = () => {
 };
 
 const Admin = () => {
-	useEffect( () => {
-		const store = syncSelect( STORE_ID )
-		const apiRootUrl = store.getAPIRootUrl();
-		const apiNonce = store.getAPINonce();
-		apiRootUrl && restApi.setApiRoot( apiRootUrl );
-		apiNonce && restApi.setApiNonce( apiNonce );
-	}, [] );
-
 	const connectionStatus = useSelect(
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]

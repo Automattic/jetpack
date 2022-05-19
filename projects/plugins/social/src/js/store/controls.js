@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import restApi from '@automattic/jetpack-api';
+import { fetchEndpoint } from '../utils/api';
 
 export const FETCH_JETPACK_SETTINGS = 'FETCH_JETPACK_SETTINGS';
 export const UPDATE_JETPACK_SETTINGS = 'UPDATE_JETPACK_SETTINGS';
@@ -31,9 +31,13 @@ export const updateJetpackSettings = settings => {
 };
 export default {
 	[ FETCH_JETPACK_SETTINGS ]: function () {
-		return restApi.fetchSocialSettings();
+		return fetchEndpoint( { endpoint: 'jetpack/v4/social/settings' } );
 	},
 	[ UPDATE_JETPACK_SETTINGS ]: function ( action ) {
-		return restApi.updateSocialSettings( action.settings );
+		return fetchEndpoint( {
+			endpoint: 'jetpack/v4/social/settings',
+			method: 'POST',
+			data: action.settings,
+		} );
 	},
 };
