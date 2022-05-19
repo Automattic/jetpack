@@ -1,13 +1,7 @@
-/* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
-import React from 'react';
-
 /**
  * Internal dependencies
  */
-import QRCode from '../index.jsx';
+import QRCode from '../index';
 
 export default {
 	title: 'JS Packages/Components/QRCode',
