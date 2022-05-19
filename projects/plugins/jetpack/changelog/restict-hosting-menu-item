@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Check for feature support before registering Hosting Configuration menu item.
