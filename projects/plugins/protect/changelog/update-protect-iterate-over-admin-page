@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Protect: re implement Admin page by using Dialog component
