@@ -227,13 +227,4 @@ class Search extends Hybrid_Product {
 		return admin_url( 'admin.php?page=jetpack-search' );
 	}
 
-	/**
-	 * Checks whether the Product is active
-	 *
-	 * @return boolean
-	 */
-	public static function is_active() {
-		return parent::is_active() && static::has_required_plan();
-	}
-
 }
