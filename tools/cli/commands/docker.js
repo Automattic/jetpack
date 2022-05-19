@@ -475,9 +475,9 @@ const execJtCmdHandler = argv => {
 					'Unable to establish Jurassic Tube connection. Is your Jetpack Docker container up? If not, try: jetpack docker up -d'
 				)
 			);
-		}
 
-		process.exit( jtResult.status );
+			process.exit( jtResult.status );
+		}
 	}
 
 	checkProcessResult( jtResult );
