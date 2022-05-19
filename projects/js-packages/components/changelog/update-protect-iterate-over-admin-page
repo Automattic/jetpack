@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+JS Components: Add isCard prop to Dialog component
