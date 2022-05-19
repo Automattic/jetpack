@@ -892,7 +892,7 @@ function stats_convert_post_title( $matches ) {
  */
 function stats_hide_smile_css() {
 	?>
-<style type='text/css'>img#wpstats{display:none}</style>
+<style>img#wpstats{display:none}</style>
 	<?php
 }
 
