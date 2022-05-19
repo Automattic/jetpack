@@ -50,11 +50,15 @@ export default function useProductCheckoutWorkflow( {
 	);
 
 	const handleAfterRegistration = () => {
-		if ( checkSiteHasWpcomProduct && checkSiteHasWpcomProduct() ) {
-			handleConnectUser();
-		} else {
-			return ( window.location.href = checkoutProductUrl );
-		}
+		Promise.resolve( checkSiteHasWpcomProduct && checkSiteHasWpcomProduct() ).then(
+			siteHasWpcomProduct => {
+				if ( siteHasWpcomProduct ) {
+					handleConnectUser();
+				} else {
+					return ( window.location.href = checkoutProductUrl );
+				}
+			}
+		);
 	};
 
 	/**
@@ -71,9 +75,7 @@ export default function useProductCheckoutWorkflow( {
 			return handleAfterRegistration();
 		}
 
-		registerSite( { registrationNonce, redirectUrl } ).then( () => {
-			handleAfterRegistration();
-		} );
+		registerSite( { registrationNonce, redirectUrl } ).then( handleAfterRegistration );
 	};
 
 	// Initialize/Setup the REST API.
