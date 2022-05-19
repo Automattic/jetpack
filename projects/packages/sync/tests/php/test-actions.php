@@ -26,10 +26,6 @@ class Test_Actions extends BaseTestCase {
 		// Mock Site level connection.
 		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
 		\Jetpack_Options::update_option( 'id', 1 );
-
-		// Setting the Dedicated Sync check transient here to avoid making a test
-		// request every time dedicated Sync setting is updated.
-		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 'OK' );
 	}
 
 	/**
