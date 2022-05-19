@@ -302,3 +302,9 @@ Provides a series of customisations to enable the full Nav Unification experienc
 - activate the Nav Unification feature shipped in Jetpack on Atomic.
 - add a WooCommerce install item to the menu when Woo isn't installed.
 - force disable Nav Unification feature via query string.
+
+### Enable Features Used By Jetpack Publicize
+
+Jetpack's publicize module (which automatically tweets when a post is published for example) uses a post's "featured image" when creating a social media post. However some themes disable the `post-thumbnails` theme feature, which hides the featured image UI in the editor.
+
+wpcomsh forces the featured image UI to appear when the Jetpack publicize module is enabled, even when the current theme doesn't support it.
