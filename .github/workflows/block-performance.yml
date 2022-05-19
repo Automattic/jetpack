@@ -3,6 +3,10 @@ name: Jetpack block performance
 on:
   schedule:
     - cron:  '0 */12 * * *'
+  push:
+    branches:
+      - 'fix/perf-tests-setup-failure'
+
 
 jobs:
   block-performance:
@@ -12,10 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup tools for G
-        uses: ./.github/actions/tool-setup
+      - uses: actions/setup-node@v3
         with:
-          node: 14
+          node-version: 14
 
       - uses: actions/checkout@v3
         with:
