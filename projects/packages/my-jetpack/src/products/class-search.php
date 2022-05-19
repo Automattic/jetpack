@@ -248,7 +248,15 @@ class Search extends Hybrid_Product {
 		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
-		return class_exists( 'Automattic\Jetpack\Search\Module_Control' ) && ( new \Automattic\Jetpack\Search\Module_Control() )->activate();
+		if ( ! class_exists( 'Automattic\Jetpack\Search\Module_Control' ) ) {
+			return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack Search: module not exists', 'jetpack-my-jetpack' ) );
+		}
+		$search_module = ( new \Automattic\Jetpack\Search\Module_Control() );
+		$error         = $search_module->activate();
+		if ( is_wp_error( $error ) ) {
+			return $error;
+		}
+		return $search_module->enable_instant_search();
 	}
 
 }
