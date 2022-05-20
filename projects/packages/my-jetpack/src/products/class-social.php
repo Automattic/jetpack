@@ -97,7 +97,7 @@ class Social extends Hybrid_Product {
 	}
 
 	/**
-	 * Get the product princing details
+	 * Get the product pricing details
 	 *
 	 * @return array Pricing details
 	 */
