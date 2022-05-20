@@ -205,16 +205,16 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "v1.3.4",
+            "version": "v1.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-backup.git",
-                "reference": "204bb486ac45ac918bcc3148ecf2dd6b281f9cae"
+                "reference": "0e1c16fda5328fa895717a27c72be5e2b33407bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-backup/zipball/204bb486ac45ac918bcc3148ecf2dd6b281f9cae",
-                "reference": "204bb486ac45ac918bcc3148ecf2dd6b281f9cae",
+                "url": "https://api.github.com/repos/Automattic/jetpack-backup/zipball/0e1c16fda5328fa895717a27c72be5e2b33407bf",
+                "reference": "0e1c16fda5328fa895717a27c72be5e2b33407bf",
                 "shasum": ""
             },
             "require": {
@@ -264,9 +264,9 @@
             ],
             "description": "Tools to assist with backing up Jetpack sites.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-backup/tree/v1.3.4"
+                "source": "https://github.com/Automattic/jetpack-backup/tree/v1.3.5"
             },
-            "time": "2022-05-19T10:53:42+00:00"
+            "time": "2022-05-20T15:42:51+00:00"
         },
         {
             "name": "automattic/jetpack-composer-plugin",
