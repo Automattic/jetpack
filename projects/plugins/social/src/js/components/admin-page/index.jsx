@@ -141,7 +141,9 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackSocialInitialState;
+	const {
+		siteData: { apiNonce, apiRoot, registrationNonce },
+	} = window.jetpackSocialInitialState;
 
 	return (
 		<ConnectScreen
