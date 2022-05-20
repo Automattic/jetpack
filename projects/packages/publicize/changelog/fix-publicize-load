@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Changed logic to initialize publicize classes only if the publicize module is active.
