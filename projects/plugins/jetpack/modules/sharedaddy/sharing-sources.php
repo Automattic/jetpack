@@ -9,6 +9,7 @@ use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 /**
  * Base class for sharing sources.
+ * See individual sharing classes below for the implementation of this class.
  */
 abstract class Sharing_Source {
 	/**
