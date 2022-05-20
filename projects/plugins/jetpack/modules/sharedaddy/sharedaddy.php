@@ -250,21 +250,19 @@ function sharing_meta_box_save( $post_id ) {
 		return $post_id;
 	}
 
-	check_admin_referer( 'sharing-meta-box' );
-
-	if ( ! isset( $_POST['post_type'] ) ) {
+	if ( ! isset( $_POST['post_type'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core takes care of the validation.
 		return $post_id;
 	}
 
-	$post_type_object = get_post_type_object( sanitize_key( $_POST['post_type'] ) );
+	$post_type_object = get_post_type_object( sanitize_key( $_POST['post_type'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core takes care of the validation.
 
 	// Record sharing disable.
 	if (
 		$post_type_object->public
 		&& current_user_can( 'edit_post', $post_id )
-		&& isset( $_POST['sharing_status_hidden'] )
+		&& isset( $_POST['sharing_status_hidden'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core takes care of the validation.
 	) {
-		if ( ! isset( $_POST['enable_post_sharing'] ) ) {
+		if ( ! isset( $_POST['enable_post_sharing'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core takes care of the validation.
 			update_post_meta( $post_id, 'sharing_disabled', 1 );
 		} else {
 			delete_post_meta( $post_id, 'sharing_disabled' );
