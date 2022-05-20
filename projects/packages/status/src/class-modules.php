@@ -387,11 +387,12 @@ class Modules {
 			}
 		}
 
+		if ( ! $this->is_module( $module ) ) {
+			return false;
+		}
+
 		// Jetpack plugin only
 		if ( class_exists( 'Jetpack' ) ) {
-			if ( ! $this->is_module( $module ) ) {
-				return false;
-			}
 
 			$module_data = $this->get( $module );
 
