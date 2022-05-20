@@ -941,7 +941,7 @@ class Share_Email extends Sharing_Source {
 	 *
 	 * @param WP_Post $post Post object.
 	 *
-	 * @return string
+	 * @return string The HTML for the button.
 	 */
 	public function get_display( $post ) {
 		$tracking_url = $this->get_process_request_url( $post->ID );
