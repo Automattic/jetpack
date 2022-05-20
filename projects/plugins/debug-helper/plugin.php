@@ -74,6 +74,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'Sync Data Settings Utility',
 		'description' => '',
 	),
+	'modules-helper'     => array(
+		'file'        => 'class-modules-helper.php',
+		'name'        => 'Jetpack Modules Debug Helper',
+		'description' => '',
+	),
 );
 
 require_once __DIR__ . '/class-admin.php';
