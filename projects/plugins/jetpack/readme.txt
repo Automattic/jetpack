@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.9
+Stable tag: 10.9.1
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
@@ -242,20 +242,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.0-a.3 - 2022-05-10
-#### Enhancements
-- Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset.
-- Latest Instagram Posts Block: improve performance of the block by adding lazy load for the images.
-- Payment Blocks: reset form data to default values after creating a subscription.
-- VideoPress: improve Extensibility of Privacy Setting filter by adding the embedded post id.
-- VideoPress: improve help message of VideoPress Privacy Setting at the block level.
-
+### 11.0-a.9 - 2022-05-19
 #### Improved compatibility
-- General: improve connection sharing between Jetpack and Jetpack standalone plugins.
+- Stats: remove unnecessary type attribute from style element.
 
 #### Bug fixes
-- Custom CSS: ensure the Additional CSS sub-menu link displays correctly.
-- Subscriptions: fix typo in confirmation message.
+- VideoPress: fix validation errors for core video block usage.
 
 --------
 

@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -12,7 +13,7 @@ import React from 'react';
 import './style.scss';
 
 const PrimaryLink = props => {
-	const { currentRecommendationsStep, siteAdminUrl } = props;
+	const { currentRecommendationsStep, siteAdminUrl, siteRawUrl } = props;
 
 	// If the user has not completed the first step of the Assistant, make the primary button link to it.
 	if ( currentRecommendationsStep === 'not-started' ) {
@@ -29,7 +30,7 @@ const PrimaryLink = props => {
 	return (
 		<Button
 			className="jp-license-activation-screen-success-info--button"
-			href={ siteAdminUrl + 'admin.php?page=jetpack#/my-plan' }
+			href={ getRedirectUrl( 'license-activation-view-my-plans', { site: siteRawUrl } ) }
 		>
 			{ __( 'View my plans', 'jetpack' ) }
 		</Button>
@@ -39,6 +40,7 @@ const PrimaryLink = props => {
 PrimaryLink.propTypes = {
 	siteAdminUrl: PropTypes.string.isRequired,
 	currentRecommendationsStep: PropTypes.string,
+	siteRawUrl: PropTypes.string.isRequired,
 };
 
 export { PrimaryLink };
