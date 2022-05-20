@@ -1,5 +1,5 @@
 const connectionsSelectors = {
-	getConnections: state => state.connections ?? null,
+	getConnections: state => state.connections ?? [],
 };
 
 export default connectionsSelectors;
