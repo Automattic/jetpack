@@ -222,7 +222,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	public function test_full_sync_sends_all_terms_with_previous_interval_end() {
 		Settings::update_settings( array( 'max_full_sync_terms' => 1 ) );
 
-		for ( $i = 0; $i < 25; $i += 1 ) {
+		for ( $i = 0; $i < 25; $i++ ) {
 			wp_insert_term( 'term' . $i, 'post_tag' );
 		}
 
@@ -245,7 +245,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->full_sync->start( array( 'posts' => true ) );
 		$this->sender->do_full_sync();
-		// $this->sender->do_full_sync() is not necessary!
+		// $this->sender->do_full_sync() is not necessary! phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 
 		$this->assertCount( $posts_count, $this->server_replica_storage->get_posts() );
 	}
@@ -277,7 +277,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$post_id = $this->factory->post->create();
 
 		$terms = array();
-		for ( $i = 0; $i < 25; $i += 1 ) {
+		for ( $i = 0; $i < 25; $i++ ) {
 			$terms[] = wp_insert_term( 'term ' . $i, 'category' );
 		}
 
@@ -327,7 +327,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	public function test_full_sync_sends_all_users() {
 		$this->factory->user->create( array( 'role' => 'subscriber' ) );
 		$first_user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
-		for ( $i = 0; $i < 9; $i += 1 ) {
+		for ( $i = 0; $i < 9; $i++ ) {
 			$user_id = $this->factory->user->create( array( 'role' => 'contributor' ) );
 		}
 
@@ -352,8 +352,8 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_full_sync_sends_previous_interval_end_for_users() {
-		for ( $i = 0; $i < 45; $i += 1 ) {
-			$user_ids[] = $this->factory->user->create();
+		for ( $i = 0; $i < 45; $i++ ) {
+			$user_ids[] = $this->factory->user->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		}
 
 		// The first event is for full sync start.
@@ -546,7 +546,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$synced_options_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_options' );
-		$this->assertEquals( sizeof( $synced_options_event->args ), 2, 'Size of synced options not as expected' );
+		$this->assertEquals( count( $synced_options_event->args ), 2, 'Size of synced options not as expected' );
 		$this->assertEquals( 'foo', $synced_options_event->args['my_option'] );
 		$this->assertEquals( 'bar', $synced_options_event->args['my_prefix_value'] );
 
@@ -893,7 +893,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_end' );
 
-		list( $checksum, $range ) = $event->args;
+		list( $checksum, $range ) = $event->args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertTrue( isset( $range['posts']->max ) );
 		$this->assertTrue( isset( $range['posts']->min ) );
 		$this->assertTrue( isset( $range['posts']->count ) );
@@ -905,7 +905,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 	public function create_dummy_data_and_reset_sync_status() {
 		// lets create a bunch of posts
-		for ( $i = 0; $i < $this->test_posts_count; $i += 1 ) {
+		for ( $i = 0; $i < $this->test_posts_count; $i++ ) {
 			$post = $this->factory->post->create();
 		}
 		// lets create a bunch of comments
@@ -1016,7 +1016,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	public function test_full_sync_can_sync_individual_posts() {
 		$sync_post_id    = $this->factory->post->create();
 		$sync_post_id_2  = $this->factory->post->create();
-		$no_sync_post_id = $this->factory->post->create();
+		$no_sync_post_id = $this->factory->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$this->full_sync->start( array( 'posts' => array( $sync_post_id, $sync_post_id_2 ) ) );
 		$this->sender->do_full_sync();
@@ -1035,7 +1035,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_full_sync_can_sync_individual_comments() {
 		$post_id = $this->factory->post->create();
-		list( $sync_comment_id, $no_sync_comment_id, $sync_comment_id_2 ) = $this->factory->comment->create_post_comments( $post_id, 3 );
+		list( $sync_comment_id, $no_sync_comment_id, $sync_comment_id_2 ) = $this->factory->comment->create_post_comments( $post_id, 3 ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$this->full_sync->start( array( 'comments' => array( $sync_comment_id, $sync_comment_id_2 ) ) );
 		$this->sender->do_full_sync();
@@ -1139,7 +1139,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	public function test_full_sync_has_correct_sent_count_even_if_some_actions_unsent() {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'dont_sync_users' ) );
 
-		foreach ( range( 1, 3 ) as $i ) {
+		foreach ( range( 1, 3 ) as $i ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$this->factory->user->create();
 		}
 
@@ -1181,7 +1181,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 				'role'       => 'administrator',
 			)
 		);
-		foreach ( range( 1, 10 ) as $i ) {
+		foreach ( range( 1, 10 ) as $i ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$this->factory->user->create( array( 'role' => 'subscriber' ) );
 		}
 		$this->full_sync->start();
@@ -1224,7 +1224,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_full_sync_posts' );
-		list( $posts, $meta, $taxonomy, $previous_interval_end ) = $events[0]->args;
+		list( $posts, $meta, $taxonomy, $previous_interval_end ) = $events[0]->args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// The first batch has the previous_min_is not set.
 		// We user ~0 to denote that the previous min id unknown.
@@ -1244,7 +1244,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_full_sync_comments' );
-		list( $comments, $meta, $previous_interval_end ) = $events[0]->args;
+		list( $comments, $meta, $previous_interval_end ) = $events[0]->args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// The first batch has the previous_min_is not set.
 		// We user ~0 to denote that the previous min id unknown.
