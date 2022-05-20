@@ -247,6 +247,7 @@ class Modules {
 				/**
 				 * Stand alone plugins need to use this filter to register the modules they interact with.
 				 * This will allow them to activate and deactivate these modules even when Jetpack is not present.
+				 * Note: Standalone plugins can only interact with modules that also exist in the Jetpack plugin, otherwise they'll lose the ability to control it if Jetpack is activated.
 				 *
 				 * @since $$next-version$$
 				 *
