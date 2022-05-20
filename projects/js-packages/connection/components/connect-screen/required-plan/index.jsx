@@ -114,7 +114,7 @@ ConnectScreenRequiredPlan.propTypes = {
 	priceAfter: PropTypes.number.isRequired,
 	/** The Currency code, eg 'USD'. */
 	pricingCurrencyCode: PropTypes.string,
-	/** The WordPress.com product slug. If informed, the connection/authorization flow will go through the Checkout page for this product'. */
+	/** The WordPress.com product slug. If specified, the connection/authorization flow will go through the Checkout page for this product'. */
 	wpcomProductSlug: PropTypes.string,
 	/** A callback that will be used to check whether the site already has the wpcomProductSlug. This will be checked after registration and the checkout will be skipped if it returns true. */
 	checkSiteHasWpcomProduct: PropTypes.func,
