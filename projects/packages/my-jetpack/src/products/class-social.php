@@ -86,7 +86,7 @@ class Social extends Hybrid_Product {
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array Boost features list
+	 * @return array Social features list
 	 */
 	public static function get_features() {
 		return array(
