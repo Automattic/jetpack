@@ -36,8 +36,6 @@ class Meta_Tags_Test extends BaseTestCase {
 	/**
 	 * Initialize tests
 	 *
-	 * @throws \phpmock\MockEnabledException The mock exception.
-	 *
 	 * @before
 	 */
 	public function set_up() {
@@ -113,6 +111,7 @@ class Meta_Tags_Test extends BaseTestCase {
 	 * Test that meta tags don't get rendered when a conflicting plugin is active.
 	 */
 	public function test_meta_tags_dont_get_rendered_when_conflicting_plugin_is_active() {
+		Monkey\Functions\when( 'is_singular' )->justReturn( true );
 		$this->assertTrue( $this->meta_tags->should_render_meta_tags() );
 		update_option( 'active_plugins', array( 'og-tags/og-tags.php' ) );
 		$this->assertFalse( $this->meta_tags->should_render_meta_tags() );
@@ -141,6 +140,7 @@ class Meta_Tags_Test extends BaseTestCase {
 	 * Test that meta tags don't get rendered when they're disabled by a filter.
 	 */
 	public function test_meta_tags_dont_get_rendered_when_disabled_by_filter() {
+		Monkey\Functions\when( 'is_singular' )->justReturn( true );
 		$this->assertTrue( $this->meta_tags->should_render_meta_tags() );
 		add_filter( 'jetpack_enable_open_graph', '__return_false' );
 		$this->assertFalse( $this->meta_tags->should_render_meta_tags() );
