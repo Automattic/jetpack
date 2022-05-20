@@ -74,6 +74,16 @@ body.highlander-dark h3.sd-title:before {
 	font-size: 12px;
 }
 
+/* Sharing email errors */
+.sd-content .share-email-error .share-email-error-title {
+	margin: 0.5em 0;
+}
+.sd-content .share-email-error .share-email-error-text {
+	font-family: "Open Sans", sans-serif;
+	font-size: 12px;
+	margin: 0.5em 0;
+}
+
 
 /* Buttons */
 .sd-social-icon .sd-content ul li a.sd-button,

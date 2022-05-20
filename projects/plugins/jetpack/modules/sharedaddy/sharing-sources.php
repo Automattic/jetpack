@@ -953,8 +953,13 @@ class Share_Email extends Sharing_Source {
 		$tracking_url .= 'share=email';
 
 		$data_attributes = array(
-			'email-share-nonce'     => wp_create_nonce( $this->get_email_share_nonce_action( $post ) ),
-			'email-share-track-url' => $tracking_url,
+			'email-share-error-title' => __( 'Do you have email set up?', 'jetpack' ),
+			'email-share-error-text'  => __(
+				"If you're having problems sharing via email, you might not have email set up for your browser. You may need to create a new email yourself.",
+				'jetpack'
+			),
+			'email-share-nonce'       => wp_create_nonce( $this->get_email_share_nonce_action( $post ) ),
+			'email-share-track-url'   => $tracking_url,
 		);
 
 		$post_title = $this->get_share_title( $post->ID );

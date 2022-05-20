@@ -373,6 +373,64 @@
 		return encoded.replace( /%20/g, '+' );
 	}
 
+	function trackButtonClick( button ) {
+		var clickCount = getClickCountForButton( button );
+
+		setClickCountForButton( clickCount + 1 );
+	}
+
+	function setClickCountForButton( button, clickCount ) {
+		button.setAttribute( 'jetpack-share-click-count', clickCount );
+	}
+
+	function getClickCountForButton( button ) {
+		var currentClickCount = button.getAttribute( 'jetpack-share-click-count' );
+		if ( currentClickCount === null ) {
+			return 0;
+		}
+
+		return parseInt( currentClickCount, 10 );
+	}
+
+	function showEmailShareError( emailShareButton, sdUlGroup ) {
+		var sdContent = sdUlGroup.parentElement;
+		if ( ! sdContent.classList.contains( 'sd-content' ) ) {
+			return;
+		}
+
+		forEachNode( sdContent.querySelectorAll( '.share-email-error' ), function ( shareEmailError ) {
+			shareEmailError.parentElement.removeChild( shareEmailError );
+		} );
+
+		var newShareEmailError = document.createElement( 'div' );
+		newShareEmailError.className = 'share-email-error';
+
+		var newShareEmailErrorTitle = document.createElement( 'h6' );
+		newShareEmailErrorTitle.className = 'share-email-error-title';
+		newShareEmailErrorTitle.innerText = emailShareButton.getAttribute(
+			'data-email-share-error-title'
+		);
+		newShareEmailError.appendChild( newShareEmailErrorTitle );
+
+		var newShareEmailErrorText = document.createElement( 'p' );
+		newShareEmailErrorText.className = 'share-email-error-text';
+		newShareEmailErrorText.innerText = emailShareButton.getAttribute(
+			'data-email-share-error-text'
+		);
+		newShareEmailError.appendChild( newShareEmailErrorTitle );
+
+		sdContent.appendChild( newShareEmailError );
+	}
+
+	function recordEmailShareClick( emailShareTrackerUrl, emailShareNonce ) {
+		var request = new XMLHttpRequest();
+		request.open( 'POST', emailShareTrackerUrl, true );
+		request.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
+		request.setRequestHeader( 'x-requested-with', 'XMLHttpRequest' );
+
+		request.send( getEncodedFormFieldForSubmit( 'email-share-nonce', emailShareNonce ) );
+	}
+
 	// Sharing initialization.
 	// Will run immediately or on `DOMContentLoaded`, depending on current page status.
 	function init() {
@@ -508,6 +566,8 @@
 
 			// Email button
 			forEachNode( group.querySelectorAll( 'a.share-email' ), function ( emailButton ) {
+				setClickCountForButton( emailButton, 0 );
+
 				var emailShareNonce = emailButton.getAttribute( 'data-email-share-nonce' );
 				var emailShareTrackerUrl = emailButton.getAttribute( 'data-email-share-track-url' );
 
@@ -517,15 +577,13 @@
 					isUrlForCurrentHost( emailShareTrackerUrl )
 				) {
 					emailButton.addEventListener( 'click', function () {
-						var request = new XMLHttpRequest();
-						request.open( 'POST', emailShareTrackerUrl, true );
-						request.setRequestHeader(
-							'Content-Type',
-							'application/x-www-form-urlencoded; charset=UTF-8'
-						);
-						request.setRequestHeader( 'x-requested-with', 'XMLHttpRequest' );
+						trackButtonClick( emailButton );
 
-						request.send( getEncodedFormFieldForSubmit( 'email-share-nonce', emailShareNonce ) );
+						if ( getClickCountForButton( emailButton ) > 2 ) {
+							showEmailShareError( emailButton, group );
+						}
+
+						recordEmailShareClick( emailShareTrackerUrl, emailShareNonce );
 					} );
 				}
 			} );
