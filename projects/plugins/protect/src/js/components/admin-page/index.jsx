@@ -166,7 +166,7 @@ const useStatusPolling = () => {
 		};
 
 		if ( 'scheduled' === status.status ) {
-			setTimeout( pollStatus, pollingDuration );
+			pollTimeout = setTimeout( pollStatus, pollingDuration );
 		}
 
 		return () => clearTimeout( pollTimeout );
