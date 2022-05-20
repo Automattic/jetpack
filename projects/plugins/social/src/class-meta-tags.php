@@ -114,15 +114,7 @@ class Meta_Tags {
 			return false;
 		}
 
-		if ( ! is_singular() ) {
-			return false;
-		}
-
-		if ( ! apply_filters( 'jetpack_enable_open_graph', true ) ) {
-			return false;
-		}
-
-		return true;
+		return apply_filters( 'jetpack_enable_open_graph', is_singular() ) );
 	}
 
 	/**
