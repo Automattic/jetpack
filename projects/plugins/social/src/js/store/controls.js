@@ -31,11 +31,11 @@ export const updateJetpackSettings = settings => {
 };
 export default {
 	[ FETCH_JETPACK_SETTINGS ]: function () {
-		return apiFetch( { path: 'jetpack/v4/social/settings' } );
+		return apiFetch( { path: '/jetpack/v4/social/settings' } );
 	},
 	[ UPDATE_JETPACK_SETTINGS ]: function ( action ) {
 		return apiFetch( {
-			path: 'jetpack/v4/social/settings',
+			path: '/jetpack/v4/social/settings',
 			method: 'POST',
 			data: action.settings,
 		} );
