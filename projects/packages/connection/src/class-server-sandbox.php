@@ -213,7 +213,7 @@ class Server_Sandbox {
 			}
 
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// error_log( sprintf( "SANDBOXING via '%s': '%s'", Constants::get_constant( 'JETPACK__SANDBOX_DOMAIN' ), $original_url ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf( "SANDBOXING via '%s': '%s'", Constants::get_constant( 'JETPACK__SANDBOX_DOMAIN' ), $original_url ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 		}
 	}
