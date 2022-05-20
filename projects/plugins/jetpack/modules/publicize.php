@@ -38,20 +38,22 @@ class Jetpack_Publicize {
 		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( __FILE__ );
 
-			add_action(
-				'jetpack_register_gutenberg_extensions',
-				function () {
-					global $publicize;
-					if ( $publicize->current_user_can_access_publicize_data() ) {
-						Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
-					} else {
-						Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
-					}
-				}
-			);
-
 			// if sharedaddy isn't active, the sharing menu hasn't been added yet.
 			$active = Jetpack::get_active_modules();
+			if ( in_array( 'publicize', $active, true ) ) {
+				add_action(
+					'jetpack_register_gutenberg_extensions',
+					function () {
+						global $publicize;
+						if ( $publicize->current_user_can_access_publicize_data() ) {
+							Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
+						} else {
+							Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
+						}
+					}
+				);
+			}
+
 			if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
 				add_action( 'admin_menu', array( &$publicize_ui, 'sharing_menu' ) );
 			}
@@ -102,7 +104,9 @@ class Jetpack_Publicize {
 	}
 }
 
-new Jetpack_Publicize();
+if ( in_array( 'publicize', Jetpack::get_active_modules(), true ) ) {
+	new Jetpack_Publicize();
+}
 
 if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! function_exists( 'publicize_init' ) ) {
 	/**
