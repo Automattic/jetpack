@@ -870,14 +870,6 @@ class Share_Email extends Sharing_Source {
 	public $icon = '\f410';
 
 	/**
-	 * Tracks the current email sharing mode.
-	 *
-	 * @var string The value should be either SHARE_MODE_FORM_SUBMIT or SHARE_MODE_MAILTO.
-	 * @see get_email_share_mode()
-	 */
-	protected $email_share_mode;
-
-	/**
 	 * Constructor.
 	 *
 	 * @param int   $id       Sharing source ID.
@@ -891,36 +883,6 @@ class Share_Email extends Sharing_Source {
 		} else {
 			$this->smart = false;
 		}
-
-		$this->email_share_mode = self::get_email_share_mode();
-	}
-
-	/**
-	 * Returns the current email share mode.
-	 *
-	 * @return string The current email share mode.
-	 * @see self::SHARE_MODE_FORM_SUBMIT
-	 * @see self::SHARE_MODE_MAILTO
-	 */
-	public static function get_email_share_mode() {
-		/**
-		 * Allow plugins to specify the email sharing mode.
-		 *
-		 * @module sharedaddy
-		 *
-		 * @since 10.10.0
-		 *
-		 * @param string $email_share_mode Email sharing mode. Default value is to create a mailto link.
-		 * @see Share_Email::SHARE_MODE_MAILTO Value is 'mailto'
-		 * @see Share_Email::SHARE_MODE_FORM_SUBMIT Value is 'form-submit'
-		 */
-		$email_share_mode = apply_filters( 'sharing_email_share_mode', self::SHARE_MODE_MAILTO );
-
-		if ( ! empty( $email_share_mode ) ) {
-			return $email_share_mode;
-		}
-
-		return self::SHARE_MODE_MAILTO;
 	}
 
 	/**
@@ -963,136 +925,15 @@ class Share_Email extends Sharing_Source {
 			$is_ajax = true;
 		}
 
-		if ( self::SHARE_MODE_FORM_SUBMIT === $this->email_share_mode ) {
-			$this->process_form_submit( $post, $post_data, $is_ajax );
-			return;
+		// Require an AJAX-driven submit and a valid nonce to process the request
+		if (
+			$is_ajax
+			&& isset( $post_data['email-share-nonce'] )
+			&& wp_verify_nonce( $post_data['email-share-nonce'], $this->get_email_share_nonce_action( $post ) )
+		) {
+			// Ensure that we bump stats
+			parent::process_request( $post, $post_data );
 		}
-
-		if ( self::SHARE_MODE_MAILTO === $this->email_share_mode ) {
-			// Require an AJAX-driven submit and a valid nonce to process the request
-			if (
-				$is_ajax
-				&& isset( $post_data['email-share-nonce'] )
-				&& wp_verify_nonce( $post_data['email-share-nonce'], $this->get_email_share_nonce_action( $post ) )
-			) {
-				// Ensure that we bump stats
-				parent::process_request( $post, $post_data );
-			}
-			return;
-		}
-	}
-
-	/**
-	 * Helper function to process form submissions for email shares.
-	 *
-	 * @param WP_Post $post The post we want to share.
-	 * @param array   $post_data The data from the form submission in $_POST.
-	 * @param bool    $ajax Whether we are processing an AJAX request or not.
-	 */
-	protected function process_form_submit( WP_Post $post, array $post_data, $ajax ) {
-		$source_name  = false;
-		$target_email = $source_name;
-		$source_email = $target_email;
-
-		if ( isset( $post_data['source_email'] ) && is_email( $post_data['source_email'] ) ) {
-			$source_email = $post_data['source_email'];
-		}
-
-		if ( isset( $post_data['target_email'] ) && is_email( $post_data['target_email'] ) ) {
-			$target_email = $post_data['target_email'];
-		}
-
-		if ( isset( $post_data['source_name'] ) && strlen( $post_data['source_name'] ) < 200 ) {
-			$source_name = $post_data['source_name'];
-		} elseif ( isset( $post_data['source_name'] ) ) {
-			$source_name = substr( $post_data['source_name'], 0, 200 );
-		} else {
-			$source_name = '';
-		}
-
-		// Test email
-		$error = 1;   // Failure in data
-		if ( empty( $post_data['source_f_name'] ) && $source_email && $target_email && $source_name ) {
-			/**
-			 * Allow plugins to stop the email sharing button from running the shared message through Akismet.
-			 *
-			 * @module sharedaddy
-			 *
-			 * @since 1.1.0
-			 *
-			 * @param bool true Should we check if the message isn't spam?
-			 * @param object $post Post information.
-			 * @param array $post_data Information about the shared message.
-			 */
-			if ( apply_filters( 'sharing_email_check', true, $post, $post_data ) ) {
-				$data = array(
-					'post'           => $post,
-					'source'         => $source_email,
-					'target'         => $target_email,
-					'name'           => $source_name,
-					'sharing_source' => $this,
-				);
-				// todo: implement an error message when email doesn't get sent.
-				/**
-				 * Filter whether an email can be sent from the Email sharing button.
-				 *
-				 * @module sharedaddy
-				 *
-				 * @since 1.1.0
-				 *
-				 * @param array $data Array of information about the shared message.
-				 */
-				$data = apply_filters( 'sharing_email_can_send', $data );
-				if ( $data !== false ) {
-					// Record stats
-					parent::process_request( $data['post'], $post_data );
-
-					/**
-					 * Fires when an email is sent via the Email sharing button.
-					 *
-					 * @module sharedaddy
-					 *
-					 * @since 1.1.0
-					 *
-					 * @param array $data Array of information about the shared message.
-					 */
-					do_action( 'sharing_email_send_post', $data );
-				}
-
-				// Return a positive regardless of whether the user is subscribed or not
-				if ( $ajax ) {
-					?>
-<div class="response">
-	<div class="response-title"><?php esc_html_e( 'This post has been shared!', 'jetpack' ); ?></div>
-	<div class="response-sub">
-						<?php
-							printf(
-								/* Translators: placeholder is an email address. */
-								esc_html__( 'You have shared this post with %s', 'jetpack' ),
-								esc_html( $target_email )
-							);
-						?>
-	</div>
-	<div class="response-close"><a href="#" class="sharing_cancel"><?php esc_html_e( 'Close', 'jetpack' ); ?></a></div>
-</div>
-					<?php
-				} else {
-					wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email' );
-				}
-
-				die();
-			} else {
-				$error = 2;   // Email check failed
-			}
-		}
-
-		if ( $ajax ) {
-			echo (int) $error;
-		} else {
-			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
-		}
-
-		die();
 	}
 
 	/**
@@ -1103,21 +944,6 @@ class Share_Email extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_display( $post ) {
-		$data_attributes = array(
-			'email-share-mode' => $this->email_share_mode,
-		);
-
-		if ( self::SHARE_MODE_FORM_SUBMIT === $this->email_share_mode ) {
-			return $this->get_link(
-				$this->get_process_request_url( $post->ID ),
-				_x( 'Email', 'share to', 'jetpack' ),
-				__( 'Click to email this to a friend', 'jetpack' ),
-				'share=email',
-				false,
-				$data_attributes
-			);
-		}
-
 		$tracking_url = $this->get_process_request_url( $post->ID );
 		if ( false === stripos( $tracking_url, '?' ) ) {
 			$tracking_url .= '?';
@@ -1126,8 +952,10 @@ class Share_Email extends Sharing_Source {
 		}
 		$tracking_url .= 'share=email';
 
-		$data_attributes['email-share-nonce']     = wp_create_nonce( $this->get_email_share_nonce_action( $post ) );
-		$data_attributes['email-share-track-url'] = $tracking_url;
+		$data_attributes = array(
+			'email-share-nonce'     => wp_create_nonce( $this->get_email_share_nonce_action( $post ) ),
+			'email-share-track-url' => $tracking_url,
+		);
 
 		$post_title = $this->get_share_title( $post->ID );
 		$post_url   = $this->get_share_url( $post->ID );
@@ -1166,76 +994,6 @@ class Share_Email extends Sharing_Source {
 		);
 
 		return $this->build_amp_markup( $attrs );
-	}
-
-	/**
-	 * Outputs the hidden email dialog
-	 */
-	public function display_footer() {
-		global $current_user;
-
-		if ( self::SHARE_MODE_FORM_SUBMIT !== $this->email_share_mode ) {
-			return;
-		}
-
-		$request_uri = isset( $_SERVER['REQUEST_URI'] )
-			? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) )
-			: '';
-		?>
-	<div id="sharing_email" style="display: none;">
-		<form action="<?php echo esc_url( $request_uri ); ?>" method="post">
-			<label for="target_email"><?php esc_html_e( 'Send to Email Address', 'jetpack' ); ?></label>
-			<input type="email" name="target_email" id="target_email" value="" />
-
-			<?php if ( is_user_logged_in() ) : ?>
-				<input type="hidden" name="source_name" value="<?php echo esc_attr( $current_user->display_name ); ?>" />
-				<input type="hidden" name="source_email" value="<?php echo esc_attr( $current_user->user_email ); ?>" />
-			<?php else : ?>
-
-				<label for="source_name"><?php esc_html_e( 'Your Name', 'jetpack' ); ?></label>
-				<input type="text" name="source_name" id="source_name" value="" />
-
-				<label for="source_email"><?php esc_html_e( 'Your Email Address', 'jetpack' ); ?></label>
-				<input type="email" name="source_email" id="source_email" value="" />
-
-			<?php endif; ?>
-			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" title="<?php esc_attr_e( 'This field is for validation and should not be changed', 'jetpack' ); ?>" />
-			<?php
-				/**
-				 * Fires when the Email sharing dialog is loaded.
-				 *
-				 * @module sharedaddy
-				 *
-				 * @since 1.1.0
-				 *
-				 * @param string jetpack Eail sharing source.
-				 */
-				do_action( 'sharing_email_dialog', 'jetpack' );
-			?>
-
-			<img style="float: right; display: none" class="loading" src="
-			<?php
-			/** This filter is documented in modules/stats.php */
-			echo esc_url( apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ) );
-			?>
-			" alt="loading" width="16" height="16" />
-			<input type="submit" value="<?php esc_attr_e( 'Send Email', 'jetpack' ); ?>" class="sharing_send" />
-			<a rel="nofollow" href="#cancel" class="sharing_cancel" role="button"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></a>
-
-			<div class="errors errors-1" style="display: none;">
-				<?php esc_html_e( 'Post was not sent - check your email addresses!', 'jetpack' ); ?>
-			</div>
-
-			<div class="errors errors-2" style="display: none;">
-				<?php esc_html_e( 'Email check failed, please try again', 'jetpack' ); ?>
-			</div>
-
-			<div class="errors errors-3" style="display: none;">
-				<?php esc_html_e( 'Sorry, your blog cannot share posts by email.', 'jetpack' ); ?>
-			</div>
-		</form>
-	</div>
-		<?php
 	}
 }
 
