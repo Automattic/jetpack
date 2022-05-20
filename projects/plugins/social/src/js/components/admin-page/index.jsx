@@ -85,7 +85,11 @@ const ModuleToggle = () => {
 
 	const label = isModuleEnabled
 		? __( 'Jetpack Social is active', 'jetpack-social' )
-		: __( 'Jetpack Social is inactive', 'jetpack-social' );
+		: __(
+				'Jetpack Social is inactive',
+				'jetpack-social',
+				/* dummy arg to avoid bad minification */ 0
+		  );
 
 	return (
 		<ToggleControl
