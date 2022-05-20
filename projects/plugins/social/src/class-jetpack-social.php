@@ -83,11 +83,16 @@ class Jetpack_Social {
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
+		// Add REST routes
+		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Controller(), 'register_rest_routes' ) );
+
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
 
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
+
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
 	}
 
 	/**
@@ -136,9 +141,14 @@ class Jetpack_Social {
 		global $publicize;
 
 		return array(
-			'apiRoot'                          => esc_url_raw( rest_url() ),
-			'apiNonce'                         => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'                => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'siteData'                         => array(
+				'apiRoot'           => esc_url_raw( rest_url() ),
+				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
+				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+			),
+			'jetpackSettings'                  => array(
+				'publicize_active' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
+			),
 			'connections'                      => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 			'jetpackSocialConnectionsAdminUrl' => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 		);
@@ -197,5 +207,15 @@ class Jetpack_Social {
 			delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
 			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		}
+	}
+
+	/**
+	 * Adds module to the list of available modules
+	 *
+	 * @param array $modules The available modules.
+	 * @return array
+	 */
+	public function social_filter_available_modules( $modules ) {
+		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
 	}
 }

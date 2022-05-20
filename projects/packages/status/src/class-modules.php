@@ -198,6 +198,10 @@ class Modules {
 			$active[] = 'protect';
 		}
 
+		// If it's not available, it shouldn't be active.
+		// We don't delete it from the options though, as it will be active again when a plugin gets reactivated.
+		$active = array_intersect( $active, $this->get_available() );
+
 		/**
 		 * Allow filtering of the active modules.
 		 *
@@ -238,8 +242,21 @@ class Modules {
 	public function get_available( $min_version = false, $max_version = false, $requires_connection = null, $requires_user_connection = null ) {
 		static $modules = null;
 
-		if ( ! Constants::is_defined( 'JETPACK__VERSION' ) || ! Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
-			return array();
+		if ( ! class_exists( 'Jetpack' ) || ! Constants::is_defined( 'JETPACK__VERSION' ) || ! Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return array_unique(
+				/**
+				 * Stand alone plugins need to use this filter to register the modules they interact with.
+				 * This will allow them to activate and deactivate these modules even when Jetpack is not present.
+				 * Note: Standalone plugins can only interact with modules that also exist in the Jetpack plugin, otherwise they'll lose the ability to control it if Jetpack is activated.
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @param array $modules The list of available modules as an array of slugs.
+				 * @param bool $requires_connection Whether to list only modules that require a connection to work.
+				 * @param bool $requires_user_connection Whether to list only modules that require a user connection to work.
+				 */
+				apply_filters( 'jetpack_get_available_standalone_modules', array(), $requires_connection, $requires_user_connection )
+			);
 		}
 
 		if ( ! isset( $modules ) ) {
@@ -371,11 +388,12 @@ class Modules {
 			}
 		}
 
+		if ( ! $this->is_module( $module ) ) {
+			return false;
+		}
+
 		// Jetpack plugin only
 		if ( class_exists( 'Jetpack' ) ) {
-			if ( ! $this->is_module( $module ) ) {
-				return false;
-			}
 
 			$module_data = $this->get( $module );
 
