@@ -145,20 +145,22 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const {
-		siteData: { apiNonce, apiRoot, registrationNonce },
-	} = window.jetpackSocialInitialState;
-
+	const connectProps = useSelect( select => {
+		const store = select( STORE_ID );
+		return {
+			apiRoot: store.getAPIRootUrl(),
+			apiNonce: store.getAPINonce(),
+			registrationNonce: store.getRegistrationNonce(),
+		};
+	} );
 	return (
 		<ConnectScreen
 			buttonLabel={ __( 'Connect Jetpack Social', 'jetpack-social' ) }
 			pricingTitle={ __( 'Jetpack Social', 'jetpack-social' ) }
 			title={ __( 'Social Media Automation for WordPress Sites', 'jetpack-social' ) }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
 			from="jetpack-social"
 			redirectUri="admin.php?page=jetpack-social"
+			{ ...connectProps }
 		>
 			<h3>
 				{ __(
