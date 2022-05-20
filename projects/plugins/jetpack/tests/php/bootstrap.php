@@ -76,7 +76,7 @@ if ( '1' !== getenv( 'WP_MULTISITE' ) && ( ! defined( 'WP_TESTS_MULTISITE' ) || 
 	echo "Disregard Core's -c tests/phpunit/multisite.xml notice below." . PHP_EOL;
 }
 
-if ( '1' != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 	echo 'To run Jetpack woocommerce tests, prefix phpunit with JETPACK_TEST_WOOCOMMERCE=1' . PHP_EOL;
 } else {
 	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', __DIR__ . '/../../../woocommerce' );
@@ -87,7 +87,7 @@ require $test_root . '/includes/functions.php';
 
 // Activates this plugin in WordPress so it can be tested.
 function _manually_load_plugin() {
-	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 	}
 	require __DIR__ . '/../../jetpack.php';
@@ -112,7 +112,7 @@ function _manually_install_woocommerce() {
 // If we are running the uninstall tests don't load jetpack.
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
-	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );
 	}
 }
@@ -158,5 +158,5 @@ require __DIR__ . '/_inc/lib/class-tweetstorm-requests-transport-override.php';
 
 function in_running_uninstall_group() {
 	global  $argv;
-	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
+	return is_array( $argv ) && in_array( '--group=uninstall', $argv, true );
 }
