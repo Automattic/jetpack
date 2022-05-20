@@ -8,8 +8,6 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Status;
-use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -61,94 +59,18 @@ class Module_Control {
 	 * Activiate Search module
 	 */
 	public function activate() {
-		/**
-		 * Fires before a module is activated.
-		 *
-		 * @since 2.6.0
-		 *
-		 * @param string $module Module slug.
-		 * @param bool $exit Should we exit after the module has been activated. Default to true.
-		 * @param bool $redirect Should the user be redirected after module activation? Default to true.
-		 */
-		do_action( 'jetpack_pre_activate_module', self::JETPACK_SEARCH_MODULE_SLUG );
-
-		// If it's already active, then don't do it again.
-		if ( $this->is_active() ) {
-			return true;
-		}
-		// Not available for offline mode.
-		$is_offline_mode = ( new Status() )->is_offline_mode();
-		if ( $is_offline_mode ) {
-			return new WP_Error( 'offline_mode', __( 'Search module can not be activated in offline mode.', 'jetpack-search-pkg' ) );
-		}
-		// Return false if no plan supports search.
 		if ( ! $this->plan->supports_search() ) {
 			return new WP_Error( 'not_supported', __( 'Your plan does not support Jetpack Search.', 'jetpack-search-pkg' ) );
 		}
 
-		$active_modules   = ( new Modules() )->get_active();
-		$active_modules[] = self::JETPACK_SEARCH_MODULE_SLUG;
-
-		$success = Jetpack_Options::update_option( self::JETPACK_ACTIVE_MODULES_OPTION_KEY, $active_modules );
-
-		/**
-		 * Fired after a module has been deactivated.
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param string $module Module slug.
-		 * @param boolean $success whether the module was deactivated.
-		 */
-		do_action( 'jetpack_activate_module', self::JETPACK_SEARCH_MODULE_SLUG, $success );
-		/**
-		 * Fires when a module is deactivated.
-		 * The dynamic part of the filter, $module, is the module slug.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param string $module Module slug.
-		 */
-		do_action( 'jetpack_activate_module_' . self::JETPACK_SEARCH_MODULE_SLUG );
-
-		return $success;
+		return ( new Modules() )->activate( self::JETPACK_SEARCH_MODULE_SLUG, false, false );
 	}
 
 	/**
 	 * Deactiviate Search module
 	 */
 	public function deactivate() {
-		/**
-		 * Fires when a module is deactivated.
-		 *
-		 * @since-jetpack 1.9.0
-		 *
-		 * @param string $module Module slug.
-		 */
-		do_action( 'jetpack_pre_deactivate_module', self::JETPACK_SEARCH_MODULE_SLUG );
-
-		$active_modules = ( new Modules() )->get_active();
-		$active_modules = array_values( array_diff( $active_modules, array( self::JETPACK_SEARCH_MODULE_SLUG ) ) );
-
-		$success = Jetpack_Options::update_option( self::JETPACK_ACTIVE_MODULES_OPTION_KEY, $active_modules );
-
-		/**
-		 * Fired after a module has been deactivated.
-		 *
-		 * @since-jetpack 4.2.0
-		 *
-		 * @param string $module Module slug.
-		 * @param boolean $success whether the module was deactivated.
-		 */
-		do_action( 'jetpack_deactivate_module', self::JETPACK_SEARCH_MODULE_SLUG, $success );
-		/**
-		 * Fires when a module is deactivated.
-		 * The dynamic part of the filter, $module, is the module slug.
-		 *
-		 * @since-jetpack 1.9.0
-		 *
-		 * @param string $module Module slug.
-		 */
-		do_action( 'jetpack_deactivate_module_' . self::JETPACK_SEARCH_MODULE_SLUG );
+		$success = ( new Modules() )->deactivate( self::JETPACK_SEARCH_MODULE_SLUG );
 
 		$this->disable_instant_search();
 
