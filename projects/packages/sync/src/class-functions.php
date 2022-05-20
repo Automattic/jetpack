@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Modules as Jetpack_Modules;
 
 /**
  * Utility functions to generate data synced to wpcom
@@ -670,6 +670,6 @@ class Functions {
 	 * @return array
 	 */
 	public static function get_active_modules() {
-		return ( new Modules() )->get_active();
+		return ( new Jetpack_Modules() )->get_active();
 	}
 }
