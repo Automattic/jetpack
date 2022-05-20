@@ -173,14 +173,14 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	// expand the input to 2000 random chars
 	public function expand_small_action_to_large_size() {
 		// we generate a random string so it's hard to compress (i.e. doesn't shrink when gzencoded)
-		$characters       = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		$charactersLength = strlen( $characters );
-		$randomString     = '';
+		$characters        = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$characters_length = strlen( $characters );
+		$random_string     = '';
 		for ( $i = 0; $i < 2000; $i ++ ) {
-			$randomString .= $characters[ rand( 0, $charactersLength - 1 ) ];
+			$random_string .= $characters[ rand( 0, $characters_length - 1 ) ];
 		}
 
-		return $randomString;
+		return $random_string;
 	}
 
 	public function test_rate_limit_how_often_sync_runs_with_option() {
@@ -301,7 +301,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	public function test_reset_module_also_resets_full_sync_lock() {
 		$full_sync = Modules::get_module( 'full-sync' );
 		$full_sync->start();
-		$status = $full_sync->get_status();
 		$this->assertTrue( $full_sync->is_started() );
 
 		$full_sync->reset_data();
@@ -733,7 +732,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function create_http_listener_post_and_return_processed_ids( $data ) {
-		$post_id = $this->factory->post->create( array( 'post_type' => 'http_listener' ) );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'http_listener' ) ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return array_keys( $data );
 	}
 

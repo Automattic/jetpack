@@ -357,7 +357,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_attachment_delete_is_synced() {
 		$filename      = __DIR__ . '/../files/jetpack.jpg';
 		$filename_copy = __DIR__ . '/../files/jetpack-copy.jpg';
-		@copy( $filename, $filename_copy );
+		@copy( $filename, $filename_copy ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
 		$filetype = wp_check_filetype( basename( $filename_copy ), null );
@@ -395,7 +395,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_attachment_force_delete_is_synced() {
 		$filename      = __DIR__ . '/../files/jetpack.jpg';
 		$filename_copy = __DIR__ . '/../files/jetpack-copy.jpg';
-		@copy( $filename, $filename_copy );
+		@copy( $filename, $filename_copy ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
 		$filetype = wp_check_filetype( basename( $filename_copy ), null );
@@ -530,7 +530,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertObjectNotHasAttribute( 'amp_permalink', $post );
 
-		function amp_get_permalink( $post_id ) {
+		function amp_get_permalink( $post_id ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			return "http://example.com/?p=$post_id&amp";
 		}
 
@@ -563,7 +563,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_post_not_includes_feature_image_meta_when_featured_image_not_set() {
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$this->sender->do_sync();
 
