@@ -198,6 +198,14 @@ class Modules {
 			$active[] = 'protect';
 		}
 
+		// If it's not available, it shouldn't be active.
+		$active = array_filter(
+			$active,
+			function ( $active_module ) {
+				return in_array( $active_module, $this->get_available() );
+			}
+		);
+
 		/**
 		 * Allow filtering of the active modules.
 		 *
@@ -238,8 +246,10 @@ class Modules {
 	public function get_available( $min_version = false, $max_version = false, $requires_connection = null, $requires_user_connection = null ) {
 		static $modules = null;
 
-		if ( ! Constants::is_defined( 'JETPACK__VERSION' ) || ! Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
-			return array();
+		if ( ! class_exists( 'Jetpack' ) || ! Constants::is_defined( 'JETPACK__VERSION' ) || ! Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return array_unique(
+				apply_filters( 'jetpack_get_available_modules', array(), $min_version, $max_version, $requires_connection, $requires_user_connection )
+			);
 		}
 
 		if ( ! isset( $modules ) ) {

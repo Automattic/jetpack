@@ -85,6 +85,8 @@ class Jetpack_Social {
 
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
+
+		add_filter( 'jetpack_get_available_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
 	}
 
 	/**
@@ -192,8 +194,11 @@ class Jetpack_Social {
 	public function activate_module_on_plugin_activation() {
 		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) && $this->is_connected() ) {
 			delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
-			error_log( 'Social trying to activate' );
 			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		}
+	}
+
+	public function social_filter_available_modules( $modules ) {
+		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
 	}
 }
