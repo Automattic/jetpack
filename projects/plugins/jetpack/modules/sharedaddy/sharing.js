@@ -376,7 +376,7 @@
 	function trackButtonClick( button ) {
 		var clickCount = getClickCountForButton( button );
 
-		setClickCountForButton( clickCount + 1 );
+		setClickCountForButton( button, clickCount + 1 );
 	}
 
 	function setClickCountForButton( button, clickCount ) {
