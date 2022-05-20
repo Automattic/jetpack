@@ -265,7 +265,7 @@ class Connections_Post_Field {
 	/**
 	 * Get list of meta data to update per post ID.
 	 *
-	 * @param array $requested_connections Publicize conenctions to update.
+	 * @param array $requested_connections Publicize connections to update.
 	 *              Items are either `{ id: (string) }` or `{ service_name: (string) }`.
 	 * @param int   $post_id    Post ID.
 	 */
@@ -355,7 +355,7 @@ class Connections_Post_Field {
 	/**
 	 * Update the connections slated to be shared to.
 	 *
-	 * @param array   $requested_connections Publicize conenctions to update.
+	 * @param array   $requested_connections Publicize connections to update.
 	 *              Items are either `{ id: (string) }` or `{ service_name: (string) }`.
 	 * @param WP_Post $post    Post data.
 	 */
