@@ -417,7 +417,7 @@
 		newShareEmailErrorText.innerText = emailShareButton.getAttribute(
 			'data-email-share-error-text'
 		);
-		newShareEmailError.appendChild( newShareEmailErrorTitle );
+		newShareEmailError.appendChild( newShareEmailErrorText );
 
 		sdContent.appendChild( newShareEmailError );
 	}
