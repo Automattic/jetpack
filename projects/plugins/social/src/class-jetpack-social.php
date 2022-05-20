@@ -86,7 +86,7 @@ class Jetpack_Social {
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
 
-		add_filter( 'jetpack_get_available_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
 	}
 
 	/**
@@ -198,6 +198,12 @@ class Jetpack_Social {
 		}
 	}
 
+	/**
+	 * Adds module to the list of available modules
+	 *
+	 * @param array $modules The available modules.
+	 * @return array
+	 */
 	public function social_filter_available_modules( $modules ) {
 		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
 	}
