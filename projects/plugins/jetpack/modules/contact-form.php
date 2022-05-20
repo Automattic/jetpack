@@ -1,5 +1,11 @@
 <?php
 /**
+ * Contact form module.
+ *
+ * @package automattic/jetpack
+ */
+
+/**
  * Module Name: Contact Form
  * Module Description: Add a customizable contact form to any post or page using the Jetpack Form Block.
  * Sort Order: 15
@@ -12,7 +18,8 @@
  * Additional Search Queries: contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free
  */
 
-require_once dirname( __FILE__ ) . '/contact-form/grunion-contact-form.php';
+require_once __DIR__ . '/contact-form/grunion-contact-form.php';
+
 /*
  * Filters if the new Contact Form Editor View should be used.
  *
@@ -25,5 +32,5 @@ require_once dirname( __FILE__ ) . '/contact-form/grunion-contact-form.php';
  * @param boolean $view Use new Editor View. Default true.
  */
 if ( is_admin() && apply_filters( 'tmp_grunion_allow_editor_view', true ) ) {
-	require_once dirname( __FILE__ ) . '/contact-form/grunion-editor-view.php';
+	require_once __DIR__ . '/contact-form/grunion-editor-view.php';
 }
