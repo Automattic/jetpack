@@ -42,32 +42,33 @@ describe( 'Jetpack Product Card', () => {
 	} );
 
 	it( 'price is shown', () => {
-		render( <JetpackProductCard { ...mockAttributes } /> );
+		const { container } = render( <JetpackProductCard { ...mockAttributes } /> );
 		
 		const priceObject = getCurrencyObject( mockAttributes.price, mockAttributes.currencyCode );
 
-		expect( screen.getAllByText( priceObject.symbol ) ).to.exist;
-		expect( screen.getAllByText( priceObject.integer ) ).to.exist;
-		expect( screen.getAllByText( priceObject.fraction ) ).to.exist;
-		expect( screen.getAllByText( mockAttributes.billingDescription ) ).to.exist;
+		expect( container.getAllByText( priceObject.symbol ) ).to.exist;
+		expect( container.getAllByText( priceObject.integer ) ).to.exist;
+		expect( container.getAllByText( priceObject.fraction ) ).to.exist;
+		expect( container.getAllByText( mockAttributes.billingDescription ) ).to.exist;
 	} );
 
 	it( 'discounted price is shown', () => {
 		const discountedPrice = mockAttributes.price / 2;
-		
-		render( <JetpackProductCard { ...mockAttributes } discountedPrice={ discountedPrice }/> );
+		const { container } = render( <JetpackProductCard { ...mockAttributes } discountedPrice={ discountedPrice }/> );
 
 		// Show original price.
 		const originalPriceObject = getCurrencyObject( mockAttributes.price, mockAttributes.currencyCode );
-		expect( screen.getAllByText( originalPriceObject.symbol ) ).to.exist;
-		expect( screen.getAllByText( originalPriceObject.integer ) ).to.exist;
-		expect( screen.getAllByText( originalPriceObject.fraction ) ).to.exist;
+
+		expect( container.getAllByText( originalPriceObject.symbol ) ).to.exist;
+		expect( container.getAllByText( originalPriceObject.integer ) ).to.exist;
+		expect( container.getAllByText( originalPriceObject.fraction ) ).to.exist;
 		
 		// Show discounted price.
 		const discountedPriceObject = getCurrencyObject( discountedPrice, mockAttributes.currencyCode );
-		expect( screen.getAllByText( discountedPriceObject.symbol ) ).to.exist;
-		expect( screen.getAllByText( discountedPriceObject.integer ) ).to.exist;
-		expect( screen.getAllByText( discountedPriceObject.fraction ) ).to.exist;
+
+		expect( container.getAllByText( discountedPriceObject.symbol ) ).to.exist;
+		expect( container.getAllByText( discountedPriceObject.integer ) ).to.exist;
+		expect( container.getAllByText( discountedPriceObject.fraction ) ).to.exist;
 	} );
 
 	it( 'cta is shown', () => {
