@@ -20,6 +20,7 @@ class Meta_Tags {
 	 * @var array Array of plugin slugs.
 	 */
 	private $open_graph_conflicting_plugins = array(
+		'jetpack/jetpack.php',                                   // The Jetpack plugin adds its own meta tags.
 		'2-click-socialmedia-buttons/2-click-socialmedia-buttons.php', // 2 Click Social Media Buttons.
 		'add-link-to-facebook/add-link-to-facebook.php',         // Add Link to Facebook.
 		'add-meta-tags/add-meta-tags.php',                       // Add Meta Tags.
