@@ -242,27 +242,46 @@
 }
 
 .jp-recommendations-banner__notice-dismiss {
-	background: 0 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+    z-index: 1;
+
+	display: flex;
+	align-items: center;
+
+    margin: 1.5rem 1rem 1rem;
+    padding: 1rem;
+
+	background: none;
 	border: none;
 	color: $studio-gray-50;
-	cursor: pointer;
-	display: flex;
-	font-size: 16px;
-	line-height: 1.5;
-	margin: 0;
-	padding: 2rem 2rem 2rem 0;
-	float: right;
 
-	&:hover, &:active {
+	font-size: 1rem;
+	line-height: 1;
+
+	cursor: pointer;
+
+	@include breakpoint( "<480px" ) {
+		margin-top: 0;
+	}
+	
+	&:hover,
+	&:active {
 		color: $studio-gray-100;
 
 		.jp-recommendations-banner__svg-dismiss {
-			fill: $studio-gray-100;
+			fill: currentColor;
 		}
 	}
 
+	&:focus {
+		outline-color: $studio-gray-100;
+	}
+
 	.jp-recommendations-banner__svg-dismiss {
-		fill: $studio-gray-50;
-		margin-right: 0.250rem;
+		margin-inline-end: 0.25rem;
+
+		fill: currentColor;
 	}
 }
