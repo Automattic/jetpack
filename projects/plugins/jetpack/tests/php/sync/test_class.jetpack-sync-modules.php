@@ -21,15 +21,15 @@ class WP_Test_Jetpack_Sync_Modules extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_deactivate_module_event() {
 
-		Jetpack_Options::update_option( 'active_modules', array( 'stuff' ) );
-		Jetpack::deactivate_module( 'stuff' );
+		Jetpack_Options::update_option( 'active_modules', array( 'search' ) );
+		Jetpack::deactivate_module( 'search' );
 
 		$this->sender->do_sync();
 		$events = $this->server_event_storage->get_all_events( 'jetpack_deactivate_module' );
 
 		$event = $events[0];
 		$this->assertEquals( 'jetpack_deactivate_module', $event->action );
-		$this->assertEquals( 'stuff', $event->args[0] );
+		$this->assertEquals( 'search', $event->args[0] );
 		$this->assertCount( 1, $events );
 	}
 
