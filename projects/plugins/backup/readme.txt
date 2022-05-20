@@ -1,6 +1,6 @@
 === Jetpack Backup ===
 Contributors: automattic, bjorsch, fgiannar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
-Tags: jetpack
+Tags: jetpack, backup, restore
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
