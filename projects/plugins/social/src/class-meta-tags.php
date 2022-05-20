@@ -93,13 +93,11 @@ class Meta_Tags {
 		if ( is_multisite() ) {
 			// Due to legacy code, active_sitewide_plugins stores them in the keys,
 			// whereas active_plugins stores them in the values.
-			$active_plugins = array_merge( 
+			$active_plugins = array_merge(
 				$active_plugins,
 				array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
 			);
 		}
-
-		sort( $active_plugins );
 
 		return array_unique( $active_plugins );
 	}
@@ -114,7 +112,7 @@ class Meta_Tags {
 			return false;
 		}
 
-		return apply_filters( 'jetpack_enable_open_graph', is_singular() ) );
+		return apply_filters( 'jetpack_enable_open_graph', is_singular() );
 	}
 
 	/**
