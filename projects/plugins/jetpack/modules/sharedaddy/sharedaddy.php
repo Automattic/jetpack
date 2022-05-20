@@ -78,7 +78,7 @@ function sharing_email_send_post( $data ) {
 }
 
 /**
- * Checks for spam using akismet if available.
+ * Checks for spam using Akismet if available.
  * Return $data as it if email about to be send out is not spam.
  *
  * @param array $data Array of information about the shared message.
@@ -405,7 +405,7 @@ function sharing_recaptcha_secret_key() {
 }
 
 /**
- * Contents of a Recaptcha box.
+ * Contents of a reCAPTCHA box.
  *
  * @return void
  */
@@ -421,7 +421,7 @@ function sharing_email_dialog() {
 }
 
 /**
- * Shortcircuit the email sharing button based on the results of recaptcha.
+ * Short-circuit the email sharing button based on the results of reCAPTCHA.
  *
  * @param bool   $true Should we check if the message isn't spam.
  * @param object $post Post information.

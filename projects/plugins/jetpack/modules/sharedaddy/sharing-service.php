@@ -1223,7 +1223,7 @@ function sharing_display( $text = '', $echo = false ) {
 }
 
 /**
- * Get recaptcha language code based off the language code of the site.
+ * Get reCAPTCHA language code based off the language code of the site.
  *
  * @return string
  */
