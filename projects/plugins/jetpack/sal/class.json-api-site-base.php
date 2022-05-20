@@ -92,6 +92,14 @@ abstract class SAL_Site {
 	public function get_post_count() {
 		return (int) wp_count_posts( 'post' )->publish;
 	}
+	/**
+	 * Returns an array of blogging prompt settings.
+	 *
+	 * Data comes from .com since the fearture requires a .com connection to work.
+	 */
+	public function get_blogging_prompts_settings( $user_id, $blog_id ) {
+		return false;
+	}
 
 	/**
 	 * A prototype function for get_quota - currently returns null.

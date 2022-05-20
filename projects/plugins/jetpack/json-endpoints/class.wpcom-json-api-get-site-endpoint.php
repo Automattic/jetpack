@@ -179,6 +179,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'anchor_podcast',
 		'is_difm_lite_in_progress',
 		'site_intent',
+		'blogging_prompts_settings',
 	);
 
 	/**
@@ -223,6 +224,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// and defaults to `0000-00-00T00:00:00+00:00` from the Jetpack site.
 		// See https://github.com/Automattic/jetpack/blob/58638f46094b36f5df9cbc4570006544f0ad300c/sal/class.json-api-site-base.php#L387.
 		'created_at',
+		'blogging_prompts_settings',
 	);
 
 	/**
@@ -756,6 +758,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
+					break;
+				case 'blogging_prompts_settings':
+					if ( current_user_can( 'edit_posts' ) ) {
+						$options[ $key ] = $site->get_blogging_prompts_settings( get_current_user_id(), $site->blog_id );
+					}
 					break;
 			}
 		}
