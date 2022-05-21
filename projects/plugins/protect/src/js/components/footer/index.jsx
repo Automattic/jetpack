@@ -2,15 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import {
-	Container,
-	Col,
-	Text,
-	Button,
-	Title,
-	IconsCard,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
+import { Text, Button, Title, IconsCard, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 
@@ -18,15 +10,32 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
  * Internal dependencies
  */
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import { SECURITY_BUNDLE } from '../admin-page';
+import { SECURITY_BUNDLE, SeventyFiveLayout } from '../admin-page';
 import useProtectData from '../../hooks/use-protect-data';
 
-const ProductPromotion = ( { onSecurityAdd, hasCheckoutStarted, hasSecurityBundle } ) => {
-	if ( ! hasSecurityBundle ) {
+const ProductPromotion = () => {
+	const { adminUrl } = window.jetpackProtectInitialState || {};
+
+	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug: SECURITY_BUNDLE,
+		redirectUrl: adminUrl,
+	} );
+
+	const { recordEventHandler } = useAnalyticsTracks();
+	const getSecurityBundle = recordEventHandler(
+		'jetpack_protect_footer_get_security_link_click',
+		run
+	);
+
+	const { securityBundle } = useProtectData();
+	const { hasRequiredPlan } = securityBundle;
+
+	if ( ! hasRequiredPlan ) {
 		const getStartedUrl = getRedirectUrl( 'protect-footer-get-started-scan' );
 
 		return (
 			<>
+				<IconsCard products={ [ 'backup', 'scan', 'anti-spam' ] } />
 				<Title>
 					{ __( 'Increase your site protection with Jetpack Scan', 'jetpack-protect' ) }
 				</Title>
@@ -46,6 +55,7 @@ const ProductPromotion = ( { onSecurityAdd, hasCheckoutStarted, hasSecurityBundl
 
 	return (
 		<>
+			<IconsCard products={ [ 'scan' ] } />
 			<Title>{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }</Title>
 			<Text mb={ 3 }>
 				{ __(
@@ -54,7 +64,7 @@ const ProductPromotion = ( { onSecurityAdd, hasCheckoutStarted, hasSecurityBundl
 				) }
 			</Text>
 
-			<Button variant="secondary" onClick={ onSecurityAdd } isLoading={ hasCheckoutStarted }>
+			<Button variant="secondary" onClick={ getSecurityBundle } isLoading={ hasCheckoutStarted }>
 				{ __( 'Get Jetpack Security', 'jetpack-protect' ) }
 			</Button>
 		</>
@@ -81,44 +91,12 @@ const FooterInfo = () => {
 };
 
 const Footer = () => {
-	const { adminUrl } = window.jetpackProtectInitialState || {};
-
-	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
-		redirectUrl: adminUrl,
-	} );
-
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getSecurityBundle = recordEventHandler(
-		'jetpack_protect_footer_get_security_link_click',
-		run
-	);
-
-	const { securityBundle } = useProtectData();
-	const { hasRequiredPlan } = securityBundle;
-
 	return (
-		<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
-			<Col>
-				<IconsCard
-					products={ ! hasRequiredPlan ? [ 'backup', 'scan', 'anti-spam' ] : [ 'scan' ] }
-				/>
-			</Col>
-			<Col>
-				<Container fluid horizontalSpacing={ 0 } horizontalGap={ 8 }>
-					<Col lg={ 6 }>
-						<ProductPromotion
-							onSecurityAdd={ getSecurityBundle }
-							hasCheckoutStarted={ hasCheckoutStarted }
-							hasSecurityBundle={ ! hasRequiredPlan }
-						/>
-					</Col>
-					<Col lg={ 6 }>
-						<FooterInfo />
-					</Col>
-				</Container>
-			</Col>
-		</Container>
+		<SeventyFiveLayout
+			main={ <ProductPromotion /> }
+			secondary={ <FooterInfo /> }
+			preserveSecondaryOnMobile={ true }
+		/>
 	);
 };
 
