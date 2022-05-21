@@ -52,8 +52,12 @@ export const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile 
 		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
 			{ ! hideSecondarySection && (
 				<>
-					<div className={ styles.main }>{ main }</div>
-					<div className={ styles.secondary }>{ secondary }</div>
+					<Col sm={ 4 } md={ 4 } className={ styles.main }>
+						{ main }
+					</Col>
+					<Col sm={ 4 } md={ 4 } className={ styles.secondary }>
+						{ secondary }
+					</Col>
 				</>
 			) }
 			{ hideSecondarySection && <Col>{ main }</Col> }

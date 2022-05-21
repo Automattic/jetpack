@@ -1,10 +1,15 @@
 // seventy-five layout
-.main {
-	grid-column: 1 / span 6;
-}
+// Handle large lg size from here,
+// adding a gap on one column
+// in between main and secondary sections.
+@media ( min-width: 960px ) {
+	.main {
+		grid-column: 1 / span 6;
+	}
 
-.secondary {
-	grid-column: 8 / span 5;
+	.secondary {
+		grid-column: 8 / span 5;
+	}
 }
 
 // Alert section
