@@ -35,7 +35,7 @@ import styles from './styles.module.scss';
 export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
 
 export const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false } ) => {
-	const [ isSmall, isLowerThanLarge ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	const classNames = classnames( {
 		[ styles[ 'is-viewport-small' ] ]: isSmall,
@@ -52,12 +52,8 @@ export const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile 
 		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
 			{ ! hideSecondarySection && (
 				<>
-					<Col sm={ 4 } md={ isLowerThanLarge ? 4 : 5 } lg={ 7 } className={ styles.main }>
-						{ main }
-					</Col>
-					<Col sm={ 4 } md={ isLowerThanLarge ? 4 : 3 } lg={ 5 } className={ styles.secondary }>
-						{ secondary }
-					</Col>
+					<div className={ styles.main }>{ main }</div>
+					<div className={ styles.secondary }>{ secondary }</div>
 				</>
 			) }
 			{ hideSecondarySection && <Col>{ main }</Col> }
