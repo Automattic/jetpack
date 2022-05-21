@@ -27,7 +27,7 @@ class Social extends Hybrid_Product {
 	 *
 	 * @var string
 	 */
-	public static $module_name = 'social';
+	public static $module_name = 'publicize';
 
 	/**
 	 * The slug of the plugin associated with this product.
