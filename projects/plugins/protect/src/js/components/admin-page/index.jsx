@@ -104,7 +104,11 @@ const ProtectAdminPage = () => {
 								<Text>{ displayErrorMessage }</Text>
 							</div>
 						}
-						secondary={ <img src={ inProgressImage } alt="" /> }
+						secondary={
+							<div className={ styles[ 'alert-section-illustration' ] }>
+								<img src={ inProgressImage } alt="" />
+							</div>
+						}
 						preserveSecondaryOnMobile={ false }
 					/>
 				</AdminSectionHero>

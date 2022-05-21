@@ -1,11 +1,11 @@
-.main,
-.secondary {
-	display: flex;
+.alert-section {
+	padding: calc( var( --spacing-base ) * 7 ) 0;
 }
 
-// Fit images in secondary section.
-.secondary {
+.alert-section-illustration {
+	display: flex;
 	align-items: center;
+	height: 100%;
 	img {
 		// let's fit images
 		object-fit: cover;
@@ -19,8 +19,4 @@
 	.main {
 		margin-bottom: calc( var( --spacing-base ) * 3 );
 	}
-}
-
-.alert-section {
-	padding: calc( var( --spacing-base ) * 7 ) 0;
 }
