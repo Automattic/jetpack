@@ -104,6 +104,13 @@ export const SearchIcon = ( { opacity = 1, size } ) => (
 	</IconWrapper>
 );
 
+export const SocialIcon = ( { opacity = 1, size } ) => (
+	<IconWrapper size={ size } opacity={ opacity }>
+		<Path d="M16.5 3.978v14.044L4.275 14.317A2.5 2.5 0 0 1 2.5 11.925v-1.85a2.5 2.5 0 0 1 1.775-2.392L16.5 3.978ZM4.71 12.882a1 1 0 0 1-.71-.957v-1.85a1 1 0 0 1 .71-.957L15 6v10L4.71 12.882Z" />
+		<Path d="M7 20V7h1.5v13H7Zm15.5-8.25h-4v-1.5h4v1.5Zm0 4.25-4-1v-1.5l4 1V16Zm0-8.5-4 1V7l4-1v1.5Z" />
+	</IconWrapper>
+);
+
 export const VideopressIcon = ( { opacity = 1, size } ) => (
 	<IconWrapper size={ size } opacity={ opacity }>
 		<Path d="M5.286 4.5h13.428c.434 0 .786.352.786.786v13.428a.786.786 0 0 1-.786.786H5.286a.786.786 0 0 1-.786-.786V5.286c0-.434.352-.786.786-.786ZM3 5.286A2.286 2.286 0 0 1 5.286 3h13.428A2.286 2.286 0 0 1 21 5.286v13.428A2.286 2.286 0 0 1 18.714 21H5.286A2.286 2.286 0 0 1 3 18.714V5.286ZM15 12l-5-3v6l5-3Z" />
@@ -132,24 +139,6 @@ export const JetpackIcon = ( { size, className = styles.jetpack } ) => {
 			<Polygon fill="#fff" points="15,19 7,19 15,3" />
 			<Polygon fill="#fff" points="17,29 17,13 25,13" />
 		</IconWrapper>
-	);
-};
-
-export const JetpackSocialIcon = () => {
-	return (
-		<svg width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path
-				d="M21.667 10V8.652l-1.29.391-13.72 4.158A2.333 2.333 0 0 0 5 15.434V17.9c0 1.028.673 1.935 1.657 2.233l13.72 4.157 1.29.391V10ZM11 11.333v17.334"
-				stroke="#1E1E1E"
-				stroke-width="2"
-			/>
-			<path
-				fill-rule="evenodd"
-				clip-rule="evenodd"
-				d="M30.667 17.667h-5.334v-2h5.334v2ZM30.667 23.333 25.333 22v-2l5.334 1.333v2ZM30.667 12l-5.334 1.333v-2L30.667 10v2Z"
-				fill="#1E1E1E"
-			/>
-		</svg>
 	);
 };
 
@@ -256,7 +245,7 @@ const iconsMap = {
 	protect: ProtectIcon,
 	scan: ScanIcon,
 	search: SearchIcon,
-	social: JetpackSocialIcon,
+	social: SocialIcon,
 	star: StarIcon,
 	videopress: VideopressIcon,
 	jetpack: JetpackIcon,
