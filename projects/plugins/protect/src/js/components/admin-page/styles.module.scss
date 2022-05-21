@@ -1,3 +1,26 @@
-.primary {
+.main,
+.secondary {
+	display: flex;
+}
+
+// Fit images in secondary section.
+.secondary {
+	align-items: center;
+	img {
+		// let's fit images
+		object-fit: cover;
+		width: 100%;
+	}
+}
+
+// Viewport breakpoints.
+.is-viewport-small {
+	// Add spacing between main and secondary in "sm" viewport size
+	.main {
+		margin-bottom: calc( var( --spacing-base ) * 3 );
+	}
+}
+
+.alert-section {
 	padding: calc( var( --spacing-base ) * 7 ) 0;
 }

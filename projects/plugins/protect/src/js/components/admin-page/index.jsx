@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { useEffect } from 'react';
+import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 
@@ -12,7 +13,7 @@ import {
 	Col,
 	H3,
 	Text,
-	Dialog,
+	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
 
@@ -32,6 +33,37 @@ import AlertSVGIcon from '../alert-icon';
 import styles from './styles.module.scss';
 
 export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
+
+export const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false } ) => {
+	const [ isSmall, isLowerThanLarge ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
+	const classNames = classnames( {
+		[ styles[ 'is-viewport-small' ] ]: isSmall,
+	} );
+
+	/*
+	 * By convention, secondary section is not shown when:
+	 * - preserveSecondaryOnMobile is false
+	 * - on mobile breakpoint (sm)
+	 */
+	const hideSecondarySection = ! preserveSecondaryOnMobile && isSmall;
+
+	return (
+		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
+			{ ! hideSecondarySection && (
+				<>
+					<Col sm={ 4 } md={ isLowerThanLarge ? 4 : 5 } lg={ 7 } className={ styles.main }>
+						{ main }
+					</Col>
+					<Col sm={ 4 } md={ isLowerThanLarge ? 4 : 3 } lg={ 5 } className={ styles.secondary }>
+						{ secondary }
+					</Col>
+				</>
+			) }
+			{ hideSecondarySection && <Col>{ main }</Col> }
+		</Container>
+	);
+};
 
 const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 	return (
@@ -64,17 +96,16 @@ const ProtectAdminPage = () => {
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
-					<Dialog
-						primary={
-							<div className={ styles.primary }>
+					<SeventyFiveLayout
+						main={
+							<div className={ styles[ 'alert-section' ] }>
 								<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } />
 								<H3>{ __( 'We’re having problems scanning your site', 'jetpack-protect' ) }</H3>
 								<Text>{ displayErrorMessage }</Text>
 							</div>
 						}
 						secondary={ <img src={ inProgressImage } alt="" /> }
-						isTwoSections={ false }
-						isCard={ false }
+						preserveSecondaryOnMobile={ false }
 					/>
 				</AdminSectionHero>
 				<Footer />
