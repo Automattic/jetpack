@@ -12,6 +12,7 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { SECURITY_BUNDLE, SeventyFiveLayout } from '../admin-page';
 import useProtectData from '../../hooks/use-protect-data';
+import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
@@ -34,7 +35,7 @@ const ProductPromotion = () => {
 		const getStartedUrl = getRedirectUrl( 'protect-footer-get-started-scan' );
 
 		return (
-			<>
+			<div className={ styles[ 'product-section' ] }>
 				<IconsCard products={ [ 'backup', 'scan', 'anti-spam' ] } />
 				<Title>
 					{ __( 'Increase your site protection with Jetpack Scan', 'jetpack-protect' ) }
@@ -49,12 +50,12 @@ const ProductPromotion = () => {
 				<Button variant="external-link" weight="regular" href={ getStartedUrl }>
 					{ __( 'Get Started', 'jetpack-protect' ) }
 				</Button>
-			</>
+			</div>
 		);
 	}
 
 	return (
-		<>
+		<div className={ styles[ 'product-section' ] }>
 			<IconsCard products={ [ 'scan' ] } />
 			<Title>{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }</Title>
 			<Text mb={ 3 }>
@@ -67,7 +68,7 @@ const ProductPromotion = () => {
 			<Button variant="secondary" onClick={ getSecurityBundle } isLoading={ hasCheckoutStarted }>
 				{ __( 'Get Jetpack Security', 'jetpack-protect' ) }
 			</Button>
-		</>
+		</div>
 	);
 };
 
@@ -75,7 +76,7 @@ const FooterInfo = () => {
 	const learnMoreUrl = getRedirectUrl( 'jetpack-protect-footer-learn-more' );
 
 	return (
-		<>
+		<div className={ styles[ 'info-section' ] }>
 			<Title>{ __( 'Over 22,000 listed vulnerabilities', 'jetpack-protect' ) }</Title>
 			<Text mb={ 3 }>
 				{ __(
@@ -86,7 +87,7 @@ const FooterInfo = () => {
 			<Button variant="external-link" href={ learnMoreUrl } weight="regular">
 				{ __( 'Learn more', 'jetpack-protect' ) }
 			</Button>
-		</>
+		</div>
 	);
 };
 
