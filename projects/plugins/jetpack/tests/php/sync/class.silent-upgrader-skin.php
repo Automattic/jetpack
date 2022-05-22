@@ -26,7 +26,7 @@ class Silent_Upgrader_Skin extends WP_Upgrader_Skin {
 		$this->options = wp_parse_args( $args, $defaults );
 	}
 
-	public function feedback( $string, ...$args ) {
+	public function feedback( $string, ...$args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 	}
 
@@ -36,7 +36,7 @@ class Silent_Upgrader_Skin extends WP_Upgrader_Skin {
 	public function footer() {
 	}
 
-	public function decrement_update_count( $arg ) {
+	public function decrement_update_count( $arg ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	}
 }
 

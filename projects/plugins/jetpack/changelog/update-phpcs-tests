@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Unit Tests: fix all PHPCS errors.
