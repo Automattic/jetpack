@@ -1668,9 +1668,12 @@ importers:
 
   projects/plugins/social:
     specifiers:
+      '@automattic/calypso-color-schemes': 2.1.1
+      '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.14
       '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-publicize-components': workspace:0.1.0-alpha
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.17.10
       '@babel/preset-env': 7.17.10
@@ -1681,7 +1684,11 @@ importers:
       '@wordpress/date': 4.8.0
       '@wordpress/element': 4.6.0
       '@wordpress/i18n': 4.8.0
+      autoprefixer: 10.4.2
       concurrently: 6.0.2
+      postcss: 8.4.13
+      postcss-custom-properties: 12.1.7
+      postcss-loader: 6.2.0
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -1692,6 +1699,7 @@ importers:
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-publicize-components': link:../../js-packages/publicize-components
       '@wordpress/data': 6.8.0_react@17.0.2
       '@wordpress/date': 4.8.0
       '@wordpress/element': 4.6.0
@@ -1699,13 +1707,19 @@ importers:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:
+      '@automattic/calypso-color-schemes': 2.1.1
+      '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.17.10
       '@babel/preset-env': 7.17.10_@babel+core@7.17.10
       '@babel/register': 7.17.7_@babel+core@7.17.10
       '@babel/runtime': 7.17.9
       '@wordpress/browserslist-config': 4.1.2
+      autoprefixer: 10.4.2_postcss@8.4.13
       concurrently: 6.0.2
+      postcss: 8.4.13
+      postcss-custom-properties: 12.1.7_postcss@8.4.13
+      postcss-loader: 6.2.0_postcss@8.4.13+webpack@5.72.1
       sass: 1.43.3
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.72.1
       webpack: 5.72.1_webpack-cli@4.9.1
@@ -2035,7 +2049,6 @@ packages:
 
   /@automattic/calypso-color-schemes/2.1.1:
     resolution: {integrity: sha512-X5gmQEDJVtw8N9NARgZGM/pmalfapV8ZyRzEn2o0sCLmTAXGYg6A28ucLCQdBIn1l9t2rghBDFkY71vyqjyyFQ==}
-    dev: false
 
   /@automattic/color-studio/2.5.0:
     resolution: {integrity: sha512-gZWaJbx3p1oennAIoJtMGluTmoM95Efk4rc44TSBxWSZZ8gH3Am2eh1o3i1NhrZmg2Zt3AiVFeZZ4AJccIpBKQ==}

@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Status;
 
 /**
  * Class Jetpack_Social
@@ -169,6 +170,15 @@ class Jetpack_Social {
 		);
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
+
+		wp_localize_script(
+			'jetpack-social-editor',
+			'Jetpack_Editor_Initial_State',
+			array(
+				'siteFragment'          => ( new Status() )->get_site_suffix(),
+				'connectionRefreshPath' => '/jetpack/v4/publicize/connections',
+			)
+		);
 	}
 
 	/**
