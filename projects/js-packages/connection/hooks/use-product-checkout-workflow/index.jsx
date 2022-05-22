@@ -79,9 +79,7 @@ export default function useProductCheckoutWorkflow( {
 			return handleAfterRegistration();
 		}
 
-		return registerSite( { registrationNonce, redirectUri: redirectUrl } ).then(
-			handleAfterRegistration
-		);
+		registerSite( { registrationNonce, redirectUri: redirectUrl } ).then( handleAfterRegistration );
 	};
 
 	// Initialize/Setup the REST API.
