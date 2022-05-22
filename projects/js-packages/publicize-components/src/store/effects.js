@@ -6,6 +6,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { serialize } from '@wordpress/blocks';
 import { select, dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Internal dependencies
@@ -19,7 +20,9 @@ import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
  */
 export async function refreshConnectionTestResults() {
 	try {
-		const results = await apiFetch( { path: '/wpcom/v2/publicize/connection-test-results' } );
+		const connectionRefreshPath =
+			getJetpackData()?.connectionRefreshPath ?? '/wpcom/v2/publicize/connection-test-results';
+		const results = await apiFetch( { path: connectionRefreshPath } );
 
 		// Combine current connections with new connections.
 		const prevConnections = select( 'jetpack/publicize' ).getConnections();

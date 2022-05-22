@@ -6,12 +6,10 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import useSocialMediaMessage from '../use-social-media-message';
-import useSocialMediaConnections from '../use-social-media-connections';
+import {
+	useSocialMediaConnections,
+	useSocialMediaMessage,
+} from '@automattic/jetpack-publicize-components';
 
 function getHumanReadableError( result ) {
 	// Errors coming from the API.

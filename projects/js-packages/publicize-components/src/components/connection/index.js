@@ -10,7 +10,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
-import { Disabled, Notice, ExternalLink } from '@wordpress/components';
+import { Notice, ExternalLink } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { includes } from 'lodash';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
@@ -19,6 +19,8 @@ import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
  * Internal dependencies
  */
 import ConnectionToggle from '../connection-toggle';
+import styles from './styles.module.scss';
+import componentStyles from '../styles.module.scss';
 
 class PublicizeConnection extends Component {
 	/**
@@ -29,7 +31,11 @@ class PublicizeConnection extends Component {
 	 */
 	maybeDisplayLinkedInNotice = () =>
 		this.connectionNeedsReauth() && (
-			<Notice className="jetpack-publicize-notice" isDismissible={ false } status="error">
+			<Notice
+				className={ componentStyles[ 'publicize-notice' ] }
+				isDismissible={ false }
+				status="error"
+			>
 				<p>
 					{ __(
 						'Your LinkedIn connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
@@ -65,27 +71,23 @@ class PublicizeConnection extends Component {
 		// Genericon names are dash separated
 		const serviceName = name.replace( '_', '-' );
 
-		let toggle = (
+		const toggle = (
 			<ConnectionToggle
 				id={ fieldId }
-				className="jetpack-publicize-connection-toggle"
+				className={ styles[ 'connection-toggle' ] }
 				checked={ enabled }
 				onChange={ this.onConnectionChange }
-				disabled={ disabled }
+				disabled={ disabled || this.connectionIsFailing() || this.connectionNeedsReauth() }
 				serviceName={ serviceName }
 				label={ label }
 				profilePicture={ profilePicture }
 			/>
 		);
 
-		if ( disabled || this.connectionIsFailing() || this.connectionNeedsReauth() ) {
-			toggle = <Disabled>{ toggle }</Disabled>;
-		}
-
 		return (
 			<li>
 				{ this.maybeDisplayLinkedInNotice() }
-				<div className="publicize-jetpack-connection-container">{ toggle }</div>
+				<div className={ styles[ 'connection-container' ] }>{ toggle }</div>
 			</li>
 		);
 	}

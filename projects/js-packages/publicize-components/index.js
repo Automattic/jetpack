@@ -7,5 +7,11 @@
 import './src/store';
 
 export { default as Connection } from './src/components/connection';
+export { default as ConnectionVerify } from './src/components/connection-verify';
+export { default as Form } from './src/components/form';
 export { default as TwitterThreadListener } from './src/components/twitter';
 export { default as TwitterOptions } from './src/components/twitter/options';
+
+export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';
+export { default as useSocialMediaMessage } from './src/hooks/use-social-media-message';
+export * from './src/hooks/use-saving-post';

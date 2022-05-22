@@ -14,13 +14,13 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, ExternalLink } from '@wordpress/components';
 import { external } from '@wordpress/icons';
+import { useSocialMediaConnections } from '@automattic/jetpack-publicize-components';
 
 /**
  * Internal dependencies
  */
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 
 function getPanelDescription(
 	isPostPublished,
