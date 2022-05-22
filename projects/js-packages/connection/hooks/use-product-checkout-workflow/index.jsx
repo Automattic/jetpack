@@ -27,14 +27,14 @@ const {
  * @param {string} props.productSlug  - The WordPress product slug.
  * @param {string} props.redirectUrl  - The URI to redirect to after checkout.
  * @param {string} [props.siteSuffix] - The site suffix.
- * @param {Function} props.checkSiteHasWpcomProduct - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
+ * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
  * @returns {Function}				  - The useEffect hook.
  */
 export default function useProductCheckoutWorkflow( {
 	productSlug,
 	redirectUrl,
 	siteSuffix = defaultSiteSuffix,
-	checkSiteHasWpcomProduct = null,
+	siteProductAvailabilityHandler = null,
 } = {} ) {
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
@@ -52,14 +52,14 @@ export default function useProductCheckoutWorkflow( {
 	);
 
 	const handleAfterRegistration = () => {
-		return Promise.resolve( checkSiteHasWpcomProduct && checkSiteHasWpcomProduct() ).then(
-			siteHasWpcomProduct => {
-				if ( siteHasWpcomProduct ) {
-					return handleConnectUser();
-				}
-				window.location.href = checkoutProductUrl;
+		return Promise.resolve(
+			siteProductAvailabilityHandler && siteProductAvailabilityHandler()
+		).then( siteHasWpcomProduct => {
+			if ( siteHasWpcomProduct ) {
+				return handleConnectUser();
 			}
-		);
+			window.location.href = checkoutProductUrl;
+		} );
 	};
 
 	/**

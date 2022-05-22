@@ -35,7 +35,7 @@ const ConnectScreenRequiredPlan = props => {
 		pricingTitle,
 		pricingCurrencyCode,
 		wpcomProductSlug,
-		checkSiteHasWpcomProduct,
+		siteProductAvailabilityHandler,
 	} = props;
 
 	const {
@@ -59,7 +59,7 @@ const ConnectScreenRequiredPlan = props => {
 	const { run: handleCheckoutWorkflow, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug,
 		redirectUrl: redirectUri,
-		checkSiteHasWpcomProduct,
+		siteProductAvailabilityHandler,
 		handleRegisterSite,
 	} );
 
