@@ -27,7 +27,7 @@ const {
  * @param {string} props.productSlug  - The WordPress product slug.
  * @param {string} props.redirectUrl  - The URI to redirect to after checkout.
  * @param {string} [props.siteSuffix] - The site suffix.
- * @param {Function} props.checkSiteHasWpcomProduct - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if it returns true.
+ * @param {Function} props.checkSiteHasWpcomProduct - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
  * @returns {Function}				  - The useEffect hook.
  */
 export default function useProductCheckoutWorkflow( {
@@ -55,10 +55,9 @@ export default function useProductCheckoutWorkflow( {
 		return Promise.resolve( checkSiteHasWpcomProduct && checkSiteHasWpcomProduct() ).then(
 			siteHasWpcomProduct => {
 				if ( siteHasWpcomProduct ) {
-					handleConnectUser();
-				} else {
-					return ( window.location.href = checkoutProductUrl );
+					return handleConnectUser();
 				}
+				window.location.href = checkoutProductUrl;
 			}
 		);
 	};
