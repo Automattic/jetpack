@@ -60,7 +60,7 @@ const ConnectScreenRequiredPlan = props => {
 		productSlug,
 		redirectUrl: redirectUri,
 		siteProductAvailabilityHandler,
-		handleRegisterSite,
+		from,
 	} );
 
 	const showConnectButton = ! isRegistered || ! isUserConnected;

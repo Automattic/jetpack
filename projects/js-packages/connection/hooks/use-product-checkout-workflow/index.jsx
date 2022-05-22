@@ -28,6 +28,7 @@ const {
  * @param {string} props.redirectUrl  - The URI to redirect to after checkout.
  * @param {string} [props.siteSuffix] - The site suffix.
  * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
+ * @param {Function} props.from       - The plugin slug initiated the flow.
  * @returns {Function}				  - The useEffect hook.
  */
 export default function useProductCheckoutWorkflow( {
@@ -35,12 +36,14 @@ export default function useProductCheckoutWorkflow( {
 	redirectUrl,
 	siteSuffix = defaultSiteSuffix,
 	siteProductAvailabilityHandler = null,
+	from,
 } = {} ) {
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
 
 	const { isUserConnected, isRegistered, handleConnectUser } = useConnection( {
 		redirectUri: redirectUrl,
+		from,
 	} );
 
 	// Build the checkout URL.
