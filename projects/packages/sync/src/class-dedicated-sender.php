@@ -44,17 +44,18 @@ class Dedicated_Sender {
 	 * @return boolean True if this is a 'jetpack/v4/sync/spawn-sync', false otherwise.
 	 */
 	public static function is_dedicated_sync_request() {
-		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
-			return false;
-		}
-
 		/**
 		 * Check $_SERVER['REQUEST_URI'] first, to see if we're in the right context.
 		 * This is done to make sure we can hook in very early in the initialization of WordPress to
 		 * be able to send sync requests to the backend as fast as possible, without needing to continue
 		 * loading things for the request.
 		 */
-		$check_url = self::prepare_url_for_dedicated_request_check( wp_unslash( $_SERVER['REQUEST_URI'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+		$check_url = self::prepare_url_for_dedicated_request_check( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 		if ( strpos( $check_url, 'jetpack/v4/sync/spawn-sync' ) !== false ) {
 			return true;
 		}
@@ -69,7 +70,8 @@ class Dedicated_Sender {
 			return false;
 		}
 
-		$check_url = self::prepare_url_for_dedicated_request_check( wp_unslash( $_GET['rest_route'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+		$check_url = self::prepare_url_for_dedicated_request_check( wp_unslash( $_GET['rest_route'] ) );
 		if ( strpos( $check_url, 'jetpack/v4/sync/spawn-sync' ) !== false ) {
 			return true;
 		}
