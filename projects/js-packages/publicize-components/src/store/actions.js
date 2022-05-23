@@ -15,6 +15,12 @@ export function refreshConnectionTestResults() {
 	};
 }
 
+/**
+ * Returns an action object to toggle the publicize connection
+ *
+ * @param {number} connectionId - The connection ID to toggle
+ * @returns {object} Action object.
+ */
 export function toggleConnectionById( connectionId ) {
 	return {
 		type: 'TOGGLE_CONNECTION_BY_ID',
