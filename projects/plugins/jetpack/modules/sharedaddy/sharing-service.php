@@ -848,7 +848,8 @@ function sharing_display( $text = '', $echo = false ) {
 					esc_html( $global['sharing_label'] )
 				);
 			}
-			$sharing_content .= '<div class="sd-content"><ul>';
+			$sharing_content .= '<div class="sd-content">'
+					. '<ul data-sharing-permalink="' . esc_attr( get_permalink( $post ) ) . '" data-sharing-web-share-text="' . esc_attr__( 'Share', 'jetpack' ) . '">';
 
 			// Visible items.
 			$visible = '';

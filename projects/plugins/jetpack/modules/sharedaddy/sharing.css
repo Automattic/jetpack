@@ -243,6 +243,10 @@ body .sd-content ul li.share-custom.no-icon a span {
 	margin-left: 3px;
 }
 
+.sd-content ul li a.share-web-share {
+	cursor: auto;
+}
+
 
 /* Individual icons */
 .sd-social-icon .sd-content ul li.share-print a:before,
@@ -355,6 +359,12 @@ body .sd-content ul li.share-custom.no-icon a span {
 	color: #fff !important;
 }
 
+.sd-social-icon .sd-content ul li a.share-web-share:before,
+.sd-social-text .sd-content ul li a.share-web-share:before,
+.sd-social-icon-text .sd-content li a.share-web-share:before,
+.sd-social-official .sd-content ul li a.share-web-share:before {
+	content: '\f415';
+}
 
 .sd-social-icon .sd-content ul li.share-deprecated a:before,
 .sd-social-icon-text .sd-content li.share-deprecated a:before,
@@ -438,7 +448,8 @@ body .sd-social-official li.share-email a,
 body .sd-social-official li.share-custom a,
 body .sd-social-official li a.share-more,
 body .sd-social-official li.share-digg a,
-body .sd-social-official li.share-press-this a
+body .sd-social-official li.share-press-this a,
+body .sd-social-official li.share-web-share a
 {
 	position: relative;
 	top: 0;

@@ -375,6 +375,31 @@
 		hideNode( dialog );
 	}
 
+	function isWebShareAPIEnabled( ulElement ) {
+		if (
+			! navigator ||
+			typeof navigator.share !== 'function' ||
+			typeof navigator.canShare !== 'function'
+		) {
+			return false;
+		}
+
+		return navigator.canShare( getWebShareData( ulElement ) );
+	}
+
+	function getWebShareData( ulElement ) {
+		// Use the URL in the supplied ul element, or fall back on
+		// building the URL with no query parameters
+		var postPermalink =
+			ulElement && ulElement.getAttribute( 'data-share-permalink' )
+				? ulElement.getAttribute( 'data-share-permalink' )
+				: document.location.protocol + '//' + document.location.host + document.location.pathname;
+
+		return {
+			url: postPermalink,
+		};
+	}
+
 	// Sharing initialization.
 	// Will run immediately or on `DOMContentLoaded`, depending on current page status.
 	function init() {
@@ -430,6 +455,50 @@
 				return;
 			}
 			group.setAttribute( 'data-sharing-events-added', 'true' );
+
+			// Native sharing button
+			// Only show if native sharing is available and we're not in the hidden section
+			if ( isWebShareAPIEnabled( group ) && null === closest( group, '.sharing-hidden' ) ) {
+				forEachNode( group.querySelectorAll( 'li.share-web-share' ), function ( webShareListItem ) {
+					webShareListItem.parentNode.removeChild( webShareListItem );
+				} );
+
+				var parentSocialElement = closest( group, '.sd-block.sd-social' );
+				var showTextInButton =
+					! parentSocialElement || ! parentSocialElement.classList.contains( 'sd-social-icon' );
+				var showIconInButton =
+					! parentSocialElement || ! parentSocialElement.classList.contains( 'sd-social-text' );
+				var shareButtonClasses = [ 'share-icon' ];
+				if ( ! showTextInButton ) {
+					shareButtonClasses = [ 'share-icon', 'no-text' ];
+				} else if ( ! showIconInButton ) {
+					shareButtonClasses = [ 'no-icon' ];
+				}
+
+				var webShareListItem = document.createElement( 'li' );
+				webShareListItem.className = 'share-web-share';
+
+				var webShareButton = document.createElement( 'a' );
+				webShareButton.className = 'share-web-share sd-button';
+				shareButtonClasses.forEach( classToAdd => webShareButton.classList.add( classToAdd ) );
+				webShareListItem.appendChild( webShareButton );
+
+				webShareButton.addEventListener( 'click', function ( event ) {
+					event.preventDefault();
+					event.stopPropagation();
+
+					navigator.share( getWebShareData( group ) );
+				} );
+
+				if ( showTextInButton ) {
+					var webShareButtonText = document.createElement( 'span' );
+					webShareButtonText.innerText =
+						group.getAttribute( 'data-sharing-web-share-text' ) || 'Share';
+					webShareButton.appendChild( webShareButtonText );
+				}
+
+				group.insertBefore( webShareListItem, group.firstChild );
+			}
 
 			var printUrl = function ( uniqueId, urlToPrint ) {
 				var iframe = document.createElement( 'iframe' );
