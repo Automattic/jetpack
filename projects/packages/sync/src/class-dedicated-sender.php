@@ -29,14 +29,26 @@ class Dedicated_Sender {
 	 *
 	 * @access public
 	 *
-	 * @return boolean True if this is a POST request and
-	 * jetpack_dedicated_sync_request is set, false otherwise.
+	 * @return boolean True if this is a 'jetpack/v4/sync/spawn-sync', false otherwise.
 	 */
 	public static function is_dedicated_sync_request() {
-		$is_dedicated_sync_request = isset( $_SERVER['REQUEST_URI'] ) &&
-			strpos( wp_unslash( $_SERVER['REQUEST_URI'] ), 'jetpack/v4/sync/spawn-sync' ) > 0;  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+			return false;
+		}
 
-		return $is_dedicated_sync_request;
+		if ( strpos( wp_unslash( $_SERVER['REQUEST_URI'] ), 'jetpack/v4/sync/spawn-sync' ) > 0 ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
+		if ( ! isset( $_GET['rest_route'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		if ( strpos( wp_unslash( $_GET['rest_route'] ), 'jetpack/v4/sync/spawn-sync' ) >= 0 ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
