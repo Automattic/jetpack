@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use WP_Error;
 
 /**
@@ -64,8 +66,18 @@ class Module_Control {
 		if ( ! $this->plan->supports_search() ) {
 			return new WP_Error( 'not_supported', __( 'Your plan does not support Jetpack Search.', 'jetpack-search-pkg' ) );
 		}
+		if ( ( new Status() )->is_offline_mode() ) {
+			return new WP_Error( 'site_offline', __( 'Jetpack Search can not be used in offline mode.', 'jetpack-search-pkg' ) );
+		}
+		if ( ! ( new Connection_Manager( Package::SLUG ) )->is_connected() ) {
+			return new WP_Error( 'connection_required', __( 'Connect your site to use Jetpack Search.', 'jetpack-search-pkg' ) );
+		}
 
-		return ( new Modules() )->activate( self::JETPACK_SEARCH_MODULE_SLUG, false, false );
+		$success = ( new Modules() )->activate( self::JETPACK_SEARCH_MODULE_SLUG, false, false );
+		if ( false === $success ) {
+			return new WP_Error( 'not_updated', __( 'Setting not updated.', 'jetpack-search-pkg' ) );
+		}
+		return $success;
 	}
 
 	/**
