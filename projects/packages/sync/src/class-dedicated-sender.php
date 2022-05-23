@@ -25,6 +25,18 @@ class Dedicated_Sender {
 	const DEDICATED_SYNC_CHECK_TRANSIENT = 'jetpack_sync_dedicated_sync_spawn_check';
 
 	/**
+	 * Filter a URL to check if Dedicated Sync is enabled.
+	 * We need to remove slashes and then run it through `urldecode` as sometimes the
+	 * URL is in an encoded form, depending on server configuration.
+	 *
+	 * @param string $url The URL to filter.
+	 *
+	 * @return string
+	 */
+	public static function prepare_url_for_dedicated_request_check( $url ) {
+		return urldecode( $url );
+	}
+	/**
 	 * Check if this request should trigger Sync to run.
 	 *
 	 * @access public
@@ -36,15 +48,29 @@ class Dedicated_Sender {
 			return false;
 		}
 
-		if ( strpos( wp_unslash( $_SERVER['REQUEST_URI'] ), 'jetpack/v4/sync/spawn-sync' ) > 0 ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+		/**
+		 * Check $_SERVER['REQUEST_URI'] first, to see if we're in the right context.
+		 * This is done to make sure we can hook in very early in the initialization of WordPress to
+		 * be able to send sync requests to the backend as fast as possible, without needing to continue
+		 * loading things for the request.
+		 */
+		$check_url = self::prepare_url_for_dedicated_request_check( wp_unslash( $_SERVER['REQUEST_URI'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+		if ( strpos( $check_url, 'jetpack/v4/sync/spawn-sync' ) !== false ) {
 			return true;
 		}
 
+		/**
+		 * If the above check failed, we might have an issue with detecting calls to the REST endpoint early on.
+		 * Sometimes, like when permalinks are disabled, the REST path is sent via the `rest_route` GET parameter.
+		 * We want to check it too, to make sure we managed to cover more cases and be more certain we actually
+		 * catch calls to the endpoint.
+		 */
 		if ( ! isset( $_GET['rest_route'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 
-		if ( strpos( wp_unslash( $_GET['rest_route'] ), 'jetpack/v4/sync/spawn-sync' ) >= 0 ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+		$check_url = self::prepare_url_for_dedicated_request_check( wp_unslash( $_GET['rest_route'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Recommended
+		if ( strpos( $check_url, 'jetpack/v4/sync/spawn-sync' ) !== false ) {
 			return true;
 		}
 
