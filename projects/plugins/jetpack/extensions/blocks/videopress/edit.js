@@ -701,14 +701,69 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
 
+			/**
+			 * Determines if api requests should be made via the `gutenberg-video-upload` script (Jetpack only).
+			 *
+			 * @returns {boolean} if the upload script should be used or not.
+			 */
+			const shouldUseJetpackVideoFetch = () => {
+				return 'videoPressUploadPoster' in window;
+			};
+
 			if ( isResumableUploading || this.state.isEditingWhileUploading ) {
 				if ( ! this.state.isEditingWhileUploading ) {
 					this.setState( { isEditingWhileUploading: true } );
 				}
 				const filename = escapeHTML( fileForUpload ? fileForUpload.name : '' );
-				const dismissEditor = () => this.setState( { isEditingWhileUploading: false } );
+				const dismissEditor = () => {
+					this.setState( { isEditingWhileUploading: false } );
 
-				return <UploaderBlock fileForUpload={ fileForUpload } filename={ filename } uploadFinished={ uploadFinished } blockSettings={ blockSettings } onDismissEditor={ dismissEditor } isUploadComplete={ this.state.isUploadComplete } onDismissEditor={ () => this.setState( { isEditingWhileUploading: false } ) } />;
+					// send poster request
+					if ( this.state.videoPosterImageData ) {
+						if ( shouldUseJetpackVideoFetch() ) {
+							return window.videoPressUploadPoster(
+								guid,
+								this.state.videoPosterImageData.id,
+							);
+						}
+
+						apiFetch( {
+							path: `/videos/${ guid }/poster`,
+							apiNamespace: 'rest/v1.1',
+							method: 'POST',
+							global: true,
+							data: {
+								poster_attachment_id: this.state.videoPosterImageData.id,
+							},
+						} )
+							.then( result => {
+								// check for wpcom status field, if set
+								console.log(result)
+
+							} )
+							.catch( (e) => { console.log(e)} )
+							.finally( () => {
+							} );
+					}
+
+					// send title
+				};
+
+				const onSelectPoster = attachment => {
+					// store it
+					this.setState( { videoPosterImageData: attachment } );
+				}
+
+				return <UploaderBlock
+					fileForUpload={ fileForUpload }
+					filename={ filename }
+					uploadFinished={ uploadFinished }
+					blockSettings={ blockSettings }
+					onDismissEditor={ dismissEditor }
+					isUploadComplete={ this.state.isUploadComplete }
+					onSelectPoster={ onSelectPoster }
+					videoPosterImageData={this.state.videoPosterImageData}
+				/>;
 			}
 
 			/*
@@ -808,7 +863,7 @@ const UploaderBlock = props => {
 						<Icon icon={ VideoPressIcon } />
 						<div className="uploader-block__logo-text">{ __( 'VideoPress', 'jetpack' ) }</div>
 					</div>
-					<UploadingEditor filename={ props.filename } />
+					<UploadingEditor filename={ props.filename } onSelectPoster={ props.onSelectPoster } videoPosterImageData={props.videoPosterImageData} />
 					{ ! props.isUploadComplete && <ResumableUpload file={ props.fileForUpload } /> }
 					{ props.isUploadComplete && (
 						<div className="uploader-block__upload-complete">

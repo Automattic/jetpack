@@ -36,7 +36,6 @@ export const PosterSelector = props => {
 export const UploadingEditor = props => {
 	const [ videoTitle, setVideoTitle ] = useState( props.filename );
 	const [ videoDescription, setVideoDescription ] = useState( '' );
-	const [ videoPosterImageData, setVideoPosterImageData ] = useState( null );
 
 	const onChangeVideoTitle = newTitle => {
 		setVideoTitle( newTitle );
@@ -46,19 +45,11 @@ export const UploadingEditor = props => {
 		setVideoDescription( newDescription );
 	};
 
-	const onSelectPoster = posterImage => {
-		console.log( 'onSelectPoster', posterImage );
-		setVideoPosterImageData( posterImage );
-		// if ( currentUploadKey ) {
-		// 	window.localStorage[ 'poster-image-' + currentUploadKey ] = posterImage.url;
-		// }
-	};
-
 	return (
 		<>
 			<div className="resumable-upload__editor">
 				<TextControl label="Title" onChange={ onChangeVideoTitle } value={ videoTitle } />
-				<PosterSelector onSelectPoster={ onSelectPoster } videoPosterImageUrl={ videoPosterImageData ? videoPosterImageData.url : null } />
+				<PosterSelector onSelectPoster={ props.onSelectPoster } videoPosterImageUrl={ props.videoPosterImageData ? props.videoPosterImageData.url : null } />
 			</div>
 		</>
 	);
