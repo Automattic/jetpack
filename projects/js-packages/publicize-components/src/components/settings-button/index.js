@@ -8,7 +8,7 @@
  */
 import { debounce } from 'lodash';
 import PageVisibility from 'react-page-visibility';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { getSiteFragment, getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * WordPress dependencies
@@ -40,6 +40,8 @@ export default function PublicizeSettingsButton() {
 		refresh();
 	}, refreshThreshold );
 
+	const connectionsUrl =
+		getJetpackData()?.publicizeConnectionsUrl ?? 'https://wordpress.com/marketing/connections/';
 	/*
 	 * We should always have a siteFragment. If not, then something has
 	 * probably gone wrong.
@@ -48,7 +50,7 @@ export default function PublicizeSettingsButton() {
 	 * settings page.
 	 */
 	const href = siteFragment
-		? `https://jetpack.com/redirect/?source=jetpack-social-connections-admin-page&site=${ siteFragment }`
+		? `${ connectionsUrl }${ siteFragment }`
 		: 'options-general.php?page=sharing&publicize_popup=true';
 
 	return (
