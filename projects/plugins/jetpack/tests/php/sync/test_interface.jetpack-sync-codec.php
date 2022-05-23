@@ -34,7 +34,7 @@ class WP_Test_Jetpack_Sync_Codec_Interface extends TestCase {
 		$object_b->child = $object_a;
 
 		// basically this function will explode unless there's some checks on infinite recursion
-		$decoded_object = $codec->decode( $codec->encode( $object_a ) );
+		$decoded_object = $codec->decode( $codec->encode( $object_a ) ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// PHPUnit complains unless there's at least one assertion in the test.
 		$this->assertTrue( true );
@@ -70,14 +70,14 @@ class WP_Test_Jetpack_Sync_Codec_Interface extends TestCase {
 		$this->assertEquals( $copy_of_object, $decoded_object );
 	}
 
-	public function codec_provider( $name ) {
+	public function codec_provider( $name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! self::$all_codecs ) {
 			// detect classes that implement Automattic\Jetpack\Sync\Codec_Interface
 			self::$all_codecs = array();
 
-			foreach ( get_declared_classes() as $className ) {
-				if ( in_array( 'Automattic\\Jetpack\\Sync\\Codec_Interface', class_implements( $className ) ) ) {
-					self::$all_codecs[] = $className;
+			foreach ( get_declared_classes() as $class_name ) {
+				if ( in_array( 'Automattic\\Jetpack\\Sync\\Codec_Interface', class_implements( $class_name ), true ) ) {
+					self::$all_codecs[] = $class_name;
 				}
 			}
 		}
