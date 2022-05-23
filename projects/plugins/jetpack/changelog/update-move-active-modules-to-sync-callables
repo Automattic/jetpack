@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Sync callables whitelist: Remove 'active_modules' since Sync adds them anyway.
