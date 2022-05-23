@@ -334,8 +334,13 @@ class Sender {
 	 * Trigger incremental sync and early exit on Dedicated Sync request.
 	 *
 	 * @access public
+	 *
+	 * @param bool $do_real_exit If we should exit at the end of the request. We should by default.
+	 *                           In the context of running this in the REST API, we actually want to return an error.
+	 *
+	 * @return void|WP_Error
 	 */
-	public function do_dedicated_sync_and_exit() {
+	public function do_dedicated_sync_and_exit( $do_real_exit = true ) {
 		nocache_headers();
 
 		if ( ! Settings::is_dedicated_sync_enabled() ) {
@@ -365,7 +370,9 @@ class Sender {
 			Dedicated_Sender::spawn_sync( $this->sync_queue );
 		}
 
-		exit;
+		if ( $do_real_exit ) {
+			exit;
+		}
 	}
 
 	/**
