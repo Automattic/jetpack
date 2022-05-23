@@ -70,6 +70,12 @@ export default {
 				options: [ 'none', ...Object.keys( icons ) ],
 			},
 		},
+		variant: {
+			control: {
+				type: 'select',
+				options: [ 'primary', 'secondary', 'link' ],
+			},
+		},
 	},
 	parameters: {
 		backgrounds: {
@@ -92,6 +98,7 @@ _default.args = {
 	weight: 'bold',
 	children: 'Once upon a time… a button story',
 	variant: 'primary',
+	isExternalLink: false,
 	isLoading: false,
 	disabled: false,
 	isDestructive: false,
