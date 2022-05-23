@@ -163,6 +163,11 @@ async function __refreshTweets() {
  */
 export const refreshTweets = throttle( __refreshTweets, 2000, { leading: true, trailing: true } );
 
+/**
+ * Effect handler that will generate twitter cards from an array of URLs
+ *
+ * @param {object} action - Action which had initiated the effect handler, and will contain the `urls` array.
+ */
 export async function getTwitterCards( action ) {
 	if ( 0 === action.urls.length ) {
 		return dispatch( 'jetpack/publicize' ).setTwitterCards( [] );
