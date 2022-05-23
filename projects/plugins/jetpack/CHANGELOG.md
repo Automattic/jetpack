@@ -2,6 +2,44 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.0-a.9 - 2022-05-19
+### Improved compatibility
+- Stats: remove unnecessary type attribute from style element. [#24427]
+
+### Bug fixes
+- VideoPress: fix validation errors for core video block usage. [#24422]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Disable whitespace optimization as it can cause invalidation errors with Gutenberg blocks that use inline CSS. [#24069]
+- Update changelog and readme files [#24414] [#24395] [#24419] [#24399]
+
+## 11.0-a.7 - 2022-05-18
+### Enhancements
+- Email subscriptions: update the default body of the "Confirmation request" email. [#24389]
+- Payments Blocks: refactor the product memberships store to reduce complexity and improve speed. [#24333]
+- VideoPress: add support for automatic seekbar color. [#24330]
+
+### Improved compatibility
+- General: improve the connection sharing between Jetpack and standalone plugins. [#24309]
+
+### Bug fixes
+- WAF: add activation/deactivation hooks for WAF feature. [#24153]
+- Publicize: add logic to allow sharing via ajax requests. [#24387]
+- Payment Block: ensure payment block can only auto-select an existing product. [#24407]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Moved SocialServiceIcon component from Jetpack Icons.js file to js-package/components. Updated it's ref in the Jetpack plugin directory [#23795]
+- Added jetpack v4 publicize end-point. [#24293]
+- Admin Menu: Refactor upsell nudge to be async [#24304]
+- Dashboard: adapt support message wording based on the platform where it is displayed. [#24332]
+- Updated Jetpack Scan feature list. [#23863]
+- Fix new PHPCS sniffs. [#24366]
+- JSON API: update the theme endpoint with information concerning pending updates. [#24392]
+- PHPCS: cleanup VideoPress module files, fixes for infinite scroll and tiled gallery. [#24351] [#24342] [#24352]
+- Remove unused JS client components. [#24319]
+- Remove search widget CTA on uneligible themes [#24386]
+- Updated package dependencies.
+
 ## 11.0-a.5 - 2022-05-10
 ### Other changes
 - Publicize: Fix namespacing. [#24317]
@@ -78,6 +116,17 @@
 - Updating to-test.md [#24088]
 - Updated Backups box in At a Glance to use feature checks [#24121]
 - We now lock the execution of get products in a non blocking way for the execution thread. [#24140]
+
+## 10.9.1 - 2022-05-19
+### Improved compatibility
+- Contact Form: ensure the option to export forms to a CSV file works with the upcoming version of WordPress, 6.0. [#24173]
+- General: Jetpack is now fully compatible with the upcoming version of WordPress, 6.0. [#24083]
+- General: Jetpack now requires a more recent version of WordPress (5.9). [#24083]
+- General: remove backwards compatibility code now that Jetpack requires WordPress 5.9. [#24086]
+
+### Bug fixes
+- Publicize: ensure that Publicize works when publishing posts via AJAX requests, like when using the Elementor plugin. [#24387]
+- Secure Sign On: add the secure and httponly attribute to cookie used to log in. [#24418]
 
 ## [10.9] - 2022-05-03
 ### Enhancements

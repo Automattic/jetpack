@@ -2,15 +2,16 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { Button, ToggleControl } from '@wordpress/components';
 import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
-import { Button } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import React from 'react';
+import React, { useCallback } from 'react';
 
 /**
  * Internal dependencies
  */
+import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
 const ConnectionItem = props => {
@@ -64,6 +65,43 @@ const ConnectionItems = () => {
 		);
 	} );
 };
+
+const ModuleToggle = () => {
+	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
+	const { isModuleEnabled, isUpdating } = useSelect( select => {
+		const store = select( STORE_ID );
+		return {
+			isModuleEnabled: store.isModuleEnabled(),
+			isUpdating: store.isUpdatingJetpackSettings(),
+		};
+	} );
+
+	const toggleModule = useCallback( () => {
+		const newOption = {
+			publicize_active: ! isModuleEnabled,
+		};
+		updateOptions( newOption );
+	}, [ isModuleEnabled, updateOptions ] );
+
+	const label = isModuleEnabled
+		? __( 'Jetpack Social is active', 'jetpack-social' )
+		: __(
+				'Jetpack Social is inactive',
+				'jetpack-social',
+				/* dummy arg to avoid bad minification */ 0
+		  );
+
+	return (
+		<ToggleControl
+			label={ __( 'Activate Jetpack Social', 'jetpack-social' ) }
+			help={ isUpdating ? __( 'Updating…', 'jetpack-social' ) : label }
+			disabled={ isUpdating }
+			checked={ isModuleEnabled }
+			onChange={ toggleModule }
+		/>
+	);
+};
+
 const Admin = () => {
 	const connectionStatus = useSelect(
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
@@ -72,6 +110,7 @@ const Admin = () => {
 	const { jetpackSocialConnectionsAdminUrl } = window.jetpackSocialInitialState;
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
+
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Social', 'jetpack-social' ) }>
 			<AdminSectionHero>
@@ -91,6 +130,7 @@ const Admin = () => {
 									</Button>
 								</div>
 								<div className={ styles.publicizeConnectionsList }>
+									<ModuleToggle />
 									<ConnectionItems />
 								</div>
 							</div>
@@ -105,17 +145,22 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackSocialInitialState;
+	const connectProps = useSelect( select => {
+		const store = select( STORE_ID );
+		return {
+			apiRoot: store.getAPIRootUrl(),
+			apiNonce: store.getAPINonce(),
+			registrationNonce: store.getRegistrationNonce(),
+		};
+	} );
 	return (
 		<ConnectScreen
 			buttonLabel={ __( 'Connect Jetpack Social', 'jetpack-social' ) }
 			pricingTitle={ __( 'Jetpack Social', 'jetpack-social' ) }
 			title={ __( 'Social Media Automation for WordPress Sites', 'jetpack-social' ) }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
 			from="jetpack-social"
 			redirectUri="admin.php?page=jetpack-social"
+			{ ...connectProps }
 		>
 			<h3>
 				{ __(

@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Moved some of the Publicize editor plugin components to the publicize-components package

@@ -93,8 +93,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_callable_whitelist() {
-		// $this->setSyncClientDefaults();
-
 		add_filter( 'jetpack_set_available_extensions', array( $this, 'add_test_block' ) );
 		Jetpack_Gutenberg::init();
 		Blocks::jetpack_register_block( 'jetpack/test' );
@@ -609,7 +607,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function test_calling_taxonomies_do_not_modify_global() {
 		global $wp_taxonomies;
 		// adds taxonomies.
-		$test = new ABC_FOO_TEST_Taxonomy_Example();
+		$test = new ABC_FOO_TEST_Taxonomy_Example(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->setSyncClientDefaults();
 		$sync_callable_taxonomies = Functions::get_taxonomies();
 
@@ -739,7 +737,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$sanitized = Functions::sanitize_post_type( $post_type_object );
 		foreach ( $args as $arg_key => $arg_value ) {
-			if ( in_array( $arg_key, array( 'labels', 'capabilities', 'supports' ) ) ) {
+			if ( in_array( $arg_key, array( 'labels', 'capabilities', 'supports' ), true ) ) {
 				continue;
 			}
 			$this->assertEquals( $arg_value, $sanitized->{ $arg_key }, 'Value for ' . $arg_key . 'not as expected' );
@@ -1230,8 +1228,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( $functions->get_hosting_provider_by_known_class() );
 
-		$class_mock = $this->getMockBuilder( '\\WPaaS\\Plugin' )
-					->getMock(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$class_mock = $this->getMockBuilder( '\\WPaaS\\Plugin' ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+					->getMock();
 
 		$this->assertEquals( 'gd-managed-wp', $functions->get_hosting_provider_by_known_class() );
 
