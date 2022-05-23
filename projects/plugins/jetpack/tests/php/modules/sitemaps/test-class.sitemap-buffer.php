@@ -4,6 +4,8 @@
  *
  * @package automattic/jetpack
  * @since 4.7.0
+ *
+ * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
 require_jetpack_file( 'modules/sitemaps/sitemap-constants.php' );
@@ -207,7 +209,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 5.1.0
 	 */
 	public function test_news_sitemap_item_to_xml() {
-		$timestamp = date( 'r' );
+		$timestamp = gmdate( 'r' );
 		$array     = array(
 			'url' => array(
 				'loc'       => 'http://example.com/blog-url-about-stuff',
@@ -225,19 +227,19 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		);
 
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL
-			 . '<dummy>'
-			 . '<url><loc>http://example.com/blog-url-about-stuff</loc>'
-			 . "<lastmod>$timestamp</lastmod>"
-			 . '<news:news>'
-			 . '<news:publication>'
-			 . '<news:name>Blog about stuff</news:name>'
-			 . '<news:language>en</news:language>'
-			 . '</news:publication>'
-			 . '<news:title>Stuff with stuff to escape, like less than signs: &lt; and ampersands: &amp;</news:title>'
-			 . "<news:publication_date>$timestamp</news:publication_date>"
-			 . '<news:genres>Blog with some already escaped stuff: &amp;amp;&amp;#321;</news:genres>'
-			 . '</news:news>'
-			 . '</url></dummy>' . PHP_EOL;
+		. '<dummy>'
+		. '<url><loc>http://example.com/blog-url-about-stuff</loc>'
+		. "<lastmod>$timestamp</lastmod>"
+		. '<news:news>'
+		. '<news:publication>'
+		. '<news:name>Blog about stuff</news:name>'
+		. '<news:language>en</news:language>'
+		. '</news:publication>'
+		. '<news:title>Stuff with stuff to escape, like less than signs: &lt; and ampersands: &amp;</news:title>'
+		. "<news:publication_date>$timestamp</news:publication_date>"
+		. '<news:genres>Blog with some already escaped stuff: &amp;amp;&amp;#321;</news:genres>'
+		. '</news:news>'
+		. '</url></dummy>' . PHP_EOL;
 
 		foreach (
 			array(

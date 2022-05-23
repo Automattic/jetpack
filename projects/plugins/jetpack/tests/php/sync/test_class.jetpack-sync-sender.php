@@ -1,7 +1,6 @@
 <?php
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Sync\Dedicated_Sender;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules;
@@ -28,10 +27,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	public function set_up() {
 		parent::set_up();
 
-		// Setting the Dedicated Sync check transient here to avoid making a test
-		// request every time dedicated Sync setting is updated.
-		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 'OK' );
-
 		$this->dedicated_sync_request_spawned = false;
 	}
 
@@ -43,13 +38,10 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		// Restore default setting.
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
-
-		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
-
 		// Reset queue.
 		$this->sender->get_sync_queue()->reset();
 
-		$_SERVER['REQUEST_URI'] = '';
+		unset( $_SERVER['REQUEST_METHOD'] );
 	}
 
 	public function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
@@ -181,14 +173,14 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	// expand the input to 2000 random chars
 	public function expand_small_action_to_large_size() {
 		// we generate a random string so it's hard to compress (i.e. doesn't shrink when gzencoded)
-		$characters       = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		$charactersLength = strlen( $characters );
-		$randomString     = '';
+		$characters        = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$characters_length = strlen( $characters );
+		$random_string     = '';
 		for ( $i = 0; $i < 2000; $i ++ ) {
-			$randomString .= $characters[ rand( 0, $charactersLength - 1 ) ];
+			$random_string .= $characters[ rand( 0, $characters_length - 1 ) ];
 		}
 
-		return $randomString;
+		return $random_string;
 	}
 
 	public function test_rate_limit_how_often_sync_runs_with_option() {
@@ -309,7 +301,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	public function test_reset_module_also_resets_full_sync_lock() {
 		$full_sync = Modules::get_module( 'full-sync' );
 		$full_sync->start();
-		$status = $full_sync->get_status();
 		$this->assertTrue( $full_sync->is_started() );
 
 		$full_sync->reset_data();
@@ -677,7 +668,8 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 		$this->factory->post->create();
 		// Current "request" is dedicated Sync request.
-		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_dedicated_sync_and_exit();
@@ -698,7 +690,8 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->get_sync_queue()->lock( 0 );
 		$this->factory->post->create();
 		// Current "request" is dedicated Sync request.
-		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_dedicated_sync_and_exit();
@@ -722,7 +715,8 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->factory->post->create();
 		// Current "request" is dedicated Sync request.
-		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
+		$_SERVER['REQUEST_METHOD']               = 'POST';
+		$_POST['jetpack_dedicated_sync_request'] = 1;
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_dedicated_sync_and_exit();
@@ -738,7 +732,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function create_http_listener_post_and_return_processed_ids( $data ) {
-		$post_id = $this->factory->post->create( array( 'post_type' => 'http_listener' ) );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'http_listener' ) ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return array_keys( $data );
 	}
 
@@ -777,14 +771,11 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * @return array
 	 */
 	public function pre_http_sync_request_spawned( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
+		$this->dedicated_sync_request_spawned = 'POST' === $args['method'] &&
+			isset( $args['body']['jetpack_dedicated_sync_request'] );
 
 		return array(
-			'response'    => array(
-				'code' => 200,
-			),
-			'status_code' => 200,
-			'body'        => 'OK',
+			'success' => true,
 		);
 	}
 }

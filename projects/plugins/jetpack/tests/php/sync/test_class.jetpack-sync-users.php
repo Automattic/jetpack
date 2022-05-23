@@ -457,10 +457,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// TODO: ideally we would do wp_signon to trigger this event, but it tries to send headers and
 		// causes an error.
 
-		// wp_set_password( 'pw', $user_id );
-		// $result = wp_signon( array( 'user_login' => 'foobar', 'user_password' => 'pw', 'remember' => false ) );
-		// error_log(print_r($result, 1));
-
 		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_bruteprotect_api' ), 10, 3 );
 		do_action( 'wp_login', 'foobar', get_user_by( 'ID', $user_id ) );
 		remove_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_bruteprotect_api' ) );
@@ -480,11 +476,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		// TODO: ideally we would do wp_logout to trigger this event, but it tries to send headers and
 		// causes an error.
-
-		// wp_set_password( 'pw', $user_id );
-		// $user = wp_authenticate( 'foobar', 'pw' );
-		// $this->assertFalse( is_wp_error( $user ) );
-		// wp_logout();
 
 		wp_set_current_user( $user_id );
 		do_action( 'wp_logout' );
@@ -822,7 +813,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $user1_array['user_pass'] );
 		unset( $user2_array['user_pass'] );
 
-		$this->assertTrue( array_diff( $user1_array, $user2_array ) == array_diff( $user2_array, $user1_array ) );
+		$this->assertTrue( array_diff( $user1_array, $user2_array ) === array_diff( $user2_array, $user1_array ) );
 	}
 
 	private function get_invite_user_data() {
