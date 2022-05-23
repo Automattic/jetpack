@@ -133,3 +133,23 @@
 	padding: $grid-unit-15 0;
 	color: $alert-red;
 }
+
+.uploader-block__logo {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	font-size: 24px;
+	line-height: 29px;
+	margin-bottom: $grid-unit-15;
+}
+
+.uploader-block__logo-text {
+	margin-left: 10px;
+}
+
+.uploader-block__upload-complete {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	align-items: center;
+}

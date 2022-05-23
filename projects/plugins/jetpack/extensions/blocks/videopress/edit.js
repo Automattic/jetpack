@@ -23,6 +23,7 @@ import {
 import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { Component, createRef, Fragment } from '@wordpress/element';
+import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, pencil } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -35,6 +36,8 @@ import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
 import { getVideoPressUrl } from './url';
 import { getClassNames } from './utils';
+import { UploadingEditor } from './uploading-editor';
+import { VideoPressIcon } from '../../shared/icons';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -55,6 +58,8 @@ const VideoPressEdit = CoreVideoEdit =>
 				isUpdatingAllowDownload: false,
 				fileForUpload: props.fileForImmediateUpload,
 				isUpdatingIsPrivate: false,
+				isEditingWhileUploading: false,
+				isUploadComplete: false,
 			};
 			this.posterImageButton = createRef();
 			this.previewCacheReloadTimer = null;
@@ -685,7 +690,10 @@ const VideoPressEdit = CoreVideoEdit =>
 			};
 
 			const uploadFinished = ( { mediaId, guid: videoGuid, src: videoSrc } ) => {
-				this.setState( { fileForUpload: null } );
+				this.setState( {
+					fileForUpload: null,
+					isUploadComplete: true,
+				} );
 				if ( mediaId && videoGuid && videoSrc ) {
 					setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
 				}
@@ -693,15 +701,14 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
 
-			if ( isResumableUploading ) {
-				return (
-					<VideoPressBlockProvider onUploadFinished={ uploadFinished }>
-						<Fragment>
-							{ blockSettings }
-							<ResumableUpload file={ fileForUpload } { ...this.props } />
-						</Fragment>
-					</VideoPressBlockProvider>
-				);
+			if ( isResumableUploading || this.state.isEditingWhileUploading ) {
+				if ( ! this.state.isEditingWhileUploading ) {
+					this.setState( { isEditingWhileUploading: true } );
+				}
+				const filename = escapeHTML( fileForUpload ? fileForUpload.name : '' );
+				const dismissEditor = () => this.setState( { isEditingWhileUploading: false } );
+
+				return <UploaderBlock fileForUpload={ fileForUpload } filename={ filename } uploadFinished={ uploadFinished } blockSettings={ blockSettings } onDismissEditor={ dismissEditor } isUploadComplete={ this.state.isUploadComplete } onDismissEditor={ () => this.setState( { isEditingWhileUploading: false } ) } />;
 			}
 
 			/*
@@ -786,6 +793,36 @@ const VideoPressEdit = CoreVideoEdit =>
 			);
 		}
 	};
+
+const UploaderBlock = props => {
+	const blockProps = useBlockProps( {
+		className: 'resumable-upload',
+	} );
+
+	return (
+		<VideoPressBlockProvider onUploadFinished={ props.uploadFinished }>
+			<Fragment>
+				{ props.blockSettings }
+				<div { ...blockProps }>
+					<div className="uploader-block__logo">
+						<Icon icon={ VideoPressIcon } />
+						<div className="uploader-block__logo-text">{ __( 'VideoPress', 'jetpack' ) }</div>
+					</div>
+					<UploadingEditor filename={ props.filename } />
+					{ ! props.isUploadComplete && <ResumableUpload file={ props.fileForUpload } /> }
+					{ props.isUploadComplete && (
+						<div className="uploader-block__upload-complete">
+							<span>{ __( 'Upload Complete!', 'jetpack' ) } 🎉</span>
+							<Button variant="primary" onClick={ props.onDismissEditor }>
+								{ __( 'Done', 'jetpack' ) }
+							</Button>
+						</div>
+					) }
+				</div>
+			</Fragment>
+		</VideoPressBlockProvider>
+	);
+};
 
 // The actual, final rendered video player markup
 // In a separate function component so that `useBlockProps` could be called.
@@ -933,4 +970,4 @@ export default createHigherOrderComponent(
 		VideoPressEdit,
 	] ),
 	'withVideoPressEdit'
-);
+)
