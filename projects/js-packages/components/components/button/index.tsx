@@ -38,6 +38,12 @@ export const Button: React.FC< ButtonProps > = ( {
 	} );
 
 	const isExternalLinkDeprecated = variant === 'external-link';
+	if ( isExternalLinkDeprecated ) {
+		const warning =
+			'The "external-link" variant is deprecated. Please use "isExternalLink" prop instead.';
+		console.warn( warning ); // eslint-disable-line no-console
+	}
+
 	const isExternalLink = isExternalLinkProp || isExternalLinkDeprecated;
 
 	const externalIconSize = size === 'normal' ? 20 : 16;
