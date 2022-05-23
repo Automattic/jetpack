@@ -692,6 +692,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			};
 
 			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
+
 			if ( isResumableUploading ) {
 				return (
 					<VideoPressBlockProvider onUploadFinished={ uploadFinished }>

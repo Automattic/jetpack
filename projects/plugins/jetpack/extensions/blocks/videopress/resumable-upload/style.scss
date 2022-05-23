@@ -14,6 +14,39 @@
 	font-size: $default-font-size;
 }
 
+.resumable-upload__editor {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.resumable-upload__editor-col {
+	width: 100%;
+	padding-left: 10px;
+}
+.resumable-upload__editor-col:first-child {
+	padding-left: 0;
+}
+
+.resumable-upload__editor-thumb-placeholder {
+	display: flex;
+	flex-direction: column;
+	align-content: center;
+	justify-content: center;
+	text-align: center;
+	width: 100%;
+	height: 147px;
+	background-color: black;
+	color: white;
+	margin-bottom: 10px;
+
+	img {
+		max-height: 100%;
+		object-fit: contain;
+	}
+}
+
 .resumable-upload__logo {
 	display: flex;
 	flex-direction: row;

@@ -1,5 +1,16 @@
-import { useBlockProps } from '@wordpress/block-editor';
-import { Button, Icon, ExternalLink } from '@wordpress/components';
+/**
+ * External Dependencies
+ */
+import filesize from 'filesize';
+
+/**
+ * WordPress dependencies
+ */
+import { __, sprintf } from '@wordpress/i18n';
+import { escapeHTML } from '@wordpress/escape-html';
+import { getJWT, resumableUploader } from './use-uploader';
+import { Button, Icon, ExternalLink, TextControl, TextareaControl, BaseControl } from '@wordpress/components';
+import { MediaUpload, useBlockProps } from '@wordpress/block-editor';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -16,15 +27,40 @@ import { VideoPressBlockContext } from '../components';
 import { getJWT, resumableUploader } from './use-uploader';
 import './style.scss';
 
+const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
+
+const PosterSelector = props => {
+	const { onSelectPoster, videoPosterImageUrl } = props;
+	const posterImageButton = useRef( null );
+	return (
+		<BaseControl className="editor-video-poster-control" label={ __( 'Poster Image', 'jetpack' ) }>
+			<div className="resumable-upload__editor-thumb-placeholder">
+			{
+				videoPosterImageUrl ? <img src={ videoPosterImageUrl } alt="Poster" /> : <span>No Poster Selected</span>}
+			</div>
+			<MediaUpload
+				title={ __( 'Select Poster Image', 'jetpack' ) }
+				onSelect={ onSelectPoster }
+				allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
+				render={ ( { open } ) => (
+					<Button variant="secondary" onClick={ open } ref={ posterImageButton }>
+						{ __( 'Select Poster Image', 'jetpack' ) }
+					</Button>
+				) }
+			/>
+		</BaseControl>
+	);
+};
+
 export default function ResumableUpload( { file } ) {
 	const [ progress, setProgress ] = useState( 0 );
 	const [ hasPaused, setHasPaused ] = useState( false );
 	const [ tusUploader, setTusUploader ] = useState( null );
 	const [ error, setError ] = useState( null );
-
+	const [ currentUploadKey, setCurrentUploadKey ] = useState( null );
 	const { onUploadFinished } = useContext( VideoPressBlockContext );
-
 	const tusUploaderRef = useRef( null );
+
 	tusUploaderRef.current = tusUploader;
 
 	const blockProps = useBlockProps( {
@@ -45,10 +81,17 @@ export default function ResumableUpload( { file } ) {
 			onUploadFinished( args );
 		};
 
+		const onUploadUuidRetrieved = key => {
+			if ( null === currentUploadKey ) {
+				setCurrentUploadKey( key );
+			}
+		};
+
 		const uploader = resumableUploader( {
 			onError,
 			onProgress,
 			onSuccess,
+			onUploadUuidRetrieved,
 		} );
 
 		getJWT()
@@ -59,7 +102,7 @@ export default function ResumableUpload( { file } ) {
 			.catch( jwtError => {
 				setError( jwtError );
 			} );
-	}, [ file, onUploadFinished ] );
+	}, [ file, onUploadFinished, currentUploadKey ] );
 
 	useEffect( () => {
 		// Kicks things off.
@@ -139,6 +182,26 @@ export default function ResumableUpload( { file } ) {
 		return errorMessage;
 	};
 
+	const [ videoTitle, setVideoTitle ] = useState( escapedFileName );
+	const [ videoDescription, setVideoDescription ] = useState( '' );
+	const [ videoPosterImageUrl, setVideoPosterImageUrl ] = useState( '' );
+
+	const onChangeVideoTitle = newTitle => {
+		setVideoTitle( newTitle );
+	};
+
+	const onChangeVideoDescription = newDescription => {
+		setVideoDescription( newDescription );
+	};
+
+	const onSelectPoster = posterImage => {
+		// console.log( 'onSelectPoster', posterImage );
+		setVideoPosterImageUrl( posterImage.url );
+		// if ( currentUploadKey ) {
+		// 	window.localStorage[ 'poster-image-' + currentUploadKey ] = posterImage.url;
+		// }
+	};
+
 	return (
 		<div { ...blockProps }>
 			<div className="resumable-upload__logo">
@@ -160,22 +223,37 @@ export default function ResumableUpload( { file } ) {
 					</Button>
 				</div>
 			) : (
-				<div className="resumable-upload__status">
-					<div className="resumable-upload__file-info">
-						<div className="resumable-upload__file-name">{ fileNameLabel }</div>
-						&nbsp;&#8212;&nbsp;
-						<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
+				<>
+					<div className="resumable-upload__editor">
+						<div className="resumable-upload__editor-col">
+							<TextControl label="Title" onChange={ onChangeVideoTitle } value={ videoTitle } />
+							<TextareaControl
+								label="Description"
+								onChange={ onChangeVideoDescription }
+								value={ videoDescription }
+							/>
+						</div>
+						<div className="resumable-upload__editor-col">
+							<PosterSelector onSelectPoster={ onSelectPoster } videoPosterImageUrl={ videoPosterImageUrl } />
+						</div>
 					</div>
-					<div className="resumable-upload__progress">
-						<div className="resumable-upload__progress-loaded" style={ cssWidth } />
+					<div className="resumable-upload__status">
+						<div className="resumable-upload__file-info">
+							<div className="resumable-upload__file-name">{ fileNameLabel }</div>
+							&nbsp;&#8212;&nbsp;
+							<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
+						</div>
+						<div className="resumable-upload__progress">
+							<div className="resumable-upload__progress-loaded" style={ cssWidth } />
+						</div>
+						<div className="resumable-upload__actions">
+							<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
+							<Button variant="link" onClick={ () => pauseOrResumeUpload() }>
+								{ hasPaused ? 'Resume' : 'Pause' }
+							</Button>
+						</div>
 					</div>
-					<div className="resumable-upload__actions">
-						<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
-						<Button variant="link" onClick={ () => pauseOrResumeUpload() }>
-							{ hasPaused ? 'Resume' : 'Pause' }
-						</Button>
-					</div>
-				</div>
+				</>
 			) }
 		</div>
 	);
