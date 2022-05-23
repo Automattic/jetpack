@@ -32,6 +32,7 @@
 		"@wordpress/date": "4.8.0",
 		"@wordpress/element": "4.6.0",
 		"@wordpress/i18n": "4.8.0",
+		"@wordpress/icons": "8.4.0",
 		"classnames": "2.3.1",
 		"react": "17.0.2",
 		"react-dom": "17.0.2"

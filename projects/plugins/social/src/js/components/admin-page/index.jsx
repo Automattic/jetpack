@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
 import {
 	AdminPage,
 	AdminSection,
@@ -29,7 +28,6 @@ const Admin = () => {
 		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
 		[]
 	);
-	const { jetpackSocialConnectionsAdminUrl } = window.jetpackSocialInitialState;
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
@@ -52,11 +50,6 @@ const Admin = () => {
 						<ToggleSection />
 					</AdminSection>
 					<div>
-						<div className={ styles.manageConnectionsHeader }>
-							<Button href={ jetpackSocialConnectionsAdminUrl } variant="primary" target="_blank">
-								Manage your connections
-							</Button>
-						</div>
 						<div className={ styles.publicizeConnectionsList }>
 							<ModuleToggle />
 							<Connections />

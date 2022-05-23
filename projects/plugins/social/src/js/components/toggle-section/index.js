@@ -2,16 +2,26 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Container, Text } from '@automattic/jetpack-components';
+import { useSelect } from '@wordpress/data';
+import { Button, Container, Text } from '@automattic/jetpack-components';
+import { Icon, external } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
+import { STORE_ID } from '../../store';
 import ModuleToggle from './../module-toggle';
 import styles from './styles.module.scss';
 
-const ToggleSection = () => (
-	<>
+const ToggleSection = () => {
+	const { connectionsAdminUrl } = useSelect( select => {
+		const store = select( STORE_ID );
+		return {
+			connectionsAdminUrl: store.getConnectionsAdminUrl(),
+		};
+	} );
+
+	return (
 		<Container horizontalSpacing={ 7 } horizontalGap={ 3 }>
 			<div className={ styles.column }>
 				<ModuleToggle className={ styles.toggle } />
@@ -24,9 +34,15 @@ const ToggleSection = () => (
 						'jetpack-social'
 					) }
 				</Text>
+				{ connectionsAdminUrl && (
+					<Button className={ styles.button } variant="primary" href={ connectionsAdminUrl }>
+						{ __( 'Manage your connections', 'jetpack-social' ) }
+						<Icon size={ 24 } icon={ external } className={ styles[ 'external-icon' ] } />
+					</Button>
+				) }
 			</div>
 		</Container>
-	</>
-);
+	);
+};
 
 export default ToggleSection;
