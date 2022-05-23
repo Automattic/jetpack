@@ -165,13 +165,13 @@ abstract class Sharing_Source {
 	/**
 	 * Get the HTML markup to display a sharing link.
 	 *
-	 * @param string   $url             Post URL to share.
-	 * @param string   $text            Sharing display text.
-	 * @param string   $title           The title for the link.
-	 * @param string   $query           Additional query arguments to add to the link. They should be in 'foo=bar&baz=1' format.
-	 * @param bool|int $id              Sharing ID to include in the data-shared attribute.
-	 * @param array    $data_attributes The keys are used as additional attribute names with 'data-' prefix.
-	 *                                  The values are used as the attribute values.
+	 * @param string      $url             Post URL to share.
+	 * @param string      $text            Sharing display text.
+	 * @param string      $title           The title for the link.
+	 * @param string      $query           Additional query arguments to add to the link. They should be in 'foo=bar&baz=1' format.
+	 * @param bool|string $id              Sharing ID to include in the data-shared attribute.
+	 * @param array       $data_attributes The keys are used as additional attribute names with 'data-' prefix.
+	 *                                     The values are used as the attribute values.
 	 *
 	 * @return string The HTML for the link.
 	 */
@@ -301,7 +301,7 @@ abstract class Sharing_Source {
 		 *
 		 * @module sharedaddy
 		 *
-		 * @since 10.10.0
+		 * @since $$next-version$$
 		 *
 		 * @param array $data_attributes Attributes supplied from the sharing source.
 		 *                               Note that 'data-' will be prepended to all keys.
@@ -309,7 +309,7 @@ abstract class Sharing_Source {
 		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
-		$data_attributes = apply_filters( 'jetpack_sharing_data_attributes', $data_attributes, $this, $id, $args );
+		$data_attributes = apply_filters( 'jetpack_sharing_data_attributes', (array) $data_attributes, $this, $id, $args );
 
 		$encoded_data_attributes = '';
 		if ( ! empty( $data_attributes ) ) {
@@ -319,7 +319,7 @@ abstract class Sharing_Source {
 					function ( $data_key, $data_value ) {
 						return sprintf(
 							'data-%s="%s"',
-							esc_html( str_replace( array( ' ', '"' ), '', $data_key ) ),
+							esc_attr( str_replace( array( ' ', '"' ), '', $data_key ) ),
 							esc_attr( $data_value )
 						);
 					},
@@ -852,9 +852,6 @@ abstract class Sharing_Advanced_Source extends Sharing_Source {
  * Handle the display of the email sharing button.
  */
 class Share_Email extends Sharing_Source {
-	const SHARE_MODE_FORM_SUBMIT = 'form-submit';
-	const SHARE_MODE_MAILTO      = 'mailto';
-
 	/**
 	 * Service short name.
 	 *
