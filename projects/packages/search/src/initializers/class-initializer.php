@@ -26,9 +26,6 @@ class Initializer {
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package::send_version_to_tracker' );
 
-		// Add search to available modules.
-		add_filter( 'jetpack_get_available_standalone_modules', array( Module_Control::class, 'search_filter_available_modules' ), 10, 1 );
-
 		/**
 		 * The filter allows abortion of the Jetpack Search package initialization.
 		 *

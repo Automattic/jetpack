@@ -35,6 +35,14 @@ class Module_Control {
 	 */
 	public function __construct( $plan = null ) {
 		$this->plan = $plan === null ? new Plan() : $plan;
+		if ( ! did_action( 'jetpack_search_module_control_initialized' ) ) {
+			add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'search_filter_available_modules' ), 10, 1 );
+
+			/**
+			 * Fires when the Automattic\Jetpack\Search\Module_Control is initialized for the first time.
+			 */
+			do_action( 'jetpack_search_module_control_initialized' );
+		}
 	}
 
 	/**
@@ -137,7 +145,7 @@ class Module_Control {
 	 * @param array $modules The available modules.
 	 * @return array
 	 */
-	public static function search_filter_available_modules( $modules ) {
+	public function search_filter_available_modules( $modules ) {
 		return array_merge( array( self::JETPACK_SEARCH_MODULE_SLUG ), $modules );
 	}
 }
