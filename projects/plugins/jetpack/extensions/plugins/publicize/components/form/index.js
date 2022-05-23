@@ -11,11 +11,11 @@
  */
 import { PanelRow, Disabled } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize';
 
 /**
  * Internal dependencies
  */
-import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
 import MessageBoxControl from '../message-box-control';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';

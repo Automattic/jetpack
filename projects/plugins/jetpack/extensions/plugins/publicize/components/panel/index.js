@@ -9,6 +9,7 @@
 /**
  * WordPress dependencies
  */
+import { TwitterOptions as PublicizeTwitterOptions } from '@automattic/jetpack-publicize';
 import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
 import { store as editorStore } from '@wordpress/editor';
@@ -20,7 +21,6 @@ import { Fragment } from '@wordpress/element';
  */
 import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
-import PublicizeTwitterOptions from '../twitter/options';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import usePublicizeConfig from '../../hooks/use-publicize-config';

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Moved the Publicize connection and twitter components, along with the store, to the composer package
