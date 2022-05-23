@@ -45,7 +45,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 				tierMaximumRecords
 			),
 			link: {
-				text: __( 'learn more', 'jetpack-search-pkg' ),
+				text: __( 'Learn more.', 'jetpack-search-pkg' ),
 				url: 'https://jetpack.com/support/search/product-pricing/',
 			},
 		},
