@@ -405,7 +405,7 @@ importers:
   projects/js-packages/publicize-components:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.13
+      '@automattic/jetpack-components': workspace:* || ^0.14
       '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.4
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.17.10
