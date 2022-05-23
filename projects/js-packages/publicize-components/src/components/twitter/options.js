@@ -7,6 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { NoticeList, RadioControl, PanelRow } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 
@@ -26,19 +27,22 @@ export const PublicizeTwitterOptions = ( {
 	setTweetstorm,
 	prePublish,
 } ) => {
+	const tweetTypeChange = useCallback(
+		value => {
+			if ( 'tweetstorm' === value ) {
+				setTweetstorm( true );
+			} else {
+				setTweetstorm( false );
+			}
+		},
+		[ setTweetstorm ]
+	);
+
 	if (
 		! connections?.some( connection => 'twitter' === connection.service_name && connection.enabled )
 	) {
 		return null;
 	}
-
-	const tweetTypeChange = value => {
-		if ( 'tweetstorm' === value ) {
-			setTweetstorm( true );
-		} else {
-			setTweetstorm( false );
-		}
-	};
 
 	const generateLabel = ( label, help ) => {
 		return (
