@@ -1,4 +1,11 @@
 <?php
+/**
+ * Tests for the main Jetpack class.
+ *
+ * @package automattic/jetpack
+ *
+ * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+ */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
@@ -35,14 +42,14 @@ class MockJetpack extends Jetpack {
 }
 
 class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
-	private $mockLoginUser = false;
+	private $mockLoginUser = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
 	public function __construct( $user ) {
-		$this->mockLoginUser = $user;
+		$this->mockLoginUser = $user; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 	public function login() {
-		return $this->mockLoginUser;
+		return $this->mockLoginUser; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 }
 
@@ -209,7 +216,7 @@ EXPECTED;
 
 		// Enqueue some script on the $to_dequeue list
 		$style_handle = 'jetpack-carousel';
-		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 
 		Jetpack::init()->implode_frontend_css( true );
 
@@ -237,8 +244,7 @@ EXPECTED;
 		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 
 		// Enqueue some script on the $to_dequeue list
-		$style_handle = 'jetpack-carousel';
-		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 
 		Jetpack::init()->implode_frontend_css();
 
@@ -337,12 +343,12 @@ EXPECTED;
 		$this->assertEquals( $active_modules, array( 'monitor', 'stats' ) );
 	}
 
-	 // This filter overrides the 'monitor' module.
+	// This filter overrides the 'monitor' module.
 	public static function e2e_test_filter( $modules ) {
 		$disabled_modules = array( 'monitor' );
 
 		foreach ( $disabled_modules as $module_slug ) {
-			$found = array_search( $module_slug, $modules );
+			$found = array_search( $module_slug, $modules, true );
 			if ( false !== $found ) {
 				unset( $modules[ $found ] );
 			}

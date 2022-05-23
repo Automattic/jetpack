@@ -3,11 +3,15 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-
+import { createReduxStore, register } from '@wordpress/data';
 /**
  * Internal dependencies
  */
 import AdminPage from './components/admin-page';
+import { STORE_ID, storeConfig } from './store';
+
+const store = createReduxStore( STORE_ID, storeConfig );
+register( store );
 
 /**
  * Initial render function.
