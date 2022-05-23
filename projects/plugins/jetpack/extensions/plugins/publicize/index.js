@@ -11,6 +11,7 @@
 /**
  * External dependencies
  */
+import { TwitterThreadListener } from '@automattic/jetpack-publicize-components';
 import { __ } from '@wordpress/i18n';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
@@ -19,8 +20,6 @@ import { PostTypeSupportCheck } from '@wordpress/editor';
  * Internal dependencies
  */
 import './editor.scss';
-import './store';
-import TwitterThreadListener from './components/twitter';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import PublicizePanel from './components/panel';
 

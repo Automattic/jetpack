@@ -174,7 +174,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 */
 	private function set_token_cookie( $token ) {
 		if ( ! empty( $token ) ) {
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/' );
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
 		}
 	}
 
