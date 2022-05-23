@@ -1,48 +1,19 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
- * Handle Publicize connection information for each post.
+ * Registers the API field for Publicize connections.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
-/**
- * Add per-post Publicize Connection data.
- *
- * { # Post Object
- *   ...
- *   jetpack_publicize_connections: { # Defined below in this file. See schema for more detail.
- *     id:              (string)  Connection unique_id
- *     service_name:    (string)  Service slug
- *     display_name:    (string)  User name/display name of user/connection on Service
- *     profile_picture: (string)  Profile picture of user/connection on Service
- *     enabled:         (boolean) Is this connection slated to be shared to? context=edit only
- *     done:            (boolean) Is this post (or connection) done sharing? context=edit only
- *     toggleable:      (boolean) Can the current user change the `enabled` setting for this Connection+Post? context=edit only
- *   }
- *   ...
- *   meta: { # Not defined in this file. Handled in modules/publicize/publicize.php via `register_meta()`
- *     jetpack_publicize_feature_enabled: (boolean) Is this publicize feature enabled?
- *     jetpack_publicize_message: (string) The message to use instead of the post's title when sharing.
- *   }
- *   ...
- * }
- *
- * @since 6.8.0
- */
-class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_V2_Field_Controller {
-	/**
-	 * Array of post types that can handle Publicize.
-	 *
-	 * @var array
-	 */
-	protected $object_type = array( 'post' );
+namespace Automattic\Jetpack\Publicize;
 
-	/**
-	 * Field name
-	 *
-	 * @var string
-	 */
-	protected $field_name = 'jetpack_publicize_connections';
+/**
+ * The class to register the field and augment requests
+ * to Publicize supported post types.
+ */
+class Connections_Post_Field {
+
+	const FIELD_NAME = 'jetpack_publicize_connections';
 
 	/**
 	 * Array of post IDs that have been updated.
@@ -63,22 +34,28 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 * automatically on `rest_api_init()`.
 	 */
 	public function register_fields() {
-		$this->object_type = get_post_types_by_support( 'publicize' );
-		foreach ( $this->object_type as $post_type ) {
-			if ( $this->is_registered( $post_type ) ) {
-				continue;
-			}
+		$post_types = get_post_types_by_support( 'publicize' );
+		foreach ( $post_types as $post_type ) {
 			// Adds meta support for those post types that don't already have it.
 			// Only runs during REST API requests, so it doesn't impact UI.
 			if ( ! post_type_supports( $post_type, 'custom-fields' ) ) {
 				add_post_type_support( $post_type, 'custom-fields' );
 			}
 
+			// We use these hooks and not the update_callback because we must updateth meta
+			// before we set the post as published, otherwise the wrong connections could be used.
 			add_filter( 'rest_pre_insert_' . $post_type, array( $this, 'rest_pre_insert' ), 10, 2 );
 			add_action( 'rest_insert_' . $post_type, array( $this, 'rest_insert' ), 10, 3 );
-		}
 
-		parent::register_fields();
+			register_rest_field(
+				$post_type,
+				self::FIELD_NAME,
+				array(
+					'get_callback' => array( $this, 'get' ),
+					'schema'       => $this->get_schema(),
+				)
+			);
+		}
 	}
 
 	/**
@@ -105,42 +82,42 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			'type'       => 'object',
 			'properties' => array(
 				'id'              => array(
-					'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack' ),
+					'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'service_name'    => array(
-					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
+					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'display_name'    => array(
-					'description' => __( 'Username of the connected account', 'jetpack' ),
+					'description' => __( 'Username of the connected account', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'profile_picture' => array(
-					'description' => __( 'Profile picture of the connected account', 'jetpack' ),
+					'description' => __( 'Profile picture of the connected account', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
+					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'enabled'         => array(
-					'description' => __( 'Whether to share to this connection', 'jetpack' ),
+					'description' => __( 'Whether to share to this connection', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 				),
 				'done'            => array(
-					'description' => __( 'Whether Publicize has already finished sharing for this post', 'jetpack' ),
+					'description' => __( 'Whether Publicize has already finished sharing for this post', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'toggleable'      => array(
-					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack' ),
+					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
@@ -160,9 +137,9 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		global $publicize;
 
 		if ( ! $publicize ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'publicize_not_available',
-				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack' ),
+				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack-publicize-pkg' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -171,59 +148,36 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			return true;
 		}
 
-		return new WP_Error(
+		return new \WP_Error(
 			'invalid_user_permission_publicize',
-			__( 'Sorry, you are not allowed to access Publicize data for this post.', 'jetpack' ),
+			__( 'Sorry, you are not allowed to access Publicize data for this post.', 'jetpack-publicize-pkg' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}
 
 	/**
-	 * Getter permission check
+	 * The field's wrapped getter. Does permission checks and output preparation.
 	 *
-	 * @param mixed           $post_array Response from the post endpoint.
-	 * @param WP_REST_Request $request    API request.
+	 * This cannot be extended: implement `->get()` instead.
 	 *
-	 * @return true|WP_Error
+	 * @param mixed           $post_array Probably an array. Whatever the endpoint returns.
+	 * @param string          $field_name  Should always match `->field_name`.
+	 * @param WP_REST_Request $request     WP API request.
+	 * @param string          $object_type Should always match `->object_type`.
+	 *
+	 * @return mixed
 	 */
-	public function get_permission_check( $post_array, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return $this->permission_check( isset( $post_array['id'] ) ? $post_array['id'] : 0 );
-
-	}
-
-	/**
-	 * Setter permission check.
-	 *
-	 * @param mixed           $value   The new value for the field.
-	 * @param WP_Post         $post    The post object.
-	 * @param WP_REST_Request $request API request.
-	 *
-	 * @return true|WP_Error
-	 */
-	public function update_permission_check( $value, $post, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return $this->permission_check( isset( $post->ID ) ? $post->ID : 0 );
-	}
-
-	/**
-	 * Getter: Retrieve current list of connected social accounts for a given post.
-	 *
-	 * @see Publicize::get_filtered_connection_data()
-	 *
-	 * @param array           $post_array Response from Post Endpoint.
-	 * @param WP_REST_Request $request    API request.
-	 *
-	 * @return array List of connections
-	 */
-	public function get( $post_array, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get( $post_array, $field_name, $request, $object_type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $publicize;
 
-		if ( ! $publicize ) {
-			return array();
+		$full_schema      = $this->get_schema();
+		$permission_check = $this->permission_check( empty( $post_array['id'] ) ? 0 : $post_array['id'] );
+		if ( is_wp_error( $permission_check ) ) {
+			return $full_schema['default'];
 		}
 
-		$schema     = $this->post_connection_schema();
-		$properties = array_keys( $schema['properties'] );
-
+		$schema      = $full_schema['items'];
+		$properties  = array_keys( $schema['properties'] );
 		$connections = $publicize->get_filtered_connection_data( $post_array['id'] );
 
 		$output_connections = array();
@@ -240,7 +194,14 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			$output_connections[] = $output_connection;
 		}
 
-		return $output_connections;
+		// TODO: Work out if this is necessary. We shouldn't be creating an invalid value here.
+		$is_valid = rest_validate_value_from_schema( $output_connections, $full_schema, self::FIELD_NAME );
+		if ( is_wp_error( $is_valid ) ) {
+			return $is_valid;
+		}
+
+		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
+		return $this->filter_response_by_context( $output_connections, $full_schema, $context );
 	}
 
 	/**
@@ -257,7 +218,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			return $post;
 		}
 
-		$permission_check = $this->update_permission_check( $request['jetpack_publicize_connections'], $post, $request );
+		$permission_check = $this->permission_check( empty( $post->ID ) ? 0 : $post->ID );
 		if ( is_wp_error( $permission_check ) ) {
 			return $permission_check;
 		}
@@ -267,7 +228,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		if ( isset( $post->ID ) ) {
 			// Set the meta before we mark the post as published so that publicize works as expected.
 			// If this is not the case post end up on social media when they are marked as skipped.
-			$this->update( $request['jetpack_publicize_connections'], $post, $request );
+			$this->update( $request['jetpack_publicize_connections'], $post );
 		}
 
 		return $post;
@@ -304,7 +265,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	/**
 	 * Get list of meta data to update per post ID.
 	 *
-	 * @param array $requested_connections Publicize conenctions to update.
+	 * @param array $requested_connections Publicize connections to update.
 	 *              Items are either `{ id: (string) }` or `{ service_name: (string) }`.
 	 * @param int   $post_id    Post ID.
 	 */
@@ -394,12 +355,11 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	/**
 	 * Update the connections slated to be shared to.
 	 *
-	 * @param array           $requested_connections Publicize conenctions to update.
+	 * @param array   $requested_connections Publicize connections to update.
 	 *              Items are either `{ id: (string) }` or `{ service_name: (string) }`.
-	 * @param WP_Post         $post    Post data.
-	 * @param WP_REST_Request $request API request.
+	 * @param WP_Post $post    Post data.
 	 */
-	public function update( $requested_connections, $post, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function update( $requested_connections, $post ) {
 		if ( isset( $this->meta_saved[ $post->ID ] ) ) { // Make sure we only save it once - per request.
 			return;
 		}
@@ -412,8 +372,93 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		}
 		$this->meta_saved[ $post->ID ] = true;
 	}
-}
 
-if ( Jetpack::is_module_active( 'publicize' ) ) {
-	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Post_Publicize_Connections_Field' );
+	/**
+	 * Removes properties that should not appear in the current
+	 * request's context
+	 *
+	 * $context is a Core REST API Framework request attribute that is
+	 * always one of:
+	 * * view (what you see on the blog)
+	 * * edit (what you see in an editor)
+	 * * embed (what you see in, e.g., an oembed)
+	 *
+	 * Fields (and sub-fields, and sub-sub-...) can be flagged for a
+	 * set of specific contexts via the field's schema.
+	 *
+	 * The Core API will filter out top-level fields with the wrong
+	 * context, but will not recurse deeply enough into arrays/objects
+	 * to remove all levels of sub-fields with the wrong context.
+	 *
+	 * This function handles that recursion.
+	 *
+	 * @param mixed  $value   Value passed to API request.
+	 * @param array  $schema  Schema to validate against.
+	 * @param string $context REST API Request context.
+	 *
+	 * @return mixed Filtered $value
+	 */
+	public function filter_response_by_context( $value, $schema, $context ) {
+		if ( ! $this->is_valid_for_context( $schema, $context ) ) {
+			// We use this intentionally odd looking WP_Error object
+			// internally only in this recursive function (see below
+			// in the `object` case). It will never be output by the REST API.
+			// If we return this for the top level object, Core
+			// correctly remove the top level object from the response
+			// for us.
+			return new \WP_Error( '__wrong-context__' );
+		}
+
+		switch ( $schema['type'] ) {
+			case 'array':
+				if ( ! isset( $schema['items'] ) ) {
+					return $value;
+				}
+
+				// Shortcircuit if we know none of the items are valid for this context.
+				// This would only happen in a strangely written schema.
+				if ( ! $this->is_valid_for_context( $schema['items'], $context ) ) {
+					return array();
+				}
+
+				// Recurse to prune sub-properties of each item.
+				foreach ( $value as $key => $item ) {
+					$value[ $key ] = $this->filter_response_by_context( $item, $schema['items'], $context );
+				}
+
+				return $value;
+			case 'object':
+				if ( ! isset( $schema['properties'] ) ) {
+					return $value;
+				}
+
+				foreach ( $value as $field_name => $field_value ) {
+					if ( isset( $schema['properties'][ $field_name ] ) ) {
+						$field_value = $this->filter_response_by_context( $field_value, $schema['properties'][ $field_name ], $context );
+						if ( is_wp_error( $field_value ) && '__wrong-context__' === $field_value->get_error_code() ) {
+							unset( $value[ $field_name ] );
+						} else {
+							// Respect recursion that pruned sub-properties of each property.
+							$value[ $field_name ] = $field_value;
+						}
+					}
+				}
+
+				return (object) $value;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Ensure that our request matches its expected context.
+	 *
+	 * @param array  $schema  Schema to validate against.
+	 * @param string $context REST API Request context.
+	 * @return bool
+	 */
+	private function is_valid_for_context( $schema, $context ) {
+		return empty( $schema['context'] ) || in_array( $context, $schema['context'], true );
+	}
+
 }
