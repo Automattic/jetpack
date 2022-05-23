@@ -404,6 +404,7 @@ importers:
 
   projects/js-packages/publicize-components:
     specifiers:
+      '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.14
       '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.4
@@ -434,10 +435,10 @@ importers:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
+      react-page-visibility: 6.4.0
       refx: 3.1.1
       rememo: 3.0.0
     dependencies:
-      '@automattic/jetpack-base-styles': link:../base-styles
       '@automattic/jetpack-components': link:../components
       '@automattic/jetpack-shared-extension-utils': link:../shared-extension-utils
       '@wordpress/annotations': 2.8.0_react@17.0.2
@@ -451,9 +452,12 @@ importers:
       classnames: 2.3.1
       lodash: 4.17.21
       prop-types: 15.8.1
+      react-page-visibility: 6.4.0_react@17.0.2
       refx: 3.1.1
       rememo: 3.0.0
     devDependencies:
+      '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-base-styles': link:../base-styles
       '@automattic/jetpack-webpack-config': link:../webpack-config
       '@babel/core': 7.17.10
       '@babel/plugin-transform-react-jsx': 7.17.3_@babel+core@7.17.10
