@@ -3,7 +3,13 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
-import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	AdminSection,
+	AdminSectionHero,
+	Container,
+	Col,
+} from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import React from 'react';
@@ -16,6 +22,7 @@ import ConnectionScreen from './../connection-screen';
 import ModuleToggle from './../module-toggle';
 import Connections from './../connections';
 import Header from './../header';
+import ToggleSection from './../toggle-section';
 
 const Admin = () => {
 	const connectionStatus = useSelect(
@@ -40,17 +47,22 @@ const Admin = () => {
 				) }
 			</AdminSectionHero>
 			{ ! showConnectionCard && (
-				<div>
-					<div className={ styles.manageConnectionsHeader }>
-						<Button href={ jetpackSocialConnectionsAdminUrl } variant="primary" target="_blank">
-							Manage your connections
-						</Button>
+				<>
+					<AdminSection>
+						<ToggleSection />
+					</AdminSection>
+					<div>
+						<div className={ styles.manageConnectionsHeader }>
+							<Button href={ jetpackSocialConnectionsAdminUrl } variant="primary" target="_blank">
+								Manage your connections
+							</Button>
+						</div>
+						<div className={ styles.publicizeConnectionsList }>
+							<ModuleToggle />
+							<Connections />
+						</div>
 					</div>
-					<div className={ styles.publicizeConnectionsList }>
-						<ModuleToggle />
-						<Connections />
-					</div>
-				</div>
+				</>
 			) }
 		</AdminPage>
 	);
