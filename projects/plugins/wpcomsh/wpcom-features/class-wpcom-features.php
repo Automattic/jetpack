@@ -968,42 +968,38 @@ class WPCOM_Features {
 	 * @return bool If the purchase is included in $products_map and meets any purchase date-range rules.
 	 */
 	public static function purchase_in_products_map( $purchase, $products_map ) {
-		// Loop through the first level of the $products_map array to identify potential date ranges.
+		// Loop through the first level of the $products_map array to identify potential legacy feature date ranges.
 		foreach ( $products_map as $product_definition ) {
 			$purchase_eligible_by_date = false;
 
-			// If 'before' and 'after', or subscribed_date are empty, there is insufficient data to limit by date.
-			if ( ( empty( $product_definition['before'] ) && empty( $product_definition['after'] ) ) || empty( $purchase->subscribed_date ) ) {
+			// If 'before' & 'after' are empty, this is not a legacy feature.
+			if ( empty( $product_definition['before'] ) && empty( $product_definition['after'] ) ) {
 				$purchase_eligible_by_date = true;
 			} else {
-				// If the date key is defined set its variable to its Unix timestamp, else set invalid or undefined dates to false.
-				$before = isset( $product_definition['before'] ) ? strtotime( $product_definition['before'] ) : false;
-				$after  = isset( $product_definition['after'] ) ? strtotime( $product_definition['after'] ) : false;
+				// If the date key is defined, set its variable to its Unix timestamp, else set invalid or undefined dates to false.
+				$before          = isset( $product_definition['before'] ) ? strtotime( $product_definition['before'] ) : false;
+				$after           = isset( $product_definition['after'] ) ? strtotime( $product_definition['after'] ) : false;
+				$subscribed_date = isset( $purchase->subscribed_date ) ? strtotime( $purchase->subscribed_date ) : false;
 
 				// Remove the date keys so $product_definition is clean for in_array_recursive search.
 				unset( $product_definition['before'], $product_definition['after'] );
 
-				$subscribed_date = strtotime( $purchase->subscribed_date );
-
-				// If 'before' & 'after', or subscribed_date are invalid, there is insufficient data to limit by date.
-				if ( ( false === $before && false === $after ) || false === $subscribed_date ) {
-					$purchase_eligible_by_date = true;
-				}
-
-				// Check if $subscribed_date meets any defined date rules.
-				if ( false !== $before && false !== $after ) {
-					if (
-						$subscribed_date >= $after &&
-						$subscribed_date <= $before ) {
-						$purchase_eligible_by_date = true;
-					}
-				} elseif ( false !== $before ) {
-					if ( $subscribed_date <= $before ) {
-						$purchase_eligible_by_date = true;
-					}
-				} elseif ( false !== $after ) {
-					if ( $subscribed_date >= $after ) {
-						$purchase_eligible_by_date = true;
+				// If 'before' or 'after', & the subscribed_date are valid, check if the legacy feature is available.
+				if ( ( false !== $before || false !== $after ) && false !== $subscribed_date ) {
+					if ( false !== $before && false !== $after ) {
+						if (
+							$subscribed_date >= $after &&
+							$subscribed_date <= $before ) {
+							$purchase_eligible_by_date = true;
+						}
+					} elseif ( false !== $before ) {
+						if ( $subscribed_date <= $before ) {
+							$purchase_eligible_by_date = true;
+						}
+					} elseif ( false !== $after ) {
+						if ( $subscribed_date >= $after ) {
+							$purchase_eligible_by_date = true;
+						}
 					}
 				}
 			}
