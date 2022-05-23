@@ -199,6 +199,15 @@ export function ScanInterstitial() {
 }
 
 /**
+ * SocialInterstitial component
+ *
+ * @returns {object} SocialInterstitial react component.
+ */
+export function SocialInterstitial() {
+	return <ProductInterstitial slug="social" installsPlugin={ true } />;
+}
+
+/**
  * SearchInterstitial component
  *
  * @returns {object} SearchInterstitial react component.
