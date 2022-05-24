@@ -89,6 +89,9 @@ class Jetpack_Social {
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
 
+		// Add meta tags.
+		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
+
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
 	}
 
@@ -138,16 +141,18 @@ class Jetpack_Social {
 		global $publicize;
 
 		return array(
-			'siteData'                         => array(
+			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			),
-			'jetpackSettings'                  => array(
+			'jetpackSettings' => array(
 				'publicize_active' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
 			),
-			'connections'                      => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
-			'jetpackSocialConnectionsAdminUrl' => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
+			'connectionData'  => array(
+				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
+				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
+			),
 		);
 	}
 
