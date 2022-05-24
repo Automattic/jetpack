@@ -58,7 +58,7 @@ add_action( 'admin_print_styles', 'grunion_admin_css' );
  */
 function grunion_admin_css() {
 	global $current_screen;
-	if ( is_null( $current_screen ) ) {
+	if ( $current_screen === null ) {
 		return;
 	}
 	if ( 'edit-feedback' !== $current_screen->id ) {
@@ -115,7 +115,7 @@ function grunion_add_bulk_edit_option() {
 
 	$screen = get_current_screen();
 
-	if ( is_null( $screen ) ) {
+	if ( $screen === null ) {
 		return;
 	}
 
@@ -141,7 +141,7 @@ function grunion_add_bulk_edit_option() {
 	?>
 		<script type="text/javascript">
 			jQuery(document).ready(function($) {
-				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:<?php echo $pseudo_selector; ?>').after('<option value="<?php echo $option_val; ?>"><?php echo esc_attr( $option_txt ); ?></option>' );
+				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:<?php echo esc_attr( $pseudo_selector ); ?>').after('<option value="<?php echo esc_attr( $option_val ); ?>"><?php echo esc_attr( $option_txt ); ?></option>' );
 			})
 		</script>
 	<?php
@@ -179,7 +179,7 @@ function grunion_handle_bulk_spam() {
 
 	foreach ( $post_ids as $post_id ) {
 		if ( ! current_user_can( 'edit_page', $post_id ) ) {
-			wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
+			wp_die( esc_html__( 'You are not allowed to manage this item.', 'jetpack' ) );
 		}
 
 		$post           = array(
@@ -214,7 +214,7 @@ function grunion_handle_bulk_spam() {
  * @return void
  */
 function grunion_message_bulk_spam() {
-	echo '<div class="updated"><p>' . __( 'Feedback(s) marked as spam', 'jetpack' ) . '</p></div>';
+	echo '<div class="updated"><p>' . esc_html__( 'Feedback(s) marked as spam', 'jetpack' ) . '</p></div>';
 }
 
 add_filter( 'bulk_actions-edit-feedback', 'grunion_admin_bulk_actions' );
@@ -366,7 +366,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 				echo esc_attr( __( 'Delete this item permanently', 'jetpack' ) );
 				echo "' href='" . get_delete_post_link( $post->ID, '', true );
 				echo "'>" . __( 'Delete Permanently', 'jetpack' ) . '</a></span>';
-?>
+				?>
 
 <script>
 jQuery(document).ready(function($) {
@@ -392,7 +392,7 @@ $('#feedback-restore-<?php echo $post_id; ?>').click(function(e) {
 });
 </script>
 
-<?php
+				<?php
 			} elseif ( $post->post_status === 'publish' ) {
 				echo '<span class="spam" id="feedback-spam-' . $post_id;
 				echo '"><a title="';
@@ -407,7 +407,7 @@ $('#feedback-restore-<?php echo $post_id; ?>').click(function(e) {
 				echo '" href="' . get_delete_post_link( $post_id );
 				echo '">' . __( 'Trash', 'jetpack' ) . '</a></span>';
 
-?>
+				?>
 
 <script>
 jQuery(document).ready( function($) {
@@ -452,7 +452,7 @@ jQuery(document).ready( function($) {
 });
 </script>
 
-<?php
+				<?php
 			} elseif ( $post->post_status === 'spam' ) {
 				echo '<span class="unspam unapprove" id="feedback-ham-' . $post_id;
 				echo '"><a title="';
@@ -465,7 +465,7 @@ jQuery(document).ready( function($) {
 				echo esc_attr( __( 'Delete this item permanently', 'jetpack' ) );
 				echo "' href='" . get_delete_post_link( $post->ID, '', true );
 				echo "'>" . __( 'Delete Permanently', 'jetpack' ) . '</a></span>';
-?>
+				?>
 
 <script>
 jQuery(document).ready( function($) {
@@ -490,7 +490,7 @@ jQuery(document).ready( function($) {
 });
 </script>
 
-<?php
+				<?php
 			}
 			break;
 
@@ -618,10 +618,8 @@ function grunion_ajax_shortcode_to_json() {
 	die( json_encode( $out ) );
 }
 
-
 add_action( 'wp_ajax_grunion_shortcode', 'grunion_ajax_shortcode' );
 add_action( 'wp_ajax_grunion_shortcode_to_json', 'grunion_ajax_shortcode_to_json' );
-
 
 // process row-action spam/not spam clicks
 add_action( 'wp_ajax_grunion_ajax_spam', 'grunion_ajax_spam' );
@@ -638,7 +636,7 @@ function grunion_ajax_spam() {
 		wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
 	}
 
-	require_once dirname( __FILE__ ) . '/grunion-contact-form.php';
+	require_once __DIR__ . '/grunion-contact-form.php';
 
 	$current_menu = '';
 	if ( isset( $_POST['sub_menu'] ) && preg_match( '|post_type=feedback|', $_POST['sub_menu'] ) ) {
