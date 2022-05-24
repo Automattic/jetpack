@@ -1,0 +1,29 @@
+.column {
+	grid-column: span 12;
+	display: grid;
+	grid-template-columns: auto 1fr auto 1fr;
+	column-gap: var( --vertical-spacing-lg );
+	row-gap: var( --vertical-spacing-lg );
+
+	> * + * {
+		margin-top: var( --vertical-spacing-sm );
+	}
+
+	@supports ( display: grid ) {
+		> * + * {
+			margin-top: 0;
+		}
+	}
+
+	@media ( min-width: 960px ) {
+		grid-column: 3 / span 8;
+	}
+}
+
+.title {
+	grid-column: span 4;
+}
+
+.number {
+	color: var( --jp-black );
+}

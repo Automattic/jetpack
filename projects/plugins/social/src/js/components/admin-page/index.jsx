@@ -18,10 +18,10 @@ import React from 'react';
  */
 import styles from './styles.module.scss';
 import ConnectionScreen from './../connection-screen';
-import ModuleToggle from './../module-toggle';
 import Connections from './../connections';
 import Header from './../header';
 import ToggleSection from './../toggle-section';
+import InfoSection from './../info-section';
 
 const Admin = () => {
 	const connectionStatus = useSelect(
@@ -49,9 +49,11 @@ const Admin = () => {
 					<AdminSection>
 						<ToggleSection />
 					</AdminSection>
+					<AdminSectionHero>
+						<InfoSection />
+					</AdminSectionHero>
 					<div>
 						<div className={ styles.publicizeConnectionsList }>
-							<ModuleToggle />
 							<Connections />
 						</div>
 					</div>
