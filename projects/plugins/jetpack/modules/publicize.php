@@ -128,7 +128,7 @@ if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 		}
 	}
 } else {
-	// onwpcom, instantiate Jetpack_Publicize without any other checks.
+	// On wpcom, instantiate Jetpack_Publicize without any other checks.
 	new Jetpack_Publicize();
 }
 
