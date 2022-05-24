@@ -770,11 +770,11 @@ function grunion_ajax_spam() {
 		WHERE post_type =  'feedback'
 		GROUP BY post_status
 	";
-	$status_count = (array) $wpdb->get_results( $sql, ARRAY_A );
+	$status_count = (array) $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 	$status      = array();
 	$status_html = '';
-	foreach ( $status_count as $i => $row ) {
+	foreach ( $status_count as $row ) {
 		$status[ $row['post_status'] ] = $row['post_count'];
 	}
 
@@ -815,7 +815,7 @@ function grunion_ajax_spam() {
 		$status_html .= '</span></a></li>';
 	}
 
-	echo $status_html;
+	echo $status_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're building the html to echo.
 	exit;
 }
 
@@ -830,7 +830,7 @@ function grunion_enable_spam_recheck() {
 	$screen = get_current_screen();
 
 	// Only add to feedback, only to non-spam view
-	if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) {
+	if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
 		return;
 	}
 
@@ -867,7 +867,7 @@ function grunion_add_admin_scripts() {
 	wp_enqueue_style( 'grunion.css' );
 
 	// Only add to feedback, only to spam view.
-	if ( empty( $_GET['post_status'] ) || 'spam' !== $_GET['post_status'] ) {
+	if ( empty( $_GET['post_status'] ) || 'spam' !== $_GET['post_status'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check
 		return;
 	}
 
@@ -916,7 +916,7 @@ function grunion_check_for_spam_button() {
 	?>
 	<script type="text/javascript">
 		jQuery( function( $ ) {
-			$( '#posts-filter #post-query-submit' ).after( '<?php echo $button_html; ?>' );
+			$( '#posts-filter #post-query-submit' ).after( '<?php echo $button_html;  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're building the HTML to echo. ?>' );
 		} );
 	</script>
 	<?php
@@ -1006,7 +1006,7 @@ add_action( 'wp_ajax_grunion_recheck_queue', 'grunion_recheck_queue' );
  * Delete a number of spam feedbacks via an AJAX request.
  */
 function grunion_delete_spam_feedbacks() {
-	if ( ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) {
+	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- core doesn't sanitize nonce checks either. 
 		wp_send_json_error(
 			__( 'You aren’t authorized to do that.', 'jetpack' ),
 			403
