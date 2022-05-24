@@ -340,7 +340,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 				echo '</strong>';
 				echo '<br />';
 			}
-			echo sanitize_text_field( get_the_content( '' ) );
+			echo esc_html( get_the_content( '' ) );
 			echo '<br />';
 
 			$extra_fields = get_post_meta( $post_id, '_feedback_extra_fields', true );
@@ -349,35 +349,35 @@ function grunion_manage_post_columns( $col, $post_id ) {
 				echo '<table cellspacing="0" cellpadding="0" style="">' . "\n";
 				foreach ( (array) $extra_fields as $k => $v ) {
 					// Remove prefix from exta fields
-					echo "<tr><td align='right'><b>" . esc_html( preg_replace( '#^\d+_#', '', $k ) ) . '</b></td><td>' . sanitize_text_field( $v ) . "</td></tr>\n";
+					echo "<tr><td align='right'><b>" . esc_html( preg_replace( '#^\d+_#', '', $k ) ) . '</b></td><td>' . esc_html( $v ) . "</td></tr>\n";
 				}
 				echo '</table>';
 			}
 
 			echo '<div class="row-actions">';
 			if ( $post->post_status === 'trash' ) {
-				echo '<span class="untrash" id="feedback-restore-' . $post_id;
+				echo esc_attr( '<span class="untrash" id="feedback-restore-' . $post_id );
 				echo '"><a title="';
 				echo esc_attr__( 'Restore this item from the Trash', 'jetpack' );
-				echo '" href="' . wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $post->ID ) ), 'untrash-' . $post->post_type . '_' . $post->ID );
-				echo '">' . __( 'Restore', 'jetpack' ) . '</a></span> | ';
+				echo '" href="' . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $post->ID ) ) ), 'untrash-' . $post->post_type . '_' . $post->ID );
+				echo '">' . esc_html__( 'Restore', 'jetpack' ) . '</a></span> | ';
 
 				echo "<span class='delete'> <a class='submitdelete' title='";
 				echo esc_attr( __( 'Delete this item permanently', 'jetpack' ) );
 				echo "' href='" . get_delete_post_link( $post->ID, '', true );
-				echo "'>" . __( 'Delete Permanently', 'jetpack' ) . '</a></span>';
+				echo "'>" . esc_html__( 'Delete Permanently', 'jetpack' ) . '</a></span>';
 				?>
 
 <script>
 jQuery(document).ready(function($) {
-$('#feedback-restore-<?php echo $post_id; ?>').click(function(e) {
-	e.preventDefault();
+$('#feedback-restore-<?php echo esc_attr( $post_id ); ?>').click(function(e) {
+	e.preventDefault()
 	$.post(ajaxurl, {
 			action: 'grunion_ajax_spam',
 			post_id: '<?php echo $post_id; ?>',
 			make_it: 'publish',
 			sub_menu: jQuery('.subsubsub .current').attr('href'),
-			_ajax_nonce: '<?php echo wp_create_nonce( 'grunion-post-status-' . $post_id ); ?>'
+			_ajax_nonce: '<?php echo esc_attr( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>'
 		},
 		function(r) {
 			$('#post-<?php echo $post_id; ?>')
