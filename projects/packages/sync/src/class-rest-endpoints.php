@@ -761,30 +761,6 @@ class REST_Endpoints {
 			);
 		}
 
-		/**
-		 * Attempt to run sync anyway.
-		 * Ideally we should not be reaching this point, as we're trying to capture the request
-		 * in \Automattic\Jetpack\Sync\Actions::init. There we try to run the Sync sending before finishing initializing
-		 * anything further.
-		 *
-		 * If we managed to reach this endpoint, something went wrong with the event capture. In order to avoid creating
-		 * a loop where we don't run Sync at all, let's try to run it once we've reached this point.
-		 *
-		 * Ideally this should be the exception, as the REST endpoint needs more initialization and the code running here
-		 * takes a bit more to come to this point, possibly slowing sending sync events a bit.
-		 *
-		 * @see \Automattic\Jetpack\Sync\Actions::init
-		 */
-		if ( Settings::is_dedicated_sync_enabled() ) {
-			if ( apply_filters(
-				'jetpack_sync_sender_should_load',
-				true
-			) ) {
-				Actions::initialize_sender();
-				Actions::$sender->do_dedicated_sync_and_exit( false );
-			}
-		}
-
 		return new WP_Error(
 			'dedicated_sync_failed',
 			'Failed to process Dedicated Sync request',
