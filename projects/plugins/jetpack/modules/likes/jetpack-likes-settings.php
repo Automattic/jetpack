@@ -137,10 +137,14 @@ class Jetpack_Likes_Settings {
 			return $post_id;
 		}
 
+		if ( ! isset( $_POST['_likesharenonce'] ) || ! wp_verify_nonce( $_POST['_likesharenonce'], 'likes-and-shares' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+			return $post_id;
+		}
+
 		// Record sharing disable. Only needs to be done for WPCOM.
 		if ( ! $this->in_jetpack ) {
-			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) && isset( $_POST['_likesharenonce'] ) && wp_verify_nonce( $_POST['_likesharenonce'], 'likes-and-shares' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ), true ) ) {
+				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) ) {
 					update_post_meta( $post_id, 'sharing_disabled', 1 );
 				} else {
 					delete_post_meta( $post_id, 'sharing_disabled' );
@@ -148,7 +152,7 @@ class Jetpack_Likes_Settings {
 			}
 		}
 
-		if ( 'post' === $_POST['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+		if ( 'post' === $_POST['post_type'] ) {
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
 				return $post_id;
 			}
@@ -156,18 +160,14 @@ class Jetpack_Likes_Settings {
 
 		// Record a change in like status for this post - only if it contradicts the
 		// site like setting. If it doesn't contradict, then we delete the new individual status.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- this function is triggered either due the save_post or the edit attachment actions, by which time a nonce verification is complete. 
 		if ( ! $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) ) {
 			// Likes turned on for individual posts. User wants to add the button to a single post.
 			update_post_meta( $post_id, 'switch_like_status', 1 );
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- this function is triggered either due the save_post or the edit attachment actions, by which time a nonce verification is complete.
 		} elseif ( $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) {
 			// Likes turned on for all posts. User wants to remove the button from a single post.
 			update_post_meta( $post_id, 'switch_like_status', 0 );
 		} elseif (
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- this function is triggered either due the save_post or the edit attachment actions, by which time a nonce verification is complete.
 		( ! $this->is_enabled_sitewide() && empty( $_POST['wpl_enable_post_likes'] ) ) ||
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- this function is triggered either due the save_post or the edit attachment actions, by which time a nonce verification is complete.
 		( $this->is_enabled_sitewide() && ! empty( $_POST['wpl_enable_post_likes'] ) )
 		) {
 			// User wants to update the likes button status for an individual post, but the new status
@@ -651,15 +651,19 @@ class Jetpack_Likes_Settings {
 	 * Saves the setting in the database.
 	 */
 	public function admin_settings_callback() {
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+			return;
+		}
+
 		// We're looking for these, and doing a dance to set some stats and save
 		// them together in array option.
-		if ( ! empty( $_POST['wpl_default'] ) && isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+		if ( ! empty( $_POST['wpl_default'] ) ) {
 			$new_state = sanitize_text_field( wp_unslash( $_POST['wpl_default'] ) );
 		} else {
 			$new_state = 'on';
 		}
 
-		if ( ! empty( $_POST['jetpack_reblogs_enabled'] ) && isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-reblog-option' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+		if ( ! empty( $_POST['jetpack_reblogs_enabled'] ) ) {
 			$reblogs_new_state = sanitize_text_field( wp_unslash( $_POST['jetpack_reblogs_enabled'] ) );
 		} else {
 			$reblogs_new_state = 'on';
@@ -688,7 +692,7 @@ class Jetpack_Likes_Settings {
 
 		// WPCOM only: Comment Likes
 		if ( ! $this->in_jetpack ) {
-			if ( ! empty( $_POST['jetpack_comment_likes_enabled'] ) && isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+			if ( ! empty( $_POST['jetpack_comment_likes_enabled'] ) ) {
 				$new_comments_state = sanitize_text_field( wp_unslash( $_POST['jetpack_comment_likes_enabled'] ) );
 			} else {
 				$new_comments_state = false;
