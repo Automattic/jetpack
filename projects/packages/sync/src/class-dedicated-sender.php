@@ -25,6 +25,13 @@ class Dedicated_Sender {
 	const DEDICATED_SYNC_CHECK_TRANSIENT = 'jetpack_sync_dedicated_sync_spawn_check';
 
 	/**
+	 * Validation string to check if the endpoint is working correctly.
+	 *
+	 * This is extracted and not hardcoded, as we might want to change it in the future.
+	 */
+	const DEDICATED_SYNC_VALIDATION_STRING = 'DEDICATED SYNC OK';
+
+	/**
 	 * Filter a URL to check if Dedicated Sync is enabled.
 	 * We need to remove slashes and then run it through `urldecode` as sometimes the
 	 * URL is in an encoded form, depending on server configuration.
@@ -162,13 +169,21 @@ class Dedicated_Sender {
 			/**
 			 * Limit the size of the body that we save in the transient to avoid cases where an error
 			 * occurs and a whole generated HTML page is returned. We don't need to store the whole thing.
+			 *
+			 * The regexp check is done to make sure we can detect the string even if the body returns some additional
+			 * output, like some caching plugins do when they try to pad the request.
 			 */
-			$saved_response_body = $dedicated_sync_response_body === 'OK' ? 'OK' : time();
+			$regexp = '!' . preg_quote( self::DEDICATED_SYNC_VALIDATION_STRING, '!' ) . '!uis';
+			if ( preg_match( $regexp, $dedicated_sync_response_body ) ) {
+				$saved_response_body = self::DEDICATED_SYNC_VALIDATION_STRING;
+			} else {
+				$saved_response_body = time();
+			}
 
 			set_transient( $dedicated_sync_check_transient, $saved_response_body, HOUR_IN_SECONDS );
 
 			// Send a bit more information to WordPress.com to help debugging issues.
-			if ( 'OK' !== $dedicated_sync_response_body ) {
+			if ( $saved_response_body !== self::DEDICATED_SYNC_VALIDATION_STRING ) {
 				$data = array(
 					'timestamp'      => microtime( true ),
 					'response_code'  => $dedicated_sync_response_code,
@@ -184,6 +199,6 @@ class Dedicated_Sender {
 			}
 		}
 
-		return 'OK' === $dedicated_sync_response_body;
+		return self::DEDICATED_SYNC_VALIDATION_STRING === $dedicated_sync_response_body;
 	}
 }

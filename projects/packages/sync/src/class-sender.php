@@ -357,7 +357,8 @@ class Sender {
 		 *
 		 * @see \Automattic\Jetpack\Sync\Dedicated_Sender::can_spawn_dedicated_sync_request
 		 */
-		echo 'OK';
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING;
 
 		// Try to disconnect the request as quickly as possible and process things in the background.
 		$this->fastcgi_finish_request();
