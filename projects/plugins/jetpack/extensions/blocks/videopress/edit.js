@@ -60,6 +60,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				isUpdatingIsPrivate: false,
 				isEditingWhileUploading: false,
 				isUploadComplete: false,
+				hasShownUploadingEditor: false,
 			};
 			this.posterImageButton = createRef();
 			this.previewCacheReloadTimer = null;
@@ -742,6 +743,10 @@ const VideoPressEdit = CoreVideoEdit =>
 				} ).catch( e => console.log( e ) );
 			};
 
+			const onEditorShown = () => {
+				this.setState( { hasShownUploadingEditor: true } );
+			};
+
 			const dismissEditor = () => {
 				this.setState( { isEditingWhileUploading: false } );
 
@@ -754,26 +759,32 @@ const VideoPressEdit = CoreVideoEdit =>
 				}
 			};
 
-			if ( isResumableUploading || this.state.isEditingWhileUploading ) {
+			if (
+				isResumableUploading ||
+				( this.state.isEditingWhileUploading && this.state.hasShownUploadingEditor )
+			) {
 				if ( ! this.state.isEditingWhileUploading ) {
 					this.setState( { isEditingWhileUploading: true } );
 				}
 
 				const title = this.state.title || filename;
 
-				return <UploaderBlock
-					fileForUpload={ fileForUpload }
-					filename={ filename }
-					uploadFinished={ uploadFinished }
-					blockSettings={ blockSettings }
-					onDismissEditor={ dismissEditor }
-					isUploadComplete={ this.state.isUploadComplete }
-					onSelectPoster={ onSelectPoster }
-					onChangeTitle={ onChangeTitle }
-					title={ title }
-					videoPosterImageData={this.state.videoPosterImageData}
-				/>;
-			};
+				return (
+					<UploaderBlock
+						fileForUpload={ fileForUpload }
+						filename={ filename }
+						uploadFinished={ uploadFinished }
+						blockSettings={ blockSettings }
+						onDismissEditor={ dismissEditor }
+						isUploadComplete={ this.state.isUploadComplete }
+						onSelectPoster={ onSelectPoster }
+						onChangeTitle={ onChangeTitle }
+						title={ title }
+						videoPosterImageData={ this.state.videoPosterImageData }
+						onEditorShown={ onEditorShown }
+					/>
+				);
+			}
 
 			/*
 			 * The Loading/CoreVideoEdit blocks should be in the tree if :
@@ -872,6 +883,7 @@ const UploaderBlock = props => {
 		fileForUpload,
 		isUploadComplete,
 		onDismissEditor,
+		onEditorShown,
 	} = props;
 
 	return (
@@ -884,13 +896,15 @@ const UploaderBlock = props => {
 						<div className="uploader-block__logo-text">{ __( 'VideoPress', 'jetpack' ) }</div>
 					</div>
 					<UploadingEditor
+						file={ fileForUpload }
 						filename={ filename }
 						title={ title }
 						onChangeTitle={ onChangeTitle }
 						onSelectPoster={ onSelectPoster }
 						videoPosterImageData={ videoPosterImageData }
+						onEditorShown={ onEditorShown }
 					/>
-					{ ! props.isUploadComplete && <ResumableUpload file={ fileForUpload } /> }
+					{ ! isUploadComplete && <ResumableUpload file={ fileForUpload } /> }
 					{ isUploadComplete && (
 						<div className="uploader-block__upload-complete">
 							<span>{ __( 'Upload Complete!', 'jetpack' ) } 🎉</span>
@@ -1051,4 +1065,4 @@ export default createHigherOrderComponent(
 		VideoPressEdit,
 	] ),
 	'withVideoPressEdit'
-)
+);
