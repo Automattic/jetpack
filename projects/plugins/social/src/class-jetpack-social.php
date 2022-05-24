@@ -141,16 +141,18 @@ class Jetpack_Social {
 		global $publicize;
 
 		return array(
-			'siteData'            => array(
+			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			),
-			'jetpackSettings'     => array(
+			'jetpackSettings' => array(
 				'publicize_active' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
 			),
-			'connections'         => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
-			'connectionsAdminUrl' => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
+			'connectionData'  => array(
+				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
+				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
+			),
 		);
 	}
 

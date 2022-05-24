@@ -14,9 +14,11 @@ import ModuleToggle from './../module-toggle';
 import styles from './styles.module.scss';
 
 const ToggleSection = () => {
-	const { connectionsAdminUrl } = useSelect( select => {
+	const { connectionsAdminUrl, isModuleEnabled, isUpdating } = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
+			isModuleEnabled: store.isModuleEnabled(),
+			isUpdating: store.isUpdatingJetpackSettings(),
 			connectionsAdminUrl: store.getConnectionsAdminUrl(),
 		};
 	} );
@@ -35,8 +37,13 @@ const ToggleSection = () => {
 					) }
 				</Text>
 				{ connectionsAdminUrl && (
-					<Button className={ styles.button } variant="primary" href={ connectionsAdminUrl }>
-						{ __( 'Manage your connections', 'jetpack-social' ) }
+					<Button
+						className={ styles.button }
+						variant="primary"
+						href={ connectionsAdminUrl }
+						disabled={ isUpdating || ! isModuleEnabled }
+					>
+						{ __( 'Manage social media connections', 'jetpack-social' ) }
 						<Icon size={ 24 } icon={ external } className={ styles[ 'external-icon' ] } />
 					</Button>
 				) }
