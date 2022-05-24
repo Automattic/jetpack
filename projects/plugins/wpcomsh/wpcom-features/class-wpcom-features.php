@@ -209,7 +209,7 @@ class WPCOM_Features {
 	// WPCOM "Level 3": Groups of level 2s.
 	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
-	private const WPCOM_STARTER_AND_HIGHER_PLANS = array( self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
+	private const WPCOM_STARTER_AND_HIGHER_PLANS  = array( self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = array( self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = array( self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
 	private const WPCOM_EMAIL_PRODUCTS            = array( self::GOOGLE_WORKSPACE_PRODUCTS, self::GSUITE_PRODUCTS, self::WPCOM_TITAN_MAIL_PRODUCTS );
@@ -283,9 +283,11 @@ class WPCOM_Features {
 	public const BLOG_DOMAIN_ONLY              = 'blog-domain-only';
 	public const CALENDLY                      = 'calendly';
 	public const CLASSIC_SEARCH                = 'search';
+	public const CDN                           = 'cdn';
 	public const CLOUD_CRITICAL_CSS            = 'cloud-critical-css';
 	public const CLOUDFLARE_ANALYTICS          = 'cloudflare-analytics';
 	public const CONCIERGE                     = 'concierge';
+	public const CLOUDFLARE_CDN                = 'cloudflare-cdn';
 	public const CONCIERGE_BUSINESS            = 'concierge-business';
 	public const CORE_AUDIO                    = 'core/audio';
 	public const CORE_COVER                    = 'core/cover';
@@ -439,6 +441,11 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
 		),
+		self::CDN                           => array(
+			self::JETPACK_ALL_SITES,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
 		self::CLASSIC_SEARCH                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
@@ -451,6 +458,11 @@ class WPCOM_Features {
 			self::WP_P2_PLUS_MONTHLY,
 		),
 		self::CLOUDFLARE_ANALYTICS          => array(
+			self::JETPACK_PREMIUM_AND_HIGHER,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
+		self::CLOUDFLARE_CDN                => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
