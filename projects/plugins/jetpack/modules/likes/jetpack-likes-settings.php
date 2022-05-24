@@ -651,6 +651,10 @@ class Jetpack_Likes_Settings {
 	 * Saves the setting in the database.
 	 */
 	public function admin_settings_callback() {
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
+			return;
+		}
+
 		// We're looking for these, and doing a dance to set some stats and save
 		// them together in array option.
 		if ( ! empty( $_POST['wpl_default'] ) ) {
