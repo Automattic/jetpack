@@ -27,6 +27,10 @@ class Publicize_Setup {
 			$publicize_ui = new Publicize_UI();
 
 		}
+		// Adding on a higher priority to make sure we're the first field registered.
+		// The priority parameter can be removed once we deprecate WPCOM_REST_API_V2_Post_Publicize_Connections_Field
+		add_action( 'rest_api_init', array( new Connections_Post_Field(), 'register_fields' ), 5 );
+
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 	}
 }

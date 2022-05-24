@@ -77,8 +77,9 @@ class Callables extends Module {
 	 */
 	const OPTION_NAMES_TO_CALLABLE_NAMES = array(
 		// @TODO: Audit the other option names for differences between the option names and callable names.
-		'home'    => 'home_url',
-		'siteurl' => 'site_url',
+		'home'                   => 'home_url',
+		'siteurl'                => 'site_url',
+		'jetpack_active_modules' => 'active_modules',
 	);
 
 	/**
