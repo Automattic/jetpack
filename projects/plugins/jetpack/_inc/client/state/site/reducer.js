@@ -411,19 +411,6 @@ export function hasActiveSearchPurchase( state ) {
 }
 
 /**
- * Determines if the site has an active VideoPress feature.
- *
- * @param {*} state - Global state tree
- * @returns {boolean} True if the site has an active VideoPress product purchase, false otherwise.
- */
-export function hasActiveVideoPressFeature( state ) {
-	return (
-		hasActiveSiteFeature( state, 'videopress-1tb-storage' ) ||
-		hasActiveSiteFeature( state, 'videopress-unlimited-storage' )
-	);
-}
-
-/**
  * Searches active products for an active Anti-Spam product.
  *
  * @param {*} state - Global state tree

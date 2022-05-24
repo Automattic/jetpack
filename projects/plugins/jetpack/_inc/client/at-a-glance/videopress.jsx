@@ -31,7 +31,6 @@ import {
 	getSitePlan,
 	getVideoPressStorageUsed,
 	hasActiveSiteFeature,
-	hasActiveVideoPressFeature,
 } from 'state/site';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 
@@ -183,7 +182,9 @@ class DashVideoPress extends Component {
 export default connect(
 	state => ( {
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
-		hasVideoPressFeature: hasActiveVideoPressFeature( state ),
+		hasVideoPressFeature:
+			hasActiveSiteFeature( state, 'videopress-1tb-storage' ) ||
+			hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
 		hasVideoPressUnlimitedStorage: hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),

@@ -45,7 +45,6 @@ import {
 	hasActiveSiteFeature,
 	hasActiveAntiSpamPurchase,
 	hasSecurityComparableLegacyPlan,
-	hasActiveVideoPressFeature,
 } from 'state/site';
 import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
@@ -357,7 +356,10 @@ export const getProductSlugForStep = ( state, step ) => {
 			}
 			break;
 		case 'videopress':
-			if ( ! hasActiveVideoPressFeature( state ) ) {
+			if (
+				! hasActiveSiteFeature( state, 'videopress-1tb-storage' ) &&
+				! hasActiveSiteFeature( state, 'videopress-unlimited-storage' )
+			) {
 				return PLAN_JETPACK_VIDEOPRESS;
 			}
 			break;

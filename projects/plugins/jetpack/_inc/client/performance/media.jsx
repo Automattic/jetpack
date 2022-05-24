@@ -29,7 +29,6 @@ import {
 	getSitePlan,
 	getVideoPressStorageUsed,
 	hasActiveSiteFeature,
-	hasActiveVideoPressFeature,
 	isFetchingSitePurchases,
 } from 'state/site';
 import CompactFormToggle from 'components/form/form-toggle/compact';
@@ -163,7 +162,9 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
-		hasVideoPressFeature: hasActiveVideoPressFeature( state ),
+		hasVideoPressFeature:
+			hasActiveSiteFeature( state, 'videopress-1tb-storage' ) ||
+			hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
 		hasVideoPressUnlimitedStorage: hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),
