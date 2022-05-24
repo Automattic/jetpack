@@ -175,8 +175,9 @@ class Jetpack_Social {
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
-				'siteFragment'          => ( new Status() )->get_site_suffix(),
-				'connectionRefreshPath' => '/jetpack/v4/publicize/connections',
+				'siteFragment'            => ( new Status() )->get_site_suffix(),
+				'connectionRefreshPath'   => '/jetpack/v4/publicize/connections',
+				'publicizeConnectionsUrl' => esc_url_raw( 'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site=' ),
 			)
 		);
 	}
