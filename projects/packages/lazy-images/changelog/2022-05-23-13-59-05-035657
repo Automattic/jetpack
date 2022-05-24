@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Do not lazy-load images when in RSS feeds.

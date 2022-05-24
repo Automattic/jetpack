@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Widget Visibility: avoid PHP warnings when loading widgets in some scenarios.
