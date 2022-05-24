@@ -2,6 +2,27 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.0-a.11 - 2022-05-24
+### Enhancements
+- Added the post field to the Publicize package [#24324]
+
+### Improved compatibility
+- Update test [#24454]
+
+### Bug fixes
+- Assistant: Fix unclickable banner dismiss button [#24459]
+- Widget Visibility: avoid PHP warnings when loading widgets in some scenarios. [#24460]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: remove PocketCasts embed block variation. [#24463]
+- Init 11.0-a.10 [#24431]
+- Moved some of the Publicize editor plugin components to the publicize-components package [#24408]
+- PHPCS: cleanup SAL files. [#23787] [#24388]
+- Sharing: fix all PHPCS errors. [#24412]
+- Sync callables whitelist: Remove 'active_modules' since Sync adds them anyway. [#24453]
+- Unit Tests: fix all PHPCS errors. [#24416]
+- Updated package dependencies. [#24396] [#24449] [#24453] [#24468]
+
 ## 11.0-a.9 - 2022-05-19
 ### Improved compatibility
 - Stats: remove unnecessary type attribute from style element. [#24427]
