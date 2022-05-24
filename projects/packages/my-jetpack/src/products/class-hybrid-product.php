@@ -47,7 +47,7 @@ abstract class Hybrid_Product extends Product {
 	 */
 	public static function is_module_active() {
 		if ( ! empty( static::$module_name ) ) {
-			return ( new Modules() )->is_active( static::$module_name, false, false );
+			return ( new Modules() )->is_active( static::$module_name );
 		}
 		return true;
 	}
