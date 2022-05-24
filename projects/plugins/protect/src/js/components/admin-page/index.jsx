@@ -137,8 +137,45 @@ const useRegistrationWatcher = () => {
 	}, [ isRegistered ] );
 };
 
+/**
+ * Use Status Polling
+ *
+ * When the status is 'scheduled', re-checks the status periodically until it isn't.
+ */
+const useStatusPolling = () => {
+	const pollingDuration = 10000;
+	const { refreshStatus } = useDispatch( STORE_ID );
+	const status = useSelect( select => select( STORE_ID ).getStatus() );
+
+	useEffect( () => {
+		let pollTimeout;
+
+		const pollStatus = () => {
+			refreshStatus()
+				.then( latestStatus => {
+					if ( 'scheduled' === latestStatus.status ) {
+						clearTimeout( pollTimeout );
+						pollTimeout = setTimeout( pollStatus, pollingDuration );
+					}
+				} )
+				.catch( () => {
+					// Keep trying when unable to fetch the status.
+					clearTimeout( pollTimeout );
+					pollTimeout = setTimeout( pollStatus, pollingDuration );
+				} );
+		};
+
+		if ( 'scheduled' === status.status ) {
+			pollTimeout = setTimeout( pollStatus, pollingDuration );
+		}
+
+		return () => clearTimeout( pollTimeout );
+	}, [ status.status, refreshStatus ] );
+};
+
 const Admin = () => {
 	useRegistrationWatcher();
+	useStatusPolling();
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: SECURITY_BUNDLE,
