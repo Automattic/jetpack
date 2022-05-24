@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		// Setting the Dedicated Sync check transient here to avoid making a test
 		// request every time dedicated Sync setting is updated.
-		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 'OK' );
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING );
 
 		$this->dedicated_sync_request_spawned = false;
 	}
