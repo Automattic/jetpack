@@ -505,6 +505,13 @@ jQuery(document).ready( function($) {
 	}
 }
 
+/**
+ * Escape grunion attributes.
+ *
+ * @param string $attr - the attribute we're escaping.
+ *
+ * @return string
+ */
 function grunion_esc_attr( $attr ) {
 	$out = esc_attr( $attr );
 	// we also have to entity-encode square brackets so they don't interfere with the shortcode parser
@@ -514,6 +521,14 @@ function grunion_esc_attr( $attr ) {
 	return $out;
 }
 
+/**
+ * Sort grunion items.
+ *
+ * @param array $a - the first item we're sorting.
+ * @param array $b - the second item we're sorting.
+ *
+ * @return string
+ */
 function grunion_sort_objects( $a, $b ) {
 	if ( isset( $a['order'] ) && isset( $b['order'] ) ) {
 		return $a['order'] - $b['order'];
@@ -521,8 +536,10 @@ function grunion_sort_objects( $a, $b ) {
 	return 0;
 }
 
-// take an array of field types from the form builder, and construct a shortcode form
-// returns both the shortcode form, and HTML markup representing a preview of the form
+/**
+ * Take an array of field types from the form builder, and construct a shortcode form.
+ * returns both the shortcode form, and HTML markup representing a preview of the form
+ */
 function grunion_ajax_shortcode() {
 	check_ajax_referer( 'grunion_shortcode' );
 
@@ -533,13 +550,13 @@ function grunion_ajax_shortcode() {
 	$attributes = array();
 
 	foreach ( array( 'subject', 'to' ) as $attribute ) {
-		if ( isset( $_POST[ $attribute ] ) && strlen( $_POST[ $attribute ] ) ) {
-			$attributes[ $attribute ] = stripslashes( $_POST[ $attribute ] );
+		if ( isset( $_POST[ $attribute ] ) && strlen( sanitize_text_field( wp_unslash( $_POST[ $attribute ] ) ) ) ) {
+			$attributes[ $attribute ] = stripslashes( sanitize_text_field( wp_unslash( $_POST[ $attribute ] ) ) );
 		}
 	}
 
-	if ( is_array( $_POST['fields'] ) ) {
-		$fields = stripslashes_deep( $_POST['fields'] );
+	if ( isset( $_POST['fields'] ) && is_array( $_POST['fields'] ) ) {
+		$fields = sanitize_text_field( stripslashes_deep( $_POST['fields'] ) );
 		usort( $fields, 'grunion_sort_objects' );
 
 		$field_shortcodes = array();
@@ -563,17 +580,19 @@ function grunion_ajax_shortcode() {
 
 	$grunion = new Grunion_Contact_Form( $attributes, $field_shortcodes );
 
-	die( "\n$grunion\n" );
+	die( "\n$grunion\n" ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
-// takes a post_id, extracts the contact-form shortcode from that post (if there is one), parses it,
-// and constructs a json object representing its contents and attributes
+/**
+ * Takes a post_id, extracts the contact-form shortcode from that post (if there is one), parses it,
+ * and constructs a json object representing its contents and attributes.
+ */
 function grunion_ajax_shortcode_to_json() {
 	global $post, $grunion_form;// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 	check_ajax_referer( 'grunion_shortcode_to_json' );
 
-	if ( ! empty( $_POST['post_id'] ) && ! current_user_can( 'edit_post', $_POST['post_id'] ) ) {
+	if ( ! empty( $_POST['post_id'] ) && ! current_user_can( 'edit_post', sanitize_text_field( wp_unslash( $_POST['post_id'] ) ) ) ) {
 		die( '-1' );
 	} elseif ( ! current_user_can( 'edit_posts' ) ) {
 		die( '-1' );
@@ -583,14 +602,14 @@ function grunion_ajax_shortcode_to_json() {
 		die( '-1' );
 	}
 
-	$content = stripslashes( $_POST['content'] );
+	$content = stripslashes( sanitize_text_field( wp_unslash( $_POST['content'] ) ) );
 
 	// doesn't look like a post with a [contact-form] already.
 	if ( false === has_shortcode( $content, 'contact-form' ) ) {
 		die( '' );
 	}
 
-	$post = get_post( $_POST['post_id'] );
+	$post = get_post( sanitize_text_field( wp_unslash( $_POST['post_id'] ) ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 	do_shortcode( $content );
 
@@ -616,7 +635,7 @@ function grunion_ajax_shortcode_to_json() {
 		$out[ $attribute ] = $value;
 	}
 
-	die( json_encode( $out ) );
+	die( wp_json_encode( $out ) );
 }
 
 add_action( 'wp_ajax_grunion_shortcode', 'grunion_ajax_shortcode' );
@@ -624,6 +643,10 @@ add_action( 'wp_ajax_grunion_shortcode_to_json', 'grunion_ajax_shortcode_to_json
 
 // process row-action spam/not spam clicks
 add_action( 'wp_ajax_grunion_ajax_spam', 'grunion_ajax_spam' );
+
+/**
+ * Handle marking feedback as spam.
+ */
 function grunion_ajax_spam() {
 	global $wpdb;
 
@@ -631,10 +654,10 @@ function grunion_ajax_spam() {
 		return;
 	}
 
-	$post_id = (int) $_POST['post_id'];
+	$post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : null;
 	check_ajax_referer( 'grunion-post-status-' . $post_id );
 	if ( ! current_user_can( 'edit_page', $post_id ) ) {
-		wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
+		wp_die( esc_html__( 'You are not allowed to manage this item.', 'jetpack' ) );
 	}
 
 	require_once __DIR__ . '/grunion-contact-form.php';
