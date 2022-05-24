@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.14.0 - 2022-05-24
+### Added
+- Icons: Added the Jetpack Social product icon [#24449]
+
 ## 0.13.0 - 2022-05-18
 ### Added
 - Components: Add useBreakpointMach hook [#24263]

@@ -28,6 +28,10 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	public function set_up() {
 		$this->dedicated_sync_request_spawned = false;
 
+		// Setting the Dedicated Sync check transient here to avoid making a test
+		// request every time dedicated Sync setting is updated.
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING );
+
 		$this->queue = $this->getMockBuilder( 'Automattic\Jetpack\Sync\Queue' )
 			->setConstructorArgs( array( 'sync' ) )
 			->setMethods( array( 'is_locked', 'size' ) )
@@ -40,16 +44,14 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
-		unset( $_SERVER['REQUEST_METHOD'] );
-		unset( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$_SERVER['REQUEST_URI'] = '';
 	}
 
 	/**
 	 * Tests Dedicated_Sender::is_dedicated_sync_request.
 	 */
 	public function test_is_dedicated_sync_request() {
-		$_SERVER['REQUEST_METHOD']               = 'POST';
-		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
 
 		$result = Dedicated_Sender::is_dedicated_sync_request();
 
@@ -60,7 +62,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 * Tests Dedicated_Sender::is_dedicated_sync_request with a random request.
 	 */
 	public function test_is_dedicated_sync_request_with_random_request() {
-		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['REQUEST_URI'] = '/';
 
 		$result = Dedicated_Sender::is_dedicated_sync_request();
 
@@ -171,6 +173,68 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	}
 
 	/**
+	 * Tests Dedicated_Sender::can_spawn_dedicated_sync_request will return true if request succeeds.
+	 */
+	public function test_can_spawn_dedicated_sync_request_will_return_true_if_request_succeeds() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
+		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		$this->assertSame( Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING, get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
+		$this->assertTrue( $can_spawn );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::can_spawn_dedicated_sync_request will return false if request fails.
+	 */
+	public function test_can_spawn_dedicated_sync_request_will_return_false_if_request_fails() {
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_failure' ), 10, 3 );
+		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_failure' ) );
+
+		$transient = get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
+		$delta     = abs( time() - $transient );
+		$this->assertTrue( $delta < 10 );
+		$this->assertFalse( $can_spawn );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::can_spawn_dedicated_sync_request caching.
+	 */
+	public function test_can_spawn_dedicated_sync_request_with_cached_OK_response_body() {
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
+		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		// Actual request should not be spawned if we already have a cached response code.
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertSame( Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING, get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertTrue( $can_spawn );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::can_spawn_dedicated_sync_request caching.
+	 */
+	public function test_can_spawn_dedicated_sync_request_with_cached_empty_response_body() {
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, '' );
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ), 10, 3 );
+		$can_spawn = Dedicated_Sender::can_spawn_dedicated_sync_request();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		// Actual request should not be spawned if we already have a cached response code.
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertSame( '', get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
+		$this->assertFalse( $can_spawn );
+	}
+
+	/**
 	 * Intercept HTTP request to run Sync and mock the response.
 	 * Should be hooked on the `pre_http_request` filter.
 	 *
@@ -181,11 +245,36 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 * @return array
 	 */
 	public function pre_http_request_success( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->dedicated_sync_request_spawned = 'POST' === $args['method'] &&
-			isset( $args['body']['jetpack_dedicated_sync_request'] );
+		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(
-			'success' => true,
+			'response'    => array(
+				'code' => 200,
+			),
+			'status_code' => 200,
+			'body'        => Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING,
+		);
+	}
+
+	/**
+	 * Intercept HTTP request to run Sync and mock the response.
+	 * Should be hooked on the `pre_http_request` filter.
+	 *
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args The request arguments.
+	 * @param string $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function pre_http_request_failure( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
+
+		return array(
+			'response'    => array(
+				'code' => 500,
+			),
+			'status_code' => 500,
+			'body'        => '',
 		);
 	}
 }
