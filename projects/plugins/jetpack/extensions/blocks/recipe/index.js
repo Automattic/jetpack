@@ -46,7 +46,7 @@ export const settings = {
 	keywords: [],
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
-		align: [ 'full' ] /* if set to true, the 'align' option below can be used*/,
+		align: [ 'full', 'wide' ] /* if set to true, the 'align' option below can be used*/,
 		// Pick which alignment options to display.
 		/*align: [ 'left', 'right', 'full' ],*/
 		// Support for wide alignment, that requires additional support in themes.
