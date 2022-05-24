@@ -6,6 +6,7 @@
 	font-size: var( --font-title-small );
 	line-height: 1.5;
 	color: var( --jp-black );
+	margin: calc( var( --spacing-base ) * 2 ) 0;
 }
 
 .illustration {

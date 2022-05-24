@@ -13,7 +13,7 @@ import illustration from './illustration.svg';
 const Header = () => (
 	<Container horizontalSpacing={ 3 } horizontalGap={ 7 } className={ styles.container }>
 		<Col sm={ 4 } md={ 4 } lg={ 5 }>
-			<H3>{ __( 'Share & Grow', 'jetpack-social' ) }</H3>
+			<H3 mt={ 2 }>{ __( 'Share & Grow', 'jetpack-social' ) }</H3>
 			<p className={ styles.title }>
 				{ __(
 					'Jetpack Social allows you to share your WordPress posts with your social networks.',

@@ -36,7 +36,7 @@ const ToggleSection = () => {
 						'jetpack-social'
 					) }
 					&nbsp;
-					<a href="https://wordpress.com/support/publicize/" target="_blank">
+					<a href="https://wordpress.com/support/publicize/" target="_blank" rel="noreferrer">
 						{ __( 'Learn more', 'jetpack-social' ) }
 					</a>
 				</Text>

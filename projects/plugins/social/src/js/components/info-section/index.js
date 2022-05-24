@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Button, Container, Text } from '@automattic/jetpack-components';
-import { Icon, external } from '@wordpress/icons';
+import { Container, Text } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -30,11 +29,12 @@ const InfoSection = () => (
 			</Text>
 			<Text>
 				{ __(
-					'By publishing at least once per week, you’ll be ahead of 99% of all other sites. Promoting that weekly content on social media may grow your audience by 10x in a few short months.,',
+					'By publishing at least once per week, you’ll be ahead of 99% of all other sites. Promoting that weekly content on social media may grow your audience by 10x in a few short months.',
 					'jetpack-social'
 				) }
 			</Text>
 		</div>
 	</Container>
 );
+
 export default InfoSection;
