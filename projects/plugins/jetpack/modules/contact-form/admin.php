@@ -125,7 +125,7 @@ function grunion_add_bulk_edit_option() {
 
 	// When viewing spam we want to be able to be able to bulk delete
 	// When viewing anything we want to be able to bulk move to spam
-	if ( isset( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) {
+	if ( isset( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes to the site, we're only rendering the option to choose bulk delete/spam.
 		// Create Delete Permanently bulk item
 		$option_val      = 'delete';
 		$option_txt      = __( 'Delete Permanently', 'jetpack' );
