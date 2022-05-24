@@ -1,0 +1,77 @@
+.column {
+	grid-column: span 12;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: repeat( 2, auto );
+	column-gap: var( --vertical-spacing-lg );
+	row-gap: var( --vertical-spacing-sm );
+
+	> * + * {
+		margin-top: var( --vertical-spacing-sm );
+	}
+
+	@supports ( display: grid ) {
+		> * + * {
+			margin-top: 0;
+		}
+	}
+
+	@media ( min-width: 600px ) {
+		grid-column: 2 / span 6;
+	}
+
+	@media ( min-width: 960px ) {
+		column-gap: calc( var( --vertical-spacing-lg ) * 2 );
+		grid-column: 3 / span 8;
+	}
+}
+
+.title {
+	grid-row: 1;
+
+	@media ( min-width: 600px ) {
+		grid-column: 2;
+	}
+}
+
+.text {
+	grid-column: span 2;
+
+	a {
+		color: inherit;
+	}
+
+	@media ( min-width: 600px ) {
+		grid-column: 2;
+	}
+}
+
+.toggle {
+	align-self: center;
+	grid-column: 2;
+
+	@media ( min-width: 600px ) {
+		grid-column: 1;
+	}
+}
+
+.button {
+	margin-top: var( --vertical-spacing-sm );
+	grid-column: span 2;
+	justify-self: flex-start;
+
+	@media ( min-width: 600px ) {
+		grid-column: 2;
+	}
+
+	// Required because the Button component wraps all children in a span element.
+	span {
+		display: inline-flex;
+		align-items: center;
+		font-weight: 500;
+	}
+}
+
+.external-icon {
+	margin-left: calc( var( --spacing-base ) ); // 8px
+}
