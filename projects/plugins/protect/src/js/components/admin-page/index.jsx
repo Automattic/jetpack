@@ -112,14 +112,14 @@ const ProtectAdminPage = () => {
 				<AdminSectionHero>
 					<SeventyFiveLayout
 						main={
-							<div className={ styles[ 'alert-section' ] }>
+							<div className={ styles[ 'main-content' ] }>
 								<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } />
 								<H3>{ __( 'We’re having problems scanning your site', 'jetpack-protect' ) }</H3>
 								<Text>{ displayErrorMessage }</Text>
 							</div>
 						}
 						secondary={
-							<div className={ styles[ 'alert-section-illustration' ] }>
+							<div className={ styles.illustration }>
 								<img src={ inProgressImage } alt="" />
 							</div>
 						}
@@ -136,21 +136,25 @@ const ProtectAdminPage = () => {
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
-						<Col sm={ 4 } md={ 4 } lg={ 6 }>
-							<H3 mt={ 8 }>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
-							<Text>
-								{ __(
-									'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a few seconds.',
-									'jetpack-protect'
-								) }
-							</Text>
-						</Col>
-						<Col sm={ 0 } md={ 0 } lg={ 1 }></Col>
-						<Col sm={ 4 } md={ 3 } lg={ 5 }>
-							<img src={ inProgressImage } alt="" />
-						</Col>
-					</Container>
+					<SeventyFiveLayout
+						main={
+							<div className={ styles[ 'main-content' ] }>
+								<H3 mt={ 8 }>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
+								<Text>
+									{ __(
+										'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a few seconds.',
+										'jetpack-protect'
+									) }
+								</Text>
+							</div>
+						}
+						secondary={
+							<div className={ styles.illustration }>
+								<img src={ inProgressImage } alt="" />
+							</div>
+						}
+						preserveSecondaryOnMobile={ false }
+					/>
 				</AdminSectionHero>
 				<Footer />
 			</AdminPage>
