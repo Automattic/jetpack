@@ -100,19 +100,16 @@ class Jetpack_Publicize {
 		}
 
 		$publicize_ui->in_jetpack = $this->in_jetpack;
-
 	}
 }
 
 // On Jetpack, we instantiate Jetpack_Publicize only if the Publicize module is active.
 if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-
 	if ( in_array( 'publicize', Jetpack::get_active_modules(), true ) ) {
 		new Jetpack_Publicize();
 	}
 
 	if ( ! function_exists( 'publicize_init' ) ) {
-
 		/**
 		 * Helper for grabbing a Publicize object from the "front-end" (non-admin) of
 		 * a site. Normally Publicize is only loaded in wp-admin, so there's a little
