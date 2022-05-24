@@ -271,6 +271,9 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 			src: {
 				type: 'string',
+				source: 'attribute',
+				selector: 'video',
+				attribute: 'src',
 			},
 			useAverageColor: {
 				type: 'boolean',
