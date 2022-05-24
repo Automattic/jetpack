@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
 /**
@@ -21,9 +20,6 @@ export const settings = {
 	description: (
 		<Fragment>
 			<p>{ __( 'A single ingredient associated with a recipe.', 'jetpack' ) }</p>
-			<ExternalLink href="#">
-				{ __( 'Learn more about Recipe Ingredient', 'jetpack' ) }
-			</ExternalLink>
 		</Fragment>
 	),
 	keywords: [],
