@@ -131,5 +131,3 @@ if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 	// On wpcom, instantiate Jetpack_Publicize without any other checks.
 	new Jetpack_Publicize();
 }
-
-
