@@ -1,4 +1,4 @@
 Significance: minor
-Type: enhancement
+Type: major
 
-Adds a brand new recipe block to Jetpack's suite of Gutenberg blocks.
+Blocks: introduce a new Recipe block to display an easy to read recipe anywhere on your site.
