@@ -282,12 +282,12 @@ class WPCOM_Features {
 	public const BACKUP_ONE_TIME               = 'backup-one-time';
 	public const BLOG_DOMAIN_ONLY              = 'blog-domain-only';
 	public const CALENDLY                      = 'calendly';
-	public const CLASSIC_SEARCH                = 'search';
 	public const CDN                           = 'cdn';
+	public const CLASSIC_SEARCH                = 'search';
 	public const CLOUD_CRITICAL_CSS            = 'cloud-critical-css';
 	public const CLOUDFLARE_ANALYTICS          = 'cloudflare-analytics';
-	public const CONCIERGE                     = 'concierge';
 	public const CLOUDFLARE_CDN                = 'cloudflare-cdn';
+	public const CONCIERGE                     = 'concierge';
 	public const CONCIERGE_BUSINESS            = 'concierge-business';
 	public const CORE_AUDIO                    = 'core/audio';
 	public const CORE_COVER                    = 'core/cover';
@@ -354,6 +354,8 @@ class WPCOM_Features {
 	public const VAULTPRESS_STORAGE_SPACE      = 'vaultpress-storage-space';
 	public const VIDEO_HOSTING                 = 'video-hosting';
 	public const VIDEOPRESS                    = 'videopress';
+	public const VIDEOPRESS_1TB_STORAGE        = 'videopress-1tb-storage';
+	public const VIDEOPRESS_UNLIMITED_STORAGE  = 'videopress-unlimited-storage';
 	public const WHATSAPP_BUTTON               = 'whatsapp-button';
 	public const WOOP                          = 'woop';
 	public const WORDADS                       = 'wordads';
@@ -863,6 +865,25 @@ class WPCOM_Features {
 			self::WPCOM_VIDEOPRESS_PRO,
 			self::JETPACK_VIDEOPRESS,
 			self::JETPACK_VIDEOPRESS_MONTHLY,
+		),
+		self::VIDEOPRESS_1TB_STORAGE        => array(
+			array(
+				self::JETPACK_COMPLETE_PLANS,
+				self::JETPACK_VIDEOPRESS,
+				self::JETPACK_VIDEOPRESS_MONTHLY,
+			),
+		),
+		self::VIDEOPRESS_UNLIMITED_STORAGE  => array(
+			array(
+				'before' => '2021-10-07',
+				self::JETPACK_COMPLETE_PLANS,
+				self::JETPACK_SECURITY_DAILY_PLANS,
+				self::JETPACK_SECURITY_REALTIME_PLANS,
+				self::JETPACK_SECURITY_T1_PLANS,
+				self::JETPACK_SECURITY_T2_PLANS,
+				self::JETPACK_VIDEOPRESS,
+				self::JETPACK_VIDEOPRESS_MONTHLY,
+			),
 		),
 		self::WHATSAPP_BUTTON               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
