@@ -83,7 +83,9 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 								) }
 								{ showLegendLabelBeforeCount && (
 									<span>
-										<span className="record-meter-bar__legend--item-label">{ label }</span>
+										<span className="record-meter-bar__legend--item-label record-meter-bar__legend--item-label-first">
+											{ label }
+										</span>
 										<span className="record-meter-bar__legend--item-count">({ count })</span>
 									</span>
 								) }
