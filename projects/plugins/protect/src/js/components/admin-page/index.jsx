@@ -139,7 +139,7 @@ const ProtectAdminPage = () => {
 					<SeventyFiveLayout
 						main={
 							<div className={ styles[ 'main-content' ] }>
-								<H3 mt={ 8 }>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
+								<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
 								<Text>
 									{ __(
 										'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a few seconds.',
