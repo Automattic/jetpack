@@ -16,6 +16,10 @@
 		}
 	}
 
+	@media ( min-width: 600px ) {
+		grid-column: 2 / span 6;
+	}
+
 	@media ( min-width: 960px ) {
 		column-gap: calc( var( --vertical-spacing-lg ) * 2 );
 		grid-column: 3 / span 8;
@@ -32,6 +36,10 @@
 
 .text {
 	grid-column: span 2;
+
+	a {
+		color: inherit;
+	}
 
 	@media ( min-width: 600px ) {
 		grid-column: 2;

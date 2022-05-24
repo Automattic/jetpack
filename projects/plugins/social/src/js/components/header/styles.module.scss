@@ -1,5 +1,17 @@
+.container {
+	align-items: center;
+}
+
 .title {
 	font-size: var( --font-title-small );
 	line-height: 1.5;
 	color: var( --jp-black );
+}
+
+.illustration {
+	display: none;
+
+	@media ( min-width: 600px ) {
+		display: block;
+	}
 }

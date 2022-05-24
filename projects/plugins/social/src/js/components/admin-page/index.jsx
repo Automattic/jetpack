@@ -16,9 +16,8 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import styles from './styles.module.scss';
 import ConnectionScreen from './../connection-screen';
-import Connections from './../connections';
+import Logo from './../logo';
 import Header from './../header';
 import ToggleSection from './../toggle-section';
 import InfoSection from './../info-section';
@@ -32,7 +31,7 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
 	return (
-		<AdminPage moduleName={ __( 'Jetpack Social', 'jetpack-social' ) }>
+		<AdminPage moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) } header={ <Logo /> }>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -52,11 +51,6 @@ const Admin = () => {
 					<AdminSectionHero>
 						<InfoSection />
 					</AdminSectionHero>
-					<div>
-						<div className={ styles.publicizeConnectionsList }>
-							<Connections />
-						</div>
-					</div>
 				</>
 			) }
 		</AdminPage>

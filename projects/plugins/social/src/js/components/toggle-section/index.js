@@ -32,9 +32,13 @@ const ToggleSection = () => {
 				</Text>
 				<Text className={ styles.text }>
 					{ __(
-						'When enabled, you’ll be able to connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published. Learn more',
+						'When enabled, you’ll be able to connect your social media accounts and send a post’s featured image and content to the selected channels with a single click when the post is published.',
 						'jetpack-social'
 					) }
+					&nbsp;
+					<a href="https://wordpress.com/support/publicize/" target="_blank">
+						{ __( 'Learn more', 'jetpack-social' ) }
+					</a>
 				</Text>
 				{ connectionsAdminUrl && (
 					<Button
@@ -42,6 +46,7 @@ const ToggleSection = () => {
 						variant="primary"
 						href={ connectionsAdminUrl }
 						disabled={ isUpdating || ! isModuleEnabled }
+						target="_blank"
 					>
 						{ __( 'Manage social media connections', 'jetpack-social' ) }
 						<Icon size={ 24 } icon={ external } className={ styles[ 'external-icon' ] } />

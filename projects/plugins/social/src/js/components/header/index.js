@@ -8,12 +8,12 @@ import { Container, Col, H3 } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import styles from './styles.module.scss';
-import illustation from './illustration.svg';
+import illustration from './illustration.svg';
 
 const Header = () => (
-	<Container horizontalSpacing={ 2 } horizontalGap={ 7 }>
+	<Container horizontalSpacing={ 3 } horizontalGap={ 7 } className={ styles.container }>
 		<Col sm={ 4 } md={ 4 } lg={ 5 }>
-			<H3 mt={ 8 }>{ __( 'Share & Grow', 'jetpack-social' ) }</H3>
+			<H3>{ __( 'Share & Grow', 'jetpack-social' ) }</H3>
 			<p className={ styles.title }>
 				{ __(
 					'Jetpack Social allows you to share your WordPress posts with your social networks.',
@@ -21,8 +21,8 @@ const Header = () => (
 				) }
 			</p>
 		</Col>
-		<Col sm={ 4 } md={ 3 } lg={ 6 }>
-			<img src={ illustation } alt="" />
+		<Col sm={ 4 } md={ 4 } lg={ 6 } className={ styles.illustration }>
+			<img src={ illustration } alt="" />
 		</Col>
 	</Container>
 );
