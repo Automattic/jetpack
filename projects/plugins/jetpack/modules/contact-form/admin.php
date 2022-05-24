@@ -374,13 +374,13 @@ $('#feedback-restore-<?php echo esc_attr( $post_id ); ?>').click(function(e) {
 	e.preventDefault()
 	$.post(ajaxurl, {
 			action: 'grunion_ajax_spam',
-			post_id: '<?php echo $post_id; ?>',
+			post_id: '<?php echo esc_attr( $post_id ); ?>',
 			make_it: 'publish',
 			sub_menu: jQuery('.subsubsub .current').attr('href'),
 			_ajax_nonce: '<?php echo esc_attr( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>'
 		},
 		function(r) {
-			$('#post-<?php echo $post_id; ?>')
+			$('#post-<?php echo esc_attr( $post_id ); ?>')
 				.css({backgroundColor: '#59C859'})
 				.fadeOut(350, function() {
 					$(this).remove();
@@ -394,34 +394,34 @@ $('#feedback-restore-<?php echo esc_attr( $post_id ); ?>').click(function(e) {
 
 				<?php
 			} elseif ( $post->post_status === 'publish' ) {
-				echo '<span class="spam" id="feedback-spam-' . $post_id;
+				echo '<span class="spam" id="feedback-spam-' . esc_attr( $post_id );
 				echo '"><a title="';
-				echo __( 'Mark this message as spam', 'jetpack' );
-				echo '" href="' . wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . $post_id . '&amp;action=spam' ), 'spam-feedback_' . $post_id );
+				echo esc_html__( 'Mark this message as spam', 'jetpack' );
+				echo '" href="' . esc_url( wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . $post_id . '&amp;action=spam' ) ), 'spam-feedback_' . $post_id );
 				echo '">Spam</a></span>';
 				echo ' | ';
 
-				echo '<span class="delete" id="feedback-trash-' . $post_id;
+				echo '<span class="delete" id="feedback-trash-' . esc_attr( $post_id );
 				echo '">';
 				echo '<a class="submitdelete" title="' . esc_attr__( 'Trash', 'jetpack' );
 				echo '" href="' . get_delete_post_link( $post_id );
-				echo '">' . __( 'Trash', 'jetpack' ) . '</a></span>';
+				echo '">' . esc_html__( 'Trash', 'jetpack' ) . '</a></span>';
 
 				?>
 
 <script>
 jQuery(document).ready( function($) {
-	$('#feedback-spam-<?php echo $post_id; ?>').click( function(e) {
+	$('#feedback-spam-<?php echo esc_attr( $post_id ); ?>').click( function(e) {
 		e.preventDefault();
 		$.post( ajaxurl, {
 				action: 'grunion_ajax_spam',
-				post_id: '<?php echo $post_id; ?>',
+				post_id: '<?php echo esc_attr( $post_id ); ?>',
 				make_it: 'spam',
 				sub_menu: jQuery('.subsubsub .current').attr('href'),
-				_ajax_nonce: '<?php echo wp_create_nonce( 'grunion-post-status-' . $post_id ); ?>'
+				_ajax_nonce: '<?php echo esc_attr( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>'
 			},
 			function( r ) {
-				$('#post-<?php echo $post_id; ?>')
+				$('#post-<?php echo esc_attr( $post_id ); ?>')
 					.css( {backgroundColor:'#FF7979'} )
 					.fadeOut(350, function() {
 						$(this).remove();
@@ -430,17 +430,17 @@ jQuery(document).ready( function($) {
 		});
 	});
 
-	$('#feedback-trash-<?php echo $post_id; ?>').click(function(e) {
+	$('#feedback-trash-<?php echo esc_attr( $post_id ); ?>').click(function(e) {
 		e.preventDefault();
 		$.post(ajaxurl, {
 				action: 'grunion_ajax_spam',
-				post_id: '<?php echo $post_id; ?>',
+				post_id: '<?php echo esc_attr( $post_id ); ?>',
 				make_it: 'trash',
 				sub_menu: jQuery('.subsubsub .current').attr('href'),
-				_ajax_nonce: '<?php echo wp_create_nonce( 'grunion-post-status-' . $post_id ); ?>'
+				_ajax_nonce: '<?php echo esc_attr( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>'
 			},
 			function(r) {
-				$('#post-<?php echo $post_id; ?>')
+				$('#post-<?php echo esc_attr( $post_id ); ?>')
 					.css({backgroundColor: '#FF7979'})
 					.fadeOut(350, function() {
 						$(this).remove();
@@ -454,32 +454,32 @@ jQuery(document).ready( function($) {
 
 				<?php
 			} elseif ( $post->post_status === 'spam' ) {
-				echo '<span class="unspam unapprove" id="feedback-ham-' . $post_id;
+				echo '<span class="unspam unapprove" id="feedback-ham-' . esc_attr( $post_id );
 				echo '"><a title="';
-				echo __( 'Mark this message as NOT spam', 'jetpack' );
+				echo esc_html__( 'Mark this message as NOT spam', 'jetpack' );
 				echo '" href="">Not Spam</a></span>';
 				echo ' | ';
 
-				echo "<span class='delete' id='feedback-trash-" . $post_id;
+				echo "<span class='delete' id='feedback-trash-" . esc_attr( $post_id );
 				echo "'> <a class='submitdelete' title='";
 				echo esc_attr( __( 'Delete this item permanently', 'jetpack' ) );
 				echo "' href='" . get_delete_post_link( $post->ID, '', true );
-				echo "'>" . __( 'Delete Permanently', 'jetpack' ) . '</a></span>';
+				echo "'>" . esc_html__( 'Delete Permanently', 'jetpack' ) . '</a></span>';
 				?>
 
 <script>
 jQuery(document).ready( function($) {
-	$('#feedback-ham-<?php echo $post_id; ?>').click( function(e) {
+	$('#feedback-ham-<?php echo esc_attr( $post_id ); ?>').click( function(e) {
 		e.preventDefault();
 		$.post( ajaxurl, {
 				action: 'grunion_ajax_spam',
-				post_id: '<?php echo $post_id; ?>',
+				post_id: '<?php echo esc_attr( $post_id ); ?>',
 				make_it: 'ham',
 				sub_menu: jQuery('.subsubsub .current').attr('href'),
-				_ajax_nonce: '<?php echo wp_create_nonce( 'grunion-post-status-' . $post_id ); ?>'
+				_ajax_nonce: '<?php echo esc_html( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>'
 			},
 			function( r ) {
-				$('#post-<?php echo $post_id; ?>')
+				$('#post-<?php echo esc_attr( $post_id ); ?>')
 					.css( {backgroundColor:'#59C859'} )
 					.fadeOut(350, function() {
 						$(this).remove();
@@ -495,11 +495,12 @@ jQuery(document).ready( function($) {
 			break;
 
 		case 'feedback_date':
+			// translators: the time the feedback was sent.
 			$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
 			$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
 			$time             = date_i18n( $date_time_format, get_the_time( 'U' ) );
 
-			echo $time;
+			echo esc_html( $time );
 			break;
 	}
 }
