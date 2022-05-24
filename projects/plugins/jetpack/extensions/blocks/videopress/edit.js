@@ -709,50 +709,57 @@ const VideoPressEdit = CoreVideoEdit =>
 			const shouldUseJetpackVideoFetch = () => {
 				return 'videoPressUploadPoster' in window;
 			};
+			const filename = escapeHTML( fileForUpload ? fileForUpload.name : '' );
+			const onChangeTitle = newTitle => this.setState( { title: newTitle } );
+
+			const onSelectPoster = attachment => {
+				this.setState( { videoPosterImageData: attachment } );
+			};
+
+			const sendUpdateTitleRequest = () => {
+				const title = this.state.title;
+				this.updateMetaApiCall(
+					{ title: title },
+					() => this.setState( { isUpdatingTitle: true, title } ),
+					() => this.setState( { title: title } ),
+					() => this.setState( { isUpdatingTitle: false } )
+				);
+			};
+
+			const sendUpdatePosterRequest = () => {
+				if ( shouldUseJetpackVideoFetch() ) {
+					return window.videoPressUploadPoster( guid, this.state.videoPosterImageData.id );
+				}
+
+				apiFetch( {
+					path: `/videos/${ guid }/poster`,
+					apiNamespace: 'rest/v1.1',
+					method: 'POST',
+					global: true,
+					data: {
+						poster_attachment_id: this.state.videoPosterImageData.id,
+					},
+				} ).catch( e => console.log( e ) );
+			};
+
+			const dismissEditor = () => {
+				this.setState( { isEditingWhileUploading: false } );
+
+				if ( this.state.videoPosterImageData ) {
+					sendUpdatePosterRequest();
+				}
+
+				if ( this.state.title ) {
+					sendUpdateTitleRequest();
+				}
+			};
 
 			if ( isResumableUploading || this.state.isEditingWhileUploading ) {
 				if ( ! this.state.isEditingWhileUploading ) {
 					this.setState( { isEditingWhileUploading: true } );
 				}
-				const filename = escapeHTML( fileForUpload ? fileForUpload.name : '' );
-				const dismissEditor = () => {
-					this.setState( { isEditingWhileUploading: false } );
 
-					// send poster request
-					if ( this.state.videoPosterImageData ) {
-						if ( shouldUseJetpackVideoFetch() ) {
-							return window.videoPressUploadPoster(
-								guid,
-								this.state.videoPosterImageData.id,
-							);
-						}
-
-						apiFetch( {
-							path: `/videos/${ guid }/poster`,
-							apiNamespace: 'rest/v1.1',
-							method: 'POST',
-							global: true,
-							data: {
-								poster_attachment_id: this.state.videoPosterImageData.id,
-							},
-						} )
-							.then( result => {
-								// check for wpcom status field, if set
-								console.log(result)
-
-							} )
-							.catch( (e) => { console.log(e)} )
-							.finally( () => {
-							} );
-					}
-
-					// send title
-				};
-
-				const onSelectPoster = attachment => {
-					// store it
-					this.setState( { videoPosterImageData: attachment } );
-				}
+				const title = this.state.title || filename;
 
 				return <UploaderBlock
 					fileForUpload={ fileForUpload }
@@ -762,9 +769,11 @@ const VideoPressEdit = CoreVideoEdit =>
 					onDismissEditor={ dismissEditor }
 					isUploadComplete={ this.state.isUploadComplete }
 					onSelectPoster={ onSelectPoster }
+					onChangeTitle={ onChangeTitle }
+					title={ title }
 					videoPosterImageData={this.state.videoPosterImageData}
 				/>;
-			}
+			};
 
 			/*
 			 * The Loading/CoreVideoEdit blocks should be in the tree if :
@@ -854,6 +863,17 @@ const UploaderBlock = props => {
 		className: 'resumable-upload',
 	} );
 
+	const {
+		onChangeTitle,
+		title,
+		filename,
+		onSelectPoster,
+		videoPosterImageData,
+		fileForUpload,
+		isUploadComplete,
+		onDismissEditor,
+	} = props;
+
 	return (
 		<VideoPressBlockProvider onUploadFinished={ props.uploadFinished }>
 			<Fragment>
@@ -863,12 +883,18 @@ const UploaderBlock = props => {
 						<Icon icon={ VideoPressIcon } />
 						<div className="uploader-block__logo-text">{ __( 'VideoPress', 'jetpack' ) }</div>
 					</div>
-					<UploadingEditor filename={ props.filename } onSelectPoster={ props.onSelectPoster } videoPosterImageData={props.videoPosterImageData} />
-					{ ! props.isUploadComplete && <ResumableUpload file={ props.fileForUpload } /> }
-					{ props.isUploadComplete && (
+					<UploadingEditor
+						filename={ filename }
+						title={ title }
+						onChangeTitle={ onChangeTitle }
+						onSelectPoster={ onSelectPoster }
+						videoPosterImageData={ videoPosterImageData }
+					/>
+					{ ! props.isUploadComplete && <ResumableUpload file={ fileForUpload } /> }
+					{ isUploadComplete && (
 						<div className="uploader-block__upload-complete">
 							<span>{ __( 'Upload Complete!', 'jetpack' ) } 🎉</span>
-							<Button variant="primary" onClick={ props.onDismissEditor }>
+							<Button variant="primary" onClick={ onDismissEditor }>
 								{ __( 'Done', 'jetpack' ) }
 							</Button>
 						</div>
