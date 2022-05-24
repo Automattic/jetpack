@@ -10,6 +10,7 @@ type JetpackButtonBaseProps = {
 	disabled?: boolean;
 	isDestructive?: boolean;
 	isLoading?: boolean;
+	isExternalLink?: boolean;
 	size?: 'normal' | 'small';
 	text?: string;
 	weight?: 'bold' | 'regular';
