@@ -513,28 +513,3 @@ export function containsBackupRealtime( planClass ) {
 		'is-realtime-backup-plan',
 	].includes( planClass );
 }
-
-/**
- * Security plans no longer includes VideoPress as of Oct 7 2021 00:00 UTC.
- * We use this check to identify purchases of Security plans AFTER Oct 7 2021 00:00 UTC to EXCLUDE them from the
- * VideoPress feature.
- *
- * @param {*} purchase - The site purchase object.
- * @returns {boolean} True if Security plan purchased after Oct 7 2021 (VideoPress is NOT included).
- */
-export const isSecurityPlanExcludingVideoPress = purchase =>
-	purchase.active &&
-	includes(
-		[
-			PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
-			PLAN_JETPACK_SECURITY_DAILY,
-			PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
-			PLAN_JETPACK_SECURITY_REALTIME,
-			PLAN_JETPACK_SECURITY_T1_YEARLY,
-			PLAN_JETPACK_SECURITY_T1_MONTHLY,
-			PLAN_JETPACK_SECURITY_T2_YEARLY,
-			PLAN_JETPACK_SECURITY_T2_MONTHLY,
-		],
-		purchase.product_slug
-	) &&
-	new Date( purchase.subscribed_date ) >= new Date( '2021-10-07T00:00:00+00:00' );

@@ -28,6 +28,7 @@ import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 's
 import {
 	getSitePlan,
 	getVideoPressStorageUsed,
+	hasActiveSiteFeature,
 	hasActiveVideoPressFeature,
 	isFetchingSitePurchases,
 } from 'state/site';
@@ -53,13 +54,15 @@ class Media extends React.Component {
 		const {
 			hasConnectedOwner,
 			hasVideoPressFeature,
+			hasVideoPressUnlimitedStorage,
 			isFetching,
 			isOffline,
 			upgradeUrl,
 			videoPressStorageUsed,
 		} = this.props;
 
-		const shouldDisplayStorage = hasVideoPressFeature && null !== videoPressStorageUsed;
+		const shouldDisplayStorage =
+			hasVideoPressFeature && ! hasVideoPressUnlimitedStorage && null !== videoPressStorageUsed;
 
 		const bannerText =
 			! hasVideoPressFeature && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
@@ -161,6 +164,7 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
 		hasVideoPressFeature: hasActiveVideoPressFeature( state ),
+		hasVideoPressUnlimitedStorage: hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),
 		isFetching: isFetchingSitePurchases( state ),

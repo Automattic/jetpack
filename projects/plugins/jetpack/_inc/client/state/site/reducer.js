@@ -13,10 +13,8 @@ import {
 	isJetpackProduct,
 	isJetpackSearch,
 	isJetpackSecurityBundle,
-	isJetpackVideoPress,
 	isJetpackAntiSpam,
 	isSecurityComparableJetpackLegacyPlan,
-	isSecurityPlanExcludingVideoPress,
 } from 'lib/plans/constants';
 import {
 	JETPACK_SITE_DATA_FETCH,
@@ -413,28 +411,15 @@ export function hasActiveSearchPurchase( state ) {
 }
 
 /**
- * Searches active products for an active VideoPress product.
- *
- * @param {*} state - Global state tree
- * @returns {boolean} True if the an active VideoPress plan was found, false otherwise.
- */
-export function getActiveVideoPressPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
-		isJetpackVideoPress( product.product_slug )
-	);
-}
-
-/**
- * Determines if the site has an active VideoPress feature and excludes the VideoPress feature from Security plans
- * purchased after a certain date.
+ * Determines if the site has an active VideoPress feature.
  *
  * @param {*} state - Global state tree
  * @returns {boolean} True if the site has an active VideoPress product purchase, false otherwise.
  */
 export function hasActiveVideoPressFeature( state ) {
 	return (
-		hasActiveSiteFeature( state, 'videopress' ) &&
-		! getSitePurchases( state ).find( isSecurityPlanExcludingVideoPress )
+		hasActiveSiteFeature( state, 'videopress-1tb-storage' ) ||
+		hasActiveSiteFeature( state, 'videopress-unlimited-storage' )
 	);
 }
 

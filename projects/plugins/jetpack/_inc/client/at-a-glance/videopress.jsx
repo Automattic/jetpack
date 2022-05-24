@@ -70,9 +70,8 @@ class DashVideoPress extends Component {
 			videoPressStorageUsed,
 		} = this.props;
 
-		console.log( '=======> ' + hasVideoPressUnlimitedStorage );
-
-		const shouldDisplayStorage = ! hasVideoPressUnlimitedStorage && null !== videoPressStorageUsed;
+		const shouldDisplayStorage =
+			hasVideoPressFeature && ! hasVideoPressUnlimitedStorage && null !== videoPressStorageUsed;
 		const shouldDisplayBanner =
 			hasConnectedOwner && ! hasVideoPressFeature && ! isOffline && ! isFetching;
 
