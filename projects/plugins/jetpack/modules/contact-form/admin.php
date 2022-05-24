@@ -663,10 +663,10 @@ function grunion_ajax_spam() {
 	require_once __DIR__ . '/grunion-contact-form.php';
 
 	$current_menu = '';
-	if ( isset( $_POST['sub_menu'] ) && preg_match( '|post_type=feedback|', $_POST['sub_menu'] ) ) {
-		if ( preg_match( '|post_status=spam|', $_POST['sub_menu'] ) ) {
+	if ( isset( $_POST['sub_menu'] ) && preg_match( '|post_type=feedback|', sanitize_text_field( wp_unslash( $_POST['sub_menu'] ) ) ) ) {
+		if ( preg_match( '|post_status=spam|', sanitize_text_field( wp_unslash( $_POST['sub_menu'] ) ) ) ) {
 			$current_menu = 'spam';
-		} elseif ( preg_match( '|post_status=trash|', $_POST['sub_menu'] ) ) {
+		} elseif ( preg_match( '|post_status=trash|', sanitize_text_field( wp_unslash( $_POST['sub_menu'] ) ) ) ) {
 			$current_menu = 'trash';
 		} else {
 			$current_menu = 'messages';
@@ -689,7 +689,11 @@ function grunion_ajax_spam() {
 		/** This action is already documented in modules/contact-form/admin.php */
 		do_action( 'contact_form_akismet', 'ham', $akismet_values );
 
-		$comment_author_email = $reply_to_addr = $message = $to = $headers = false;
+		$comment_author_email = false;
+		$reply_to_addr        = false;
+		$message              = false;
+		$to                   = false;
+		$headers              = false;
 		$blog_url             = wp_parse_url( site_url() );
 
 		// resend the original email
@@ -743,19 +747,19 @@ function grunion_ajax_spam() {
 		}
 	} elseif ( $_POST['make_it'] === 'publish' ) {
 		if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
-			wp_die( __( 'You are not allowed to move this item out of the Trash.', 'jetpack' ) );
+			wp_die( esc_html__( 'You are not allowed to move this item out of the Trash.', 'jetpack' ) );
 		}
 
 		if ( ! wp_untrash_post( $post_id ) ) {
-			wp_die( __( 'Error in restoring from Trash.', 'jetpack' ) );
+			wp_die( esc_html__( 'Error in restoring from Trash.', 'jetpack' ) );
 		}
 	} elseif ( $_POST['make_it'] === 'trash' ) {
 		if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
-			wp_die( __( 'You are not allowed to move this item to the Trash.', 'jetpack' ) );
+			wp_die( esc_html__( 'You are not allowed to move this item to the Trash.', 'jetpack' ) );
 		}
 
 		if ( ! wp_trash_post( $post_id ) ) {
-			wp_die( __( 'Error in moving to Trash.', 'jetpack' ) );
+			wp_die( esc_html__( 'Error in moving to Trash.', 'jetpack' ) );
 		}
 	}
 
