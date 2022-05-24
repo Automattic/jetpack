@@ -133,6 +133,11 @@ class Jetpack_Lazy_Images {
 	 * @return void
 	 */
 	public function setup_filters() {
+		// Do not lazy-load images in RSS feeds.
+		if ( is_feed() ) {
+			return;
+		}
+
 		add_filter( 'the_content', array( $this, 'add_image_placeholders' ), PHP_INT_MAX ); // Run this later, so other content filters have run, including image_add_wh on WP.com.
 		add_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );

@@ -438,6 +438,14 @@ const execJtCmdHandler = argv => {
 		cmd = jtTunnelFile;
 		opts.push( 'break' );
 	} else if ( arg === 'jt-up' ) {
+		const dockerPs = spawnSync( 'docker', [ 'ps' ] );
+		if ( dockerPs.status !== 0 ) {
+			console.warn(
+				chalk.yellow( 'Docker status unreachable. Make sure that the Docker service has started.' )
+			);
+			process.exit( dockerPs.status );
+		}
+
 		cmd = jtTunnelFile;
 		console.warn(
 			chalk.yellow(
@@ -447,12 +455,40 @@ const execJtCmdHandler = argv => {
 	}
 
 	const jtResult = executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
+
+	if ( jtResult.status !== 0 ) {
+		// Try to check if the default named Jetpack container is up.
+		const dockerPs = spawnSync(
+			'docker',
+			[
+				"ps --filter 'name=jetpack_dev_wordpress' --filter 'status=running' --format='{{.ID}} {{.Names}}'",
+			],
+			{
+				encoding: 'utf8',
+				shell: true,
+			}
+		);
+
+		if ( dockerPs.status === 0 && dockerPs.stdout.length === 0 ) {
+			console.warn(
+				chalk.yellow(
+					'Unable to establish Jurassic Tube connection. Is your Jetpack Docker container up? If not, try: jetpack docker up -d'
+				)
+			);
+
+			process.exit( jtResult.status );
+		}
+	}
+
 	checkProcessResult( jtResult );
-	console.warn(
-		chalk.yellow(
-			'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
-		)
-	);
+
+	if ( arg !== 'jt-down' ) {
+		console.warn(
+			chalk.yellow(
+				'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
+			)
+		);
+	}
 };
 
 /**

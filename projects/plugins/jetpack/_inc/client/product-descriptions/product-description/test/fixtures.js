@@ -31,7 +31,8 @@ export function buildInitialState() {
 						"features": [
 							"Automated daily scanning",
 							"One-click fixes for most issues",
-							"Instant email notifications"
+							"Instant email notifications",
+							"Access to latest Firewall rules"
 						]
 					},
 					"search": {

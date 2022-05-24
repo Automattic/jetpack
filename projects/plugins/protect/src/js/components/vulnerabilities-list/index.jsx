@@ -17,14 +17,14 @@ const VulnerabilitiesList = () => {
 	const { item, list, selected, setSelected } = useVulsList();
 
 	return (
-		<Container fluid>
+		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 5 }>
 			<Col lg={ 4 }>
 				<VulnerabilitiesNavigation selected={ selected } onSelect={ setSelected } />
 			</Col>
 			<Col lg={ 8 }>
 				{ list?.length > 0 ? (
 					<>
-						<Title>
+						<Title mb={ 3 }>
 							{ selected === 'all'
 								? sprintf(
 										/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */

@@ -13,6 +13,8 @@ import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import styles from './style.module.scss';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 /**
  * Basic plan section component.
@@ -63,6 +65,9 @@ function PlanSectionHeader( { purchases } ) {
  * @returns {object} PlanSectionFooter react component.
  */
 function PlanSectionFooter( { purchases } ) {
+	const { recordEvent } = useAnalytics();
+	const { isUserConnected } = useMyJetpackConnection();
+
 	let planLinkDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
 	if ( purchases.length >= 1 ) {
 		planLinkDescription = _n(
@@ -73,8 +78,6 @@ function PlanSectionFooter( { purchases } ) {
 		);
 	}
 
-	const { recordEvent } = useAnalytics();
-
 	const purchaseClickHandler = useCallback( () => {
 		const event = purchases.length
 			? 'jetpack_myjetpack_plans_manage_click'
@@ -82,9 +85,21 @@ function PlanSectionFooter( { purchases } ) {
 		recordEvent( event );
 	}, [ purchases, recordEvent ] );
 
+	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 	const activateLicenseClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
-	}, [ recordEvent ] );
+		if ( ! isUserConnected ) {
+			navigateToConnectionPage();
+		}
+	}, [ navigateToConnectionPage, isUserConnected, recordEvent ] );
+
+	let activateLicenceDescription = __( 'Activate a license', 'jetpack-my-jetpack' );
+	if ( ! isUserConnected ) {
+		activateLicenceDescription = __(
+			'Activate a license (requires a user connection)',
+			'jetpack-my-jetpack'
+		);
+	}
 
 	return (
 		<ul>
@@ -102,11 +117,15 @@ function PlanSectionFooter( { purchases } ) {
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Button
 						onClick={ activateLicenseClickHandler }
-						href={ `${ window?.myJetpackInitialState?.adminUrl }admin.php?page=my-jetpack#/add-license` }
+						href={
+							isUserConnected
+								? `${ window?.myJetpackInitialState?.adminUrl }admin.php?page=my-jetpack#/add-license`
+								: undefined
+						}
 						variant="link"
 						weight="regular"
 					>
-						{ __( 'Activate a license', 'jetpack-my-jetpack' ) }
+						{ activateLicenceDescription }
 					</Button>
 				</li>
 			) }

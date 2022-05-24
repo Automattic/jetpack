@@ -186,7 +186,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create_many( 2 );
 		$this->sender->do_sync();
 
-		$this->assertTrue( empty( $this->server_event_storage->get_all_events() ) );
+		$this->assertEmpty( $this->server_event_storage->get_all_events() );
 	}
 
 	public function test_enable_sending_incremental_sync() {
@@ -200,7 +200,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create_many( 2 );
 		$this->sender->do_sync();
 
-		$this->assertFalse( empty( $this->server_event_storage->get_all_events() ) );
+		$this->assertNotEmpty( $this->server_event_storage->get_all_events() );
 	}
 
 	/**

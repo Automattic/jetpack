@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
  * Lets you round the numeric elements of an array to integers while preserving their sum.
@@ -14,6 +14,14 @@
  * If $sum is less than the sum of the floor of the elements of the array, the class defaults to using the sum of the array elements.
  */
 class Jetpack_Constrained_Array_Rounding {
+	/**
+	 * Get the rounded constrained array.
+	 *
+	 * @param array $bound_array - the array we're rounding.
+	 * @param int   $sum - the sum of the array.
+	 *
+	 * @return array
+	 */
 	public static function get_rounded_constrained_array( $bound_array, $sum = false ) {
 		// Convert associative arrays before working with them and convert them back before returning the values
 		$keys        = array_keys( $bound_array );
@@ -34,6 +42,13 @@ class Jetpack_Constrained_Array_Rounding {
 		return array_combine( $keys, $bound_array_fin );
 	}
 
+	/**
+	 * Get int floor of array values.
+	 *
+	 * @param array $bound_array - the array we're getting floor values for.
+	 *
+	 * @return array
+	 */
 	private static function get_int_floor_array( $bound_array ) {
 		$bound_array_int_floor = array();
 		foreach ( $bound_array as $i => $value ) {
@@ -47,6 +62,12 @@ class Jetpack_Constrained_Array_Rounding {
 		return $bound_array_int_floor;
 	}
 
+	/**
+	 * Adjust the constrained array.
+	 *
+	 * @param array $bound_array_int - the array we're adjusting.
+	 * @param int   $adjustment - how much we're adjusting the array.
+	 */
 	private static function adjust_constrained_array( &$bound_array_int, $adjustment ) {
 		usort( $bound_array_int, array( 'self', 'cmp_desc_fraction' ) );
 
@@ -61,15 +82,31 @@ class Jetpack_Constrained_Array_Rounding {
 		usort( $bound_array_int, array( 'self', 'cmp_asc_index' ) );
 	}
 
+	/**
+	 * Compare fraction values of two arrays.
+	 *
+	 * @param array $a - the first array we're comparing.
+	 * @param array $b - the second array we're comparing.
+	 *
+	 * @return int
+	 */
 	private static function cmp_desc_fraction( $a, $b ) {
-		if ( $a['fraction'] == $b['fraction'] ) {
+		if ( $a['fraction'] === $b['fraction'] ) {
 			return 0;
 		}
 		return $a['fraction'] > $b['fraction'] ? -1 : 1;
 	}
 
+	/**
+	 * Compare index values of two arrays.
+	 *
+	 * @param array $a - the first array.
+	 * @param array $b - the second array.
+	 *
+	 * @return int
+	 */
 	private static function cmp_asc_index( $a, $b ) {
-		if ( $a['index'] == $b['index'] ) {
+		if ( $a['index'] === $b['index'] ) {
 			return 0;
 		}
 		return $a['index'] < $b['index'] ? -1 : 1;

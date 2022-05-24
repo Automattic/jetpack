@@ -72,8 +72,9 @@ export default function ConnectionPage( { isLoading = false } ) {
 					) }
 				</p>
 				<p className="jp-search-dashboard-connection-footer__text">
+					*{ ' ' }
 					{ __(
-						'*Pricing will automatically adjust based on the number of records in your search index. ',
+						'Pricing will automatically adjust based on the number of records in your search index.',
 						'jetpack-search-pkg'
 					) }
 					<a

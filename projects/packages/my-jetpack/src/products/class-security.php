@@ -120,11 +120,12 @@ class Security extends Module_Product {
 	/**
 	 * Activates the product by installing and activating its plugin
 	 *
+	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
 	 * @return boolean|\WP_Error
 	 */
-	public static function activate() {
+	public static function do_product_specific_activation( $current_result ) {
 
-		$product_activation = parent::activate();
+		$product_activation = parent::do_product_specific_activation( $current_result );
 
 		if ( is_wp_error( $product_activation ) && 'module_activation_failed' === $product_activation->get_error_code() ) {
 			// A bundle is not a module. There's nothing in the plugin to be activated, so it's ok to fail to activate the module.

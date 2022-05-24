@@ -69,7 +69,7 @@ const NavigationItem = ( {
 	);
 
 	useEffect( () => {
-		registerItem( { id, disabled } );
+		registerItem( { id, disabled, label, icon } );
 		// eslint-disable-next-line
 	}, [] );
 

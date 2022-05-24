@@ -321,11 +321,11 @@ abstract class Product {
 	}
 
 	/**
-	 * Activates the product by installing and activating its plugin
+	 * Perform the top level activation routines, which is installing and activating the required plugin
 	 *
-	 * @return boolean|WP_Error
+	 * @return bool|WP_Error
 	 */
-	public static function activate() {
+	private static function do_activation() {
 		if ( static::is_active() ) {
 			return true;
 		}
@@ -345,7 +345,43 @@ abstract class Product {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
-		return $result === null;
+
+		return true;
+	}
+
+	/**
+	 * Activates the product by installing and activating its plugin
+	 *
+	 * @return boolean|WP_Error
+	 */
+	final public static function activate() {
+
+		$result = self::do_activation();
+
+		$result = static::do_product_specific_activation( $result );
+
+		$product_slug = static::$slug;
+
+		/**
+		 * Fires after My Jetpack activates a product and filters the result
+		 * Use this filter to run additional routines for a product activation on stand-alone plugins
+		 *
+		 * @param bool|WP_Error $result The result of the previous steps of activation.
+		 */
+		$result = apply_filters( "my_jetpack_{$product_slug}_activation", $result );
+
+		return $result;
+
+	}
+
+	/**
+	 * Override this method to perform product specific activation routines.
+	 *
+	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $current_result ) {
+		return $current_result;
 	}
 
 	/**

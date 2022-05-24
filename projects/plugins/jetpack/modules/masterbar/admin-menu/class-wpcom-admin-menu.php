@@ -30,6 +30,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
+		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
 	}
@@ -47,10 +48,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
-			$nudge = $this->get_upsell_nudge();
-			if ( $nudge ) {
-				parent::add_upsell_nudge( $nudge );
-			}
 			$this->add_new_site_link();
 		}
 

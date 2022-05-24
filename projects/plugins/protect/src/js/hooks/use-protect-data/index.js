@@ -83,6 +83,7 @@ export default function useProtectData() {
 		statusIsFetching,
 		status,
 		securityBundle,
+		productData,
 	} = useSelect( select => ( {
 		installedPlugins: select( STORE_ID ).getInstalledPlugins(),
 		installedThemes: select( STORE_ID ).getInstalledThemes(),
@@ -90,6 +91,7 @@ export default function useProtectData() {
 		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
 		status: select( STORE_ID ).getStatus(),
 		securityBundle: select( STORE_ID ).getSecurityBundle(),
+		productData: select( STORE_ID ).getProductData(),
 	} ) );
 
 	const plugins = mergeInstalledAndCheckedLists( installedPlugins, status.plugins || {} );
@@ -117,5 +119,6 @@ export default function useProtectData() {
 		currentStatus,
 		hasUncheckedItems,
 		securityBundle,
+		productData,
 	};
 }

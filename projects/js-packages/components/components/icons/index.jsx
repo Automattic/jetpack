@@ -104,6 +104,13 @@ export const SearchIcon = ( { opacity = 1, size } ) => (
 	</IconWrapper>
 );
 
+export const SocialIcon = ( { opacity = 1, size } ) => (
+	<IconWrapper size={ size } opacity={ opacity }>
+		<Path d="M16.5 3.978v14.044L4.275 14.317A2.5 2.5 0 0 1 2.5 11.925v-1.85a2.5 2.5 0 0 1 1.775-2.392L16.5 3.978ZM4.71 12.882a1 1 0 0 1-.71-.957v-1.85a1 1 0 0 1 .71-.957L15 6v10L4.71 12.882Z" />
+		<Path d="M7 20V7h1.5v13H7Zm15.5-8.25h-4v-1.5h4v1.5Zm0 4.25-4-1v-1.5l4 1V16Zm0-8.5-4 1V7l4-1v1.5Z" />
+	</IconWrapper>
+);
+
 export const VideopressIcon = ( { opacity = 1, size } ) => (
 	<IconWrapper size={ size } opacity={ opacity }>
 		<Path d="M5.286 4.5h13.428c.434 0 .786.352.786.786v13.428a.786.786 0 0 1-.786.786H5.286a.786.786 0 0 1-.786-.786V5.286c0-.434.352-.786.786-.786ZM3 5.286A2.286 2.286 0 0 1 5.286 3h13.428A2.286 2.286 0 0 1 21 5.286v13.428A2.286 2.286 0 0 1 18.714 21H5.286A2.286 2.286 0 0 1 3 18.714V5.286ZM15 12l-5-3v6l5-3Z" />
@@ -238,6 +245,7 @@ const iconsMap = {
 	protect: ProtectIcon,
 	scan: ScanIcon,
 	search: SearchIcon,
+	social: SocialIcon,
 	star: StarIcon,
 	videopress: VideopressIcon,
 	jetpack: JetpackIcon,

@@ -199,7 +199,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$current_time = time();
 
 		$this->assertTrue( abs( $current_time - $result['site_info']['last_check'] ) < 10 );
-		$this->assertTrue( empty( $result['site_info']['last_update'] ) );
+		$this->assertEmpty( $result['site_info']['last_update'] );
 
 		unset( $result['site_info']['last_check'], $result['site_info']['last_update'] );
 
@@ -270,7 +270,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertTrue( abs( $current_time - $result['site_info']['last_update'] ) < 10 );
 
 		$this->assertTrue( abs( $current_time - $result['posts']['last_check'] ) < 10 );
-		$this->assertTrue( empty( $result['posts']['last_update'] ) );
+		$this->assertEmpty( $result['posts']['last_update'] );
 
 		unset( $result['site_info']['last_check'], $result['site_info']['last_update'] );
 		unset( $result['posts']['last_check'], $result['posts']['last_update'] );
@@ -351,7 +351,7 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertTrue( abs( $current_time - $result['site_info']['last_update'] ) < 10 );
 
 		$this->assertTrue( abs( $current_time - $result['posts']['last_check'] ) < 10 );
-		$this->assertTrue( empty( $result['posts']['last_update'] ) );
+		$this->assertTrue( empty( $result['posts']['last_update'] ) ); // phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertEmpty -- We need the potential error suppression.
 
 		unset( $result['site_info']['last_check'], $result['site_info']['last_update'] );
 		unset( $result['posts']['last_check'], $result['posts']['last_update'] );
