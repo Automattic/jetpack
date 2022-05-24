@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '1.5.0-alpha';
+	const PACKAGE_VERSION = '1.5.0';
 
 	/**
 	 * Initialize My Jetapack
@@ -86,7 +86,7 @@ class Initializer {
 		 * @param bool $is_enabled Defaults to true.
 		 *
 		 * @since 1.2.0
-		 * @since $$next-version$$ Update default value to true.
+		 * @since 1.5.0 Update default value to true.
 		 */
 		return apply_filters(
 			'jetpack_my_jetpack_should_enable_add_license_screen',
