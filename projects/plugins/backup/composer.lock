@@ -235,7 +235,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "8e4f046f0e964ac2d2a50afd32e60183b0fbd972"
+                "reference": "0fd14086464709bc3c6005fc6fff0f88150cdaa7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
