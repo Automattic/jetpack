@@ -10,7 +10,7 @@ import { Fragment } from '@wordpress/element';
  */
 import edit from './edit';
 import save from './save';
-import icon from './icon';
+import icon from '../icon';
 import { getIconColor } from '../../../shared/block-icons';
 
 export const name = 'recipe-hero';

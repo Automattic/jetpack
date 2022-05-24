@@ -11,7 +11,7 @@ import { Fragment } from '@wordpress/element';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
-import icon from './icon';
+import icon from '../icon';
 import { getIconColor } from '../../../shared/block-icons';
 
 export const name = 'recipe-ingredient-item';
