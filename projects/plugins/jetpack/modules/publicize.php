@@ -104,7 +104,7 @@ class Jetpack_Publicize {
 	}
 }
 
-if ( in_array( 'publicize', Jetpack::get_active_modules(), true ) ) {
+if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && in_array( 'publicize', Jetpack::get_active_modules(), true ) ) {
 	new Jetpack_Publicize();
 }
 
