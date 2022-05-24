@@ -114,7 +114,7 @@ class Social extends Hybrid_Product {
 	/**
 	 * Get the WPCOM product slug used to make the purchase
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_wpcom_product_slug() {
 		return 'jetpack_social';
@@ -123,7 +123,7 @@ class Social extends Hybrid_Product {
 	/**
 	 * Get the URL where the user manages the product
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=jetpack-social' );
