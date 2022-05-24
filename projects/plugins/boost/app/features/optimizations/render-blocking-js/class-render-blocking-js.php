@@ -210,7 +210,7 @@ class Render_Blocking_JS implements Feature {
 			'~<!--.*?-->~si',
 
 			// Scripts with application/json type
-			'~<script.*type="application/json".*>.*</script>~si',
+			'~<script.*type=(?<q>["\']*)application/json\k<q>.*>.*</script>~si',
 		);
 
 		return preg_replace_callback(
