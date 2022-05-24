@@ -8,7 +8,6 @@ import { Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import icon from './icon';
@@ -66,14 +65,8 @@ export const settings = {
 		// When false, the block won't be available to be converted into a reusable block.
 		reusable: true,
 	},
-	attributes,
 	edit,
 	save,
-	providesContext: {
-		'jetpack/recipe-prepTime': 'prepTime',
-		'jetpack/recipe-cookTime': 'cookTime',
-		'jetpack/recipe-servings': 'servings',
-	},
 };
 
 export const childBlocks = [

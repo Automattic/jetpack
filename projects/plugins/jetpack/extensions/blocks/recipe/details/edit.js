@@ -1,33 +1,62 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { TextControl } from '@wordpress/components';
+import { TextControl, __experimentalUnitControl as UnitControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
 
-function RecipeDetailsEdit( { className, context } ) {
+const units = [
+	{ value: 'm', label: 'min' },
+	{ value: 'h', label: 'hours' },
+];
+
+function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
+	const { prepTime, prepTimeLabel, cookTime, cookTimeLabel, servings, servingsLabel } = attributes;
 	return (
 		<div className={ className }>
 			<div className="wp-container wp-recipe-block-details">
-				<TextControl
-					label={ __( 'Prep time', 'jetpack' ) }
-					value={ context[ 'jetpack/recipe-prepTime' ] }
-					disabled
-				/>
-				<TextControl
-					label={ __( 'Cook time', 'jetpack' ) }
-					value={ context[ 'jetpack/recipe-cookTime' ] }
-					disabled
-				/>
-				<TextControl
-					label={ __( 'Servings', 'jetpack' ) }
-					value={ context[ 'jetpack/recipe-servings' ] }
-					disabled
-				/>
+				<div className="group">
+					<TextControl
+						value={ prepTimeLabel }
+						onChange={ val => setAttributes( { prepTimeLabel: val } ) }
+					/>
+					<UnitControl
+						onChange={ val => setAttributes( { prepTime: val } ) }
+						onUnitChange={ val => setAttributes( { prepTimeUnit: val } ) }
+						isUnitSelectTabbable
+						value={ prepTime }
+						units={ units }
+					/>
+				</div>
+				<div className="group">
+					<TextControl
+						value={ cookTimeLabel }
+						onChange={ val => setAttributes( { cookTimeLabel: val } ) }
+					/>
+					<UnitControl
+						onChange={ val => setAttributes( { cookTime: val } ) }
+						onUnitChange={ val => {
+							setAttributes( { cookTimeUnit: val } );
+						} }
+						isUnitSelectTabbable
+						value={ cookTime }
+						units={ units }
+					/>
+				</div>
+				<div className="group">
+					<TextControl
+						value={ servingsLabel }
+						onChange={ val => setAttributes( { servingsLabel: val } ) }
+					/>
+					<TextControl
+						type="number"
+						value={ servings }
+						onChange={ val => setAttributes( { servings: parseInt( val ) } ) }
+					/>
+				</div>
 			</div>
 		</div>
 	);

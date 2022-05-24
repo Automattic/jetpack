@@ -1,22 +1,9 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { InnerBlocks, useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import {
-	PanelBody,
-	TextControl,
-	__experimentalUnitControl as UnitControl,
-} from '@wordpress/components';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 
-function RecipeEdit( { className, attributes, setAttributes } ) {
-	const { prepTime, cookTime, servings } = attributes;
-
-	const units = [
-		{ value: 'm', label: 'min' },
-		{ value: 'h', label: 'hours' },
-	];
-
+function RecipeEdit( { className } ) {
 	const RECIPE_TEMPLATE = [
 		[ 'jetpack/recipe-hero' ],
 		[
@@ -42,14 +29,7 @@ function RecipeEdit( { className, attributes, setAttributes } ) {
 				className: 'wp-block-jetpack-recipe-description',
 			},
 		],
-		[
-			'jetpack/recipe-details',
-			{
-				prepTime,
-				cookTime,
-				servings,
-			},
-		],
+		[ 'jetpack/recipe-details', {} ],
 		[
 			'core/columns',
 			{},
@@ -92,36 +72,6 @@ function RecipeEdit( { className, attributes, setAttributes } ) {
 
 	return (
 		<>
-			<InspectorControls>
-				<PanelBody title={ __( 'Recipe Details', 'jetpack' ) }>
-					<UnitControl
-						onChange={ val => setAttributes( { prepTime: val } ) }
-						onUnitChange={ val => setAttributes( { prepTimeUnit: val } ) }
-						label={ __( 'Recipe prep time.', 'jetpack' ) }
-						isUnitSelectTabbable
-						value={ prepTime }
-						units={ units }
-					/>
-					<br />
-					<UnitControl
-						onChange={ val => setAttributes( { cookTime: val } ) }
-						onUnitChange={ val => {
-							setAttributes( { cookTimeUnit: val } );
-						} }
-						label={ __( 'Recipe cooking time.', 'jetpack' ) }
-						isUnitSelectTabbable
-						value={ cookTime }
-						units={ units }
-					/>
-					<br />
-					<TextControl
-						type="number"
-						label={ __( 'Number of servings the recipe yields.', 'jetpack' ) }
-						value={ servings }
-						onChange={ val => setAttributes( { servings: parseInt( val ) } ) }
-					/>
-				</PanelBody>
-			</InspectorControls>
 			<div { ...useBlockProps( { className } ) }>
 				<InnerBlocks template={ RECIPE_TEMPLATE } />
 			</div>
