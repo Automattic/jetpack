@@ -68,6 +68,8 @@ jobs:
       - name: Send Slack notification
         if: ${{ success() }}
         working-directory: tools/e2e-commons
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: pnpm run slack -- status "failed"
 
       - name: Environment tear-down
