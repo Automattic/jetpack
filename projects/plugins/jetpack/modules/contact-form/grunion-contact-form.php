@@ -3870,13 +3870,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_class = apply_filters( 'jetpack_contact_form_input_class', $class );
 
 		if ( isset( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-			if ( is_array( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-				$this->value = array_map( 'stripslashes', $_POST[ $field_id ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-			} else {
-				$this->value = stripslashes( (string) $_POST[ $field_id ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-			}
-		} elseif ( isset( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
-			$this->value = stripslashes( (string) $_GET[ $field_id ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			$this->value = sanitize_text_field( wp_unslash( $_POST[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+		} elseif ( isset( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+			$this->value = sanitize_text_field( wp_unslash( $_GET[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 		} elseif (
 			is_user_logged_in() &&
 			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
@@ -3929,6 +3925,19 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return apply_filters( 'grunion_contact_form_field_html', $rendered_field, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
 	}
 
+	// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	/**
+	 * Render the label.
+	 *
+	 * @param string $type - the field type.
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return HTML
+	 */
 	public function render_label( $type, $id, $label, $required, $required_field_text ) {
 
 		$type_class = $type ? ' ' . $type : '';
@@ -3942,7 +3951,19 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 	}
 
-	function render_input_field( $type, $id, $value, $class, $placeholder, $required ) {
+	/**
+	 * Render the input field.
+	 *
+	 * @param string $type - the field type.
+	 * @param int    $id - the ID.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required - if the field is marked as required.
+	 *
+	 * @return HTML
+	 */
+	public function render_input_field( $type, $id, $value, $class, $placeholder, $required ) {
 		return "<input
 					type='" . esc_attr( $type ) . "'
 					name='" . esc_attr( $id ) . "'
@@ -3953,25 +3974,77 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				/>\n";
 	}
 
-	function render_email_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	/**
+	 * Render the email field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return HTML
+	 */
+	public function render_email_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'email', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'email', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
 
-	function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	/**
+	 * Render the telephone field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return HTML
+	 */
+	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
 
-	function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	/**
+	 * Render the URLl field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return HTML
+	 */
+	public function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'url', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'url', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
 
-	function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	/**
+	 * Render the text area field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return HTML
+	 */
+	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
 		$field .= "<textarea
 		                name='" . esc_attr( $id ) . "'
@@ -3981,11 +4054,23 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 						. $placeholder
 						. ' ' . ( $required ? "required aria-required='true'" : '' ) .
 						'>' . esc_textarea( $value )
-				  . "</textarea>\n";
+				. "</textarea>\n";
 		return $field;
 	}
 
-	function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	/**
+	 * Render the radio field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return HTML
+	 */
+	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
 		foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
@@ -3998,7 +4083,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 									. $class
 									. checked( $option, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
-							  . '/> ';
+									. '/> ';
 				$field .= esc_html( $option ) . "</label>\n";
 				$field .= "\t\t<div class='clear-form'></div>\n";
 			}
@@ -4006,7 +4091,19 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return $field;
 	}
 
-	function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	/**
+	 * Render the email field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return HTML
+	 */
+	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field      = "<label class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 			$field .= "\t\t" . esc_html( $label ) . ( $required ? '<span>' . $required_field_text . '</span>' : '' );
@@ -4038,13 +4135,25 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return $field;
 	}
 
-	function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	/**
+	 * Render the multiple checkbox field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return HTML
+	 */
+	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
 		foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 			if ( $option ) {
 				$field .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-				$field .= "<input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value ), true, false ) . ' /> ';
+				$field .= "<input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value, true ), true, false ) . ' /> ';
 				$field .= esc_html( $option ) . "</label>\n";
 				$field .= "\t\t<div class='clear-form'></div>\n";
 			}
@@ -4053,24 +4162,49 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return $field;
 	}
 
-	function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	/**
+	 * Render the select field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return HTML
+	 */
+	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
 		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 		foreach ( (array) $this->get_attribute( 'options' ) as $optionIndex => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 			if ( $option ) {
 				$field .= "\t\t<option"
-							   . selected( $option, $value, false )
-							   . " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) )
-							   . "'>" . esc_html( $option )
-						  . "</option>\n";
+								. selected( $option, $value, false )
+								. " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $optionIndex, $option ) )
+								. "'>" . esc_html( $option )
+								. "</option>\n";
 			}
 		}
 		$field .= "\t</select>\n";
 		return $field;
 	}
 
-	function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	/**
+	 * Render the email field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 *
+	 * @return HTML
+	 */
+	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 
 		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
@@ -4091,7 +4225,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				'_inc/build/contact-form/js/grunion-frontend.min.js',
 				'modules/contact-form/js/grunion-frontend.js'
 			),
-			array( 'jquery', 'jquery-ui-datepicker' )
+			array( 'jquery', 'jquery-ui-datepicker' ),
+			JETPACK__VERSION,
+			false
 		);
 		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
 
@@ -4100,13 +4236,40 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return $field;
 	}
 
-	function render_default_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $type ) {
+	/**
+	 * Render the default field.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 * @param string $placeholder - the field placeholder content.
+	 * @param string $type - the type.
+	 *
+	 * @return HTML
+	 */
+	public function render_default_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $type ) {
 		$field  = $this->render_label( $type, $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
 
-	function render_field( $type, $id, $label, $value, $class, $placeholder, $required ) {
+	/**
+	 * Render the email field.
+	 *
+	 * @param string $type - the type.
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $value - the value of the field.
+	 * @param string $class - the field class.
+	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required - if the field is marked as required.
+	 *
+	 * @return HTML
+	 */
+	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required ) {
 
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";
@@ -4196,7 +4359,7 @@ function grunion_delete_old_spam() {
 		$now_gmt,
 		$grunion_delete_limit
 	);
-	$post_ids = $wpdb->get_col( $sql );
+	$post_ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 	foreach ( (array) $post_ids as $post_id ) {
 		// force a full delete, skip the trash
