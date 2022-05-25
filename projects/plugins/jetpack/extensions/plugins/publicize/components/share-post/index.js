@@ -7,12 +7,12 @@ import { dispatch, useSelect } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
+import { useSocialMediaConnections } from '@automattic/jetpack-publicize-components';
 
 /**
  * Internal dependencies
  */
 import useSharePost from '../../hooks/use-share-post';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 
 function cleanNotice() {

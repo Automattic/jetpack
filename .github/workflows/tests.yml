@@ -169,6 +169,7 @@ jobs:
       - name: Process coverage results
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         if: matrix.script == 'test-coverage'
         run: .github/files/process-coverage.sh
 

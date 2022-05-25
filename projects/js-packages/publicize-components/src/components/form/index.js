@@ -20,7 +20,17 @@ import PublicizeSettingsButton from '../settings-button';
 import MessageBoxControl from '../message-box-control';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import styles from './styles.module.scss';
 
+/**
+ * The Publicize form component. It contains the connection list, and the message box.
+ *
+ * @param {object} props                                - The component props.
+ * @param {boolean} props.isPublicizeEnabled            - Whether Publicize is enabled for this post.
+ * @param {boolean} props.isRePublicizeFeatureEnabled   - True if the RePublicize feature is available.
+ * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
+ * @returns {object}                                    - Publicize form component.
+ */
 export default function PublicizeForm( {
 	isPublicizeEnabled,
 	isRePublicizeFeatureEnabled,
@@ -29,22 +39,15 @@ export default function PublicizeForm( {
 	const { connections, toggleById, hasConnections } = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
-	function isDisabled() {
-		// Do not disable when RePublicize is enabled.
-		if ( isRePublicizeFeatureEnabled ) {
-			return false;
-		}
-
-		return connections.every( connection => ! connection.toggleable );
-	}
-
+	const isDisabled = () =>
+		! isRePublicizeFeatureEnabled && connections.every( connection => ! connection.toggleable );
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
 	return (
 		<Wrapper>
 			{ hasConnections && (
 				<PanelRow>
-					<ul className="jetpack-publicize__connections-list">
+					<ul className={ styles[ 'connections-list' ] }>
 						{ connections.map(
 							( { display_name, enabled, id, service_name, toggleable, profile_picture } ) => (
 								<PublicizeConnection
@@ -67,7 +70,7 @@ export default function PublicizeForm( {
 				<Fragment>
 					<PublicizeSettingsButton />
 
-					{ connections.some( connection => connection.enabled ) && (
+					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
 						<MessageBoxControl
 							disabled={ isDisabled() }
 							maxLength={ maxLength }
