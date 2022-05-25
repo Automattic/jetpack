@@ -192,7 +192,7 @@
 		"sinon-chai": "3.7.0",
 		"size-limit": "5.0.5",
 		"style-loader": "2.0.0",
-		"typescript": "4.6.4",
+		"typescript": "4.7.2",
 		"url-loader": "4.1.1"
 	},
 	"optionalDependencies": {
