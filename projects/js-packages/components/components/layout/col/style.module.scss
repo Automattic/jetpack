@@ -1,20 +1,35 @@
+@value sm, md, lg from '../breakpoints.module.scss';
+
+$smCols: 4;
+$mdCols: 8;
+$lgCols: 12;
+
 @mixin cols($size, $columns) {
 	@for $i from 1 through $columns {
-		.col-#{$size}-#{$i} {
+		.col-#{$size}-span-#{$i} {
 			grid-column-end: span #{$i};
+		}
+
+		.col-#{$size}-offset-#{$i} {
+			grid-column-start: #{$i};
 		}
 	}
 }
 
-@media ( min-width: 0px ) {
-	@include cols(sm, 4)
+@media sm {
+	@include cols(sm, $smCols);
 }
 
-@media ( min-width: 600px ) {
-	@include cols(md, 8)
+@media md {
+	@include cols(md, $mdCols);
 }
 
-@media ( min-width: 960px ) {
-	@include cols(lg, 12)
+@media lg {
+	@include cols(lg, $lgCols);
 }
 
+:export {
+	smCols: $smCols;
+	mdCols: $mdCols;
+	lgCols: $lgCols;
+}

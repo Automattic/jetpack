@@ -10,6 +10,10 @@ import PropTypes from 'prop-types';
  */
 import styles from './style.module.scss';
 
+const smCols = Number( styles.smCols );
+const mdCols = Number( styles.mdCols );
+const lgCols = Number( styles.lgCols );
+
 /**
  * The basic Col component.
  *
@@ -19,14 +23,24 @@ import styles from './style.module.scss';
 const Col = props => {
 	const { children, className } = props;
 
-	const sm = Math.min( 4, props.sm ?? 4 ); // max of 4, if undefined = 4
-	const md = Math.min( 8, props.md ?? 8 ); // max of 8, if undefined = 8
-	const lg = Math.min( 12, props.lg ?? 12 ); // max of 12, if undefined = 12
+	const smSpan = Math.min( smCols, props?.sm?.span ?? props?.sm ?? smCols ); // max of 4, if undefined = 4
+	const smOffset = Math.min( 12, props?.sm?.offset ?? 0 ); // max of 4, if undefined = 0
+
+	const mdSpan = Math.min( mdCols, props?.md?.span ?? props?.md ?? mdCols ); // max of 8, if undefined = 8
+	const mdOffset = Math.min( 12, props?.md?.offset ?? 0 ); // max of 8, if undefined = 0
+
+	const lgSpan = Math.min( lgCols, props?.lg?.span ?? props?.lg ?? lgCols ); // max of 12, if undefined = 12
+	const lgOffset = Math.min( 12, props?.lg?.offset ?? 0 ); // max of 12, if undefined = 0
 
 	const colClassName = classnames( className, {
-		[ styles[ `col-sm-${ sm }` ] ]: Number.isInteger( sm ),
-		[ styles[ `col-md-${ md }` ] ]: Number.isInteger( md ),
-		[ styles[ `col-lg-${ lg }` ] ]: Number.isInteger( lg ),
+		[ styles[ `col-sm-span-${ smSpan }` ] ]: Number.isInteger( smSpan ),
+		[ styles[ `col-sm-offset-${ smOffset }` ] ]: smOffset,
+
+		[ styles[ `col-md-span-${ mdSpan }` ] ]: Number.isInteger( mdSpan ),
+		[ styles[ `col-md-offset-${ mdOffset }` ] ]: mdOffset,
+
+		[ styles[ `col-lg-span-${ lgSpan }` ] ]: Number.isInteger( lgSpan ),
+		[ styles[ `col-lg-offset-${ lgOffset }` ] ]: lgOffset,
 	} );
 
 	return <div className={ colClassName }>{ children }</div>;
