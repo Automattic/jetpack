@@ -3593,9 +3593,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * This makes the message more accessible to mail clients that aren't HTML-aware, and decreases the likelihood
 	 * that the message will be flagged as spam.
 	 *
-	 * @param PHPMailer $phpmailer - the phpmailer
+	 * @param PHPMailer $phpmailer - the phpmailer.
 	 */
 	public static function add_plain_text_alternative( $phpmailer ) {
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
 		// Add an extra break so that the extra space above the <p> is preserved after the <p> is stripped out
 		$alt_body = str_replace( '<p>', '<p><br />', $phpmailer->Body );
 
@@ -3606,10 +3608,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$alt_body = str_replace( array( '<hr>', '<hr />' ), "----\n", $alt_body );
 
 		// Trim the plain text message to remove the \n breaks that were after <doctype>, <html>, and <body>
-		$phpmailer->AltBody = trim( strip_tags( $alt_body ) );
+		$phpmailer->AltBody = trim( wp_strip_all_tags( $alt_body ) );
 	}
 
-	function addslashes_deep( $value ) {
+	/**
+	 * Add deepslashes.
+	 *
+	 * @param array $value - the value.
+	 */
+	public function addslashes_deep( $value ) {
 		if ( is_array( $value ) ) {
 			return array_map( array( $this, 'addslashes_deep' ), $value );
 		} elseif ( is_object( $value ) ) {
@@ -3625,35 +3632,50 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 } // end class Grunion_Contact_Form
 
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound -- how many times I have to disable this?
 /**
  * Class for the contact-field shortcode.
  * Parses shortcode to output the contact form field as HTML.
  * Validates input.
  */
 class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
+
+	/**
+	 * The shortcode name.
+	 *
+	 * @var string
+	 */
 	public $shortcode_name = 'contact-field';
 
 	/**
-	 * @var Grunion_Contact_Form parent form
+	 * The parent form.
+	 *
+	 * @var Grunion_Contact_Form
 	 */
 	public $form;
 
 	/**
-	 * @var string default or POSTed value
+	 * Default or POSTed value.
+	 *
+	 * @var string
 	 */
 	public $value;
 
 	/**
-	 * @var bool Is the input invalid?
+	 * Is the input valid?
+	 *
+	 * @var bool
 	 */
 	public $error = false;
 
 	/**
-	 * @param array                $attributes An associative array of shortcode attributes.  @see shortcode_atts()
+	 * Constructor function.
+	 *
+	 * @param array                $attributes An associative array of shortcode attributes.  @see shortcode_atts().
 	 * @param null|string          $content Null for selfclosing shortcodes.  The inner content otherwise.
-	 * @param Grunion_Contact_Form $form The parent form
+	 * @param Grunion_Contact_Form $form The parent form.
 	 */
-	function __construct( $attributes, $content = null, $form = null ) {
+	public function __construct( $attributes, $content = null, $form = null ) {
 		$attributes = shortcode_atts(
 			array(
 				'label'                  => null,
@@ -3675,12 +3697,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		);
 
 		// special default for subject field
-		if ( 'subject' == $attributes['type'] && $attributes['default'] === null && $form !== null ) {
+		if ( 'subject' === $attributes['type'] && $attributes['default'] === null && $form !== null ) {
 			$attributes['default'] = $form->get_attribute( 'subject' );
 		}
 
 		// allow required=1 or required=true
-		if ( '1' == $attributes['required'] || 'true' == strtolower( $attributes['required'] ) ) {
+		if ( '1' === $attributes['required'] || 'true' === strtolower( $attributes['required'] ) ) {
 			$attributes['required'] = true;
 		} else {
 			$attributes['required'] = false;
@@ -3732,7 +3754,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * @param string $message The error message to display on the form.
 	 */
-	function add_error( $message ) {
+	public function add_error( $message ) {
 		$this->is_error = true;
 
 		if ( ! is_wp_error( $this->form->errors ) ) {
@@ -3749,14 +3771,14 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * @return bool
 	 */
-	function is_error() {
+	public function is_error() {
 		return $this->error;
 	}
 
 	/**
 	 * Validates the form input
 	 */
-	function validate() {
+	public function validate() {
 		// If it's not required, there's nothing to validate
 		if ( ! $this->get_attribute( 'required' ) ) {
 			return;
