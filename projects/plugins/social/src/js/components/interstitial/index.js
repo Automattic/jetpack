@@ -4,7 +4,8 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
-import { Dialog, ProductOffer } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { Dialog, ProductOffer, Text, getRedirectUrl } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 
 /**
@@ -14,6 +15,23 @@ import { STORE_ID } from '../../store';
 import background from './background.svg';
 import illustration from './illustration.png';
 import styles from './styles.module.scss';
+
+const tos = createInterpolateElement(
+	__(
+		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+		'jetpack-social'
+	),
+	{
+		tosLink: <a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />,
+		shareDetailsLink: (
+			<a
+				href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
+				rel="noopener noreferrer"
+				target="_blank"
+			/>
+		),
+	}
+);
 
 const Interstitial = () => {
 	const connectProps = useSelect( select => {
@@ -67,7 +85,9 @@ const Interstitial = () => {
 									: null
 							}
 						/>
-						Terms of Service
+						<Text variant="body-small" className={ styles.tos } mt={ 3 }>
+							{ tos }
+						</Text>
 					</div>
 				</>
 			}
