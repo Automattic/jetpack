@@ -17,7 +17,8 @@
 		"tunnel:logs": "pm2 logs --nostream --lines 10000 > output/logs/tunnel.log",
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -d -in ./config/encrypted.enc -out config/local.cjs",
 		"config:encrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc",
-		"jetpack-connect": "node bin/e2e-jetpack-connector.js"
+		"jetpack-connect": "node bin/e2e-jetpack-connector.js",
+		"slack": "node bin/slack.cjs"
 	},
 	"devDependencies": {
 		"@playwright/test": "1.20.1",
