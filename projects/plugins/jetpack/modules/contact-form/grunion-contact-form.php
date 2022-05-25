@@ -2988,11 +2988,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		// Make sure we're processing the form we think we're processing... probably a redundant check.
 		if ( $widget ) {
-			if ( 'widget-' . $widget !== $_POST['contact-form-id'] ) {
+			if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- we're not making changes to the site.
 				return false;
 			}
 		} else {
-			if ( $post->ID !== $_POST['contact-form-id'] ) {
+			if ( isset( $_POST['contact-form-id'] ) && $post->ID !== $_POST['contact-form-id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we're not making changes to the site.
 				return false;
 			}
 		}
@@ -3000,10 +3000,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$field_ids = $this->get_field_ids();
 
 		// Initialize all these "standard" fields to null
-		$comment_author_email = $comment_author_email_label = // v
-		$comment_author       = $comment_author_label       = // v
-		$comment_author_url   = $comment_author_url_label   = // v
-		$comment_content      = $comment_content_label = null;
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- they're assigned later, but unsure if we can delete these all since I can't find a usage for some.
+		$comment_author_email       = null;
+		$comment_author_email_label = null;
+		$comment_author             = null;
+		$comment_author_label       = null;
+		$comment_author_url         = null;
+		$comment_author_url_label   = null;
+		$comment_content            = null;
+		$comment_content_label      = null;
 
 		// For each of the "standard" fields, grab their field label and value.
 		if ( isset( $field_ids['name'] ) ) {
@@ -3036,7 +3041,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
 				)
 			);
-			if ( 'http://' == $comment_author_url ) {
+			if ( 'http://' === $comment_author_url ) {
 				$comment_author_url = '';
 			}
 			$comment_author_url_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
@@ -3061,9 +3066,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$email_marketing_consent = true;
 			}
 		}
-
-		$all_values = $extra_values = array();
-		$i          = 1; // Prefix counter for stored metadata
+		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$all_values   = array();
+		$extra_values = array();
+		$i            = 1; // Prefix counter for stored metadata
 
 		// For all fields, grab label and value
 		foreach ( $field_ids['all'] as $field_id ) {
@@ -3090,13 +3096,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$i++; // Increment prefix counter for the next extra field
 		}
 
-		if ( isset( $_REQUEST['is_block'] ) && $_REQUEST['is_block'] ) {
+		if ( isset( $_REQUEST['is_block'] ) && sanitize_text_field( wp_unslash( $_REQUEST['is_block'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
 			$extra_values['is_block'] = true;
 		}
 
 		$contact_form_subject = trim( $contact_form_subject );
 
-		$comment_author_IP = Grunion_Contact_Form_Plugin::get_ip_address();
+		$comment_author_IP = Grunion_Contact_Form_Plugin::get_ip_address(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		$vars = array( 'comment_author', 'comment_author_email', 'comment_author_url', 'contact_form_subject', 'comment_author_IP' );
 		foreach ( $vars as $var ) {
@@ -3113,7 +3119,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
 			// from a spam-filtering point of view.
-			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio' ) ) ) {
+			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio' ), true ) ) {
 				continue;
 			}
 
@@ -3130,7 +3136,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field_value = ( is_array( $field->value ) ) ? trim( implode( ', ', $field->value ) ) : trim( $field->value );
 
 			// Skip any values that are already in the array we're sending.
-			if ( $field_value && in_array( $field_value, $akismet_vars ) ) {
+			if ( $field_value && in_array( $field_value, $akismet_vars, true ) ) {
 				continue;
 			}
 
@@ -3243,9 +3249,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
 		$url     = $widget ? home_url( '/' ) : get_permalink( $post->ID );
 
+		// translators: the time of the form submission.
 		$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
 		$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
-		$time             = date_i18n( $date_time_format, current_time( 'timestamp' ) );
+		$time             = date_i18n( $date_time_format, current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 
 		// Keep a copy of the feedback as a custom post type.
 		if ( $in_comment_disallowed_list ) {
@@ -3269,14 +3276,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		/*
-		 We need to make sure that the post author is always zero for contact
+		 * We need to make sure that the post author is always zero for contact
 		 * form submissions.  This prevents export/import from trying to create
 		 * new users based on form submissions from people who were logged in
 		 * at the time.
 		 *
 		 * Unfortunately wp_insert_post() tries very hard to make sure the post
 		 * author gets the currently logged in user id.  That is how we ended up
-		 * with this work around. */
+		 * with this work around.
+		 */
 		add_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10, 2 );
 
 		$post_id = wp_insert_post(
@@ -3286,7 +3294,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'post_status'  => addslashes( $feedback_status ),
 				'post_parent'  => (int) $post->ID,
 				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
-				'post_content' => addslashes( wp_kses( $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // so that search will pick up this data
+				'post_content' => addslashes( wp_kses( $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // phpcs:ignore -- so that search will pick up this data
 				'post_name'    => $feedback_id,
 			)
 		);
@@ -3296,7 +3304,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
-		if ( 'publish' == $feedback_status ) {
+		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
 			$unread = get_option( 'feedback_unread_count', 0 ) + 1;
 			update_option( 'feedback_unread_count', $unread );
@@ -3327,7 +3335,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'<br />',
 			'<hr />',
 			__( 'Time:', 'jetpack' ) . ' ' . $time . '<br />',
-			__( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . '<br />',
+			__( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . '<br />', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			__( 'Contact Form URL:', 'jetpack' ) . ' ' . $url . '<br />'
 		);
 
@@ -3335,6 +3343,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			array_push(
 				$message,
 				sprintf(
+					// translators: the the name of the site.
 					'<p>' . __( 'Sent by a verified %s user.', 'jetpack' ) . '</p>',
 					isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ?
 						$GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
@@ -3407,7 +3416,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 *
 			 * @param bool false Should an email be sent after a spam form submission. Default to false.
 			 */
-			apply_filters( 'grunion_still_email_spam', false ) == true
+			apply_filters( 'grunion_still_email_spam', false ) === true
 		) { // don't send spam by default.  Filterable.
 			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
@@ -3447,7 +3456,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		if ( ! $redirect ) { // wp_get_referer() returns false if the referer is the same as the current page.
 			$custom_redirect = false;
-			$redirect        = $_SERVER['REQUEST_URI'];
+			$redirect        = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		}
 
 		if ( ! $custom_redirect ) {
@@ -3511,11 +3520,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * SpamAssassin doesn't like addresses in HTML messages that are missing display names (e.g., `foo@bar.org`
 	 * instead of `Foo Bar <foo@bar.org>`.
 	 *
-	 * @param string $address
+	 * @param string $address - the email address.
 	 *
 	 * @return string
 	 */
-	function add_name_to_address( $address ) {
+	public function add_name_to_address( $address ) {
 		// If it's just the address, without a display name
 		if ( is_email( $address ) ) {
 			$address_parts = explode( '@', $address );
@@ -3537,7 +3546,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * @return string
 	 */
-	static function get_mail_content_type() {
+	public static function get_mail_content_type() {
 		return 'text/html';
 	}
 
@@ -3546,11 +3555,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * This helps to ensure correct parsing by clients, and also helps avoid triggering spam filtering rules
 	 *
-	 * @param string $body
+	 * @param string $body - the message body.
 	 *
 	 * @return string
 	 */
-	static function wrap_message_in_html_tags( $body ) {
+	public static function wrap_message_in_html_tags( $body ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
 		if ( false !== strpos( $body, '<html' ) ) {
@@ -3584,9 +3593,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * This makes the message more accessible to mail clients that aren't HTML-aware, and decreases the likelihood
 	 * that the message will be flagged as spam.
 	 *
-	 * @param PHPMailer $phpmailer
+	 * @param PHPMailer $phpmailer - the phpmailer
 	 */
-	static function add_plain_text_alternative( $phpmailer ) {
+	public static function add_plain_text_alternative( $phpmailer ) {
 		// Add an extra break so that the extra space above the <p> is preserved after the <p> is stripped out
 		$alt_body = str_replace( '<p>', '<p><br />', $phpmailer->Body );
 
