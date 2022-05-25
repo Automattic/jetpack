@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Convert last_checked date from UTC to local configured timezone
