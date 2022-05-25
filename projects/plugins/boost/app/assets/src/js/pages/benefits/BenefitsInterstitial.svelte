@@ -46,6 +46,8 @@
 			} ),
 		}
 	);
+
+	const pricing = window.Jetpack_Boost.pricing.yearly;
 </script>
 
 <div id="jb-settings" class="jb-settings">
@@ -73,10 +75,10 @@
 					this={PricingCard}
 					title={'Jetpack Boost'}
 					icon={`${ window.Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
-					priceBefore={19.95}
-					priceAfter={9.95}
+					priceBefore={pricing.full_price / 12}
+					priceAfter={pricing.discount_price / 12}
 					priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
-					currencyCode={'USD'}
+					currencyCode={pricing.currency_code}
 					ctaText={__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}
 					{onCtaClick}
 					{infoText}

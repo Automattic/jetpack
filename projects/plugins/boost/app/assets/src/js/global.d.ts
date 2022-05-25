@@ -48,6 +48,13 @@ declare global {
 		nonces: {
 			[ key: string ]: string;
 		};
+		pricing: {
+			yearly: {
+				full_price: number;
+				discount_price: number;
+				currency_code: string;
+			};
+		};
 	};
 
 	// Critical CSS Generator library.
