@@ -1624,9 +1624,9 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * download as a csv a contact form or all of them in a csv file
+	 * Download as a csv a contact form or all of them in a csv file.
 	 */
-	function download_feedback_as_csv() {
+	public function download_feedback_as_csv() {
 		if ( empty( $_POST['feedback_export_nonce'] ) ) {
 			return;
 		}
@@ -1646,12 +1646,12 @@ class Grunion_Contact_Form_Plugin {
 			'suppress_filters' => false,
 		);
 
-		$filename = date( 'Y-m-d' ) . '-feedback-export.csv';
+		$filename = gmdate( 'Y-m-d' ) . '-feedback-export.csv';
 
 		// Check if we want to download all the feedbacks or just a certain contact form
 		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
 			$args['post_parent'] = (int) $_POST['post'];
-			$filename            = date( 'Y-m-d' ) . '-' . str_replace( '&nbsp;', '-', get_the_title( (int) $_POST['post'] ) ) . '.csv';
+			$filename            = gmdate( 'Y-m-d' ) . '-' . str_replace( '&nbsp;', '-', get_the_title( (int) $_POST['post'] ) ) . '.csv';
 		}
 
 		$feedbacks = get_posts( $args );
@@ -1717,7 +1717,7 @@ class Grunion_Contact_Form_Plugin {
 			fputcsv( $output, $current_row );
 		}
 
-		fclose( $output );
+		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
 	}
 
 	/**
@@ -1730,7 +1730,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @see https://www.contextis.com/en/blog/comma-separated-vulnerabilities
 	 *
-	 * @param string $field
+	 * @param string $field - the CSV field.
 	 *
 	 * @return string
 	 */
@@ -1756,7 +1756,7 @@ class Grunion_Contact_Form_Plugin {
 		$feedbacks = get_posts(
 			array(
 				'fields'           => 'id=>parent',
-				'posts_per_page'   => 100000,
+				'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 				'post_type'        => 'feedback',
 				'post_status'      => 'publish',
 				'suppress_filters' => false,
@@ -1767,7 +1767,7 @@ class Grunion_Contact_Form_Plugin {
 		$posts = get_posts(
 			array(
 				'orderby'          => 'ID',
-				'posts_per_page'   => 1000,
+				'posts_per_page'   => 1000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
 				'post_type'        => 'any',
 				'post__in'         => array_values( $parents ),
 				'suppress_filters' => false,
@@ -1785,7 +1785,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Get the names of all the form's fields
 	 *
-	 * @param  array|int $posts the post we want the fields of
+	 * @param array|int $posts the post we want the fields of.
 	 *
 	 * @return array     the array of fields
 	 *
@@ -1808,6 +1808,11 @@ class Grunion_Contact_Form_Plugin {
 		return $all_fields;
 	}
 
+	/**
+	 * Parse the contact form fields.
+	 *
+	 * @param int $post_id - the post ID.
+	 */
 	public static function parse_fields_from_content( $post_id ) {
 		static $post_fields;
 
@@ -1867,8 +1872,9 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Creates a valid csv row from a post id
 	 *
-	 * @param  int   $post_id The id of the post
-	 * @param  array $fields  An array containing the names of all the fields of the csv
+	 * @param int   $post_id The id of the post.
+	 * @param array $fields  An array containing the names of all the fields of the csv.
+	 *
 	 * @return String The csv row
 	 *
 	 * @deprecated This is no longer needed, as of the CSV export rewrite.
@@ -1888,6 +1894,7 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		// The first element in all of the exports will be the subject
+		$row_items   = array();
 		$row_items[] = $content_fields['_feedback_subject'];
 
 		// Loop the fields array in order to fill the $row_items array correctly
@@ -1904,8 +1911,11 @@ class Grunion_Contact_Form_Plugin {
 		return $row_items;
 	}
 
+	/**
+	 * Get the IP address.
+	 */
 	public static function get_ip_address() {
-		return isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null;
+		return isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : null;
 	}
 
 	/**
@@ -1926,42 +1936,56 @@ class Grunion_Contact_Form_Plugin {
  *
  * Not very general - specific to Grunion.
  */
-class Crunion_Contact_Form_Shortcode {
+class Crunion_Contact_Form_Shortcode { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
 	/**
-	 * @var string the name of the shortcode: [$shortcode_name /]
+	 * The name of the shortcode: [$shortcode_name /].
+	 *
+	 * @var string
 	 */
 	public $shortcode_name;
 
 	/**
-	 * @var array key => value pairs for the shortcode's attributes: [$shortcode_name key="value" ... /]
+	 * Key => value pairs for the shortcode's attributes: [$shortcode_name key="value" ... /]
+	 *
+	 * @var array
 	 */
 	public $attributes;
 
 	/**
-	 * @var array key => value pair for attribute defaults
+	 * Key => value pair for attribute defaults.
+	 *
+	 * @var array
 	 */
 	public $defaults = array();
 
 	/**
-	 * @var null|string Null for selfclosing shortcodes.  Hhe inner content of otherwise: [$shortcode_name]$content[/$shortcode_name]
+	 * The inner content of otherwise: [$shortcode_name]$content[/$shortcode_name]. Null for selfclosing shortcodes.
+	 *
+	 * @var null|string
 	 */
 	public $content;
 
 	/**
-	 * @var array Associative array of inner "child" shortcodes equivalent to the $content: [$shortcode_name][child 1/][child 2/][/$shortcode_name]
+	 * Associative array of inner "child" shortcodes equivalent to the $content: [$shortcode_name][child 1/][child 2/][/$shortcode_name]
+	 *
+	 * @var array
 	 */
 	public $fields;
 
 	/**
-	 * @var null|string The HTML of the parsed inner "child" shortcodes".  Null for selfclosing shortcodes.
+	 * The HTML of the parsed inner "child" shortcodes".  Null for selfclosing shortcodes.
+	 *
+	 * @var null|string 
 	 */
 	public $body;
 
 	/**
-	 * @param array       $attributes An associative array of shortcode attributes.  @see shortcode_atts()
+	 * Constructor function.
+	 *
+	 * @param array       $attributes An associative array of shortcode attributes.  @see shortcode_atts().
 	 * @param null|string $content Null for selfclosing shortcodes.  The inner content otherwise.
 	 */
-	function __construct( $attributes, $content = null ) {
+	public function __construct( $attributes, $content = null ) {
 		$this->attributes = $this->unesc_attr( $attributes );
 		if ( is_array( $content ) ) {
 			$string_content = '';
@@ -1978,11 +2002,11 @@ class Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Processes the shortcode's inner content for "child" shortcodes
+	 * Processes the shortcode's inner content for "child" shortcodes.
 	 *
-	 * @param string $content The shortcode's inner content: [shortcode]$content[/shortcode]
+	 * @param string $content The shortcode's inner content: [shortcode]$content[/shortcode].
 	 */
-	function parse_content( $content ) {
+	public function parse_content( $content ) {
 		if ( $content === null ) {
 			$this->body = null;
 		} else {
@@ -1993,10 +2017,11 @@ class Crunion_Contact_Form_Shortcode {
 	/**
 	 * Returns the value of the requested attribute.
 	 *
-	 * @param string $key The attribute to retrieve
+	 * @param string $key The attribute to retrieve.
+	 *
 	 * @return mixed
 	 */
-	function get_attribute( $key ) {
+	public function get_attribute( $key ) {
 		return isset( $this->attributes[ $key ] ) ? $this->attributes[ $key ] : null;
 	}
 
