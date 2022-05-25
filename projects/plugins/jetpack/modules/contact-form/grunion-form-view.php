@@ -28,7 +28,9 @@ wp_register_script(
 );
 
 wp_localize_script(
-	'grunion', 'GrunionFB_i18n', array(
+	'grunion',
+	'GrunionFB_i18n',
+	array(
 		'nameLabel'             => esc_attr( _x( 'Name', 'Label for HTML form "Name" field in contact form builder', 'jetpack' ) ),
 		'emailLabel'            => esc_attr( _x( 'Email', 'Label for HTML form "Email" field in contact form builder', 'jetpack' ) ),
 		'urlLabel'              => esc_attr( _x( 'Website', 'Label for HTML form "URL/Website" field in contact form builder', 'jetpack' ) ),
