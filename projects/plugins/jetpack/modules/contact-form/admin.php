@@ -356,7 +356,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 
 			echo '<div class="row-actions">';
 			if ( $post->post_status === 'trash' ) {
-				echo esc_attr( '<span class="untrash" id="feedback-restore-' . $post_id );
+				echo '<span class="untrash" id="feedback-restore-' . $post_id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo '"><a title="';
 				echo esc_attr__( 'Restore this item from the Trash', 'jetpack' );
 				echo '" href="' . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $post->ID ) ) ), 'untrash-' . $post->post_type . '_' . $post->ID );
