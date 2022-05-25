@@ -42,7 +42,15 @@ export const PosterSelector = props => {
 };
 
 export const UploadingEditor = props => {
-	const { file, onSelectPoster, onEditorShown, videoPosterImageData, title, onChangeTitle } = props;
+	const {
+		file,
+		onSelectPoster,
+		onEditorShown,
+		videoPosterImageData,
+		title,
+		onChangeTitle,
+		onVideoFrameSelected,
+	} = props;
 	const [ maxDuration, setMaxDuration ] = useState( 0 );
 	const [ showEditor, setShowEditor ] = useState( false );
 	const [ selectedTab, setSelectedTab ] = useState( 'tab-frame' );
@@ -69,6 +77,7 @@ export const UploadingEditor = props => {
 	};
 
 	const onRangeChange = newRangeValue => {
+		onVideoFrameSelected( newRangeValue * 1000 );
 		videoPlayer.current.currentTime = newRangeValue;
 	};
 
