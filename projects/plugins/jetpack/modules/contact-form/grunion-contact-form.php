@@ -1115,7 +1115,7 @@ class Grunion_Contact_Form_Plugin {
 				<label for="post"><?php esc_html_e( 'Select responses to download', 'jetpack' ); ?></label>
 				<select name="post">
 					<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
-					<?php echo $this->get_feedbacks_as_options(); ?>
+					<?php echo $this->get_feedbacks_as_options(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
 				</select>
 
 				<br><br>
@@ -1197,7 +1197,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Properly maps fields that are missing from the post meta data
 	 * to names, that are similar to those of the post meta.
 	 *
-	 * @param array $parsed_post_content Parsed post content
+	 * @param array $parsed_post_content Parsed post content.
 	 *
 	 * @see parse_fields_from_content for how the input data is generated.
 	 *
@@ -1275,7 +1275,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array  $return Associative array with keys expected by core.
 	 */
 	public function personal_data_exporter( $email, $page = 1 ) {
-		return $this->_internal_personal_data_exporter( $email, $page );
+		return $this->internal_personal_data_exporter( $email, $page );
 	}
 
 	/**
@@ -1289,11 +1289,11 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @param  string $email    Email address.
 	 * @param  int    $page     Page to export.
-	 * @param  int    $per_page Number of feedbacks to process per page. Internal use only (testing)
+	 * @param  int    $per_page Number of feedbacks to process per page. Internal use only (testing).
 	 *
 	 * @return array            Associative array with keys expected by core.
 	 */
-	public function _internal_personal_data_exporter( $email, $page = 1, $per_page = 250 ) {
+	public function internal_personal_data_exporter( $email, $page = 1, $per_page = 250 ) {
 		$export_data = array();
 		$post_ids    = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
 
@@ -1364,11 +1364,11 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @param  string $email    Email address.
 	 * @param  int    $page     Page to erase.
-	 * @param  int    $per_page Number of feedbacks to process per page. Internal use only (testing)
+	 * @param  int    $per_page Number of feedbacks to process per page. Internal use only (testing).
 	 *
 	 * @return array            Associative array with keys expected by core.
 	 */
-	public function _internal_personal_data_eraser( $email, $page = 1, $per_page = 250 ) {
+	public function _internal_personal_data_eraser( $email, $page = 1, $per_page = 250 ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore -- this is called in other files.
 		$removed      = false;
 		$retained     = false;
 		$messages     = array();
@@ -1496,7 +1496,7 @@ class Grunion_Contact_Form_Plugin {
 					{$wpdb->posts}.post_content LIKE %s
 					OR {$wpdb->posts}.post_content LIKE %s
 				)",
-				// `chr( 10 )` = `\n`, `chr( 13 )` = `\r`
+				// `chr( 10 )` = `\n`, `chr( 13 )` = `\r` - Keeping this in case someone needs it for reference.
 				'%' . $wpdb->esc_like( chr( 10 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 10 ) ) . '%',
 				'%' . $wpdb->esc_like( chr( 13 ) . 'AUTHOR EMAIL: ' . $this->pde_email_address . chr( 13 ) ) . '%'
 			);
