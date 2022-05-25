@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import ConnectScreenRequiredPlanVisual from './visual';
 import useConnection from '../../use-connection';
+import useProductCheckoutWorkflow from '../../../hooks/use-product-checkout-workflow';
 
 /**
  * The Connection Screen Visual component for consumers that require a Plan.
@@ -33,6 +34,8 @@ const ConnectScreenRequiredPlan = props => {
 		pricingIcon,
 		pricingTitle,
 		pricingCurrencyCode,
+		wpcomProductSlug,
+		siteProductAvailabilityHandler,
 	} = props;
 
 	const {
@@ -51,9 +54,19 @@ const ConnectScreenRequiredPlan = props => {
 		from,
 	} );
 
+	const productSlug = wpcomProductSlug ? wpcomProductSlug : '';
+
+	const { run: handleCheckoutWorkflow, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug,
+		redirectUrl: redirectUri,
+		siteProductAvailabilityHandler,
+		from,
+	} );
+
 	const showConnectButton = ! isRegistered || ! isUserConnected;
 	const displayButtonError = Boolean( registrationError );
-	const buttonIsLoading = siteIsRegistering || userIsConnecting;
+	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
+	const handleButtonClick = productSlug ? handleCheckoutWorkflow : handleRegisterSite;
 
 	return (
 		<ConnectScreenRequiredPlanVisual
@@ -64,7 +77,7 @@ const ConnectScreenRequiredPlan = props => {
 			pricingIcon={ pricingIcon }
 			pricingTitle={ pricingTitle }
 			pricingCurrencyCode={ pricingCurrencyCode }
-			handleButtonClick={ handleRegisterSite }
+			handleButtonClick={ handleButtonClick }
 			showConnectButton={ showConnectButton }
 			displayButtonError={ displayButtonError }
 			buttonIsLoading={ buttonIsLoading }
@@ -101,6 +114,10 @@ ConnectScreenRequiredPlan.propTypes = {
 	priceAfter: PropTypes.number.isRequired,
 	/** The Currency code, eg 'USD'. */
 	pricingCurrencyCode: PropTypes.string,
+	/** The WordPress.com product slug. If specified, the connection/authorization flow will go through the Checkout page for this product'. */
+	wpcomProductSlug: PropTypes.string,
+	/** A callback that will be used to check whether the site already has the wpcomProductSlug. This will be checked after registration and the checkout will be skipped if it returns true. */
+	checkSiteHasWpcomProduct: PropTypes.func,
 };
 
 ConnectScreenRequiredPlan.defaultProps = {
