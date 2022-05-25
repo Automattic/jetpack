@@ -17,7 +17,7 @@ type JetpackButtonBaseProps = {
 };
 
 type JetpackLinkProps = Omit< Button.AnchorProps, 'size' | 'variant' > & {
-	variant?: 'link' | 'external-link';
+	variant?: 'link';
 };
 
 type JetpackButtonProps = Omit< Button.ButtonProps, 'size' | 'variant' > & {
