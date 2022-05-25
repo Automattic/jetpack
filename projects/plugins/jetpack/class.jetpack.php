@@ -822,10 +822,10 @@ class Jetpack {
 
 		foreach (
 			array(
-				'sync',
 				'jitm',
-				'waf',
 				'publicize',
+				'sync',
+				'waf',
 			)
 			as $feature
 		) {
