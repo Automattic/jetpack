@@ -126,6 +126,10 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_manage_url() {
-		return admin_url( 'admin.php?page=jetpack-social' );
+		if ( static::is_jetpack_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack#/settings?term=publicize' );
+		} elseif ( static::is_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-social' );
+		}
 	}
 }
