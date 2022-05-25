@@ -1,14 +1,15 @@
 /**
  * External dependencies
  */
-import { TextControl } from '@wordpress/components';
+import { RichText } from '@wordpress/block-editor';
 
 function RecipeIngredientItemEdit( { className, attributes, setAttributes } ) {
 	const { ingredient } = attributes;
 
 	return (
 		<div className={ className }>
-			<TextControl
+			<RichText
+				tagName="p"
 				className="ingredientText"
 				value={ ingredient }
 				onChange={ val => setAttributes( { ingredient: val } ) }
