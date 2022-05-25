@@ -73,7 +73,7 @@ export default {
 		variant: {
 			control: {
 				type: 'select',
-				options: [ 'primary', 'secondary', 'link', 'external-link' ],
+				options: [ 'primary', 'secondary', 'link' ],
 			},
 		},
 	},
@@ -149,21 +149,6 @@ ButtonLink.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
 	variant: 'link',
-};
-
-export const ButtonExternalLink = Template.bind( {} );
-ButtonExternalLink.argTypes = {
-	...DisableVariant,
-	...DisableDisabled,
-	...DisableIcon,
-	...DisableIsLoading,
-	...DisableIsDestructive,
-	...disableClassName,
-};
-ButtonExternalLink.args = {
-	size: 'normal',
-	children: 'Jetpack Button',
-	variant: 'external-link',
 };
 
 export const Icon = Template.bind( {} );
