@@ -35,10 +35,10 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_settings_disable_enqueue_and_clears_queue() {
-		$event = $this->server_event_storage->reset();
+		$event = $this->server_event_storage->reset(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// create a post - this will end up in the queue before data is sent
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertTrue( $this->listener->get_sync_queue()->size() > 0 );
 
 		Settings::update_settings( array( 'disable' => 1 ) );
@@ -47,7 +47,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 
 		// generating posts should no longer affect queue size
 		$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
 
 		// syncing sends no data
@@ -63,17 +63,17 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with single site mode' );
 		}
 
-		$event = $this->server_event_storage->reset();
+		$event = $this->server_event_storage->reset(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// create a post - this will end up in the queue before data is sent
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertTrue( $this->listener->get_sync_queue()->has_any_items() );
 
 		Settings::update_settings( array( 'network_disable' => 1 ) );
 
 		// generating posts should no longer affect queue size
 		$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
-		$post_id = $this->factory->post->create();
+		$post_id = $this->factory->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertSame( 0, $this->listener->get_sync_queue()->size() );
 
 		// syncing sends no data

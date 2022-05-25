@@ -272,7 +272,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return static::is_plugin_active();
+		return static::is_plugin_active() && static::has_required_plan();
 	}
 
 	/**
