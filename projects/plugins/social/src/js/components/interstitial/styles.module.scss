@@ -1,0 +1,47 @@
+.card {
+	--product-card-shadow: rgb( 0 0 0 / 3% );
+	background-color: var( --jp-white );
+	border: 1px solid var( --jp-gray );
+	border-radius: var( --jp-border-radius );
+	box-shadow: 0 2px 6px var( --product-card-shadow ), 0 1px 2px var( --product-card-shadow );
+	margin-top: calc( var( --horizontal-spacing ) * 3 ) !important;
+	// Required to align the background
+	padding-right: 0 !important;
+
+	button {
+		margin-top: calc( var( --spacing-base ) * 3 );
+		width: auto;
+		align-self: flex-start;
+	}
+}
+
+.column {
+	padding: calc( var( --spacing-base ) * 8 ) calc( var( --spacing-base ) * 5 );
+}
+
+.offer {
+	// Not ideal, but the card doesn't allow for overwriting the style another
+	// way and the padding is too big.
+	padding: 0 !important;
+}
+
+.sidebar {
+	position: relative;
+	align-self: stretch;
+	width: 100%;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.background {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.illustration {
+	position: relative;
+}
