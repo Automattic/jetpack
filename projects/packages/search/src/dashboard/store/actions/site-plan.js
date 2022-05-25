@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+import { fetchSearchPlanInfo } from '../controls';
+
 export const SET_SEARCH_PLAN_INFO = 'SET_SEARCH_PLAN_INFO';
 
 /**
@@ -13,4 +18,4 @@ export function setSearchPlanInfo( options ) {
 	};
 }
 
-export default { setSearchPlanInfo };
+export default { setSearchPlanInfo, fetchSearchPlanInfo };
