@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
 
@@ -24,7 +24,8 @@ wp_register_script(
 		'modules/contact-form/js/grunion.js'
 	),
 	array( 'jquery-ui-sortable', 'jquery-ui-draggable' ),
-	JETPACK__VERSION
+	JETPACK__VERSION,
+	false
 );
 
 wp_localize_script(
@@ -57,10 +58,10 @@ wp_localize_script(
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?php esc_html_e( 'Contact Form', 'jetpack' ); ?></title>
 <script type="text/javascript">
-	var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
-	var postId = <?php echo absint( $_GET['post_id'] ); ?>;
-	var ajax_nonce_shortcode = '<?php echo wp_create_nonce( 'grunion_shortcode' ); ?>';
-	var ajax_nonce_json = '<?php echo wp_create_nonce( 'grunion_shortcode_to_json' ); ?>';
+	var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
+	var postId = <?php echo isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making a site change. ?>;
+	var ajax_nonce_shortcode = '<?php echo wp_create_nonce( 'grunion_shortcode' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>'; 
+	var ajax_nonce_json = '<?php echo wp_create_nonce( 'grunion_shortcode_to_json' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
 </script>
 <?php wp_print_scripts( 'grunion' ); ?>
 <script type="text/javascript">
@@ -69,9 +70,10 @@ wp_localize_script(
 		FB.ContactForm.resizePop();
 	});
 	jQuery(window).resize(function() {
-		  setTimeout(function () { FB.ContactForm.resizePop(); }, 50);
+		setTimeout(function () { FB.ContactForm.resizePop(); }, 50);
 	});
 </script>
+<?php // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 <style>
 	/* Reset */
 	html { height: 100%; }
@@ -158,7 +160,7 @@ wp_localize_script(
 	}
 </style>
 </head>
-
+<?php // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 <body
 <?php
 if ( is_rtl() ) {
@@ -180,6 +182,7 @@ if ( is_rtl() ) {
 			<p>
 			<?php
 			printf(
+				// translators: "Click here" as an HTML link.
 				esc_html( _x( 'Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field.', '%1$s = "Click here" in an HTML link', 'jetpack' ) ),
 				'<a href="#" class="fb-add-field" style="padding-left: 0;">' . esc_html__( 'Click here', 'jetpack' ) . '</a>'
 			);
@@ -189,8 +192,9 @@ if ( is_rtl() ) {
 			<p>
 			<?php
 			printf(
+				// translators: "Feedback" as an HTML link.
 				esc_html( _x( 'Yep, you can read your feedback at any time by clicking the "%1$s" link in the admin menu.', '%1$s = "Feedback" in an HTML link', 'jetpack' ) ),
-				'<a id="fb-feedback" href="' . admin_url( 'edit.php?post_type=feedback' ) . '">' . esc_html__( 'Feedback', 'jetpack' ) . '</a>'
+				'<a id="fb-feedback" href="' . admin_url( 'edit.php?post_type=feedback' ) . '">' . esc_html__( 'Feedback', 'jetpack' ) . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			);
 			?>
 			</p>
