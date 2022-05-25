@@ -7,7 +7,7 @@ function RecipeHeroEdit( { className, hasInnerBlocks } ) {
 	return (
 		<div className={ className }>
 			<InnerBlocks
-				allowedBlocks={ [ 'core/image', 'jetpack/slideshow' ] }
+				allowedBlocks={ [ 'core/image', 'jetpack/slideshow', 'core/cover' ] }
 				renderAppender={ ! hasInnerBlocks && InnerBlocks.ButtonBlockAppender }
 			/>
 		</div>
