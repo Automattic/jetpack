@@ -1041,7 +1041,7 @@ class Grunion_Contact_Form_Plugin {
 
 		if ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' ) {
 			$result = new WP_Error( 'feedback-discarded', __( 'Feedback discarded.', 'jetpack' ) );
-		} elseif ( isset( $response[1] ) && 'true' == trim( $response[1] ) ) { // 'true' is spam
+		} elseif ( isset( $response[1] ) && 'true' === trim( $response[1] ) ) { // 'true' is spam
 			$result = true;
 		}
 
@@ -1061,13 +1061,15 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Submit a feedback as either spam or ham
 	 *
-	 * @param string $as Either 'spam' or 'ham'.
-	 * @param array  $form the contact-form data
+	 * @param string $as - Either 'spam' or 'ham'.
+	 * @param array  $form - the contact-form data.
+	 *
+	 * @return bool|string
 	 */
-	function akismet_submit( $as, $form ) {
+	public function akismet_submit( $as, $form ) {
 		global $akismet_api_host, $akismet_api_port;
 
-		if ( ! in_array( $as, array( 'ham', 'spam' ) ) ) {
+		if ( ! in_array( $as, array( 'ham', 'spam' ), true ) ) {
 			return false;
 		}
 
@@ -1087,9 +1089,9 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Prints the menu
 	 */
-	function export_form() {
+	public function export_form() {
 		$current_screen = get_current_screen();
-		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ) ) ) {
+		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
 			return;
 		}
 
@@ -1106,7 +1108,7 @@ class Grunion_Contact_Form_Plugin {
 		<div id="feedback-export" style="display:none">
 			<h2><?php esc_html_e( 'Export responses as CSV', 'jetpack' ); ?></h2>
 			<div class="clear"></div>
-			<form action="<?php echo admin_url( 'admin-post.php' ); ?>" method="post" class="form">
+			<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="form">
 				<?php wp_nonce_field( 'feedback_export', 'feedback_export_nonce' ); ?>
 
 				<input name="action" value="feedback_export" type="hidden">
