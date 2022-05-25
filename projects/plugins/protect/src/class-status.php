@@ -75,6 +75,8 @@ class Status {
 			$status = self::get_from_options();
 		}
 
+		$status->last_checked = get_date_from_gmt( $status->last_checked );
+
 		if ( is_wp_error( $status ) ) {
 			$status = array(
 				'error'         => true,
