@@ -33,14 +33,14 @@ class Jetpack_Publicize {
 	public function __construct() {
 		global $publicize_ui;
 
+		$this->modules    = new Automattic\Jetpack\Modules();
 		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
 
 		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( __FILE__ );
 
 			// if sharedaddy isn't active, the sharing menu hasn't been added yet.
-			$active = Jetpack::get_active_modules();
-			if ( in_array( 'publicize', $active, true ) ) {
+			if ( $this->modules->is_active( 'publicize' ) ) {
 				add_action(
 					'jetpack_register_gutenberg_extensions',
 					function () {
@@ -54,7 +54,7 @@ class Jetpack_Publicize {
 				);
 			}
 
-			if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
+			if ( $this->modules->is_active( 'publicize' ) && ! $this->modules->is_active( 'sharedaddy' ) ) {
 				add_action( 'admin_menu', array( &$publicize_ui, 'sharing_menu' ) );
 			}
 
@@ -105,7 +105,10 @@ class Jetpack_Publicize {
 
 // On Jetpack, we instantiate Jetpack_Publicize only if the Publicize module is active.
 if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-	if ( in_array( 'publicize', Jetpack::get_active_modules(), true ) ) {
+
+	$modules = new Automattic\Jetpack\Modules();
+
+	if ( $modules->is_active( 'publicize' ) ) {
 		new Jetpack_Publicize();
 	}
 
