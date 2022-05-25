@@ -18,6 +18,11 @@ import { store as editorStore } from '@wordpress/editor';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 
+/**
+ * Internal dependencies
+ */
+import Description from './description';
+
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
@@ -45,6 +50,9 @@ const PublicizePanel = ( { prePublish } ) => {
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
+			<Description
+				{ ...{ isPublicizeEnabled, isPostPublished, hasConnections, hasEnabledConnections } }
+			/>
 			<Fragment>
 				{ ! isPostPublished && (
 					<PanelRow>
