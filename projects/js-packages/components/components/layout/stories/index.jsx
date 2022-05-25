@@ -28,6 +28,43 @@ const Layout = ( { items, fluid, horizontalGap, horizontalSpacing } ) => {
 					<Col className={ styles.col }>Composition Example</Col>
 				</Container>
 			</Col>
+
+			<Col>
+				<Container fluid horizontalSpacing={ 0 } horizontalGap={ 1 }>
+					<Col
+						sm={ { span: 1, offset: 2 } }
+						md={ { span: 2, offset: 2 } }
+						lg={ { span: 3, offset: 2 } }
+						className={ styles.col }
+					>
+						<div>sm: span: 1, offset: 2</div>
+						<div>md: span: 2, offset: 2</div>
+						<div>lg: span: 3 / offset: 2</div>
+					</Col>
+
+					<Col
+						sm={ { span: 2, offset: 3 } }
+						md={ { span: 3, offset: 5 } }
+						lg={ { span: 4, offset: 6 } }
+						className={ styles.col }
+					>
+						<div>sm: span: 2, offset: 3</div>
+						<div>md: span: 3, offset: 5</div>
+						<div>lg: span: 4 / offset: 6</div>
+					</Col>
+
+					<Col
+						sm={ { span: 3, offset: 2 } }
+						md={ { span: 2, offset: 4 } }
+						lg={ { span: 5, offset: 3 } }
+						className={ styles.col }
+					>
+						<div>sm: span: 3, offset: 2</div>
+						<div>md: span: 2, offset: 4</div>
+						<div>lg: span: 5 / offset: 3</div>
+					</Col>
+				</Container>
+			</Col>
 		</Container>
 	);
 };
