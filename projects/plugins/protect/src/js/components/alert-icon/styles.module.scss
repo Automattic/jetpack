@@ -1,0 +1,11 @@
+.container {
+	width: 48px;
+	height: 56px;
+	margin-bottom: calc( var( --spacing-base ) * 8 );
+
+	> svg {
+		position: relative;
+		top: -36px;
+		left: -40px;
+	}
+}
