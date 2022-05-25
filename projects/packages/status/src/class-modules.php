@@ -249,7 +249,7 @@ class Modules {
 				 * This will allow them to activate and deactivate these modules even when Jetpack is not present.
 				 * Note: Standalone plugins can only interact with modules that also exist in the Jetpack plugin, otherwise they'll lose the ability to control it if Jetpack is activated.
 				 *
-				 * @since $$next-version$$
+				 * @since 1.13.6
 				 *
 				 * @param array $modules The list of available modules as an array of slugs.
 				 * @param bool $requires_connection Whether to list only modules that require a connection to work.
