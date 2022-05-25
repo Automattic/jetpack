@@ -239,6 +239,7 @@ class Grunion_Contact_Form_Plugin {
 				'public'                 => false,
 				'exclude_from_search'    => true,
 				'show_in_admin_all_list' => false,
+				// translators: The spam count.
 				'label_count'            => _n_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'jetpack' ),
 				'protected'              => true,
 				'_builtin'               => false,
@@ -270,6 +271,9 @@ class Grunion_Contact_Form_Plugin {
 		self::register_contact_form_blocks();
 	}
 
+	/**
+	 * Register the contact form block.
+	 */
 	private static function register_contact_form_blocks() {
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
@@ -365,6 +369,14 @@ class Grunion_Contact_Form_Plugin {
 		);
 	}
 
+	/**
+	 * Render the gutenblock form.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string
+	 */
 	public static function gutenblock_render_form( $atts, $content ) {
 
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
@@ -380,6 +392,14 @@ class Grunion_Contact_Form_Plugin {
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
 
+	/**
+	 * Turn block attribute to shortcode attributes.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $type - the type.
+	 *
+	 * @return array
+	 */
 	public static function block_attributes_to_shortcode_attributes( $atts, $type ) {
 		$atts['type'] = $type;
 		if ( isset( $atts['className'] ) ) {
@@ -395,46 +415,144 @@ class Grunion_Contact_Form_Plugin {
 		return $atts;
 	}
 
+	/**
+	 * Render the text field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_text( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'text' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+
+	/**
+	 * Render the name field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_name( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'name' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+
+	/**
+	 * Render the email field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_email( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'email' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+
+	/**
+	 * Render the url field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_url( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'url' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+
+	/**
+	 * Render the date field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_date( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'date' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+
+	/**
+	 * Render the telephone field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_telephone( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'telephone' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+
+	/**
+	 * Render the text area field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_textarea( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'textarea' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+
+	/**
+	 * Render the checkbox field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_checkbox( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+
+	/**
+	 * Render the multiple checkbox field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+
+	/**
+	 * Render the radio button field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_radio( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
+
+	/**
+	 * Render the select field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return HTML for the contact form field.
+	 */
 	public static function gutenblock_render_field_select( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'select' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
@@ -494,8 +612,10 @@ class Grunion_Contact_Form_Plugin {
 
 	/**
 	 * Add to REST API post type allowed list.
+	 *
+	 * @param array $post_types - the post types.
 	 */
-	function allow_feedback_rest_api_type( $post_types ) {
+	public function allow_feedback_rest_api_type( $post_types ) {
 		$post_types[] = 'feedback';
 		return $post_types;
 	}
@@ -507,14 +627,14 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @param object $screen Information about the current screen.
 	 */
-	function unread_count( $screen ) {
-		if ( isset( $screen->post_type ) && 'feedback' == $screen->post_type ) {
+	public function unread_count( $screen ) {
+		if ( isset( $screen->post_type ) && 'feedback' === $screen->post_type ) {
 			update_option( 'feedback_unread_count', 0 );
 		} else {
 			global $submenu;
 			if ( isset( $submenu['feedback'] ) && is_array( $submenu['feedback'] ) && ! empty( $submenu['feedback'] ) ) {
 				foreach ( $submenu['feedback'] as $index => $menu_item ) {
-					if ( 'edit.php?post_type=feedback' == $menu_item[2] ) {
+					if ( 'edit.php?post_type=feedback' === $menu_item[2] ) {
 						$unread = get_option( 'feedback_unread_count', 0 );
 						if ( $unread > 0 ) {
 							$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
@@ -539,9 +659,9 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		$id   = isset( $_POST['contact-form-id'] ) ? wp_unslash( $_POST['contact-form-id'] ) : null;
+		$id   = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) : null;
 		$id   = is_string( $id ) ? $id : null;
-		$hash = isset( $_POST['contact-form-hash'] ) ? wp_unslash( $_POST['contact-form-hash'] ) : null;
+		$hash = isset( $_POST['contact-form-hash'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ) : null;
 		$hash = is_string( $hash ) ? $hash : null;
 		$hash = preg_replace( '/[^\da-f]/i', '', $hash );
 		// phpcs:enable
