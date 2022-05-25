@@ -161,6 +161,10 @@ class Jetpack_Social {
 	 * Enqueue block editor scripts and styles.
 	 */
 	public function enqueue_block_editor_scripts() {
+		if ( ! ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ) {
+			return;
+		}
+
 		Assets::register_script(
 			'jetpack-social-editor',
 			'build/editor.js',
@@ -182,6 +186,7 @@ class Jetpack_Social {
 				'publicizeConnectionsUrl' => esc_url_raw( 'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site=' ),
 			)
 		);
+
 	}
 
 	/**
