@@ -162,6 +162,10 @@ const ProductOffer = ( {
 
 				{ isFree && <H3>{ __( 'Free', 'jetpack' ) }</H3> }
 
+				<Alert level="error" showIcon={ !! error }>
+					{ error }
+				</Alert>
+
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Button
 						onClick={ addProductUrl ? null : onAdd }
@@ -181,8 +185,6 @@ const ProductOffer = ( {
 						<Text>{ __( 'Active on your site', 'jetpack' ) }</Text>
 					</div>
 				) }
-
-				{ error && <Alert level="error">{ error } </Alert> }
 			</div>
 		</div>
 	);
