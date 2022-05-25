@@ -33,7 +33,6 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 	category: 'jetpack',
-	usesContext: [ 'jetpack/recipe-prepTime', 'jetpack/recipe-cookTime', 'jetpack/recipe-servings' ],
 	attributes,
 	edit,
 	save,
