@@ -2540,12 +2540,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Returns a success message to be returned if the form is sent via AJAX.
 	 *
-	 * @param int                         $feedback_id
-	 * @param object Grunion_Contact_Form $form
+	 * @param int                         $feedback_id - the feedback ID.
+	 * @param object Grunion_Contact_Form $form - the contact form.
 	 *
 	 * @return string $message
 	 */
-	static function success_message( $feedback_id, $form ) {
+	public static function success_message( $feedback_id, $form ) {
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
 		} else {
@@ -2591,12 +2591,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * Returns a compiled form with labels and values in a form of  an array
 	 * of lines.
 	 *
-	 * @param int                         $feedback_id
-	 * @param object Grunion_Contact_Form $form
+	 * @param int                         $feedback_id - the feedback ID.
+	 * @param object Grunion_Contact_Form $form - the form.
 	 *
 	 * @return array $lines
 	 */
-	static function get_compiled_form( $feedback_id, $form ) {
+	public static function get_compiled_form( $feedback_id, $form ) {
 		$feedback       = get_post( $feedback_id );
 		$field_ids      = $form->get_field_ids();
 		$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $feedback_id );
@@ -2633,7 +2633,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					continue;
 				}
 
-				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'] );
+				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'], true );
 				$compiled_form[ $field_index ] = sprintf(
 					'<b>%1$s:</b> %2$s<br /><br />',
 					wp_kses( $field->get_attribute( 'label' ), array() ),
@@ -2657,7 +2657,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$i = 0;
 				foreach ( $field_ids['extra'] as $field_id ) {
 					$field       = $form->fields[ $field_id ];
-					$field_index = array_search( $field_id, $field_ids['all'] );
+					$field_index = array_search( $field_id, $field_ids['all'], true );
 
 					$label = $field->get_attribute( 'label' );
 
@@ -2678,7 +2678,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		return $compiled_form;
 	}
 
-	static function escape_and_sanitize_field_value( $value ) {
+	/**
+	 * Escape and sanitize the field value.
+	 *
+	 * @param string $value - the value we're escaping and sanitizing.
+	 *
+	 * @return string
+	 */
+	public static function escape_and_sanitize_field_value( $value ) {
 		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
 		return nl2br( wp_kses( $value, array() ) );
 	}
@@ -2686,11 +2693,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Only strip out empty string values and keep all the other values as they are.
 	 *
-	 * @param $single_value
+	 * @param string $single_value - the single value.
 	 *
 	 * @return bool
 	 */
-	static function remove_empty( $single_value ) {
+	public static function remove_empty( $single_value ) {
 		return ( $single_value !== '' );
 	}
 
@@ -2723,14 +2730,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * The contact-field shortcode processor
+	 * The contact-field shortcode processor.
 	 * We use an object method here instead of a static Grunion_Contact_Form_Field class method to parse contact-field shortcodes so that we can tie them to the contact-form object.
 	 *
-	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts()
-	 * @param string|null $content The shortcode's inner content: [contact-field]$content[/contact-field]
+	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts().
+	 * @param string|null $content The shortcode's inner content: [contact-field]$content[/contact-field].
 	 * @return HTML for the contact form field
 	 */
-	static function parse_contact_field( $attributes, $content ) {
+	public static function parse_contact_field( $attributes, $content ) {
 		// Don't try to parse contact form fields if not inside a contact form
 		if ( ! Grunion_Contact_Form_Plugin::$using_contact_form_field ) {
 			$att_strs = array();
@@ -2781,9 +2788,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 			&&
-			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
+			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) === $_POST['contact-form-id']
 			&&
-			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] )
+			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, wp_unslash( $_POST['contact-form-hash'] ) )
 		) { // phpcs:enable
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			$field->validate();
@@ -2793,7 +2800,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		return $field->render();
 	}
 
-	static function get_default_label_from_type( $type ) {
+	/**
+	 * Get the default label from type.
+	 *
+	 * @param string $type - the type of label.
+	 *
+	 * @return string
+	 */
+	public static function get_default_label_from_type( $type ) {
 		$str = null;
 		switch ( $type ) {
 			case 'text':
@@ -2881,7 +2895,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * @return array
 	 */
-	function get_field_ids() {
+	public function get_field_ids() {
 		$field_ids = array(
 			'all'   => array(), // array of all field_ids.
 			'extra' => array(), // array of all non-allowed field IDs.
@@ -2930,7 +2944,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * Process the contact form's POST submission
 	 * Stores feedback.  Sends email.
 	 */
-	function process_submission() {
+	public function process_submission() {
 		global $post;
 
 		$plugin = Grunion_Contact_Form_Plugin::init();
@@ -2974,11 +2988,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		// Make sure we're processing the form we think we're processing... probably a redundant check.
 		if ( $widget ) {
-			if ( 'widget-' . $widget != $_POST['contact-form-id'] ) {
+			if ( 'widget-' . $widget !== $_POST['contact-form-id'] ) {
 				return false;
 			}
 		} else {
-			if ( $post->ID != $_POST['contact-form-id'] ) {
+			if ( $post->ID !== $_POST['contact-form-id'] ) {
 				return false;
 			}
 		}
