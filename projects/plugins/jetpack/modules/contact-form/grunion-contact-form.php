@@ -659,7 +659,7 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		$id   = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) : null;
+		$id   = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) : null;
 		$id   = is_string( $id ) ? $id : null;
 		$hash = isset( $_POST['contact-form-hash'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ) : null;
 		$hash = is_string( $hash ) ? $hash : null;
@@ -723,7 +723,7 @@ class Grunion_Contact_Form_Plugin {
 			$shortcode = get_post_meta( $id, "_g_feedback_shortcode_{$hash}", true );
 
 			// Format it
-			if ( $shortcode != '' ) {
+			if ( $shortcode !== '' ) {
 
 				// Get attributes from post meta.
 				$parameters = '';
@@ -754,7 +754,10 @@ class Grunion_Contact_Form_Plugin {
 		return $form->process_submission();
 	}
 
-	function ajax_request() {
+	/**
+	 * Handle the ajax request.
+	 */
+	public function ajax_request() {
 		$submission_result = self::process_form_submission();
 
 		if ( ! $submission_result ) {
@@ -768,7 +771,7 @@ class Grunion_Contact_Form_Plugin {
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
 		} else {
-			echo '<h3>' . esc_html__( 'Message Sent', 'jetpack' ) . '</h3>' . $submission_result;
+			echo '<h3>' . esc_html__( 'Message Sent 2', 'jetpack' ) . '</h3>' . $submission_result; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pretty sure we're generating HTML with $submission_result
 		}
 
 		die;
@@ -780,31 +783,46 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @see Grunion_Contact_Form::process_submission()
 	 *
-	 * @param array $data the data to insert
-	 * @param array $postarr the data sent to wp_insert_post()
-	 * @return array The filtered $data to insert
+	 * @param array $data the data to insert.
+	 * @param array $postarr the data sent to wp_insert_post().
+	 * @return array The filtered $data to insert.
 	 */
-	function insert_feedback_filter( $data, $postarr ) {
-		if ( $data['post_type'] == 'feedback' && $postarr['post_type'] == 'feedback' ) {
+	public function insert_feedback_filter( $data, $postarr ) {
+		if ( $data['post_type'] === 'feedback' && $postarr['post_type'] === 'feedback' ) {
 			$data['post_author'] = 0;
 		}
 
 		return $data;
 	}
-	/*
+
+	/**
 	 * Adds our contact-form shortcode
 	 * The "child" contact-field shortcode is enabled as needed by the contact-form shortcode handler
 	 */
-	function add_shortcode() {
+	public function add_shortcode() {
 		add_shortcode( 'contact-form', array( 'Grunion_Contact_Form', 'parse' ) );
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
 	}
 
-	static function tokenize_label( $label ) {
+	/**
+	 * Tokenize the label.
+	 *
+	 * @param string $label - the label.
+	 *
+	 * @return string
+	 */
+	public static function tokenize_label( $label ) {
 		return '{' . trim( preg_replace( '#^\d+_#', '', $label ) ) . '}';
 	}
 
-	static function sanitize_value( $value ) {
+	/**
+	 * Sanitize the value.
+	 *
+	 * @param string $value - the value to sanitize.
+	 *
+	 * @return string
+	 */
+	public static function sanitize_value( $value ) {
 		if ( null === $value ) {
 			return '';
 		}
@@ -815,12 +833,12 @@ class Grunion_Contact_Form_Plugin {
 	 * Replaces tokens like {city} or {City} (case insensitive) with the value
 	 * of an input field of that name
 	 *
-	 * @param string $subject
-	 * @param array  $field_values Array with field label => field value associations
+	 * @param string $subject - the subject.
+	 * @param array  $field_values Array with field label => field value associations.
 	 *
-	 * @return string The filtered $subject with the tokens replaced
+	 * @return string The filtered $subject with the tokens replaced.
 	 */
-	function replace_tokens_with_input( $subject, $field_values ) {
+	public function replace_tokens_with_input( $subject, $field_values ) {
 		// Wrap labels into tokens (inside {})
 		$wrapped_labels = array_map( array( 'Grunion_Contact_Form_Plugin', 'tokenize_label' ), array_keys( $field_values ) );
 		// Sanitize all values
@@ -841,11 +859,11 @@ class Grunion_Contact_Form_Plugin {
 	 * Tracks the widget currently being processed.
 	 * Attached to `dynamic_sidebar`
 	 *
-	 * @see $current_widget_id
+	 * @see $current_widget_id - the current widget ID.
 	 *
-	 * @param array $widget The widget data
+	 * @param array $widget The widget data.
 	 */
-	function track_current_widget( $widget ) {
+	public function track_current_widget( $widget ) {
 		$this->current_widget_id = $widget['id'];
 	}
 
@@ -854,10 +872,11 @@ class Grunion_Contact_Form_Plugin {
 	 * Used to tell the difference between post-embedded contact-forms and widget-embedded contact-forms
 	 * Attached to `widget_text`
 	 *
-	 * @param string $text The widget text
-	 * @return string The filtered widget text
+	 * @param string $text The widget text.
+	 *
+	 * @return string The filtered widget text.
 	 */
-	function widget_atts( $text ) {
+	public function widget_atts( $text ) {
 		Grunion_Contact_Form::style( true );
 
 		return preg_replace( '/\[contact-form([^a-zA-Z_-])/', '[contact-form widget="' . $this->current_widget_id . '"\\1', $text );
@@ -867,10 +886,11 @@ class Grunion_Contact_Form_Plugin {
 	 * For sites where text widgets are not processed for shortcodes, we add this hack to process just our shortcode
 	 * Attached to `widget_text`
 	 *
-	 * @param string $text The widget text
+	 * @param string $text The widget text.
+	 *
 	 * @return string The contact-form filtered widget text
 	 */
-	function widget_shortcode_hack( $text ) {
+	public function widget_shortcode_hack( $text ) {
 		if ( ! preg_match( '/\[contact-form([^a-zA-Z_-])/', $text ) ) {
 			return $text;
 		}
@@ -883,7 +903,7 @@ class Grunion_Contact_Form_Plugin {
 		$text = do_shortcode( $text );
 
 		self::$using_contact_form_field = false;
-		$GLOBALS['shortcode_tags']      = $old;
+		$GLOBALS['shortcode_tags']      = $old; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		return $text;
 	}
@@ -895,8 +915,8 @@ class Grunion_Contact_Form_Plugin {
 	 * removed from the public discussion.
 	 * Attached to `jetpack_contact_form_is_spam`
 	 *
-	 * @param bool  $is_spam
-	 * @param array $form
+	 * @param bool  $is_spam - if the submission is spam.
+	 * @param array $form - the form data.
 	 * @return bool TRUE => spam, FALSE => not spam
 	 */
 	public function is_spam_blocklist( $is_spam, $form = array() ) {
@@ -940,24 +960,25 @@ class Grunion_Contact_Form_Plugin {
 	 * Populate an array with all values necessary to submit a NEW contact-form feedback to Akismet.
 	 * Note that this includes the current user_ip etc, so this should only be called when accepting a new item via $_POST
 	 *
-	 * @param array $form Contact form feedback array
-	 * @return array feedback array with additional data ready for submission to Akismet
+	 * @param array $form - contact form feedback array.
+	 *
+	 * @return array feedback array with additional data ready for submission to Akismet.
 	 */
-	function prepare_for_akismet( $form ) {
+	public function prepare_for_akismet( $form ) {
 		$form['comment_type'] = 'contact_form';
-		$form['user_ip']      = $_SERVER['REMOTE_ADDR'];
-		$form['user_agent']   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
-		$form['referrer']     = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '';
+		$form['user_ip']      = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$form['user_agent']   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$form['referrer']     = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
 		$form['blog']         = get_option( 'home' );
 
 		foreach ( $_SERVER as $key => $value ) {
 			if ( ! is_string( $value ) ) {
 				continue;
 			}
-			if ( in_array( $key, array( 'HTTP_COOKIE', 'HTTP_COOKIE2', 'HTTP_USER_AGENT', 'HTTP_REFERER' ) ) ) {
+			if ( in_array( $key, array( 'HTTP_COOKIE', 'HTTP_COOKIE2', 'HTTP_USER_AGENT', 'HTTP_REFERER' ), true ) ) {
 				// We don't care about cookies, and the UA and Referrer were caught above.
 				continue;
-			} elseif ( in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ) ) ) {
+			} elseif ( in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
 				// All three of these are relevant indicators and should be passed along.
 				$form[ $key ] = $value;
 			} elseif ( wp_startswith( $key, 'HTTP_' ) ) {
@@ -984,11 +1005,11 @@ class Grunion_Contact_Form_Plugin {
 	 * If you're accepting a new item via $_POST, run it Grunion_Contact_Form_Plugin::prepare_for_akismet() first
 	 * Attached to `jetpack_contact_form_is_spam`
 	 *
-	 * @param bool  $is_spam
-	 * @param array $form
+	 * @param bool  $is_spam - if the submission is spam.
+	 * @param array $form - the form data.
 	 * @return bool|WP_Error TRUE => spam, FALSE => not spam, WP_Error => stop processing entirely
 	 */
-	function is_spam_akismet( $is_spam, $form = array() ) {
+	public function is_spam_akismet( $is_spam, $form = array() ) {
 		global $akismet_api_host, $akismet_api_port;
 
 		// The signature of this function changed from accepting just $form.
