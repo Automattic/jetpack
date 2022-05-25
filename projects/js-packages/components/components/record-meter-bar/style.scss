@@ -1,35 +1,38 @@
 .record-meter-bar {
-    padding-block: 1em;
+	padding-block: 1em;
 
-    &__items {
-        height: 2rem;
-        display: flex;
-        border-radius: 1rem;
-        overflow: hidden;
-        margin-bottom: 2em;
-        background-color: var(--jp-gray-off);
-    }
+	&__items {
+		height: 2rem;
+		display: flex;
+		border-radius: 1rem;
+		overflow: hidden;
+		margin-bottom: 2em;
+		background-color: var(--jp-gray-off);
+	}
 
-    &__legend {
-        &--items {
-            display: flex;
-            margin: 0px;
-        }
-        &--item {
-            display: flex;
-            margin: 0px;
-            margin-inline-end: 1em;
-            align-items: center;
-        }
-        &--item-circle {
-            width: 1rem;
-            height: 1rem;
-            display: inline-block;
-            margin-inline-end: 0.4em;
-            border-radius: 100%;
-        }
-        &--item-count {
-            margin-inline-end: 0.4em;
-        }
-    }
+	&__legend {
+		&--items {
+			display: flex;
+			margin: 0;
+		}
+		&--item {
+			display: flex;
+			margin: 0;
+			margin-inline-end: 1em;
+			align-items: center;
+		}
+		&--item-circle {
+			width: 1rem;
+			height: 1rem;
+			display: inline-block;
+			margin-inline-end: 0.4em;
+			border-radius: 100%;
+		}
+		&--item-count {
+			margin-inline-end: 0.4em;
+		}
+		&--item-label-first {
+			margin-inline-end: 0.4em;
+		}
+	}
 }
