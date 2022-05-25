@@ -94,7 +94,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	public function filter_post_status( $post ) {
-		$matched_status = ! in_array( $post->post_status, array( 'inherit' ) )
+		$matched_status = ! in_array( $post->post_status, array( 'inherit' ), true )
 			&& ( $this->post_status[ get_current_blog_id() ] ? $post->post_status === $this->post_status[ get_current_blog_id() ] : true );
 
 		return $matched_status;
@@ -328,7 +328,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		foreach ( $this->meta[ get_current_blog_id() ][ $type ] as $meta_id => $meta_data ) {
 			if (
 				$meta_data->meta_key === $meta_key &&
-				in_array( $meta_data->object_id, $object_ids )
+				in_array( $meta_data->object_id, $object_ids ) // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 			) {
 				$meta_ids[] = $meta_id;
 			}
@@ -349,7 +349,9 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	public function set_constant( $constant, $value ) {
-		return $this->constants[ get_current_blog_id() ][ $constant ] = $value;
+		$this->constants[ get_current_blog_id() ][ $constant ] = $value;
+
+		return $this->constants[ get_current_blog_id() ][ $constant ];
 	}
 
 	// updates
@@ -411,10 +413,10 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		foreach ( $this->terms[ get_current_blog_id() ][ $taxonomy ] as $term_object ) {
 			switch ( $term_key ) {
 				case 'term_id':
-					$term = ( $term_id == $term_object->term_id ) ? $term_object : null;
+					$term = ( $term_id == $term_object->term_id ) ? $term_object : null; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					break;
 				case 'term_taxonomy_id':
-					$term = ( $term_id == $term_object->term_taxonomy_id ) ? $term_object : null;
+					$term = ( $term_id == $term_object->term_taxonomy_id ) ? $term_object : null; // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 					break;
 				case 'slug':
 					$term = ( $term_id === $term_object->slug ) ? $term_object : null;
@@ -473,7 +475,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		$term_key    = is_numeric( $term_id ) ? 'term_id' : 'slug';
 		$term_object = $this->get_term( $taxonomy, $term_id, $term_key );
 		$count       = 0;
-		foreach ( $this->object_terms[ get_current_blog_id() ][ $taxonomy ] as $object_id => $term_ids ) {
+		foreach ( $this->object_terms[ get_current_blog_id() ][ $taxonomy ] as $term_ids ) {
 			foreach ( $term_ids as $saved_term_id ) {
 				if ( $saved_term_id === $term_id ) {
 					$count ++;
@@ -512,7 +514,11 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 			foreach ( $taxonomy_object_terms as $saved_object_id => $term_ids ) {
 				foreach ( $term_ids as $saved_term_id ) {
 					$term = $this->get_term( $taxonomy, $saved_term_id, 'term_id' );
-					if ( isset( $term->term_taxonomy_id ) && ! in_array( $term->term_taxonomy_id, $tt_ids ) && $object_id === $saved_object_id ) {
+					if (
+						isset( $term->term_taxonomy_id )
+						&& ! in_array( $term->term_taxonomy_id, $tt_ids ) // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+						&& $object_id === $saved_object_id
+					) {
 						$saved_data[ $taxonomy ] [ $saved_object_id ][] = $saved_term_id;
 					} elseif ( isset( $term->term_taxonomy_id ) && in_array( $term->term_taxonomy_id, $tt_ids ) && $object_id === $saved_object_id ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 						$this->update_term_count( $taxonomy, $term->term_id );
@@ -636,7 +642,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 			case 'post_meta':
 				$post_meta    = array_filter( $this->meta[ get_current_blog_id() ]['post'], array( $this, 'is_post' ) );
 				$all_ids      = array_values( array_map( array( $this, 'meta_id' ), $post_meta ) );
-				$id_field     = 'meta_id';
+				$id_field     = 'meta_id'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				$get_function = 'get_post_meta_by_id';
 
 				if ( empty( $fields ) ) {
@@ -646,7 +652,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 			case 'comments':
 				$comments     = $this->get_comments( null, $start_id, $end_id );
 				$all_ids      = array_map( array( $this, 'comment_id' ), $comments );
-				$id_field     = 'comment_ID';
+				$id_field     = 'comment_ID'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				$get_function = 'get_comment';
 
 				if ( empty( $fields ) ) {
@@ -656,7 +662,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 			case 'comment_meta':
 				$comment_meta = array_filter( $this->meta[ get_current_blog_id() ]['comment'], array( $this, 'is_comment' ) );
 				$all_ids      = array_values( array_map( array( $this, 'meta_id' ), $comment_meta ) );
-				$id_field     = 'meta_id';
+				$id_field     = 'meta_id'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				$get_function = 'get_comment_meta_by_id';
 
 				if ( empty( $fields ) ) {

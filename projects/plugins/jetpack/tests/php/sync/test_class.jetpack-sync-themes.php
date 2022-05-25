@@ -31,8 +31,10 @@ class Dummy_Sync_Test_WP_Upgrader {
 
 /**
  * Testing CRUD on Options
+ * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
+	// phpcs:enable Generic.Files.OneObjectStructurePerFile.MultipleFound
 	protected $theme;
 
 	/**
@@ -122,8 +124,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		// theme name and options should be whitelisted as a synced option
 		$this->assertEquals( $this->theme, $this->server_replica_storage->get_option( 'stylesheet' ) );
 
-		$local_value  = get_option( 'theme_mods_' . $this->theme );
-		$remote_value = $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme );
+		$local_value = get_option( 'theme_mods_' . $this->theme );
 
 		if ( isset( $local_value[0] ) ) {
 			// this is a spurious value that sometimes gets set during tests, and is
