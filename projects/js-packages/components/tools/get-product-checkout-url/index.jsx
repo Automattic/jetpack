@@ -13,7 +13,7 @@ export default function getProductCheckoutUrl(
 	redirectUrl,
 	isUserConnected
 ) {
-	const checkoutUrl = new URL( 'https://wordpress.com/checkout/' );
+	const checkoutUrl = new URL( 'http://calypso.localhost:3000/checkout/' );
 	const checkoutProductUrl = new URL( `${ checkoutUrl }${ siteSuffix }/${ productSlug }` );
 
 	// Add redirect_to parameter
