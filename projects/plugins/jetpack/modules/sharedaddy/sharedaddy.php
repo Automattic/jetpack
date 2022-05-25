@@ -222,7 +222,6 @@ function sharing_meta_box_content( $post ) {
 			<?php esc_html_e( 'Show sharing buttons.', 'jetpack' ); ?>
 		</label>
 		<input type="hidden" name="sharing_status_hidden" value="1" />
-		<?php wp_nonce_field( 'sharing-meta-box' ); ?>
 	</p>
 
 	<?php

@@ -12,16 +12,8 @@
  */
 function fixDeps( pkg ) {
 	// Why do they not publish new versions from their monorepo?
-	if ( pkg.name === '@automattic/social-previews' ) {
-		// 1.1.1 published 2021-04-08
-		if ( pkg.dependencies[ '@wordpress/components' ] === '^12.0.8' ) {
-			// Update to avoid a dep on @emotion/native that wants react-native.
-			// This dep update is in their monorepo as of 2022-03-10 with no code changes.
-			pkg.dependencies[ '@wordpress/components' ] = '^19.2.0';
-		}
-	}
 	if ( pkg.name === '@automattic/components' ) {
-		// 1.0.0-alpha.3 published 2020-11-11. Not that we want alpha.4, they added an i18n-calypso dep (ugh).
+		// 1.0.0-alpha.3 published 2020-11-11.
 		if ( ! pkg.dependencies[ '@wordpress/base-styles' ] ) {
 			// Depends on this but doesn't specify it.
 			pkg.dependencies[ '@wordpress/base-styles' ] = '^4.0.4';

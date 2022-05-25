@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useEffect, useState } from 'react';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 
@@ -10,6 +10,7 @@ import { getProductCheckoutUrl } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store.jsx';
+import useConnection from '../../components/use-connection';
 
 const {
 	registrationNonce,
@@ -26,19 +27,24 @@ const {
  * @param {string} props.productSlug  - The WordPress product slug.
  * @param {string} props.redirectUrl  - The URI to redirect to after checkout.
  * @param {string} [props.siteSuffix] - The site suffix.
+ * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
+ * @param {Function} props.from       - The plugin slug initiated the flow.
  * @returns {Function}				  - The useEffect hook.
  */
 export default function useProductCheckoutWorkflow( {
 	productSlug,
 	redirectUrl,
 	siteSuffix = defaultSiteSuffix,
+	siteProductAvailabilityHandler = null,
+	from,
 } = {} ) {
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
 
-	const { isUserConnected, isRegistered } = useSelect( select =>
-		select( STORE_ID ).getConnectionStatus()
-	);
+	const { isUserConnected, isRegistered, handleConnectUser } = useConnection( {
+		redirectUri: redirectUrl,
+		from,
+	} );
 
 	// Build the checkout URL.
 	const checkoutProductUrl = getProductCheckoutUrl(
@@ -47,6 +53,17 @@ export default function useProductCheckoutWorkflow( {
 		redirectUrl,
 		isUserConnected
 	);
+
+	const handleAfterRegistration = () => {
+		return Promise.resolve(
+			siteProductAvailabilityHandler && siteProductAvailabilityHandler()
+		).then( siteHasWpcomProduct => {
+			if ( siteHasWpcomProduct ) {
+				return handleConnectUser();
+			}
+			window.location.href = checkoutProductUrl;
+		} );
+	};
 
 	/**
 	 * Handler to run the checkout workflow.
@@ -59,12 +76,10 @@ export default function useProductCheckoutWorkflow( {
 		setCheckoutStarted( true );
 
 		if ( isRegistered ) {
-			return ( window.location.href = checkoutProductUrl );
+			return handleAfterRegistration();
 		}
 
-		registerSite( { registrationNonce, redirectUrl } ).then( () => {
-			window.location = checkoutProductUrl;
-		} );
+		registerSite( { registrationNonce, redirectUri: redirectUrl } ).then( handleAfterRegistration );
 	};
 
 	// Initialize/Setup the REST API.
