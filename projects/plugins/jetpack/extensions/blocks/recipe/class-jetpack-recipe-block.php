@@ -1,18 +1,23 @@
 <?php
 /**
- * Class Jetpack_Recipe_Block
+ * Jetpack Recipe Block
  *
  * @package automattic/jetpack
  */
 
+namespace Automattic\Jetpack\Extensions\Recipe;
+
+use Jetpack_Gutenberg;
+
 /**
+ * Jetpack Recipe Block class.
+ *
  * Helper class that lets us add schema attributes dynamically because they are not something that is store with the content.
  * Due to the limitations of wp_kses.
  *
- * @since 7.1.0
+ * @since $$next-version$$
  */
 class Jetpack_Recipe_Block {
-
 	/**
 	 * Adds recipe schema attributes.
 	 *
@@ -23,18 +28,19 @@ class Jetpack_Recipe_Block {
 	 */
 	public static function render( $attr, $content ) {
 		Jetpack_Gutenberg::load_styles_as_required( 'recipe' );
+
 		$find    = array(
-			'class="wp-block-jetpack-recipe"',
-			'class="wp-block-jetpack-recipe-title"',
-			'class="wp-block-jetpack-recipe-description"',
+			'/(class="wp-block-jetpack-recipe(\s|"))/',
+			'/(class="wp-block-jetpack-recipe-title(\s|"))/',
+			'/(class="wp-block-jetpack-recipe-description(\s|"))/',
 		);
 		$replace = array(
-			'itemscope itemtype="https://schema.org/Recipe" class="wp-block-jetpack-recipe"',
-			'itemprop="name" class="wp-block-jetpack-recipe-title"',
-			'itemprop="description" class="wp-block-jetpack-recipe-description"',
+			'itemscope itemtype="https://schema.org/Recipe" ${1}',
+			'itemprop="name" ${1}',
+			'itemprop="description" ${1}',
 		);
 
-		return str_replace( $find, $replace, $content );
+		return preg_replace( $find, $replace, $content );
 	}
 
 	/**
@@ -54,54 +60,6 @@ class Jetpack_Recipe_Block {
 		);
 
 		return str_replace( $find, $replace, $content );
-	}
-
-	/**
-	 * Adds recipe details schema attributes.
-	 *
-	 * @param array  $attr    Array containing the recipe-details block attributes.
-	 * @param string $content String containing the recipe-details block content.
-	 *
-	 * @return string
-	 */
-	public static function render_details( $attr, $content ) {
-		return $content;
-	}
-
-	/**
-	 * Adds recipe ingredients list schema attributes.
-	 *
-	 * @param array  $attr    Array containing the recipe-ingredients-list block attributes.
-	 * @param string $content String containing the recipe-ingredients-list block content.
-	 *
-	 * @return string
-	 */
-	public static function render_ingredients_list( $attr, $content ) {
-		return $content;
-	}
-
-	/**
-	 * Adds recipe ingredient item schema attributes.
-	 *
-	 * @param array  $attr    Array containing the recipe-ingredient-item block attributes.
-	 * @param string $content String containing the recipe-ingredient-item block content.
-	 *
-	 * @return string
-	 */
-	public static function render_ingredient_item( $attr, $content ) {
-		return $content;
-	}
-
-	/**
-	 * Adds recipe steps schema attributes.
-	 *
-	 * @param array  $attr    Array containing the recipe-steps block attributes.
-	 * @param string $content String containing the recipe-steps block content.
-	 *
-	 * @return string
-	 */
-	public static function render_steps( $attr, $content ) {
-		return $content;
 	}
 
 	/**
@@ -125,23 +83,5 @@ class Jetpack_Recipe_Block {
 		);
 
 		return str_replace( $find, $replace, $content );
-	}
-
-	/**
-	 * Helper function that lets us determine if a block has any valid attributes.
-	 *
-	 * @param array $attr Array containing the block attributes.
-	 * @param array $omit Array containing the block attributes that we ignore.
-	 *
-	 * @return string
-	 */
-	public static function has_attributes( $attr, $omit = array() ) {
-		foreach ( $attr as $attribute => $value ) {
-			if ( ! in_array( $attribute, $omit, true ) && ! empty( $value ) ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 }

@@ -12,7 +12,7 @@ use Automattic\Jetpack\Blocks;
 Blocks::jetpack_register_block(
 	'jetpack/recipe',
 	array(
-		'render_callback' => array( 'Jetpack_Recipe_Block', 'render' ),
+		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render' ),
 	)
 );
 
@@ -20,7 +20,7 @@ Blocks::jetpack_register_block(
 	'jetpack/recipe-details',
 	array(
 		'parent'          => array( 'jetpack/recipe' ),
-		'render_callback' => array( 'Jetpack_Recipe_Block', 'render_detials' ),
+		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render_detials' ),
 	)
 );
 
@@ -28,7 +28,7 @@ Blocks::jetpack_register_block(
 	'jetpack/recipe-hero',
 	array(
 		'parent'          => array( 'jetpack/recipe' ),
-		'render_callback' => array( 'Jetpack_Recipe_Block', 'render_hero' ),
+		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render_hero' ),
 	)
 );
 
@@ -36,7 +36,7 @@ Blocks::jetpack_register_block(
 	'jetpack/recipe-ingredients-list',
 	array(
 		'parent'          => array( 'jetpack/recipe' ),
-		'render_callback' => array( 'Jetpack_Recipe_Block', 'render_ingredients_list' ),
+		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render_ingredients_list' ),
 	)
 );
 
@@ -44,7 +44,7 @@ Blocks::jetpack_register_block(
 	'jetpack/recipe-ingredient-item',
 	array(
 		'parent'          => array( 'jetpack/recipe' ),
-		'render_callback' => array( 'Jetpack_Recipe_Block', 'render_ingredient_item' ),
+		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render_ingredient_item' ),
 	)
 );
 
@@ -52,7 +52,7 @@ Blocks::jetpack_register_block(
 	'jetpack/recipe-steps',
 	array(
 		'parent'          => array( 'jetpack/recipe' ),
-		'render_callback' => array( 'Jetpack_Recipe_Block', 'render_steps' ),
+		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render_steps' ),
 	)
 );
 
@@ -60,7 +60,7 @@ Blocks::jetpack_register_block(
 	'jetpack/recipe-step',
 	array(
 		'parent'          => array( 'jetpack/recipe' ),
-		'render_callback' => array( 'Jetpack_Recipe_Block', 'render_step' ),
+		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render_step' ),
 	)
 );
 
