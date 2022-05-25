@@ -3788,11 +3788,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_type  = $this->get_attribute( 'type' );
 		$field_label = $this->get_attribute( 'label' );
 
-		if ( isset( $_POST[ $field_id ] ) ) {
-			if ( is_array( $_POST[ $field_id ] ) ) {
-				$field_value = array_map( 'stripslashes', $_POST[ $field_id ] );
+		if ( isset( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			if ( is_array( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+				$field_value = sanitize_text_field( wp_unslash( $_POST[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 			} else {
-				$field_value = stripslashes( $_POST[ $field_id ] );
+				$field_value = sanitize_text_field( wp_unslash( $_POST[ $field_id ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 			}
 		} else {
 			$field_value = '';
@@ -3825,9 +3825,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Check the default value for options field
 	 *
-	 * @param string value
-	 * @param int index
-	 * @param string default value
+	 * @param string $value - the value we're checking.
+	 * @param int    $index - the index.
+	 * @param string $options - default field option.
 	 *
 	 * @return string
 	 */
@@ -3843,7 +3843,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * @return string HTML
 	 */
-	function render() {
+	public function render() {
 		global $current_user, $user_identity;
 
 		$field_id          = $this->get_attribute( 'id' );
@@ -3869,27 +3869,27 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 */
 		$field_class = apply_filters( 'jetpack_contact_form_input_class', $class );
 
-		if ( isset( $_POST[ $field_id ] ) ) {
-			if ( is_array( $_POST[ $field_id ] ) ) {
-				$this->value = array_map( 'stripslashes', $_POST[ $field_id ] );
+		if ( isset( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			if ( is_array( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+				$this->value = array_map( 'stripslashes', $_POST[ $field_id ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 			} else {
-				$this->value = stripslashes( (string) $_POST[ $field_id ] );
+				$this->value = stripslashes( (string) $_POST[ $field_id ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 			}
-		} elseif ( isset( $_GET[ $field_id ] ) ) {
-			$this->value = stripslashes( (string) $_GET[ $field_id ] );
+		} elseif ( isset( $_GET[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			$this->value = stripslashes( (string) $_GET[ $field_id ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 		} elseif (
 			is_user_logged_in() &&
 			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
-			  /**
-			   * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
-			   *
-			   * @module contact-form
-			   *
-			   * @since 3.2.0
-			   *
-			   * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
-			   */
-			  true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
+			/**
+			 * Allow third-party tools to prefill the contact form with the user's details when they're logged in.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 3.2.0
+			 *
+			 * @param bool false Should the Contact Form be prefilled with your details when you're logged in. Default to false.
+			 */
+			true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
 			)
 		) {
 			// Special defaults for logged-in users
