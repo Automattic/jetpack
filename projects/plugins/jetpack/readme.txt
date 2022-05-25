@@ -242,12 +242,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.0-a.9 - 2022-05-19
-#### Improved compatibility
-- Stats: remove unnecessary type attribute from style element.
-
+### 11.0-a.11 - 2022-05-24
 #### Bug fixes
-- VideoPress: fix validation errors for core video block usage.
+- Assistant: fix unclickable banner dismiss button.
+- Widget Visibility: avoid PHP warnings when loading widgets in some scenarios.
 
 --------
 
