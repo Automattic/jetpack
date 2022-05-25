@@ -83,7 +83,7 @@ export default function ConnectionPage( { isLoading = false } ) {
 					{ __(
 						'Pricing will automatically adjust based on the number of records in your search index.',
 						'jetpack-search-pkg'
-					) }
+					) }{ ' ' }
 					<a
 						href={ getRedirectUrl( 'search-product-pricing' ) }
 						className="jp-search-dashboard-connection-footer__link"
