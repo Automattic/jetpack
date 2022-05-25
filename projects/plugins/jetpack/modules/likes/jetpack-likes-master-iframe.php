@@ -1,4 +1,9 @@
 <?php
+/**
+ * Jetpack likes iframe.
+ *
+ * @package jetpack
+ */
 
 /**
  * This function needs to get loaded after the like scripts get added to the page.
@@ -21,7 +26,7 @@ function jetpack_likes_master_iframe() {
 		$_locale   = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
 	}
 
-	$likes_locale = ( '' == $_locale || 'en' == $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
+	$likes_locale = ( '' === $_locale || 'en' === $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 
 	$src = sprintf(
 		'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s',
@@ -30,9 +35,9 @@ function jetpack_likes_master_iframe() {
 	);
 
 	/* translators: The value of %d is not available at the time of output */
-	$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
+	$likers_text = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 	?>
-	<iframe src='<?php echo $src; ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
-	<div id='likes-other-gravatars'><div class="likes-text"><?php echo $likersText; ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
+	<iframe src='<?php echo esc_url( $src ); ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
+	<div id='likes-other-gravatars'><div class="likes-text"><?php echo $likers_text; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
 	<?php
 }
