@@ -39,7 +39,6 @@ class Jetpack_Publicize {
 		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( __FILE__ );
 
-			// if sharedaddy isn't active, the sharing menu hasn't been added yet.
 			if ( $this->modules->is_active( 'publicize' ) ) {
 				add_action(
 					'jetpack_register_gutenberg_extensions',
@@ -54,6 +53,7 @@ class Jetpack_Publicize {
 				);
 			}
 
+			// if sharedaddy isn't active, the sharing menu hasn't been added yet.
 			if ( $this->modules->is_active( 'publicize' ) && ! $this->modules->is_active( 'sharedaddy' ) ) {
 				add_action( 'admin_menu', array( &$publicize_ui, 'sharing_menu' ) );
 			}
