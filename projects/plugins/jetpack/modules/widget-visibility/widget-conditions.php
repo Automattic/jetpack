@@ -1127,6 +1127,10 @@ class Jetpack_Widget_Conditions {
 				$opts      = $wp_registered_widgets[ $widget ];
 				$instances = get_option( $opts['callback'][0]->option_name );
 
+				if ( ! is_array( $instances ) || empty( $instances ) ) {
+					continue;
+				}
+
 				// Going through each instance of the widget.
 				foreach ( $instances as $number => $instance ) {
 					if (

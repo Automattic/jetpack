@@ -312,6 +312,7 @@ class Defaults {
 		'wp_get_environment_type'          => 'wp_get_environment_type',
 		'wp_max_upload_size'               => 'wp_max_upload_size',
 		'wp_version'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+		'active_modules'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_active_modules' ),
 	);
 
 	/**
