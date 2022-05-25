@@ -28,3 +28,9 @@ WithTotalCount.args = {
 	...DefaultArgs,
 	totalCount: 200,
 };
+
+export const LabelBeforeCount = Template.bind( {} );
+LabelBeforeCount.args = {
+	...DefaultArgs,
+	showLegendLabelBeforeCount: true,
+};
