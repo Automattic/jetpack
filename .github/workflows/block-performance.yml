@@ -3,9 +3,6 @@ name: Jetpack block performance
 on:
   schedule:
     - cron:  '0 */12 * * *'
-  push:
-    branches:
-      - tests/slack-notification-for-performance-tests-failure
 
 jobs:
   block-performance:
@@ -66,7 +63,7 @@ jobs:
           node ./bin/performance.js
 
       - name: Send Slack notification
-        if: ${{ success() }}
+        if: ${{ failure() }}
         working-directory: tools/e2e-commons
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
