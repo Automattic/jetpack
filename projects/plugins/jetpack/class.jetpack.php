@@ -1023,7 +1023,6 @@ class Jetpack {
 		$jetpack_callables = array(
 			'single_user_site'         => array( 'Jetpack', 'is_single_user_site' ),
 			'updates'                  => array( 'Jetpack', 'get_updates' ),
-			'active_modules'           => array( 'Jetpack', 'get_active_modules' ),
 			'available_jetpack_blocks' => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins.
 		);
 		$callables         = array_merge( $callables, $jetpack_callables );

@@ -43,14 +43,14 @@ class Status {
 	 *
 	 * @var int
 	 */
-	const OPTION_EXPIRES_AFTER = 43200; // 12 hours.
+	const OPTION_EXPIRES_AFTER = 3600; // 1 hour.
 
 	/**
 	 * Time in seconds that the cache for the initial empty response should last
 	 *
 	 * @var int
 	 */
-	const INITIAL_OPTION_EXPIRES_AFTER = 5 * MINUTE_IN_SECONDS;
+	const INITIAL_OPTION_EXPIRES_AFTER = 1 * MINUTE_IN_SECONDS;
 
 	/**
 	 * Memoization for the current status
