@@ -50,6 +50,7 @@
 	&-label {
 		display: flex;
 		align-items: center;
+		padding-right: var(--spacing-base); // 8px
 	}
 
 	// .navigation-item-icon
