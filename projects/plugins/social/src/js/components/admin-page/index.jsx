@@ -9,8 +9,7 @@ import {
 	Container,
 	Col,
 } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { useConnection } from '@automattic/jetpack-connection';
 import React from 'react';
 
 /**
@@ -23,36 +22,36 @@ import ToggleSection from './../toggle-section';
 import InfoSection from './../info-section';
 
 const Admin = () => {
-	const connectionStatus = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
-		[]
-	);
-	const { isUserConnected, isRegistered } = connectionStatus;
+	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
+
+	if ( showConnectionCard ) {
+		return (
+			<AdminPage
+				moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) }
+				showHeader={ false }
+				showBackground={ false }
+			>
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+					<Col>
+						<ConnectionScreen />
+					</Col>
+				</Container>
+			</AdminPage>
+		);
+	}
 
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) } header={ <Logo /> }>
 			<AdminSectionHero>
-				{ showConnectionCard ? (
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col sm={ 4 } md={ 8 } lg={ 12 }>
-							<ConnectionScreen />
-						</Col>
-					</Container>
-				) : (
-					<Header />
-				) }
+				<Header />
 			</AdminSectionHero>
-			{ ! showConnectionCard && (
-				<>
-					<AdminSection>
-						<ToggleSection />
-					</AdminSection>
-					<AdminSectionHero>
-						<InfoSection />
-					</AdminSectionHero>
-				</>
-			) }
+			<AdminSection>
+				<ToggleSection />
+			</AdminSection>
+			<AdminSectionHero>
+				<InfoSection />
+			</AdminSectionHero>
 		</AdminPage>
 	);
 };
