@@ -78,6 +78,8 @@ class WPCOM_Features {
 	private const WOOCOMMERCE_PRODUCT_BUNDLES_MONTHLY         = 'woocommerce_product_bundles_monthly'; // 946
 	private const WOO_CONDITIONAL_SHIPPING_PAYMENTS_YEARLY    = 'woo_conditional_shippingpayments_yearly'; // 947
 	private const WOO_CONDITIONAL_SHIPPING_PAYMENTS_MONTHLY   = 'woo_conditional_shippingpayments_monthly'; // 948
+	private const WOOCOMMERCE_COMPOSITE_PRODUCTS_YEARLY       = 'woocommerce_composite_products_yearly'; // 949
+	private const WOOCOMMERCE_COMPOSITE_PRODUCTS_MONTHLY      = 'woocommerce_composite_products_monthly'; // 950
 	private const WOOCOMMERCE_GIFT_CARDS_YEARLY               = 'woocommerce_gift_cards_yearly'; // 951
 	private const WOOCOMMERCE_GIFT_CARDS_MONTHLY              = 'woocommerce_gift_cards_monthly'; // 952
 	private const VALUE_BUNDLE                                = 'value_bundle'; // 1003
@@ -203,6 +205,8 @@ class WPCOM_Features {
 		self::WOOCOMMERCE_PRODUCT_BUNDLES_MONTHLY,
 		self::WOO_CONDITIONAL_SHIPPING_PAYMENTS_YEARLY,
 		self::WOO_CONDITIONAL_SHIPPING_PAYMENTS_MONTHLY,
+		self::WOOCOMMERCE_COMPOSITE_PRODUCTS_YEARLY,
+		self::WOOCOMMERCE_COMPOSITE_PRODUCTS_MONTHLY,
 		self::WOOCOMMERCE_GIFT_CARDS_YEARLY,
 		self::WOOCOMMERCE_GIFT_CARDS_MONTHLY,
 	);
