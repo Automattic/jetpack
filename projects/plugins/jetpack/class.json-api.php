@@ -1038,7 +1038,6 @@ class WPCOM_JSON_API {
 		*
 		* @param array Array of comment types to include (default: 'comment', 'pingback', 'trackback')
 		*/
-
 		$include = apply_filters(
 			'jetpack_api_include_comment_types_count',
 			array( 'comment', 'pingback', 'trackback' )
