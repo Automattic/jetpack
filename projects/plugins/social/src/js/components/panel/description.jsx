@@ -49,7 +49,4 @@ const getDescription = ( {
  * @param {boolean} props.hasEnabledConnections - Whether any connections are enabled.
  * @returns {object} The description component.
  */
-export default function Description( props ) {
-	const descrip = getDescription( props );
-	return <div>{ descrip }</div>;
-}
+export default props => <div>{ getDescription( props ) }</div>;
