@@ -58,38 +58,36 @@ const ConnectionScreen = () => {
 		<Dialog
 			className={ styles.card }
 			primary={
-				<>
-					<div className={ styles.column }>
-						<ProductOffer
-							className={ styles.offer }
-							slug={ 'jetpack-social' }
-							title={ 'Jetpack Social' }
-							subTitle={ __(
-								'Share your posts with your social media network and increase your site’s traffic',
-								'jetpack-social'
-							) }
-							features={ [
-								'Connect with Twitter, Facebook, LinkedIn and Tumblr',
-								'Select the social media to share posts while publishing',
-								'Publish custom messages',
-							] }
-							isCard={ false }
-							isBundle={ false }
-							onAdd={ handleRegisterSite }
-							buttonText={ __( 'Get Started', 'jetpack-social' ) }
-							icon="social"
-							isLoading={ siteIsRegistering || userIsConnecting }
-							error={
-								registrationError
-									? __( 'An error occurred. Please try again.', 'jetpack-social' )
-									: null
-							}
-						/>
-						<Text variant="body-small" className={ styles.tos } mt={ 3 }>
-							{ tos }
-						</Text>
-					</div>
-				</>
+				<div className={ styles.column }>
+					<ProductOffer
+						className={ styles.offer }
+						slug={ 'jetpack-social' }
+						title={ 'Jetpack Social' }
+						subTitle={ __(
+							'Share your posts with your social media network and increase your site’s traffic',
+							'jetpack-social'
+						) }
+						features={ [
+							'Connect with Twitter, Facebook, LinkedIn and Tumblr',
+							'Select the social media to share posts while publishing',
+							'Publish custom messages',
+						] }
+						isCard={ false }
+						isBundle={ false }
+						onAdd={ handleRegisterSite }
+						buttonText={ __( 'Get Started', 'jetpack-social' ) }
+						icon="social"
+						isLoading={ siteIsRegistering || userIsConnecting }
+						error={
+							registrationError
+								? __( 'An error occurred. Please try again.', 'jetpack-social' )
+								: null
+						}
+					/>
+					<Text variant="body-small" className={ styles.tos } mt={ 3 }>
+						{ tos }
+					</Text>
+				</div>
 			}
 			secondary={
 				<div className={ styles.sidebar }>
