@@ -5744,7 +5744,7 @@ endif;
 		}
 
 		$file = JETPACK__PLUGIN_DIR . substr( $href, strlen( $plugins_dir ) );
-		$css  = self::absolutize_css_urls( file_get_contents( $file ), $href );
+		$css  = self::absolutize_css_urls( file_get_contents( $file ), $href ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		if ( $css ) {
 			$tag = "<!-- Inline {$item->handle} -->\r\n";
 			if ( empty( $item->extra['after'] ) ) {
