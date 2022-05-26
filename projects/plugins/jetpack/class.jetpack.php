@@ -2171,10 +2171,9 @@ class Jetpack {
 
 		if ( $redirect ) {
 			$page = 'jetpack'; // make sure we redirect to either settings or the jetpack page.
-			if ( isset( $_GET['page'] ) && in_array( $_GET['page'], array( 'jetpack', 'jetpack_modules' ) ) ) {
-				$page = $_GET['page'];
+			if ( isset( $_GET['page'] ) && in_array( $_GET['page'], array( 'jetpack', 'jetpack_modules' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not changing the site.
+				$page = sanitize_text_field( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not changing the site.
 			}
-
 			wp_safe_redirect( self::admin_url( 'page=' . $page ) );
 			exit;
 		}
