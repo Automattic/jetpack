@@ -76,36 +76,55 @@ export const spacing = {
 	'--spacing-base': '8px',
 };
 
-const setup = root => {
-	const tokens = { ...typography, ...colors, ...borders, ...spacing };
+const globalThemeInstances = {};
 
+const setup = ( root, id ) => {
+	const tokens = { ...typography, ...colors, ...borders, ...spacing };
 	for ( const key in tokens ) {
 		root.style.setProperty( key, tokens[ key ] );
 	}
+
+	if ( ! id ) {
+		return;
+	}
+
+	// Register theme provider instance.
+	globalThemeInstances[ id ] = {
+		provided: true,
+		root,
+	};
 };
 
 /**
  * ThemeProvider React component.
  *
  * @param {object} props           - Component properties.
- * @param {object} props.children  - Component children.
+ * @param {object} props.id        - An optional id to register and identify the provider instance.
  * @param {object} props.targetDom - Target DOM element to store theme styles. Optional.
+ * @param {object} props.children  - Component children.
  * @returns {React.ReactNode}        ThemeProvider component.
  */
-const ThemeProvider = ( { children = null, targetDom } ) => {
+const ThemeProvider = ( { children = null, targetDom, id } ) => {
 	const themeWrapperRef = useRef();
 
+	// Check whether the theme provider instance is already registered.
+	const isAlreadyProvided = globalThemeInstances?.[ id ]?.provided;
+
 	useLayoutEffect( () => {
+		if ( isAlreadyProvided ) {
+			return;
+		}
+
 		if ( targetDom ) {
-			return setup( targetDom );
+			return setup( targetDom, id );
 		}
 
 		if ( ! themeWrapperRef?.current ) {
 			return;
 		}
 
-		setup( themeWrapperRef.current );
-	}, [ targetDom, themeWrapperRef ] );
+		setup( themeWrapperRef.current, id );
+	}, [ targetDom, themeWrapperRef, isAlreadyProvided, id ] );
 
 	return <div ref={ themeWrapperRef }>{ children }</div>;
 };
