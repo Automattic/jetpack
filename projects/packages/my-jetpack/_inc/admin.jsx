@@ -19,6 +19,7 @@ import {
 	CRMInterstitial,
 	ExtrasInterstitial,
 	ScanInterstitial,
+	SocialInterstitial,
 	SearchInterstitial,
 	VideoPressInterstitial,
 } from './components/product-interstitial';
@@ -39,6 +40,7 @@ const MyJetpack = () => (
 				<Route path="/add-crm" element={ <CRMInterstitial /> } />
 				<Route path="/add-extras" element={ <ExtrasInterstitial /> } />
 				<Route path="/add-scan" element={ <ScanInterstitial /> } />
+				<Route path="/add-social" element={ <SocialInterstitial /> } />
 				<Route path="/add-search" element={ <SearchInterstitial /> } />
 				<Route path="/add-videopress" element={ <VideoPressInterstitial /> } />
 				{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
