@@ -3132,7 +3132,7 @@ p {
 
 		if ( $event ) {
 			foreach ( $entire_log as $log_event ) {
-				if ( $event == $log_event['code'] ) {
+				if ( $event === $log_event['code'] ) {
 					$custom_log_output[] = $log_event;
 				}
 			}
