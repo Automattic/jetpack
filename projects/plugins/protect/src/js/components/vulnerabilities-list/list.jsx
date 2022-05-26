@@ -23,7 +23,9 @@ const VulAccordionItem = ( { id, name, version, title, icon, fixedIn } ) => {
 				}
 			</Text>
 			<Button
-				variant="external-link"
+				variant="link"
+				isExternalLink={ true }
+				weight="regular"
 				href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: id } ) }
 			>
 				{ __( 'See more technical details of this vulnerability', 'jetpack-protect' ) }
