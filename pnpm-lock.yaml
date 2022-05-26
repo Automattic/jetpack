@@ -105,7 +105,6 @@ importers:
     specifiers:
       '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-connection': workspace:* || ^0.18
       '@babel/core': 7.17.10
       '@babel/preset-react': 7.16.7
       '@storybook/addon-actions': 6.4.22
@@ -136,7 +135,6 @@ importers:
       typescript: 4.6.4
     dependencies:
       '@automattic/format-currency': 1.0.1
-      '@automattic/jetpack-connection': link:../connection
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.10.0_288661f573e9d1f632fd8574f13f5a41
       '@wordpress/compose': 5.5.0_react@17.0.2
