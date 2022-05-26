@@ -10,7 +10,7 @@ import styles from './style.module.scss';
 	title="JS Packages/Components/Dialog" component={ Dialog }
 />
 
-export const Template = ( { isTwoSections, isCard } ) => (
+export const Template = ( { isTwoSections } ) => (
 	<Dialog
 		primary= {
 			<div className={ styles.section }>
@@ -26,7 +26,6 @@ export const Template = ( { isTwoSections, isCard } ) => (
 			</div>
 		}
 		isTwoSections= { isTwoSections }
-		isCard={ isCard }
 	/>
 );
 
@@ -52,7 +51,6 @@ import Dialog from '@automattic/jetpack-components';
 	name="Readme"
 	args={ {
 		isTwoSections: true,
-		isCard: false,
 	} }
 >
 	{ Template.bind( {} ) }
@@ -94,11 +92,3 @@ Primary-section content.
 It handles two sections layout:
   - Add card styles to the main wrapper when it is not a two-sections layout.
   - When it's false, the secondary section won't show in Mobile.
-
-### isCard
-
-- Type: `boolean`.
-- Optional.
-- Default: `false`
-
-Add card styles to the main wrapper.

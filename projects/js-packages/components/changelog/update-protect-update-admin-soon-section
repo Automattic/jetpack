@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+JS Components: remove Dialog isCard property
