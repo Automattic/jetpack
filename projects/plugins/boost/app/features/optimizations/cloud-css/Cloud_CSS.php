@@ -44,6 +44,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 		REST_API::register( $this->get_endpoints() );
 		Critical_CSS_Invalidator::init();
+		Cloud_CSS_Cron::init();
 
 		return true;
 	}
@@ -121,7 +122,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		$state->create_request( $source_providers->get_providers() );
 
 		$client    = new Cloud_CSS_Request();
-		$providers = $this->add_generation_args( $state->get_provider_urls() );
+		$providers = $state->get_provider_urls( true );
 		$response  = $client->request_generate( $providers );
 
 		if ( is_wp_error( $response ) ) {
@@ -163,18 +164,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		} catch ( \Exception $e ) {
 			return new \WP_Error( 'invalid_request', $e->getMessage(), array( 'status' => 400 ) );
 		}
-	}
-
-	/**
-	 * Add jb-generate-critical-css arg to each URL in the provider set.
-	 */
-	private function add_generation_args( $providers ) {
-		foreach ( $providers as &$urls ) {
-			foreach ( $urls as &$url ) {
-				$url = add_query_arg( 'jb-generate-critical-css', 'true', $url );
-			}
-		}
-		return $providers;
 	}
 
 	/**
