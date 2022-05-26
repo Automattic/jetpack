@@ -1021,13 +1021,25 @@ class WPCOM_JSON_API {
 		);
 
 		/**
-		 * Include certain comment types in comment counts in the REST API.
-		 *
-		 * @since 10.9.x
-		 * @module json-api
-		 *
-		 * @param array Array of comment types to include (default: 'comment', 'pingback', 'trackback')
-		 */
+		* Exclude certain comment types from comment counts in the REST API.
+		*
+		* @deprecated $$next-version$$
+		* @module json-api
+		*
+		* @param array Array of comment types to exclude (default: 'order_note', 'webhook_delivery', 'review', 'action_log')
+		*/
+
+		$exclude = apply_filters_deprecated( 'jetpack_api_exclude_comment_types_count', array( 'order_note', 'webhook_delivery', 'review', 'action_log' ), '10.9.1', 'jetpack_api_include_comment_types_count' );
+
+		/**
+		* Include certain comment types in comment counts in the REST API.
+		*
+		* @since $$next-version$$
+		* @module json-api
+		*
+		* @param array Array of comment types to include (default: 'comment', 'pingback', 'trackback')
+		*/
+
 		$include = apply_filters(
 			'jetpack_api_include_comment_types_count',
 			array( 'comment', 'pingback', 'trackback' )
