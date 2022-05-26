@@ -189,10 +189,6 @@
 	}
 }
 
-.uploading-editor__tabs {
-	margin-bottom: $grid-unit-15;
-}
-
 .uploading-editor__frame-selector {
 	display: flex;
 	flex-direction: column;
@@ -208,6 +204,7 @@
 .uploading-editor__tab-content {
 	> div {
 		display: none;
+		margin-top: $grid-unit-15;
 
 		&.active-tab {
 			display: block;

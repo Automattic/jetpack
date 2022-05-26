@@ -693,9 +693,10 @@ const VideoPressEdit = CoreVideoEdit =>
 			const uploadFinished = ( { mediaId, guid: videoGuid, src: videoSrc } ) => {
 				this.setState( {
 					fileForUpload: null,
-					isUploadComplete: mediaId ? true : false,
-					isEditingWhileUploading: false,
+					isUploadComplete: !! mediaId,
+					isEditingWhileUploading: mediaId ? this.state.isEditingWhileUploading : false,
 				} );
+
 				if ( mediaId && videoGuid && videoSrc ) {
 					setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
 				}
@@ -753,7 +754,7 @@ const VideoPressEdit = CoreVideoEdit =>
 					method: 'POST',
 					global: true,
 					data: data,
-				} ).catch( e => console.log( e ) );
+				} ).catch( e => e );
 			};
 
 			const onEditorShown = () => {
