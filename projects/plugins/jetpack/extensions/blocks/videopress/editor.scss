@@ -154,13 +154,24 @@
 	align-items: center;
 }
 
+.uploading-editor {
+	width: 100%;
+}
+
+.uploading-editor__title {
+	input {
+		margin-left: 0;
+		margin-right: 0;
+	}
+}
+
 .uploading-editor__summary-button {
 	display: flex;
 	align-items: center;
 	margin: $grid-unit-15 0;
 	cursor: pointer;
 	margin-left: -8px; // shrug
-	box-sizing: border-box;
+	border: 1px solid transparent;
 
 	svg {
 		width: 24px;
@@ -191,7 +202,7 @@
 	visibility: hidden;
 	height: 0;
 	transition: height 0.3s ease-out, visibility 0.3s ease-out;
-	overflow-y: hidden;
+	overflow: hidden;
 }
 
 .uploading-editor__tab-content {
