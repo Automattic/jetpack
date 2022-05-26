@@ -1,20 +1,28 @@
-@mixin cols($size, $columns) {
-	@for $i from 1 through $columns {
-		.col-#{$size}-#{$i} {
-			grid-column-end: span #{$i};
+@use "sass:map";
+@import "../breakpoints.module.scss";
+
+@mixin cols($size) {
+	@include media($size) using ($columns) {
+		@for $i from 1 through $columns {
+			.col-#{$size}-#{$i} {
+				grid-column-end: span #{$i};
+			}
+			.col-#{$size}-#{$i}-start {
+				grid-column-start: #{$i};
+			}
+			.col-#{$size}-#{$i}-end {
+				grid-column-end: #{$i + 1};
+			}
 		}
 	}
 }
 
-@media ( min-width: 0px ) {
-	@include cols(sm, 4)
-}
+@include cols("sm");
+@include cols("md");
+@include cols("lg");
 
-@media ( min-width: 600px ) {
-	@include cols(md, 8)
+:export {
+	smCols: map.get($cols-sizes, "sm");
+	mdCols: map.get($cols-sizes, "md");
+	lgCols: map.get($cols-sizes, "lg");
 }
-
-@media ( min-width: 960px ) {
-	@include cols(lg, 12)
-}
-
