@@ -2992,7 +2992,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				return false;
 			}
 		} else {
-			if ( isset( $_POST['contact-form-id'] ) && $post->ID !== $_POST['contact-form-id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we're not making changes to the site.
+			if ( isset( $_POST['contact-form-id'] ) && $post->ID !== (int) $_POST['contact-form-id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we're not making changes to the site.
 				return false;
 			}
 		}
