@@ -693,7 +693,8 @@ const VideoPressEdit = CoreVideoEdit =>
 			const uploadFinished = ( { mediaId, guid: videoGuid, src: videoSrc } ) => {
 				this.setState( {
 					fileForUpload: null,
-					isUploadComplete: true,
+					isUploadComplete: mediaId ? true : false,
+					isEditingWhileUploading: false,
 				} );
 				if ( mediaId && videoGuid && videoSrc ) {
 					setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
