@@ -15,7 +15,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import Interstitial from './../interstitial';
+import ConnectionScreen from './../connection-screen';
 import Logo from './../logo';
 import Header from './../header';
 import ToggleSection from './../toggle-section';
@@ -34,7 +34,7 @@ const Admin = () => {
 			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
-						<Interstitial />
+						<ConnectionScreen />
 					</Col>
 				</Container>
 			</AdminPage>
