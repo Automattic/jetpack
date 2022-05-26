@@ -27,13 +27,13 @@ class Cloud_CSS_Cron {
 		/*
 		 * Run the scheduled job
 		 */
-		add_action( self::SCHEDULER_HOOK, array( self::class, 'run' ) );
+		add_action( self::SCHEDULER_HOOK, array( $cron, 'run' ) );
 	}
 
 	/**
 	 * Run the cron job.
 	 */
-	public static function run() {
+	public function run() {
 		$state = new Critical_CSS_State( 'cloud' );
 
 		if ( $state->is_fatal_error() ) {
