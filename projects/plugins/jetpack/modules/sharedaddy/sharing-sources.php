@@ -931,6 +931,12 @@ class Share_Email extends Sharing_Source {
 			// Ensure that we bump stats
 			parent::process_request( $post, $post_data );
 		}
+
+		if ( $is_ajax ) {
+			wp_send_json_success();
+		}
+
+		wp_die();
 	}
 
 	/**
