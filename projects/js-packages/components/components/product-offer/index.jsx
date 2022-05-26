@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Fragment } from 'react';
+import React, { Fragment, ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
@@ -97,7 +97,7 @@ export function IconsCard( { products, icon } ) {
  * @param {Function} props.onAdd           - Callback function to be executed on click on Add button.
  * @param {string} props.addProductUrl     - The checkout URL to add/buy the product.
  * @param {string} props.buttonText        - The text to be displayed on the Add button.
- * @param {boolean} props.buttonDisclaimer - Content displayed below the Add button.
+ * @param {ReactElement} props.buttonDisclaimer - Content displayed below the Add button.
  * @param {string} props.error             - Error message.
  * @returns {React.ReactElement}             ProductOffer react component. Optional.
  */
@@ -218,7 +218,7 @@ ProductOffer.propTypes = {
 
 	/** Custom text for the onAdd product button. */
 	buttonText: PropTypes.string,
-	buttonDisclaimer: PropTypes.node,
+	buttonDisclaimer: PropTypes.element,
 };
 
 ProductOffer.defaultProps = {
@@ -231,6 +231,7 @@ ProductOffer.defaultProps = {
 	isLoading: false,
 	buttonText: '',
 	error: '',
+	buttonDisclaimer: null,
 };
 
 export default ProductOffer;
