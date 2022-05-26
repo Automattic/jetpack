@@ -64,7 +64,9 @@ const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
 
 	return (
 		<Dialog
-			primary={ <ConnectedProductOffer className={ mediaClassName } isCard={ true } /> }
+			primary={
+				<ConnectedProductOffer className={ mediaClassName } isCard={ true } showToS={ true } />
+			}
 			secondary={
 				<SecurityBundle
 					className={ mediaClassName }
