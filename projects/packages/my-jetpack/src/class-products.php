@@ -28,9 +28,10 @@ class Products {
 			Products\Extras::class,
 			Products\Scan::class,
 			Products\Search::class,
-			Products\Videopress::class,
+			Products\Social::class,
 			Products\Security::class,
 			Products\Protect::class,
+			Products\Videopress::class,
 		);
 	}
 

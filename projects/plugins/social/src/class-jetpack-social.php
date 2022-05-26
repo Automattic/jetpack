@@ -78,8 +78,12 @@ class Jetpack_Social {
 
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'activate_module_on_plugin_activation' ) );
-
-		My_Jetpack_Initializer::init();
+		add_action(
+			'plugins_loaded',
+			function () {
+				My_Jetpack_Initializer::init();
+			}
+		);
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
