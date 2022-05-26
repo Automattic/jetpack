@@ -3478,7 +3478,7 @@ p {
 	 * @return array - An array describing the uploadind files process.
 	 */
 	public function upload_handler( $update_media_item = false ) {
-		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' !== strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) ) {
 			return new WP_Error( 405, get_status_header_desc( 405 ), 405 );
 		}
 
@@ -3498,7 +3498,7 @@ p {
 		}
 
 		foreach ( array_keys( $_FILES ) as $files_key ) {
-			if ( ! isset( $_POST[ "_jetpack_file_hmac_{$files_key}" ] ) ) {
+			if ( ! isset( $_POST[ "_jetpack_file_hmac_{$files_key}" ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes here.
 				return new WP_Error( 'missing_hmac', 'An HMAC for one or more files is missing', 400 );
 			}
 		}
