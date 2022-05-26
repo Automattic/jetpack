@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
 import { __, sprintf } from '@wordpress/i18n';
+import { ToS } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -98,6 +99,7 @@ export function IconsCard( { products, icon } ) {
  * @param {string} props.addProductUrl    - The checkout URL to add/buy the product.
  * @param {string} props.buttonText       - The text to be displayed on the Add button.
  * @param {string} props.error            - Error message.
+ * @param {boolean} props.showToS         - Whether or not to show the terms of service link.
  * @returns {React.ReactElement}            ProductOffer react component. Optional.
  */
 const ProductOffer = ( {
@@ -118,6 +120,7 @@ const ProductOffer = ( {
 	isLoading,
 	buttonText,
 	error,
+	showToS,
 } ) => {
 	const { isFree, price, currency, offPrice } = pricing;
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
@@ -181,6 +184,8 @@ const ProductOffer = ( {
 						<Text>{ __( 'Active on your site', 'jetpack' ) }</Text>
 					</div>
 				) }
+
+				{ showToS && <p className={ styles[ 'terms-of-service' ] }>{ ToS }</p> }
 
 				{ error && <Alert level="error">{ error } </Alert> }
 			</div>
