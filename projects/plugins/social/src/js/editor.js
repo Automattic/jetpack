@@ -15,6 +15,12 @@ import domReady from '@wordpress/dom-ready';
 import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
+ * Internal dependencies
+ */
+import './editor.scss';
+import PublicizePanel from './components/panel';
+
+/**
  * Open Jetpack Spcoal; sidebar by default when URL includes jetpackSidebarIsOpen=true.
  */
 domReady( () => {
@@ -25,8 +31,6 @@ domReady( () => {
 		);
 	}
 } );
-
-const PublicizePanel = () => <span>This is a placeholder panel</span>;
 
 registerPlugin( 'jetpack-social', {
 	render: () => (
