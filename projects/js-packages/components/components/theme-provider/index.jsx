@@ -87,20 +87,25 @@ const setup = root => {
 /**
  * ThemeProvider React component.
  *
- * @param {object} props          - Component propwerties.
- * @param {object} props.children - Component children.
- * @returns {React.ReactNode}       ThemeProvider component.
+ * @param {object} props           - Component properties.
+ * @param {object} props.children  - Component children.
+ * @param {object} props.targetDom - Target DOM element to store theme styles. Optional.
+ * @returns {React.ReactNode}        ThemeProvider component.
  */
-const ThemeProvider = ( { children = null } ) => {
+const ThemeProvider = ( { children = null, targetDom } ) => {
 	const themeWrapperRef = useRef();
 
 	useLayoutEffect( () => {
+		if ( targetDom ) {
+			return setup( targetDom );
+		}
+
 		if ( ! themeWrapperRef?.current ) {
 			return;
 		}
 
 		setup( themeWrapperRef.current );
-	}, [ themeWrapperRef ] );
+	}, [ targetDom, themeWrapperRef ] );
 
 	return <div ref={ themeWrapperRef }>{ children }</div>;
 };
