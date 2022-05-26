@@ -279,6 +279,7 @@ class WPCOM_Features {
 	/*
 	 * Public const for every mapped feature, sorted alphabetically.
 	 */
+	public const AD_CREDIT_VOUCHERS            = 'ad-credit';
 	public const ADVANCED_SEO                  = 'advanced-seo';
 	public const AKISMET                       = 'akismet';
 	public const ANTISPAM                      = 'antispam';
@@ -327,6 +328,7 @@ class WPCOM_Features {
 	public const POLLDADDY                     = 'polldaddy';
 	public const PREMIUM_CONTENT_CONTAINER     = 'premium-content/container';
 	public const PREMIUM_THEMES                = 'premium-themes';
+	public const PRIORITY_SUPPORT              = 'priority_support';
 	public const PRIVATE_WHOIS                 = 'private_whois';
 	public const REAL_TIME_BACKUPS             = 'real-time-backups';
 	public const RECURRING_PAYMENTS            = 'recurring-payments';
@@ -373,6 +375,10 @@ class WPCOM_Features {
 	 * Private const array of features with sub-array of purchases that include that feature. Sorted alphabetically.
 	 */
 	private const FEATURES_MAP = array(
+		self::AD_CREDIT_VOUCHERS            => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
 
 		/*
 		 * ADVANCED_SEO - Called seo-tools in Jetpack.
@@ -648,6 +654,13 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
+		),
+		self::PRIORITY_SUPPORT              => array(
+			self::JETPACK_BACKUP_T1_PLANS,
+			self::JETPACK_BACKUP_T2_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::PRIVATE_WHOIS                 => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
