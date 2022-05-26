@@ -1,7 +1,10 @@
 <?php
 /**
  * Used by the blogging prompt feature of the mobile app.
+ *
+ * @package automattic/jetpack
  */
+
 add_filter( 'rest_api_allowed_public_metadata', 'jetpack_blogging_prompts_add_meta_data' );
 
 /**
