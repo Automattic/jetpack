@@ -92,14 +92,6 @@ abstract class SAL_Site {
 	public function get_post_count() {
 		return (int) wp_count_posts( 'post' )->publish;
 	}
-	/**
-	 * Returns an array of blogging prompt settings.
-	 *
-	 * Data comes from .com since the fearture requires a .com connection to work.
-	 */
-	public function get_blogging_prompts_settings( $user_id, $blog_id ) {
-		return false;
-	}
 
 	/**
 	 * A prototype function for get_quota - currently returns null.
@@ -108,6 +100,18 @@ abstract class SAL_Site {
 	 */
 	public function get_quota() {
 		return null;
+	}
+
+	/**
+	 * Returns an array of blogging prompt settings.
+	 *
+	 * Data comes from .com since the fearture requires a .com connection to work.
+	 *
+	 * @param int $user_id the current user_id.
+	 * @param int $blog_id the blog id in this context.
+	 */
+	public function get_blogging_prompts_settings( $user_id, $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return false;
 	}
 
 	/**
