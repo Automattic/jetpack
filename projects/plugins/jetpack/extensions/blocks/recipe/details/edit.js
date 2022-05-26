@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { InnerBlocks } from '@wordpress/block-editor';
 import { TextControl, __experimentalUnitControl as UnitControl } from '@wordpress/components';
 
 /**
@@ -55,6 +56,12 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 						type="number"
 						value={ servings }
 						onChange={ val => setAttributes( { servings: parseInt( val ) } ) }
+					/>
+				</div>
+				<div className="group">
+					<InnerBlocks
+						allowedBlocks={ [ 'core/button' ] }
+						template={ [ [ 'core/button', { text: 'Print Recipe' } ] ] }
 					/>
 				</div>
 			</div>
