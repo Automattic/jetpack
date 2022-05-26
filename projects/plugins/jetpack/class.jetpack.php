@@ -3865,10 +3865,10 @@ p {
 
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
 			// @todo: Add validation against a known allowed list.
-			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
+			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, can't figure out how this fires.
 			// User clicked in the iframe to link their accounts.
 			if ( ! self::connection()->is_user_connected() ) {
-				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false;
+				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, can't figure out how this fires.
 
 				add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
 				$connect_url = $this->build_connect_url( true, $redirect, $from );
@@ -3877,7 +3877,7 @@ p {
 				if ( isset( $_GET['notes_iframe'] ) ) {
 					$connect_url .= '&notes_iframe';
 				}
-				wp_redirect( $connect_url );
+				wp_safe_redirect( $connect_url );
 				exit;
 			} else {
 				if ( ! isset( $_GET['calypso_env'] ) ) {
@@ -3887,7 +3887,7 @@ p {
 				} else {
 					$connect_url  = $this->build_connect_url( true, false, $from );
 					$connect_url .= '&already_authorized=true';
-					wp_redirect( $connect_url );
+					wp_safe_redirect( $connect_url );
 					exit;
 				}
 			}
@@ -3909,7 +3909,7 @@ p {
 					check_admin_referer( 'jetpack-register' );
 					self::log( 'register' );
 					self::maybe_set_version_option();
-					$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
+					$from = isset( $_GET['from'] ) ? $_GET['from'] : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 					if ( $from ) {
 						static::connection()->add_register_request_param( 'from', (string) $from );
 					}
@@ -3931,7 +3931,7 @@ p {
 						break;
 					}
 
-					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false;
+					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, can't figure out how this fires.
 
 					/**
 					 * Jetpack registration Success.
@@ -3945,14 +3945,14 @@ p {
 					$url = $this->build_connect_url( true, $redirect, $from );
 
 					if ( ! empty( $_GET['onboarding'] ) ) {
-						$url = add_query_arg( 'onboarding', $_GET['onboarding'], $url );
+						$url = add_query_arg( 'onboarding', $_GET['onboarding'], $url ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					}
 
 					if ( ! empty( $_GET['auth_approved'] ) && 'true' === $_GET['auth_approved'] ) {
 						$url = add_query_arg( 'auth_approved', 'true', $url );
 					}
 
-					wp_redirect( $url );
+					wp_safe_redirect( $url );
 					exit;
 				case 'activate':
 					if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
@@ -3974,9 +3974,9 @@ p {
 					check_admin_referer( 'activate_default_modules' );
 					self::log( 'activate_default_modules' );
 					self::restate();
-					$min_version   = isset( $_GET['min_version'] ) ? $_GET['min_version'] : false;
-					$max_version   = isset( $_GET['max_version'] ) ? $_GET['max_version'] : false;
-					$other_modules = isset( $_GET['other_modules'] ) && is_array( $_GET['other_modules'] ) ? $_GET['other_modules'] : array();
+					$min_version   = isset( $_GET['min_version'] ) ? sanitize_text_field( wp_unslash( $_GET['min_version'] ) ) : false;
+					$max_version   = isset( $_GET['max_version'] ) ? sanitize_text_field( wp_unslash( $_GET['max_version'] ) ) : false;
+					$other_modules = isset( $_GET['other_modules'] ) && is_array( $_GET['other_modules'] ) ? sanitize_text_field( wp_unslash( $_GET['other_modules'] ) ) : array();
 					self::activate_default_modules( $min_version, $max_version, $other_modules );
 					wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
 					exit;
@@ -4000,7 +4000,7 @@ p {
 					check_admin_referer( 'jetpack-reconnect' );
 					self::log( 'reconnect' );
 					self::disconnect();
-					wp_redirect( $this->build_connect_url( true, false, 'reconnect' ) );
+					wp_safe_redirect( $this->build_connect_url( true, false, 'reconnect' ) );
 					exit;
 				case 'deactivate':
 					if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
@@ -4019,7 +4019,7 @@ p {
 					wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
 					exit;
 				case 'unlink':
-					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : '';
+					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					check_admin_referer( 'jetpack-unlink' );
 					self::log( 'unlink' );
 					$this->connection_manager->disconnect_user();
@@ -4048,7 +4048,7 @@ p {
 							$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 						}
 
-						wp_redirect( $url );
+						wp_safe_redirect( $url );
 						exit;
 					}
 					exit;
