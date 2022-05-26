@@ -33,7 +33,7 @@ const Admin = () => {
 				showBackground={ false }
 			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col sm={ 4 } md={ 8 } lg={ 12 }>
+					<Col>
 						<Interstitial />
 					</Col>
 				</Container>
