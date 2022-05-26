@@ -5,6 +5,7 @@
 }
 
 .wp-block-jetpack-recipe-details {
+  align-items: center;
   display: grid;
   gap: 1rem;
   margin-bottom: 3rem;
@@ -12,7 +13,7 @@
   
   @media (min-width: 782px) {
     margin-bottom: 6rem;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 150px));
+    grid-template-columns: repeat(auto-fit, minmax(max-content, 150px));
   }
 
   &__detail {
