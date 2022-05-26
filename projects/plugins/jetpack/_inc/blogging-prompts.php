@@ -7,6 +7,8 @@ add_filter( 'rest_api_allowed_public_metadata', 'jetpack_blogging_prompts_add_me
 /**
  * Adds the blogging prompt key post metq to the list of allowed post meta to be updated by rest api.
  *
+ * @param array $keys Array of post meta keys that are allowed public metadata.
+ *
  * @return array
  */
 function jetpack_blogging_prompts_add_meta_data( $keys ) {
