@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 
 export const typography = {
 	// Headline
@@ -76,8 +76,7 @@ export const spacing = {
 	'--spacing-base': '8px',
 };
 
-const setup = () => {
-	const root = document.getElementById( 'jetpack-theme-provider' );
+const setup = root => {
 	const tokens = { ...typography, ...colors, ...borders, ...spacing };
 
 	for ( const key in tokens ) {
@@ -85,12 +84,25 @@ const setup = () => {
 	}
 };
 
+/**
+ * ThemeProvider React component.
+ *
+ * @param {object} props          - Component propwerties.
+ * @param {object} props.children - Component children.
+ * @returns {React.ReactNode}       ThemeProvider component.
+ */
 const ThemeProvider = ( { children = null } ) => {
-	useLayoutEffect( () => {
-		setup();
-	}, [] );
+	const themeWrapperRef = useRef();
 
-	return <div id="jetpack-theme-provider">{ children }</div>;
+	useLayoutEffect( () => {
+		if ( ! themeWrapperRef?.current ) {
+			return;
+		}
+
+		setup( themeWrapperRef.current );
+	}, [ themeWrapperRef ] );
+
+	return <div ref={ themeWrapperRef }>{ children }</div>;
 };
 
 export default ThemeProvider;
