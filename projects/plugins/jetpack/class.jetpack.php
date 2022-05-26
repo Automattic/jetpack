@@ -3960,7 +3960,7 @@ p {
 						break;
 					}
 
-					$module = stripslashes( $_GET['module'] );
+					$module = isset( $_GET['module'] ) ? sanitize_text_field( wp_unslash( $_GET['module'] ) ) : '';
 					check_admin_referer( "jetpack_activate-$module" );
 					self::log( 'activate', $module );
 					if ( ! self::activate_module( $module ) ) {
@@ -4008,7 +4008,7 @@ p {
 						break;
 					}
 
-					$modules = stripslashes( $_GET['module'] );
+					$modules = sanitize_text_field( wp_unslash( $_GET['module'] ) );
 					check_admin_referer( "jetpack_deactivate-$modules" );
 					foreach ( explode( ',', $modules ) as $module ) {
 						self::log( 'deactivate', $module );
@@ -4024,7 +4024,7 @@ p {
 					self::log( 'unlink' );
 					$this->connection_manager->disconnect_user();
 					self::state( 'message', 'unlinked' );
-					if ( 'sub-unlink' == $redirect ) {
+					if ( 'sub-unlink' === $redirect ) {
 						wp_safe_redirect( admin_url() );
 					} else {
 						wp_safe_redirect( self::admin_url( array( 'page' => $redirect ) ) );
@@ -4577,7 +4577,7 @@ endif;
 			? wp_validate_redirect( esc_url_raw( $redirect ), $jetpack_admin_page )
 			: $jetpack_admin_page;
 
-		if ( isset( $_REQUEST['is_multisite'] ) ) {
+		if ( isset( $_REQUEST['is_multisite'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making a site change here.
 			$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 		}
 
