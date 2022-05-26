@@ -78,6 +78,8 @@ class WPCOM_Features {
 	private const WOOCOMMERCE_PRODUCT_BUNDLES_MONTHLY         = 'woocommerce_product_bundles_monthly'; // 946
 	private const WOO_CONDITIONAL_SHIPPING_PAYMENTS_YEARLY    = 'woo_conditional_shippingpayments_yearly'; // 947
 	private const WOO_CONDITIONAL_SHIPPING_PAYMENTS_MONTHLY   = 'woo_conditional_shippingpayments_monthly'; // 948
+	private const WOOCOMMERCE_GIFT_CARDS_YEARLY               = 'woocommerce_gift_cards_yearly'; // 951
+	private const WOOCOMMERCE_GIFT_CARDS_MONTHLY              = 'woocommerce_gift_cards_monthly'; // 952
 	private const VALUE_BUNDLE                                = 'value_bundle'; // 1003
 	private const BUNDLE_PRO                                  = 'bundle_pro'; // 1004
 	private const BUNDLE_SUPER                                = 'bundle_super'; // 1005
@@ -201,6 +203,8 @@ class WPCOM_Features {
 		self::WOOCOMMERCE_PRODUCT_BUNDLES_MONTHLY,
 		self::WOO_CONDITIONAL_SHIPPING_PAYMENTS_YEARLY,
 		self::WOO_CONDITIONAL_SHIPPING_PAYMENTS_MONTHLY,
+		self::WOOCOMMERCE_GIFT_CARDS_YEARLY,
+		self::WOOCOMMERCE_GIFT_CARDS_MONTHLY,
 	);
 	private const GOOGLE_WORKSPACE_PRODUCTS = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
 	private const GSUITE_PRODUCTS           = array( self::GAPPS, self::GAPPS_UNLIMITED );
