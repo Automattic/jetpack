@@ -31,11 +31,11 @@ import { get, indexOf } from 'lodash';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
+import { getVideoPressUrl } from './url';
+import { getClassNames, removeFileNameExtension } from './utils';
 import ResumableUpload from './resumable-upload';
 import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
-import { getVideoPressUrl } from './url';
-import { getClassNames } from './utils';
 import { UploadingEditor } from './uploading-editor';
 import { VideoPressIcon } from '../../shared/icons';
 
@@ -710,7 +710,10 @@ const VideoPressEdit = CoreVideoEdit =>
 			const shouldUseJetpackVideoFetch = () => {
 				return 'videoPressUploadPoster' in window;
 			};
-			const filename = escapeHTML( fileForUpload ? fileForUpload.name : '' );
+
+			const filename = escapeHTML(
+				fileForUpload ? removeFileNameExtension( fileForUpload.name ) : ''
+			);
 			const onChangeTitle = newTitle => this.setState( { title: newTitle } );
 
 			const onSelectPoster = attachment => {
