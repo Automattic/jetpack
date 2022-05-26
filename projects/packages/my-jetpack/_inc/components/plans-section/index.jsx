@@ -107,8 +107,9 @@ function PlanSectionFooter( { purchases } ) {
 				<Button
 					onClick={ purchaseClickHandler }
 					href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
-					variant="external-link"
 					weight="regular"
+					variant="link"
+					isExternalLink={ true }
 				>
 					{ planLinkDescription }
 				</Button>
