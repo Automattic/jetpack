@@ -29,6 +29,10 @@ export type RecordMeterBarProps = {
 	 * The items to display in Record meter.
 	 */
 	items: Array< RecordMeterBarItem >;
+	/**
+	 * The formatting style for legend item display. If not provided, it defaults to showing legend label after count
+	 */
+	showLegendLabelBeforeCount?: boolean;
 };
 
 /**
@@ -37,7 +41,11 @@ export type RecordMeterBarProps = {
  * @param {RecordMeterBarProps} props - Props
  * @returns {React.ReactElement} - JSX element
  */
-const RecordMeterBar: React.FC< RecordMeterBarProps > = ( { totalCount, items = [] } ) => {
+const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
+	totalCount,
+	items = [],
+	showLegendLabelBeforeCount = false,
+} ) => {
 	const total = useMemo( () => {
 		// If total count is not given, then compute it from items' count
 		return (
@@ -67,8 +75,20 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( { totalCount, items = 
 									className="record-meter-bar__legend--item-circle"
 									style={ { backgroundColor } }
 								/>
-								<span className="record-meter-bar__legend--item-count">{ count }</span>
-								<span className="record-meter-bar__legend--item-label">{ label }</span>
+								{ ! showLegendLabelBeforeCount && (
+									<span>
+										<span className="record-meter-bar__legend--item-count">{ count }</span>
+										<span className="record-meter-bar__legend--item-label">{ label }</span>
+									</span>
+								) }
+								{ showLegendLabelBeforeCount && (
+									<span>
+										<span className="record-meter-bar__legend--item-label record-meter-bar__legend--item-label-first">
+											{ label }
+										</span>
+										<span className="record-meter-bar__legend--item-count">({ count })</span>
+									</span>
+								) }
 							</li>
 						);
 					} ) }

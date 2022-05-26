@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use WP_Error;
 
@@ -37,6 +38,27 @@ abstract class Hybrid_Product extends Product {
 	 */
 	public static function is_plugin_installed() {
 		return parent::is_plugin_installed() || static::is_jetpack_plugin_installed();
+	}
+
+	/**
+	 * Checks whether the Jetpack module is active only if a module_name is defined
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		if ( ! empty( static::$module_name ) ) {
+			return ( new Modules() )->is_active( static::$module_name );
+		}
+		return true;
+	}
+
+	/**
+	 * Checks whether the Product is active
+	 *
+	 * @return boolean
+	 */
+	public static function is_active() {
+		return parent::is_active() && static::is_module_active();
 	}
 
 	/**
@@ -87,8 +109,12 @@ abstract class Hybrid_Product extends Product {
 			}
 		}
 
-		if ( ! empty( static::$module_name ) && class_exists( 'Jetpack' ) ) {
-			$module_activation = \Jetpack::activate_module( static::$module_name, false, false );
+		if ( ! empty( static::$module_name ) ) {
+			if ( ! static::has_required_plan() ) {
+				// translators: %s is the product name. e.g. Jetpack Search.
+				return new WP_Error( 'not_supported', sprintf( __( 'Your plan does not support %s.', 'jetpack-my-jetpack' ), static::get_title() ) );
+			}
+			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
 			if ( ! $module_activation ) {
 				return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack module', 'jetpack-my-jetpack' ) );
 			}
