@@ -47,7 +47,7 @@
 		}
 	);
 
-	const pricing = window.Jetpack_Boost.pricing.yearly;
+	const { pricing } = window.Jetpack_Boost;
 </script>
 
 <div id="jb-settings" class="jb-settings">
@@ -71,18 +71,20 @@
 			</div>
 
 			<div class="jb-card__cta px-2 my-4">
-				<ReactComponent
-					this={PricingCard}
-					title={'Jetpack Boost'}
-					icon={`${ window.Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
-					priceBefore={pricing.full_price / 12}
-					priceAfter={pricing.discount_price / 12}
-					priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
-					currencyCode={pricing.currency_code}
-					ctaText={__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}
-					{onCtaClick}
-					{infoText}
-				/>
+				{#if 'yearly' in pricing}
+					<ReactComponent
+						this={PricingCard}
+						title={'Jetpack Boost'}
+						icon={`${ window.Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
+						priceBefore={pricing.yearly.priceBefore / 12}
+						priceAfter={pricing.yearly.priceBefore / 12}
+						priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
+						currencyCode={pricing.yearly.currencyCode}
+						ctaText={__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}
+						{onCtaClick}
+						{infoText}
+					/>
+				{/if}
 			</div>
 		</div>
 		<footer class="jb-footer-note">

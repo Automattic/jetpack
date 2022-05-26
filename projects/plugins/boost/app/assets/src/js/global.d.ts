@@ -49,10 +49,10 @@ declare global {
 			[ key: string ]: string;
 		};
 		pricing: {
-			yearly: {
-				full_price: number;
-				discount_price: number;
-				currency_code: string;
+			yearly?: {
+				priceBefore: number;
+				priceAfter: number;
+				currencyCode: string;
 			};
 		};
 	};

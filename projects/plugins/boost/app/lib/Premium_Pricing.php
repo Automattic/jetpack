@@ -12,10 +12,17 @@ class Premium_Pricing {
 	}
 
 	public static function add_js_constants( $constants ) {
+		$constants['pricing'] = array();
 		$yearly_pricing_slug  = self::PRODUCT_SLUG_BASE . '_yearly';
-		$constants['pricing'] = array(
-			'yearly' => Wpcom_Products::get_product_pricing( $yearly_pricing_slug ),
-		);
+		$yearly_pricing       = Wpcom_Products::get_product_pricing( $yearly_pricing_slug );
+
+		if ( ! empty( $yearly_pricing ) ) {
+			$constants['pricing']['yearly'] = array(
+				'priceBefore'  => $yearly_pricing['full_price'],
+				'priceAfter'   => $yearly_pricing['discount_price'],
+				'currencyCode' => $yearly_pricing['currency_code'],
+			);
+		}
 
 		return $constants;
 	}
