@@ -8,7 +8,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
  *
  * @returns {Function} Social media connection handler.
  */
-
 export default function useSocialMediaConnections() {
 	const { refreshConnectionTestResults: refresh, toggleConnectionById } = useDispatch(
 		'jetpack/publicize'

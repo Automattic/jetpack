@@ -4,7 +4,6 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { Button, Container, Text } from '@automattic/jetpack-components';
-import { Icon, external } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -44,12 +43,12 @@ const ToggleSection = () => {
 					<Button
 						className={ styles.button }
 						variant="primary"
+						isExternalLink={ true }
 						href={ connectionsAdminUrl }
 						disabled={ isUpdating || ! isModuleEnabled }
 						target="_blank"
 					>
 						{ __( 'Manage social media connections', 'jetpack-social' ) }
-						<Icon size={ 24 } icon={ external } className={ styles[ 'external-icon' ] } />
 					</Button>
 				) }
 			</div>
