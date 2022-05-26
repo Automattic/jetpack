@@ -126,6 +126,11 @@ const ThemeProvider = ( { children = null, targetDom, id } ) => {
 		setup( themeWrapperRef.current, id );
 	}, [ targetDom, themeWrapperRef, isAlreadyProvided, id ] );
 
+	// Do not wrap when the DOM element target is defined.
+	if ( targetDom ) {
+		return children;
+	}
+
 	return <div ref={ themeWrapperRef }>{ children }</div>;
 };
 
