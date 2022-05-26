@@ -32,7 +32,7 @@ export type RecordMeterBarProps = {
 	/**
 	 * The formatting style for legend item display. If not provided, it defaults to showing legend label after count
 	 */
-	showLegendLabelBeforeCount: boolean;
+	showLegendLabelBeforeCount?: boolean;
 };
 
 /**

@@ -167,7 +167,7 @@ class SectionNavigation extends React.PureComponent {
 		}.bind( this );
 	}
 
-	demoSearch: () => {};
+	demoSearch() {}
 }
 
 export default SectionNavigation;
