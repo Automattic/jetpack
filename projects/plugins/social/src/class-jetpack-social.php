@@ -165,7 +165,7 @@ class Jetpack_Social {
 	 * Enqueue block editor scripts and styles.
 	 */
 	public function enqueue_block_editor_scripts() {
-		if ( ! ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ) {
+		if ( ! ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) || class_exists( 'Jetpack' ) ) {
 			return;
 		}
 
