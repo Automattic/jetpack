@@ -12,7 +12,7 @@ import { registerPlugin } from '@wordpress/plugins';
 import { dispatch } from '@wordpress/data';
 import { getQueryArg } from '@wordpress/url';
 import domReady from '@wordpress/dom-ready';
-import { JetpackLogo } from '@automattic/jetpack-components';
+import { SocialIcon } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -35,18 +35,11 @@ domReady( () => {
 registerPlugin( 'jetpack-social', {
 	render: () => (
 		<PostTypeSupportCheck supportKeys="publicize">
-			<PluginSidebarMoreMenuItem
-				target="jetpack-social"
-				icon={ <JetpackLogo showText={ false } /> }
-			>
+			<PluginSidebarMoreMenuItem target="jetpack-social" icon={ <SocialIcon /> }>
 				Jetpack Social
 			</PluginSidebarMoreMenuItem>
 
-			<PluginSidebar
-				name="jetpack-social"
-				title="Jetpack Social"
-				icon={ <JetpackLogo showText={ false } /> }
-			>
+			<PluginSidebar name="jetpack-social" title="Jetpack Social" icon={ <SocialIcon /> }>
 				<PublicizePanel />
 			</PluginSidebar>
 
