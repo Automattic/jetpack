@@ -421,7 +421,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_text( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'text' );
@@ -434,7 +434,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_name( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'name' );
@@ -447,7 +447,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_email( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'email' );
@@ -460,7 +460,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_url( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'url' );
@@ -473,7 +473,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_date( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'date' );
@@ -486,7 +486,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_telephone( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'telephone' );
@@ -499,7 +499,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_textarea( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'textarea' );
@@ -512,7 +512,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_checkbox( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox' );
@@ -525,7 +525,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
@@ -538,7 +538,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_radio( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio' );
@@ -551,7 +551,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
-	 * @return HTML for the contact form field.
+	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_select( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'select' );
@@ -2743,7 +2743,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * @param array       $attributes Key => Value pairs as parsed by shortcode_parse_atts().
 	 * @param string|null $content The shortcode's inner content: [contact-field]$content[/contact-field].
-	 * @return HTML for the contact form field
+	 * @return string HTML for the contact form field
 	 */
 	public static function parse_contact_field( $attributes, $content ) {
 		// Don't try to parse contact form fields if not inside a contact form
@@ -3961,7 +3961,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param string $placeholder - the field placeholder content.
 	 * @param bool   $required - if the field is marked as required.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_input_field( $type, $id, $value, $class, $placeholder, $required ) {
 		return "<input
@@ -3985,7 +3985,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_email_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'email', $id, $label, $required, $required_field_text );
@@ -4004,7 +4004,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
@@ -4023,7 +4023,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'url', $id, $label, $required, $required_field_text );
@@ -4042,7 +4042,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
@@ -4068,7 +4068,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
@@ -4101,7 +4101,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field      = "<label class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
@@ -4145,7 +4145,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
@@ -4172,7 +4172,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
@@ -4202,7 +4202,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 
@@ -4248,7 +4248,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param string $placeholder - the field placeholder content.
 	 * @param string $type - the type.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_default_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $type ) {
 		$field  = $this->render_label( $type, $id, $label, $required, $required_field_text );
@@ -4267,7 +4267,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param string $placeholder - the field placeholder content.
 	 * @param bool   $required - if the field is marked as required.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required ) {
 
