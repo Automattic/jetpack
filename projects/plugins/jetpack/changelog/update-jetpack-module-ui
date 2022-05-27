@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+We made this change to replace the settings form on the publicize package, just syncing up the wpcom version as well.
