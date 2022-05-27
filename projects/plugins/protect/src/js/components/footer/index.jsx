@@ -38,7 +38,7 @@ const ProductPromotion = () => {
 			<div className={ styles[ 'product-section' ] }>
 				<IconsCard products={ [ 'backup', 'scan', 'anti-spam' ] } />
 				<Title>
-					{ __( 'Increase your site protection with Jetpack Scan', 'jetpack-protect' ) }
+					{ __( 'Learn how Jetpack Scan increases your site protection', 'jetpack-protect' ) }
 				</Title>
 				<Text mb={ 3 }>
 					{ __(
