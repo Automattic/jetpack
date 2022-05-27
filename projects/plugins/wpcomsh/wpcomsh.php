@@ -723,6 +723,11 @@ function wpcomsh_show_unmanaged_plugin_separator( $file ) {
 }
 
 /**
+ * Hides mustuse and dropin plugins in Plugins list.
+ */
+add_filter( 'show_advanced_plugins', '__return_false' );
+
+/**
  * Register theme hooks
  */
 function wpcomsh_register_theme_hooks() {
