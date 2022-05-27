@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Assets: Format the number filtered through ngettext _n functions
