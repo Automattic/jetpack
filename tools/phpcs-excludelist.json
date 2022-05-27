@@ -1,5 +1,4 @@
 [
-	"projects/plugins/jetpack/class.jetpack.php",
 	"projects/plugins/jetpack/modules/contact-form.php",
 	"projects/plugins/jetpack/modules/contact-form/admin.php",
 	"projects/plugins/jetpack/modules/contact-form/class-grunion-contact-form-endpoint.php",
