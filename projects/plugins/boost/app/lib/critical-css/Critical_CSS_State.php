@@ -177,7 +177,8 @@ class Critical_CSS_State {
 	 * @param string $key Provider key.
 	 */
 	public function set_source_success( $key ) {
-		// Remove error data from previous attempts
+		// If this success was result of a retry by Cloud_CSS_Cron. This provider may contain error data from the
+		// original attempt. We have to remove that first.
 		$this->sources[ $key ]['error'] = null;
 
 		$this->set_source_status( $key, self::SUCCESS );
