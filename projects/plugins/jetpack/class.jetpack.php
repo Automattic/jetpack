@@ -2174,7 +2174,7 @@ class Jetpack {
 			if ( isset( $_GET['page'] ) && in_array( $_GET['page'], array( 'jetpack', 'jetpack_modules' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not changing the site.
 				$page = sanitize_text_field( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we're not changing the site.
 			}
-			wp_safe_redirect( self::admin_url( 'page=' . $page ) );
+			wp_safe_redirect( self::admin_url( 'page=' . rawurlencode( $page ) ) );
 			exit;
 		}
 	}
