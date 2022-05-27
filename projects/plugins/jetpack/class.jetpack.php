@@ -4023,7 +4023,7 @@ p {
 					wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
 					exit;
 				case 'unlink':
-					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+					$redirect = isset( $_GET['redirect'] ) ? sanitize_text_field( wp_unslash( $_GET['redirect'] ) ) : '';
 					check_admin_referer( 'jetpack-unlink' );
 					self::log( 'unlink' );
 					$this->connection_manager->disconnect_user();
