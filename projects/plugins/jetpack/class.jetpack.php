@@ -3503,7 +3503,7 @@ p {
 			}
 		}
 
-		$media_keys = isset( $_FILES['media'] ) ? array_keys( $_FILES['media'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no idea how this is fired or if unslashing will cause issues.
+		$media_keys = isset( $_FILES['media'] ) ? array_keys( $_FILES['media'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Unslash is not needed for `$_FILES`, the sniff is wrong. Sanitization should happen below.
 
 		$token = ( new Tokens() )->get_access_token( get_current_user_id() );
 		if ( ! $token || is_wp_error( $token ) ) {
@@ -3530,13 +3530,17 @@ p {
 		$uploaded_files = array();
 		$global_post    = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 		unset( $GLOBALS['post'] );
-		foreach ( $_FILES['media']['name'] as $index => $name ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no idea how this is fired or if unslashing will cause issues.
+		if ( empty( $_FILES['media']['name'] ) ) {
+			// Nothing to process, just return.
+			return $uploaded_files;
+		}
+		foreach ( $_FILES['media']['name'] as $index => $name ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- As above, unslash sniff is wrong. Validation should happen below.
 			$file = array();
 			foreach ( $media_keys as $media_key ) {
-				$file[ $media_key ] = isset( $_FILES['media'][ $media_key ][ $index ] ) ? $_FILES['media'][ $media_key ][ $index ] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no idea how this is fired or if unslashing will cause issues.
+				$file[ $media_key ] = isset( $_FILES['media'][ $media_key ][ $index ] ) ? $_FILES['media'][ $media_key ][ $index ] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- As above, the unslash sniff is wrong.
 			}
 
-			list( $hmac_provided, $salt ) = explode( ':', $_POST['_jetpack_file_hmac_media'][ $index ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no idea how this is used, but doesn't seem to be making changes to the site.
+			list( $hmac_provided, $salt ) = isset( $_POST['_jetpack_file_hmac_media'][ $index ] ) ? explode( ':', filter_var( wp_unslash( $_POST['_jetpack_file_hmac_media'][ $index ] ) ) ) : array( 'no', '' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce should have been checked by the caller.
 
 			$hmac_file = hash_hmac_file( 'sha1', $file['tmp_name'], $salt . $token->secret );
 			if ( $hmac_provided !== $hmac_file ) {
@@ -3548,7 +3552,7 @@ p {
 			}
 
 			$_FILES['.jetpack.upload.'] = $file;
-			$post_id                    = isset( $_POST['post_id'][ $index ] ) ? absint( $_POST['post_id'][ $index ] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
+			$post_id                    = isset( $_POST['post_id'][ $index ] ) ? absint( $_POST['post_id'][ $index ] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- caller should have checked a nonce.
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
 				$post_id = 0;
 			}
