@@ -3869,10 +3869,10 @@ p {
 
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
 			// @todo: Add validation against a known allowed list.
-			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, can't figure out how this fires.
+			$from = ! empty( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : 'iframe'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			// User clicked in the iframe to link their accounts.
 			if ( ! self::connection()->is_user_connected() ) {
-				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, can't figure out how this fires.
+				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? wp_unslash( $_GET['redirect_after_auth'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, sanitization happens in build_connect_url()
 
 				add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
 				$connect_url = $this->build_connect_url( true, $redirect, $from );
