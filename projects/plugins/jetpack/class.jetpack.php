@@ -4992,7 +4992,7 @@ endif;
 					$this.html( <?php echo wp_json_encode( __( 'Checking', 'jetpack' ) ); ?> );
 					$( '#jetpack-recheck-ssl-output' ).html( '' );
 					e.preventDefault();
-					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': '<?php echo $ajax_nonce; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do we want to escape nonces? ?>' };
+					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': '<?php echo $ajax_nonce; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do we want to escape nonces ?>' };
 					$.post( ajaxurl, data )
 					.done( function( response ) {
 						if ( response.enabled ) {
@@ -5119,7 +5119,7 @@ endif;
 	 */
 	public static function maybe_set_version_option() {
 		list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
-		if ( JETPACK__VERSION != $version ) {
+		if ( JETPACK__VERSION !== $version ) {
 			Jetpack_Options::update_option( 'version', JETPACK__VERSION . ':' . time() );
 
 			if ( version_compare( JETPACK__VERSION, $version, '>' ) ) {
