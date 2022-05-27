@@ -7,6 +7,7 @@
 	import { jetpackURL } from '../../utils/jetpack-url';
 	import { getUpgradeURL } from '../../utils/upgrade';
 	import Logo from '../../svg/jetpack-green.svg';
+	import { recordBoostEvent } from '../../utils/analytics';
 
 	/**
 	 * External dependencies
@@ -21,7 +22,7 @@
 
 	import React from 'react';
 
-	function onCtaClick() {
+	function goToCheckout() {
 		window.location.href = getUpgradeURL();
 	}
 
@@ -48,6 +49,14 @@
 	);
 
 	const { pricing } = window.Jetpack_Boost;
+
+	if ( ! ( 'yearly' in pricing ) ) {
+		recordBoostEvent( 'upgrade_price_missing', 'click', {
+			error_message: 'Missing pricing information on benefits interstitial page.',
+		} );
+
+		goToCheckout();
+	}
 </script>
 
 <div id="jb-settings" class="jb-settings">
@@ -81,7 +90,7 @@
 						priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
 						currencyCode={pricing.yearly.currencyCode}
 						ctaText={__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}
-						{onCtaClick}
+						onCtaClick={goToCheckout}
 						{infoText}
 					/>
 				{/if}
