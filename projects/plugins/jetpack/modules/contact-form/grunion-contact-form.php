@@ -2796,7 +2796,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 			&&
-			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) === $_POST['contact-form-id']
+			isset( $_POST['contact-form-id'] ) && (string) $form->get_attribute( 'id' ) === $_POST['contact-form-id']
 			&&
 			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, wp_unslash( $_POST['contact-form-hash'] ) )
 		) { // phpcs:enable
