@@ -20,6 +20,7 @@ import Logo from './../logo';
 import Header from './../header';
 import ToggleSection from './../toggle-section';
 import InfoSection from './../info-section';
+import './styles.module.scss';
 
 const Admin = () => {
 	const { isUserConnected, isRegistered } = useConnection();
