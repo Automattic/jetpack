@@ -551,7 +551,7 @@ function grunion_ajax_shortcode() {
 
 	foreach ( array( 'subject', 'to' ) as $attribute ) {
 		if ( isset( $_POST[ $attribute ] ) && is_scalar( $_POST[ $attribute ] ) && (string) $_POST[ $attribute ] !== '' ) {
-			$attributes[ $attribute ] = stripslashes( sanitize_text_field( wp_unslash( $_POST[ $attribute ] ) ) );
+			$attributes[ $attribute ] = sanitize_text_field( wp_unslash( $_POST[ $attribute ] ) );
 		}
 	}
 
@@ -592,7 +592,7 @@ function grunion_ajax_shortcode_to_json() {
 
 	check_ajax_referer( 'grunion_shortcode_to_json' );
 
-	if ( ! empty( $_POST['post_id'] ) && ! current_user_can( 'edit_post', sanitize_text_field( wp_unslash( $_POST['post_id'] ) ) ) ) {
+	if ( ! empty( $_POST['post_id'] ) && ! current_user_can( 'edit_post', (int) $_POST['post_id'] ) ) {
 		die( '-1' );
 	} elseif ( ! current_user_can( 'edit_posts' ) ) {
 		die( '-1' );
@@ -602,14 +602,14 @@ function grunion_ajax_shortcode_to_json() {
 		die( '-1' );
 	}
 
-	$content = stripslashes( sanitize_text_field( wp_unslash( $_POST['content'] ) ) );
+	$content = sanitize_text_field( wp_unslash( $_POST['content'] ) );
 
 	// doesn't look like a post with a [contact-form] already.
 	if ( false === has_shortcode( $content, 'contact-form' ) ) {
 		die( '' );
 	}
 
-	$post = get_post( sanitize_text_field( wp_unslash( $_POST['post_id'] ) ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	$post = get_post( (int) $_POST['post_id'] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 	do_shortcode( $content );
 
@@ -654,7 +654,7 @@ function grunion_ajax_spam() {
 		return;
 	}
 
-	$post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : null;
+	$post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : 0;
 	check_ajax_referer( 'grunion-post-status-' . $post_id );
 	if ( ! current_user_can( 'edit_page', $post_id ) ) {
 		wp_die( esc_html__( 'You are not allowed to manage this item.', 'jetpack' ) );
@@ -916,7 +916,7 @@ function grunion_check_for_spam_button() {
 	?>
 	<script type="text/javascript">
 		jQuery( function( $ ) {
-			$( '#posts-filter #post-query-submit' ).after( '<?php echo $button_html;  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're building the HTML to echo. ?>' );
+			$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $button_html ); ?> );
 		} );
 	</script>
 	<?php
