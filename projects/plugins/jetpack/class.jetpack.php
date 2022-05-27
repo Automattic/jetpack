@@ -4031,7 +4031,7 @@ p {
 					if ( 'sub-unlink' === $redirect ) {
 						wp_safe_redirect( admin_url() );
 					} else {
-						wp_safe_redirect( self::admin_url( array( 'page' => $redirect ) ) );
+						wp_safe_redirect( self::admin_url( array( 'page' => rawurlencode( $redirect ) ) ) );
 					}
 					exit;
 				case 'onboard':
