@@ -42,7 +42,7 @@ export const parameters = {
 
 export const decorators = [
 	Story => (
-		<ThemeProvider>
+		<ThemeProvider id="storybook-stories" targetDom={ document.body }>
 			<Story />
 		</ThemeProvider>
 	),

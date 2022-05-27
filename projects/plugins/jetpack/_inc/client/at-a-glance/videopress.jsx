@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { includes, noop } from 'lodash';
+import { noop } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -17,12 +17,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import DashItem from 'components/dash-item';
-import {
-	isVideoPressLegacySecurityPlan,
-	getPlanClass,
-	getJetpackProductUpsellByFeature,
-	FEATURE_VIDEOPRESS,
-} from 'lib/plans/constants';
+import { getJetpackProductUpsellByFeature, FEATURE_VIDEOPRESS } from 'lib/plans/constants';
 import { ProgressBar } from '@automattic/components';
 import JetpackBanner from 'components/jetpack-banner';
 import { isModuleAvailable } from 'state/modules';
@@ -32,11 +27,10 @@ import {
 	isOfflineMode,
 } from 'state/connection';
 import {
-	hasActiveVideoPressPurchase,
 	isFetchingSitePurchases,
 	getSitePlan,
-	getSitePurchases,
 	getVideoPressStorageUsed,
+	hasActiveSiteFeature,
 } from 'state/site';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 
@@ -65,27 +59,23 @@ class DashVideoPress extends Component {
 			link: getRedirectUrl( 'jetpack-support-videopress' ),
 		};
 
-		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const {
 			hasConnectedOwner,
-			hasVideoPressLegacySecurityPlan,
-			hasVideoPressPurchase,
+			hasVideoPressFeature,
+			hasVideoPressUnlimitedStorage,
 			isFetching,
 			isOffline,
 			upgradeUrl,
 			videoPressStorageUsed,
 		} = this.props;
 
-		const hasUpgrade =
-			includes( [ 'is-premium-plan', 'is-business-plan', 'is-complete-plan' ], planClass ) ||
-			hasVideoPressLegacySecurityPlan ||
-			hasVideoPressPurchase;
-
-		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
-		const shouldDisplayBanner = hasConnectedOwner && ! hasUpgrade && ! isOffline && ! isFetching;
+		const shouldDisplayStorage =
+			hasVideoPressFeature && ! hasVideoPressUnlimitedStorage && null !== videoPressStorageUsed;
+		const shouldDisplayBanner =
+			hasConnectedOwner && ! hasVideoPressFeature && ! isOffline && ! isFetching;
 
 		const bannerText =
-			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
+			! hasVideoPressFeature && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
 				? __(
 						'1 free video available. Upgrade now to unlock more videos and 1TB of storage.',
 						'jetpack'
@@ -192,10 +182,10 @@ class DashVideoPress extends Component {
 export default connect(
 	state => ( {
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
-		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
-		hasVideoPressLegacySecurityPlan: getSitePurchases( state ).find(
-			isVideoPressLegacySecurityPlan
-		),
+		hasVideoPressFeature:
+			hasActiveSiteFeature( state, 'videopress-1tb-storage' ) ||
+			hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
+		hasVideoPressUnlimitedStorage: hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),
 		isFetching: isFetchingSitePurchases( state ),
