@@ -1,5 +1,5 @@
 === Jetpack Protect ===
-Contributors: automattic
+Contributors: automattic, retrofox, leogermani, renatoagds, bjorsch, ebinnion, fgiannar, zinigor, miguelxavierpenha, dsmart, jeherve, manzoorwanijk, njweller, oskosk, samiff, siddarthan, wpkaren, arsihasi, kraftbj, kev, sermitr, kangzj, pabline
 Tags: jetpack, protect, security, malware, scan
 Requires at least: 5.9
 Requires PHP: 5.6
