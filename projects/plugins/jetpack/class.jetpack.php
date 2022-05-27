@@ -3913,7 +3913,7 @@ p {
 					check_admin_referer( 'jetpack-register' );
 					self::log( 'register' );
 					self::maybe_set_version_option();
-					$from = isset( $_GET['from'] ) ? $_GET['from'] : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+					$from = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : false;
 					if ( $from ) {
 						static::connection()->add_register_request_param( 'from', (string) $from );
 					}
@@ -3935,7 +3935,7 @@ p {
 						break;
 					}
 
-					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, can't figure out how this fires.
+					$redirect = isset( $_GET['redirect'] ) ? wp_unslash( $_GET['redirect'] ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 					/**
 					 * Jetpack registration Success.
