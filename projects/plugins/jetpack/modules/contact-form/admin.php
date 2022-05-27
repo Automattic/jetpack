@@ -356,10 +356,10 @@ function grunion_manage_post_columns( $col, $post_id ) {
 
 			echo '<div class="row-actions">';
 			if ( $post->post_status === 'trash' ) {
-				echo '<span class="untrash" id="feedback-restore-' . $post_id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '<span class="untrash" id="feedback-restore-' . (int) $post_id;
 				echo '"><a title="';
 				echo esc_attr__( 'Restore this item from the Trash', 'jetpack' );
-				echo '" href="' . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $post->ID ) ) ), 'untrash-' . $post->post_type . '_' . $post->ID );
+				echo '" href="' . esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&action=untrash', rawurlencode( $post->ID ) ) ) ), 'untrash-' . $post->post_type . '_' . $post->ID );
 				echo '">' . esc_html__( 'Restore', 'jetpack' ) . '</a></span> | ';
 
 				echo "<span class='delete'> <a class='submitdelete' title='";
@@ -370,14 +370,14 @@ function grunion_manage_post_columns( $col, $post_id ) {
 
 <script>
 jQuery(document).ready(function($) {
-$('#feedback-restore-<?php echo esc_attr( $post_id ); ?>').click(function(e) {
+$('#feedback-restore-<?php echo (int) $post_id; ?>').click(function(e) {
 	e.preventDefault()
 	$.post(ajaxurl, {
 			action: 'grunion_ajax_spam',
-			post_id: '<?php echo esc_attr( $post_id ); ?>',
+			post_id: '<?php echo (int) $post_id; ?>',
 			make_it: 'publish',
 			sub_menu: jQuery('.subsubsub .current').attr('href'),
-			_ajax_nonce: '<?php echo esc_attr( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>'
+			_ajax_nonce: <?php echo wp_json_encode( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>
 		},
 		function(r) {
 			$('#post-<?php echo esc_attr( $post_id ); ?>')
