@@ -250,7 +250,7 @@ class Grunion_Contact_Form_Plugin {
 		if (
 			isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) )
 			&&
-			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action'] // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes
+			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action'] // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verification should happen when hook fires.
 			&&
 			isset( $_POST['contact-form-id'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes
 		) {
@@ -660,9 +660,7 @@ class Grunion_Contact_Form_Plugin {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Checked below for logged-in users only, see https://plugins.trac.wordpress.org/ticket/1859
 		$id   = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) : null;
-		$id   = is_string( $id ) ? $id : null;
 		$hash = isset( $_POST['contact-form-hash'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ) : null;
-		$hash = is_string( $hash ) ? $hash : null;
 		$hash = preg_replace( '/[^\da-f]/i', '', $hash );
 		// phpcs:enable
 
@@ -771,7 +769,14 @@ class Grunion_Contact_Form_Plugin {
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
 		} else {
-			echo '<h3>' . esc_html__( 'Message Sent 2', 'jetpack' ) . '</h3>' . $submission_result; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pretty sure we're generating HTML with $submission_result
+			echo '<h3>' . esc_html__( 'Message Sent', 'jetpack' ) . '</h3>' . wp_kses(
+				$submission_result,
+				array(
+					'br'         => array(),
+					'blockquote' => array( 'class' => array() ),
+					'p'          => array(),
+				)
+			);
 		}
 
 		die;
