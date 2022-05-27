@@ -25,7 +25,6 @@ function grunion_media_button() {
 
 	$iframe_post_id = (int) ( 0 === $post_ID ? $temp_ID : $post_ID );// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$title          = __( 'Add Contact Form', 'jetpack' );
-	$plugin_url     = esc_url( GRUNION_PLUGIN_URL );// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	$site_url       = esc_url( admin_url( "/admin-ajax.php?post_id={$iframe_post_id}&action=grunion_form_builder&TB_iframe=true&width=768" ) );
 	?>
 
@@ -588,7 +587,7 @@ function grunion_ajax_shortcode() {
  * and constructs a json object representing its contents and attributes.
  */
 function grunion_ajax_shortcode_to_json() {
-	global $post, $grunion_form;// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	global $post;
 
 	check_ajax_referer( 'grunion_shortcode_to_json' );
 
@@ -625,8 +624,6 @@ function grunion_ajax_shortcode_to_json() {
 		$out['fields'][ $field->get_attribute( 'id' ) ] = $field->attributes;
 	}
 
-	$to      = $grunion->get_attribute( 'to' );// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	$subject = $grunion->get_attribute( 'subject' );// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	foreach ( array( 'to', 'subject' ) as $attribute ) {
 		$value = $grunion->get_attribute( $attribute );
 		if ( isset( $grunion->defaults[ $attribute ] ) && $value === $grunion->defaults[ $attribute ] ) {

@@ -3000,15 +3000,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$field_ids = $this->get_field_ids();
 
 		// Initialize all these "standard" fields to null
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- they're assigned later, but unsure if we can delete these all since I can't find a usage for some.
-		$comment_author_email       = null;
-		$comment_author_email_label = null;
-		$comment_author             = null;
-		$comment_author_label       = null;
-		$comment_author_url         = null;
-		$comment_author_url_label   = null;
-		$comment_content            = null;
-		$comment_content_label      = null;
+		$comment_author_email = null;
+		$comment_author       = null;
+		$comment_author_url   = null;
+		$comment_content      = null;
 
 		// For each of the "standard" fields, grab their field label and value.
 		if ( isset( $field_ids['name'] ) ) {
@@ -3019,7 +3014,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					apply_filters( 'pre_comment_author_name', addslashes( $field->value ) )
 				)
 			);
-			$comment_author_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
 		}
 
 		if ( isset( $field_ids['email'] ) ) {
@@ -3030,7 +3024,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					apply_filters( 'pre_comment_author_email', addslashes( $field->value ) )
 				)
 			);
-			$comment_author_email_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
 		}
 
 		if ( isset( $field_ids['url'] ) ) {
@@ -3044,13 +3037,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			if ( 'http://' === $comment_author_url ) {
 				$comment_author_url = '';
 			}
-			$comment_author_url_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
 		}
 
 		if ( isset( $field_ids['textarea'] ) ) {
-			$field                 = $this->fields[ $field_ids['textarea'] ];
-			$comment_content       = trim( Grunion_Contact_Form_Plugin::strip_tags( $field->value ) );
-			$comment_content_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
+			$field           = $this->fields[ $field_ids['textarea'] ];
+			$comment_content = trim( Grunion_Contact_Form_Plugin::strip_tags( $field->value ) );
 		}
 
 		if ( isset( $field_ids['subject'] ) ) {
@@ -3066,7 +3057,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$email_marketing_consent = true;
 			}
 		}
-		// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
 		$all_values   = array();
 		$extra_values = array();
 		$i            = 1; // Prefix counter for stored metadata
