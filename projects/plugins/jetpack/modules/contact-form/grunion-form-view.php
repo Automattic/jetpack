@@ -58,10 +58,10 @@ wp_localize_script(
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?php esc_html_e( 'Contact Form', 'jetpack' ); ?></title>
 <script type="text/javascript">
-	var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
+	var ajaxurl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
 	var postId = <?php echo isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making a site change. ?>;
-	var ajax_nonce_shortcode = '<?php echo wp_create_nonce( 'grunion_shortcode' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>'; 
-	var ajax_nonce_json = '<?php echo wp_create_nonce( 'grunion_shortcode_to_json' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>';
+	var ajax_nonce_shortcode = <?php echo wp_json_encode( wp_create_nonce( 'grunion_shortcode' ) ); ?>; 
+	var ajax_nonce_json = <?php echo wp_json_encode( wp_create_nonce( 'grunion_shortcode_to_json' ) ); ?>;
 </script>
 <?php wp_print_scripts( 'grunion' ); ?>
 <script type="text/javascript">
@@ -194,7 +194,7 @@ if ( is_rtl() ) {
 			printf(
 				// translators: "Feedback" as an HTML link.
 				esc_html( _x( 'Yep, you can read your feedback at any time by clicking the "%1$s" link in the admin menu.', '%1$s = "Feedback" in an HTML link', 'jetpack' ) ),
-				'<a id="fb-feedback" href="' . admin_url( 'edit.php?post_type=feedback' ) . '">' . esc_html__( 'Feedback', 'jetpack' ) . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				'<a id="fb-feedback" href="' . esc_url( admin_url( 'edit.php?post_type=feedback' ) ) . '">' . esc_html__( 'Feedback', 'jetpack' ) . '</a>'
 			);
 			?>
 			</p>
