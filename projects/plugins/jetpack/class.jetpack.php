@@ -5262,9 +5262,9 @@ endif;
 			return $url;
 		}
 		$query_string = sanitize_text_field( $_SERVER['QUERY_STRING'] );
-		$parsed_url = wp_parse_url( $url );
-		$url        = strtok( $url, '?' );
-		$url        = "$url?{$query_string}";
+		$parsed_url   = wp_parse_url( $url );
+		$url          = strtok( $url, '?' );
+		$url          = "$url?{$query_string}";
 		if ( ! empty( $parsed_url['query'] ) ) {
 			$url .= "&{$parsed_url['query']}";
 		}
@@ -5276,8 +5276,10 @@ endif;
 	 * Make sure the POSTed request is handled by the same action.
 	 */
 	public function preserve_action_in_login_form_for_json_api_authorization() {
+		$http_host   = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
+		$request_uri = isset($_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		echo "<input type='hidden' name='action' value='jetpack_json_api_authorization' />\n";
-		echo "<input type='hidden' name='jetpack_json_api_original_query' value='" . esc_url( set_url_scheme( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) ) . "' />\n";
+		echo "<input type='hidden' name='jetpack_json_api_original_query' value='" . esc_url( set_url_scheme( $http_host . $request_uri ) ) . "' />\n";
 	}
 
 	/**
