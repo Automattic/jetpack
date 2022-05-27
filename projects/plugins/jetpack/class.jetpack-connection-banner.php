@@ -349,9 +349,9 @@ class Jetpack_Connection_Banner {
 								<path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z" style="fill:#eec74f"></path>
 							</g>
 						</svg>
-						<?php esc_html_e( 'Your Jetpack purchase needs completion! Please set up the plugin for your subscription.', 'jetpack' ); ?>
+						<?php esc_html_e( 'Finish setting up Jetpack', 'jetpack' ); ?>
 					</h2>
-					<div class="jp-connection-banner__text"><?php esc_html_e( 'Jetpack offers security, performance, and marketing tools made for WordPress sites by WordPress experts. Set up Jetpack to enable new features for this site; don\'t let your subscription go to waste!', 'jetpack' ); ?></div>
+					<div class="jp-connection-banner__text"><?php esc_html_e( "Thanks for purchasing a Jetpack subscription.\nThere’s just one more step to complete the installation.", 'jetpack' ); ?></div>
 					<div class="jp-connection-banner__footer">
 						<div class="jp-connection-banner__text jp-connection-banner__text--caption"><?php jetpack_render_tos_blurb(); ?></div>
 						<a id="jp-connect-button--alt" href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>" class="jp-banner-cta-button">

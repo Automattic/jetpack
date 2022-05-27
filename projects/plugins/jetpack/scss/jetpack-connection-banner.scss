@@ -98,6 +98,7 @@ $jp-connection-banner-breakpoint: 1152px;
 	line-height: 1.5rem;
 	color: var( --jp-gray-100 );
 	letter-spacing: -0.02em;
+	white-space: pre-line;
 
 	&--caption {
 		margin-bottom: 1rem;
