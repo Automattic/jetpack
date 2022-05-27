@@ -125,6 +125,9 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		$providers = $state->get_provider_urls_with_args();
 		$response  = $client->request_generate( $providers );
 
+		// Set a one off cron job one hour from now. This will resend the request in case it failed.
+		Cloud_CSS_Cron::install( time() + HOUR_IN_SECONDS );
+
 		if ( is_wp_error( $response ) ) {
 			$state->set_as_failed( $response->get_error_message() );
 		}
