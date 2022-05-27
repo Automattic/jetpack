@@ -5418,9 +5418,27 @@ endif;
 		}
 
 		if ( ! $signature ) {
-			wp_die( esc_html( $die_error ) );
+			wp_die(
+				wp_kses(
+					$die_error,
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				)
+			);
 		} elseif ( is_wp_error( $signature ) ) {
-			wp_die( esc_html( $die_error ) );
+			wp_die(
+				wp_kses(
+					$die_error,
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				)
+			);
 		} elseif ( ! hash_equals( $signature, $environment['signature'] ) ) {
 			if ( is_ssl() ) {
 				// If we signed an HTTP request on the Jetpack Servers, but got redirected to HTTPS by the local blog, check the HTTP signature as well.
@@ -5432,10 +5450,28 @@ endif;
 					)
 				);
 				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) {
-					wp_die( esc_html( $die_error ) );
+					wp_die(
+						wp_kses(
+							$die_error,
+							array(
+								'a' => array(
+									'href' => array(),
+								),
+							)
+						)
+					);
 				}
 			} else {
-				wp_die( esc_html( $die_error ) );
+				wp_die(
+					wp_kses(
+						$die_error,
+						array(
+							'a' => array(
+								'href' => array(),
+							),
+						)
+					)
+				);
 			}
 		}
 
@@ -5465,7 +5501,16 @@ endif;
 
 		foreach ( $data_filters as $key => $sanitation ) {
 			if ( ! isset( $data->$key ) ) {
-				wp_die( esc_html( $die_error ) );
+				wp_die(
+					wp_kses(
+						$die_error,
+						array(
+							'a' => array(
+								'href' => array(),
+							),
+						)
+					)
+				);
 			}
 
 			switch ( $sanitation ) {
@@ -5485,7 +5530,16 @@ endif;
 		}
 
 		if ( empty( $this->json_api_authorization_request['client_id'] ) ) {
-			wp_die( esc_html( $die_error ) );
+			wp_die(
+				wp_kses(
+					$die_error,
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				)
+			);
 		}
 	}
 
