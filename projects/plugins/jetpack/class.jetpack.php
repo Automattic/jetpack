@@ -5261,10 +5261,10 @@ endif;
 		if ( 'wp-login.php' !== $path || ( 'login_post' !== $scheme && 'login' !== $scheme ) ) {
 			return $url;
 		}
-
+		$query_string = sanitize_text_field( $_SERVER['QUERY_STRING'] );
 		$parsed_url = wp_parse_url( $url );
 		$url        = strtok( $url, '?' );
-		$url        = "$url?{$_SERVER['QUERY_STRING']}";
+		$url        = "$url?{$query_string}";
 		if ( ! empty( $parsed_url['query'] ) ) {
 			$url .= "&{$parsed_url['query']}";
 		}
