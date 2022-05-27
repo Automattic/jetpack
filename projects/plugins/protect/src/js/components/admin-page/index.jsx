@@ -142,7 +142,7 @@ const ProtectAdminPage = () => {
 								<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
 								<Text>
 									{ __(
-										'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a few seconds.',
+										'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a minute or two.',
 										'jetpack-protect'
 									) }
 								</Text>
