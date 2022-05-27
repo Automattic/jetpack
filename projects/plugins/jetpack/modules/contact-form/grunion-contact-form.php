@@ -658,7 +658,7 @@ class Grunion_Contact_Form_Plugin {
 		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Checked below for logged-in users only, see https://plugins.trac.wordpress.org/ticket/1859
 		$id   = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) : null;
 		$id   = is_string( $id ) ? $id : null;
 		$hash = isset( $_POST['contact-form-hash'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ) : null;
