@@ -220,6 +220,7 @@ abstract class Publicize_Base {
 		// Connection test callback.
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
 
+		// Custom priority to ensure post type support is added prior to thumbnail support being added to the theme.
 		add_action( 'init', array( $this, 'add_post_type_support' ), 8 );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
 
