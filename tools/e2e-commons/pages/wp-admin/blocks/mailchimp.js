@@ -71,8 +71,11 @@ export default class MailchimpBlock extends PageActions {
 					await wpComConnectionsPage.selectMailchimpList();
 					done = true;
 				} catch ( e ) {
+					logger.error( e );
 					if ( count > 4 ) {
-						throw new Error( `Mailchimp connection failed after ${ count } attempts` );
+						throw new Error(
+							`Mailchimp connection failed after ${ count } attempts.\nLast error: ${ e }`
+						);
 					}
 					logger.warn(
 						'Mailchimp connection failed. Attempt: ' + count + '; URL: ' + connectionsUrl
