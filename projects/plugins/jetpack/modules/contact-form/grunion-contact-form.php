@@ -3928,7 +3928,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the label.
+	 * Return the HTML for the label.
 	 *
 	 * @param string $type - the field type.
 	 * @param int    $id - the ID.
@@ -3952,7 +3952,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the input field.
+	 * Return the HTML for the input field.
 	 *
 	 * @param string $type - the field type.
 	 * @param int    $id - the ID.
@@ -3975,7 +3975,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the email field.
+	 * Return the HTML for the email field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -3994,7 +3994,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the telephone field.
+	 * Return the HTML for the telephone field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -4013,7 +4013,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the URLl field.
+	 * Return the HTML for the URL field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -4032,7 +4032,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the text area field.
+	 * Return the HTML for the text area field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -4059,7 +4059,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the radio field.
+	 * Return the HTML for the radio field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -4092,7 +4092,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the email field.
+	 * Return the HTML for the email field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -4113,7 +4113,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the consent field.
+	 * Return the HTML for the consent field.
 	 *
 	 * @param string $id field id.
 	 * @param string $class html classes (can be set by the admin).
@@ -4136,7 +4136,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the multiple checkbox field.
+	 * Return the HTML for the multiple checkbox field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -4163,7 +4163,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the select field.
+	 * Return the HTML for the select field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -4192,7 +4192,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the email field.
+	 * Return the HTML for the email field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -4237,7 +4237,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the default field.
+	 * Return the HTML for the default field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -4257,7 +4257,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Render the email field.
+	 * Return the HTML for the email field.
 	 *
 	 * @param string $type - the type.
 	 * @param int    $id - the ID.
