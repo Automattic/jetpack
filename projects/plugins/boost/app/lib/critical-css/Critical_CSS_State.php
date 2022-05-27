@@ -392,21 +392,28 @@ class Critical_CSS_State {
 	/**
 	 * Get the provider urls.
 	 *
-	 * @param bool $with_provider_keys Indicate whether to include generation query args
 	 * @return array
 	 */
-	public function get_provider_urls( $with_provider_keys = false ) {
-		$providers = $this->collate_column( 'urls' );
+	public function get_provider_urls() {
+		return $this->collate_column( 'urls' );
+	}
 
-		if ( $with_provider_keys ) {
-			foreach ( $providers as &$urls ) {
-				foreach ( $urls as &$url ) {
-					$url = add_query_arg( 'jb-generate-critical-css', 'true', $url );
-				}
+	/**
+	 * Get the provider urls with added query parameter to indicate critical css generation.
+	 *
+	 * @return array
+	 */
+	public function get_provider_urls_with_args() {
+		$providers = $this->get_provider_urls();
+		$urls      = array();
+
+		foreach ( $providers as $provider => $provider_urls ) {
+			foreach ( $provider_urls as $url ) {
+				$urls[ $provider ][] = add_query_arg( 'jb-generate-critical-css', 'true', $url );
 			}
 		}
 
-		return $providers;
+		return $urls;
 	}
 
 	/**

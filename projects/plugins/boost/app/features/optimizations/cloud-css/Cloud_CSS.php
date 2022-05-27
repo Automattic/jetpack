@@ -122,7 +122,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		$state->create_request( $source_providers->get_providers() );
 
 		$client    = new Cloud_CSS_Request();
-		$providers = $state->get_provider_urls( true );
+		$providers = $state->get_provider_urls_with_args();
 		$response  = $client->request_generate( $providers );
 
 		if ( is_wp_error( $response ) ) {
