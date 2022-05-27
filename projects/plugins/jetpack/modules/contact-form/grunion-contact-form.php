@@ -2317,7 +2317,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$hash = sha1( wp_json_encode( $attributes ) . $content );
 			}
 
-			$shortcode_meta = get_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", true );
+			$shortcode_meta = (string) get_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", true );
 
 			if ( $shortcode_meta !== '' || $shortcode_meta !== $content ) {
 				update_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", $content );
