@@ -657,7 +657,7 @@ class Assets {
 	public static function filter_ngettext( $translation, $single, $plural, $number, $domain ) {
 		if ( $translation === $single || $translation === $plural ) {
 			// phpcs:ignore WordPress.WP.I18n
-			$translation = _n( $single, $plural, $number, self::$domain_map[ $domain ][0] );
+			$translation = _n( $single, $plural, number_format_i18n( $number ), self::$domain_map[ $domain ][0] );
 		}
 		return $translation;
 	}
