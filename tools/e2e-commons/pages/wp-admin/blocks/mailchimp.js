@@ -55,6 +55,13 @@ export default class MailchimpBlock extends PageActions {
 			const connectionsUrl = await hrefProperty.jsonValue();
 			const wpComTab = await this.clickAndWaitForNewPage( this.setupFormBtnSel );
 
+			// Quick fix for redirect URL not working with site ID
+			const workingUrl = connectionsUrl.replace(
+				/\d+/,
+				resolveSiteUrl().replace( 'https://', '' )
+			);
+			await wpComTab.goto( workingUrl );
+
 			if ( ! isLoggedIn ) {
 				await ( await LoginPage.init( wpComTab ) ).login();
 			}
