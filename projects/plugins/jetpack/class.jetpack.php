@@ -4816,9 +4816,9 @@ endif;
 		$token_type = 'blog';
 
 		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
-		if ( isset( $request_data ) || ! empty( $_GET['onboarding'] ) ) {
-			if ( ! empty( $_GET['onboarding'] ) ) {
-				$jpo = $_GET;
+		if ( isset( $request_data ) || ! empty( $_GET['onboarding'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+			if ( ! empty( $_GET['onboarding'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+				$jpo = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			} else {
 				$jpo = json_decode( $request_data, true );
 			}
@@ -4831,10 +4831,10 @@ endif;
 				&& isset( $jpo_token )
 				&& is_email( $jpo_user )
 				&& ctype_alnum( $jpo_token )
-				&& isset( $_GET['rest_route'] )
+				&& isset( $_GET['rest_route'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 				&& self::validate_onboarding_token_action(
 					$jpo_token,
-					$_GET['rest_route']
+					$_GET['rest_route'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes.
 				)
 			) {
 				$jp_user = get_user_by( 'email', $jpo_user );
@@ -4963,18 +4963,18 @@ endif;
 
 		<div id="jetpack-ssl-warning" class="error jp-identity-crisis">
 			<div class="jp-banner__content">
-				<h2><?php _e( 'Outbound HTTPS not working', 'jetpack' ); ?></h2>
-				<p><?php _e( 'Your site could not connect to WordPress.com via HTTPS. This could be due to any number of reasons, including faulty SSL certificates, misconfigured or missing SSL libraries, or network issues.', 'jetpack' ); ?></p>
+				<h2><?php esc_html_e( 'Outbound HTTPS not working', 'jetpack' ); ?></h2>
+				<p><?php esc_html_e( 'Your site could not connect to WordPress.com via HTTPS. This could be due to any number of reasons, including faulty SSL certificates, misconfigured or missing SSL libraries, or network issues.', 'jetpack' ); ?></p>
 				<p>
-					<?php _e( 'Jetpack will re-test for HTTPS support once a day, but you can click here to try again immediately: ', 'jetpack' ); ?>
-					<a href="#" id="jetpack-recheck-ssl-button"><?php _e( 'Try again', 'jetpack' ); ?></a>
-					<span id="jetpack-recheck-ssl-output"><?php echo get_transient( 'jetpack_https_test_message' ); ?></span>
+					<?php esc_html_e( 'Jetpack will re-test for HTTPS support once a day, but you can click here to try again immediately: ', 'jetpack' ); ?>
+					<a href="#" id="jetpack-recheck-ssl-button"><?php esc_html_e( 'Try again', 'jetpack' ); ?></a>
+					<span id="jetpack-recheck-ssl-output"><?php echo get_transient( 'jetpack_https_test_message' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- not sure what this is returning and if escaping will be weird. ?></span>
 				</p>
 				<p>
 					<?php
 					printf(
 							/* translators: Both are URLs. First for the connection debug tool and the second for a support page. */
-						__( 'For more help, try our <a href="%1$s">connection debugger</a> or <a href="%2$s" target="_blank">troubleshooting tips</a>.', 'jetpack' ),
+						__( 'For more help, try our <a href="%1$s">connection debugger</a> or <a href="%2$s" target="_blank">troubleshooting tips</a>.', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're building known HTML.
 						esc_url( self::admin_url( array( 'page' => 'jetpack-debugger' ) ) ),
 						esc_url( Redirect::get_url( 'jetpack-support-getting-started-troubleshooting-tips' ) )
 					);
@@ -4992,7 +4992,7 @@ endif;
 					$this.html( <?php echo wp_json_encode( __( 'Checking', 'jetpack' ) ); ?> );
 					$( '#jetpack-recheck-ssl-output' ).html( '' );
 					e.preventDefault();
-					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': '<?php echo $ajax_nonce; ?>' };
+					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': '<?php echo $ajax_nonce; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do we want to escape nonces? ?>' };
 					$.post( ajaxurl, data )
 					.done( function( response ) {
 						if ( response.enabled ) {
