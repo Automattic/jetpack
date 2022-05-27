@@ -5265,7 +5265,7 @@ endif;
 		if ( 'wp-login.php' !== $path || ( 'login_post' !== $scheme && 'login' !== $scheme ) ) {
 			return $url;
 		}
-		$query_string = isset( $_SERVER['QUERY_STRING'] ) ? sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) : '';
+		$query_string = isset( $_SERVER['QUERY_STRING'] ) ? wp_unslash( $_SERVER['QUERY_STRING'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$parsed_url   = wp_parse_url( $url );
 		$url          = strtok( $url, '?' );
 		$url          = "$url?{$query_string}";
@@ -5280,8 +5280,8 @@ endif;
 	 * Make sure the POSTed request is handled by the same action.
 	 */
 	public function preserve_action_in_login_form_for_json_api_authorization() {
-		$http_host   = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
-		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$http_host   = isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- escaped with esc_url below.
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- escaped with esc_url below.
 		echo "<input type='hidden' name='action' value='jetpack_json_api_authorization' />\n";
 		echo "<input type='hidden' name='jetpack_json_api_original_query' value='" . esc_url( set_url_scheme( $http_host . $request_uri ) ) . "' />\n";
 	}
@@ -5369,7 +5369,7 @@ endif;
 	 */
 	public function verify_json_api_authorization_request( $environment = null ) {
 		$environment = $environment === null
-			? $_REQUEST // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- would appreciate a double check here.
+			? $_REQUEST // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce verification handled later in function.
 			: $environment;
 
 		list( $env_token,, $env_user_id ) = explode( ':', $environment['token'] );
@@ -5381,7 +5381,7 @@ endif;
 		$die_error = __( 'Someone may be trying to trick you into giving them access to your site. Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
 
 		// Host has encoded the request URL, probably as a result of a bad http => https redirect.
-		if ( self::is_redirect_encoded( sanitize_text_field( wp_unslash( $_GET['redirect_to'] ) ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.NonceVerification.Recommended -- no site changes, we're erroring out.
+		if ( self::is_redirect_encoded( esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- no site changes, we're erroring out.
 			/**
 			 * Jetpack authorisation request Error.
 			 *
