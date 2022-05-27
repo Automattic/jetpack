@@ -721,7 +721,7 @@ class Grunion_Contact_Form_Plugin {
 			$shortcode = get_post_meta( $id, "_g_feedback_shortcode_{$hash}", true );
 
 			// Format it
-			if ( $shortcode !== '' ) {
+			if ( $shortcode !== '' && $shortcode !== false ) {
 
 				// Get attributes from post meta.
 				$parameters = '';
@@ -1817,6 +1817,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Parse the contact form fields.
 	 *
 	 * @param int $post_id - the post ID.
+	 * @return array Fields.
 	 */
 	public static function parse_fields_from_content( $post_id ) {
 		static $post_fields;
@@ -1918,6 +1919,8 @@ class Grunion_Contact_Form_Plugin {
 
 	/**
 	 * Get the IP address.
+	 *
+	 * @return string|null IP address.
 	 */
 	public static function get_ip_address() {
 		return isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : null;
