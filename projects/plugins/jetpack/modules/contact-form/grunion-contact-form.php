@@ -972,8 +972,8 @@ class Grunion_Contact_Form_Plugin {
 	public function prepare_for_akismet( $form ) {
 		$form['comment_type'] = 'contact_form';
 		$form['user_ip']      = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$form['user_agent']   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		$form['referrer']     = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
+		$form['user_agent']   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$form['referrer']     = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
 		$form['blog']         = get_option( 'home' );
 
 		foreach ( $_SERVER as $key => $value ) {
@@ -3456,7 +3456,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		if ( ! $redirect ) { // wp_get_referer() returns false if the referer is the same as the current page.
 			$custom_redirect = false;
-			$redirect        = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+			$redirect        = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		}
 
 		if ( ! $custom_redirect ) {
