@@ -721,7 +721,7 @@ class Grunion_Contact_Form_Plugin {
 			$shortcode = get_post_meta( $id, "_g_feedback_shortcode_{$hash}", true );
 
 			// Format it
-			if ( $shortcode !== '' ) {
+			if ( $shortcode !== '' && $shortcode !== false ) {
 
 				// Get attributes from post meta.
 				$parameters = '';
@@ -1817,6 +1817,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Parse the contact form fields.
 	 *
 	 * @param int $post_id - the post ID.
+	 * @return array Fields.
 	 */
 	public static function parse_fields_from_content( $post_id ) {
 		static $post_fields;
@@ -1918,6 +1919,8 @@ class Grunion_Contact_Form_Plugin {
 
 	/**
 	 * Get the IP address.
+	 *
+	 * @return string|null IP address.
 	 */
 	public static function get_ip_address() {
 		return isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : null;
@@ -2314,7 +2317,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$hash = sha1( wp_json_encode( $attributes ) . $content );
 			}
 
-			$shortcode_meta = get_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", true );
+			$shortcode_meta = (string) get_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", true );
 
 			if ( $shortcode_meta !== '' || $shortcode_meta !== $content ) {
 				update_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", $content );
@@ -2793,7 +2796,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( // phpcs:disable WordPress.Security.NonceVerification.Missing
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 			&&
-			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) === $_POST['contact-form-id']
+			isset( $_POST['contact-form-id'] ) && (string) $form->get_attribute( 'id' ) === $_POST['contact-form-id']
 			&&
 			isset( $_POST['contact-form-hash'] ) && is_string( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, wp_unslash( $_POST['contact-form-hash'] ) )
 		) { // phpcs:enable
