@@ -380,7 +380,7 @@ $('#feedback-restore-<?php echo (int) $post_id; ?>').click(function(e) {
 			_ajax_nonce: <?php echo wp_json_encode( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>
 		},
 		function(r) {
-			$('#post-<?php echo esc_attr( $post_id ); ?>')
+			$('#post-<?php echo (int) $post_id; ?>')
 				.css({backgroundColor: '#59C859'})
 				.fadeOut(350, function() {
 					$(this).remove();
@@ -397,7 +397,7 @@ $('#feedback-restore-<?php echo (int) $post_id; ?>').click(function(e) {
 				echo '<span class="spam" id="feedback-spam-' . esc_attr( $post_id );
 				echo '"><a title="';
 				echo esc_html__( 'Mark this message as spam', 'jetpack' );
-				echo '" href="' . esc_url( wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . $post_id . '&amp;action=spam' ) ), 'spam-feedback_' . $post_id );
+				echo '" href="' . esc_url( wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . rawurlencode( $post_id ) . '&action=spam' ) ), 'spam-feedback_' . $post_id );
 				echo '">Spam</a></span>';
 				echo ' | ';
 
@@ -411,17 +411,17 @@ $('#feedback-restore-<?php echo (int) $post_id; ?>').click(function(e) {
 
 <script>
 jQuery(document).ready( function($) {
-	$('#feedback-spam-<?php echo esc_attr( $post_id ); ?>').click( function(e) {
+	$('#feedback-spam-<?php echo (int) $post_id; ?>').click( function(e) {
 		e.preventDefault();
 		$.post( ajaxurl, {
 				action: 'grunion_ajax_spam',
-				post_id: '<?php echo esc_attr( $post_id ); ?>',
+				post_id: '<?php echo (int) $post_id; ?>',
 				make_it: 'spam',
 				sub_menu: jQuery('.subsubsub .current').attr('href'),
-				_ajax_nonce: '<?php echo esc_attr( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>'
+				_ajax_nonce: <?php echo wp_json_encode( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>
 			},
 			function( r ) {
-				$('#post-<?php echo esc_attr( $post_id ); ?>')
+				$('#post-<?php echo (int) $post_id; ?>')
 					.css( {backgroundColor:'#FF7979'} )
 					.fadeOut(350, function() {
 						$(this).remove();
@@ -430,17 +430,17 @@ jQuery(document).ready( function($) {
 		});
 	});
 
-	$('#feedback-trash-<?php echo esc_attr( $post_id ); ?>').click(function(e) {
+	$('#feedback-trash-<?php echo (int) $post_id; ?>').click(function(e) {
 		e.preventDefault();
 		$.post(ajaxurl, {
 				action: 'grunion_ajax_spam',
-				post_id: '<?php echo esc_attr( $post_id ); ?>',
+				post_id: '<?php echo (int) $post_id; ?>',
 				make_it: 'trash',
 				sub_menu: jQuery('.subsubsub .current').attr('href'),
-				_ajax_nonce: '<?php echo esc_attr( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>'
+				_ajax_nonce: <?php echo wp_json_encode( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>
 			},
 			function(r) {
-				$('#post-<?php echo esc_attr( $post_id ); ?>')
+				$('#post-<?php echo (int) $post_id; ?>')
 					.css({backgroundColor: '#FF7979'})
 					.fadeOut(350, function() {
 						$(this).remove();
@@ -469,17 +469,17 @@ jQuery(document).ready( function($) {
 
 <script>
 jQuery(document).ready( function($) {
-	$('#feedback-ham-<?php echo esc_attr( $post_id ); ?>').click( function(e) {
+	$('#feedback-ham-<?php echo (int) $post_id; ?>').click( function(e) {
 		e.preventDefault();
 		$.post( ajaxurl, {
 				action: 'grunion_ajax_spam',
-				post_id: '<?php echo esc_attr( $post_id ); ?>',
+				post_id: '<?php echo (int) $post_id; ?>',
 				make_it: 'ham',
 				sub_menu: jQuery('.subsubsub .current').attr('href'),
-				_ajax_nonce: '<?php echo esc_html( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>'
+				_ajax_nonce: <?php echo wp_json_encode( wp_create_nonce( 'grunion-post-status-' . $post_id ) ); ?>
 			},
 			function( r ) {
-				$('#post-<?php echo esc_attr( $post_id ); ?>')
+				$('#post-<?php echo (int) $post_id; ?>')
 					.css( {backgroundColor:'#59C859'} )
 					.fadeOut(350, function() {
 						$(this).remove();
@@ -550,7 +550,7 @@ function grunion_ajax_shortcode() {
 	$attributes = array();
 
 	foreach ( array( 'subject', 'to' ) as $attribute ) {
-		if ( isset( $_POST[ $attribute ] ) && strlen( sanitize_text_field( wp_unslash( $_POST[ $attribute ] ) ) ) ) {
+		if ( isset( $_POST[ $attribute ] ) && is_scalar( $_POST[ $attribute ] ) && (string) $_POST[ $attribute ] !== '' ) {
 			$attributes[ $attribute ] = stripslashes( sanitize_text_field( wp_unslash( $_POST[ $attribute ] ) ) );
 		}
 	}
