@@ -3095,7 +3095,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$i++; // Increment prefix counter for the next extra field
 		}
 
-		if ( isset( $_REQUEST['is_block'] ) && sanitize_text_field( wp_unslash( $_REQUEST['is_block'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
+		if ( ! empty( $_REQUEST['is_block'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
 			$extra_values['is_block'] = true;
 		}
 
@@ -3251,7 +3251,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// translators: the time of the form submission.
 		$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
 		$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
-		$time             = date_i18n( $date_time_format, current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+		$time             = wp_date( $date_time_format );
 
 		// Keep a copy of the feedback as a custom post type.
 		if ( $in_comment_disallowed_list ) {
@@ -3293,7 +3293,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'post_status'  => addslashes( $feedback_status ),
 				'post_parent'  => (int) $post->ID,
 				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
-				'post_content' => addslashes( wp_kses( $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // phpcs:ignore -- so that search will pick up this data
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_print_r
+				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // so that search will pick up this data
 				'post_name'    => $feedback_id,
 			)
 		);
@@ -3415,7 +3416,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 *
 			 * @param bool false Should an email be sent after a spam form submission. Default to false.
 			 */
-			apply_filters( 'grunion_still_email_spam', false ) === true
+			apply_filters( 'grunion_still_email_spam', false )
 		) { // don't send spam by default.  Filterable.
 			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
@@ -3608,12 +3609,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		// Trim the plain text message to remove the \n breaks that were after <doctype>, <html>, and <body>
 		$phpmailer->AltBody = trim( wp_strip_all_tags( $alt_body ) );
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 	/**
 	 * Add deepslashes.
 	 *
 	 * @param array $value - the value.
+	 * @return array The value, with slashes added.
 	 */
 	public function addslashes_deep( $value ) {
 		if ( is_array( $value ) ) {
@@ -3935,7 +3938,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 *
-	 * @return HTML
+	 * @return string HTML
 	 */
 	public function render_label( $type, $id, $label, $required, $required_field_text ) {
 
