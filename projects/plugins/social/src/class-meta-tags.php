@@ -113,6 +113,7 @@ class Meta_Tags {
 			return false;
 		}
 
+		/** This filter is documented in projects/plugins/jetpack/functions.opengraph.php */
 		return apply_filters( 'jetpack_enable_open_graph', is_singular() );
 	}
 
