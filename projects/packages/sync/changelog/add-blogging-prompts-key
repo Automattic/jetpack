@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Sync: Add '_jetpack_blogging_prompt_key' to default post meta whitelist
