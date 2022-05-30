@@ -8,16 +8,7 @@ import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-
-type AllowedDropdownMenuProps = Pick<
-	DropdownMenu.PropsWithControls,
-	'controls' | 'popoverProps' | 'toggleProps' | 'label'
->;
-
-export type SplitButtonProps = Omit< Button.ButtonProps, 'controls' > &
-	AllowedDropdownMenuProps &
-	// make `controls` prop required
-	Required< Pick< AllowedDropdownMenuProps, 'controls' > >;
+import { SplitButtonProps } from './types';
 
 const DownIcon = () => (
 	<svg width="15" height="9" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="10 9 4 7">
