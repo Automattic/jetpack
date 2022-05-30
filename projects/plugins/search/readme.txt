@@ -91,7 +91,7 @@ Yes, Jetpack Search is optimized for site visitors from mobile devices.
 
 = Will this plugin work with my theme? =
 
-This plugin works seamlessly with any WordPres theme.
+This plugin works seamlessly with any WordPress theme.
 
 = Does Jetpack Search allow visitors to filter the search results? =
 
@@ -103,11 +103,11 @@ You can purchase a Search subscription directly through this plugin or via the [
 
 == Screenshots ==
 
-1. Settings interface
-2. Overlay customization
-3. Overlay interface
-4. Overlay details: filtering and spelling correction
-5. My Jetpack
+1. Configuring and customizing Jetpack Search is a breeze.
+2. Lots of customization options to make Search match your site design.
+3. Clear, easy-to-read search results.
+4. Easy to filter results and smart spelling mistake handling.
+5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
 ### 1.0.0 - 2022-05-30
