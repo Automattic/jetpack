@@ -11,7 +11,7 @@ no renaming will happen in that particular repository. \n"
 
 echo -e "\033[1mWhat is your GitHub personal access token?\033[0m See here for more: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token >"
 
-read usertoken
+read -s -r usertoken
 
 TESTREPOSITORIES=(jetpack-google-analytics-helper jptest-tools jetpack-gh-testing)
 
@@ -31,33 +31,30 @@ TESTREPOSITORIES=(jetpack-google-analytics-helper jptest-tools jetpack-gh-testin
 
 # Renaming the default branch in a list of given repositories, using CURL
 
-for REPOSITORY in "${TESTREPOSITORIES[@]}"
-    do
-     echo "Renaming master to trunk on $REPOSITORY"
+for REPOSITORY in "${TESTREPOSITORIES[@]}"; do
+        echo "Renaming master to trunk on ${REPOSITORY}"
 
-     curl \
-     -X POST \
-     -H "Authorization: token $usertoken"  \
-     https://api.github.com/repos/Automattic/$REPOSITORY/branches/master/rename \
-     -d '{"new_name":"trunk"}'
-
-    done
+        curl \
+                -X POST \
+                -H "Authorization: token ${usertoken}"  \
+                --fail "https://api.github.com/repos/Automattic/${REPOSITORY}/branches/master/rename" \
+                -d '{"new_name":"trunk"}'
+done
 
 echo "Script execution complete"
 
 # Renaming the default branch in a list of given repositories, using GitHub CLI
 
-# for REPOSITORY in "${TESTREPOSITORIES[@]}"
-#    do
-#     echo "Renaming master to trunk on $REPOSITORY"
+# for REPOSITORY in "${TESTREPOSITORIES[@]}"; do
+#         echo "Renaming master to trunk on ${REPOSITORY}"
 
-#     gh api \
-#     --method POST \
-#     -H "Accept: application/vnd.github.v3+json" \
-#     /repos/Automattic/$REPOSITORY/branches/master/rename \
-#    -f new_name='trunk'
+#         gh api \
+#                 --method POST \
+#                 -H "Accept: application/vnd.github.v3+json" \
+#                 "/repos/Automattic/${REPOSITORY}/branches/trunk/rename" \
+#                 -f new_name='master'
+# done
 
-#    done
 # echo "Script execution complete"
 
 
@@ -65,10 +62,10 @@ echo "Script execution complete"
 # repository list given. Replace REPOSITORIES with the correct repository list variable name.
 # Uncomment below lines to test.
 
-# for REPOSITORY in "${TESTREPOSITORIES[@]}"
-#   do
-#     echo "The default branch on $REPOSITORY is:"
-#     curl \
-#       -H "Authorization: token $usertoken"  \
-#       -s "https://api.github.com/repos/Automattic/$REPOSITORY" | jq -r '.default_branch'
-#   done
+# for REPOSITORY in "${TESTREPOSITORIES[@]}"; do
+#         echo "The default branch on ${REPOSITORY} is:"
+
+#         curl \
+#                 -H "Authorization: token ${usertoken}"  \
+#                 -s --fail "https://api.github.com/repos/Automattic/${REPOSITORY}" | jq -r ".default_branch"
+# done
