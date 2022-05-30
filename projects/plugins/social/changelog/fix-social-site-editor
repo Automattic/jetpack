@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Site Editor: Prevent the editor extension loading for unsupported post types
