@@ -1,6 +1,6 @@
-=== Jetpack jetpack-search ===
-Contributors: automattic,
-Tags: jetpack, search
+=== Jetpack Search ===
+Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon
+Tags: search, jetpack
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
@@ -12,57 +12,109 @@ A cloud-powered replacement for WordPress' search.
 
 == Description ==
 
-Longer description of the plugin.
+Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.
+
+Jetpack Search is an easy-to-use WordPress search plugin that enhances the default site search functionality provided by the CMS. Thanks to advanced site search tools, your visitors will experience the best search experience you can offer.
+
+From a predictive autocomplete algorithm, to instant search results, Jetpack Search has all the features and options for best site search usability and results.
+
+Note: A Jetpack Search subscription, or a Jetpack plan subscription that includes Search is required to use this plugin.
+
+**LESS DIGGING, MORE FINDING**
+
+Do you have a WordPress site with thousands of posts, pages, and products? No problem. Thanks to a powerful search engine, Jetpack Search helps visitors find exactly what they’re looking for — fast.
+
+**KEEP PEOPLE READING & BUYING**
+
+Give your visitors instant search results and advanced filtering to help them find what they need and stay longer on your site.
+
+People on eCommerce sites are 2x more likely to purchase something when they search.
+
+**FINELY-TUNED SEARCH FOR YOUR SITE**
+
+Jetpack Search is a completely customizable WordPress site search plugin, so your visitors get a search experience that blends in seamlessly with your site design.
+
+**WHY CHOOSE JETPACK SEARCH?**
+Highly relevant search results organized by modern ranking algorithms
+Boosted and prioritized results based on your site’s search stats
+Instant search and filtering without reloading the page
+Site search filters and facets (by categories, tags, dates, custom taxonomies, and post types)
+Improved theme compatibility for both mobile and desktop
+Real-time indexing, so your search index is updated within minutes of changes to your site
+Integrates seamlessly with WooCommerce
+Support for all languages, and advanced language analysis for 29 languages
+Highlighted search terms on comments and post content
+Fast and accurate spelling correction
+
+**WITH 💚 BY JETPACK**
+This is just the start!
+
+We are working hard to bring more features and improvements to Jetpack Search. Let us know your thoughts and ideas!
 
 == Installation ==
 
-Installation instructions go here.
+There’s nothing to configure – the setup process is as easy as:
+Install the plugin
+Activate Jetpack Connection
+
+Note: A Jetpack Search subscription, or a Jetpack plan subscription that includes Search is required to use this plugin.
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= Why do I need site search on WordPress? =
 
-An answer to that question.
+Site search enables visitors to quickly find what they are looking for from your site or eCommerce store, keeping them engaged for longer. People on eCommerce sites are 2x more likely to purchase something when they search.
+
+= How do I enable Jetpack Search? =
+
+Simply install the plugin and connect your site. If you already have a paid subscription that includes Jetpack Search it will work automatically, otherwise you can purchase a subscription through the plugin.
+
+= What languages does Jetpack Search support? =
+
+We provide support for all languages, and advanced language analysis for 29 languages.
+
+= Does Jetpack Search support eCommerce stores and products? =
+
+Yes, eCommerce stores and products work seamlessly with Jetpack Search, no additional configuration required.
+
+= Is this plugin compatible with WooCommerce? =
+
+Yes, Jetpack Search works seamlessly with WooCommerce product search.
+
+= Can I customize how the search results look? =
+
+Yes, Jetpack Search is completely customizable so your visitors get a search experience that blends in seamlessly with your site design.
+
+= Does Jetpack Search work on mobile? =
+
+Yes, Jetpack Search is optimized for site visitors from mobile devices.
+
+= Will this plugin work with my theme? =
+
+This plugin works seamlessly with any WordPress theme.
+
+= Does Jetpack Search allow visitors to filter the search results? =
+
+Yes, visitors can filter search results by tags, categories, dates, custom taxonomies, and post types.
+
+= Where can I get a Jetpack Search subscription? =
+
+You can purchase a Search subscription directly through this plugin or via the [Jetpack website](https://jetpack.com/search/)
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. Configuring and customizing Jetpack Search is a breeze.
+2. Lots of customization options to make Search match your site design.
+3. Clear, easy-to-read search results.
+4. Easy to filter results and smart spelling mistake handling.
+5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
+### 1.0.0 - 2022-05-30
+#### Added
+- Initial release.
+== Testimonials ==
 
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
+“I like having a search experience that is sortable, filterable, and feels like it's integrated natively into the site. Jetpack Search does all of this, but most importantly, it returns great results without heavy configuration.” - Chris Coyier, Web Design Expert (codepen.io / ShopTalk Show)
 
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== A brief Markdown Example ==
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](https://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-"Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+“If people can get the answers they want quickly without having to email me, it’s pure gold and it makes my job easier. I’m advertising it in my client consultations and telling people to use it because it actually works.” - Kylie Mawdsley, Interior Design Consultant (Kylie M. Interiors)
