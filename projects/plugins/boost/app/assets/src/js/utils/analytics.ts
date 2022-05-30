@@ -1,3 +1,6 @@
+// Todo: Import correct jqXHR type definition.
+// import type { jqXHR } from '@types/jquery';
+
 export function recordBoostEvent(
 	eventName: string,
 	eventType: string,
@@ -13,6 +16,6 @@ export function recordBoostEvent(
 		typeof jpTracksAJAX !== 'undefined' &&
 		typeof jpTracksAJAX.record_ajax_event === 'function'
 	) {
-		jpTracksAJAX.record_ajax_event( `boost_${ eventName }`, 'click', eventProp );
+		return jpTracksAJAX.record_ajax_event( `boost_${ eventName }`, 'click', eventProp );
 	}
 }

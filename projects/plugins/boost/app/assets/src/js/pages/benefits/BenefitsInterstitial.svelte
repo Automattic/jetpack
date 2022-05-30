@@ -53,9 +53,14 @@
 	if ( ! ( 'yearly' in pricing ) ) {
 		recordBoostEvent( 'upgrade_price_missing', 'click', {
 			error_message: 'Missing pricing information on benefits interstitial page.',
-		} );
-
-		goToCheckout();
+		} )
+			.fail( () => {
+				// eslint-disable-next-line no-console
+				console.log( 'An error occurred while recording the `upgrade_price_missing` event.' );
+			} )
+			.always( () => {
+				goToCheckout();
+			} );
 	}
 </script>
 
@@ -86,7 +91,7 @@
 						title={'Jetpack Boost'}
 						icon={`${ window.Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
 						priceBefore={pricing.yearly.priceBefore / 12}
-						priceAfter={pricing.yearly.priceBefore / 12}
+						priceAfter={pricing.yearly.priceAfter / 12}
 						priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
 						currencyCode={pricing.yearly.currencyCode}
 						ctaText={__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}

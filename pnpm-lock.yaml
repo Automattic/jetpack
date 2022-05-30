@@ -1197,6 +1197,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.0.6
       '@rollup/plugin-replace': 4.0.0
       '@rollup/plugin-typescript': 8.2.5
+      '@types/jquery': 3.5.14
       '@wordpress/components': 19.10.0
       '@wordpress/element': 4.6.0
       '@wordpress/i18n': 4.8.0
@@ -1243,6 +1244,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.0.6_rollup@2.56.3
       '@rollup/plugin-replace': 4.0.0_rollup@2.56.3
       '@rollup/plugin-typescript': 8.2.5_d5b4c212067eb4489bd764c22d3b50b7
+      '@types/jquery': 3.5.14
       '@wordpress/i18n': 4.8.0
       concurrently: 6.0.2
       node-wp-i18n: 1.2.6
@@ -7016,6 +7018,12 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
+  /@types/jquery/3.5.14:
+    resolution: {integrity: sha512-X1gtMRMbziVQkErhTQmSe2jFwwENA/Zr+PprCkF63vFq+Yt5PZ4AlKqgmeNlwgn7dhsXEK888eIW2520EpC+xg==}
+    dependencies:
+      '@types/sizzle': 2.3.3
+    dev: true
+
   /@types/jsdom/16.2.14:
     resolution: {integrity: sha512-6BAy1xXEmMuHeAJ4Fv4yXKwBDTGTOseExKE3OaHiNycdHdZw59KfYzrt0DkDluvwmik1HRt6QS7bImxUmpSy+w==}
     dependencies:
@@ -7166,6 +7174,10 @@ packages:
 
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
+
+  /@types/sizzle/2.3.3:
+    resolution: {integrity: sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==}
+    dev: true
 
   /@types/stack-utils/2.0.1:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
