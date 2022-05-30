@@ -1,5 +1,5 @@
 === Jetpack Search ===
-Contributors: automattic, kraftbj,
+Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon
 Tags: search, jetpack
 Requires at least: 5.9
 Requires PHP: 5.6
