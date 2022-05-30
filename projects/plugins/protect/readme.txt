@@ -4,7 +4,7 @@ Tags: jetpack, protect, security, malware, scan
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
-Stable tag: 1.0.0
+Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,6 +64,23 @@ and security threats on your installed plugins, themes, and core files.
 
 Jetpack Protect does not require the Jetpack plugin to run and secure your site.
 
+= What are the differences between Jetpack Protect, Jetpack Scan, and WPScan plugins? =
+
+Jetpack Protect and Scan do not have any limit on the number of plugins and themes you can scan. WPScan has a daily cap
+based on your API usage.
+
+For now, in Jetpack Protect, you can track your scan results only through the plugin’s dashboard. Jetpack Scan and
+WPScan have additional notifications such as email.
+
+Jetpack Protect runs daily automated scans. Jetpack Scan and WPScan provide on-demand scan options on top of automatic
+scans.
+
+Jetpack Protect and WPScans are standalone plugins that don’t need additional plugins to run, while Jetpack Scan needs
+the Jetpack plugin to work.
+
+Jetpack Protect is a free plugin, and WPScan has free and paid options. On the other hand, Jetpack Scan is a paid plugin
+that you can purchase with a 14-day money-back guarantee.
+
 = How will I know if Jetpack Protect has found WordPress security vulnerabilities and malware? =
 
 You can visit Jetpack Protect dashboard in your WordPress admin panel to see the security threats and malware found by
@@ -91,9 +108,9 @@ WordPress security experts.
 
 == Screenshots ==
 
-1. Everything was checked and no vulnerabilities were found
-2. Jetpack Protect is currently scanning your site
-3. Vulnerabilities were found and action should be taken
+1. Focus on running your business while Jetpack Protect automatically scans your site.
+2. Keep your site one step ahead of security threats and malware.
+3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
 
