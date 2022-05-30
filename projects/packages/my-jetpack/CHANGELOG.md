@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make My Jetpack use the new Modules class
 - Replace deprecated external-link variation by using isExternalLink prop
 - Updated package dependencies
-- Updated package dependencies.
 
 ## [1.5.0] - 2022-05-24
 ### Changed
