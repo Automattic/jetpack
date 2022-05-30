@@ -15,7 +15,6 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack --glob-pattern='!(node_modules|tests|tools|vendor){*.php,**/*.php}'",
 		"build": "pnpm run clean && pnpm run build-client && pnpm run build-extensions && pnpm run build-widget-visibility && pnpm run build-asset-cdn-json",
 		"build-asset-cdn-json": "php tools/build-asset-cdn-json.php",
 		"build-client": "concurrently --names js,css,masterbar,module-headings 'webpack --config ./tools/webpack.config.js' 'webpack --config ./tools/webpack.config.css.js' 'webpack --config ./tools/webpack.config.masterbar.js' 'php tools/build-module-headings-translations.php'",
@@ -180,7 +179,6 @@
 		"mocha": "10.0.0",
 		"mockery": "2.1.0",
 		"nock": "13.1.4",
-		"node-wp-i18n": "1.2.4",
 		"nyc": "15.1.0",
 		"postcss": "8.4.13",
 		"postcss-loader": "6.2.0",
