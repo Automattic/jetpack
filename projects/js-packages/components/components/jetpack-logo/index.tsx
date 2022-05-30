@@ -8,14 +8,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-
-type JetpackLogoProps = {
-	className?: string;
-	width?: number;
-	height?: number;
-	showText?: boolean;
-	logoColor?: string;
-};
+import { JetpackLogoProps } from './types';
 
 const JetpackLogo: React.FC< JetpackLogoProps > = ( {
 	logoColor = '#069e08',
