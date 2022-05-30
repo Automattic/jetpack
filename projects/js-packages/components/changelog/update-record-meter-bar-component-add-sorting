@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-adds sort by descending prop to recordmeterbar component
+Add sortByCount prop to RecordMeterBar component
