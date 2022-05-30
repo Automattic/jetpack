@@ -19,7 +19,7 @@
 		"@rushstack/eslint-patch": "1.1.1",
 		"@typescript-eslint/eslint-plugin": "5.23.0",
 		"@typescript-eslint/parser": "5.23.0",
-		"@wordpress/eslint-plugin": "12.2.0",
+		"@wordpress/eslint-plugin": "12.3.0",
 		"chalk": "4.1.2",
 		"debug": "4.3.3",
 		"eslint-config-prettier": "8.5.0",
