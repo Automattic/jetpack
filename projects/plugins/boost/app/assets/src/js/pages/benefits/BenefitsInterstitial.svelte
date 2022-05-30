@@ -53,14 +53,9 @@
 	if ( ! ( 'yearly' in pricing ) ) {
 		recordBoostEvent( 'upgrade_price_missing', 'click', {
 			error_message: 'Missing pricing information on benefits interstitial page.',
-		} )
-			.fail( () => {
-				// eslint-disable-next-line no-console
-				console.log( 'An error occurred while recording the `upgrade_price_missing` event.' );
-			} )
-			.always( () => {
-				goToCheckout();
-			} );
+		} ).finally( () => {
+			goToCheckout();
+		} );
 	}
 </script>
 

@@ -14,6 +14,8 @@ import type { ConnectionStatus } from './stores/connection';
 import type { CriticalCssStatus } from './stores/critical-css-status';
 import type { Optimizations } from './stores/modules';
 
+// <reference types ="@types/jquery"/>
+
 declare global {
 	const wpApiSettings: {
 		root: string;
@@ -71,7 +73,7 @@ declare global {
 			eventName: string,
 			eventType: string,
 			eventProp: TracksEventProperites
-		): void;
+		): JQueryXHR;
 	};
 }
 
