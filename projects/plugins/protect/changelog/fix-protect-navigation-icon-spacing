@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Adjust spacing and overflow properties of the navigation labels to improve display of long names.

@@ -13,3 +13,7 @@ NODE_CONFIG=$config_success GITHUB_CONTEXT=$pr_ctx node "$this_path"/../slack.cj
 NODE_CONFIG=$config_success GITHUB_CONTEXT=$push_ctx node "$this_path"/../slack.cjs suite "Test suite"
 NODE_CONFIG=$config_failure GITHUB_CONTEXT=$pr_ctx node "$this_path"/../slack.cjs suite "Test suite"
 NODE_CONFIG=$config_failure GITHUB_CONTEXT=$push_ctx node "$this_path"/../slack.cjs suite "Test suite"
+NODE_CONFIG=$config_failure GITHUB_CONTEXT=$push_ctx node "$this_path"/../slack.cjs status "failed"
+NODE_CONFIG=$config_failure GITHUB_CONTEXT=$push_ctx node "$this_path"/../slack.cjs status "failed" --report "aa"
+NODE_CONFIG=$config_success GITHUB_CONTEXT=$push_ctx node "$this_path"/../slack.cjs status "success" --report "aa"
+NODE_CONFIG=$config_success GITHUB_CONTEXT=$push_ctx node "$this_path"/../slack.cjs status "success"

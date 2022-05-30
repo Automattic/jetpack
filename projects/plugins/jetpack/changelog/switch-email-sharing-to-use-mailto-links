@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Update Share by Email functionality to use mailto links instead of server submissions

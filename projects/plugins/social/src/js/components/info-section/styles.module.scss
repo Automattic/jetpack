@@ -1,0 +1,39 @@
+.column {
+	grid-column: span 12;
+
+	@media ( min-width: 600px ) {
+		grid-column: 2 / span 6;
+		display: grid;
+		grid-template-columns: auto 1fr auto 1fr;
+		column-gap: calc( var( --spacing-base ) * 3 );
+		row-gap: calc( var( --spacing-base ) * 3 );
+
+		> * + * {
+			margin-top: calc( var( --spacing-base ) * 2 );
+		}
+
+		@supports ( display: grid ) {
+			> * + * {
+				margin-top: 0;
+			}
+		}
+	}
+
+	@media ( min-width: 960px ) {
+		grid-column: 3 / span 8;
+	}
+}
+
+.title {
+	grid-column: span 4;
+}
+
+.number {
+	display: block;
+	color: var( --jp-black );
+	margin: calc( var( --spacing-base ) * 3 ) 0 calc( var( --spacing-base ) * 2 );
+
+	@media ( min-width: 600px ) {
+		margin: 0;
+	}
+}

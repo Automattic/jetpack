@@ -10,13 +10,14 @@ type JetpackButtonBaseProps = {
 	disabled?: boolean;
 	isDestructive?: boolean;
 	isLoading?: boolean;
+	isExternalLink?: boolean;
 	size?: 'normal' | 'small';
 	text?: string;
 	weight?: 'bold' | 'regular';
 };
 
 type JetpackLinkProps = Omit< Button.AnchorProps, 'size' | 'variant' > & {
-	variant?: 'link' | 'external-link';
+	variant?: 'link';
 };
 
 type JetpackButtonProps = Omit< Button.ButtonProps, 'size' | 'variant' > & {
