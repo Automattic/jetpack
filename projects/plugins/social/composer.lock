@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "692307bf9cb17eac9b7e8962d4cb43d9",
+    "content-hash": "6283d7f0d8241a60c21895684f8ded03",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
