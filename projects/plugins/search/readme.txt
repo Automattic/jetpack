@@ -103,7 +103,11 @@ You can purchase a Search subscription directly through this plugin or via the [
 
 == Screenshots ==
 
-1. Jetpack Search
+1. Settings interface
+2. Overlay customization
+3. Overlay interface
+4. Overlay details: filtering and spelling correction
+5. My Jetpack
 
 == Changelog ==
 ### 1.0.0 - 2022-05-30
