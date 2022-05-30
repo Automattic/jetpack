@@ -106,9 +106,9 @@ You can purchase a Search subscription directly through this plugin or via the [
 1. Jetpack Search
 
 == Changelog ==
-
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
-
+### 1.0.0 - 2022-05-30
+#### Added
+- Initial release.
 == Testimonials ==
 
 “I like having a search experience that is sortable, filterable, and feels like it's integrated natively into the site. Jetpack Search does all of this, but most importantly, it returns great results without heavy configuration.” - Chris Coyier, Web Design Expert (codepen.io / ShopTalk Show)
