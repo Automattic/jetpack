@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove unused JS dep `node-wp-i18n`.
+
+

@@ -1205,7 +1205,6 @@ importers:
       concurrently: 6.0.2
       history: 5.3.0
       jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#release-0.0.4
-      node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       postcss: 8.4.13
       prettier: 2.6.2
@@ -1247,7 +1246,6 @@ importers:
       '@rollup/plugin-typescript': 8.2.5_d5b4c212067eb4489bd764c22d3b50b7
       '@wordpress/i18n': 4.8.0
       concurrently: 6.0.2
-      node-wp-i18n: 1.2.6
       npm-run-all: 4.1.5
       postcss: 8.4.13
       prettier-plugin-svelte: 2.4.0_prettier@2.6.2+svelte@3.42.4
@@ -1384,7 +1382,6 @@ importers:
       mocha: 10.0.0
       mockery: 2.1.0
       nock: 13.1.4
-      node-wp-i18n: 1.2.4
       nyc: 15.1.0
       photon: 4.0.0
       postcss: 8.4.13
@@ -1565,7 +1562,6 @@ importers:
       mocha: 10.0.0
       mockery: 2.1.0
       nock: 13.1.4
-      node-wp-i18n: 1.2.4
       nyc: 15.1.0
       postcss: 8.4.13
       postcss-loader: 6.2.0_postcss@8.4.13+webpack@5.72.1
@@ -1653,10 +1649,7 @@ importers:
       webpack-cli: 4.9.1_webpack@5.72.1
 
   projects/plugins/search:
-    specifiers:
-      node-wp-i18n: 1.2.6
-    devDependencies:
-      node-wp-i18n: 1.2.6
+    specifiers: {}
 
   projects/plugins/search/tests/e2e:
     specifiers:
@@ -13158,14 +13151,6 @@ packages:
       encoding: 0.1.13
       safe-buffer: 5.2.1
 
-  /gettext-parser/3.1.1:
-    resolution: {integrity: sha512-vNhWcqXEtZPs5Ft1ReA34g7ByWotpcOIeJvXVy2jF3/G2U9v6W0wG4Z4hXzcU8R//jArqkgHcVCGgGqa4vxVlQ==}
-    dependencies:
-      encoding: 0.1.13
-      readable-stream: 3.6.0
-      safe-buffer: 5.2.1
-    dev: true
-
   /git-hooks-list/1.0.3:
     resolution: {integrity: sha512-Y7wLWcrLUXwk2noSka166byGCvhMtDRpgHdzCno1UQv/n/Hegp++a2xBWJL1lJarnKD3SWaljD+0z1ztqxuKyQ==}
     dev: true
@@ -16182,32 +16167,6 @@ packages:
 
   /node-releases/2.0.4:
     resolution: {integrity: sha512-gbMzqQtTtDz/00jQzZ21PQzdI9PyLYqUSvD0p3naOhX4odFji0ZxYdnVwPTxmSwkmxhcFImpozceidSG+AgoPQ==}
-
-  /node-wp-i18n/1.2.4:
-    resolution: {integrity: sha512-pIeFi+ATRTEmWgpmCV+wIkELYZ8bGVzWlLZ6gw1kBQmp9gHBHgDD/eMNK2mIIEFPAsG4DoBH+r0w6kvNB7Pw/w==}
-    hasBin: true
-    dependencies:
-      bluebird: 3.7.2
-      gettext-parser: 3.1.1
-      glob: 7.2.0
-      lodash: 4.17.21
-      minimist: 1.2.6
-      mkdirp: 1.0.4
-      tmp: 0.2.1
-    dev: true
-
-  /node-wp-i18n/1.2.6:
-    resolution: {integrity: sha512-aLutjDB1rMJ3FNlNcs/XjmaejED1/y30uLYQrmkXpeUj1NH/SA6pI94CUz3iI7fbQd63lTGg0YNvOQAT8cWdIw==}
-    hasBin: true
-    dependencies:
-      bluebird: 3.7.2
-      gettext-parser: 3.1.1
-      glob: 7.2.0
-      lodash: 4.17.21
-      minimist: 1.2.6
-      mkdirp: 1.0.4
-      tmp: 0.2.1
-    dev: true
 
   /normalize-package-data/2.5.0:
     resolution: {integrity: sha512-/5CMN3T0R4XTj4DcGaexo+roZSdSFW/0AOOTROrjxzCG1wrWXEsGbRKevjlIL+ZDE4sZlJr5ED4YW0yqmkK+eA==}
@@ -20310,13 +20269,6 @@ packages:
     engines: {node: '>=0.6.0'}
     dependencies:
       os-tmpdir: 1.0.2
-
-  /tmp/0.2.1:
-    resolution: {integrity: sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==}
-    engines: {node: '>=8.17.0'}
-    dependencies:
-      rimraf: 3.0.2
-    dev: true
 
   /tmpl/1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==}
