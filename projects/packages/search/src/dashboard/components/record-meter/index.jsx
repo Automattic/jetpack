@@ -44,7 +44,7 @@ export default function RecordMeter( {
 						{
 							/* translators: Your Search Index is a breakdown of the site's indexed post type content,
 					such as the number of indexed posts, pages etc. */ __(
-								'Your Search Index',
+								'Your search index',
 								'jetpack-search-pkg'
 							)
 						}
