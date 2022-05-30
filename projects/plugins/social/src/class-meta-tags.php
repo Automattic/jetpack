@@ -137,11 +137,11 @@ class Meta_Tags {
 	public function get_featured_image( $post_id = null, $width = 200, $height = 200 ) {
 		$post = get_post( $post_id );
 
-		if ( ! has_post_thumbnail( $post ) ) {
-			return array();
-		}
-
-		if ( post_password_required( $post_id ) ) {
+		if (
+			empty( $post ) ||
+			! has_post_thumbnail( $post ) ||
+			post_password_required( $post_id )
+		) {
 			return array();
 		}
 
@@ -244,6 +244,10 @@ class Meta_Tags {
 		}
 
 		$data = get_post( $post );
+		if ( empty( $data ) ) {
+			return;
+		}
+
 		$tags = array();
 
 		if ( empty( $data->post_title ) ) {
