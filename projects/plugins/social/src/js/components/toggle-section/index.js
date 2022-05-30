@@ -36,7 +36,7 @@ const ToggleSection = () => {
 						'jetpack-social'
 					) }
 					&nbsp;
-					<ExternalLink href="https://jetpack.com/support/publicize/">
+					<ExternalLink href="https://jetpack.com/redirect/?source=social-plugin-publicize-support-admin-page">
 						{ __( 'Learn more', 'jetpack-social' ) }
 					</ExternalLink>
 				</Text>
