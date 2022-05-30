@@ -40,14 +40,15 @@ function ProductOfferHeader( { title = __( 'Popular upgrade', 'jetpack' ) } ) {
  * @param {object} props         - Component props.
  * @param {Array} props.icon     - Custom icon slug.
  * @param {Array} props.products - List of supported products.
+ * @param {number} props.size    - Icon size.
  * @returns {React.Component}      Bundle product icons react component.
  */
-export function IconsCard( { products, icon } ) {
+export function IconsCard( { products, icon, size = 24 } ) {
 	if ( icon ) {
 		const CustomIcon = getIconBySlug( icon );
 		return (
 			<div className={ styles[ 'product-bundle-icons' ] }>
-				<CustomIcon size={ 32 } />
+				<CustomIcon size={ size } />
 			</div>
 		);
 	}
@@ -60,7 +61,7 @@ export function IconsCard( { products, icon } ) {
 
 				return (
 					<Fragment key={ index }>
-						<ProIcon size={ 24 } />
+						<ProIcon size={ size } />
 
 						{ index !== products.length - 1 && (
 							<Icon
@@ -142,6 +143,7 @@ const ProductOffer = ( {
 					slug={ slug }
 					icon={ icon }
 					products={ supportedProducts?.length ? supportedProducts : [ slug ] }
+					size={ 32 }
 				/>
 				<H3>{ title }</H3>
 				{ subTitle && <Title mb={ 3 }>{ subTitle }</Title> }
