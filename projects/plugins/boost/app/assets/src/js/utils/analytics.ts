@@ -1,5 +1,6 @@
 // Todo: Import correct jqXHR type definition.
 // import type { jqXHR } from '@types/jquery';
+// eslint-disable-next-line wpcalypso/import-docblock
 
 export function recordBoostEvent(
 	eventName: string,
