@@ -1707,13 +1707,17 @@ function jetpack_stats_post_table( $columns ) {
 
 	// Array-Fu to add before comments.
 	$pos = array_search( 'comments', array_keys( $columns ), true );
+
+	// Fallback to the last position if the post type does not support comments.
 	if ( ! is_int( $pos ) ) {
-		// Fallback to before the publishing date if the post type does not support comments.
-		$pos = array_search( 'date', array_keys( $columns ), true );
-		if ( ! is_int( $pos ) ) {
-			return $columns;
-		}
+		$pos = count( $columns );
 	}
+
+	// Final fallback, if the array was malformed by another plugin for example.
+	if ( ! is_int( $pos ) ) {
+		return $columns;
+	}
+
 	$chunks             = array_chunk( $columns, $pos, true );
 	$chunks[0]['stats'] = esc_html__( 'Stats', 'jetpack' );
 
