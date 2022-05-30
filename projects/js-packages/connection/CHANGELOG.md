@@ -8,7 +8,6 @@
 
 ### Changed
 - Updated package dependencies
-- Updated package dependencies.
 
 ## 0.18.2 - 2022-05-24
 ### Changed
