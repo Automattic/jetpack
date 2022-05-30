@@ -1,12 +1,11 @@
-// Todo: Import correct jqXHR type definition.
-// import type { jqXHR } from '@types/jquery';
 // eslint-disable-next-line wpcalypso/import-docblock
+/// <reference types ="@types/jquery"/>
 
 export function recordBoostEvent(
 	eventName: string,
 	eventType: string,
 	eventProp: TracksEventProperties
-): void {
+): JQueryXHR {
 	// eslint-disable-next-line camelcase
 	if ( ! ( 'boost_version' in eventProp ) && 'version' in Jetpack_Boost ) {
 		// eslint-disable-next-line camelcase
