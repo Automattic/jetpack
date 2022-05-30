@@ -8,21 +8,7 @@ import classNames from 'classnames';
  * Internal dependencies
  */
 import './style.scss';
-
-export type SpinnerProps = {
-	/**
-	 * The spinner color.
-	 */
-	color?: string;
-	/**
-	 * CSS class names.
-	 */
-	className?: string;
-	/**
-	 * The spinner size.
-	 */
-	size?: number;
-};
+import { SpinnerProps } from './types';
 
 /**
  * Renders a spinner which can be used as loading indicator.
