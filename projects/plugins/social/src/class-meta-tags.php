@@ -141,7 +141,7 @@ class Meta_Tags {
 			return array();
 		}
 
-		if ( post_password_required() ) {
+		if ( post_password_required( $post_id ) ) {
 			return array();
 		}
 
