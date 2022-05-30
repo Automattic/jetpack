@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
+import type React from 'react';
 import classnames from 'classnames';
 
 /**
@@ -9,8 +9,21 @@ import classnames from 'classnames';
  */
 import { __ } from '@wordpress/i18n';
 
-const JetpackLogo = props => {
-	const { logoColor, showText, className, ...otherProps } = props;
+type JetpackLogoProps = {
+	className?: string;
+	width?: number;
+	height?: number;
+	showText?: boolean;
+	logoColor?: string;
+};
+
+const JetpackLogo: React.FC< JetpackLogoProps > = ( {
+	logoColor = '#069e08',
+	showText = true,
+	className,
+	height = 32,
+	...otherProps
+} ) => {
 	const viewBox = showText ? '0 0 118 32' : '0 0 32 32';
 
 	return (
@@ -21,6 +34,7 @@ const JetpackLogo = props => {
 			viewBox={ viewBox }
 			className={ classnames( 'jetpack-logo', className ) }
 			aria-labelledby="jetpack-logo-title"
+			height={ height }
 			{ ...otherProps }
 		>
 			<title id="jetpack-logo-title">{ __( 'Jetpack Logo', 'jetpack' ) }</title>
@@ -41,21 +55,6 @@ const JetpackLogo = props => {
 			) }
 		</svg>
 	);
-};
-
-JetpackLogo.propTypes = {
-	className: PropTypes.string,
-	width: PropTypes.number,
-	height: PropTypes.number,
-	showText: PropTypes.bool,
-	logoColor: PropTypes.string,
-};
-
-JetpackLogo.defaultProps = {
-	className: '',
-	height: 32,
-	showText: true,
-	logoColor: '#069e08',
 };
 
 export default JetpackLogo;
