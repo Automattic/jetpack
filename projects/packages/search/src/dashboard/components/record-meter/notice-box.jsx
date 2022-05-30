@@ -20,7 +20,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 		},
 		2: {
 			id: 2,
-			message: __( 'Your content has not yet been indexed for Search', 'jetpack-search-pkg' ),
+			header: __( 'Your content has not yet been indexed for Search', 'jetpack-search-pkg' ),
 		},
 		3: {
 			id: 3,
@@ -45,7 +45,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 				tierMaximumRecords
 			),
 			link: {
-				text: __( 'Learn more.', 'jetpack-search-pkg' ),
+				text: __( 'Learn more', 'jetpack-search-pkg' ),
 				url: 'https://jetpack.com/support/search/product-pricing/',
 			},
 		},
@@ -97,6 +97,7 @@ export function NoticeBox( props ) {
 		props.recordCount < props.tierMaximumRecords &&
 		! dismissedNoticesString.includes( CLOSE_TO_LIMIT ) &&
 		activeNoticeIds.push( CLOSE_TO_LIMIT );
+	activeNoticeIds.push( CLOSE_TO_LIMIT );
 
 	if ( activeNoticeIds.length < 1 || ! showNotice ) {
 		return null;

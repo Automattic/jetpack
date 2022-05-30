@@ -49,19 +49,21 @@ ul.jp-search-chart-legend {
 	color: black;
 	border: $studio-gray-5 0.5px solid;
 	border-radius: 5px;
-	padding: 24px;
+	padding: 20px 22px 16px 22px;
 }
 
-.jp-search-notice-box span.dops-notice__content {
+.jp-search-notice-box .dops-notice__content {
 	padding: 0 16px;
 }
 
-.jp-search-notice-box .dops-notice__header {
-	padding-bottom: 24px;
+.jp-search-notice-box .dops-notice__body {
+	display: block;
+	padding-bottom: 4px;
+	padding-top: 16px;
 }
 
 .jp-search-notice-box .dops-notice__text,
-.jp-search-notice-box .dops-notice__text h3.dops-notice__header {
+.jp-search-notice-box .dops-notice__text .dops-notice__header {
 	margin: 0;
 	display: block;
 	font-size: 1em;
@@ -75,34 +77,49 @@ ul.jp-search-chart-legend {
 	font-weight: bold;
 }
 
-.jp-search-notice-box a.dops-notice__action {
+.jp-search-notice-box .dops-notice__action {
+	color: black;
 	display: inline;
-	color: black;
-	padding: 0 0 0 5px;
 	font-weight: bold;
+	padding: 0;
+
 }
 
-.jp-search-notice-box span.dops-notice__dismiss > svg,
-.jp-search-notice-box span.dops-notice__dismiss > svg:hover {
+// Need to specify 'a.' to override component styles
+.jp-search-notice-box a.dops-notice__action {
+	&:link, &:visited, &:hover, &:active {
+		color: black;
+		text-decoration: underline;
+	}
+}
+
+.jp-search-notice-box .dops-notice__dismiss > svg,
+.jp-search-notice-box .dops-notice__dismiss > svg:hover {
 	color: black;
 	padding: 0;
 }
 
-.jp-search-notice-box span.dops-notice__icon-wrapper {
-	flex: auto;
-	color: black;
+.jp-search-notice-box .dops-notice__icon-wrapper {
+	color: #000;
+	flex-grow: 0;
+	justify-content: left;
 	padding: 0;
+	width: 24px;
 }
 
-.jp-search-notice-box__important a.dops-notice__action,
-.jp-search-notice-box__important span.dops-notice__icon-wrapper,
+.jp-search-notice-box__important .dops-notice__action,
+.jp-search-notice-box__important .dops-notice__icon-wrapper,
 .jp-search-notice-box__important,
-.jp-search-notice-box__important a.dops-notice__action,
-.jp-search-notice-box__important h3.dops-notice__header {
+.jp-search-notice-box__important .dops-notice__action,
+.jp-search-notice-box__important .dops-notice__header {
 	color: $studio-red-50;
 }
 
-.jp-search-notice-box > span.dops-notice__icon-wrapper > svg {
+.jp-search-notice-box__important .dops-notice__dismiss > svg {
+	fill: $studio-red-50;
+}
+
+.jp-search-notice-box > .dops-notice__icon-wrapper > svg {
 	margin: 0;
 }
 
@@ -126,5 +143,5 @@ ul.jp-search-chart-legend {
 }
 
 .jp-search-record-meter__content {
-	width: 100%; // fixes overflow issues on firefox
+	width: 100%; // fixes overflow issues in Firefox
 }
