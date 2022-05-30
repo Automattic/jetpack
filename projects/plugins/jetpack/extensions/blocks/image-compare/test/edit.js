@@ -15,7 +15,7 @@ import ImageCompareEdit from '../edit';
 
 function renderImageCompare( props ) {
 	const { container } = render( <ImageCompareEdit { ...props } /> );
-	return container.querySelector( `.${ props.className } > div` );
+	return container.querySelector( `.${ props.className } > div:not([aria-hidden="true"])` );
 }
 
 describe( 'ImageCompareEdit', () => {
