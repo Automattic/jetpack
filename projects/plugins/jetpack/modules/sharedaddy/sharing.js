@@ -1,4 +1,4 @@
-/* global WPCOM_sharing_counts, grecaptcha */
+/* global WPCOM_sharing_counts */
 
 // NOTE: This file intentionally does not make use of polyfills or libraries,
 // including jQuery. Please keep all code as IE11-compatible vanilla ES5, and
@@ -8,7 +8,6 @@
 
 ( function () {
 	var currentScript = document.currentScript;
-	var recaptchaScriptAdded = false;
 
 	// -------------------------- UTILITY FUNCTIONS -------------------------- //
 
@@ -210,8 +209,6 @@
 			clearTimeout( this.openTimer );
 			clearTimeout( this.closeTimer );
 
-			closeEmailDialog();
-
 			if ( this.recentlyOpenedByHover ) {
 				this.recentlyOpenedByHover = false;
 				clearTimeout( this.hoverOpenTimer );
@@ -225,7 +222,6 @@
 			if ( ! this.openedBy ) {
 				this.openTimer = setTimeout(
 					function () {
-						closeEmailDialog();
 						this.open();
 						this.openedBy = 'hover';
 						this.recentlyOpenedByHover = true;
@@ -363,27 +359,81 @@
 	}
 
 	// ------------------------ BUTTON FUNCTIONALITY ------------------------ //
+	function isUrlForCurrentHost( url ) {
+		var currentDomain = window.location.protocol + '//' + window.location.hostname + '/';
 
-	function shareIsEmail( val ) {
-		return /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i.test(
-			val
-		);
+		return String( url ).indexOf( currentDomain ) === 0;
 	}
 
-	function closeEmailDialog() {
-		var dialog = document.querySelector( '#sharing_email' );
-		hideNode( dialog );
+	function getEncodedFormFieldForSubmit( name, value ) {
+		// Encode the key and value into a URI-compatible string.
+		var encoded = encodeURIComponent( name ) + '=' + encodeURIComponent( value );
+
+		// In x-www-form-urlencoded, spaces should be `+`, not `%20`.
+		return encoded.replace( /%20/g, '+' );
+	}
+
+	function trackButtonClick( button ) {
+		var clickCount = getClickCountForButton( button );
+
+		setClickCountForButton( button, clickCount + 1 );
+	}
+
+	function setClickCountForButton( button, clickCount ) {
+		button.setAttribute( 'jetpack-share-click-count', clickCount );
+	}
+
+	function getClickCountForButton( button ) {
+		var currentClickCount = button.getAttribute( 'jetpack-share-click-count' );
+		if ( currentClickCount === null ) {
+			return 0;
+		}
+
+		return parseInt( currentClickCount, 10 );
+	}
+
+	function showEmailShareError( emailShareButton, sdUlGroup ) {
+		var sdContent = sdUlGroup.parentElement;
+		if ( ! sdContent.classList.contains( 'sd-content' ) ) {
+			return;
+		}
+
+		forEachNode( sdContent.querySelectorAll( '.share-email-error' ), function ( shareEmailError ) {
+			shareEmailError.parentElement.removeChild( shareEmailError );
+		} );
+
+		var newShareEmailError = document.createElement( 'div' );
+		newShareEmailError.className = 'share-email-error';
+
+		var newShareEmailErrorTitle = document.createElement( 'h6' );
+		newShareEmailErrorTitle.className = 'share-email-error-title';
+		newShareEmailErrorTitle.innerText = emailShareButton.getAttribute(
+			'data-email-share-error-title'
+		);
+		newShareEmailError.appendChild( newShareEmailErrorTitle );
+
+		var newShareEmailErrorText = document.createElement( 'p' );
+		newShareEmailErrorText.className = 'share-email-error-text';
+		newShareEmailErrorText.innerText = emailShareButton.getAttribute(
+			'data-email-share-error-text'
+		);
+		newShareEmailError.appendChild( newShareEmailErrorText );
+
+		sdContent.appendChild( newShareEmailError );
+	}
+
+	function recordEmailShareClick( emailShareTrackerUrl, emailShareNonce ) {
+		var request = new XMLHttpRequest();
+		request.open( 'POST', emailShareTrackerUrl, true );
+		request.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
+		request.setRequestHeader( 'x-requested-with', 'XMLHttpRequest' );
+
+		request.send( getEncodedFormFieldForSubmit( 'email-share-nonce', emailShareNonce ) );
 	}
 
 	// Sharing initialization.
 	// Will run immediately or on `DOMContentLoaded`, depending on current page status.
 	function init() {
-		// Move email dialog to end of body.
-		var emailDialog = document.querySelector( '#sharing_email' );
-		if ( emailDialog ) {
-			document.body.appendChild( emailDialog );
-		}
-
 		WPCOMSharing_do();
 	}
 	if ( document.readyState !== 'loading' ) {
@@ -516,174 +566,26 @@
 
 			// Email button
 			forEachNode( group.querySelectorAll( 'a.share-email' ), function ( emailButton ) {
-				var dialog = document.querySelector( '#sharing_email' );
+				setClickCountForButton( emailButton, 0 );
 
-				emailButton.addEventListener( 'click', function ( event ) {
-					event.preventDefault();
-					event.stopPropagation();
+				var emailShareNonce = emailButton.getAttribute( 'data-email-share-nonce' );
+				var emailShareTrackerUrl = emailButton.getAttribute( 'data-email-share-track-url' );
 
-					// Load reCAPTCHA if needed.
-					if ( typeof grecaptcha !== 'object' && ! recaptchaScriptAdded ) {
-						var configEl = document.querySelector( '.g-recaptcha' );
+				if (
+					emailShareNonce &&
+					emailShareTrackerUrl &&
+					isUrlForCurrentHost( emailShareTrackerUrl )
+				) {
+					emailButton.addEventListener( 'click', function () {
+						trackButtonClick( emailButton );
 
-						if ( configEl && configEl.getAttribute( 'data-lazy' ) === 'true' ) {
-							recaptchaScriptAdded = true;
-							loadScript( decodeURI( configEl.getAttribute( 'data-url' ) ) );
+						if ( getClickCountForButton( emailButton ) > 2 ) {
+							showEmailShareError( emailButton, group );
 						}
-					}
 
-					var url = emailButton.getAttribute( 'href' );
-					var currentDomain = window.location.protocol + '//' + window.location.hostname + '/';
-					if ( url.indexOf( currentDomain ) !== 0 ) {
-						return true;
-					}
-
-					if ( ! isNodeHidden( dialog ) ) {
-						closeEmailDialog();
-						return;
-					}
-
-					removeNode( document.querySelector( '#sharing_email .response' ) );
-
-					var form = document.querySelector( '#sharing_email form' );
-					showNode( form );
-					form.querySelector( 'input[type=submit]' ).removeAttribute( 'disabled' );
-					showNode( form.querySelector( 'a.sharing_cancel' ) );
-
-					// Reset reCATPCHA if exists.
-					if (
-						'object' === typeof grecaptcha &&
-						'function' === typeof grecaptcha.reset &&
-						window.___grecaptcha_cfg.count
-					) {
-						grecaptcha.reset();
-					}
-
-					// Show dialog
-					var rect = emailButton.getBoundingClientRect();
-					var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft || 0;
-					var scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
-					dialog.style.left = scrollLeft + rect.left + 'px';
-					dialog.style.top = scrollTop + rect.top + rect.height + 'px';
-					showNode( dialog );
-
-					// Close all open More Button dialogs.
-					MoreButton.closeAll();
-				} );
-
-				// Hook up other buttons
-				dialog.querySelector( 'a.sharing_cancel' ).addEventListener( 'click', function ( event ) {
-					event.preventDefault();
-					event.stopPropagation();
-
-					hideNode( dialog.querySelector( '.errors' ) );
-					hideNode( dialog );
-					hideNode( document.querySelector( '#sharing_background' ) );
-				} );
-
-				var submitButton = dialog.querySelector( 'input[type=submit]' );
-				submitButton.addEventListener( 'click', function ( event ) {
-					event.preventDefault();
-					event.stopPropagation();
-
-					var form = closest( submitButton, 'form' );
-					var source_email_input = form.querySelector( 'input[name=source_email]' );
-					var target_email_input = form.querySelector( 'input[name=target_email]' );
-
-					// Disable buttons + enable loading icon
-					submitButton.setAttribute( 'disabled', true );
-					hideNode( form.querySelector( 'a.sharing_cancel' ) );
-					forEachNode( form.querySelectorAll( 'img.loading' ), function ( img ) {
-						showNode( img );
+						recordEmailShareClick( emailShareTrackerUrl, emailShareNonce );
 					} );
-
-					hideNode( form.querySelector( '.errors' ) );
-
-					forEachNode( form.querySelectorAll( '.error' ), function ( node ) {
-						node.classList.remove( 'error' );
-					} );
-
-					if ( ! shareIsEmail( source_email_input.value ) ) {
-						source_email_input.classList.add( 'error' );
-					}
-
-					if ( ! shareIsEmail( target_email_input.value ) ) {
-						target_email_input.classList.add( 'error' );
-					}
-
-					if ( ! form.querySelector( '.error' ) ) {
-						// Encode form data. This would be much easier if we could rely on URLSearchParams...
-						var params = [];
-						for ( var i = 0; i < form.elements.length; i++ ) {
-							if ( form.elements[ i ].name ) {
-								// Encode each form element into a URI-compatible string.
-								var encoded =
-									encodeURIComponent( form.elements[ i ].name ) +
-									'=' +
-									encodeURIComponent( form.elements[ i ].value );
-								// In x-www-form-urlencoded, spaces should be `+`, not `%20`.
-								params.push( encoded.replace( '%20', '+' ) );
-							}
-						}
-						var data = params.join( '&' );
-
-						// AJAX send the form
-						var request = new XMLHttpRequest();
-						request.open( 'POST', emailButton.getAttribute( 'href' ), true );
-						request.setRequestHeader(
-							'Content-Type',
-							'application/x-www-form-urlencoded; charset=UTF-8'
-						);
-						request.setRequestHeader( 'x-requested-with', 'XMLHttpRequest' );
-
-						request.onreadystatechange = function () {
-							if ( this.readyState === XMLHttpRequest.DONE && this.status === 200 ) {
-								forEachNode( form.querySelectorAll( 'img.loading' ), function ( img ) {
-									hideNode( img );
-								} );
-
-								if ( this.response === '1' || this.response === '2' || this.response === '3' ) {
-									showNode( dialog.querySelector( '.errors-' + this.response ) );
-									dialog.querySelector( 'input[type=submit]' ).removeAttribute( 'disabled' );
-									showNode( dialog.querySelector( 'a.sharing_cancel' ) );
-
-									if ( typeof grecaptcha === 'object' && typeof grecaptcha.reset === 'function' ) {
-										grecaptcha.reset();
-									}
-								} else {
-									hideNode( form );
-									var temp = document.createElement( 'div' );
-									temp.innerHTML = this.response;
-									dialog.appendChild( temp.firstChild );
-									showNode( dialog.querySelector( 'a.sharing_cancel' ) );
-									var closeButton = dialog.querySelector( '.response a.sharing_cancel' );
-									if ( closeButton ) {
-										closeButton.addEventListener( 'click', function ( event ) {
-											event.preventDefault();
-											event.stopPropagation();
-
-											closeEmailDialog();
-											hideNode( document.querySelector( '#sharing_background' ) );
-										} );
-									}
-								}
-							}
-						};
-
-						request.send( data );
-
-						return;
-					}
-
-					forEachNode( dialog.querySelectorAll( 'img.loading' ), function ( img ) {
-						hideNode( img );
-					} );
-					submitButton.removeAttribute( 'disabled' );
-					showNode( dialog.querySelector( 'a.sharing_cancel' ) );
-					forEachNode( dialog.querySelectorAll( '.errors-1' ), function ( error ) {
-						showNode( error );
-					} );
-				} );
+				}
 			} );
 		} );
 

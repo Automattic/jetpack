@@ -82,6 +82,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/blogging-prompts.php';
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
 add_filter( 'is_jetpack_site', '__return_true' );
