@@ -258,7 +258,7 @@ class Meta_Tags {
 		}
 
 		$tags['og:url'] = get_permalink( $data->ID );
-		if ( ! post_password_required() ) {
+		if ( ! post_password_required( $data ) ) {
 			/*
 			 * If the post author set an excerpt, use that.
 			 * Otherwise, pick the post content that comes before the More tag if there is one.
