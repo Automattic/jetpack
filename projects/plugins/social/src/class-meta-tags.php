@@ -134,7 +134,7 @@ class Meta_Tags {
 	 * @param int $height  The minimum height of the image. Optional. Defaults to 200.
 	 * @return array The featured image and dimensions. Empty array if no image is found.
 	 */
-	public function get_featured_image( $post_id = 0, $width = 200, $height = 200 ) {
+	public function get_featured_image( $post_id = null, $width = 200, $height = 200 ) {
 		$post = get_post( $post_id );
 
 		if ( ! has_post_thumbnail( $post ) ) {
@@ -235,15 +235,15 @@ class Meta_Tags {
 
 	/**
 	 * Render meta tags in head.
+	 *
+	 * @param WP_Post|null $post The post to render the tags for.
 	 */
-	public function render_tags() {
+	public function render_tags( $post = null ) {
 		if ( ! $this->should_render_meta_tags() ) {
 			return;
 		}
 
-		global $post;
-		$data = $post; // so that we don't accidentally explode the global.
-
+		$data = get_post( $post );
 		$tags = array();
 
 		if ( empty( $data->post_title ) ) {
