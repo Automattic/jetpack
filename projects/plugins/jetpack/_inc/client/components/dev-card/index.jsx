@@ -246,6 +246,19 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 					<li>
+						<label htmlFor="jetpack_backup_t0">
+							<input
+								type="radio"
+								id="jetpack_backup_t0"
+								value="jetpack_backup_t0_yearly"
+								name="jetpack_backup_t0_yearly"
+								checked={ 'is-backup-t0-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Backup (1 GB)
+						</label>
+					</li>
+					<li>
 						<label htmlFor="jetpack_backup_t1">
 							<input
 								type="radio"
