@@ -1,0 +1,4 @@
+Significance: major
+Type: compat
+
+Check for Google Analytics feature support to track infinite scroll requests

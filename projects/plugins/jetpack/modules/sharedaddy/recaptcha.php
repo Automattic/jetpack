@@ -7,6 +7,8 @@
 
 /**
  * Class that handles reCAPTCHA.
+ *
+ * @deprecated $$next-version$$
  */
 class Jetpack_ReCaptcha {
 
