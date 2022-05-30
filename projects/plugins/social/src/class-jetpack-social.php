@@ -162,10 +162,24 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Checks to see if the current post supports Publicize
+	 *
+	 * @return boolean True if Publicize is supported
+	 */
+	public function is_supported_post() {
+		$post_type = get_post_type();
+		return ! empty( $post_type ) && post_type_supports( $post_type, 'publicize' );
+	}
+
+	/**
 	 * Enqueue block editor scripts and styles.
 	 */
 	public function enqueue_block_editor_scripts() {
-		if ( ! ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) || class_exists( 'Jetpack' ) ) {
+		if (
+			! ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ||
+			class_exists( 'Jetpack' ) ||
+			! $this->is_supported_post()
+		) {
 			return;
 		}
 
