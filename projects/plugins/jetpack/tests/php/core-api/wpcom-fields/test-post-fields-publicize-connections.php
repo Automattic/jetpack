@@ -83,6 +83,10 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::setup_connections_wpcom();
 		} else {
+			global $publicize_ui;
+			if ( ! isset( $publicize_ui ) ) {
+				$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
+			}
 			self::setup_connections_jetpack();
 		}
 	}
@@ -196,6 +200,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		// phpunit --filter=Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field
 		// but fails when:
 		// phpunit --group=rest-api
+
 		$this->publicize = publicize_init();
 		$this->publicize->register_post_meta();
 
