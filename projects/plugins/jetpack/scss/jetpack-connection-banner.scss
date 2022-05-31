@@ -1,7 +1,5 @@
 @import 'jetpack-banners-emerald';
 
-$jp-connection-banner-breakpoint: 1152px;
-
 .jp-connection-banner {
 	display: block;
 	margin: 3rem 1.25rem 1.25rem 0;
@@ -9,7 +7,7 @@ $jp-connection-banner-breakpoint: 1152px;
 	border: 1px solid $gray-lighten-20;
 	position: relative;
 
-	@media ( max-width: $jp-connection-banner-breakpoint ) {
+	@media ( max-width: $jp-banner-md-breakpoint ) {
 		margin: 4rem 1.25rem 1.25rem 0;
 	}
 
@@ -28,7 +26,7 @@ $jp-connection-banner-breakpoint: 1152px;
 	background: $studio-white;
 	overflow: hidden;
 
-	@media ( max-width: $jp-connection-banner-breakpoint ) {
+	@media ( max-width: $jp-banner-md-breakpoint ) {
 		grid-template-columns: 100% 0%;
 	}
 }
@@ -38,7 +36,7 @@ $jp-connection-banner-breakpoint: 1152px;
 	flex-direction: column;
 	padding: 2rem 3rem 2rem 4rem;
 
-	@media ( max-width: $jp-connection-banner-breakpoint ) {
+	@media ( max-width: $jp-banner-md-breakpoint ) {
 		padding: 2rem 2rem;
 	}
 

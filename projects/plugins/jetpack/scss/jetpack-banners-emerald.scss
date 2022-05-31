@@ -4,6 +4,8 @@
 @import '../_inc/client/scss/mixin_breakpoint';
 @import '../_inc/client/recommendations/mixin';
 
+$jp-banner-md-breakpoint: 1152px;
+
 .jp-banner-cta-button {
 	background: $studio-black;
 	border-color: $studio-black;
