@@ -317,7 +317,7 @@ class Jetpack_Connection_Banner {
 							srcset="<?php echo esc_url( plugins_url( 'images/jetpack-connection-image.webp', JETPACK__PLUGIN_FILE ) ); ?> 1x, <?php echo esc_url( plugins_url( 'images/jetpack-connection-image-2x.webp', JETPACK__PLUGIN_FILE ) ); ?> 2x">
 						<img
 							class="jp-connection-banner__image"
-							srcset="<?php echo esc_url( plugins_url( 'images/jetpack-connection-image-2x.png', JETPACK__PLUGIN_FILE ) ); ?> 2x"
+							srcset="<?php echo esc_url( plugins_url( 'images/jetpack-connection-image.png', JETPACK__PLUGIN_FILE ) ); ?> 1x, <?php echo esc_url( plugins_url( 'images/jetpack-connection-image-2x.png', JETPACK__PLUGIN_FILE ) ); ?> 2x"
 							src="<?php echo esc_url( plugins_url( 'images/jetpack-connection-image.png', JETPACK__PLUGIN_FILE ) ); ?>"
 							alt="">
 					</picture>
@@ -367,7 +367,7 @@ class Jetpack_Connection_Banner {
 							srcset="<?php echo esc_url( plugins_url( 'images/jetpack-connection-image.webp', JETPACK__PLUGIN_FILE ) ); ?> 1x, <?php echo esc_url( plugins_url( 'images/jetpack-connection-image-2x.webp', JETPACK__PLUGIN_FILE ) ); ?> 2x">
 						<img
 							class="jp-connection-banner__image"
-							srcset="<?php echo esc_url( plugins_url( 'images/jetpack-connection-image-2x.png', JETPACK__PLUGIN_FILE ) ); ?> 2x"
+							srcset="<?php echo esc_url( plugins_url( 'images/jetpack-connection-image.png', JETPACK__PLUGIN_FILE ) ); ?> 1x, <?php echo esc_url( plugins_url( 'images/jetpack-connection-image-2x.png', JETPACK__PLUGIN_FILE ) ); ?> 2x"
 							src="<?php echo esc_url( plugins_url( 'images/jetpack-connection-image.png', JETPACK__PLUGIN_FILE ) ); ?>"
 							alt="">
 					</picture>
