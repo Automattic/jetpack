@@ -110,6 +110,8 @@ class Jetpack_Social {
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
+
+		add_filter( 'plugin_action_links_' . JETPACK_SOCIAL_PLUGIN_FOLDER . '/jetpack-social.php', array( $this, 'add_settings_link' ) );
 	}
 
 	/**
@@ -378,5 +380,18 @@ class Jetpack_Social {
 	 */
 	public static function should_show_pricing_page() {
 		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, 1 );
+	}
+
+	/**
+	 * Add a link to the admin page from the plugins page.
+	 *
+	 * @param array $actions The plugin actions.
+	 * @return array
+	 */
+	public function add_settings_link( $actions ) {
+		return array_merge(
+			array( '<a href="' . esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) . '">' . __( 'Settings', 'jetpack-social' ) . '</a>' ),
+			$actions
+		);
 	}
 }
