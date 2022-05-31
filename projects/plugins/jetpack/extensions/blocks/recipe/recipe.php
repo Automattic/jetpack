@@ -19,8 +19,7 @@ Blocks::jetpack_register_block(
 Blocks::jetpack_register_block(
 	'jetpack/recipe-details',
 	array(
-		'parent'          => array( 'jetpack/recipe' ),
-		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render_detials' ),
+		'parent' => array( 'jetpack/recipe' ),
 	)
 );
 
@@ -35,24 +34,21 @@ Blocks::jetpack_register_block(
 Blocks::jetpack_register_block(
 	'jetpack/recipe-ingredients-list',
 	array(
-		'parent'          => array( 'jetpack/recipe' ),
-		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render_ingredients_list' ),
+		'parent' => array( 'jetpack/recipe' ),
 	)
 );
 
 Blocks::jetpack_register_block(
 	'jetpack/recipe-ingredient-item',
 	array(
-		'parent'          => array( 'jetpack/recipe' ),
-		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render_ingredient_item' ),
+		'parent' => array( 'jetpack/recipe' ),
 	)
 );
 
 Blocks::jetpack_register_block(
 	'jetpack/recipe-steps',
 	array(
-		'parent'          => array( 'jetpack/recipe' ),
-		'render_callback' => array( 'Automattic\\Jetpack\\Extensions\\Recipe\\Jetpack_Recipe_Block', 'render_steps' ),
+		'parent' => array( 'jetpack/recipe' ),
 	)
 );
 
