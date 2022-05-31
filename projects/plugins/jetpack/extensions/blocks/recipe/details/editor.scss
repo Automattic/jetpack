@@ -2,6 +2,26 @@
  * Editor styles for Recipe-details
  */
 
+ [data-title="Recipe Details"] {
+   &.alignright,
+   &.alignleft,
+   &.aligncenter {
+     float: none;
+   }
+
+   &.alignright {
+    .wp-recipe-block-details {
+        justify-content: right;
+    }
+   }
+
+   &.aligncenter {
+    .wp-recipe-block-details {
+      justify-content: center;
+    }
+   }
+ }
+
 .wp-block-jetpack-recipe-details {
   display: block;
 
@@ -9,6 +29,14 @@
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fit, minmax(100px, 150px));
+
+    &.alignright {
+      justify-content: right;
+    }
+
+    &.aligncenter {
+      justify-content: center;
+    }
   }
 
   .components-unit-control .components-input-control__container {
