@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 // NOTE: Expect this import to break when the exported value is renamed!
-import { __experimentalColorGradientControl as ColorGradientControl } from '@wordpress/block-editor';
+import { __experimentalColorGradientControl as ColorGradientControl } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 
