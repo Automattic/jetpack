@@ -33,10 +33,15 @@ jobs:
             export GIT_AUTHOR_EMAIL=matticbot@users.noreply.github.com
             export GIT_COMMITTER_NAME=matticbot
             export GIT_COMMITTER_EMAIL=matticbot@users.noreply.github.com
-            git tag "v$VER"
-            git push origin "v$VER"
+            if [[ -e composer.json ]] && ! jq -e 'if try ( .extra.autotagger | has("v") ) catch false then .extra.autotagger.v else true end' composer.json >/dev/null; then
+              TAG="$VER"
+            else
+              TAG="v$VER"
+            fi
+            git tag "$TAG"
+            git push origin "$TAG"
             if [[ -e composer.json ]] && jq -e '.extra.autotagger.major?' composer.json >/dev/null; then
-              git tag --force "v${VER%%.*}"
-              git push --force origin "v${VER%%.*}"
+              git tag --force "${TAG%%.*}"
+              git push --force origin "${TAG%%.*}"
             fi
           fi
