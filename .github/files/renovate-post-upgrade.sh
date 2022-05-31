@@ -56,7 +56,7 @@ for DIR in $(git -c core.quotepath=off diff --name-only HEAD | grep -E -v '(^|/)
 		ARGS+=( "--type=$CLTYPE" )
 	fi
 
-	ARGS+=( --entry="Updated package dependencies" )
+	ARGS+=( --entry="Updated package dependencies." )
 
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then

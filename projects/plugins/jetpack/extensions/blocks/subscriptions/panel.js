@@ -7,6 +7,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import { numberFormat } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -55,7 +56,7 @@ export default function SubscribePanels() {
 								subscriberCount,
 								'jetpack'
 							),
-							subscriberCount
+							numberFormat( subscriberCount )
 						),
 						{ span: <span className="jetpack-subscribe-reader-count" /> }
 					) }
@@ -72,7 +73,7 @@ export default function SubscribePanels() {
 								subscriberCount,
 								'jetpack'
 							),
-							subscriberCount
+							numberFormat( subscriberCount )
 						),
 						{ span: <span className="jetpack-subscribe-reader-count" /> }
 					) }

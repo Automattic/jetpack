@@ -2,6 +2,33 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.0-beta - 2022-05-31
+### Enhancements
+- Sharing: update the email sharing button to use mailto links instead of server submissions. [#24040]
+
+### Bug fixes
+- Comments: update UI to reflect that Google accounts are no longer a sign-in option. [#24528]
+- Stats: ensure the Stats column can always be displayed, even when the post type does not support comments. [#24482]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Jetpack Backup 1GB to several lists/components of supported products [#24541]
+- Admin: update products icons. [#24559]
+- Added TS check to build process [#24329]
+- Changed logic to initialize Publicize classes. [#24451]
+- E2E tests: fix broken Mailchimp test [#24534]
+- Fix changelog and readme [#24488]
+- Init 11.0-a.12 [#24487]
+- Infinite scroll: update support for Google Analytics feature to track infinite scroll. [#24533]
+- Nonce fix for some phpcs likes cleanup [#24490]
+- Number format the number of subscribers in the subscribers panel when publishing a post [#24544]
+- phpcs changes for likes [#24368]
+- Publicize Components: Move the remaining components and hooks required for Jetpack Social [#24464]
+- Refactor to use hasActiveSiteFeature to centralize the source of truth to WPCOM_Features. [#24152]
+- Sync: Add '_jetpack_blogging_prompt_key' to rest api public metadata via the rest_api_allowed_public_metadata filter [#24515]
+- Jetpack: correct prices in product descriptions [#24461]
+- Updated package dependencies. [#24432]
+- Use correct `COOKIEPATH` constant. [#24516]
+
 ## 11.0-a.11 - 2022-05-24
 ### Bug fixes
 - Assistant: fix unclickable banner dismiss button. [#24459]
