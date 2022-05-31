@@ -47,6 +47,13 @@
 	}
 }
 
+.uploading-editor__video {
+	aspect-ratio: 16 / 9;
+	max-height: 100%;
+	object-fit: contain;
+	background-color: black;
+}
+
 .resumable-upload__status {
 	display: flex;
 	flex-direction: column;
