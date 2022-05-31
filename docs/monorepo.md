@@ -279,6 +279,8 @@ If `.extra.autotagger` is set to a truthy value in the project's `composer.json`
 
 If `.extra.autotagger` is set to an object with a truthy value for `major` (i.e. if `.extra.autotagger.major` is truthy), the GitHub Action will additionally create or update a major-version tag as is common for GitHub Action repositories.
 
+If `.extra.autotagger` is set to an object with falsey value for `v` (i.e. if `.extra.autotagger.v` is set and falsey), the tag will not be prefixed with "v".
+
 Note that, for this to work, you'll need to create a secret `API_TOKEN_GITHUB` in the mirror repo. The value of the secret must be a GitHub access token. See PCYsg-xsv-p2#mirror-repo-secrets for details.
 
 This is intended to work in combination with [Changelogger](#jetpack-changelogger): When any change files are present in the project, a `-alpha` version entry will be written to the changelog so the autotagging will not be triggered. To release a new version, you'd do the following:
@@ -293,7 +295,7 @@ This is intended to work in combination with [Changelogger](#jetpack-changelogge
 
 ### Auto-release
 
-If `.extra.autorelease` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will automatically create a GitHub release when a version tag is created. This works with Autotagger.
+If `.extra.autorelease` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will automatically create a GitHub release when a version tag is created. This works with Autotagger. Versions are recognized with and without a "v" prefix and with 2 to 4 components.
 
 The body of the created release will be the entry from CHANGELOG.md for the tagged version. A zip file will be added to the release as an artifact. The zip file contains a single directory, which holds the output from `git archive`.
 
@@ -308,7 +310,7 @@ Note the following will also be done by the build process:
 
 ### Npmjs Auto-publisher
 
-If `.extra.npmjs-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will run `npm publish` when a version tag is created. This works with Autotagger.
+If `.extra.npmjs-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will run `npm publish` when a version tag is created. This works with Autotagger. Versions must have a "v" prefix and have 3 components.
 
 Note that, for this to work, you'll need to create a secret `NPMJS_AUTOMATION_TOKEN` in the mirror repo. The value of the secret must be an npmjs.com automation token for an account with the ability to publish the package.
 See PCYsg-xsv-p2#mirror-repo-secrets for details.
@@ -323,7 +325,7 @@ If additional files need to be excluded, create an `.npmignore`.
 
 ### WordPress.org SVN Auto-publisher
 
-If `.extra.wp-svn-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will automatically publish tags to WordPress.org's SVN when a version tag is created. This works with Autotagger.
+If `.extra.wp-svn-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will automatically publish tags to WordPress.org's SVN when a version tag is created. This works with Autotagger. Versions are recognized with and without a "v" prefix, with 2 to 4 components, and with an optional prerelease suffix.
 
 Note that, for this to work, you'll need to create secrets `WPSVN_USERNAME` and `WPSVN_PASSWORD` in the mirror repo. See PCYsg-xsv-p2#mirror-repo-secrets for details.
 Also note that `.extra.wp-plugin-slug` must be set in the project's `composer.json` or the action will fail.
