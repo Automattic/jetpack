@@ -6041,6 +6041,18 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-9.1.0',
 			),
+			'sharing_email_can_send'                       => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.0.0',
+			),
+			'sharing_email_check'                          => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.0.0',
+			),
+			'sharing_services_email'                       => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.0.0',
+			),
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {
@@ -6093,6 +6105,14 @@ endif;
 			'jetpack_mobile_header_after'  => array(
 				'replacement' => null,
 				'version'     => 'jetpack-8.3.0',
+			),
+			'sharing_email_dialog'         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.0.0',
+			),
+			'sharing_email_send_post'      => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.0.0',
 			),
 		);
 
