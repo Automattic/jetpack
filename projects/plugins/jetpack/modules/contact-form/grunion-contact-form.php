@@ -972,7 +972,7 @@ class Grunion_Contact_Form_Plugin {
 	public function prepare_for_akismet( $form ) {
 		$form['comment_type'] = 'contact_form';
 		$form['user_ip']      = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$form['user_agent']   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$form['user_agent']   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		$form['referrer']     = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
 		$form['blog']         = get_option( 'home' );
 
