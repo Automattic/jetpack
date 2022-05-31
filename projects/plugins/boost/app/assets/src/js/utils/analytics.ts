@@ -4,7 +4,6 @@ type RecordSuccess = {
 
 export async function recordBoostEvent(
 	eventName: string,
-	eventType: string,
 	eventProp: TracksEventProperties
 ): Promise< RecordSuccess > {
 	// eslint-disable-next-line camelcase

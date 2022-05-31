@@ -51,7 +51,7 @@
 	const { pricing } = window.Jetpack_Boost;
 
 	if ( ! ( 'yearly' in pricing ) ) {
-		recordBoostEvent( 'upgrade_price_missing', 'click', {
+		recordBoostEvent( 'upgrade_price_missing', {
 			error_message: 'Missing pricing information on benefits interstitial page.',
 		} ).finally( () => {
 			goToCheckout();
