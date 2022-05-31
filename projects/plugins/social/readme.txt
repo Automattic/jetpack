@@ -92,7 +92,3 @@ The easiest way is to use the Custom Message option in the publishing options bo
 ### 1.0.0 - 2022-05-31
 #### Added
 - Initial release.
-== Upgrade Notice ==
-
-= 0.1.0 =
-Initial release.
