@@ -83,8 +83,10 @@ The easiest way is to use the Custom Message option in the publishing options bo
 
 == Screenshots ==
 
-1. Connect to the social network you want to use. Log in to that Social Network site and authorize the connection.
-2. In the **Share this Post** section, you can select which social media connections to use and you can write a custom message to be used when your post is shared.
+1. Activate the plugin and get access to your social media connections.
+2. Connect your social media accounts.
+3. Manage and publish to your social accounts via the Editor.
+4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
 
