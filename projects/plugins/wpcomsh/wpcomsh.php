@@ -1343,69 +1343,6 @@ function wpcomsh_pro_plan_storage_override( $space_allowed ) {
 }
 
 /**
- * Display disk space usage
- */
-function wpcomsh_display_disk_space_usage() {
-	$site_info = wpcomsh_get_at_site_info();
-
-	if ( empty( $site_info['space_used'] ) || empty( $site_info['space_quota'] ) ) {
-		return;
-	}
-
-	$space_used  = $site_info['space_used'];
-	$space_quota = wpcomsh_pro_plan_storage_override( $site_info['space_quota'] );
-
-	$message = sprintf(
-		/* translators: 1: Upload space used; 2: Upload space allowed; 3: percentage of allowed space used */
-		__(
-			'You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%).',
-			'wpcomsh'
-		),
-		size_format( $space_used, 1 ),
-		size_format( $space_quota, 1 ),
-		number_format_i18n( ( $space_used / $space_quota ) * 100.0 )
-	);
-
-	echo "<p>$message</p>"; //phpcs:ignore
-}
-add_action( 'pre-upload-ui', 'wpcomsh_display_disk_space_usage' );
-
-/**
- * Debug information disk usage
- *
- * @param array $args The arguments
- *
- * @return array
- */
-function wpcomsh_debug_information_disk_usage( $args ) {
-	if ( empty( $args['wp-paths-sizes']['fields'] ) ) {
-		return $args;
-	}
-
-	$site_info = wpcomsh_get_at_site_info();
-
-	if ( empty( $site_info['space_used'] ) || empty( $site_info['space_quota'] ) ) {
-		return $args;
-	}
-
-	$space_used  = $site_info['space_used'];
-	$space_quota = $site_info['space_quota'];
-
-	unset( $args['wp-paths-sizes']['fields']['total_size'] );
-	$args['wp-paths-sizes']['fields']['wpcomsh-disk-space-used']  = array(
-		'label' => __( 'Disk space used', 'wpcomsh' ),
-		'value' => size_format( $space_used, 1 ),
-	);
-	$args['wp-paths-sizes']['fields']['wpcomsh-disk-space-quota'] = array(
-		'label' => __( 'Disk space quota', 'wpcomsh' ),
-		'value' => size_format( $space_quota, 1 ),
-	);
-
-	return $args;
-}
-add_filter( 'debug_information', 'wpcomsh_debug_information_disk_usage' );
-
-/**
  * Do not allow uploads from Calypso's media section if it would cause our
  * disk usage to go over the quota.
  *
