@@ -7,7 +7,6 @@
 	import { jetpackURL } from '../../utils/jetpack-url';
 	import { getUpgradeURL } from '../../utils/upgrade';
 	import Logo from '../../svg/jetpack-green.svg';
-	import { recordBoostEvent } from '../../utils/analytics';
 
 	/**
 	 * External dependencies
@@ -51,11 +50,7 @@
 	const { pricing } = window.Jetpack_Boost;
 
 	if ( ! ( 'yearly' in pricing ) ) {
-		recordBoostEvent( 'upgrade_price_missing', {
-			error_message: 'Missing pricing information on benefits interstitial page.',
-		} ).finally( () => {
-			goToCheckout();
-		} );
+		goToCheckout();
 	}
 </script>
 

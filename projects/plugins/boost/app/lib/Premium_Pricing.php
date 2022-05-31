@@ -16,14 +16,16 @@ class Premium_Pricing {
 		$yearly_pricing_slug  = self::PRODUCT_SLUG_BASE . '_yearly';
 		$yearly_pricing       = Wpcom_Products::get_product_pricing( $yearly_pricing_slug );
 
-		if ( ! empty( $yearly_pricing ) ) {
-			$constants['pricing']['yearly'] = array(
-				'priceBefore'  => $yearly_pricing['full_price'],
-				'priceAfter'   => $yearly_pricing['discount_price'],
-				'currencyCode' => $yearly_pricing['currency_code'],
-			);
+		if ( empty( $yearly_pricing ) ) {
+			Analytics::record_user_event( 'upgrade_price_missing', array( 'error_message' => 'Missing pricing information on benefits interstitial page.' ) );
+			return $constants;
 		}
 
+		$constants['pricing']['yearly'] = array(
+			'priceBefore'  => $yearly_pricing['full_price'],
+			'priceAfter'   => $yearly_pricing['discount_price'],
+			'currencyCode' => $yearly_pricing['currency_code'],
+		);
 		return $constants;
 	}
 }
