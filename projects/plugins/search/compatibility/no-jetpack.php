@@ -13,9 +13,10 @@ namespace Automattic\Jetpack\Search_Plugin\Compatibility\NoJetpack;
  * This was handle from in Jetpack the plugin.
  *
  * @param string $widget_name Widget name.
+ * @param object $widget Widget instance.
  */
-function jetpack_search_widget_add_suffix( $widget_name ) {
-	if ( false !== strpos( '(Jetpack)', $widget_name ) ) {
+function jetpack_search_widget_add_suffix( $widget_name, $widget ) {
+	if ( ! is_a( $widget, 'Automattic\Jetpack\Search\Search_Widget' ) ) {
 		return $widget_name;
 	}
 	return sprintf(
@@ -26,5 +27,5 @@ function jetpack_search_widget_add_suffix( $widget_name ) {
 }
 
 if ( ! has_filter( 'jetpack_widget_name' ) ) {
-	add_filter( 'jetpack_widget_name', __NAMESPACE__ . '\jetpack_search_widget_add_suffix', 10, 1 );
+	add_filter( 'jetpack_widget_name', __NAMESPACE__ . '\jetpack_search_widget_add_suffix' );
 }
