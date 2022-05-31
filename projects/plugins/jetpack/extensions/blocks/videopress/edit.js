@@ -61,6 +61,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				isEditingWhileUploading: false,
 				isUploadComplete: false,
 				hasShownUploadingEditor: false,
+				lastPosterValueSource: '',
 			};
 			this.posterImageButton = createRef();
 			this.previewCacheReloadTimer = null;
@@ -719,7 +720,9 @@ const VideoPressEdit = CoreVideoEdit =>
 			const onChangeTitle = newTitle => this.setState( { title: newTitle } );
 
 			const onSelectPoster = attachment => {
-				this.setState( { videoPosterImageData: attachment } );
+				this.setState( {
+					videoPosterImageData: attachment,
+				} );
 			};
 
 			const sendUpdateTitleRequest = () => {
@@ -762,21 +765,29 @@ const VideoPressEdit = CoreVideoEdit =>
 			};
 
 			const onVideoFrameSelected = ms => {
-				this.setState( { videoFrameSelectedInMillis: ms } );
+				this.setState( {
+					videoFrameSelectedInMillis: ms,
+				} );
+			};
+
+			const onPosterSelectionTabChange = tabName => {
+				this.setState( { lastPosterValueSource: tabName } );
 			};
 
 			const dismissEditor = () => {
 				this.setState( { isEditingWhileUploading: false } );
-
-				if ( this.state.videoPosterImageData ) {
-					sendUpdatePosterRequest();
-				}
+				const posterValueSource = this.state.lastPosterValueSource;
+				console.log( this.state );
 
 				if ( this.state.title ) {
 					sendUpdateTitleRequest();
 				}
 
-				if ( this.state.videoFrameSelectedInMillis ) {
+				if ( 'tab-upload' === posterValueSource && this.state.videoPosterImageData ) {
+					sendUpdatePosterRequest();
+				}
+
+				if ( 'tab-frame' === posterValueSource && this.state.videoFrameSelectedInMillis ) {
 					sendUpdatePosterFromMillisecondsRequest();
 				}
 			};
@@ -805,6 +816,7 @@ const VideoPressEdit = CoreVideoEdit =>
 						videoPosterImageData={ this.state.videoPosterImageData }
 						onEditorShown={ onEditorShown }
 						onVideoFrameSelected={ onVideoFrameSelected }
+						onPosterSelectionTabChange={ onPosterSelectionTabChange }
 					/>
 				);
 			}
@@ -908,6 +920,7 @@ const UploaderBlock = props => {
 		onDismissEditor,
 		onEditorShown,
 		onVideoFrameSelected,
+		onPosterSelectionTabChange,
 	} = props;
 
 	return (
@@ -928,6 +941,7 @@ const UploaderBlock = props => {
 						videoPosterImageData={ videoPosterImageData }
 						onEditorShown={ onEditorShown }
 						onVideoFrameSelected={ onVideoFrameSelected }
+						onPosterSelectionTabChange={ onPosterSelectionTabChange }
 					/>
 					{ ! isUploadComplete && <ResumableUpload file={ fileForUpload } /> }
 					{ isUploadComplete && (

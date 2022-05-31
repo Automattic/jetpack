@@ -50,6 +50,7 @@ export const UploadingEditor = props => {
 		title,
 		onChangeTitle,
 		onVideoFrameSelected,
+		onPosterSelectionTabChange,
 	} = props;
 	const [ maxDuration, setMaxDuration ] = useState( 0 );
 	const [ showEditor, setShowEditor ] = useState( false );
@@ -59,11 +60,14 @@ export const UploadingEditor = props => {
 
 	const onVideoError = () => {
 		setCanDisplayThumbnailScrubber( false );
+		onSelectedTab( 'tab-upload' );
 	};
 
 	const onVideoLoad = event => {
 		if ( ! event.target.videoHeight ) {
 			onVideoError();
+		} else {
+			onPosterSelectionTabChange( selectedTab );
 		}
 	};
 
@@ -102,6 +106,7 @@ export const UploadingEditor = props => {
 
 	const onSelectedTab = tabName => {
 		setSelectedTab( tabName );
+		onPosterSelectionTabChange( tabName );
 	};
 
 	const handleShowEditor = () => {
