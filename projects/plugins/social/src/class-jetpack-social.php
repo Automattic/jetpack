@@ -350,6 +350,7 @@ class Jetpack_Social {
 	public function activate_module() {
 		delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) );
 	}
 
 	/**
