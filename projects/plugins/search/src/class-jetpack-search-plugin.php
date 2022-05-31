@@ -35,6 +35,8 @@ class Jetpack_Search_Plugin {
 	public static function load_compatibility_files() {
 		if ( class_exists( 'Jetpack' ) ) {
 			require_once JETPACK_SEARCH_PLUGIN__DIR . '/compatibility/jetpack.php';
+		} else {
+			require_once JETPACK_SEARCH_PLUGIN__DIR . '/compatibility/no-jetpack.php';
 		}
 	}
 
