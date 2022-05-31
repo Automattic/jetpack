@@ -301,7 +301,7 @@ abstract class Sharing_Source {
 		 *
 		 * @module sharedaddy
 		 *
-		 * @since $$next-version$$
+		 * @since 11.0
 		 *
 		 * @param array $data_attributes Attributes supplied from the sharing source.
 		 *                               Note that 'data-' will be prepended to all keys.
