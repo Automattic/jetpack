@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Refactor to use hasActiveSiteFeature to centralize the source of truth to WPCOM_Features.
