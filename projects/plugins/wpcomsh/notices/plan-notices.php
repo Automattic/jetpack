@@ -158,8 +158,8 @@ function wpcomsh_plan_notices() {
 	);
 
 	printf(
-		'<div class="notice wpcomsh-plan-notice">
-			<span class="notice__icon-wrapper">
+		'<div class="notice wpcomsh-notice">
+			<span class="notice__icon-wrapper notice__icon-wrapper-pink">
 				<span class="dashicons dashicons-info"></span>
 			</span>
 			<span class="notice__content">

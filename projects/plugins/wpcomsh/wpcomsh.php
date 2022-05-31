@@ -94,6 +94,7 @@ if ( ! class_exists( 'Jetpack_Data' ) ) {
 
 // wp-admin Notices
 require_once __DIR__ . '/notices/plan-notices.php';
+require_once __DIR__ . '/notices/storage-notices.php';
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/class-wpcomsh-cli-commands.php';
@@ -1355,7 +1356,7 @@ function wpcomsh_display_disk_space_usage() {
 	$space_quota = wpcomsh_pro_plan_storage_override( $site_info['space_quota'] );
 
 	$message = sprintf(
-		/* translators: Space usage message */
+		/* translators: 1: Upload space used; 2: Upload space allowed; 3: percentage of allowed space used */
 		__(
 			'You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%).',
 			'wpcomsh'
