@@ -1,7 +1,6 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, danielpost, siddarthan
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Author: Jetpack Social Media Team
 Requires at least: 5.5
 Tested up to: 6.0
 Stable tag: 4.3
