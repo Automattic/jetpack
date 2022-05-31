@@ -69,6 +69,7 @@ class Host {
 	 */
 	public static function allow_wpcom_environments( $domains ) {
 		$domains[] = 'wordpress.com';
+		$domains[] = 'jetpack.wordpress.com';
 		$domains[] = 'wpcalypso.wordpress.com';
 		$domains[] = 'horizon.wordpress.com';
 		$domains[] = 'calypso.localhost';
