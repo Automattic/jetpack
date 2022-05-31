@@ -18,6 +18,7 @@ class WPCOM_Features {
 	private const SPACE_10GB                                  = '1gb_space_upgrade'; // 9
 	private const SPACE_25GB                                  = '5gb_space_upgrade'; // 10
 	private const SPACE_50GB                                  = '10gb_space_upgrade'; // 11
+	private const NO_ADS                                      = 'no-adverts/no-adverts.php'; // 12
 	private const WPCOM_VIDEOPRESS                            = 'videopress'; // 15
 	private const SPACE_100GB                                 = '50gb_space_upgrade'; // 19
 	private const SPACE_200GB                                 = '100gb_space_upgrade'; // 20
@@ -137,6 +138,8 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_T2_MONTHLY                   = 'jetpack_backup_t2_monthly'; // 2115
 	private const JETPACK_VIDEOPRESS                          = 'jetpack_videopress'; // 2116
 	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
+	private const JETPACK_BACKUP_T0_YEARLY                    = 'jetpack_backup_t0_yearly'; // 2120
+	private const JETPACK_BACKUP_T0_MONTHLY                   = 'jetpack_backup_t0_monthly'; // 2121
 	private const JETPACK_BACKUP_ONE_TIME                     = 'jetpack_backup_one_time'; // 2201
 	private const AKISMET_PLUS_MONTHLY                        = 'ak_plus_monthly'; // 2301
 	private const AKISMET_PLUS_YEARLY                         = 'ak_plus_yearly'; // 2302
@@ -237,6 +240,7 @@ class WPCOM_Features {
 
 	private const JETPACK_BACKUP_DAILY_PLANS    = array( self::JETPACK_BACKUP_DAILY, self::JETPACK_BACKUP_DAILY_MONTHLY );
 	private const JETPACK_BACKUP_REALTIME_PLANS = array( self::JETPACK_BACKUP_REALTIME, self::JETPACK_BACKUP_REALTIME_MONTHLY );
+	private const JETPACK_BACKUP_T0_PLANS       = array( self::JETPACK_BACKUP_T0_MONTHLY, self::JETPACK_BACKUP_T0_YEARLY );
 	private const JETPACK_BACKUP_T1_PLANS       = array( self::JETPACK_BACKUP_T1_MONTHLY, self::JETPACK_BACKUP_T1_YEARLY );
 	private const JETPACK_BACKUP_T2_PLANS       = array( self::JETPACK_BACKUP_T2_MONTHLY, self::JETPACK_BACKUP_T2_YEARLY );
 
@@ -422,6 +426,7 @@ class WPCOM_Features {
 			self::JETPACK_BACKUP_DAILY_PLANS,
 			self::JETPACK_BACKUP_ONE_TIME,
 			self::JETPACK_BACKUP_REALTIME_PLANS,
+			self::JETPACK_BACKUP_T0_PLANS,
 			self::JETPACK_BACKUP_T1_PLANS,
 			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
@@ -553,6 +558,7 @@ class WPCOM_Features {
 		self::FULL_ACTIVITY_LOG             => array(
 			self::JETPACK_BACKUP_DAILY_PLANS,
 			self::JETPACK_BACKUP_REALTIME_PLANS,
+			self::JETPACK_BACKUP_T0_PLANS,
 			self::JETPACK_BACKUP_T1_PLANS,
 			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
@@ -617,8 +623,9 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
-		// Deliberately leaves out the Starter plan
 		self::NO_ADVERTS_NO_ADVERTS_PHP     => array(
+			self::NO_ADS,
+			// Deliberately leaves out the Starter plan
 			self::WPCOM_BLOGGER_PLANS,
 			self::WPCOM_PERSONAL_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -667,6 +674,7 @@ class WPCOM_Features {
 		),
 		self::REAL_TIME_BACKUPS             => array(
 			self::JETPACK_BACKUP_REALTIME_PLANS,
+			self::JETPACK_BACKUP_T0_PLANS,
 			self::JETPACK_BACKUP_T1_PLANS,
 			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
