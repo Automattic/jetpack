@@ -28,6 +28,9 @@ export const settings = {
 		</Fragment>
 	),
 	keywords: [],
+	supports: {
+		align: [ 'left', 'right', 'center' ],
+	},
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
