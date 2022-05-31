@@ -3949,7 +3949,7 @@ p {
 					$url = $this->build_connect_url( true, $redirect, $from );
 
 					if ( ! empty( $_GET['onboarding'] ) ) {
-						$url = add_query_arg( 'onboarding', $_GET['onboarding'], $url ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+						$url = add_query_arg( 'onboarding', rawurlencode_deep( wp_unslash( $_GET['onboarding'] ) ), $url ); // WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					}
 
 					if ( ! empty( $_GET['auth_approved'] ) && 'true' === $_GET['auth_approved'] ) {
