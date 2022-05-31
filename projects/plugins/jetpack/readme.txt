@@ -242,10 +242,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.0-a.11 - 2022-05-24
+### 11.0-beta - 2022-05-31
+#### Enhancements
+- Share by Email: use mailto links instead of server submissions for better performance.
+
+#### Improved compatibility
+- Infinite scroll: add support for Google Analytics feature to track infinite scroll.
+- Admin: update products icons.
+
 #### Bug fixes
-- Assistant: fix unclickable banner dismiss button.
-- Widget Visibility: avoid PHP warnings when loading widgets in some scenarios.
+- Comments: update UI to reflect that Google accounts are no longer a sign-in option.
+- Stats: ensure the Stats column can always be displayed, even when the post type does not support comments.
 
 --------
 
