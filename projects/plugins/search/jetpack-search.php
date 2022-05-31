@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Search
  * Plugin URI: https://jetpack.com/search/
  * Description: A cloud-powered replacement for WordPress' search.
- * Version: 1.0.0
+ * Version: 1.0.1-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -26,7 +26,7 @@ define( 'JETPACK_SEARCH_PLUGIN__DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__FILE', __FILE__ );
 define( 'JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'jetpack-search' );
-define( 'JETPACK_SEARCH_PLUGIN__VERSION', '1.0.0' );
+define( 'JETPACK_SEARCH_PLUGIN__VERSION', '1.0.1-alpha' );
 
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 
