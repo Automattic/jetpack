@@ -777,7 +777,6 @@ const VideoPressEdit = CoreVideoEdit =>
 			const dismissEditor = () => {
 				this.setState( { isEditingWhileUploading: false } );
 				const posterValueSource = this.state.lastPosterValueSource;
-				console.log( this.state );
 
 				if ( this.state.title ) {
 					sendUpdateTitleRequest();

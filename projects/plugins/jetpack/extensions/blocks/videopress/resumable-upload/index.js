@@ -33,7 +33,6 @@ export default function ResumableUpload( { file } ) {
 	const [ tusUploader, setTusUploader ] = useState( null );
 	const [ error, setError ] = useState( null );
 	const [ currentUploadKey, setCurrentUploadKey ] = useState( null );
-	const [ uploadComplete, setUploadComplete ] = useState( false );
 	const { onUploadFinished } = useContext( VideoPressBlockContext );
 	const tusUploaderRef = useRef( null );
 
@@ -50,7 +49,6 @@ export default function ResumableUpload( { file } ) {
 		};
 
 		const onSuccess = args => {
-			setUploadComplete( true );
 			onUploadFinished( args );
 		};
 
