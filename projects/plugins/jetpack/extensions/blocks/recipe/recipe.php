@@ -2,7 +2,7 @@
 /**
  * Recipe Block.
  *
- * @since 11.x
+ * @since $$next-version$$
  *
  * @package automattic/jetpack
  */
