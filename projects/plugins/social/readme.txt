@@ -39,7 +39,7 @@ The first option is to install Jetpack Social from within your WP Admin.
 
 Alternatively, install Jetpack Social via the plugin directory, or upload the files manually to your server and follow the on-screen instructions.
 
-== WITH 💚 BY JETPACK  ==
+### With 💚 by Jetpack
 
 This is just the start!
 
@@ -52,8 +52,9 @@ We are working hard to bring more features and improvements to Jetpack Social. L
 From your site’s WP Admin:
 
 1. Navigate to Jetpack → Social.
-2. Click Connect next to the social network you want to connect to.
-3. Log in to that social network site and authorize the connection.
+2. Click on the Manage Connections button.
+3. Click Connect next to the social network you want to connect to.
+4. Log in to that social network site and authorize the connection.
 
 You can connect to any of the following networks:
 
