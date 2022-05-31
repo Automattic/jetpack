@@ -75,11 +75,15 @@ WPScan have additional notifications such as email.
 Jetpack Protect runs daily automated scans. Jetpack Scan and WPScan provide on-demand scan options on top of automatic
 scans.
 
+Jetpack Scan has one-click fixers for most vulnerabilities. Protect does not have any fixers at this time, but it
+provides “how-to-fix” guides so that you can fix vulnerabilities manually.
+
 Jetpack Protect and WPScans are standalone plugins that don’t need additional plugins to run, while Jetpack Scan needs
-the Jetpack plugin to work.
+the [Jetpack plugin](https://jetpack.com/) to work.
 
 Jetpack Protect is a free plugin, and WPScan has free and paid options. On the other hand, Jetpack Scan is a paid plugin
-that you can purchase with a 14-day money-back guarantee.
+that you can purchase with a 14-day money-back guarantee. As with other paid Jetpack plugins, Scan users also have
+access to our [priority support](https://jetpack.com/features/security/expert-priority-support/).
 
 = How will I know if Jetpack Protect has found WordPress security vulnerabilities and malware? =
 
