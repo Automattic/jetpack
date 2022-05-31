@@ -42,8 +42,8 @@ export type TextProps = {
 	/** The text itself that will be rendered. */
 	children: React.ReactNode;
 	/** Force an specific tag (span, div) or use a custom component that will receive className and children */
-	component?: React.FC< { [ prop: string ]: any } > | React.ElementType;
-	[ prop: string ]: any;
+	component?: React.FC< { [ prop: string ]: unknown } > | React.ElementType;
+	[ prop: string ]: unknown;
 };
 
 export type H3Props = TextProps & {
