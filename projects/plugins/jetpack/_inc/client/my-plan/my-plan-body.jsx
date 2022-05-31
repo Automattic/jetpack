@@ -565,6 +565,7 @@ class MyPlanBody extends React.Component {
 				break;
 
 			case 'is-free-plan':
+			case 'is-backup-t0-plan':
 			case 'is-backup-t1-plan':
 			case 'is-backup-t2-plan':
 			case 'is-search-plan':
