@@ -245,6 +245,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 ### 11.0-beta - 2022-05-31
 #### Enhancements
 - Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset.
+- Custom CSS: ensure the Additional CSS sub-menu link displays correctly.
 - Email subscriptions: update the default body of the "Confirmation request" email.
 - Google Fonts: add additional fonts to the list of available fonts.
 - Latest Instagram Posts Block: improve performance of the block by adding lazy load for the images.
@@ -265,7 +266,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Assistant: fix unclickable banner dismiss button.
 - Comments: update UI to reflect that Google accounts are no longer a sign-in option.
 - Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+.
-- Custom CSS: ensure the Additional CSS sub-menu link displays correctly.
 - Payments Blocks: ensure payment block can only auto-select an existing product.
 - Stats: ensure the Stats column can always be displayed, even when the post type does not support comments.
 - Subscriptions: fix typo in confirmation message.
