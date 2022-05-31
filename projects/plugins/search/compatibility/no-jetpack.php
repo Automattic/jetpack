@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\Search_Plugin\Compatibility\NoJetpack;
  * @param string $widget_name Widget name.
  */
 function jetpack_search_widget_add_suffix( $widget_name ) {
-	if ( 'Search' !== $widget_name ) {
+	if ( false === strpos( '(Jetpack)', $widget_name ) ) {
 		return $widget_name;
 	}
 	return sprintf(
