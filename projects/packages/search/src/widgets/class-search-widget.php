@@ -62,6 +62,7 @@ class Search_Widget extends \WP_Widget {
 		}
 		$this->module_control = new Module_Control();
 		parent::__construct(
+			Helper::FILTER_WIDGET_BASE,
 			$name,
 			array(
 				'classname'   => 'jetpack-filters widget_search',
