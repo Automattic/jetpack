@@ -3,6 +3,7 @@
  */
 import React, { useCallback } from 'react';
 import { Dialog, ProductOffer, useBreakpointMatch } from '@automattic/jetpack-components';
+import { ToS } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -73,8 +74,9 @@ const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
 			primary={
 				<ConnectedProductOffer
 					className={ mediaClassName }
-					onAdd={ onConnectedProductAdd }
 					isCard={ true }
+					onAdd={ onConnectedProductAdd }
+					buttonDisclaimer={ <p className={ styles[ 'terms-of-service' ] }>{ ToS }</p> }
 				/>
 			}
 			secondary={

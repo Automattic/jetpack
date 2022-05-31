@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.15.1 - 2022-05-31
+### Added
+- Added an option to display a custom disclaimer below the product add button. [#24523]
+
 ## 0.15.0 - 2022-05-30
 ### Added
 - added formatting prop to RecordMeterBar component legend

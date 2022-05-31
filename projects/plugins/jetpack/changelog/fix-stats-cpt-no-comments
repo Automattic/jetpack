@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Stats: ensure the Stats column can always be displayed, even when the post type does not support comments.
