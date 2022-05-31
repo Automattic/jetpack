@@ -16,7 +16,7 @@ require_once plugin_dir_path( __FILE__ ) . 'sharing.php';
  *
  * @return void
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.0
  */
 function sharing_email_send_post( $data ) {
 
@@ -87,7 +87,7 @@ function sharing_email_send_post( $data ) {
  *
  * @return array $data
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.0
  */
 function sharing_email_check_for_spam_via_akismet( $data ) {
 
@@ -142,7 +142,7 @@ function sharing_email_check_for_spam_via_akismet( $data ) {
  *
  * @return string $content
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.0
  */
 function sharing_email_send_post_content( $data ) {
 	$content = sprintf(
@@ -375,7 +375,7 @@ function sharing_global_resources_save() {
  *
  * @return string
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.0
  */
 function sharing_recaptcha_site_key() {
 	if ( ! defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined( 'RECAPTCHA_SITE_KEY' ) ) {
@@ -396,7 +396,7 @@ function sharing_recaptcha_site_key() {
  *
  * @return string
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.0
  */
 function sharing_recaptcha_secret_key() {
 	if ( ! defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined( 'RECAPTCHA_SECRET_KEY' ) ) {
@@ -416,7 +416,7 @@ function sharing_recaptcha_secret_key() {
  *
  * @return void
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.0
  */
 function sharing_email_dialog() {
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
@@ -436,7 +436,7 @@ function sharing_email_dialog() {
  * @param object $post Post information.
  * @param array  $data Information about the shared message.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.0
  */
 function sharing_email_check( $true, $post, $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';

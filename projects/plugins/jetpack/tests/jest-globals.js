@@ -22,3 +22,12 @@ if ( ! window.CSS ) {
 		supports: () => false,
 	};
 }
+
+// Needed by `@wordpress/compose' >=5.7.0
+if ( ! global.ResizeObserver ) {
+	global.ResizeObserver = class ResizeObserver {
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+	};
+}
