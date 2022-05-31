@@ -27,6 +27,7 @@
 
 	@include breakpoint( '<480px' ) {
 		width: 100%;
+		text-align: center;
 	}
 
 	&:hover,
