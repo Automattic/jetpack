@@ -1,5 +1,4 @@
 [
-	"projects/plugins/jetpack/class.jetpack.php",
 	"projects/plugins/vaultpress/class.vaultpress-database.php",
 	"projects/plugins/vaultpress/class.vaultpress-filesystem.php",
 	"projects/plugins/vaultpress/class.vaultpress-hotfixes.php",
