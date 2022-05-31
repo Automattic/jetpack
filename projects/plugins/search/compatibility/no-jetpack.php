@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Search_Plugin\Compatibility\NoJetpack;
 /**
  * Add the "(Jetpack)" suffix to the search widget name
  *
+ * This was handle from in Jetpack the plugin.
+ *
  * @param string $widget_name Widget name.
  */
 function jetpack_search_widget_add_suffix( $widget_name ) {
