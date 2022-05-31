@@ -35,16 +35,17 @@ People on eCommerce sites are 2x more likely to purchase something when they sea
 Jetpack Search is a completely customizable WordPress site search plugin, so your visitors get a search experience that blends in seamlessly with your site design.
 
 **WHY CHOOSE JETPACK SEARCH?**
-Highly relevant search results organized by modern ranking algorithms
-Boosted and prioritized results based on your site’s search stats
-Instant search and filtering without reloading the page
-Site search filters and facets (by categories, tags, dates, custom taxonomies, and post types)
-Improved theme compatibility for both mobile and desktop
-Real-time indexing, so your search index is updated within minutes of changes to your site
-Integrates seamlessly with WooCommerce
-Support for all languages, and advanced language analysis for 29 languages
-Highlighted search terms on comments and post content
-Fast and accurate spelling correction
+
+* Highly relevant search results organized by modern ranking algorithms
+* Boosted and prioritized results based on your site’s search stats
+* Instant search and filtering without reloading the page
+* Site search filters and facets (by categories, tags, dates, custom taxonomies, and post types)
+* Improved theme compatibility for both mobile and desktop
+* Real-time indexing, so your search index is updated within minutes of changes to your site
+* Integrates seamlessly with WooCommerce
+* Support for all languages, and advanced language analysis for 29 languages
+* Highlighted search terms on comments and post content
+* Fast and accurate spelling correction
 
 **WITH 💚 BY JETPACK**
 This is just the start!
@@ -99,7 +100,7 @@ Yes, visitors can filter search results by tags, categories, dates, custom taxon
 
 = Where can I get a Jetpack Search subscription? =
 
-You can purchase a Search subscription directly through this plugin or via the [Jetpack website](https://jetpack.com/search/)
+You can purchase a Search subscription directly through this plugin or via the [Jetpack website](https://jetpack.com/search/).
 
 == Screenshots ==
 
