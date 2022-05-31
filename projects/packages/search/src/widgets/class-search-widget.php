@@ -66,7 +66,7 @@ class Search_Widget extends \WP_Widget {
 			/**
 			 * This filter is documented in modules/widgets/facebook-likebox.php
 			 *
-			 * @param string $widget Widget instance.
+			 * @param WP_Widget $widget Widget instance.
 			*/
 			apply_filters( 'jetpack_widget_name', $name, $this ),
 			array(
