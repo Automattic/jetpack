@@ -1,6 +1,6 @@
 <?php
 /**
- * Compatibility when no Jetpack plugin exists
+ * Compatibility when Jetpack plugin doesn't exists
  *
  * @package automattic/jetpack-search-plugin
  */
