@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\Search_Plugin\Compatibility\NoJetpack;
  * @param string $widget_name Widget name.
  * @param object $widget Widget instance.
  */
-function jetpack_search_widget_add_suffix( $widget_name, $widget ) {
+function jetpack_search_widget_add_suffix( $widget_name, $widget = null ) {
 	if ( ! is_a( $widget, 'Automattic\Jetpack\Search\Search_Widget' ) ) {
 		return $widget_name;
 	}
@@ -27,5 +27,5 @@ function jetpack_search_widget_add_suffix( $widget_name, $widget ) {
 }
 
 if ( ! has_filter( 'jetpack_widget_name' ) ) {
-	add_filter( 'jetpack_widget_name', __NAMESPACE__ . '\jetpack_search_widget_add_suffix' );
+	add_filter( 'jetpack_widget_name', __NAMESPACE__ . '\jetpack_search_widget_add_suffix', 10, 2 );
 }
