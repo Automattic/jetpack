@@ -97,8 +97,23 @@ const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 
 const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
+
+	let currentScanStatus;
+	if ( 'error' === currentStatus ) {
+		currentScanStatus = 'error';
+	} else if ( ! lastChecked ) {
+		currentScanStatus = 'in_progress';
+	} else {
+		currentScanStatus = 'active';
+	}
+
 	// Track view for Protect admin page.
-	useAnalyticsTracks( { pageViewEventName: 'protect_admin' } );
+	useAnalyticsTracks( {
+		pageViewEventName: 'protect_admin',
+		pageViewEventProperties: {
+			check_status: currentScanStatus,
+		},
+	} );
 
 	// Error
 	if ( 'error' === currentStatus ) {
@@ -142,7 +157,7 @@ const ProtectAdminPage = () => {
 								<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
 								<Text>
 									{ __(
-										'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a few seconds.',
+										'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a minute or two.',
 										'jetpack-protect'
 									) }
 								</Text>
