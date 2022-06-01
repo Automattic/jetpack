@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import {
 	InspectorControls,
 	RichText,
-	__experimentalUseGradient as useGradient,
+	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	withColors,
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';

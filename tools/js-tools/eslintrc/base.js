@@ -21,7 +21,7 @@ module.exports = {
 	parser: '@typescript-eslint/parser',
 	extends: [
 		'./preload',
-		'wpcalypso',
+		'plugin:wpcalypso/recommended',
 		'plugin:@wordpress/eslint-plugin/i18n',
 		'plugin:jsx-a11y/recommended',
 		'plugin:prettier/recommended',
@@ -42,7 +42,7 @@ module.exports = {
 		requireConfigFile: false,
 	},
 	settings: {},
-	plugins: [ 'prettier', 'jsx-a11y', 'lodash', 'jsdoc', '@typescript-eslint' ],
+	plugins: [ 'import', 'prettier', 'jsx-a11y', 'lodash', 'jsdoc', '@typescript-eslint' ],
 	rules: {
 		// REST API objects include underscores
 		camelcase: 0,
@@ -96,7 +96,6 @@ module.exports = {
 		],
 		'wpcalypso/i18n-no-this-translate': 2,
 		'wpcalypso/i18n-mismatched-placeholders': 2,
-		'wpcalypso/import-docblock': 2,
 		'wpcalypso/jsx-gridicon-size': 0, // Ignored for Jetpack
 		'wpcalypso/jsx-classname-namespace': 0, // Ignored for Jetpack
 		'jsx-a11y/label-has-for': [

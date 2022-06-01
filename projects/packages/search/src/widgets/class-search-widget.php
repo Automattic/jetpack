@@ -58,13 +58,12 @@ class Search_Widget extends \WP_Widget {
 	 */
 	public function __construct( $name = null ) {
 		if ( empty( $name ) ) {
-			$name = esc_html__( 'Search', 'jetpack-search-pkg' );
+			$name = esc_html__( 'Search (Jetpack)', 'jetpack-search-pkg' );
 		}
 		$this->module_control = new Module_Control();
 		parent::__construct(
 			Helper::FILTER_WIDGET_BASE,
-			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name', $name ),
+			$name,
 			array(
 				'classname'   => 'jetpack-filters widget_search',
 				'description' => __( 'Instant search and filtering to help visitors quickly find relevant answers and explore your site.', 'jetpack-search-pkg' ),

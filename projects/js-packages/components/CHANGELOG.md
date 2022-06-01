@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.15.1 - 2022-05-31
+### Added
+- Added an option to display a custom disclaimer below the product add button. [#24523]
+
+## 0.15.0 - 2022-05-30
+### Added
+- added formatting prop to RecordMeterBar component legend
+- JS Components: Add isCard prop to Dialog component
+- JS Components: add isExternalLink button property
+
+### Changed
+- Added TS check to build process
+- Converted QRCode component to TypeScript
+- JS Components: fix ProductOffer icons size
+- JS Components: remove deprecated external-link variant
+- Layout: Support start/end props in Cols and use sass based structure
+- Social: Updated the icon to the final design
+- Updated package dependencies
+
+### Removed
+- JS Components: remove Dialog isCard property
+
+### Fixed
+- Fix styles defined by the ThemeProvider in the storybook stories
+
 ## 0.14.0 - 2022-05-24
 ### Added
 - Icons: Added the Jetpack Social product icon [#24449]

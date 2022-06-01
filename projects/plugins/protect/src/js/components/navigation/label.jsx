@@ -16,7 +16,7 @@ const ItemLabel = ( { icon, children, className } ) => {
 	return (
 		<Text className={ classNames( styles[ 'navigation-item-label' ], className ) }>
 			{ icon && <Icon icon={ icon } className={ styles[ 'navigation-item-icon' ] } size={ 28 } /> }
-			{ children }
+			<span className={ styles[ 'navigation-item-label-content' ] }>{ children }</span>
 		</Text>
 	);
 };

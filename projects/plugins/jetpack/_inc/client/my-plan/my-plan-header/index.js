@@ -36,6 +36,7 @@ import { ProductActivated } from 'components/product-activated';
 import License from './license';
 import MyPlanCard from '../my-plan-card';
 
+const TIER_0_BACKUP_STORAGE_GB = 1;
 const TIER_1_BACKUP_STORAGE_GB = 10;
 const TIER_2_BACKUP_STORAGE_TB = 1;
 
@@ -207,6 +208,26 @@ class MyPlanHeader extends React.Component {
 						'jetpack'
 					),
 					title: __( 'Jetpack Complete', 'jetpack' ),
+				};
+
+			case 'is-backup-t0-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: createInterpolateElement(
+						sprintf(
+							/* translators: %1$d is the number of gigabytes of storage space the site has. */
+							_n(
+								'Your data is being securely backed up as you edit. You have <strong>%1$dGB</strong> of storage space.',
+								'Your data is being securely backed up as you edit. You have <strong>%1$dGB</strong> of storage space.',
+								TIER_0_BACKUP_STORAGE_GB,
+								'jetpack'
+							),
+							TIER_0_BACKUP_STORAGE_GB
+						),
+						{ strong: <strong /> }
+					),
+					title: __( 'Jetpack Backup', 'jetpack' ),
 				};
 
 			case 'is-backup-t1-plan':
