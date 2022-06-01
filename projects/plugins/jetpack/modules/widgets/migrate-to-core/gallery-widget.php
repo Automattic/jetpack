@@ -41,7 +41,7 @@ function jetpack_migrate_gallery_widget() {
 			$i = 0;
 			$i < 10 && array_key_exists( $new_id, array( $media_gallery ) );
 			$i++, $new_id++
-		); 
+		);
 
 		$widget_copy = jetpack_migrate_gallery_widget_upgrade_widget( $widget );
 
