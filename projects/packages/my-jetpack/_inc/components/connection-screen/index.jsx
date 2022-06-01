@@ -1,22 +1,15 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { __ } from '@wordpress/i18n';
-import { ConnectScreen } from '@automattic/jetpack-connection';
 import { Container, Col, AdminPage, getRedirectUrl } from '@automattic/jetpack-components';
+import { ConnectScreen } from '@automattic/jetpack-connection';
+import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
-import CloseLink from '../close-link';
+import React from 'react';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import wordpressLogo from './wordpress.png';
-import googleLogo from './google.svg';
+import CloseLink from '../close-link';
 import appleLogo from './apple.svg';
 import connectImage from './connect.png';
+import googleLogo from './google.svg';
 import styles from './styles.module.scss';
+import wordpressLogo from './wordpress.png';
 
 const ConnectionScreenFooter = () => {
 	return (

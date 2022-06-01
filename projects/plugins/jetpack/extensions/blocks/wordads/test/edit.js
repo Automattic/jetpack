@@ -2,21 +2,12 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import { render } from '@testing-library/react';
 
-/**
- * Internal dependencies
- */
 import WordAdsEdit from '../edit';
 import { AD_FORMATS, DEFAULT_FORMAT } from '../constants';
 
-/**
- * Example images
- */
 import rectangleExample from '../example_300x250.png';
 import leaderboardExample from '../example_728x90.png';
 import mobileLeaderboardExample from '../example_320x50.png';

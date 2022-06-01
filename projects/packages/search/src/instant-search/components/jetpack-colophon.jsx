@@ -4,15 +4,9 @@
 // This will work as long as the keys are always literals as well.
 /* global PALETTE */
 
-/**
- * External dependencies
- */
-import React from 'react';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 
-/**
- * Internal dependencies
- */
 import './jetpack-colophon.scss';
 
 /**

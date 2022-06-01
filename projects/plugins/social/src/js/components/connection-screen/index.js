@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { __ } from '@wordpress/i18n';
-import { useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { Dialog, ProductOffer, Text, getRedirectUrl } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-
-/**
- * Internal dependencies
- */
+import { useSelect } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import React from 'react';
 import { STORE_ID } from '../../store';
 import background from './background.svg';
 import illustration from './illustration.png';

@@ -1,22 +1,11 @@
-/**
- * External dependencies
- */
-import React, { useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { ConnectButton, ToS } from '@automattic/jetpack-connection';
-
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React, { useEffect, useCallback } from 'react';
 import './style.scss';
 
 /**

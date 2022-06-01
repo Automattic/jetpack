@@ -6,13 +6,10 @@
  * and we can load it using `Assets::register_module()` instead of the ad hoc manner it's done currently.
  */
 
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const glob = require( 'glob' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const glob = require( 'glob' );
 
 const webpack = jetpackWebpackConfig.webpack;
 const sharedWebpackConfig = {

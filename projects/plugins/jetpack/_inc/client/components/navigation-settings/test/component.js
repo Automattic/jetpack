@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 
-/**
- * Internal dependencies
- */
 import { NavigationSettings } from '../index';
 
 describe( 'NavigationSettings', () => {

@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
-import { addFilter } from '@wordpress/hooks';
-import { registerBlockType } from '@wordpress/blocks';
 import {
 	getJetpackExtensionAvailability,
 	withHasWarningIsInteractiveClassNames,
 	requiresPaidPlan,
 } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
+import { registerBlockType } from '@wordpress/blocks';
+import { addFilter } from '@wordpress/hooks';
+import { __, _x } from '@wordpress/i18n';
 import extensionList from '../index.json';
 
 const availableBlockTags = {

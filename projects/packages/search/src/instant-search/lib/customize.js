@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { SERVER_OBJECT_NAME } from './constants';
 
 const SETTINGS_TO_STATE_MAP = new Map( [

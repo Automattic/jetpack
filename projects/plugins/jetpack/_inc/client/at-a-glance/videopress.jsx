@@ -1,38 +1,27 @@
-/**
- * External dependencies
- */
+import { ProgressBar } from '@automattic/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import DashItem from 'components/dash-item';
+import JetpackBanner from 'components/jetpack-banner';
+import { getJetpackProductUpsellByFeature, FEATURE_VIDEOPRESS } from 'lib/plans/constants';
+import { noop } from 'lodash';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import DashItem from 'components/dash-item';
-import { getJetpackProductUpsellByFeature, FEATURE_VIDEOPRESS } from 'lib/plans/constants';
-import { ProgressBar } from '@automattic/components';
-import JetpackBanner from 'components/jetpack-banner';
-import { isModuleAvailable } from 'state/modules';
 import {
 	connectUser,
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
 } from 'state/connection';
+import { isModuleAvailable } from 'state/modules';
 import {
 	isFetchingSitePurchases,
 	getSitePlan,
 	getVideoPressStorageUsed,
 	hasActiveSiteFeature,
 } from 'state/site';
-import { getProductDescriptionUrl } from 'product-descriptions/utils';
 
 class DashVideoPress extends Component {
 	static propTypes = {

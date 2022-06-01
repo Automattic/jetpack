@@ -6,6 +6,8 @@
  */
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS_Cron;
+
 class Critical_CSS_Invalidator {
 	/**
 	 * Register hooks.
@@ -24,6 +26,7 @@ class Critical_CSS_Invalidator {
 		$storage = new Critical_CSS_Storage();
 		$storage->clear();
 		Critical_CSS_State::reset();
+		Cloud_CSS_Cron::uninstall();
 	}
 
 	/**

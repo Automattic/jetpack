@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 
 export const MULTISITE_NO_GROUP_VALUE = '__NO_GROUP__';

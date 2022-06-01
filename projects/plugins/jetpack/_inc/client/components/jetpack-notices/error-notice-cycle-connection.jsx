@@ -1,15 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
-
 import SimpleNotice from 'components/notice';
+import PropTypes from 'prop-types';
+import React from 'react';
 import NoticeActionReconnect from './notice-action-reconnect';
 
 export default class ErrorNoticeCycleConnection extends React.Component {

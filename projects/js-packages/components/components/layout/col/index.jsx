@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import styles from './style.module.scss';
 
 const smCols = Number( styles.smCols );

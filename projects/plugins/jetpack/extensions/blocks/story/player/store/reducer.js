@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { merge } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import {
 	defaultCurrentSlideState,
 	defaultSlideProgressState,

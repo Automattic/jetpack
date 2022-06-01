@@ -1,19 +1,12 @@
-/**
- * WordPress dependencies
- */
 import { BlockControls } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { store as membershipProductsStore } from '../../../store/membership-products';
+import StripeConnectToolbarButton from '../stripe-connect-toolbar-button';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from './constants';
 import { ProductManagementContext } from './context';
 import ProductManagementInspectorControl from './inspector-control';
-import ProductManagementToolbarControl from './toolbar-control';
 import InvalidProductWarning from './invalid-product-warning';
-import StripeConnectToolbarButton from '../stripe-connect-toolbar-button';
-import { store as membershipProductsStore } from '../../../store/membership-products';
+import ProductManagementToolbarControl from './toolbar-control';
 
 import './style.scss';
 

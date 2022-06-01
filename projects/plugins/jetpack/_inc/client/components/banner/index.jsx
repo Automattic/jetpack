@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect as reduxConnect } from 'react-redux';
 import classNames from 'classnames';
-import { noop, size } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import Button from 'components/button';
+import Card from 'components/card';
+import Gridicon from 'components/gridicon';
+import PlanIcon from 'components/plans/plan-icon';
 import analytics from 'lib/analytics';
 import {
 	getPlanClass,
@@ -17,12 +10,12 @@ import {
 	isJetpackBundle,
 	isJetpackLegacyPlan,
 } from 'lib/plans/constants';
-import Button from 'components/button';
-import Card from 'components/card';
-import Gridicon from 'components/gridicon';
-import PlanIcon from 'components/plans/plan-icon';
-import { getCurrentVersion } from 'state/initial-state';
+import { noop, size } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect as reduxConnect } from 'react-redux';
 import { isCurrentUserLinked, isConnectionOwner } from 'state/connection';
+import { getCurrentVersion } from 'state/initial-state';
 
 import './style.scss';
 
