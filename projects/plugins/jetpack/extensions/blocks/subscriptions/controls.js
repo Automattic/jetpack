@@ -8,7 +8,7 @@ import {
 	ContrastChecker,
 	PanelColorSettings,
 	FontSizePicker,
-	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
+	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 

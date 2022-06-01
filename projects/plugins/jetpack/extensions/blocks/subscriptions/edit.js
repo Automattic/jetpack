@@ -10,7 +10,7 @@ import {
 	RichText,
 	withColors,
 	withFontSizes,
-	__experimentalUseGradient as useGradient,
+	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { useEffect, useState } from '@wordpress/element';
 import { compose, usePrevious } from '@wordpress/compose';
