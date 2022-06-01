@@ -2,16 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-/**
- * Internal dependencies
- */
 import { CalendlyBlockControls, CalendlyInspectorControls } from '../controls';
 
 describe( 'CalendlyBlockControls', () => {

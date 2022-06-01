@@ -2,16 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor, getByLabelText } from '@testing-library/react';
 
-/**
- * Internal dependencies
- */
 import BusinessHours, { defaultLocalization } from '../edit';
 
 const isWeekend = day => [ 'Sun', 'Sat' ].includes( day.substring( 0, 3 ) );

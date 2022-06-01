@@ -2,17 +2,11 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event'
 import { fireEvent, render, screen } from '@testing-library/react';
 import { SandBox } from '@wordpress/components';
 
-/**
- * Internal dependencies
- */
 import { PinterestEdit } from '../edit';
 import useTestPinterestEmbedUrl from '../hooks/use-test-pinterest-embed-url';
 

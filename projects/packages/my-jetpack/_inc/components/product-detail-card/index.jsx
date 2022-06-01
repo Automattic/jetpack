@@ -1,21 +1,14 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import classnames from 'classnames';
-import { Icon, check, plus } from '@wordpress/icons';
 import { getCurrencyObject } from '@automattic/format-currency';
-import { __, sprintf } from '@wordpress/i18n';
 import { CheckmarkIcon, getIconBySlug, StarIcon, Text, H3 } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import styles from './style.module.scss';
-import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import { __, sprintf } from '@wordpress/i18n';
+import { Icon, check, plus } from '@wordpress/icons';
+import classnames from 'classnames';
+import React, { useCallback } from 'react';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import ProductDetailButton from '../product-detail-button';
 import { useProduct } from '../../hooks/use-product';
+import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import ProductDetailButton from '../product-detail-button';
+import styles from './style.module.scss';
 
 /**
  * React component to render the price.

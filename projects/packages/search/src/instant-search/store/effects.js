@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 /*eslint lodash/import-scope: [2, "method"]*/
 import debounce from 'lodash/debounce';
-
-/**
- * Internal dependencies
- */
 import { search } from '../lib/api';
 import {
 	DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS,

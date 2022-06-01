@@ -1,6 +1,4 @@
-/**
- * Internal dependencies
- */
+import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_LICENSING_ERROR_UPDATE,
 	JETPACK_LICENSING_USER_LICENSE_COUNTS_UPDATE,
@@ -9,7 +7,6 @@ import {
 	JETPACK_LICENSING_GET_USER_LICENSES_SUCCESS,
 	JETPACK_LICENSING_GET_USER_LICENSES_FAILURE,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
 
 export const clearLicensingError = () => {
 	return dispatch => {

@@ -1,21 +1,14 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
-import { updateSettings } from 'state/settings';
-import { fetchPluginsData } from 'state/site/plugins';
+import { __ } from '@wordpress/i18n';
 import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 } from 'lib/plans/constants';
+import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
+import { updateSettings } from 'state/settings';
+import { fetchPluginsData } from 'state/site/plugins';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {

@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 
-/**
- * External dependencies
- */
-import Mocha from 'mocha';
-import glob from 'glob';
 import process from 'process';
-import parser from 'yargs-parser';
 import { fileURLToPath } from 'url';
+import glob from 'glob';
+import Mocha from 'mocha';
+import parser from 'yargs-parser';
 
 process.chdir( fileURLToPath( new URL( '../../..', import.meta.url ) ) );
 

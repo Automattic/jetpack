@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reorder JS imports for `import/order` eslint rule.

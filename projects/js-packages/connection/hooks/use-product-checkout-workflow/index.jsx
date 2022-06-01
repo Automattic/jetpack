@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { useEffect, useState } from 'react';
-import { useDispatch } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import { STORE_ID } from '../../state/store.jsx';
+import { useDispatch } from '@wordpress/data';
+import { useEffect, useState } from 'react';
 import useConnection from '../../components/use-connection';
+import { STORE_ID } from '../../state/store.jsx';
 
 const {
 	registrationNonce,

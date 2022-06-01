@@ -1,12 +1,3 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-
-/**
- * Internal dependencies
- */
 import { imagePath } from 'constants/urls';
 import {
 	PLAN_FREE,
@@ -65,10 +56,9 @@ import {
 	PLAN_JETPACK_SECURITY_REALTIME,
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 } from 'lib/plans/constants';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const PRODUCT_ICON_MAP = {

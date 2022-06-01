@@ -1,17 +1,10 @@
 <script>
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
-	import CheckboxIcon from '../../svg/checkbox.svg';
-	import TemplatedString from '../../elements/TemplatedString.svelte';
-	import externalLinkTemplateVar from '../../utils/external-link-template-var';
-	import { connection } from '../../stores/connection';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
+	import TemplatedString from '../../elements/TemplatedString.svelte';
+	import { connection } from '../../stores/connection';
+	import CheckboxIcon from '../../svg/checkbox.svg';
+	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 	import { jetpackURL } from '../../utils/jetpack-url';
 
 	const benefits = [

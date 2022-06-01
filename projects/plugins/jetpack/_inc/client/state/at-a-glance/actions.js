@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import restApi from '@automattic/jetpack-api';
 import {
 	STATS_SWITCH_TAB,

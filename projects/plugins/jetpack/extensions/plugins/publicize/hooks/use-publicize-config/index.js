@@ -1,12 +1,9 @@
-/**
- * WordPress dependencies
- */
-import { useSelect, useDispatch } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import {
 	getJetpackExtensionAvailability,
 	isUpgradable,
 } from '@automattic/jetpack-shared-extension-utils';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 
 const republicizeFeatureName = 'republicize';
 

@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
-
- /**
-  * Internal dependencies
-  */
 import { PluginDashItem } from '../index';
 import JetpackBanner from 'components/jetpack-banner';
- 
+
 describe( 'PluginDashItem', () => {
 
 	const testProps = {

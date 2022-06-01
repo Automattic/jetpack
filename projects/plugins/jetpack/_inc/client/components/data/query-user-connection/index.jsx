@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
-import { userCanConnectAccount } from 'state/initial-state';
 import { fetchUserConnectionData, isFetchingUserData } from 'state/connection';
+import { userCanConnectAccount } from 'state/initial-state';
 
 export class QueryUserConnectionData extends React.Component {
 	UNSAFE_componentWillMount() {

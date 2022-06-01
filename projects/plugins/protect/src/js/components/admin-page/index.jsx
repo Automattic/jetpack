@@ -1,11 +1,3 @@
-/**
- * External dependencies
- */
-import React, { useEffect } from 'react';
-import classnames from 'classnames';
-import { __ } from '@wordpress/i18n';
-import { useSelect, useDispatch } from '@wordpress/data';
-
 import {
 	AdminPage,
 	AdminSectionHero,
@@ -16,20 +8,20 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
-
-/**
- * Internal dependencies
- */
+import { useSelect, useDispatch } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+import React, { useEffect } from 'react';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useProtectData from '../../hooks/use-protect-data';
+import { STORE_ID } from '../../state/store';
+import AlertSVGIcon from '../alert-icon';
+import Footer from '../footer';
+import Interstitial from '../interstitial';
+import Logo from '../logo';
 import Summary from '../summary';
 import VulnerabilitiesList from '../vulnerabilities-list';
-import Interstitial from '../interstitial';
-import { STORE_ID } from '../../state/store';
-import Footer from '../footer';
-import useProtectData from '../../hooks/use-protect-data';
 import inProgressImage from './in-progress.png';
-import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import Logo from '../logo';
-import AlertSVGIcon from '../alert-icon';
 import styles from './styles.module.scss';
 
 export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';

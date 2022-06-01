@@ -1,18 +1,12 @@
-/**
- * External dependencies
- */
+const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const {
 	defaultRequestToExternal,
 	defaultRequestToHandle,
 } = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
-const path = require( 'path' );
-const webpack = jetpackWebpackConfig.webpack;
-
-/**
- * Internal dependencies
- */
 const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
+
+const webpack = jetpackWebpackConfig.webpack;
 
 /**
  * Used to determine if the module import request should be externalized.

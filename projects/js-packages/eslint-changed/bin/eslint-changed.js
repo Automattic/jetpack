@@ -3,15 +3,16 @@
 /* eslint-env node */
 /* eslint-disable no-console, no-process-exit */
 
-const { ESLint } = require( 'eslint' );
-const parseDiff = require( 'parse-diff' );
+const spawnSync = require( 'child_process' ).spawnSync;
 const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
+const { program } = require( 'commander' );
+const { ESLint } = require( 'eslint' );
+const parseDiff = require( 'parse-diff' );
 
 const APP_VERSION = '2.0.3-alpha';
 
-const { program } = require( 'commander' );
 program
 	.usage(
 		'Run ESLint on files and only report new warnings/errors compared to the previous version.'
@@ -100,7 +101,6 @@ function getFilesFromDiff( diff ) {
 	return files;
 }
 
-const spawnSync = require( 'child_process' ).spawnSync;
 const spawnOpt = {
 	stdio: [ null, 'pipe', 'inherit' ],
 	maxBuffer: Infinity,

@@ -1,16 +1,5 @@
-/**
- * External Dependencies
- */
-import filesize from 'filesize';
-
-/**
- * WordPress dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
-import { escapeHTML } from '@wordpress/escape-html';
-import { getJWT, resumableUploader } from './use-uploader';
-import { Button, Icon } from '@wordpress/components';
 import { useBlockProps } from '@wordpress/block-editor';
+import { Button, Icon } from '@wordpress/components';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -19,12 +8,12 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
-
-/**
- * Internal Dependencies
- */
+import { escapeHTML } from '@wordpress/escape-html';
+import { __, sprintf } from '@wordpress/i18n';
+import filesize from 'filesize';
 import { VideoPressIcon } from '../../../shared/icons';
 import { VideoPressBlockContext } from '../components';
+import { getJWT, resumableUploader } from './use-uploader';
 import './style.scss';
 
 export default function ResumableUpload( { file } ) {
