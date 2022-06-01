@@ -1198,7 +1198,7 @@ importers:
       '@rollup/plugin-json': 4.1.0
       '@rollup/plugin-node-resolve': 13.3.0
       '@rollup/plugin-replace': 4.0.0
-      '@rollup/plugin-typescript': 8.2.5
+      '@rollup/plugin-typescript': 8.3.2
       '@types/jquery': 3.5.14
       '@wordpress/components': 19.11.0
       '@wordpress/element': 4.7.0
@@ -1243,7 +1243,7 @@ importers:
       '@rollup/plugin-json': 4.1.0_rollup@2.56.3
       '@rollup/plugin-node-resolve': 13.3.0_rollup@2.56.3
       '@rollup/plugin-replace': 4.0.0_rollup@2.56.3
-      '@rollup/plugin-typescript': 8.2.5_f08052b27c804518db69986a916826a9
+      '@rollup/plugin-typescript': 8.3.2_f08052b27c804518db69986a916826a9
       '@types/jquery': 3.5.14
       '@wordpress/i18n': 4.9.0
       concurrently: 6.0.2
@@ -4959,8 +4959,8 @@ packages:
       rollup: 2.56.3
     dev: true
 
-  /@rollup/plugin-typescript/8.2.5_f08052b27c804518db69986a916826a9:
-    resolution: {integrity: sha512-QL/LvDol/PAGB2O0S7/+q2HpSUNodpw7z6nGn9BfoVCPOZ0r4EALrojFU29Bkoi2Hr2jgTocTejJ5GGWZfOxbQ==}
+  /@rollup/plugin-typescript/8.3.2_f08052b27c804518db69986a916826a9:
+    resolution: {integrity: sha512-MtgyR5LNHZr3GyN0tM7gNO9D0CS+Y+vflS4v/PHmrX17JCkHUYKvQ5jN5o3cz1YKllM3duXUqu3yOHwMPUxhDg==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
       rollup: ^2.14.0
@@ -12217,7 +12217,7 @@ packages:
     dev: true
 
   /estree-walker/0.2.1:
-    resolution: {integrity: sha1-va/oCVOD2EFNXcLs9MkXO225QS4=}
+    resolution: {integrity: sha512-6/I1dwNKk0N9iGOU3ydzAAurz4NPo/ttxZNCqgIVbWFvWyzWBSNonRrJ5CpjDuyBfmM7ENN7WCzUi9aT/UPXXQ==}
     dev: true
 
   /estree-walker/0.5.2:

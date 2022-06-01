@@ -24,7 +24,7 @@
 		"@rollup/plugin-json": "4.1.0",
 		"@rollup/plugin-node-resolve": "13.3.0",
 		"@rollup/plugin-replace": "4.0.0",
-		"@rollup/plugin-typescript": "8.2.5",
+		"@rollup/plugin-typescript": "8.3.2",
 		"@types/jquery": "3.5.14",
 		"@wordpress/i18n": "4.9.0",
 		"concurrently": "6.0.2",
