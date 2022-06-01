@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
 import { isMobile } from '@automattic/viewport';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { debounce, noop } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import Gridicon from 'components/gridicon';
 

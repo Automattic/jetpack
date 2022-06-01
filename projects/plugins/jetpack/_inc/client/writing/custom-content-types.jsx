@@ -1,22 +1,8 @@
-/**
- * External dependencies
- *
- * @format
- */
-
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';

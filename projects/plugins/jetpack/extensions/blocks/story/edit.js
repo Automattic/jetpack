@@ -1,22 +1,11 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
 import { get, pick } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isBlobURL } from '@wordpress/blob';
 import { useDispatch } from '@wordpress/data';
 import { MediaPlaceholder } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import { icon } from '.';
 import Controls from './controls';
 import StoryPlayer from './player';

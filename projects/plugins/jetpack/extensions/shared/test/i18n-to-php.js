@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { renderToStaticMarkup } from 'react-dom/server';
-
-/**
- * Internal dependencies
- */
 import { __, _n, _x, _nx } from '../i18n-to-php';
 
 describe( 'i18n-to-php', () => {

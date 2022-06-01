@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import type React from 'react';
 import QRCodeLib from 'qrcode.react';
 

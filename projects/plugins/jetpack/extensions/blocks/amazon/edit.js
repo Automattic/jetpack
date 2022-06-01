@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import tinycolor from 'tinycolor2';
 import { __ } from '@wordpress/i18n';
-
-/**
- * WordPress dependencies
- */
 import { ContrastChecker, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
 import {
 	Button,
@@ -19,10 +12,6 @@ import {
 } from '@wordpress/components';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import icon from './icon';
 import data from './dummy-data';
 import './editor.scss';

@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import React, { Fragment, useMemo } from 'react';
-
-/**
- * WordPress dependencies
- */
 import { useSelect, useDispatch, select as syncSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Spinner, AdminSection, AdminPage, Container, Col } from '@automattic/jetpack-components';

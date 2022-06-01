@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
 
 import SimpleNotice from 'components/notice';
 import NoticeActionReconnect from './notice-action-reconnect';

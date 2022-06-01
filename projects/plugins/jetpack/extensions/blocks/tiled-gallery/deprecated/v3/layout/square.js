@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { chunk, drop, take } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import Row from './row';
 import Column from './column';
 import Gallery from './gallery';

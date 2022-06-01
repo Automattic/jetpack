@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React, { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import MyPlanCard from '../my-plan-card';
 import { imagePath } from 'constants/urls';

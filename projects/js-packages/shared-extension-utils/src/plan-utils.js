@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import { compact, get, startsWith, map, filter, head } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { isAtomicSite, isSimpleSite } from './site-type-utils';
 import getJetpackData from './get-jetpack-data';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';

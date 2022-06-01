@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { getPlanClass } from 'lib/plans/constants';
 import { get } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import {
 	isDevVersion as _isDevVersion,
 	userCanViewStats,

@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import React, { useState, useRef, useCallback } from 'react';
 import { Popover } from '@wordpress/components';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { Text } from '@automattic/jetpack-components';
-/**
- * Internal dependencies
- */
 import styles from './styles.module.scss';
 import NavigationItem from './item';
 import NavigationGroup from './group';

@@ -1,19 +1,7 @@
 /* global _wpmejsSettings, MediaElementPlayer */
-
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
-
-/**
- * Internal dependencies
- */
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 class AudioPlayer extends Component {

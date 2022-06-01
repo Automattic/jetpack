@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import { FormLabel, FormLegend } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';

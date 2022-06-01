@@ -1,16 +1,9 @@
-/**
- * External Dependencies
- */
 import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import { ProgressBar } from '@automattic/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal Dependencies
- */
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,

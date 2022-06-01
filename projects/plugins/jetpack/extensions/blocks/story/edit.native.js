@@ -1,10 +1,4 @@
-/**
- * External dependencies
- */
 import { Text, View, TouchableWithoutFeedback } from 'react-native';
-/**
- * WordPress dependencies
- */
 import { Image } from '@wordpress/components';
 import {
 	MediaPlaceholder,
@@ -23,10 +17,6 @@ import {
 	mediaFilesBlockReplaceSync,
 	requestMediaFilesEditorLoad,
 } from '@wordpress/react-native-bridge';
-
-/**
- * Internal dependencies
- */
 import { icon } from '.';
 import styles from './editor.scss';
 import StoryEditingButton from './story-editing-button';

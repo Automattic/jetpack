@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { renderHook } from '@testing-library/react-hooks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import sinon from 'sinon';

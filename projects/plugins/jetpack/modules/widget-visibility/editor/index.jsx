@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Fragment, useCallback, useMemo } from '@wordpress/element';
 import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
@@ -8,10 +5,6 @@ import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-d
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import analytics from '../../../_inc/client/lib/analytics';
 
 /* global widget_conditions_data */

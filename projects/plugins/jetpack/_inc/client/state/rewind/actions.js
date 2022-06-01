@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import {
 	REWIND_STATUS_FETCH,
 	REWIND_STATUS_FETCH_RECEIVE,

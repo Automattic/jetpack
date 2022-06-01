@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import {
 	isNoticeDismissed as _isNoticeDismissed,
 	getJetpackNotices as _getJetpackNotices,

@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { assign, debounce, get } from 'lodash';
 import { Button, Dashicon, TextareaControl, TextControl } from '@wordpress/components';
 import { Children, Component, createRef, Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import MapMarker from './map-marker/';
 import InfoWindow from './info-window/';
 import { mapboxMapFormatter } from './mapbox-map-formatter/';

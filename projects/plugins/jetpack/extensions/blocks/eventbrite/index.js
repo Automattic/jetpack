@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { G, Path, Rect, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
 import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import {
@@ -17,10 +14,6 @@ import {
 } from '@wordpress/components';
 import { PanelColorSettings } from '@wordpress/block-editor';
 import { DOWN } from '@wordpress/keycodes';
-
-/**
- * Internal dependencies
- */
 import { countryCodes } from '../shared/countrycodes.js';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 import HelpMessage from '../../../shared/help-message';

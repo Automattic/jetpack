@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Card from 'components/card';
 import { getSettings } from 'state/settings';
 import { userCanManageModules, userCanEditPosts, isAtomicSite } from 'state/initial-state';

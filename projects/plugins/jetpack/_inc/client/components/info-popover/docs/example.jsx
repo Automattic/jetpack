@@ -1,12 +1,5 @@
 /* eslint jsx-a11y/no-onchange: 0 */
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import InfoPopover from 'components/info-popover';
 
 class InfoPopoverExample extends React.PureComponent {

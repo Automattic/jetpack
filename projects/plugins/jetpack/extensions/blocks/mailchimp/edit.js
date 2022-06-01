@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
@@ -8,10 +5,6 @@ import { addQueryArgs } from '@wordpress/url';
 import { Button, Placeholder, Spinner, TextControl, withNotices } from '@wordpress/components';
 import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import { icon, innerButtonBlock } from '.';
 import { MailChimpBlockControls } from './controls';
 import isCurrentUserConnected from '../../shared/is-current-user-connected';

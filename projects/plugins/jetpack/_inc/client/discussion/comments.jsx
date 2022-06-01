@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';

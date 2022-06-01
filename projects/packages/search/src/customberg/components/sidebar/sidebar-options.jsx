@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import {
 	Panel,
 	PanelBody,
@@ -14,10 +7,6 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import useSiteLoadingState from 'hooks/use-loading-state';
 import useEntityRecordState from 'hooks/use-entity-record-state';
 import useSearchOptions from 'hooks/use-search-options';

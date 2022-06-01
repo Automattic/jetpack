@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { ProductOffer } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';

@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { expect } from 'chai';
 import { select, dispatch } from '@wordpress/data';
 import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
 import resolvers from '../resolvers';
 import { STORE_ID } from '../store';
 import { FETCH_AUTHORIZATION_URL, SET_AUTHORIZATION_URL } from '../actions';

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import Container from '../container';
 import Col from '../col';
 import Text from '../../text';

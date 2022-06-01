@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import Gridicon from 'components/gridicon';
 
 import './style.scss';

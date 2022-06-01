@@ -2,14 +2,7 @@
 	This component shows a prompt to rate Boost if scores improved after enabling a feature.
 -->
 <script>
-	/**
-	 * WordPress dependencies
-	 */
 	import { __, sprintf } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import slideRightTransition from '../../../utils/slide-right-transition';

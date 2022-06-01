@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import SearchFilter from './search-filter';
 import { mapFilterToFilterKey, mapFilterToType, getAvailableStaticFilters } from '../lib/filters';
 import { clearFilters, setFilter, setStaticFilter } from '../store/actions';

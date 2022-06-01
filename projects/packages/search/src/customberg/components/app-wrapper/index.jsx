@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import { Provider } from 'react-redux';
 import { pickBy } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import SearchApp from 'instant-search/components/search-app';
 import store from 'instant-search/store';
 import { buildFilterAggregations } from 'instant-search/lib/api';

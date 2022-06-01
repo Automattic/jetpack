@@ -1,12 +1,5 @@
-/**
- * External Dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Internal Dependencies
- */
 import './style.scss';
 
 /**

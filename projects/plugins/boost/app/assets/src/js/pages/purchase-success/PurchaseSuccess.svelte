@@ -1,22 +1,11 @@
 <script>
-	/**
-	 * External dependencies.
-	 */
 	import { onMount } from 'svelte';
-
-	/**
-	 * Internal dependencies
-	 */
 	import BackButton from '../../elements/BackButton.svelte';
 	import { Button } from '@wordpress/components';
 	import { updateModuleState } from '../../stores/modules';
 	import { requestCloudCss } from '../../utils/cloud-css';
 
 	import Logo from '../../svg/jetpack-green.svg';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 

@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import './editor.scss';

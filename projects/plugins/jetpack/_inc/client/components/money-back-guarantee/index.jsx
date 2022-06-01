@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
 import { yearlyMoneyBackBadge } from './icons';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const MoneyBackGuarantee = ( { text } ) => {

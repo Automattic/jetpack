@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import {
 	getActiveFeatures,
 	getActiveProductPurchases,

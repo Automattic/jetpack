@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { range } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import { Bullet } from './components';
 import { useSelect } from '@wordpress/data';
 

@@ -1,12 +1,5 @@
 <script>
-	/**
-	 * External dependencies
-	 */
 	import { slide } from 'svelte/transition';
-
-	/**
-	 * Internal dependencies
-	 */
 	import {
 		dismissRecommendation,
 		activeRecommendations,
@@ -22,10 +15,6 @@
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
 	import { isFinished } from '../../../stores/critical-css-status';
 	import routerHistory from '../../../utils/router-history';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { __, _n, sprintf } from '@wordpress/i18n';
 
 	const { navigate } = routerHistory;

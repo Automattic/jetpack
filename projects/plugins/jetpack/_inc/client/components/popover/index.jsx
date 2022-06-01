@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
@@ -8,10 +5,6 @@ import debugFactory from 'debug';
 import classNames from 'classnames';
 import uid from 'component-uid';
 import { assign } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import RootChild from 'components/root-child';
 import {
 	bindWindowListeners,

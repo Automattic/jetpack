@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	RESET_OPTIONS,

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React, { useState, useCallback } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import TextInput from 'components/text-input';
 import { FormLabel } from 'components/forms';
 import Button from 'components/button';

@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
 import formatCurrency from '@automattic/format-currency';
-
-/**
- * WordPress dependencies
- */
 import { BlockControls } from '@wordpress/block-editor';
 import { ExternalLink, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, update, warning } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
 import { useProductManagementContext } from './context';
 import useOpenBlockSidebar from './use-open-block-sidebar';
 import { getMessageByProductType } from './utils';

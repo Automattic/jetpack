@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { addFilter } from '@wordpress/hooks';
 import { createBlock } from '@wordpress/blocks';
 import services from './services';

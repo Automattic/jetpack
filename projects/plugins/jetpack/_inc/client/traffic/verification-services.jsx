@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { get, includes } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import TextInput from 'components/text-input';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
@@ -8,10 +5,6 @@ import { store as editorStore } from '@wordpress/editor';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { numberFormat } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import { getSubscriberCount } from './api';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import './panel.scss';

@@ -2,9 +2,6 @@
  * The different payment blocks that can be chosen.
  */
 
-/**
- * Internal dependencies
- */
 import { name as premiumContentName, settings as premiumContentSettings } from '../premium-content';
 import { name as donationsName, settings as donationSettings } from '../donations';
 import {

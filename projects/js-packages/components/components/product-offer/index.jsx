@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React, { Fragment, ReactElement } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Text, { H3, Title } from '../text/index';
 import { getIconBySlug, CheckmarkIcon } from '../icons/index.jsx';
 import ProductPrice from '../product-price/index';

@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
-
-/**
- * Internal dependencies
- */
 import SearchResultMinimal from './search-result-minimal';
 import SearchResultExpanded from './search-result-expanded';
 import SearchResultProduct from './search-result-product';

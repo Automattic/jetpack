@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
 import { chunk, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import DashSectionHeader from 'components/dash-section-header';

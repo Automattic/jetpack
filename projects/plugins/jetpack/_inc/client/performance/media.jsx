@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ProgressBar } from '@automattic/components';
-
-/**
- * Internal dependencies
- */
 import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,

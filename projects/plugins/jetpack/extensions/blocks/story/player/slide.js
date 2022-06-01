@@ -1,18 +1,7 @@
-/**
- * External dependencies
- */
 import waitMediaReady from './lib/wait-media-ready';
 import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { Media, CalypsoSpinner } from './components';
 
 export const Slide = ( {

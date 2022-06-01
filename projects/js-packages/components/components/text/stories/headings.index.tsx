@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import { H2, H3 } from '../index';
 import type { H3Props } from '../types';
 import styles from './style.module.scss';

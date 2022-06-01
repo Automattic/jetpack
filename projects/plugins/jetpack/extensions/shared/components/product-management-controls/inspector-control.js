@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -17,10 +14,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
 import { API_STATE_NOT_REQUESTING, API_STATE_REQUESTING } from './constants';
 import { useProductManagementContext } from './context';
 import { getMessageByProductType } from './utils';

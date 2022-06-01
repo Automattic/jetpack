@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import { flatMap, throttle } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { serialize } from '@wordpress/blocks';
 import { select, dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
 
 /**

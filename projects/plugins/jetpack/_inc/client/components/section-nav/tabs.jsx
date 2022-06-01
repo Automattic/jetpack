@@ -1,18 +1,11 @@
 /** @ssr-ready **/
 
-/**
- * External Dependencies
- */
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 import { getWindowInnerWidth } from '@automattic/viewport';
 import PropTypes from 'prop-types';
 import ReactDom from 'react-dom';
 import React from 'react';
-
-/**
- * Internal Dependencies
- */
 import DropdownItem from 'components/select-dropdown/item';
 import SelectDropdown from 'components/select-dropdown';
 

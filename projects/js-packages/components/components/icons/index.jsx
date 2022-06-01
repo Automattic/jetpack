@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
 import React from 'react';
 import { Path, SVG, G, Polygon } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import styles from './style.module.scss';
 
 /**

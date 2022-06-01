@@ -1,16 +1,5 @@
-/**
- * External dependencies
- */
 import { TouchableWithoutFeedback, View } from 'react-native';
-
-/**
- * WordPress dependencies
- */
 import { Icon } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import SvgIconCustomize from './icon-customize';
 import styles from './editor.scss';
 

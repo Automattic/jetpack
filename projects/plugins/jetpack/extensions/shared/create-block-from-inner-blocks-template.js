@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { createBlocksFromInnerBlocksTemplate, createBlock } from '@wordpress/blocks';
 
 /**

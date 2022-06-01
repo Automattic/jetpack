@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import styles from './style.module.scss';
 import JetpackFooter from '../jetpack-footer';
 import JetpackLogo from '../jetpack-logo';

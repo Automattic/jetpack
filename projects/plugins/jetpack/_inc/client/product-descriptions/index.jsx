@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryProducts from 'components/data/query-products';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';

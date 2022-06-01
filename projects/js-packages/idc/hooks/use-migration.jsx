@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { useCallback, useState } from 'react';
 import { useDispatch, useSelect } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
-
-/**
- * Internal dependencies
- */
 import trackAndBumpMCStats from '../tools/tracking';
 import { STORE_ID } from '../state/store';
 

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { expect } from 'chai';
 import sinon from 'sinon';
 import useMockery from 'test/helpers/use-mockery';

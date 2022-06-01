@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { Text } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';
 

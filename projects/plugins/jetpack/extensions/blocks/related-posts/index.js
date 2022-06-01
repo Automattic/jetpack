@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { G, Path, SVG } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import './style.scss';
 import { getIconColor } from '../../shared/block-icons';

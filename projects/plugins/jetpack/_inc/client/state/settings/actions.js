@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { get, some } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_SETTINGS_FETCH,

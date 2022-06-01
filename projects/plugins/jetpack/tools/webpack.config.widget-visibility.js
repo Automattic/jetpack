@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-
-/**
- * Internal dependencies
- */
 const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
 
 module.exports = {

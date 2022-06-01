@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { withPreferredColorScheme } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
 import simpleInput from '../../shared/simple-input';
 
 import styles from './style.scss';

@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Path, SVG, G } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import './editor.scss';

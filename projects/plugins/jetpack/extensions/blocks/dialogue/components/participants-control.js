@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import {
 	DropdownMenu,
 	MenuGroup,
@@ -17,10 +10,6 @@ import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 import { useMemo, useState, Component } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import {
 	getParticipantByLabel,
 	getParticipantBySlug,

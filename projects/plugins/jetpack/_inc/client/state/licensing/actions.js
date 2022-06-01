@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import {
 	JETPACK_LICENSING_ERROR_UPDATE,
 	JETPACK_LICENSING_USER_LICENSE_COUNTS_UPDATE,

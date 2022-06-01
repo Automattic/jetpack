@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import Text, { BOX_MODEL_VALUES, H2, H3, Title } from '../index';
 import type { SpacingValue } from '../types';
 import styles from './style.module.scss';

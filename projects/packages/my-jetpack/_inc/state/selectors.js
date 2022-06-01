@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { mapObjectKeysToCamel } from '../utils/to-camel';
 import { PRODUCT_STATUSES } from '../components/product-card';
 

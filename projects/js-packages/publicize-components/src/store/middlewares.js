@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import refx from 'refx';
 import { flowRight } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import effects from './effects';
 
 /**

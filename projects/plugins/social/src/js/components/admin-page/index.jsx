@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import {
 	AdminPage,
@@ -11,10 +8,6 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import ConnectionScreen from './../connection-screen';
 import Logo from './../logo';
 import Header from './../header';

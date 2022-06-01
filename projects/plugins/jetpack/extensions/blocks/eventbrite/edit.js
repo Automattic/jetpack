@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import {
@@ -13,10 +10,6 @@ import {
 } from '@wordpress/components';
 import { BlockControls, InnerBlocks } from '@wordpress/block-editor';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import { innerButtonBlock } from './';
 import attributeDetails from './attributes';
 import { convertToLink, eventIdFromUrl, normalizeUrlInput } from './utils';

@@ -1,19 +1,8 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import {
 	getSiteConnectionStatus,
 	isConnectionOwner,

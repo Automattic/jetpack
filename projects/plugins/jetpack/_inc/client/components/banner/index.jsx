@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect as reduxConnect } from 'react-redux';
 import classNames from 'classnames';
 import { noop, size } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import {
 	getPlanClass,

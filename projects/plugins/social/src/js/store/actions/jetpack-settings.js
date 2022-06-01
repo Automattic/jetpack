@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { select } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import {
 	fetchJetpackSettings,
 	updateJetpackSettings as updateJetpackSettingsControl,

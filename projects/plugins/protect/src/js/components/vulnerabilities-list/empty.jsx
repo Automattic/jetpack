@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { H3, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import styles from './styles.module.scss';
 import useProtectData from '../../hooks/use-protect-data';
 

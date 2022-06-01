@@ -1,12 +1,5 @@
-/**
- * External Dependencies
- */
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { memo } from '@wordpress/element';
 import { getBlockType, getBlockFromExample, createBlock } from '@wordpress/blocks';
 import { BlockControls, BlockPreview, InspectorControls } from '@wordpress/block-editor';
@@ -14,10 +7,6 @@ import { PanelBody, ToolbarGroup } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { ENTER, SPACE } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 const addPreviewAttribute = block => {

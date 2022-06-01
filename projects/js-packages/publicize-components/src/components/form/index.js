@@ -6,16 +6,9 @@
  * sharing message.
  */
 
-/**
- * WordPress dependencies
- */
 import { PanelRow, Disabled } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize-components';
-
-/**
- * Internal dependencies
- */
 import PublicizeSettingsButton from '../settings-button';
 import MessageBoxControl from '../message-box-control';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';

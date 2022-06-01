@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { addFilter } from '@wordpress/hooks';
 import { BlockControls } from '@wordpress/block-editor';
 import {
@@ -11,10 +8,6 @@ import {
 	Spinner,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import useGatherTweetstorm from './use-gather-tweetstorm';
 import './editor.scss';
 

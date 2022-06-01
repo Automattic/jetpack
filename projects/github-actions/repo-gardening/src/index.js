@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 const { setFailed, getInput } = require( '@actions/core' );
 const { context, getOctokit } = require( '@actions/github' );
-
-/**
- * Internal dependencies
- */
 const assignIssues = require( './tasks/assign-issues' );
 const addMilestone = require( './tasks/add-milestone' );
 const addLabels = require( './tasks/add-labels' );

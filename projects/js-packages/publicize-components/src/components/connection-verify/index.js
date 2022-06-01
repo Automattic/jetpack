@@ -8,9 +8,6 @@
  * not render anything.
  */
 
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';

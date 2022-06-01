@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import { getDate, date, dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from '../store';
 import StatBlock from './StatBlock';
 import './backups-style.scss';

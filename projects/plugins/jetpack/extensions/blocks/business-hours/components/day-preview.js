@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { _x, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { date } from '@wordpress/date';

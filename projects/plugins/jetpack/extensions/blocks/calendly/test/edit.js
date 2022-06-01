@@ -2,9 +2,6 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -20,10 +17,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
 	InnerBlocks: () => <button>Mocked button</button>,
 } ) );
-
-/**
- * Internal dependencies
- */
 import testEmbedUrl from '../../../shared/test-embed-url';
 import { CalendlyEdit } from '../edit';
 

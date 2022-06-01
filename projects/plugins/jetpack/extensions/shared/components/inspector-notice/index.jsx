@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { JetpackLogo } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 export default function InspectorNotice( { children } ) {

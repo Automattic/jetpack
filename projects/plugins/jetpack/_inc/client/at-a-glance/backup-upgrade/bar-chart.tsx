@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React, { useEffect, useMemo, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 import { RecordMeterBar } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import Card from 'components/card';
 import analytics from 'lib/analytics';
 import { Popup } from './popup';

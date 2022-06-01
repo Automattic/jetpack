@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import classnames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import styles from './style.module.scss';
 import Container from '../layout/container';
 import Col from '../layout/col';

@@ -1,10 +1,4 @@
-/**
- * External dependencies
- */
 
-/**
- * Internal dependencies
- */
 import { convertToLink, eventIdFromUrl, normalizeUrlInput } from '../utils';
 
 

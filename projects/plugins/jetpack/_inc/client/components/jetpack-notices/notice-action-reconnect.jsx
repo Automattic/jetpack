@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import NoticeAction from 'components/notice/notice-action';
 import { reconnectSite, isReconnectingSite } from 'state/connection';
 import analytics from 'lib/analytics';

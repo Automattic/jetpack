@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 /*eslint lodash/import-scope: [2, "method"]*/
 import pick from 'lodash/pick';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import {
 	fetchWordAdsSettings,
 	updateWordAdsSettings as updateJetpackSettingsControl,

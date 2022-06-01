@@ -3,9 +3,6 @@
  * Jetpack plugin implementation.
  */
 
-/**
- * External dependencies
- */
 import {
 	ConnectionVerify as PublicizeConnectionVerify,
 	Form as PublicizeForm,
@@ -17,10 +14,6 @@ import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
 import { store as editorStore } from '@wordpress/editor';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import Description from './description';
 
 const PublicizePanel = ( { prePublish } ) => {

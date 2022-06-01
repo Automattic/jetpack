@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { writable, derived } from 'svelte/store';
-
-/**
- * Internal dependencies
- */
 import api from '../api/api';
 import { CriticalCssErrorDetails, criticalCssStatus } from './critical-css-status';
 import type { JSONObject } from '../utils/json-types';

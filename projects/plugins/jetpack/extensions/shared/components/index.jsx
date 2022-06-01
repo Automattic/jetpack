@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { renderToStaticMarkup } from 'react-dom/server';
-
-/**
- * Internal dependencies
- */
 import { Nudge } from './upgrade-nudge';
 import {
 	UPGRADE_NUDGE_BUTTON_TEXT,

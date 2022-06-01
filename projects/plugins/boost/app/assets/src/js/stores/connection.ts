@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { writable } from 'svelte/store';
-
-/**
- * Internal dependencies
- */
 import api from '../api/api';
 
 export type ConnectionStatus = {

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
 import { RawHTML } from '@wordpress/element';

@@ -1,12 +1,5 @@
 <script>
-	/**
-	 * External dependencies
-	 */
 	import { createEventDispatcher } from 'svelte';
-
-	/**
-	 * Internal dependencies
-	 */
 	import actionLinkTemplateVar from '../utils/action-link-template-var';
 	import { standardizeError } from '../utils/standardize-error';
 	import supportLinkTemplateVar from '../utils/support-link-template-var';

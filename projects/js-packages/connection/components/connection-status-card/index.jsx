@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
 import { Button, H3, Text } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import ConnectUser from '../connect-user';
 import DisconnectDialog from '../disconnect-dialog';
 import { STORE_ID } from '../../state/store';

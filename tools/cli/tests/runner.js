@@ -1,8 +1,4 @@
 #!/usr/bin/env node
-
-/**
- * External dependencies
- */
 import Mocha from 'mocha';
 import glob from 'glob';
 import process from 'process';

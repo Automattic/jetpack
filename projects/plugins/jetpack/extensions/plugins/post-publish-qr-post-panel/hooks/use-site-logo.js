@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { store as coreStore } from '@wordpress/core-data';

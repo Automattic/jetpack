@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import child_process from 'child_process';
-
-/**
- * Internal dependencies
- */
 import promptForProject, { promptForType } from '../helpers/promptForProject.js';
 import { normalizeCleanArgv } from '../helpers/normalizeArgv.js';
 import { allProjects } from '../helpers/projectHelpers.js';

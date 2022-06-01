@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { withRouter } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import AppsBadge from 'components/apps-badge';
 import analytics from 'lib/analytics';
 import Button from 'components/button';

@@ -1,21 +1,10 @@
-/**
- * External dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
-
-/**
- * Internal dependencies
- */
 import AppsBadge from 'components/apps-badge';
 import { Layout } from '../layout';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const MobileApp = () => {

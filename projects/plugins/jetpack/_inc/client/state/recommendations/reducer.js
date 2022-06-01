@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { _x } from '@wordpress/i18n';
 import { combineReducers } from 'redux';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
@@ -10,10 +7,6 @@ import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';

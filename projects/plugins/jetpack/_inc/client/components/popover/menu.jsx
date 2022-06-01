@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 
 import ReactDom from 'react-dom';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import Popover from 'components/popover';
 
 class PopoverMenu extends React.Component {
