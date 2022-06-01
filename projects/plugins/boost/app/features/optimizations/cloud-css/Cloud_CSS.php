@@ -122,7 +122,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		$state->create_request( $source_providers->get_providers() );
 
 		$client    = new Cloud_CSS_Request();
-		$providers = $state->get_provider_urls_with_args();
+		$providers = $state->get_provider_urls();
 		$response  = $client->request_generate( $providers );
 
 		// Set a one off cron job one hour from now. This will resend the request in case it failed.

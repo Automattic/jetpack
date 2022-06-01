@@ -30,7 +30,7 @@ class Cloud_CSS_Cron {
 
 		if ( $state->is_fatal_error() ) {
 			$client    = new Cloud_CSS_Request();
-			$providers = $state->get_provider_urls_with_args();
+			$providers = $state->get_provider_urls();
 			$client->request_generate( $providers );
 		}
 	}

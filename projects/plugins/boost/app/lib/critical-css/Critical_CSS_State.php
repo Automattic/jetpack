@@ -109,13 +109,13 @@ class Critical_CSS_State {
 
 	public function maybe_set_status() {
 		if ( $this->get_total_providers_count() === $this->get_processed_providers_count() ) {
-
 			// Only consider the generation a success if at least one provider was successful
 			if ( $this->get_providers_success_count() > 0 ) {
 				$this->state = self::SUCCESS;
 			} else {
 				$this->state = self::FAIL;
 			}
+
 			$this->save();
 		}
 	}
@@ -397,24 +397,6 @@ class Critical_CSS_State {
 	 */
 	public function get_provider_urls() {
 		return $this->collate_column( 'urls' );
-	}
-
-	/**
-	 * Get the provider urls with added query parameter to indicate critical css generation.
-	 *
-	 * @return array
-	 */
-	public function get_provider_urls_with_args() {
-		$providers = $this->get_provider_urls();
-		$urls      = array();
-
-		foreach ( $providers as $provider => $provider_urls ) {
-			foreach ( $provider_urls as $url ) {
-				$urls[ $provider ][] = add_query_arg( 'jb-generate-critical-css', 'true', $url );
-			}
-		}
-
-		return $urls;
 	}
 
 	/**
