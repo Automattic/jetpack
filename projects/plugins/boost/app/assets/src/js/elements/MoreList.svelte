@@ -5,14 +5,7 @@
 	Automatically folds away with "...and x more" when the list exceeds showLimit.
 -->
 <script>
-	/**
-	 * External dependencies
-	 */
 	import { slide } from 'svelte/transition';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { sprintf, __ } from '@wordpress/i18n';
 
 	/**

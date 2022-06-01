@@ -1,20 +1,22 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { noop } from 'lodash';
-import debugFactory from 'debug';
-import { withRouter } from 'react-router-dom';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import Search from 'components/search';
+import SectionNav from 'components/section-nav';
+import NavItem from 'components/section-nav/item';
+import NavTabs from 'components/section-nav/tabs';
+import debugFactory from 'debug';
 import analytics from 'lib/analytics';
-import { filterSearch, getSearchTerm } from 'state/search';
+import { noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { isSiteConnected, isCurrentUserLinked } from 'state/connection';
+import {
+	userCanManageModules as _userCanManageModules,
+	userIsSubscriber as _userIsSubscriber,
+	userCanPublish,
+} from 'state/initial-state';
 import {
 	getModules,
 	hasAnyOfTheseModules,
@@ -22,17 +24,8 @@ import {
 	hasAnySecurityFeature,
 	isModuleActivated,
 } from 'state/modules';
+import { filterSearch, getSearchTerm } from 'state/search';
 import { isPluginActive } from 'state/site/plugins';
-import NavTabs from 'components/section-nav/tabs';
-import NavItem from 'components/section-nav/item';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import Search from 'components/search';
-import SectionNav from 'components/section-nav';
-import {
-	userCanManageModules as _userCanManageModules,
-	userIsSubscriber as _userIsSubscriber,
-	userCanPublish,
-} from 'state/initial-state';
 
 const debug = debugFactory( 'calypso:url-search' );
 

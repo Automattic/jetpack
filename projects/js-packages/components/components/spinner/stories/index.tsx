@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import Spinner from '../index';
 
 export default {

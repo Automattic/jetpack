@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import * as allIcons from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
 import Col from '../../layout/col';
 import Container from '../../layout/container';
 import Text, { H3 } from '../../text';

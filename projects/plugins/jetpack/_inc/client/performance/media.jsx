@@ -1,37 +1,30 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ProgressBar } from '@automattic/components';
-
-/**
- * Internal dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
+import CompactFormToggle from 'components/form/form-toggle/compact';
+import { FormLegend, FormFieldset } from 'components/forms';
+import JetpackBanner from 'components/jetpack-banner';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,
 	FEATURE_VIDEO_HOSTING_JETPACK,
 } from 'lib/plans/constants';
-import { FormLegend, FormFieldset } from 'components/forms';
-import JetpackBanner from 'components/jetpack-banner';
-import { ModuleToggle } from 'components/module-toggle';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import SettingsCard from 'components/settings-card';
-import SettingsGroup from 'components/settings-group';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import React from 'react';
+import { connect } from 'react-redux';
+import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
 import {
 	getSitePlan,
 	getVideoPressStorageUsed,
 	hasActiveSiteFeature,
 	isFetchingSitePurchases,
 } from 'state/site';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 
 class Media extends React.Component {
 	togglePrivacySetting = () => {

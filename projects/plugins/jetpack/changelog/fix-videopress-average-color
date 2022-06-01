@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Removing strict comparison to fix average color param

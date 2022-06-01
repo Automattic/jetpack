@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { expect } from 'chai';
 import { render, queryByAttribute } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
+import { expect } from 'chai';
 import RecordMeterBar, { RecordMeterBarProps } from '../index';
 
 const getRecordBarItems = ( container: HTMLElement ) => {

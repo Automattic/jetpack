@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Path, SVG } from '@wordpress/components';
 
 const sharedProps = {

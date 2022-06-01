@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { name, settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
 import { settings as buttonSettings } from '../../button';

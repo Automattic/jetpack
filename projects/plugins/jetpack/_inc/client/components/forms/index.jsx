@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import classNames from 'classnames';
-import { isEmpty, forOwn, omit } from 'lodash';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import classNames from 'classnames';
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';
+import { isEmpty, forOwn, omit } from 'lodash';
+import React from 'react';
 
 export const FormFieldset = props => {
 	return (

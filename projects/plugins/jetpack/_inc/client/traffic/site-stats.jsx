@@ -1,31 +1,20 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { filter, includes } from 'lodash';
-import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
+import { imagePath } from 'constants/urls';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import FoldableCard from 'components/foldable-card';
-import { imagePath } from 'constants/urls';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLegend } from 'components/forms';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import SettingsGroup from 'components/settings-group';
-import SettingsCard from 'components/settings-card';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
+import analytics from 'lib/analytics';
+import { filter, includes } from 'lodash';
+import React from 'react';
 
 class SiteStatsComponent extends React.Component {
 	constructor( props ) {

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import RecordMeterBar, { RecordMeterBarProps } from '../index';
 
 export default {

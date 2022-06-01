@@ -9,11 +9,12 @@ set -eo pipefail
 : "${GITHUB_REPOSITORY:?Build argument needs to be set and non-empty.}"
 
 ## Determine tag
-if ! [[ "$GITHUB_REF" =~ ^refs/tags/v[0-9]+(\.[0-9]+)+$ ]]; then
-	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\`, got \`$GITHUB_REF\`"
+if [[ ! "$GITHUB_REF" =~ ^refs/tags/v?[0-9]+(\.[0-9]+)+$ ]]; then
+	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\` or \`refs/tags/1.2.3\`, got \`$GITHUB_REF\`"
 	exit 1
 fi
-TAG="${GITHUB_REF#refs/tags/v}"
+TAG="${GITHUB_REF#refs/tags/}"
+TAG="${TAG#v}"
 echo "Creating release for $TAG"
 
 ## Determine slug and title format.

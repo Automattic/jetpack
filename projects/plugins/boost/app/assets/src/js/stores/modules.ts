@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { writable } from 'svelte/store';
-
-/**
- * Internal dependencies
- */
-import config from './config';
 import { setModuleState } from '../api/modules';
+import config from './config';
 
 export type Optimizations = {
 	[ slug: string ]: boolean;

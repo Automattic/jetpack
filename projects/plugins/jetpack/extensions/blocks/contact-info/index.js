@@ -1,22 +1,16 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
-import { Path } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
+import { Path } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import renderMaterialIcon from '../../shared/render-material-icon';
-import './editor.scss';
-import './style.scss';
 import { name as addressName, settings as addressSettings } from './address/';
+import edit from './edit';
 import { name as emailName, settings as emailSettings } from './email/';
 import { name as phoneName, settings as phoneSettings } from './phone/';
-import { getIconColor } from '../../shared/block-icons';
+
+import './editor.scss';
+import './style.scss';
 
 const attributes = {};
 

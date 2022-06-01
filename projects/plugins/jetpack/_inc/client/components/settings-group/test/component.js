@@ -1,15 +1,9 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
-/**
- * Internal dependencies
- */
 import { SettingsGroup } from '../index';
 
 describe( 'SettingsGroup', () => {
