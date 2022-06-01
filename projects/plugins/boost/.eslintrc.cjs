@@ -9,12 +9,6 @@ module.exports = {
 	extends: [
 		require.resolve( 'jetpack-js-tools/eslintrc/base' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/recommended' ),
-		/**
-		 * we need to add our TS specific config
-		 * in order to extend 'plugin:@typescript-eslint/recommended'
-		 * Otherwise svelte TS files won't be parsed
-		 */
-		require.resolve( 'jetpack-js-tools/eslintrc/typescript' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/svelte' ),
 	],
 	ignorePatterns: loadIgnorePatterns( __dirname ),

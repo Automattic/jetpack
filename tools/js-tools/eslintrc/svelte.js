@@ -2,7 +2,7 @@
  * @type {import("eslint").Linter.Config}
  */
 module.exports = {
-	extends: [ './preload' ],
+	extends: [ './preload', './typescript' ],
 	parserOptions: {
 		extraFileExtensions: [ '.svelte' ],
 	},
