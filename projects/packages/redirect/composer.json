@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-status": "^1.13"
+		"automattic/jetpack-status": "^1.14"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",
