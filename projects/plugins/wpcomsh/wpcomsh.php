@@ -31,6 +31,7 @@ require_once __DIR__ . '/footer-credit/footer-credit.php';
 require_once __DIR__ . '/block-theme-footer-credits/block-theme-footer-credits.php';
 require_once __DIR__ . '/storefront/storefront.php';
 require_once __DIR__ . '/custom-colors/colors.php';
+require_once __DIR__ . '/storage/storage.php';
 
 // Load feature manager bootstrap file.
 require_once __DIR__ . '/feature-manager/bootstrap.php';
