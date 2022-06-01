@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\Status\Host;
+
 // We don't want to be anything in here outside WP context.
 if ( ! function_exists( 'add_action' ) ) {
 	return;
@@ -21,6 +23,22 @@ if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	return;
+}
+
+if ( ( new Host() )->is_atomic_platform() ) {
+	add_filter( 'jetpack_get_available_modules', 'jetpack_atomic_waf_disable' );
+
+	/**
+	 * Disable on the Atomic platform, for now at least
+	 *
+	 * @param array $modules The list of modules.
+	 * @return array Modified list of modules.
+	 */
+	function jetpack_atomic_waf_disable( $modules ) {
+		unset( $modules['waf'] );
+
+		return $modules;
+	}
 }
 
 /**
