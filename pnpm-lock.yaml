@@ -114,7 +114,7 @@ importers:
       '@types/qrcode.react': 1.0.2
       '@types/react': 17.0.45
       '@types/react-dom': 17.0.15
-      '@types/react-test-renderer': 17.0.1
+      '@types/react-test-renderer': 17.0.2
       '@types/wordpress__components': 19.10.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.11.0
@@ -157,7 +157,7 @@ importers:
       '@types/qrcode.react': 1.0.2
       '@types/react': 17.0.45
       '@types/react-dom': 17.0.15
-      '@types/react-test-renderer': 17.0.1
+      '@types/react-test-renderer': 17.0.2
       '@types/wordpress__components': 19.10.0_react-dom@17.0.2+react@17.0.2
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       nyc: 15.1.0
@@ -7065,8 +7065,8 @@ packages:
       '@types/react': 17.0.45
     dev: true
 
-  /@types/react-test-renderer/17.0.1:
-    resolution: {integrity: sha512-3Fi2O6Zzq/f3QR9dRnlnHso9bMl7weKCviFmfF6B4LS1Uat6Hkm15k0ZAQuDz+UBq6B3+g+NM6IT2nr5QgPzCw==}
+  /@types/react-test-renderer/17.0.2:
+    resolution: {integrity: sha512-+F1KONQTBHDBBhbHuT2GNydeMpPuviduXIVJRB7Y4nma4NR5DrTJfMMZ+jbhEHbpwL+Uqhs1WXh4KHiyrtYTPg==}
     dependencies:
       '@types/react': 17.0.45
     dev: true
