@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
 import { mapValues, merge } from 'lodash';
 
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 export default async function createSwiper(

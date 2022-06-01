@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
-import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { numberFormat } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import { getSubscriberCount } from './api';
+import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import { useSelect } from '@wordpress/data';
+import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
+import { store as editorStore } from '@wordpress/editor';
+import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
+import { getSubscriberCount } from './api';
 import './panel.scss';
 
 export default function SubscribePanels() {

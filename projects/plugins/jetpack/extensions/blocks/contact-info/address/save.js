@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 const hasAddress = ( { address, addressLine2, addressLine3, city, region, postal, country } ) => {
 	return [ address, addressLine2, addressLine3, city, region, postal, country ].some(

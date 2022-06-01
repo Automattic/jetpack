@@ -1,14 +1,7 @@
-/**
- * WordPress dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import useUpgradeFlow from '../../shared/use-upgrade-flow/index';
+import { __, sprintf } from '@wordpress/i18n';
 import { Nudge } from '../../shared/components/upgrade-nudge';
+import useUpgradeFlow from '../../shared/use-upgrade-flow/index';
 
 export const UPGRADE_NUDGE_TITLE = __( 'Premium Block', 'jetpack' );
 

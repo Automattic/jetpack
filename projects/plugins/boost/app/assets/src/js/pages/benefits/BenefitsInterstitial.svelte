@@ -1,25 +1,13 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
+	import { PricingCard } from '@automattic/jetpack-components';
+	import React from 'react';
+	import { createInterpolateElement } from '@wordpress/element';
+	import { __ } from '@wordpress/i18n';
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import Logo from '../../svg/jetpack-green.svg';
 	import { jetpackURL } from '../../utils/jetpack-url';
 	import { getUpgradeURL } from '../../utils/upgrade';
-	import Logo from '../../svg/jetpack-green.svg';
-
-	/**
-	 * External dependencies
-	 */
-	import { PricingCard } from '@automattic/jetpack-components';
-
-	/**
-	 * WordPress dependencies
-	 */
-	import { __ } from '@wordpress/i18n';
-	import { createInterpolateElement } from '@wordpress/element';
-
-	import React from 'react';
 
 	function goToCheckout() {
 		window.location.href = getUpgradeURL();

@@ -1,11 +1,3 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import {
 	InspectorControls,
 	RichText,
@@ -15,13 +7,10 @@ import {
 import { compose } from '@wordpress/compose';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
 import applyFallbackStyles from './apply-fallback-styles';
-import ButtonControls from './controls';
 import { IS_GRADIENT_AVAILABLE } from './constants';
+import ButtonControls from './controls';
 import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
 

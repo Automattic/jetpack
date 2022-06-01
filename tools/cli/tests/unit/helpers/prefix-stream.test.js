@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import chai from 'chai';
-
-/**
- * Internal dependencies
- */
 import PrefixStream from '../../../helpers/prefix-stream.js';
 
 describe( 'PrefixStream', () => {

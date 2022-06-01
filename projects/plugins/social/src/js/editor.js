@@ -1,24 +1,18 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
+import { SocialIcon } from '@automattic/jetpack-components';
+import { dispatch } from '@wordpress/data';
+import domReady from '@wordpress/dom-ready';
 import {
 	PluginSidebar,
 	PluginSidebarMoreMenuItem,
 	PluginPrePublishPanel,
 } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
-import { dispatch } from '@wordpress/data';
 import { getQueryArg } from '@wordpress/url';
-import domReady from '@wordpress/dom-ready';
-import { SocialIcon } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import './editor.scss';
 import PublicizePanel from './components/panel';
+
+import './editor.scss';
 
 /**
  * Open Jetpack Spcoal; sidebar by default when URL includes jetpackSidebarIsOpen=true.

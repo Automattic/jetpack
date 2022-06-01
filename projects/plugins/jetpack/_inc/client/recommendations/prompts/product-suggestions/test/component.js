@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
 import { expect } from 'chai';
 
-/**
- * Internal dependencies
- */
 import { ProductSuggestions } from '../index';
 import { buildInitialState } from './fixtures';
 import { render, screen } from 'test/test-utils';

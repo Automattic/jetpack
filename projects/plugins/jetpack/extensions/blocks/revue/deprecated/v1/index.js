@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import { isEmpty, omit, pick, some } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { createBlock } from '@wordpress/blocks';
 import { _x, __ } from '@wordpress/i18n';
+import { isEmpty, omit, pick, some } from 'lodash';
 
 const deprecatedAttributes = [
 	'text',

@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { SelectControl, Button } from '@wordpress/components';
-import { omit } from 'lodash';
 import { useState, Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import { omit } from 'lodash';
+import NumberControl from '../../../components/number-control';
 import {
 	GOOGLE_PHOTOS_CATEGORIES,
 	GOOGLE_PHOTOS_DATE_PRESETS,
@@ -17,7 +11,6 @@ import {
 	MONTH_SELECT_OPTIONS,
 	CURRENT_YEAR,
 } from '../../constants';
-import NumberControl from '../../../components/number-control';
 
 function CategoryOption( { value, updateFilter } ) {
 	return (
