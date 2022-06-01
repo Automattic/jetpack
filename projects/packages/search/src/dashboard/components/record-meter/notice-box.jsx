@@ -13,7 +13,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 			id: 1,
 			header: __( 'Search was unable to index your content', 'jetpack-search-pkg' ),
 			message: __(
-				"Jetpack's servers ran into a problem when trying to communicate with your site, which is needed for Search to work properly.",
+				"Jetpack's servers ran into a problem when trying to communicate with your site.",
 				'jetpack-search-pkg'
 			),
 			isImportant: true,
@@ -21,6 +21,10 @@ const getNotices = ( tierMaximumRecords = null ) => {
 		2: {
 			id: 2,
 			header: __( 'Your content has not yet been indexed for Search', 'jetpack-search-pkg' ),
+			message: __(
+				'If you have recently set up Search, please allow a little time for indexing to complete.',
+				'jetpack-search-pkg'
+			),
 		},
 		3: {
 			id: 3,
@@ -28,12 +32,15 @@ const getNotices = ( tierMaximumRecords = null ) => {
 				"We weren't able to locate any content for Search to index",
 				'jetpack-search-pkg'
 			),
-			message: __( "Perhaps you don't yet have any posts or pages?", 'jetpack-search-pkg' ),
+			message: __(
+				"This can happen if you don't have any posts or pages to index yet.",
+				'jetpack-search-pkg'
+			),
 		},
 		4: {
 			id: 5,
 			header: __(
-				"You're close to the max amount of records for this billing tier",
+				"You're close to the maximum records for this billing tier",
 				'jetpack-search-pkg'
 			),
 			message: sprintf(
@@ -125,7 +132,7 @@ export function NoticeBox( props ) {
 			icon={ 'info-outline' }
 		>
 			{ notice.header && <h3 className="dops-notice__header">{ notice.header }</h3> }
-			<span className="dops-notice__body">{ notice.message }</span>
+			{ notice.message && <span className="dops-notice__body">{ notice.message }</span> }
 			{ notice.link && (
 				<NoticeAction href={ notice.link.url } external={ true }>
 					{ notice.link.text }
