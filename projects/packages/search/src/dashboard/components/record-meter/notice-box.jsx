@@ -105,7 +105,6 @@ export function NoticeBox( props ) {
 		props.recordCount < props.tierMaximumRecords &&
 		! dismissedNoticesString.includes( CLOSE_TO_LIMIT ) &&
 		activeNoticeIds.push( CLOSE_TO_LIMIT );
-	activeNoticeIds.push( CLOSE_TO_LIMIT );
 
 	if ( activeNoticeIds.length < 1 || ! showNotice ) {
 		return null;
