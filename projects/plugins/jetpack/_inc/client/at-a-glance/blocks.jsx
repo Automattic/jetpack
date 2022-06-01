@@ -1,18 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import DashItem from 'components/dash-item';
+import React from 'react';
 
 const DashBlocks = () => {
 	const labelName = __( 'Jetpack blocks', 'jetpack' );

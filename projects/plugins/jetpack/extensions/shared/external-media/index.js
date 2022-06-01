@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
-import { addFilter } from '@wordpress/hooks';
 import { useBlockEditContext } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import { addFilter } from '@wordpress/hooks';
 import isCurrentUserConnected from '../is-current-user-connected';
 import MediaButton from './media-button';
 import { mediaSources } from './sources';

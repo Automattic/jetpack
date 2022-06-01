@@ -1,8 +1,5 @@
-/**
- * WordPress dependencies
- */
-import { __, _n, sprintf } from '@wordpress/i18n';
 import { TextareaControl } from '@wordpress/components';
+import { __, _n, sprintf } from '@wordpress/i18n';
 
 /**
  * Wrapper around a textbox to restrict the number of characters and

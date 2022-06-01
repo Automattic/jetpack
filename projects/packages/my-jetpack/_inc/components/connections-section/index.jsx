@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { ConnectionStatusCard } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { STORE_ID } from '../../state/store';

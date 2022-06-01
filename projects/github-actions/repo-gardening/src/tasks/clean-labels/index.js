@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 const debug = require( '../../debug' );
 const getLabels = require( '../../get-labels' );
 

@@ -1,24 +1,14 @@
-/**
- * External dependencies
- */
+import { imagePath } from 'constants/urls';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import { Layout } from '../layout';
-import Button from 'components/button';
-import { imagePath } from 'constants/urls';
-import analytics from 'lib/analytics';
 import { getSiteRawUrl } from 'state/initial-state';
 import { hasActiveSiteFeature } from 'state/site';
+import { Layout } from '../layout';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const OneClickRestoresComponent = props => {

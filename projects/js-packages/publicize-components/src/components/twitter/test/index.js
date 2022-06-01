@@ -2,15 +2,8 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
-import { mount } from 'enzyme';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { mount } from 'enzyme';
 import TwitterThreadListener from '..';
 
 // Override data handlers, so we can control data changes.

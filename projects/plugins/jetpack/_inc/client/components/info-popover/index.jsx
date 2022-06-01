@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
+import classNames from 'classnames';
+import Gridicon from 'components/gridicon';
+import Popover from 'components/popover';
+import analytics from 'lib/analytics';
+import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { noop } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import Popover from 'components/popover';
-import Gridicon from 'components/gridicon';
-import classNames from 'classnames';
-import analytics from 'lib/analytics';
 
 import './style.scss';
 

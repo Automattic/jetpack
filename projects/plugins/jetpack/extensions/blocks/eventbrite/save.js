@@ -1,7 +1,4 @@
-/* eslint-disable wpcalypso/import-docblock, jsdoc/require-jsdoc */
-/**
- * WordPress dependencies
- */
+/* eslint-disable jsdoc/require-jsdoc */
 import { InnerBlocks } from '@wordpress/block-editor';
 
 export default function save( { attributes } ) {

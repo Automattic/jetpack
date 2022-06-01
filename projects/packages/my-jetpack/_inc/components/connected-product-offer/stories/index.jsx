@@ -1,13 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
 import React from 'react';
 import withMock from 'storybook-addon-mock';
-
-/**
- * Internal dependencies
- */
 import ConnectedProductOffer from '../index.jsx';
 import { getAllMockData, getProductSlugs } from './utils.js';
 
