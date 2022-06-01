@@ -1,26 +1,19 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
-import save from './save';
-import icon from './icon';
+import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import { name as detailsName, settings as detailsSettings } from './details/';
+import edit from './edit';
 import { name as heroName, settings as heroSettings } from './hero/';
+import icon from './icon';
+import { name as ingredientItemName, settings as ingredientItemSettings } from './ingredient-item/';
 import {
 	name as ingredientsListName,
 	settings as ingredientsListSettings,
 } from './ingredients-list/';
-import { name as ingredientItemName, settings as ingredientItemSettings } from './ingredient-item/';
-import { name as stepsName, settings as stepsSettings } from './steps/';
+import save from './save';
 import { name as stepName, settings as stepSettings } from './step/';
+import { name as stepsName, settings as stepsSettings } from './steps/';
 
 export const name = 'recipe';
 export const title = __( 'Recipe', 'jetpack' );

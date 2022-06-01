@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
 import { InnerBlocks } from '@wordpress/block-editor';
 
-/**
- * Internal dependencies
- */
 import './editor.scss';
 
 function RecipeIngredientsListEdit( { className } ) {

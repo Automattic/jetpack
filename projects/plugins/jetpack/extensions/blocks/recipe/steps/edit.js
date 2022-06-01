@@ -1,17 +1,11 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import {
 	ContrastChecker,
 	InnerBlocks,
 	InspectorControls,
 	PanelColorSettings,
 } from '@wordpress/block-editor';
+import { __ } from '@wordpress/i18n';
 
-/**
- * Internal dependencies
- */
 import './editor.scss';
 
 function RecipeStepsEdit( { className, attributes, setAttributes } ) {

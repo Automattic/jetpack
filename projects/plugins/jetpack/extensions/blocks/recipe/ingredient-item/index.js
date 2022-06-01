@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import { getIconColor } from '../../../shared/block-icons';
+import icon from '../icon';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
-import icon from '../icon';
-import { getIconColor } from '../../../shared/block-icons';
 
 export const name = 'recipe-ingredient-item';
 export const title = __( 'Recipe Ingredient Item', 'jetpack' );
