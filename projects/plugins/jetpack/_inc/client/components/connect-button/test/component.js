@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
 import { ConnectButton } from '../index';
 
 describe( 'ConnectButton', () => {

@@ -1,22 +1,11 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import SocialLogo from 'social-logos';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import ConnectionBanner from 'components/connection-banner';
 import DismissableNotices from './dismissable';
 import UserLicenseActivationNotice from './user-license-activation';

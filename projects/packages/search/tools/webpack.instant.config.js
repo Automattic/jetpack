@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const {
 	defaultRequestToExternal,
@@ -8,10 +5,6 @@ const {
 } = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
 const path = require( 'path' );
 const webpack = jetpackWebpackConfig.webpack;
-
-/**
- * Internal dependencies
- */
 const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
 
 /**

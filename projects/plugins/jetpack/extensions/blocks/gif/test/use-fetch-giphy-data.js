@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { renderHook, act } from '@testing-library/react-hooks';
-
-/**
- * Internal dependencies
- */
 import useFetchGiphyData from '../hooks/use-fetch-giphy-data';
 
 const originalFetch = window.fetch;

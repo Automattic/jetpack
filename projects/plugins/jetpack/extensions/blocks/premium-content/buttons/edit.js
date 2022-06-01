@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';

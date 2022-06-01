@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import save from './save';
 import deprecatedV1 from './deprecated/v1';

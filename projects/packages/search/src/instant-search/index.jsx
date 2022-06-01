@@ -2,17 +2,10 @@
 // See: https://github.com/webpack/webpack/issues/2776#issuecomment-233208623
 import './set-webpack-public-path';
 
-/**
- * External dependencies
- * NOTE: We directly import preact here since we don't expect this file to be used in a React context.
- */
+// NOTE: We directly import preact here since we don't expect this file to be used in a React context.
 import React from 'preact/compat';
 import { render } from 'preact';
 import { Provider } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import SearchApp from './components/search-app';
 import { getThemeOptions } from './lib/dom';
 import { SERVER_OBJECT_NAME } from './lib/constants';

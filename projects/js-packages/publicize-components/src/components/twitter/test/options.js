@@ -2,14 +2,7 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import { mount } from 'enzyme';
-
-/**
- * Internal dependencies
- */
 import { PublicizeTwitterOptions } from '../options';
 
 // Override data handlers, so we can control data changes.

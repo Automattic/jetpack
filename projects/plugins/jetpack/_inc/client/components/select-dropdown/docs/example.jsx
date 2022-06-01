@@ -1,12 +1,5 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import SelectDropdown from 'components/select-dropdown';
 
 import DropdownItem from 'components/select-dropdown/item';

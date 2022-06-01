@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { RawHTML } from '@wordpress/element';
 import {
 	getColorClassName,
@@ -8,10 +5,6 @@ import {
 	getFontSizeClass,
 } from '@wordpress/block-editor';
 import classnames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import definedAttributes from './attributes';
 
 export const DEFAULT_BORDER_RADIUS_VALUE = 0;

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { Component, createRef, Platform } from '@wordpress/element';
 import ResizeObserver from 'resize-observer-polyfill';
-
-/**
- * Internal dependencies
- */
 import Column from '../column';
 import Gallery from '../gallery';
 import Row from '../row';

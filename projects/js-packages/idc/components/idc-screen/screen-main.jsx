@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import CardMigrate from '../card-migrate';
 import CardFresh from '../card-fresh';
 import SafeMode from '../safe-mode';

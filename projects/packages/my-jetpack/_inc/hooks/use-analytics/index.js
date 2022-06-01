@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { useCallback, useEffect } from 'react';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import useMyJetpackConnection from '../use-my-jetpack-connection';

@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * WordPress dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -27,10 +16,6 @@ import {
 	isFetchingSitePurchases as getIsFetchingSitePurchases,
 	hasActiveSecurityPurchase as getHasActiveSecurityPurchase,
 } from 'state/site';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 
 class DashSecurityBundle extends Component {

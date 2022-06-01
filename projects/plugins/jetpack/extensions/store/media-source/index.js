@@ -1,10 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { createReduxStore, registerStore, register } from '@wordpress/data';
-/**
- * Internal dependencies
- */
 import storeDefinition from './store-definition';
 import { STORE_ID } from './constants';
 

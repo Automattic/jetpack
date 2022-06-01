@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
 import React, { useCallback } from 'react';
 import { ExternalLink } from '@wordpress/components';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import { mapStateToSummaryResourceProps } from '../feature-utils';
 import { stepToRoute } from 'state/recommendations';
 import analytics from 'lib/analytics';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 import { __ } from '@wordpress/i18n';
 import Button from 'components/button';

@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { createRef, useState, useEffect } from '@wordpress/element';
 import { Placeholder } from '@wordpress/components';
 import { RichText } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
 import { icon, title } from './';
 import { getUrl, getSelectedGiphyAttributes } from './utils';
 import SearchForm from './components/search-form';

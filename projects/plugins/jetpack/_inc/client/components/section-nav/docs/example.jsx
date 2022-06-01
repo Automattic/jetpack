@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { forEach } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import SectionNav from 'components/section-nav';
 
 import NavTabs from 'components/section-nav/tabs';

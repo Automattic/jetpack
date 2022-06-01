@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createReduxStore, register } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import Admin from './components/Admin';
 import { STORE_ID, storeConfig } from './store';
 

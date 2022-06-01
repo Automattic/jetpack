@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import { JetpackLogo } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import { HeaderNav } from './header-nav';
 import { isWoASite as getIsWoASite } from 'state/initial-state';

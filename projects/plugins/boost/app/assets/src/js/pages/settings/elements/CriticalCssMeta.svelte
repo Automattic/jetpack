@@ -1,12 +1,5 @@
 <script>
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import { criticalCssStatus, showError } from '../../../stores/critical-css-status';

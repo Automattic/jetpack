@@ -1,16 +1,5 @@
-/**
- * External dependencies
- */
 import type { SvelteComponent } from 'svelte';
-
-/**
- * WordPress dependencies
- */
 import { __, _n, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import type { ErrorSet } from '../stores/critical-css-recommendations';
 import type { CriticalCssErrorDetails } from '../stores/critical-css-status';
 import { castToNumber } from './cast-to-number';

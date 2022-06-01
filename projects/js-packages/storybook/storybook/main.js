@@ -2,9 +2,6 @@
  * This file is inspired by https://github.com/WordPress/gutenberg/blob/trunk/storybook/main.js
  */
 
-/**
- * External dependencies
- */
 const path = require( 'path' );
 
 const projects = require( './projects' );

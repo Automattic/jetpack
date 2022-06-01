@@ -1,19 +1,8 @@
-/**
- * External dependencies
- */
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path, Rect, SVG, G, ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import deprecatedV1 from './deprecated/v1';

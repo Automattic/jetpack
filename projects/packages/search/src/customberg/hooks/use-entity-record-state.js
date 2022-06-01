@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { useCallback } from 'react';
-
-/**
- * WordPress dependencies
- */
 import { useDispatch, useSelect } from '@wordpress/data';
 
 /**

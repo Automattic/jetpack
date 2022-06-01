@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import debugFactory from 'debug';
 import { debounce, noop } from 'lodash';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
 import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from '@wordpress/element';
 import {
 	Button,
@@ -35,10 +28,6 @@ import {
 import { withDispatch } from '@wordpress/data';
 import { createBlock } from '@wordpress/blocks';
 import { isURL, prependHTTP } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 import { queueMusic } from './icons/';

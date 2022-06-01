@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import chai from 'chai';
 import child_process from 'child_process';
 

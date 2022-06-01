@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from '../store';
 
 /**

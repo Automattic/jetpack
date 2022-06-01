@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { assign } from 'lodash';
 import { _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import accessibleFocus from 'lib/accessible-focus';
 import store from 'state/redux-store';
 import Main from 'main';

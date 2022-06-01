@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { filter, includes } from 'lodash';
 import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';

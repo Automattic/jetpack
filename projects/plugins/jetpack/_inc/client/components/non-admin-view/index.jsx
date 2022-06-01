@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import {
 	userCanManageModules,
 	userCanViewStats as _userCanViewStats,

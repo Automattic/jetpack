@@ -9,16 +9,8 @@
 import { debounce } from 'lodash';
 import PageVisibility from 'react-page-visibility';
 import { getSiteFragment, getJetpackData } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import styles from './styles.module.scss';
 

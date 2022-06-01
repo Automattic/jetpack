@@ -1,12 +1,4 @@
-/**
- * WordPress dependencies
- */
-
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { GooglePhotosIcon, OpenverseIcon, PexelsIcon } from '../../icons';
 import GooglePhotosMedia from './google-photos';
 import OpenverseMedia from './openverse';

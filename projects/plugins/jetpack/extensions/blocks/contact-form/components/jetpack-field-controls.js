@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import {
 	InspectorAdvancedControls,
@@ -8,10 +5,6 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl, ToolbarGroup, ToolbarButton, Path } from '@wordpress/components';
-
-/**
- * Internal Dependencies
- */
 import renderMaterialIcon from '../../../shared/render-material-icon';
 import JetpackFieldWidth from './jetpack-field-width';
 import JetpackFieldCss from './jetpack-field-css';

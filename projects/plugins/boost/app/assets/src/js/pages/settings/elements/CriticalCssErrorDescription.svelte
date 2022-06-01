@@ -5,19 +5,8 @@
 	It can include a list of failed URLs, what a user can do, and extra information.
 -->
 <script>
-	/**
-	 * External dependencies
-	 */
 	import { slide } from 'svelte/transition';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
 	import MoreList from '../../../elements/MoreList.svelte';
 	import { createEventDispatcher } from 'svelte';

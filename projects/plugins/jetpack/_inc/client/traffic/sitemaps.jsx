@@ -1,22 +1,11 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import {
 	SCAN_STATUS_FETCH,
 	SCAN_STATUS_FETCH_RECEIVE,

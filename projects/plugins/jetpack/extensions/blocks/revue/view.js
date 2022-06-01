@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import domReady from '@wordpress/dom-ready';
-
-/**
- * Internal dependencies
- */
 import './view.scss';
 
 if ( typeof window !== 'undefined' && window.jQuery ) {

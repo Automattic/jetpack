@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React, { useContext, useEffect, useCallback } from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import styles from './styles.module.scss';
 import { NavigationContext } from './use-menu-navigation';
 import ItemLabel from './label';

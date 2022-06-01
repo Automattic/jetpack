@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { Button, Dashicon, Popover } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import './style.scss';
 import LocationSearch from '../location-search';
 

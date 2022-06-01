@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { writable } from 'svelte/store';
-
-/**
- * Internal dependencies
- */
 import config from './config';
 import { setModuleState } from '../api/modules';
 

@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
 import { expect } from 'chai';
 import { render } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
 import PartnerCouponRedeem from '../';
 
 const partnerCoupon = {

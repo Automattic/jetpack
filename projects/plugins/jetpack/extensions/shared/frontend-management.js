@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { assign, kebabCase } from 'lodash';
 import { createElement, render } from '@wordpress/element';
 

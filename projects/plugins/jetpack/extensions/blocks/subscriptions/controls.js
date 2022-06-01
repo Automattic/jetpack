@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
@@ -11,10 +8,6 @@ import {
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { ButtonWidthControl } from '../button/button-width-panel';
 import {

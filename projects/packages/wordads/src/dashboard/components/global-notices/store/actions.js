@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 /*eslint lodash/import-scope: [2, "method"]*/
 import uniqueId from 'lodash/uniqueId';
 import { __ } from '@wordpress/i18n';

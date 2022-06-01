@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import type React from 'react';
 import type { ButtonProps } from './types';
 import { Button as WPButton, Spinner } from '@wordpress/components';

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Component } from 'react';
 // NOTE: We only import the debounce function here for reduced bundle size.
 //       Do not import the entire lodash library!

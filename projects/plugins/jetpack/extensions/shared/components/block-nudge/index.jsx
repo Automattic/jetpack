@@ -1,11 +1,4 @@
-/**
- * Internal dependencies
- */
 import classNames from 'classnames';
-
-/**
- * External dependencies
- */
 import { Button } from '@wordpress/components';
 import { Warning } from '@wordpress/block-editor';
 

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -14,10 +11,6 @@ import {
 } from '@wordpress/block-editor';
 import { useEffect, useState } from '@wordpress/element';
 import { compose, usePrevious } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
 import { getSubscriberCount } from './api';
 import './view.scss';
 import defaultAttributes from './attributes';

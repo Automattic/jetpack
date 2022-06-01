@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { Component, createRef, Fragment } from '@wordpress/element';
@@ -13,10 +10,6 @@ import {
 	ResizableBox,
 } from '@wordpress/components';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
 import AddPoint from './add-point';
 import Map from './component.js';
 import Controls from './controls';

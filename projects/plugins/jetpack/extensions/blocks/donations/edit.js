@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Tabs from './tabs';
 import LoadingError from './loading-error';
 import fetchDefaultProducts from './fetch-default-products';

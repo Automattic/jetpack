@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { TextareaControl, Disabled } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldControls from './jetpack-field-controls';
 

@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, Rect, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import './editor.scss';
 import edit from './edit';
 import save from './save';

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import {
 	STATS_SWITCH_TAB,
 	STATS_DATA_FETCH,

@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { Path, Circle } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import save from './save';
 import renderMaterialIcon from '../../../shared/render-material-icon';

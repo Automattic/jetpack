@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
 import { pasteHandler } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { _x, __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { getIconColor } from '../../../shared/block-icons';
 import createBlocksFromTemplate from '../../../shared/create-block-from-inner-blocks-template';
 

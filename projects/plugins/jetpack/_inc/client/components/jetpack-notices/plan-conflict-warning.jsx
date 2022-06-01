@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import { __, sprintf } from '@wordpress/i18n';
 import { withRouter } from 'react-router-dom';
-
-/**
- * Internal dependencies
- */
 import SimpleNotice from 'components/notice';
 import { getActiveSitePurchases } from 'state/site';
 

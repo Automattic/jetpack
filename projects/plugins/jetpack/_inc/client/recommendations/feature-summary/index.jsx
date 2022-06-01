@@ -1,23 +1,12 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
 import React, { useCallback, useState, useMemo } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import { mapDispatchToProps, mapStateToSummaryFeatureProps } from '../feature-utils';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import InstallButton from 'components/install-button';
 import analytics from 'lib/analytics';
 import { isFeatureActive, stepToRoute } from 'state/recommendations';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';

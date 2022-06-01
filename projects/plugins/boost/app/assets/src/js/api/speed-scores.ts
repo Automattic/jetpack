@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import api from './api';
 import { standardizeError } from '../utils/standardize-error';
 import { isJsonObject, JSONObject } from '../utils/json-types';

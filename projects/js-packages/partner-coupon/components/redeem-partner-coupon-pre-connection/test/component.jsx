@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { renderHook } from '@testing-library/react-hooks';
 import { fireEvent, render, screen } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
 import RedeemPartnerCouponPreConnection from '../';
 import analytics from '@automattic/jetpack-analytics';
 import { useSelect } from '@wordpress/data';

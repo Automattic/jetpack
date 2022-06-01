@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import {
 	WAF_SETTINGS_FETCH,
 	WAF_SETTINGS_FETCH_RECEIVE,

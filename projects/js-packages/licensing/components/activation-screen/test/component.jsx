@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import restApi from '@automattic/jetpack-api';
 import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
 import ActivationScreen from '..';
 import ActivationScreenSuccessInfo from '../../activation-screen-success-info';
 import ActivationScreenControls from '../../activation-screen-controls';

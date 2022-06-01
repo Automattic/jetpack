@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { SandBox, withNotices } from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { BlockControls } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
 import { pinType } from './utils';
 import { PinterestBlockControls } from './controls';
 import LoadingContainer from './components/loading-container';

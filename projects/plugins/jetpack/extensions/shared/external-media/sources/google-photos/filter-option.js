@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { SelectControl, Button } from '@wordpress/components';
 import { omit } from 'lodash';
 import { useState, Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import {
 	GOOGLE_PHOTOS_CATEGORIES,
 	GOOGLE_PHOTOS_DATE_PRESETS,

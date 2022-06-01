@@ -1,13 +1,6 @@
 <script>
-	/**
-	 * WordPress dependencies
-	 */
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import { createEventDispatcher } from 'svelte';
-
-	/**
-	 * Internal dependencies
-	 */
 	import { criticalCssStatus, failedProviderKeyCount } from '../../../stores/critical-css-status';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';

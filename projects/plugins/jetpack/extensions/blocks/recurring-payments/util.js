@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
 import formatCurrency from '@automattic/format-currency';
 

@@ -1,16 +1,9 @@
 /** @ssr-ready **/
 
-/**
- * External Dependencies
- */
 import PropTypes from 'prop-types';
 
 import React from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal Dependencies
- */
 import Count from 'components/count';
 
 /**

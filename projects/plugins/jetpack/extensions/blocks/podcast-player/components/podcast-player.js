@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
 import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { STATE_ERROR, STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 import AudioPlayer from '../../../shared/components/audio-player';
 import Playlist from './playlist';

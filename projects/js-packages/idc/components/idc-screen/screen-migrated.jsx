@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dashicon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Spinner } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import extractHostname from '../../tools/extract-hostname';
 import customContentShape from '../../tools/custom-content-shape';
 

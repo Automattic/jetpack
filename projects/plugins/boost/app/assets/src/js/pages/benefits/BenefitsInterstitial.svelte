@@ -1,21 +1,10 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { jetpackURL } from '../../utils/jetpack-url';
 	import { getUpgradeURL } from '../../utils/upgrade';
 	import Logo from '../../svg/jetpack-green.svg';
-
-	/**
-	 * External dependencies
-	 */
 	import { PricingCard } from '@automattic/jetpack-components';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
 	import { createInterpolateElement } from '@wordpress/element';
 

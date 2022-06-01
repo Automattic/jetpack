@@ -1,6 +1,3 @@
-/**
- * External Dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { filter, get, pick } from 'lodash';
@@ -21,10 +18,6 @@ import {
 	ToolbarItem,
 	withNotices,
 } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import FilterToolbar from './filter-toolbar';
 import Layout from './layout';
 import {

@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 const path = require( 'path' );
-
-/**
- * WordPress dependencies
- */
 const postcssPlugins = require( '@wordpress/postcss-plugins-preset' );
 
 const projects = require( './projects' );

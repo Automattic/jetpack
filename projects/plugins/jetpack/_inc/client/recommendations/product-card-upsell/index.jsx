@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
 import { getIntroOffers, isFetchingIntroOffers } from 'state/intro-offers';
 import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
@@ -18,10 +11,6 @@ import DiscountBadge from '../discount-badge';
 import withUpgradeUrl from '../hoc/with-upgrade-url';
 import RecommendedHeader from '../sidebar/recommended-header';
 import { isCouponValid } from '../utils';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 const Price = ( { className, integer, fraction, symbol } ) => (
 	<div className={ className }>

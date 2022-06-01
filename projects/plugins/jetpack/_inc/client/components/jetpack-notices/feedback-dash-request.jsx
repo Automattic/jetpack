@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { isDevVersion as _isDevVersion } from 'state/initial-state';
 import {
 	isNoticeDismissed as _isNoticeDismissed,

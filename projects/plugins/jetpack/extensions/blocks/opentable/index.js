@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
 import { defaultAttributes, getStyleOptions } from './attributes';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
@@ -15,10 +8,6 @@ import icon from './icon';
 import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
 import { getIconColor } from '../../shared/block-icons';
 import { supportsCollections } from '../../shared/block-category';
-
-/**
- * Style dependencies
- */
 import './editor.scss';
 import './view.scss';
 

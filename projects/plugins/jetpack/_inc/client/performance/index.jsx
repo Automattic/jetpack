@@ -1,16 +1,6 @@
-/**
- * External dependencies
- *
- * @format
- */
-
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { getModule, getModuleOverride } from 'state/modules';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { isModuleFound } from 'state/search';

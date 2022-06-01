@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import Gridicon from './gridicon';
 import arrayOverlap from '../lib/array-overlap';
 

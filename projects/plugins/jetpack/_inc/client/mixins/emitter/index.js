@@ -1,6 +1,3 @@
-/**
- * External Dependencies
- */
 import { assign } from 'lodash';
 import { EventEmitter } from 'events';
 

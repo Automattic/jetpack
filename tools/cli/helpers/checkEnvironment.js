@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import child_process from 'child_process';
 import fs from 'fs';
 import * as envfile from 'envfile';

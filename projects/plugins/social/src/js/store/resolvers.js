@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { fetchJetpackSettings } from './controls';
 import { setJetpackSettings } from './actions/jetpack-settings';
 

@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { isArray } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 import { ProgressBar } from '@automattic/components';
-
-/**
- * Internal dependencies
- */
 import { PromptLayout } from '../prompts/prompt-layout';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import Button from 'components/button';
@@ -25,10 +18,6 @@ import {
 	getActiveProductPurchases,
 	isFetchingSiteData as isFetchingSiteDataState,
 } from 'state/site';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const getPurchasedSuggestion = ( {

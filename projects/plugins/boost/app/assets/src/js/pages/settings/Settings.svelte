@@ -1,7 +1,4 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
 	import Tips from './sections/Tips.svelte';
 	import Score from './sections/Score.svelte';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';

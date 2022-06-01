@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import { FeaturePrompt } from './prompts/feature-prompt';
 import { ProductSuggestions } from './prompts/product-suggestions';
 import { ProductPurchased } from './product-purchased';

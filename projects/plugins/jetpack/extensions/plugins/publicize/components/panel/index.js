@@ -6,9 +6,6 @@
  * services are connected.
  */
 
-/**
- * External dependencies
- */
 import {
 	TwitterOptions as PublicizeTwitterOptions,
 	ConnectionVerify as PublicizeConnectionVerify,
@@ -21,10 +18,6 @@ import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/compone
 import { store as editorStore } from '@wordpress/editor';
 import { useSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 
 import { SharePostRow } from '../../components/share-post';

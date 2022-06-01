@@ -1,13 +1,6 @@
 /* eslint-disable no-console */
-/**
- * External dependencies
- */
 import React, { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
 

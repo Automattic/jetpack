@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { ESCAPE, SPACE } from '@wordpress/keycodes';
 import {
 	useFocusReturn,

@@ -1,14 +1,7 @@
-/**
- * External Dependencies
- */
 import PropTypes from 'prop-types';
 
 import React from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal Dependencies
- */
 import SegmentedControl from 'components/segmented-control';
 
 import ControlItem from 'components/segmented-control/item';

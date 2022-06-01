@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import {
 	AdminPage,
@@ -12,10 +9,6 @@ import {
 import { useSelect } from '@wordpress/data';
 import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import styles from './styles.module.scss';
 
 const Admin = () => {

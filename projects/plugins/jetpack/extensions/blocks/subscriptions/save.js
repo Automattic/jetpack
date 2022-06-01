@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { RawHTML } from '@wordpress/element';
 import {
 	getColorClassName,
@@ -9,10 +6,6 @@ import {
 } from '@wordpress/block-editor';
 import classnames from 'classnames';
 import { reduce } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import defaultAttributes from './attributes';
 import {
 	DEFAULT_BORDER_RADIUS_VALUE,

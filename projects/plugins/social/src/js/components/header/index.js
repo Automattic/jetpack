@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { Container, Col, H3 } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import styles from './styles.module.scss';
 import illustration from './illustration.svg';
 

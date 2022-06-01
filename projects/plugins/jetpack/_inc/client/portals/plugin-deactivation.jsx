@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import React, { useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import PortalSidecar from './utilities/portal-sidecar';
 import { getApiRootUrl, getApiNonce } from '../state/initial-state';
 import {

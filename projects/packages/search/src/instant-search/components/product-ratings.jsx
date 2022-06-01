@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import { _n, sprintf } from '@wordpress/i18n';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import Gridicon from './gridicon';
-
-/**
- * Style dependencies
- */
 import './product-ratings.scss';
 
 /**

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { PanelBody, Path, SVG } from '@wordpress/components';
 import { InspectorControls } from '@wordpress/block-editor';
 

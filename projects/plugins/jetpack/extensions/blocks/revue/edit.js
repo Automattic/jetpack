@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { isEqual } from 'lodash';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
 import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -18,10 +11,6 @@ import {
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { innerButtonBlock } from './';
 import defaultAttributes from './attributes';
 import JetpackFieldLabel from '../contact-form/components/jetpack-field-label';

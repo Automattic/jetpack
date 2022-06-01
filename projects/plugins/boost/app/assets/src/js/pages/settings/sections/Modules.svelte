@@ -1,7 +1,4 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
 	import {
 		requestCloudCss,
@@ -14,10 +11,6 @@
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.

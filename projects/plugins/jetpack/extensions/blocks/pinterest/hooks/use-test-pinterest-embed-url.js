@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { useEffect, useState } from '@wordpress/element';
 import testEmbedUrl from '../../../shared/test-embed-url';
-
-/**
- * Internal dependencies
- */
 import { PINTEREST_EXAMPLE_URL } from '../';
 
 const useTestPinterestEmbedUrl = ( initialValue = '' ) => {

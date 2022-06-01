@@ -2,9 +2,6 @@
  * A thin wrapper for @automattic/jetpack-analytics
  */
 
-/**
- * Internal dependencies
- */
 import config from '../../config';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 

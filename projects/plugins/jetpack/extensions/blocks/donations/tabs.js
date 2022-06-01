@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Controls from './controls';
 import Tab from './tab';
 import { StripeNudge } from '../../shared/components/stripe-nudge';

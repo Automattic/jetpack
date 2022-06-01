@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import PropTypes from 'prop-types';
 import React from 'react';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 
 /**

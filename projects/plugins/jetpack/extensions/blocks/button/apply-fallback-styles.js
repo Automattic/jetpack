@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { get } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { withFallbackStyles } from '@wordpress/components';
 
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {

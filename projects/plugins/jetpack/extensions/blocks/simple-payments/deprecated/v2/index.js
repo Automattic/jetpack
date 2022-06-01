@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import { DEFAULT_CURRENCY } from '../../constants';
 import { getIconColor } from '../../../../shared/block-icons';
 import edit from './edit';

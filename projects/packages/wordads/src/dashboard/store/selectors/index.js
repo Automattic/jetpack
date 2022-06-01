@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import siteDataSelectors from './site-data';
 import jetpackSettingSelectors from './jetpack-settings';
 import userDataSelectors from './user-data';

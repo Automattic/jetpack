@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import colorStudio from '@automattic/color-studio';
 
 /**

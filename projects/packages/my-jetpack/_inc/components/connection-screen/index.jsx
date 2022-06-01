@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 import { Container, Col, AdminPage, getRedirectUrl } from '@automattic/jetpack-components';
 import { Icon, external } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
 import CloseLink from '../close-link';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import wordpressLogo from './wordpress.png';

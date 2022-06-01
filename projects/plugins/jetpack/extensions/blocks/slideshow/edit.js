@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
@@ -10,10 +7,6 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import { MediaPlaceholder, BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { mediaUpload } from '@wordpress/editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import { icon } from '.';
 import { PanelControls, ToolbarControls } from './controls';
 import Slideshow from './slideshow';

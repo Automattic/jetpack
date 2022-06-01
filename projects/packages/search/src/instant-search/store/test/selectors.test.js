@@ -2,9 +2,6 @@
  * @jest-environment jsdom
  */
 
-/**
- * Internal dependencies
- */
 import { RELEVANCE_SORT_KEY } from '../../lib/constants';
 import { getSort, getWidgetOutsideOverlay, hasActiveQuery } from '../selectors';
 

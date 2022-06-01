@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Button } from '@wordpress/components';
 import { createBlobURL } from '@wordpress/blob';
 import { createBlock } from '@wordpress/blocks';
@@ -17,10 +14,6 @@ import {
 	withHasWarningIsInteractiveClassNames,
 } from '@automattic/jetpack-shared-extension-utils';
 import { every } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 import { VideoPressBlockContext } from './components';

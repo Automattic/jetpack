@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Spinner } from '@wordpress/components';
 import { get } from 'lodash';
 import { useCallback, useState, useEffect } from '@wordpress/element';

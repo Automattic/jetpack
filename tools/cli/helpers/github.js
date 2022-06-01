@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Octokit } from '@octokit/rest';
 import { createTokenAuth } from '@octokit/auth-token';
 import inquirer from 'inquirer';
