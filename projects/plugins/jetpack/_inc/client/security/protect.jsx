@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
 import { includes } from 'lodash';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Textarea from 'components/textarea';

@@ -1,12 +1,5 @@
 <script>
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
 	import CheckboxIcon from '../../svg/checkbox.svg';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';

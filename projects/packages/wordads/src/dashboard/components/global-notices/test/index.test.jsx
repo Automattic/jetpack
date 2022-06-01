@@ -2,16 +2,9 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-
-/**
- * Internal dependencies
- */
 import GlobalNotices from 'components/global-notices';
 
 describe( 'GlobalNotices', function () {

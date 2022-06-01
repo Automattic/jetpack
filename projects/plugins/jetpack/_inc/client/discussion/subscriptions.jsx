@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import Card from 'components/card';

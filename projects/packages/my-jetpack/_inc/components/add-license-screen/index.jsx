@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React, { useCallback, useEffect } from 'react';
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import GoBackLink from '../go-back-link';
 import restApi from '@automattic/jetpack-api';

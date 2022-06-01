@@ -1,7 +1,4 @@
 /* eslint-disable react/react-in-jsx-scope,jsdoc/no-undefined-types */
-/**
- * WordPress dependencies
- */
 import { useEffect, useState } from '@wordpress/element';
 import {
 	BlockEditorKeyboardShortcuts,
@@ -15,10 +12,6 @@ import {
 import { Popover, SlotFillProvider } from '@wordpress/components';
 import { registerCoreBlocks } from '@wordpress/block-library';
 import '@wordpress/format-library';
-
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 /**

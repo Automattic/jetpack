@@ -1,17 +1,10 @@
 /** @ssr-ready **/
 
-/**
- * External Dependencies
- */
 import PropTypes from 'prop-types';
 
 import React from 'react';
 import { isEqual } from 'lodash';
 import classNames from 'classnames';
-
-/**
- * Internal Dependencies
- */
 import NavTabs from './tabs';
 
 import NavItem from './item';

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { assign } from 'lodash';
 import { addQueryArgs } from '@wordpress/url';
 import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';

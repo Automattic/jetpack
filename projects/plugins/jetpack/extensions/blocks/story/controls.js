@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { BlockControls, MediaUpload } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';

@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
 import { filter } from 'lodash';
 import { Path, SVG } from '@wordpress/components';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import save from './save';
 import {
@@ -21,17 +14,9 @@ import {
 } from './constants';
 import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
-
-/**
- * Style dependencies
- */
 import './editor.scss';
 
 import { default as deprecated } from './deprecated';
-
-/**
- * Example Images
- */
 import tiledGalleryExample1 from './tiled-gallery_example-1.jpg';
 import tiledGalleryExample2 from './tiled-gallery_example-2.jpg';
 import tiledGalleryExample3 from './tiled-gallery_example-3.jpg';

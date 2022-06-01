@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import { ProgressBar } from '@automattic/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import DiscountCard from '../../sidebar/discount-card';
 import {
 	getStepContent,

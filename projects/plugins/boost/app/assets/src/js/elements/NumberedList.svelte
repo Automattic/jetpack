@@ -1,7 +1,4 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
 	import TemplatedString from './TemplatedString.svelte';
 
 	/**

@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 
 export default function Bullet( { isEllipsis, disabled, index, isSelected, progress, onClick } ) {
 	const bulletDisabled = disabled || isEllipsis;

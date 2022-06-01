@@ -1,13 +1,6 @@
-/**
- * External Dependencies
- */
 import PropTypes from 'prop-types';
 import React from 'react';
 import debugModule from 'debug';
-
-/**
- * Internal Dependencies
- */
 import SimpleNotice from 'components/notice/index.jsx';
 import NoticeAction from 'components/notice/notice-action';
 import notices from 'notices';

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -8,10 +5,6 @@ import { withRouter } from 'react-router-dom';
 import { createInterpolateElement } from '@wordpress/element';
 import { _x, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import { hasConnectedOwner, isCurrentUserLinked, isOfflineMode } from 'state/connection';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';

@@ -1,23 +1,12 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classnames from 'classnames';
 import { find, isEmpty } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';

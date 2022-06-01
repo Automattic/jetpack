@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { sprintf } from 'sprintf-js';
 
 /**

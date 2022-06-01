@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
 import emailValidator from 'email-validator';
 import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
 import { getCurrencyDefaults } from '@automattic/format-currency';
-
-/**
- * WordPress dependencies
- */
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
@@ -23,10 +16,6 @@ import {
 } from '@wordpress/components';
 import { InspectorControls } from '@wordpress/block-editor';
 import { getWidgetIdFromBlock } from '@wordpress/widgets';
-
-/**
- * Internal dependencies
- */
 import HelpMessage from '../../shared/help-message';
 import ProductPlaceholder from './product-placeholder';
 import FeaturedMedia from './featured-media';

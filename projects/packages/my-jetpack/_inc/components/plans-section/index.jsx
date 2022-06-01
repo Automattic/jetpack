@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React, { useCallback } from 'react';
 import { __, _n } from '@wordpress/i18n';
 import { Text, H3, Title, Button } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import useAnalytics from '../../hooks/use-analytics';
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';

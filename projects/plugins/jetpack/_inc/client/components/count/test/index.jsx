@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { expect } from 'chai';
 
 import useMockery from 'test/helpers/use-mockery';
-
-/**
- * Internal dependencies
- */
 import useI18n from 'test/helpers/use-i18n';
 
 describe( 'Count', function () {

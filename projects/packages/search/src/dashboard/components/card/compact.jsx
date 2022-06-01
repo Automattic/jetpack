@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 /*eslint lodash/import-scope: [2, "method"]*/
 import assign from 'lodash/assign';
 import classnames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import Card from 'components/card';
 
 export default class CompactCard extends React.Component {

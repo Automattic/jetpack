@@ -1,13 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
 
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
 import { initStore } from '../../../state/store';
 import { BackupIcon } from '@automattic/jetpack-components';

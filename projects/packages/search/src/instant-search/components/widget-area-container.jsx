@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React, { Component, createRef } from 'react';
-
-/**
- * Internal dependencies
- */
 import './widget-area-container.scss';
 
 // NOTE:

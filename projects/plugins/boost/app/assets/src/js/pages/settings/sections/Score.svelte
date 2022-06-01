@@ -1,7 +1,4 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
 	import ComputerIcon from '../../../svg/computer.svg';
 	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
@@ -19,10 +16,6 @@
 	import { modules } from '../../../stores/modules';
 	import { derived, writable } from 'svelte/store';
 	import RatingCard from '../elements/RatingCard.svelte';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
 
 	// eslint-disable-next-line camelcase

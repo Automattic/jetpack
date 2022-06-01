@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import Count from 'components/count';
 
 export default class extends React.PureComponent {

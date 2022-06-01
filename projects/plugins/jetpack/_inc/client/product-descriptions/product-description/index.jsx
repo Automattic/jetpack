@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import JetpackProductCard from 'components/jetpack-product-card';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';

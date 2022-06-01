@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import SummaryUpsell from './upsell';
 import { FeatureSummary } from '../feature-summary';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
@@ -30,10 +23,6 @@ import {
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
 import { getPluginsData } from 'state/site/plugins';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 import { ResourceSummary } from '../feature-summary/resource';
 

@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { Component } from '@wordpress/element';
 import { withInstanceId } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
 import ShadowRoot from '../lib/shadow-root';
 import ModalFrame from './frame';
 import * as ariaHelper from './aria-helper';

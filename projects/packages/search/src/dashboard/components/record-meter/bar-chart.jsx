@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import Chart from 'chart.js/auto';
-
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 
 const CHART_OPTIONS = {

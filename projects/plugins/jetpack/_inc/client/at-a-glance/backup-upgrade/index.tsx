@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React, { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import {
 	getStatsData,
 	getPluginItems,

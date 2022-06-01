@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
 import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 
 class JetpackLogo extends React.Component {

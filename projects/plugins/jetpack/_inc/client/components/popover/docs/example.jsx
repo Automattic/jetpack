@@ -1,13 +1,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint jsx-a11y/no-onchange: 0 */
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import Popover from 'components/popover';
 import PopoverMenu from 'components/popover/menu';
 import PopoverMenuItem from 'components/popover/menu-item';

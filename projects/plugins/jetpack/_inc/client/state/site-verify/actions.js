@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import {
 	JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH,
 	JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_FAIL,

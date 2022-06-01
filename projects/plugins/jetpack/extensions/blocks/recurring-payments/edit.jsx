@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from 'react';
-
-/**
- * WordPress dependencies
- */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -14,10 +7,6 @@ import { store as editorStore } from '@wordpress/editor';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import { icon, title } from './';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { store as membershipProductsStore } from '../../store/membership-products';

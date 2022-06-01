@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { useSelect, dispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 

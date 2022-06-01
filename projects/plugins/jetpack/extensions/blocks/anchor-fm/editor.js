@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { castArray } from 'lodash';
 import { useEffect, useCallback } from 'react';
-
-/**
- * WordPress dependencies
- */
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { external, Icon } from '@wordpress/icons';
@@ -14,17 +7,9 @@ import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import { Button } from '@wordpress/components';
 import '@wordpress/notices';
-
-/**
- * Internal dependencies
- */
 import { waitForEditor } from '../../shared/wait-for-editor';
 import { basicTemplate, spotifyBadgeTemplate } from './templates';
 import analytics from '../../../_inc/client/lib/analytics';
-
-/**
- * Style dependencies
- */
 import './editor.scss';
 
 async function insertTemplate( params ) {

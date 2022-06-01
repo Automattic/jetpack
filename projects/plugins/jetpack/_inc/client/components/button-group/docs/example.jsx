@@ -1,12 +1,5 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import ButtonGroup from 'components/button-group';
 
 import Button from 'components/button';

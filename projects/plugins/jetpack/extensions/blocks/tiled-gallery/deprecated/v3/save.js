@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import Layout from './layout';
 import { getActiveStyleName } from '../../../../shared/block-styles';
 import { LAYOUT_STYLES } from './constants';

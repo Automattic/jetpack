@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { noop } from 'lodash';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 

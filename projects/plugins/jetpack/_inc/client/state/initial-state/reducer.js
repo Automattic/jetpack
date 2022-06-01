@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { assign, get, merge } from 'lodash';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
 import { getProducts } from 'state/products';

@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get, includes } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import {

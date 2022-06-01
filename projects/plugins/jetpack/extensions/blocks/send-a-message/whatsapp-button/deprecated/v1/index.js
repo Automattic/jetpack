@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import classnames from 'classnames';
 import { RichText } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
 import { whatsAppURL } from '../../index';
 import attr from '../../attributes';
 

@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
-
 import { __ } from '@wordpress/i18n';
 import { ExternalLink, PanelBody, TextControl } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import MailchimpGroups from './mailchimp-groups';
 import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
 

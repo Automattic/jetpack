@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import * as data from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import {
     getEditorType, CUSTOMIZER_EDITOR,
     NAVIGATION_EDITOR, POST_EDITOR,

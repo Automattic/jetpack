@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { includes, forEach } from 'lodash';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Banner from 'components/banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModules } from 'state/modules';

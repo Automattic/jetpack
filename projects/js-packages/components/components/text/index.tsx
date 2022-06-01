@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import styles from './style.module.scss';
 import type { H3Props, TextProps, TitleProps } from './types';
 import { BOX_MODEL_VALUES, VARIANTS_MAPPING } from './constants';

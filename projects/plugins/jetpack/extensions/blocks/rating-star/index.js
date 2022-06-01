@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import save from './save';
 import { StarIcon, StarBlockIcon } from './icon';

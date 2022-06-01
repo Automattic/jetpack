@@ -1,15 +1,8 @@
-/**
- * WordPress dependencies
- */
 import { InspectorControls } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import { PanelBody, RangeControl, UnitControl } from '@wordpress/components';
 import { usePreferredColorSchemeStyle } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
 import styles from './styles.scss';
 import { LAYOUT_CIRCLE, LAYOUT_STYLES, MAX_COLUMNS, MAX_ROUNDED_CORNERS } from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';

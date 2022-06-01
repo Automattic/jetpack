@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { expect } from 'chai';
 import restApi from '@automattic/jetpack-api';
 import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
 import controls from '../controls';
 
 const {

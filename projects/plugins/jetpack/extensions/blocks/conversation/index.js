@@ -1,18 +1,7 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * External dependencies
- */
 import { TranscriptIcon as icon } from '../../shared/icons';
 import createBlocksFromInnerBlocksTemplate from '../../shared/create-block-from-inner-blocks-template';
-
-/**
- * Local dependencies
- */
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';

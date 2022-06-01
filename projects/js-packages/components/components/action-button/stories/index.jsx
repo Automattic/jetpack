@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import ActionButton from '../index.jsx';
 import { action } from '@storybook/addon-actions';

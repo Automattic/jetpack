@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
 import {
 	saveProduct,
 	setApiState,

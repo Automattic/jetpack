@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React from 'react';
 
 class AdminNotices extends React.Component {

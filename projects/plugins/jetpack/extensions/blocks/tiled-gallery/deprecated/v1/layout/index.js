@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import photon from 'photon';
 import { __, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
-
-/**
- * Internal dependencies
- */
 import Image from '../image';
 import Mosaic from './mosaic';
 import Square from './square';

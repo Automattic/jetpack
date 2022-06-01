@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-
-/**
- * Internal dependencies
- */
 import * as buildCommand from './commands/build.js';
 import { watchDefine } from './commands/watch.js';
 import * as installCommand from './commands/install.js';

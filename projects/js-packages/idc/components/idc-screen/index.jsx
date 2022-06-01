@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React, { useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import IDCScreenVisual from './visual';
 import trackAndBumpMCStats, { initializeAnalytics } from '../../tools/tracking';
 import useMigration from '../../hooks/use-migration';

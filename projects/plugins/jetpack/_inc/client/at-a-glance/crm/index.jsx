@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
-/**
- * Internal dependencies
- */
 import peopleSvgUrl from './people.svg';
 import PluginDashItem from 'components/plugin-dash-item';
 

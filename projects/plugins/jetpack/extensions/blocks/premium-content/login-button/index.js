@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { button as icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import save from './save';
 import attributes from './attributes';

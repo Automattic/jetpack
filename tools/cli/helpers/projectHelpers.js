@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { readdirSync } from 'fs';
 import pluralize from 'pluralize';
 import chalk from 'chalk';

@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { create, getTextContent } from '@wordpress/rich-text';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __ } from '@wordpress/i18n';

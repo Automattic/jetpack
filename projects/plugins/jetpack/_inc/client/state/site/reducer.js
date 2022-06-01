@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { combineReducers } from 'redux';
 import { assign, find, get, merge } from 'lodash';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import {
 	getPlanClass,
 	isJetpackProduct,

@@ -1,7 +1,3 @@
-/**
- * WordPress dependencies
- */
-// eslint-disable-next-line wpcalypso/import-docblock
 import { createBlock } from '@wordpress/blocks';
 import { InnerBlocks } from '@wordpress/block-editor';
 

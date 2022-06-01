@@ -1,22 +1,11 @@
-/**
- * External Dependencies
- */
 import { isEqual } from 'lodash';
 import queryString from 'query-string';
-
-/**
- * WordPress dependencies
- */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Button, ExternalLink, Placeholder, Spinner, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { select, dispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import './editor.scss';
 import './view.scss';
 import icon from './icon';

@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Added ignore rules for `wpcalypso/no-unsafe-wp-apis` and removed rules for `wpcalypso/import-docblock`. No change to behavior.
+
+

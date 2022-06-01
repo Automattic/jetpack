@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { BaseControl, Button } from '@wordpress/components';
 import { Fragment, useState } from '@wordpress/element';
 import { withInstanceId } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackOption from './jetpack-option';
 import JetpackFieldControls from './jetpack-field-controls';

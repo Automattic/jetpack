@@ -1,6 +1,3 @@
-/**
- * External Dependencies
- */
 import classnames from 'classnames';
 import { isBlobURL } from '@wordpress/blob';
 

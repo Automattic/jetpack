@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React from 'react';
 import classnames from 'classnames';
@@ -8,10 +5,6 @@ import classnames from 'classnames';
 import assign from 'lodash/assign';
 /*eslint lodash/import-scope: [2, "method"]*/
 import omit from 'lodash/omit';
-
-/**
- * Internal dependencies
- */
 import { Gridicon } from '@automattic/jetpack-components';
 
 import './style.scss';

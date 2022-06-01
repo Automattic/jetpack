@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import './editor.scss';
 import './style.scss';
 import BusinessHours from './edit';

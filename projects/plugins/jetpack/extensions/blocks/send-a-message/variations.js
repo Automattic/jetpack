@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import whatsAppIcon from './whatsapp-button/icon';
 import { extendWithPaidIcon } from '../../extended-blocks/paid-blocks/render-paid-icon';
 

@@ -1,12 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import ConnectedProductOffer from '../index.jsx';
 import { initStore } from '../../../state/store';
 import { jetpackProtectInitialState } from '../../interstitial/stories/mock.js';

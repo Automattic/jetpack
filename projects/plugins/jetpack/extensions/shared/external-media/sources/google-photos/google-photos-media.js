@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
 import { SelectControl } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import {
 	SOURCE_GOOGLE_PHOTOS,
 	PATH_RECENT,

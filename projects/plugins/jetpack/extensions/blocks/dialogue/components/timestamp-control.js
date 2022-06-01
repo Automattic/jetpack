@@ -1,18 +1,7 @@
-/**
- * External dependencies
- */
 import { debounce } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { Dropdown, Button, RangeControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import NumberControl from '../../../shared/components/number-control';
 import {
 	convertSecondsToTimeCode,

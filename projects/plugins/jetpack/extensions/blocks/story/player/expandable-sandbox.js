@@ -1,16 +1,5 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { useLayoutEffect, useRef, useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import ShadowRoot from './lib/shadow-root';
 import * as fullscreenAPI from './lib/fullscreen-api';
 import Modal from './modal';

@@ -1,15 +1,8 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 
 import React from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import Tooltip from 'components/tooltip';
 
 import Gridicon from 'components/gridicon';

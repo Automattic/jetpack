@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { get, map } from 'lodash';
 import classnames from 'classnames';
 import emailValidator from 'email-validator';
@@ -14,7 +11,7 @@ import {
 	InnerBlocks,
 	InspectorControls,
 	URLInput,
-	__experimentalBlockVariationPicker as BlockVariationPicker,
+	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	BlockControls,
 } from '@wordpress/block-editor';
 import {
@@ -30,10 +27,6 @@ import {
 	Icon,
 } from '@wordpress/components';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import HelpMessage from '../../shared/help-message';
 import defaultVariations from './variations';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';

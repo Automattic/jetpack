@@ -2,16 +2,9 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import { NoticeBox } from 'components/record-meter/notice-box';
 
 describe( 'with notices to display', () => {

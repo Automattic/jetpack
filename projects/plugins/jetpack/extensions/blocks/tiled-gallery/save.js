@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import Layout from './layout';
 import { defaultColumnsNumber } from './edit';
 import { getActiveStyleName } from '../../shared/block-styles';

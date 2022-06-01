@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React, { useState } from 'react';
 import { wordpress, plugins, warning, color } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Navigation, { NavigationItem, NavigationGroup } from '..';
 
 export default {

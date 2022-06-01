@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
@@ -11,10 +8,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
 	InnerBlocks: () => <button>Mocked button</button>,
 } ) );
-
-/**
- * Internal dependencies
- */
 import MailchimpSubscribeEdit from '../edit';
 import { settings } from '../../button';
 import { registerBlocks } from '../../../shared/test/block-fixtures';

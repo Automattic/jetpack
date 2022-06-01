@@ -1,12 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import ProductOffer from '../../product-offer';
 import Dialog from '..';
 import BoostImage from './boost.png';

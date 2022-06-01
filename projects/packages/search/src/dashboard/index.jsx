@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import ReactDOM from 'react-dom';
 import React from 'react';
-
-/**
- * WordPress dependencies
- */
 import { createReduxStore, register } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID, storeConfig } from './store';
 import SearchDashboard from './components/dashboard/wrapped-dashboard';
 

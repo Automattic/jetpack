@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import classnames from 'classnames';
 import { isEmpty, isEqual, join } from 'lodash';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
 import { InspectorControls, InspectorAdvancedControls } from '@wordpress/block-editor';
 import {
 	ExternalLink,
@@ -24,10 +17,6 @@ import {
 	unregisterBlockStyle,
 } from '@wordpress/blocks';
 import { useEffect } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import './editor.scss';
 import icon from './icon';
 import RestaurantPicker from './restaurant-picker';

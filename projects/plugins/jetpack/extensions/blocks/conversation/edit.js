@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
@@ -13,10 +10,6 @@ import {
 	Button,
 } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import './editor.scss';
 import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';

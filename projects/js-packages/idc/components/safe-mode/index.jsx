@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from '@wordpress/compose';
@@ -11,10 +8,6 @@ import { __ } from '@wordpress/i18n';
 import { removeQueryArgs } from '@wordpress/url';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from '../../state/store';
 import trackAndBumpMCStats from '../../tools/tracking';
 import ErrorMessage from '../error-message';

@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { __, _x, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel } from 'components/forms';
 import {

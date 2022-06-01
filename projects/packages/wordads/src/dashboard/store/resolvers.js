@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { fetchWordAdsSettings } from './controls';
 import { setJetpackSettings } from './actions/jetpack-settings';
 import { errorNotice } from '../components/global-notices/store/actions';

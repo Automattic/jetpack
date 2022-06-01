@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import Router from 'svelte-navigator/src/Router.svelte';
 import Route from 'svelte-navigator/src/Route.svelte';
 import Link from 'svelte-navigator/src/Link.svelte';

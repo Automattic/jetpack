@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
 import { eventPrefix, recordEvent } from 'lib/analytics';
 import useEntityRecordState from 'hooks/use-entity-record-state';

@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { BlockControls } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { PRODUCT_TYPE_PAYMENT_PLAN } from './constants';
 import { ProductManagementContext } from './context';
 import ProductManagementInspectorControl from './inspector-control';

@@ -1,8 +1,5 @@
 /* eslint-disable jsdoc/check-tag-names */
 
-/**
- * External dependencies
- */
 import { SVG, Path } from '@wordpress/components';
 
 /**

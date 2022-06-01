@@ -1,9 +1,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';

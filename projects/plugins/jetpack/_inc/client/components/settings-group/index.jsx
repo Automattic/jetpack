@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import classNames from 'classnames';
 import { includes, noop } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import SupportInfo from 'components/support-info';
 import {
 	isOfflineMode,

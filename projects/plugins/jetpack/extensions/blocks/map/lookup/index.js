@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import classnames from 'classnames';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Popover, withFocusOutside, withSpokenMessages } from '@wordpress/components';

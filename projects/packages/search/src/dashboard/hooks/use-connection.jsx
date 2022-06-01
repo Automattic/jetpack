@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { useSelect } from '@wordpress/data';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 

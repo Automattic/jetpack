@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import {
 	SCAN_STATUS_FETCH,
 	SCAN_STATUS_FETCH_RECEIVE,

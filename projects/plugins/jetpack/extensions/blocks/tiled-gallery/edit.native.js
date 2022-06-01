@@ -1,12 +1,5 @@
-/**
- * External Dependencies
- */
 import { useWindowDimensions, View } from 'react-native';
 import { concat } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import {
 	store as blockEditorStore,
 	MediaPlaceholder,
@@ -18,10 +11,6 @@ import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useMemo } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useResizeObserver } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
 import { icon } from '.';
 import styles from './styles.scss';

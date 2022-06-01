@@ -8,17 +8,10 @@
  * displays the Publicize UI there.
  */
 
-/**
- * External dependencies
- */
 import { TwitterThreadListener } from '@automattic/jetpack-publicize-components';
 import { __ } from '@wordpress/i18n';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
-
-/**
- * Internal dependencies
- */
 import './editor.scss';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import PublicizePanel from './components/panel';

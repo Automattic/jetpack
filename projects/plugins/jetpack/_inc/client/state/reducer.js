@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { combineReducers } from 'redux';
 import { globalNotices } from 'components/global-notices/state/notices/reducer';
-
-/**
- * Internal dependencies
- */
 import { initialState } from 'state/initial-state/reducer';
 import { dashboard } from 'state/at-a-glance/reducer';
 import { reducer as connection } from 'state/connection/reducer';

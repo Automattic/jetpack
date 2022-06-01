@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { getModule } from 'state/modules';
 import SettingsCard from 'components/settings-card';

@@ -1,18 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * WordPress dependencies
- */
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import ModuleControl from 'components/module-control';
 import MockedSearch from 'components/mocked-search';
 import { STORE_ID } from 'store';

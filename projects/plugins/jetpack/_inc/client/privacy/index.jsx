@@ -1,21 +1,10 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';

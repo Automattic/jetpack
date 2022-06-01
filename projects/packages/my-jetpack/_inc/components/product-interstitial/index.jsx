@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React, { useCallback, useEffect } from 'react';
 import { Container, Col, AdminPage } from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import ProductDetailCard from '../product-detail-card';
 import styles from './style.module.scss';
 import useAnalytics from '../../hooks/use-analytics';

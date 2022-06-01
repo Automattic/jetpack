@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-
-/**
- * Internal dependencies
- */
 import Discussion from 'discussion';
 import Performance from 'performance';
 import Privacy from 'privacy';

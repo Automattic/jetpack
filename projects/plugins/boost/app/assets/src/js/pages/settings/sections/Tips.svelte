@@ -1,13 +1,6 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
 </script>
 

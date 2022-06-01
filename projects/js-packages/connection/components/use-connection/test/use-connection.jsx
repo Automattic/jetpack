@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import { renderHook } from '@testing-library/react-hooks';
 import restApi from '@automattic/jetpack-api';
 import { useSelect, useDispatch } from '@wordpress/data';
 import sinon from 'sinon';
 import { expect } from 'chai';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from '../../../state/store';
 import useConnection from '../';
 

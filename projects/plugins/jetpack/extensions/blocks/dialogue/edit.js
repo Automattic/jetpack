@@ -1,21 +1,10 @@
-/**
- * External dependencies
- */
 import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { useContext, useEffect, useRef } from '@wordpress/element';
 import { dispatch, useSelect, useDispatch } from '@wordpress/data';
 import { Panel, PanelBody } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import './editor.scss';
 import { ParticipantsControl, SpeakerEditControl } from './components/participants-control';
 import { TimestampControl, TimestampEditControl } from './components/timestamp-control';

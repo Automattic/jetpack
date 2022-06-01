@@ -1,11 +1,4 @@
-/**
- * External Dependencies
- */
 import React from 'react';
-
-/**
- * Internal Dependencies
- */
 import { DisconnectCard } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
