@@ -1,9 +1,10 @@
-const assert = require( 'chai' ).assert;
 const childProcess = require( 'child_process' );
-const ChildProcess = childProcess.ChildProcess;
 const fs = require( 'fs/promises' );
 const os = require( 'os' );
 const path = require( 'path' );
+const assert = require( 'chai' ).assert;
+
+const ChildProcess = childProcess.ChildProcess;
 
 /**
  * Wait for a process to exit.

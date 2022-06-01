@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
+import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { isEmpty } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { isOfflineMode } from 'state/connection';
 import {
 	fetchAvailablePlans,
 	fetchSiteData,
@@ -17,7 +11,6 @@ import {
 	isFetchingSiteData,
 	getSitePlan,
 } from 'state/site';
-import { isOfflineMode } from 'state/connection';
 
 class QuerySite extends Component {
 	static propTypes = {

@@ -1,24 +1,10 @@
-/**
- * External dependencies
- */
 import formatCurrency from '@automattic/format-currency';
-
-/**
- * WordPress dependencies
- */
 import domReady from '@wordpress/dom-ready';
 import { ENTER } from '@wordpress/keycodes';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 import { initializeMembershipButtons } from '../../shared/memberships';
 
-/**
- * Style dependencies
- */
 import './view.scss';
 
 class JetpackDonations {

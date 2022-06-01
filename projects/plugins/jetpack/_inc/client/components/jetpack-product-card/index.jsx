@@ -1,22 +1,12 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { ProductPrice } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import classNames from 'classnames';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect } from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const JetpackProductCard = props => {

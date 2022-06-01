@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
 import { expect } from 'chai';
 import { getCurrencyObject } from '@automattic/format-currency';
 
-/**
- * Internal dependencies
- */
 import JetpackProductCard from '../index';
 import analytics from 'lib/analytics';
 import { fireEvent, render, screen, getNodeText } from 'test/test-utils';

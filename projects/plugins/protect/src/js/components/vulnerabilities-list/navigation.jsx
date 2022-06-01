@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { wordpress, plugins as pluginsIcon, warning, color } from '@wordpress/icons';
-import { useBreakpointMatch } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
-import useProtectData from '../../hooks/use-protect-data';
-import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { useCallback } from 'react';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useProtectData from '../../hooks/use-protect-data';
+import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
 const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 	const { plugins, themes, numVulnerabilities, numCoreVulnerabilities } = useProtectData();

@@ -117,5 +117,6 @@ WordPress security experts.
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
+### 1.0.0 - 2022-05-31
 
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
+- Initial release

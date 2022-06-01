@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { combineReducers } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { SET_IS_ACTION_IN_PROGRESS, SET_ERROR_TYPE, CLEAR_ERROR_TYPE } from './actions';
 
 const isActionInProgress = ( state = false, action ) => {

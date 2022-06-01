@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-/**
- * Internal dependencies
- */
 import { Summary as SummaryFeature } from '../index';
 import { buildInitialState } from './fixtures';
 import * as recommendationsActions from 'state/recommendations/actions';
