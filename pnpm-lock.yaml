@@ -1881,7 +1881,6 @@ importers:
       chalk: 4.1.2
       debug: 4.3.3
       eslint-config-prettier: 8.5.0
-      eslint-config-wpcalypso: 6.1.0
       eslint-plugin-es: 4.1.0
       eslint-plugin-import: 2.26.0
       eslint-plugin-inclusive-language: 2.2.0
@@ -1894,7 +1893,7 @@ importers:
       eslint-plugin-react: 7.30.0
       eslint-plugin-react-hooks: 4.5.0
       eslint-plugin-svelte3: 3.4.1
-      eslint-plugin-wpcalypso: 5.0.0
+      eslint-plugin-wpcalypso: 6.0.0
       glob: 7.1.6
       ignore: 5.1.8
       inquirer: 7.3.3
@@ -1922,7 +1921,6 @@ importers:
       chalk: 4.1.2
       debug: 4.3.3
       eslint-config-prettier: 8.5.0_eslint@8.16.0
-      eslint-config-wpcalypso: 6.1.0_e1b75ac1a4390dc120fb16bafcad6559
       eslint-plugin-es: 4.1.0_eslint@8.16.0
       eslint-plugin-import: 2.26.0_bc9943da122c52cfb36a821dfcb89944
       eslint-plugin-inclusive-language: 2.2.0
@@ -1935,7 +1933,7 @@ importers:
       eslint-plugin-react: 7.30.0_eslint@8.16.0
       eslint-plugin-react-hooks: 4.5.0_eslint@8.16.0
       eslint-plugin-svelte3: 3.4.1_eslint@8.16.0+svelte@3.42.4
-      eslint-plugin-wpcalypso: 5.0.0_eslint@8.16.0
+      eslint-plugin-wpcalypso: 6.0.0_2f60abd8e02fbf0952f4a17d165365d9
       glob: 7.1.6
       ignore: 5.1.8
       inquirer: 7.3.3
@@ -11820,23 +11818,6 @@ packages:
       eslint: 8.16.0
     dev: true
 
-  /eslint-config-wpcalypso/6.1.0_e1b75ac1a4390dc120fb16bafcad6559:
-    resolution: {integrity: sha512-FMdXC+jjS4vPI2zJ6b+C0cevn75SBC35DDgOgrRd6a4KriIQAiKhXQz14d7ivFyT48nOX6rEfJQqb4keKD5z/w==}
-    peerDependencies:
-      eslint: ^8
-      eslint-plugin-inclusive-language: '*'
-      eslint-plugin-jsdoc: '*'
-      eslint-plugin-react: '*'
-      eslint-plugin-wpcalypso: '*'
-    dependencies:
-      eslint: 8.16.0
-      eslint-plugin-inclusive-language: 2.2.0
-      eslint-plugin-jsdoc: 37.9.7_eslint@8.16.0
-      eslint-plugin-react: 7.30.0_eslint@8.16.0
-      eslint-plugin-react-hooks: 4.5.0_eslint@8.16.0
-      eslint-plugin-wpcalypso: 5.0.0_eslint@8.16.0
-    dev: true
-
   /eslint-import-resolver-node/0.3.6:
     resolution: {integrity: sha512-0En0w03NRVMn9Uiyn8YRPDKvWjxCWkslUEhGNTdGx15RvPJYQ+lbOlqrlNI2vEAs4pDYK4f/HN2TbDmk5TP0iw==}
     dependencies:
@@ -12060,13 +12041,23 @@ packages:
       svelte: 3.42.4
     dev: true
 
-  /eslint-plugin-wpcalypso/5.0.0_eslint@8.16.0:
-    resolution: {integrity: sha512-pcghYspmOv+KzBr+jlDMaazKc8ZKs4vm/dbZWpqCm26wbgCfCpe4276gZJRfUv7Zs+puy3+7h1i/Bd5zfiKBnA==}
+  /eslint-plugin-wpcalypso/6.0.0_2f60abd8e02fbf0952f4a17d165365d9:
+    resolution: {integrity: sha512-/PDJ7l7dz4BDaF4F4+rXu8JKAUfsDp19pT05sokuQ1Pk4zm5olY1jz4S11AvhxY1uhpPd1TRXcI4UJ4J7ZWqbA==}
     engines: {node: '>=10'}
     peerDependencies:
-      eslint: '>=5'
+      '@babel/core': '>=7.17.5'
+      eslint: '>=8.6.0'
+      eslint-plugin-inclusive-language: ^2.2.0
+      eslint-plugin-jsdoc: ^37.5.1
+      eslint-plugin-react: '*'
+      eslint-plugin-react-hooks: ^4.3.0
     dependencies:
+      '@babel/core': 7.17.10
       eslint: 8.16.0
+      eslint-plugin-inclusive-language: 2.2.0
+      eslint-plugin-jsdoc: 37.9.7_eslint@8.16.0
+      eslint-plugin-react: 7.30.0_eslint@8.16.0
+      eslint-plugin-react-hooks: 4.5.0_eslint@8.16.0
     dev: true
 
   /eslint-scope/5.1.1:

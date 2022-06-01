@@ -4,7 +4,7 @@
 import { RawHTML } from '@wordpress/element';
 import {
 	getColorClassName,
-	__experimentalGetGradientClass as getGradientClass,
+	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	getFontSizeClass,
 } from '@wordpress/block-editor';
 import classnames from 'classnames';

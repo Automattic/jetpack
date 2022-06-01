@@ -12,7 +12,7 @@ import { createBlock, getBlockType, registerBlockVariation } from '@wordpress/bl
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	InnerBlocks,
-	__experimentalBlockVariationPicker as BlockVariationPicker,
+	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 
