@@ -1,6 +1,6 @@
-import React from 'react';
 import { Text } from '@automattic/jetpack-components';
 import { wordpress, plugins } from '@wordpress/icons';
+import React from 'react';
 import Accordion, { AccordionItem } from '..';
 
 export default {

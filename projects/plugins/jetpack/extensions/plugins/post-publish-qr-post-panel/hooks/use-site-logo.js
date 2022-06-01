@@ -1,6 +1,6 @@
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
-import { store as coreStore } from '@wordpress/core-data';
 import { applyFilters } from '@wordpress/hooks';
 
 /**

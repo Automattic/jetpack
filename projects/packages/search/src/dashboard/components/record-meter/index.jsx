@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
+import React, { useState } from 'react';
 import { BarChart } from './bar-chart';
-import { RecordCount } from './record-count';
-import { NoticeBox } from './notice-box';
 import getRecordInfo from './lib/record-info';
+import { NoticeBox } from './notice-box';
+import { RecordCount } from './record-count';
 
 import './style.scss';
 

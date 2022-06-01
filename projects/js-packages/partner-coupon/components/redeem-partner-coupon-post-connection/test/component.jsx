@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { expect } from 'chai';
-import sinon from 'sinon';
-import { fireEvent, render, screen } from '@testing-library/react';
-import RedeemPartnerCouponPostConnection from '../';
 import analytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { expect } from 'chai';
+import * as React from 'react';
+import sinon from 'sinon';
+import RedeemPartnerCouponPostConnection from '../';
 
 const { location } = window;
 const partnerCoupon = {

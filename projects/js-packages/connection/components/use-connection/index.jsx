@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useSelect, useDispatch } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useEffect } from 'react';
 import { STORE_ID } from '../../state/store';
 
 const initialState = window?.JP_CONNECTION_INITIAL_STATE ? window.JP_CONNECTION_INITIAL_STATE : {};

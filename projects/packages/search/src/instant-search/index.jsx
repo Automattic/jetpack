@@ -3,14 +3,14 @@
 import './set-webpack-public-path';
 
 // NOTE: We directly import preact here since we don't expect this file to be used in a React context.
-import React from 'preact/compat';
 import { render } from 'preact';
+import React from 'preact/compat';
 import { Provider } from 'react-redux';
 import SearchApp from './components/search-app';
-import { getThemeOptions } from './lib/dom';
-import { SERVER_OBJECT_NAME } from './lib/constants';
 import { buildFilterAggregations } from './lib/api';
+import { SERVER_OBJECT_NAME } from './lib/constants';
 import { isInCustomizer } from './lib/customize';
+import { getThemeOptions } from './lib/dom';
 import store from './store';
 
 const injectSearchApp = () => {

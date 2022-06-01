@@ -1,12 +1,12 @@
-import React, { Fragment, useMemo } from 'react';
-import { useSelect, useDispatch, select as syncSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Spinner, AdminSection, AdminPage, Container, Col } from '@automattic/jetpack-components';
-import ModuleControl from 'components/module-control';
-import { STORE_ID } from 'store';
+import { useSelect, useDispatch, select as syncSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
+import ModuleControl from 'components/module-control';
+import React, { Fragment, useMemo } from 'react';
+import { STORE_ID } from 'store';
 
 import 'scss/rna-styles.scss';
 import './style.scss';

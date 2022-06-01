@@ -1,5 +1,5 @@
-import classnames from 'classnames';
 import { RichText, useBlockProps } from '@wordpress/block-editor';
+import classnames from 'classnames';
 import getColorAndStyleProps from './color-props';
 
 export default function save( { attributes } ) {

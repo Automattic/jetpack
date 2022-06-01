@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { wordpress, plugins, warning, color } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
+import { wordpress, plugins, warning, color } from '@wordpress/icons';
+import React, { useState } from 'react';
 import Navigation, { NavigationItem, NavigationGroup } from '..';
 
 export default {

@@ -1,7 +1,7 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import React from 'react';
 import AutomatticBylineLogo from '../automattic-byline-logo';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo';

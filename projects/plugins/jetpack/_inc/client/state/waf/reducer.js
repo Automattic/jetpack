@@ -1,5 +1,5 @@
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
+import { combineReducers } from 'redux';
 import {
 	WAF_SETTINGS_FETCH,
 	WAF_SETTINGS_FETCH_RECEIVE,

@@ -1,7 +1,7 @@
 import { CheckboxControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import JetpackLikesAndSharingPanel from '../../../../shared/jetpack-likes-and-sharing-panel';
 
 function ShowSharingCheckbox( { checked, onChange } ) {

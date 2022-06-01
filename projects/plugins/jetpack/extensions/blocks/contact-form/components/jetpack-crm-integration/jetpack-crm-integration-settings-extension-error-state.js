@@ -1,5 +1,5 @@
-import { createInterpolateElement } from '@wordpress/element';
 import { Notice } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const ExtensionActivationErrorState = ( { error } ) => {

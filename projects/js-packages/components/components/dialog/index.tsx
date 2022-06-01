@@ -1,9 +1,9 @@
-import React from 'react';
 import classnames from 'classnames';
-import styles from './style.module.scss';
-import Container from '../layout/container';
+import React from 'react';
 import Col from '../layout/col';
+import Container from '../layout/container';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
+import styles from './style.module.scss';
 
 type DialogProps = {
 	primary: React.ReactNode;

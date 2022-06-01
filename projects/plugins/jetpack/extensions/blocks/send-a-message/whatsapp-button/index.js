@@ -1,10 +1,10 @@
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
 import attributes from './attributes';
-import edit from './edit';
-import save from './save';
 import deprecatedV1 from './deprecated/v1';
+import edit from './edit';
 import icon from './icon';
+import save from './save';
 import './editor.scss';
 
 export const name = 'whatsapp-button';

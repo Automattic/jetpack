@@ -1,8 +1,8 @@
-import waitMediaReady from './lib/wait-media-ready';
-import classNames from 'classnames';
-import { useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
+import classNames from 'classnames';
 import { Media, CalypsoSpinner } from './components';
+import waitMediaReady from './lib/wait-media-ready';
 
 export const Slide = ( {
 	playerId,

@@ -1,13 +1,13 @@
 /** @ssr-ready **/
 
-import classNames from 'classnames';
-import { debounce } from 'lodash';
 import { getWindowInnerWidth } from '@automattic/viewport';
-import PropTypes from 'prop-types';
-import ReactDom from 'react-dom';
-import React from 'react';
-import DropdownItem from 'components/select-dropdown/item';
+import classNames from 'classnames';
 import SelectDropdown from 'components/select-dropdown';
+import DropdownItem from 'components/select-dropdown/item';
+import { debounce } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import ReactDom from 'react-dom';
 
 /**
  * Internal Variables

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Component } from '@wordpress/element';
-import { Button, PanelBody, ToggleControl } from '@wordpress/components';
 import { PanelColorSettings } from '@wordpress/block-editor';
+import { Button, PanelBody, ToggleControl } from '@wordpress/components';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 
 class SeekbarColorSettings extends Component {
 	constructor() {

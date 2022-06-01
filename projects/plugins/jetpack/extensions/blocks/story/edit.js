@@ -1,14 +1,14 @@
-import classNames from 'classnames';
-import { get, pick } from 'lodash';
-import { Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { isBlobURL } from '@wordpress/blob';
-import { useDispatch } from '@wordpress/data';
 import { MediaPlaceholder } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
-import { icon } from '.';
+import { useDispatch } from '@wordpress/data';
+import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
+import { get, pick } from 'lodash';
 import Controls from './controls';
 import StoryPlayer from './player';
+import { icon } from '.';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];

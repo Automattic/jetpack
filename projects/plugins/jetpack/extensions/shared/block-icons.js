@@ -1,5 +1,5 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import colorStudio from '@automattic/color-studio';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
 /**
  * Constants

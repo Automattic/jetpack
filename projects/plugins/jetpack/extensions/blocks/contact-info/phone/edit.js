@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import save from './save';
 import simpleInput from '../../../shared/simple-input';
+import save from './save';
 
 const PhoneEdit = props => {
 	const { setAttributes } = props;

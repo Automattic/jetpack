@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
-import ReactDom from 'react-dom';
-import React from 'react';
-import Clipboard from 'clipboard';
-import { omit, noop } from 'lodash';
 import classNames from 'classnames';
+import Clipboard from 'clipboard';
 import Button from 'components/button';
+import { omit, noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import ReactDom from 'react-dom';
 
 export default class ClipboardButton extends React.Component {
 	static displayName = 'ClipboardButton';

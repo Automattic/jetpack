@@ -1,12 +1,12 @@
-import React, { useCallback } from 'react';
 import { ExternalLink } from '@wordpress/components';
-import { connect } from 'react-redux';
-import { mapStateToSummaryResourceProps } from '../feature-utils';
-import { stepToRoute } from 'state/recommendations';
-import analytics from 'lib/analytics';
-import './style.scss';
 import { __ } from '@wordpress/i18n';
 import Button from 'components/button';
+import analytics from 'lib/analytics';
+import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
+import { stepToRoute } from 'state/recommendations';
+import { mapStateToSummaryResourceProps } from '../feature-utils';
+import './style.scss';
 
 const ResourceSummaryComponent = props => {
 	const { displayName, ctaLabel, ctaLink, resourceSlug, isNew, stepRoute } = props;

@@ -1,4 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server';
+
 import { __, _n, _x, _nx } from '../i18n-to-php';
 
 describe( 'i18n-to-php', () => {

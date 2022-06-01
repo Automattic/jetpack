@@ -1,5 +1,5 @@
-import { __, _x } from '@wordpress/i18n';
 import { Placeholder, Button } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
 import { icon } from '../';
 
 export default function EditUrlForm( { className, onSubmit, noticeUI, url, setUrl } ) {

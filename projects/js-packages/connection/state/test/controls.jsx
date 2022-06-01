@@ -1,5 +1,5 @@
-import { expect } from 'chai';
 import restApi from '@automattic/jetpack-api';
+import { expect } from 'chai';
 import sinon from 'sinon';
 import controls from '../controls';
 

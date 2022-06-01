@@ -1,7 +1,7 @@
 import { encode } from 'qss';
+import { decode } from '../external/query-string-decode';
 import { SERVER_OBJECT_NAME, VALID_RESULT_FORMAT_KEYS } from './constants';
 import { getFilterKeys, getStaticFilterKeys } from './filters';
-import { decode } from '../external/query-string-decode';
 
 /**
  * Parses the address bar's query string into an object.

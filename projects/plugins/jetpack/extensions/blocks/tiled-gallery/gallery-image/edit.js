@@ -1,10 +1,10 @@
-import classnames from 'classnames';
+import { isBlobURL } from '@wordpress/blob';
+import { Button, Spinner } from '@wordpress/components';
+import { withSelect } from '@wordpress/data';
+import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { BACKSPACE, DELETE } from '@wordpress/keycodes';
-import { Component, createRef, Fragment } from '@wordpress/element';
-import { Button, Spinner } from '@wordpress/components';
-import { isBlobURL } from '@wordpress/blob';
-import { withSelect } from '@wordpress/data';
+import classnames from 'classnames';
 import { close, downChevron, leftChevron, rightChevron, upChevron } from '../icons';
 
 class GalleryImageEdit extends Component {

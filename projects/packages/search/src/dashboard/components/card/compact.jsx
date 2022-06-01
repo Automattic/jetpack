@@ -1,8 +1,8 @@
-import React from 'react';
 /*eslint lodash/import-scope: [2, "method"]*/
-import assign from 'lodash/assign';
 import classnames from 'classnames';
 import Card from 'components/card';
+import assign from 'lodash/assign';
+import React from 'react';
 
 export default class CompactCard extends React.Component {
 	static displayName = 'CompactCard';

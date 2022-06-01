@@ -1,5 +1,5 @@
-import { __, sprintf } from '@wordpress/i18n';
 import formatCurrency from '@automattic/format-currency';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Formats a price with the right format for a numeric input value.

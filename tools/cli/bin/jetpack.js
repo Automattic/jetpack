@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import process from 'process';
 import { fileURLToPath } from 'url';
 import { compareComposerVersion } from '../helpers/checkEnvironment.js';

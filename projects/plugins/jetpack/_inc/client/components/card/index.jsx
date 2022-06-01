@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
-import React from 'react';
 import classnames from 'classnames';
 import { assign, omit } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Gridicon from '../gridicon';
 
 import './style.scss';

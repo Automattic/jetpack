@@ -1,11 +1,11 @@
-import { __, _x } from '@wordpress/i18n';
-import { G, Path, Rect, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
+import { G, Path, Rect, SVG } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
-import { getIconColor } from '../../shared/block-icons';
 
 export const innerButtonBlock = {
 	name: 'jetpack/button',

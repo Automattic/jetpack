@@ -1,6 +1,6 @@
 <script>
-	import { hasPrioritySupport, openPaidSupport } from '../../../utils/paid-plan';
 	import { __ } from '@wordpress/i18n';
+	import { hasPrioritySupport, openPaidSupport } from '../../../utils/paid-plan';
 </script>
 
 {#if hasPrioritySupport}

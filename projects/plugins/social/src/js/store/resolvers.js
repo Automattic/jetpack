@@ -1,5 +1,5 @@
-import { fetchJetpackSettings } from './controls';
 import { setJetpackSettings } from './actions/jetpack-settings';
+import { fetchJetpackSettings } from './controls';
 
 /**
  * Yield actions to get Publicize Module Status

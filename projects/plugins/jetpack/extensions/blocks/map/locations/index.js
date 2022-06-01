@@ -7,6 +7,7 @@ import {
 	TextControl,
 } from '@wordpress/components';
 import { Component } from '@wordpress/element';
+
 import './style.scss';
 
 export class Locations extends Component {

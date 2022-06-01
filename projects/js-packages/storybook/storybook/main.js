@@ -3,7 +3,6 @@
  */
 
 const path = require( 'path' );
-
 const projects = require( './projects' );
 
 const modulesDir = path.join( __dirname, '../node_modules' );

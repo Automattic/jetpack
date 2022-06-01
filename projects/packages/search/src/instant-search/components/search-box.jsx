@@ -1,7 +1,7 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
+import React, { Fragment, useState, useEffect, useRef } from 'react';
 import Gridicon from './gridicon';
 import './search-box.scss';
 

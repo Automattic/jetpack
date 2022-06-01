@@ -1,4 +1,5 @@
 import * as data from '@wordpress/data';
+
 import {
     getEditorType, CUSTOMIZER_EDITOR,
     NAVIGATION_EDITOR, POST_EDITOR,

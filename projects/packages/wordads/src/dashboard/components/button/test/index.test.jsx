@@ -2,10 +2,10 @@
  * @jest-environment jsdom
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Button from 'components/button';
+import React from 'react';
 
 describe( 'Button', function () {
 	const testProps = {

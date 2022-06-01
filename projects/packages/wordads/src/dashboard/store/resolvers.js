@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import { fetchWordAdsSettings } from './controls';
-import { setJetpackSettings } from './actions/jetpack-settings';
 import { errorNotice } from '../components/global-notices/store/actions';
+import { setJetpackSettings } from './actions/jetpack-settings';
+import { fetchWordAdsSettings } from './controls';
 
 /**
  * Yield actions to get Search Module Status

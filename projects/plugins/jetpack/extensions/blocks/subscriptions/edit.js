@@ -1,7 +1,3 @@
-import classnames from 'classnames';
-import { isEqual } from 'lodash';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { TextControl, withFallbackStyles } from '@wordpress/components';
 import {
 	InspectorControls,
 	RichText,
@@ -9,12 +5,16 @@ import {
 	withFontSizes,
 	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { useEffect, useState } from '@wordpress/element';
+import { TextControl, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
+import { useEffect, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { isEqual } from 'lodash';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { getSubscriberCount } from './api';
 import './view.scss';
 import defaultAttributes from './attributes';
-import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import {
 	DEFAULT_BORDER_RADIUS_VALUE,
 	DEFAULT_BORDER_WEIGHT_VALUE,

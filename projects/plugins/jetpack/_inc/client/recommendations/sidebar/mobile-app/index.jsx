@@ -1,10 +1,11 @@
+import { imagePath } from 'constants/urls';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect } from 'react';
 import AppsBadge from 'components/apps-badge';
-import { Layout } from '../layout';
-import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
+import React, { useCallback, useEffect } from 'react';
+import { Layout } from '../layout';
+
 import './style.scss';
 
 const MobileApp = () => {

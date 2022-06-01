@@ -1,6 +1,7 @@
-import React from 'react';
 import classnames from 'classnames';
 import { omit } from 'lodash';
+import React from 'react';
+
 import './style.scss';
 
 export default class Textarea extends React.Component {

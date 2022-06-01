@@ -1,8 +1,9 @@
-import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
 import { Button, Dashicon, Popover } from '@wordpress/components';
-import './style.scss';
+import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import LocationSearch from '../location-search';
+
+import './style.scss';
 
 export class AddPoint extends Component {
 	render() {

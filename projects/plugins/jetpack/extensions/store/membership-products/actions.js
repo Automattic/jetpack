@@ -1,11 +1,11 @@
 import formatCurrency from '@automattic/format-currency';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { STORE_NAME } from './constants';
-import { onError, onSuccess } from './utils';
-import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
 import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
+import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import { STORE_NAME } from './constants';
+import { onError, onSuccess } from './utils';
 
 export const setProducts = products => ( {
 	type: 'SET_PRODUCTS',

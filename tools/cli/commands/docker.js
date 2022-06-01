@@ -1,7 +1,7 @@
 import { spawnSync } from 'child_process';
+import fs from 'fs';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
-import fs from 'fs';
 import { dockerFolder, setConfig } from '../helpers/docker-config.js';
 
 /**

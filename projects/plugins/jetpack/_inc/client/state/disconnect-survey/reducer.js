@@ -1,5 +1,5 @@
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
+import { combineReducers } from 'redux';
 import {
 	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY,
 	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_SUCCESS,

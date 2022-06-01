@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
-import TextInput from 'components/text-input';
-import { FormLabel } from 'components/forms';
 import Button from 'components/button';
+import { FormLabel } from 'components/forms';
+import TextInput from 'components/text-input';
+import React, { useState, useCallback } from 'react';
 
 // For context on the seo-tools module's custom SEO title formats, refer to:
 // projects/plugins/jetpack/modules/seo-tools/jetpack-seo-titles.php

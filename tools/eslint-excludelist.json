@@ -71,7 +71,6 @@
 	"projects/plugins/jetpack/extensions/blocks/image-compare/edit.js",
 	"projects/plugins/jetpack/extensions/blocks/image-compare/use-debounce.js",
 	"projects/plugins/jetpack/extensions/blocks/opentable/edit.js",
-	"projects/plugins/jetpack/extensions/blocks/opentable/index.js",
 	"projects/plugins/jetpack/extensions/blocks/opentable/restaurant-picker.js",
 	"projects/plugins/jetpack/extensions/blocks/opentable/use-restaurant-search.js",
 	"projects/plugins/jetpack/extensions/blocks/pinterest/utils.js",

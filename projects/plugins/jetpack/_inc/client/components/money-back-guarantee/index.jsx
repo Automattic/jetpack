@@ -1,6 +1,7 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 import { yearlyMoneyBackBadge } from './icons';
+
 import './style.scss';
 
 const MoneyBackGuarantee = ( { text } ) => {

@@ -1,5 +1,5 @@
-import React from 'react';
 import { Path, SVG, Rect, G } from '@wordpress/components';
+import React from 'react';
 import styles from './styles.module.scss';
 
 /**

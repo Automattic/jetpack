@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
+
 import { Summary as SummaryFeature } from '../index';
 import { buildInitialState } from './fixtures';
 import * as recommendationsActions from 'state/recommendations/actions';

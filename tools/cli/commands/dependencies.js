@@ -1,5 +1,5 @@
-import chalk from 'chalk';
 import { spawn } from 'child_process';
+import chalk from 'chalk';
 import ignore from 'ignore';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 

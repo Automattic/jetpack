@@ -1,10 +1,10 @@
-import ReactDOM from 'react-dom';
-import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@automattic/jetpack-components';
-import MyJetpackScreen from './components/my-jetpack-screen';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
+import AddLicenseScreen from './components/add-license-screen';
 import ConnectionScreen from './components/connection-screen';
-import { initStore } from './state/store';
+import MyJetpackScreen from './components/my-jetpack-screen';
 import {
 	AntiSpamInterstitial,
 	BackupInterstitial,
@@ -16,7 +16,7 @@ import {
 	SearchInterstitial,
 	VideoPressInterstitial,
 } from './components/product-interstitial';
-import AddLicenseScreen from './components/add-license-screen';
+import { initStore } from './state/store';
 import './style.module.scss';
 
 initStore();

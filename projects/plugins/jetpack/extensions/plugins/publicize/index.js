@@ -9,12 +9,13 @@
  */
 
 import { TwitterThreadListener } from '@automattic/jetpack-publicize-components';
-import { __ } from '@wordpress/i18n';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
-import './editor.scss';
+import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import PublicizePanel from './components/panel';
+
+import './editor.scss';
 
 export const name = 'publicize';
 

@@ -1,5 +1,5 @@
-import { combineReducers } from 'redux';
 import { assign, filter, get, includes, mapValues, merge, some } from 'lodash';
+import { combineReducers } from 'redux';
 import {
 	JETPACK_SET_INITIAL_STATE,
 	JETPACK_SETTINGS_FETCH,

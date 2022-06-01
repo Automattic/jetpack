@@ -1,8 +1,8 @@
-import classnames from 'classnames';
-import { __ } from '@wordpress/i18n';
-import { useCallback } from '@wordpress/element';
-import { PanelBody, RangeControl } from '@wordpress/components';
 import { InspectorControls, RichText, useBlockProps } from '@wordpress/block-editor';
+import { PanelBody, RangeControl } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import ColorEdit from './color-edit';
 import getColorAndStyleProps from './color-props';
 

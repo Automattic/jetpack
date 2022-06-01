@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from 'react';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { useCallback, useEffect } from 'react';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 
 const useAnalytics = () => {

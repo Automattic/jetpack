@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import whatsAppIcon from './whatsapp-button/icon';
 import { extendWithPaidIcon } from '../../extended-blocks/paid-blocks/render-paid-icon';
+import whatsAppIcon from './whatsapp-button/icon';
 
 const variations = [
 	{

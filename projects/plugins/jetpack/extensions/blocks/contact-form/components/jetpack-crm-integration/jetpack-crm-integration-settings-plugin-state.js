@@ -1,9 +1,9 @@
-import semver from 'semver';
 import { Button, Icon, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import CRMJetpackFormsExtension from './jetpack-crm-integration-settings-extension';
+import semver from 'semver';
 import { installAndActivatePlugin, activatePlugin } from '../../../../shared/plugin-management';
+import CRMJetpackFormsExtension from './jetpack-crm-integration-settings-extension';
 
 const pluginPathWithoutPhp = 'zero-bs-crm/ZeroBSCRM';
 const pluginSlug = 'zero-bs-crm';

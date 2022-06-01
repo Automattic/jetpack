@@ -3,8 +3,8 @@ import ResizeObserver from 'resize-observer-polyfill';
 import Column from '../column';
 import Gallery from '../gallery';
 import Row from '../row';
-import { getGalleryRows, handleRowResize } from './resize';
 import { imagesToRatios, ratiosToColumns, ratiosToMosaicRows } from './ratios';
+import { getGalleryRows, handleRowResize } from './resize';
 
 export default class Mosaic extends Component {
 	gallery = createRef();

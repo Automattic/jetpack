@@ -1,4 +1,5 @@
 import { mapValues, merge } from 'lodash';
+
 import './style.scss';
 
 export default async function createSwiper(

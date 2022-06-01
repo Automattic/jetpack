@@ -1,12 +1,13 @@
-import { __, _x } from '@wordpress/i18n';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink, Path, Rect, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import './editor.scss';
-import edit from './edit';
-import save from './save';
+import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
+import edit from './edit';
+import save from './save';
+
+import './editor.scss';
 
 export const name = 'markdown';
 

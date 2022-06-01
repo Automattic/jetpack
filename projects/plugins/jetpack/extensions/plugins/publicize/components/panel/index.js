@@ -13,14 +13,13 @@ import {
 	useSocialMediaConnections as useSelectSocialMediaConnections,
 	usePostJustPublished,
 } from '@automattic/jetpack-publicize-components';
-import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
-import { store as editorStore } from '@wordpress/editor';
 import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
-
+import { __ } from '@wordpress/i18n';
 import { SharePostRow } from '../../components/share-post';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
 import UpsellNotice from '../upsell';
 
 const PublicizePanel = ( { prePublish } ) => {

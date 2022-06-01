@@ -1,5 +1,6 @@
-import PropTypes from 'prop-types';
 import { SocialServiceIcon } from '@automattic/jetpack-components';
+import PropTypes from 'prop-types';
+
 import './style.scss';
 
 const ConnectionIcon = props => {

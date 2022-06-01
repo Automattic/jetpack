@@ -1,5 +1,5 @@
-import { isEmpty, omit, pick, some } from 'lodash';
 import { createBlock } from '@wordpress/blocks';
+import { isEmpty, omit, pick, some } from 'lodash';
 
 const deprecatedAttributes = [
 	'submitButtonText',

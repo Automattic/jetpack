@@ -1,5 +1,5 @@
-import React from 'react';
 import { Gridicon } from '@automattic/jetpack-components';
+import React from 'react';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-legacy-search.scss';
 

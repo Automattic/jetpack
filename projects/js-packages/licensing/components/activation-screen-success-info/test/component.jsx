@@ -1,6 +1,6 @@
-import React from 'react';
 import { expect } from 'chai';
 import { mount } from 'enzyme';
+import React from 'react';
 import ActivationSuccessInfo from '..';
 import JetpackProductDetails from '../product-details';
 

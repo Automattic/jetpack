@@ -1,19 +1,19 @@
-import classnames from 'classnames';
-import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { useContext, useEffect, useRef } from '@wordpress/element';
-import { dispatch, useSelect, useDispatch } from '@wordpress/data';
 import { Panel, PanelBody } from '@wordpress/components';
+import { dispatch, useSelect, useDispatch } from '@wordpress/data';
+import { useContext, useEffect, useRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import './editor.scss';
+import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
+import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
+import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
+import ConversationContext from '../conversation/components/context';
+import { getParticipantBySlug } from '../conversation/utils';
 import { ParticipantsControl, SpeakerEditControl } from './components/participants-control';
 import { TimestampControl, TimestampEditControl } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
-import ConversationContext from '../conversation/components/context';
-import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
-import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
-import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';

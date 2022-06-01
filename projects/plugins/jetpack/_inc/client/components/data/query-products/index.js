@@ -1,7 +1,7 @@
+import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { isEmpty } from 'lodash';
 import { fetchProducts, isFetchingProducts, getProducts } from 'state/products';
 
 class QueryProducts extends Component {

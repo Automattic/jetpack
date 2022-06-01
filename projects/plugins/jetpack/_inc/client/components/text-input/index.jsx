@@ -1,6 +1,6 @@
-import React from 'react';
 import classNames from 'classnames';
 import { omit } from 'lodash';
+import React from 'react';
 
 import './style.scss';
 

@@ -1,6 +1,6 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { store as editPostStore } from '@wordpress/edit-post';
 import { useDispatch } from '@wordpress/data';
+import { store as editPostStore } from '@wordpress/edit-post';
 import { getEditorType, SITE_EDITOR, WIDGET_EDITOR } from '../../get-editor-type';
 
 export default function useOpenBlockSidebar( clientId ) {
