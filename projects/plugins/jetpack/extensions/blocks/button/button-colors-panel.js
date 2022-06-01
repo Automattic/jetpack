@@ -4,7 +4,7 @@
 import {
 	ContrastChecker,
 	PanelColorSettings,
-	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
+	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 

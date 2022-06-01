@@ -1,4 +1,4 @@
-/* eslint-disable wpcalypso/import-docblock, jsdoc/require-jsdoc */
+/* eslint-disable jsdoc/require-jsdoc */
 /**
  * WordPress dependencies
  */
