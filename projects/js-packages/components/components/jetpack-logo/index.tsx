@@ -1,6 +1,6 @@
-import React from 'react';
-import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+import React from 'react';
 import { JetpackLogoProps } from './types';
 
 const JetpackLogo: React.FC< JetpackLogoProps > = ( {

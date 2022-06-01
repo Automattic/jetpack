@@ -1,6 +1,5 @@
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
-
 import JetpackLogo from '../index';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 const meta: ComponentMeta< typeof JetpackLogo > = {
 	title: 'JS Packages/Components/Jetpack Logo',
