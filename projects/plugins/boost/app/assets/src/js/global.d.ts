@@ -7,6 +7,8 @@ import type { CriticalCssStatus } from './stores/critical-css-status';
 import type { Optimizations } from './stores/modules';
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
+// <reference types ="@types/jquery"/>
+
 declare global {
 	const wpApiSettings: {
 		root: string;
@@ -41,6 +43,13 @@ declare global {
 		nonces: {
 			[ key: string ]: string;
 		};
+		pricing: {
+			yearly?: {
+				priceBefore: number;
+				priceAfter: number;
+				currencyCode: string;
+			};
+		};
 	};
 
 	// Critical CSS Generator library.
@@ -57,7 +66,7 @@ declare global {
 			eventName: string,
 			eventType: string,
 			eventProp: TracksEventProperites
-		): void;
+		): JQueryXHR;
 	};
 }
 

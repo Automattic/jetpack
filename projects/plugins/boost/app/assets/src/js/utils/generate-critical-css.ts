@@ -256,7 +256,7 @@ async function generateForKeys(
 					if ( error.type === 'HttpError' ) {
 						eventProps.error_meta = castToNumber( error.meta.code );
 					}
-					recordBoostEvent( 'critical_css_url_error', 'click', eventProps );
+					recordBoostEvent( 'critical_css_url_error', eventProps );
 				}
 			} else {
 				await sendGenerationResult( providerKey, 'error', {
@@ -274,7 +274,7 @@ async function generateForKeys(
 					error_message: err.message,
 					error_type: err.type || ( err.constructor && err.constructor.name ) || 'unknown',
 				};
-				recordBoostEvent( 'critical_css_failure', 'click', eventProps );
+				recordBoostEvent( 'critical_css_failure', eventProps );
 
 				return;
 			}
@@ -288,7 +288,7 @@ async function generateForKeys(
 			error_message: 'Critical CSS Generation failed for all the provider keys.',
 			error_type: 'allProvidersError',
 		};
-		recordBoostEvent( 'critical_css_failure', 'click', eventProps );
+		recordBoostEvent( 'critical_css_failure', eventProps );
 	} else {
 		const eventProps = {
 			time: Date.now() - startTime,
@@ -298,7 +298,7 @@ async function generateForKeys(
 			max_size: maxSize,
 			provider_keys: Object.keys( providerKeys ).join( ',' ),
 		};
-		recordBoostEvent( 'critical_css_success', 'click', eventProps );
+		recordBoostEvent( 'critical_css_success', eventProps );
 	}
 
 	updateGenerateStatus( { status: 'success', progress: 0 } );
