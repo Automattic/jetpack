@@ -172,10 +172,10 @@ class Webhooks {
 	 * @return void
 	 */
 	private function handle_connect_url_redirect() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$from     = ! empty( $_GET['from'] ) ? wp_unslash( $_GET['from'] ) : 'iframe';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+		$from = ! empty( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : 'iframe';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, sanitization happens in get_authorization_url()
 		$redirect = ! empty( $_GET['redirect_after_auth'] ) ? wp_unslash( $_GET['redirect_after_auth'] ) : false;
 
 		add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
@@ -183,12 +183,14 @@ class Webhooks {
 		if ( ! $this->connection->is_user_connected() ) {
 			$connect_url = add_query_arg( 'from', $from, $this->connection->get_authorization_url( null, $redirect ) );
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			if ( isset( $_GET['notes_iframe'] ) ) {
 				$connect_url .= '&notes_iframe';
 			}
 			wp_safe_redirect( $connect_url );
 			exit;
 		} else {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			if ( ! isset( $_GET['calypso_env'] ) ) {
 				( new CookieState() )->state( 'message', 'already_authorized' );
 				wp_safe_redirect( $redirect );
@@ -205,8 +207,5 @@ class Webhooks {
 				exit;
 			}
 		}
-		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 	}
 }
