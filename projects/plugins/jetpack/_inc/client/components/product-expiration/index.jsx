@@ -1,10 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { __, sprintf } from '@wordpress/i18n';
 import { dateI18n, isInTheFuture } from '@wordpress/date';
+import { __, sprintf } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 class ProductExpiration extends React.PureComponent {
 	static propTypes = {

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 const fetch = require( 'node-fetch' );
 
 /* global WebhookPayloadPullRequest */

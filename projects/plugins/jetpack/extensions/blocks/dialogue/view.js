@@ -1,11 +1,5 @@
-/**
- * WordPress dependencies
- */
-import domReady from '@wordpress/dom-ready';
 import { select, dispatch } from '@wordpress/data';
-/**
- * Internal dependencies
- */
+import domReady from '@wordpress/dom-ready';
 import './style.scss';
 
 const STORE_ID = 'jetpack/media-source';

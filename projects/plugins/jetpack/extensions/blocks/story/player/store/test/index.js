@@ -1,11 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { registerStore } from '@wordpress/data';
 
-/**
- * Internal dependencies
- */
 import { defaultPlayerState, defaultPlayerSettings, defaultCurrentSlideState } from '../constants';
 import * as actions from '../actions';
 import * as selectors from '../selectors';

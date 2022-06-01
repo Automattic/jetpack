@@ -1,20 +1,10 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import React, { Component } from 'react';
 import Gridicon from './gridicon';
 import PhotonImage from './photon-image';
-import ProductRatings from './product-ratings';
 import ProductPrice from './product-price';
+import ProductRatings from './product-ratings';
 
-/**
- * Style dependencies
- */
 import './search-result-product.scss';
 
 class SearchResultProduct extends Component {

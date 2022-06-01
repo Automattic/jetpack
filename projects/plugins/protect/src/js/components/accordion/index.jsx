@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import React, { useState, useCallback, useContext } from 'react';
 import { Text } from '@automattic/jetpack-components';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
+import React, { useState, useCallback, useContext } from 'react';
 import styles from './styles.module.scss';
 
 const AccordionContext = React.createContext();

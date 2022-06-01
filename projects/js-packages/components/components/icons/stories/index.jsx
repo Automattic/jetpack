@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import * as allIcons from '../index.jsx';
 import styles from './style.module.scss';
 

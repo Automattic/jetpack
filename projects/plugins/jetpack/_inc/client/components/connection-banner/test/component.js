@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { expect } from 'chai';
 import { mount, shallow } from 'enzyme';
 
-/**
- * Internal dependencies
- */
 import { ConnectionBanner } from '../index';
 import ConnectButton from 'components/connect-button';
 

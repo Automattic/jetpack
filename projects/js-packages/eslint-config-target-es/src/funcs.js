@@ -1,8 +1,8 @@
+const mdn = require( '@mdn/browser-compat-data' );
 const browserslist = require( 'browserslist' );
 const debug = require( 'debug' );
-const mdn = require( '@mdn/browser-compat-data' );
-const semver = require( 'semver' );
 const { rules: esRules } = require( 'eslint-plugin-es' );
+const semver = require( 'semver' );
 const browsersMap = require( './browsersMap.js' );
 const rulesMap = require( './rulesMap.js' );
 

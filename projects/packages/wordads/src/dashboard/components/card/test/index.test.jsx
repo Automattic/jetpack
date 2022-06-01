@@ -2,17 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-
-/**
- * Internal dependencies
- */
 import Card from 'components/card';
+import React from 'react';
 
 describe( 'Card', function () {
 	it( 'can render', () => {

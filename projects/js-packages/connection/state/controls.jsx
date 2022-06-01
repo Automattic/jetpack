@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import restApi from '@automattic/jetpack-api';
 import { createRegistryControl } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from './store';
 
 const REGISTER_SITE = ( { registrationNonce, redirectUri } ) =>

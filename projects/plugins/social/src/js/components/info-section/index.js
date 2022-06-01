@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Container, Text } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
 const InfoSection = () => (

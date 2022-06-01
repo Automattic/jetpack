@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
-
-/**
- * Internal dependencies
- */
 import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import './overlay.scss';
 

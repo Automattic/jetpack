@@ -1,15 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import JetpackLogo from '../../jetpack-logo/index.jsx';
-
 import Text from '../../text/index';
 import AdminPage from '../index.jsx';
-
-/**
- * Internal dependencies
- */
 import styles from './style.module.scss';
 
 export default {

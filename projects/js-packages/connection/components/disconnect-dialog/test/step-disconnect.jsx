@@ -1,14 +1,7 @@
-/**
- * External Dependencies
- */
-import React from 'react';
 import { expect } from 'chai';
-import { spy } from 'sinon';
 import { shallow } from 'enzyme';
-
-/**
- * Internal Dependencies
- */
+import React from 'react';
+import { spy } from 'sinon';
 import StepDisconnect from '../steps/step-disconnect';
 
 describe( 'StepDisconnect', () => {

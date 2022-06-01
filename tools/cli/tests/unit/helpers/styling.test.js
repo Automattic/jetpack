@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import chai from 'chai';
-
-/**
- * Internal dependencies
- */
 import { chalkJetpackGreen } from '../../../helpers/styling.js';
 
 describe( 'styling', function () {

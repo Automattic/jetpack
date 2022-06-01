@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { expect } from 'chai';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { expect } from 'chai';
+import React from 'react';
 import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
 import ConnectScreenRequiredPlan from '../visual';
 
 const requiredProps = {

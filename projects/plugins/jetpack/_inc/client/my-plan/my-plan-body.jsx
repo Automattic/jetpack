@@ -1,26 +1,15 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
+import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 import Button from 'components/button';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
-import { imagePath } from 'constants/urls';
-import {
-	fetchPluginsData,
-	isFetchingPluginsData,
-	isPluginActive,
-	isPluginInstalled,
-} from 'state/site/plugins';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { showBackups } from 'state/initial-state';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -30,8 +19,12 @@ import {
 import { updateSettings } from 'state/settings/actions';
 import { getSetting, isUpdatingSetting } from 'state/settings/reducer';
 import { hasActiveSiteFeature } from 'state/site';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import { showBackups } from 'state/initial-state';
+import {
+	fetchPluginsData,
+	isFetchingPluginsData,
+	isPluginActive,
+	isPluginInstalled,
+} from 'state/site/plugins';
 
 class MyPlanBody extends React.Component {
 	static propTypes = {

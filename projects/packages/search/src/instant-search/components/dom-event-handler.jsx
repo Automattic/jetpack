@@ -1,11 +1,8 @@
-/**
- * External dependencies
- */
-import { Component } from 'react';
 // NOTE: We only import the debounce function here for reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
+import { Component } from 'react';
 
 // This component is used primarily to bind DOM event handlers to elements outside of the Jetpack Search overlay.
 export default class DomEventHandler extends Component {

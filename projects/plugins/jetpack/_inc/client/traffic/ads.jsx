@@ -1,29 +1,18 @@
-/**
- * External dependencies
- */
-import React from 'react';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import { FormFieldset, FormLegend } from 'components/forms';
-import Textarea from 'components/textarea';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import Textarea from 'components/textarea';
+import analytics from 'lib/analytics';
+import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
+import React from 'react';
 import TextInput from '../components/text-input';
 
 export const Ads = withModuleSettingsFormHelpers(

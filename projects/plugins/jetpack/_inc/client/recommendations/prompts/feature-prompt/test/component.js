@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-/**
- * Internal dependencies
- */
 import * as featureUtils from '../../../feature-utils';
 import { FeaturePrompt } from '../index';
 import analytics from 'lib/analytics';

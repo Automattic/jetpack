@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
+import { Spinner } from '@automattic/jetpack-components';
 import React from 'react';
 
-/**
- * Internal dependencies
- */
-import { Spinner } from '@automattic/jetpack-components';
 import './style.scss';
 
 /**
