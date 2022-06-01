@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
-import React from 'react';
 import classnames from 'classnames';
-import { omit } from 'lodash';
 import ClipboardButton from 'components/form/clipboard-button';
 import TextInput from 'components/text-input';
+import { omit } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import './style.scss';
 

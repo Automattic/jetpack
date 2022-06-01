@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
+import PropTypes from 'prop-types';
+import React from 'react';
 import styles from './style.module.scss';
 
 const DownIcon = () => (

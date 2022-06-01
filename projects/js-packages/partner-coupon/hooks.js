@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from 'react';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { useCallback, useEffect } from 'react';
 
 /**
  * Handle partner coupon redeem analytics and clicks.

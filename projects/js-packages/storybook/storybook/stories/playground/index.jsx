@@ -1,5 +1,4 @@
 /* eslint-disable react/react-in-jsx-scope,jsdoc/no-undefined-types */
-import { useEffect, useState } from '@wordpress/element';
 import {
 	BlockEditorKeyboardShortcuts,
 	BlockEditorProvider,
@@ -9,9 +8,11 @@ import {
 	WritingFlow,
 	ObserveTyping,
 } from '@wordpress/block-editor';
-import { Popover, SlotFillProvider } from '@wordpress/components';
 import { registerCoreBlocks } from '@wordpress/block-library';
+import { Popover, SlotFillProvider } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 import '@wordpress/format-library';
+
 import './style.scss';
 
 /**

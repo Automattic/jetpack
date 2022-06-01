@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
+
 import { NEW_NOTICE, REMOVE_NOTICE } from 'state/action-types';
 import { removeNotice, successNotice, errorNotice } from '../actions';
 

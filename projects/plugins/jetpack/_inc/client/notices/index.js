@@ -1,5 +1,6 @@
 import debugFactory from 'debug';
 import Emitter from 'mixins/emitter';
+
 import './style.scss';
 
 const debug = debugFactory( 'calypso:notices' );

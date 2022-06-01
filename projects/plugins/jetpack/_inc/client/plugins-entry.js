@@ -1,5 +1,5 @@
-import ReactDOM from 'react-dom';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import store from 'state/redux-store-minimal';
 import PluginDeactivation from './portals/plugin-deactivation';

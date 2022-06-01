@@ -11,6 +11,7 @@
  */
 
 import domReady from '@wordpress/dom-ready';
+
 import './view.scss';
 
 domReady( function () {

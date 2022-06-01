@@ -1,8 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
-import { getIconColor } from '../../shared/block-icons';
+
 import './editor.scss';
 
 export const name = 'amazon';

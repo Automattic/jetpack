@@ -1,8 +1,9 @@
 import { __, _x } from '@wordpress/i18n';
+import { DonationsIcon } from '../../shared/icons';
+import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import save from './save';
-import deprecatedV1 from './deprecated/v1';
-import { DonationsIcon } from '../../shared/icons';
+
 import './editor.scss';
 
 export const name = 'donations';

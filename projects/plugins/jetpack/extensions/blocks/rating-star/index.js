@@ -1,8 +1,8 @@
 import { __, _x } from '@wordpress/i18n';
-import edit from './edit';
-import save from './save';
-import { StarIcon, StarBlockIcon } from './icon';
 import { getIconColor } from '../../shared/block-icons';
+import edit from './edit';
+import { StarIcon, StarBlockIcon } from './icon';
+import save from './save';
 
 import './editor.scss';
 import './style.scss';

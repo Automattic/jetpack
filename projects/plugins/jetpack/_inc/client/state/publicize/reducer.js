@@ -1,5 +1,5 @@
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
+import { combineReducers } from 'redux';
 import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
 
 export const connectUrls = ( state = {}, action ) => {

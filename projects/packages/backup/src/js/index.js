@@ -1,6 +1,6 @@
+import { createReduxStore, register } from '@wordpress/data';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createReduxStore, register } from '@wordpress/data';
 import Admin from './components/Admin';
 import { STORE_ID, storeConfig } from './store';
 

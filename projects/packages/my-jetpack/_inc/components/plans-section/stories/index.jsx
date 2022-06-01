@@ -1,8 +1,8 @@
 /* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
 import withMock from 'storybook-addon-mock';
-import { purchasesList, siteWithSecurityPlanResponseBody } from './mock-data';
 import PlansSection from '../index.jsx';
+import { purchasesList, siteWithSecurityPlanResponseBody } from './mock-data';
 
 export default {
 	title: 'Packages/My Jetpack/Plans Section',

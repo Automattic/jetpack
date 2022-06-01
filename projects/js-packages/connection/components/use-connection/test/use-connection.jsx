@@ -1,10 +1,10 @@
-import { renderHook } from '@testing-library/react-hooks';
 import restApi from '@automattic/jetpack-api';
+import { renderHook } from '@testing-library/react-hooks';
 import { useSelect, useDispatch } from '@wordpress/data';
-import sinon from 'sinon';
 import { expect } from 'chai';
-import { STORE_ID } from '../../../state/store';
+import sinon from 'sinon';
 import useConnection from '../';
+import { STORE_ID } from '../../../state/store';
 
 let storeSelect;
 

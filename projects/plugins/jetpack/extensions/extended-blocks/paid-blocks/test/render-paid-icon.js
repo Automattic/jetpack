@@ -3,6 +3,7 @@
  */
 
 import { SVG, G } from '@wordpress/components';
+
 import renderPaidIcon from '../render-paid-icon';
 import PaidSymbol from '../paid-symbol';
 

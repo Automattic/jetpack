@@ -1,14 +1,14 @@
-import React from 'react';
-import { connect } from 'react-redux';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import analytics from 'lib/analytics';
-import { HeaderNav } from './header-nav';
-import { isWoASite as getIsWoASite } from 'state/initial-state';
+import React from 'react';
+import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus,
 	getSandboxDomain,
 	fetchSiteConnectionTest,
 } from 'state/connection';
+import { isWoASite as getIsWoASite } from 'state/initial-state';
+import { HeaderNav } from './header-nav';
 
 export class Masthead extends React.Component {
 	trackLogoClick = () => {

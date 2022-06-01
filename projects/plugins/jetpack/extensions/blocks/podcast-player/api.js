@@ -1,6 +1,6 @@
-import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 
 export const fetchTrackQuantity = async () => {
 	const trackQuantity = await apiFetch( {

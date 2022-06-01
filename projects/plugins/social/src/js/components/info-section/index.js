@@ -1,5 +1,5 @@
-import { __ } from '@wordpress/i18n';
 import { Container, Text } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
 const InfoSection = () => (

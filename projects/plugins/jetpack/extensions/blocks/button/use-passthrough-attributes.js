@@ -1,6 +1,6 @@
-import { isEmpty, mapValues, pickBy } from 'lodash';
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
+import { isEmpty, mapValues, pickBy } from 'lodash';
 
 export default function usePassthroughAttributes( { attributes, clientId, setAttributes } ) {
 	// `passthroughAttributes` is a map of child/parent attribute names,

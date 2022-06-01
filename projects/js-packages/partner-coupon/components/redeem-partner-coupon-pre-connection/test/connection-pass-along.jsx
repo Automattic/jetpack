@@ -1,8 +1,8 @@
+import { CONNECTION_STORE_ID, useConnection } from '@automattic/jetpack-connection';
 import { renderHook } from '@testing-library/react-hooks';
 import { useSelect, useDispatch } from '@wordpress/data';
-import sinon from 'sinon';
 import { expect } from 'chai';
-import { CONNECTION_STORE_ID, useConnection } from '@automattic/jetpack-connection';
+import sinon from 'sinon';
 
 let storeSelect;
 let stubConnectUser;

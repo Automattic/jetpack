@@ -1,9 +1,9 @@
-import React from 'react';
-import { useState, useEffect } from '@wordpress/element';
+import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 import { STORE_ID } from '../store';
 
 /**

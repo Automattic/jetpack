@@ -4,6 +4,7 @@
 
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
+
 import { RelatedPostsEdit } from '../edit';
 
 const posts = [

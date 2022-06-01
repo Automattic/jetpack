@@ -1,8 +1,13 @@
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf, _x } from '@wordpress/i18n';
+import ConnectButton from 'components/connect-button';
+import DashItem from 'components/dash-item';
+import QueryUserConnectionData from 'components/data/query-user-connection';
+import Gridicon from 'components/gridicon';
+import MobileMagicLink from 'components/mobile-magic-link';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf, _x } from '@wordpress/i18n';
 import {
 	getSiteConnectionStatus,
 	isConnectionOwner,
@@ -18,11 +23,6 @@ import {
 	getUsername,
 	getSiteIcon,
 } from 'state/initial-state';
-import QueryUserConnectionData from 'components/data/query-user-connection';
-import ConnectButton from 'components/connect-button';
-import DashItem from 'components/dash-item';
-import Gridicon from 'components/gridicon';
-import MobileMagicLink from 'components/mobile-magic-link';
 
 export class DashConnections extends Component {
 	/*

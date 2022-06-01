@@ -1,5 +1,5 @@
-import { unionBy, throttle, isEmpty } from 'lodash';
 import { useState, useEffect, useCallback } from '@wordpress/element';
+import { unionBy, throttle, isEmpty } from 'lodash';
 
 export const possibleEmbed = /^\s*(http[s]?:\/\/|\<script)/;
 

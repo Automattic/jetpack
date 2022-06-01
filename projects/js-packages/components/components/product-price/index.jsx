@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Text from '../text/index';
 import styles from './style.module.scss';
 

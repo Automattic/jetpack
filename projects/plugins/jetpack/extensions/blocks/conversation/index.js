@@ -1,11 +1,11 @@
-import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-import { TranscriptIcon as icon } from '../../shared/icons';
+import { __, _x } from '@wordpress/i18n';
 import createBlocksFromInnerBlocksTemplate from '../../shared/create-block-from-inner-blocks-template';
+import { TranscriptIcon as icon } from '../../shared/icons';
 import attributes from './attributes';
 import edit from './edit';
-import save from './save';
 import example from './example';
+import save from './save';
 
 export const name = 'conversation';
 export const title = __( 'Conversation', 'jetpack' );

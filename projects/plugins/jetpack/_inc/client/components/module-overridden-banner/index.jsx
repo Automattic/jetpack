@@ -1,10 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import classNames from 'classnames';
 import { JetpackBanner, connect as bannerConnect } from 'components/jetpack-banner';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 import './style.scss';
 

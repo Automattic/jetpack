@@ -1,5 +1,5 @@
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
 
 module.exports = {

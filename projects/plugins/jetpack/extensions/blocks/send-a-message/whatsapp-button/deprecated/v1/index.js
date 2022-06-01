@@ -1,7 +1,7 @@
-import classnames from 'classnames';
 import { RichText } from '@wordpress/block-editor';
-import { whatsAppURL } from '../../index';
+import classnames from 'classnames';
 import attr from '../../attributes';
+import { whatsAppURL } from '../../index';
 
 export default {
 	attributes: attr,

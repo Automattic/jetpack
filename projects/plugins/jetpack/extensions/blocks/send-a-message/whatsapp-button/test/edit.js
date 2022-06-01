@@ -9,6 +9,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { register } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 register( blockEditorStore );
+
 import WhatsAppButtonEdit from '../edit';
 
 const defaultAttributes = {

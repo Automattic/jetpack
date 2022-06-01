@@ -1,5 +1,5 @@
-import refx from 'refx';
 import { flowRight } from 'lodash';
+import refx from 'refx';
 import effects from './effects';
 
 /**

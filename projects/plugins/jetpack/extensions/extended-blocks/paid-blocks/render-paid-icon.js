@@ -1,5 +1,5 @@
-import { cloneElement } from '@wordpress/element';
 import { isUpgradable } from '@automattic/jetpack-shared-extension-utils';
+import { cloneElement } from '@wordpress/element';
 import PaidSymbol from './paid-symbol';
 
 /**

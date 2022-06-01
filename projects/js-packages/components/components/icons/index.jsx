@@ -1,6 +1,6 @@
+import { Path, SVG, G, Polygon } from '@wordpress/components';
 import classNames from 'classnames';
 import React from 'react';
-import { Path, SVG, G, Polygon } from '@wordpress/components';
 import styles from './style.module.scss';
 
 /**

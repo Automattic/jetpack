@@ -1,8 +1,8 @@
-import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
-import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'instagram-gallery';
 

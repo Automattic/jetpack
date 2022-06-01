@@ -1,9 +1,9 @@
-import React, { useState, useCallback } from 'react';
 import { Text } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
-import PropTypes from 'prop-types';
-import { Icon, check, info } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
+import { Icon, check, info } from '@wordpress/icons';
+import PropTypes from 'prop-types';
+import React, { useState, useCallback } from 'react';
 import styles from './styles.module.scss';
 
 /**

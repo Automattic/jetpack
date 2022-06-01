@@ -1,10 +1,10 @@
-import { __ } from '@wordpress/i18n';
 import { PanelBody } from '@wordpress/components';
-import { useState } from '@wordpress/element';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
-import SocialPreviewsPanel from './panel';
 import SocialPreviewsModal from './modal';
+import SocialPreviewsPanel from './panel';
 import './editor.scss';
 
 export const name = 'social-previews';

@@ -1,8 +1,8 @@
 import assert from 'assert';
+import CompactFormToggle from 'components/forms/form-toggle/compact';
+import { unique } from 'lodash';
 import React from 'react';
 import ReactDOM, { TestUtils } from 'react-dom';
-import { unique } from 'lodash';
-import CompactFormToggle from 'components/forms/form-toggle/compact';
 
 describe( 'CompactFormToggle', function () {
 	describe( 'rendering', function () {

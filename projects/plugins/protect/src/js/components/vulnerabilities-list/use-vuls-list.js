@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { plugins as pluginsIcon, wordpress, color } from '@wordpress/icons';
+import { useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 
 const flatData = ( data, icon ) => {

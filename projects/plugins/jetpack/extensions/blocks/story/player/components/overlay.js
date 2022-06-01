@@ -1,9 +1,9 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-import GridiconFullscreen from 'gridicons/dist/fullscreen';
 import { useCallback } from '@wordpress/element';
 import { __, isRTL } from '@wordpress/i18n';
+import GridiconFullscreen from 'gridicons/dist/fullscreen';
 import { DecoratedButton } from './button';
 import { NavigateBeforeIcon, NavigateNextIcon } from './icons';
 

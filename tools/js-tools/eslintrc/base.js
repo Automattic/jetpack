@@ -56,6 +56,14 @@ module.exports = {
 		curly: 2,
 		'computed-property-spacing': [ 2, 'always' ],
 		'func-call-spacing': 2,
+		'import/order': [
+			2,
+			{
+				'newlines-between': 'never',
+				alphabetize: { order: 'asc' },
+				groups: [ 'builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'type' ],
+			},
+		],
 		'jsx-quotes': [ 2, 'prefer-double' ],
 		'key-spacing': 2,
 		'keyword-spacing': 2,

@@ -1,5 +1,5 @@
-import { assign } from 'lodash';
 import { EventEmitter } from 'events';
+import { assign } from 'lodash';
 
 export default function ( prototype ) {
 	assign( prototype, EventEmitter.prototype );

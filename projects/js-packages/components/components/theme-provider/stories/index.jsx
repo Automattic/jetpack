@@ -1,5 +1,5 @@
-import React from 'react';
 import { ClipboardButton } from '@wordpress/components';
+import React from 'react';
 import Col from '../../layout/col';
 import Container from '../../layout/container';
 import ThemeProvider, { typography, colors, borders, spacing } from '../index.jsx';

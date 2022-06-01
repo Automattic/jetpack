@@ -1,10 +1,11 @@
 /* global _wpmejsSettings, MediaElementPlayer */
 
-import { debounce, throttle } from 'lodash';
+import { speak } from '@wordpress/a11y';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { speak } from '@wordpress/a11y';
+import { debounce, throttle } from 'lodash';
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from '../../../store/media-source/constants';
+
 import './style.scss';
 
 // MediaElement global settings.

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
+
 import { SiteTypeQuestion } from '../index';
 import analytics from 'lib/analytics';
 import * as recommendationsActions from 'state/recommendations/actions';

@@ -1,10 +1,11 @@
-import { useMemo, useEffect, useCallback } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useMemo, useEffect, useCallback } from '@wordpress/element';
 import { ENTER, SPACE, LEFT, RIGHT } from '@wordpress/keycodes';
+import ExpandableSandbox from './expandable-sandbox';
+import PlayerUI from './player-ui';
+
 import './style.scss';
 import './store';
-import PlayerUI from './player-ui';
-import ExpandableSandbox from './expandable-sandbox';
 
 export default function StoryPlayer( { id, slides, metadata, disabled, ...settings } ) {
 	const playerId = useMemo( () => id || Math.random().toString( 36 ), [ id ] );

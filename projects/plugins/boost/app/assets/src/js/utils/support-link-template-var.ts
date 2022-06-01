@@ -1,5 +1,5 @@
-import type { TemplateVars } from './copy-dom-template';
 import externalLinkTemplateVar from './external-link-template-var';
+import type { TemplateVars } from './copy-dom-template';
 
 /**
  * Generates a TemplatedString var for a link to contact Jetpack Support.

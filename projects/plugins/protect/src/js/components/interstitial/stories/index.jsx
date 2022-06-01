@@ -1,7 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
-import Interstitial from '../index.jsx';
 import { initStore } from '../../../state/store';
+import Interstitial from '../index.jsx';
 import { jetpackProtectInitialState } from './mock';
 
 // Init mocked store.

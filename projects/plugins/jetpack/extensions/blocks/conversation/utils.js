@@ -1,6 +1,6 @@
-import { create, getTextContent } from '@wordpress/rich-text';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __ } from '@wordpress/i18n';
+import { create, getTextContent } from '@wordpress/rich-text';
 
 export function getParticipantBySlug( participants, participantSlug ) {
 	const part = participants.filter( ( { slug } ) => slug === participantSlug );

@@ -1,8 +1,9 @@
+import colorStudio from '@automattic/color-studio';
 import { G, Path, Polygon, Rect, SVG } from '@wordpress/components';
 import classNames from 'classnames';
-import colorStudio from '@automattic/color-studio';
-import './icons.scss';
 import { getIconColor } from './block-icons';
+
+import './icons.scss';
 
 /**
  * Constants

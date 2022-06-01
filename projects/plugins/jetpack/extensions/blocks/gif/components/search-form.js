@@ -1,6 +1,6 @@
-import { __ } from '@wordpress/i18n';
-import { forwardRef } from '@wordpress/element';
 import { Button } from '@wordpress/components';
+import { forwardRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 export function SearchForm( { onSubmit, onChange, value = '' }, ref ) {
 	return (

@@ -1,7 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
 
 import React from 'react';
-
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import withMock from 'storybook-addon-mock';
 import ConnectedProductCard from '../';

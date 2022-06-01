@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { noop } from 'lodash';
 import classNames from 'classnames';
 import Gridicon from 'components/gridicon';
+import { noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
 class ModernOverlay extends Component {

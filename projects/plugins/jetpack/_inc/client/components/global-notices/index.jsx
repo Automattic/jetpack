@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
-import React from 'react';
-import debugModule from 'debug';
 import SimpleNotice from 'components/notice/index.jsx';
 import NoticeAction from 'components/notice/notice-action';
+import debugModule from 'debug';
 import notices from 'notices';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { removeNotice } from './state/notices/actions';

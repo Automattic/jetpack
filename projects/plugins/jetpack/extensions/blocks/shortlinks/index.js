@@ -1,8 +1,8 @@
-import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
-import { get } from 'lodash';
 import { PanelBody } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
+import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { get } from 'lodash';
 import ClipboardInput from '../../shared/clipboard-input';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 

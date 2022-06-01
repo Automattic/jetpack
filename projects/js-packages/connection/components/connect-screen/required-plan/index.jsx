@@ -1,9 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
-import ConnectScreenRequiredPlanVisual from './visual';
-import useConnection from '../../use-connection';
+import PropTypes from 'prop-types';
+import React from 'react';
 import useProductCheckoutWorkflow from '../../../hooks/use-product-checkout-workflow';
+import useConnection from '../../use-connection';
+import ConnectScreenRequiredPlanVisual from './visual';
 
 /**
  * The Connection Screen Visual component for consumers that require a Plan.

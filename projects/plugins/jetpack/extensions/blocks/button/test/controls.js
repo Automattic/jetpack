@@ -1,6 +1,7 @@
 import { render, screen, within, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
+
 import ButtonControls from '../controls';
 
 // Temporarily mock out the ButtonWidthControl, which is causing errors due to missing

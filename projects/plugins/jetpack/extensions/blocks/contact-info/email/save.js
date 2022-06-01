@@ -1,5 +1,5 @@
-import emailValidator from 'email-validator';
 import { Fragment } from '@wordpress/element';
+import emailValidator from 'email-validator';
 
 const renderEmail = inputText => {
 	const explodedInput = inputText.split( /(\s+)/ ).map( ( email, i ) => {

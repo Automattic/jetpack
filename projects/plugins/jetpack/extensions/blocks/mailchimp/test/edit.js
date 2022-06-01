@@ -8,6 +8,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
 	InnerBlocks: () => <button>Mocked button</button>,
 } ) );
+
 import MailchimpSubscribeEdit from '../edit';
 import { settings } from '../../button';
 import { registerBlocks } from '../../../shared/test/block-fixtures';

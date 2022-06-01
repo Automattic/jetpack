@@ -1,5 +1,6 @@
 import { shallow } from 'enzyme';
 import React from 'react';
+
 import { source } from './fixtures/source';
 import MarkdownRenderer from '../renderer';
 

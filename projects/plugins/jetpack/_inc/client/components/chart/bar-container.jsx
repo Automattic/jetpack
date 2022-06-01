@@ -1,8 +1,6 @@
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import Bar from './bar';
-
 import XAxis from './x-axis';
 
 export default class ModuleChartBarContainer extends React.Component {

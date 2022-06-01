@@ -2,6 +2,7 @@ import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import { spy } from 'sinon';
+
 import { UnwrappedComponent as SubscriptionsComponent } from '../subscriptions';
 
 describe( 'SubscriptionsComponent', () => {

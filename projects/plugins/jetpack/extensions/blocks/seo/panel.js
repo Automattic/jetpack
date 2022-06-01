@@ -1,8 +1,8 @@
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
-import { get } from 'lodash';
 import { withDispatch, withSelect } from '@wordpress/data';
+import { Component } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { get } from 'lodash';
 
 class SeoPanel extends Component {
 	onMessageChange = event => {

@@ -1,5 +1,5 @@
-const moment = require( 'moment' );
 const compareVersions = require( 'compare-versions' );
+const moment = require( 'moment' );
 
 /* global GitHub, OktokitIssuesListMilestonesForRepoResponseItem */
 

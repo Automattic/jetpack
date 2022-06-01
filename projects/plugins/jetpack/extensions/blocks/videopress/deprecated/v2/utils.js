@@ -1,5 +1,5 @@
-import classnames from 'classnames/dedupe';
 import TokenList from '@wordpress/token-list';
+import classnames from 'classnames/dedupe';
 
 // Aspect ratios at the time of deprecation.
 export const ASPECT_RATIOS = [

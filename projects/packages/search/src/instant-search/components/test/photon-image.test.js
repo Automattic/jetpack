@@ -2,9 +2,9 @@
  * @jest-environment jsdom
  */
 
-import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import React from 'react';
 import PhotonImage from '../photon-image';
 
 test( 'returns a Photon URL for a site with Photon enabled', () => {

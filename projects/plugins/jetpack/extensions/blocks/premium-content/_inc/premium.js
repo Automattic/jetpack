@@ -1,5 +1,5 @@
-import { select, useSelect } from '@wordpress/data';
 import { store as blocksStore } from '@wordpress/blocks';
+import { select, useSelect } from '@wordpress/data';
 import { name } from '../index';
 
 export const blockContainsPremiumBlock = block => {

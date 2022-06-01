@@ -6,13 +6,13 @@
  * sharing message.
  */
 
+import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize-components';
 import { PanelRow, Disabled } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize-components';
-import PublicizeSettingsButton from '../settings-button';
-import MessageBoxControl from '../message-box-control';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import MessageBoxControl from '../message-box-control';
+import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
 /**

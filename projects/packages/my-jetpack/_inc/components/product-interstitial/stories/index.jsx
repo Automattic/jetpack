@@ -1,7 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
-import withMock from 'storybook-addon-mock';
 import { HashRouter, Routes, Route } from 'react-router-dom';
+import withMock from 'storybook-addon-mock';
 import { getMockData } from '../../product-detail-card/stories/utils.js';
 import ProductInterstitial, {
 	AntiSpamInterstitial,

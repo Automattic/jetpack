@@ -1,6 +1,7 @@
 import React from 'react';
 import { range } from 'lodash';
 import { shallow } from 'enzyme';
+
 import Mosaic from '..';
 import * as imageSets from '../../test/fixtures/image-sets';
 

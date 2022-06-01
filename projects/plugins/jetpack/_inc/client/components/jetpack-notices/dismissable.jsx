@@ -1,6 +1,6 @@
 import React from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import {
 	isNoticeDismissed as _isNoticeDismissed,
 	getJetpackNotices as _getJetpackNotices,

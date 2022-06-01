@@ -1,5 +1,5 @@
-import { forEach } from 'lodash';
 import domReady from '@wordpress/dom-ready';
+import { forEach } from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
 import createSwiper from './create-swiper';
 import {

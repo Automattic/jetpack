@@ -1,3 +1,4 @@
+import restApi from '@automattic/jetpack-api';
 import { __ } from '@wordpress/i18n';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
@@ -12,7 +13,6 @@ import {
 	MOCK_SWITCH_REWIND_STATE,
 	MOCK_SWITCH_SCAN_STATE,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
 
 export const resetOptions = options => {
 	return dispatch => {

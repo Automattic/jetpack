@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react';
 import { __ } from '@wordpress/i18n';
 import Gridicon from 'components/gridicon';
+import React, { useCallback } from 'react';
+
 import './style.scss';
 
 const BackButton = () => {

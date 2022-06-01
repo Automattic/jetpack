@@ -1,4 +1,3 @@
-import classnames from 'classnames';
 import {
 	BaseControl,
 	Button,
@@ -8,6 +7,7 @@ import {
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 
 const widthUnits = [
 	{ value: 'px', label: 'px', default: 150 },

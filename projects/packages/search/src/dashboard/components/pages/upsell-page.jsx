@@ -1,6 +1,3 @@
-import React, { useCallback } from 'react';
-import { __ } from '@wordpress/i18n';
-import { useSelect } from '@wordpress/data';
 import {
 	AdminPage,
 	Container,
@@ -8,10 +5,13 @@ import {
 	PricingCard,
 	AdminSectionHero,
 } from '@automattic/jetpack-components';
+import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
+import Loading from 'components/loading';
+import SearchPromotionBlock from 'components/search-promotion';
+import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 import getProductCheckoutUrl from 'utils/get-product-checkout-url';
-import SearchPromotionBlock from 'components/search-promotion';
-import Loading from 'components/loading';
 
 import './upsell-page.scss';
 

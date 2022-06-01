@@ -1,21 +1,21 @@
-import { getDate, date, dateI18n } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
-import apiFetch from '@wordpress/api-fetch';
-import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import apiFetch from '@wordpress/api-fetch';
+import { useSelect } from '@wordpress/data';
+import { getDate, date, dateI18n } from '@wordpress/date';
+import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { STORE_ID } from '../store';
 import StatBlock from './StatBlock';
 import './backups-style.scss';
-import PostsIcon from './icons/posts.svg';
-import CloudIcon from './icons/cloud.svg';
-import CloudAlertIcon from './icons/cloud-alert.svg';
-import UploadsIcon from './icons/uploads.svg';
-import PluginsIcon from './icons/plugins.svg';
-import ThemesIcon from './icons/themes.svg';
 import BackupAnim1 from './icons/backup-animation-1.svg';
 import BackupAnim2 from './icons/backup-animation-2.svg';
 import BackupAnim3 from './icons/backup-animation-3.svg';
+import CloudAlertIcon from './icons/cloud-alert.svg';
+import CloudIcon from './icons/cloud.svg';
+import PluginsIcon from './icons/plugins.svg';
+import PostsIcon from './icons/posts.svg';
+import ThemesIcon from './icons/themes.svg';
+import UploadsIcon from './icons/uploads.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {

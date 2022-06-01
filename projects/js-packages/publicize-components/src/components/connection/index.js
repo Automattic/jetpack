@@ -5,15 +5,15 @@
  * checkbox to enable/disable the connection for sharing.
  */
 
-import { __ } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Notice, ExternalLink } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
+import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { includes } from 'lodash';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import ConnectionToggle from '../connection-toggle';
-import styles from './styles.module.scss';
 import componentStyles from '../styles.module.scss';
+import styles from './styles.module.scss';
 
 class PublicizeConnection extends Component {
 	/**

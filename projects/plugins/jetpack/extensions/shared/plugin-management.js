@@ -1,5 +1,5 @@
-import apiFetch from '@wordpress/api-fetch';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Returns a list of all active plugins on the site.

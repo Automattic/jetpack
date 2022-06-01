@@ -2,9 +2,11 @@
 /* eslint-disable */
 
 import { pickBy, isEqual, isObject, identity, mapValues } from 'lodash';
+
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef, Platform } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
+
 import {
 	getColorObjectByColorValue,
 	getColorObjectByAttributeValues,

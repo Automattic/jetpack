@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
-import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 import { __ } from '@wordpress/i18n';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
+import React, { useMemo } from 'react';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import {
 	getNextRoute,
 	isProductSuggestionsAvailable as isProductSuggestionsAvailableCheck,
@@ -12,10 +12,11 @@ import {
 	isFetchingRecommendationsUpsell,
 } from 'state/recommendations';
 import { isFetchingSiteDiscount, getSiteDiscount } from 'state/site/reducer';
-import { ProductSuggestion } from '../product-suggestion';
 import BackButton from '../../back-button';
 import Timer from '../../timer';
 import { isCouponValid } from '../../utils';
+import { ProductSuggestion } from '../product-suggestion';
+
 import './style.scss';
 
 const ProductSuggestionsComponent = ( {

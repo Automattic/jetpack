@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+
 import { SettingsGroup } from '../index';
 
 describe( 'SettingsGroup', () => {

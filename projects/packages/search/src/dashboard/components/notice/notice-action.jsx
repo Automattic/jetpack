@@ -1,6 +1,6 @@
+import { Gridicon } from '@automattic/jetpack-components';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Gridicon } from '@automattic/jetpack-components';
 
 import './style.scss';
 
