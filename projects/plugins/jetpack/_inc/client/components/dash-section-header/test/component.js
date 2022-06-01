@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
-/**
- * Internal dependencies
- */
 import { DashSectionHeader } from '../index';
 
 describe( 'DashSectionHeader', () => {

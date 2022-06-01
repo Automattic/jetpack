@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { GUTTER_WIDTH } from '../../constants';
 
 /**

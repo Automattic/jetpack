@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-
-/**
- * Internal dependencies
- */
 import { FETCH_PURCHASES } from './actions';
 import { REST_API_SITE_PURCHASES_ENDPOINT } from './constants';
 

@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { shallow } from 'enzyme';
 import { expect } from 'chai';
 
-/**
- * Internal dependencies
- */
 import { DevVersionNotice } from '../index';
 import { PlanConflictWarning } from '../plan-conflict-warning';
 

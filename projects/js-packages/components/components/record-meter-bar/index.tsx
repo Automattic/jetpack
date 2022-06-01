@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React, { useMemo } from 'react';
 
 import './style.scss';

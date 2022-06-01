@@ -1,12 +1,9 @@
-/**
- * External dependencies
- */
 import React from 'react';
-import AdminSection from '../basic';
-import AdminSectionHero from '../hero';
 import AdminPage from '../../admin-page';
 import Col from '../../layout/col';
 import Container from '../../layout/container';
+import AdminSection from '../basic';
+import AdminSectionHero from '../hero';
 
 export default {
 	title: 'JS Packages/Components/Admin Sections',

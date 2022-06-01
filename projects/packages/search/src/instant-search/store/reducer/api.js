@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { setDocumentCountsToZero } from '../../lib/api';
 
 let cachedAggregations = {};

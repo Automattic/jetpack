@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { connect } from 'react-redux';
-import React, { useCallback } from 'react';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
+import analytics from 'lib/analytics';
+import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus,
 	hasConnectedOwner as hasConnectedOwnerSelector,

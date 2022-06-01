@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 const pluginTester = require( 'babel-plugin-tester' ).default;
 
 const mockDebug = jest.fn();

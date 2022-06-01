@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-search",
-	"version": "0.14.3-alpha",
+	"version": "0.15.0-alpha",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",
 	"directories": {

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import siteSettingActions from './jetpack-settings';
 
 const actions = {

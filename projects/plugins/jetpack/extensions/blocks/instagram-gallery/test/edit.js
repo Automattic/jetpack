@@ -2,17 +2,11 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
 
-/**
- * Internal dependencies
- */
 import InstagramGalleryEdit from '../edit';
 
 const originalFetch = window.fetch;

@@ -1,12 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import JetpackLogo from '../index.jsx';
 
 export default {
