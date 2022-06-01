@@ -16,6 +16,7 @@ use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 class Admin {
@@ -58,6 +59,7 @@ class Admin {
 		$this->modules     = $modules;
 		$this->speed_score = new Speed_Score( $modules );
 		Environment_Change_Detector::init();
+		Premium_Pricing::init();
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );

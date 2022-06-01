@@ -1,29 +1,19 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import classnames from 'classnames';
-import { find, isEmpty } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
+import { ProductActivated } from 'components/product-activated';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
+import analytics from 'lib/analytics';
 import { getPlanClass, JETPACK_BACKUP_PRODUCTS, JETPACK_SCAN_PRODUCTS } from 'lib/plans/constants';
+import { find, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import {
 	getUpgradeUrl,
 	getDateFormat,
@@ -32,9 +22,8 @@ import {
 	showLicensingUi,
 } from 'state/initial-state';
 import { getDetachedLicensesCount } from 'state/licensing';
-import { ProductActivated } from 'components/product-activated';
-import License from './license';
 import MyPlanCard from '../my-plan-card';
+import License from './license';
 
 const TIER_0_BACKUP_STORAGE_GB = 1;
 const TIER_1_BACKUP_STORAGE_GB = 10;

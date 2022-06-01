@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
 import { expect } from 'chai';
 
-/**
- * Internal dependencies
- */
 import { stringToTokenizedArray, tokenizedArrayToString } from '../custom-seo-titles';
 
 describe( 'Traffic - Custom SEO Titles', () => {

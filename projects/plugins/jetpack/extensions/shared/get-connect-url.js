@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 
 /**

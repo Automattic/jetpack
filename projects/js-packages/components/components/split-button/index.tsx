@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import type React from 'react';
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import styles from './style.module.scss';
 import { SplitButtonProps } from './types';
 

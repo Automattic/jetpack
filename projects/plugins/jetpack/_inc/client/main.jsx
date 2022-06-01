@@ -1,28 +1,36 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter, Prompt } from 'react-router-dom';
-import { __, sprintf } from '@wordpress/i18n';
+import { imagePath } from 'constants/urls';
+import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { ActivationScreen } from '@automattic/jetpack-licensing';
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import AtAGlance from 'at-a-glance/index.jsx';
+import AdminNotices from 'components/admin-notices';
+import AppsCard from 'components/apps-card';
+import ContextualizedConnection from 'components/contextualized-connection';
+import QueryRewindStatus from 'components/data/query-rewind-status';
+import Footer from 'components/footer';
+import JetpackNotices from 'components/jetpack-notices';
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
+import NonAdminView from 'components/non-admin-view';
+import ReconnectModal from 'components/reconnect-modal';
+import SupportCard from 'components/support-card';
+import Tracker from 'components/tracker';
+import analytics from 'lib/analytics';
+import MyPlan from 'my-plan/index.jsx';
+import ProductDescriptions from 'product-descriptions';
+import { productDescriptionRoutes } from 'product-descriptions/constants';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter, Prompt } from 'react-router-dom';
+import { Recommendations } from 'recommendations';
 import SearchableSettings from 'settings/index.jsx';
-import {
-	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
-	updateUserLicensesCounts as updateUserLicensesCountsAction,
-} from 'state/licensing';
-import { fetchModules as fetchModulesAction } from 'state/modules';
 import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
@@ -59,36 +67,21 @@ import {
 	isWooCommerceActive,
 } from 'state/initial-state';
 import {
-	fetchSiteData as fetchSiteDataAction,
-	fetchSitePurchases as fetchSitePurchasesAction,
-} from 'state/site';
+	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
+	updateUserLicensesCounts as updateUserLicensesCountsAction,
+} from 'state/licensing';
+import { fetchModules as fetchModulesAction } from 'state/modules';
+import { getRewindStatus } from 'state/rewind';
+import { getSearchTerm } from 'state/search';
 import {
 	areThereUnsavedSettings,
 	clearUnsavedSettingsFlag,
 	fetchSettings as fetchSettingsAction,
 } from 'state/settings';
-import { getSearchTerm } from 'state/search';
-import { Recommendations } from 'recommendations';
-import ProductDescriptions from 'product-descriptions';
-import { productDescriptionRoutes } from 'product-descriptions/constants';
-import AtAGlance from 'at-a-glance/index.jsx';
-import MyPlan from 'my-plan/index.jsx';
-import Footer from 'components/footer';
-import SupportCard from 'components/support-card';
-import AppsCard from 'components/apps-card';
-import NonAdminView from 'components/non-admin-view';
-import JetpackNotices from 'components/jetpack-notices';
-import AdminNotices from 'components/admin-notices';
-import Tracker from 'components/tracker';
-import analytics from 'lib/analytics';
-import restApi from '@automattic/jetpack-api';
-import QueryRewindStatus from 'components/data/query-rewind-status';
-import { getRewindStatus } from 'state/rewind';
-import ReconnectModal from 'components/reconnect-modal';
-import { createInterpolateElement } from '@wordpress/element';
-import { imagePath } from 'constants/urls';
-import { ActivationScreen } from '@automattic/jetpack-licensing';
-import ContextualizedConnection from 'components/contextualized-connection';
+import {
+	fetchSiteData as fetchSiteDataAction,
+	fetchSitePurchases as fetchSitePurchasesAction,
+} from 'state/site';
 
 const recommendationsRoutes = [
 	'/recommendations',

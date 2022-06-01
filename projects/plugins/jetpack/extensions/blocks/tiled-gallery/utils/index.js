@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import photon from 'photon';
+import { isAtomicSite, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
 import { range } from 'lodash';
-import { isAtomicSite, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
-import { PHOTON_MAX_RESIZE } from '../constants';
+import photon from 'photon';
 import isOfflineMode from '../../../shared/is-offline-mode';
+import { PHOTON_MAX_RESIZE } from '../constants';
 
 export function isSquareishLayout( layout ) {
 	return [ 'circle', 'square' ].includes( layout );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search widget: use 'Search (Jetpack)' as wdiget name and remove `jetpack_widget_name`

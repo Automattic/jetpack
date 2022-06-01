@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import chai from 'chai';
 import { fileURLToPath } from 'url';
-
-/**
- * Internal dependencies
- */
+import chai from 'chai';
 import { getDependencies, filterDeps, getBuildOrder } from '../../../helpers/dependencyAnalysis.js';
 
 const dataDir = fileURLToPath( new URL( '../../data', import.meta.url ) );

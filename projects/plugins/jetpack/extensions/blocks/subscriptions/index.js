@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
+import { createBlock } from '@wordpress/blocks';
+import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { ExternalLink, Path, SVG } from '@wordpress/components';
-import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
-import save from './save';
 import SubscribePanels from './panel';
-import { getIconColor } from '../../shared/block-icons';
+import save from './save';
 
 export const name = 'subscriptions';
 export const icon = (

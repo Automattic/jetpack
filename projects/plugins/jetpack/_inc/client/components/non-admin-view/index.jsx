@@ -1,24 +1,17 @@
-/**
- * External dependencies
- */
+import AtAGlance from 'at-a-glance/index.jsx';
+import Navigation from 'components/navigation';
+import NavigationSettings from 'components/navigation-settings';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
+import SearchableSettings from 'settings/index.jsx';
+import { getSiteConnectionStatus } from 'state/connection';
 import {
 	userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	userIsSubscriber as _userIsSubscriber,
 } from 'state/initial-state';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
-import Navigation from 'components/navigation';
-import NavigationSettings from 'components/navigation-settings';
-import AtAGlance from 'at-a-glance/index.jsx';
-import SearchableSettings from 'settings/index.jsx';
-import { getSiteConnectionStatus } from 'state/connection';
 
 class NonAdminView extends React.Component {
 	shouldComponentUpdate( nextProps ) {

@@ -1,21 +1,12 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { addDecorator } from '@storybook/react';
-import { withA11y } from '@storybook/addon-a11y';
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { withA11y } from '@storybook/addon-a11y';
+import { addDecorator } from '@storybook/react';
+import React from 'react';
 
-/**
- * WordPress dependencies
- */
 /* eslint-disable no-restricted-syntax */
 // import '@wordpress/components/build-style/style.css';
 /* eslint-enable no-restricted-syntax */
 
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 addDecorator( withA11y );

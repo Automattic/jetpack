@@ -4,20 +4,13 @@
  * Shows individual previews in modal window.
  */
 
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { Modal, TabPanel } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
-import { withSelect } from '@wordpress/data';
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import SocialPreviewsUpgrade from './upgrade';
+import { Modal, TabPanel } from '@wordpress/components';
+import { withSelect } from '@wordpress/data';
+import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { AVAILABLE_SERVICES } from './constants';
+import SocialPreviewsUpgrade from './upgrade';
 import { getMediaSourceUrl } from './utils';
 import './modal.scss';
 

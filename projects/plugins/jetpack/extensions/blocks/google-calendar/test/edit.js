@@ -2,17 +2,11 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 
-/**
- * WordPress dependencies
- */
 import { SandBox } from '@wordpress/components';
 
 // SandBox is mocked to avoid the runtime JS scripts in includes.
@@ -21,9 +15,6 @@ jest.mock( '@wordpress/components/build/sandbox', () => ( {
 	default: props => <iframe { ...props } />,
 } ) );
 
-/**
- * Internal dependencies
- */
 import { GoogleCalendarEdit } from '../edit';
 
 // isSimpleSite is mocked simply to check appropriate support link is displayed.

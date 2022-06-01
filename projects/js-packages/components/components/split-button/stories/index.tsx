@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import SplitButton from '../index';
 
 export default {

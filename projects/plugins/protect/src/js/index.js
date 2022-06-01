@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
+import { ThemeProvider } from '@automattic/jetpack-components';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { ThemeProvider } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import AdminPage from './components/admin-page';
 import { initStore } from './state/store';
 import './styles.module.scss';

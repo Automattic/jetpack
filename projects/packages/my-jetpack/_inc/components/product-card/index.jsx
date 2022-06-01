@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { __, sprintf } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
 import { Text } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import styles from './style.module.scss';
+import { Button } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import styles from './style.module.scss';
 
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',

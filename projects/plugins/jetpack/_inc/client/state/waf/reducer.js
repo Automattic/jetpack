@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { combineReducers } from 'redux';
 import {
 	WAF_SETTINGS_FETCH,
 	WAF_SETTINGS_FETCH_RECEIVE,
