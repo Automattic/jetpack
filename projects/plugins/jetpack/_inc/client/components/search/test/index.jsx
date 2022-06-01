@@ -1,11 +1,8 @@
-/**
- * External dependencies
- */
 import { expect } from 'chai';
-import sinon from 'sinon';
-import useMockery from 'test/helpers/use-mockery';
-import useFakeDom from 'test/helpers/use-fake-dom';
 import { noop } from 'lodash';
+import sinon from 'sinon';
+import useFakeDom from 'test/helpers/use-fake-dom';
+import useMockery from 'test/helpers/use-mockery';
 
 describe( 'Search', function () {
 	let React, TestUtils, EMPTY_COMPONENT;

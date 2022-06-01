@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import { JetpackLogo } from './icons';
 
 const isWpcom = isSimpleSite() || isAtomicSite();

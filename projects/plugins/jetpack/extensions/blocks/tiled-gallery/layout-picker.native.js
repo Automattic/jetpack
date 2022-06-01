@@ -1,21 +1,10 @@
-/**
- * External dependencies
- */
-import { Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-/**
- * WordPress dependencies
- */
-import { useState } from '@wordpress/element';
-import { Icon, chevronRight } from '@wordpress/icons';
-import { BottomSheet } from '@wordpress/components';
 import { BlockStyles } from '@wordpress/block-editor';
+import { BottomSheet } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { Icon, chevronRight } from '@wordpress/icons';
+import { Text } from 'react-native';
 import styles from './styles.scss';
 import { settings } from './index';
 

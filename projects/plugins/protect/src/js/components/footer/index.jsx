@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { Text, Button, Title, IconsCard, getRedirectUrl } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import { SECURITY_BUNDLE, SeventyFiveLayout } from '../admin-page';
 import useProtectData from '../../hooks/use-protect-data';
+import { SECURITY_BUNDLE, SeventyFiveLayout } from '../admin-page';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {

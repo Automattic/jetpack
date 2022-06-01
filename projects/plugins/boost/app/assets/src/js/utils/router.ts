@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import Router from 'svelte-navigator/src/Router.svelte';
-import Route from 'svelte-navigator/src/Route.svelte';
 import Link from 'svelte-navigator/src/Link.svelte';
+import Route from 'svelte-navigator/src/Route.svelte';
+import Router from 'svelte-navigator/src/Router.svelte';
 
 /*
  * If imported in a component as `import { Router, Route, Link } from 'svelte-navigator';` there is a conflict on

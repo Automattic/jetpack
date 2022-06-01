@@ -1,36 +1,25 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { get, noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
-import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import JetpackBanner from 'components/jetpack-banner';
+import analytics from 'lib/analytics';
 import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SITE_BACKUPS_JETPACK,
 } from 'lib/plans/constants';
+import { get, noop } from 'lodash';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
-import { isPluginInstalled } from 'state/site/plugins';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getPartnerCoupon, showBackups } from 'state/initial-state';
+import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
+import { isPluginInstalled } from 'state/site/plugins';
 import BackupUpgrade from './backup-upgrade';
 
 /**

@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { Container, Col, Title } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import VulnerabilitiesNavigation from './navigation';
-import List from './list';
+import React from 'react';
 import EmptyList from './empty';
+import List from './list';
+import VulnerabilitiesNavigation from './navigation';
 import useVulsList from './use-vuls-list';
 
 const VulnerabilitiesList = () => {

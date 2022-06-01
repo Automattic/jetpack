@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import chai from 'chai';
 import child_process from 'child_process';
+import chai from 'chai';
 
 const test = child_process.execFileSync( 'node', [ './tools/cli/bin/jetpack', '--help' ], {
 	encoding: 'utf8',

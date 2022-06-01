@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import chai from 'chai';
-import path from 'path';
 import fs from 'fs';
-import sinon from 'sinon';
+import path from 'path';
 import { fileURLToPath } from 'url';
-
-/**
- * Internal dependencies
- */
+import chai from 'chai';
+import sinon from 'sinon';
 import mergeDirs from '../../../helpers/mergeDirs.js';
 
 const dataDir = fileURLToPath( new URL( '../../data/', import.meta.url ) );

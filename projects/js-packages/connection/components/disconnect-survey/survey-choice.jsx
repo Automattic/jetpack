@@ -1,11 +1,5 @@
-/**
- * External Dependencies
- */
 import React, { useCallback } from 'react';
 
-/**
- * Internal Dependencies
- */
 import './_jp-connect_disconnect-survey-card.scss';
 
 /**

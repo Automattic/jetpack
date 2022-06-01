@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 /**

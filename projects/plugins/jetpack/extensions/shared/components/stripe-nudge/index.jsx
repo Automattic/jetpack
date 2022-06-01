@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
-import GridiconStar from 'gridicons/dist/star';
-
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { select } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import GridiconStar from 'gridicons/dist/star';
 import analytics from '../../../../_inc/client/lib/analytics';
-import BlockNudge from '../block-nudge';
 import { store as membershipProductsStore } from '../../../store/membership-products';
+import BlockNudge from '../block-nudge';
 
 import './style.scss';
 

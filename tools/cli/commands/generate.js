@@ -1,30 +1,22 @@
-/**
- * External dependencies
- */
-import path from 'path';
-import pluralize from 'pluralize';
-import inquirer from 'inquirer';
-import chalk from 'chalk';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import semver from 'semver';
-import yaml from 'js-yaml';
 import { execSync } from 'child_process';
-
-/**
- * Internal dependencies
- */
-import { promptForType, promptForName } from '../helpers/promptForProject.js';
-import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import chalk from 'chalk';
+import inquirer from 'inquirer';
+import yaml from 'js-yaml';
+import pluralize from 'pluralize';
+import semver from 'semver';
+import { doesRepoExist } from '../helpers/github.js';
 import {
 	readPackageJson,
 	readComposerJson,
 	writePackageJson,
 	writeComposerJson,
 } from '../helpers/json.js';
-import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
 import mergeDirs, { copyFile } from '../helpers/mergeDirs.js';
-import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
+import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
+import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
 import {
 	transformToReadableName,
 	transformToPhpClassName,
@@ -32,8 +24,9 @@ import {
 	normalizeSlug,
 	transformToCamelCase,
 } from '../helpers/projectNameTransformations.js';
+import { promptForType, promptForName } from '../helpers/promptForProject.js';
+import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
-import { doesRepoExist } from '../helpers/github.js';
 
 /**
  * Entry point for the CLI.
