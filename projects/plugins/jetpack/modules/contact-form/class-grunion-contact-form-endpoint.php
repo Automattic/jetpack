@@ -1,7 +1,8 @@
 <?php
-
-/*
+/**
  * Plugin Name: Feedback CPT Permissions over-ride
+ *
+ * @package automattic/jetpack
  */
 
 if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
@@ -17,7 +18,7 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 		 * @param  WP_REST_Request $request Full details about the request.
 		 * @return WP_Error|boolean
 		 */
-		public function get_items_permissions_check( $request ) {
+		public function get_items_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 				return new WP_Error(
 					'rest_cannot_view',
@@ -35,7 +36,7 @@ if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
 		 * @param  WP_REST_Request $request Full details about the request.
 		 * @return WP_Error|boolean
 		 */
-		public function get_item_permissions_check( $request ) {
+		public function get_item_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 				return new WP_Error(
 					'rest_cannot_view',

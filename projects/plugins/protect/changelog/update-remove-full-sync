@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Removed Full Sync from loaded modules as Full Sync Immediately is present by default now
