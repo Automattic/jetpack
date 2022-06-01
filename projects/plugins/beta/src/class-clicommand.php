@@ -98,7 +98,7 @@ class CliCommand extends WP_CLI_Command {
 		$manifest      = $plugin->get_manifest();
 		$dev_info      = $plugin->dev_info();
 		$active_branch = $dev_info ? $dev_info->branch : null;
-		$branches      = array( 'stable', 'master', 'rc' );
+		$branches      = array( 'stable', 'master', 'trunk', 'rc' );
 		foreach ( $manifest->pr as $pr ) {
 			$branches[] = $pr->branch;
 		}
@@ -146,6 +146,13 @@ class CliCommand extends WP_CLI_Command {
 			$premsg = __( 'Activating %1$s master branch', 'jetpack-beta' );
 			// translators: %1$s: Plugin name.
 			$postmsg = __( '%1$s is now on the master branch', 'jetpack-beta' );
+		} elseif ( 'trunk' === $args[1] ) {
+			$source = 'trunk';
+			$id     = '';
+			// translators: %1$s: Plugin name.
+			$premsg = __( 'Activating %1$s trunk branch', 'jetpack-beta' );
+			// translators: %1$s: Plugin name.
+			$postmsg = __( '%1$s is now on the trunk branch', 'jetpack-beta' );
 		} elseif ( 'stable' === $args[1] ) {
 			$source = 'stable';
 			$id     = '';

@@ -453,7 +453,7 @@ class Plugin {
 	/**
 	 * Install & activate the plugin for the given branch.
 	 *
-	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
+	 * @param string $source Source of installation: "stable", "master" or "trunk", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
 	 * @return null|WP_Error
 	 * @throws InvalidArgumentException If `$source` is invalid.
@@ -525,7 +525,7 @@ class Plugin {
 	/**
 	 * Get branch info for a source and ID.
 	 *
-	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
+	 * @param string $source Source of installation: "stable", "master" or "trunk", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
 	 * @return object|WP_Error
 	 * @throws InvalidArgumentException If `$source` is invalid.
@@ -560,8 +560,11 @@ class Plugin {
 		$info     = null;
 
 		if ( 'pr' === $dev_info->source && ! isset( $manifest->pr->{$dev_info->id} ) && isset( $manifest->master ) ) {
-			// It's a PR that is gone. Update to master.
+			// It's a PR that is gone. Update to master if master is the main branch.
 			list( , $info ) = $this->get_which_and_info( 'master', '' );
+		} elseif ( 'pr' === $dev_info->source && ! isset( $manifest->pr->{$dev_info->id} ) && isset( $manifest->trunk ) ) {
+			// It's a PR that is gone. Update to trunk if trunk is the main branch.
+			list( , $info ) = $this->get_which_and_info( 'trunk', '' );
 		} elseif ( 'pr' === $dev_info->source && isset( $manifest->pr->{$dev_info->id} ) &&
 			Semver::greaterThan( $manifest->pr->{$dev_info->id}->version, $dev_info->version )
 		) {
@@ -575,8 +578,13 @@ class Plugin {
 		} elseif ( 'master' === $dev_info->source && isset( $manifest->master ) &&
 			Semver::greaterThan( $manifest->master->version, $dev_info->version )
 		) {
-			// Master has been updated.
+			// Master has been updated, if master is the main branch.
 			list( , $info ) = $this->get_which_and_info( 'master', '' );
+		} elseif ( 'trunk' === $dev_info->source && isset( $manifest->trunk ) &&
+		Semver::greaterThan( $manifest->trunk->version, $dev_info->version )
+		) {
+			// Trunk has been updated, if trunk is the main branch.
+			list( , $info ) = $this->get_which_and_info( 'trunk', '' );
 		}
 
 		if ( $info ) {
@@ -695,6 +703,9 @@ class Plugin {
 	 */
 	private function pretty_version( $info ) {
 		switch ( $info->source ) {
+			case 'trunk':
+				return __( 'Bleeding Edge', 'jetpack-beta' );
+
 			case 'master':
 				return __( 'Bleeding Edge', 'jetpack-beta' );
 
@@ -720,7 +731,7 @@ class Plugin {
 	/**
 	 * Get the "which" and info for the requested source and ID.
 	 *
-	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
+	 * @param string $source Source of installation: "stable", "master" or "trunk", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
 	 * @return array|WP_Error ( $which, $info )
 	 * @throws InvalidArgumentException If `$source` is invalid.
@@ -759,6 +770,21 @@ class Plugin {
 					);
 				}
 				$info             = $manifest->master;
+				$info->plugin_url = sprintf( 'https://github.com/%s', $this->mirror_repo() );
+				break;
+
+			case 'trunk':
+				$id       = '';
+				$which    = 'dev';
+				$manifest = $this->get_manifest();
+				if ( ! isset( $manifest->trunk->download_url ) ) {
+					return new WP_Error(
+						'trunk_missing',
+						// translators: %s: Plugin slug. Also, "trunk" is the branch name and should not be translated.
+						sprintf( __( 'No trunk build is available for %s.', 'jetpack-beta' ), $this->plugin_slug() )
+					);
+				}
+				$info             = $manifest->trunk;
 				$info->plugin_url = sprintf( 'https://github.com/%s', $this->mirror_repo() );
 				break;
 
