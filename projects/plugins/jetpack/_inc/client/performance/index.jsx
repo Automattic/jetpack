@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
-import { getModule, getModuleOverride } from 'state/modules';
-import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
-import { isModuleFound } from 'state/search';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
+import { getModule, getModuleOverride } from 'state/modules';
+import { isModuleFound } from 'state/search';
 import Media from './media';
 import Search from './search';
 import SpeedUpSite from './speed-up-site';

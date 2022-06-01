@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+
 import { stringToTokenizedArray, tokenizedArrayToString } from '../custom-seo-titles';
 
 describe( 'Traffic - Custom SEO Titles', () => {

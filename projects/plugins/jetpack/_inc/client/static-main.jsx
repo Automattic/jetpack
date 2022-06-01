@@ -1,10 +1,10 @@
+import Footer from 'components/footer';
+import LoadingPlaceholder from 'components/loading-placeholder';
+import Masthead from 'components/masthead';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Masthead from 'components/masthead';
-import LoadingPlaceholder from 'components/loading-placeholder';
 import { setInitialState } from 'state/initial-state';
-import Footer from 'components/footer';
 
 class StaticMain extends React.Component {
 	UNSAFE_componentWillMount() {

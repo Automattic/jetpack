@@ -1,15 +1,15 @@
-import { castArray } from 'lodash';
-import { useEffect, useCallback } from 'react';
+import { Button } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
+import { external, Icon } from '@wordpress/icons';
 import { registerPlugin } from '@wordpress/plugins';
-import { Button } from '@wordpress/components';
+import { castArray } from 'lodash';
+import { useEffect, useCallback } from 'react';
 import '@wordpress/notices';
+import analytics from '../../../_inc/client/lib/analytics';
 import { waitForEditor } from '../../shared/wait-for-editor';
 import { basicTemplate, spotifyBadgeTemplate } from './templates';
-import analytics from '../../../_inc/client/lib/analytics';
 import './editor.scss';
 
 async function insertTemplate( params ) {

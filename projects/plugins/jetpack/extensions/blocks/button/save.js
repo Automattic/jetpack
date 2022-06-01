@@ -1,9 +1,9 @@
-import classnames from 'classnames';
 import {
 	getColorClassName,
 	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	RichText,
 } from '@wordpress/block-editor';
+import classnames from 'classnames';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 
 export default function ButtonSave( { attributes, blockName, uniqueId } ) {

@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback } from 'react';
 
 /**
  * Fetches relevant entity record states for use in the configurator.

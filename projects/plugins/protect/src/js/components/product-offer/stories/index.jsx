@@ -1,8 +1,8 @@
 /* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
-import ConnectedProductOffer from '../index.jsx';
 import { initStore } from '../../../state/store';
 import { jetpackProtectInitialState } from '../../interstitial/stories/mock.js';
+import ConnectedProductOffer from '../index.jsx';
 
 window.jetpackProtectInitialState = jetpackProtectInitialState;
 initStore();

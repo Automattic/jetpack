@@ -1,13 +1,12 @@
 <script>
 	import { onMount } from 'svelte';
-	import BackButton from '../../elements/BackButton.svelte';
 	import { Button } from '@wordpress/components';
-	import { updateModuleState } from '../../stores/modules';
-	import { requestCloudCss } from '../../utils/cloud-css';
-
-	import Logo from '../../svg/jetpack-green.svg';
 	import { __ } from '@wordpress/i18n';
+	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import { updateModuleState } from '../../stores/modules';
+	import Logo from '../../svg/jetpack-green.svg';
+	import { requestCloudCss } from '../../utils/cloud-css';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;

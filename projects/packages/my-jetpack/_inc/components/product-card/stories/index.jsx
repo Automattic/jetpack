@@ -1,9 +1,9 @@
 /* eslint-disable react/react-in-jsx-scope */
 
-import React from 'react';
-import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
-import { initStore } from '../../../state/store';
 import { BackupIcon } from '@automattic/jetpack-components';
+import React from 'react';
+import { initStore } from '../../../state/store';
+import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
 
 // Set myJetpackRest global var.
 window.myJetpackRest = {};

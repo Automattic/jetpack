@@ -1,5 +1,8 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import React, { Component, Fragment } from 'react';
+import { getConstrastingColor } from '../lib/colors';
+import { MULTISITE_NO_GROUP_VALUE } from '../lib/constants';
+import { getAvailableStaticFilters } from '../lib/filters';
 import Gridicon from './gridicon';
 import Notice from './notice';
 import ScrollButton from './scroll-button';
@@ -7,9 +10,7 @@ import SearchControls from './search-controls';
 import SearchForm from './search-form';
 import SearchResult from './search-result';
 import SearchSidebar from './sidebar';
-import { getConstrastingColor } from '../lib/colors';
-import { getAvailableStaticFilters } from '../lib/filters';
-import { MULTISITE_NO_GROUP_VALUE } from '../lib/constants';
+
 import './search-results.scss';
 
 class SearchResults extends Component {

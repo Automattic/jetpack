@@ -1,7 +1,7 @@
-import React from 'react';
-import { assign } from 'lodash';
 import classnames from 'classnames';
 import Card from 'components/card';
+import { assign } from 'lodash';
+import React from 'react';
 
 export default class CompactCard extends React.Component {
 	static displayName = 'CompactCard';

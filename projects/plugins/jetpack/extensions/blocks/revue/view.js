@@ -1,4 +1,5 @@
 import domReady from '@wordpress/dom-ready';
+
 import './view.scss';
 
 if ( typeof window !== 'undefined' && window.jQuery ) {

@@ -1,5 +1,5 @@
-import type React from 'react';
 import QRCodeLib from 'qrcode.react';
+import type React from 'react';
 
 type QRCodeLibProps = React.ComponentProps< typeof QRCodeLib >;
 

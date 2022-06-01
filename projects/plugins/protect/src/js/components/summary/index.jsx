@@ -1,9 +1,9 @@
-import React from 'react';
 import { Container, Col, Text, Title, getIconBySlug } from '@automattic/jetpack-components';
-import { __, sprintf } from '@wordpress/i18n';
 import { dateI18n } from '@wordpress/date';
-import styles from './styles.module.scss';
+import { __, sprintf } from '@wordpress/i18n';
+import React from 'react';
 import useProtectData from '../../hooks/use-protect-data';
+import styles from './styles.module.scss';
 
 const Summary = () => {
 	const { numVulnerabilities, lastChecked } = useProtectData();

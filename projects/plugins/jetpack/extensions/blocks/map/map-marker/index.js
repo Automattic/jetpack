@@ -1,6 +1,7 @@
 import { Component } from '@wordpress/element';
-import './style.scss';
 import { getLoadContext } from '../../../shared/block-editor-asset-loader';
+
+import './style.scss';
 
 export class MapMarker extends Component {
 	componentDidMount() {

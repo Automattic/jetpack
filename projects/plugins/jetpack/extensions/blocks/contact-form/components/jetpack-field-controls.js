@@ -1,13 +1,13 @@
-import { __ } from '@wordpress/i18n';
 import {
 	InspectorAdvancedControls,
 	InspectorControls,
 	BlockControls,
 } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl, ToolbarGroup, ToolbarButton, Path } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import renderMaterialIcon from '../../../shared/render-material-icon';
-import JetpackFieldWidth from './jetpack-field-width';
 import JetpackFieldCss from './jetpack-field-css';
+import JetpackFieldWidth from './jetpack-field-width';
 
 const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 	return (

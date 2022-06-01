@@ -1,8 +1,8 @@
-import React, { useCallback } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
 import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
-import Accordion, { AccordionItem } from '../accordion';
+import { __, sprintf } from '@wordpress/i18n';
+import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import Accordion, { AccordionItem } from '../accordion';
 
 const VulAccordionItem = ( { id, name, version, title, icon, fixedIn, type } ) => {
 	const { recordEvent } = useAnalyticsTracks();

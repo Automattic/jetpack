@@ -1,10 +1,9 @@
 /** @ssr-ready **/
 
-import PropTypes from 'prop-types';
-
-import React from 'react';
 import classNames from 'classnames';
 import Count from 'components/count';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 /**
  * Main

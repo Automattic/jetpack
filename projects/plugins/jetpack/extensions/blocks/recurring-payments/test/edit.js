@@ -15,6 +15,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 
 // Mock the @wordpress/edit-post, used internally to resolve the fallback URL.
 jest.mock( '@wordpress/edit-post', () => jest.fn() );
+
 import Edit from '../edit';
 
 import { settings } from '../../button';

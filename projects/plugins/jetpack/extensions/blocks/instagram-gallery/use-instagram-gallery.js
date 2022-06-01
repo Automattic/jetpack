@@ -1,8 +1,8 @@
-import { isArray, isEmpty } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { isArray, isEmpty } from 'lodash';
 import { MAX_IMAGE_COUNT } from './constants';
 
 export default function useInstagramGallery( {

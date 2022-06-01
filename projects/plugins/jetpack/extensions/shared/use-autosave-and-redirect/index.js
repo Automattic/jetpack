@@ -1,6 +1,6 @@
-import { noop } from 'lodash';
 import { useSelect, dispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
+import { noop } from 'lodash';
 
 function redirect( url, callback, shouldOpenNewWindow = false ) {
 	if ( callback ) {

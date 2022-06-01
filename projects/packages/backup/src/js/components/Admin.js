@@ -1,7 +1,3 @@
-import { useState, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import apiFetch from '@wordpress/api-fetch';
-import { useSelect } from '@wordpress/data';
 import {
 	AdminPage,
 	AdminSection,
@@ -11,11 +7,15 @@ import {
 	getRedirectUrl,
 	PricingCard,
 } from '@automattic/jetpack-components';
-import Backups from './Backups';
+import apiFetch from '@wordpress/api-fetch';
+import { useSelect } from '@wordpress/data';
+import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import useConnection from '../hooks/useConnection';
+import { STORE_ID } from '../store';
+import Backups from './Backups';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
-import { STORE_ID } from '../store';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {

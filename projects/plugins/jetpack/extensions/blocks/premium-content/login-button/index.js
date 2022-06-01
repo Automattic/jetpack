@@ -1,9 +1,9 @@
-import { button as icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-import edit from './edit';
-import save from './save';
+import { button as icon } from '@wordpress/icons';
 import attributes from './attributes';
 import deprecatedV1 from './deprecated/v1';
+import edit from './edit';
+import save from './save';
 
 const name = 'premium-content/login-button';
 

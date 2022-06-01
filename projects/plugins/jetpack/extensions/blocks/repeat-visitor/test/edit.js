@@ -12,6 +12,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
 	InnerBlocks: () => <p>Mocked inner block</p>,
 } ) );
+
 import { RepeatVisitorEdit } from '../components/edit';
 import { CRITERIA_BEFORE, CRITERIA_AFTER, DEFAULT_THRESHOLD } from '../constants';
 

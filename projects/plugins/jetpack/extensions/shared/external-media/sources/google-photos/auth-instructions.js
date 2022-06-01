@@ -1,6 +1,5 @@
-import { __ } from '@wordpress/i18n';
 import { Fragment, memo } from '@wordpress/element';
-
+import { __ } from '@wordpress/i18n';
 import { GooglePhotosLogo } from '../../../icons';
 
 function AuthInstructions() {

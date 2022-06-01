@@ -1,5 +1,5 @@
-import classnames from 'classnames';
 import { useEffect, useState, useRef } from '@wordpress/element';
+import classnames from 'classnames';
 
 export default function ImageTransition( { src, alt, spacing } ) {
 	const [ loaded, setLoaded ] = useState( false );

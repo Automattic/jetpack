@@ -3,6 +3,7 @@ import { format } from 'util';
 import fs from 'fs';
 import path from 'path';
 import { __, sprintf } from '@wordpress/i18n';
+
 import { parse, serialize, registerBlockType, setCategories } from '@wordpress/blocks';
 import { parse as grammarParse } from '@wordpress/block-serialization-default-parser';
 

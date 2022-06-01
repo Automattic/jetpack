@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
 import { noop } from 'lodash';
+
 import { ReconnectModal } from '../index';
 
 describe( 'ReconnectModal', () => {

@@ -2,6 +2,7 @@ import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+
 import { DashSectionHeader } from '../index';
 
 describe( 'DashSectionHeader', () => {

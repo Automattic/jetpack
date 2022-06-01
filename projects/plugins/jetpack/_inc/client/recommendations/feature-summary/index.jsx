@@ -1,15 +1,15 @@
+import { ExternalLink } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
-import React, { useCallback, useState, useMemo } from 'react';
-import { connect } from 'react-redux';
-import { mapDispatchToProps, mapStateToSummaryFeatureProps } from '../feature-utils';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import InstallButton from 'components/install-button';
 import analytics from 'lib/analytics';
+import React, { useCallback, useState, useMemo } from 'react';
+import { connect } from 'react-redux';
 import { isFeatureActive, stepToRoute } from 'state/recommendations';
+import { mapDispatchToProps, mapStateToSummaryFeatureProps } from '../feature-utils';
 import './style.scss';
-import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
 
 const FeatureSummaryComponent = props => {
 	const {

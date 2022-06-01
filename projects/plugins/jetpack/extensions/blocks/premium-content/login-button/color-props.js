@@ -2,6 +2,7 @@
 /* eslint-disable */
 
 import classnames from 'classnames';
+
 import { getColorClassName, __experimentalGetGradientClass } from '@wordpress/block-editor';
 
 export default function getColorAndStyleProps( attributes ) {

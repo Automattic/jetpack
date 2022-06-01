@@ -5,9 +5,9 @@ import { Path, Rect, SVG, G, ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
+import { isPriceValid } from '../../shared/currencies';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
-import { isPriceValid } from '../../shared/currencies';
 import './editor.scss';
 
 export const name = 'recurring-payments';

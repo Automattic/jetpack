@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+
 import {
 	NEW_NOTICE,
 	REMOVE_NOTICE,

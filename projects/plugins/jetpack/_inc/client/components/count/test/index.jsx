@@ -1,7 +1,6 @@
 import { expect } from 'chai';
-
-import useMockery from 'test/helpers/use-mockery';
 import useI18n from 'test/helpers/use-i18n';
+import useMockery from 'test/helpers/use-mockery';
 
 describe( 'Count', function () {
 	let React, ReactInjection, TestUtils, Count, renderer;

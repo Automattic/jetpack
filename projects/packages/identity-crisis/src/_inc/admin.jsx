@@ -1,6 +1,7 @@
-import ReactDOM from 'react-dom';
-import React from 'react';
 import { IDCScreen } from '@automattic/jetpack-idc';
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 import './admin-bar.scss';
 import './style.scss';
 

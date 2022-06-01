@@ -1,5 +1,5 @@
-import { mapObjectKeysToCamel } from '../utils/to-camel';
 import { PRODUCT_STATUSES } from '../components/product-card';
+import { mapObjectKeysToCamel } from '../utils/to-camel';
 
 export const getProducts = state => state.products?.items || {};
 

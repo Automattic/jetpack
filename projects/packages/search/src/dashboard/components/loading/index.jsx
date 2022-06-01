@@ -1,5 +1,6 @@
-import React from 'react';
 import { Spinner } from '@automattic/jetpack-components';
+import React from 'react';
+
 import './style.scss';
 
 /**

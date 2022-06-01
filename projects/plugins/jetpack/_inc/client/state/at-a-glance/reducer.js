@@ -1,5 +1,5 @@
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
+import { combineReducers } from 'redux';
 import {
 	STATS_SWITCH_TAB,
 	STATS_DATA_FETCH,

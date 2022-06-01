@@ -4,11 +4,11 @@ import { ExternalLink, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpre
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, update, warning } from '@wordpress/icons';
+import { store as membershipProductsStore } from '../../../store/membership-products';
+import { CUSTOMIZER_EDITOR, getEditorType } from '../../get-editor-type';
 import { useProductManagementContext } from './context';
 import useOpenBlockSidebar from './use-open-block-sidebar';
 import { getMessageByProductType } from './utils';
-import { store as membershipProductsStore } from '../../../store/membership-products';
-import { CUSTOMIZER_EDITOR, getEditorType } from '../../get-editor-type';
 
 function getProductDescription( product ) {
 	const { currency, interval, price } = product;

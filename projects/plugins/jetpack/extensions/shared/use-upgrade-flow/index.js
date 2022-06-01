@@ -1,8 +1,7 @@
-import { noop } from 'lodash';
 import { getUpgradeUrl } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { doAction, hasAction } from '@wordpress/hooks';
-
+import { noop } from 'lodash';
 // Provably we should move this store to somewhere more generic.
 import '../components/upgrade-nudge/store';
 import useAutosaveAndRedirect from '../use-autosave-and-redirect/index';

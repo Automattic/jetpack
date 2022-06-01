@@ -1,21 +1,21 @@
 import { __ } from '@wordpress/i18n';
+import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 import {
 	requestGeneration,
 	sendGenerationResult,
 	storeGenerateError,
 	updateGenerateStatus,
 } from '../stores/critical-css-status';
+import { modules, isEnabled } from '../stores/modules';
+import { recordBoostEvent } from './analytics';
+import { castToNumber } from './cast-to-number';
+import { logPreCriticalCSSGeneration } from './console';
+import { isSameOrigin } from './is-same-origin';
+import { loadCriticalCssLibrary } from './load-critical-css-library';
+import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
+import { removeShownAdminNotices } from './remove-admin-notices';
 import type { JSONObject } from './json-types';
 import type { Viewport } from './types';
-import { modules, isEnabled } from '../stores/modules';
-import { loadCriticalCssLibrary } from './load-critical-css-library';
-import { removeShownAdminNotices } from './remove-admin-notices';
-import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
-import { castToNumber } from './cast-to-number';
-import { recordBoostEvent } from './analytics';
-import { isSameOrigin } from './is-same-origin';
-import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
-import { logPreCriticalCSSGeneration } from './console';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];

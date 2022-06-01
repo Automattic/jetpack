@@ -1,5 +1,5 @@
-import { __ } from '@wordpress/i18n';
 import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
+import { __ } from '@wordpress/i18n';
 
 export const AVAILABLE_SERVICES = [
 	{

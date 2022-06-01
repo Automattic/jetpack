@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
+
 import './style.scss';
 
 const Layout = props => {

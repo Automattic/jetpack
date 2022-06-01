@@ -1,6 +1,6 @@
+import { RawHTML } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
-import { RawHTML } from '@wordpress/element';
 
 /**
  * Deprecation reason:

@@ -1,5 +1,5 @@
-import { createHigherOrderComponent } from '@wordpress/compose';
 import { RichText, useBlockProps } from '@wordpress/block-editor';
+import { createHigherOrderComponent } from '@wordpress/compose';
 import classnames from 'classnames';
 import { getVideoPressUrl } from './url';
 

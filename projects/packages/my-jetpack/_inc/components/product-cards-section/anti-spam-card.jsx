@@ -1,7 +1,7 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import ProductCard from '../connected-product-card';
+import React from 'react';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import ProductCard from '../connected-product-card';
 
 const AntiSpamCard = ( { admin } ) => {
 	return (

@@ -1,6 +1,6 @@
-import save from './save';
-import simpleInput from '../../../shared/simple-input';
 import { __ } from '@wordpress/i18n';
+import simpleInput from '../../../shared/simple-input';
+import save from './save';
 
 const EmailEdit = props => {
 	const { setAttributes } = props;

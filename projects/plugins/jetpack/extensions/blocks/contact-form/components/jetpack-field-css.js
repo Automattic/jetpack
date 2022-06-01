@@ -1,5 +1,5 @@
-import { __ } from '@wordpress/i18n';
 import { TextControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 export default function JetpackFieldCss( { setAttributes, id } ) {
 	return (

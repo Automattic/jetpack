@@ -1,8 +1,8 @@
 import requestExternalAccess from '@automattic/request-external-access';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
-import { useState, useCallback } from '@wordpress/element';
 import { Button } from '@wordpress/components';
+import { useState, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
 import { getApiUrl } from '../api';
 import AuthInstructions from './auth-instructions';

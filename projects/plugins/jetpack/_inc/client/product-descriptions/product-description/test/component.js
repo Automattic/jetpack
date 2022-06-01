@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
+
 import ProductDescription from '../index';
 import { getProductsForPurchase } from 'state/initial-state';
 import { buildInitialState } from './fixtures';

@@ -1,5 +1,5 @@
-import React from 'react';
 import { expect } from 'chai';
+import React from 'react';
 import ShallowRenderer from 'react-test-renderer/shallow';
 import ConnectUser from '../index';
 

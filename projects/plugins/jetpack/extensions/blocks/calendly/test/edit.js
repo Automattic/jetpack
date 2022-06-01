@@ -17,6 +17,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
 	InnerBlocks: () => <button>Mocked button</button>,
 } ) );
+
 import testEmbedUrl from '../../../shared/test-embed-url';
 import { CalendlyEdit } from '../edit';
 

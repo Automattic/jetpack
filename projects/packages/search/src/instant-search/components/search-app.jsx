@@ -1,24 +1,20 @@
-import React, { Component, Fragment } from 'react';
-import { createPortal } from 'react-dom';
+import stringify from 'fast-json-stable-stringify';
 // NOTE: We only import the debounce function here for reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
+import React, { Component, Fragment } from 'react';
+import { createPortal } from 'react-dom';
 import { connect } from 'react-redux';
-import stringify from 'fast-json-stable-stringify';
-import CustomizerEventHandler from './customizer-event-handler';
-import DomEventHandler from './dom-event-handler';
-import Overlay from './overlay';
-import SearchResults from './search-results';
+import { MULTISITE_NO_GROUP_VALUE, RESULT_FORMAT_EXPANDED } from '../lib/constants';
+import { getAvailableStaticFilters } from '../lib/filters';
+import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	disableAnalytics,
 	identifySite,
 	initializeTracks,
 	resetTrackingCookies,
 } from '../lib/tracks';
-import { MULTISITE_NO_GROUP_VALUE, RESULT_FORMAT_EXPANDED } from '../lib/constants';
-import { getAvailableStaticFilters } from '../lib/filters';
-import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
 	disableQueryStringIntegration,
@@ -42,6 +38,10 @@ import {
 	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
+import CustomizerEventHandler from './customizer-event-handler';
+import DomEventHandler from './dom-event-handler';
+import Overlay from './overlay';
+import SearchResults from './search-results';
 import './search-app.scss';
 
 class SearchApp extends Component {

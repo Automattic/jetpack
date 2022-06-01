@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchRecommendationsData, isFetchingRecommendationsData } from 'state/recommendations';
 import { isOfflineMode } from 'state/connection';
+import { fetchRecommendationsData, isFetchingRecommendationsData } from 'state/recommendations';
 
 class QueryRecommendationsData extends Component {
 	static propTypes = {

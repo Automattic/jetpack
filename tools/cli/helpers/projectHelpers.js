@@ -1,6 +1,6 @@
 import { readdirSync } from 'fs';
-import pluralize from 'pluralize';
 import chalk from 'chalk';
+import pluralize from 'pluralize';
 
 export const dirs = ( source, prefix = '' ) =>
 	readdirSync( source, { withFileTypes: true } )

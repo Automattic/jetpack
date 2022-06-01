@@ -17,6 +17,7 @@ export type SlideRightTransition = {
 	easing: ( t: number ) => number;
 	css: ( t: number, u: number ) => string;
 };
+
 import { cubicInOut } from 'svelte/easing';
 
 export default function ( node: HTMLElement, params: SlideRightParams ): SlideRightTransition {

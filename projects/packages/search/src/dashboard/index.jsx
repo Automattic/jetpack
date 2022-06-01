@@ -1,8 +1,8 @@
-import ReactDOM from 'react-dom';
-import React from 'react';
 import { createReduxStore, register } from '@wordpress/data';
-import { STORE_ID, storeConfig } from './store';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import SearchDashboard from './components/dashboard/wrapped-dashboard';
+import { STORE_ID, storeConfig } from './store';
 
 const store = createReduxStore( STORE_ID, storeConfig );
 register( store );

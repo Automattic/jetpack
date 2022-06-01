@@ -1,7 +1,7 @@
-import { __ } from '@wordpress/i18n';
 import { TextareaControl, Disabled } from '@wordpress/components';
-import JetpackFieldLabel from './jetpack-field-label';
+import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from './jetpack-field-controls';
+import JetpackFieldLabel from './jetpack-field-label';
 
 export default function JetpackFieldTextarea( props ) {
 	const { id, required, label, setAttributes, placeholder, width } = props;

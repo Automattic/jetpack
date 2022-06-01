@@ -1,14 +1,15 @@
-import { __, _x } from '@wordpress/i18n';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import { DEFAULT_CURRENCY } from './constants';
+import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
-import edit from './edit';
-import save from './save';
+import { DEFAULT_CURRENCY } from './constants';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
+import edit from './edit';
+import save from './save';
 import simplePaymentsExample1 from './simple-payments_example-1.jpg';
+
 import './editor.scss';
 
 export const name = 'simple-payments';

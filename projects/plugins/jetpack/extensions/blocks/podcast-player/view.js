@@ -1,5 +1,5 @@
-import debugFactory from 'debug';
 import { render, createElement, unmountComponentAtNode } from '@wordpress/element';
+import debugFactory from 'debug';
 import '../../store/media-source';
 import PodcastPlayer from './components/podcast-player';
 

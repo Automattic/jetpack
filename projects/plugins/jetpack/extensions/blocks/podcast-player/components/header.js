@@ -1,5 +1,5 @@
-import classnames from 'classnames';
 import { memo } from '@wordpress/element';
+import classnames from 'classnames';
 import { default as linkIcon } from '../icons/link';
 
 const Header = memo(

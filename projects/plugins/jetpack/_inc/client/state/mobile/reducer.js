@@ -1,5 +1,5 @@
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
+import { combineReducers } from 'redux';
 import {
 	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL,
 	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_SUCCESS,

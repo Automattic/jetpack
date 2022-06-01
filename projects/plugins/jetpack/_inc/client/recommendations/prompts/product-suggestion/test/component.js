@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
+
 import { ProductSuggestion } from '../index';
 import { buildInitialState } from '../../product-suggestions/test/fixtures';
 import analytics from 'lib/analytics';

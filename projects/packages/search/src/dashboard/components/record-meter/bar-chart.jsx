@@ -1,6 +1,6 @@
-import React from 'react';
-import Chart from 'chart.js/auto';
 import { __ } from '@wordpress/i18n';
+import Chart from 'chart.js/auto';
+import React from 'react';
 
 const CHART_OPTIONS = {
 	type: 'bar',

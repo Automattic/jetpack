@@ -1,13 +1,13 @@
+import fs from 'fs/promises';
 import chalk from 'chalk';
 import execa from 'execa';
-import fs from 'fs/promises';
 import Listr from 'listr';
-import VerboseRenderer from 'listr-verbose-renderer';
 import UpdateRenderer from 'listr-update-renderer';
-import promptForProject from '../helpers/promptForProject.js';
-import { coerceConcurrency } from '../helpers/normalizeArgv.js';
+import VerboseRenderer from 'listr-verbose-renderer';
 import { needsPnpmInstall, getInstallArgs, projectDir } from '../helpers/install.js';
+import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import { allProjects } from '../helpers/projectHelpers.js';
+import promptForProject from '../helpers/promptForProject.js';
 
 export const command = 'install [project...]';
 export const describe = 'Installs a monorepo project';

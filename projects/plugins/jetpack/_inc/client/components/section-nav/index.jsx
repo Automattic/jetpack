@@ -1,14 +1,12 @@
 /** @ssr-ready **/
 
-import PropTypes from 'prop-types';
-
-import React from 'react';
-import { isEqual } from 'lodash';
 import classNames from 'classnames';
-import NavTabs from './tabs';
-
-import NavItem from './item';
 import Search from 'components/search';
+import { isEqual } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import NavItem from './item';
+import NavTabs from './tabs';
 import './style.scss';
 
 /**

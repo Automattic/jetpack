@@ -1,6 +1,6 @@
-import classNames from 'classnames';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import ThemeIcon from './theme-icon';
 
 /* eslint-disable react/jsx-no-bind */

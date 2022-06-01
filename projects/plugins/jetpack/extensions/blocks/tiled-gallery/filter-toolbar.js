@@ -1,5 +1,5 @@
-import { __, _x } from '@wordpress/i18n';
 import { Dropdown, MenuItem, NavigableMenu, Path, SVG, Toolbar } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
 
 const availableFilters = [
 	{

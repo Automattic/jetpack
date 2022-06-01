@@ -1,7 +1,7 @@
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
-import classnames from 'classnames';
 import { RichText } from '@wordpress/block-editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import classnames from 'classnames';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 
 const Amount = ( {

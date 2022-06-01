@@ -1,8 +1,7 @@
-import PropTypes from 'prop-types';
-
-import ReactDom from 'react-dom';
-import React from 'react';
 import Popover from 'components/popover';
+import PropTypes from 'prop-types';
+import React from 'react';
+import ReactDom from 'react-dom';
 
 class PopoverMenu extends React.Component {
 	static propTypes = {

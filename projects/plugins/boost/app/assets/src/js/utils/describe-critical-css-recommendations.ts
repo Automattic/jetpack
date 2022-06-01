@@ -1,9 +1,9 @@
-import type { SvelteComponent } from 'svelte';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import UrlComponentsExample from '../pages/settings/elements/UrlComponentsExample.svelte';
+import { castToNumber } from './cast-to-number';
 import type { ErrorSet } from '../stores/critical-css-recommendations';
 import type { CriticalCssErrorDetails } from '../stores/critical-css-status';
-import { castToNumber } from './cast-to-number';
-import UrlComponentsExample from '../pages/settings/elements/UrlComponentsExample.svelte';
+import type { SvelteComponent } from 'svelte';
 
 type Suggestion = {
 	paragraph: string;

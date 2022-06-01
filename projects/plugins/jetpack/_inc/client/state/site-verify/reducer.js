@@ -1,5 +1,5 @@
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
+import { combineReducers } from 'redux';
 import {
 	JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH,
 	JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_FAIL,

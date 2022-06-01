@@ -1,7 +1,7 @@
-import React from 'react';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import DashItem from 'components/dash-item';
+import React from 'react';
 
 const DashBlocks = () => {
 	const labelName = __( 'Jetpack blocks', 'jetpack' );

@@ -1,5 +1,5 @@
-import { __ } from '@wordpress/i18n';
 import { Path, SVG } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 export const DEFAULT_FORMAT = 'mrec';
 export const AD_FORMATS = [

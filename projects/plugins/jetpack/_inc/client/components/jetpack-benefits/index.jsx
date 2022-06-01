@@ -1,10 +1,10 @@
-import React from 'react';
-import { DisconnectCard } from '@automattic/jetpack-connection';
-import { createInterpolateElement } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { DisconnectCard } from '@automattic/jetpack-connection';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import React from 'react';
 import './style.scss';
 
 /**

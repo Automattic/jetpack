@@ -1,6 +1,5 @@
 const path = require( 'path' );
 const postcssPlugins = require( '@wordpress/postcss-plugins-preset' );
-
 const projects = require( './projects' );
 
 const includePaths = [ path.resolve( __dirname ) ].concat( projects );

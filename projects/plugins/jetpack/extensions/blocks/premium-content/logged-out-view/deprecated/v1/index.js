@@ -1,5 +1,5 @@
-import { createBlock } from '@wordpress/blocks';
 import { InnerBlocks } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 
 export default {
 	attributes: {

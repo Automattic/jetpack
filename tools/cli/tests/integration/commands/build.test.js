@@ -1,5 +1,5 @@
-import chai from 'chai';
 import child_process from 'child_process';
+import chai from 'chai';
 
 const testHelp = child_process.execFileSync(
 	'node',
