@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { expect } from 'chai';
 import { render } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
+import { expect } from 'chai';
 import Spinner from '../index';
 
 describe( 'Spinner', () => {

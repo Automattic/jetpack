@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import React, { useMemo } from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
+import React, { useMemo } from 'react';
 import './style.scss';
 import { SpinnerProps } from './types';
 
