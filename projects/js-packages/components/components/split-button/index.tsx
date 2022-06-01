@@ -1,7 +1,7 @@
-import type React from 'react';
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
 import styles from './style.module.scss';
 import { SplitButtonProps } from './types';
+import type React from 'react';
 
 const DownIcon = () => (
 	<svg width="15" height="9" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="10 9 4 7">
