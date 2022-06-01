@@ -26,19 +26,14 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 }
 
 if ( ( new Host() )->is_atomic_platform() ) {
-	add_filter( 'jetpack_get_available_modules', 'jetpack_atomic_waf_disable' );
+	add_filter(
+		'jetpack_get_available_modules',
+		function ( $modules ) {
+			unset( $modules['waf'] );
 
-	/**
-	 * Disable on the Atomic platform, for now at least
-	 *
-	 * @param array $modules The list of modules.
-	 * @return array Modified list of modules.
-	 */
-	function jetpack_atomic_waf_disable( $modules ) {
-		unset( $modules['waf'] );
-
-		return $modules;
-	}
+			return $modules;
+		}
+	);
 }
 
 /**
