@@ -658,11 +658,13 @@ class VideoPress_Player {
 				case 'controls':
 				case 'playsinline':
 				case 'useAverageColor':
-					if ( in_array( $value, array( 1, 'true' ), true ) ) {
+					// phpcs:disable WordPress.PHP.StrictInArray.MissingTrueStrict -- strict comparison will break this feature
+					if ( in_array( $value, array( 1, 'true' ) ) ) {
 						$videopress_options[ $option ] = true;
-					} elseif ( in_array( $value, array( 0, 'false' ), true ) ) {
+					} elseif ( in_array( $value, array( 0, 'false' ) ) ) {
 						$videopress_options[ $option ] = false;
 					}
+					// phpcs:enable
 					break;
 				case 'defaultlangcode':
 					$option = 'defaultLangCode';
