@@ -62,28 +62,28 @@ export default function getRecordInfo(
 		}
 
 		// sort & split items into included and other
-		const PostTypeItems = splitUsablePostTypes(
+		const postTypeItems = splitUsablePostTypes(
 			chartPostTypeBreakdown,
 			numItems,
 			maxPostTypeCount
 		);
 
 		// push includedItems into the recordInfo
-		for ( const item in PostTypeItems.includedItems ) {
+		for ( const item in postTypeItems.includedItems ) {
 			recordInfo.push(
 				createData(
-					PostTypeItems.includedItems[ item ].data.count,
+					postTypeItems.includedItems[ item ].data.count,
 					colors[ item ],
-					PostTypeItems.includedItems[ item ].data.label
+					postTypeItems.includedItems[ item ].data.label
 				)
 			);
 		}
 
 		// populate the 'other' category with combined remaining items and push to end of data array
-		if ( PostTypeItems.otherItems.length > 0 ) {
+		if ( postTypeItems.otherItems.length > 0 ) {
 			recordInfo.push(
 				createData(
-					combineOtherCount( PostTypeItems.otherItems ),
+					combineOtherCount( postTypeItems.otherItems ),
 					PALETTE.colors[ 'Gray 30' ],
 					__( 'other', 'jetpack-search-pkg' )
 				)
