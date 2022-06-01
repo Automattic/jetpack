@@ -1,6 +1,7 @@
-import { get, some } from 'lodash';
+import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import { get, some } from 'lodash';
 import {
 	JETPACK_SETTINGS_FETCH,
 	JETPACK_SETTINGS_FETCH_RECEIVE,
@@ -15,7 +16,6 @@ import {
 	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG,
 } from 'state/action-types';
 import { maybeHideNavMenuItem, maybeReloadAfterAction } from 'state/modules';
-import restApi from '@automattic/jetpack-api';
 
 export const setUnsavedSettingsFlag = () => {
 	return {

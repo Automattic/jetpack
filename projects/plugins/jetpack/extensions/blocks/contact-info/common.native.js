@@ -1,6 +1,5 @@
 import { withPreferredColorScheme } from '@wordpress/compose';
 import simpleInput from '../../shared/simple-input';
-
 import styles from './style.scss';
 
 const CommonChildEdit = props => {

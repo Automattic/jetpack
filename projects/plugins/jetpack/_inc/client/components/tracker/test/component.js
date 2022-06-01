@@ -2,6 +2,7 @@ import React from 'react';
 import { expect } from 'chai';
 import { mount } from 'enzyme';
 import { spy } from 'sinon';
+
 import { Tracker } from '../index';
 
 describe( 'Tracker component', () => {

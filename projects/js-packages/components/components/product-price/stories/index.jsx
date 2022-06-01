@@ -1,6 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
-import React from 'react';
 import { CURRENCIES } from '@automattic/format-currency';
+import React from 'react';
 import ProductPrice from '../';
 
 export default {

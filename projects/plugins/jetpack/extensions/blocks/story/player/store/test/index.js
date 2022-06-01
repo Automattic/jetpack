@@ -1,4 +1,5 @@
 import { registerStore } from '@wordpress/data';
+
 import { defaultPlayerState, defaultPlayerSettings, defaultCurrentSlideState } from '../constants';
 import * as actions from '../actions';
 import * as selectors from '../selectors';

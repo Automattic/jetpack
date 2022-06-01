@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
+
 import * as featureUtils from '../../../feature-utils';
 import { FeaturePrompt } from '../index';
 import analytics from 'lib/analytics';

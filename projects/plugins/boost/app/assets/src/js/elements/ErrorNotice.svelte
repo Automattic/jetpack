@@ -1,11 +1,11 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
+	import { ApiError } from '../api/api-error.ts';
+	import NoticeIcon from '../svg/notice-outline.svg';
 	import actionLinkTemplateVar from '../utils/action-link-template-var';
 	import { standardizeError } from '../utils/standardize-error';
 	import supportLinkTemplateVar from '../utils/support-link-template-var';
 	import TemplatedString from './TemplatedString.svelte';
-	import { ApiError } from '../api/api-error.ts';
-	import NoticeIcon from '../svg/notice-outline.svg';
 
 	/**
 	 * @member {string} title Title to display above the error message.

@@ -1,5 +1,7 @@
+import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
+import { getSiteConnectionStatus } from 'state/connection';
 import {
 	getActiveFeatures,
 	getActiveProductPurchases,
@@ -7,11 +9,8 @@ import {
 	getSitePlan,
 	getSitePurchases,
 } from 'state/site';
-import QuerySite from 'components/data/query-site';
-import { getSiteConnectionStatus } from 'state/connection';
-
-import MyPlanHeader from './my-plan-header';
 import MyPlanBody from './my-plan-body';
+import MyPlanHeader from './my-plan-header';
 import MyPlanPartnerCoupon from './my-plan-partner-coupon';
 
 export function MyPlan( props ) {

@@ -1,9 +1,9 @@
-import classNames from 'classnames';
-import { Button } from '@wordpress/components';
 import { Warning } from '@wordpress/block-editor';
+import { Button } from '@wordpress/components';
+import classNames from 'classnames';
+import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
 
 import './style.scss';
-import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
 
 export default function BlockNudge( {
 	blockName,

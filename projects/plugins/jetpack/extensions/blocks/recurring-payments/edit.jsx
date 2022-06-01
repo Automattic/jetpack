@@ -1,17 +1,17 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
-import { useCallback } from 'react';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { useEffect } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
-import { icon, title } from './';
+import { useCallback } from 'react';
 import ProductManagementControls from '../../shared/components/product-management-controls';
-import { store as membershipProductsStore } from '../../store/membership-products';
-import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
+import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
+import { store as membershipProductsStore } from '../../store/membership-products';
+import { icon, title } from './';
 
 // If we use the name on index.js and the block name changes the events block name will also change.
 const BLOCK_NAME = 'recurring-payments';

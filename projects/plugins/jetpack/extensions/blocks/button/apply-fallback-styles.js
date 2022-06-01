@@ -1,5 +1,5 @@
-import { get } from 'lodash';
 import { withFallbackStyles } from '@wordpress/components';
+import { get } from 'lodash';
 
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	const { backgroundColor, textColor } = ownProps;

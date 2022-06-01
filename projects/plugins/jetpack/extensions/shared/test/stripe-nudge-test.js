@@ -1,5 +1,7 @@
 import * as data from '@wordpress/data';
+
 import { StripeNudge } from "../components/stripe-nudge";
+
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen, waitFor } from "@testing-library/react";
 

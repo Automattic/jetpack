@@ -1,4 +1,5 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
+
 import './style.scss';
 
 export default function InspectorNotice( { children } ) {

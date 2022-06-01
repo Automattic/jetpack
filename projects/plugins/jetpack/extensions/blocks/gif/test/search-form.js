@@ -5,6 +5,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event'
+
 import SearchForm from '../components/search-form';
 
 describe( 'SearchForm', () => {

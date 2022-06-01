@@ -1,4 +1,3 @@
-import { uniq } from 'lodash';
 import {
 	isUpgradeNudgeEnabled,
 	isUpgradable,
@@ -7,12 +6,13 @@ import {
 import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-import withUpgradeBanner from './with-upgrade-banner';
-import renderPaidIcon from './render-paid-icon.js';
-
-import './editor.scss';
+import { uniq } from 'lodash';
 import paidBlockMediaPlaceholder from './media-placeholder';
 import paidBlockMediaReplaceFlow from './media-replace-flow';
+import renderPaidIcon from './render-paid-icon.js';
+import withUpgradeBanner from './with-upgrade-banner';
+
+import './editor.scss';
 
 const stylesByPaidBlocks = [];
 

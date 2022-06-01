@@ -1,5 +1,4 @@
-import { __, _x } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { PanelColorSettings } from '@wordpress/block-editor';
 import {
 	BaseControl,
 	TextControl,
@@ -12,11 +11,12 @@ import {
 	ToolbarGroup,
 	Dropdown,
 } from '@wordpress/components';
-import { PanelColorSettings } from '@wordpress/block-editor';
+import { useState } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
-import { countryCodes } from '../shared/countrycodes.js';
-import renderMaterialIcon from '../../../shared/render-material-icon';
 import HelpMessage from '../../../shared/help-message';
+import renderMaterialIcon from '../../../shared/render-material-icon';
+import { countryCodes } from '../shared/countrycodes.js';
 
 const WHATSAPP_GREEN = '#25D366';
 const WHATSAPP_DARK = '#465B64';

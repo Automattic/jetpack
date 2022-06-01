@@ -1,4 +1,6 @@
+import restApi from '@automattic/jetpack-api';
 import { __ } from '@wordpress/i18n';
+import { createNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH,
 	JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_FAIL,
@@ -7,9 +9,6 @@ import {
 	JETPACK_SITE_VERIFY_GOOGLE_REQUEST_SUCCESS,
 	JETPACK_SITE_VERIFY_GOOGLE_REQUEST_FAIL,
 } from 'state/action-types';
-
-import restApi from '@automattic/jetpack-api';
-import { createNotice } from 'components/global-notices/state/notices/actions';
 
 export const checkVerifyStatusGoogle = ( keyringId = null ) => {
 	return dispatch => {

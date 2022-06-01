@@ -1,9 +1,9 @@
-import classNames from 'classnames';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
 import Controls from './controls';
 import Tab from './tab';
-import { StripeNudge } from '../../shared/components/stripe-nudge';
 
 const Tabs = props => {
 	const { attributes, className, products, setAttributes } = props;

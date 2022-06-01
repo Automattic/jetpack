@@ -1,13 +1,13 @@
-import ReactDOM from 'react-dom';
-import React from 'react';
-import { Provider } from 'react-redux';
-import { HashRouter, Route, Switch } from 'react-router-dom';
-import { assign } from 'lodash';
 import { _x } from '@wordpress/i18n';
 import accessibleFocus from 'lib/accessible-focus';
-import store from 'state/redux-store';
+import { assign } from 'lodash';
 import Main from 'main';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import { HashRouter, Route, Switch } from 'react-router-dom';
 import * as actionTypes from 'state/action-types';
+import store from 'state/redux-store';
 
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
 accessibleFocus();

@@ -1,13 +1,13 @@
-import { Provider } from 'react-redux';
-import { pickBy } from 'lodash';
 import { __ } from '@wordpress/i18n';
+import useSiteLoadingState from 'hooks/use-loading-state';
+import useSearchOptions from 'hooks/use-search-options';
 import SearchApp from 'instant-search/components/search-app';
-import store from 'instant-search/store';
 import { buildFilterAggregations } from 'instant-search/lib/api';
 import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
 import { getThemeOptions } from 'instant-search/lib/dom';
-import useSiteLoadingState from 'hooks/use-loading-state';
-import useSearchOptions from 'hooks/use-search-options';
+import store from 'instant-search/store';
+import { pickBy } from 'lodash';
+import { Provider } from 'react-redux';
 import './styles.scss';
 
 // eslint-disable-next-line no-undef

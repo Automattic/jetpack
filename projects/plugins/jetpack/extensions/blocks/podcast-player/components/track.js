@@ -1,10 +1,9 @@
-import classnames from 'classnames';
 import { memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import TrackIcon from './track-icon';
-import TrackError from './track-error';
-
+import classnames from 'classnames';
 import { getColorClassName } from '../utils';
+import TrackError from './track-error';
+import TrackIcon from './track-icon';
 
 const Track = memo(
 	( {

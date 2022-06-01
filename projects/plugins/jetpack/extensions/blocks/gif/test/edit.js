@@ -4,6 +4,7 @@
 
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+
 import GifEdit from '../edit';
 import { getUrl, getPaddingTop, getEmbedUrl } from '../utils';
 import useFetchGiphyData from '../hooks/use-fetch-giphy-data';

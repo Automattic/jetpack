@@ -1,5 +1,5 @@
-import { __ } from '@wordpress/i18n';
 import { Placeholder } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 const LoadingError = ( { className, error } ) => {
 	return (

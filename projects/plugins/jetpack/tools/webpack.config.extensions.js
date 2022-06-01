@@ -3,13 +3,13 @@
  */
 
 const fs = require( 'fs' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const webpack = jetpackWebpackConfig.webpack;
-const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jsdom = require( 'jsdom' );
+const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
 
 /**

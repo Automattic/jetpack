@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchWafSettings, isFetchingWafSettings } from 'state/waf';
 import { isOfflineMode } from 'state/connection';
+import { fetchWafSettings, isFetchingWafSettings } from 'state/waf';
 
 class QueryWafSettings extends Component {
 	static propTypes = {

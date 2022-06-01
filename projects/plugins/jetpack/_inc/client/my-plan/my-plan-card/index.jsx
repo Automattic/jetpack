@@ -1,7 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import PlanIcon from 'components/plans/plan-icon/index';
+import PropTypes from 'prop-types';
+import React from 'react';
+
 import './style.scss';
 
 const MyPlanCard = ( { productSlug, action, isError, isPlaceholder, details, tagLine, title } ) => {

@@ -7,9 +7,9 @@ import {
 	ToolbarGroup,
 	ToolbarItem,
 } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
-import { Fragment } from '@wordpress/element';
 import EditButton from '../../shared/edit-button';
 
 export function PanelControls( {

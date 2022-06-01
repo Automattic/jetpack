@@ -1,12 +1,14 @@
-import { isEqual } from 'lodash';
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Component } from '@wordpress/element';
+import { isEqual } from 'lodash';
+
 // Because the wp-annotations script isn't loaded by default in the block editor, importing
 // it here tells webpack to add it as a dependency to be loaded before Jetpack blocks.
 import '@wordpress/annotations';
+
 import './editor.scss';
 
 /**

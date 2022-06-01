@@ -1,6 +1,6 @@
-import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
+import React from 'react';
 import DisconnectDialog from '../index';
 
 describe( 'DisconnectDialog', () => {

@@ -1,7 +1,7 @@
-import Layout from './layout';
-import { defaultColumnsNumber } from './edit';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { LAYOUT_STYLES } from './constants';
+import { defaultColumnsNumber } from './edit';
+import Layout from './layout';
 
 export default function TiledGallerySave( { attributes } ) {
 	const { imageFilter, images } = attributes;

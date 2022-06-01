@@ -1,21 +1,21 @@
+import restApi from '@automattic/jetpack-api';
+import { DisconnectDialog } from '@automattic/jetpack-connection';
+import { __ } from '@wordpress/i18n';
 import React, { useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-import PortalSidecar from './utilities/portal-sidecar';
-import { getApiRootUrl, getApiNonce } from '../state/initial-state';
+import {
+	fetchUserConnectionData as actionFetchUserConnectionData,
+	getConnectedWpComUser,
+} from 'state/connection';
 import {
 	fetchConnectedPlugins as actionFetchConnectedPlugins,
 	fetchSiteBenefits as actionFetchSiteBenefits,
 	getConnectedPluginsMap,
 	getSiteBenefits,
 } from 'state/site';
-import {
-	fetchUserConnectionData as actionFetchUserConnectionData,
-	getConnectedWpComUser,
-} from 'state/connection';
-import restApi from '@automattic/jetpack-api';
-import { DisconnectDialog } from '@automattic/jetpack-connection';
 import JetpackBenefits from '../components/jetpack-benefits';
+import { getApiRootUrl, getApiNonce } from '../state/initial-state';
+import PortalSidecar from './utilities/portal-sidecar';
 
 /**
  * Component that loads on the plugins page and manages presenting the disconnection modal.

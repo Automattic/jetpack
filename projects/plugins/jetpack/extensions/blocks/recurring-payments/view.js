@@ -1,5 +1,6 @@
 import domReady from '@wordpress/dom-ready';
 import { initializeMembershipButtons } from '../../shared/memberships';
+
 import './view.scss';
 
 const name = 'recurring-payments';

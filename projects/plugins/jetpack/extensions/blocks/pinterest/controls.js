@@ -1,5 +1,5 @@
-import { __ } from '@wordpress/i18n';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 export function PinterestBlockControls( { setEditingState } ) {
 	return (

@@ -1,10 +1,10 @@
 import { writable, derived } from 'svelte/store';
 import api from '../api/api';
-import { CriticalCssErrorDetails, criticalCssStatus } from './critical-css-status';
-import type { JSONObject } from '../utils/json-types';
+import { castToString } from '../utils/cast-to-string';
 import { objectFilter } from '../utils/object-filter';
 import { sortByFrequency } from '../utils/sort-by-frequency';
-import { castToString } from '../utils/cast-to-string';
+import { CriticalCssErrorDetails, criticalCssStatus } from './critical-css-status';
+import type { JSONObject } from '../utils/json-types';
 
 const importantProviders = [
 	'core_front_page',

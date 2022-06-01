@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
+
 import SubscriptionsInspectorControls from '../controls';
 import { DEFAULT_FONTSIZE_VALUE } from '../constants';
 

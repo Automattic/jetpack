@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useCallback } from 'react';
 import classNames from 'classnames';
+import React, { useContext, useEffect, useCallback } from 'react';
+import ItemBadge from './badge';
+import ItemLabel from './label';
 import styles from './styles.module.scss';
 import { NavigationContext } from './use-menu-navigation';
-import ItemLabel from './label';
-import ItemBadge from './badge';
 
 const NavigationItem = ( {
 	id,

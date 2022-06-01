@@ -1,6 +1,6 @@
-import { pickBy, identity } from 'lodash';
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
+import { pickBy, identity } from 'lodash';
 
 const getAttributeValue = ( tag, att, content ) => {
 	const doubleQuotes = content.match( new RegExp( `\\[${ tag }[^\\]]* ${ att }="([^"]*)"`, 'im' ) );

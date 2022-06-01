@@ -1,10 +1,11 @@
 import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
-import save from './save';
 import { queueMusic } from './icons/';
-import { getIconColor } from '../../shared/block-icons';
+import save from './save';
+
 import './style.scss';
 import './editor.scss';
 

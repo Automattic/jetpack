@@ -1,8 +1,8 @@
-import { PluginBlockSettingsMenuItem } from '@wordpress/edit-post';
 import { select, dispatch } from '@wordpress/data';
+import { PluginBlockSettingsMenuItem } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
-import { transformToCoreGroup } from './transform-to-core-group';
 import { name } from '../index';
+import { transformToCoreGroup } from './transform-to-core-group';
 
 function replaceBlockAndKeepContent() {
 	const block = select( 'core/block-editor' ).getSelectedBlock();

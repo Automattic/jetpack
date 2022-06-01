@@ -1,6 +1,6 @@
-import { __ } from '@wordpress/i18n';
-import { Fragment, useState } from '@wordpress/element';
 import { SelectControl, Button } from '@wordpress/components';
+import { Fragment, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 const FILTERS = [
 	{ label: __( 'Category', 'jetpack' ), value: 'category' },

@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
 import { ActionButton, JetpackLogo } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 import { usePartnerCouponRedemption } from '../../hooks';
 
 /**

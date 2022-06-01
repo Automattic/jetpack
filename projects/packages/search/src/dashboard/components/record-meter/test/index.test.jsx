@@ -2,10 +2,10 @@
  * @jest-environment jsdom
  */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import RecordMeter from 'components/record-meter';
+import React from 'react';
 
 jest.mock( 'components/record-meter/bar-chart', () => ( {
 	BarChart: () => null,

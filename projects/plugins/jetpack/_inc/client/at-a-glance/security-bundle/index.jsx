@@ -1,21 +1,22 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __, _x } from '@wordpress/i18n';
-import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
-import analytics from 'lib/analytics';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import Button from 'components/button';
 import Card from 'components/card';
-import bundleImageUrl from './shield-with-check.svg';
-import cloudImageUrl from './cloud.svg';
-import shieldImageUrl from './shield.svg';
-import removeBugImageUrl from './remove-bug.svg';
+import analytics from 'lib/analytics';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
 	isFetchingSitePurchases as getIsFetchingSitePurchases,
 	hasActiveSecurityPurchase as getHasActiveSecurityPurchase,
 } from 'state/site';
+import cloudImageUrl from './cloud.svg';
+import removeBugImageUrl from './remove-bug.svg';
+import bundleImageUrl from './shield-with-check.svg';
+import shieldImageUrl from './shield.svg';
+
 import './style.scss';
 
 class DashSecurityBundle extends Component {

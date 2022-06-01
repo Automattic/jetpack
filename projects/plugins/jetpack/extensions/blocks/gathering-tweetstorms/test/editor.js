@@ -1,5 +1,6 @@
 import { mount } from 'enzyme';
 import { useSelect } from '@wordpress/data';
+
 import addTweetstormToTweets from '../editor';
 
 jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );

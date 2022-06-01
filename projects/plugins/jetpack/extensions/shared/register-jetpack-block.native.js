@@ -1,5 +1,5 @@
-import { registerBlockType } from '@wordpress/blocks';
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
+import { registerBlockType } from '@wordpress/blocks';
 import extensionList from '../index.json';
 
 const betaExtensions = extensionList.beta || [];

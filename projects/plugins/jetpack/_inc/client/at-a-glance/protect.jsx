@@ -1,14 +1,14 @@
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import DashItem from 'components/dash-item';
+import QueryProtectCount from 'components/data/query-dash-protect';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
-import DashItem from 'components/dash-item';
 import { getProtectCount } from 'state/at-a-glance';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
-import QueryProtectCount from 'components/data/query-dash-protect';
 
 class DashProtect extends Component {
 	static propTypes = {

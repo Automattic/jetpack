@@ -1,10 +1,10 @@
-import { isArray, isEmpty, some } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
+import { createBlock } from '@wordpress/blocks';
+import { useSelect, dispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { createBlock } from '@wordpress/blocks';
-import { useSelect, dispatch } from '@wordpress/data';
+import { isArray, isEmpty, some } from 'lodash';
 
 /**
  * Given a tweet URL, find any tweetstorm replies it has, and replace the current

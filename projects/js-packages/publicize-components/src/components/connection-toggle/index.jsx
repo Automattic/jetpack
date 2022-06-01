@@ -1,7 +1,8 @@
+import { FormToggle } from '@wordpress/components';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { FormToggle } from '@wordpress/components';
 import ConnectionIcon from '../connection-icon';
+
 import './style.scss';
 
 const ConnectionToggle = props => {

@@ -1,6 +1,6 @@
-import React from 'react';
-import { __, sprintf } from '@wordpress/i18n';
 import { Gridicon } from '@automattic/jetpack-components';
+import { __, sprintf } from '@wordpress/i18n';
+import React from 'react';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-instant-search.scss';
 

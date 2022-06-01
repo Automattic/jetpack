@@ -1,16 +1,16 @@
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import classNames from 'classnames';
-import { createInterpolateElement } from '@wordpress/element';
-import { dateI18n } from '@wordpress/date';
-import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import analytics from 'lib/analytics';
+import { dateI18n } from '@wordpress/date';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { userCanConnectAccount } from 'state/initial-state';
 
 class DashStatsBottom extends Component {

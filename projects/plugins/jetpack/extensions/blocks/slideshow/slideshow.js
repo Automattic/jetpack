@@ -1,11 +1,11 @@
-import classnames from 'classnames';
-import ResizeObserver from 'resize-observer-polyfill';
-import { __ } from '@wordpress/i18n';
-import { Component, createRef } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
-import { isEqual } from 'lodash';
 import { RichText } from '@wordpress/block-editor';
 import { Spinner } from '@wordpress/components';
+import { Component, createRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { isEqual } from 'lodash';
+import ResizeObserver from 'resize-observer-polyfill';
 import createSwiper from './create-swiper';
 import {
 	swiperApplyAria,

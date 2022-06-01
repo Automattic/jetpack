@@ -1,6 +1,6 @@
-import classNames from 'classnames';
-import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from 'lib/constants';
 
 /**

@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
-import config from './config';
 import { setModuleState } from '../api/modules';
+import config from './config';
 
 export type Optimizations = {
 	[ slug: string ]: boolean;

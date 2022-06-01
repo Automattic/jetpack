@@ -1,7 +1,7 @@
-import { TouchableWithoutFeedback, View } from 'react-native';
 import { Icon } from '@wordpress/components';
-import SvgIconCustomize from './icon-customize';
+import { TouchableWithoutFeedback, View } from 'react-native';
 import styles from './editor.scss';
+import SvgIconCustomize from './icon-customize';
 
 const StoryEditingButton = ( { onEditButtonTapped } ) => {
 	return (

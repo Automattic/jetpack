@@ -1,9 +1,9 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
-const makeIgnore = require( 'ignore' );
 const debugload = require( 'debug' )( 'load-eslint-ignore:load' );
 const debugrp = require( 'debug' )( 'load-eslint-ignore:reverse-prefix' );
 const debugrules = require( 'debug' )( 'load-eslint-ignore:rules' );
+const makeIgnore = require( 'ignore' );
 
 const rootdir = path.resolve( __dirname, '../..' ) + '/';
 

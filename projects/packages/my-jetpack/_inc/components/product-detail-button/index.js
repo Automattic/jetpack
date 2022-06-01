@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import { Button, Spinner } from '@wordpress/components';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 const ProductDetailButton = ( { children, className, href, isLoading, onClick, isPrimary } ) => {
 	return (

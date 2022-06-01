@@ -5,6 +5,7 @@
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '@testing-library/react';
+
 import { CalendlyBlockControls, CalendlyInspectorControls } from '../controls';
 
 describe( 'CalendlyBlockControls', () => {

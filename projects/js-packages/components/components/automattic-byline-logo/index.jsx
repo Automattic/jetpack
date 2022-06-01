@@ -1,7 +1,7 @@
-import React from 'react';
-import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import React from 'react';
 
 /**
  * Automattic "By line" Logo component.

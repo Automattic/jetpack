@@ -2,8 +2,8 @@
  * @jest-environment jsdom
  */
 
-import { mount } from 'enzyme';
 import { useSelect } from '@wordpress/data';
+import { mount } from 'enzyme';
 import TwitterThreadListener from '..';
 
 // Override data handlers, so we can control data changes.

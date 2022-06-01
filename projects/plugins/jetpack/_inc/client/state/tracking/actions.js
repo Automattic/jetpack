@@ -1,3 +1,4 @@
+import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
@@ -8,7 +9,6 @@ import {
 	USER_TRACKING_SETTINGS_UPDATE_FAIL,
 	USER_TRACKING_SETTINGS_UPDATE_SUCCESS,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
 
 export const fetchTrackingSettings = () => {
 	return dispatch => {

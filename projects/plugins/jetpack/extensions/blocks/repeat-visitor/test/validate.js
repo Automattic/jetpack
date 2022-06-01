@@ -1,4 +1,5 @@
 import { RichText } from '@wordpress/block-editor';
+
 import { name, settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
 

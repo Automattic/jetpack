@@ -1,5 +1,5 @@
-import { __ } from '@wordpress/i18n';
 import { createSlotFill, PanelBody } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import JetpackPluginSidebar from './jetpack-plugin-sidebar';
 

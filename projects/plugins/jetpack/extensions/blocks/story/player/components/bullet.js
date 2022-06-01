@@ -1,6 +1,6 @@
-import classNames from 'classnames';
-import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 
 export default function Bullet( { isEllipsis, disabled, index, isSelected, progress, onClick } ) {
 	const bulletDisabled = disabled || isEllipsis;
