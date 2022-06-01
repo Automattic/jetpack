@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { useMemo } from 'react';
-
-/**
- * WordPress dependencies
- */
 import { useEntityProp } from '@wordpress/core-data';
+import { useMemo } from 'react';
 
 /**
  * Fetches values and setters for various search configuration values.

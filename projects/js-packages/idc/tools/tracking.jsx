@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import analytics from '@automattic/jetpack-analytics';
 
 /**

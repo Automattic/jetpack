@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { SVG, Path } from '@wordpress/components';
 import { getIconColor } from '../../../shared/block-icons';
 

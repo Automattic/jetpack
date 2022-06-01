@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 import { once } from 'events';
 import { promisify } from 'util';
-
-/**
- * Internal dependencies
- */
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import FilterStream from '../../../helpers/filter-stream.js';
 
 chai.use( chaiAsPromised );

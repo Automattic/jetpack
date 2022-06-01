@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-/**
- * Internal dependencies
- */
 import AdminPage from './components/admin-page';
 
 /**

@@ -1,16 +1,6 @@
-/**
- * External dependencies
- */
 import domReady from '@wordpress/dom-ready';
-
-/**
- * Internal dependencies
- */
 import { initializeMembershipButtons } from '../../shared/memberships';
 
-/**
- * Style dependencies
- */
 import './view.scss';
 
 const name = 'recurring-payments';

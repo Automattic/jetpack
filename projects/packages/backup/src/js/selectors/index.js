@@ -1,9 +1,6 @@
-/**
- * Internal dependencies
- */
 import APISelectors from './api';
-import jetpackStatusSelectors from './jetpack-status';
 import connectedPluginsSelectors from './connected-plugins';
+import jetpackStatusSelectors from './jetpack-status';
 import siteDataSelectors from './site-data';
 
 const selectors = {

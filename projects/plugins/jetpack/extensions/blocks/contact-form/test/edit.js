@@ -2,15 +2,9 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
 
-/**
- * Internal dependencies
- */
 import { JetpackContactFormEdit } from '../edit';
 import defaultVariations from '../variations';
 

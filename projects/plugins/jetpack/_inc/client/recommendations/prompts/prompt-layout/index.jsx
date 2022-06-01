@@ -1,23 +1,13 @@
-/**
- * External dependencies
- */
+import { imagePath } from 'constants/urls';
+import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import { imagePath } from 'constants/urls';
 import { isFetchingIntroOffers } from 'state/intro-offers';
 import { isFetchingRecommendationsProductSuggestions } from 'state/recommendations';
 import { isFetchingSiteDiscount } from 'state/site/reducer';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarCard } ) => {

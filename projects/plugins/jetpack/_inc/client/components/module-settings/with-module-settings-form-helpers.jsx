@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
+import { connectModuleOptions } from 'components/module-settings/connect-module-options';
 import analytics from 'lib/analytics';
 import { each, get, omit } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import { connectModuleOptions } from 'components/module-settings/connect-module-options';
+import React from 'react';
 
 /**
  * High order component that provides a <form> with functionality

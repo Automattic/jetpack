@@ -1,11 +1,8 @@
-/**
- * Internal dependencies
- */
-import Container from '../container';
-import Col from '../col';
 import Text from '../../text';
-import styles from './styles.module.scss';
+import Col from '../col';
+import Container from '../container';
 import useBreakpointMatch from '../use-breakpoint-match';
+import styles from './styles.module.scss';
 
 const Layout = ( { items, fluid, horizontalGap, horizontalSpacing } ) => {
 	return (

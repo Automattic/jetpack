@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import type React from 'react';
 import { Button } from '@wordpress/components';
+import type React from 'react';
 
 type JetpackButtonBaseProps = {
 	className?: string;

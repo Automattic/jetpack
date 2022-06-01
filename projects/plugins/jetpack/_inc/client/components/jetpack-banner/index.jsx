@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
+import { Banner, connect as bannerConnect } from 'components/banner';
+import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect as reduxConnect } from 'react-redux';
-import { noop } from 'lodash';
-import { Banner, connect as bannerConnect } from 'components/banner';
-
-/**
- * Internal dependencies
- */
 import { arePromotionsActive, userCanManageModules } from 'state/initial-state';
 
 export class JetpackBanner extends Banner {

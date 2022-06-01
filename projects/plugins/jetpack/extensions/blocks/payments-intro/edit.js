@@ -1,24 +1,13 @@
-/**
- * External dependencies
- */
-import { get } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
-import { createBlock, getBlockType, registerBlockVariation } from '@wordpress/blocks';
-import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	InnerBlocks,
-	__experimentalBlockVariationPicker as BlockVariationPicker,
+	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import { createBlock, getBlockType, registerBlockVariation } from '@wordpress/blocks';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { get } from 'lodash';
 import defaultVariations from './variations';
 
 export default function JetpackPaymentsIntroEdit( { name, clientId } ) {

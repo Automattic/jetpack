@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import { useSelect } from '@wordpress/data';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
+import React from 'react';
 import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
-import ConnectionStatusCard from '../index';
 import { STORE_ID } from '../../../state/store';
+import ConnectionStatusCard from '../index';
 
 let stubGetConnectionStatus;
 let storeSelect;

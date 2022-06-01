@@ -1,16 +1,8 @@
 // Disable forbidden <svg> etc. so that frontend component does not depend on @wordpress/component
 /* eslint-disable react/forbid-elements */
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-
-import defaultTheme from './map-theme_default.jpg';
 import blackAndWhiteTheme from './map-theme_black_and_white.jpg';
+import defaultTheme from './map-theme_default.jpg';
 import satelliteTheme from './map-theme_satellite.jpg';
 import terrainTheme from './map-theme_terrain.jpg';
 

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import config from '../stores/config';
 
 export function jetpackURL( url ) {

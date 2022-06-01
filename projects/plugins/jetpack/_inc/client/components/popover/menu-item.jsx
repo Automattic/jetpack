@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { noop } from 'lodash';
 import classnames from 'classnames';
+import { noop } from 'lodash';
+import React from 'react';
 
 class MenuItem extends React.Component {
 	static defaultProps = {

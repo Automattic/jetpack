@@ -109,7 +109,13 @@ class Critical_CSS_State {
 
 	public function maybe_set_status() {
 		if ( $this->get_total_providers_count() === $this->get_processed_providers_count() ) {
-			$this->state = self::SUCCESS;
+			// Only consider the generation a success if at least one provider was successful
+			if ( $this->get_providers_success_count() > 0 ) {
+				$this->state = self::SUCCESS;
+			} else {
+				$this->state = self::FAIL;
+			}
+
 			$this->save();
 		}
 	}
@@ -171,6 +177,10 @@ class Critical_CSS_State {
 	 * @param string $key Provider key.
 	 */
 	public function set_source_success( $key ) {
+		// If this success was result of a retry by Cloud_CSS_Cron. This provider may contain error data from the
+		// original attempt. We have to remove that first.
+		$this->sources[ $key ]['error'] = null;
+
 		$this->set_source_status( $key, self::SUCCESS );
 	}
 
