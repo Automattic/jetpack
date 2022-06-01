@@ -99,6 +99,9 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * Tear down.
 	 */
 	public function tear_down() {
+		unset( $GLOBALS['publicize'] );
+		unset( $GLOBALS['publicize_ui'] );
+
 		wp_set_current_user( $this->original_user );
 
 		parent::tear_down();
