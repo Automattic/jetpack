@@ -1,21 +1,10 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { Path, Rect, SVG } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import save from './save';
 import transforms from './transforms';
 import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
-
-/**
- * Example Images
- */
 import slideshowExample1 from './slideshow_example-1.jpg';
 import slideshowExample2 from './slideshow_example-2.jpg';
 import slideshowExample3 from './slideshow_example-3.jpg';

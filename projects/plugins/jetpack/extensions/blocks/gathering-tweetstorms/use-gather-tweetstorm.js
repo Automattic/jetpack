@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { isArray, isEmpty, some } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';

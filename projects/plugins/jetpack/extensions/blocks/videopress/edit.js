@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { isBlobURL } from '@wordpress/blob';
 import {
@@ -30,10 +27,6 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, pencil } from '@wordpress/icons';
 import classnames from 'classnames';
 import { get, indexOf } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import Loading from './loading';
 import { getVideoPressUrl } from './url';
 import { getClassNames } from './utils';

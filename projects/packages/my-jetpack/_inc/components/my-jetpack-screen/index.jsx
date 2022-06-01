@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React, { useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/components';
@@ -13,10 +10,6 @@ import {
 	Col,
 	Text,
 } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import ConnectionsSection from '../connections-section';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';

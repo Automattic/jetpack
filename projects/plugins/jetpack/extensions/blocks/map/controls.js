@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import {
 	Button,
@@ -16,10 +13,6 @@ import {
 } from '@wordpress/components';
 
 import { BlockAlignmentToolbar, PanelColorSettings } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
 import Locations from './locations';
 import { settings } from './settings.js';
 

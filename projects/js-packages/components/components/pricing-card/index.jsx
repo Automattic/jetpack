@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@wordpress/components';
 import { getCurrencyObject } from '@automattic/format-currency';
 import { sprintf, __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 /**

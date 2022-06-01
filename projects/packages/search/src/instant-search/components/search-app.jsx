@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React, { Component, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 // NOTE: We only import the debounce function here for reduced bundle size.
@@ -9,10 +6,6 @@ import { createPortal } from 'react-dom';
 import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
 import stringify from 'fast-json-stable-stringify';
-
-/**
- * Internal dependencies
- */
 import CustomizerEventHandler from './customizer-event-handler';
 import DomEventHandler from './dom-event-handler';
 import Overlay from './overlay';

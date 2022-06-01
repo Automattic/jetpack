@@ -1,21 +1,10 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getFragment } from '@wordpress/url';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import QuerySiteBenefits from 'components/data/query-site-benefits';

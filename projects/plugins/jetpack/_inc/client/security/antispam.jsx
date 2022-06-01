@@ -1,19 +1,8 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { assign, debounce, isEmpty, trim } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import FoldableCard from 'components/foldable-card';

@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import useUpgradeFlow from '../../shared/use-upgrade-flow/index';
 import { Nudge } from '../../shared/components/upgrade-nudge';
 

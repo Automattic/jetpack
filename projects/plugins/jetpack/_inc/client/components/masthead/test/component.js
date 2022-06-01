@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
-
-/**
- * Internal dependencies
- */
 import { Masthead } from '../index';
 
 describe( 'Masthead', () => {

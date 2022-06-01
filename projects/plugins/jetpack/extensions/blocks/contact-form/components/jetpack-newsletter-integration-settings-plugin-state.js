@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';

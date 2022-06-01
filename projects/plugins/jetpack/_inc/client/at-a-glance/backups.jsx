@@ -1,21 +1,10 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get, noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';

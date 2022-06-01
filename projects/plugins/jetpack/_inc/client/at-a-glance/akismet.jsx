@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';

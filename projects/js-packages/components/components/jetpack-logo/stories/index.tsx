@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-/**
- * Internal dependencies
- */
 import JetpackLogo from '../index';
 
 const meta: ComponentMeta< typeof JetpackLogo > = {

@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { PanelBody } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
-
-/**
- * Internal dependencies
- */
 import './editor.scss';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import SeoPanel from './panel';

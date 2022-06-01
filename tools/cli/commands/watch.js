@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import chalk from 'chalk';
 import path from 'path';
 import child_process from 'child_process';
-
-/**
- * Internal dependencies
- */
 import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';

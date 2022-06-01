@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { useCallback, useEffect } from 'react';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 

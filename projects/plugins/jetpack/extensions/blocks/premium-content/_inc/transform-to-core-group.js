@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { createBlock } from '@wordpress/blocks';
 
 export const transformToCoreGroup = innerBlocks => {

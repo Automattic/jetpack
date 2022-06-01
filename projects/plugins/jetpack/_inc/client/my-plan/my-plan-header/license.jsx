@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React, { useState, useCallback } from 'react';
 import { __, _x } from '@wordpress/i18n';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
 import TextInput from 'components/text-input';
 import {

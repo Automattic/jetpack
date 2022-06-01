@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import { getUpgradeUrl } from 'state/initial-state';
 

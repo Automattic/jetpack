@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import inquirer from 'inquirer';
-
-/**
- * Internal dependencies
- */
 import { dirs, projectTypes, allProjects } from './projectHelpers.js';
 
 /**

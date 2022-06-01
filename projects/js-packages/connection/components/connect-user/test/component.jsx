@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { expect } from 'chai';
 import ShallowRenderer from 'react-test-renderer/shallow';
-
-/**
- * Internal dependencies
- */
 import ConnectUser from '../index';
 
 describe( 'ConnectUser', () => {

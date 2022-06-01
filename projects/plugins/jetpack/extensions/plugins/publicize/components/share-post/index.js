@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { Button, PanelRow } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
@@ -8,10 +5,6 @@ import { store as noticesStore } from '@wordpress/notices';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { useSocialMediaConnections } from '@automattic/jetpack-publicize-components';
-
-/**
- * Internal dependencies
- */
 import useSharePost from '../../hooks/use-share-post';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 

@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import ConnectButton from 'components/connect-button';
 import Card from 'components/card';
 import analytics from 'lib/analytics';

@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';

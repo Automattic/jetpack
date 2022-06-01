@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { encode } from 'qss';
-
-/**
- * Internal dependencies
- */
 import { SERVER_OBJECT_NAME, VALID_RESULT_FORMAT_KEYS } from './constants';
 import { getFilterKeys, getStaticFilterKeys } from './filters';
 import { decode } from '../external/query-string-decode';

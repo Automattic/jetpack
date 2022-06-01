@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import chai from 'chai';
-
-/**
- * Internal dependencies
- */
 import promptForProject, { promptForType } from '../../../helpers/promptForProject.js';
 
 describe( 'promptForProject', function () {

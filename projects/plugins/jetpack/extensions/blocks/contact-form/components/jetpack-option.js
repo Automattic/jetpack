@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { Component, createRef } from '@wordpress/element';

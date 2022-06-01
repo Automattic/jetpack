@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import actions from './actions';
 import reducer from './reducers';
 import selectors from './selectors';

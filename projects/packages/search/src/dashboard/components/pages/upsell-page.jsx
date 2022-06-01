@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React, { useCallback } from 'react';
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
@@ -11,10 +8,6 @@ import {
 	PricingCard,
 	AdminSectionHero,
 } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from 'store';
 import getProductCheckoutUrl from 'utils/get-product-checkout-url';
 import SearchPromotionBlock from 'components/search-promotion';

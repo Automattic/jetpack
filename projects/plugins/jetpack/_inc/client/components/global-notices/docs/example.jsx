@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
 import FormCheckbox from 'components/forms/form-checkbox';

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import {
 	JETPACK_SITE_DATA_FETCH,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,

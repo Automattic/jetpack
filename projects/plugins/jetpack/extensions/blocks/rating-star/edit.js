@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { range } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import {
 	AlignmentToolbar,

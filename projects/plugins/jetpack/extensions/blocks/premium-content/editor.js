@@ -1,16 +1,5 @@
-/**
- * External dependencies
- */
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
 import { registerPlugin } from '@wordpress/plugins';
-
-/**
- * Internal dependencies
- */
 import registerJetpackBlock from '../../shared/register-jetpack-block';
 import { name, settings } from '.';
 import {

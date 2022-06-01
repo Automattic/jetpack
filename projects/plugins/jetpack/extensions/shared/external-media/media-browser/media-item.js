@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { useRef, useEffect } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';

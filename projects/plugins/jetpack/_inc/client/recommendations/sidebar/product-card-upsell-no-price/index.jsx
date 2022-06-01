@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';

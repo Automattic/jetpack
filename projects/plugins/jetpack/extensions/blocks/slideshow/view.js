@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { forEach } from 'lodash';
 import domReady from '@wordpress/dom-ready';
 import ResizeObserver from 'resize-observer-polyfill';
-
-/**
- * Internal dependencies
- */
 import createSwiper from './create-swiper';
 import {
 	swiperApplyAria,

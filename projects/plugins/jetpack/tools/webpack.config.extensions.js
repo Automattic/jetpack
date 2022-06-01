@@ -2,9 +2,6 @@
  *WARNING: No ES6 modules here. Not transpiled! ****
  */
 
-/**
- * External dependencies
- */
 const fs = require( 'fs' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
@@ -13,10 +10,6 @@ const webpack = jetpackWebpackConfig.webpack;
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const jsdom = require( 'jsdom' );
-
-/**
- * Internal dependencies
- */
 const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
 
 /**

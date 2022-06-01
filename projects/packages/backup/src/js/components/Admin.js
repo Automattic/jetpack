@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
@@ -14,10 +11,6 @@ import {
 	getRedirectUrl,
 	PricingCard,
 } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import Backups from './Backups';
 import useConnection from '../hooks/useConnection';
 import './admin-style.scss';

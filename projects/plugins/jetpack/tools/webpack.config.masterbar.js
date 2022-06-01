@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const glob = require( 'glob' );
 const path = require( 'path' );

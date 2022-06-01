@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import { extractAttributesFromIframe, URL_REGEX, IFRAME_REGEX } from './utils';
 import './editor.scss';

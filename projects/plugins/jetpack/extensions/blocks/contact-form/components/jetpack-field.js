@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { TextControl, Disabled } from '@wordpress/components';
 import { addFilter } from '@wordpress/hooks';
-
-/**
- * Internal dependencies
- */
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldControls from './jetpack-field-controls';
 

@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,

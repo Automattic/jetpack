@@ -1,11 +1,5 @@
-/* * External dependencies
- */
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { BarChart } from './bar-chart';
 import { RecordCount } from './record-count';
 import { NoticeBox } from './notice-box';

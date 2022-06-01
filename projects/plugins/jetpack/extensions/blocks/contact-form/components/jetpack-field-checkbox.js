@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { BaseControl, PanelBody, ToggleControl } from '@wordpress/components';
 import { InspectorControls } from '@wordpress/block-editor';
 import { withInstanceId } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldControls from './jetpack-field-controls';
 

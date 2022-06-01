@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { __, _n, sprintf } from '@wordpress/i18n';
 import React, { Component, Fragment } from 'react';
-
-/**
- * Internal dependencies
- */
 import Gridicon from './gridicon';
 import Notice from './notice';
 import ScrollButton from './scroll-button';
@@ -17,10 +10,6 @@ import SearchSidebar from './sidebar';
 import { getConstrastingColor } from '../lib/colors';
 import { getAvailableStaticFilters } from '../lib/filters';
 import { MULTISITE_NO_GROUP_VALUE } from '../lib/constants';
-
-/**
- * Style dependencies
- */
 import './search-results.scss';
 
 class SearchResults extends Component {

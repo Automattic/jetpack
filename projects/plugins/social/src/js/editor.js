@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import {
 	PluginSidebar,
@@ -13,10 +10,6 @@ import { dispatch } from '@wordpress/data';
 import { getQueryArg } from '@wordpress/url';
 import domReady from '@wordpress/dom-ready';
 import { SocialIcon } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import './editor.scss';
 import PublicizePanel from './components/panel';
 

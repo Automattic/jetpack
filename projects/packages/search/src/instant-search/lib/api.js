@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
 import stringify from 'fast-json-stable-stringify';
 import lru from 'tiny-lru/lib/tiny-lru.esm';
-
-/**
- * Internal dependencies
- */
 import { getFilterKeys } from './filters';
 import {
 	MINUTE_IN_MILLISECONDS,

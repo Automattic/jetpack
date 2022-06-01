@@ -1,18 +1,7 @@
-/**
- * External dependencies
- */
 import React, { Fragment, useCallback } from 'react';
 import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { sprintf, __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import analytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import Button from 'components/button';

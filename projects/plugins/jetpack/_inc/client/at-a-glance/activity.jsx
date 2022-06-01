@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';

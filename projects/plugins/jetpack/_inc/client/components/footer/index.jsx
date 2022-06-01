@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl, JetpackFooter } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import DevCard from 'components/dev-card';

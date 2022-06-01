@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import classnames from 'classnames/dedupe';
 import TokenList from '@wordpress/token-list';
 

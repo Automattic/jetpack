@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
 import { useMemo, useEffect, useCallback } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { ENTER, SPACE, LEFT, RIGHT } from '@wordpress/keycodes';
-
-/**
- * Internal dependencies
- */
 import './style.scss';
 import './store';
 import PlayerUI from './player-ui';

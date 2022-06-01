@@ -1,14 +1,7 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
 import { TextControl, Button } from '@wordpress/components';
 import { sample } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import { SOURCE_OPENVERSE, PEXELS_EXAMPLE_QUERIES } from '../constants';
 import withMedia from './with-media';
 import MediaBrowser from '../media-browser';

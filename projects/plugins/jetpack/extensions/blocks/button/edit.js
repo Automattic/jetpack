@@ -1,24 +1,13 @@
-/**
- * External dependencies
- */
 import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import {
 	InspectorControls,
 	RichText,
-	__experimentalUseGradient as useGradient,
+	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	withColors,
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import applyFallbackStyles from './apply-fallback-styles';
 import ButtonControls from './controls';
 import { IS_GRADIENT_AVAILABLE } from './constants';

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 import { PopupProps } from './types';

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React, { useEffect } from 'react';
 import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
@@ -16,10 +13,6 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
-
-/**
- * Internal dependencies
- */
 import Summary from '../summary';
 import VulnerabilitiesList from '../vulnerabilities-list';
 import Interstitial from '../interstitial';

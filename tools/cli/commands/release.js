@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import chalk from 'chalk';
 import child_process from 'child_process';
 import inquirer from 'inquirer';
-
-/**
- * Internal dependencies
- */
 import promptForProject from '../helpers/promptForProject.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { allProjects } from '../helpers/projectHelpers.js';

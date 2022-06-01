@@ -1,19 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import { getCurrentVersion, getSiteAdminUrl, isAtomicPlatform } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,

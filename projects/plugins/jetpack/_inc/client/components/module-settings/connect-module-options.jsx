@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { getModuleOption, getModuleOptionValidValues } from 'state/modules';
 import {
 	fetchSettings,

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import chalk from 'chalk';
 import execa from 'execa';
 import fs from 'fs/promises';
@@ -13,10 +10,6 @@ import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
 import pLimit from 'p-limit';
-
-/**
- * Internal dependencies
- */
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import formatDuration from '../helpers/format-duration.js';

@@ -1,12 +1,5 @@
-/**
- * External Dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Internal Dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';

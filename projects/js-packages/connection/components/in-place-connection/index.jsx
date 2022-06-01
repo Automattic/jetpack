@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React, { useEffect, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 /**

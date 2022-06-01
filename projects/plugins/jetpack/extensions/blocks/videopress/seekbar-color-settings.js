@@ -1,18 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { Component } from '@wordpress/element';
-
-/**
- * WordPress dependencies
- */
 import { Button, PanelBody, ToggleControl } from '@wordpress/components';
 import { PanelColorSettings } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
 import { __ } from '@wordpress/i18n';
 
 class SeekbarColorSettings extends Component {

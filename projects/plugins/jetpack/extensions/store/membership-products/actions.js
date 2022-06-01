@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import formatCurrency from '@automattic/format-currency';
-
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { STORE_NAME } from './constants';
 import { onError, onSuccess } from './utils';
 import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';

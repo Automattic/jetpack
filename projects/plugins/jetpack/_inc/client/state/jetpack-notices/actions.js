@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import {
 	JETPACK_ACTION_NOTICES_DISMISS,
 	JETPACK_NOTICES_DISMISS,

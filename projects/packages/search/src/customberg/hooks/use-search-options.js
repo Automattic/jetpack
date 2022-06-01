@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { useMemo } from 'react';
-
-/**
- * WordPress dependencies
- */
 import { useEntityProp } from '@wordpress/core-data';
 
 /**

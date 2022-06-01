@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';

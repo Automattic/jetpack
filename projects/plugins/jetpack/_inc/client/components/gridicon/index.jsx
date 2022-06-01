@@ -7,9 +7,6 @@ DO NOT EDIT THAT FILE! EDIT index-header.jsx and index-footer.jsx instead
 OR if you're looking to change now SVGs get output, you'll need to edit strings in the Gruntfile :)
 !!! */
 
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 
 import React from 'react';

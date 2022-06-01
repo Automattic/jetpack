@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import styles from './style.module.scss';
 
 const DownIcon = () => (

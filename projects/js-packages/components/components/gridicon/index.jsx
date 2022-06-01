@@ -5,9 +5,6 @@ This is a fork of the Jetpack Gridicon code:
 It has been modified to work with Preact, and only includes the icons that we need.
 !!! */
 
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
 import { __ } from '@wordpress/i18n';
 

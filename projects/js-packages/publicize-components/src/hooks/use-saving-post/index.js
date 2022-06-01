@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { usePrevious } from '@wordpress/compose';
 import { store as editorStore } from '@wordpress/editor';
 import { useSelect } from '@wordpress/data';

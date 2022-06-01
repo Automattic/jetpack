@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { Container, Col, Text, Title, getIconBySlug } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { dateI18n } from '@wordpress/date';
-
-/**
- * Internal dependencies
- */
 import styles from './styles.module.scss';
 import useProtectData from '../../hooks/use-protect-data';
 

@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { Component } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import './style.scss';
 import { getLoadContext } from '../../../shared/block-editor-asset-loader';
 

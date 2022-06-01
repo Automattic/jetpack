@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import emailValidator from 'email-validator';
 import { Fragment } from '@wordpress/element';
 

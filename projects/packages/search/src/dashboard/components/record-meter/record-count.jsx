@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 
 /**

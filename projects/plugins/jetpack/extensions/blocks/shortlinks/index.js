@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { get } from 'lodash';
 import { PanelBody } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import ClipboardInput from '../../shared/clipboard-input';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -8,10 +5,6 @@ import { noop } from 'lodash';
 import debugFactory from 'debug';
 import { withRouter } from 'react-router-dom';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import { filterSearch, getSearchTerm } from 'state/search';
 import { isSiteConnected, isCurrentUserLinked } from 'state/connection';

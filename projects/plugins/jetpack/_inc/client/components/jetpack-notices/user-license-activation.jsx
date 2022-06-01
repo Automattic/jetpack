@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import React, { createElement, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
@@ -8,10 +5,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
 import { getSiteAdminUrl } from 'state/initial-state';
 import {

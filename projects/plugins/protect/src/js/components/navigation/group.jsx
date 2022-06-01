@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React, { useState, useCallback, useContext } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import styles from './styles.module.scss';
 import ItemLabel from './label';
 import { NavigationContext } from './use-menu-navigation';

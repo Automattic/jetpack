@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { addQueryArgs } from '@wordpress/url';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 

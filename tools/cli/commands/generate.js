@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import path from 'path';
 import pluralize from 'pluralize';
 import inquirer from 'inquirer';
@@ -10,10 +7,6 @@ import { fileURLToPath } from 'url';
 import semver from 'semver';
 import yaml from 'js-yaml';
 import { execSync } from 'child_process';
-
-/**
- * Internal dependencies
- */
 import { promptForType, promptForName } from '../helpers/promptForProject.js';
 import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
 import {

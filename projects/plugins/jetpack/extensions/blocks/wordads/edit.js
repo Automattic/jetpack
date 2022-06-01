@@ -1,14 +1,7 @@
-/**
- * Internal dependencies
- */
 import AdControls from './controls';
 import { AD_FORMATS } from './constants';
 
 import './editor.scss';
-
-/**
- * Example images
- */
 import rectangleExample from './example_300x250.png';
 import leaderboardExample from './example_728x90.png';
 import mobileLeaderboardExample from './example_320x50.png';

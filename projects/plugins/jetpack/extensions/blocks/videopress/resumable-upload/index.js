@@ -1,11 +1,4 @@
-/**
- * External Dependencies
- */
 import filesize from 'filesize';
-
-/**
- * WordPress dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
 import { escapeHTML } from '@wordpress/escape-html';
 import { getJWT, resumableUploader } from './use-uploader';
@@ -19,10 +12,6 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
-
-/**
- * Internal Dependencies
- */
 import { VideoPressIcon } from '../../../shared/icons';
 import { VideoPressBlockContext } from '../components';
 import './style.scss';

@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { combineReducers } from 'redux';
-
-/**
- * Internal dependencies
- */
 import { hasError, isLoading, response } from './api';
 import { staticFilters, filters, searchQuery, sort } from './query-string';
 import { serverOptions } from './server-options';

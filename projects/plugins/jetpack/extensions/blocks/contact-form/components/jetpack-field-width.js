@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { BaseControl, Button, ButtonGroup } from '@wordpress/components';
 

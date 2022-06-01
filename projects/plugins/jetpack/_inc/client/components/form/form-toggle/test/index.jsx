@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import assert from 'assert';
 import React from 'react';
 import ReactDOM, { TestUtils } from 'react-dom';
 import { unique } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import CompactFormToggle from 'components/forms/form-toggle/compact';
 
 describe( 'CompactFormToggle', function () {

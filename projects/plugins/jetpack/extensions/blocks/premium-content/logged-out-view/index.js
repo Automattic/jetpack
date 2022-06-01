@@ -1,14 +1,7 @@
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import save from './save';
 import deprecated from './deprecated';
 import icon from '../_inc/icon.js';
-
-/**
- * WordPress dependencies
- */
 import { compose, ifCondition } from '@wordpress/compose';
 import { withSelect, select, subscribe } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';

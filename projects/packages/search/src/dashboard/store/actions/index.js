@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import siteSettingActions from './jetpack-settings';
 import sitePlanActions from './site-plan';
 import siteStatsActions from './site-stats';

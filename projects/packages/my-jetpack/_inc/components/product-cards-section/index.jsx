@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { Container, Col } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import BackupCard from './backup-card';
 import ScanCard from './scan-card';
 import AntiSpamCard from './anti-spam-card';

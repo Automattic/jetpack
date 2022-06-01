@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { Gridicon } from '@automattic/jetpack-components';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-instant-search.scss';

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { settings as mapSettings } from './settings.js';
 import edit from './edit';
 import save from './save';

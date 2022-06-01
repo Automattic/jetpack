@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { PanelBody, RangeControl, ToggleControl, ToolbarGroup } from '@wordpress/components';
 

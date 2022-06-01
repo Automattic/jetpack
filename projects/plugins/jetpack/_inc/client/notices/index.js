@@ -1,12 +1,5 @@
-/**
- * External Dependencies
- */
 import debugFactory from 'debug';
 import Emitter from 'mixins/emitter';
-
-/**
- * Internal Dependencies
- */
 import './style.scss';
 
 const debug = debugFactory( 'calypso:notices' );

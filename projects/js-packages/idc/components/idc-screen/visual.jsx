@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import ScreenMain from './screen-main';
 import ScreenNonAdmin from './screen-non-admin';
 import ScreenMigrated from './screen-migrated';
