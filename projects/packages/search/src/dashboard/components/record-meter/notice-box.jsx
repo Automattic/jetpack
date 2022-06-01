@@ -33,7 +33,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 				'jetpack-search-pkg'
 			),
 			message: __(
-				"This can happen if you don't have any posts or pages to index yet.",
+				"This can happen if you don't have any posts or pages yet.",
 				'jetpack-search-pkg'
 			),
 		},
