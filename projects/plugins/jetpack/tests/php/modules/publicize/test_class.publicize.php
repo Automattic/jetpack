@@ -47,6 +47,9 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		global $publicize_ui;
+		$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
+
 		$this->publicize          = publicize_init();
 		$this->publicized_post_id = null;
 
