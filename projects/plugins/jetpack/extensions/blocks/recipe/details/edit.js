@@ -60,8 +60,8 @@ function RecipeDetailsEdit( { className, attributes, setAttributes } ) {
 				</div>
 				<div className="group">
 					<InnerBlocks
-						allowedBlocks={ [ 'core/button' ] }
-						template={ [ [ 'core/button', { text: 'Print Recipe' } ] ] }
+						allowedBlocks={ [ 'jetpack/button' ] }
+						template={ [ [ 'jetpack/button', { text: 'Print Recipe' } ] ] }
 					/>
 				</div>
 			</div>
