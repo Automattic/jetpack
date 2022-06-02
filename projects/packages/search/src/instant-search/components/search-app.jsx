@@ -92,6 +92,8 @@ class SearchApp extends Component {
 		if (
 			prevProps.searchQuery !== this.props.searchQuery ||
 			prevProps.sort !== this.props.sort ||
+			// On visibility change from false to true, we force update queryString to ensure queries are made.
+			( ! prevState.isVisible && this.state.isVisible ) ||
 			// Note the special handling for filters prop, which use object values.
 			stringify( prevProps.filters ) !== stringify( this.props.filters ) ||
 			stringify( prevProps.staticFilters ) !== stringify( this.props.staticFilters )
@@ -186,7 +188,10 @@ class SearchApp extends Component {
 	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
-		this.getResults();
+		// `null` means the searchQuery is cleared or not initialized.
+		if ( this.props.searchQuery !== null ) {
+			this.getResults();
+		}
 
 		if ( this.props.hasActiveQuery && ! this.state.isVisible ) {
 			this.showResults();
