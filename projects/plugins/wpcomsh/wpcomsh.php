@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.9.16
+ * Version: 2.9.17
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.9.16' );
+define( 'WPCOMSH_VERSION', '2.9.17' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -272,16 +272,31 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 }
 
 /**
- * Remove AMP WP Admin notices
+ * The AMP plugin displays an error message in the dashboard when
+ * it's installed in the wrong directory (i.e. not `amp`).
+ *
+ * When the plugin is managed by us, the AMP plugin incorrectly thinks it's
+ * been installed in the wrong directory due to symlinking. So we disable
+ * the error message when the installation directory is correct and managed
+ * by us.
+ *
+ * However, some users might do it wrong and that could affect their
+ * ability to have the plugin updated automatically.
+ * We should keep the warning if that's the case.
+ *
+ * See https://github.com/Automattic/wp-calypso/issues/64104.
  *
  * @return void
  */
-function wpcomsh_remove_amp_wpadmin_notices() {
-	remove_action( 'admin_notices', '_amp_incorrect_plugin_slug_admin_notice' );
+function wpcomsh_maybe_remove_amp_incorrect_installation_notice() {
+	if ( wpcomsh_is_managed_plugin( 'amp/amp.php' ) ) {
+		remove_action( 'admin_notices', '_amp_incorrect_plugin_slug_admin_notice' );
+	}
 }
+
 add_action(
 	'admin_head',
-	'wpcomsh_remove_amp_wpadmin_notices',
+	'wpcomsh_maybe_remove_amp_incorrect_installation_notice',
 	9 // Priority 9 to run before default priority
 );
 
