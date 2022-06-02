@@ -171,7 +171,7 @@ class Webhooks {
 	 *
 	 * @return void
 	 */
-	private function handle_connect_url_redirect() {
+	public function handle_connect_url_redirect() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 		$from = ! empty( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : 'iframe';
 
@@ -188,13 +188,13 @@ class Webhooks {
 				$connect_url .= '&notes_iframe';
 			}
 			wp_safe_redirect( $connect_url );
-			exit;
+			$this->do_exit();
 		} else {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			if ( ! isset( $_GET['calypso_env'] ) ) {
 				( new CookieState() )->state( 'message', 'already_authorized' );
 				wp_safe_redirect( $redirect );
-				exit;
+				$this->do_exit();
 			} else {
 				$connect_url = add_query_arg(
 					array(
@@ -204,7 +204,7 @@ class Webhooks {
 					$this->connection->get_authorization_url()
 				);
 				wp_safe_redirect( $connect_url );
-				exit;
+				$this->do_exit();
 			}
 		}
 	}
