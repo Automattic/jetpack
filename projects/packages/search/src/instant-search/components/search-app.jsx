@@ -79,7 +79,7 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
-		// The conditions can only occur in the Customberg preview context.
+		// The condition can only occur in the Customberg preview context.
 		if ( this.props.initialShowResults && this.props.initialIsVisible ) {
 			this.getResults();
 		}
@@ -186,7 +186,7 @@ class SearchApp extends Component {
 	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
-		// `null` means the searchQuery is cleared or not initialized.
+		// `null` means the searchQuery is reset or not initialized.
 		if ( this.props.searchQuery !== null ) {
 			this.getResults();
 		}
