@@ -3,6 +3,11 @@ import RecordMeterBar, { RecordMeterBarProps } from '../index';
 export default {
 	title: 'JS Packages/Components/RecordMeterBar',
 	component: RecordMeterBar,
+	argTypes: {
+		sortByCount: {
+			control: { type: 'select', options: [ undefined, 'ascending', 'descending' ] },
+		},
+	},
 };
 
 const Template = args => <RecordMeterBar { ...args } />;
