@@ -79,6 +79,9 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
+		if ( this.props.initialShowResults && this.props.initialIsVisible ) {
+			this.getResults();
+		}
 		if ( this.props.hasActiveQuery ) {
 			this.showResults();
 		}
