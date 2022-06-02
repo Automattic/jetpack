@@ -38,7 +38,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 			),
 		},
 		4: {
-			id: 5,
+			id: 4,
 			header: __(
 				"You're close to the maximum records for this billing tier",
 				'jetpack-search-pkg'
@@ -76,7 +76,7 @@ export function NoticeBox( props ) {
 	const NOTICES = getNotices( props.tierMaximumRecords );
 	const [ showNotice, setShowNotice ] = useState( true );
 
-	// deal with sessionStorage for ensuring dismissed notice boxs are not re-displayed
+	// deal with sessionStorage for ensuring dismissed notice boxes are not re-displayed
 	const dismissedNoticesString = sessionStorage.getItem( DISMISSED_NOTICES ) ?? '';
 
 	const DATA_NOT_VALID = '1',

@@ -59,7 +59,7 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect( screen.getByText( /close to the max amount of records/i ) ).toBeVisible();
+		expect( screen.getByText( /close to the maximum records/i ) ).toBeVisible();
 	} );
 } );
 
