@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { range } from 'lodash';
 import { shallow } from 'enzyme';
 
-/**
- * Internal dependencies
- */
 import Mosaic from '..';
 import * as imageSets from '../../test/fixtures/image-sets';
 

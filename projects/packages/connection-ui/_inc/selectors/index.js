@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import APISelectors from './api';
 import assetsSelectors from './assets';
 import IDC from './idc';

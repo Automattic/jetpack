@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import chai from 'chai';
-
-/**
- * Internal dependencies
- */
 import formatDuration from '../../../helpers/format-duration.js';
 
 const tests = {

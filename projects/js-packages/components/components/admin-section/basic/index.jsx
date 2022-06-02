@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import styles from './style.module.scss';
 
 /**

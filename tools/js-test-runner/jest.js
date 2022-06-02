@@ -1,6 +1,6 @@
-const { run } = require( 'jest' );
-const program = require( 'commander' );
 const path = require( 'path' );
+const program = require( 'commander' );
+const { run } = require( 'jest' );
 
 process.env.NODE_ENV = 'test';
 

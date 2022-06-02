@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import styles from './styles.module.scss';
 
 const ConnectionItem = props => {

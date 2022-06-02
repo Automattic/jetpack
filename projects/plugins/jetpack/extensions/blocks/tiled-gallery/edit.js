@@ -1,16 +1,9 @@
-/**
- * External Dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
-import { filter, get, pick } from 'lodash';
 import {
 	BlockControls,
 	InspectorControls,
 	MediaPlaceholder,
 	MediaUpload,
 } from '@wordpress/block-editor';
-import { mediaUpload } from '@wordpress/editor';
 import {
 	DropZone,
 	FormFileUpload,
@@ -21,12 +14,12 @@ import {
 	ToolbarItem,
 	withNotices,
 } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import FilterToolbar from './filter-toolbar';
-import Layout from './layout';
+import { mediaUpload } from '@wordpress/editor';
+import { Component, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { filter, get, pick } from 'lodash';
+import { getActiveStyleName } from '../../shared/block-styles';
+import EditButton from '../../shared/edit-button';
 import {
 	ALLOWED_MEDIA_TYPES,
 	LAYOUT_CIRCLE,
@@ -34,9 +27,9 @@ import {
 	MAX_COLUMNS,
 	MAX_ROUNDED_CORNERS,
 } from './constants';
-import { getActiveStyleName } from '../../shared/block-styles';
+import FilterToolbar from './filter-toolbar';
+import Layout from './layout';
 import { icon } from '.';
-import EditButton from '../../shared/edit-button';
 
 const linkOptions = [
 	{ value: 'attachment', label: __( 'Attachment Page', 'jetpack' ) },

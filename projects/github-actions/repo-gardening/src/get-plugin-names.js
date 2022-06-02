@@ -1,8 +1,5 @@
 /* global GitHub */
 
-/**
- * Internal dependencies
- */
 const getLabels = require( './get-labels' );
 
 /**

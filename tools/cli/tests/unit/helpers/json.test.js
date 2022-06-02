@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import chai from 'chai';
-
-/**
- * Internal dependencies
- */
 import { readComposerJson, readPackageJson } from '../../../helpers/json.js';
 
 describe( 'readComposerJson', function () {

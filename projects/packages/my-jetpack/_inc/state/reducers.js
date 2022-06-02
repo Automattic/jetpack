@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { combineReducers } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import {
 	SET_PURCHASES,
 	SET_PURCHASES_IS_FETCHING,

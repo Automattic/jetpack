@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { __experimentalGetSettings } from '@wordpress/date'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 
 /**

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import './stat-block-style.scss';
 
 /* eslint react/react-in-jsx-scope: 0 */

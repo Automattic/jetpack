@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 const fs = require( 'fs' );
-const moment = require( 'moment' );
 const path = require( 'path' );
-
-/**
- * Internal dependencies
- */
+const moment = require( 'moment' );
 const debug = require( '../../debug' );
 const getAffectedChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
 const getFiles = require( '../../get-files' );

@@ -2,13 +2,8 @@
  * The code below is pulled from Gutenberg embed block, until we can use it directly from Gutenberg
  * https://github.com/WordPress/gutenberg/blob/e4b6d70f129a745a0cc7dc556d41a44bdab7b0ca/packages/block-library/src/embed/util.js#L177
  */
-
-/**
- * Internal dependencies
- */
-import { ASPECT_RATIOS } from './constants';
-
 import classnames from 'classnames';
+import { ASPECT_RATIOS } from './constants';
 
 /**
  * Removes all previously set aspect ratio related classes and return the rest

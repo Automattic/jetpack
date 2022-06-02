@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import restApi from '@automattic/jetpack-api';
 
 const SET_CONNECTION_STATUS = 'SET_CONNECTION_STATUS';

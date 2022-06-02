@@ -1,20 +1,9 @@
-/**
- * WordPress dependencies
- */
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
-import save from './save';
-import icon from './icon';
-import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 import { getIconColor } from '../../shared/block-icons';
-
-/**
- * Example Images
- */
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
+import edit from './edit';
+import icon from './icon';
+import save from './save';
 import storyExample1 from './story_example-1.png';
 
 const attributes = {

@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console, no-process-exit */
-const isJetpackDraftMode = require( './jetpack-draft' );
-const loadIgnorePatterns = require( '../load-eslint-ignore.js' );
 const spawnSync = require( 'child_process' ).spawnSync;
-const chalk = require( 'chalk' );
 const fs = require( 'fs' );
 const path = require( 'path' );
+const chalk = require( 'chalk' );
 const glob = require( 'glob' );
+const loadIgnorePatterns = require( '../load-eslint-ignore.js' );
+const isJetpackDraftMode = require( './jetpack-draft' );
+
 let phpcsExcludelist = null;
 let eslintExcludelist = null;
 let eslintIgnore = null;

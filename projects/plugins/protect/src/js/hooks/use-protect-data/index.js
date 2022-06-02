@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from '../../state/store';
 
 let hasUncheckedItems = false;

@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
+import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	USER_TRACKING_SETTINGS_FETCH,
@@ -15,7 +9,6 @@ import {
 	USER_TRACKING_SETTINGS_UPDATE_FAIL,
 	USER_TRACKING_SETTINGS_UPDATE_SUCCESS,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
 
 export const fetchTrackingSettings = () => {
 	return dispatch => {

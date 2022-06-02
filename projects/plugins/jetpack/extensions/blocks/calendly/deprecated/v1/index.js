@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import colorValidator from '../../../../shared/colorValidator';
 
 /**

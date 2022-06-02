@@ -1,8 +1,13 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { isBlobURL } from '@wordpress/blob';
+import {
+	BlockControls,
+	InspectorControls,
+	MediaUpload,
+	MediaUploadCheck,
+	RichText,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import {
 	BaseControl,
 	Button,
@@ -17,31 +22,19 @@ import {
 } from '@wordpress/components';
 import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import {
-	BlockControls,
-	InspectorControls,
-	MediaUpload,
-	MediaUploadCheck,
-	RichText,
-	useBlockProps,
-} from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, pencil } from '@wordpress/icons';
 import classnames from 'classnames';
 import { get, indexOf } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { VideoPressBlockProvider } from './components';
+import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
-import { getVideoPressUrl } from './url';
-import { getClassNames } from './utils';
 import ResumableUpload from './resumable-upload';
 import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
-import { VideoPressBlockProvider } from './components';
-import { VIDEO_PRIVACY } from './constants';
+import { getVideoPressUrl } from './url';
+import { getClassNames } from './utils';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 

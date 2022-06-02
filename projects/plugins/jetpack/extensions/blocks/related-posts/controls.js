@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { PanelBody, RangeControl, ToggleControl, ToolbarGroup } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 export const MAX_POSTS_TO_SHOW = 6;
 

@@ -1,7 +1,6 @@
-const core = require( '@actions/core' );
 const fs = require( 'fs' );
+const core = require( '@actions/core' );
 const yaml = require( 'js-yaml' );
-
 const reporter = require( './reporter.js' );
 const Requirement = require( './requirement.js' );
 
