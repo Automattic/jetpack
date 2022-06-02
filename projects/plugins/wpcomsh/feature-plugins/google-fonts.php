@@ -25,7 +25,7 @@ function wpcomsh_activate_google_fonts_module() {
 		Jetpack::activate_module( 'google-fonts', false, false );
 	}
 }
-add_action( 'init', 'wpcomsh_activate_google_fonts_module', 0, 0 );
+add_action( 'setup_theme', 'wpcomsh_activate_google_fonts_module' );
 
 /**
  * Remove Google Fonts from the old Module list.
