@@ -248,14 +248,27 @@ class Test_Blocks extends TestCase {
 	}
 
 	/**
-	 * Test that we can detect an FSE theme using the provided core function, gutenberg_is_fse_theme.
+	 * Test that we can detect an FSE theme using the provided gutenberg_is_fse_theme function.
 	 *
 	 * @since 9.8.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
 	 */
-	public function test_is_fse_theme_via_core_function() {
+	public function test_is_fse_theme_via_gutenberg_function() {
 		Functions\when( 'gutenberg_is_fse_theme' )->justReturn( true );
+
+		$this->assertTrue( Blocks::is_fse_theme() );
+	}
+
+	/**
+	 * Test that we can detect an FSE theme using the provided wp_is_block_theme function.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 */
+	public function test_is_fse_theme_via_core_function() {
+		Functions\when( 'wp_is_block_theme' )->justReturn( true );
 
 		$this->assertTrue( Blocks::is_fse_theme() );
 	}
