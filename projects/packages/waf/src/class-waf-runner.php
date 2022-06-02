@@ -91,7 +91,12 @@ class Waf_Runner {
 		if ( defined( 'ABSPATH' ) ) {
 			// We can't use the Modules class here because it returns an empty array since this function runs earlier than most of the Jetpack setup: https://github.com/Automattic/jetpack/commit/e8b77065ba947f531a1d7e0fd48fcc1781e5bb1b#diff-6cac390ffca47817d6b7787b21008ee3a0d650287812d3c0ab85a3a12ae1e5d1R245
 			$active_modules = Jetpack_Options::get_option( 'active_modules' );
-			return in_array( 'waf', $active_modules, true );
+
+			if ( ! empty( $active_modules ) ) {
+				return in_array( 'waf', $active_modules, true );
+			}
+
+			return false;
 		}
 
 		return true;
