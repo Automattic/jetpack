@@ -27,15 +27,7 @@ class Jetpack_Recipe_Block {
 	 * @return string
 	 */
 	public static function render( $attr, $content ) {
-		Jetpack_Gutenberg::load_styles_as_required( 'recipe' );
-
-		wp_enqueue_script(
-			'recipe-print',
-			plugins_url( 'recipe-print.js', __FILE__ ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
+		Jetpack_Gutenberg::load_assets_as_required( 'recipe' );
 
 		$find    = array(
 			'/(class="wp-block-jetpack-recipe(\s|"))/',
