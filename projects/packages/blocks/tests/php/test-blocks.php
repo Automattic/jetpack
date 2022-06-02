@@ -225,7 +225,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.8.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 * @covers Automattic\Jetpack\Blocks::is_fse_theme
 	 */
 	public function test_is_not_fse_theme() {
 		$this->assertFalse( Blocks::is_fse_theme() );
@@ -236,7 +236,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.8.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 * @covers Automattic\Jetpack\Blocks::is_fse_theme
 	 */
 	public function test_is_fse_theme_via_filter() {
 		add_filter( 'jetpack_is_fse_theme', '__return_true' );
@@ -252,7 +252,7 @@ class Test_Blocks extends TestCase {
 	 *
 	 * @since 9.8.0
 	 *
-	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 * @covers Automattic\Jetpack\Blocks::is_fse_theme
 	 */
 	public function test_is_fse_theme_via_gutenberg_function() {
 		Functions\when( 'gutenberg_is_fse_theme' )->justReturn( true );
