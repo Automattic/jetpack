@@ -1225,9 +1225,6 @@ add_filter( 'wp_get_attachment_metadata', 'wpcomsh_jetpack_api_fix_unserializabl
 // Jetpack for Atomic sites are always production version
 add_filter( 'jetpack_development_version', '__return_false' );
 
-// Initialize REST API
-add_action( 'rest_api_init', 'wpcomsh_rest_api_init' );
-
 // Remove WordPress 5.2+ Site Health Tests that are not a good fit for Atomic
 add_filter( 'site_status_tests', 'wpcomsh_site_status_tests_disable' );
 
