@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+fixed the way we check if the waf module is enabled
