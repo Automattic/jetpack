@@ -658,10 +658,9 @@ class VideoPress_Player {
 				case 'controls':
 				case 'playsinline':
 				case 'useAverageColor':
-					// phpcs:disable WordPress.PHP.StrictInArray.MissingTrueStrict -- strict comparison will break this feature
-					if ( in_array( $value, array( 1, 'true' ) ) ) {
+					if ( in_array( $value, array( true, 1, 'true' ), true ) ) {
 						$videopress_options[ $option ] = true;
-					} elseif ( in_array( $value, array( 0, 'false' ) ) ) {
+					} elseif ( in_array( $value, array( false, 0, 'false' ), true ) ) {
 						$videopress_options[ $option ] = false;
 					}
 					// phpcs:enable
