@@ -119,6 +119,7 @@ In order for WordPress to load the test site correctly, you'll need to access th
   - Note: This command may ask for a GitHub password. Use a [Personal Access Token](https://github.com/settings/tokens/) (with at least repo scope) instead. If your previous token has expired, update it locally in `~/.config/hub`.
 - You can view your [successful release here](https://github.com/Automattic/wpcomsh/releases).
 - New versions are deployed when our monitoring detects its release.
+  - Note: You can monitor [#atomic](https://a8c.slack.com/archives/C7YPW6K40) channel to see when the new version is deployed.
 
 ### Deploying new languages (optional, and mostly Atomic team)
 
