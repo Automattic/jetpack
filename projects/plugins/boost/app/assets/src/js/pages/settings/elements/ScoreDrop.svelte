@@ -26,12 +26,12 @@
 		} );
 
 		// Close the currently open prompt.
-		dispatchScore( 'dismiss-score' );
+		dispatchScore( 'dismiss' );
 	}
 </script>
 
 <div class="jb-rating-card" transition:slideRightTransition>
-	<CloseButton on:click={() => dispatchScore( 'dismiss-score' )} />
+	<CloseButton on:click={() => dispatchScore( 'dismiss' )} />
 	<h3 class="jb-rating-card__headline">
 		{
 			__( 'Your site score dropped', 'jetpack-boost' )
