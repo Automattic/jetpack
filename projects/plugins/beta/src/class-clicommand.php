@@ -122,7 +122,8 @@ class CliCommand extends WP_CLI_Command {
 	 *
 	 * ## Examples
 	 *
-	 *     wp jetpack-beta activate jetpack master
+	 *     wp jetpack-beta activate jetpack trunk (if trunk is the plugin default branch)
+	 *     wp jetpack-beta activate jetpack master (if master if the plugin default branch)
 	 *     wp jetpack-beta activate jetpack stable
 	 *     wp jetpack-beta activate jetpack rc
 	 *     wp jetpack-beta activate jetpack 9.8
