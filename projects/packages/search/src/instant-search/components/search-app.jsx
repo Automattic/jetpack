@@ -186,10 +186,7 @@ class SearchApp extends Component {
 	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
-		// `null` means the searchQuery is reset or not initialized.
-		if ( this.props.searchQuery !== null ) {
-			this.getResults();
-		}
+		this.getResults();
 
 		if ( this.props.hasActiveQuery && ! this.state.isVisible ) {
 			this.showResults();
