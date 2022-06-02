@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Disable the WAF module on Atomic
