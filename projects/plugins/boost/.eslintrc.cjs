@@ -1,9 +1,6 @@
-// eslint-disable-next-line import/no-extraneous-dependencies, @typescript-eslint/no-var-requires
+// eslint-disable-next-line import/no-extraneous-dependencies
 const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 
-/**
- * @type {import("eslint").Linter.Config}
- */
 module.exports = {
 	root: true,
 	extends: [
