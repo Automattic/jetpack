@@ -1,13 +1,10 @@
-@import "~@wordpress/base-styles/_breakpoints";
 /**
- * The following styles get applied both on the front of your site
- * and in the editor.
- *
- * Replace them with your own styles or remove the file completely.
+ * Shared Editor and Front End styles for Google Docs
  */
+@import "~@wordpress/base-styles/_breakpoints";
 
 /* style the error message */
-.wp-block-p2-embed {
+.wp-block-jetpack-google-docs-embed {
 	border: 1px solid #ccc;
 	/* if this block appears in the row block, add a flex-basis, because padding on flex items is resolved against the inline size of their containing block, so the browser sees padding-bottom: x% as 0 */
 	flex-basis: 50%;
@@ -41,7 +38,7 @@
 
 	&.ar-50 {
 
-		.wp-block-p2-embed__wrapper {
+		.wp-block-jetpack-google-docs-embed__wrapper {
 
 			&::before {
 				padding-top: 50%;
@@ -51,7 +48,7 @@
 
 	&.ar-100 {
 
-		.wp-block-p2-embed__wrapper {
+		.wp-block-jetpack-google-docs-embed__wrapper {
 
 			&::before {
 				padding-top: 100%;
@@ -60,9 +57,12 @@
 	}
 
 	&__wrapper {
+		position: relative;
 
 		&::before {
-			padding-top: 70%;
+			content: "";
+			display: block;
+			padding-top: 50%;
 		}
 
 		&--error {
@@ -104,10 +104,42 @@
 			}
 		}
 	}
+
+	.loader {
+		background-color: white;
+		display: none;
+		height: 100%;
+		position: absolute;
+		text-align: center;
+		top: 0;
+		width: 100%;
+		z-index: 99;
+
+		&.is-active {
+			display: block;
+		}
+
+		span {
+			position: relative;
+			top: 50%;
+			transform: translateY(-50%);
+		}
+	}
+
+	iframe {
+		max-width: 100%;
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		height: 100%;
+		width: 100%;
+	}
 }
 
 .editor-styles-wrapper {
-	.wp-block-p2-embed {
+	.wp-block-jetpack-google-docs-embed {
 
 		figure {
 			margin: 0;
@@ -117,11 +149,11 @@
 	[data-align="left"],
 	[data-align="right"] {
 
-		.wp-block-p2-embed {
+		.wp-block-jetpack-google-docs-embed {
 			width: auto;
 		}
 
-		.wp-block-p2-embed__wrapper::before {
+		.wp-block-jetpack-google-docs-embed__wrapper::before {
 			content: none;
 		}
 
@@ -132,14 +164,14 @@
 
 	[data-align="left"] {
 
-		.wp-block-p2-embed {
+		.wp-block-jetpack-google-docs-embed {
 			margin-right: 20px;
 		}
 	}
 
 	[data-align="right"] {
 
-		.wp-block-p2-embed {
+		.wp-block-jetpack-google-docs-embed {
 			margin-left: 20px;
 		}
 	}
@@ -148,7 +180,7 @@
 /* AMP pages */
 html[amp] {
 
-    .wp-block-p2-embed {
+    .wp-block-jetpack-google-docs-embed {
 
         &.alignleft,
         &.alignright {

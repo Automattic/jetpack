@@ -1,6 +1,9 @@
-@import "~@wordpress/base-styles/_breakpoints";
+/**
+ * Editor styles for Google Docs
+ */
+ @import './view.scss';
 
-.wp-block-p2-embed {
+.wp-block-jetpack-google-docs-embed {
 	margin: 0 0 1.5em 0;
 	clear: both;
 
@@ -23,24 +26,16 @@
 		opacity: 0;
 	}
 
-	.loader {
-		background-color: white;
-		display: none;
-		height: 100%;
-		position: absolute;
-		text-align: center;
-		top: 0;
-		width: 100%;
-		z-index: 99;
+	&-embed-form-editor {
+		margin: 0;
 
-		&.is-active {
-			display: block;
-		}
-
-		span {
-			position: relative;
-			top: 50%;
-			transform: translateY(-50%);
+		textarea {
+			margin-right: 1px;
+			flex: 1;
+			height: 36px;
+			padding-top: 9px;
+			font-family: inherit;
+			font-size: inherit;
 		}
 	}
 

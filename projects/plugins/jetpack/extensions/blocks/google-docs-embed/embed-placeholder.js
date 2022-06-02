@@ -4,11 +4,6 @@
 import classnames from 'classnames';
 
 /**
- * Internal dependencies
- */
-import './style.scss';
-
-/**
  * WordPress dependencies
  */
 import { _x } from '@wordpress/i18n';
@@ -27,7 +22,7 @@ const EmbedPlaceHolder = ( {
 	updateUrl,
 } ) => {
 	return (
-		<div className={ classnames( 'wp-block-p2-embed-editmode', className ) }>
+		<div className={ classnames( 'wp-block-jetpack-google-docs-embed-editmode', className ) }>
 			<Placeholder icon={ icon } label={ label } instructions={ instructions } notices={ notices }>
 				<form onSubmit={ onSubmit }>
 					<input

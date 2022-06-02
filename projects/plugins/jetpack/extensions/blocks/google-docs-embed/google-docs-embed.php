@@ -10,6 +10,9 @@
 namespace Automattic\Jetpack\Extensions\GoogleDocsEmbed;
 
 use Automattic\Jetpack\Blocks;
+use Jetpack_Gutenberg;
+
+const FEATURE_NAME = 'google-docs-embed';
 
 /**
  * Add custom rest endpoints
@@ -56,23 +59,9 @@ function check_document_visibility( $request ) {
 function register_blocks() {
 
 	Blocks::jetpack_register_block(
-		'jetpack/google-docs-embed',
+		'jetpack/' . FEATURE_NAME,
 		array(
-			'render_callback' => __NAMESPACE__ . '\docs_render_callback',
-		)
-	);
-
-	Blocks::jetpack_register_block(
-		'jetpack/google-sheets-embed',
-		array(
-			'render_callback' => __NAMESPACE__ . '\sheets_render_callback',
-		)
-	);
-
-	Blocks::jetpack_register_block(
-		'jetpack/google-slides-embed',
-		array(
-			'render_callback' => __NAMESPACE__ . '\slides_render_callback',
+			'render_callback' => __NAMESPACE__ . '\render_callback',
 		)
 	);
 }
@@ -81,16 +70,29 @@ add_action( 'init', __NAMESPACE__ . '\register_blocks' );
 /**
  * The block rendering callback.
  *
- * @param [type] $attributes attributes.
- * @param [type] $content The block content for this block.
- * @param string $pattern The pattern to match.
+ * @param array $attributes attributes.
  * @return string
  */
-function render_callback( $attributes, $content, $pattern = '' ) {
+function render_callback( $attributes ) {
 
-	$url          = $attributes['url'] ?? '';
-	$align        = $attributes['align'] ?? '';
-	$aspect_ratio = $attributes['aspectRatio'] ?? '';
+	$url          = empty( $attributes['url'] ) ? '' : map_gsuite_url( $attributes['url'] );
+	$align        = empty( $attributes['align'] ) ? '' : $attributes['align'];
+	$aspect_ratio = empty( $attributes['aspectRatio'] ) ? '' : $attributes['aspectRatio'];
+
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+
+	switch ( $attributes['variation'] ) {
+		case 'google-docs':
+		default:
+			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:document)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
+			break;
+		case 'google-sheets':
+			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:spreadsheets)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
+			break;
+		case 'google-slides':
+			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:presentation)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
+			break;
+	}
 
 	// The class name that affects alignment is called alignwide, alignfull, etc
 	$align        = $align ? " align$align" : '';
@@ -122,7 +124,7 @@ function render_callback( $attributes, $content, $pattern = '' ) {
 
 			$iframe_markup = '';
 			$amp_markup    = sprintf(
-				'<p class="wp-block-p2-embed__error-msg"><a target="_blank" href="%s">%s %s</a>.</p>',
+				'<p class="wp-block-jetpack-google-docs-embed__error-msg"><a target="_blank" href="%s">%s %s</a>.</p>',
 				esc_url( $url ),
 				esc_html__( 'Tap to open embedded document in', 'jetpack' ),
 				esc_html( $type )
@@ -133,16 +135,16 @@ function render_callback( $attributes, $content, $pattern = '' ) {
 		}
 	}
 
-	$block_classes = [
+	$block_classes = array(
 		$align,
 		$aspect_ratio,
-	];
+	);
 
 	$block_classes = array_filter( $block_classes );
 
 	$html =
-		'<figure class="wp-block-p2-embed' . esc_attr( implode( $block_classes ) ) . '">' .
-			'<div class="wp-block-p2-embed__wrapper">' .
+		'<figure class="wp-block-jetpack-google-docs-embed' . esc_attr( implode( $block_classes ) ) . '">' .
+			'<div class="wp-block-jetpack-google-docs-embed__wrapper">' .
 				$loading_markup .
 				$amp_markup .
 				$iframe_markup .
@@ -181,60 +183,3 @@ function map_gsuite_url( $url ) {
 
 	return "{$matches[1]}://$matches[2]/$matches[3]/d/$matches[4]/preview";
 }
-
-/**
- * Render Google Document block markup.
- *
- * @param array  $attributes Block attributes.
- * @param string $content    Block content.
- *
- * @return string
- */
-function docs_render_callback( $attributes, $content ) {
-
-	// Map the doc URL.
-	$attributes['url'] = empty( $attributes['url'] ) ? '' : map_gsuite_url( $attributes['url'] );
-
-	$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:document)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
-
-	$classes = Blocks::classes( 'jetpack/google-docs-embed', $attributes );
-
-	return render_callback( $attributes, $content, $pattern );
-}
-
-/**
- * Render Google Sheets block markup.
- *
- * @param array  $attributes Block attributes.
- * @param string $content    Block content.
- *
- * @return string
- */
-function sheets_render_callback( $attributes, $content ) {
-
-	// Map the sheet URL.
-	$attributes['url'] = empty( $attributes['url'] ) ? '' : map_gsuite_url( $attributes['url'] );
-
-	$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:spreadsheets)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
-
-	return render_callback( $attributes, $content, $pattern );
-}
-
-/**
- * Render Google Slides block markup.
- *
- * @param array  $attributes Block attributes.
- * @param string $content    Block content.
- *
- * @return string
- */
-function slides_render_callback( $attributes, $content ) {
-
-	// Map the presentation URL.
-	$attributes['url'] = empty( $attributes['url'] ) ? '' : map_gsuite_url( $attributes['url'] );
-
-	$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:presentation)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
-
-	return render_callback( $attributes, $content, $pattern );
-}
-

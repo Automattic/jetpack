@@ -1,8 +1,6 @@
 /**
  * Internal dependencies
  */
-import './style.scss';
-
 /**
  * WordPress dependencies
  */
@@ -22,8 +20,8 @@ const Preview = props => {
 		/* this extra wrapper div gets max-width set */
 		<figure>
 			{ isPrivateURL ? (
-				<div className="wp-block-p2-embed__wrapper wp-block-p2-embed__wrapper--error">
-					<p className="wp-block-p2-embed__error-msg">
+				<div className="wp-block-jetpack-google-docs-embed__wrapper wp-block-jetpack-google-docs-embed__wrapper--error">
+					<p className="wp-block-jetpack-google-docs-embed__error-msg">
 						{ __( 'This Google Document is private.', 'jetpack' ) }
 						<br />
 						<br />
@@ -33,7 +31,7 @@ const Preview = props => {
 					</p>
 				</div>
 			) : (
-				<div className="wp-block-p2-embed__wrapper">
+				<div className="wp-block-jetpack-google-docs-embed__wrapper">
 					<iframe
 						src={ url }
 						allowFullScreen={ allowFullScreen }
@@ -51,7 +49,7 @@ const Preview = props => {
 			{ /* eslint-disable jsx-a11y/no-static-element-interactions */ }
 			{ ! interactive && (
 				<div
-					className="wp-block-p2-embed__interactive-overlay"
+					className="wp-block-jetpack-google-docs-embed__interactive-overlay"
 					onMouseUp={ () => toggleInteractive( true ) }
 				/>
 			) }

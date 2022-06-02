@@ -1,7 +1,6 @@
 /**
  * Internal dependencies
  */
-import './style.scss';
 import Preview from './preview';
 import EmbedPlaceHolder from './embed-placeholder';
 
@@ -20,13 +19,13 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Render children if there are any, otherwise show the default preview (iframe)
  *
- * @param {JSX.Element} children
- * @param {Function}    mapUrl
- * @param {string}      url
- * @param {string}      className
- * @param {boolean}     interactive
- * @param {Function}    toggleInteractive
- * @returns {JSX.Element} preview element
+ * @param {Element}     children
+ * @param {Function}    children.mapUrl
+ * @param {string}      children.url
+ * @param {string}      children.className
+ * @param {boolean}     children.interactive
+ * @param {Function}    children.toggleInteractive
+ * @returns {Element} preview element
  */
 const RenderPreview = ( {
 	children,
@@ -137,7 +136,7 @@ const Edit = props => {
 	}, [ isSelected ] );
 	const ref = useRef( null );
 	const blockProps = useBlockProps( {
-		className: 'wp-block-p2-embed',
+		className: 'wp-block-jetpack-google-docs-embed',
 		ref,
 	} );
 	const { title } = getBlockType( props.name );

@@ -6,9 +6,9 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import './view.scss';
+import './editor.scss';
 import edit from './edit';
-import save from '../p2-embed/save'; // TODO: Replace
+import save from './save'; // TODO: Replace
 import transforms from './transforms';
 
 // Icons.
@@ -19,9 +19,6 @@ import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'google-docs-embed';
 export const type = 'document';
-export const patterns = [
-	/^(http|https):\/\/(docs\.google.com)\/document\/d\/([A-Za-z0-9_-]+).*?$/i,
-];
 
 /**
  * Google Document block vars.
@@ -113,7 +110,7 @@ export const settings = {
 			isDefault: true,
 			title: GOOGLE_DOCUMENT.title,
 			description: GOOGLE_DOCUMENT.description,
-			icon: GOOGLE_DOCUMENT.description,
+			icon: GOOGLE_DOCUMENT.icon,
 			attributes: { variation: 'google-docs' },
 		},
 		{
@@ -121,7 +118,7 @@ export const settings = {
 			isDefault: true,
 			title: GOOGLE_SPREADSHEET.title,
 			description: GOOGLE_SPREADSHEET.description,
-			icon: GOOGLE_SPREADSHEET.description,
+			icon: GOOGLE_SPREADSHEET.icon,
 			attributes: { variation: 'google-sheets' },
 		},
 		{
@@ -129,11 +126,11 @@ export const settings = {
 			isDefault: true,
 			title: GOOGLE_SLIDE.title,
 			description: GOOGLE_SLIDE.description,
-			icon: GOOGLE_SLIDE.description,
+			icon: GOOGLE_SLIDE.icon,
 			attributes: { variation: 'google-slides' },
 		},
 	],
 	edit,
 	save,
-	transforms: transforms( name, patterns ),
+	transforms: transforms( name ),
 };

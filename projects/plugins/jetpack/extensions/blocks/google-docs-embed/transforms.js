@@ -5,7 +5,9 @@ import { createBlock } from '@wordpress/blocks';
 import { renderToString } from '@wordpress/element';
 
 const transforms = name => {
-	const patterns = [ /^(http|https):\/\/(docs\.google.com)\/document\/d\/([A-Za-z0-9_-]+).*?$/i ]; // TODO: Update Patterns
+	const patterns = [
+		/^(http|https):\/\/(docs\.google.com)\/(spreadsheets|document|presentation)\/d\/([A-Za-z0-9_-]+).*?$/i,
+	];
 	return {
 		from: [
 			{
