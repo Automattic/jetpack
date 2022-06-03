@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { Path, SVG, Rect, G } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import styles from './styles.module.scss';
 
 /**

@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { isUrl } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
 import colorValidator from '../../../../shared/colorValidator';
 
 // Deprecated V1 of podcast-player.

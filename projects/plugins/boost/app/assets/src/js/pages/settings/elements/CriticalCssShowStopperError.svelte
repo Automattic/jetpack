@@ -1,22 +1,11 @@
 <script>
-	/**
-	 * External dependencies
-	 */
-	import { slide } from 'svelte/transition';
 	import { createEventDispatcher } from 'svelte';
-
-	/**
-	 * WordPress dependencies
-	 */
+	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
-	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
 	import { primaryErrorSet } from '../../../stores/critical-css-recommendations';
+	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 
 	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';

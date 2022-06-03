@@ -1,14 +1,7 @@
-/**
- * WordPress dependencies
- */
 import { InnerBlocks } from '@wordpress/block-editor';
-import { __ } from '@wordpress/i18n';
-import { withSelect } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
+import { withSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import Context from '../_inc/context';
 import { usePremiumContentAllowedBlocks } from '../_inc/premium';
 

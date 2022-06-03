@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import React from 'react';
 
 /**
  * Returns record count component showing current records indexed and max records available for tier.

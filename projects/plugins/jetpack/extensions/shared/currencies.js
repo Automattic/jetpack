@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { CURRENCIES, getCurrencyDefaults } from '@automattic/format-currency';
 import { trimEnd } from 'lodash';
 

@@ -1,14 +1,6 @@
-/**
- * External dependencies
- */
-
 import { Component } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import { settings } from './settings.js';
 import { getActiveStyleName } from '../../shared/block-styles';
+import { settings } from './settings.js';
 
 class MapSave extends Component {
 	render() {

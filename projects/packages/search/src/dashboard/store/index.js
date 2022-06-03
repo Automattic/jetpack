@@ -1,11 +1,8 @@
-/**
- * Internal dependencies
- */
-import reducer from './reducer';
 import actions from './actions';
-import selectors from './selectors';
-import resolvers from './resolvers';
 import controls from './controls';
+import reducer from './reducer';
+import resolvers from './resolvers';
+import selectors from './selectors';
 
 export const STORE_ID = 'jetpack-search-plugin';
 export const storeConfig = {

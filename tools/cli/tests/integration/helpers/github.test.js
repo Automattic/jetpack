@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import chai from 'chai';
-
-/**
- * Internal dependencies
- */
 import { doesRepoExist } from '../../../helpers/github.js';
 
 /** @todo Fix these tests and un-skip them. */

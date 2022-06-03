@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { expect } from 'chai';
-
-/**
- * Internal dependencies
- */
 import actions, {
 	SET_USER_IS_CONNECTING,
 	CONNECT_USER,

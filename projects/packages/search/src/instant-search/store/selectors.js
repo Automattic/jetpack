@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { RELEVANCE_SORT_KEY } from '../lib/constants';
 import { getUnselectableFilterKeys, mapFilterKeyToFilter } from '../lib/filters';
 

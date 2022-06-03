@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
 import { expect } from 'chai';
 
-/**
- * Internal dependencies
- */
 import Search  from '../search';
 import { buildInitialState } from './fixtures';
 import { render, screen, within } from 'test/test-utils';

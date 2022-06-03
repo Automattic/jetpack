@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect } from 'react';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
+import React, { useCallback, useEffect } from 'react';
+import withUpgradeUrl from '../../hoc/with-upgrade-url';
 import { Layout } from '../layout';
 import RecommendedHeader from '../recommended-header';
-import withUpgradeUrl from '../../hoc/with-upgrade-url';
 
 const ProductCardUpsellNoPriceComponent = props => {
 	const { upgradeUrl } = props;

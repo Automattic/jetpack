@@ -1,20 +1,6 @@
-/**
- * External dependencies
- */
-// import React from 'react';
 import { expect } from 'chai';
 import fetchMock from 'fetch-mock';
-
-// import { shallow } from 'enzyme';
-// import ShallowRenderer from 'react-test-renderer/shallow';
-
-/**
- * Internal dependencies
- */
 import restApi from '../index';
-// import { getLocal } from "mockttp";
-
-// const mockServer = getLocal();
 
 // mock out some values to make testing easier
 restApi.setApiRoot( '/fakeApiRoot/' );

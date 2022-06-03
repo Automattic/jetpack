@@ -85,6 +85,10 @@ Jetpack Protect is a free plugin, and WPScan has free and paid options. On the o
 that you can purchase with a 14-day money-back guarantee. As with other paid Jetpack plugins, Scan users also have
 access to our [priority support](https://jetpack.com/features/security/expert-priority-support/).
 
+= Will Jetpack Protect work on my local site?
+
+Jetpack Protect requires a publicly accessible site to perform the vulnerability scan.
+
 = How will I know if Jetpack Protect has found WordPress security vulnerabilities and malware? =
 
 You can visit Jetpack Protect dashboard in your WordPress admin panel to see the security threats and malware found by
@@ -109,6 +113,11 @@ site and lets you know possible malware and security threats on your installed p
 To learn how to achieve better WordPress security, [see this guide](https://jetpack.com/blog/guide-to-wordpress-security/).
 On the [Jetpack Blog](https://jetpack.com/blog/category/security/), you can find many more articles written by the top
 WordPress security experts.
+
+= Is Jetpack Protect the same thing as the Protect feature in the Jetpack plugin?
+
+The new Jetpack Protect plugin is different from the Jetpack feature formerly known as [Protect](https://jetpack.com/support/protect/) (now renamed [Brute Force Attack Protection](https://jetpack.com/support/protect/)). 
+The features of the new Jetpack Protect plugin are not included in the [Jetpack plugin](https://wordpress.org/plugins/jetpack/), and both plugins can be installed together without any issues.
 
 == Screenshots ==
 

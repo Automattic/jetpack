@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed lints in TS types for Text component

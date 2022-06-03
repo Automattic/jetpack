@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { store as noticesStore } from '@wordpress/notices';
 
 export const onError = ( message, registry ) =>

@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
 import { Button, MenuItem, MenuGroup, Dropdown, NavigableMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { media } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
 import MediaSources from './media-sources';
 
 function MediaButtonMenu( props ) {

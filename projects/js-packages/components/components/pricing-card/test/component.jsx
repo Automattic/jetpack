@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import { noop } from 'lodash';
+import React from 'react';
 import ShallowRenderer from 'react-test-renderer/shallow';
-
-/**
- * Internal dependencies
- */
 import PricingCard from '../index';
 
 describe( 'PricingCard', () => {

@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
-import MyPlanBanner from '../my-plan-banner';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import { getPartnerCoupon } from 'state/initial-state';
+import MyPlanBanner from '../my-plan-banner';
 
 const MyPlanPartnerCoupon = ( { partnerCoupon, siteRawUrl } ) => {
 	if ( 'object' !== typeof partnerCoupon ) {

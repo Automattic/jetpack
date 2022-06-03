@@ -1,18 +1,11 @@
 <script>
-	/**
-	 * WordPress dependencies
-	 */
-	import { __, _n, sprintf } from '@wordpress/i18n';
 	import { createEventDispatcher } from 'svelte';
-
-	/**
-	 * Internal dependencies
-	 */
-	import { criticalCssStatus, failedProviderKeyCount } from '../../../stores/critical-css-status';
-	import RefreshIcon from '../../../svg/refresh.svg';
-	import TimeAgo from '../../../elements/TimeAgo.svelte';
-	import InfoIcon from '../../../svg/info.svg';
+	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
+	import TimeAgo from '../../../elements/TimeAgo.svelte';
+	import { criticalCssStatus, failedProviderKeyCount } from '../../../stores/critical-css-status';
+	import InfoIcon from '../../../svg/info.svg';
+	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import routerHistory from '../../../utils/router-history.ts';
 

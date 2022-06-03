@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
 import { Dialog, ProductOffer, useBreakpointMatch } from '@automattic/jetpack-components';
 import { ToS } from '@automattic/jetpack-connection';
-
-/**
- * Internal dependencies
- */
-import ConnectedProductOffer from '../product-offer';
-import useProtectData from '../../hooks/use-protect-data';
+import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useProtectData from '../../hooks/use-protect-data';
+import ConnectedProductOffer from '../product-offer';
 import styles from './styles.module.scss';
 
 const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {

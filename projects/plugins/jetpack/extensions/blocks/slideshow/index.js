@@ -1,24 +1,13 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { Path, Rect, SVG } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
-import save from './save';
-import transforms from './transforms';
+import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
-
-/**
- * Example Images
- */
+import edit from './edit';
+import save from './save';
 import slideshowExample1 from './slideshow_example-1.jpg';
 import slideshowExample2 from './slideshow_example-2.jpg';
 import slideshowExample3 from './slideshow_example-3.jpg';
+import transforms from './transforms';
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
