@@ -32,13 +32,13 @@ class Jetpack_Sync_Server_Replicator {
 
 			// attachments
 			case 'attachment_updated':
-				list( $post_id, $post, $post_before ) = $args;
+				list( $post_id, $post, $post_before ) = $args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				$this->store->upsert_post( $post, $silent );
 				break;
 			case 'jetpack_sync_save_update_attachment':
 			case 'jetpack_sync_save_add_attachment':
 			case 'jetpack_sync_save_attach_attachment':
-				list( $attachment_id, $attachment ) = $args;
+				list( $attachment_id, $attachment ) = $args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				$this->store->upsert_post( $attachment, $silent );
 				break;
 
@@ -76,7 +76,7 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->update_option( $option, $value );
 				break;
 			case 'updated_option':
-				list( $option, $old_value, $value ) = $args;
+				list( $option, $old_value, $value ) = $args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				$this->store->update_option( $option, $value );
 				break;
 			case 'deleted_option':
@@ -143,7 +143,7 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 			case 'update_site_option':
 				// Note: the order here is different from update_option
-				list( $option, $value, $old_value ) = $args;
+				list( $option, $value, $old_value ) = $args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				$this->store->update_site_option( $option, $value );
 				break;
 			case 'delete_site_option':
@@ -237,7 +237,7 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			case 'delete_term':
-				list( $term_id, $tt_id, $taxonomy, $deleted_term_or_error ) = $args;
+				list( $term_id, $tt_id, $taxonomy, $deleted_term_or_error ) = $args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				$this->store->delete_term( $term_id, $taxonomy );
 				break;
 
@@ -262,11 +262,11 @@ class Jetpack_Sync_Server_Replicator {
 				$this->store->upsert_user( $user );
 				break;
 			case 'jetpack_deleted_user':
-				list( $user_id, $reassign ) = $args;
+				list( $user_id, $reassign ) = $args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				$this->store->delete_user( $user_id );
 				break;
 			case 'jetpack_removed_user_from_blog':
-				list( $user_id, $blog_id ) = $args;
+				list( $user_id, $blog_id ) = $args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				$this->store->delete_user( $user_id );
 				break;
 

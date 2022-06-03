@@ -202,7 +202,7 @@ class Jetpack_Tracks_Client {
 					&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
 					&& ! ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
 				) {
-					setcookie( 'tk_ai', $anon_id );
+					setcookie( 'tk_ai', $anon_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- This is a random value and should be fine.
 				}
 			}
 		}

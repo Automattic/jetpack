@@ -309,7 +309,7 @@ class Tracking {
 		}
 
 		if ( ! isset( $_COOKIE['tk_ai'] ) && ! headers_sent() ) {
-			setcookie( 'tk_ai', $anon_id );
+			setcookie( 'tk_ai', $anon_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- This is a random string and should be fine.
 		}
 
 		return array(

@@ -24,6 +24,7 @@ use WP_REST_Server;
  * @see \Automattic\Jetpack\Connection\REST_Connector
  */
 class Test_REST_Endpoints extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	const BLOG_TOKEN = 'new.blogtoken';
 	const BLOG_ID    = 42;
@@ -200,7 +201,7 @@ class Test_REST_Endpoints extends TestCase {
 		add_filter(
 			'jetpack_connection_status',
 			function ( $status_data ) {
-				$this->assertTrue( is_array( $status_data ) );
+				$this->assertIsArray( $status_data );
 				return array();
 			}
 		);

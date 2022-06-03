@@ -88,6 +88,7 @@ const useMenuNavigation = ( { selected, onSelect } ) => {
 		handleFocusItem,
 		registerRef,
 		registerItem,
+		items,
 	};
 };
 

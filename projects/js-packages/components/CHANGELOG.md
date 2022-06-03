@@ -2,6 +2,49 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.15.1 - 2022-05-31
+### Added
+- Added an option to display a custom disclaimer below the product add button. [#24523]
+
+## 0.15.0 - 2022-05-30
+### Added
+- added formatting prop to RecordMeterBar component legend
+- JS Components: Add isCard prop to Dialog component
+- JS Components: add isExternalLink button property
+
+### Changed
+- Added TS check to build process
+- Converted QRCode component to TypeScript
+- JS Components: fix ProductOffer icons size
+- JS Components: remove deprecated external-link variant
+- Layout: Support start/end props in Cols and use sass based structure
+- Social: Updated the icon to the final design
+- Updated package dependencies
+
+### Removed
+- JS Components: remove Dialog isCard property
+
+### Fixed
+- Fix styles defined by the ThemeProvider in the storybook stories
+
+## 0.14.0 - 2022-05-24
+### Added
+- Icons: Added the Jetpack Social product icon [#24449]
+
+## 0.13.0 - 2022-05-18
+### Added
+- Components: Add useBreakpointMach hook [#24263]
+- Gridicon: added info-outline gridicon to the available subset of icons [#24328]
+- JS Components: tweak and improve Dialog component [#24280]
+- Replace CSS @media by using useBreakpointsMatch() hook in Dialog component [#24375]
+
+### Changed
+- Convert JS Components Button to TypeScript [#24267]
+- JS Components: iterate over Dialog component [#24374]
+- Moved SocialServiceIcon component from Jetpack Icons.js file to js-package/components. Updated it's ref in the Jetpack plugin directory [#23795]
+- Protect: improve Dialog layout in medium viewport size [#24390]
+- Updated package dependencies [#24361]
+
 ## 0.12.0 - 2022-05-10
 ### Changed
 - Converted Text component to TypeScript [#24256]

@@ -137,6 +137,8 @@ class Jetpack_Protect {
 			)
 		);
 		Assets::enqueue_script( 'jetpack-protect' );
+		// Required for Analytics.
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-protect', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-protect', $this->render_initial_state(), 'before' );
@@ -169,6 +171,7 @@ class Jetpack_Protect {
 			'wpVersion'         => $wp_version,
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
 			'securityBundle'    => My_Jetpack_Products::get_product( 'security' ),
+			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 		);
 	}
 	/**

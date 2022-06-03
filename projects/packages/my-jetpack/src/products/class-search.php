@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use Jetpack_Options;
 use WP_Error;
 
@@ -64,7 +65,7 @@ class Search extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Site Search', 'jetpack-my-jetpack' );
+		return __( 'Jetpack Search', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -210,6 +211,26 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
+	 * Activates the product. Try to enable instant search after the Search module was enabled.
+	 *
+	 * @param bool|WP_Error $product_activation Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $product_activation ) {
+		$product_activation = parent::do_product_specific_activation( $product_activation );
+		if ( is_wp_error( $product_activation ) ) {
+			return $product_activation;
+		}
+
+		if ( class_exists( 'Automattic\Jetpack\Search\Module_Control' ) ) {
+			( new Search_Module_Control() )->enable_instant_search();
+		}
+
+		// we don't want to change the success of the activation if we fail to activate instant search. That's not mandatory.
+		return $product_activation;
+	}
+
+	/**
 	 * Get the URL the user is taken after activating the product
 	 *
 	 * @return ?string
@@ -227,27 +248,4 @@ class Search extends Hybrid_Product {
 		return admin_url( 'admin.php?page=jetpack-search' );
 	}
 
-	/**
-	 * Checks whether the Product is active
-	 *
-	 * @return boolean
-	 */
-	public static function is_active() {
-		return parent::is_active() && static::has_required_plan();
-	}
-
-	/**
-	 * Get the plugin slug - Since Search stand-alone plugin is not yet released in the wporg directory, let's fallback to Jetpack if none of the two plugins are installed.
-	 *
-	 * @TODO: Remove this method when Jetpack Search plugin is released.
-	 *
-	 * @return ?string
-	 */
-	public static function get_plugin_slug() {
-		if ( ! static::is_plugin_installed() ) {
-			return self::JETPACK_PLUGIN_SLUG;
-		} else {
-			return parent::get_plugin_slug();
-		}
-	}
 }

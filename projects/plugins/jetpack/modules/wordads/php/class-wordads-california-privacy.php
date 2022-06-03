@@ -166,7 +166,7 @@ class WordAds_California_Privacy {
 	 * @return bool True if the cookie could be set.
 	 */
 	private static function set_optout_cookie() {
-		return setcookie( self::get_cookie_name(), self::get_optout_cookie_string(), time() + ( 5 * YEAR_IN_SECONDS ), '/', self::get_cookie_domain() );
+		return setcookie( self::get_cookie_name(), self::get_optout_cookie_string(), time() + ( 5 * YEAR_IN_SECONDS ), '/', self::get_cookie_domain(), is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- Want this accessible.
 	}
 
 	/**
@@ -175,7 +175,7 @@ class WordAds_California_Privacy {
 	 * @return bool True if the cookie could be set.
 	 */
 	private static function set_optin_cookie() {
-		return setcookie( self::get_cookie_name(), self::get_optin_cookie_string(), time() + YEAR_IN_SECONDS, '/', self::get_cookie_domain() );
+		return setcookie( self::get_cookie_name(), self::get_optin_cookie_string(), time() + YEAR_IN_SECONDS, '/', self::get_cookie_domain(), is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- Want this accessible.
 	}
 
 	/**

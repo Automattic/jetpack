@@ -8,12 +8,12 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import Banner from 'components/banner';
+import { Banner, connect as bannerConnect } from 'components/banner';
 import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
 import Gridicon from 'components/gridicon';
 
-class ConnectionBanner extends Banner {
+export class ConnectionBanner extends Banner {
 	static propTypes = {
 		title: PropTypes.string.isRequired,
 		className: PropTypes.string,
@@ -78,4 +78,4 @@ class ConnectionBanner extends Banner {
 	}
 }
 
-export default ConnectionBanner;
+export default bannerConnect( ConnectionBanner );

@@ -204,7 +204,7 @@ class Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function allow_logged_out_user_to_comment_as_external() {
-		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter', 'googleplus' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter' ) ) {
 			return;
 		}
 
@@ -233,7 +233,7 @@ class Highlander_Comments_Base {
 		}
 
 		// Bail if this is not a guest or external service credentialed request.
-		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter', 'googleplus' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter' ) ) {
 			return $comment_data;
 		}
 
@@ -304,9 +304,9 @@ class Highlander_Comments_Base {
 		if ( ( 'wordpress' !== $id_source ) && is_user_logged_in() ) {
 			/** This filter is already documented in core/wp-includes/comment-functions.php */
 			$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
-			setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
-			setcookie( 'comment_author_email_' . COOKIEHASH, $comment->comment_author_email, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
-			setcookie( 'comment_author_url_' . COOKIEHASH, esc_url( $comment->comment_author_url ), time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+			setcookie( 'comment_author_email_' . COOKIEHASH, $comment->comment_author_email, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+			setcookie( 'comment_author_url_' . COOKIEHASH, esc_url( $comment->comment_author_url ), time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 		}
 	}
 

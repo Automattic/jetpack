@@ -24,6 +24,7 @@ export const Button: React.FC< ButtonProps > = ( {
 	disabled,
 	isDestructive,
 	isLoading,
+	isExternalLink,
 	className: propsClassName,
 	text,
 	...componentProps
@@ -36,7 +37,6 @@ export const Button: React.FC< ButtonProps > = ( {
 		[ styles.regular ]: weight === 'regular',
 	} );
 
-	const isExternalLink = variant === 'external-link';
 	const externalIconSize = size === 'normal' ? 20 : 16;
 	const externalIcon = isExternalLink && (
 		<Icon size={ externalIconSize } icon={ external } className={ styles[ 'external-icon' ] } />
@@ -46,7 +46,7 @@ export const Button: React.FC< ButtonProps > = ( {
 	return (
 		<WPButton
 			target={ externalTarget }
-			variant={ isExternalLink ? 'link' : variant }
+			variant={ variant }
 			className={ className }
 			icon={ ! isExternalLink ? icon : undefined }
 			iconSize={ iconSize }

@@ -58,12 +58,14 @@ function normalizeCoreInformation( wpVersion, coreCheck ) {
 	if ( wpVersion && coreCheck && coreCheck.version === wpVersion ) {
 		core = coreCheck;
 		core.name = 'WordPress';
+		core.type = 'core';
 	} else {
 		core = {
 			version: wpVersion,
 			vulnerabilities: [],
 			notChecked: true,
 			name: 'WordPress',
+			type: 'core',
 		};
 		hasUncheckedItems = true;
 	}
@@ -83,6 +85,7 @@ export default function useProtectData() {
 		statusIsFetching,
 		status,
 		securityBundle,
+		productData,
 	} = useSelect( select => ( {
 		installedPlugins: select( STORE_ID ).getInstalledPlugins(),
 		installedThemes: select( STORE_ID ).getInstalledThemes(),
@@ -90,10 +93,17 @@ export default function useProtectData() {
 		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
 		status: select( STORE_ID ).getStatus(),
 		securityBundle: select( STORE_ID ).getSecurityBundle(),
+		productData: select( STORE_ID ).getProductData(),
 	} ) );
 
-	const plugins = mergeInstalledAndCheckedLists( installedPlugins, status.plugins || {} );
-	const themes = mergeInstalledAndCheckedLists( installedThemes, status.themes || {} );
+	const plugins = mergeInstalledAndCheckedLists(
+		installedPlugins,
+		status.plugins || {}
+	).map( plugin => ( { ...plugin, type: 'plugin' } ) );
+	const themes = mergeInstalledAndCheckedLists(
+		installedThemes,
+		status.themes || {}
+	).map( theme => ( { ...theme, type: 'theme' } ) );
 	const core = normalizeCoreInformation( wpVersion, status.wordpress );
 
 	let currentStatus = 'error';
@@ -117,5 +127,6 @@ export default function useProtectData() {
 		currentStatus,
 		hasUncheckedItems,
 		securityBundle,
+		productData,
 	};
 }

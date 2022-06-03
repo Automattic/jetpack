@@ -8,7 +8,7 @@ import { mount, shallow } from 'enzyme';
 /**
  * Internal dependencies
  */
-import ConnectionBanner from '../index';
+import { ConnectionBanner } from '../index';
 import ConnectButton from 'components/connect-button';
 
 describe( 'ConnectionBanner', () => {

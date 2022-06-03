@@ -121,7 +121,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$all = $queue->get_all();
 		foreach ( $all as $queue_item ) {
-			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value;
+			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$this->assertEquals( $actor, $example_actor );
 		}
 	}
@@ -162,7 +162,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$all = $queue->get_all();
 		foreach ( $all as $queue_item ) {
-			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value;
+			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$this->assertEquals( $actor, $example_actor );
 		}
 	}
@@ -203,7 +203,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$all = $queue->get_all();
 		foreach ( $all as $queue_item ) {
-			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value;
+			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$this->assertEquals( $actor, $example_actor );
 		}
 	}

@@ -104,6 +104,12 @@ export const SearchIcon = ( { opacity = 1, size } ) => (
 	</IconWrapper>
 );
 
+export const SocialIcon = ( { opacity = 1, size } ) => (
+	<IconWrapper size={ size } opacity={ opacity }>
+		<Path d="M15.5 3.97809V18.0219L7.5 15.5977V20H6V15.1431L3.27498 14.3173C2.22086 13.9979 1.5 13.0262 1.5 11.9248V10.0752C1.5 8.97375 2.22087 8.00207 3.27498 7.68264L15.5 3.97809ZM14 16L7.5 14.0303L7.5 7.96969L14 5.99999V16ZM6 8.42423L6 13.5757L3.70999 12.8818C3.28835 12.754 3 12.3654 3 11.9248V10.0752C3 9.63462 3.28835 9.24595 3.70999 9.11818L6 8.42423ZM17.5 11.75H21.5V10.25H17.5V11.75ZM21.5 16L17.5 15V13.5L21.5 14.5V16ZM17.5 8.5L21.5 7.5V6L17.5 7V8.5Z" />
+	</IconWrapper>
+);
+
 export const VideopressIcon = ( { opacity = 1, size } ) => (
 	<IconWrapper size={ size } opacity={ opacity }>
 		<Path d="M5.286 4.5h13.428c.434 0 .786.352.786.786v13.428a.786.786 0 0 1-.786.786H5.286a.786.786 0 0 1-.786-.786V5.286c0-.434.352-.786.786-.786ZM3 5.286A2.286 2.286 0 0 1 5.286 3h13.428A2.286 2.286 0 0 1 21 5.286v13.428A2.286 2.286 0 0 1 18.714 21H5.286A2.286 2.286 0 0 1 3 18.714V5.286ZM15 12l-5-3v6l5-3Z" />
@@ -238,6 +244,7 @@ const iconsMap = {
 	protect: ProtectIcon,
 	scan: ScanIcon,
 	search: SearchIcon,
+	social: SocialIcon,
 	star: StarIcon,
 	videopress: VideopressIcon,
 	jetpack: JetpackIcon,

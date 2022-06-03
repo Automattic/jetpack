@@ -3,7 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { connect as reduxConnect } from 'react-redux';
 import classNames from 'classnames';
 import { noop, size } from 'lodash';
 
@@ -26,7 +26,7 @@ import { isCurrentUserLinked, isConnectionOwner } from 'state/connection';
 
 import './style.scss';
 
-class Banner extends Component {
+export class Banner extends Component {
 	static propTypes = {
 		callToAction: PropTypes.string,
 		className: PropTypes.string,
@@ -181,8 +181,18 @@ class Banner extends Component {
 	}
 }
 
-export default connect( state => ( {
-	currentVersion: getCurrentVersion( state ),
-	isCurrentUserLinked: isCurrentUserLinked( state ),
-	isConnectionOwner: isConnectionOwner( state ),
-} ) )( Banner );
+/**
+ * Redux-connect a Banner or subclass.
+ *
+ * @param {Banner} BannerComponent - Component to connect.
+ * @returns {Component} Wrapped component.
+ */
+export function connect( BannerComponent ) {
+	return reduxConnect( state => ( {
+		currentVersion: getCurrentVersion( state ),
+		isCurrentUserLinked: isCurrentUserLinked( state ),
+		isConnectionOwner: isConnectionOwner( state ),
+	} ) )( BannerComponent );
+}
+
+export default connect( Banner );

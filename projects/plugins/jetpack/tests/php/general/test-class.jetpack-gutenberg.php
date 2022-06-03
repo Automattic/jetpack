@@ -62,12 +62,12 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 	public static function get_extensions_whitelist() {
 		return array(
-			// Our "Blocks" :)
+			// Our Blocks :)
 			'apple',
 			'banana',
 			'coconut',
 			'grape',
-			// Our "Plugins" :)
+			// Our Plugins :)
 			'onion',
 			'potato',
 			'tomato',

@@ -1063,22 +1063,16 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
-		// On quick edit, autosave, etc but do fire on p2, quickpress, and instapost ajax.
 		if (
-			defined( 'DOING_AJAX' )
+			defined( 'DOING_AUTOSAVE' )
 		&&
-			DOING_AJAX
-		&&
-			! did_action( 'p2_ajax' )
-		&&
-			! did_action( 'wp_ajax_json_quickpress_post' )
-		&&
-			! did_action( 'wp_ajax_instapost_publish' )
-		&&
-			! did_action( 'wp_ajax_post_reblog' )
-		&&
-			! did_action( 'wp_ajax_press-this-save-post' )
+			DOING_AUTOSAVE
 		) {
+			$submit_post = false;
+		}
+
+		// To stop quick edits from getting publicized.
+		if ( did_action( 'wp_ajax_inline-save' ) ) {
 			$submit_post = false;
 		}
 

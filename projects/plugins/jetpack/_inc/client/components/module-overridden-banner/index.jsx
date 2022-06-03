@@ -15,7 +15,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 /**
  * Internal dependencies
  */
-import JetpackBanner from 'components/jetpack-banner';
+import { JetpackBanner, connect as bannerConnect } from 'components/jetpack-banner';
 
 import './style.scss';
 
@@ -64,4 +64,4 @@ class ModuleOverridenBanner extends JetpackBanner {
 	}
 }
 
-export default ModuleOverridenBanner;
+export default bannerConnect( ModuleOverridenBanner );

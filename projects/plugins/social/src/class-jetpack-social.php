@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Status;
 
 /**
  * Class Jetpack_Social
@@ -78,13 +79,25 @@ class Jetpack_Social {
 
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'activate_module_on_plugin_activation' ) );
-
-		My_Jetpack_Initializer::init();
+		add_action(
+			'plugins_loaded',
+			function () {
+				My_Jetpack_Initializer::init();
+			}
+		);
 
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
+		// Add REST routes
+		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Controller(), 'register_rest_routes' ) );
+
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
+
+		// Add meta tags.
+		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
+
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
 	}
 
 	/**
@@ -133,18 +146,43 @@ class Jetpack_Social {
 		global $publicize;
 
 		return array(
-			'apiRoot'                          => esc_url_raw( rest_url() ),
-			'apiNonce'                         => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'                => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'connections'                      => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
-			'jetpackSocialConnectionsAdminUrl' => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
+			'siteData'        => array(
+				'apiRoot'           => esc_url_raw( rest_url() ),
+				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
+				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+			),
+			'jetpackSettings' => array(
+				'publicize_active' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
+			),
+			'connectionData'  => array(
+				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
+				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
+			),
 		);
+	}
+
+	/**
+	 * Checks to see if the current post supports Publicize
+	 *
+	 * @return boolean True if Publicize is supported
+	 */
+	public function is_supported_post() {
+		$post_type = get_post_type();
+		return ! empty( $post_type ) && post_type_supports( $post_type, 'publicize' );
 	}
 
 	/**
 	 * Enqueue block editor scripts and styles.
 	 */
 	public function enqueue_block_editor_scripts() {
+		if (
+			! ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ||
+			class_exists( 'Jetpack' ) ||
+			! $this->is_supported_post()
+		) {
+			return;
+		}
+
 		Assets::register_script(
 			'jetpack-social-editor',
 			'build/editor.js',
@@ -156,6 +194,17 @@ class Jetpack_Social {
 		);
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
+
+		wp_localize_script(
+			'jetpack-social-editor',
+			'Jetpack_Editor_Initial_State',
+			array(
+				'siteFragment'            => ( new Status() )->get_site_suffix(),
+				'connectionRefreshPath'   => '/jetpack/v4/publicize/connections',
+				'publicizeConnectionsUrl' => esc_url_raw( 'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site=' ),
+			)
+		);
+
 	}
 
 	/**
@@ -194,5 +243,15 @@ class Jetpack_Social {
 			delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
 			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
 		}
+	}
+
+	/**
+	 * Adds module to the list of available modules
+	 *
+	 * @param array $modules The available modules.
+	 * @return array
+	 */
+	public function social_filter_available_modules( $modules ) {
+		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
 	}
 }

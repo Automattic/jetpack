@@ -7,8 +7,15 @@
  */
 
 /**
- * WordPress dependencies
+ * External dependencies
  */
+import {
+	TwitterOptions as PublicizeTwitterOptions,
+	ConnectionVerify as PublicizeConnectionVerify,
+	Form as PublicizeForm,
+	useSocialMediaConnections as useSelectSocialMediaConnections,
+	usePostJustPublished,
+} from '@automattic/jetpack-publicize-components';
 import { __ } from '@wordpress/i18n';
 import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
 import { store as editorStore } from '@wordpress/editor';
@@ -18,11 +25,6 @@ import { Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import PublicizeConnectionVerify from '../connection-verify';
-import PublicizeForm from '../form';
-import PublicizeTwitterOptions from '../twitter/options';
-import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { usePostJustPublished } from '../../hooks/use-saving-post';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 
 import { SharePostRow } from '../../components/share-post';
@@ -98,9 +100,7 @@ const PublicizePanel = ( { prePublish } ) => {
 						isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
 						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
 					/>
-					{ ! isPublicizeDisabledBySitePlan && (
-						<PublicizeTwitterOptions prePublish={ prePublish } />
-					) }
+					{ isPublicizeEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
 
 					<SharePostRow />
 				</Fragment>

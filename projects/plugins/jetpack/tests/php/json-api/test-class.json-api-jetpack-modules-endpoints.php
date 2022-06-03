@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Modules_Json_Api_Endpoints extends WP_UnitTestCase {
 		$response = $endpoint->callback( '', $blog_id );
 
 		$this->assertArrayHasKey( 'modules', $response );
-		$this->assertTrue( is_array( $response['modules'] ) );
+		$this->assertIsArray( $response['modules'] );
 
 		$module = array_pop( $response['modules'] );
 		$this->assertArrayHasKey( 'name', $module );

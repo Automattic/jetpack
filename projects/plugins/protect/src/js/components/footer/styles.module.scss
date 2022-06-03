@@ -1,11 +1,7 @@
-.section {
-	padding-bottom: var( --spacing-base );
+.product-section {
+	margin-top: calc( var( --spacing-base ) * 7 );
 }
 
-.icons {
-	padding-bottom: 0;
-}
-
-.paragraphs {
-	margin-bottom: calc( var(--spacing-base) * 3 );
+.info-section {
+	margin-top: calc( var( --spacing-base ) * 14 );
 }

@@ -12,25 +12,12 @@
  */
 function fixDeps( pkg ) {
 	// Why do they not publish new versions from their monorepo?
-	if ( pkg.name === '@automattic/social-previews' ) {
-		// 1.1.1 published 2021-04-08
-		if ( pkg.dependencies[ '@wordpress/components' ] === '^12.0.8' ) {
-			// Update to avoid a dep on @emotion/native that wants react-native.
-			// This dep update is in their monorepo as of 2022-03-10 with no code changes.
-			pkg.dependencies[ '@wordpress/components' ] = '^19.2.0';
-		}
-	}
 	if ( pkg.name === '@automattic/components' ) {
-		// 1.0.0-alpha.3 published 2020-11-11. Not that we want alpha.4, they added an i18n-calypso dep (ugh).
+		// 1.0.0-alpha.3 published 2020-11-11.
 		if ( ! pkg.dependencies[ '@wordpress/base-styles' ] ) {
 			// Depends on this but doesn't specify it.
 			pkg.dependencies[ '@wordpress/base-styles' ] = '^4.0.4';
 		}
-	}
-
-	// Depends on events but doesn't declare it.
-	if ( pkg.name === '@automattic/popup-monitor' && ! pkg.dependencies.events ) {
-		pkg.dependencies.events = '^3.3.0';
 	}
 
 	// Depends on punycode but doesn't declare it.
@@ -98,6 +85,13 @@ function fixDeps( pkg ) {
 		pkg.dependencies.browserslist = '^' + pkg.dependencies.browserslist;
 	}
 
+	// Override @types/react* dependencies in order to use their specific versions
+	for ( const dep of [ '@types/react', '@types/react-dom', '@types/react-test-renderer' ] ) {
+		if ( pkg.dependencies?.[ dep ] ) {
+			pkg.dependencies[ dep ] = '17.x';
+		}
+	}
+
 	// Regular expression DOS.
 	if ( pkg.dependencies.trim === '0.0.1' ) {
 		pkg.dependencies.trim = '^0.0.3';
@@ -126,15 +120,34 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
-	// @sveltejs/eslint-config peer-depends on eslint-plugin-node but doesn't seem to actually use it.
-	if ( pkg.name === '@sveltejs/eslint-config' ) {
-		delete pkg.peerDependencies?.[ 'eslint-plugin-node' ];
-	}
-
 	// Peer-depends on js-git but doesn't declare it.
 	// https://github.com/creationix/git-node-fs/pull/8
+	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
 	if ( pkg.name === 'git-node-fs' && ! pkg.peerDependencies?.[ 'js-git' ] ) {
 		pkg.peerDependencies[ 'js-git' ] = '*';
+	}
+
+	// Undeclared peer dependencies.
+	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
+	if ( pkg.name === 'eslint-module-utils' ) {
+		pkg.peerDependenciesMeta ||= {};
+		for ( const dep of [
+			'@typescript-eslint/parser',
+			'eslint-import-resolver-node',
+			'eslint-import-resolver-typescript',
+			'eslint-import-resolver-webpack',
+		] ) {
+			pkg.peerDependencies[ dep ] = '*';
+			pkg.peerDependenciesMeta[ dep ] = { optional: true };
+		}
+	}
+	if (
+		pkg.name === 'eslint-plugin-import' &&
+		! pkg.peerDependencies?.[ '@typescript-eslint/parser' ]
+	) {
+		pkg.peerDependenciesMeta ||= {};
+		pkg.peerDependencies[ '@typescript-eslint/parser' ] = '*';
+		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
 	}
 
 	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with
@@ -143,6 +156,8 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies.eslint = '^8';
 		pkg.peerDependencies[ 'eslint-plugin-inclusive-language' ] = '*';
 		pkg.peerDependencies[ 'eslint-plugin-jsdoc' ] = '*';
+		pkg.peerDependencies[ 'eslint-plugin-react' ] = '*';
+		pkg.peerDependencies[ 'eslint-plugin-react-hooks' ] = '*';
 		pkg.peerDependencies[ 'eslint-plugin-wpcalypso' ] = '*';
 	}
 

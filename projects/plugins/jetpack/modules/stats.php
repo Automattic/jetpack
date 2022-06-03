@@ -528,7 +528,7 @@ function stats_reports_load() {
 	if ( ! empty( $_GET['nojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$parsed = wp_parse_url( admin_url() );
 		// Remember user doesn't want JS.
-		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'] ); // 2 days.
+		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'], COOKIE_DOMAIN, is_ssl(), true ); // 2 days.
 	}
 
 	if ( ! empty( $_COOKIE['stnojs'] ) ) {
@@ -892,7 +892,7 @@ function stats_convert_post_title( $matches ) {
  */
 function stats_hide_smile_css() {
 	?>
-<style type='text/css'>img#wpstats{display:none}</style>
+<style>img#wpstats{display:none}</style>
 	<?php
 }
 
@@ -1704,11 +1704,20 @@ function jetpack_stats_post_table( $columns ) {
 	if ( ! current_user_can( 'view_stats' ) || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 		return $columns;
 	}
+
 	// Array-Fu to add before comments.
 	$pos = array_search( 'comments', array_keys( $columns ), true );
+
+	// Fallback to the last position if the post type does not support comments.
+	if ( ! is_int( $pos ) ) {
+		$pos = count( $columns );
+	}
+
+	// Final fallback, if the array was malformed by another plugin for example.
 	if ( ! is_int( $pos ) ) {
 		return $columns;
 	}
+
 	$chunks             = array_chunk( $columns, $pos, true );
 	$chunks[0]['stats'] = esc_html__( 'Stats', 'jetpack' );
 
