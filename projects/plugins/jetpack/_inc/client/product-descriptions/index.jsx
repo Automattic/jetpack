@@ -1,5 +1,6 @@
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryProducts from 'components/data/query-products';
+import QuerySaleCoupon from 'components/data/query-sale-coupon';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
@@ -9,6 +10,7 @@ import { Route, Switch } from 'react-router-dom';
 import { getProductsForPurchase } from 'state/initial-state';
 import { isFetchingIntroOffers } from 'state/intro-offers';
 import { isFetchingProducts as isFetchingProductsSelector } from 'state/products';
+import { isFetchingSaleCoupon as isFetchingSaleCouponSelector } from 'state/sale-coupon';
 import { PRODUCT_DESCRIPTION_PRODUCTS as SUPPORTED_PRODUCTS } from './constants';
 import ProductDescription from './product-description';
 
@@ -18,8 +20,9 @@ import ProductDescription from './product-description';
 import './style.scss';
 
 const ProductDescriptions = props => {
-	const { isFetchingProducts, isFetchingOffers, products } = props;
-	const isLoading = isFetchingProducts || isFetchingOffers || isEmpty( products );
+	const { isFetchingProducts, isFetchingOffers, isFetchingSaleCoupon, products } = props;
+	const isLoading =
+		isFetchingProducts || isFetchingOffers || isFetchingSaleCoupon || isEmpty( products );
 	const routes = [];
 
 	if ( ! isLoading ) {
@@ -46,6 +49,7 @@ const ProductDescriptions = props => {
 		<>
 			<QueryProducts />
 			<QueryIntroOffers />
+			<QuerySaleCoupon />
 
 			{ isLoading ? (
 				<div className="jp-product-descriptions__loading">
@@ -68,5 +72,6 @@ ProductDescriptions.propTypes = {
 export default connect( state => ( {
 	isFetchingProducts: isFetchingProductsSelector( state ),
 	isFetchingOffers: isFetchingIntroOffers( state ),
+	isFetchingSaleCoupon: isFetchingSaleCouponSelector( state ),
 	products: getProductsForPurchase( state ),
 } ) )( ProductDescriptions );

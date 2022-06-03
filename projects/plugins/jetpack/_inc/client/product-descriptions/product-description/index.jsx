@@ -9,6 +9,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { getProductsForPurchase } from 'state/initial-state';
 import { getIntroOffers } from 'state/intro-offers';
+import { getSaleCoupon } from 'state/sale-coupon';
 import { productIllustrations } from '../constants';
 import {
 	cloud as cloudIcon,
@@ -36,7 +37,7 @@ const getRelatedProductPlan = ( product, availableProductsAndPlans ) => {
 	return availableProductsAndPlans[ upsellPlan ];
 };
 
-const renderProduct = ( product, offers, priority, hasRelatedPlan ) => {
+const renderProduct = ( product, offers, saleCoupon, priority, hasRelatedPlan ) => {
 	const illustration =
 		! hasRelatedPlan && productIllustrations.hasOwnProperty( product.key )
 			? productIllustrations[ product.key ]
@@ -65,8 +66,9 @@ const renderProduct = ( product, offers, priority, hasRelatedPlan ) => {
 	}
 
 	const offer = offers?.find( ( { product_slug } ) => product_slug === product.slug );
+	const discountRatio = saleCoupon && saleCoupon.discount ? saleCoupon.discount / 100 : 0;
 	const price = offer?.original_price || product.fullPrice;
-	const discountedPrice = offer?.raw_price;
+	const discountedPrice = ( offer?.raw_price || price ) * ( 1 - discountRatio );
 
 	return (
 		<JetpackProductCard
@@ -93,7 +95,7 @@ const renderProduct = ( product, offers, priority, hasRelatedPlan ) => {
 };
 
 const ProductDescription = props => {
-	const { availableProductsAndPlans, product, offers } = props;
+	const { availableProductsAndPlans, product, offers, saleCoupon } = props;
 
 	const relatedPlan = getRelatedProductPlan( product, availableProductsAndPlans );
 
@@ -111,8 +113,9 @@ const ProductDescription = props => {
 	return (
 		<>
 			<div className={ classes }>
-				{ renderProduct( product, offers, 'primary', !! relatedPlan ) }
-				{ !! relatedPlan && renderProduct( relatedPlan, offers, 'secondary', !! relatedPlan ) }
+				{ renderProduct( product, offers, saleCoupon, 'primary', !! relatedPlan ) }
+				{ !! relatedPlan &&
+					renderProduct( relatedPlan, offers, saleCoupon, 'secondary', !! relatedPlan ) }
 			</div>
 
 			<div className="jp-product-description__introductory-pricing">
@@ -137,5 +140,6 @@ export default connect( state => {
 	return {
 		availableProductsAndPlans: getProductsForPurchase( state ),
 		offers: getIntroOffers( state ),
+		saleCoupon: getSaleCoupon( state ),
 	};
 } )( ProductDescription );

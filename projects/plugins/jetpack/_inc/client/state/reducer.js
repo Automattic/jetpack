@@ -15,6 +15,7 @@ import { reducer as products } from 'state/products/reducer';
 import { reducer as publicize } from 'state/publicize/reducer';
 import { reducer as recommendations } from 'state/recommendations';
 import { reducer as rewind } from 'state/rewind/reducer';
+import { reducer as saleCoupon } from 'state/sale-coupon';
 import { reducer as scan } from 'state/scan/reducer';
 import { reducer as search } from 'state/search/reducer';
 import { reducer as settings } from 'state/settings/reducer';
@@ -50,6 +51,7 @@ const jetpackReducer = combineReducers( {
 	licensing,
 	waf,
 	introOffers,
+	saleCoupon,
 } );
 
 export default combineReducers( {
