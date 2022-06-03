@@ -8,17 +8,17 @@ YELLOW_BOLD='\033[1;33m';
 COLOR_RESET='\033[0m';
 
 error () {
-	echo "\n🤯 ${RED_BOLD}$1${COLOR_RESET}\n"
+	printf "\n🤯 ${RED_BOLD}$1${COLOR_RESET}\n"
 	exit 1
 }
 status () {
-	echo "\n👩‍💻 ${BLUE_BOLD}$1${COLOR_RESET}\n"
+	printf "\n👩‍💻 ${BLUE_BOLD}$1${COLOR_RESET}\n"
 }
 success () {
-	echo "\n✅ ${GREEN_BOLD}$1${COLOR_RESET}\n"
+	printf "\n✅ ${GREEN_BOLD}$1${COLOR_RESET}\n"
 }
 warning () {
-	echo "\n${YELLOW_BOLD}$1${COLOR_RESET}\n"
+	printf "\n${YELLOW_BOLD}$1${COLOR_RESET}\n"
 }
 
 # We want to be in the root `wpcomsh` dir
