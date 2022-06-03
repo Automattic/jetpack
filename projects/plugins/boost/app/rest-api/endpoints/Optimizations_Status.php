@@ -12,9 +12,9 @@ class Optimizations_Status implements Endpoint {
 		return \WP_REST_Server::READABLE;
 	}
 
+	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
 		$optimizations = ( new Optimizations() )->get_status();
-
 		return rest_ensure_response( $optimizations );
 	}
 
