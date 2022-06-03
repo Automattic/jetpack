@@ -61,7 +61,7 @@ if ( Waf_Runner::is_enabled() ) {
  * @return void
  */
 add_action(
-	'plugin_loaded',
+	'plugins_loaded',
 	function () {
 		require_once __DIR__ . '/run.php';
 	}
