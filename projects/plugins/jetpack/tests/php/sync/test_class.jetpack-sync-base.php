@@ -85,6 +85,8 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		unset( $_SERVER['HTTP_USER_AGENT'] );
+		unset( $GLOBALS['publicize'] );
+		unset( $GLOBALS['publicize_ui'] );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
