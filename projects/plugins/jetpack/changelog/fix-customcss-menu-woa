@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Custom CSS: Add WoA check to prevent duplicate menu item on plan-less sites.
