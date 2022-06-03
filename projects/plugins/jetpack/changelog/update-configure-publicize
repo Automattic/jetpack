@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Load publicize only in the publicize module is active.
