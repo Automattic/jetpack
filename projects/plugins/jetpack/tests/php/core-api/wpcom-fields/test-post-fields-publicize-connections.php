@@ -92,6 +92,8 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public static function wpTearDownAfterClass() {
+		unset( $GLOBALS['publicize'] );
+		unset( $GLOBALS['publicize_ui'] );
 		unregister_post_type( 'example-with' );
 		unregister_post_type( 'example-without' );
 
@@ -222,8 +224,6 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	 * Tear down.
 	 */
 	public function tear_down() {
-		unset( $GLOBALS['publicize'] );
-		unset( $GLOBALS['publicize_ui'] );
 		$publicizeable_post_types = array();
 		// Clean up custom meta from publicizeable post types
 		foreach ( get_post_types() as $post_type ) {
