@@ -119,3 +119,18 @@ function wpcomsh_debug_information_disk_usage( $args ) {
 	return $args;
 }
 add_filter( 'debug_information', 'wpcomsh_debug_information_disk_usage' );
+
+/**
+ * Override the storage limit for Pro plans.
+ *
+ * @param string $space_allowed The storage limit.
+ *
+ * @return string The potentially updated storage limit.
+ */
+function wpcomsh_pro_plan_storage_override( $space_allowed ) {
+	if ( wpcom_site_has_feature( WPCOM_Features::ARTIFICIAL_50GB_STORAGE_LIMIT ) ) {
+		$space_allowed = strval( 50 * GB_IN_BYTES );
+	}
+
+	return $space_allowed;
+}

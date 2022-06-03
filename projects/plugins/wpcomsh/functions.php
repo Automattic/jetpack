@@ -346,3 +346,29 @@ function wpcomsh_get_wpcom_active_subscriptions() {
 	);
 }
 add_filter( 'pre_option_wpcom_active_subscriptions', 'wpcomsh_get_wpcom_active_subscriptions' );
+
+/**
+ * Get Atomic site information.
+ *
+ * @return array
+ */
+function wpcomsh_get_at_site_info() {
+	$at_site_info_file = sys_get_temp_dir() . '/.at-site-info';
+
+	if ( ! is_file( $at_site_info_file ) ) {
+		return array();
+	}
+
+	$site_info_json = file_get_contents( $at_site_info_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+
+	if ( empty( $site_info_json ) ) {
+		return array();
+	}
+
+	$site_info = json_decode( $site_info_json, true );
+	if ( empty( $site_info ) ) {
+		return array();
+	}
+
+	return $site_info;
+}

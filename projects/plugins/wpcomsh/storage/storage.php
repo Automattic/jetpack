@@ -41,3 +41,29 @@ function wpcomsh_check_upload_size( $file ) {
 }
 add_filter( 'wp_handle_upload_prefilter', 'wpcomsh_check_upload_size' );
 
+/**
+ * Do not allow uploads from Calypso's media section if it would cause our
+ * disk usage to go over the quota.
+ *
+ * @param bool|WP_Error $allowed If false or WP_Error, blocks the upload. If true, allows the upload.
+ * @param array         $files   The $_FILES attempting to be uploaded.
+ *
+ * @return bool|WP_Error WP_Error when uploaded file would exceed upload space, $allowed when not.
+ */
+function wpcomsh_jetpack_upload_handler_can_upload( $allowed, $files ) {
+	$site_info = wpcomsh_get_at_site_info();
+
+	if ( empty( $site_info['space_used'] ) || empty( $site_info['space_quota'] ) ) {
+		return $allowed;
+	}
+
+	if ( ! empty( $files['media']['size'] ) ) {
+		$upload_size = array_sum( $files['media']['size'] );
+		if ( $site_info['space_used'] + $upload_size > $site_info['space_quota'] ) {
+			return new WP_Error( 'insufficient_space_available', 'Uploaded file is too large.' );
+		}
+	}
+
+	return $allowed;
+}
+add_filter( 'jetpack_upload_handler_can_upload', 'wpcomsh_jetpack_upload_handler_can_upload', 10, 2 );
