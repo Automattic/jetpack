@@ -50,6 +50,10 @@ export async function updateModuleState( slug: string, state: boolean ): Promise
 	return finalState;
 }
 
+export async function updateLocalModulesState( moduleState: ModulesState ) {
+	update( () => moduleState );
+}
+
 function setEnabled( slug: string, enabled: boolean, synced = false ) {
 	update( state => ( {
 		...state,
