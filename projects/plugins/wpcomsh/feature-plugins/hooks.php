@@ -180,7 +180,6 @@ function wpcomsh_maybe_redirect_to_calypso_plugin_pages() {
 		exit;
 	}
 }
-
 add_action( 'plugins_loaded', 'wpcomsh_maybe_redirect_to_calypso_plugin_pages' );
 
 /**
@@ -194,8 +193,3 @@ function wpcomsh_gate_footer_credit_feature() {
 	return wpcom_site_has_feature( WPCOM_Features::NO_WPCOM_BRANDING );
 }
 add_filter( 'wpcom_better_footer_credit_can_customize', 'wpcomsh_gate_footer_credit_feature' );
-
-/**
- * Gate the Additional CSS feature to eligible sites.
- */
-add_action( 'jetpack_loaded', array( '\WPCOMSH_Feature_Manager\Manage_Additional_CSS_Feature', 'maybe_disable_custom_css' ) );

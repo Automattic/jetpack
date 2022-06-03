@@ -33,10 +33,6 @@ require_once __DIR__ . '/storefront/storefront.php';
 require_once __DIR__ . '/custom-colors/colors.php';
 require_once __DIR__ . '/storage/storage.php';
 
-// Load feature manager bootstrap file.
-require_once __DIR__ . '/feature-manager/bootstrap.php';
-require_once __DIR__ . '/feature-manager/feature-hooks.php';
-
 // Interoperability with the core WordPress data privacy functionality (See also "GDPR")
 require_once __DIR__ . '/privacy/class-wp-privacy-participating-plugins.php';
 
@@ -81,9 +77,11 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/endpoints/rest-api.php';
 
 // Load feature plugin overrides
+require_once __DIR__ . '/feature-plugins/additional-css.php';
 require_once __DIR__ . '/feature-plugins/full-site-editing.php';
 require_once __DIR__ . '/feature-plugins/google-fonts.php';
 require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';
+require_once __DIR__ . '/feature-plugins/hooks.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/masterbar.php';
