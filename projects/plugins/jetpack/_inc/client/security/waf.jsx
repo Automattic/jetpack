@@ -81,9 +81,14 @@ export const Waf = class extends Component {
 		const moduleHeader = (
 			<div className="waf__header">
 				<span>{ _x( 'Firewall', 'Settings header', 'jetpack' ) }</span>
-				<span className="waf__header__badge">
+				<a
+					href={ getRedirectUrl( 'jetpack-support-waf' ) }
+					target="_blank"
+					rel="noopener noreferrer"
+					className="waf__header__badge"
+				>
 					{ _x( 'Beta', 'Settings header badge', 'jetpack' ) }
-				</span>
+				</a>
 			</div>
 		);
 
