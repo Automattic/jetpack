@@ -38,6 +38,7 @@ class Jetpack_Social {
 	 * @param Connection_Manager $connection_manager The Jetpack connection manager to use.
 	 */
 	public function __construct( $connection_manager = null ) {
+
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
@@ -98,6 +99,28 @@ class Jetpack_Social {
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
+
+		$this->register_deactivation_hook();
+	}
+
+	/**
+	 * Register deactivation hook.
+	 */
+	private function register_deactivation_hook() {
+		$plugin_file = trailingslashit( dirname( __DIR__ ) ) . 'jetpack-social.php';
+		register_deactivation_hook( $plugin_file, array( $this, 'deactivate' ) );
+	}
+
+	/**
+	 * The code to run on deactivation of the plugin.
+	 */
+	public function deactivate() {
+		$active_plugins = self::get_active_plugins();
+
+		// Disconnect Jetpack if Social is the last plugin being disconnected.
+		if ( count( $active_plugins ) === 1 && $active_plugins[0] === 'social/jetpack-social.php' ) {
+			$this->manager->remove_connection();
+		}
 	}
 
 	/**
@@ -253,5 +276,28 @@ class Jetpack_Social {
 	 */
 	public function social_filter_available_modules( $modules ) {
 		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
+	}
+
+	/**
+	 * Gets all plugins currently active in values, regardless of whether they're
+	 * traditionally activated or network activated.
+	 *
+	 * @todo Store the result in core's object cache maybe?
+	 */
+	public function get_active_plugins() {
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+
+		if ( is_multisite() ) {
+			// Due to legacy code, active_sitewide_plugins stores them in the keys,
+			// whereas active_plugins stores them in the values.
+			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
+			if ( $network_plugins ) {
+				$active_plugins = array_merge( $active_plugins, $network_plugins );
+			}
+		}
+
+		sort( $active_plugins );
+
+		return array_unique( $active_plugins );
 	}
 }
