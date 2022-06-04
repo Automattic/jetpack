@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 const { getInput, setFailed } = require( '@actions/core' );
-
-/**
- * Internal dependencies
- */
 const debug = require( '../../debug' );
 const getLabels = require( '../../get-labels' );
 const sendSlackMessage = require( '../../send-slack-message' );

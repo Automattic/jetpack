@@ -1,15 +1,8 @@
-/**
- * WordPress dependencies
- */
-import { Component } from '@wordpress/element';
 import { withInstanceId } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
+import { Component } from '@wordpress/element';
 import ShadowRoot from '../lib/shadow-root';
-import ModalFrame from './frame';
 import * as ariaHelper from './aria-helper';
+import ModalFrame from './frame';
 
 // Used to count the number of open modals.
 let parentElement,

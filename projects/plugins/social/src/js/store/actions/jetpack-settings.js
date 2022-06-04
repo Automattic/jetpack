@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import { select } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { STORE_ID } from '../../store';
 import {
 	fetchJetpackSettings,
 	updateJetpackSettings as updateJetpackSettingsControl,
 } from '../controls';
-import { STORE_ID } from '../../store';
 
 export const SET_JETPACK_SETTINGS = 'SET_JETPACK_SETTINGS';
 export const TOGGLE_PUBLICIZE_MODULE = 'TOGGLE_PUBLICIZE_MODULE';

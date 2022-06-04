@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { combineReducers } from 'redux';
-
-/**
- * Internal dependencies
- */
 import {
 	JETPACK_SITE_PRODUCTS_FETCH,
 	JETPACK_SITE_PRODUCTS_FETCH_FAIL,

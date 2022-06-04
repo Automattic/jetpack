@@ -1,18 +1,7 @@
 <script>
-	/**
-	 * External dependencies
-	 */
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { derived } from 'svelte/store';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import Toggle from '../../../elements/Toggle.svelte';
 	import { modules, updateModuleState } from '../../../stores/modules';

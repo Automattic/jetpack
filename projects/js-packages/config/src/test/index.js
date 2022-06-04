@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { expect } from 'chai';
 import { jetpackConfigGet, jetpackConfigHas } from '../';
 

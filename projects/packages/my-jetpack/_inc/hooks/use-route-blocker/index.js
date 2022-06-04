@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { useEffect } from 'react';
 import { useNavigationType, useNavigate } from 'react-router-dom';
 

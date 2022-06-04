@@ -1,15 +1,8 @@
-/**
- * WordPress dependencies
- */
 import { ToolbarButton } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import analytics from '../../../../_inc/client/lib/analytics';
 import { flashIcon } from '../../icons';
 import useAutosaveAndRedirect from '../../use-autosave-and-redirect';
-import analytics from '../../../../_inc/client/lib/analytics';
 
 import './style.scss';
 

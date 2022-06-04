@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useEffect } from 'react';
-import { AdminPage, Container, Col } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import { ActivationScreen } from '@automattic/jetpack-licensing';
-import GoBackLink from '../go-back-link';
 import restApi from '@automattic/jetpack-api';
+import { AdminPage, Container, Col } from '@automattic/jetpack-components';
+import { ActivationScreen } from '@automattic/jetpack-licensing';
+import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import GoBackLink from '../go-back-link';
 
 /**
  * The AddLicenseScreen component of the My Jetpack app.

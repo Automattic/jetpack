@@ -1,24 +1,17 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 import { FormLabel, FormLegend } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
-import { getModule } from 'state/modules';
-import { currentThemeSupports } from 'state/initial-state';
-import { isModuleFound } from 'state/search';
+import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import ModuleOverriddenBanner from 'components/module-overridden-banner';
+import analytics from 'lib/analytics';
+import React from 'react';
+import { connect } from 'react-redux';
+import { currentThemeSupports } from 'state/initial-state';
+import { getModule } from 'state/modules';
+import { isModuleFound } from 'state/search';
 
 class ThemeEnhancements extends React.Component {
 	/**

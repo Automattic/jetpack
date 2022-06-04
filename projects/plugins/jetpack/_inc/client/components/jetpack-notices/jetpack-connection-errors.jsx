@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
-import NoticeAction from 'components/notice/notice-action.jsx';
+import { __ } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
+import PropTypes from 'prop-types';
+import React from 'react';
+import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
 
 export default class JetpackConnectionErrors extends React.Component {
 	static propTypes = {

@@ -1,18 +1,11 @@
-/**
- * Internal dependencies
- */
-import edit from './edit';
-import save from './save';
-import deprecated from './deprecated';
-import icon from '../_inc/icon.js';
-
-/**
- * WordPress dependencies
- */
 import { compose, ifCondition } from '@wordpress/compose';
 import { withSelect, select, subscribe } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { registerFormatType, unregisterFormatType } from '@wordpress/rich-text';
+import icon from '../_inc/icon.js';
+import deprecated from './deprecated';
+import edit from './edit';
+import save from './save';
 
 const name = 'premium-content/logged-out-view';
 const settings = {

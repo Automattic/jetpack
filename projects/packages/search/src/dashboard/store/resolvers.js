@@ -1,22 +1,15 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { errorNotice } from '../components/global-notices/store/actions';
+import { setJetpackSettings } from './actions/jetpack-settings';
+import { setSearchPricing } from './actions/search-pricing';
+import { setSearchPlanInfo } from './actions/site-plan';
+import { setSearchStats } from './actions/site-stats';
 import {
 	fetchJetpackSettings,
 	fetchSearchPlanInfo,
 	fetchSearchPricing,
 	fetchSearchStats,
 } from './controls';
-import { setJetpackSettings } from './actions/jetpack-settings';
-import { setSearchPlanInfo } from './actions/site-plan';
-import { setSearchStats } from './actions/site-stats';
-import { errorNotice } from '../components/global-notices/store/actions';
-import { setSearchPricing } from './actions/search-pricing';
 
 /**
  * Yield actions to get Search Module Status
