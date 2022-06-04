@@ -248,7 +248,18 @@ export const Waf = class extends Component {
 				] ) }
 			>
 				<QueryWafSettings />
-				<SettingsGroup disableInOfflineMode module={ this.props.getModule( 'waf' ) }>
+				<SettingsGroup
+					disableInOfflineMode
+					module={ this.props.getModule( 'waf' ) }
+					support={ {
+						text:
+							__(
+								'The Jetpack Firewall is a web application firewall designed to protect your WordPress site from malicious requests.',
+								'jetpack'
+							) || 'yeet',
+						link: getRedirectUrl( 'jetpack-support-waf' ) || 'yeet',
+					} }
+				>
 					<ModuleToggle
 						slug="waf"
 						disabled={ unavailableInOfflineMode }
