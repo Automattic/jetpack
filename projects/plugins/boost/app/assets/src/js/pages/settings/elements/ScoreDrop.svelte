@@ -15,7 +15,8 @@
 	import slideRightTransition from '../../../utils/slide-right-transition';
 	import { makeAdminAjaxRequest } from '../../../utils/make-admin-ajax-request';
 
-	const dispatchScore = createEventDispatcher();
+	const dispatch = createEventDispatcher();
+
 	async function disableScorePrompt() {
 		// Send a request to back-end to permanently disable the rating prompt.
 		await makeAdminAjaxRequest( {
@@ -26,16 +27,14 @@
 		} );
 
 		// Close the currently open prompt.
-		dispatchScore( 'dismiss' );
+		dispatch( 'dismiss' );
 	}
 </script>
 
 <div class="jb-rating-card" transition:slideRightTransition>
-	<CloseButton on:click={() => dispatchScore( 'dismiss' )} />
+	<CloseButton on:click={() => dispatch( 'dismiss' )} />
 	<h3 class="jb-rating-card__headline">
-		{
-			__( 'Your site score dropped', 'jetpack-boost' )
-		}
+		{__( 'Your site score dropped', 'jetpack-boost' )}
 	</h3>
 	<p class="jb-rating-card__paragraph">
 		{__(

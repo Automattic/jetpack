@@ -142,12 +142,11 @@
 			didScoresWorsen( $scores ) && $respawnScorePrompt && ! $isLoading && ! $scores.isStale
 	);
 
-
 	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
-	$: if ( $showRatingCard || $showScoreDrop) {
+	$: if ( $showRatingCard || $showScoreDrop ) {
 		improvementPercentage = getScoreImprovementPercentage( $scores );
 		currentPercentage = ( $scores.current.mobile + $scores.current.desktop ) / 2;
 	}
@@ -241,7 +240,4 @@
 	/>
 {/if}
 
-<ScoreDrop
-	on:dismiss={() => respawnScorePrompt.set( false )}
-	improvement={improvementPercentage}
-/>
+<ScoreDrop on:dismiss={() => respawnScorePrompt.set( false )} />
