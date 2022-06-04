@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Disconnect Jetpack connection if Jetpack Social is the last plugin being deactivated.
