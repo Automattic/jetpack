@@ -3228,7 +3228,9 @@ function wp_cache_gc_cron() {
 	update_option( 'wpsupercache_gc_time', time() );
 	wp_cache_debug( "wp_cache_gc_cron: Set GC Flag. ($gc_flag)", 5 );
 	$fp = @fopen( $gc_flag, 'w' );
-	@fclose( $fp );
+	if ( $fp ) {
+		@fclose( $fp );
+	}
 
 	wp_cache_debug( 'Cache garbage collection.', 5 );
 
