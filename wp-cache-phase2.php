@@ -46,10 +46,15 @@ function wpsc_remove_tracking_params_from_uri( $uri ) {
 		parse_str( $parsed_url['query'], $query );
 		foreach( $wpsc_tracking_parameters as $param_name ) {
 			unset( $query[$param_name] );
+			unset( $_GET[ $param_name ] );
 		}
 	}
 	$path = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '';
 	$query = ! empty( $query ) ? '?' . http_build_query( $query ) : '';
+
+	if ( empty( $_GET ) ) {
+		$_SERVER['REQUEST_URI'] = strtok( $_SERVER['REQUEST_URI'], '?' );
+	}
 
 	if ( $uri !== $path . $query ) {
 		wp_cache_debug( 'Removed tracking parameters from URL. Returning ' . $path . $query );
