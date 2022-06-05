@@ -1,8 +1,8 @@
 # WP Super Cache #
 * Contributors: donncha, automattic
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
-* Tested up to: 5.9
-* Stable tag: 1.7.7
+* Tested up to: 6.0
+* Stable tag: 1.7.8
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -268,6 +268,17 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.7.8 ###
+* Change the admin bar "Delete Cache" button into an AJAX link #808 #810
+* Fix link to log file in custom WordPress structure #807
+* Add an auto updating preload message. #811 #816
+* Use REQUEST_URI instead of GET to check GET status. #813
+* Add commonWP and disclaimer to "recommended links" #812
+* Hide warnings in case files deleted #814
+* Remove the GET param when removing tracking params #818
+* Check that post is private to unpublish it and clear cache 2249e58e6f585d936c0993e9d18e6382fa976a66
+* Check $gc_flag was opened before closing it. #819
 
 ### 1.7.7 ###
 * Fixes to settings page
@@ -781,4 +792,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Fixes for settings page
+Misc fixes and new features
