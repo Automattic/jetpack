@@ -16,6 +16,7 @@ const config = {
 		config: configDir,
 		output: outputDir,
 		temp: tempDir,
+		reporters: `./reporters`,
 		screenshots: `./${ outputDir }/screenshots`,
 		videos: `./${ outputDir }/videos`,
 		logs: `./${ outputDir }/logs`,
