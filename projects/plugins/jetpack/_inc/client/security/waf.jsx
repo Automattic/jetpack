@@ -257,12 +257,11 @@ export const Waf = class extends Component {
 					disableInOfflineMode
 					module={ this.props.getModule( 'waf' ) }
 					support={ {
-						text:
-							__(
-								'The Jetpack Firewall is a web application firewall designed to protect your WordPress site from malicious requests.',
-								'jetpack'
-							) || 'yeet',
-						link: getRedirectUrl( 'jetpack-support-waf' ) || 'yeet',
+						text: __(
+							'The Jetpack Firewall is a web application firewall designed to protect your WordPress site from malicious requests.',
+							'jetpack'
+						),
+						link: getRedirectUrl( 'jetpack-support-waf' ),
 					} }
 				>
 					<ModuleToggle
