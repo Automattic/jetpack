@@ -122,6 +122,8 @@ class Jetpack_Lazy_Images {
 
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allow_lazy_attributes' ) );
 		add_action( 'wp_head', array( $this, 'add_nojs_fallback' ) );
+
+		add_filter( 'wp_img_tag_add_loading_attr', array( $this, 'maybe_skip_core_loading_attribute' ), 10, 2 );
 	}
 
 	/**
@@ -348,6 +350,9 @@ class Jetpack_Lazy_Images {
 
 		$old_attributes = $attributes;
 
+		// If the loading attribute is already set. Let's remove it.
+		unset( $attributes['loading'] );
+
 		// Stash srcset and sizes in data attributes.
 		foreach ( array( 'srcset', 'sizes' ) as $attribute ) {
 			if ( isset( $old_attributes[ $attribute ] ) ) {
@@ -517,5 +522,25 @@ class Jetpack_Lazy_Images {
 				'loading_warning' => __( 'Images are still loading. Please cancel your print and try again.', 'jetpack-lazy-images' ),
 			)
 		);
+	}
+
+	/**
+	 * If we have already initialized an image to be lazy loaded by Jetpack, then bypass core's lazy loading to minimize conflicts.
+	 *
+	 * See: https://github.com/Automattic/jetpack/issues/23553
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|bool $value  The value to use for the loading attribute.
+	 * @param string      $image  The markup for the image.
+	 *
+	 * @return bool If core's lazy loading should be bypassed, `false`. Otherwise, the original `$value`.
+	 */
+	public function maybe_skip_core_loading_attribute( $value, $image ) {
+		if ( false !== strpos( $image, 'jetpack-lazy-image' ) ) {
+			return false;
+		}
+
+		return $value;
 	}
 }
