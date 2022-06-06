@@ -18,7 +18,7 @@
 		"jetpack": "bin/jetpack.js"
 	},
 	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules pnpm jest tests"
+		"test": "NODE_OPTIONS=--experimental-vm-modules pnpm jest --testMatch='<rootDir>/tests/**/*.test.js'"
 	},
 	"dependencies": {
 		"@octokit/auth-token": "2.5.0",
