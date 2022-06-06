@@ -184,7 +184,6 @@ const ProductOffer = ( {
 				) }
 
 				{ buttonDisclaimer }
-
 			</div>
 		</div>
 	);
