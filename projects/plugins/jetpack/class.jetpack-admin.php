@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Build the Jetpack admin menu as a whole.
@@ -131,7 +132,7 @@ class Jetpack_Admin {
 
 		// If the site is a WoA site and the custom-css feature is not available, return.
 		// See https://github.com/Automattic/jetpack/pull/19965 for more on how this menu item is dealt with on WoA sites.
-		if ( jetpack_is_atomic_site() && ! ( in_array( 'custom-css', Jetpack::get_available_modules(), true ) ) ) {
+		if ( ( new Host() )->is_woa_site() && ! ( in_array( 'custom-css', Jetpack::get_available_modules(), true ) ) ) {
 			return;
 		} elseif ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'custom-css' ) ) { // If the Custom CSS module is enabled, add the Additional CSS menu item and link to the Customizer.
 			// Add in our legacy page to support old bookmarks and such.
