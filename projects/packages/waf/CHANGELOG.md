@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.2] - 2022-06-06
 ### Fixed
-- fixed the hook we're using for run.php
+- Fix the hook we're using for run.php.
 
 ## [0.6.1] - 2022-06-02
 ### Removed
