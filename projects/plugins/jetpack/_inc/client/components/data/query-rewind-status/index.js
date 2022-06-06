@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
-import { fetchRewindStatus, isFetchingRewindStatus } from 'state/rewind';
 import { isOfflineMode } from 'state/connection';
+import { fetchRewindStatus, isFetchingRewindStatus } from 'state/rewind';
 
 class QueryRewindStatus extends Component {
 	static propTypes = {

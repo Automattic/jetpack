@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { SimpleButton } from './button';
 import { PauseIcon, PlayIcon, VolumeOffIcon, VolumeUpIcon } from './icons';
 

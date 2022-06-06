@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { convertShareableUrl, extractAttributesFromIframe, parseEmbed } from '../utils';
 
 const shareableUrl = 'https://calendar.google.com/calendar?cid=Z2xlbi5kYXZpZXNAYThjLmNvbQ';

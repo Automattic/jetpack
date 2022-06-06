@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { Path, SVG } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
+import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
+import edit from './edit';
 
 // Ordering is important! Editor overrides style!
 import './style.scss';

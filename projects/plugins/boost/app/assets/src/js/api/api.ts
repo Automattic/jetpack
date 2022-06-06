@@ -3,14 +3,7 @@
  * Utility class for accessing the API
  */
 
-/**
- * WordPress dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { ApiError } from './api-error';
 import type { JSONObject } from '../utils/json-types';
 

@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner, PanelBody, BaseControl } from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import CRMPluginState from './jetpack-crm-integration-settings-plugin-state';
 
 const fetchCRMData = ( setHasCRMDataError, setCRMData, setIsFetchingCRMData ) => {

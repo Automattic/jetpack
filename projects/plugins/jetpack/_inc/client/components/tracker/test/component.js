@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { expect } from 'chai';
 import { mount } from 'enzyme';
 import { spy } from 'sinon';
 
-/**
- * Internal dependencies
- */
 import { Tracker } from '../index';
 
 describe( 'Tracker component', () => {

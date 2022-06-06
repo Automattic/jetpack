@@ -1,7 +1,4 @@
-/**
- * WordPress dependencies
- */
-import { __experimentalGetSettings } from '@wordpress/date';
+import { __experimentalGetSettings } from '@wordpress/date'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 
 /**
  * Clean up WP locale so it matches the format expected by browsers.

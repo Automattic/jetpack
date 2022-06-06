@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY,

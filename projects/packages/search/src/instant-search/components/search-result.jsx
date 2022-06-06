@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
-
-/**
- * Internal dependencies
- */
-import SearchResultMinimal from './search-result-minimal';
-import SearchResultExpanded from './search-result-expanded';
-import SearchResultProduct from './search-result-product';
-import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
 import {
 	MULTISITE_NO_GROUP_VALUE,
 	RESULT_FORMAT_EXPANDED,
 	RESULT_FORMAT_PRODUCT,
 } from '../lib/constants';
+import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
+import SearchResultExpanded from './search-result-expanded';
+import SearchResultMinimal from './search-result-minimal';
+import SearchResultProduct from './search-result-product';
 import './search-result.scss';
 
 class SearchResult extends Component {

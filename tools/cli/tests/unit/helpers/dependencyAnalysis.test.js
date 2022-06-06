@@ -1,29 +1,21 @@
-/**
- * External dependencies
- */
-import chai from 'chai';
 import { fileURLToPath } from 'url';
-
-/**
- * Internal dependencies
- */
 import { getDependencies, filterDeps, getBuildOrder } from '../../../helpers/dependencyAnalysis.js';
 
 const dataDir = fileURLToPath( new URL( '../../data', import.meta.url ) );
 
-const compareDeps = ( actual, expect ) => {
-	chai.expect( actual ).to.be.a( 'Map' );
+const compareDeps = ( actual, xpect ) => {
+	expect( actual ).toBeInstanceOf( Map );
 	const map = {};
 	for ( const [ k, v ] of actual ) {
-		chai.expect( v ).to.be.a( 'Set', k );
+		expect( v ).toBeInstanceOf( Set );
 		map[ k ] = [ ...v ];
 	}
-	chai.expect( map ).to.deep.equal( expect );
+	expect( map ).toEqual( xpect );
 };
 
 describe( 'dependencyAnalysis', () => {
 	describe( 'getDependencies', () => {
-		it( 'monorepo', async () => {
+		test( 'monorepo', async () => {
 			const ret = await getDependencies( dataDir + '/monorepo' );
 			compareDeps( ret, {
 				monorepo: [ 'packages/a' ],
@@ -36,7 +28,7 @@ describe( 'dependencyAnalysis', () => {
 			} );
 		} );
 
-		it( 'monorepo, build deps', async () => {
+		test( 'monorepo, build deps', async () => {
 			const ret = await getDependencies( dataDir + '/monorepo', 'build' );
 			compareDeps( ret, {
 				monorepo: [ 'packages/a' ],
@@ -49,7 +41,7 @@ describe( 'dependencyAnalysis', () => {
 			} );
 		} );
 
-		it( 'monorepo, test deps', async () => {
+		test( 'monorepo, test deps', async () => {
 			const ret = await getDependencies( dataDir + '/monorepo', 'test' );
 			compareDeps( ret, {
 				monorepo: [ 'packages/a' ],
@@ -62,7 +54,7 @@ describe( 'dependencyAnalysis', () => {
 			} );
 		} );
 
-		it( 'monorepo-cycle', async () => {
+		test( 'monorepo-cycle', async () => {
 			const ret = await getDependencies( dataDir + '/monorepo-cycle' );
 			compareDeps( ret, {
 				monorepo: [ 'packages/a' ],
@@ -74,7 +66,7 @@ describe( 'dependencyAnalysis', () => {
 	} );
 
 	describe( 'filterDeps', () => {
-		it( 'listed packages', async () => {
+		test( 'listed packages', async () => {
 			const deps = await getDependencies( dataDir + '/monorepo', 'build' );
 			deps.delete( 'monorepo' );
 			const filteredDeps = filterDeps( deps, [ 'packages/a', 'packages/b', 'packages/c' ] );
@@ -85,7 +77,7 @@ describe( 'dependencyAnalysis', () => {
 			} );
 		} );
 
-		it( 'dependencies', async () => {
+		test( 'dependencies', async () => {
 			const deps = await getDependencies( dataDir + '/monorepo', 'build' );
 			const filteredDeps = filterDeps( deps, [ 'js-packages/f' ], { dependencies: true } );
 			compareDeps( filteredDeps, {
@@ -95,7 +87,7 @@ describe( 'dependencyAnalysis', () => {
 			} );
 		} );
 
-		it( 'dependents', async () => {
+		test( 'dependents', async () => {
 			const deps = await getDependencies( dataDir + '/monorepo', 'build' );
 			const filteredDeps = filterDeps( deps, [ 'packages/b' ], { dependents: true } );
 			compareDeps( filteredDeps, {
@@ -105,7 +97,7 @@ describe( 'dependencyAnalysis', () => {
 			} );
 		} );
 
-		it( 'dependencies and dependents', async () => {
+		test( 'dependencies and dependents', async () => {
 			const deps = await getDependencies( dataDir + '/monorepo' );
 			const filteredDeps = filterDeps( deps, [ 'packages/b' ], {
 				dependencies: true,
@@ -123,32 +115,33 @@ describe( 'dependencyAnalysis', () => {
 	} );
 
 	describe( 'getBuildOrder', () => {
-		it( 'monorepo', async () => {
+		test( 'monorepo', async () => {
 			const deps = await getDependencies( dataDir + '/monorepo', 'build' );
 			deps.delete( 'monorepo' );
-			chai
-				.expect( getBuildOrder( deps ) )
-				.to.deep.equal( [
-					[ 'js-packages/d', 'js-packages/e', 'packages/a' ],
-					[ 'packages/b' ],
-					[ 'js-packages/f', 'packages/c' ],
-				] );
+			expect( getBuildOrder( deps ) ).toEqual( [
+				[ 'js-packages/d', 'js-packages/e', 'packages/a' ],
+				[ 'packages/b' ],
+				[ 'js-packages/f', 'packages/c' ],
+			] );
 		} );
 
-		it( 'monorepo-cycle', async () => {
+		test( 'monorepo-cycle', async () => {
 			const deps = await getDependencies( dataDir + '/monorepo-cycle', 'build' );
 			deps.delete( 'monorepo' );
-			try {
-				getBuildOrder( deps );
-				chai.assert.fail( 'Call was supposed to fail' );
-			} catch ( e ) {
-				chai.expect( e ).to.be.an( 'Error' );
-				chai.expect( e.message ).to.equal( 'The dependency graph contains a cycle!' );
-				compareDeps( e.deps, {
-					'packages/b': [ 'packages/c' ],
-					'packages/c': [ 'packages/b' ],
-				} );
-			}
+
+			let err;
+			expect( () => {
+				try {
+					getBuildOrder( deps );
+				} catch ( e ) {
+					err = e;
+					throw e;
+				}
+			} ).toThrow( 'The dependency graph contains a cycle!' );
+			compareDeps( err.deps, {
+				'packages/b': [ 'packages/c' ],
+				'packages/c': [ 'packages/b' ],
+			} );
 		} );
 	} );
 } );

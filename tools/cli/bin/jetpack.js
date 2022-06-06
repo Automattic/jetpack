@@ -1,14 +1,7 @@
 #!/usr/bin/env node
 
-/**
- * External dependencies
- */
 import process from 'process';
 import { fileURLToPath } from 'url';
-
-/**
- * Internal dependencies
- */
 import { compareComposerVersion } from '../helpers/checkEnvironment.js';
 
 /**

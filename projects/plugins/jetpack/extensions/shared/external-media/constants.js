@@ -1,9 +1,5 @@
-/**
- * External dependencies
- */
-
-import { __ } from '@wordpress/i18n';
 import { dateI18n } from '@wordpress/date';
+import { __ } from '@wordpress/i18n';
 import { map, range } from 'lodash';
 
 export const SOURCE_WORDPRESS = 'wordpress';

@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import domReady from '@wordpress/dom-ready';
-
-/**
- * Internal dependencies
- */
 import './view.scss';
 import ResizeObserver from 'resize-observer-polyfill';
 import { handleRowResize } from './layout/mosaic/resize';

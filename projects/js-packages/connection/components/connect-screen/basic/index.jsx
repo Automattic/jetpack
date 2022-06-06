@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import ConnectScreenVisual from './visual';
+import PropTypes from 'prop-types';
+import React from 'react';
 import useConnection from '../../use-connection';
+import ConnectScreenVisual from './visual';
 
 /**
  * The Connection Screen component.

@@ -1,6 +1,3 @@
-/**
- * Internal Dependencies
- */
 //TODO: Work out a more explicit way of initialising the store
 //where it's needed. It's not clear if we'll always want the
 //store for the components, but at the moment they're tied.

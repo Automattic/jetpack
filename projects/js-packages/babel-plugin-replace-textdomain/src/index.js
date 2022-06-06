@@ -1,5 +1,5 @@
 const pluginName = require( '../package.json' ).name;
-const debug = require( 'debug' )( pluginName );
+const debug = require( 'debug' )( pluginName ); // eslint-disable-line import/order
 
 const defaultFunctions = Object.freeze( {
 	__: 1,

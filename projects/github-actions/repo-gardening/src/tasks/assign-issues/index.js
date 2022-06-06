@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 const debug = require( '../../debug' );
 
 /* global GitHub, WebhookPayloadPullRequest */

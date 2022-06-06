@@ -1,18 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import PlanIcon from 'components/plans/plan-icon/index';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const MyPlanCard = ( { productSlug, action, isError, isPlaceholder, details, tagLine, title } ) => {

@@ -22,6 +22,7 @@ export default class JetpackBoostPage extends WpPage {
 		const button = await this.page.$( '.jb-connection button' );
 		await button.click();
 		await this.waitForApiResponse( 'connection' );
+		await this.waitForApiResponse( 'optimizations/status' );
 	}
 
 	/**
