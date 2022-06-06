@@ -405,13 +405,6 @@ class Plugin {
 		return is_object( $info ) ? $info : null;
 	}
 
-// 	if ( $info->source === 'master' ) {
-// 		if ( is_object( $info ) ) {
-// 			// Update old data.
-// 			$info->source = 'trunk';
-// 		}
-//  }
-
 	/**
 	 * Swap the activation record for the plugin.
 	 *
@@ -765,7 +758,7 @@ class Plugin {
 
 			// Master case remains purely for back-compatibility (in case anyone has bookmarked URLs).
 			case 'master':
-				$source = 'trunk';
+				$source = 'trunk'; // Change source to trunk, then fall-through to the 'trunk' case.
 			case 'trunk':
 				$id       = '';
 				$which    = 'dev';
