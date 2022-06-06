@@ -35,7 +35,7 @@
 		"react-dom": "17.0.2"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.15",
+		"@automattic/jetpack-components": "workspace:* || ^0.16",
 		"@automattic/jetpack-connection": "workspace:* || ^0.18",
 		"@wordpress/i18n": "4.9.0",
 		"classnames": "2.3.1",
