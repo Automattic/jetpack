@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import { renderToString } from '@wordpress/element';
 import { createBlock } from '@wordpress/blocks';
+import { renderToString } from '@wordpress/element';
 
 /**
  * Fallback behaviour for unembeddable URLs.

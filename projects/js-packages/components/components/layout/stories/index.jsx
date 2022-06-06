@@ -1,11 +1,8 @@
-/**
- * Internal dependencies
- */
-import Container from '../container';
-import Col from '../col';
 import Text from '../../text';
-import styles from './styles.module.scss';
+import Col from '../col';
+import Container from '../container';
 import useBreakpointMatch from '../use-breakpoint-match';
+import styles from './styles.module.scss';
 
 const Layout = ( { items, fluid, horizontalGap, horizontalSpacing } ) => {
 	return (
@@ -15,13 +12,25 @@ const Layout = ( { items, fluid, horizontalGap, horizontalSpacing } ) => {
 			fluid={ fluid }
 			horizontalGap={ horizontalGap }
 		>
-			{ items.map( ( { sm, lg, md } ) => (
-				<Col sm={ sm } md={ md } lg={ lg } className={ styles.col }>
-					{ Number.isInteger( sm ) ? `sm=${ sm } ` : '' }
-					{ Number.isInteger( md ) ? `md=${ md } ` : '' }
-					{ Number.isInteger( lg ) ? `lg=${ lg } ` : '' }
-				</Col>
-			) ) }
+			{ items.map( ( { sm, lg, md }, idx ) => {
+				const smText = Number.isInteger( sm?.start ) ? JSON.stringify( sm ) : sm;
+				const mdText = Number.isInteger( md?.start ) ? JSON.stringify( md ) : md;
+				const lgText = Number.isInteger( lg?.start ) ? JSON.stringify( lg ) : lg;
+
+				return (
+					<Col
+						sm={ sm }
+						md={ md }
+						lg={ lg }
+						className={ styles.col }
+						key={ `${ smText }${ mdText }${ lgText }${ idx }` }
+					>
+						{ sm ? `sm=${ smText } ` : '' }
+						{ md ? `md=${ mdText } ` : '' }
+						{ lg ? `lg=${ lgText } ` : '' }
+					</Col>
+				);
+			} ) }
 			<Col>
 				<Container fluid horizontalSpacing={ 0 } horizontalGap={ 1 }>
 					<Col className={ styles.col }>Composition Example</Col>
@@ -52,17 +61,17 @@ Default.args = {
 		{
 			sm: 2,
 			md: 3,
-			lg: 8,
+			lg: { start: 6, end: 12 },
 		},
 		{
 			sm: 2,
 			md: 3,
-			lg: 8,
+			lg: 6,
 		},
 		{
 			sm: 2,
 			md: 5,
-			lg: 4,
+			lg: { start: 9, end: 12 },
 		},
 		{
 			sm: 2,

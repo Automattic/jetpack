@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add sortByCount prop to RecordMeterBar component

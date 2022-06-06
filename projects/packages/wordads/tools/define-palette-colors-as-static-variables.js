@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 const webpack = require( 'webpack' );
 
 // TODO: Migrate this to a common package in the monorepo to avoid code duplication.

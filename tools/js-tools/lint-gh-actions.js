@@ -3,8 +3,8 @@
 /* eslint-env node */
 /* eslint-disable no-console */
 
-const chalk = require( 'chalk' );
 const fs = require( 'fs' );
+const chalk = require( 'chalk' );
 const glob = require( 'glob' );
 const YAML = require( 'yaml' );
 const yamlTypes = require( 'yaml/types' );

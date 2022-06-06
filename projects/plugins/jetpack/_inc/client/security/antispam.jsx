@@ -1,30 +1,19 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { assign, debounce, isEmpty, trim } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import FoldableCard from 'components/foldable-card';
 import FormInputValidation from 'components/form-input-validation';
 import { FormFieldset, FormLabel } from 'components/forms';
 import Gridicon from 'components/gridicon';
-import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import TextInput from 'components/text-input';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import analytics from 'lib/analytics';
+import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
+import { assign, debounce, isEmpty, trim } from 'lodash';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
 
 export const Antispam = withModuleSettingsFormHelpers(
 	class extends Component {

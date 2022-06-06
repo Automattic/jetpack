@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import moment from 'moment';
-
-/**
- * Internal dependencies
- */
 import {
 	DATE_RANGE_LAST_7_DAYS,
 	DATE_RANGE_CUSTOM,

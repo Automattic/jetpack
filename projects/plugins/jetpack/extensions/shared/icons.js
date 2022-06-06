@@ -1,15 +1,9 @@
-/**
- * External dependencies
- */
+import colorStudio from '@automattic/color-studio';
 import { G, Path, Polygon, Rect, SVG } from '@wordpress/components';
 import classNames from 'classnames';
-import colorStudio from '@automattic/color-studio';
-
-/**
- * Internal dependencies
- */
-import './icons.scss';
 import { getIconColor } from './block-icons';
+
+import './icons.scss';
 
 /**
  * Constants
@@ -270,20 +264,6 @@ export const DescriptIcon = {
 				fillRule="evenodd"
 				d="M37 31.908c0 1.376.893 2.268 2.27 2.268H45.9c3.956 0 7.192-1.337 9.392-3.68H37v1.412zM45.901 9H39.27C37.893 9 37 9.893 37 11.269v1.411h18.294C53.093 10.338 49.857 9 45.9 9zm5.787 16.176c0 1.113.726 1.835 1.845 1.835h3.973c.45-1.117.753-2.345.894-3.671h-4.867c-1.119 0-1.845.722-1.845 1.836zm-5.507-7.166c0 1.113.725 1.836 1.844 1.836H58.4a13.644 13.644 0 00-.894-3.672h-9.481c-1.119 0-1.844.723-1.844 1.836zm1.843 7.166c0-1.114-.726-1.836-1.845-1.836H37v3.671h9.18c1.118 0 1.843-.722 1.843-1.835zm-5.508-7.166c0-1.113-.726-1.836-1.844-1.836H37v3.672h3.672c1.118 0 1.844-.723 1.844-1.836zM83.667 21.209c.296-1.437"
 				clipRule="evenodd"
-			/>
-		</SVG>
-	),
-};
-export const PocketCastsIcon = {
-	foreground: getIconColor(),
-	src: (
-		<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<Path fillRule="evenodd" clipRule="evenodd" d="M24,12A12,12,0,1,1,12,0,12,12,0,0,1,24,12Z" />
-			<Path
-				fillRule="evenodd"
-				clipRule="evenodd"
-				d="M2.67,12a9.33,9.33,0,0,1,18.66,0H19a7,7,0,1,0-7,7v2.33A9.33,9.33,0,0,1,2.67,12ZM12,17.6A5.6,5.6,0,1,1,17.6,12h-2A3.56,3.56,0,1,0,12,15.56Z"
-				fill="#fff"
 			/>
 		</SVG>
 	),

@@ -1,29 +1,18 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-import { find, isEmpty, isEqual, map, times } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { InspectorControls } from '@wordpress/block-editor';
 import { Button, Placeholder, RadioControl, Spinner, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
+import { find, isEmpty, isEqual, map, times } from 'lodash';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import isCurrentUserConnected from '../../shared/is-current-user-connected';
 import defaultAttributes from './attributes';
 import { NEW_INSTAGRAM_CONNECTION } from './constants';
-import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import InstagramGalleryInspectorControls from './controls';
+import ImageTransition from './image-transition';
 import useConnectInstagram from './use-connect-instagram';
 import useConnectWpcom from './use-connect-wpcom';
 import useInstagramGallery from './use-instagram-gallery';
-import ImageTransition from './image-transition';
-import isCurrentUserConnected from '../../shared/is-current-user-connected';
-import InstagramGalleryInspectorControls from './controls';
 import './editor.scss';
 
 const InstagramGalleryEdit = props => {

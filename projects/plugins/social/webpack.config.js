@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
 module.exports = [
 	{
@@ -44,7 +41,15 @@ module.exports = [
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ 'sass-loader' ],
+					extraLoaders: [
+						{
+							loader: 'postcss-loader',
+							options: {
+								postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
+							},
+						},
+						'sass-loader',
+					],
 				} ),
 
 				// Handle images.

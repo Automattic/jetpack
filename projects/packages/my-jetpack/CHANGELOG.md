@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2022-05-30
+### Added
+- Added Social to My Jetpack.
+
+### Changed
+- Make My Jetpack use the new Modules class
+- Replace deprecated external-link variation by using isExternalLink prop
+- Updated package dependencies
+
+## [1.5.0] - 2022-05-24
+### Changed
+- Default licensing UI in My Jetpack to be enabled [#24396]
+- Updated package dependencies. [#24449]
+
 ## [1.4.1] - 2022-05-19
 ### Changed
 - Updated package dependencies. [#24395]
@@ -479,6 +493,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[1.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.5.0...1.6.0
+[1.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.4.1...1.5.0
 [1.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.3.0...1.4.0
 [1.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.2.1...1.3.0

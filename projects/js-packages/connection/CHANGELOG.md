@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.18.3 - 2022-05-30
+### Added
+- Add option to use the checkout workflow from the ConnectionScreenRequirePlan component
+
+### Changed
+- Updated package dependencies
+
+## 0.18.2 - 2022-05-24
+### Changed
+- Updated package dependencies. [#24449]
+
 ## 0.18.1 - 2022-05-18
 ### Changed
 - Updated package dependencies. [#23795]

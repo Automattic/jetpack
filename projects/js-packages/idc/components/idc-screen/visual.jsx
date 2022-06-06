@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { JetpackLogo } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import ScreenMain from './screen-main';
-import ScreenNonAdmin from './screen-non-admin';
-import ScreenMigrated from './screen-migrated';
+import PropTypes from 'prop-types';
+import React from 'react';
 import customContentShape from '../../tools/custom-content-shape';
+import ScreenMain from './screen-main';
+import ScreenMigrated from './screen-migrated';
+import ScreenNonAdmin from './screen-non-admin';
 import './style.scss';
 
 const renderLogoImage = ( logo, alt ) =>

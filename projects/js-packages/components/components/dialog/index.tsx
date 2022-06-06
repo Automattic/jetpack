@@ -1,21 +1,16 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import classnames from 'classnames';
-
-/**
- * Internal dependencies
- */
-import styles from './style.module.scss';
-import Container from '../layout/container';
+import React from 'react';
 import Col from '../layout/col';
+import Container from '../layout/container';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
+import styles from './style.module.scss';
 
 type DialogProps = {
 	primary: React.ReactNode;
 	secondary?: React.ReactNode;
 	isTwoSections?: boolean;
+	isCard?: boolean;
+	containerProps: object;
 };
 
 /**
@@ -25,9 +20,15 @@ type DialogProps = {
  * @param {React.ReactNode} props.primary   - Primary-section content.
  * @param {React.ReactNode} props.secondary - Secondary-section content.
  * @param {boolean} props.isTwoSections     - Handle two sections layout when true.
+ * @param {object} props.containerProps     - Props to pass to the container component.
  * @returns {React.ReactNode}                 Rendered dialog
  */
-const Dialog: React.FC< DialogProps > = ( { primary, secondary, isTwoSections = false } ) => {
+const Dialog: React.FC< DialogProps > = ( {
+	primary,
+	secondary,
+	isTwoSections = false,
+	...containerProps
+} ) => {
 	const [ isSmall, isLowerThanLarge ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	/*
@@ -43,7 +44,13 @@ const Dialog: React.FC< DialogProps > = ( { primary, secondary, isTwoSections = 
 	} );
 
 	return (
-		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid>
+		<Container
+			className={ classNames }
+			horizontalSpacing={ 0 }
+			horizontalGap={ 0 }
+			fluid={ false }
+			{ ...containerProps }
+		>
 			{ ! hideSecondarySection && (
 				<>
 					<Col sm={ 4 } md={ isLowerThanLarge ? 4 : 5 } lg={ 7 } className={ styles.primary }>

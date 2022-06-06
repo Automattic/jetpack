@@ -560,7 +560,7 @@ jQuery( function($) {
 				$publicize_form = $this->get_metabox_form_disconnected( $available_services );
 				?>
 				<strong><?php esc_html_e( 'Not Connected', 'jetpack-publicize-pkg' ); ?></strong>
-				<a href="#" id="publicize-disconnected-form-show"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a><br />
+				<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
 				<?php
 
 			endif;

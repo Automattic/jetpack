@@ -1,0 +1,70 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-publicize-components",
+	"version": "0.2.1-alpha",
+	"description": "A library of JS components required by the Publicize editor plugin",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/publicize-components/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Publicize Components"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/publicize-components"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "jest src"
+	},
+	"dependencies": {
+		"@automattic/jetpack-components": "workspace:* || ^0.15",
+		"@automattic/jetpack-shared-extension-utils": "workspace:* || ^0.4",
+		"@wordpress/annotations": "2.9.0",
+		"@wordpress/components": "19.11.0",
+		"@wordpress/compose": "5.7.0",
+		"@wordpress/data": "6.9.0",
+		"@wordpress/editor": "12.8.0",
+		"@wordpress/element": "4.7.0",
+		"@wordpress/hooks": "3.9.0",
+		"@wordpress/i18n": "4.9.0",
+		"classnames": "2.3.1",
+		"lodash": "4.17.21",
+		"prop-types": "15.8.1",
+		"react-page-visibility": "6.4.0",
+		"refx": "3.1.1",
+		"rememo": "3.0.0"
+	},
+	"devDependencies": {
+		"@automattic/color-studio": "2.5.0",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.3",
+		"@babel/core": "7.17.10",
+		"@babel/plugin-transform-react-jsx": "7.17.3",
+		"@babel/preset-react": "7.16.7",
+		"@babel/runtime": "7.17.9",
+		"@wojtekmaj/enzyme-adapter-react-17": "0.6.3",
+		"@wordpress/babel-plugin-import-jsx-pragma": "3.1.2",
+		"babel-jest": "28.1.0",
+		"enzyme": "3.11.0",
+		"jest": "28.1.0",
+		"jest-environment-jsdom": "28.1.0",
+		"jest-enzyme": "7.1.2",
+		"jetpack-js-test-runner": "workspace:*",
+		"nyc": "15.1.0",
+		"react": "17.0.2",
+		"react-dom": "17.0.2"
+	},
+	"engines": {
+		"node": "^14.18.3 || ^16.13.2",
+		"pnpm": "^6.32.3",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": "./index.js"
+	},
+	"peerDependencies": {
+		"enzyme": "3.11.0",
+		"react-dom": "17.0.2"
+	}
+}

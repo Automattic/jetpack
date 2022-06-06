@@ -1,25 +1,18 @@
-/**
- * External dependencies
- */
 const { setFailed, getInput } = require( '@actions/core' );
 const { context, getOctokit } = require( '@actions/github' );
-
-/**
- * Internal dependencies
- */
-const assignIssues = require( './tasks/assign-issues' );
-const addMilestone = require( './tasks/add-milestone' );
+const debug = require( './debug' );
+const ifNotClosed = require( './if-not-closed' );
+const ifNotFork = require( './if-not-fork' );
 const addLabels = require( './tasks/add-labels' );
-const cleanLabels = require( './tasks/clean-labels' );
+const addMilestone = require( './tasks/add-milestone' );
+const assignIssues = require( './tasks/assign-issues' );
 const checkDescription = require( './tasks/check-description' );
-const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
+const cleanLabels = require( './tasks/clean-labels' );
+const flagOss = require( './tasks/flag-oss' );
 const notifyDesign = require( './tasks/notify-design' );
 const notifyEditorial = require( './tasks/notify-editorial' );
-const flagOss = require( './tasks/flag-oss' );
 const triageNewIssues = require( './tasks/triage-new-issues' );
-const debug = require( './debug' );
-const ifNotFork = require( './if-not-fork' );
-const ifNotClosed = require( './if-not-closed' );
+const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
 
 const automations = [
 	{

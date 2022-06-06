@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import api from '../api/api';
 import {
 	getStatus,

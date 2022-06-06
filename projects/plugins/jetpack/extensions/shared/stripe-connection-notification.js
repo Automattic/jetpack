@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import '@wordpress/notices';

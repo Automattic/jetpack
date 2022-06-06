@@ -1,28 +1,19 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import TextInput from 'components/text-input';
-import { isFetchingSiteData } from 'state/site';
-import { FormLabel } from 'components/forms';
-import Gridicon from 'components/gridicon';
 import Button from 'components/button';
+import { FormLabel } from 'components/forms';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import Gridicon from 'components/gridicon';
+import TextInput from 'components/text-input';
+import analytics from 'lib/analytics';
 import requestExternalAccess from 'lib/sharing';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { userCanManageOptions } from 'state/initial-state';
 import { getExternalServiceConnectUrl } from 'state/publicize/reducer';
+import { isFetchingSiteData } from 'state/site';
 import {
 	checkVerifyStatusGoogle,
 	verifySiteGoogle,
@@ -34,8 +25,6 @@ import {
 	getGoogleSiteVerificationError,
 	getGoogleSearchConsoleUrl,
 } from 'state/site-verify';
-import { userCanManageOptions } from 'state/initial-state';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
 class GoogleVerificationServiceComponent extends React.Component {
 	static propTypes = {

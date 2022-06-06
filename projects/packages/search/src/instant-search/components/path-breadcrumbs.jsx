@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React from 'react';
 
 import './path-breadcrumbs.scss';

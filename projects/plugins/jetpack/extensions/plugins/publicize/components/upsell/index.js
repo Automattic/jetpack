@@ -1,26 +1,15 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
+import { useSocialMediaConnections } from '@automattic/jetpack-publicize-components';
 import {
 	isAtomicSite,
 	isSimpleSite,
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
 import { Button, ExternalLink } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
+import classNames from 'classnames';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 
 function getPanelDescription(
 	isPostPublished,
