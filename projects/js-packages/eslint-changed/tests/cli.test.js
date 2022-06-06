@@ -1,46 +1,63 @@
-const childProcess = require( 'child_process' );
-const fs = require( 'fs/promises' );
-const os = require( 'os' );
-const path = require( 'path' );
-const assert = require( 'chai' ).assert;
+import childProcess from 'child_process';
+import fs from 'fs/promises';
+import os from 'os';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { jest } from '@jest/globals';
+import { createProgram } from '../src/cli.js';
 
-const ChildProcess = childProcess.ChildProcess;
+const dirname = fileURLToPath( new URL( './', import.meta.url ) );
 
-/**
- * Wait for a process to exit.
- *
- * @param {ChildProcess} proc - The child process.
- * @returns {Promise<number>} A promise that resolves with an object holding the exit code, stdout, and stderr.
- */
-function awaitExit( proc ) {
-	let stdout = '';
-	let stderr = '';
-
-	proc.stdout.on( 'data', data => ( stdout += data ) );
-	proc.stderr.on( 'data', data => ( stderr += data ) );
-	return new Promise( resolve =>
-		proc.once( 'exit', exitCode => resolve( { exitCode, stdout, stderr } ) )
-	);
-}
+jest.setTimeout( 5000 );
 
 describe( 'bin/eslint-changed.js', () => {
-	const processes = new Set();
 	let tmpdir = null;
 
 	/**
 	 * Run eslint-changed.
 	 *
-	 * @param {string[]} [args] - Arguments to pass.
-	 * @param {object} [options] - Options for child_process.
-	 * @returns {ChildProcess} The child process.
+	 * @param {string[]} args - Arguments to pass.
+	 * @param {object} [options] - Process options.
+	 * @returns {object} data - Process data.
 	 */
-	function runEslintChanged( args, options ) {
-		const proc = childProcess.fork( path.join( __dirname, '../../bin/eslint-changed.js' ), args, {
-			silent: true,
-			...options,
-		} );
-		processes.add( proc );
-		return proc;
+	async function runEslintChanged( args, options = {} ) {
+		const proc = {
+			cwd: () => process.cwd(),
+			env: {
+				...process.env,
+				...options.env,
+			},
+			exitCode: 0,
+		};
+		let stdout = '',
+			stderr = '',
+			error = null;
+
+		const oldpwd = process.cwd();
+		if ( options.cwd ) {
+			process.chdir( options.cwd );
+		}
+		try {
+			const program = createProgram( proc );
+			program.exitOverride();
+			program.configureOutput( {
+				writeOut: s => ( stdout += s ),
+				writeErr: s => ( stderr += s ),
+			} );
+			await program.parseAsync( [ ...process.argv.slice( 0, 2 ), ...args ] ).catch( e => {
+				error = e;
+				proc.exitCode = e.exitCode ?? 1;
+			} );
+		} finally {
+			process.chdir( oldpwd );
+		}
+
+		return {
+			exitCode: proc.exitCode,
+			error,
+			stdout,
+			stderr,
+		};
 	}
 
 	/**
@@ -63,160 +80,169 @@ describe( 'bin/eslint-changed.js', () => {
 			await fs.rm( tmpdir, { force: true, recursive: true } );
 			tmpdir = null;
 		}
-
-		// Clean up any leftover processes.
-		processes.forEach( proc => proc.kill() );
-		processes.clear();
 	} );
 
-	it( 'Accepts --version', async () => {
-		const proc = await runEslintChanged( [ '--version' ] );
-		const data = await awaitExit( proc );
-		assert.strictEqual( data.exitCode, 0, 'Exit code is 0' );
-		assert.match(
-			data.stdout,
-			/^\d+\.\d+\.\d+(?:-alpha)?\n$/s,
-			'Output looks like a version number'
-		);
+	test( 'Accepts --version', async () => {
+		const data = await runEslintChanged( [ '--version' ] );
+		expect( data.exitCode ).toBe( 0 );
+		expect( data.stdout ).toMatch( /^\d+\.\d+\.\d+(?:-alpha)?\n$/s );
 	} );
 
-	it( 'Fails when not passed --diff or --git', async () => {
-		const proc = await runEslintChanged( [] );
-		const data = await awaitExit( proc );
-		assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+	test( 'Fails when not passed --diff or --git', async () => {
+		const data = await runEslintChanged( [] );
+		expect( data.exitCode ).toBe( 1 );
 	} );
 
-	it( 'Fails when passed both --diff and --git', async () => {
-		const proc = await runEslintChanged( [ '--git', '--diff', 'foo' ] );
-		const data = await awaitExit( proc );
-		assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+	test( 'Fails when passed both --diff and --git', async () => {
+		const data = await runEslintChanged( [ '--git', '--diff', 'foo' ] );
+		expect( data.exitCode ).toBe( 1 );
 	} );
 
 	describe( 'Manual mode', () => {
-		it( 'Works in manual mode', async () => {
-			const proc = await runEslintChanged( [
+		test( 'Works in manual mode', async () => {
+			const data = await runEslintChanged( [
 				'--format=json',
 				'--diff',
-				path.join( __dirname, '../fixtures/manual-mode.diff' ),
+				path.join( dirname, 'fixtures/manual-mode.diff' ),
 				'--diff-base',
 				'/tmp/x/t',
 				'--eslint-orig',
-				path.join( __dirname, '../fixtures/manual-mode.orig.json' ),
+				path.join( dirname, 'fixtures/manual-mode.orig.json' ),
 				'--eslint-new',
-				path.join( __dirname, '../fixtures/manual-mode.new.json' ),
+				path.join( dirname, 'fixtures/manual-mode.new.json' ),
 			] );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = JSON.parse(
-				await fs.readFile( path.join( __dirname, '../fixtures/manual-mode.expect.json' ) )
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = JSON.parse(
+				await fs.readFile( path.join( dirname, 'fixtures/manual-mode.expect.json' ) )
 			);
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 
-		it( 'Exit 0 when no new errors', async () => {
-			const proc = await runEslintChanged( [
+		test( 'Exit 0 when no new errors', async () => {
+			const data = await runEslintChanged( [
 				'--format=json',
 				'--diff',
-				path.join( __dirname, '../fixtures/no-new-errors.diff' ),
+				path.join( dirname, 'fixtures/no-new-errors.diff' ),
 				'--diff-base',
 				'/tmp/x/t',
 				'--eslint-orig',
-				path.join( __dirname, '../fixtures/no-new-errors.orig.json' ),
+				path.join( dirname, 'fixtures/no-new-errors.orig.json' ),
 				'--eslint-new',
-				path.join( __dirname, '../fixtures/no-new-errors.new.json' ),
+				path.join( dirname, 'fixtures/no-new-errors.new.json' ),
 			] );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 0, 'Exit code is 0' );
+			expect( data.exitCode ).toBe( 0 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = JSON.parse(
-				await fs.readFile( path.join( __dirname, '../fixtures/no-new-errors.expect.json' ) )
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = JSON.parse(
+				await fs.readFile( path.join( dirname, 'fixtures/no-new-errors.expect.json' ) )
 			);
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 
-		it( 'Filters by filename', async () => {
-			const proc = await runEslintChanged( [
+		test( 'Filters by filename', async () => {
+			const data = await runEslintChanged( [
 				'--format=json',
 				'--diff',
-				path.join( __dirname, '../fixtures/files-123.diff' ),
+				path.join( dirname, 'fixtures/files-123.diff' ),
 				'--diff-base',
 				'/tmp/x/t',
 				'--eslint-orig',
-				path.join( __dirname, '../fixtures/files-123.orig.json' ),
+				path.join( dirname, 'fixtures/files-123.orig.json' ),
 				'--eslint-new',
-				path.join( __dirname, '../fixtures/files-123.new.json' ),
+				path.join( dirname, 'fixtures/files-123.new.json' ),
 				'1.js',
 				'3.js',
 			] );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = JSON.parse(
-				await fs.readFile( path.join( __dirname, '../fixtures/files-123.expect.json' ) )
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = JSON.parse(
+				await fs.readFile( path.join( dirname, 'fixtures/files-123.expect.json' ) )
 			);
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 
-		it( 'Includes new errors in unchanged lines', async () => {
-			const proc = await runEslintChanged( [
-				'--format=json',
-				'--diff',
-				path.join( __dirname, '../fixtures/new-err-not-in-diff.diff' ),
-				'--diff-base',
-				'/tmp/x/t',
-				'--eslint-orig',
-				path.join( __dirname, '../fixtures/new-err-not-in-diff.orig.json' ),
-				'--eslint-new',
-				path.join( __dirname, '../fixtures/new-err-not-in-diff.new.json' ),
-			] );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
-
-			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = JSON.parse(
-				await fs.readFile( path.join( __dirname, '../fixtures/new-err-not-in-diff.expect.json' ) )
-			);
-			assert.deepEqual( output, expect );
-		} );
-
-		it( 'Does not include new errors in unchanged lines with --in-diff-only', async () => {
-			const proc = await runEslintChanged( [
+		test( 'Filters by filename with --in-diff-only', async () => {
+			const data = await runEslintChanged( [
 				'--format=json',
 				'--in-diff-only',
 				'--diff',
-				path.join( __dirname, '../fixtures/new-err-not-in-diff.diff' ),
+				path.join( dirname, 'fixtures/files-123.diff' ),
 				'--diff-base',
 				'/tmp/x/t',
 				'--eslint-orig',
-				path.join( __dirname, '../fixtures/new-err-not-in-diff.orig.json' ),
+				path.join( dirname, 'fixtures/files-123.orig.json' ),
 				'--eslint-new',
-				path.join( __dirname, '../fixtures/new-err-not-in-diff.new.json' ),
+				path.join( dirname, 'fixtures/files-123.new.json' ),
+				'1.js',
+				'3.js',
 			] );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 0, 'Exit code is 0' );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = JSON.parse(
-				await fs.readFile( path.join( __dirname, '../fixtures/new-err-not-in-diff.expect2.json' ) )
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = JSON.parse(
+				await fs.readFile( path.join( dirname, 'fixtures/files-123.expect2.json' ) )
 			);
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 
-		it( 'Gets diff-base from cwd', async () => {
+		test( 'Includes new errors in unchanged lines', async () => {
+			const data = await runEslintChanged( [
+				'--format=json',
+				'--diff',
+				path.join( dirname, 'fixtures/new-err-not-in-diff.diff' ),
+				'--diff-base',
+				'/tmp/x/t',
+				'--eslint-orig',
+				path.join( dirname, 'fixtures/new-err-not-in-diff.orig.json' ),
+				'--eslint-new',
+				path.join( dirname, 'fixtures/new-err-not-in-diff.new.json' ),
+			] );
+			expect( data.exitCode ).toBe( 1 );
+
+			const output = JSON.parse( data.stdout );
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = JSON.parse(
+				await fs.readFile( path.join( dirname, 'fixtures/new-err-not-in-diff.expect.json' ) )
+			);
+			expect( output ).toEqual( expectOutput );
+		} );
+
+		test( 'Does not include new errors in unchanged lines with --in-diff-only', async () => {
+			const data = await runEslintChanged( [
+				'--format=json',
+				'--in-diff-only',
+				'--diff',
+				path.join( dirname, 'fixtures/new-err-not-in-diff.diff' ),
+				'--diff-base',
+				'/tmp/x/t',
+				'--eslint-orig',
+				path.join( dirname, 'fixtures/new-err-not-in-diff.orig.json' ),
+				'--eslint-new',
+				path.join( dirname, 'fixtures/new-err-not-in-diff.new.json' ),
+			] );
+			expect( data.exitCode ).toBe( 0 );
+
+			const output = JSON.parse( data.stdout );
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = JSON.parse(
+				await fs.readFile( path.join( dirname, 'fixtures/new-err-not-in-diff.expect2.json' ) )
+			);
+			expect( output ).toEqual( expectOutput );
+		} );
+
+		test( 'Gets diff-base from cwd', async () => {
 			await mktmpdir();
 
 			for ( const suffix of [ 'diff', 'orig.json', 'new.json', 'expect.json' ] ) {
 				const data = await fs.readFile(
-					path.join( __dirname, `../fixtures/manual-mode.${ suffix }` ),
+					path.join( dirname, `fixtures/manual-mode.${ suffix }` ),
 					'utf-8'
 				);
 				await fs.writeFile(
@@ -225,7 +251,7 @@ describe( 'bin/eslint-changed.js', () => {
 				);
 			}
 
-			const proc = await runEslintChanged(
+			const data = await runEslintChanged(
 				[
 					'--format=json',
 					'--diff',
@@ -237,19 +263,20 @@ describe( 'bin/eslint-changed.js', () => {
 				],
 				{ cwd: tmpdir }
 			);
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = JSON.parse( await fs.readFile( path.join( tmpdir, 'test.expect.json' ) ) );
-			assert.deepEqual( output, expect );
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = JSON.parse(
+				await fs.readFile( path.join( tmpdir, 'test.expect.json' ) )
+			);
+			expect( output ).toEqual( expectOutput );
 		} );
 
 		const argsets = [
-			[ '--diff', path.join( __dirname, '../fixtures/no-new-errors.diff' ) ],
-			[ '--eslint-orig', path.join( __dirname, '../fixtures/no-new-errors.orig.json' ) ],
-			[ '--eslint-new', path.join( __dirname, '../fixtures/no-new-errors.new.json' ) ],
+			[ '--diff', path.join( dirname, 'fixtures/no-new-errors.diff' ) ],
+			[ '--eslint-orig', path.join( dirname, 'fixtures/no-new-errors.orig.json' ) ],
+			[ '--eslint-new', path.join( dirname, 'fixtures/no-new-errors.new.json' ) ],
 		];
 		for ( let i = ( 1 << argsets.length ) - 2; i > 0; i-- ) {
 			const args = [];
@@ -262,17 +289,14 @@ describe( 'bin/eslint-changed.js', () => {
 				}
 			}
 
-			it( `Fails with incomplete arguments: missing ${ missing.join( ' ' ) }`, async () => {
-				const proc = await runEslintChanged( [ '--format=json', ...args ] );
-				const data = await awaitExit( proc );
-				assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			test( `Fails with incomplete arguments: missing ${ missing.join( ' ' ) }`, async () => {
+				const data = await runEslintChanged( [ '--format=json', ...args ] );
+				expect( data.exitCode ).toBe( 1 );
 			} );
 		}
 	} );
 
 	describe( 'Git mode', function () {
-		this.timeout( 5000 );
-
 		/**
 		 * Set up a temporary directory with a git repo.
 		 *
@@ -394,29 +418,26 @@ describe( 'bin/eslint-changed.js', () => {
 			},
 		];
 
-		it( 'Fails gracefully without git', async () => {
-			const proc = await runEslintChanged( [ '--format=json', '--git' ], {
+		test( 'Fails gracefully without git', async () => {
+			const data = await runEslintChanged( [ '--format=json', '--git' ], {
 				cwd: tmpdir,
 				env: { GIT: 'this-command-really-should-not-exist' },
 			} );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
-			assert.strictEqual(
-				data.stderr,
+			expect( data.exitCode ).toBe( 1 );
+			expect( data.stderr ).toBe(
 				'error: failed to execute git as `this-command-really-should-not-exist`. Use environment variable `GIT` to override.\n'
 			);
 		} );
 
-		it( 'Works in git mode, --git-staged is the default', async () => {
+		test( 'Works in git mode, --git-staged is the default', async () => {
 			await mktmpdirgit( ...standardRepo );
 
-			const proc = await runEslintChanged( [ '--format=json', '--git' ], { cwd: tmpdir } );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			const data = await runEslintChanged( [ '--format=json', '--git' ], { cwd: tmpdir } );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = [
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
 				{
 					filePath: path.join( tmpdir, '2.js' ),
 					messages: [
@@ -446,21 +467,20 @@ describe( 'bin/eslint-changed.js', () => {
 					usedDeprecatedRules: [],
 				},
 			];
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 
-		it( 'Works in git mode, explicit --git-staged', async () => {
+		test( 'Works in git mode, explicit --git-staged', async () => {
 			await mktmpdirgit( ...standardRepo );
 
-			const proc = await runEslintChanged( [ '--format=json', '--git', '--git-staged' ], {
+			const data = await runEslintChanged( [ '--format=json', '--git', '--git-staged' ], {
 				cwd: tmpdir,
 			} );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = [
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
 				{
 					filePath: path.join( tmpdir, '2.js' ),
 					messages: [
@@ -490,21 +510,20 @@ describe( 'bin/eslint-changed.js', () => {
 					usedDeprecatedRules: [],
 				},
 			];
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 
-		it( 'Works with --git-unstaged', async () => {
+		test( 'Works with --git-unstaged', async () => {
 			await mktmpdirgit( ...standardRepo );
 
-			const proc = await runEslintChanged( [ '--format=json', '--git', '--git-unstaged' ], {
+			const data = await runEslintChanged( [ '--format=json', '--git', '--git-unstaged' ], {
 				cwd: tmpdir,
 			} );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = [
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
 				{
 					filePath: path.join( tmpdir, '3.js' ),
 					messages: [
@@ -534,21 +553,20 @@ describe( 'bin/eslint-changed.js', () => {
 					usedDeprecatedRules: [],
 				},
 			];
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 
-		it( 'Works with --git-base', async () => {
+		test( 'Works with --git-base', async () => {
 			await mktmpdirgit( ...standardRepo );
 
-			const proc = await runEslintChanged( [ '--format=json', '--git', '--git-base', 'base' ], {
+			const data = await runEslintChanged( [ '--format=json', '--git', '--git-base', 'base' ], {
 				cwd: tmpdir,
 			} );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = [
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
 				{
 					filePath: path.join( tmpdir, '1.js' ),
 					messages: [
@@ -574,10 +592,10 @@ describe( 'bin/eslint-changed.js', () => {
 					usedDeprecatedRules: [],
 				},
 			];
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 
-		it( 'Works with added and deleted files', async () => {
+		test( 'Works with added and deleted files', async () => {
 			await mktmpdirgit(
 				[
 					{
@@ -596,13 +614,12 @@ describe( 'bin/eslint-changed.js', () => {
 				}
 			);
 
-			const proc = await runEslintChanged( [ '--format=json', '--git' ], { cwd: tmpdir } );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			const data = await runEslintChanged( [ '--format=json', '--git' ], { cwd: tmpdir } );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = [
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
 				{
 					filePath: path.join( tmpdir, 'added.js' ),
 					messages: [
@@ -656,10 +673,10 @@ describe( 'bin/eslint-changed.js', () => {
 					usedDeprecatedRules: [],
 				},
 			];
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 
-		it( 'Works with explicitly specified files', async () => {
+		test( 'Works with explicitly specified files', async () => {
 			await mktmpdirgit(
 				[
 					{
@@ -677,15 +694,14 @@ describe( 'bin/eslint-changed.js', () => {
 				}
 			);
 
-			const proc = await runEslintChanged( [ '--format=json', '--git', '1.js', '2.js' ], {
+			const data = await runEslintChanged( [ '--format=json', '--git', '1.js', '2.js' ], {
 				cwd: tmpdir,
 			} );
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = [
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
 				{
 					filePath: path.join( tmpdir, '1.js' ),
 					messages: [],
@@ -734,10 +750,10 @@ describe( 'bin/eslint-changed.js', () => {
 					usedDeprecatedRules: [],
 				},
 			];
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 
-		it( 'Works with --in-diff-only', async () => {
+		test( 'Works with --in-diff-only', async () => {
 			await mktmpdirgit(
 				[
 					{
@@ -755,18 +771,95 @@ describe( 'bin/eslint-changed.js', () => {
 				}
 			);
 
-			const proc = await runEslintChanged(
+			const data = await runEslintChanged( [ '--format=json', '--git', '--in-diff-only' ], {
+				cwd: tmpdir,
+			} );
+			expect( data.exitCode ).toBe( 1 );
+
+			const output = JSON.parse( data.stdout );
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
+				{
+					filePath: path.join( tmpdir, '2.js' ),
+					messages: [
+						{
+							ruleId: 'no-unused-vars',
+							severity: 2,
+							message: "'y' is assigned a value but never used.",
+							line: 1,
+							column: 5,
+							nodeType: 'Identifier',
+							messageId: 'unusedVar',
+							endLine: 1,
+							endColumn: 6,
+						},
+					],
+					errorCount: 1,
+					fatalErrorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
+					usedDeprecatedRules: [],
+				},
+				{
+					filePath: path.join( tmpdir, '3.js' ),
+					messages: [
+						{
+							ruleId: 'no-unused-vars',
+							severity: 2,
+							message: "'y' is assigned a value but never used.",
+							line: 1,
+							column: 5,
+							nodeType: 'Identifier',
+							messageId: 'unusedVar',
+							endLine: 1,
+							endColumn: 6,
+						},
+					],
+					errorCount: 1,
+					fatalErrorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
+					usedDeprecatedRules: [],
+				},
+			];
+			expect( output ).toEqual( expectOutput );
+		} );
+
+		test( 'Works with --in-diff-only and filtered files', async () => {
+			await mktmpdirgit(
+				[
+					{
+						files: {
+							'.eslintrc': eslintrc,
+							'1.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'2.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'3.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+						},
+					},
+				],
+				{
+					'2.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					'3.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+				}
+			);
+
+			const data = await runEslintChanged(
 				[ '--format=json', '--git', '--in-diff-only', '1.js', '2.js' ],
 				{
 					cwd: tmpdir,
 				}
 			);
-			const data = await awaitExit( proc );
-			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+			expect( data.exitCode ).toBe( 1 );
 
 			const output = JSON.parse( data.stdout );
-			assert.isArray( output, 'Output is a JSON array' );
-			const expect = [
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
 				{
 					filePath: path.join( tmpdir, '2.js' ),
 					messages: [
@@ -792,7 +885,7 @@ describe( 'bin/eslint-changed.js', () => {
 					usedDeprecatedRules: [],
 				},
 			];
-			assert.deepEqual( output, expect );
+			expect( output ).toEqual( expectOutput );
 		} );
 	} );
 } );
