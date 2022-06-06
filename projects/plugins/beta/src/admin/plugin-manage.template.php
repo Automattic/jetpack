@@ -154,12 +154,6 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 			require __DIR__ . '/branch-card.template.php';
 		}
 		?>
-		<?php
-		$branch = $plugin->source_info( 'master', '' );
-		if ( $branch && ! is_wp_error( $branch ) ) {
-			require __DIR__ . '/branch-card.template.php';
-		}
-		?>
 
 		<?php if ( empty( $manifest->pr ) || ! (array) $manifest->pr ) { ?>
 		<div id="section-pr">
