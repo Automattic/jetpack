@@ -131,6 +131,7 @@ export function buildInitialState() {
 			settings: {
 				items: [],
 			},
+			introOffers: {},
 		},
 	};
 }

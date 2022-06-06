@@ -33,7 +33,7 @@ describe( 'Rating', () => {
 		expect( setRatingMock ).toBeCalledWith( defaultProps.id );
 	} );
 
-	test.only( 'fires keydown event handler callbacks', async () => {
+	test( 'fires keydown event handler callbacks', async () => {
 		const user = userEvent.setup();
 		render( <Rating { ...defaultProps } /> );
 		await user.type( screen.getByRole( 'button' ), '{enter}' );
