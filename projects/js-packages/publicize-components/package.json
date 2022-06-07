@@ -18,7 +18,7 @@
 		"test": "jest src"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.15",
+		"@automattic/jetpack-components": "workspace:* || ^0.16",
 		"@automattic/jetpack-shared-extension-utils": "workspace:* || ^0.4",
 		"@wordpress/annotations": "2.9.0",
 		"@wordpress/components": "19.11.0",
