@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+VideoPress: add "allow='clipboard-write'" in iframe for embed in order to fix the Clipboard API on Chrome
