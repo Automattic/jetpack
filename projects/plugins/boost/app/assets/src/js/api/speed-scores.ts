@@ -202,14 +202,10 @@ export function getScoreImprovementPercentage( scores: SpeedScoresSet ): number 
  * @param {SpeedScoresSet} scores
  * @return boolean
  */
- export function didScoresWorsen( scores: SpeedScoresSet ): boolean {
+export function didScoresWorsen( scores: SpeedScoresSet ): boolean {
 	const current = scores.current;
 	const noBoost = scores.noBoost;
 
 	// Consider the score got worse if combined score fell.
-	return (
-		null !== current &&
-		null !== noBoost &&
-		( getScoreImprovementPercentage( scores ) < 0 )
-	);
+	return null !== current && null !== noBoost && getScoreImprovementPercentage( scores ) < 0;
 }
