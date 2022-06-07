@@ -234,7 +234,21 @@ export const Waf = class extends Component {
 		const upgradeBanner = (
 			<JetpackBanner
 				callToAction={ __( 'Upgrade', 'jetpack' ) }
-				title={ __( 'Upgrade your protection for latest rules access', 'jetpack' ) }
+				title={
+					<>
+						{ __( 'Your site is not receiving the latest updates to Firewall rules', 'jetpack' ) }
+						<InfoPopover
+							position="right"
+							screenReaderText={ __( 'Learn more', 'jetpack' ) }
+							className="waf__settings__upgrade-popover"
+						>
+							{ __(
+								'Upgrade your protection to keep your site secure from the latest malicious requests with up-to-date firewall rules.',
+								'jetpack'
+							) }
+						</InfoPopover>
+					</>
+				}
 				eventFeature="scan"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 				feature="jetpack_scan"
