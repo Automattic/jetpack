@@ -1883,6 +1883,7 @@ importers:
       eslint-plugin-react: 7.30.0
       eslint-plugin-react-hooks: 4.5.0
       eslint-plugin-svelte3: 3.4.1
+      eslint-plugin-testing-library: 5.5.1
       eslint-plugin-wpcalypso: 6.0.0
       glob: 7.1.6
       ignore: 5.1.8
@@ -1923,6 +1924,7 @@ importers:
       eslint-plugin-react: 7.30.0_eslint@8.16.0
       eslint-plugin-react-hooks: 4.5.0_eslint@8.16.0
       eslint-plugin-svelte3: 3.4.1_eslint@8.16.0+svelte@3.42.4
+      eslint-plugin-testing-library: 5.5.1_eslint@8.16.0+typescript@4.7.2
       eslint-plugin-wpcalypso: 6.0.0_2f60abd8e02fbf0952f4a17d165365d9
       glob: 7.1.6
       ignore: 5.1.8
@@ -12026,6 +12028,19 @@ packages:
     dependencies:
       eslint: 8.16.0
       svelte: 3.42.4
+    dev: true
+
+  /eslint-plugin-testing-library/5.5.1_eslint@8.16.0+typescript@4.7.2:
+    resolution: {integrity: sha512-plLEkkbAKBjPxsLj7x4jNapcHAg2ernkQlKKrN2I8NrQwPISZHyCUNvg5Hv3EDqOQReToQb5bnqXYbkijJPE/g==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0, npm: '>=6'}
+    peerDependencies:
+      eslint: ^7.5.0 || ^8.0.0
+    dependencies:
+      '@typescript-eslint/utils': 5.27.0_eslint@8.16.0+typescript@4.7.2
+      eslint: 8.16.0
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
     dev: true
 
   /eslint-plugin-wpcalypso/6.0.0_2f60abd8e02fbf0952f4a17d165365d9:

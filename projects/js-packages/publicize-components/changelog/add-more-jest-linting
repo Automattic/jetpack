@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix linting errors in Jest tests. No change to the project.
+
+
