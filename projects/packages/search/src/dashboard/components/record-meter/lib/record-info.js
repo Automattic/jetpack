@@ -6,16 +6,10 @@ const PALETTE = require( '@automattic/color-studio' );
  *
  * @param {number} postCount - The total count of indexed post records
  * @param {object} postTypeBreakdown - Post type breakdown (post type => number of posts)
- * @param {number} tierMaximumRecords - Max number of records allowed in user's current tier
  * @param {string} lastIndexedDate - The date on which the site was last indexed as a string
  * @returns {object} data in correct form to use in chart and notice-box
  */
-export default function getRecordInfo(
-	postCount,
-	postTypeBreakdown,
-	tierMaximumRecords,
-	lastIndexedDate
-) {
+export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexedDate ) {
 	const maxPostTypeCount = 5; // this value determines when to cut off displaying post times & compound into an 'other'
 	const recordInfo = [];
 	const chartPostTypeBreakdown = [];
@@ -86,17 +80,6 @@ export default function getRecordInfo(
 					combineOtherCount( postTypeItems.otherItems ),
 					PALETTE.colors[ 'Gray 30' ],
 					__( 'other', 'jetpack-search-pkg' )
-				)
-			);
-		}
-
-		// if there is remaining unused space in tier, add filler spacing to chart
-		if ( tierMaximumRecords - currentCount > 0 ) {
-			recordInfo.push(
-				createData(
-					tierMaximumRecords - currentCount,
-					PALETTE.colors[ 'Gray 0' ],
-					__( 'remaining', 'jetpack-search-pkg' )
 				)
 			);
 		}

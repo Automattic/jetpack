@@ -23,12 +23,7 @@ export default function RecordMeter( {
 	tierMaximumRecords,
 	lastIndexedDate,
 } ) {
-	const recordInfo = getRecordInfo(
-		postCount,
-		postTypeBreakdown,
-		tierMaximumRecords,
-		lastIndexedDate
-	);
+	const recordInfo = getRecordInfo( postCount, postTypeBreakdown, lastIndexedDate );
 
 	return (
 		<div className="jp-search-record-meter jp-search-dashboard-wrap" data-testid="record-meter">
@@ -53,6 +48,7 @@ export default function RecordMeter( {
 							items={ recordInfo.data }
 							showLegendLabelBeforeCount={ true }
 							sortByCount={ 'descending' }
+							totalCount={ tierMaximumRecords }
 						/>
 						<NoticeBox
 							recordCount={ recordInfo.recordCount }
