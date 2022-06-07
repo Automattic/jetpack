@@ -1875,6 +1875,7 @@ importers:
       eslint-plugin-import: 2.26.0
       eslint-plugin-inclusive-language: 2.2.0
       eslint-plugin-jest: 26.4.6
+      eslint-plugin-jest-dom: 4.0.2
       eslint-plugin-jsdoc: 37.9.7
       eslint-plugin-jsx-a11y: 6.5.1
       eslint-plugin-lodash: 7.4.0
@@ -1916,6 +1917,7 @@ importers:
       eslint-plugin-import: 2.26.0_bc9943da122c52cfb36a821dfcb89944
       eslint-plugin-inclusive-language: 2.2.0
       eslint-plugin-jest: 26.4.6_338a179387076c2cf184368cdb6f5ffc
+      eslint-plugin-jest-dom: 4.0.2_eslint@8.16.0
       eslint-plugin-jsdoc: 37.9.7_eslint@8.16.0
       eslint-plugin-jsx-a11y: 6.5.1_eslint@8.16.0
       eslint-plugin-lodash: 7.4.0_eslint@8.16.0
@@ -11885,6 +11887,18 @@ packages:
       humps: 2.0.1
     dev: true
 
+  /eslint-plugin-jest-dom/4.0.2_eslint@8.16.0:
+    resolution: {integrity: sha512-Jo51Atwyo2TdcUncjmU+UQeSTKh3sc2LF/M5i/R3nTU0Djw9V65KGJisdm/RtuKhy2KH/r7eQ1n6kwYFPNdHlA==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0, npm: '>=6', yarn: '>=1'}
+    peerDependencies:
+      eslint: ^6.8.0 || ^7.0.0 || ^8.0.0
+    dependencies:
+      '@babel/runtime': 7.17.9
+      '@testing-library/dom': 8.13.0
+      eslint: 8.16.0
+      requireindex: 1.2.0
+    dev: true
+
   /eslint-plugin-jest/26.4.6_338a179387076c2cf184368cdb6f5ffc:
     resolution: {integrity: sha512-R3mq1IepnhtsukHQsWxdyKra3OVwYB+N4k8i45ndqSfr8p9KZV6G+EIUt1Z7hzAh4KlsbXG+nCTlNeGFLFLNvA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -15541,7 +15555,7 @@ packages:
       yallist: 4.0.0
 
   /lz-string/1.4.4:
-    resolution: {integrity: sha1-wNjq82BZ9wV5bh40SBHPTEmNOiY=}
+    resolution: {integrity: sha512-0ckx7ZHRPqb0oUm8zNr+90mtf9DQB60H1wMCjBtfi62Kl3a7JbHob6gA2bC+xRvZoOL+1hzUK8jeuEIQE8svEQ==}
     hasBin: true
 
   /magic-string/0.22.5:

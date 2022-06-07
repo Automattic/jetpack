@@ -6,6 +6,7 @@ module.exports = {
 		'./base',
 		'plugin:jest/recommended',
 		'plugin:jest/style',
+		'plugin:jest-dom/recommended',
 		'plugin:testing-library/react',
 	],
 	env: { jest: true },
