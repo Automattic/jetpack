@@ -49,6 +49,7 @@ function introOffersFixture() {
 function upsellFixture( { hideUpsell } ) {
 	return {
 		product_id: 2101,
+		product_slug: 'jetpack_backup_t1_monthly',
 		billing_timeframe: 'billed monthly',
 		cost_timeframe: 'per month',
 		cta_text: 'Learn more',
