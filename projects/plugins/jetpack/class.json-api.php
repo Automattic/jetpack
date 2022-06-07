@@ -1033,6 +1033,8 @@ class WPCOM_JSON_API {
 
 		/**
 		* Include certain comment types in comment counts in the REST API.
+		* Note: the default array of comment types includes an empty string,
+		* to support comments posted before WP 5.5, that used an empty string as comment type.
 		*
 		* @since $$next-version$$
 		* @module json-api
@@ -1041,7 +1043,7 @@ class WPCOM_JSON_API {
 		*/
 		$include = apply_filters(
 			'jetpack_api_include_comment_types_count',
-			array( 'comment', 'pingback', 'trackback' )
+			array( 'comment', 'pingback', 'trackback', '' )
 		);
 
 		if ( empty( $include ) ) {
