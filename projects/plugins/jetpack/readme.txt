@@ -242,16 +242,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.0-beta - 2022-05-31
+### 11.0 - 2022-06-07
 #### Enhancements
 - Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset.
-- Custom CSS: ensure the Additional CSS sub-menu link displays correctly.
 - Email subscriptions: update the default body of the "Confirmation request" email.
 - Google Fonts: add additional fonts to the list of available fonts.
 - Latest Instagram Posts Block: improve performance of the block by adding lazy load for the images.
-- Payments Blocks: refactors the donation block by unifying Stripe Nudge component.
-- Payments Blocks: reset form data to default values after creating a subscription.
-- Payments Blocks: refactor the product memberships store to reduce complexity and improve speed.
+- Publicize: load publicize only when the publicize module is active.
+- Payment Block: refactors the donation block by unifying Stripe Nudge component.
+- Payment Block: reset form data to default values after creating a subscription.
+- Payments Block: refactor the product memberships store to reduce complexity and improve speed.
 - Sharing: update the email sharing button to use mailto links instead of server submissions.
 - VideoPress: add support for automatic seekbar color.
 - VideoPress: improve Extensibility of Privacy Setting filter by adding the embedded post id.
@@ -259,20 +259,32 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - WAF: add settings UI for Jetpack Firewall.
 
 #### Improved compatibility
+- Contact Form: ensure the option to export forms to a csv file works with the upcoming version of WordPress, 6.0.
 - General: improve connection sharing between Jetpack and Jetpack standalone plugins.
+- General: improve the connection sharing between Jetpack and standalone plugins.
+- General: Jetpack is now fully compatible with the upcoming version of WordPress, 6.0.
+- General: Jetpack now requires a more recent version of WordPress (5.9), since a new version of WordPress (6.0) will be available soon.
+- General: remove backwards compatibility code now that Jetpack requires WordPress 5.9.
 - Stats: remove unnecessary type attribute from style element.
 
 #### Bug fixes
 - Assistant: fix unclickable banner dismiss button.
 - Comments: update UI to reflect that Google accounts are no longer a sign-in option.
 - Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+.
-- Payments Blocks: ensure payment block can only auto-select an existing product.
+- Custom CSS: ensure the Additional CSS sub-menu link displays correctly.
+- Payment Block: ensure payment block can only auto-select an existing product.
+- Publicize: add logic to allow sharing via ajax requests.
+- VideoPress: remove strict comparison to fix average color parameter.
 - Stats: ensure the Stats column can always be displayed, even when the post type does not support comments.
 - Subscriptions: fix typo in confirmation message.
 - VaultPress: fixes a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active.
 - VideoPress: fix validation errors for core video block usage.
 - WAF: add activation/deactivation hooks for WAF feature.
 - Widget Visibility: avoid PHP warnings when loading widgets in some scenarios.
+
+#### Other changes
+- Publicize: Fix namespacing.
+- Custom CSS: Add WoA check to prevent duplicate menu item on plan-less sites.
 
 --------
 
