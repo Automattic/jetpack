@@ -1029,7 +1029,7 @@ class WPCOM_JSON_API {
 		*
 		* @param array Array of comment types to exclude (default: 'order_note', 'webhook_delivery', 'review', 'action_log')
 		*/
-		$exclude = apply_filters_deprecated( 'jetpack_api_exclude_comment_types_count', array( 'order_note', 'webhook_delivery', 'review', 'action_log' ), 'jetpack-11.0', 'jetpack_api_include_comment_types_count' ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$exclude = apply_filters_deprecated( 'jetpack_api_exclude_comment_types_count', array( 'order_note', 'webhook_delivery', 'review', 'action_log' ), 'jetpack-$$next-version$$', 'jetpack_api_include_comment_types_count' ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		/**
 		* Include certain comment types in comment counts in the REST API.
