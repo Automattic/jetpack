@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { ClipboardButton } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import Col from '../../layout/col';
 import Container from '../../layout/container';
 import ThemeProvider, { typography, colors, borders, spacing } from '../index.jsx';
@@ -50,13 +43,6 @@ function getContrast( hexcolor ) {
 
 export default {
 	title: 'JS Packages/Components/Theme Provider',
-	decorators: [
-		Story => (
-			<ThemeProvider>
-				<Story />
-			</ThemeProvider>
-		),
-	],
 };
 
 const noop = () => {};
@@ -148,3 +134,20 @@ export const Colors = () => (
 		) ) }
 	</div>
 );
+
+const Template = args => (
+	<ThemeProvider { ...args }>
+		<div
+			style={ {
+				color: 'var( --jp-white )',
+				backgroundColor: 'var( --jp-pink )',
+				fontSize: 'var( --font-title-small )',
+				padding: 'var( --spacing-base ) calc( var( --spacing-base ) * 2 )',
+				borderRadius: 'var( --jp-border-radius )',
+			} }
+		>
+			Pink Jetpack Show
+		</div>
+	</ThemeProvider>
+);
+export const BasicUsage = Template.bind( {} );

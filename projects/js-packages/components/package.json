@@ -1,17 +1,17 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.15.0-alpha",
+	"version": "0.16.0-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
 		"@wordpress/browserslist-config": "4.1.2",
-		"@wordpress/components": "19.10.0",
-		"@wordpress/compose": "5.5.0",
-		"@wordpress/date": "4.8.0",
-		"@wordpress/i18n": "4.8.0",
-		"@wordpress/icons": "8.4.0",
+		"@wordpress/components": "19.11.0",
+		"@wordpress/compose": "5.7.0",
+		"@wordpress/date": "4.9.0",
+		"@wordpress/i18n": "4.9.0",
+		"@wordpress/icons": "9.0.0",
 		"classnames": "2.3.1",
 		"lodash": "4.17.21",
 		"prop-types": "^15.7.2",
@@ -25,9 +25,10 @@
 		"@testing-library/react": "12.1.5",
 		"@types/chai": "4.3.0",
 		"@types/jest": "27.4.1",
-		"@types/react": "17.0.44",
-		"@types/react-dom": "17.0.15",
-		"@types/react-test-renderer": "17.0.1",
+		"@types/qrcode.react": "1.0.2",
+		"@types/react": "17.0.45",
+		"@types/react-dom": "17.0.17",
+		"@types/react-test-renderer": "17.0.2",
 		"@types/wordpress__components": "19.10.0",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
@@ -36,7 +37,7 @@
 		"react-test-renderer": "17.0.2",
 		"sass": "1.43.3",
 		"storybook-addon-mock": "2.0.2",
-		"typescript": "4.6.4"
+		"typescript": "4.7.2"
 	},
 	"peerDependencies": {
 		"react": "^17.0.2",
@@ -51,6 +52,8 @@
 		"*.scss"
 	],
 	"scripts": {
+		"build": "pnpm run compile-ts",
+		"compile-ts": "tsc --pretty",
 		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.[jt]sx'"
 	},
 	"engines": {

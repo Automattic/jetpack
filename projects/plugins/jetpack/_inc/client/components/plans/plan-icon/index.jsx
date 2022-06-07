@@ -1,12 +1,3 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-
-/**
- * Internal dependencies
- */
 import { imagePath } from 'constants/urls';
 import {
 	PLAN_FREE,
@@ -27,6 +18,8 @@ import {
 	PLAN_VIP,
 	PLAN_WPCOM_SEARCH,
 	PLAN_WPCOM_SEARCH_MONTHLY,
+	PLAN_JETPACK_BACKUP_T0_YEARLY,
+	PLAN_JETPACK_BACKUP_T0_MONTHLY,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 	PLAN_JETPACK_BACKUP_T1_MONTHLY,
 	PLAN_JETPACK_BACKUP_T2_YEARLY,
@@ -64,10 +57,9 @@ import {
 	PLAN_JETPACK_SECURITY_REALTIME,
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 } from 'lib/plans/constants';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const PRODUCT_ICON_MAP = {
@@ -89,6 +81,8 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_VIP ]: '/plans/wpcom-ecommerce.svg',
 	[ PLAN_WPCOM_SEARCH ]: '/products/product-jetpack-search.svg',
 	[ PLAN_WPCOM_SEARCH_MONTHLY ]: '/products/product-jetpack-search.svg',
+	[ PLAN_JETPACK_BACKUP_T0_YEARLY ]: '/products/product-jetpack-backup.svg',
+	[ PLAN_JETPACK_BACKUP_T0_MONTHLY ]: '/products/product-jetpack-backup.svg',
 	[ PLAN_JETPACK_BACKUP_T1_YEARLY ]: '/products/product-jetpack-backup.svg',
 	[ PLAN_JETPACK_BACKUP_T1_MONTHLY ]: '/products/product-jetpack-backup.svg',
 	[ PLAN_JETPACK_BACKUP_T2_YEARLY ]: '/products/product-jetpack-backup.svg',
@@ -165,6 +159,8 @@ PlanIcon.propTypes = {
 		PLAN_VIP,
 		PLAN_WPCOM_SEARCH,
 		PLAN_WPCOM_SEARCH_MONTHLY,
+		PLAN_JETPACK_BACKUP_T0_YEARLY,
+		PLAN_JETPACK_BACKUP_T0_MONTHLY,
 		PLAN_JETPACK_BACKUP_T1_YEARLY,
 		PLAN_JETPACK_BACKUP_T1_MONTHLY,
 		PLAN_JETPACK_BACKUP_T2_YEARLY,

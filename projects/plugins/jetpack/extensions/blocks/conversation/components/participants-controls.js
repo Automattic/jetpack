@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { Button } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { getPlainText } from '../utils';
 
 function ParticipantsLabelControl( { className, participants, onDelete } ) {

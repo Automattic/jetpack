@@ -1,25 +1,18 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __, _x } from '@wordpress/i18n';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
+import ConnectUserBar from 'components/connect-user-bar';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
-import { getModule } from 'state/modules';
-import { isModuleFound as _isModuleFound } from 'state/search';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import ConnectUserBar from 'components/connect-user-bar';
+import analytics from 'lib/analytics';
+import React from 'react';
+import { connect } from 'react-redux';
+import { getModule } from 'state/modules';
+import { isModuleFound as _isModuleFound } from 'state/search';
 
 class PostByEmail extends React.Component {
 	regeneratePostByEmailAddress = event => {

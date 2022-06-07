@@ -1,24 +1,17 @@
-/**
- * WordPress dependencies
- */
-import { useEffect, useState } from '@wordpress/element';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { Disabled, Placeholder, Spinner } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { useViewportMatch } from '@wordpress/compose';
 import { select, useSelect } from '@wordpress/data';
-import { store as blockEditorStore } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import { useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import ProductManagementControls from '../../shared/components/product-management-controls';
+import { PRODUCT_TYPE_SUBSCRIPTION } from '../../shared/components/product-management-controls/constants';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import Blocks from './_inc/blocks';
 import Context from './_inc/context';
 import './editor.scss';
 import ViewSelector from './_inc/view-selector';
-import ProductManagementControls from '../../shared/components/product-management-controls';
-import { PRODUCT_TYPE_SUBSCRIPTION } from '../../shared/components/product-management-controls/constants';
-import { store as membershipProductsStore } from '../../store/membership-products';
-import { StripeNudge } from '../../shared/components/stripe-nudge';
 
 /**
  * Tab definitions

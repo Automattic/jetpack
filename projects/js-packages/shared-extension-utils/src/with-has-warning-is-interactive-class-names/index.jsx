@@ -1,8 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
 
-/**
- * External dependencies
- */
 import { createHigherOrderComponent } from '@wordpress/compose';
 
 import './style.scss';

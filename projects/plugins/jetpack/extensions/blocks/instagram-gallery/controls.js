@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import {
 	Button,
 	ExternalLink,
@@ -11,10 +8,6 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { __, sprintf, _n } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { MAX_IMAGE_COUNT } from './constants';
 
 export default function InstagramGalleryInspectorControls( {

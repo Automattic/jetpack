@@ -2,9 +2,6 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
@@ -16,9 +13,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	InnerBlocks: () => <p>Mocked inner block</p>,
 } ) );
 
-/**
- * Internal dependencies
- */
 import { RepeatVisitorEdit } from '../components/edit';
 import { CRITERIA_BEFORE, CRITERIA_AFTER, DEFAULT_THRESHOLD } from '../constants';
 

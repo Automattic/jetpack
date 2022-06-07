@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import {
 	getColorClassName,
-	__experimentalGetGradientClass as getGradientClass,
+	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	RichText,
 } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 
 export default function ButtonSave( { attributes, blockName, uniqueId } ) {

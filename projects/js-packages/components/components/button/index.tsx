@@ -1,12 +1,9 @@
-/**
- * External dependencies
- */
-import type React from 'react';
-import type { ButtonProps } from './types';
 import { Button as WPButton, Spinner } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
 import classNames from 'classnames';
 import styles from './style.module.scss';
+import type { ButtonProps } from './types';
+import type React from 'react';
 
 /**
  * Button component
@@ -24,7 +21,7 @@ export const Button: React.FC< ButtonProps > = ( {
 	disabled,
 	isDestructive,
 	isLoading,
-	isExternalLink: isExternalLinkProp,
+	isExternalLink,
 	className: propsClassName,
 	text,
 	...componentProps
@@ -37,9 +34,6 @@ export const Button: React.FC< ButtonProps > = ( {
 		[ styles.regular ]: weight === 'regular',
 	} );
 
-	const isExternalLinkDeprecated = variant === 'external-link';
-	const isExternalLink = isExternalLinkProp || isExternalLinkDeprecated;
-
 	const externalIconSize = size === 'normal' ? 20 : 16;
 	const externalIcon = isExternalLink && (
 		<Icon size={ externalIconSize } icon={ external } className={ styles[ 'external-icon' ] } />
@@ -49,7 +43,7 @@ export const Button: React.FC< ButtonProps > = ( {
 	return (
 		<WPButton
 			target={ externalTarget }
-			variant={ isExternalLinkDeprecated ? 'link' : variant }
+			variant={ variant }
 			className={ className }
 			icon={ ! isExternalLink ? icon : undefined }
 			iconSize={ iconSize }

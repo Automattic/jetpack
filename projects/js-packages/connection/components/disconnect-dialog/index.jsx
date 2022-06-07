@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import React, { useMemo, useEffect, useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
-import { Modal } from '@wordpress/components';
-import restApi from '@automattic/jetpack-api';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import restApi from '@automattic/jetpack-api';
 import { jetpackConfigHas, jetpackConfigGet } from '@automattic/jetpack-config';
-
-/**
- * Internal dependencies
- */
+import { Modal } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React, { useMemo, useEffect, useCallback, useState } from 'react';
 import './style.scss';
 import StepDisconnect from './steps/step-disconnect';
 import StepDisconnectConfirm from './steps/step-disconnect-confirm';

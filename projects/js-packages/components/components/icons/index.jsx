@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
+import { Path, SVG, G, Polygon } from '@wordpress/components';
 import classNames from 'classnames';
 import React from 'react';
-import { Path, SVG, G, Polygon } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import styles from './style.module.scss';
 
 /**
@@ -106,8 +99,7 @@ export const SearchIcon = ( { opacity = 1, size } ) => (
 
 export const SocialIcon = ( { opacity = 1, size } ) => (
 	<IconWrapper size={ size } opacity={ opacity }>
-		<Path d="M16.5 3.978v14.044L4.275 14.317A2.5 2.5 0 0 1 2.5 11.925v-1.85a2.5 2.5 0 0 1 1.775-2.392L16.5 3.978ZM4.71 12.882a1 1 0 0 1-.71-.957v-1.85a1 1 0 0 1 .71-.957L15 6v10L4.71 12.882Z" />
-		<Path d="M7 20V7h1.5v13H7Zm15.5-8.25h-4v-1.5h4v1.5Zm0 4.25-4-1v-1.5l4 1V16Zm0-8.5-4 1V7l4-1v1.5Z" />
+		<Path d="M15.5 3.97809V18.0219L7.5 15.5977V20H6V15.1431L3.27498 14.3173C2.22086 13.9979 1.5 13.0262 1.5 11.9248V10.0752C1.5 8.97375 2.22087 8.00207 3.27498 7.68264L15.5 3.97809ZM14 16L7.5 14.0303L7.5 7.96969L14 5.99999V16ZM6 8.42423L6 13.5757L3.70999 12.8818C3.28835 12.754 3 12.3654 3 11.9248V10.0752C3 9.63462 3.28835 9.24595 3.70999 9.11818L6 8.42423ZM17.5 11.75H21.5V10.25H17.5V11.75ZM21.5 16L17.5 15V13.5L21.5 14.5V16ZM17.5 8.5L21.5 7.5V6L17.5 7V8.5Z" />
 	</IconWrapper>
 );
 

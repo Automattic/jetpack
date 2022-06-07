@@ -2,17 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
-import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-
-/**
- * Internal dependencies
- */
 import SimpleNotice from 'components/notice';
+import React from 'react';
 
 describe( 'SimpleNotice', function () {
 	const testProps = {

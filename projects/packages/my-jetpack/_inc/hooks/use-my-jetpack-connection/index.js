@@ -1,8 +1,5 @@
 /* global myJetpackInitialState */
 /* global myJetpackRest */
-/**
- * WordPress dependencies
- */
 import { useConnection } from '@automattic/jetpack-connection';
 
 /**

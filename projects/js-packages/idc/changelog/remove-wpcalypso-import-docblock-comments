@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove `wpcalypso/import-docblock` comments. No change to behavior.
+
+

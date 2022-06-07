@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import classnames from 'classnames';
-
-/**
- * Internal dependencies
- */
-import styles from './style.module.scss';
-import Container from '../layout/container';
+import React from 'react';
 import Col from '../layout/col';
+import Container from '../layout/container';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
+import styles from './style.module.scss';
 
 type DialogProps = {
 	primary: React.ReactNode;
@@ -27,7 +20,6 @@ type DialogProps = {
  * @param {React.ReactNode} props.primary   - Primary-section content.
  * @param {React.ReactNode} props.secondary - Secondary-section content.
  * @param {boolean} props.isTwoSections     - Handle two sections layout when true.
- * @param {boolean} props.isCard            - Add card styles to the main container.
  * @param {object} props.containerProps     - Props to pass to the container component.
  * @returns {React.ReactNode}                 Rendered dialog
  */
@@ -35,7 +27,6 @@ const Dialog: React.FC< DialogProps > = ( {
 	primary,
 	secondary,
 	isTwoSections = false,
-	isCard,
 	...containerProps
 } ) => {
 	const [ isSmall, isLowerThanLarge ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
@@ -48,7 +39,7 @@ const Dialog: React.FC< DialogProps > = ( {
 	const hideSecondarySection = ! isTwoSections && isSmall;
 
 	const classNames = classnames( {
-		[ styles[ 'one-section-style' ] ]: typeof isCard !== 'undefined' ? isCard : ! isTwoSections,
+		[ styles[ 'one-section-style' ] ]: ! isTwoSections,
 		[ styles[ 'is-viewport-small' ] ]: isSmall,
 	} );
 

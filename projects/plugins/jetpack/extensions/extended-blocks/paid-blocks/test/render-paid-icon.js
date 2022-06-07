@@ -2,14 +2,8 @@
  * @jest-environment jsdom
  */
 
-/**
- * WordPress dependencies
- */
 import { SVG, G } from '@wordpress/components';
 
-/**
- * Internal dependencies
- */
 import renderPaidIcon from '../render-paid-icon';
 import PaidSymbol from '../paid-symbol';
 

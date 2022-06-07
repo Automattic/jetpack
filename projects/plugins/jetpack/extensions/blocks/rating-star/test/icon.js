@@ -2,15 +2,9 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-/**
- * Internal dependencies
- */
 import { StarIcon } from '../icon';
 
 describe( 'StarIcon', () => {
