@@ -1,4 +1,7 @@
 <?php
+if ( defined( 'WPSCDISABLEDELETEBUTTON' ) ) {
+	return;
+}
 
 /**
  * Adds "Delete Cache" button in WP Toolbar.
