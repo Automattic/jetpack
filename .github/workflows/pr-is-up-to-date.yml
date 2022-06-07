@@ -1,9 +1,13 @@
 name: PR is up-to-date
 on:
   pull_request_target:
-    branches: [ master ]
+    branches:
+      - master
+      - trunk
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - trunk
     tags:
       - pr-update-to
       - pr-update-to-projects/**

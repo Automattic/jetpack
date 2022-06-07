@@ -8,7 +8,10 @@ on:
       - Tests
       - Gardening
       - PR is up-to-date
-    branches: [ 'master', '*/branch-*' ]
+    branches:
+      - master
+      - trunk
+      - '*/branch-*'
 
 jobs:
   notify:

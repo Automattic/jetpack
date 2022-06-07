@@ -3,7 +3,10 @@ name: Tests
 on:
   pull_request:
   push:
-    branches: [ 'master', '*/branch-*' ]
+    branches:
+      - master
+      - trunk
+      - '*/branch-*'
 concurrency:
   group: tests-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true

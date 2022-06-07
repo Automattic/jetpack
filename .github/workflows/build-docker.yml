@@ -1,7 +1,9 @@
 name: Build Docker
 on:
   push:
-    branches: [ 'master' ]
+    branches:
+      - master
+      - trunk
     paths:
       - 'tools/docker/Dockerfile'
       - 'tools/docker/bin/run.sh'
