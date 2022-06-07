@@ -2,7 +2,7 @@
 * Contributors: donncha, automattic
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
 * Tested up to: 6.0
-* Stable tag: 1.7.8
+* Stable tag: 1.7.9
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -268,6 +268,10 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.7.9 ###
+* Fix nonces used by "Delete Cache" button and remove JS from it on the frontend admin bar.
+* Define the constant WPSCDISABLEDELETEBUTTON to disable the "Delete Cache" button in the admin bar.
 
 ### 1.7.8 ###
 * Change the admin bar "Delete Cache" button into an AJAX link #808 #810
@@ -792,4 +796,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Misc fixes and new features
+Misc fixes
