@@ -33,7 +33,7 @@ const playwrightConfig = {
 	timeout: 300000,
 	retries: 0,
 	workers: 1,
-	outputDir: config.get( 'dirs.output' ),
+	outputDir: config.get( 'dirs.results' ),
 	reporter,
 	use: {
 		browserName: 'chromium',
