@@ -2,7 +2,7 @@ name: Auto-tagger
 
 on:
   push:
-    branches: [ 'master' ]
+    branches: [ 'master', 'trunk' ]
 
 jobs:
   tag:
