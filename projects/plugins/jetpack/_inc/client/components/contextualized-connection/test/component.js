@@ -10,6 +10,7 @@ describe( 'ContextualizedConnection', () => {
 		registrationNonce: 'test',
 		apiRoot: 'https://example.org/wp-json/',
 		redirectUri: 'https://example.org',
+		redirectTo: 'Elsewhere',
 		isSiteConnected: false,
 		title: 'Test title',
 	};
