@@ -74,7 +74,6 @@ function wpsc_delete_cache_scripts() {
 	wp_localize_script( 'delete-cache-button', 'wpsc_ajax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'path' => $path_to_home, 'admin' => $admin, 'nonce' => $nonce ) );
 }
 add_action( 'wp_ajax_ajax-delete-cache', 'wpsc_admin_bar_delete_cache_ajax' );
-add_action( 'wp_enqueue_scripts', 'wpsc_delete_cache_scripts' );
 add_action( 'admin_enqueue_scripts', 'wpsc_delete_cache_scripts' );
 
 /**
