@@ -978,7 +978,6 @@ importers:
       '@wordpress/icons': 9.0.0
       autoprefixer: 10.4.2
       babel-jest: 28.1.0
-      chart.js: ^3.7.1
       classnames: 2.3.1
       concurrently: 6.4.0
       core-js: 3.22.4
@@ -1021,7 +1020,6 @@ importers:
       '@wordpress/element': 4.7.0
       '@wordpress/i18n': 4.9.0
       '@wordpress/icons': 9.0.0
-      chart.js: 3.7.1
       classnames: 2.3.1
       fast-json-stable-stringify: 2.1.0
       lodash: 4.17.21
@@ -3850,6 +3848,7 @@ packages:
 
   /@emotion/is-prop-valid/0.8.8:
     resolution: {integrity: sha512-u5WtneEAr5IDG2Wv65yhunPSMLIpuKsbuOktRojfrEiEvRyC85LgPMZI63cr7NUqT8ZIGdSVg8ZKGxIug4lXcA==}
+    requiresBuild: true
     dependencies:
       '@emotion/memoize': 0.7.4
 
