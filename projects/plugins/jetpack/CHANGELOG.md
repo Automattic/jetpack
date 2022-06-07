@@ -4,12 +4,12 @@
 
 ## 11.0 - 2022-06-07
 ### Enhancements
-- Publicize: load publicize only if the publicize module is active. [#24557]
+- Publicize: load Publicize only if the Publicize module is active. [#24557]
 - Sharing: update the email sharing button to use mailto links instead of server submissions. [#24040]
 
 ### Bug fixes
 - Comments: update UI to reflect that Google accounts are no longer a sign-in option. [#24528]
-- Removing strict comparison to fix average color param [#24606]
+- VideoPress: remove strict comparison to fix average color parameter. [#24606]
 - Stats: ensure the Stats column can always be displayed, even when the post type does not support comments. [#24482]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
