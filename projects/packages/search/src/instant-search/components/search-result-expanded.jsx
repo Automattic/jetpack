@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import PathBreadcrumbs from './path-breadcrumbs';
 import PhotonImage from './photon-image';
-import SearchResultComments from './search-result-comments';
 import { fixDateFormat } from './search-filter';
+import SearchResultComments from './search-result-comments';
 import './search-result-expanded.scss';
 
 /**

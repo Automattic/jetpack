@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Search: don't open modal if only sort parameter is set

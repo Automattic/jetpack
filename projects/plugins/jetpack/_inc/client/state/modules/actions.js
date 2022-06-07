@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
-import { forEach, some } from 'lodash';
+import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import { forEach, some } from 'lodash';
 import {
 	JETPACK_MODULES_LIST_FETCH,
 	JETPACK_MODULES_LIST_FETCH_FAIL,
@@ -26,7 +20,6 @@ import {
 	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
 } from 'state/action-types';
 import { getModule } from 'state/modules/reducer';
-import restApi from '@automattic/jetpack-api';
 
 export const fetchModules = () => {
 	return dispatch => {

@@ -1,23 +1,12 @@
-/**
- * External dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import DashItem from 'components/dash-item';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import DashItem from 'components/dash-item';
-import { isModuleAvailable } from 'state/modules';
 import { isOfflineMode } from 'state/connection';
+import { isModuleAvailable } from 'state/modules';
 
 class DashPhoton extends Component {
 	static propTypes = {

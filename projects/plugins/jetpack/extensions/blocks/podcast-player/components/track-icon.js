@@ -1,16 +1,5 @@
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
 import { memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import * as trackIcons from '../icons/track-icons';
 
 const TrackIcon = memo( ( { isPlaying, isError, className } ) => {

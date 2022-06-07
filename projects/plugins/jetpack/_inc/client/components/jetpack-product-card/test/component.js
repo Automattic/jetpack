@@ -1,16 +1,10 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
 import { expect } from 'chai';
 import { getCurrencyObject } from '@automattic/format-currency';
 
-/**
- * Internal dependencies
- */
 import JetpackProductCard from '../index';
 import analytics from 'lib/analytics';
-import { fireEvent, render, screen, getNodeText } from 'test/test-utils';
+import { fireEvent, render, screen, getAllByText, getNodeText } from 'test/test-utils';
 import sinon from "sinon";
 
 describe( 'Jetpack Product Card', () => {
@@ -43,29 +37,32 @@ describe( 'Jetpack Product Card', () => {
 
 	it( 'price is shown', () => {
 		const { container } = render( <JetpackProductCard { ...mockAttributes } /> );
+		
 		const priceObject = getCurrencyObject( mockAttributes.price, mockAttributes.currencyCode );
 
-		expect( getNodeText( container.querySelector( '.jp-product-card__currency-symbol' ) ) ).to.be.equal( priceObject.symbol );
-		expect( getNodeText( container.querySelector( '.jp-product-card__price-integer' ) ) ).to.be.equal( priceObject.integer );
-		expect( getNodeText( container.querySelector( '.jp-product-card__price-fraction' ) ) ).to.be.equal( priceObject.fraction );
-		expect( screen.getAllByText( mockAttributes.billingDescription ) ).to.exist;
+		expect( getAllByText( container, priceObject.symbol ) ).to.exist;
+		expect( getAllByText( container, priceObject.integer ) ).to.exist;
+		expect( getAllByText( container, priceObject.fraction ) ).to.exist;
+		expect( getAllByText( container, mockAttributes.billingDescription ) ).to.exist;
 	} );
 
 	it( 'discounted price is shown', () => {
-		const discount = 50;
-		const { container } = render( <JetpackProductCard { ...mockAttributes } discount={ discount }/> );
+		const discountedPrice = mockAttributes.price / 2;
+		const { container } = render( <JetpackProductCard { ...mockAttributes } discountedPrice={ discountedPrice }/> );
 
 		// Show original price.
 		const originalPriceObject = getCurrencyObject( mockAttributes.price, mockAttributes.currencyCode );
-		expect( getNodeText( container.querySelector( '.jp-product-card__raw-price.jp-product-card__raw-price--is-old-price .jp-product-card__currency-symbol' ) ) ).to.be.equal( originalPriceObject.symbol );
-		expect( getNodeText( container.querySelector( '.jp-product-card__raw-price.jp-product-card__raw-price--is-old-price .jp-product-card__price-integer' ) ) ).to.be.equal( originalPriceObject.integer );
-		expect( getNodeText( container.querySelector( '.jp-product-card__raw-price.jp-product-card__raw-price--is-old-price .jp-product-card__price-fraction' ) ) ).to.be.equal( originalPriceObject.fraction );
 
+		expect( getAllByText( container, originalPriceObject.symbol ) ).to.exist;
+		expect( getAllByText( container, originalPriceObject.integer ) ).to.exist;
+		expect( getAllByText( container, originalPriceObject.fraction ) ).to.exist;
+		
 		// Show discounted price.
-		const discountedPriceObject = getCurrencyObject( ( mockAttributes.price * ( 100 - discount ) / 100 ), mockAttributes.currencyCode );
-		expect( getNodeText( container.querySelector( '.jp-product-card__raw-price:not( .jp-product-card__raw-price--is-old-price ) .jp-product-card__currency-symbol' ) ) ).to.be.equal( discountedPriceObject.symbol );
-		expect( getNodeText( container.querySelector( '.jp-product-card__raw-price:not( .jp-product-card__raw-price--is-old-price ) .jp-product-card__price-integer' ) ) ).to.be.equal( discountedPriceObject.integer );
-		expect( getNodeText( container.querySelector( '.jp-product-card__raw-price:not( .jp-product-card__raw-price--is-old-price ) .jp-product-card__price-fraction' ) ) ).to.be.equal( discountedPriceObject.fraction );
+		const discountedPriceObject = getCurrencyObject( discountedPrice, mockAttributes.currencyCode );
+
+		expect( getAllByText( container, discountedPriceObject.symbol ) ).to.exist;
+		expect( getAllByText( container, discountedPriceObject.integer ) ).to.exist;
+		expect( getAllByText( container, discountedPriceObject.fraction ) ).to.exist;
 	} );
 
 	it( 'cta is shown', () => {

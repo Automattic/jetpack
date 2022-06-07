@@ -2,16 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom/extend-expect';
 
-/**
- * Internal dependencies
- */
 import { Rating } from '../edit';
 
 describe( 'Rating', () => {
@@ -39,7 +33,7 @@ describe( 'Rating', () => {
 		expect( setRatingMock ).toBeCalledWith( defaultProps.id );
 	} );
 
-	test.only( 'fires keydown event handler callbacks', async () => {
+	test( 'fires keydown event handler callbacks', async () => {
 		const user = userEvent.setup();
 		render( <Rating { ...defaultProps } /> );
 		await user.type( screen.getByRole( 'button' ), '{enter}' );

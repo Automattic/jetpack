@@ -1,15 +1,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
-
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 
 class LegendItem extends React.PureComponent {
 	static displayName = 'ModuleChartLegendItem';

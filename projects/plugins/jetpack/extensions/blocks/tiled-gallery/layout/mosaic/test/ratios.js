@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { ratiosToMosaicRows } from '../ratios';
 import { ratios } from './fixtures/ratios';
 

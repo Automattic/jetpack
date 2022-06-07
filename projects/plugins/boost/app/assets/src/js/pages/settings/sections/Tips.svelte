@@ -1,14 +1,11 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
+	import { getRedirectUrl } from '@automattic/jetpack-components';
+	import { __ } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 
-	/**
-	 * WordPress dependencies
-	 */
-	import { __ } from '@wordpress/i18n';
+	const pingdomLink = getRedirectUrl( 'jetpack-boost-pingdom' );
+	const whySpeedLink = getRedirectUrl( 'jetpack-boost-why-speed' );
 </script>
 
 <div class="jb-section jb-section--alt">
@@ -26,9 +23,7 @@
 								`Pages that take over 3 seconds to load have 4x the bounce rate of pages that load in 2 seconds or less. (source: <link>Pingdom</link>).`,
 								'jetpack-boost'
 							)}
-							vars={externalLinkTemplateVar(
-								'https://royal.pingdom.com/page-load-time-really-affect-bounce-rate/'
-							)}
+							vars={externalLinkTemplateVar( pingdomLink )}
 						/>
 					</div>
 				</div>
@@ -40,7 +35,7 @@
 								`A one-second delay in loading times can reduce conversion rates by 20%. (source: <link>Google</link>).`,
 								'jetpack-boost'
 							)}
-							vars={externalLinkTemplateVar( 'https://web.dev/why-speed-matters/' )}
+							vars={externalLinkTemplateVar( whySpeedLink )}
 						/>
 					</div>
 				</div>

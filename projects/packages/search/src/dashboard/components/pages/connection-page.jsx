@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { Container, Col, AdminSectionHero, getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Loading from 'components/loading';
 import SearchPromotionBlock from 'components/search-promotion';
+import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 
 import './connection-page.scss';

@@ -1,30 +1,16 @@
-/**
- * External dependencies
- *
- * @format
- */
-
-import React from 'react';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import CompactCard from 'components/card/compact';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import { getModule, getModuleOverride } from 'state/modules';
-import { isModuleFound as _isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import React from 'react';
+import { connect } from 'react-redux';
+import { getModule, getModuleOverride } from 'state/modules';
+import { isModuleFound as _isModuleFound } from 'state/search';
 
 export class CustomContentTypes extends React.Component {
 	state = {

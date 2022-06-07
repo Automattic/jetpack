@@ -1,17 +1,7 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Gridicon from 'components/gridicon';
+import React, { useCallback } from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const BackButton = () => {

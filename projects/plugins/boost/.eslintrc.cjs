@@ -6,7 +6,6 @@ module.exports = {
 	extends: [
 		require.resolve( 'jetpack-js-tools/eslintrc/base' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/recommended' ),
-		require.resolve( 'jetpack-js-tools/eslintrc/typescript' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/svelte' ),
 	],
 	ignorePatterns: loadIgnorePatterns( __dirname ),

@@ -2,20 +2,14 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen, waitFor } from '@testing-library/react';
 
-/**
- * Internal dependencies
- */
 import ImageCompareEdit from '../edit';
 
 function renderImageCompare( props ) {
 	const { container } = render( <ImageCompareEdit { ...props } /> );
-	return container.querySelector( `.${ props.className } > div` );
+	return container.querySelector( `.${ props.className } > div:not([aria-hidden="true"])` );
 }
 
 describe( 'ImageCompareEdit', () => {

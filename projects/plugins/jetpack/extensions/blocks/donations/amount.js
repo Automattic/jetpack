@@ -1,18 +1,7 @@
-/**
- * External dependencies
- */
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { RichText } from '@wordpress/block-editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 
 const Amount = ( {

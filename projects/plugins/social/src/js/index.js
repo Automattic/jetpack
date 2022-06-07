@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { createReduxStore, register } from '@wordpress/data';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createReduxStore, register } from '@wordpress/data';
-import { ThemeProvider } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import AdminPage from './components/admin-page';
 import { STORE_ID, storeConfig } from './store';
 

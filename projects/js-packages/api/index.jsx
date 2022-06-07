@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import { assign } from 'lodash';
-import { addQueryArgs } from '@wordpress/url';
 import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
+import { addQueryArgs } from '@wordpress/url';
+import { assign } from 'lodash';
 
 /**
  * Helps create new custom error classes to better notify upper layers.

@@ -1,34 +1,20 @@
-/**
- * External dependencies
- */
-import { connect } from 'react-redux';
+import restApi from '@automattic/jetpack-api';
+import { Spinner } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
+import Card from 'components/card';
+import JetpackBanner from 'components/jetpack-banner';
+import SectionHeader from 'components/section-header';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
-import restApi from '@automattic/jetpack-api';
-
-/**
- * WordPress dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
-import { Spinner } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { connect } from 'react-redux';
 import {
 	fetchPluginsData as dispatchFetchPluginsData,
 	isPluginActive,
 	isPluginInstalled,
 	isFetchingPluginsData as getIsFetchingPluginsData,
 } from 'state/site/plugins';
-import analytics from 'lib/analytics';
-import Card from 'components/card';
-import JetpackBanner from 'components/jetpack-banner';
-import SectionHeader from 'components/section-header';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 export const PluginDashItem = ( {

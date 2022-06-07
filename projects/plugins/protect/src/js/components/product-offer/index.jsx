@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
 import { ProductOffer } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 
 /**
