@@ -146,7 +146,7 @@
 		debouncedRefreshScore( true );
 	}
 
-	$: if ( $showRatingCard || $showScoreDrop ) {
+	$: if ( $showRatingCard ) {
 		improvementPercentage = getScoreImprovementPercentage( $scores );
 		currentPercentage = ( $scores.current.mobile + $scores.current.desktop ) / 2;
 	}
@@ -240,4 +240,6 @@
 	/>
 {/if}
 
-<ScoreDrop on:dismiss={() => respawnScorePrompt.set( false )} />
+{#if $showScoreDrop}
+	<ScoreDrop on:dismiss={() => respawnScorePrompt.set( false )} />
+{/if}
