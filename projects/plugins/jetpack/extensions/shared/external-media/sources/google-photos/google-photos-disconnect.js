@@ -1,16 +1,9 @@
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import { getApiUrl } from '../api';
 import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
+import { getApiUrl } from '../api';
 
 const GooglePhotosDisconnect = ( { setAuthenticated } ) => {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );

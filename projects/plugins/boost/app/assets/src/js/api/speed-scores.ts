@@ -1,17 +1,10 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import api from './api';
-import { standardizeError } from '../utils/standardize-error';
-import { isJsonObject, JSONObject } from '../utils/json-types';
 import { castToNumber } from '../utils/cast-to-number';
-import pollPromise from '../utils/poll-promise';
 import { castToString } from '../utils/cast-to-string';
+import { isJsonObject, JSONObject } from '../utils/json-types';
+import pollPromise from '../utils/poll-promise';
+import { standardizeError } from '../utils/standardize-error';
+import api from './api';
 
 const pollTimeout = 2 * 60 * 1000;
 const pollInterval = 5 * 1000;

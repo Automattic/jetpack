@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-/**
- * Internal dependencies
- */
 import { ProductPurchased } from '../index';
 import { buildInitialState, sitePurchases } from '../../prompts/product-suggestions/test/fixtures';
 import analytics from 'lib/analytics';

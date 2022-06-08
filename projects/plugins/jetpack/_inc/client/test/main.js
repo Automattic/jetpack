@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { Provider } from 'react-redux';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 
-/**
- * Internal dependencies
- */
 import Main from '../main';
 import store from 'state/redux-store';
 

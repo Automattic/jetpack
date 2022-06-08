@@ -1,18 +1,10 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-
-/**
- * Internal dependencies
- */
 import { imagePath } from 'constants/urls';
 import {
 	PLAN_FREE,
 	PLAN_PERSONAL,
 	PLAN_PERSONAL_2_YEARS,
 	PLAN_PERSONAL_MONTHLY,
+	PLAN_STARTER,
 	PLAN_PREMIUM,
 	PLAN_PREMIUM_2_YEARS,
 	PLAN_PREMIUM_MONTHLY,
@@ -65,10 +57,9 @@ import {
 	PLAN_JETPACK_SECURITY_REALTIME,
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 } from 'lib/plans/constants';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const PRODUCT_ICON_MAP = {
@@ -76,6 +67,7 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_PERSONAL ]: '/plans/wpcom-personal.svg',
 	[ PLAN_PERSONAL_2_YEARS ]: '/plans/wpcom-personal.svg',
 	[ PLAN_PERSONAL_MONTHLY ]: '/plans/wpcom-personal.svg',
+	[ PLAN_STARTER ]: '/plans/wpcom-personal.svg',
 	[ PLAN_PREMIUM ]: '/plans/wpcom-premium.svg',
 	[ PLAN_PREMIUM_2_YEARS ]: '/plans/wpcom-premium.svg',
 	[ PLAN_PREMIUM_MONTHLY ]: '/plans/wpcom-premium.svg',
@@ -154,6 +146,7 @@ PlanIcon.propTypes = {
 		PLAN_PERSONAL,
 		PLAN_PERSONAL_2_YEARS,
 		PLAN_PERSONAL_MONTHLY,
+		PLAN_STARTER,
 		PLAN_PREMIUM,
 		PLAN_PREMIUM_2_YEARS,
 		PLAN_PREMIUM_MONTHLY,

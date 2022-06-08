@@ -130,6 +130,11 @@ class VideoPress_Shortcode {
 			$attr['width'] --;
 		}
 
+		// Make sure "false" being passed as useaveragecolor will be actually false.
+		if ( is_string( $attr['useaveragecolor'] ) && 'false' === strtolower( $attr['useaveragecolor'] ) ) {
+			$attr['useaveragecolor'] = false;
+		}
+
 		/**
 		 * Filter the default VideoPress shortcode options.
 		 *

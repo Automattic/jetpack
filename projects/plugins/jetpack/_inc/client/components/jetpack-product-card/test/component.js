@@ -1,16 +1,10 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
 import { expect } from 'chai';
 import { getCurrencyObject } from '@automattic/format-currency';
 
-/**
- * Internal dependencies
- */
 import JetpackProductCard from '../index';
 import analytics from 'lib/analytics';
-import { fireEvent, render, screen, getNodeText } from 'test/test-utils';
+import { fireEvent, render, screen, getAllByText, getNodeText } from 'test/test-utils';
 import sinon from "sinon";
 
 describe( 'Jetpack Product Card', () => {
@@ -46,10 +40,10 @@ describe( 'Jetpack Product Card', () => {
 		
 		const priceObject = getCurrencyObject( mockAttributes.price, mockAttributes.currencyCode );
 
-		expect( container.getAllByText( priceObject.symbol ) ).to.exist;
-		expect( container.getAllByText( priceObject.integer ) ).to.exist;
-		expect( container.getAllByText( priceObject.fraction ) ).to.exist;
-		expect( container.getAllByText( mockAttributes.billingDescription ) ).to.exist;
+		expect( getAllByText( container, priceObject.symbol ) ).to.exist;
+		expect( getAllByText( container, priceObject.integer ) ).to.exist;
+		expect( getAllByText( container, priceObject.fraction ) ).to.exist;
+		expect( getAllByText( container, mockAttributes.billingDescription ) ).to.exist;
 	} );
 
 	it( 'discounted price is shown', () => {
@@ -59,16 +53,16 @@ describe( 'Jetpack Product Card', () => {
 		// Show original price.
 		const originalPriceObject = getCurrencyObject( mockAttributes.price, mockAttributes.currencyCode );
 
-		expect( container.getAllByText( originalPriceObject.symbol ) ).to.exist;
-		expect( container.getAllByText( originalPriceObject.integer ) ).to.exist;
-		expect( container.getAllByText( originalPriceObject.fraction ) ).to.exist;
+		expect( getAllByText( container, originalPriceObject.symbol ) ).to.exist;
+		expect( getAllByText( container, originalPriceObject.integer ) ).to.exist;
+		expect( getAllByText( container, originalPriceObject.fraction ) ).to.exist;
 		
 		// Show discounted price.
 		const discountedPriceObject = getCurrencyObject( discountedPrice, mockAttributes.currencyCode );
 
-		expect( container.getAllByText( discountedPriceObject.symbol ) ).to.exist;
-		expect( container.getAllByText( discountedPriceObject.integer ) ).to.exist;
-		expect( container.getAllByText( discountedPriceObject.fraction ) ).to.exist;
+		expect( getAllByText( container, discountedPriceObject.symbol ) ).to.exist;
+		expect( getAllByText( container, discountedPriceObject.integer ) ).to.exist;
+		expect( getAllByText( container, discountedPriceObject.fraction ) ).to.exist;
 	} );
 
 	it( 'cta is shown', () => {

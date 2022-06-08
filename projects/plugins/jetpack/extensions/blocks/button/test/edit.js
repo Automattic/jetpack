@@ -2,9 +2,6 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import { render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -13,9 +10,6 @@ import { register } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 register( blockEditorStore );
 
-/**
- * Internal dependencies
- */
 import { ButtonEdit } from '../edit';
 import { __experimentalUseGradient } from '@wordpress/block-editor';
 

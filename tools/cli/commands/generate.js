@@ -1,30 +1,22 @@
-/**
- * External dependencies
- */
-import path from 'path';
-import pluralize from 'pluralize';
-import inquirer from 'inquirer';
-import chalk from 'chalk';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import semver from 'semver';
-import yaml from 'js-yaml';
 import { execSync } from 'child_process';
-
-/**
- * Internal dependencies
- */
-import { promptForType, promptForName } from '../helpers/promptForProject.js';
-import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import chalk from 'chalk';
+import inquirer from 'inquirer';
+import yaml from 'js-yaml';
+import pluralize from 'pluralize';
+import semver from 'semver';
+import { doesRepoExist } from '../helpers/github.js';
 import {
 	readPackageJson,
 	readComposerJson,
 	writePackageJson,
 	writeComposerJson,
 } from '../helpers/json.js';
-import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
 import mergeDirs, { copyFile } from '../helpers/mergeDirs.js';
-import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
+import { normalizeGenerateArgv } from '../helpers/normalizeArgv.js';
+import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
 import {
 	transformToReadableName,
 	transformToPhpClassName,
@@ -32,8 +24,9 @@ import {
 	normalizeSlug,
 	transformToCamelCase,
 } from '../helpers/projectNameTransformations.js';
+import { promptForType, promptForName } from '../helpers/promptForProject.js';
+import searchReplaceInFolder from '../helpers/searchReplaceInFolder.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
-import { doesRepoExist } from '../helpers/github.js';
 
 /**
  * Entry point for the CLI.
@@ -446,21 +439,20 @@ function createPackageJson( packageJson, answers ) {
 			'./action-types': './src/state/action-types',
 		};
 		packageJson.scripts = {
-			test:
-				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
+			test: 'jest tests',
+			'test-coverage':
+				'jest tests --coverage --collectCoverageFrom=\'src/**/*.js\' --coverageDirectory="$COVERAGE_DIR" --coverageReporters=clover',
 		};
-		packageJson.devDependencies = { 'jetpack-js-test-runner': 'workspace:*' };
 
-		// Since `createComposerJson()` adds a use of `nyc`, we need to depend on it here too.
-		// Look for which version is currently in use.
+		// Extract the version of jest currently in use for the dependency.
 		const yamlFile = yaml.load(
 			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
 		);
-		const nycVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
-			const ver = cur.match( /^\/nyc\/([^_]+)/ )?.[ 1 ];
+		const jestVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
+			const ver = cur.match( /^\/jest\/([^_]+)/ )?.[ 1 ];
 			return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
 		}, null );
-		packageJson.devDependencies.nyc = nycVersion || '*';
+		packageJson.devDependencies.jest = jestVersion || '*';
 	}
 }
 
@@ -525,7 +517,7 @@ async function createComposerJson( composerJson, answers ) {
 		case 'js-package':
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpm nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
+				'test-coverage': [ 'pnpm run test-coverage' ],
 			};
 	}
 }

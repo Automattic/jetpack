@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
-import { Component, Fragment } from '@wordpress/element';
-import { get, isEmpty } from 'lodash';
-import { withSelect } from '@wordpress/data';
 import { compose, withInstanceId } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
+import { withSelect } from '@wordpress/data';
+import { Component, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { get, isEmpty } from 'lodash';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
 
 export const MAX_POSTS_TO_SHOW = 6;

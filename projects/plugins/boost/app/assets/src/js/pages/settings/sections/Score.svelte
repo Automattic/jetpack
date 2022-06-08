@@ -1,13 +1,6 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
-	import ComputerIcon from '../../../svg/computer.svg';
-	import MobileIcon from '../../../svg/mobile.svg';
-	import RefreshIcon from '../../../svg/refresh.svg';
-	import ScoreBar from '../elements/ScoreBar.svelte';
-	import ScoreContext from '../elements/ScoreContext.svelte';
-	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
+	import { derived, writable } from 'svelte/store';
+	import { __ } from '@wordpress/i18n';
 	import {
 		getScoreLetter,
 		requestSpeedScores,
@@ -15,10 +8,13 @@
 		didScoresWorsen,
 		getScoreImprovementPercentage,
 	} from '../../../api/speed-scores';
-	import debounce from '../../../utils/debounce';
+	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import { criticalCssStatus, isGenerating } from '../../../stores/critical-css-status';
 	import { modules } from '../../../stores/modules';
-	import { derived, writable } from 'svelte/store';
+	import ComputerIcon from '../../../svg/computer.svg';
+	import MobileIcon from '../../../svg/mobile.svg';
+	import RefreshIcon from '../../../svg/refresh.svg';
+	import debounce from '../../../utils/debounce';
 	import RatingCard from '../elements/RatingCard.svelte';
 	import ScoreDrop from '../elements/ScoreDrop.svelte';
 
@@ -26,6 +22,10 @@
 	 * WordPress dependencies
 	 */
 	import { __ } from '@wordpress/i18n';
+
+	import ScoreBar from '../elements/ScoreBar.svelte';
+	import ScoreContext from '../elements/ScoreContext.svelte';
+
 
 	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;

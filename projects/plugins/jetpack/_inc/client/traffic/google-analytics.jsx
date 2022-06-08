@@ -1,24 +1,13 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Card from 'components/card';
-import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import analytics from 'lib/analytics';
+import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
+import React, { Component } from 'react';
 
 export const GoogleAnalytics = withModuleSettingsFormHelpers(
 	class extends Component {
