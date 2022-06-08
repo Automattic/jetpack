@@ -1,10 +1,12 @@
 const config = require( 'config' );
 const fs = require( 'fs' );
+const path = require( 'path' );
 
 const reporter = [
 	[ 'list' ],
 	[ 'json', { outputFile: `${ config.get( 'dirs.output' ) }/summary.json` } ],
 	[ 'allure-playwright' ],
+	[ `${ path.resolve( __dirname, '../', config.get( 'dirs.reporters' ) ) }/reporter.cjs` ],
 ];
 
 if ( process.env.CI ) {
@@ -31,7 +33,7 @@ const playwrightConfig = {
 	timeout: 300000,
 	retries: 0,
 	workers: 1,
-	outputDir: config.get( 'dirs.output' ),
+	outputDir: config.get( 'dirs.results' ),
 	reporter,
 	use: {
 		browserName: 'chromium',

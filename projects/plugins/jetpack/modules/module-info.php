@@ -889,3 +889,19 @@ function jetpack_more_info_google_fonts() {
 	esc_html_e( 'A selection of Google fonts for block enabled themes.  This feature is still being developed.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_google-fonts', 'jetpack_more_info_google_fonts' );
+
+/**
+ * WAF support link.
+ */
+function jetpack_waf_more_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-support-waf' ) );
+}
+add_action( 'jetpack_learn_more_button_waf', 'jetpack_waf_more_link' );
+
+/**
+ * WAF description.
+ */
+function jetpack_more_info_waf() {
+	esc_html_e( 'The Jetpack Firewall is a web application firewall designed to protect your WordPress site from malicious requests.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_waf', 'jetpack_more_info_waf' );

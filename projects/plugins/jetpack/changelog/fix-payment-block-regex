@@ -1,0 +1,6 @@
+Significance: patch
+Type: bugfix
+
+Use an ungreedy regex when substituting the payment URL. This fixes a bug
+where the button content could be removed if it included a literal " -
+such as when the button includes an inline image.
