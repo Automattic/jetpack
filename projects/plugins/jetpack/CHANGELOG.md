@@ -2,6 +2,42 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.1-a.1 - 2022-06-08
+### Major Enhancements
+- Blocks: introduce a new Recipe block to display an easy to read recipe anywhere on your site. [#24343]
+
+### Enhancements
+- Add links to waf support documentation. [#24641]
+- Load publicize only in the publicize module is active. [#24557]
+- Update messaging around sites without latest firewall rules access. [#24642]
+
+### Improved compatibility
+- Blocks: add Jetpack block elements to WPML configuration, so they can be translated. [#24651]
+
+### Bug fixes
+- Contact Form: support saving array of data, such as multiple checkboxes. [#24645]
+- Custom CSS: Add WoA check to prevent duplicate menu item on plan-less sites. [#24631]
+- Removing strict comparison to fix average color param [#24606]
+- Use an ungreedy regex when substituting the payment URL. This fixes a bug
+  where the button content could be removed if it included a literal " -
+  such as when the button includes an inline image. [#24667]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add support for WordPress.com Starter plan. [#24496]
+- Dashboard: update link to Protect features in disconnect modal. [#24618]
+- Display integration tools menu item for p2 hub sites [#24663]
+- PHPCS contact form [#24450]
+- Related Posts: avoid fatal errors when calling related posts with multiple exclusions. [#24629]
+- Release: update changelog and readme [#24669]
+- remaining phpcs fix for class.jetpack.php [#24531]
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+- Updated package dependencies. [#24576]
+- Updated package dependencies. [#24596]
+- VideoPress: add "allow='clipboard-write'" in iframe for embed in order to fix the Clipboard API on Chrome [#24616]
+- VideoPress: make sure "false" will be casted as false for useaveragecolor [#24615]
+- WPcom: deprecate jetpack_api_exclude_comment_types_count filter in favor of jetpack_api_include_comment_types_count for more accurate comment counts. [#24512]
+
 ## [11.0] - 2022-05-31
 ### Enhancements
 - Publicize: load Publicize only if the Publicize module is active. [#24557]

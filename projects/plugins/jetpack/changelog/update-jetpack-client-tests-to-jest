@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Convert client tests to jest. No change to the plugin.
-
-
