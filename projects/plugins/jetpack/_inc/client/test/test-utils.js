@@ -1,3 +1,4 @@
+// @ts-nocheck - This isn't TypeScript, and tsc is dumb about the jsdoc `{...}` below.
 import { render as rtlRender, RenderResult } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
