@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboard: format anti-spam stats properly, including in languages using a space as Thousands separator.
