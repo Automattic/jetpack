@@ -29,7 +29,7 @@
 		],
 		"test-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/coverage.xml\"",
-			"pnpm run test -- --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
+			"pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -39,7 +39,7 @@
 		],
 		"test-js-watch": [
 			"Composer\\Config::disableProcessTimeout",
-			"pnpm run test -- --watch"
+			"pnpm run test --watch"
 		],
 		"build-development": [
 			"pnpm run build"
