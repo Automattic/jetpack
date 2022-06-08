@@ -243,10 +243,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 == Changelog ==
 ### 11.1-a.1 - 2022-06-08
-#### Major Enhancements
-- Blocks: introduce a new Recipe block to display an easy to read recipe anywhere on your site.
 
 #### Enhancements
+- Recipe Block (beta): introduce a new Recipe block to display an easy to read recipe anywhere on your site. Currently a JETPACK_BETA_BLOCKS feature.
 - WAF: update messaging around sites without latest firewall rules access.
 - WAF: add links to support documentation.
 

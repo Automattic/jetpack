@@ -3,10 +3,9 @@
 ### This is a list detailing changes for all Jetpack releases.
 
 ## 11.1-a.1 - 2022-06-08
-### Major Enhancements
-- Blocks: introduce a new Recipe block to display an easy to read recipe anywhere on your site. [#24343]
 
 ### Enhancements
+- Recipe Block (beta): introduce a new Recipe block to display an easy to read recipe anywhere on your site. Currently a JETPACK_BETA_BLOCKS feature. [#24343]
 - WAF: update messaging around sites without latest firewall rules access. [#24642]
 - WAF: add links to support documentation. [#24641]
 
