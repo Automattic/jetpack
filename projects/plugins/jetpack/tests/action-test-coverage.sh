@@ -7,7 +7,8 @@ PLUGINDIR="$PWD"
 cd "$MONOREPO_BASE/projects/plugins/jetpack"
 
 echo "::group::Jetpack Admimnpage coverage"
-pnpm nyc --reporter=clover -x '_inc/**/**/test/*.js' --report-dir="$COVERAGE_DIR/adminpage" pnpm run test-adminpage
+pnpm run test-client --coverage --collectCoverageFrom='_inc/client/state/**/*.js' --coverageDirectory="$COVERAGE_DIR/client" --coverageReporters=clover
+pnpm nyc --reporter=clover -x '_inc/**/**/test/*.js' --report-dir="$COVERAGE_DIR/adminpage" pnpm run test-gui
 echo "::endgroup::"
 
 echo "::group::Jetpack Extensions coverage"

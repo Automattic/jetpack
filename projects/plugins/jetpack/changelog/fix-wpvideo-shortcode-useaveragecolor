@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-VideoPress: make sure "false" will be casted as false for useaveragecolor
