@@ -252,6 +252,13 @@ class Speed_Score {
 
 		$response = array();
 
+		/*
+		If the site has no modules turned on, then the page speed with and without boost should be the same for the purposes of the UI.
+		In the current situation we have instances where current != noBoost especially when using the cached response. Pass the boost
+		module count to the response so the UI can interact based on it.
+		*/
+		$boost_module_count = $this->modules->have_enabled_modules();
+
 		if ( ( ! $score_request || $score_request->is_success() ) && ( ! $score_request_no_boost || $score_request_no_boost->is_success() ) ) {
 			$response['status'] = 'success';
 
@@ -261,11 +268,12 @@ class Speed_Score {
 			);
 
 			// Only include noBoost scores if at least one module is enabled.
-			if ( $this->modules->have_enabled_modules() > 0 ) {
+			if ( $boost_module_count > 0 ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
 
 			$response['scores']['isStale'] = $history->is_stale();
+			$response['module_count']      = $boost_module_count;
 
 		} else {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.
@@ -276,6 +284,7 @@ class Speed_Score {
 				} else {
 					$response = $score_request_no_boost->jsonSerialize();
 				}
+				$response['module_count'] = $boost_module_count;
 			} else {
 				// If no request ended up in error/success as previous conditions dictate, it means that either of them are in pending state.
 				$response['status'] = 'pending';
