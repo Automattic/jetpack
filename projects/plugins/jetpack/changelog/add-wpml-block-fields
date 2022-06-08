@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Blocks: add Jetpack block elements to WPML configuration, so they can be translated.

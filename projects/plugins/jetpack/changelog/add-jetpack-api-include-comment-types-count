@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+WPcom: deprecate jetpack_api_exclude_comment_types_count filter in favor of jetpack_api_include_comment_types_count for more accurate comment counts.
