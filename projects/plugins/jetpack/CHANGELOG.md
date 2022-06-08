@@ -2,12 +2,14 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.0-beta - 2022-05-31
+## [11.0] - 2022-05-31
 ### Enhancements
+- Publicize: load Publicize only if the Publicize module is active. [#24557]
 - Sharing: update the email sharing button to use mailto links instead of server submissions. [#24040]
 
 ### Bug fixes
 - Comments: update UI to reflect that Google accounts are no longer a sign-in option. [#24528]
+- VideoPress: remove strict comparison to fix average color parameter. [#24606]
 - Stats: ensure the Stats column can always be displayed, even when the post type does not support comments. [#24482]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
@@ -6665,6 +6667,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.0]: https://wp.me/p1moTy-IbF
 [10.9]: https://wp.me/p1moTy-EHd
 [10.8]: https://wp.me/p1moTy-CTQ
 [10.7]: https://wp.me/p1moTy-AMD
