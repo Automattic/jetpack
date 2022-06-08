@@ -1407,7 +1407,7 @@ importers:
       '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@automattic/popup-monitor': 1.0.1_@babel+runtime@7.17.9
       '@automattic/request-external-access': 1.0.0_@babel+runtime@7.17.9
-      '@automattic/social-previews': 1.1.4_cgmcp4y3anqoviq4hre22lv2k4
+      '@automattic/social-previews': 1.1.4_ypfkufhu6xm6j2dhs3rwfbfrxy
       '@automattic/viewport': 1.0.0
       '@wordpress/base-styles': 4.5.0
       '@wordpress/block-editor': 9.1.0_cgmcp4y3anqoviq4hre22lv2k4
@@ -2027,12 +2027,14 @@ packages:
       - '@babel/runtime'
     dev: false
 
-  /@automattic/social-previews/1.1.4_cgmcp4y3anqoviq4hre22lv2k4:
+  /@automattic/social-previews/1.1.4_ypfkufhu6xm6j2dhs3rwfbfrxy:
     resolution: {integrity: sha512-yanz33OetIia8Ea/nQ/oBjq+4wKFF4Hak/PUHa112IdWHcXgNP1tHj73CQVgZhqO730X7wjmtSXLXla3RSgNdA==}
     peerDependencies:
+      '@babel/runtime': ^7
       react: ^17.0.2
       react-dom: ^17.0.2
     dependencies:
+      '@babel/runtime': 7.17.9
       '@emotion/react': 11.9.0_agi5j56rhwhfr3kfyspeqe6asa
       '@wordpress/components': 19.11.0_cgmcp4y3anqoviq4hre22lv2k4
       '@wordpress/i18n': 4.9.0
