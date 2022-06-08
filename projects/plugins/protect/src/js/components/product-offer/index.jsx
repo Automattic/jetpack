@@ -17,7 +17,7 @@ import useProtectData from '../../hooks/use-protect-data';
  * @param {Function} props.onAdd      - Callback for Call To Action button click
  * @returns {object}                    ConnectedProductOffer react component.
  */
-const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
+const ConnectedProductOffer = ( { onAdd, onAddError, ...rest } ) => {
 	const { siteIsRegistering, handleRegisterSite, registrationError } = useConnection( {
 		skipUserConnection: true,
 	} );
@@ -27,15 +27,21 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 	const { recordEvent } = useAnalyticsTracks();
 
 	const onAddHandler = useCallback( () => {
-		if ( onAdd ) {
-			onAdd();
-		}
+		recordEvent( 'jetpack_protect_offer_get_started_link_click' );
 
 		// Record event in case the site did register.
-		handleRegisterSite()?.then( () =>
-			recordEvent( 'jetpack_protect_interstitial_get_started_link_click' )
-		);
-	}, [ handleRegisterSite, onAdd, recordEvent ] );
+		return handleRegisterSite()
+			.then( () => {
+				recordEvent( 'jetpack_protect_offer_connect_product_activated' );
+				onAdd();
+			} )
+			.catch( err => {
+				recordEvent( 'jetpack_protect_offer_connect_product_error', {
+					error_code: err?.message,
+				} );
+				onAddError( err );
+			} );
+	}, [ handleRegisterSite, onAdd, onAddError, recordEvent ] );
 
 	return (
 		<ProductOffer
@@ -58,10 +64,12 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 };
 ConnectedProductOffer.propTypes = {
 	onAdd: PropTypes.func,
+	onAddError: PropTypes.func,
 };
 
 ConnectedProductOffer.defaultProps = {
 	onAdd: () => {},
+	onAddError: () => {},
 };
 
 export default ConnectedProductOffer;
