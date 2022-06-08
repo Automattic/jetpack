@@ -85,8 +85,7 @@ RUN \
 # Install requested version of pnpm.
 RUN \
 	: "${PNPM_VERSION:?Build argument PNPM_VERSION needs to be set and non-empty.}" \
-	&& curl -fSL https://get.pnpm.io/v6.14.js | node - add --global pnpm@$PNPM_VERSION \
-	&& pnpm store prune
+	&& corepack enable && corepack prepare pnpm@$PNPM_VERSION --activate
 
 # Install wp-cli.
 RUN curl -o /usr/local/bin/wp -fSL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli-nightly.phar \

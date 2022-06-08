@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update method checking for block-based themes to use latest core function.
