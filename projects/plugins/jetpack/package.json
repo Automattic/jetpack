@@ -37,7 +37,7 @@
 		"test-adminpage": "pnpm run test-client && pnpm run test-gui",
 		"test-client": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.client.js",
 		"test-extensions": "TZ=UTC jest --config=tests/jest.config.extensions.js",
-		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom --initfile=_inc/client/test/init.js _inc/client/test/main.js glob:_inc/client/**/test/component.js",
+		"test-gui": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.gui.js",
 		"test-lib": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom glob:_inc/client/lib/**/test/*.js",
 		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom glob:modules/**/test-*.js",
 		"watch": "concurrently --names client-js,client-css,masterbar,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'webpack watch --config ./tools/webpack.config.masterbar.js' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'"
@@ -154,13 +154,11 @@
 		"jest-enzyme": "7.1.2",
 		"jetpack-js-test-runner": "workspace:*",
 		"lodash": "4.17.21",
-		"nyc": "15.1.0",
 		"postcss": "8.4.13",
 		"postcss-loader": "6.2.0",
 		"react-test-renderer": "17.0.2",
 		"regenerator-runtime": "0.13.9",
 		"sass-loader": "12.4.0",
-		"sinon": "13.0.2",
 		"typescript": "4.7.2"
 	},
 	"optionalDependencies": {
