@@ -1,8 +1,12 @@
+/**
+ * External dependencies
+ */
 import { ProductOffer } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 
 /**
@@ -20,14 +24,18 @@ const ConnectedProductOffer = ( { onAdd, ...rest } ) => {
 
 	const { productData } = useProtectData();
 	const { slug, title, longDescription, features, pricingForUi } = productData;
+	const { recordEvent } = useAnalyticsTracks();
 
 	const onAddHandler = useCallback( () => {
 		if ( onAdd ) {
 			onAdd();
 		}
 
-		handleRegisterSite();
-	}, [ handleRegisterSite, onAdd ] );
+		// Record event in case the site did register.
+		handleRegisterSite()?.then( () =>
+			recordEvent( 'jetpack_protect_interstitial_get_started_link_click' )
+		);
+	}, [ handleRegisterSite, onAdd, recordEvent ] );
 
 	return (
 		<ProductOffer
