@@ -27,8 +27,6 @@ const ConnectedProductOffer = ( { onAdd, onAddError, ...rest } ) => {
 	const { recordEvent } = useAnalyticsTracks();
 
 	const onAddHandler = useCallback( () => {
-		recordEvent( 'jetpack_protect_offer_get_started_link_click' );
-
 		// Record event in case the site did register.
 		return handleRegisterSite()
 			.then( () => {
@@ -36,9 +34,6 @@ const ConnectedProductOffer = ( { onAdd, onAddError, ...rest } ) => {
 				onAdd();
 			} )
 			.catch( err => {
-				recordEvent( 'jetpack_protect_offer_connect_product_error', {
-					error_code: err?.message,
-				} );
 				onAddError( err );
 			} );
 	}, [ handleRegisterSite, onAdd, onAddError, recordEvent ] );
