@@ -5,7 +5,7 @@
 	},
 	"processors": {
 		"downgrade-unmodified-lines": {
-			"remote": "origin/master",
+			"remote": "origin/trunk",
 			"rulesNotToDowngrade": [ "no-unused-vars" ]
 		},
 		"filter-when-format": {
