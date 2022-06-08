@@ -7,35 +7,30 @@
 - Blocks: introduce a new Recipe block to display an easy to read recipe anywhere on your site. [#24343]
 
 ### Enhancements
-- Add links to waf support documentation. [#24641]
-- Load publicize only in the publicize module is active. [#24557]
-- Update messaging around sites without latest firewall rules access. [#24642]
+- WAF: update messaging around sites without latest firewall rules access. [#24642]
+- WAF: add links to support documentation. [#24641]
 
 ### Improved compatibility
-- Blocks: add Jetpack block elements to WPML configuration, so they can be translated. [#24651]
+- Blocks: add Jetpack block elements to WPML configuration so they can be translated. [#24651]
+- Publicize: configure Publicize only when the module is active. [#24557]
 
 ### Bug fixes
 - Contact Form: support saving array of data, such as multiple checkboxes. [#24645]
-- Custom CSS: Add WoA check to prevent duplicate menu item on plan-less sites. [#24631]
-- Removing strict comparison to fix average color param [#24606]
-- Use an ungreedy regex when substituting the payment URL. This fixes a bug
-  where the button content could be removed if it included a literal " -
-  such as when the button includes an inline image. [#24667]
+- Payment Block: fix issue preventing images in payment buttons. [#24667]
+- VideoPress: fix average color parameter for seekbar. [#24606]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add support for WordPress.com Starter plan. [#24496]
 - Dashboard: update link to Protect features in disconnect modal. [#24618]
-- Display integration tools menu item for p2 hub sites [#24663]
-- PHPCS contact form [#24450]
+- P2: display integration tools menu item for P2 hub sites. [#24663]
+- PHPCS: contact form cleanup. [#24450]
+- PHPCS: remaining cleanup for class.jetpack.php file. [#24531]
 - Related Posts: avoid fatal errors when calling related posts with multiple exclusions. [#24629]
-- Release: update changelog and readme [#24669]
-- remaining phpcs fix for class.jetpack.php [#24531]
 - Reorder JS imports for `import/order` eslint rule. [#24601]
-- Updated package dependencies. [#24510]
-- Updated package dependencies. [#24576]
-- Updated package dependencies. [#24596]
-- VideoPress: add "allow='clipboard-write'" in iframe for embed in order to fix the Clipboard API on Chrome [#24616]
-- VideoPress: make sure "false" will be casted as false for useaveragecolor [#24615]
+- Updated package dependencies. [#24510, #24576, #24596]
+- VideoPress: add "allow='clipboard-write'" in iframe for embed in order to fix the Clipboard API on Chrome. [#24616]
+- VideoPress: make sure "false" will be casted as false for useaveragecolor. [#24615]
+- WoA: add check to prevent duplicate Custom CSS menu item on plan-less sites. [#24631]
+- WPcom: add support for WordPress.com Starter plan. [#24496]
 - WPcom: deprecate jetpack_api_exclude_comment_types_count filter in favor of jetpack_api_include_comment_types_count for more accurate comment counts. [#24512]
 
 ## [11.0] - 2022-05-31
