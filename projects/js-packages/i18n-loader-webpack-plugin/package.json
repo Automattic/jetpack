@@ -31,7 +31,7 @@
 		"webpack": "^5.29.0"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
+		"node": "^16.13.2",
 		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
