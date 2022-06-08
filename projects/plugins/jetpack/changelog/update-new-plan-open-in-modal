@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Open add new subscription modal when there's hash in URL
