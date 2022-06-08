@@ -33,16 +33,24 @@ export default ( {
 		...select( STORE_ID ).getConnectionStatus(),
 	} ) );
 
+	/**
+	 * User register process handler.
+	 *
+	 * @returns {Promise} - Promise which resolves when the product status is activated.
+	 */
 	const handleConnectUser = () => {
 		if ( ! skipUserConnection ) {
 			return connectUser( { from, redirectUri } );
 		} else if ( redirectUri ) {
 			window.location = redirectUri;
+			return Promise.resolve( redirectUri );
 		}
+
+		return Promise.resolve();
 	};
 
 	/**
-	 * Site registration process handler.
+	 * Site register process handler.
 	 *
 	 * It handles the process to register the site,
 	 * considering also the user registration status.
@@ -51,7 +59,7 @@ export default ( {
 	 * the site was successfully registered.
 	 *
 	 * @param {Event} [e] - Event that dispatched handleRegisterSite
-	 * @returns {void}      Promise when running the registration process. Otherwise, nothing.
+	 * @returns {Promise}   Promise when running the registration process. Otherwise, nothing.
 	 */
 	const handleRegisterSite = e => {
 		e && e.preventDefault();
@@ -61,7 +69,7 @@ export default ( {
 		}
 
 		return registerSite( { registrationNonce, redirectUri } ).then( () => {
-			handleConnectUser();
+			return handleConnectUser();
 		} );
 	};
 
