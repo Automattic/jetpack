@@ -184,6 +184,8 @@ export function getScoreImprovementPercentage( scores: SpeedScoresSet ): number 
 	const noBoost = scores.noBoost.mobile + scores.noBoost.desktop;
 	const improvement = current / noBoost - 1;
 
+	console.log(scores);
+
 	return Math.round( improvement * 100 );
 }
 
