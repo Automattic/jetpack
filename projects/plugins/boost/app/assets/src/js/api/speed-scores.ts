@@ -200,5 +200,5 @@ export function didScoresWorsen( scores: SpeedScoresSet ): boolean {
 	const noBoost = scores.noBoost;
 
 	// Consider the score got worse if combined score fell.
-	return null !== current && null !== noBoost && getScoreImprovementPercentage( scores ) < -10;
+	return null !== current && null !== noBoost && getScoreImprovementPercentage( scores ) < -5;
 }
