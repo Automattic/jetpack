@@ -9,7 +9,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -224,11 +223,9 @@ abstract class Publicize_Base {
 		add_action( 'init', array( $this, 'add_post_type_support' ), 8 );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
 
-		if ( ( new Modules() )->is_active( 'publicize' ) ) {
-			// The custom priority for this action ensures that any existing code that
-			// removes post-thumbnails support during 'init' continues to work.
-			add_action( 'init', __NAMESPACE__ . '\add_theme_post_thumbnails_support', 8 );
-		}
+		// The custom priority for this action ensures that any existing code that
+		// removes post-thumbnails support during 'init' continues to work.
+		add_action( 'init', __NAMESPACE__ . '\add_theme_post_thumbnails_support', 8 );
 	}
 
 	/**
