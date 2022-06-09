@@ -85,26 +85,26 @@ Run all tests: `pnpm test:run`
 Playwright runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window, and the running tests you can use the `--headed` flag:
 
 ```bash
-pnpm test:run -- --headed
+pnpm test:run --headed
 ```
 
 To run an individual test, use the direct path to the spec. For example:
 
 ```bash
-pnpm test:run -- ./specs/dummy.test.js
+pnpm test:run ./specs/dummy.test.js
 ```
 
 To run in debug mode, use the `--debug` flag. Debug mode uses a headed browser and opens the [Playwright inspector](https://playwright.dev/docs/inspector/).
 
 ```bash
-pnpm test:run -- --debug
+pnpm test:run --debug
 ```
 
 ### Selecting tests to run
 
 ```bash
 # One test file
-pnpm test:run -- ./specs/some.test.js
+pnpm test:run ./specs/some.test.js
 
 # All tests having 'blocks' in their name
 pnpm test:run blocks

@@ -24,7 +24,7 @@ const ProductPromotion = () => {
 	const { securityBundle } = useProtectData();
 	const { hasRequiredPlan } = securityBundle;
 
-	if ( ! hasRequiredPlan ) {
+	if ( hasRequiredPlan ) {
 		const getStartedUrl = getRedirectUrl( 'protect-footer-get-started-scan' );
 
 		return (
