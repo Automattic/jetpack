@@ -1,4 +1,5 @@
-Significance: minor
-Type: enhancement
+Significance: patch
+Type: other
+Comment: Payments Block: update anchor in support document link.
 
-Open add new subscription modal when there's hash in URL
+
