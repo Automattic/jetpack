@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Recognize more branch names as non-feature-branches.
