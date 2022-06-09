@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import React from 'react';
 import ContextualizedConnection from '../index';
@@ -23,17 +22,15 @@ describe( 'ContextualizedConnection', () => {
 		);
 
 		it( 'renders the title', () => {
-			expect( wrapper.find( 'h2' ).first().render().text() ).to.be.equal( testProps.title );
+			expect( wrapper.find( 'h2' ).first().render().text() ).toEqual( testProps.title );
 		} );
 
 		it( 'renders the connection children', () => {
-			expect( wrapper.find( 'p' ).first().render().text() ).to.be.equal( 'Test content' );
+			expect( wrapper.find( 'p' ).first().render().text() ).toBe( 'Test content' );
 		} );
 
 		it( 'renders the footer with a feature list with 3 columns', () => {
-			expect( wrapper.find( '.jp-contextualized-connection__footer-column' ) ).to.have.lengthOf(
-				3
-			);
+			expect( wrapper.find( '.jp-contextualized-connection__footer-column' ) ).toHaveLength( 3 );
 		} );
 	} );
 
@@ -41,11 +38,11 @@ describe( 'ContextualizedConnection', () => {
 		const wrapper = shallow( <ContextualizedConnection { ...testProps } /> );
 
 		it( 'renders the "Set up Jetpack" button', () => {
-			expect( wrapper.find( 'ConnectButton' ) ).to.exist;
+			expect( wrapper.find( 'ConnectButton' ) ).toBeDefined();
 		} );
 
 		it( 'renders the TOS', () => {
-			expect( wrapper.find( '.jp-contextualized-connection__tos' ) ).to.exist;
+			expect( wrapper.find( '.jp-contextualized-connection__tos' ) ).toBeDefined();
 		} );
 	} );
 
@@ -54,7 +51,7 @@ describe( 'ContextualizedConnection', () => {
 		const wrapper = shallow( <ContextualizedConnection { ...disconnectedProps } /> );
 
 		it( 'renders the "Continue to Jetpack" button', () => {
-			expect( wrapper.find( '.jp-contextualized-connection__button' ) ).to.exist;
+			expect( wrapper.find( '.jp-contextualized-connection__button' ) ).toBeDefined();
 		} );
 	} );
 } );

@@ -1366,7 +1366,6 @@ importers:
       lodash: 4.17.21
       mapbox-gl: 1.13.0
       markdown-it: 12.3.2
-      nyc: 15.1.0
       photon: 4.0.0
       postcss: 8.4.13
       postcss-custom-properties: 12.1.7
@@ -1386,7 +1385,6 @@ importers:
       sass: 1.38.1
       sass-loader: 12.4.0
       semver: 7.3.5
-      sinon: 13.0.2
       social-logos: 2.5.0
       static-site-generator-webpack-plugin: 3.4.2
       swiper: 6.7.0
@@ -1409,7 +1407,7 @@ importers:
       '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@automattic/popup-monitor': 1.0.1_@babel+runtime@7.17.9
       '@automattic/request-external-access': 1.0.0_@babel+runtime@7.17.9
-      '@automattic/social-previews': 1.1.4_cgmcp4y3anqoviq4hre22lv2k4
+      '@automattic/social-previews': 1.1.4_ypfkufhu6xm6j2dhs3rwfbfrxy
       '@automattic/viewport': 1.0.0
       '@wordpress/base-styles': 4.5.0
       '@wordpress/block-editor': 9.1.0_cgmcp4y3anqoviq4hre22lv2k4
@@ -1506,13 +1504,11 @@ importers:
       jest-enzyme: 7.1.2_x3fx6ski7nqiropha7uejbvcbi
       jetpack-js-test-runner: link:../../../tools/js-test-runner
       lodash: 4.17.21
-      nyc: 15.1.0
       postcss: 8.4.13
       postcss-loader: 6.2.0_yokl3cbwhadljnh75p6ymh6bce
       react-test-renderer: 17.0.2_react@17.0.2
       regenerator-runtime: 0.13.9
       sass-loader: 12.4.0_sass@1.38.1+webpack@5.72.1
-      sinon: 13.0.2
       typescript: 4.7.2
 
   projects/plugins/jetpack/tests/e2e:
@@ -2031,12 +2027,14 @@ packages:
       - '@babel/runtime'
     dev: false
 
-  /@automattic/social-previews/1.1.4_cgmcp4y3anqoviq4hre22lv2k4:
+  /@automattic/social-previews/1.1.4_ypfkufhu6xm6j2dhs3rwfbfrxy:
     resolution: {integrity: sha512-yanz33OetIia8Ea/nQ/oBjq+4wKFF4Hak/PUHa112IdWHcXgNP1tHj73CQVgZhqO730X7wjmtSXLXla3RSgNdA==}
     peerDependencies:
+      '@babel/runtime': ^7
       react: ^17.0.2
       react-dom: ^17.0.2
     dependencies:
+      '@babel/runtime': 7.17.9
       '@emotion/react': 11.9.0_agi5j56rhwhfr3kfyspeqe6asa
       '@wordpress/components': 19.11.0_cgmcp4y3anqoviq4hre22lv2k4
       '@wordpress/i18n': 4.9.0
@@ -5041,9 +5039,11 @@ packages:
       '@sinonjs/commons': 1.8.3
       lodash.get: 4.4.2
       type-detect: 4.0.8
+    dev: false
 
   /@sinonjs/text-encoding/0.7.1:
     resolution: {integrity: sha512-+iTbntw2IZPb/anVDbypzfQa+ay64MW0Zo8aJ8gZPWMMK6/OubMVb6lUPMagqjOPnmtauXnFCACVl3O7ogjeqQ==}
+    dev: false
 
   /@sitespeed.io/tracium/0.3.3:
     resolution: {integrity: sha512-dNZafjM93Y+F+sfwTO5gTpsGXlnc/0Q+c2+62ViqP3gkMWvHEMSKkaEHgVJLcLg3i/g19GSIPziiKpgyne07Bw==}
@@ -11136,6 +11136,7 @@ packages:
   /diff/5.0.0:
     resolution: {integrity: sha512-/VTCrvm5Z0JGty/BWHljh+BAiw3IK+2j87NGMu8Nwc/f48WoDAC395uomO9ZD117ZOBaHmkX1oyLvkVM/aIT3w==}
     engines: {node: '>=0.3.1'}
+    dev: false
 
   /dir-glob/2.2.2:
     resolution: {integrity: sha512-f9LBi5QWzIW3I6e//uxZoLBlUt9kcp66qo0sSCxL6YZKc75R1c4MFCoe/LaZiBGmgujvQdxc5Bn3QhfyvK5Hsw==}
@@ -15134,6 +15135,7 @@ packages:
 
   /just-extend/4.2.1:
     resolution: {integrity: sha512-g3UB796vUFIY90VIv/WX3L2c8CS2MdWUww3CNrYmqza1Fg0DURc2K/O4YrnklBdQarSJ/y8JnJYDGc+1iumQjg==}
+    dev: false
 
   /kdbush/3.0.0:
     resolution: {integrity: sha512-hRkd6/XW4HTsA9vjVpY9tuXJYLSlelnkTmVFu4M9/7MIYQtFcHpbugAU7UbOfjOiVSVYl2fqgBuJ32JUmRo5Ew==}
@@ -15467,6 +15469,7 @@ packages:
 
   /lodash.get/4.4.2:
     resolution: {integrity: sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=}
+    dev: false
 
   /lodash.isarguments/3.1.0:
     resolution: {integrity: sha1-L1c9hcaiQon/AGY7SRwdM4/zRYo=}
@@ -16133,6 +16136,7 @@ packages:
       '@sinonjs/text-encoding': 0.7.1
       just-extend: 4.2.1
       path-to-regexp: 1.8.0
+    dev: false
 
   /no-case/3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
@@ -16756,6 +16760,7 @@ packages:
     resolution: {integrity: sha512-n43JRhlUKUAlibEJhPeir1ncUID16QnEjNpwzNdO3Lm4ywrBpBZ5oLD0I6br9evr1Y9JTqwRtAh7JLoOzAQdVA==}
     dependencies:
       isarray: 0.0.1
+    dev: false
 
   /path-to-regexp/2.4.0:
     resolution: {integrity: sha512-G6zHoVqC6GGTQkZwF4lkuEyMbVOjoBKAEybQUypI1WTkqinCOrq2x6U2+phkJ1XsEMTy4LjtwPI7HW+NVrRR2w==}
@@ -19262,6 +19267,7 @@ packages:
       diff: 5.0.0
       nise: 5.1.1
       supports-color: 7.2.0
+    dev: false
 
   /sisteransi/1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}

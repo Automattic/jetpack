@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Update gui tests to use Jest. No change to the plugin.
+
+

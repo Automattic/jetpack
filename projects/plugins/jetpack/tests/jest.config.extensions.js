@@ -5,7 +5,7 @@ module.exports = {
 	...baseConfig,
 	roots: [ '<rootDir>/extensions/' ],
 	coverageDirectory: 'coverage/extensions',
-	setupFiles: [ '<rootDir>/tests/jest-globals.js' ],
+	setupFiles: [ '<rootDir>/tests/jest-globals.extensions.js' ],
 	setupFilesAfterEnv: [
 		path.join( __dirname, 'jest-enzyme-init.js' ),
 		require.resolve( 'jest-enzyme' ),
