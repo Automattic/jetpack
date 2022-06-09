@@ -128,11 +128,12 @@ class Client {
 
 		$timestamp = time() + $time_diff;
 
-		if ( function_exists( 'wp_generate_password' ) ) {
-			$nonce = wp_generate_password( 10, false );
-		} else {
-			$nonce = substr( sha1( wp_rand( 0, 1000000 ) ), 0, 10 );
+		// When called very early, wp_generate_password sometimes isn't set yet.
+		if ( ! function_exists( '\wp_generate_password' ) ) {
+			include_once ABSPATH . WPINC . '/pluggable.php';
 		}
+
+		$nonce = wp_generate_password( 10, false );
 
 		// Kind of annoying.  Maybe refactor Jetpack_Signature to handle body-hashing.
 		if ( $body === null ) {
