@@ -18,11 +18,6 @@
 	import RatingCard from '../elements/RatingCard.svelte';
 	import ScoreDrop from '../elements/ScoreDrop.svelte';
 
-	/**
-	 * WordPress dependencies
-	 */
-	import { __ } from '@wordpress/i18n';
-
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 
