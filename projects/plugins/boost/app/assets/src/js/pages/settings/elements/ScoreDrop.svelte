@@ -5,15 +5,14 @@
 	/**
 	 * WordPress dependencies
 	 */
+	import { createEventDispatcher } from 'svelte';
 	import { __ } from '@wordpress/i18n';
-
 	/**
 	 * Internal dependencies
 	 */
 	import CloseButton from '../../../elements/CloseButton.svelte';
-	import { createEventDispatcher } from 'svelte';
-	import slideRightTransition from '../../../utils/slide-right-transition';
 	import { makeAdminAjaxRequest } from '../../../utils/make-admin-ajax-request';
+	import slideRightTransition from '../../../utils/slide-right-transition';
 
 	const dispatch = createEventDispatcher();
 
