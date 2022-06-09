@@ -13,7 +13,7 @@ module.exports = babelJest.default.createTransformer( {
 			{
 				scopeVariable: 'createElement',
 				scopeVariableFrag: 'Fragment',
-				source: '@wordpress/element',
+				source: require.resolve( '@wordpress/element' ),
 				isDefault: false,
 			},
 		],

@@ -42,20 +42,33 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dep.
-	// https://github.com/SamVerschueren/stream-to-observable/pull/9
-	if (
-		pkg.name === '@samverschueren/stream-to-observable' &&
-		pkg.dependencies[ 'any-observable' ] === '^0.3.0'
-	) {
-		pkg.dependencies[ 'any-observable' ] = '^0.5.1';
-	}
-
 	// Project is supposedly not dead, but still isn't being updated.
 	// For our purposes at least it seems to work fine with jest-environment-jsdom 28.
 	// https://github.com/enzymejs/enzyme-matchers/issues/353
 	if ( pkg.name === 'jest-environment-enzyme' ) {
 		pkg.dependencies[ 'jest-environment-jsdom' ] = '^28';
+	}
+
+	// Missing dep or peer dep on @wordpress/element.
+	// https://github.com/WordPress/gutenberg/issues/41341
+	// https://github.com/WordPress/gutenberg/issues/41346
+	if (
+		( pkg.name === '@wordpress/preferences' || pkg.name === '@wordpress/viewport' ) &&
+		! pkg.dependencies?.[ '@wordpress/element' ] &&
+		! pkg.peerDependencies?.[ '@wordpress/element' ]
+	) {
+		pkg.peerDependencies[ '@wordpress/element' ] = '*';
+	}
+
+	// Missing dep or peer dep on @babel/runtime
+	// https://github.com/WordPress/gutenberg/issues/41343
+	// https://github.com/Automattic/wp-calypso/issues/64034
+	if (
+		( pkg.name === '@wordpress/reusable-blocks' || pkg.name === '@automattic/popup-monitor' ) &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
+	) {
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
 	// Need to match the version of jest used everywhere else.
@@ -75,14 +88,6 @@ function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
-	}
-
-	// Unpin browserslist here.
-	if (
-		pkg.name === 'react-dev-utils' &&
-		pkg.dependencies.browserslist.match( /^\d+\.\d+\.\d+$/ )
-	) {
-		pkg.dependencies.browserslist = '^' + pkg.dependencies.browserslist;
 	}
 
 	// Override @types/react* dependencies in order to use their specific versions
@@ -118,36 +123,6 @@ function fixPeerDeps( pkg ) {
 		) {
 			pkg.peerDependencies[ p ] += ' || ^17';
 		}
-	}
-
-	// Peer-depends on js-git but doesn't declare it.
-	// https://github.com/creationix/git-node-fs/pull/8
-	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
-	if ( pkg.name === 'git-node-fs' && ! pkg.peerDependencies?.[ 'js-git' ] ) {
-		pkg.peerDependencies[ 'js-git' ] = '*';
-	}
-
-	// Undeclared peer dependencies.
-	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
-	if ( pkg.name === 'eslint-module-utils' ) {
-		pkg.peerDependenciesMeta ||= {};
-		for ( const dep of [
-			'@typescript-eslint/parser',
-			'eslint-import-resolver-node',
-			'eslint-import-resolver-typescript',
-			'eslint-import-resolver-webpack',
-		] ) {
-			pkg.peerDependencies[ dep ] = '*';
-			pkg.peerDependenciesMeta[ dep ] = { optional: true };
-		}
-	}
-	if (
-		pkg.name === 'eslint-plugin-import' &&
-		! pkg.peerDependencies?.[ '@typescript-eslint/parser' ]
-	) {
-		pkg.peerDependenciesMeta ||= {};
-		pkg.peerDependencies[ '@typescript-eslint/parser' ] = '*';
-		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
 	}
 
 	// Missing peer dependency.
