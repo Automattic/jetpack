@@ -9,7 +9,7 @@ source "$BASE/funcs.sh"
 # Variables expected in the environment.
 GITHUB_SERVER_URL="file://$TESTDIR"
 GITHUB_REPOSITORY=repo
-BRANCH=trunk
+BRANCH=main
 DATA_FAIL='"FAIL"'
 DATA_OK='"OK"'
 CI=true
