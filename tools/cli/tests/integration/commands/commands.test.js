@@ -1,36 +1,40 @@
-import child_process from 'child_process';
-import chai from 'chai';
+import { fileURLToPath } from 'url';
+import execa from 'execa';
 
-const test = child_process.execFileSync( 'node', [ './tools/cli/bin/jetpack', '--help' ], {
-	encoding: 'utf8',
-} );
+const { stdout: help } = await execa(
+	fileURLToPath( new URL( '../../../bin/jetpack.js', import.meta.url ) ),
+	[ '--help' ],
+	{
+		encoding: 'utf8',
+	}
+);
 
-describe( 'verify commands are available', function () {
-	it( 'build command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack build [project...]' );
+describe( 'verify commands are available', () => {
+	test( 'build command exists', () => {
+		expect( help ).toEqual( expect.stringContaining( 'jetpack build [project...]' ) );
 	} );
-	it( 'changelog command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack changelog [cmd]' );
+	test( 'changelog command exists', () => {
+		expect( help ).toEqual( expect.stringContaining( 'jetpack changelog [cmd]' ) );
 	} );
-	it( 'cli command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack cli <cmd>' );
+	test( 'cli command exists', () => {
+		expect( help ).toEqual( expect.stringContaining( 'jetpack cli <cmd>' ) );
 	} );
-	it( 'docker command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack docker <cmd>' );
+	test( 'docker command exists', () => {
+		expect( help ).toEqual( expect.stringContaining( 'jetpack docker <cmd>' ) );
 	} );
-	it( 'generate command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack generate [type]' );
+	test( 'generate command exists', () => {
+		expect( help ).toEqual( expect.stringContaining( 'jetpack generate [type]' ) );
 	} );
-	it( 'install command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack install [project...]' );
+	test( 'install command exists', () => {
+		expect( help ).toEqual( expect.stringContaining( 'jetpack install [project...]' ) );
 	} );
-	it( 'watch command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack watch [project]' );
+	test( 'watch command exists', () => {
+		expect( help ).toEqual( expect.stringContaining( 'jetpack watch [project]' ) );
 	} );
-	it( 'completion command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack completion' );
+	test( 'completion command exists', () => {
+		expect( help ).toEqual( expect.stringContaining( 'jetpack completion' ) );
 	} );
-	it( 'draft command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack draft <cmd>' );
+	test( 'draft command exists', () => {
+		expect( help ).toEqual( expect.stringContaining( 'jetpack draft <cmd>' ) );
 	} );
 } );

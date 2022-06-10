@@ -42,6 +42,12 @@ module.exports = {
 		requireConfigFile: false,
 	},
 	settings: {},
+	overrides: [
+		{
+			files: [ '*.ts', '*.tsx' ],
+			extends: './typescript',
+		},
+	],
 	plugins: [ 'import', 'prettier', 'jsx-a11y', 'lodash', 'jsdoc', '@typescript-eslint' ],
 	rules: {
 		// REST API objects include underscores
