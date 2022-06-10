@@ -11,6 +11,7 @@ module.exports = {
 	],
 	env: { jest: true },
 	rules: {
+		'jest/no-disabled-tests': 'off',
 		'jest/prefer-comparison-matcher': 'error',
 		'jest/prefer-equality-matcher': 'error',
 		'jest/prefer-expect-resolves': 'error',
