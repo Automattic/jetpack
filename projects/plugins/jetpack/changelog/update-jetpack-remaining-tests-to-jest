@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Update remaining tests to use Jest (and to be run in CI). No change to the plugin.
+
+
