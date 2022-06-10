@@ -1864,6 +1864,8 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.27.0
       '@typescript-eslint/parser': 5.27.0
       '@wordpress/eslint-plugin': 12.3.0
+      '@wordpress/jest-console': 5.1.0
+      babel-jest: 28.1.0
       chalk: 4.1.2
       debug: 4.3.3
       eslint: 8.16.0
@@ -1907,6 +1909,8 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.27.0_dszb5tb7atwkjjijmmov4qhi7i
       '@typescript-eslint/parser': 5.27.0_xztl6dhthcahlo6akmb2bmjmle
       '@wordpress/eslint-plugin': 12.3.0_m76r4q4jko4va6ddb32rlzcyre
+      '@wordpress/jest-console': 5.1.0_jest@28.1.0
+      babel-jest: 28.1.0_@babel+core@7.17.10
       chalk: 4.1.2
       debug: 4.3.3
       eslint: 8.16.0
@@ -8401,7 +8405,6 @@ packages:
       jest: 28.1.0
       jest-matcher-utils: 27.5.1
       lodash: 4.17.21
-    dev: false
 
   /@wordpress/jest-preset-default/8.2.0_qfbazarvtqhijuvwyn4vcktm44:
     resolution: {integrity: sha512-fGGCMNVH/6A8xUDKTVpoXR+Crta4seuJGQxdIy6ae7PX3CWKBp2r6lK9JBzcgCJamLktFrIKIF6d5H7ZLzjzKw==}
