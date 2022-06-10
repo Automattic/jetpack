@@ -35,13 +35,11 @@ ul.jp-search-chart-legend {
 	padding: 0 10px 0 3px;
 }
 
-.jp-search-chart-legend li .jp-search-chart-legend__label,
-.jp-search-chart-legend li .jp-search-chart-legend__count {
-	max-width: 200px;
+.jp-search-record-meter .record-meter-bar__legend--item-label {
+	max-width: 125px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	display: inherit;
 }
 
 .jp-search-notice-box {
@@ -144,4 +142,25 @@ ul.jp-search-chart-legend {
 
 .jp-search-record-meter__content {
 	width: 100%; // fixes overflow issues in Firefox
+}
+
+.jp-search-record-meter .record-meter-bar__items div {
+	min-width: 10px;
+}
+
+.jp-search-record-meter__title h2 {
+	margin-top: 0;
+}
+
+.jp-search-record-meter .record-meter-bar__items {
+	height: 24px;
+}
+
+.jp-search-record-meter .record-meter-bar__legend--items {
+	flex-wrap: wrap;
+	text-transform: capitalize;
+}
+
+.jp-search-record-meter div.record-meter-bar > div.record-meter-bar__legend ul > li {
+	padding-bottom: 15px;
 }

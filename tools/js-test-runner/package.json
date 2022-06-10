@@ -4,7 +4,7 @@
 	"private": true,
 	"license": "GPL-2.0-or-later",
 	"bin": {
-		"js-test-runner": "js-test-runner.js"
+		"js-test-runner": "js-test-runner.sh"
 	},
 	"dependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
@@ -42,8 +42,8 @@
 		"typescript": "4.7.2"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
+		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

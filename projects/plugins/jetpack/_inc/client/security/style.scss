@@ -5,11 +5,17 @@
     &__badge {
         background-color: $green-primary;
         border-radius: 2px;
-        color: $white;
         font-size: 11px;
         line-height: 12px;
         margin-left: 9px;
         padding: 4px 5px;
+
+        &,
+        &:active,
+        &:focus,
+        &:hover {
+            color: $white;
+        }
     }
 
 }
@@ -43,6 +49,11 @@
     }
 
     &__share-data-popover {
+        margin-left: 8px;
+    }
+
+    &__upgrade-popover {
+        vertical-align: middle;
         margin-left: 8px;
     }
 
