@@ -45,7 +45,7 @@ jobs:
 
       - name: Building Action
         env:
-          COMPOSER_ROOT_VERSION: dev-master
+          COMPOSER_ROOT_VERSION: dev-trunk
         run: |
           pnpm install
           composer install
