@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Renaming `master` to `trunk` in tests.
+Renaming `master` to `main` in tests.
