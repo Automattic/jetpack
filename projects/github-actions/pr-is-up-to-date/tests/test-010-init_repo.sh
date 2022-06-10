@@ -13,7 +13,7 @@ test_make_merge E D1 D2
 test_make_merge F E D3
 test_make_commits F G H I
 test_make_commits '' O1 O2 O3
-test_make_branh main I
+test_make_branch main I
 test_make_tag tagA A
 test_make_tag tagB1 B1
 test_make_tag tagB2 B2
