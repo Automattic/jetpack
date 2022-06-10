@@ -2370,8 +2370,25 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$id = $form->get_attribute( 'id' );
 
-		if ( ! $id ) { // something terrible has happened
-			return '[contact-form]';
+		if ( ! $id ) {
+			/*
+			 * If we have no ID at this point,
+			 * it could be that the form was added to a 404 template using the site editor.
+			 */
+			if ( wp_is_block_theme() && is_404() ) {
+				$wp_template_post = get_page_by_title( '404', 'OBJECT', 'wp_template' );
+				if ( $wp_template_post instanceof \WP_Post ) {
+					$id = $wp_template_post->ID;
+
+					// Enqueue the stylesheet.
+					self::style( true );
+				} else {
+					// Final fallback, if no custom template could be found.
+					return '[contact-form]';
+				}
+			} else {
+				return '[contact-form]';
+			}
 		}
 
 		if ( is_feed() ) {
@@ -2997,6 +3014,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// Make sure we're processing the form we think we're processing... probably a redundant check.
 		if ( $widget ) {
 			if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+				return false;
+			}
+		} elseif ( wp_is_block_theme() && is_404() ) {
+			// Simpler checks when we're on a custom 404 page on a block-based theme.
+			if ( ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
 		} else {

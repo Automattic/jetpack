@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Form Block: ensure the block can be used is a 404 template in a block-based theme.
