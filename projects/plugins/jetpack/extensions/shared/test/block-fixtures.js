@@ -11,6 +11,8 @@ import { parse as grammarParse } from '@wordpress/block-serialization-default-pa
 console.warn = jest.fn();
 console.error = jest.fn();
 console.info = jest.fn();
+console.groupCollapsed = jest.fn();
+console.groupEnd = jest.fn();
 /* eslint-enable no-console */
 
 let FIXTURES_DIR;
@@ -86,6 +88,8 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 					console.warn.mockReset();
 					console.error.mockReset();
 					console.info.mockReset();
+					console.groupCollapsed.mockReset();
+					console.groupEnd.mockReset();
 					/* eslint-enable no-console */
 				}
 

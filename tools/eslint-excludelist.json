@@ -16,7 +16,6 @@
 	"projects/plugins/jetpack/_inc/client/components/section-nav/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/section-nav/item.jsx",
 	"projects/plugins/jetpack/_inc/client/components/section-nav/tabs.jsx",
-	"projects/plugins/jetpack/_inc/client/components/section-nav/test/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/select-dropdown/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/select-dropdown/item.jsx",
 	"projects/plugins/jetpack/_inc/client/components/select-dropdown/label.jsx",

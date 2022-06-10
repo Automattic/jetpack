@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix interaction of `--in-diff-only` (or lack thereof) and listing of files on the command line.
