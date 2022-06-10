@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Added ignore rules for `wpcalypso/no-unsafe-wp-apis`. No change to behavior.
-
-

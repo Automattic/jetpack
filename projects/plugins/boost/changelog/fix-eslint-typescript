@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed ESLint for TypeScript and thus fixed some lints

@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.18.4 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
 ## 0.18.3 - 2022-05-30
 ### Added
 - Add option to use the checkout workflow from the ConnectionScreenRequirePlan component

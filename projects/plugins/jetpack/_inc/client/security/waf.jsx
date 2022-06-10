@@ -81,9 +81,14 @@ export const Waf = class extends Component {
 		const moduleHeader = (
 			<div className="waf__header">
 				<span>{ _x( 'Firewall', 'Settings header', 'jetpack' ) }</span>
-				<span className="waf__header__badge">
+				<a
+					href={ getRedirectUrl( 'jetpack-support-waf' ) }
+					target="_blank"
+					rel="noopener noreferrer"
+					className="waf__header__badge"
+				>
 					{ _x( 'Beta', 'Settings header badge', 'jetpack' ) }
-				</span>
+				</a>
 			</div>
 		);
 
@@ -229,7 +234,21 @@ export const Waf = class extends Component {
 		const upgradeBanner = (
 			<JetpackBanner
 				callToAction={ __( 'Upgrade', 'jetpack' ) }
-				title={ __( 'Upgrade your protection for latest rules access', 'jetpack' ) }
+				title={
+					<>
+						{ __( 'Your site is not receiving the latest updates to Firewall rules', 'jetpack' ) }
+						<InfoPopover
+							position="right"
+							screenReaderText={ __( 'Learn more', 'jetpack' ) }
+							className="waf__settings__upgrade-popover"
+						>
+							{ __(
+								'Upgrade your protection to keep your site secure from the latest malicious requests with up-to-date firewall rules.',
+								'jetpack'
+							) }
+						</InfoPopover>
+					</>
+				}
 				eventFeature="scan"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 				feature="jetpack_scan"
@@ -248,7 +267,14 @@ export const Waf = class extends Component {
 				] ) }
 			>
 				<QueryWafSettings />
-				<SettingsGroup disableInOfflineMode module={ this.props.getModule( 'waf' ) }>
+				<SettingsGroup
+					disableInOfflineMode
+					module={ this.props.getModule( 'waf' ) }
+					support={ {
+						text: this.props.getModule( 'waf' ).long_description,
+						link: this.props.getModule( 'waf' ).learn_more_button,
+					} }
+				>
 					<ModuleToggle
 						slug="waf"
 						disabled={ unavailableInOfflineMode }
