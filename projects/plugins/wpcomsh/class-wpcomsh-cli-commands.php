@@ -12,7 +12,12 @@ define(
 	'WPCOMSH_CLI_DONT_DEACTIVATE_PLUGINS',
 	array(
 		'akismet',
+		'classic-editor',
+		'full-site-editing',
+		'gutenberg',
 		'jetpack',
+		'layout-grid',
+		'page-optimize',
 		// Avoid deactivating the file shim before the Atomic media backfill is complete
 		'wpcom-file-shim',
 	)
