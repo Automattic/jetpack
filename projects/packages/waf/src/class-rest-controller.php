@@ -14,7 +14,32 @@ use WP_REST_Server;
 /**
  * Defines our endponts.
  */
-class Waf_Endpoints {
+class REST_Controller {
+	/**
+	 * Register REST API endpoints.
+	 */
+	public static function register_rest_routes() {
+		register_rest_route(
+			'jetpack/v4',
+			'/waf',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::waf',
+				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/waf/update-rules',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_rules',
+				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
+			)
+		);
+	}
+
 	/**
 	 * Get Bootstrap File Path
 	 *
@@ -33,30 +58,6 @@ class Waf_Endpoints {
 	private static function has_rules_access() {
 		// any site with Jetpack Scan can download new WAF rules
 		return \Jetpack_Plan::supports( 'scan' );
-	}
-
-	/**
-	 * Register REST API endpoints.
-	 */
-	public static function register_endpoints() {
-		register_rest_route(
-			'jetpack/v4',
-			'/waf',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::waf',
-				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
-			)
-		);
-		register_rest_route(
-			'jetpack/v4',
-			'/waf/update-rules',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::update_rules',
-				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
-			)
-		);
 	}
 
 	/**

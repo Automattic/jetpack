@@ -23,4 +23,4 @@ if ( function_exists( 'add_action' ) ) {
 }
 
 // Register REST routes.
-$add_action( 'rest_api_init', array( new Waf_Endpoints(), 'register_endpoints' ) );
+$add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
