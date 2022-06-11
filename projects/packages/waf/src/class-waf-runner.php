@@ -29,6 +29,23 @@ class Waf_Runner {
 	const SHARE_DATA_OPTION_NAME        = 'jetpack_waf_share_data';
 
 	/**
+	 * Set action hooks
+	 *
+	 * @return void
+	 */
+	public static function add_hooks() {
+		// we may want to refactor the "activate" method (possibly rename method?)
+		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, 'activate', 10, 0 );
+		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, 'activate', 10, 0 );
+		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, 'activate', 10, 0 );
+		add_action( 'jetpack_waf_rules_update_cron', 'update_rules_cron' );
+		// This doesn't exactly fit here - may need to find another home
+		if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
+			wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
+		}
+	}
+
+	/**
 	 * Set the mode definition if it has not been set.
 	 *
 	 * @return void
@@ -239,7 +256,7 @@ class Waf_Runner {
 			PRIMARY KEY (log_id),
 			KEY timestamp (timestamp)
 		)
-	";
+		";
 
 		dbDelta( $sql );
 	}
