@@ -51,8 +51,8 @@ echo "Script execution complete"
 #         gh api \
 #                 --method POST \
 #                 -H "Accept: application/vnd.github.v3+json" \
-#                 "/repos/Automattic/${REPOSITORY}/branches/trunk/rename" \
-#                 -f new_name='master'
+#                 "/repos/Automattic/${REPOSITORY}/branches/master/rename" \
+#                 -f new_name='trunk'
 # done
 
 # echo "Script execution complete"
