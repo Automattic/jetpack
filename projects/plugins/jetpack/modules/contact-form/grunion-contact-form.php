@@ -28,6 +28,34 @@ function grunion_contact_form_require_endpoint() {
 }
 
 /**
+ * Sets the $grunion_block_template_part_id global.
+ *
+ * @param string $template_part_id ID for the currently rendered template part.
+ */
+function grunion_contact_form_set_block_template_part_id_global( $template_part_id ) {
+	$GLOBALS['grunion_block_template_part_id'] = $template_part_id;
+}
+add_action( 'render_block_core_template_part_post', 'grunion_contact_form_set_block_template_part_id_global' );
+add_action( 'render_block_core_template_part_file', 'grunion_contact_form_set_block_template_part_id_global' );
+add_action( 'render_block_core_template_part_none', 'grunion_contact_form_set_block_template_part_id_global' );
+
+/**
+ * Unsets the global when block is done rendering.
+ *
+ * @param string $content Rendered block content.
+ * @param array  $block   The full block, including name and attributes.
+ * @return string
+ */
+function grunion_contact_form_unset_block_template_part_id_global( $content, $block ) {
+	if ( 'core/template-part' === $block['blockName']
+		&& isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
+		unset( $GLOBALS['grunion_block_template_part_id'] );
+	}
+	return $content;
+}
+add_filter( 'render_block', 'grunion_contact_form_unset_block_template_part_id_global', 10, 2 );
+
+/**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  */
 class Grunion_Contact_Form_Plugin {
@@ -672,7 +700,8 @@ class Grunion_Contact_Form_Plugin {
 			check_admin_referer( "contact-form_{$id}" );
 		}
 
-		$is_widget = 0 === strpos( $id, 'widget-' );
+		$is_widget              = 0 === strpos( $id, 'widget-' );
+		$is_block_template_part = 0 === strpos( $id, 'block-template-part-' );
 
 		$form = false;
 
@@ -701,6 +730,17 @@ class Grunion_Contact_Form_Plugin {
 				call_user_func( $widget['callback'], $widget_args, $widget['params'][0] );
 				ob_end_clean();
 			}
+		} elseif ( $is_block_template_part ) {
+			$block_template_part_id   = str_replace( 'block-template-part-', '', $id );
+			$bits                     = explode( '//', $block_template_part_id );
+			$block_template_part_slug = array_pop( $bits );
+			// Process the block part template to populate Grunion_Contact_Form::$last
+			$attributes = array(
+				'theme'   => wp_get_theme()->get_stylesheet(),
+				'slug'    => $block_template_part_slug,
+				'tagName' => 'div',
+			);
+			do_blocks( '<!-- wp:template-part ' . wp_json_encode( $attributes ) . ' /-->' );
 		} else {
 			// It's a form embedded in a post
 			$post = get_post( $id );
@@ -2239,6 +2279,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$attributes['id'] = 'widget-' . $attributes['widget'];
 			// translators: the blog name.
 			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack' ), $default_subject );
+		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
+			$default_to      .= get_option( 'admin_email' );
+			$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
+			// translators: the blog name.
+			$default_subject = sprintf( _x( '%1$s Block Template Part', '%1$s = blog name', 'jetpack' ), $default_subject );
 		} elseif ( $post ) {
 			$attributes['id'] = $post->ID;
 			// translators: the blog name and post title.
@@ -2255,6 +2300,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'subject'                => $default_subject,
 			'show_subject'           => 'no', // only used in back-compat mode
 			'widget'                 => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
+			'block_template_part'    => null, // Not exposed to the user. Works with Grunion_Contact_Form::parse()
 			'id'                     => null, // Not exposed to the user. Set above.
 			'submit_button_text'     => __( 'Submit', 'jetpack' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
@@ -2365,6 +2411,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
+		if ( isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
+			$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+		}
 		// Create a new Grunion_Contact_Form object (this class)
 		$form = new Grunion_Contact_Form( $attributes, $content );
 
@@ -2432,7 +2481,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= apply_filters( 'grunion_contact_form_success_message', $r_success_message );
 		} else {
 			// Nothing special - show the normal contact form
-			if ( $form->get_attribute( 'widget' ) ) {
+			if ( $form->get_attribute( 'widget' ) || $form->get_attribute( 'block_template_part' ) ) {
 				// Submit form to the current URL
 				$url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', 'action', '_wpnonce' ) );
 			} else {
@@ -2957,9 +3006,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$plugin = Grunion_Contact_Form_Plugin::init();
 
-		$id     = $this->get_attribute( 'id' );
-		$to     = $this->get_attribute( 'to' );
-		$widget = $this->get_attribute( 'widget' );
+		$id                  = $this->get_attribute( 'id' );
+		$to                  = $this->get_attribute( 'to' );
+		$widget              = $this->get_attribute( 'widget' );
+		$block_template_part = $this->get_attribute( 'block_template_part' );
 
 		$contact_form_subject    = $this->get_attribute( 'subject' );
 		$email_marketing_consent = false;
@@ -2997,6 +3047,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// Make sure we're processing the form we think we're processing... probably a redundant check.
 		if ( $widget ) {
 			if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+				return false;
+			}
+		} elseif ( $block_template_part ) {
+			if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
 		} else {
@@ -3246,7 +3300,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
-		$url     = $widget ? home_url( '/' ) : get_permalink( $post->ID );
+		$url     = $block_template_part || $widget ? home_url( '/' ) : get_permalink( $post->ID );
 
 		// translators: the time of the form submission.
 		$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
