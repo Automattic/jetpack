@@ -39,8 +39,6 @@
 		"test-client": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.client.js",
 		"test-extensions": "TZ=UTC jest --config=tests/jest.config.extensions.js",
 		"test-gui": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.gui.js",
-		"test-lib": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom glob:_inc/client/lib/**/test/*.js",
-		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client js-test-runner --jsdom glob:modules/**/test-*.js",
 		"watch": "concurrently --names client-js,client-css,masterbar,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'webpack watch --config ./tools/webpack.config.masterbar.js' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'"
 	},
 	"browserslist": [
@@ -144,7 +142,6 @@
 		"@wordpress/token-list": "2.9.0",
 		"autoprefixer": "10.4.2",
 		"babel-jest": "28.1.0",
-		"chai": "4.3.4",
 		"concurrently": "6.0.2",
 		"enzyme": "3.11.0",
 		"enzyme-to-json": "3.6.2",
@@ -153,7 +150,6 @@
 		"jest": "28.1.0",
 		"jest-environment-jsdom": "28.1.0",
 		"jest-enzyme": "7.1.2",
-		"jetpack-js-test-runner": "workspace:*",
 		"lodash": "4.17.21",
 		"postcss": "8.4.13",
 		"postcss-loader": "6.2.0",
