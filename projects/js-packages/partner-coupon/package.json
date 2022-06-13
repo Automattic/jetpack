@@ -20,8 +20,8 @@
 	"devDependencies": {
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@babel/core": "7.17.10",
-		"@babel/preset-react": "7.16.7",
+		"@babel/core": "7.18.5",
+		"@babel/preset-react": "7.17.12",
 		"@wordpress/base-styles": "4.5.0",
 		"@wordpress/data": "6.10.0",
 		"jetpack-js-test-runner": "workspace:*",

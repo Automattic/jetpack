@@ -20,8 +20,8 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@babel/core": "7.17.10",
-		"@babel/preset-react": "7.16.7",
+		"@babel/core": "7.18.5",
+		"@babel/preset-react": "7.17.12",
 		"@storybook/addon-actions": "6.4.22",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
