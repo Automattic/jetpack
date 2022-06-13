@@ -23,7 +23,7 @@
 		"@babel/core": "7.17.10",
 		"@babel/preset-react": "7.16.7",
 		"@wordpress/base-styles": "4.5.0",
-		"@wordpress/data": "6.9.0",
+		"@wordpress/data": "6.10.0",
 		"jetpack-js-test-runner": "workspace:*",
 		"nyc": "15.1.0",
 		"react": "17.0.2",
@@ -37,7 +37,7 @@
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:* || ^0.16",
 		"@automattic/jetpack-connection": "workspace:* || ^0.18",
-		"@wordpress/i18n": "4.9.0",
+		"@wordpress/i18n": "4.10.0",
 		"classnames": "2.3.1",
 		"prop-types": "15.7.2"
 	},
