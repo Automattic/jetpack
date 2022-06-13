@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form Block: Displays expected success message when used in FSE header or footer
