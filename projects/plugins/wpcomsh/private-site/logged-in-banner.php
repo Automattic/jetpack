@@ -149,8 +149,6 @@ function show_logged_in_banner() {
 				var el = document.querySelector( '#wpcom-launch-banner-wrapper' );
 				if ( el ) {
 					el.style.display = null;
-					// Fix undesired scroll position after bar dismissal and reload.
-					window.scroll( 0, el.offsetHeight );
 				}
 			} );
 		} )();
