@@ -105,6 +105,12 @@ function fixDeps( pkg ) {
 		pkg.dependencies.trim = '^0.0.3';
 	}
 
+	// Avoid broken version of rememo. Looks like 4.0.0 doesn't actually change the API, so this should work.
+	// https://github.com/aduth/rememo/issues/8
+	if ( pkg.dependencies.rememo === '^4.0.0' ) {
+		pkg.dependencies.rememo = '^3.0.0 || ^4.0.1';
+	}
+
 	return pkg;
 }
 

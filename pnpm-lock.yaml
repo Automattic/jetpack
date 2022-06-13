@@ -7576,7 +7576,7 @@ packages:
       '@wordpress/rich-text': 5.8.0_react@17.0.2
       lodash: 4.17.21
       react: 17.0.2
-      rememo: 4.0.0
+      rememo: 3.0.0
       uuid: 8.3.2
     dev: false
 
@@ -7677,7 +7677,7 @@ packages:
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
       react-easy-crop: 3.5.3_sfoxds7t5ydpegc3knd667wn6m
-      rememo: 4.0.0
+      rememo: 3.0.0
       traverse: 0.6.6
     transitivePeerDependencies:
       - '@babel/core'
@@ -7728,7 +7728,7 @@ packages:
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
       react-easy-crop: 3.5.3_sfoxds7t5ydpegc3knd667wn6m
-      rememo: 4.0.0
+      rememo: 3.0.0
       traverse: 0.6.6
     transitivePeerDependencies:
       - '@babel/core'
@@ -7861,7 +7861,7 @@ packages:
       lodash: 4.17.21
       memize: 1.1.0
       react: 17.0.2
-      rememo: 4.0.0
+      rememo: 3.0.0
       showdown: 1.9.1
       simple-html-tokenizer: 0.5.11
       uuid: 8.3.2
@@ -8015,7 +8015,7 @@ packages:
       lodash: 4.17.21
       memize: 1.1.0
       react: 17.0.2
-      rememo: 4.0.0
+      rememo: 3.0.0
       uuid: 8.3.2
 
   /@wordpress/data/6.10.0_react@17.0.2:
@@ -8116,7 +8116,7 @@ packages:
       memize: 1.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-      rememo: 4.0.0
+      rememo: 3.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/react'
@@ -8162,7 +8162,7 @@ packages:
       react: 17.0.2
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
-      rememo: 4.0.0
+      rememo: 3.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/react'
@@ -8207,7 +8207,7 @@ packages:
       react: 17.0.2
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
-      rememo: 4.0.0
+      rememo: 3.0.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/react'
@@ -8437,7 +8437,7 @@ packages:
       '@wordpress/keycodes': 3.10.0
       lodash: 4.17.21
       react: 17.0.2
-      rememo: 4.0.0
+      rememo: 3.0.0
 
   /@wordpress/keycodes/3.10.0:
     resolution: {integrity: sha512-Udr9a8m39v4yFVdOlRv/yG82RkzBHxMNVJ6M9bhuQttpqeO7SzkYH2HyFIxg0wFvmZLXz9EYLZkr9AI8jhnDJw==}
@@ -8646,7 +8646,7 @@ packages:
       lodash: 4.17.21
       memize: 1.1.0
       react: 17.0.2
-      rememo: 4.0.0
+      rememo: 3.0.0
 
   /@wordpress/server-side-render/3.8.0_cgmcp4y3anqoviq4hre22lv2k4:
     resolution: {integrity: sha512-BN5Qk6m9M4f38CvmCYVqd6IvKn+2eFhcqUvbPNWzk+In4UfqwTwHFgO7d8kgzi61q9Szyjo8q0QGrsUakvA8ZA==}
@@ -17407,7 +17407,6 @@ packages:
 
   /preact/10.5.15:
     resolution: {integrity: sha512-5chK29n6QcJc3m1lVrKQSQ+V7K1Gb8HeQY6FViQ5AxCAEGu3DaHffWNDkC9+miZgsLvbvU9rxbV1qinGHMHzqA==}
-    dev: false
 
   /prelude-ls/1.1.2:
     resolution: {integrity: sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=}
@@ -18580,10 +18579,6 @@ packages:
 
   /rememo/3.0.0:
     resolution: {integrity: sha512-eWtut/7pqMRnSccbexb647iPjN7ir6Tmf4RG92ZVlykFEkHqGYy9tWnpHH3I+FS+WQ6lQ1i1iDgarYzGKgTcRQ==}
-    dev: false
-
-  /rememo/4.0.0:
-    resolution: {integrity: sha512-6BAfg1Dqg6UteZBEH9k6EHHersM86/EcBOMtJV+h+xEn1GC3H+gAgJWpexWYAamAxD0qXNmIt50iS/zuZKnQag==}
 
   /remove-trailing-separator/1.1.0:
     resolution: {integrity: sha1-wkvOKig62tW8P1jg1IJJuSN52O8=}
@@ -19013,7 +19008,6 @@ packages:
     hasBin: true
     dependencies:
       chokidar: 3.5.3
-    dev: false
 
   /sass/1.43.3:
     resolution: {integrity: sha512-BJnLngqWpMeS65UvlYYEuCb3/fLxDxhHtOB/gWPxs6NKrslTxGt3ZxwIvOe/0Jm4tWwM/+tIpE3wj4dLEhPDeQ==}
@@ -19969,7 +19963,6 @@ packages:
   /svelte/3.42.4:
     resolution: {integrity: sha512-DqC0AmDdBrrbIA+Kzl3yhBb6qCn4vZOAfxye2pTnIpinLegyagC5sLI8Pe9GPlXu9VpHBXIwpDDedpMfu++epA==}
     engines: {node: '>= 8'}
-    dev: true
 
   /svelte2tsx/0.1.193_jnm2dayjvyndfzimboulpsettu:
     resolution: {integrity: sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==}
