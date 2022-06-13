@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { expect } from 'chai';
 import { select, dispatch } from '@wordpress/data';
+import { expect } from 'chai';
 import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
+import { FETCH_AUTHORIZATION_URL, SET_AUTHORIZATION_URL } from '../actions';
 import resolvers from '../resolvers';
 import { STORE_ID } from '../store';
-import { FETCH_AUTHORIZATION_URL, SET_AUTHORIZATION_URL } from '../actions';
 
 const selectors = select( STORE_ID );
 const dispatchers = dispatch( STORE_ID );

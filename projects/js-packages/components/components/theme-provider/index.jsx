@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React, { useLayoutEffect, useRef } from 'react';
 
 export const typography = {

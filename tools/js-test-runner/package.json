@@ -4,7 +4,7 @@
 	"private": true,
 	"license": "GPL-2.0-or-later",
 	"bin": {
-		"js-test-runner": "js-test-runner.js"
+		"js-test-runner": "js-test-runner.sh"
 	},
 	"dependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
@@ -20,7 +20,7 @@
 		"@testing-library/react-hooks": "8.0.0",
 		"@testing-library/user-event": "14.1.1",
 		"@wojtekmaj/enzyme-adapter-react-17": "0.6.3",
-		"@wordpress/jest-preset-default": "8.1.1",
+		"@wordpress/jest-preset-default": "8.2.0",
 		"babel-jest": "28.1.0",
 		"chai": "4.3.4",
 		"chai-dom": "1.11.0",
@@ -39,11 +39,11 @@
 		"sinon": "13.0.2",
 		"sinon-chai": "3.7.0",
 		"ts-jest": "28.0.1",
-		"typescript": "4.6.4"
+		"typescript": "4.7.2"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
+		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

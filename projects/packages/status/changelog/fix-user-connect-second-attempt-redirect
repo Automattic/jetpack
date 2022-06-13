@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Moved the connection_url_redirect action handling to the connection package.

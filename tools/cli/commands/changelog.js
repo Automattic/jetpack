@@ -1,22 +1,15 @@
-/**
- * External dependencies
- */
-import chalk from 'chalk';
 import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import chalk from 'chalk';
 import inquirer from 'inquirer';
-
-/**
- * Internal dependencies
- */
-import promptForProject from '../helpers/promptForProject.js';
-import { chalkJetpackGreen } from '../helpers/styling.js';
+import { readComposerJson } from '../helpers/json.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
 import { projectTypes, allProjects } from '../helpers/projectHelpers.js';
-import { readComposerJson } from '../helpers/json.js';
+import promptForProject from '../helpers/promptForProject.js';
 import { runCommand } from '../helpers/runCommand.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**
  * Comand definition for changelog subcommand.

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
 import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
@@ -10,9 +7,6 @@ import { register } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 register( blockEditorStore );
 
-/**
- * Internal dependencies
- */
 import { SimplePaymentsEdit } from '../edit';
 
 const setAttributes = jest.fn();

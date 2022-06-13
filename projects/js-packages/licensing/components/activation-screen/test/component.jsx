@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import React from 'react';
+import restApi from '@automattic/jetpack-api';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import restApi from '@automattic/jetpack-api';
+import React from 'react';
 import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
 import ActivationScreen from '..';
-import ActivationScreenSuccessInfo from '../../activation-screen-success-info';
 import ActivationScreenControls from '../../activation-screen-controls';
+import ActivationScreenSuccessInfo from '../../activation-screen-success-info';
 
 describe( 'ActivationScreen', () => {
 	const testProps = {

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { setSearchStats } from '../../actions/site-stats';
 import reducer from '../site-stats';
 

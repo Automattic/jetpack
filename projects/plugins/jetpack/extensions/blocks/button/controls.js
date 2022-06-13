@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import ButtonBorderPanel from './button-border-panel';
 import ButtonColorsPanel from './button-colors-panel';
 import ButtonWidthPanel from './button-width-panel';

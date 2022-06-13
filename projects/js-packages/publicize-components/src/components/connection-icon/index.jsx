@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
 import { SocialServiceIcon } from '@automattic/jetpack-components';
+import PropTypes from 'prop-types';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const ConnectionIcon = props => {

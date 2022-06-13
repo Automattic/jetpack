@@ -1,10 +1,3 @@
-/**
- * External dependencies
- */
-
-/**
- * Internal dependencies
- */
 import { GIPHY_API_KEY } from './constants';
 
 export const getSearchUrl = searchText => {

@@ -1,33 +1,23 @@
-/**
- * External dependencies
- */
+import restApi from '@automattic/jetpack-api';
+import { numberFormat } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
+import Card from 'components/card';
+import DashItem from 'components/dash-item';
+import QueryAkismetData from 'components/data/query-akismet-data';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import JetpackBanner from 'components/jetpack-banner';
+import analytics from 'lib/analytics';
+import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
+import { noop } from 'lodash';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import Card from 'components/card';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import DashItem from 'components/dash-item';
 import { getAkismetData } from 'state/at-a-glance';
-import { hasActiveSiteFeature } from 'state/site';
-import { getApiNonce } from 'state/initial-state';
-import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import JetpackBanner from 'components/jetpack-banner';
-import restApi from '@automattic/jetpack-api';
-import QueryAkismetData from 'components/data/query-akismet-data';
+import { getApiNonce } from 'state/initial-state';
+import { hasActiveSiteFeature } from 'state/site';
 
 class DashAkismet extends Component {
 	static propTypes = {
@@ -170,7 +160,7 @@ class DashAkismet extends Component {
 			if ( '0' !== this.props.akismetData ) {
 				return (
 					<>
-						<h2 className="jp-dash-item__count">{ this.props.akismetData }</h2>
+						<h2 className="jp-dash-item__count">{ numberFormat( this.props.akismetData ) }</h2>
 						<p className="jp-dash-item__description">
 							{ _x( 'Spam comments blocked.', 'Example: "412 Spam comments blocked"', 'jetpack' ) }
 						</p>

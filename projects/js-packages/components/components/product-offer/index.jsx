@@ -1,21 +1,14 @@
-/**
- * External dependencies
- */
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import classnames from 'classnames';
-import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Text, { H3, Title } from '../text/index';
+import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
+import classnames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Fragment, ReactElement } from 'react';
+import Alert from '../alert';
+import Button from '../button/index';
 import { getIconBySlug, CheckmarkIcon } from '../icons/index.jsx';
 import ProductPrice from '../product-price/index';
+import Text, { H3, Title } from '../text/index';
 import styles from './style.module.scss';
-import Button from '../button/index';
-import Alert from '../alert';
 
 /**
  * Product Detail Card Header component.
@@ -81,25 +74,26 @@ export function IconsCard( { products, icon, size = 24 } ) {
 /**
  * Product Detail component.
  *
- * @param {object} props                  - Component props.
- * @param {string} props.slug             - Product slug.
- * @param {string} props.icon 	          - Custom Icon slug.
- * @param {string} props.title            - Product title.
- * @param {string} props.subTitle         - Product sub-title.
- * @param {string} props.description      - Product description.
- * @param {Array}  props.features         - Features list of the product.
- * @param {boolean} props.isCard          - Add the styles to look like a card.
- * @param {boolean} props.isBundle        - Whether or not the product is a bundle.
- * @param {Array} props.supportedProducts - List of supported products (for bundles).
- * @param {Object} props.pricing          - Product Pricing object.
- * @param {boolean} props.hasRequiredPlan - Whether or not the product has the required plan.
- * @param {boolean} props.isLoading       - Applies the isLoading style to the component.
- * @param {string} props.className        - A className to be concat with default ones.
- * @param {Function} props.onAdd          - Callback function to be executed on click on Add button.
- * @param {string} props.addProductUrl    - The checkout URL to add/buy the product.
- * @param {string} props.buttonText       - The text to be displayed on the Add button.
- * @param {string} props.error            - Error message.
- * @returns {React.ReactElement}            ProductOffer react component. Optional.
+ * @param {object} props                   - Component props.
+ * @param {string} props.slug              - Product slug.
+ * @param {string} props.icon 	           - Custom Icon slug.
+ * @param {string} props.title             - Product title.
+ * @param {string} props.subTitle          - Product sub-title.
+ * @param {string} props.description       - Product description.
+ * @param {Array}  props.features          - Features list of the product.
+ * @param {boolean} props.isCard           - Add the styles to look like a card.
+ * @param {boolean} props.isBundle         - Whether or not the product is a bundle.
+ * @param {Array} props.supportedProducts  - List of supported products (for bundles).
+ * @param {Object} props.pricing           - Product Pricing object.
+ * @param {boolean} props.hasRequiredPlan  - Whether or not the product has the required plan.
+ * @param {boolean} props.isLoading        - Applies the isLoading style to the component.
+ * @param {string} props.className         - A className to be concat with default ones.
+ * @param {Function} props.onAdd           - Callback function to be executed on click on Add button.
+ * @param {string} props.addProductUrl     - The checkout URL to add/buy the product.
+ * @param {string} props.buttonText        - The text to be displayed on the Add button.
+ * @param {ReactElement} props.buttonDisclaimer - Content displayed below the Add button.
+ * @param {string} props.error             - Error message.
+ * @returns {React.ReactElement}             ProductOffer react component. Optional.
  */
 const ProductOffer = ( {
 	className,
@@ -118,6 +112,7 @@ const ProductOffer = ( {
 	addProductUrl,
 	isLoading,
 	buttonText,
+	buttonDisclaimer,
 	error,
 } ) => {
 	const { isFree, price, currency, offPrice } = pricing;
@@ -164,6 +159,10 @@ const ProductOffer = ( {
 
 				{ isFree && <H3>{ __( 'Free', 'jetpack' ) }</H3> }
 
+				<Alert level="error" showIcon={ !! error }>
+					{ error }
+				</Alert>
+
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Button
 						onClick={ addProductUrl ? null : onAdd }
@@ -184,7 +183,7 @@ const ProductOffer = ( {
 					</div>
 				) }
 
-				{ error && <Alert level="error">{ error } </Alert> }
+				{ buttonDisclaimer }
 			</div>
 		</div>
 	);
@@ -216,6 +215,7 @@ ProductOffer.propTypes = {
 
 	/** Custom text for the onAdd product button. */
 	buttonText: PropTypes.string,
+	buttonDisclaimer: PropTypes.element,
 };
 
 ProductOffer.defaultProps = {
@@ -228,6 +228,7 @@ ProductOffer.defaultProps = {
 	isLoading: false,
 	buttonText: '',
 	error: '',
+	buttonDisclaimer: null,
 };
 
 export default ProductOffer;

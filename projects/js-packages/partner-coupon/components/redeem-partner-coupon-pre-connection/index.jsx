@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-import React from 'react';
-import PropTypes from 'prop-types';
 import { ActionButton } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 import { usePartnerCouponRedemption } from '../../hooks';
 
 /**

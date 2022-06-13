@@ -2,9 +2,6 @@
  * @jest-environment jsdom
  */
 
-/**
- * Internal dependencies
- */
 import {
 	splitUsablePostTypes,
 	combineOtherCount,
@@ -24,21 +21,21 @@ const testData = {
 const postTypeBreakdown = [
 	{
 		data: {
-			data: [ 17 ],
+			count: 17,
 			label: 'Page',
 			backgroundColor: '#3895BA',
 		},
 	},
 	{
 		data: {
-			data: [ 15 ],
+			count: 15,
 			label: 'Attachment',
 			backgroundColor: '#E68B28',
 		},
 	},
 	{
 		data: {
-			data: [ 6 ],
+			count: 6,
 			label: 'Andthenmore',
 		},
 	},
@@ -66,7 +63,7 @@ describe( 'API data is converted into record info ', () => {
 		const newObject = createData( 20, 'rgb(245,245,245)', 'Testing' );
 
 		expect( newObject ).toEqual( {
-			data: [ 20 ],
+			count: 20,
 			label: 'Testing',
 			backgroundColor: 'rgb(245,245,245)',
 		} );

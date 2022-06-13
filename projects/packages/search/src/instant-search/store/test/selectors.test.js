@@ -2,9 +2,6 @@
  * @jest-environment jsdom
  */
 
-/**
- * Internal dependencies
- */
 import { RELEVANCE_SORT_KEY } from '../../lib/constants';
 import { getSort, getWidgetOutsideOverlay, hasActiveQuery } from '../selectors';
 
@@ -16,21 +13,21 @@ describe( 'getSort', () => {
 		expect( getSort( { sort: {} } ) ).toEqual( RELEVANCE_SORT_KEY );
 	} );
 	test( 'if specified, defaults to a specified defaultSort when the state value is not a string', () => {
-		expect( getSort( {}, 'abc' ) ).toEqual( 'abc' );
-		expect( getSort( { sort: 1 }, 'abc' ) ).toEqual( 'abc' );
-		expect( getSort( { sort: null }, 'abc' ) ).toEqual( 'abc' );
-		expect( getSort( { sort: {} }, 'abc' ) ).toEqual( 'abc' );
+		expect( getSort( {}, 'abc' ) ).toBe( 'abc' );
+		expect( getSort( { sort: 1 }, 'abc' ) ).toBe( 'abc' );
+		expect( getSort( { sort: null }, 'abc' ) ).toBe( 'abc' );
+		expect( getSort( { sort: {} }, 'abc' ) ).toBe( 'abc' );
 	} );
 	test( 'if a non-string defaultSort value is specified, defaults to "relevance" instead', () => {
-		expect( getSort( {}, {} ) ).toEqual( 'relevance' );
-		expect( getSort( {}, 1 ) ).toEqual( 'relevance' );
-		expect( getSort( {}, null ) ).toEqual( 'relevance' );
-		expect( getSort( {}, true ) ).toEqual( 'relevance' );
-		expect( getSort( {}, undefined ) ).toEqual( 'relevance' );
+		expect( getSort( {}, {} ) ).toBe( 'relevance' );
+		expect( getSort( {}, 1 ) ).toBe( 'relevance' );
+		expect( getSort( {}, null ) ).toBe( 'relevance' );
+		expect( getSort( {}, true ) ).toBe( 'relevance' );
+		expect( getSort( {}, undefined ) ).toBe( 'relevance' );
 	} );
 	test( 'returns the state value if it is a string', () => {
-		expect( getSort( { sort: 'some string' } ) ).toEqual( 'some string' );
-		expect( getSort( { sort: 'relevance' } ) ).toEqual( 'relevance' );
+		expect( getSort( { sort: 'some string' } ) ).toBe( 'some string' );
+		expect( getSort( { sort: 'relevance' } ) ).toBe( 'relevance' );
 	} );
 } );
 
@@ -38,18 +35,18 @@ describe( 'hasActiveQuery', () => {
 	test( 'returns false if reducers are at their initial values', () => {
 		expect(
 			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
-		).toEqual( false );
+		).toBe( false );
 	} );
 	test( 'returns true if there is a defined search query', () => {
 		expect(
 			hasActiveQuery( { searchQuery: '', filters: {}, staticFilters: {}, sort: null } )
-		).toEqual( true );
+		).toBe( true );
 		expect(
 			hasActiveQuery( { searchQuery: 'hello', filters: {}, staticFilters: {}, sort: null } )
-		).toEqual( true );
+		).toBe( true );
 		expect(
 			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
-		).toEqual( false );
+		).toBe( false );
 	} );
 	test( 'returns true if there are defined filters', () => {
 		expect(
@@ -58,18 +55,18 @@ describe( 'hasActiveQuery', () => {
 				filters: { post_types: [ 'post', 'page' ] },
 				sort: null,
 			} )
-		).toEqual( true );
+		).toBe( true );
 		expect(
 			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
-		).toEqual( false );
+		).toBe( false );
 	} );
-	test( 'returns true if there is a defined sort value', () => {
+	test( 'returns false if there is a defined sort value only', () => {
 		expect(
 			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: 'relevance' } )
-		).toEqual( true );
+		).toBe( false );
 		expect(
 			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
-		).toEqual( false );
+		).toBe( false );
 	} );
 } );
 

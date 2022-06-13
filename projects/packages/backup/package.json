@@ -26,13 +26,13 @@
 	],
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:* || ^0.13",
-		"@automattic/jetpack-components": "workspace:* || ^0.15",
+		"@automattic/jetpack-components": "workspace:* || ^0.16",
 		"@automattic/jetpack-connection": "workspace:* || ^0.18",
-		"@wordpress/api-fetch": "6.5.0",
-		"@wordpress/data": "6.8.0",
-		"@wordpress/element": "4.6.0",
-		"@wordpress/date": "4.8.0",
-		"@wordpress/i18n": "4.8.0",
+		"@wordpress/api-fetch": "6.6.0",
+		"@wordpress/data": "6.9.0",
+		"@wordpress/element": "4.7.0",
+		"@wordpress/date": "4.9.0",
+		"@wordpress/i18n": "4.9.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2"
 	},
@@ -51,8 +51,8 @@
 		"webpack-cli": "4.9.1"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
+		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

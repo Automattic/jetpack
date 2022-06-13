@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
-import { createInterpolateElement } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
+import PluginDashItem from 'components/plugin-dash-item';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
-/**
- * Internal dependencies
- */
 import boostSvgUrl from './boost.svg';
-import PluginDashItem from 'components/plugin-dash-item';
 
 const BOOST_PLUGIN_DASH = 'admin.php?page=jetpack-boost';
 const BOOST_PLUGIN_FILES = [

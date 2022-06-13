@@ -1,13 +1,12 @@
-/**
- * External dependencies
- */
 import { _x } from '@wordpress/i18n';
-import { combineReducers } from 'redux';
+import {
+	isJetpackPlanWithAntiSpam,
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_VIDEOPRESS,
+	PLAN_JETPACK_ANTI_SPAM,
+} from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { combineReducers } from 'redux';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
@@ -30,12 +29,8 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
 } from 'state/action-types';
-import {
-	isJetpackPlanWithAntiSpam,
-	PLAN_JETPACK_SECURITY_T1_YEARLY,
-	PLAN_JETPACK_VIDEOPRESS,
-	PLAN_JETPACK_ANTI_SPAM,
-} from 'lib/plans/constants';
+import { hasConnectedOwner } from 'state/connection';
+import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import {
@@ -46,9 +41,7 @@ import {
 	hasActiveAntiSpamPurchase,
 	hasSecurityComparableLegacyPlan,
 } from 'state/site';
-import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
-import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
 
 const mergeArrays = ( x, y ) => {
 	if ( Array.isArray( x ) && Array.isArray( y ) ) {
