@@ -39,7 +39,7 @@
 		"test-client": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.client.js",
 		"test-extensions": "TZ=UTC jest --config=tests/jest.config.extensions.js",
 		"test-gui": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.gui.js",
-		"watch": "concurrently --names client-js,client-css,masterbar,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'webpack watch --config ./tools/webpack.config.masterbar.js' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'"
+		"watch": "NODE_PATH=\"$PWD/node_modules\" concurrently --names client-js,client-css,masterbar,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'webpack watch --config ./tools/webpack.config.masterbar.js' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
