@@ -20,7 +20,7 @@
 		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es build/",
-		"watch": "pnpm run build && webpack watch"
+		"watch": "pnpm run build && NODE_PATH=\"$PWD/node_modules\" webpack watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
