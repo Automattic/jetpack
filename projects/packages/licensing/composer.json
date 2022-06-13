@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.40"
+		"automattic/jetpack-connection": "^1.41"
 	},
 	"require-dev": {
 		"automattic/wordbless": "@dev",
