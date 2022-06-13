@@ -64,7 +64,7 @@ function show_logged_in_banner() {
 		$launch_text        = __( 'Update visibility' );
 		$launch_text_mobile = __( 'Update' );
 	} elseif ( ! $is_site_launched ) {
-		$launch_url         = 'https://wordpress.com/start/launch-site?siteSlug=' . $blog_domain;
+		$launch_url         = 'https://wordpress.com/start/launch-site?siteSlug=' . $blog_domain . '&source=site';
 		$launch_text        = __( 'Launch site' );
 		$launch_text_mobile = __( 'Launch' );
 	}
