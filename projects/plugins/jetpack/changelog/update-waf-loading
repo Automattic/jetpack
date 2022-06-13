@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Add loading of the waf from Jetpack to avoid use of actions.php
