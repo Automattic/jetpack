@@ -1343,7 +1343,6 @@ importers:
       autoprefixer: 10.4.2
       babel-jest: 28.1.0
       bounding-client-rect: 1.0.5
-      chai: 4.3.4
       classnames: 2.3.1
       clipboard: 2.0.6
       component-uid: 0.0.2
@@ -1363,7 +1362,6 @@ importers:
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       jest-enzyme: 7.1.2
-      jetpack-js-test-runner: workspace:*
       jsdom: 19.0.0
       lodash: 4.17.21
       mapbox-gl: 1.13.0
@@ -1495,7 +1493,6 @@ importers:
       '@wordpress/token-list': 2.9.0
       autoprefixer: 10.4.2_postcss@8.4.13
       babel-jest: 28.1.0_@babel+core@7.17.10
-      chai: 4.3.4
       concurrently: 6.0.2
       enzyme: 3.11.0
       enzyme-to-json: 3.6.2_enzyme@3.11.0
@@ -1504,7 +1501,6 @@ importers:
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       jest-enzyme: 7.1.2_x3fx6ski7nqiropha7uejbvcbi
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
       lodash: 4.17.21
       postcss: 8.4.13
       postcss-loader: 6.2.0_yokl3cbwhadljnh75p6ymh6bce
@@ -9729,6 +9725,7 @@ packages:
 
   /assertion-error/1.1.0:
     resolution: {integrity: sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==}
+    dev: false
 
   /assign-symbols/1.0.0:
     resolution: {integrity: sha1-WWZ/QfrdTyDMvCu5a41Pf3jsA2c=}
@@ -10433,6 +10430,7 @@ packages:
       get-func-name: 2.0.0
       pathval: 1.1.1
       type-detect: 4.0.8
+    dev: false
 
   /chalk/1.1.3:
     resolution: {integrity: sha1-qBFcVeSnAv5NFQq9OHKCKn4J/Jg=}
@@ -10506,6 +10504,7 @@ packages:
 
   /check-error/1.0.2:
     resolution: {integrity: sha1-V00xLt2Iu13YkS6Sht1sCu1KrII=}
+    dev: false
 
   /cheerio-select/1.6.0:
     resolution: {integrity: sha512-eq0GdBvxVFbqWgmCm7M3XGs1I8oLy/nExUnh6oLqmBditPO9AqQJrkslDpMun/hZ0yyTs8L0m85OHp4ho6Qm9g==}
@@ -11474,6 +11473,7 @@ packages:
     engines: {node: '>=0.12'}
     dependencies:
       type-detect: 4.0.8
+    dev: false
 
   /deep-equal-ident/1.1.1:
     resolution: {integrity: sha1-BvS4nlNxDNbOpKd4HHqVZkLejck=}
@@ -13567,6 +13567,7 @@ packages:
 
   /get-func-name/2.0.0:
     resolution: {integrity: sha1-6td0q+5y4gQJQzoGY2YCPdaIekE=}
+    dev: false
 
   /get-intrinsic/1.1.1:
     resolution: {integrity: sha512-kWZrnVM42QCiEA2Ig1bG8zjoIMOgxWwYCEeNdwY6Tv/cOSeGpcoX4pXHfKUxNKVoArnrEr2e9srnAxxGIraS9Q==}
@@ -17263,6 +17264,7 @@ packages:
 
   /pathval/1.1.1:
     resolution: {integrity: sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==}
+    dev: false
 
   /pbf/3.2.1:
     resolution: {integrity: sha512-ClrV7pNOn7rtmoQVF4TS1vyU0WhYRnP92fzbfF75jAIwpnzdJXf8iTd4CMEqO4yUenH6NDqLiwjqlh6QgZzgLQ==}
