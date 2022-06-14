@@ -1,8 +1,4 @@
-/* eslint-disable wpcalypso/import-docblock */
-/**
- * WordPress dependencies
- */
-import { __experimentalUseGradient as useGradient } from '@wordpress/block-editor';
+import { __experimentalUseGradient as useGradient } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 
 export const IS_GRADIENT_AVAILABLE = !! useGradient;
 

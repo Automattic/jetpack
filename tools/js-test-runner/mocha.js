@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* eslint-disable import/order */
+
 // React <17.1 is broken on Node 16 when jsdom is used. This hacks around the bug.
 // See https://github.com/facebook/react/issues/20756#issuecomment-780927519
 // (but note the package they recommend there is itself broken, sigh)

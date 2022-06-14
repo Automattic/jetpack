@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 const PALETTE = require( '@automattic/color-studio' );
 
@@ -9,16 +6,10 @@ const PALETTE = require( '@automattic/color-studio' );
  *
  * @param {number} postCount - The total count of indexed post records
  * @param {object} postTypeBreakdown - Post type breakdown (post type => number of posts)
- * @param {number} tierMaximumRecords - Max number of records allowed in user's current tier
  * @param {string} lastIndexedDate - The date on which the site was last indexed as a string
  * @returns {object} data in correct form to use in chart and notice-box
  */
-export default function getRecordInfo(
-	postCount,
-	postTypeBreakdown,
-	tierMaximumRecords,
-	lastIndexedDate
-) {
+export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexedDate ) {
 	const maxPostTypeCount = 5; // this value determines when to cut off displaying post times & compound into an 'other'
 	const recordInfo = [];
 	const chartPostTypeBreakdown = [];
@@ -73,35 +64,24 @@ export default function getRecordInfo(
 
 		// push includedItems into the recordInfo
 		for ( const item in postTypeItems.includedItems ) {
-			recordInfo.push( {
-				data: createData(
-					postTypeItems.includedItems[ item ].data.data[ 0 ],
+			recordInfo.push(
+				createData(
+					postTypeItems.includedItems[ item ].data.count,
 					colors[ item ],
 					postTypeItems.includedItems[ item ].data.label
-				),
-			} );
+				)
+			);
 		}
 
 		// populate the 'other' category with combined remaining items and push to end of data array
 		if ( postTypeItems.otherItems.length > 0 ) {
-			recordInfo.push( {
-				data: createData(
+			recordInfo.push(
+				createData(
 					combineOtherCount( postTypeItems.otherItems ),
 					PALETTE.colors[ 'Gray 30' ],
-					'other'
-				),
-			} );
-		}
-
-		// if there is remaining unused space in tier, add filler spacing to chart
-		if ( typeof tierMaximumRecords === 'number' && tierMaximumRecords - currentCount > 0 ) {
-			recordInfo.push( {
-				data: createData(
-					tierMaximumRecords - currentCount,
-					PALETTE.colors[ 'Gray 0' ],
-					__( 'remaining', 'jetpack-search-pkg' )
-				),
-			} );
+					__( 'other', 'jetpack-search-pkg' )
+				)
+			);
 		}
 	}
 
@@ -128,8 +108,6 @@ export default function getRecordInfo(
  * @returns {object} containing included items with post type and count, and other items, split.
  */
 export function splitUsablePostTypes( postTypeBreakdown, numItems, maxPostTypeCount ) {
-	postTypeBreakdown.sort( ( a, b ) => ( a.data.data[ 0 ] < b.data.data[ 0 ] ? 1 : -1 ) );
-
 	const count = maxPostTypeCount <= numItems ? maxPostTypeCount : numItems;
 
 	return {
@@ -148,9 +126,8 @@ export function combineOtherCount( otherItems ) {
 	let runningTotal = 0;
 
 	for ( const item in otherItems ) {
-		runningTotal = otherItems[ item ].data.data[ 0 ] + runningTotal;
+		runningTotal = otherItems[ item ].data.count + runningTotal;
 	}
-
 	return runningTotal;
 }
 
@@ -164,7 +141,7 @@ export function combineOtherCount( otherItems ) {
  */
 export function createData( data, color, name ) {
 	return {
-		data: [ data ],
+		count: data,
 		label: name,
 		backgroundColor: color,
 	};

@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
-import ReactDOM from 'react-dom';
-import React from 'react';
 import { ThemeProvider } from '@automattic/jetpack-components';
-
-/**
- * WordPress dependencies
- */
 import { createReduxStore, register } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { STORE_ID, storeConfig } from './store';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import WordAdsDashboard from './components/dashboard';
+import { STORE_ID, storeConfig } from './store';
 
 const store = createReduxStore( STORE_ID, storeConfig );
 register( store );

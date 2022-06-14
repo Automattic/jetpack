@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import { InspectorControls, RichText } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { useLayoutEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { photonizedImgProps } from '../tiled-gallery/utils';
 import ImageCompareControls from './controls';
 import ImgUpload from './img-upload';

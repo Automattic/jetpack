@@ -224,11 +224,11 @@ class VideoPress_Player {
 	}
 
 	/**
-	 * Rating agencies and industry associations require a potential viewer verify his or her age before a video or its poster frame are displayed.
+	 * Rating agencies and industry associations require a potential viewer verify their age before a video or its poster frame are displayed.
 	 * Content rated for audiences 17 years of age or older requires such verification across multiple rating agencies and industry associations
 	 *
 	 * @since 1.3
-	 * @return bool true if video requires the viewer verify he or she is 17 years of age or older
+	 * @return bool true if video requires the viewer verify they are 17 years of age or older
 	 */
 	private function age_gate_required() {
 		if ( isset( $this->video->age_rating ) && $this->video->age_rating >= 17 ) {
@@ -658,11 +658,12 @@ class VideoPress_Player {
 				case 'controls':
 				case 'playsinline':
 				case 'useAverageColor':
-					if ( in_array( $value, array( 1, 'true' ), true ) ) {
+					if ( in_array( $value, array( true, 1, 'true' ), true ) ) {
 						$videopress_options[ $option ] = true;
-					} elseif ( in_array( $value, array( 0, 'false' ), true ) ) {
+					} elseif ( in_array( $value, array( false, 0, 'false' ), true ) ) {
 						$videopress_options[ $option ] = false;
 					}
+					// phpcs:enable
 					break;
 				case 'defaultlangcode':
 					$option = 'defaultLangCode';
@@ -691,7 +692,7 @@ class VideoPress_Player {
 				. "' width='" . esc_attr( $videopress_options['width'] )
 				. "' height='" . esc_attr( $videopress_options['height'] )
 				. "' src='" . esc_attr( $iframe_url )
-				. "' frameborder='0' allowfullscreen></iframe>"
+				. "' frameborder='0' allowfullscreen allow='clipboard-write'></iframe>"
 				. "<script src='" . esc_attr( $js_url ) . "'></script>";
 
 		} else {

@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.13.4 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## 0.13.3 - 2022-05-30
+### Changed
+- Updated package dependencies
+
 ## 0.13.2 - 2022-05-10
 ### Changed
 - Updated package dependencies [#24301]

@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import { useCallback, useEffect } from 'react';
-import { useConnection } from '@automattic/jetpack-connection';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { useConnection } from '@automattic/jetpack-connection';
+import { useCallback, useEffect } from 'react';
 
 const useAnalyticsTracks = ( {
 	pageViewEventName,

@@ -1,23 +1,13 @@
-/**
- * External dependencies
- */
+import { imagePath } from 'constants/urls';
+import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import { imagePath } from 'constants/urls';
 import { isFetchingIntroOffers } from 'state/intro-offers';
 import { isFetchingRecommendationsProductSuggestions } from 'state/recommendations';
 import { isFetchingSiteDiscount } from 'state/site/reducer';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarCard } ) => {
@@ -35,13 +25,13 @@ const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarC
 		return (
 			<div className="jp-recommendations-question__illustration-container">
 				<picture className="jp-recommendations-question__illustration-picture">
-					<source type="image/webp" srcset={ `${ imgBase }.webp 1x, ${ imgBase }-2x.webp 2x` } />
+					<source type="image/webp" srcSet={ `${ imgBase }.webp 1x, ${ imgBase }-2x.webp 2x` } />
 					<img
 						className={ classNames(
 							'jp-recommendations-question__illustration',
 							illustrationClassName
 						) }
-						srcset={ `${ imgBase }-2x.png 2x` }
+						srcSet={ `${ imgBase }-2x.png 2x` }
 						src={ `${ imgBase }.png` }
 						alt=""
 					/>
@@ -99,10 +89,10 @@ PromptLayoutComponent.propTypes = {
 	illustrationClassName: PropTypes.string,
 	progressBar: PropTypes.element.isRequired,
 	question: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
-	content: PropTypes.element.isRequired,
+	content: PropTypes.element,
 	sidebarCard: PropTypes.element,
-	isNew: PropTypes.boolean,
-	isLoading: PropTypes.boolean,
+	isNew: PropTypes.bool,
+	isLoading: PropTypes.bool,
 };
 
 const PromptLayout = connect( state => ( {

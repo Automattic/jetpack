@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { Text, Button, Title, IconsCard, getRedirectUrl } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import { SECURITY_BUNDLE, SeventyFiveLayout } from '../admin-page';
 import useProtectData from '../../hooks/use-protect-data';
+import { SECURITY_BUNDLE, SeventyFiveLayout } from '../admin-page';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
@@ -31,14 +24,14 @@ const ProductPromotion = () => {
 	const { securityBundle } = useProtectData();
 	const { hasRequiredPlan } = securityBundle;
 
-	if ( ! hasRequiredPlan ) {
+	if ( hasRequiredPlan ) {
 		const getStartedUrl = getRedirectUrl( 'protect-footer-get-started-scan' );
 
 		return (
 			<div className={ styles[ 'product-section' ] }>
 				<IconsCard products={ [ 'backup', 'scan', 'anti-spam' ] } />
 				<Title>
-					{ __( 'Increase your site protection with Jetpack Scan', 'jetpack-protect' ) }
+					{ __( 'Learn how Jetpack Scan increases your site protection', 'jetpack-protect' ) }
 				</Title>
 				<Text mb={ 3 }>
 					{ __(

@@ -85,7 +85,7 @@ runs:
 
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/action-setup@v2.2.1
+      uses: pnpm/action-setup@v2.2.2
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
     - name: Setup Node

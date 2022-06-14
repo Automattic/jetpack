@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { ToggleControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 

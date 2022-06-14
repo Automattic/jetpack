@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove claim of support for node 14. No change to the project, and in particular note the engines are stripped before pushing to the mirror repo.
+
+

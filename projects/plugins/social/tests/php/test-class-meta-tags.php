@@ -177,4 +177,73 @@ class Meta_Tags_Test extends BaseTestCase {
 		);
 		$this->assertEmpty( $this->meta_tags->get_featured_image( self::$post ) );
 	}
+
+	/**
+	 * Test potential descriptions given to OG description.
+	 *
+	 * @dataProvider get_description_data_provider
+	 *
+	 * @param string $description Post description.
+	 * @param string $cleaned_description Description cleaned up and ready to be used.
+	 */
+	public function test_get_description_default( $description, $cleaned_description ) {
+		// A test shortcode that should be removed from descriptions.
+		add_shortcode(
+			'foo',
+			function () {
+				return 'bar';
+			}
+		);
+
+		$processed_description = $this->meta_tags->get_description( $description );
+
+		$this->assertEquals(
+			$cleaned_description,
+			$processed_description
+		);
+	}
+
+	/**
+	 * Potential descriptions given to OG description.
+	 */
+	public function get_description_data_provider() {
+		return array(
+			'empty'                  => array(
+				'',
+				'Visit the post for more.',
+			),
+			'no_entities'            => array(
+				"OpenGraph's test",
+				'OpenGraph&#8217;s test',
+			),
+			'too_many_words'         => array(
+				'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam consectetur quam eget finibus consectetur. Donec sollicitudin finibus massa, ut cursus elit. Mauris dictum quam eu ullamcorper feugiat. Proin id ante purus. Aliquam lorem libero, tempus id dictum non, feugiat vel eros. Sed sed viverra libero. Praesent eu lacinia felis, et tempus turpis. Proin bibendum, ligula. These last sentence should be removed.',
+				'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam consectetur quam eget finibus consectetur. Donec sollicitudin finibus massa, ut cursus elit. Mauris dictum quam eu ullamcorper feugiat. Proin id ante purus. Aliquam lorem libero, tempus id dictum non, feugiat vel eros. Sed sed viverra libero. Praesent eu lacinia felis, et tempus turpis. Proin bibendum, ligula.&hellip;',
+			),
+			'no_tags'                => array(
+				'A post description<script>alert("hello");</script>',
+				'A post description',
+			),
+			'no_shortcodes'          => array(
+				'[foo test="true"]A post description',
+				'A post description',
+			),
+			'no_links'               => array(
+				'A post description https://jetpack.com',
+				'A post description',
+			),
+			'no_html'                => array(
+				'<strong>A post description</strong>',
+				'A post description',
+			),
+			'image_then_text'        => array(
+				'<img src="https://example.org/jetpack-icon.jpg" />A post description',
+				'A post description',
+			),
+			'linked_image_then_text' => array(
+				'<a href="https://jetpack.com"><img src="https://example.org/jetpack-icon.jpg" /></a>A post description',
+				'A post description',
+			),
+		);
+	}
 }
