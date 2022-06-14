@@ -4,7 +4,7 @@ These Composer packages offer a unified code base that we will share among proje
 
 ## Installing Composer
 
-You need Composer to use the packages. If you don't have it installed, go and check how to [install Composer](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#installing-composer) and then continue here.
+You need Composer to use the packages. If you don't have it installed, go and check how to [install Composer](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#composer) and then continue here.
 
 ## Defining required packages
 
