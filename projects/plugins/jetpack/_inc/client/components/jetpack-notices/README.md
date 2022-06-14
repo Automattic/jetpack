@@ -24,7 +24,7 @@ Remove Notice
 
 [Read the full readme](../../notices/README.md)
 
-## State Notices [#](https://github.com/Automattic/jetpack/blob/trunk/_inc/client/components/jetpack-notices/state-notices.jsx)
+## [State Notices](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/_inc/client/components/jetpack-notices/state-notices.jsx)
 
 These are triggered by PHP, most commonly to display an error during connection.
 
