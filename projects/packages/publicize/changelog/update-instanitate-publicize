@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Made changes to not instantiate the publicize object, if it's already instantiated.
