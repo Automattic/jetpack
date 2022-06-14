@@ -1024,7 +1024,7 @@ class WPCOM_JSON_API {
 		* Exclude certain comment types from comment counts in the REST API.
 		*
 		* @since 6.9.0
-		* @deprecated $$next-version$$
+		* @deprecated 11.1
 		* @module json-api
 		*
 		* @param array Array of comment types to exclude (default: 'order_note', 'webhook_delivery', 'review', 'action_log')
@@ -1036,7 +1036,7 @@ class WPCOM_JSON_API {
 		* Note: the default array of comment types includes an empty string,
 		* to support comments posted before WP 5.5, that used an empty string as comment type.
 		*
-		* @since $$next-version$$
+		* @since 11.1
 		* @module json-api
 		*
 		* @param array Array of comment types to include (default: 'comment', 'pingback', 'trackback')

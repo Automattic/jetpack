@@ -1,10 +1,10 @@
-import { expect } from 'chai';
+import { jest } from '@jest/globals';
 
 let apiFetchOriginal = null;
 let apiFetchMiddlewares = [];
 
 describe( 'gutenberg-video-upload', () => {
-	before( () => {
+	beforeAll( () => {
 		apiFetchOriginal = window.wp ? window.wp.apiFetch : undefined;
 
 		delete window.videoPressUploadTrack;
@@ -19,7 +19,7 @@ describe( 'gutenberg-video-upload', () => {
 		require( '../gutenberg-video-upload' );
 	} );
 
-	after( () => {
+	afterAll( () => {
 		if ( apiFetchOriginal ) {
 			window.wp.apiFetch = apiFetchOriginal;
 		}
@@ -29,17 +29,13 @@ describe( 'gutenberg-video-upload', () => {
 
 	describe( 'apiFetch middleware', () => {
 		it( 'installs one middleware', () => {
-			expect( apiFetchMiddlewares.length ).to.equal( 1 );
-			expect( typeof apiFetchMiddlewares[ 0 ] ).to.equal( 'function' );
+			expect( apiFetchMiddlewares ).toHaveLength( 1 );
+			expect( typeof apiFetchMiddlewares[ 0 ] ).toBe( 'function' );
 		} );
 
-		it( 'does not process the request body for irrelevant requests', done => {
-			expect( typeof apiFetchMiddlewares[ 0 ] ).to.equal( 'function' );
+		it( 'does not process the request body for irrelevant requests', async () => {
+			expect( typeof apiFetchMiddlewares[ 0 ] ).toBe( 'function' );
 			const middleware = apiFetchMiddlewares[ 0 ];
-
-			const next = () => {
-				done();
-			};
 
 			const options = {
 				path: '/foo',
@@ -47,7 +43,11 @@ describe( 'gutenberg-video-upload', () => {
 				method: 'POST',
 			};
 
-			middleware( options, next );
+			const response = {};
+			const next = jest.fn().mockReturnValue( Promise.resolve( response ) );
+			await expect( middleware( options, next ) ).resolves.toBe( response );
+			expect( next ).toHaveBeenCalledTimes( 1 );
+			expect( next ).toHaveBeenCalledWith( options );
 		} );
 	} );
 } );

@@ -94,7 +94,7 @@ const supportedModules = [
 const moduleSources = [
 	...glob.sync( '_inc/*.js' ),
 	...glob.sync( `modules/@(${ supportedModules.join( '|' ) })/**/*.js` ),
-].filter( name => ! name.endsWith( '.min.js' ) && ! /\/test-[^/]\.js$/.test( name ) );
+].filter( name => ! name.endsWith( '.min.js' ) && name.indexOf( '/test/' ) < 0 );
 
 // Library definitions for certain modules.
 const libraryDefs = {

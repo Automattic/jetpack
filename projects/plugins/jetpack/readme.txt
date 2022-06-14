@@ -242,39 +242,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.0-beta - 2022-05-31
+### 11.1-a.1 - 2022-06-08
+
 #### Enhancements
-- Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset.
-- Custom CSS: ensure the Additional CSS sub-menu link is more prominent.
-- Email subscriptions: update the default body of the "Confirmation request" email.
-- Google Fonts: add additional fonts to the list of available fonts.
-- Latest Instagram Posts Block: improve performance of the block by adding lazy load for the images.
-- Publicize: load Publicize only if the Publicize module is active.
-- Payments Block: refactor the donation block by unifying Stripe Nudge component.
-- Payments Block: reset form data to default values after creating a subscription.
-- Payments Block: refactor the product memberships store to reduce complexity and improve speed.
-- Sharing: update the email sharing button to use mailto links instead of server submissions.
-- VideoPress: add support for automatic seekbar color.
-- VideoPress: improve Extensibility of Privacy Setting filter by adding the embedded post id.
-- VideoPress: improve help message of VideoPress Privacy Setting at the block level.
-- WAF: add settings UI for Jetpack Firewall.
+- Recipe Block (beta): introduce a new Recipe block to display an easy to read recipe anywhere on your site. Currently a JETPACK_BETA_BLOCKS feature.
+- WAF: update messaging around sites without latest firewall rules access.
+- WAF: add links to support documentation.
 
 #### Improved compatibility
-- General: improve connection sharing between Jetpack and Jetpack standalone plugins.
-- Stats: remove unnecessary type attribute from style element.
+- Blocks: add Jetpack block elements to WPML configuration so they can be translated.
+- Publicize: configure Publicize only when the module is active.
 
 #### Bug fixes
-- Assistant: fix unclickable banner dismiss button.
-- Comments: update UI to reflect that Google accounts are no longer a sign-in option.
-- Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+.
-- Payments Block: ensure Payments Block can only auto-select an existing product.
-- VideoPress: remove strict comparison to fix average color parameter.
-- Stats: ensure the Stats column can always be displayed, even when the post type does not support comments.
-- Subscriptions: fix typo in confirmation message.
-- VaultPress: fix a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active.
-- VideoPress: fix validation errors for core video block usage.
-- WAF: add activation/deactivation hooks for WAF feature.
-- Widget Visibility: avoid PHP warnings when loading widgets in some scenarios.
+- Contact Form: support saving array of data, such as multiple checkboxes.
+- Payment Block: fix issue preventing images in payment buttons.
+- VideoPress: fix average color parameter for seekbar.
 
 --------
 

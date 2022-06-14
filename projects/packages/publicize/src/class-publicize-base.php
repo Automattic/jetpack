@@ -219,8 +219,13 @@ abstract class Publicize_Base {
 		// Connection test callback.
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
 
-		add_action( 'init', array( $this, 'add_post_type_support' ) );
+		// Custom priority to ensure post type support is added prior to thumbnail support being added to the theme.
+		add_action( 'init', array( $this, 'add_post_type_support' ), 8 );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
+
+		// The custom priority for this action ensures that any existing code that
+		// removes post-thumbnails support during 'init' continues to work.
+		add_action( 'init', __NAMESPACE__ . '\add_theme_post_thumbnails_support', 8 );
 	}
 
 	/**
@@ -1449,4 +1454,14 @@ abstract class Publicize_Base {
 function publicize_calypso_url() {
 	_deprecated_function( __METHOD__, '0.2.0', 'Publicize::publicize_connections_url' );
 	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
+}
+
+/**
+ * Adds support for the post-thumbnails feature, regardless of underlying theme support.
+ *
+ * This ensures the featured image UI appears in the editor, allowing the user to
+ * explicitly set an image for their social media post.
+ */
+function add_theme_post_thumbnails_support() {
+	add_theme_support( 'post-thumbnails', get_post_types_by_support( 'publicize' ) );
 }
