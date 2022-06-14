@@ -5,6 +5,7 @@
 		getScoreLetter,
 		requestSpeedScores,
 		didScoresImprove,
+		didScoresWorsen,
 		getScoreImprovementPercentage,
 	} from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
@@ -17,6 +18,7 @@
 	import RatingCard from '../elements/RatingCard.svelte';
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
+	import ScoreDrop from '../elements/ScoreDrop.svelte';
 
 	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;
@@ -116,6 +118,8 @@
 
 	// eslint-disable-next-line camelcase
 	const respawnRatingPrompt = writable( Jetpack_Boost.preferences.showRatingPrompt );
+	// eslint-disable-next-line camelcase
+	const respawnScorePrompt = writable( Jetpack_Boost.preferences.showScorePrompt );
 
 	const showRatingCard = derived(
 		[ scores, respawnRatingPrompt, isLoading ],
@@ -123,6 +127,8 @@
 		( [ $scores, $respawnRatingPrompt, $isLoading ] ) =>
 			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading && ! $scores.isStale
 	);
+
+	$: showScoreDrop = didScoresWorsen( $scores ) && $respawnScorePrompt && ! $isLoading && ! $scores.isStale;
 
 	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
@@ -220,4 +226,8 @@
 		improvement={improvementPercentage}
 		{currentPercentage}
 	/>
+{/if}
+
+{#if $showScoreDrop}
+	<ScoreDrop on:dismiss={() => respawnScorePrompt.set( false )} />
 {/if}

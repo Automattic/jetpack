@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix `watch` command. No change to the plugin.
+
+
