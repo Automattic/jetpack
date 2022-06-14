@@ -209,11 +209,6 @@ class Jetpack_Lazy_Images {
 			return $content;
 		}
 
-		// Don't lazy-load if the content has already been run through previously.
-		if ( false !== strpos( $content, 'data-lazy-src' ) ) {
-			return $content;
-		}
-
 		// This is a pretty simple regex, but it works.
 		$content = preg_replace_callback( '#<(img)([^>]+?)(>(.*?)</\\1>|[\/]?>)#si', array( __CLASS__, 'process_image' ), $content );
 
@@ -281,15 +276,23 @@ class Jetpack_Lazy_Images {
 
 		$old_attributes = self::flatten_kses_hair_data( $old_attributes_kses_hair );
 
-		// If we didn't add lazy attributes, just return the original image source.
-		if ( ! empty( $old_attributes['class'] ) && false !== strpos( $old_attributes['class'], 'jetpack-lazy-image' ) ) {
+		// If we're processing again and this image is the fallback, just return it.
+		if ( isset( $old_attributes['data-lazy-fallback'] ) ) {
 			return $matches[0];
+		}
+
+		// If the loading attribute is already set. Let's remove it.
+		unset( $old_attributes['loading'] );
+
+		// If we've already processed the image don't process it again.
+		if ( isset( $old_attributes['data-lazy-src'] ) ) {
+			return sprintf( '<img %1$s>', self::build_attributes_string( $old_attributes ) );
 		}
 
 		$new_attributes     = self::process_image_attributes( $old_attributes );
 		$new_attributes_str = self::build_attributes_string( $new_attributes );
 
-		return sprintf( '<img %1$s><noscript>%2$s</noscript>', $new_attributes_str, $matches[0] );
+		return sprintf( '<img %1$s><noscript><img data-lazy-fallback="1"%2$s /></noscript>', $new_attributes_str, $old_attributes_str );
 	}
 
 	/**
@@ -349,9 +352,6 @@ class Jetpack_Lazy_Images {
 		}
 
 		$old_attributes = $attributes;
-
-		// If the loading attribute is already set. Let's remove it.
-		unset( $attributes['loading'] );
 
 		// Stash srcset and sizes in data attributes.
 		foreach ( array( 'srcset', 'sizes' ) as $attribute ) {
