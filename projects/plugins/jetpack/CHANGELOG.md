@@ -13,11 +13,6 @@
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Modifying gendered language in code comments to be inclusive [#24716]
 - Updated package dependencies. [#23871]
-- Updated package dependencies. [#24529]
-- Updated package dependencies. [#24707]
-- Updated package dependencies. [#24722]
-- Updated package dependencies. [#24724]
-- Updated package dependencies. [#24728]
 - WPcom: fix crashing server-side rendered blocks [#24720]
 
 ## 11.1-a.1 - 2022-06-08

@@ -5,7 +5,6 @@
 ## 0.10.14 - 2022-06-14
 ### Changed
 - Updated package dependencies. [#24722]
-- Updated package dependencies. [#24724]
 
 ## 0.10.13 - 2022-06-08
 ### Changed

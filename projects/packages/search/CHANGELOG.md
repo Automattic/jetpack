@@ -9,9 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Search record meter: pass sorted records to RecordMeterBar component [#24731]
 - Updated package dependencies. [#24529]
-- Updated package dependencies. [#24722]
-- Updated package dependencies. [#24724]
-- Updated package dependencies. [#24728]
 
 ## [0.15.0] - 2022-06-08
 ### Changed

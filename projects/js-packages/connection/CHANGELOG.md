@@ -5,8 +5,6 @@
 ## 0.18.5 - 2022-06-14
 ### Changed
 - Updated package dependencies. [#24722]
-- Updated package dependencies. [#24724]
-- Updated package dependencies. [#24729]
 
 ## 0.18.4 - 2022-06-08
 ### Changed
