@@ -242,10 +242,7 @@ class Dedicated_Sender {
 	 */
 	public static function get_request_lock_id_from_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if (
-			! isset( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] )
-			|| ! is_numeric( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] )
-		) {
+		if ( ! isset( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] ) || ! is_numeric( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] ) ) {
 			return null;
 		}
 
