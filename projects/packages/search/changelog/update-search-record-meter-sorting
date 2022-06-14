@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Search record meter: pass sorted records to RecordMeterBar component
