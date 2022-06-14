@@ -69,8 +69,8 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	}, [ items, sortByCount ] );
 
 	return (
-		<div className="record-meter-bar" aria-hidden="true">
-			<div className="record-meter-bar__items">
+		<div className="record-meter-bar">
+			<div className="record-meter-bar__items" aria-hidden="true">
 				{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
 					const widthPercent = ( ( count / total ) * 100 ).toPrecision( 2 );
 					return (
@@ -78,7 +78,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 					);
 				} ) }
 			</div>
-			<div className="record-meter-bar__legend">
+			<div className="record-meter-bar__legend" aria-hidden="true">
 				<ul className="record-meter-bar__legend--items">
 					{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
 						return (
@@ -106,6 +106,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 					} ) }
 				</ul>
 			</div>
+			<div className="screen-reader-text"></div>
 		</div>
 	);
 };
