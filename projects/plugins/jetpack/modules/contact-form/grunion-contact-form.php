@@ -28,6 +28,55 @@ function grunion_contact_form_require_endpoint() {
 }
 
 /**
+ * Sets the 'block_template' attribute on all instances of wp:jetpack/contact-form in
+ * the $_wp_current_template_content global variable.
+ *
+ * The $_wp_current_template_content global variable is hydrated immediately prior to
+ * 'template_include' in wp-includes/template-loader.php.
+ *
+ * @param string $template Template to be loaded.
+ */
+function grunion_contact_form_set_block_template_attribute( $template ) {
+	global $_wp_current_template_content;
+	if ( ABSPATH . WPINC . '/template-canvas.php' === $template ) {
+		if ( false !== stripos( $_wp_current_template_content, 'wp:jetpack/contact-form' ) ) {
+			// Inject 'block_template' => 'canvas' into all instances of the contact form block.
+			$_wp_current_template_content = preg_replace_callback(
+				'/<!--\s+(?P<closer>\/)?wp:jetpack\/?contact-form\s+(?P<attrs>{(?:(?:[^}]+|}+(?=})|(?!}\s+\/?-->).)*+)?}\s+)?(?P<void>\/)?-->/s',
+				function ( $match ) {
+					// Ignore block closers.
+					if ( ! empty( $match['closer'] ) ) {
+						return $match[0];
+					}
+					// If block doesn't have attributes, add our own.
+					if ( empty( $match['attrs'] ) ) {
+						$attrs = array(
+							'block_template' => 'canvas',
+						);
+						return str_replace(
+							'wp:jetpack/contact-form ',
+							'wp:jetpack/contact-form ' . wp_json_encode( $attrs ) . ' ',
+							$match[0]
+						);
+					}
+					// $match['attrs'] includes trailing space: '{"customThankyou":"message"} '.
+					$attrs                   = json_decode( rtrim( $match['attrs'], ' ' ), true );
+					$attrs['block_template'] = 'canvas';
+					return str_replace(
+						$match['attrs'],
+						wp_json_encode( $attrs ) . ' ',
+						$match[0]
+					);
+				},
+				$_wp_current_template_content
+			);
+		}
+	}
+	return $template;
+}
+add_filter( 'template_include', 'grunion_contact_form_set_block_template_attribute' );
+
+/**
  * Sets the $grunion_block_template_part_id global.
  *
  * @param string $template_part_id ID for the currently rendered template part.
@@ -701,6 +750,7 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		$is_widget              = 0 === strpos( $id, 'widget-' );
+		$is_block_template      = 0 === strpos( $id, 'block-template-' );
 		$is_block_template_part = 0 === strpos( $id, 'block-template-part-' );
 
 		$form = false;
@@ -730,6 +780,59 @@ class Grunion_Contact_Form_Plugin {
 				call_user_func( $widget['callback'], $widget_args, $widget['params'][0] );
 				ob_end_clean();
 			}
+		} elseif ( $is_block_template ) {
+			/*
+			 * Recreate the logic in wp-includes/template-loader.php
+			 * that happens *after* 'template_redirect'.
+			 *
+			 * This logic populates the $_wp_current_template_content
+			 * global, which we need in order to render the contact
+			 * form for this block template.
+			 */
+			// start of copy-pasta from wp-includes/template-loader.php.
+			$tag_templates = array(
+				'is_embed'             => 'get_embed_template',
+				'is_404'               => 'get_404_template',
+				'is_search'            => 'get_search_template',
+				'is_front_page'        => 'get_front_page_template',
+				'is_home'              => 'get_home_template',
+				'is_privacy_policy'    => 'get_privacy_policy_template',
+				'is_post_type_archive' => 'get_post_type_archive_template',
+				'is_tax'               => 'get_taxonomy_template',
+				'is_attachment'        => 'get_attachment_template',
+				'is_single'            => 'get_single_template',
+				'is_page'              => 'get_page_template',
+				'is_singular'          => 'get_singular_template',
+				'is_category'          => 'get_category_template',
+				'is_tag'               => 'get_tag_template',
+				'is_author'            => 'get_author_template',
+				'is_date'              => 'get_date_template',
+				'is_archive'           => 'get_archive_template',
+			);
+			$template      = false;
+			// Loop through each of the template conditionals, and find the appropriate template file.
+			// This is what calls locate_block_template() to hydrate $_wp_current_template_content.
+			foreach ( $tag_templates as $tag => $template_getter ) {
+				if ( call_user_func( $tag ) ) {
+					$template = call_user_func( $template_getter );
+				}
+				if ( $template ) {
+					if ( 'is_attachment' === $tag ) {
+						remove_filter( 'the_content', 'prepend_attachment' );
+					}
+					break;
+				}
+			}
+			if ( ! $template ) {
+				$template = get_index_template();
+			}
+			// end of copy-pasta from wp-includes/template-loader.php.
+
+			// Ensure 'block_template' attribute is added to any shortcodes in the template.
+			$template = grunion_contact_form_set_block_template_attribute( $template );
+
+			// Process the block template to populate Grunion_Contact_Form::$last
+			get_the_block_template_html();
 		} elseif ( $is_block_template_part ) {
 			$block_template_part_id   = str_replace( 'block-template-part-', '', $id );
 			$bits                     = explode( '//', $block_template_part_id );
@@ -2279,6 +2382,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$attributes['id'] = 'widget-' . $attributes['widget'];
 			// translators: the blog name.
 			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack' ), $default_subject );
+		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
+			$default_to      .= get_option( 'admin_email' );
+			$attributes['id'] = 'block-template-' . $attributes['block_template'];
+			// translators: the blog name.
+			$default_subject = sprintf( _x( '%1$s Block Template', '%1$s = blog name', 'jetpack' ), $default_subject );
 		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
 			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
@@ -2300,6 +2408,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'subject'                => $default_subject,
 			'show_subject'           => 'no', // only used in back-compat mode
 			'widget'                 => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
+			'block_template'         => null, // Not exposed to the user. Works with template_loader
 			'block_template_part'    => null, // Not exposed to the user. Works with Grunion_Contact_Form::parse()
 			'id'                     => null, // Not exposed to the user. Set above.
 			'submit_button_text'     => __( 'Submit', 'jetpack' ),
@@ -2481,7 +2590,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= apply_filters( 'grunion_contact_form_success_message', $r_success_message );
 		} else {
 			// Nothing special - show the normal contact form
-			if ( $form->get_attribute( 'widget' ) || $form->get_attribute( 'block_template_part' ) ) {
+			if ( $form->get_attribute( 'widget' )
+				|| $form->get_attribute( 'block_template' )
+				|| $form->get_attribute( 'block_template_part' ) ) {
 				// Submit form to the current URL
 				$url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', 'action', '_wpnonce' ) );
 			} else {
@@ -3009,6 +3120,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$id                  = $this->get_attribute( 'id' );
 		$to                  = $this->get_attribute( 'to' );
 		$widget              = $this->get_attribute( 'widget' );
+		$block_template      = $this->get_attribute( 'block_template' );
 		$block_template_part = $this->get_attribute( 'block_template_part' );
 
 		$contact_form_subject    = $this->get_attribute( 'subject' );
@@ -3047,6 +3159,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// Make sure we're processing the form we think we're processing... probably a redundant check.
 		if ( $widget ) {
 			if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+				return false;
+			}
+		} elseif ( $block_template ) {
+			if ( isset( $_POST['contact-form-id'] ) && 'block-template-' . $block_template !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
 		} elseif ( $block_template_part ) {
@@ -3300,7 +3416,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
-		$url     = $block_template_part || $widget ? home_url( '/' ) : get_permalink( $post->ID );
+		$url     = $block_template || $block_template_part || $widget ? home_url( '/' ) : get_permalink( $post->ID );
 
 		// translators: the time of the form submission.
 		$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
