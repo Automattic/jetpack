@@ -1,12 +1,11 @@
 <script>
 	import { derived, writable } from 'svelte/store';
-	import { __ } from '@wordpress/i18n';
+	import { __, sprintf } from '@wordpress/i18n';
 	import {
 		getScoreLetter,
 		requestSpeedScores,
-		didScoresImprove,
-		didScoresWorsen,
-		getScoreImprovementPercentage,
+		didScoresChange,
+		getScoreMovementPercentage,
 	} from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import { criticalCssStatus, isGenerating } from '../../../stores/critical-css-status';
@@ -15,10 +14,9 @@
 	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import debounce from '../../../utils/debounce';
-	import RatingCard from '../elements/RatingCard.svelte';
+	import PopOut from '../elements/PopOut.svelte';
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
-	import ScoreDrop from '../elements/ScoreDrop.svelte';
 
 	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;
@@ -26,8 +24,14 @@
 	let loadError;
 	let showPrevScores;
 	let scoreLetter = '';
-	let improvementPercentage = 0;
+	let changePercentage = 0;
 	let currentPercentage = 0;
+
+	//modal stuff
+	let title = '';
+	let message = '';
+	let ctaLink = '';
+	let cta = '';
 
 	const isLoading = writable( siteIsOnline );
 
@@ -83,7 +87,7 @@
 		try {
 			scores.set( await requestSpeedScores( force ) );
 			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
-			showPrevScores = didScoresImprove( $scores ) && ! $scores.isStale;
+			showPrevScores = didScoresChange( $scores ) && ! $scores.isStale;
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
@@ -121,22 +125,38 @@
 	// eslint-disable-next-line camelcase
 	const respawnScorePrompt = writable( Jetpack_Boost.preferences.showScorePrompt );
 
-	const showRatingCard = derived(
-		[ scores, respawnRatingPrompt, isLoading ],
-		// eslint-disable-next-line no-shadow
-		( [ $scores, $respawnRatingPrompt, $isLoading ] ) =>
-			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading && ! $scores.isStale
-	);
-
-	$: showScoreDrop =
-		didScoresWorsen( $scores ) && $respawnScorePrompt && ! $isLoading && ! $scores.isStale;
+	$: showModal =
+		didScoresChange( $scores ) && $respawnScorePrompt && ! $isLoading && ! $scores.isStale;
 
 	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
-	$: if ( $showRatingCard ) {
-		improvementPercentage = getScoreImprovementPercentage( $scores );
+	$: if ( showModal ) {
+		changePercentage = getScoreMovementPercentage( $scores );
+
+		if ( changePercentage > 0 ) {
+			title = sprintf(
+				/* translators: %d is the speed score improvement percentage */
+				__( 'Faster by %1$d%%', 'jetpack-boost' ),
+				changePercentage
+			);
+			message = __(
+				'That’s a great result! If you’re happy with your result, why not rate Boost?',
+				'jetpack-boost'
+			);
+			cta = __( 'Rate the Plugin', 'jetpack-boost' );
+			ctaLink = 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post';
+		} else {
+			title = __( 'Site score has fallen', 'jetpack-boost' );
+			message = __(
+				'Jetpack Boost should not slow down your site. Try refreshing your score. If the problem persists please contact support',
+				'jetpack-boost'
+			);
+			cta = __( 'Contact Support', 'jetpack-boost' );
+			ctaLink = 'https://wordpress.org/support/plugin/jetpack-boost/#new-topic-0';
+		}
+
 		currentPercentage = ( $scores.current.mobile + $scores.current.desktop ) / 2;
 	}
 </script>
@@ -230,15 +250,6 @@
 
 	We can apply DRY and make the codebase a little easier for future us. 
 -->
-
-{#if $showRatingCard}
-	<RatingCard
-		on:dismiss={() => respawnRatingPrompt.set( false )}
-		improvement={improvementPercentage}
-		{currentPercentage}
-	/>
-{/if}
-
-{#if showScoreDrop}
-	<ScoreDrop on:dismiss={() => respawnScorePrompt.set( false )} />
+{#if showModal}
+	<PopOut {title} on:dismiss={() => respawnRatingPrompt.set( false )} {message} {ctaLink} {cta} />
 {/if}

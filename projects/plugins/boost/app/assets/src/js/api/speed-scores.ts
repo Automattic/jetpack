@@ -157,48 +157,35 @@ export function getScoreLetter( mobile: number, desktop: number ): string {
 }
 
 /**
- * Find out if scores were improved.
- *
- * Only show the speed scores if there was an improvement on either mobile or desktop, and neither worsened.
+ * Find out if site scores changed. We fire a popout modal if they improve or worsen.
+ * The message varies depending on the results of the speed scores so lets modify this
  *
  * @param {SpeedScoresSet} scores
  * @return boolean
  */
-export function didScoresImprove( scores: SpeedScoresSet ): boolean {
+export function didScoresChange( scores: SpeedScoresSet ): boolean {
 	const current = scores.current;
 	const noBoost = scores.noBoost;
 
-	// Consider the score was improved if either desktop or mobile improved and neither worsened.
+	//this now returns a boolean if scores have changed. If they have. Show a pop out
 	return (
 		null !== current &&
 		null !== noBoost &&
-		current.mobile >= noBoost.mobile &&
-		current.desktop >= noBoost.desktop &&
-		current.mobile + current.desktop > noBoost.mobile + noBoost.desktop &&
-		( getScoreImprovementPercentage( scores ) >= 5 || current.desktop + current.mobile > 180 )
+		current.mobile !== noBoost.mobile &&
+		current.desktop !== noBoost.desktop
 	);
 }
 
-export function getScoreImprovementPercentage( scores: SpeedScoresSet ): number {
+/**
+ * Determine the change in scores to pass through to other functions.
+ *
+ * @param  scores
+ * @return percentage
+ */
+export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
 	const current = scores.current.mobile + scores.current.desktop;
 	const noBoost = scores.noBoost.mobile + scores.noBoost.desktop;
-	const improvement = current / noBoost - 1;
+	const change = current / noBoost - 1;
 
-	return Math.round( improvement * 100 );
-}
-
-/**
- * Find out if scores were made worse.
- *
- * Only show the speed score reduction message if the scores got worse.
- *
- * @param {SpeedScoresSet} scores
- * @return boolean
- */
-export function didScoresWorsen( scores: SpeedScoresSet ): boolean {
-	const current = scores.current;
-	const noBoost = scores.noBoost;
-
-	// Consider the score got worse if combined score fell.
-	return null !== current && null !== noBoost && getScoreImprovementPercentage( scores ) < -5;
+	return Math.round( change * 100 );
 }
