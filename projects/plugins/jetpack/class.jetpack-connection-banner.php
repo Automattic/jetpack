@@ -269,7 +269,7 @@ class Jetpack_Connection_Banner {
 	 *
 	 * @since 4.4.0
 	 * @since 7.2   Copy and visual elements reduced to show the new focus of Jetpack on Security and Performance.
-	 * @since 11.0  Adjusted the banner to Emerald style
+	 * @since 11.1  Adjusted the banner to Emerald style
 	 */
 	public function render_banner() {
 		$jetpack_logo = new Logo();
@@ -304,7 +304,7 @@ class Jetpack_Connection_Banner {
 					</div>
 					<div class="jp-connection-banner__footer">
 						<div class="jp-connection-banner__text jp-connection-banner__text--caption"><?php jetpack_render_tos_blurb(); ?></div>
-						<a id="jp-connect-button--alt" href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>" class="jp-banner-cta-button">
+						<a id="jp-connect-button--alt" href="<?php echo esc_url( $this->build_connect_url_for_slide( '111' ) ); ?>" class="jp-banner-cta-button">
 							<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 						</a>
 					</div>
@@ -331,7 +331,7 @@ class Jetpack_Connection_Banner {
 	 * Renders the license-away version of the connection banner.
 	 *
 	 * @since 9.0.0
-	 * @since 11.0  Adjusted the banner to Emerald style
+	 * @since 11.1  Adjusted the banner to Emerald style
 	 */
 	public function render_license_aware_banner() {
 		$jetpack_logo = new Logo();
@@ -354,7 +354,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-connection-banner__text"><?php esc_html_e( "Thanks for purchasing a Jetpack subscription.\nThere’s just one more step to complete the installation.", 'jetpack' ); ?></div>
 					<div class="jp-connection-banner__footer">
 						<div class="jp-connection-banner__text jp-connection-banner__text--caption"><?php jetpack_render_tos_blurb(); ?></div>
-						<a id="jp-connect-button--alt" href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>" class="jp-banner-cta-button">
+						<a id="jp-connect-button--alt" href="<?php echo esc_url( $this->build_connect_url_for_slide( '111' ) ); ?>" class="jp-banner-cta-button">
 							<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 						</a>
 					</div>
