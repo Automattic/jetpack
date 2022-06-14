@@ -61,7 +61,7 @@ If your block depends on another block, place them all in extensions folder:
 
 ### High-level overview of the development flow
 
-1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/trunk/docker#readme).
+1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/trunk/tools/docker#readme).
 1. Start a new branch.
 1. Add your new extension's source files to the extensions directory.
 And add your extensions' slug to the beta array in `extensions/index.json`. You can use Jetpack-CLI command to scaffold the block (see below).
@@ -142,7 +142,7 @@ Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testin
 
 Yes! Just like any other changes in Jetpack, also blocks work in Jurassic Ninja.
 
-Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branch=trunk or use other ninjastic features.
+Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branches.jetpack=trunk or use other ninjastic features.
 
 ## Deploying extensions
 

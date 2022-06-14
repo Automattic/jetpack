@@ -73,7 +73,7 @@ You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000
 
 ### Container Environments
 
-Configurable settings are documented in the [`./tools/docker/default.env` file](https://github.com/Automattic/jetpack/blob/trunk/docker/default.env).
+Configurable settings are documented in the [`./tools/docker/default.env` file](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/default.env).
 Customizations should go into a `./tools/docker/.env` file you create, though, not in the `./tools/docker/default.env` file.
 
 ### Docker configurations
