@@ -178,7 +178,6 @@ class Speed_Score {
 
 		$history       = new Speed_Score_History( $url_no_boost );
 		$score_request = $this->get_score_request_by_url( $url_no_boost );
-
 		if (
 			// If there isn't already a pending request.
 			( empty( $score_request ) || ! $score_request->is_pending() )
@@ -261,7 +260,7 @@ class Speed_Score {
 			);
 
 			// Only include noBoost scores if at least one module is enabled.
-			if ( ! empty( $this->modules->available_modules() ) ) {
+			if ( $this->modules->have_enabled_modules() ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
 
