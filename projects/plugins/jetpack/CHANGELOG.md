@@ -2,8 +2,20 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.1-a.1 - 2022-06-08
+## 11.1-a.3 - 2022-06-14
+### Enhancements
+- For Mailchimp block center spinner during loading block content. [#24694]
 
+### Bug fixes
+- Dashboard: format anti-spam stats properly, including in languages using a space as Thousands separator. [#24676]
+- Moved the connection_url_redirect action handling to the connection package. [#24529]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Modifying gendered language in code comments to be inclusive [#24716]
+- Updated package dependencies. [#23871]
+- WPcom: fix crashing server-side rendered blocks [#24720]
+
+## 11.1-a.1 - 2022-06-08
 ### Enhancements
 - Recipe Block (beta): introduce a new Recipe block to display an easy to read recipe anywhere on your site. Currently a JETPACK_BETA_BLOCKS feature. [#24343]
 - WAF: update messaging around sites without latest firewall rules access. [#24642]
