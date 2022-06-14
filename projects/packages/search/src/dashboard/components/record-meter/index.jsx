@@ -47,7 +47,6 @@ export default function RecordMeter( {
 						<RecordMeterBar
 							items={ recordInfo.data }
 							showLegendLabelBeforeCount={ true }
-							sortByCount={ 'descending' }
 							totalCount={ tierMaximumRecords }
 						/>
 						<NoticeBox

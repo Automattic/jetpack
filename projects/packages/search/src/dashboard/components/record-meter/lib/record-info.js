@@ -108,8 +108,6 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
  * @returns {object} containing included items with post type and count, and other items, split.
  */
 export function splitUsablePostTypes( postTypeBreakdown, numItems, maxPostTypeCount ) {
-	postTypeBreakdown.sort( ( a, b ) => ( a.data.count[ 0 ] < b.data.count[ 0 ] ? 1 : -1 ) );
-
 	const count = maxPostTypeCount <= numItems ? maxPostTypeCount : numItems;
 
 	return {
