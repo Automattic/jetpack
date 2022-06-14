@@ -14,7 +14,7 @@ on:
         type: choice
         default: 'no'
         options:
-          - no
+          - 'no'
           - full
           - lookup
           - extract
