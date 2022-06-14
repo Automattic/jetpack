@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Profile pictures now fail gracefully if they fail to load for any reason
