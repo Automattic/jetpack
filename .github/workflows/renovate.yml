@@ -11,8 +11,13 @@ on:
           - trace
       dryRun:
         description: 'Dry run?'
-        required: false
-        type: boolean
+        type: choice
+        default: 'no'
+        options:
+          - no
+          - full
+          - lookup
+          - extract
   schedule:
     - cron: '0 0/2 * * *'
 concurrency:
@@ -38,7 +43,7 @@ jobs:
           token: ${{ secrets.RENOVATE_TOKEN }}
         env:
           LOG_LEVEL: ${{ github.event.inputs.logLevel || 'debug' }}
-          RENOVATE_DRY_RUN: ${{ github.event_name == 'push' || github.event.inputs.dryRun }}
+          RENOVATE_DRY_RUN: ${{ github.event.inputs.dryRun == 'no' && 'null' || github.event.inputs.dryRun || 'null' }}
       - name: Check rate limit post-run
         env:
           TOKEN: ${{ secrets.RENOVATE_TOKEN }}
