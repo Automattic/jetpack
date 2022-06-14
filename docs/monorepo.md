@@ -288,7 +288,7 @@ This is intended to work in combination with [Changelogger](#jetpack-changelogge
 1. (optional) Go to the [monorepo's branch settings page](https://github.com/Automattic/jetpack/settings/branches), and turn on "Require branches to be up to date before merging" for the trunk branch.
 2. Use `tools/changelogger-release.sh` to create a PR rolling the change files into a new changelog entry.
 3. Push and merge that PR.
-4. If you turned on "Require branches to be up to date before merging" in step 1, go turn it off. If you didn't, check that no one merged any PRs in between steps 2 and 3 that added change files to the projects being released.
+4. If you used the Release Lock in step 1, go turn it off. If you didn't, check that no one merged any PRs in between steps 2 and 3 that added change files to the projects being released.
    * If they did, you'll likely have to create a release branch in the affected projects' mirror repos and manually tag.
 5. Verify that the Build workflow run for your PR's merge to trunk succeeded. [This search](https://github.com/Automattic/jetpack/actions/workflows/build.yml?query=branch%3Atrunk) will show the runs of that workflow for all merges to trunk.
    * If it failed, you can try re-running it as long as no other PRs were merged adding change files to the projects being released. If some were merged, you'll have to manually tag the affected projects.
