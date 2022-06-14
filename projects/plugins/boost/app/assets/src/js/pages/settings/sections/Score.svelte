@@ -128,12 +128,7 @@
 			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading && ! $scores.isStale
 	);
 
-	const showScoreDrop = derived(
-		[ scores, respawnScorePrompt, isLoading ],
-		// eslint-disable-next-line no-shadow
-		( [ $scores, $respawnScorePrompt, $isLoading ] ) =>
-			didScoresWorsen( $scores ) && $respawnScorePrompt && ! $isLoading && ! $scores.isStale
-	);
+	$: showScoreDrop = didScoresWorsen( $scores ) && $respawnScorePrompt && ! $isLoading && ! $scores.isStale;
 
 	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
