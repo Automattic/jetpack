@@ -11,7 +11,7 @@ It is preferred to implement all new components as [function components](https:/
 
 ### Data approach on the Admin Page
 
-The **Admin Page** uses **redux**, [redux-thunk](https://github.com/gaearon/redux-thunk), and [react-redux](https://github.com/reactjs/react-redux)  for state handling trying to ressemble [Calypso's data approach, third Era](https://github.com/Automattic/wp-calypso/blob/trunk/docs/our-approach-to-data.md#third-era-redux-global-state-tree-december-2015---present).
+The **Admin Page** uses **redux**, [redux-thunk](https://github.com/gaearon/redux-thunk), and [react-redux](https://github.com/reactjs/react-redux)  for state handling trying to resemble [Calypso's data approach, third Era](https://github.com/Automattic/wp-calypso/blob/trunk/docs/our-approach-to-data.md#third-era-redux-global-state-tree-december-2015---february-2020).
 
 #### State related code
 
