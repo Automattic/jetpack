@@ -23,13 +23,13 @@
 		"@automattic/i18n-check-webpack-plugin": "workspace:* || ^1.0",
 		"@automattic/i18n-loader-webpack-plugin": "workspace:* || ^2.0",
 		"@automattic/webpack-rtl-plugin": "6.0.0",
-		"@babel/compat-data": "7.17.10",
-		"@babel/helper-compilation-targets": "7.17.10",
-		"@babel/plugin-proposal-class-properties": "7.16.7",
-		"@babel/plugin-transform-runtime": "7.17.10",
-		"@babel/preset-env": "7.17.10",
-		"@babel/preset-react": "7.16.7",
-		"@babel/preset-typescript": "7.16.7",
+		"@babel/compat-data": "7.18.5",
+		"@babel/helper-compilation-targets": "7.18.2",
+		"@babel/plugin-proposal-class-properties": "7.17.12",
+		"@babel/plugin-transform-runtime": "7.18.5",
+		"@babel/preset-env": "7.18.2",
+		"@babel/preset-react": "7.17.12",
+		"@babel/preset-typescript": "7.17.12",
 		"@wordpress/browserslist-config": "4.1.2",
 		"@wordpress/dependency-extraction-webpack-plugin": "3.5.0",
 		"babel-loader": "8.2.5",
@@ -42,15 +42,15 @@
 		"thread-loader": "3.0.4"
 	},
 	"devDependencies": {
-		"@babel/core": "7.17.10",
-		"@babel/runtime": "7.17.9",
+		"@babel/core": "7.18.5",
+		"@babel/runtime": "7.18.3",
 		"nyc": "15.1.0",
 		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"
 	},
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
-		"@babel/runtime": "7.17.9",
+		"@babel/runtime": "7.18.3",
 		"webpack": "^5.67.0"
 	},
 	"peerDependenciesMeta": {
