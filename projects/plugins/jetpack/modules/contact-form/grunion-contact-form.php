@@ -105,6 +105,52 @@ function grunion_contact_form_unset_block_template_part_id_global( $content, $bl
 add_filter( 'render_block', 'grunion_contact_form_unset_block_template_part_id_global', 10, 2 );
 
 /**
+ * Sets the 'widget' attribute on all instances of the contact form in the widget block.
+ *
+ * @param string          $content  Existing widget block content.
+ * @param array           $instance Array of settings for the current widget.
+ * @param WP_Widget_Block $widget   Current Block widget instance.
+ * @return string
+ */
+function grunion_contact_form_filter_widget_block_content( $content, $instance, $widget ) {
+	if ( false === stripos( $content, 'wp:jetpack/contact-form' ) ) {
+		return $content;
+	}
+	// Inject 'block_template' => 'widget' into all instances of the contact form block.
+	$content = preg_replace_callback(
+		'/<!--\s+(?P<closer>\/)?wp:jetpack\/?contact-form\s+(?P<attrs>{(?:(?:[^}]+|}+(?=})|(?!}\s+\/?-->).)*+)?}\s+)?(?P<void>\/)?-->/s',
+		function ( $match ) use ( $widget ) {
+			// Ignore block closers.
+			if ( ! empty( $match['closer'] ) ) {
+				return $match[0];
+			}
+			// If block doesn't have attributes, add our own.
+			if ( empty( $match['attrs'] ) ) {
+				$attrs = array(
+					'widget' => $widget->id,
+				);
+				return str_replace(
+					'wp:jetpack/contact-form ',
+					'wp:jetpack/contact-form ' . wp_json_encode( $attrs ) . ' ',
+					$match[0]
+				);
+			}
+			// $match['attrs'] includes trailing space: '{"customThankyou":"message"} '.
+			$attrs           = json_decode( rtrim( $match['attrs'], ' ' ), true );
+			$attrs['widget'] = $widget->id;
+			return str_replace(
+				$match['attrs'],
+				wp_json_encode( $attrs ) . ' ',
+				$match[0]
+			);
+		},
+		$content
+	);
+	return $content;
+}
+add_filter( 'widget_block_content', 'grunion_contact_form_filter_widget_block_content', 1, 3 );
+
+/**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  */
 class Grunion_Contact_Form_Plugin {
