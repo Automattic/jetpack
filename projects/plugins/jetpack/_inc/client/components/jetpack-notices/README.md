@@ -33,7 +33,7 @@ These are triggered by PHP, most commonly to display an error during connection.
 - They are dismissible.
 - They do not take any props, nor are they connected to the Redux state tree.
 
-## Dismissible Notice [#](https://github.com/Automattic/jetpack/blob/trunk/_inc/client/components/jetpack-notices/dismissable.jsx)
+## [Dismissible Notice](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/_inc/client/components/jetpack-notices/dismissable.jsx)
 
 - These are notices that are triggered by actions.
 - Each notice has a corresponding key, which is set in the `jetpack-notices/reducer.js` file
