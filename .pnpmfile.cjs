@@ -111,6 +111,12 @@ function fixDeps( pkg ) {
 		pkg.dependencies.rememo = '^3.0.0 || ^4.0.1';
 	}
 
+	// Cheerio 1.0.0-rc.11 breaks enzyme 3.11.0.
+	// No bug link, we're planning on dropping enzyme soonish anyway.
+	if ( pkg.name === 'enzyme' && pkg.dependencies.cheerio === '^1.0.0-rc.3' ) {
+		pkg.dependencies.cheerio = '^1.0.0-rc.3 <= 1.0.0-rc.10';
+	}
+
 	return pkg;
 }
 
