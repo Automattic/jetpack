@@ -38,7 +38,7 @@
 		"css-minimizer-webpack-plugin": "4.0.0",
 		"duplicate-package-checker-webpack-plugin": "3.0.0",
 		"mini-css-extract-plugin": "2.4.5",
-		"terser-webpack-plugin": "5.2.5",
+		"terser-webpack-plugin": "5.3.3",
 		"thread-loader": "3.0.4"
 	},
 	"devDependencies": {
