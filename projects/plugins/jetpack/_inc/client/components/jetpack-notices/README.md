@@ -28,7 +28,7 @@ Remove Notice
 
 These are triggered by PHP, most commonly to display an error during connection.
 
-- These notices are triggered by a cookie set in the browser in PHP, by the `Jetpack::state()` [#](https://github.com/Automattic/jetpack/blob/trunk/class.jetpack.php#L4661) method.
+- These notices are triggered by a cookie set in the browser in PHP, [by the `state()` method](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/status/src/class-cookiestate.php).
 - They do not persist (gone after page refresh)
 - They are dismissible.
 - They do not take any props, nor are they connected to the Redux state tree.
