@@ -3810,7 +3810,7 @@ p {
 	public function login_init() {
 		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( ! empty( $_GET[ self::$jetpack_redirect_login ] ) ) {
-			add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
+			add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 			wp_safe_redirect(
 				add_query_arg(
 					array(
@@ -3869,36 +3869,6 @@ p {
 		if ( ! empty( $_GET['jetpack_restate'] ) ) {
 			// Should only be used in intermediate redirects to preserve state across redirects.
 			self::restate();
-		}
-
-		if ( isset( $_GET['connect_url_redirect'] ) ) {
-			// @todo: Add validation against a known allowed list.
-			$from = ! empty( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : 'iframe'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
-			// User clicked in the iframe to link their accounts.
-			if ( ! self::connection()->is_user_connected() ) {
-				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? wp_unslash( $_GET['redirect_after_auth'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, sanitization happens in build_connect_url()
-
-				add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
-				$connect_url = $this->build_connect_url( true, $redirect, $from );
-				remove_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
-
-				if ( isset( $_GET['notes_iframe'] ) ) {
-					$connect_url .= '&notes_iframe';
-				}
-				wp_safe_redirect( $connect_url );
-				exit;
-			} else {
-				if ( ! isset( $_GET['calypso_env'] ) ) {
-					self::state( 'message', 'already_authorized' );
-					wp_safe_redirect( self::admin_url() );
-					exit;
-				} else {
-					$connect_url  = $this->build_connect_url( true, false, $from );
-					$connect_url .= '&already_authorized=true';
-					wp_safe_redirect( $connect_url );
-					exit;
-				}
-			}
 		}
 
 		if ( isset( $_GET['action'] ) ) {
@@ -5332,13 +5302,11 @@ endif;
 	 * To be used with a filter of allowed domains for a redirect.
 	 *
 	 * @param array $domains Allowed WP.com Environments.
+	 *
+	 * @deprecated since 11.1
 	 */
 	public function allow_wpcom_environments( $domains ) {
-		$domains[] = 'wordpress.com';
-		$domains[] = 'wpcalypso.wordpress.com';
-		$domains[] = 'horizon.wordpress.com';
-		$domains[] = 'calypso.localhost';
-		return $domains;
+		return Host::allow_wpcom_environments( $domains );
 	}
 
 	/**

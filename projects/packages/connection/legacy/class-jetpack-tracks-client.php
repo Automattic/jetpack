@@ -184,7 +184,7 @@ class Jetpack_Tracks_Client {
 		if ( ! isset( $anon_id ) ) {
 
 			// Did the browser send us a cookie?
-			if ( isset( $_COOKIE['tk_ai'] ) && preg_match( '#^[A-Za-z0-9+/=]{24}$#', $_COOKIE['tk_ai'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
+			if ( isset( $_COOKIE['tk_ai'] ) && preg_match( '#^[a-z]+:[A-Za-z0-9+/=]{24}$#', $_COOKIE['tk_ai'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 				$anon_id = $_COOKIE['tk_ai']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			} else {
 
