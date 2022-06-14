@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add a request lock to prevent multiple requests being spawned at once

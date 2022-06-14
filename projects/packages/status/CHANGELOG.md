@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2022-06-14
+### Fixed
+- Moved the connection_url_redirect action handling to the connection package. [#24529]
+
 ## [1.13.6] - 2022-05-24
 ### Added
 - Allow plugins to filter the list of available modules. Only activate and consider active modules that are available [#24454]
@@ -192,6 +196,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[1.14.0]: https://github.com/Automattic/jetpack-status/compare/v1.13.6...v1.14.0
 [1.13.6]: https://github.com/Automattic/jetpack-status/compare/v1.13.5...v1.13.6
 [1.13.5]: https://github.com/Automattic/jetpack-status/compare/v1.13.4...v1.13.5
 [1.13.4]: https://github.com/Automattic/jetpack-status/compare/v1.13.3...v1.13.4
