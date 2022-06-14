@@ -142,7 +142,7 @@ Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testin
 
 Yes! Just like any other changes in Jetpack, also blocks work in Jurassic Ninja.
 
-Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branch=trunk or use other ninjastic features.
+Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branches.jetpack=trunk or use other ninjastic features.
 
 ## Deploying extensions
 
