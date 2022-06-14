@@ -24,7 +24,6 @@ class WPCOM_Features {
 	private const SPACE_200GB                                 = '100gb_space_upgrade'; // 20
 	private const SPACE_3GB                                   = '3gb_space_upgrade'; // 21
 	private const WPCOM_VIDEOPRESS_PRO                        = 'videopress-pro'; // 47
-	private const SPACE_UNLIMITED                             = 'unlimited_space'; // 48
 	private const GAPPS                                       = 'gapps'; // 69
 	private const GAPPS_UNLIMITED                             = 'gapps_unlimited'; // 70
 	private const WP_TITAN_MAIL_MONTHLY                       = 'wp_titan_mail_monthly'; // 400
@@ -321,7 +320,6 @@ class WPCOM_Features {
 	public const INSTALL_PLUGINS               = 'install-plugins';
 	public const INSTALL_THEMES                = 'install-themes';
 	public const INSTANT_SEARCH                = 'instant-search';
-	public const LEGACY_UNLIMITED_SPACE_2019   = 'legacy-unlimited-space-2019';
 	public const LIVE_SUPPORT                  = 'live_support';
 	public const MANAGE_PLUGINS                = 'manage-plugins';
 	public const NO_ADVERTS_NO_ADVERTS_PHP     = 'no-adverts/no-adverts.php';
@@ -594,15 +592,6 @@ class WPCOM_Features {
 			self::JETPACK_SEARCH_MONTHLY,
 			self::JETPACK_COMPLETE_PLANS,
 		),
-
-		/*
-		 * LEGACY_UNLIMITED_SPACE_2019 - Provides unlimited upload space if initially purchased
-		 * before 2019-08-01. See mu-plugins/legacy-unlimited-space-plans.php
-		 */
-		self::LEGACY_UNLIMITED_SPACE_2019   => array(
-			self::WPCOM_BUSINESS_PLANS,
-			self::WPCOM_ECOMMERCE_PLANS,
-		),
 		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2
 		self::LIVE_SUPPORT                  => array(
 			// Premium (Excluding Monthly)
@@ -791,7 +780,6 @@ class WPCOM_Features {
 			self::SPACE_50GB,
 			self::SPACE_100GB,
 			self::SPACE_200GB,
-			self::SPACE_UNLIMITED,
 		),
 		// SUPPORT - Everybody needs somebody.
 		self::SUPPORT                       => array(
@@ -805,7 +793,6 @@ class WPCOM_Features {
 			self::SPACE_50GB,
 			self::SPACE_100GB,
 			self::SPACE_200GB,
-			self::SPACE_UNLIMITED,
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::WP_P2_PLUS_MONTHLY,
 		),
@@ -836,7 +823,11 @@ class WPCOM_Features {
 			self::SPACE_200GB,
 		),
 		self::UPLOAD_SPACE_UNLIMITED        => array(
-			self::SPACE_UNLIMITED,
+			array(
+				'before' => '2019-08-01',
+				self::WPCOM_BUSINESS_PLANS,
+				self::WPCOM_ECOMMERCE_PLANS,
+			),
 		),
 		self::UPLOAD_THEMES                 => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -887,13 +878,23 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 		self::VIDEOPRESS                    => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::WP_P2_PLUS_MONTHLY,
-			self::JETPACK_PERSONAL_AND_HIGHER,
-			self::WPCOM_VIDEOPRESS,
-			self::WPCOM_VIDEOPRESS_PRO,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_PERSONAL_PLANS,
+			self::JETPACK_PREMIUM_PLANS,
 			self::JETPACK_VIDEOPRESS,
 			self::JETPACK_VIDEOPRESS_MONTHLY,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_VIDEOPRESS,
+			self::WPCOM_VIDEOPRESS_PRO,
+			self::WP_P2_PLUS_MONTHLY,
+			array(
+				'before' => '2021-10-07',
+				self::JETPACK_SECURITY_DAILY_PLANS,
+				self::JETPACK_SECURITY_REALTIME_PLANS,
+				self::JETPACK_SECURITY_T1_PLANS,
+				self::JETPACK_SECURITY_T2_PLANS,
+			),
 		),
 		self::VIDEOPRESS_1TB_STORAGE        => array(
 			array(
@@ -990,13 +991,13 @@ class WPCOM_Features {
 	 *
 	 * Use the function wpcom_site_has_feature( $feature ) to determine if a site has access to a certain feature.
 	 *
-	 * @param string $feature A singular feature.
+	 * @param string $feature   A singular feature.
 	 * @param array  $purchases A collection of purchases.
-	 * @param bool   $is_wpcom_site Whether the site is a WP.com site. True for Simple/Atomic sites, false for self-hosted Jetpack sites.
+	 * @param string $site_type Site type to check. Can be 'wpcom' or 'jetpack'. Default empty string.
 	 *
 	 * @return bool Is the feature included in one of the purchases.
 	 */
-	public static function has_feature( $feature, $purchases, $is_wpcom_site ) {
+	public static function has_feature( $feature, $purchases, $site_type = '' ) {
 		if ( ! self::feature_exists( $feature ) ) {
 			return false;
 		}
@@ -1005,8 +1006,8 @@ class WPCOM_Features {
 
 		// Automatically grant features that don't require any purchase.
 		if (
-			( $is_wpcom_site && in_array( self::WPCOM_ALL_SITES, $products_map, true ) ) ||
-			( ! $is_wpcom_site && in_array( self::JETPACK_ALL_SITES, $products_map, true ) )
+			( 'wpcom' === $site_type && in_array( self::WPCOM_ALL_SITES, $products_map, true ) ) ||
+			( 'jetpack' === $site_type && in_array( self::JETPACK_ALL_SITES, $products_map, true ) )
 		) {
 			return true;
 		}

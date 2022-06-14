@@ -35,13 +35,13 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	$purchases = wpcom_get_site_purchases( $blog_id );
 
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-		$is_wpcom_site = true;
+		$site_type = 'wpcom';
 	} else {
-		$blog          = get_blog_details( $blog_id, false );
-		$is_wpcom_site = is_blog_wpcom( $blog ) || is_blog_atomic( $blog );
+		$blog      = get_blog_details( $blog_id, false );
+		$site_type = is_blog_wpcom( $blog ) || is_blog_atomic( $blog ) ? 'wpcom' : 'jetpack';
 	}
 
-	return WPCOM_Features::has_feature( $feature, $purchases, $is_wpcom_site );
+	return WPCOM_Features::has_feature( $feature, $purchases, $site_type );
 }
 
 /**
@@ -153,17 +153,82 @@ function wpcom_datetime_to_iso8601( $date, $default = 'now' ) {
 /**
  * Checks whether the given product contains the passed feature.
  *
- * This function converts atomic supported plan slugs and other product alias to wpcom plan slug. It then uses
+ * This function converts atomic supported plan slugs and other product aliases to product objects. It then uses
  * WPCOM_Features to check if product include the requested $feature.
  *
- * @param string|int $product_slug     The product slug or ID.
- * @param string     $feature          The name of the feature to check.
- * @param bool       $is_wpcom_product Optional. Whether it's a wpcom product. Defaults to true.
+ * @param string|int|Store_Product $product A Store_Product object, a product slug, or ID.
+ * @param string                   $feature The name of the feature to check.
  *
  * @return bool
  */
-function wpcom_product_has_feature( $product_slug, $feature, $is_wpcom_product = true ) {
-	if ( is_numeric( $product_slug ) ) {
+function wpcom_product_has_feature( $product, $feature ) {
+	$product = _normalize_product( $product );
+
+	return WPCOM_Features::has_feature( $feature, array( $product ) );
+}
+
+/**
+ * Checks whether the given purchase (Store_Subscription) contains the passed feature.
+ *
+ * This function is similar to `wpcom_product_has_feature` with the difference that this function can check for legacy
+ * features because purchases contain a `subscribed_date` field whereas products do not.
+ *
+ * @param Store_Subscription $purchase A Store_Subscription object.
+ * @param string             $feature The name of the feature to check.
+ *
+ * @return bool
+ */
+function wpcom_purchase_has_feature( $purchase, $feature ) {
+	if ( ! ( $purchase instanceof Store_Subscription ) ) {
+		_doing_it_wrong(
+			__FUNCTION__,
+			'The $purchase parameter should be of type Store_Subscription.',
+			false // No version.
+		);
+	}
+	return WPCOM_Features::has_feature( $feature, array( $purchase ) );
+}
+
+/**
+ * Returns a list of features that are associated with the passed product.
+ *
+ * @param string|int|Store_Product $product A Store_Product object, a product slug, or ID.
+ *
+ * @return string[]
+ */
+function wpcom_get_product_features( $product ) {
+	$product = _normalize_product( $product );
+
+	$cache_group = 'site_purchases';
+	$cache_found = false;
+	$cache_key   = $product->product_slug . filemtime( __DIR__ . '/class-wpcom-features.php' );
+
+	$features = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
+
+	if ( false === $cache_found ) {
+		$features = array();
+
+		foreach ( WPCOM_Features::get_feature_slugs() as $feature ) {
+			if ( wpcom_product_has_feature( $product, $feature ) ) {
+				$features[] = $feature;
+			}
+		}
+
+		wp_cache_set( $cache_key, $features, $cache_group, DAY_IN_SECONDS );
+	}
+
+	return $features;
+}
+
+/**
+ * Normalizes Product input to always return an object with a product_slug property.
+ *
+ * @param string|int|Store_Product $product A Store_Product object, a product slug, or ID.
+ *
+ * @return false|object|Store_Product
+ */
+function _normalize_product( $product ) {
+	if ( is_numeric( $product ) ) {
 		if ( ! function_exists( 'get_store_product' ) ) {
 			_doing_it_wrong(
 				__FUNCTION__,
@@ -174,32 +239,29 @@ function wpcom_product_has_feature( $product_slug, $feature, $is_wpcom_product =
 			return false;
 		}
 
-		$product = get_store_product( $product_slug );
-		if ( ! $product instanceof Store_Product ) {
-			return false;
+		$product = get_store_product( $product );
+	}
+
+	if ( is_string( $product ) ) {
+		$atomic_plan_aliases = array(
+			'business'  => 'business-bundle',
+			'ecommerce' => 'ecommerce-bundle',
+			'pro'       => 'pro-plan',
+		);
+
+		/*
+		 * Convert atomic plan slug to wpcom yearly plan in order to check against WPCOM_Features. This conversion is
+		 * meant to be only for atomic plan slugs and should not affect other product checks.
+		 */
+		if ( ! empty( $atomic_plan_aliases[ $product ] ) ) {
+			$product = $atomic_plan_aliases[ $product ];
 		}
 
-		$product_slug = $product->product_slug;
+		// has_feature expects an object with a product_slug.
+		$product = (object) array( 'product_slug' => $product );
 	}
 
-	$atomic_plan_aliases = array(
-		'business'  => 'business-bundle',
-		'ecommerce' => 'ecommerce-bundle',
-		'pro'       => 'pro-plan',
-	);
-
-	/*
-	 * Convert atomic plan slug to wpcom yearly plan in order to check against WPCOM_Features. This conversion is meant
-	 * to be only for atomic plan slugs and should not affect other product checks.
-	 */
-	if ( ! empty( $atomic_plan_aliases[ $product_slug ] ) ) {
-		$product_slug = $atomic_plan_aliases[ $product_slug ];
-	}
-
-	// has_feature expects an object with a product_slug.
-	$product = (object) array( 'product_slug' => $product_slug );
-
-	return WPCOM_Features::has_feature( $feature, array( $product ), $is_wpcom_product );
+	return $product;
 }
 
 /**
