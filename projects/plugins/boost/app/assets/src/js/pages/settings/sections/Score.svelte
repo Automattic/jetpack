@@ -221,6 +221,16 @@
 		</div>
 	</div>
 </div>
+
+<!-- 
+	Working on this area so we only have a single modal check which is reactive
+	to what the script is trying to show us. 
+	Currently through showRatingCard and showScoreDrop we're calculating 
+	the same check twice and through logic twice. 
+
+	We can apply DRY and make the codebase a little easier for future us. 
+-->
+
 {#if $showRatingCard}
 	<RatingCard
 		on:dismiss={() => respawnRatingPrompt.set( false )}
