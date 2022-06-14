@@ -69,7 +69,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	}, [ items, sortByCount ] );
 
 	return (
-		<div className="record-meter-bar">
+		<div className="record-meter-bar" aria-hidden="true">
 			<div className="record-meter-bar__items">
 				{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
 					const widthPercent = ( ( count / total ) * 100 ).toPrecision( 2 );
