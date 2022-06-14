@@ -128,7 +128,8 @@
 			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading && ! $scores.isStale
 	);
 
-	$: showScoreDrop = didScoresWorsen( $scores ) && $respawnScorePrompt && ! $isLoading && ! $scores.isStale;
+	$: showScoreDrop =
+		didScoresWorsen( $scores ) && $respawnScorePrompt && ! $isLoading && ! $scores.isStale;
 
 	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
@@ -228,6 +229,6 @@
 	/>
 {/if}
 
-{#if $showScoreDrop}
+{#if showScoreDrop}
 	<ScoreDrop on:dismiss={() => respawnScorePrompt.set( false )} />
 {/if}
