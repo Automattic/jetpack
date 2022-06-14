@@ -27,7 +27,7 @@ class Admin {
 	const MENU_SLUG = 'jetpack-boost';
 
 	/**
-	 * Nonce action for setting the status of show_rating_prompt.
+	 * Nonce action for setting the statuses of rating and score prompts.
 	 */
 	const SET_SHOW_RATING_PROMPT_NONCE = 'set_show_rating_prompt';
 	const SET_SHOW_SCORE_PROMPT_NONCE  = 'set_show_score_prompt';
@@ -38,7 +38,7 @@ class Admin {
 	const DISMISSED_NOTICE_OPTION = 'jb-dismissed-notices';
 
 	/**
-	 * Name of option to store status of show/hide rating prompts
+	 * Name of option to store status of show/hide rating and score prompts
 	 */
 	const SHOW_RATING_PROMPT_OPTION = 'jb_show_rating_prompt';
 	const SHOW_SCORE_PROMPT_OPTION  = 'jb_show_score_prompt';
