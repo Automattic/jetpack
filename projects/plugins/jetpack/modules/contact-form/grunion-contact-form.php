@@ -39,38 +39,12 @@ function grunion_contact_form_require_endpoint() {
 function grunion_contact_form_set_block_template_attribute( $template ) {
 	global $_wp_current_template_content;
 	if ( ABSPATH . WPINC . '/template-canvas.php' === $template ) {
-		if ( false !== stripos( $_wp_current_template_content, 'wp:jetpack/contact-form' ) ) {
-			// Inject 'block_template' => 'canvas' into all instances of the contact form block.
-			$_wp_current_template_content = preg_replace_callback(
-				'/<!--\s+(?P<closer>\/)?wp:jetpack\/?contact-form\s+(?P<attrs>{(?:(?:[^}]+|}+(?=})|(?!}\s+\/?-->).)*+)?}\s+)?(?P<void>\/)?-->/s',
-				function ( $match ) {
-					// Ignore block closers.
-					if ( ! empty( $match['closer'] ) ) {
-						return $match[0];
-					}
-					// If block doesn't have attributes, add our own.
-					if ( empty( $match['attrs'] ) ) {
-						$attrs = array(
-							'block_template' => 'canvas',
-						);
-						return str_replace(
-							'wp:jetpack/contact-form ',
-							'wp:jetpack/contact-form ' . wp_json_encode( $attrs ) . ' ',
-							$match[0]
-						);
-					}
-					// $match['attrs'] includes trailing space: '{"customThankyou":"message"} '.
-					$attrs                   = json_decode( rtrim( $match['attrs'], ' ' ), true );
-					$attrs['block_template'] = 'canvas';
-					return str_replace(
-						$match['attrs'],
-						wp_json_encode( $attrs ) . ' ',
-						$match[0]
-					);
-				},
-				$_wp_current_template_content
-			);
-		}
+		$_wp_current_template_content = grunion_contact_form_apply_block_attribute(
+			$_wp_current_template_content,
+			array(
+				'block_template' => 'canvas',
+			)
+		);
 	}
 	return $template;
 }
@@ -113,31 +87,45 @@ add_filter( 'render_block', 'grunion_contact_form_unset_block_template_part_id_g
  * @return string
  */
 function grunion_contact_form_filter_widget_block_content( $content, $instance, $widget ) {
+	// Inject 'block_template' => <widget-id> into all instances of the contact form block.
+	return grunion_contact_form_apply_block_attribute(
+		$content,
+		array(
+			'widget' => $widget->id,
+		)
+	);
+}
+add_filter( 'widget_block_content', 'grunion_contact_form_filter_widget_block_content', 1, 3 );
+
+/**
+ * Adds a given attribute to all instances of the Contact Form block.
+ *
+ * @param string $content  Existing content to process.
+ * @param array  $new_attr New attributes to add.
+ * @return string
+ */
+function grunion_contact_form_apply_block_attribute( $content, $new_attr ) {
 	if ( false === stripos( $content, 'wp:jetpack/contact-form' ) ) {
 		return $content;
 	}
-	// Inject 'block_template' => 'widget' into all instances of the contact form block.
-	$content = preg_replace_callback(
+	return preg_replace_callback(
 		'/<!--\s+(?P<closer>\/)?wp:jetpack\/?contact-form\s+(?P<attrs>{(?:(?:[^}]+|}+(?=})|(?!}\s+\/?-->).)*+)?}\s+)?(?P<void>\/)?-->/s',
-		function ( $match ) use ( $widget ) {
+		function ( $match ) use ( $new_attr ) {
 			// Ignore block closers.
 			if ( ! empty( $match['closer'] ) ) {
 				return $match[0];
 			}
 			// If block doesn't have attributes, add our own.
 			if ( empty( $match['attrs'] ) ) {
-				$attrs = array(
-					'widget' => $widget->id,
-				);
 				return str_replace(
 					'wp:jetpack/contact-form ',
-					'wp:jetpack/contact-form ' . wp_json_encode( $attrs ) . ' ',
+					'wp:jetpack/contact-form ' . wp_json_encode( $new_attr ) . ' ',
 					$match[0]
 				);
 			}
 			// $match['attrs'] includes trailing space: '{"customThankyou":"message"} '.
-			$attrs           = json_decode( rtrim( $match['attrs'], ' ' ), true );
-			$attrs['widget'] = $widget->id;
+			$attrs = json_decode( rtrim( $match['attrs'], ' ' ), true );
+			$attrs = array_merge( $attrs, $new_attr );
 			return str_replace(
 				$match['attrs'],
 				wp_json_encode( $attrs ) . ' ',
@@ -146,9 +134,7 @@ function grunion_contact_form_filter_widget_block_content( $content, $instance, 
 		},
 		$content
 	);
-	return $content;
 }
-add_filter( 'widget_block_content', 'grunion_contact_form_filter_widget_block_content', 1, 3 );
 
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
