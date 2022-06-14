@@ -16,11 +16,9 @@
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import debounce from '../../../utils/debounce';
 	import RatingCard from '../elements/RatingCard.svelte';
-	import ScoreDrop from '../elements/ScoreDrop.svelte';
-
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
-
+	import ScoreDrop from '../elements/ScoreDrop.svelte';
 
 	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;
