@@ -198,9 +198,10 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Gets a list of tracks for the supplied RSS feed.
 	 *
+	 * @param boolean $bypass_limit whether or not to bypass the items limit.
 	 * @return array|WP_Error The feed's tracks or a error object.
 	 */
-	public function get_track_list($bypass_limit = false) {
+	public function get_track_list( $bypass_limit = false ) {
 		$rss = $this->load_feed();
 
 		if ( is_wp_error( $rss ) ) {
@@ -208,13 +209,11 @@ class Jetpack_Podcast_Helper {
 		}
 
 		$this->total_items = $rss->get_item_quantity();
-		
-		if($bypass_limit){
-			$tracks_quantity   = $this->total_items;
-			
+
+		if ( $bypass_limit ) {
+			$tracks_quantity = $this->total_items;
 		} else {
-		
-			$tracks_quantity   = $this->get_tracks_quantity();
+			$tracks_quantity = $this->get_tracks_quantity();
 			/**
 			 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
 			 * The default number of tracks is ten.
