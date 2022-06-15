@@ -626,7 +626,7 @@ importers:
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/dependency-extraction-webpack-plugin': 3.5.0
       babel-loader: 8.2.5
-      browserslist: 4.20.3
+      browserslist: 4.20.4
       css-loader: 6.5.1
       css-minimizer-webpack-plugin: 4.0.0
       duplicate-package-checker-webpack-plugin: 3.0.0
@@ -652,7 +652,7 @@ importers:
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/dependency-extraction-webpack-plugin': 3.5.0_webpack@5.72.1
       babel-loader: 8.2.5_bknskcquvzhx5phrpr2fwapcku
-      browserslist: 4.20.3
+      browserslist: 4.20.4
       css-loader: 6.5.1_webpack@5.72.1
       css-minimizer-webpack-plugin: 4.0.0_webpack@5.72.1
       duplicate-package-checker-webpack-plugin: 3.0.0
@@ -2187,7 +2187,7 @@ packages:
       '@babel/compat-data': 7.18.5
       '@babel/core': 7.16.12
       '@babel/helper-validator-option': 7.16.7
-      browserslist: 4.20.3
+      browserslist: 4.20.4
       semver: 6.3.0
     dev: true
 
@@ -2200,7 +2200,7 @@ packages:
       '@babel/compat-data': 7.18.5
       '@babel/core': 7.18.5
       '@babel/helper-validator-option': 7.16.7
-      browserslist: 4.20.3
+      browserslist: 4.20.4
       semver: 6.3.0
 
   /@babel/helper-create-class-features-plugin/7.18.0_@babel+core@7.16.12:
@@ -4863,7 +4863,7 @@ packages:
       react-refresh: 0.11.0
       schema-utils: 3.1.1
       source-map: 0.7.4
-      webpack: 5.72.1
+      webpack: 5.72.1_webpack-cli@4.9.1
     dev: true
 
   /@popperjs/core/2.11.5:
@@ -10585,17 +10585,6 @@ packages:
   /browser-stdout/1.3.1:
     resolution: {integrity: sha512-qhAVI1+Av2X7qelOfAIYwXONood6XlZE/fXaBSmW/T5SzLAmCgzi+eiWE7fUvbHaeNBQH13UftjpXxsfLkMpgw==}
     dev: false
-
-  /browserslist/4.20.3:
-    resolution: {integrity: sha512-NBhymBQl1zM0Y5dQT/O+xiLP9/rzOIQdKM/eMJBAq7yBgaB6krIYLGejrwVYnSHZdqjscB1SPuAjHwxjvN6Wdg==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-    dependencies:
-      caniuse-lite: 1.0.30001352
-      electron-to-chromium: 1.4.152
-      escalade: 3.1.1
-      node-releases: 2.0.5
-      picocolors: 1.0.0
 
   /browserslist/4.20.4:
     resolution: {integrity: sha512-ok1d+1WpnU24XYN7oC3QWgTyMhY/avPJ/r9T00xxvUOIparA/gc+UPUMaod3i+G6s+nI2nUb9xZ5k794uIwShw==}
@@ -18438,6 +18427,7 @@ packages:
 
   /preact/10.5.15:
     resolution: {integrity: sha512-5chK29n6QcJc3m1lVrKQSQ+V7K1Gb8HeQY6FViQ5AxCAEGu3DaHffWNDkC9+miZgsLvbvU9rxbV1qinGHMHzqA==}
+    dev: false
 
   /prelude-ls/1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}
@@ -20057,6 +20047,7 @@ packages:
     hasBin: true
     dependencies:
       chokidar: 3.5.3
+    dev: false
 
   /sass/1.43.3:
     resolution: {integrity: sha512-BJnLngqWpMeS65UvlYYEuCb3/fLxDxhHtOB/gWPxs6NKrslTxGt3ZxwIvOe/0Jm4tWwM/+tIpE3wj4dLEhPDeQ==}
@@ -21003,6 +20994,7 @@ packages:
   /svelte/3.42.4:
     resolution: {integrity: sha512-DqC0AmDdBrrbIA+Kzl3yhBb6qCn4vZOAfxye2pTnIpinLegyagC5sLI8Pe9GPlXu9VpHBXIwpDDedpMfu++epA==}
     engines: {node: '>= 8'}
+    dev: true
 
   /svelte2tsx/0.1.193_jnm2dayjvyndfzimboulpsettu:
     resolution: {integrity: sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==}
