@@ -38,6 +38,7 @@ const DISABLED_JETPACK_MODULES_WHEN_PRIVATE = array(
 	'photon-cdn',
 	'sitemaps',
 	'verification-tools',
+	'videopress',
 	'wordads',
 );
 
