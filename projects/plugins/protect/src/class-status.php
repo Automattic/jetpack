@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Jetpack_Options;
 use WP_Error;
 
@@ -242,7 +244,7 @@ class Status {
 			return new WP_Error( 'failed_fetching_status', 'Failed to fetch Protect Status data from server', array( 'status' => $response_code ) );
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $response ) );
+		$body = self::normalize_report_data( wp_remote_retrieve_body( $response ) );
 		self::update_option( $body );
 		return $body;
 	}
@@ -292,6 +294,102 @@ class Status {
 	public static function delete_option() {
 		delete_option( self::OPTION_NAME );
 		delete_option( self::OPTION_TIMESTAMP_NAME );
+	}
+
+	/**
+	 * Prepare the report data for the UI
+	 *
+	 * @param string $body The report status report response.
+	 * @return object The normalized report data.
+	 */
+	private static function normalize_report_data( $body ) {
+		$report_data = json_decode( $body );
+
+		$installed_plugins    = Plugins_Installer::get_plugins();
+		$report_data->plugins = self::merge_installed_and_checked_lists( $installed_plugins, $report_data->plugins, array( 'type' => 'plugin' ) );
+
+		$installed_themes    = Sync_Functions::get_themes();
+		$report_data->themes = self::merge_installed_and_checked_lists( $installed_themes, $report_data->themes, array( 'type' => 'theme' ) );
+
+		$report_data->wordpress = self::normalize_core_information( $report_data->wordpress );
+
+		return $report_data;
+	}
+
+	/**
+	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
+	 *
+	 * @param object $installed The list of installed extensions, where each attribute key is the extension slug.
+	 * @param object $checked   The list of checked extensions.
+	 * @param array  $append    Additional data to append to each result in the list.
+	 * @return array Normalized list of extensions.
+	 */
+	private static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
+		$new_list = array();
+		foreach ( $installed as $slug => $item ) {
+			if ( isset( $checked->{ $slug } ) && $checked->{ $slug }->version === $installed[ $slug ]['Version'] ) {
+				array_push(
+					$new_list,
+					array_merge(
+						array(
+							'name'            => $installed[ $slug ]['Name'],
+							'version'         => $checked->{ $slug }->version,
+							'vulnerabilities' => $checked->{ $slug }->vulnerabilities,
+							'not_checked'     => false,
+						),
+						$append
+					)
+				);
+			} else {
+				array_push(
+					$new_list,
+					array_merge(
+						array(
+							'name'            => $installed[ $slug ]['Name'],
+							'version'         => $installed[ $slug ]['Version'],
+							'vulnerabilities' => array(),
+							'not_checked'     => true,
+						),
+						$append
+					)
+				);
+			}
+		}
+		usort(
+			$new_list,
+			function ( $a, $b ) {
+				$vuls_a    = count( $a['vulnerabilities'] ) > 0 ? 2 : 0;
+				$vuls_b    = count( $b['vulnerabilities'] ) > 0 ? 2 : 0;
+				$checked_a = $a['not_checked'] ? 1 : 0;
+				$checked_b = $b['not_checked'] ? 1 : 0;
+				return $vuls_b + $checked_b - ( $vuls_a + $checked_a );
+			}
+		);
+		return $new_list;
+	}
+
+	/**
+	 * Check if the WordPress version that was checked matches the current installed version.
+	 *
+	 * @param object $core_check The object returned by Protect wpcom endpoint.
+	 * @return object The object representing the current status of core checks.
+	 */
+	private static function normalize_core_information( $core_check ) {
+		global $wp_version;
+
+		$core = new \stdClass();
+		if ( $core_check && $core_check->version === $wp_version ) {
+			$core       = $core_check;
+			$core->name = 'WordPress';
+			$core->type = 'core';
+		} else {
+			$core->version         = $wp_version;
+			$core->vulnerabilities = array();
+			$core->not_checked     = true;
+			$core->name            = 'WordPress';
+			$core->type            = 'core';
+		}
+		return $core;
 	}
 
 }
