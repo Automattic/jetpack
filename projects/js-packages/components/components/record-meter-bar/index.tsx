@@ -117,7 +117,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 						} ) }
 					</tr>
 					<tr>
-						<th scope="col">{ __( 'Record Count', 'jetpack' ) }</th>
+						<th scope="col">{ __( 'Record count', 'jetpack' ) }</th>
 						{ itemsToRender.map( ( { count } ) => {
 							return <td key={ count }>{ count }</td>;
 						} ) }
