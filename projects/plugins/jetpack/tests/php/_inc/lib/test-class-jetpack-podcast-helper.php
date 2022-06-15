@@ -108,4 +108,14 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 			)
 		);
 	}
+
+	/**
+	 * Tests get_track_list() finds the given episode.
+	 *
+	 * @covers ::get_track_list
+	 */
+	public function test_get_track_list_1() {
+		$this->assertSame( 1, 2 );
+	}
+
 }
