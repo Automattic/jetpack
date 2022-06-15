@@ -200,7 +200,7 @@ class Jetpack_Podcast_Helper {
 	 *
 	 * @return array|WP_Error The feed's tracks or a error object.
 	 */
-	public function get_track_list() {
+	public function get_track_list($bypass_limit = false) {
 		$rss = $this->load_feed();
 
 		if ( is_wp_error( $rss ) ) {
@@ -208,40 +208,28 @@ class Jetpack_Podcast_Helper {
 		}
 
 		$this->total_items = $rss->get_item_quantity();
-		$tracks_quantity   = $this->get_tracks_quantity();
-
-		/**
-		 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
-		 * The default number of tracks is ten.
-		 * Deprecated. Use jetpack_podcast_helper_tracks_quantity filter instead, which takes one less parameter.
-		 *
-		 * @since 9.5.0
-		 * @deprecated 10.4.0
-		 *
-		 * @param int    $tracks_quantity Number of tracks fetched. Default is 10.
-		 * @param object $rss             The SimplePie object built from core's `fetch_feed` call.
-		 */
-		$tracks_quantity = apply_filters_deprecated( 'jetpack_podcast_helper_list_quantity', array( $tracks_quantity, $rss ), '10.4.0', 'jetpack_podcast_helper_tracks_quantity' );
-
+		
+		if($bypass_limit){
+			$tracks_quantity   = $this->total_items;
+			
+		} else {
+		
+			$tracks_quantity   = $this->get_tracks_quantity();
+			/**
+			 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
+			 * The default number of tracks is ten.
+			 * Deprecated. Use jetpack_podcast_helper_tracks_quantity filter instead, which takes one less parameter.
+			 *
+			 * @since 9.5.0
+			 * @deprecated 10.4.0
+			 *
+			 * @param int    $tracks_quantity Number of tracks fetched. Default is 10.
+			 * @param object $rss             The SimplePie object built from core's `fetch_feed` call.
+			 */
+			$tracks_quantity = apply_filters_deprecated( 'jetpack_podcast_helper_list_quantity', array( $tracks_quantity, $rss ), '10.4.0', 'jetpack_podcast_helper_tracks_quantity' );
+		}
 		// Process the requested number of items from our feed.
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $tracks_quantity ) );
-
-		// Filter out any tracks that are empty.
-		// Reset the array indicies.
-		return array_values( array_filter( $track_list ) );
-	}
-
-	public function get_track_list_no_limit() {
-		$rss = $this->load_feed();
-
-		if ( is_wp_error( $rss ) ) {
-			return $rss;
-		}
-
-		$this->total_items = $rss->get_item_quantity();
-
-		// Process the requested number of items from our feed.
-		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $this->total_items ) );
 
 		// Filter out any tracks that are empty.
 		// Reset the array indicies.
