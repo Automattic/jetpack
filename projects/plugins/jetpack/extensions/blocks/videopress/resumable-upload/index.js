@@ -106,6 +106,33 @@ export default function ResumableUpload( { file } ) {
 
 	const fileSizeLabel = filesize( file.size );
 
+	const getErrorMessage = () => {
+		let errorMessage = __(
+			'An error was encountered during the upload. Check your network connection.',
+			'jetpack'
+		);
+		if ( typeof error === 'object' ) {
+			const apiResponse = error.toString();
+			// tus doesnt give us direct acces to the API response, but let's try to parse it to provide useful feedback for the user.
+			if ( apiResponse.includes( '"message":"Invalid Mime"' ) ) {
+				errorMessage = (
+					<>
+						{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
+						&nbsp;
+						<a
+							href="https://wordpress.com/support/videopress/recommended-video-settings/"
+							target="_blank"
+							rel="noreferrer"
+						>
+							{ __( 'Check the recommended video settings.', 'jetpack' ) }
+						</a>
+					</>
+				);
+			}
+		}
+		return errorMessage;
+	};
+
 	return (
 		<div { ...blockProps }>
 			<div className="resumable-upload__logo">
@@ -114,12 +141,7 @@ export default function ResumableUpload( { file } ) {
 			</div>
 			{ null !== error ? (
 				<div className="resumable-upload__error">
-					<div className="resumable-upload__error-text">
-						{ __(
-							'An error was encountered during the upload. Check your network connection.',
-							'jetpack'
-						) }
-					</div>
+					<div className="resumable-upload__error-text">{ getErrorMessage() }</div>
 					<Button variant="primary" onClick={ () => restartUpload() }>
 						{ __( 'Try again', 'jetpack' ) }
 					</Button>
