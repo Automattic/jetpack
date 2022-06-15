@@ -17,6 +17,13 @@ class Jetpack_Podcast_Helper {
 	protected $feed = null;
 
 	/**
+	 * The total number of items
+	 *
+	 * @var number
+	 */
+	protected $total_items;
+
+	/**
 	 * Initialize class.
 	 *
 	 * @param string $feed The RSS feed of the podcast.
@@ -40,6 +47,15 @@ class Jetpack_Podcast_Helper {
 		 * @param int $number Number of tracks fetched. Default is 10.
 		 */
 		return (int) apply_filters( 'jetpack_podcast_helper_tracks_quantity', 10 );
+	}
+
+	/**
+	 * Retrieves total number of items.
+	 *
+	 * @returns int number of items
+	 */
+	public function get_total_items() {
+		return $this->total_items;
 	}
 
 	/**
@@ -191,7 +207,8 @@ class Jetpack_Podcast_Helper {
 			return $rss;
 		}
 
-		$tracks_quantity = $this->get_tracks_quantity();
+		$this->total_items = $rss->get_item_quantity();
+		$tracks_quantity   = $this->get_tracks_quantity();
 
 		/**
 		 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
@@ -208,6 +225,23 @@ class Jetpack_Podcast_Helper {
 
 		// Process the requested number of items from our feed.
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $tracks_quantity ) );
+
+		// Filter out any tracks that are empty.
+		// Reset the array indicies.
+		return array_values( array_filter( $track_list ) );
+	}
+
+	public function get_track_list_no_limit() {
+		$rss = $this->load_feed();
+
+		if ( is_wp_error( $rss ) ) {
+			return $rss;
+		}
+
+		$this->total_items = $rss->get_item_quantity();
+
+		// Process the requested number of items from our feed.
+		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $this->total_items ) );
 
 		// Filter out any tracks that are empty.
 		// Reset the array indicies.
