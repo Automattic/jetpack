@@ -116,11 +116,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 					<tr>
 						<th scope="col">{ __( 'Record type', 'jetpack' ) }</th>
 						{ itemsToRender.map( ( { label } ) => {
-							return (
-								<th scope="col" key={ label }>
-									{ label }
-								</th>
-							);
+							return <td key={ label }>{ label }</td>;
 						} ) }
 					</tr>
 					<tr>
