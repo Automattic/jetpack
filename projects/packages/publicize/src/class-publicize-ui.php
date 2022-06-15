@@ -555,7 +555,7 @@ jQuery( function($) {
 				?>
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels are already escaped above ?>
 					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
-					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />				
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
 					<?php
 			else :
 				$publicize_form = $this->get_metabox_form_disconnected( $available_services );
@@ -573,8 +573,6 @@ jQuery( function($) {
 			 *
 			 * @module publicize
 			 *
-			 * @since 2.0.0
-			 *
 			 * @param string $publicize_form Publicize Details form appearing above Publish button in the editor.
 			 */
 			echo apply_filters( 'publicize_form', $publicize_form ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Parts of the form are escaped individually in the code above.
@@ -585,8 +583,6 @@ jQuery( function($) {
 
 	/**
 	 * Generates HTML content for connections form.
-	 *
-	 * @since 6.7
 	 *
 	 * @global WP_Post $post The current post instance being published.
 	 *

@@ -490,9 +490,6 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get social networks, either all available or only those that the site is connected to.
 	 *
-	 * @since 2.0.0
-	 * @since 6.6.0 Removed Path. Service closed October 2018.
-	 *
 	 * @param string    $filter Select the list of services that will be returned. Defaults to 'all', accepts 'connected'.
 	 * @param false|int $_blog_id Get services for a specific blog by ID, or set to false for current blog. Default false.
 	 * @param false|int $_user_id Get services for a specific user by ID, or set to false for current user. Default false.
@@ -555,9 +552,6 @@ class Publicize extends Publicize_Base {
 			 *
 			 * @module publicize
 			 *
-			 * @since 0.1.0 No longer defaults to true. Adds checks to not publicize based on different contexts.
-			 * @since 4.1.0
-			 *
 			 * @param bool $should_publicize Should the post be publicized? Default to true.
 			 * @param WP_POST $post Current Post object.
 			 */
@@ -612,8 +606,6 @@ class Publicize extends Publicize_Base {
 	 * Jetpack uses two methods:
 	 * 1. A POST_DONE . 'all' postmeta flag, or
 	 * 2. if the post has already been published.
-	 *
-	 * @since 6.7.0
 	 *
 	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *

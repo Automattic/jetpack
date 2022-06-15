@@ -149,8 +149,6 @@ abstract class Publicize_Base {
 				 *
 				 * @module publicize
 				 *
-				 * @since 2.0.0
-				 *
 				 * @param string $this->default_message Publicize's default message. Default is the post title.
 				 */
 				apply_filters( 'wpas_default_message', $this->default_message ),
@@ -166,8 +164,6 @@ abstract class Publicize_Base {
 				 *
 				 * @module publicize
 				 *
-				 * @since 2.0.0
-				 *
 				 * @param string $this->default_prefix String prepended to the Publicize custom message.
 				 */
 				apply_filters( 'wpas_default_prefix', $this->default_prefix ),
@@ -181,8 +177,6 @@ abstract class Publicize_Base {
 				 * Filter the message appended to the Publicize custom message.
 				 *
 				 * @module publicize
-				 *
-				 * @since 2.0.0
 				 *
 				 * @param string $this->default_suffix String appended to the Publicize custom message.
 				 */
@@ -198,8 +192,6 @@ abstract class Publicize_Base {
 		 * Globalized connections cannot be unselected by users without this capability when publishing.
 		 *
 		 * @module publicize
-		 *
-		 * @since 2.2.1
 		 *
 		 * @param string $this->GLOBAL_CAP default capability in control of global Publicize connection options. Default to edit_others_posts.
 		 */
@@ -722,8 +714,6 @@ abstract class Publicize_Base {
 	 * data directly as array so it can be retrieved for static HTML generation
 	 * or JSON consumption.
 	 *
-	 * @since 6.7.0
-	 *
 	 * @param integer $selected_post_id Optional. Post ID to query connection status for.
 	 *
 	 * @return array {
@@ -778,8 +768,6 @@ abstract class Publicize_Base {
 				 *
 				 * @module publicize
 				 *
-				 * @since 2.0.0
-				 *
 				 * @param bool true Should the post be publicized to a given service? Default to true.
 				 * @param int $post_id Post ID.
 				 * @param string $service_name Service name.
@@ -823,8 +811,6 @@ abstract class Publicize_Base {
 				 *
 				 * @module publicize
 				 *
-				 * @since 2.0.1
-				 *
 				 * @param bool $enabled Should the Publicize checkbox be enabled for a given service.
 				 * @param int $post_id Post ID.
 				 * @param string $service_name Service name.
@@ -843,8 +829,6 @@ abstract class Publicize_Base {
 					 * Filters the checkboxes for global connections with non-prilvedged users.
 					 *
 					 * @module publicize
-					 *
-					 * @since 3.7.0
 					 *
 					 * @param bool   $enabled Indicates if this connection should be enabled. Default true.
 					 * @param int    $post_id ID of the current post
@@ -880,8 +864,6 @@ abstract class Publicize_Base {
 	/**
 	 * Checks if post has already been shared by Publicize in the past.
 	 *
-	 * @since 6.7.0
-	 *
 	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *
 	 * @return bool True if post has already been shared by Publicize, false otherwise.
@@ -893,8 +875,6 @@ abstract class Publicize_Base {
 	 *
 	 * Retrieves current available publicize service connections
 	 * with associated labels and URLs.
-	 *
-	 * @since 6.7.0
 	 *
 	 * @return array {
 	 *     Array of UI service connection data for all services
@@ -978,8 +958,6 @@ abstract class Publicize_Base {
 		 * Filter what user capability is required to use the publicize form on the edit post page. Useful if publish post capability has been removed from role.
 		 *
 		 * @module publicize
-		 *
-		 * @since 4.1.0
 		 *
 		 * @param string $capability User capability needed to use publicize
 		 */
@@ -1217,8 +1195,6 @@ abstract class Publicize_Base {
 				 * Fires right before the post is processed for Publicize.
 				 * Users may hook in here and do anything else they need to after meta is written,
 				 * and before the post is processed for Publicize.
-				 *
-				 * @since 2.1.2
 				 *
 				 * @param bool $submit_post Should the post be publicized.
 				 * @param int $post->ID Post ID.

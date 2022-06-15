@@ -110,8 +110,6 @@ class Keyring_Helper {
 		/**
 		 * Filters the API URL used to interact with WordPress.com.
 		 *
-		 * @since 2.0.0
-		 *
 		 * @param string https://public-api.wordpress.com/connect/?jetpack=publicize Default Publicize API URL.
 		 */
 		$url = apply_filters( 'publicize_api_url', 'https://public-api.wordpress.com/connect/?jetpack=publicize' );
