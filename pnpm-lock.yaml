@@ -1204,7 +1204,7 @@ importers:
       '@rollup/plugin-json': 4.1.0
       '@rollup/plugin-node-resolve': 13.3.0
       '@rollup/plugin-replace': 4.0.0
-      '@rollup/plugin-typescript': 8.3.2
+      '@rollup/plugin-typescript': 8.3.3
       '@types/jquery': 3.5.14
       '@wordpress/components': 19.12.0
       '@wordpress/element': 4.8.0
@@ -1249,7 +1249,7 @@ importers:
       '@rollup/plugin-json': 4.1.0_rollup@2.56.3
       '@rollup/plugin-node-resolve': 13.3.0_rollup@2.56.3
       '@rollup/plugin-replace': 4.0.0_rollup@2.56.3
-      '@rollup/plugin-typescript': 8.3.2_6caffmt4qbcrrw3jtbvjc2bgve
+      '@rollup/plugin-typescript': 8.3.3_6caffmt4qbcrrw3jtbvjc2bgve
       '@types/jquery': 3.5.14
       '@wordpress/i18n': 4.10.0
       concurrently: 6.0.2
@@ -2112,7 +2112,7 @@ packages:
       '@babel/traverse': 7.18.5
       '@babel/types': 7.18.4
       convert-source-map: 1.8.0
-      debug: 4.3.3
+      debug: 4.3.4
       gensync: 1.0.0-beta.2
       json5: 2.2.1
       semver: 6.3.0
@@ -4863,7 +4863,7 @@ packages:
       react-refresh: 0.11.0
       schema-utils: 3.1.1
       source-map: 0.7.4
-      webpack: 5.72.1
+      webpack: 5.72.1_webpack-cli@4.9.1
     dev: true
 
   /@popperjs/core/2.11.5:
@@ -4984,13 +4984,16 @@ packages:
       rollup: 2.56.3
     dev: true
 
-  /@rollup/plugin-typescript/8.3.2_6caffmt4qbcrrw3jtbvjc2bgve:
-    resolution: {integrity: sha512-MtgyR5LNHZr3GyN0tM7gNO9D0CS+Y+vflS4v/PHmrX17JCkHUYKvQ5jN5o3cz1YKllM3duXUqu3yOHwMPUxhDg==}
+  /@rollup/plugin-typescript/8.3.3_6caffmt4qbcrrw3jtbvjc2bgve:
+    resolution: {integrity: sha512-55L9SyiYu3r/JtqdjhwcwaECXP7JeJ9h1Sg1VWRJKIutla2MdZQodTgcCNybXLMCnqpNLEhS2vGENww98L1npg==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
       rollup: ^2.14.0
       tslib: '*'
       typescript: '>=3.7.0'
+    peerDependenciesMeta:
+      tslib:
+        optional: true
     dependencies:
       '@rollup/pluginutils': 3.1.0_rollup@2.56.3
       resolve: 1.22.0
@@ -18438,6 +18441,7 @@ packages:
 
   /preact/10.5.15:
     resolution: {integrity: sha512-5chK29n6QcJc3m1lVrKQSQ+V7K1Gb8HeQY6FViQ5AxCAEGu3DaHffWNDkC9+miZgsLvbvU9rxbV1qinGHMHzqA==}
+    dev: false
 
   /prelude-ls/1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}
@@ -20057,6 +20061,7 @@ packages:
     hasBin: true
     dependencies:
       chokidar: 3.5.3
+    dev: false
 
   /sass/1.43.3:
     resolution: {integrity: sha512-BJnLngqWpMeS65UvlYYEuCb3/fLxDxhHtOB/gWPxs6NKrslTxGt3ZxwIvOe/0Jm4tWwM/+tIpE3wj4dLEhPDeQ==}
@@ -21003,6 +21008,7 @@ packages:
   /svelte/3.42.4:
     resolution: {integrity: sha512-DqC0AmDdBrrbIA+Kzl3yhBb6qCn4vZOAfxye2pTnIpinLegyagC5sLI8Pe9GPlXu9VpHBXIwpDDedpMfu++epA==}
     engines: {node: '>= 8'}
+    dev: true
 
   /svelte2tsx/0.1.193_jnm2dayjvyndfzimboulpsettu:
     resolution: {integrity: sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==}
