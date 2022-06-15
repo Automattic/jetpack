@@ -22,7 +22,7 @@
 		"@babel/core": "7.18.5",
 		"@babel/preset-react": "7.17.12",
 		"@storybook/addon-actions": "6.5.9",
-		"@storybook/react": "6.4.22",
+		"@storybook/react": "6.5.9",
 		"@testing-library/react": "12.1.5",
 		"@types/chai": "4.3.0",
 		"@types/jest": "27.4.1",
