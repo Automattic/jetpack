@@ -112,22 +112,28 @@ export default function ResumableUpload( { file } ) {
 			'jetpack'
 		);
 		if ( typeof error === 'object' ) {
-			const apiResponse = error.toString();
+			const apiResponse = error.toString().match( /message":"([^"]+)"/ );
 			// tus doesnt give us direct acces to the API response, but let's try to parse it to provide useful feedback for the user.
-			if ( apiResponse.includes( '"message":"Invalid Mime"' ) ) {
-				errorMessage = (
-					<>
-						{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
-						&nbsp;
-						<a
-							href="https://wordpress.com/support/videopress/recommended-video-settings/"
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( 'Check the recommended video settings.', 'jetpack' ) }
-						</a>
-					</>
-				);
+			if ( typeof apiResponse === 'object' && apiResponse.length === 2 ) {
+				const apiResponseMessage = apiResponse[ 1 ];
+				// Let's give this error a better message.
+				if ( apiResponseMessage === 'Invalid Mime' ) {
+					errorMessage = (
+						<>
+							{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
+							&nbsp;
+							<a
+								href="https://wordpress.com/support/videopress/recommended-video-settings/"
+								target="_blank"
+								rel="noreferrer"
+							>
+								{ __( 'Check the recommended video settings.', 'jetpack' ) }
+							</a>
+						</>
+					);
+				} else {
+					return apiResponseMessage;
+				}
 			}
 		}
 		return errorMessage;
