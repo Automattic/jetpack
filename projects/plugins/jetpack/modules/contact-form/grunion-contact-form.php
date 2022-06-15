@@ -34,6 +34,8 @@ function grunion_contact_form_require_endpoint() {
  * The $_wp_current_template_content global variable is hydrated immediately prior to
  * 'template_include' in wp-includes/template-loader.php.
  *
+ * This fixes Contact Form Blocks added to FSE _templates_ (e.g. Single or 404).
+ *
  * @param string $template Template to be loaded.
  */
 function grunion_contact_form_set_block_template_attribute( $template ) {
@@ -52,6 +54,9 @@ add_filter( 'template_include', 'grunion_contact_form_set_block_template_attribu
 
 /**
  * Sets the $grunion_block_template_part_id global.
+ *
+ * This is part of the fix for Contact Form Blocks added to FSE _template parts_ (e.g footer).
+ * The global is processed in Grunion_Contact_Form::parse().
  *
  * @param string $template_part_id ID for the currently rendered template part.
  */
