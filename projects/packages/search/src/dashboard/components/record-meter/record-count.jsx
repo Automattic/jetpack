@@ -2,6 +2,8 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 
+import './record-count.scss';
+
 /**
  * Returns record count component showing current records indexed and max records available for tier.
  *

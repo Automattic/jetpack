@@ -1,8 +1,7 @@
-/* eslint-disable react/react-in-jsx-scope */
-import React from 'react';
-import JetpackLogo from '../index.jsx';
+import JetpackLogo from '../index';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-export default {
+const meta: ComponentMeta< typeof JetpackLogo > = {
 	title: 'JS Packages/Components/Jetpack Logo',
 	component: JetpackLogo,
 	argTypes: {
@@ -10,7 +9,9 @@ export default {
 	},
 };
 
-const Template = args => <JetpackLogo { ...args } />;
+export default meta;
+
+const Template: ComponentStory< typeof JetpackLogo > = args => <JetpackLogo { ...args } />;
 
 const DefaultArgs = {
 	width: 150,
