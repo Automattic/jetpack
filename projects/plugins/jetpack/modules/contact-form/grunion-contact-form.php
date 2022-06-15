@@ -61,6 +61,9 @@ function grunion_contact_form_set_block_template_part_id_global( $template_part_
 add_action( 'render_block_core_template_part_post', 'grunion_contact_form_set_block_template_part_id_global' );
 add_action( 'render_block_core_template_part_file', 'grunion_contact_form_set_block_template_part_id_global' );
 add_action( 'render_block_core_template_part_none', 'grunion_contact_form_set_block_template_part_id_global' );
+add_action( 'gutenberg_render_block_core_template_part_post', 'grunion_contact_form_set_block_template_part_id_global' );
+add_action( 'gutenberg_render_block_core_template_part_file', 'grunion_contact_form_set_block_template_part_id_global' );
+add_action( 'gutenberg_render_block_core_template_part_none', 'grunion_contact_form_set_block_template_part_id_global' );
 
 /**
  * Unsets the global when block is done rendering.
