@@ -107,7 +107,9 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 					} ) }
 				</ul>
 			</div>
-			<table className="screen-reader-text">
+			{ /* <table className="screen-reader-text"> */ }
+			<table>
+				<caption>{ __( 'Summary of your records', 'jetpack' ) }</caption>
 				<tbody>
 					<tr>
 						<th scope="col">{ __( 'Record type', 'jetpack' ) }</th>
@@ -116,7 +118,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 						} ) }
 					</tr>
 					<tr>
-						<th scope="row">{ __( 'Record count', 'jetpack' ) }</th>
+						<th scope="col">{ __( 'Record Count', 'jetpack' ) }</th>
 						{ itemsToRender.map( ( { count } ) => {
 							return <td key={ count }>{ count }</td>;
 						} ) }
