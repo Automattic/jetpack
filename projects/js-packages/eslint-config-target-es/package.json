@@ -18,7 +18,7 @@
 		"test-coverage": "jest tests --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"dependencies": {
-		"@mdn/browser-compat-data": "4.1.18",
+		"@mdn/browser-compat-data": "4.2.1",
 		"browserslist": "^4.17.6",
 		"debug": "^4.3.2",
 		"semver": "^7.3.5"
