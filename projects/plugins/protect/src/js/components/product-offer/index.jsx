@@ -14,7 +14,8 @@ import useProtectData from '../../hooks/use-protect-data';
  * ToDo: rename event handler properties.
  *
  * @param {object} props              - Component props.
- * @param {Function} props.onAdd      - Callback for Call To Action button click
+ * @param {Function} props.onAdd      - Callback when adding protect product successfully
+ * @param {Function} props.onError    - Callback when adding protect product fails
  * @returns {object}                    ConnectedProductOffer react component.
  */
 const ConnectedProductOffer = ( { onAdd, onAddError, ...rest } ) => {
@@ -58,7 +59,9 @@ const ConnectedProductOffer = ( { onAdd, onAddError, ...rest } ) => {
 	);
 };
 ConnectedProductOffer.propTypes = {
+	/** props.onAdd      - Callback when adding protect product successfully */
 	onAdd: PropTypes.func,
+	/** props.onError    - Callback when adding protect product fails */
 	onAddError: PropTypes.func,
 };
 
