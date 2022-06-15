@@ -41,7 +41,7 @@ function videopress_handle_editor_view_js() {
 		array(
 			'home_url_host'     => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'min_content_width' => VIDEOPRESS_MIN_WIDTH,
-			'content_width'     => $content_width,
+			'content_width'     => isset( $content_width ) ? $content_width : 640,
 			'modal_labels'      => array(
 				'title'     => esc_html__( 'VideoPress Shortcode', 'jetpack' ),
 				'guid'      => esc_html__( 'Video ID', 'jetpack' ),
