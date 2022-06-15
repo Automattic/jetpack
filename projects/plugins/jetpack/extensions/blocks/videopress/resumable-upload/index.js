@@ -147,7 +147,7 @@ export default function ResumableUpload( { file } ) {
 					</Button>
 					<Button
 						variant="secondary"
-						onClick={ () => onUploadFinished() }
+						onClick={ () => onUploadFinished( {} ) }
 						className="resumable-upload__error-cancel"
 					>
 						{ __( 'Cancel', 'jetpack' ) }
