@@ -11,12 +11,12 @@ export default {
 			{
 				title: 'Add to cart',
 				icon: null,
-				onClick: () => {},
+				onClick: () => null,
 			},
 			{
 				title: 'Add to wishlist',
 				icon: null,
-				onClick: () => {},
+				onClick: () => null,
 			},
 		],
 	},
