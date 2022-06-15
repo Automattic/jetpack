@@ -550,8 +550,6 @@ class Publicize extends Publicize_Base {
 			 *
 			 * Side-note: Possibly our most alliterative filter name.
 			 *
-			 * @module publicize
-			 *
 			 * @param bool $should_publicize Should the post be publicized? Default to true.
 			 * @param WP_POST $post Current Post object.
 			 */

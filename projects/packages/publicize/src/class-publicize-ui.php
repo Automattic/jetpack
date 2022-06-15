@@ -571,8 +571,6 @@ jQuery( function($) {
 			/**
 			 * Filter the Publicize details form.
 			 *
-			 * @module publicize
-			 *
 			 * @param string $publicize_form Publicize Details form appearing above Publish button in the editor.
 			 */
 			echo apply_filters( 'publicize_form', $publicize_form ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Parts of the form are escaped individually in the code above.
