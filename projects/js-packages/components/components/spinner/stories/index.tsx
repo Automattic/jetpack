@@ -1,6 +1,7 @@
 import Spinner from '../index';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-export default {
+const meta: ComponentMeta< typeof Spinner > = {
 	title: 'JS Packages/Components/Spinner',
 	component: Spinner,
 	argTypes: {
@@ -13,6 +14,8 @@ export default {
 	},
 };
 
-const Template = args => <Spinner { ...args } />;
+export default meta;
+
+const Template: ComponentStory< typeof Spinner > = args => <Spinner { ...args } />;
 
 export const _default = Template.bind( {} );
