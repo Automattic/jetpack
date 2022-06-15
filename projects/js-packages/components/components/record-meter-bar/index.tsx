@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 
 import './style.scss';
@@ -106,7 +107,30 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 					} ) }
 				</ul>
 			</div>
-			<div className="screen-reader-text"></div>
+			<table
+				className="screen-reader-text"
+				summary="This is the screen reader alternative data table for the record meter bar graphic."
+			>
+				<caption>{ __( 'Records for Record Meter Bar', 'jetpack' ) }</caption>
+				<tbody>
+					<tr>
+						<th scope="col">{ __( 'Record type', 'jetpack' ) }</th>
+						{ itemsToRender.map( ( { label } ) => {
+							return (
+								<th scope="col" key={ label }>
+									{ label }
+								</th>
+							);
+						} ) }
+					</tr>
+					<tr>
+						<th scope="row">{ __( 'Record Count', 'jetpack' ) }</th>
+						{ itemsToRender.map( ( { count } ) => {
+							return <td key={ count }>{ count }</td>;
+						} ) }
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	);
 };
