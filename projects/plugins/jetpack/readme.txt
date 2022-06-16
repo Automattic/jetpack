@@ -242,21 +242,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.1-a.1 - 2022-06-08
-
-#### Enhancements
-- Recipe Block (beta): introduce a new Recipe block to display an easy to read recipe anywhere on your site. Currently a JETPACK_BETA_BLOCKS feature.
-- WAF: update messaging around sites without latest firewall rules access.
-- WAF: add links to support documentation.
-
-#### Improved compatibility
-- Blocks: add Jetpack block elements to WPML configuration so they can be translated.
-- Publicize: configure Publicize only when the module is active.
-
+### 11.1-a.3 - 2022-06-14
 #### Bug fixes
-- Contact Form: support saving array of data, such as multiple checkboxes.
-- Payment Block: fix issue preventing images in payment buttons.
-- VideoPress: fix average color parameter for seekbar.
+- Connection: move the connection_url_redirect action handling to the connection package.
+- Dashboard: format anti-spam stats properly, including in languages using a space as thousands separator.
+- Mailchimp Block: center spinner during loading block content.
 
 --------
 

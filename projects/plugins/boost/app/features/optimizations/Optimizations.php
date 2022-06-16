@@ -64,7 +64,12 @@ class Optimizations implements Has_Setup {
 	}
 
 	public function have_enabled_modules() {
-		return count( $this->get_status() ) > 0;
+		foreach ( $this->features as $optimization ) {
+			if ( $optimization->status->is_enabled() ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function get_status() {
