@@ -330,7 +330,7 @@ class Status {
 			if ( isset( $checked->{ $slug } ) && $checked->{ $slug }->version === $installed[ $slug ]['Version'] ) {
 				array_push(
 					$new_list,
-					array_merge(
+					(object) array_merge(
 						array(
 							'name'            => $installed[ $slug ]['Name'],
 							'version'         => $checked->{ $slug }->version,
@@ -343,7 +343,7 @@ class Status {
 			} else {
 				array_push(
 					$new_list,
-					array_merge(
+					(object) array_merge(
 						array(
 							'name'            => $installed[ $slug ]['Name'],
 							'version'         => $installed[ $slug ]['Version'],
@@ -358,10 +358,10 @@ class Status {
 		usort(
 			$new_list,
 			function ( $a, $b ) {
-				$vuls_a    = count( $a['vulnerabilities'] ) > 0 ? 2 : 0;
-				$vuls_b    = count( $b['vulnerabilities'] ) > 0 ? 2 : 0;
-				$checked_a = $a['not_checked'] ? 1 : 0;
-				$checked_b = $b['not_checked'] ? 1 : 0;
+				$vuls_a    = count( $a->vulnerabilities ) > 0 ? 2 : 0;
+				$vuls_b    = count( $b->vulnerabilities ) > 0 ? 2 : 0;
+				$checked_a = $a->not_checked ? 1 : 0;
+				$checked_b = $b->not_checked ? 1 : 0;
 				return $vuls_b + $checked_b - ( $vuls_a + $checked_a );
 			}
 		);
