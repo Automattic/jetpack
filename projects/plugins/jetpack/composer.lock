@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< update/my-jetpack-update-products-cards-disposition
-    "content-hash": "873232b8a798e42727b44a9e790d9261",
-=======
     "content-hash": "f3c38b9538dd01963c79eafcb6385318",
->>>>>>> master
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
