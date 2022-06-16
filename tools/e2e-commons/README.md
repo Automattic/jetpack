@@ -35,7 +35,7 @@ To make it all work seamlessly, some assumptions are made. It means that there a
 
 ## Copy Starter Plugin E2E setup
 
-Copy `project/plugins/starter-plugin/tests/e2e` folder into your plugin's `tests/e2e`. If your plugin was created with Starter Plugin template, the `tests/e2e` folder already there.
+Copy `project/plugins/starter-plugin/tests/e2e` folder into your plugin's `tests/e2e`. If your plugin was created with Starter Plugin template, the `tests/e2e` folder should be already there.
 
 Update `tests/e2e/package.json` to match your plugin description. Also, review `build` script command, and make sure that all required projects are included in a build step.
 
@@ -70,7 +70,7 @@ We use `localtunnel` library to expose `localhost:8889` via a public url.
 CONFIG_KEY=secret_key pnpm config:decrypt
 
 ## Start and the Docker environment and configure the WordPress installation
-pnpm e2e:up
+pnpm env:up
 
 ## Create a tunnel
 pnpm tunnel:up
@@ -80,7 +80,6 @@ The tunnel url will be stored in a file in the config folder of your tests, so t
 
 #### 1.4. Run the tests
 
-`cd` into `projects/plugins/YOUR-PLUGIN/tests/e2e` and run the tests via pnpm script:
 
 ```shell
 pnpm test:run
