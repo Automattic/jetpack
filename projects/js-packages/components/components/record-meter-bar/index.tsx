@@ -107,8 +107,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 					} ) }
 				</ul>
 			</div>
-			{ /* <table className="screen-reader-text"> */ }
-			<table>
+			<table className="screen-reader-text">
 				<caption>{ __( 'Summary of the records', 'jetpack' ) }</caption>
 				<tbody>
 					<tr>
