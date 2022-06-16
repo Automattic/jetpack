@@ -30,7 +30,7 @@ module.exports = {
 
 	// We're including configuration in this file.
 	onboarding: false,
-	requireConfig: false,
+	requireConfig: 'optional',
 
 	// Extra code to run before creating a commit.
 	allowPostUpgradeCommandTemplating: true,

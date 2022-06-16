@@ -61,7 +61,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "51829660678dddaafa5c6c1397da13cf6fbc2c44"
+                "reference": "9cbcac7a0228a2893e25b10b46b2702d6ed6d357"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -73,7 +73,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
-                "wp-coding-standards/wpcs": "dev-develop#7b39722c38cbf2fe64c55be7154ee6f1807d304c as 2.3.1",
+                "wp-coding-standards/wpcs": "2022-02-07 as 2.3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "phpcodesniffer-standard",
