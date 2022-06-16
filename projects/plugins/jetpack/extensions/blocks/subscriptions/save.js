@@ -110,7 +110,7 @@ export default function Save( { className, attributes } ) {
 		button_on_newline: buttonOnNewLine,
 		submit_button_text:
 			submitButtonText !== defaultAttributes.submitButtonText.default
-				? submitButtonText
+				? submitButtonText.replace( /"/g, '&quot;' )
 				: undefined,
 		custom_background_emailfield_color: emailFieldBackgroundStyle,
 		custom_background_button_color: buttonBackgroundStyle,
