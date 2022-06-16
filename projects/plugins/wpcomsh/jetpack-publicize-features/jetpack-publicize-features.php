@@ -18,7 +18,7 @@
 function wpcomsh_filter_post_thumbnails_support( $response ) {
 	$data = $response->get_data();
 	if (
-		! $data['theme_supports']['post-thumbnails'] &&
+		empty( $data['theme_supports']['post-thumbnails'] ) &&
 		wpcomsh_is_publicize_enabled()
 	) {
 		$data['theme_supports']['post-thumbnails'] = true;
