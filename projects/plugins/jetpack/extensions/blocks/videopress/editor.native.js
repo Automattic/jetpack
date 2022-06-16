@@ -1,11 +1,4 @@
-/*
- * WordPress dependencies
- */
 import { addFilter } from '@wordpress/hooks';
-
-/**
- * Internal dependencies
- */
 import withVideoPressSave from './save';
 
 const addVideoPressSupport = ( settings, name ) => {
