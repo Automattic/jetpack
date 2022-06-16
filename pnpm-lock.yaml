@@ -447,7 +447,7 @@ importers:
       react-dom: 17.0.2
       react-page-visibility: 6.4.0
       refx: 3.1.1
-      rememo: 3.0.0
+      rememo: 4.0.1
     dependencies:
       '@automattic/jetpack-components': link:../components
       '@automattic/jetpack-shared-extension-utils': link:../shared-extension-utils
@@ -464,7 +464,7 @@ importers:
       prop-types: 15.8.1
       react-page-visibility: 6.4.0_react@17.0.2
       refx: 3.1.1
-      rememo: 3.0.0
+      rememo: 4.0.1
     devDependencies:
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-base-styles': link:../base-styles
@@ -7088,7 +7088,7 @@ packages:
       '@wordpress/rich-text': 5.8.0_react@17.0.2
       lodash: 4.17.21
       react: 17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
       uuid: 8.3.2
     dev: false
 
@@ -7674,7 +7674,7 @@ packages:
       react: 17.0.2
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/react'
@@ -7719,7 +7719,7 @@ packages:
       react: 17.0.2
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/react'
@@ -7928,7 +7928,7 @@ packages:
       '@wordpress/keycodes': 3.10.0
       lodash: 4.17.21
       react: 17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
 
   /@wordpress/keycodes/3.10.0:
     resolution: {integrity: sha512-Udr9a8m39v4yFVdOlRv/yG82RkzBHxMNVJ6M9bhuQttpqeO7SzkYH2HyFIxg0wFvmZLXz9EYLZkr9AI8jhnDJw==}
@@ -8137,7 +8137,7 @@ packages:
       lodash: 4.17.21
       memize: 1.1.0
       react: 17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
 
   /@wordpress/server-side-render/3.8.0_5gkpiavnb3ypizn66heqoa7rm4:
     resolution: {integrity: sha512-BN5Qk6m9M4f38CvmCYVqd6IvKn+2eFhcqUvbPNWzk+In4UfqwTwHFgO7d8kgzi61q9Szyjo8q0QGrsUakvA8ZA==}
@@ -16941,6 +16941,7 @@ packages:
 
   /preact/10.5.15:
     resolution: {integrity: sha512-5chK29n6QcJc3m1lVrKQSQ+V7K1Gb8HeQY6FViQ5AxCAEGu3DaHffWNDkC9+miZgsLvbvU9rxbV1qinGHMHzqA==}
+    dev: false
 
   /prelude-ls/1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}
@@ -18033,6 +18034,9 @@ packages:
   /rememo/3.0.0:
     resolution: {integrity: sha512-eWtut/7pqMRnSccbexb647iPjN7ir6Tmf4RG92ZVlykFEkHqGYy9tWnpHH3I+FS+WQ6lQ1i1iDgarYzGKgTcRQ==}
 
+  /rememo/4.0.1:
+    resolution: {integrity: sha512-x/T5q/pCDh8k4OlvJGqkI3eO+O8hmJv9HhJHo4avwlluwUpDbteDvyqw1PTarEITkeH9bfW6GSKeRke+XKgykw==}
+
   /remove-trailing-separator/1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
     dev: true
@@ -18464,6 +18468,7 @@ packages:
     hasBin: true
     dependencies:
       chokidar: 3.5.3
+    dev: false
 
   /sass/1.43.3:
     resolution: {integrity: sha512-BJnLngqWpMeS65UvlYYEuCb3/fLxDxhHtOB/gWPxs6NKrslTxGt3ZxwIvOe/0Jm4tWwM/+tIpE3wj4dLEhPDeQ==}
@@ -19393,6 +19398,7 @@ packages:
   /svelte/3.42.4:
     resolution: {integrity: sha512-DqC0AmDdBrrbIA+Kzl3yhBb6qCn4vZOAfxye2pTnIpinLegyagC5sLI8Pe9GPlXu9VpHBXIwpDDedpMfu++epA==}
     engines: {node: '>= 8'}
+    dev: true
 
   /svelte2tsx/0.1.193_jnm2dayjvyndfzimboulpsettu:
     resolution: {integrity: sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==}
