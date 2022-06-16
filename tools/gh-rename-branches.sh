@@ -26,7 +26,8 @@ TESTREPOSITORIES=(jetpack-google-analytics-helper jptest-tools jetpack-gh-testin
 # jetpack-heartbeat jetpack-options jetpack-licensing jetpack-abtest jetpack-partner jetpack-publicize \
 # jetpack-identity-crisis jetpack-wordads jetpack-jitm jetpack-sync jetpack-my-jetpack jetpack-connection-ui \
 # jetpack-search jetpack-starter-plugin jetpack-protect-plugin jetpack-search-plugin jetpack-backup \
-# jetpack-boost-production jetpack-backup-plugin jetpack-storybook jetpack-production)
+# jetpack-boost-production jetpack-backup-plugin jetpack-storybook jetpack-production jetpack-social-plugin \
+# jetpack-publicize-components)
 
 
 # Renaming the default branch in a list of given repositories, using CURL
