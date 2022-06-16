@@ -21,9 +21,9 @@
 		"slack": "node bin/slack.cjs"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.20.1",
+		"@playwright/test": "1.22.2",
 		"@slack/web-api": "6.7.1",
-		"allure-playwright": "2.0.0-beta.15",
+		"allure-playwright": "2.0.0-beta.17",
 		"axios": "0.26.1",
 		"chalk": "5.0.1",
 		"config": "3.3.7",

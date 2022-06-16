@@ -11,8 +11,8 @@ namespace Automattic\Jetpack\Backup;
  * The Package_Version class.
  */
 class Package_Version {
-
-	const PACKAGE_VERSION = '1.3.10-alpha';
+ 
+	const PACKAGE_VERSION = '1.4.0-alpha';
 
 	const PACKAGE_SLUG = 'backup';
 
