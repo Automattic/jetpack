@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { useSelect } from '@wordpress/data';
-import { ExternalLink } from '@wordpress/components';
 import { Button, Container, Text } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { ExternalLink } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { STORE_ID } from '../../store';
 import ModuleToggle from './../module-toggle';
 import styles from './styles.module.scss';

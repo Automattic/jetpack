@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import photon from 'photon';
-import { __, sprintf } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
-
-/**
- * Internal dependencies
- */
+import { Component } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import photon from 'photon';
+import { PHOTON_MAX_RESIZE } from '../constants';
 import Image from '../image';
 import Mosaic from './mosaic';
 import Square from './square';
-import { PHOTON_MAX_RESIZE } from '../constants';
 
 export default class Layout extends Component {
 	photonize( { height, width, url } ) {

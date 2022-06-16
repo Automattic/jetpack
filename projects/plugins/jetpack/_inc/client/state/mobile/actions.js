@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import restApi from '@automattic/jetpack-api';
+import { __ } from '@wordpress/i18n';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL,
 	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_SUCCESS,
 	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_FAIL,
 } from 'state/action-types';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
 export const sendMobileLoginEmail = () => {
 	return dispatch => {

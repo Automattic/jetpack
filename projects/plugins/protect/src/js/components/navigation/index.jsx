@@ -1,18 +1,12 @@
-/**
- * External dependencies
- */
-import React, { useState, useRef, useCallback } from 'react';
+import { Text } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
-import { Text } from '@automattic/jetpack-components';
-/**
- * Internal dependencies
- */
-import styles from './styles.module.scss';
-import NavigationItem from './item';
-import NavigationGroup from './group';
-import useMenuNavigation, { NavigationContext } from './use-menu-navigation';
 import classNames from 'classnames';
+import React, { useState, useRef, useCallback } from 'react';
+import NavigationGroup from './group';
+import NavigationItem from './item';
+import styles from './styles.module.scss';
+import useMenuNavigation, { NavigationContext } from './use-menu-navigation';
 
 const NavigationList = ( { children } ) => (
 	<ul className={ styles.navigation } role="menu">

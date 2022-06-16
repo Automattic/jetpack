@@ -1,21 +1,14 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { Route, Switch } from 'react-router-dom';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryProducts from 'components/data/query-products';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
+import { isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { Route, Switch } from 'react-router-dom';
+import { getProductsForPurchase } from 'state/initial-state';
 import { isFetchingIntroOffers } from 'state/intro-offers';
 import { isFetchingProducts as isFetchingProductsSelector } from 'state/products';
-import { getProductsForPurchase } from 'state/initial-state';
 import { PRODUCT_DESCRIPTION_PRODUCTS as SUPPORTED_PRODUCTS } from './constants';
 import ProductDescription from './product-description';
 

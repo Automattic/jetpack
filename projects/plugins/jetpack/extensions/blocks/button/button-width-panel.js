@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import {
 	BaseControl,
 	Button,
 	ButtonGroup,
 	PanelBody,
-	__experimentalUnitControl as UnitControl,
+	__experimentalUnitControl as UnitControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 
 const widthUnits = [
 	{ value: 'px', label: 'px', default: 150 },

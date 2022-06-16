@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { useSelect } from '@wordpress/data';
+import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { currencyDollar } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { currencyDollar } from '@wordpress/icons';
 import analytics from '../../../_inc/client/lib/analytics';
 
 const PaymentsPostPublish = () => {

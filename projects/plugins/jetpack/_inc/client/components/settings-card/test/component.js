@@ -1,19 +1,11 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { jest } from '@jest/globals';
+import { shallow } from 'enzyme';
+import React from 'react';
 import { SettingsCard } from '../index';
 
 describe( 'SettingsCard', () => {
-	let testProps = {
+	const testProps = {
 		module: 'comments',
 		hideButton: false,
 		getModule: () => ( {
@@ -78,15 +70,15 @@ describe( 'SettingsCard', () => {
 	);
 
 	it( 'renders a heading', () => {
-		expect( wrapper.find( 'SectionHeader' ) ).to.have.length( 1 );
+		expect( wrapper.find( 'SectionHeader' ) ).toHaveLength( 1 );
 	} );
 
 	it( 'the heading has the right text', () => {
-		expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'Comments' );
+		expect( wrapper.find( 'SectionHeader' ).props().label ).toBe( 'Comments' );
 	} );
 
 	it( "when not saving and has settings to save, it's enabled", () => {
-		expect( wrapper.find( 'Button' ).get( 0 ).props.disabled ).to.be.false;
+		expect( wrapper.find( 'Button' ).get( 0 ).props.disabled ).toBe( false );
 	} );
 
 	describe( 'When a custom header or support URL are passed', () => {
@@ -95,14 +87,14 @@ describe( 'SettingsCard', () => {
 			support: getRedirectUrl( 'jetpack' ),
 		} );
 
-		const wrapper = shallow(
+		const wrapper2 = shallow(
 			<SettingsCard { ...testProps }>
 				<p>Child</p>
 			</SettingsCard>
 		);
 
 		it( 'the header has priority over module.name', () => {
-			expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'A custom header' );
+			expect( wrapper2.find( 'SectionHeader' ).props().label ).toBe( 'A custom header' );
 		} );
 	} );
 
@@ -111,18 +103,18 @@ describe( 'SettingsCard', () => {
 			saveDisabled: true,
 		} );
 
-		const wrapper = shallow(
+		const wrapper2 = shallow(
 			<SettingsCard { ...testProps }>
 				<p>Child</p>
 			</SettingsCard>
 		);
 
 		it( "when saving, it's disabled", () => {
-			expect( wrapper.find( 'Button' ).get( 0 ).props.disabled ).to.be.true;
+			expect( wrapper2.find( 'Button' ).get( 0 ).props.disabled ).toBe( true );
 		} );
 
 		it( 'when saving, button label is updated to Saving…', () => {
-			expect( wrapper.find( 'Button' ).get( 0 ).props.children ).to.be.equal( 'Saving…' );
+			expect( wrapper2.find( 'Button' ).get( 0 ).props.children ).toBe( 'Saving…' );
 		} );
 	} );
 
@@ -136,19 +128,19 @@ describe( 'SettingsCard', () => {
 			} ),
 		} );
 
-		const wrapper = shallow(
+		const wrapper2 = shallow(
 			<SettingsCard { ...testProps }>
 				<p>Child</p>
 			</SettingsCard>
 		);
 
 		it( 'the support icon is not rendered', () => {
-			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
+			expect( wrapper2.find( 'Button' ) ).toHaveLength( 1 );
 		} );
 	} );
 
 	describe( 'When save button is clicked three times', () => {
-		const onSave = sinon.spy();
+		const onSave = jest.fn();
 
 		Object.assign( testProps, {
 			onSubmit: onSave,
@@ -168,7 +160,7 @@ describe( 'SettingsCard', () => {
 		saveButton.simulate( 'click' );
 
 		it( 'if save is disabled, do not call onSubmit', () => {
-			expect( onSave ).to.have.property( 'callCount', 0 );
+			expect( onSave ).not.toHaveBeenCalled();
 		} );
 	} );
 
@@ -185,7 +177,7 @@ describe( 'SettingsCard', () => {
 							<p>Child</p>
 						</SettingsCard>
 					).find( 'form' )
-				).to.have.length( 0 );
+				).toHaveLength( 0 );
 			} );
 		} );
 
@@ -197,7 +189,7 @@ describe( 'SettingsCard', () => {
 							<p>Child</p>
 						</SettingsCard>
 					).find( 'form' )
-				).to.have.length( 1 );
+				).toHaveLength( 1 );
 			} );
 		} );
 	} );

@@ -1,16 +1,9 @@
-/**
- * WordPress dependencies
- */
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import icon from './icon';
-import { getIconColor } from '../../shared/block-icons';
 import save from './save';
 
 export const innerButtonBlock = {

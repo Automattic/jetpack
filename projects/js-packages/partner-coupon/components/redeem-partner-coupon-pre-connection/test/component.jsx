@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import * as React from 'react';
-import { expect } from 'chai';
-import sinon from 'sinon';
-import { renderHook } from '@testing-library/react-hooks';
-import { fireEvent, render, screen } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
-import RedeemPartnerCouponPreConnection from '../';
 import analytics from '@automattic/jetpack-analytics';
-import { useSelect } from '@wordpress/data';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
+import { useSelect } from '@wordpress/data';
+import { expect } from 'chai';
+import * as React from 'react';
+import sinon from 'sinon';
+import RedeemPartnerCouponPreConnection from '../';
 
 const { location } = window;
 const partnerCoupon = {

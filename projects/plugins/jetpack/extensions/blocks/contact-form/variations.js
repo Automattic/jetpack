@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
-import { compact } from 'lodash';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import renderMaterialIcon from '../../shared/render-material-icon';
+import { __ } from '@wordpress/i18n';
+import { compact } from 'lodash';
 import { getIconColor } from '../../shared/block-icons';
+import renderMaterialIcon from '../../shared/render-material-icon';
 
 const variations = compact( [
 	{

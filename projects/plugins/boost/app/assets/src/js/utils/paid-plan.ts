@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import config from '../stores/config';
 
 export const hasPrioritySupport = config.preferences.prioritySupport;

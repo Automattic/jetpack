@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import chalk from 'chalk';
 import child_process from 'child_process';
+import chalk from 'chalk';
 import inquirer from 'inquirer';
-
-/**
- * Internal dependencies
- */
+import { readComposerJson } from '../helpers/json.js';
+import { allProjects } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
-import { allProjects } from '../helpers/projectHelpers.js';
-import { readComposerJson } from '../helpers/json.js';
 
 /**
  * Command definition for the release subcommand.

@@ -1,23 +1,16 @@
-/**
- * External dependencies
- */
+import { imagePath } from 'constants/urls';
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
+import AppsBadge from 'components/apps-badge';
+import Button from 'components/button';
+import Card from 'components/card';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
 import { withRouter } from 'react-router-dom';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import AppsBadge from 'components/apps-badge';
-import analytics from 'lib/analytics';
-import Button from 'components/button';
-import Card from 'components/card';
-import { imagePath } from 'constants/urls';
-import { updateSettings, appsCardDismissed } from 'state/settings';
 import { arePromotionsActive, userCanManageOptions } from 'state/initial-state';
+import { updateSettings, appsCardDismissed } from 'state/settings';
 
 class AppsCard extends React.Component {
 	static displayName = 'AppsCard';

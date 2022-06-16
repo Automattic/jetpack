@@ -2,9 +2,6 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen, waitFor } from '@testing-library/react';
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
@@ -19,9 +16,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 // Mock the @wordpress/edit-post, used internally to resolve the fallback URL.
 jest.mock( '@wordpress/edit-post', () => jest.fn() );
 
-/**
- * Internal dependencies
- */
 import Edit from '../edit';
 
 import { settings } from '../../button';

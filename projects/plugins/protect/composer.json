@@ -10,7 +10,7 @@
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.9.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "1.6.x-dev",
+		"automattic/jetpack-my-jetpack": "1.7.x-dev",
 		"automattic/jetpack-plugins-installer": "0.1.x-dev",
 		"automattic/jetpack-sync": "1.35.x-dev"
 	},
@@ -59,7 +59,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-protect-plugin",
-		"release-branch-prefix": "starter-plugin",
+		"release-branch-prefix": "protect",
 		"wp-plugin-slug": "jetpack-protect",
 		"version-constants": {
 			"JETPACK_PROTECT_VERSION": "jetpack-protect.php"
@@ -71,6 +71,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ0_1_0_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ1_0_1_alpha"
 	}
 }

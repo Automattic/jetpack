@@ -1,15 +1,4 @@
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
 import { SVG } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 
 export default function Background( { currentMedia } ) {
 	const url = currentMedia && currentMedia.type === 'image' ? currentMedia.url : null;

@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
 import React from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const Layout = props => {

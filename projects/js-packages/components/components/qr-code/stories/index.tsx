@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import QRCode from '../index';
 
 export default {

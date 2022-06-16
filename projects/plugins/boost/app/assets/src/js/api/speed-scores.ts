@@ -1,17 +1,10 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import api from './api';
-import { standardizeError } from '../utils/standardize-error';
-import { isJsonObject, JSONObject } from '../utils/json-types';
 import { castToNumber } from '../utils/cast-to-number';
-import pollPromise from '../utils/poll-promise';
 import { castToString } from '../utils/cast-to-string';
+import { isJsonObject, JSONObject } from '../utils/json-types';
+import pollPromise from '../utils/poll-promise';
+import { standardizeError } from '../utils/standardize-error';
+import api from './api';
 
 const pollTimeout = 2 * 60 * 1000;
 const pollInterval = 5 * 1000;
@@ -192,4 +185,20 @@ export function getScoreImprovementPercentage( scores: SpeedScoresSet ): number 
 	const improvement = current / noBoost - 1;
 
 	return Math.round( improvement * 100 );
+}
+
+/**
+ * Find out if scores were made worse.
+ *
+ * Only show the speed score reduction message if the scores got worse.
+ *
+ * @param {SpeedScoresSet} scores
+ * @return boolean
+ */
+export function didScoresWorsen( scores: SpeedScoresSet ): boolean {
+	const current = scores.current;
+	const noBoost = scores.noBoost;
+
+	// Consider the score got worse if combined score fell.
+	return null !== current && null !== noBoost && getScoreImprovementPercentage( scores ) < -5;
 }

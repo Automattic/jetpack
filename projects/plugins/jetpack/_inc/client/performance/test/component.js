@@ -1,30 +1,23 @@
-/**
- * External dependencies
- */
 import * as React from 'react';
-import { expect } from 'chai';
-
-/**
- * Internal dependencies
- */
-import Search  from '../search';
+import { render, screen } from 'test/test-utils';
+import Search from '../search';
 import { buildInitialState } from './fixtures';
-import { render, screen, within } from 'test/test-utils';
+import '@testing-library/jest-dom/extend-expect';
 
-describe.only( 'Performance tab', () => {
-	it( "shows Jetpack Search Widget button if theme supports it", () => {
+describe( 'Performance tab', () => {
+	it( 'shows Jetpack Search Widget button if theme supports it', () => {
 		render( <Search />, {
 			initialState: buildInitialState( { themeSupportsWidgets: true } ),
 		} );
 
-		expect( screen.getByText( 'Add Jetpack Search Widget' ) ).to.be.not.null;
+		expect( screen.getByText( 'Add Jetpack Search Widget' ) ).toBeInTheDocument();
 	} );
 
-	it( "hides Jetpack Search Widget button if theme does not support it", () => {
+	it( 'hides Jetpack Search Widget button if theme does not support it', () => {
 		render( <Search />, {
 			initialState: buildInitialState( { themeSupportsWidgets: false } ),
 		} );
 
-		expect( screen.queryByText( 'Add Jetpack Search Widget' ) ).to.be.null;
+		expect( screen.queryByText( 'Add Jetpack Search Widget' ) ).not.toBeInTheDocument();
 	} );
 } );

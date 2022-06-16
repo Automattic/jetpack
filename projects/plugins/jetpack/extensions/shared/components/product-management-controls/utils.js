@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { PRODUCT_TYPE_PAYMENT_PLAN, PRODUCT_TYPE_SUBSCRIPTION } from './constants';
 
 /**

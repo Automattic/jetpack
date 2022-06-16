@@ -1,28 +1,21 @@
-/**
- * External dependencies
- */
-import { getDate, date, dateI18n } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
-import apiFetch from '@wordpress/api-fetch';
-import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import apiFetch from '@wordpress/api-fetch';
+import { useSelect } from '@wordpress/data';
+import { getDate, date, dateI18n } from '@wordpress/date';
+import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { STORE_ID } from '../store';
 import StatBlock from './StatBlock';
 import './backups-style.scss';
-import PostsIcon from './icons/posts.svg';
-import CloudIcon from './icons/cloud.svg';
-import CloudAlertIcon from './icons/cloud-alert.svg';
-import UploadsIcon from './icons/uploads.svg';
-import PluginsIcon from './icons/plugins.svg';
-import ThemesIcon from './icons/themes.svg';
 import BackupAnim1 from './icons/backup-animation-1.svg';
 import BackupAnim2 from './icons/backup-animation-2.svg';
 import BackupAnim3 from './icons/backup-animation-3.svg';
+import CloudAlertIcon from './icons/cloud-alert.svg';
+import CloudIcon from './icons/cloud.svg';
+import PluginsIcon from './icons/plugins.svg';
+import PostsIcon from './icons/posts.svg';
+import ThemesIcon from './icons/themes.svg';
+import UploadsIcon from './icons/uploads.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
@@ -35,6 +28,7 @@ const Backups = () => {
 		uploads: 0,
 		plugins: 0,
 		themes: 0,
+		warnings: false,
 	} );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle(), '' );
@@ -95,6 +89,7 @@ const Backups = () => {
 							themes: latestBackup.stats.themes.count,
 							uploads: latestBackup.stats.uploads.count,
 							posts: latestBackup.stats.tables[ postsTable ].post_published,
+							warnings: latestBackup.has_warnings ? true : false,
 						} );
 						setLatestTime( date( 'c', latestBackup.last_updated + '+00:00' ) );
 					}
@@ -189,22 +184,47 @@ const Backups = () => {
 	const renderCompleteBackup = () => {
 		return (
 			<div className="jp-row">
-				<div className="lg-col-span-3 md-col-span-4 sm-col-span-4">
+				<div className="lg-col-span-4 md-col-span-4 sm-col-span-4">
 					<div className="backup__latest">
-						<img src={ CloudIcon } alt="" />
+						<img
+							src={ CloudIcon }
+							alt=""
+							className={ stats.warnings ? 'backup__warning-color' : '' }
+						/>
 						<h2>{ __( 'Latest Backup', 'jetpack-backup-pkg' ) }</h2>
 					</div>
 					<h1>{ formatDateString( latestTime ) }</h1>
-					<a
-						className="button is-full-width"
-						href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-						target="_blank"
-						rel="noreferrer"
-					>
-						{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
-					</a>
+					{ stats.warnings && (
+						<div className="backup__warning-text">
+							{ createInterpolateElement(
+								__(
+									'Backup is completed with some files missing. See your <a>backup in the cloud</a> for more details.',
+									'jetpack-backup-pkg'
+								),
+								{
+									a: (
+										<a
+											href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+											target="_blank"
+											rel="noreferrer"
+										/>
+									),
+								}
+							) }
+						</div>
+					) }
+					{ ! stats.warnings && (
+						<a
+							className="button is-full-width"
+							href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+							target="_blank"
+							rel="noreferrer"
+						>
+							{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
+						</a>
+					) }
 				</div>
-				<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
+				<div className="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
 						icon={ PostsIcon }

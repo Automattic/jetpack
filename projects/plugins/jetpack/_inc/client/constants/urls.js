@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 
 export const imagePath = window.Initial_State.pluginBaseUrl + '/images/';

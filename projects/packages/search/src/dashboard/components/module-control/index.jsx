@@ -1,24 +1,13 @@
-/**
- * External dependencies
- */
-import React, { Fragment, useCallback } from 'react';
-import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
-import { sprintf, __ } from '@wordpress/i18n';
-import { createInterpolateElement } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import analytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { sprintf, __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
+import React, { Fragment, useCallback } from 'react';
 
 import 'scss/rna-styles.scss';
 import './style.scss';

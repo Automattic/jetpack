@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import save from './save';
 
 // This deprecation is a result of:

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.17] - 2022-06-14
+
+## [2.1.16] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
 ## [2.1.15] - 2022-05-24
 ### Fixed
 - Do not lazy-load images when in RSS feeds. [#24471]
@@ -225,6 +231,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.1.17]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.16...v2.1.17
+[2.1.16]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.15...v2.1.16
 [2.1.15]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.14...v2.1.15
 [2.1.14]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.13...v2.1.14
 [2.1.13]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.12...v2.1.13

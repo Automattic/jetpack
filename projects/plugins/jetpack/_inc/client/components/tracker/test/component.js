@@ -1,46 +1,35 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { expect } from 'chai';
+import { jest } from '@jest/globals';
 import { mount } from 'enzyme';
-import { spy } from 'sinon';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import { Tracker } from '../index';
 
 describe( 'Tracker component', () => {
-	let tracker,
-		analytics,
-		theSpy;
+	let tracker, analytics, theSpy;
 
-	before( () => {
-		theSpy = spy();
+	beforeAll( () => {
+		theSpy = jest.fn();
 		analytics = {
 			tracks: {
-				recordEvent: theSpy
-			}
+				recordEvent: theSpy,
+			},
 		};
 		tracker = mount( <Tracker analytics={ analytics } /> );
 	} );
 
 	describe( 'when nothing happens', () => {
 		it( 'does not record anything', () => {
-			expect( theSpy.called ).to.be.false;
+			expect( theSpy ).not.toHaveBeenCalled();
 		} );
 	} );
 
 	describe( 'when a new search term appears', () => {
-		before( () => {
+		beforeAll( () => {
 			tracker.setProps( { searchTerm: 'new term' } );
 		} );
 
 		it( 'records a jetpack_wpa_search_term event', () => {
-			expect( theSpy.calledOnce ).to.be.true;
-			expect( theSpy.args[ 0 ][ 0 ] ).to.equal( 'jetpack_wpa_search_term' );
-			expect( theSpy.args[ 0 ][ 1 ] ).to.eql( { term: 'new term' } );
+			expect( theSpy ).toHaveBeenCalledTimes( 1 );
+			expect( theSpy ).toHaveBeenCalledWith( 'jetpack_wpa_search_term', { term: 'new term' } );
 		} );
 	} );
 } );

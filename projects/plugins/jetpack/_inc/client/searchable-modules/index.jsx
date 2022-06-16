@@ -1,28 +1,21 @@
-/**
- * External dependencies
- */
+import { __ } from '@wordpress/i18n';
+import Banner from 'components/banner';
+import ConnectUserBar from 'components/connect-user-bar';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
+import { includes, forEach } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { includes, forEach } from 'lodash';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Banner from 'components/banner';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import { getModules } from 'state/modules';
-import { isModuleFound } from 'state/search';
-import SettingsCard from 'components/settings-card';
-import SettingsGroup from 'components/settings-group';
-import { userCanManageModules } from 'state/initial-state';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
 	isUnavailableInSiteConnectionMode,
 } from 'state/connection';
-import ConnectUserBar from 'components/connect-user-bar';
+import { userCanManageModules } from 'state/initial-state';
+import { getModules } from 'state/modules';
+import { isModuleFound } from 'state/search';
 
 export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {

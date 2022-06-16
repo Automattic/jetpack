@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 ?>
-<div class="jetpack-beta__master-head">
+<div class="jetpack-beta__bleeding-edge-head">
 	<div class="jetpack-beta-container">
 		<a class="jp-masthead__logo-link" href="<?php echo esc_url( Utils::admin_url() ); ?>">
 			<svg className="jetpack-beta-logo" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 118 32">

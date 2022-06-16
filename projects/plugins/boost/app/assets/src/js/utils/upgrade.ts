@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import config from '../stores/config';
 
 /**
@@ -12,7 +9,7 @@ import config from '../stores/config';
  */
 export function getUpgradeURL() {
 	const siteSuffix = config.site.domain;
-	const product = 'jetpack_boost_monthly';
+	const product = 'jetpack_boost_yearly';
 
 	const redirectUrl = new URL( window.location.href );
 	redirectUrl.hash = '#/purchase-successful';

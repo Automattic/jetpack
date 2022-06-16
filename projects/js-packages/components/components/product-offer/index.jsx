@@ -1,21 +1,14 @@
-/**
- * External dependencies
- */
-import React, { Fragment, ReactElement } from 'react';
-import PropTypes from 'prop-types';
-import classnames from 'classnames';
-import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Text, { H3, Title } from '../text/index';
+import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
+import classnames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { Fragment, ReactElement } from 'react';
+import Alert from '../alert';
+import Button from '../button/index';
 import { getIconBySlug, CheckmarkIcon } from '../icons/index.jsx';
 import ProductPrice from '../product-price/index';
+import Text, { H3, Title } from '../text/index';
 import styles from './style.module.scss';
-import Button from '../button/index';
-import Alert from '../alert';
 
 /**
  * Product Detail Card Header component.
@@ -166,6 +159,10 @@ const ProductOffer = ( {
 
 				{ isFree && <H3>{ __( 'Free', 'jetpack' ) }</H3> }
 
+				<Alert level="error" showIcon={ !! error }>
+					{ error }
+				</Alert>
+
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Button
 						onClick={ addProductUrl ? null : onAdd }
@@ -187,8 +184,6 @@ const ProductOffer = ( {
 				) }
 
 				{ buttonDisclaimer }
-
-				{ error && <Alert level="error">{ error } </Alert> }
 			</div>
 		</div>
 	);
