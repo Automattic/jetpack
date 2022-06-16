@@ -6,18 +6,14 @@ import './style.scss';
 
 const ConnectionIcon = props => {
 	const { id, serviceName, label, profilePicture } = props;
-	const [ isPictureLoaded, setIsPictureLoaded ] = useState( false );
-	const [ displayPicture, setDisplayPicture ] = useState( !! profilePicture );
+	const [ hasDisplayPicture, setHasDisplayPicture ] = useState( !! profilePicture );
 
-	const onLoad = useCallback( () => () => setIsPictureLoaded( true ), [] );
-	const onError = useCallback( () => () => setDisplayPicture( false ), [] );
+	const onError = useCallback( () => setHasDisplayPicture( false ), [] );
 
 	return (
 		<label htmlFor={ id } className="jetpack-publicize-connection-label">
-			<div className={ isPictureLoaded ? 'components-connection-icon__picture' : '' }>
-				{ displayPicture && (
-					<img src={ profilePicture } alt={ label } onLoad={ onLoad } onError={ onError } />
-				) }
+			<div className={ hasDisplayPicture ? 'components-connection-icon__picture' : '' }>
+				{ hasDisplayPicture && <img src={ profilePicture } alt={ label } onError={ onError } /> }
 				<SocialServiceIcon
 					serviceName={ serviceName }
 					className="jetpack-publicize-gutenberg-social-icon"
