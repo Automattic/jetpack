@@ -28,6 +28,7 @@ const Backups = () => {
 		uploads: 0,
 		plugins: 0,
 		themes: 0,
+		warnings: false,
 	} );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle(), '' );
@@ -88,6 +89,7 @@ const Backups = () => {
 							themes: latestBackup.stats.themes.count,
 							uploads: latestBackup.stats.uploads.count,
 							posts: latestBackup.stats.tables[ postsTable ].post_published,
+							warnings: latestBackup.has_warnings ? true : false,
 						} );
 						setLatestTime( date( 'c', latestBackup.last_updated + '+00:00' ) );
 					}
@@ -182,22 +184,47 @@ const Backups = () => {
 	const renderCompleteBackup = () => {
 		return (
 			<div className="jp-row">
-				<div className="lg-col-span-3 md-col-span-4 sm-col-span-4">
+				<div className="lg-col-span-4 md-col-span-4 sm-col-span-4">
 					<div className="backup__latest">
-						<img src={ CloudIcon } alt="" />
+						<img
+							src={ CloudIcon }
+							alt=""
+							className={ stats.warnings ? 'backup__warning-color' : '' }
+						/>
 						<h2>{ __( 'Latest Backup', 'jetpack-backup-pkg' ) }</h2>
 					</div>
 					<h1>{ formatDateString( latestTime ) }</h1>
-					<a
-						className="button is-full-width"
-						href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-						target="_blank"
-						rel="noreferrer"
-					>
-						{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
-					</a>
+					{ stats.warnings && (
+						<div className="backup__warning-text">
+							{ createInterpolateElement(
+								__(
+									'Backup is completed with some files missing. See your <a>backup in the cloud</a> for more details.',
+									'jetpack-backup-pkg'
+								),
+								{
+									a: (
+										<a
+											href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+											target="_blank"
+											rel="noreferrer"
+										/>
+									),
+								}
+							) }
+						</div>
+					) }
+					{ ! stats.warnings && (
+						<a
+							className="button is-full-width"
+							href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+							target="_blank"
+							rel="noreferrer"
+						>
+							{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
+						</a>
+					) }
 				</div>
-				<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
+				<div className="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 					<StatBlock
 						icon={ PostsIcon }
