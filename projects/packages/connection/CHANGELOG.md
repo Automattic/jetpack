@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.41.0] - 2022-06-14
+### Changed
+- Updated package dependencies. [#24529]
+
+### Fixed
+- Fixed old tk_ai regex to accurately match tk_ai ids. [#24697]
+- Moved the connection_url_redirect action handling to the connection package. [#24529]
+
+## [1.40.5] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
 ## [1.40.4] - 2022-05-24
 ### Added
 - Allow plugins to filter the list of available modules. Only activate and consider active modules that are available [#24454]
@@ -608,6 +620,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.41.0]: https://github.com/Automattic/jetpack-connection/compare/v1.40.5...v1.41.0
+[1.40.5]: https://github.com/Automattic/jetpack-connection/compare/v1.40.4...v1.40.5
 [1.40.4]: https://github.com/Automattic/jetpack-connection/compare/v1.40.3...v1.40.4
 [1.40.3]: https://github.com/Automattic/jetpack-connection/compare/v1.40.2...v1.40.3
 [1.40.2]: https://github.com/Automattic/jetpack-connection/compare/v1.40.1...v1.40.2

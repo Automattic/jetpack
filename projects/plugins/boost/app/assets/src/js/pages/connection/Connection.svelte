@@ -4,6 +4,7 @@
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import { connection } from '../../stores/connection';
 	import CheckboxIcon from '../../svg/checkbox.svg';
+	import { onConnectionComplete } from '../../utils/connection';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 	import { jetpackURL } from '../../utils/jetpack-url';
 
@@ -13,6 +14,10 @@
 		__( 'Improve your SEO ranking', 'jetpack-boost' ),
 		__( 'Sell more stuff', 'jetpack-boost' ),
 	];
+
+	$: if ( $connection.connected ) {
+		onConnectionComplete();
+	}
 </script>
 
 <div class="jb-section__inner connection">

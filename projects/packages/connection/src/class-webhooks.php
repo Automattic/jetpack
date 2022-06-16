@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 
@@ -66,6 +68,11 @@ class Webhooks {
 			if ( empty( $_GET['handler'] ) || 'jetpack-connection-webhooks' !== $_GET['handler'] ) {
 				return;
 			}
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['connect_url_redirect'] ) ) {
+			$this->handle_connect_url_redirect();
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -156,5 +163,49 @@ class Webhooks {
 	 */
 	protected function do_exit() {
 		exit;
+	}
+
+	/**
+	 * Handle the `connect_url_redirect` action,
+	 * which is usually called to repeat an attempt for user to authorize the connection.
+	 *
+	 * @return void
+	 */
+	public function handle_connect_url_redirect() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+		$from = ! empty( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : 'iframe';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, sanitization happens in get_authorization_url()
+		$redirect = ! empty( $_GET['redirect_after_auth'] ) ? wp_unslash( $_GET['redirect_after_auth'] ) : false;
+
+		add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
+
+		if ( ! $this->connection->is_user_connected() ) {
+			$connect_url = add_query_arg( 'from', $from, $this->connection->get_authorization_url( null, $redirect ) );
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+			if ( isset( $_GET['notes_iframe'] ) ) {
+				$connect_url .= '&notes_iframe';
+			}
+			wp_safe_redirect( $connect_url );
+			$this->do_exit();
+		} else {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+			if ( ! isset( $_GET['calypso_env'] ) ) {
+				( new CookieState() )->state( 'message', 'already_authorized' );
+				wp_safe_redirect( $redirect );
+				$this->do_exit();
+			} else {
+				$connect_url = add_query_arg(
+					array(
+						'from'               => $from,
+						'already_authorized' => true,
+					),
+					$this->connection->get_authorization_url()
+				);
+				wp_safe_redirect( $connect_url );
+				$this->do_exit();
+			}
+		}
 	}
 }

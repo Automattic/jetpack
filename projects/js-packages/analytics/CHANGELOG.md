@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Analytics package releases.
 
+## 0.1.14 - 2022-06-14
+
+## 0.1.13 - 2022-06-08
+
 ## 0.1.12 - 2022-05-04
 ### Changed
 - Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]

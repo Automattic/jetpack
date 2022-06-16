@@ -118,8 +118,15 @@ class MailchimpSubscribeEdit extends Component {
 		} = attributes;
 		const classPrefix = 'wp-block-jetpack-mailchimp';
 		const waiting = (
-			<Placeholder icon={ icon } notices={ notices }>
-				<Spinner />
+			<Placeholder
+				icon={ icon }
+				notices={ notices }
+				className="wp-block-jetpack-mailchimp"
+				label={ __( 'Mailchimp', 'jetpack' ) }
+			>
+				<div className="align-center">
+					<Spinner />
+				</div>
 			</Placeholder>
 		);
 		const placeholder = (

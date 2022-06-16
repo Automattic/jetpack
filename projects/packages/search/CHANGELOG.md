@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.1] - 2022-06-14
+### Changed
+- Search record meter: pass sorted records to RecordMeterBar component [#24731]
+- Updated package dependencies. [#24529]
+
+## [0.15.0] - 2022-06-08
+### Changed
+- Record Meter: switches from using chartJS to the Jetpack RecordMeterBar component [#24322]
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Search record meter: changed the notice box to include a header text [#24346]
+- Search widget: use 'Search (Jetpack)' as wdiget name and remove `jetpack_widget_name` [#24577]
+- Updated package dependencies. [#24510]
+
+### Removed
+- Search: don't open modal if only sort parameter is set [#24576]
+- Search: Removed unused chart.js library [#24658]
+
+### Fixed
+- Search: avoid query on component mount when the overlay might not be visible [#24609]
+- Search: fix gridicon color in dark mode on Customberg [#24668]
+
 ## [0.14.2] - 2022-05-30
 ### Changed
 - Updated package dependencies
@@ -305,6 +326,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.15.1]: https://github.com/Automattic/jetpack-search/compare/v0.15.0...v0.15.1
+[0.15.0]: https://github.com/Automattic/jetpack-search/compare/v0.14.2...v0.15.0
 [0.14.2]: https://github.com/Automattic/jetpack-search/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/Automattic/jetpack-search/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/Automattic/jetpack-search/compare/v0.13.4...v0.14.0

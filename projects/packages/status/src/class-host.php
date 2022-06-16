@@ -59,4 +59,20 @@ class Host {
 	public function is_vip_site() {
 		return Constants::is_defined( 'WPCOM_IS_VIP_ENV' ) && true === Constants::get_constant( 'WPCOM_IS_VIP_ENV' );
 	}
+
+	/**
+	 * Add all wordpress.com environments to the safe redirect allowed list.
+	 *
+	 * To be used with a filter of allowed domains for a redirect.
+	 *
+	 * @param array $domains Allowed WP.com Environments.
+	 */
+	public static function allow_wpcom_environments( $domains ) {
+		$domains[] = 'wordpress.com';
+		$domains[] = 'jetpack.wordpress.com';
+		$domains[] = 'wpcalypso.wordpress.com';
+		$domains[] = 'horizon.wordpress.com';
+		$domains[] = 'calypso.localhost';
+		return $domains;
+	}
 }
