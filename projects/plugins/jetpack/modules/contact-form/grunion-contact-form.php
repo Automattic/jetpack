@@ -2417,27 +2417,30 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$attributes = array();
 		}
 
+		if ( $post ) {
+			$default_subject = sprintf(
+				// translators: the blog name and post title.
+				_x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack' ),
+				$default_subject,
+				Grunion_Contact_Form_Plugin::strip_tags( $post->post_title )
+			);
+		}
+
 		if ( ! empty( $attributes['widget'] ) && $attributes['widget'] ) {
 			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'widget-' . $attributes['widget'];
-			// translators: the blog name.
+			// translators: the blog name (and post name, if applicable).
 			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack' ), $default_subject );
 		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
 			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'block-template-' . $attributes['block_template'];
-			// translators: the blog name.
-			$default_subject = sprintf( _x( '%1$s Block Template', '%1$s = blog name', 'jetpack' ), $default_subject );
 		} elseif ( ! empty( $attributes['block_template_part'] ) && $attributes['block_template_part'] ) {
 			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'block-template-part-' . $attributes['block_template_part'];
-			// translators: the blog name.
-			$default_subject = sprintf( _x( '%1$s Block Template Part', '%1$s = blog name', 'jetpack' ), $default_subject );
 		} elseif ( $post ) {
 			$attributes['id'] = $post->ID;
-			// translators: the blog name and post title.
-			$default_subject = sprintf( _x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack' ), $default_subject, Grunion_Contact_Form_Plugin::strip_tags( $post->post_title ) );
-			$post_author     = get_userdata( $post->post_author );
-			$default_to     .= $post_author->user_email;
+			$post_author      = get_userdata( $post->post_author );
+			$default_to      .= $post_author->user_email;
 		}
 
 		// Keep reference to $this for parsing form fields.
