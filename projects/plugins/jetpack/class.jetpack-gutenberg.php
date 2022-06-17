@@ -60,6 +60,14 @@ class Jetpack_Gutenberg {
 	private static $cached_availability = null;
 
 	/**
+	 * Site-specific features available.
+	 * Their calculation can be expensive and slow, so we're caching it for the request.
+	 *
+	 * @var array Site-specific features
+	 */
+	private static $site_specific_features = array();
+
+	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
@@ -338,7 +346,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_available_extensions( $allowed_extensions = null ) {
 		$exclusions         = get_option( 'jetpack_excluded_extensions', array() );
-		$allowed_extensions = is_null( $allowed_extensions ) ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
+		$allowed_extensions = $allowed_extensions === null ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
 
 		return array_diff( $allowed_extensions, $exclusions );
 	}
@@ -452,6 +460,10 @@ class Jetpack_Gutenberg {
 	 */
 	public static function should_load() {
 		if ( ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+
+		if ( get_option( 'jetpack_blocks_disabled', false ) ) {
 			return false;
 		}
 
@@ -678,6 +690,7 @@ class Jetpack_Gutenberg {
 					/** This filter is documented in class.jetpack-gutenberg.php */
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 					'is_private_site'           => '-1' === get_option( 'blog_public' ),
+					'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
 					'is_offline_mode'           => $status->is_offline_mode(),
 					/**
 					 * Enable the RePublicize UI in the block editor context.
@@ -695,6 +708,7 @@ class Jetpack_Gutenberg {
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
 				'allowedMimeTypes' => wp_get_mime_types(),
+				'siteLocale'       => str_replace( '_', '-', get_locale() ),
 			)
 		);
 	}
@@ -703,7 +717,7 @@ class Jetpack_Gutenberg {
 	 * Add the Gutenberg editor stylesheet to iframed editors, such as the site editor,
 	 * which don't have access to stylesheets added with `wp_enqueue_style`.
 	 *
-	 * This workaround is currently used by WordPress.com Simple sites.
+	 * This workaround is currently used by WordPress.com Simple and Atomic sites.
 	 *
 	 * @since 10.7
 	 *
@@ -1059,28 +1073,59 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Retrieve site-specific features for Simple sites.
+	 *
+	 * We're caching the data for the lifetime of the request, because it can be slow to calculate,
+	 * and it can be called multiple times per single request.
+	 *
+	 * We intentionally don't use object caching or any other type of persistent caching,
+	 * in order to avoid complex cache invalidation on subscription addition or removal.
+	 *
+	 * @since 10.7
+	 *
+	 * @return array
+	 */
+	private static function get_site_specific_features() {
+		$current_blog_id = get_current_blog_id();
+
+		if ( isset( self::$site_specific_features[ $current_blog_id ] ) ) {
+			return self::$site_specific_features[ $current_blog_id ];
+		}
+
+		if ( ! class_exists( 'Store_Product_List' ) ) {
+			require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+		}
+
+		$site_specific_features                           = Store_Product_List::get_site_specific_features_data( $current_blog_id );
+		self::$site_specific_features[ $current_blog_id ] = $site_specific_features;
+
+		return $site_specific_features;
+	}
+
+	/**
 	 * Set the availability of the block as the editor
 	 * is loaded.
 	 *
 	 * @param string $slug Slug of the block.
 	 */
 	public static function set_availability_for_plan( $slug ) {
-		$is_available   = true;
+		$slug = self::remove_extension_prefix( $slug );
+
+		if ( Jetpack_Plan::supports( $slug ) ) {
+			self::set_extension_available( $slug );
+			return;
+		}
+
+		// Check what's the minimum plan where the feature is available.
 		$plan           = '';
-		$slug           = self::remove_extension_prefix( $slug );
 		$features_data  = array();
 		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		$is_atomic_site = ( new Host() )->is_woa_site();
 
-		// Check feature availability for Simple and Atomic sites.
 		if ( $is_simple_site || $is_atomic_site ) {
-
 			// Simple sites.
 			if ( $is_simple_site ) {
-				if ( ! class_exists( 'Store_Product_List' ) ) {
-					require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
-				}
-				$features_data = Store_Product_List::get_site_specific_features_data();
+				$features_data = self::get_site_specific_features();
 			} else {
 				// Atomic sites.
 				$option = get_option( 'jetpack_active_plan' );
@@ -1089,28 +1134,22 @@ class Jetpack_Gutenberg {
 				}
 			}
 
-			$is_available = isset( $features_data['active'] ) && in_array( $slug, $features_data['active'], true );
 			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
 			}
 		} else {
 			// Jetpack sites.
-			$is_available = Jetpack_Plan::supports( $slug );
-			$plan         = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
+			$plan = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
 		}
 
-		if ( $is_available ) {
-			self::set_extension_available( $slug );
-		} else {
-			self::set_extension_unavailable(
-				$slug,
-				'missing_plan',
-				array(
-					'required_feature' => $slug,
-					'required_plan'    => $plan,
-				)
-			);
-		}
+		self::set_extension_unavailable(
+			$slug,
+			'missing_plan',
+			array(
+				'required_feature' => $slug,
+				'required_plan'    => $plan,
+			)
+		);
 	}
 
 	/**
@@ -1148,13 +1187,20 @@ class Jetpack_Gutenberg {
 	}
 }
 
-/*
- * Enable upgrade nudge for Atomic sites.
- * This feature is false as default,
- * so let's enable it through this filter.
- *
- * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
- */
 if ( ( new Host() )->is_woa_site() ) {
+	/**
+	* Enable upgrade nudge for Atomic sites.
+	 * This feature is false as default,
+	 * so let's enable it through this filter.
+	 *
+	 * More doc: https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#upgrades-for-blocks
+	 */
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
+
+	/**
+	 * Load block editor styles inline for iframed editors.
+	 *
+	 * @see paYJgx-1Kl-p2
+	 */
+	add_action( 'admin_init', array( 'Jetpack_Gutenberg', 'add_iframed_editor_style' ) );
 }

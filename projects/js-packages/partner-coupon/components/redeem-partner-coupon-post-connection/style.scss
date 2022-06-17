@@ -1,0 +1,183 @@
+@import '@wordpress/base-styles/breakpoints';
+@import '@wordpress/base-styles/mixins';
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-redeem-partner-coupon-post-connection {
+	background: var( --jp-white );
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border-radius: 4px;
+
+	/*
+	 * Make our custom "Redeem" button look like the "Setup and redeem" button.
+	 * We have to do this because it's not native to the ConnectScreen component.
+	 */
+	.components-button {
+		font-weight: 600;
+		font-size: 14px;
+		border-radius: 4px;
+		height: 40px;
+		justify-content: center;
+	}
+
+	&__layout {
+		@include break-medium {
+			display: grid;
+			grid-template-columns: auto 34%;
+			grid-template-areas:
+"content aside"
+"subcontent aside";
+		}
+	}
+
+	&__content {
+		padding: 32px 24px 24px 24px;
+
+		@include break-medium {
+			padding: 48px 48px 0 48px;
+		}
+	}
+
+	&__subcontent {
+		padding: 24px;
+
+		@include break-medium {
+			padding: 0 48px 48px 48px;
+		}
+
+		> p:first-child {
+			margin-top: 0;
+
+			@include break-medium {
+				margin-top: 1em;
+			}
+		}
+	}
+
+	&__aside {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 48px 0;
+		background: var( --jp-white-off );
+		background-size: cover;
+		background-position: center;
+
+		@include break-medium {
+			grid-area: aside;
+			padding: 0;
+		}
+
+		img {
+			width: 90px;
+
+			@include break-medium {
+				width: auto;
+			}
+		}
+	}
+
+	&__logo {
+		display: flex;
+		justify-content: left;
+		align-items: center;
+		color: #000000;
+		font-weight: bold;
+
+		> * + * {
+			margin-left: 8px;
+
+			@include break-mobile {
+				margin-left: 16px;
+			}
+		}
+	}
+
+  &__heading {
+		font-style: normal;
+		font-weight: bold;
+		font-size: 36px;
+		line-height: 40px;
+		color: #000000;
+		margin-top: 48px;
+		margin-bottom: 0;
+	}
+
+	p, li {
+		font-style: normal;
+		font-weight: normal;
+		font-size: 16px;
+		line-height: 24px;
+		color: var( --jp-black );
+	}
+
+	ul {
+		list-style-type: none;
+		padding: 0;
+
+		li {
+			background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+			background-size: 24px;
+			padding-left: 30px;
+			margin-bottom: 9px;
+		}
+	}
+
+	.jp-action-button {
+		button {
+			width: 100%;
+
+			@include break-medium {
+				width: auto;
+			}
+		}
+	}
+
+	&__actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+		margin-top: 32px;
+
+		@include break-medium {
+			justify-content: left;
+		}
+
+		@include break-xlarge {
+			flex-wrap: nowrap;
+		}
+
+		> div {
+			flex: 1 0 100%;
+			text-align: center;
+
+			@include break-medium {
+				text-align: left;
+			}
+
+			@include break-xlarge {
+				flex: 0 0 auto;
+			}
+		}
+	}
+
+	&__remind-me-later {
+		margin: 24px 0 0 0;
+		padding: 2px 0;
+		border: 0;
+		background: transparent;
+		color: #000000;
+		font-weight: 600;
+		font-size: 1rem;
+		text-decoration: underline;
+		cursor: pointer;
+
+		&:hover {
+			text-decoration: none;
+		}
+
+		@include break-xlarge {
+			margin: 0 0 0 24px;
+		}
+	}
+}

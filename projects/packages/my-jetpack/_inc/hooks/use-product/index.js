@@ -1,13 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { useSelect, useDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from '../../state/store';
-import { mapObjectKeysToCamel } from '../../utils/to-camel';
 
 /**
  * React custom hook that exposes data about Product,
@@ -18,18 +10,7 @@ import { mapObjectKeysToCamel } from '../../utils/to-camel';
  */
 export function useProduct( productId ) {
 	const { activateProduct, deactivateProduct } = useDispatch( STORE_ID );
-
-	/*
-	 * Re map object keys to camel case.
-	 * Consider to improve this in the process.
-	 */
-	let detail = useSelect( select => select( STORE_ID ).getProduct( productId ) );
-	detail = mapObjectKeysToCamel( detail, true );
-	detail.pricingForUi = mapObjectKeysToCamel( detail.pricingForUi, true );
-
-	// Pricinf for UI.
-	const { fullPrice, promotionPercentage } = detail.pricingForUi;
-	detail.pricingForUi.discountedPrice = ( fullPrice * ( 100 - promotionPercentage ) ) / 100;
+	const detail = useSelect( select => select( STORE_ID ).getProduct( productId ) );
 
 	return {
 		activate: () => activateProduct( productId ),

@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Abstract sitemap generation state class.
  *

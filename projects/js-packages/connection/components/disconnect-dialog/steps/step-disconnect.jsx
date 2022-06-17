@@ -1,16 +1,9 @@
-/**
- * External Dependencies
- */
-import React, { useCallback } from 'react';
-
-/**
- * Internal Dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
 
 /**
@@ -64,12 +57,12 @@ const StepDisconnect = props => {
 		if ( isDisconnecting ) {
 			buttonText = __( 'Disconnecting…', 'jetpack' );
 		} else if ( context === 'plugins' ) {
-			buttonText = __( 'Disconnect and Deactivate', 'jetpack' );
+			buttonText = __( 'Deactivate', 'jetpack' );
 		}
 
 		return (
 			<Button
-				isPrimary
+				variant="primary"
 				disabled={ isDisconnecting }
 				onClick={ handleDisconnectClick }
 				className="jp-connection__disconnect-dialog__btn-disconnect"
@@ -86,7 +79,11 @@ const StepDisconnect = props => {
 	 * @returns {React.ElementType} - Fallback message for when there are no connected plugins or passed components to show.
 	 */
 	const renderFallbackOutput = () => {
-		if ( ! connectedPlugins && ! disconnectStepComponent ) {
+		const hasOtherConnectedPlugins =
+			connectedPlugins &&
+			Object.keys( connectedPlugins ).filter( key => key !== disconnectingPlugin ).length;
+
+		if ( ! hasOtherConnectedPlugins && ! disconnectStepComponent ) {
 			return (
 				<div className="jp-connection__disconnect-dialog__step-copy">
 					<p className="jp-connection__disconnect-dialog__large-text">
@@ -148,12 +145,14 @@ const StepDisconnect = props => {
 					</div>
 					<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-5 md-col-span-8 sm-col-span-4">
 						<Button
-							isPrimary
+							variant="primary"
 							disabled={ isDisconnecting }
 							onClick={ handleStayConnectedClick }
 							className="jp-connection__disconnect-dialog__btn-dismiss"
 						>
-							{ __( 'Stay connected', 'jetpack' ) }
+							{ context === 'plugins'
+								? __( 'Cancel', 'jetpack' )
+								: __( 'Stay connected', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 						</Button>
 						{ renderDisconnectButton() }
 					</div>

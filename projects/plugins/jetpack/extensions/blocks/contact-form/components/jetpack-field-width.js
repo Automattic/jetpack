@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { BaseControl, Button, ButtonGroup } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 export default function JetpackFieldWidth( { setAttributes, width } ) {
 	return (
@@ -20,7 +17,7 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 						<Button
 							key={ widthValue }
 							isSmall
-							isPrimary={ widthValue === width }
+							variant={ widthValue === width ? 'primary' : undefined }
 							onClick={ () => setAttributes( { width: widthValue } ) }
 						>
 							{ widthValue }%

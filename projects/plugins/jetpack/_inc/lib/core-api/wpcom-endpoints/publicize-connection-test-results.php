@@ -1,6 +1,11 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Fetch information about Publicize connections on a site, including tests and connection status.
+ *
+ * @package automattic/jetpack
+ */
 
-require_once dirname( __FILE__ ) . '/publicize-connections.php';
+require_once __DIR__ . '/publicize-connections.php';
 
 /**
  * Publicize: List Connection Test Result Data
@@ -10,6 +15,9 @@ require_once dirname( __FILE__ ) . '/publicize-connections.php';
  * @since 6.8
  */
 class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections {
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/connection-test-results';
@@ -74,11 +82,14 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 	}
 
 	/**
-	 * @param WP_REST_Request
+	 * Get list of Publicize Connections.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
 	 * @see Publicize::get_publicize_conns_test_results()
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
-	public function get_items( $request ) {
+	public function get_items( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $publicize;
 
 		$items = $this->get_connections();
@@ -117,5 +128,4 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		return $response;
 	}
 }
-
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results' );

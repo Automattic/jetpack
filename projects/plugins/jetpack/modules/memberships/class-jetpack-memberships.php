@@ -108,8 +108,9 @@ class Jetpack_Memberships {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
-			// Yes, `personal-bundle` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';
+			// Yes, `pro-plan` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
+			$wpcom_plan_slug     = defined( 'ENABLE_PRO_PLAN' ) ? 'pro-plan' : 'personal-bundle';
+			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? $wpcom_plan_slug : 'jetpack_personal';
 		}
 
 		return self::$instance;
@@ -312,7 +313,7 @@ class Jetpack_Memberships {
 			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
 			$content       = str_replace( 'wp-block-jetpack-recurring-payments', 'wp-block-jetpack-recurring-payments wp-block-button', $content );
 			$subscribe_url = $this->get_subscription_url( $plan_id );
-			return str_replace( 'href="#"', 'href="' . $subscribe_url . '"', $content );
+			return preg_replace( '/(href=".*")/U', 'href="' . $subscribe_url . '"', $content );
 		}
 
 		return $this->deprecated_render_button_v1( $attributes, $plan_id );
@@ -446,14 +447,8 @@ class Jetpack_Memberships {
 	 * Whether the site's plan supports the Recurring Payments block.
 	 */
 	public static function is_supported_jetpack_recurring_payments() {
-		// For WPCOM sites.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
-			$site_id = get_current_blog_id();
-			return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
-		}
-		// For Jetpack sites.
 		return (
-			Jetpack::is_connection_ready() &&
+			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
 			Jetpack_Plan::supports( 'recurring-payments' )
 		);
 	}

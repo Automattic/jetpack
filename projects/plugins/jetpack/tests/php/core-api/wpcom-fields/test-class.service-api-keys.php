@@ -8,8 +8,8 @@ require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-te
  */
 class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_REST_Testcase {
 
-	static $editor_user_id;
-	static $subscriber_user_id;
+	public static $editor_user_id;
+	public static $subscriber_user_id;
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$editor_user_id     = $factory->user->create( array( 'role' => 'editor' ) );
 		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
@@ -25,9 +25,9 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'success' );
-		$this->assertEquals( $data['service'], 'mapbox' );
-		$this->assertEquals( $data['service_api_key'], 'ABC' );
+		$this->assertEquals( 'success', $data['code'] );
+		$this->assertEquals( 'mapbox', $data['service'] );
+		$this->assertEquals( 'ABC', $data['service_api_key'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
@@ -37,7 +37,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_service' );
+		$this->assertEquals( 'invalid_service', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
@@ -53,7 +53,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_key' );
+		$this->assertEquals( 'invalid_key', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
@@ -68,7 +68,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_user_permission_edit_others_posts' );
+		$this->assertEquals( 'invalid_user_permission_edit_others_posts', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
@@ -83,7 +83,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_service' );
+		$this->assertEquals( 'invalid_service', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
@@ -98,7 +98,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_user_permission_edit_others_posts' );
+		$this->assertEquals( 'invalid_user_permission_edit_others_posts', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
@@ -109,9 +109,9 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'success' );
-		$this->assertEquals( $data['service'], 'mapbox' );
-		$this->assertEquals( $data['service_api_key'], '' );
+		$this->assertEquals( 'success', $data['code'] );
+		$this->assertEquals( 'mapbox', $data['service'] );
+		$this->assertSame( '', $data['service_api_key'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
@@ -121,7 +121,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_user_permission_edit_others_posts' );
+		$this->assertEquals( 'invalid_user_permission_edit_others_posts', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 
@@ -131,7 +131,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['code'], 'invalid_service' );
+		$this->assertEquals( 'invalid_service', $data['code'] );
 		$this->assertTrue( isset( $data['message'] ) );
 	}
 

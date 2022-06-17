@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { expect } from 'chai';
-
-/**
- * Internal dependencies
- */
 import actions, {
 	SET_USER_IS_CONNECTING,
 	CONNECT_USER,
@@ -27,7 +20,29 @@ describe( 'actions', () => {
 				isConnecting: true,
 				type: SET_USER_IS_CONNECTING,
 			} );
-			expect( action.next().value ).to.be.eql( { type: CONNECT_USER, from, redirectFunc } );
+			expect( action.next().value ).to.be.eql( {
+				type: CONNECT_USER,
+				from,
+				redirectFunc,
+				redirectUri: undefined,
+			} );
+		} );
+
+		it( 'connect user with redirectUri', () => {
+			const redirectFunc = () => {};
+			const from = 'FROM';
+			const redirectUri = 'REDIRECT';
+			const action = actions.connectUser( { from, redirectFunc, redirectUri } );
+			expect( action.next().value ).to.be.eql( {
+				isConnecting: true,
+				type: SET_USER_IS_CONNECTING,
+			} );
+			expect( action.next().value ).to.be.eql( {
+				type: CONNECT_USER,
+				from,
+				redirectFunc,
+				redirectUri,
+			} );
 		} );
 	} );
 

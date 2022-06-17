@@ -3,6 +3,7 @@
 @import 'main/mixins';
 @import 'main/wp-admin';
 @import 'main/dashboard';
+@import 'main/common';
 
 // Components
 @import 'components/connection';
@@ -16,3 +17,7 @@
 @import 'components/numbered-list';
 @import 'components/rating-card';
 @import 'components/button';
+@import 'components/card';
+@import 'components/checklist';
+@import 'components/badge';
+@import 'components/support';

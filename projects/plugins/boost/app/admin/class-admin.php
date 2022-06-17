@@ -10,12 +10,13 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 class Admin {
@@ -26,9 +27,10 @@ class Admin {
 	const MENU_SLUG = 'jetpack-boost';
 
 	/**
-	 * Nonce action for setting the status of show_rating_prompt.
+	 * Nonce action for setting the statuses of rating and score prompts.
 	 */
 	const SET_SHOW_RATING_PROMPT_NONCE = 'set_show_rating_prompt';
+	const SET_SHOW_SCORE_PROMPT_NONCE  = 'set_show_score_prompt';
 
 	/**
 	 * Option to store options that have been dismissed.
@@ -36,9 +38,10 @@ class Admin {
 	const DISMISSED_NOTICE_OPTION = 'jb-dismissed-notices';
 
 	/**
-	 * Name of option to store status of show/hide rating prompts
+	 * Name of option to store status of show/hide rating and score prompts
 	 */
 	const SHOW_RATING_PROMPT_OPTION = 'jb_show_rating_prompt';
+	const SHOW_SCORE_PROMPT_OPTION  = 'jb_show_score_prompt';
 
 	/**
 	 * Main plugin instance.
@@ -58,11 +61,13 @@ class Admin {
 		$this->modules     = $modules;
 		$this->speed_score = new Speed_Score( $modules );
 		Environment_Change_Detector::init();
+		Premium_Pricing::init();
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
 		add_action( 'admin_notices', array( $this, 'show_notices' ) );
 		add_action( 'wp_ajax_set_show_rating_prompt', array( $this, 'handle_set_show_rating_prompt' ) );
+		add_action( 'wp_ajax_set_show_score_prompt', array( $this, 'handle_set_show_score_prompt' ) );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_js_constants' ) );
 
 		$this->handle_get_parameters();
@@ -81,6 +86,9 @@ class Admin {
 	 * Enqueue scripts and styles for the admin page.
 	 */
 	public function admin_init() {
+		// Clear premium features cache when the plugin settings page is loaded.
+		Premium_Features::clear_cache();
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
@@ -114,7 +122,7 @@ class Admin {
 		wp_register_script(
 			$admin_js_handle,
 			plugins_url( $internal_path . 'jetpack-boost.js', JETPACK_BOOST_PATH ),
-			array(),
+			array( 'wp-i18n', 'wp-components' ),
 			JETPACK_BOOST_VERSION,
 			true
 		);
@@ -130,6 +138,7 @@ class Admin {
 			'optimizations'       => $optimizations,
 			'locale'              => get_locale(),
 			'site'                => array(
+				'domain'    => ( new Status() )->get_site_suffix(),
 				'url'       => get_home_url(),
 				'online'    => ! ( new Status() )->is_offline_mode(),
 				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
@@ -137,6 +146,8 @@ class Admin {
 			'shownAdminNoticeIds' => $this->get_shown_admin_notice_ids(),
 			'preferences'         => array(
 				'showRatingPrompt' => $this->get_show_rating_prompt(),
+				'showScorePrompt'  => $this->get_show_score_prompt(),
+				'prioritySupport'  => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
 
 			/**
@@ -250,13 +261,10 @@ class Admin {
 	/**
 	 * Returns a list of admin notices to show. Asks each module to provide admin notices the user needs to see.
 	 *
-	 * @TODO: This is still a code smell. We're carrying the whole modules instance just to get a list of admin notices.
-	 *
 	 * @return \Automattic\Jetpack_Boost\Admin\Admin_Notice[]
 	 */
 	public function get_admin_notices() {
-		$critical_css = new Critical_CSS();
-		return $critical_css->get_admin_notices();
+		return apply_filters( 'jetpack_boost_admin_notices', array() );
 	}
 
 	/**
@@ -269,7 +277,7 @@ class Admin {
 	 */
 	public function handle_get_parameters() {
 		if ( is_admin() && ! empty( $_GET['jb-dismiss-notice'] ) ) {
-			$slug = sanitize_title( $_GET['jb-dismiss-notice'] );
+			$slug = sanitize_title( wp_unslash( $_GET['jb-dismiss-notice'] ) );
 
 			$dismissed_notices = \get_option( self::DISMISSED_NOTICE_OPTION, array() );
 
@@ -291,7 +299,7 @@ class Admin {
 				'status' => 'ok',
 			);
 
-			$is_enabled = 'true' === $_POST['value'] ? '1' : '0';
+			$is_enabled = isset( $_POST['value'] ) && 'true' === $_POST['value'] ? '1' : '0';
 			\update_option( self::SHOW_RATING_PROMPT_OPTION, $is_enabled );
 
 			wp_send_json( $response );
@@ -314,6 +322,37 @@ class Admin {
 	}
 
 	/**
+	 * Handle the ajax request to set show-rating-prompt status.
+	 */
+	public function handle_set_show_score_prompt() {
+		if ( check_ajax_referer( self::SET_SHOW_SCORE_PROMPT_NONCE, 'nonce' ) && $this->check_for_permissions() ) {
+			$response = array(
+				'status' => 'ok',
+			);
+
+			$is_enabled = isset( $_POST['value'] ) && 'true' === $_POST['value'] ? '1' : '0';
+			\update_option( self::SHOW_SCORE_PROMPT_OPTION, $is_enabled );
+
+			wp_send_json( $response );
+		} else {
+			$error = new \WP_Error( 'authorization', __( 'You do not have permission to take this action.', 'jetpack-boost' ) );
+			wp_send_json_error( $error, 403 );
+		}
+	}
+
+	/**
+	 * Get the value of show_score_prompt.
+	 *
+	 * This determines if there should be a prompt after speed score worsens. Initially the value is set to true by
+	 * default. Once the user clicks on the support button, it is switched to false.
+	 *
+	 * @return bool
+	 */
+	public function get_show_score_prompt() {
+		return \get_option( self::SHOW_SCORE_PROMPT_OPTION, '1' ) === '1';
+	}
+
+	/**
 	 * Delete the option tracking which admin notices have been dismissed during deactivation.
 	 */
 	public static function clear_dismissed_notices() {
@@ -327,6 +366,12 @@ class Admin {
 		\delete_option( self::SHOW_RATING_PROMPT_OPTION );
 	}
 
+	/**
+	 * Clear the status of show_score_prompt
+	 */
+	public static function clear_show_score_prompt() {
+		\delete_option( self::SHOW_SCORE_PROMPT_OPTION );
+	}
 	/**
 	 * Clear a specific admin notice.
 	 *
@@ -352,6 +397,7 @@ class Admin {
 	public function add_js_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
 		$constants['showRatingPromptNonce'] = wp_create_nonce( self::SET_SHOW_RATING_PROMPT_NONCE );
+		$constants['showScorePromptNonce']  = wp_create_nonce( self::SET_SHOW_SCORE_PROMPT_NONCE );
 
 		return $constants;
 	}

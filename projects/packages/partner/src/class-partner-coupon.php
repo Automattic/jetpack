@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Jetpack_Partner_Coupon
  *
- * @since $$next_version$$
+ * @since 1.6.0
  */
 class Partner_Coupon {
 
@@ -66,7 +66,14 @@ class Partner_Coupon {
 	 * @var array
 	 */
 	private static $supported_partners = array(
-		'IONOS' => 'IONOS',
+		'IONOS' => array(
+			'name' => 'IONOS',
+			'logo' => array(
+				'src'    => '/images/ionos-logo.jpg',
+				'width'  => 119,
+				'height' => 32,
+			),
+		),
 	);
 
 	/**
@@ -84,7 +91,7 @@ class Partner_Coupon {
 	 * @return Partner_Coupon
 	 */
 	public static function get_instance() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Partner_Coupon( array( Connection_Client::class, 'wpcom_json_api_request_as_blog' ) );
 		}
 
@@ -130,7 +137,7 @@ class Partner_Coupon {
 	 */
 	public function catch_coupon( $plugin_slug, $redirect_location ) {
 		// Accept and store a partner coupon if present, and redirect to Jetpack connection screen.
-		$partner_coupon = isset( $_GET['jetpack-partner-coupon'] ) ? sanitize_text_field( $_GET['jetpack-partner-coupon'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$partner_coupon = isset( $_GET['jetpack-partner-coupon'] ) ? sanitize_text_field( wp_unslash( $_GET['jetpack-partner-coupon'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $partner_coupon ) {
 			Jetpack_Options::update_options(
 				array(
@@ -340,8 +347,9 @@ class Partner_Coupon {
 		}
 
 		return array(
-			'name'   => $supported_partners[ $prefix ],
+			'name'   => $supported_partners[ $prefix ]['name'],
 			'prefix' => $prefix,
+			'logo'   => isset( $supported_partners[ $prefix ]['logo'] ) ? $supported_partners[ $prefix ]['logo'] : null,
 		);
 	}
 
@@ -359,7 +367,7 @@ class Partner_Coupon {
 		/**
 		 * Allow for plugins to register supported products.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.6.0
 		 *
 		 * @param array A list of product details.
 		 * @return array
@@ -428,7 +436,7 @@ class Partner_Coupon {
 		/**
 		 * Allow external code to add additional supported partners.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.6.0
 		 *
 		 * @param array $supported_partners A list of supported partners.
 		 * @return array
@@ -445,7 +453,7 @@ class Partner_Coupon {
 		/**
 		 * Allow external code to add additional supported presets.
 		 *
-		 * @since $$next_version$$
+		 * @since 1.6.0
 		 *
 		 * @param array $supported_presets A list of supported presets.
 		 * @return array

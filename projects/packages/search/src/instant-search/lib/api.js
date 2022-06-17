@@ -1,15 +1,7 @@
-/**
- * External dependencies
- */
-import { encode } from 'qss';
-import { flatten } from 'q-flat';
 import stringify from 'fast-json-stable-stringify';
+import { flatten } from 'q-flat';
+import { encode } from 'qss';
 import lru from 'tiny-lru/lib/tiny-lru.esm';
-
-/**
- * Internal dependencies
- */
-import { getFilterKeys } from './filters';
 import {
 	MINUTE_IN_MILLISECONDS,
 	MULTISITE_NO_GROUP_VALUE,
@@ -17,6 +9,7 @@ import {
 	RESULT_FORMAT_PRODUCT,
 	SERVER_OBJECT_NAME,
 } from './constants';
+import { getFilterKeys } from './filters';
 
 let abortController;
 
@@ -424,7 +417,7 @@ export function search( options, requestId ) {
 	//       "Private" Jetpack sites are not yet supported.
 	const urlForPublicApi = `https://public-api.wordpress.com/rest/v1.3${ pathForPublicApi }`;
 	const urlForWpcomOrigin = `${ homeUrl }/wp-json/wpcom-origin/v1.3${ pathForPublicApi }`;
-	const urlForAtomicOrigin = `${ apiRoot }wpcom/v2/search?${ queryString }`;
+	const urlForAtomicOrigin = `${ apiRoot }jetpack/v4/search?${ queryString }`;
 	let url = urlForPublicApi;
 	if ( isPrivateSite && isWpcom ) {
 		url = urlForWpcomOrigin;

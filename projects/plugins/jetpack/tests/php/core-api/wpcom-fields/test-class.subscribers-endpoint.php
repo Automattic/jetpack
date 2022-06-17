@@ -11,8 +11,8 @@ if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR'
  */
 class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_Testcase {
 
-	static $editor_user_id;
-	static $subscriber_user_id;
+	public static $editor_user_id;
+	public static $subscriber_user_id;
 
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$editor_user_id     = $factory->user->create( array( 'role' => 'editor' ) );
@@ -41,7 +41,7 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( $data['count'], 100 );
+		$this->assertEquals( 100, $data['count'] );
 	}
 
 	public function test_get_subscriber_count_without_edit_permission() {
@@ -52,6 +52,6 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 		$data     = $response->get_data();
 
 		$this->assertFalse( isset( $data['count'] ) );
-		$this->assertEquals( $data['data']['status'], 401 );
+		$this->assertEquals( 401, $data['data']['status'] );
 	}
 }

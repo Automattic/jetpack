@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
 import { prerequisitesBuilder, isModuleActive } from 'jetpack-e2e-commons/env/prerequisites.js';
 import { activateModules, deactivateModules } from 'jetpack-e2e-commons/env/index.js';
@@ -20,7 +20,10 @@ test.describe( 'Jetpack compatibility', () => {
 		await activateModules( [ 'lazy-images' ] );
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( true );
+		expect(
+			await jetpackBoostPage.isModuleEnabled( 'lazy-images' ),
+			'lazy-images module should be enabled'
+		).toEqual( true );
 	} );
 
 	test( 'The Jetpack lazy-image module deactivation reflects in Boost dashboard', async ( {
@@ -30,7 +33,10 @@ test.describe( 'Jetpack compatibility', () => {
 		await deactivateModules( [ 'lazy-images' ] );
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.isModuleEnabled( 'lazy-images' ) ).toEqual( false );
+		expect(
+			await jetpackBoostPage.isModuleEnabled( 'lazy-images' ),
+			'lazy-images module should be disabled'
+		).toEqual( false );
 	} );
 
 	test( 'The Boost lazy-image module activation reflects in Jetpack dashboard', async ( {
@@ -40,7 +46,7 @@ test.describe( 'Jetpack compatibility', () => {
 		await activateBoostModules( [ 'lazy-images' ] );
 
 		const isActive = await isModuleActive( 'lazy-images' );
-		expect( isActive ).toBe( true );
+		expect( isActive, 'lazy-images module should be active' ).toBe( true );
 	} );
 
 	test( 'The Boost lazy-image module deactivation reflects in Jetpack dashboard', async ( {
@@ -50,6 +56,6 @@ test.describe( 'Jetpack compatibility', () => {
 		await deactivateBoostModules( [ 'lazy-images' ] );
 
 		const isActive = await isModuleActive( 'lazy-images' );
-		expect( isActive ).toBe( false );
+		expect( isActive, 'lazy-images module should not be active' ).toBe( false );
 	} );
 } );

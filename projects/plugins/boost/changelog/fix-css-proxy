@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Carrying forward changes from 1.4.2 to fix critical CSS generation failure while using a CDN to serve CSS

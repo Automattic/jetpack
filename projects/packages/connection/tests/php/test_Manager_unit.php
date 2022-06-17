@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -286,6 +287,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_jetpack_connection_custom_caps( $in_offline_mode, $owner_exists, $custom_cap, $expected_caps ) {
 		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
+		StatusCache::clear();
 		add_filter(
 			'jetpack_offline_mode',
 			function () use ( $in_offline_mode ) {
@@ -299,6 +301,7 @@ class ManagerTest extends TestCase {
 
 		$caps = $this->manager->jetpack_connection_custom_caps( self::DEFAULT_TEST_CAPS, $custom_cap, 1, array() );
 		$this->assertEquals( $expected_caps, $caps );
+		StatusCache::clear();
 	}
 
 	/**

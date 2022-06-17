@@ -2,16 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor, getByLabelText } from '@testing-library/react';
 
-/**
- * Internal dependencies
- */
 import BusinessHours, { defaultLocalization } from '../edit';
 
 const isWeekend = day => [ 'Sun', 'Sat' ].includes( day.substring( 0, 3 ) );
@@ -82,6 +76,7 @@ describe( 'Business Hours', () => {
 	test.each( dayStrings )(
 		'should toggle day to open / closed for %s when switching toggle',
 		async dayString => {
+			const user = userEvent.setup();
 			const propsNotSelected = { ...defaultProps, isSelected: true };
 			render( <BusinessHours { ...propsNotSelected } /> );
 
@@ -95,7 +90,7 @@ describe( 'Business Hours', () => {
 			const openClosed = isWeekend( dayString ) ? 'Closed' : 'Open';
 
 			const dayRow = day.parentNode;
-			userEvent.click( getByLabelText( dayRow, openClosed ) );
+			await user.click( getByLabelText( dayRow, openClosed ) );
 
 			if ( 'Open' === openClosed ) {
 				expect(
@@ -113,12 +108,14 @@ describe( 'Business Hours', () => {
 	);
 
 	test( 'should change opening hours when updating input', async () => {
+		const user = userEvent.setup();
 		const propsNotSelected = { ...defaultProps, isSelected: true };
 		render( <BusinessHours { ...propsNotSelected } /> );
 
 		await waitFor( () => expect( screen.getByText( 'Monday' ) ).toBeInTheDocument() );
 
-		userEvent.type( screen.getAllByLabelText( 'Opening' )[ 0 ], '6:00' );
+		// The behavior of <input type="time"> with user-event is kind of weird. Ctrl-A to select the contents before typing seems to work.
+		await user.type( screen.getAllByLabelText( 'Opening' )[ 0 ], '{Control>}a{/Control}6:00' );
 
 		expect( setAttributes.mock.calls[ 0 ][ 0 ].days[ 1 ] ).toEqual( {
 			hours: [ { closing: '17:00', opening: '06:00' } ],
@@ -127,12 +124,14 @@ describe( 'Business Hours', () => {
 	} );
 
 	test( 'should change closing hours when updating input', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <BusinessHours { ...propsSelected } /> );
 
 		await waitFor( () => expect( screen.getByText( 'Monday' ) ).toBeInTheDocument() );
 
-		userEvent.type( screen.getAllByLabelText( 'Closing' )[ 0 ], '14:00' );
+		// The behavior of <input type="time"> with user-event is kind of weird. Ctrl-A to select the contents before typing seems to work.
+		await user.type( screen.getAllByLabelText( 'Closing' )[ 0 ], '{Control>}a{/Control}14:00' );
 
 		expect( setAttributes.mock.calls[ 0 ][ 0 ].days[ 1 ] ).toEqual( {
 			hours: [ { closing: '14:00', opening: '09:00' } ],
@@ -141,6 +140,7 @@ describe( 'Business Hours', () => {
 	} );
 
 	test( 'should add an additional set of opening/closing hours', async () => {
+		const user = userEvent.setup();
 		const propsSelectedSingleDay = { ...defaultProps, isSelected: true };
 		propsSelectedSingleDay.attributes.days = dayStringsShort.map( day => ( {
 			name: day,
@@ -153,7 +153,7 @@ describe( 'Business Hours', () => {
 		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ).length ).toEqual( 1 ) );
 		await waitFor( () => expect( screen.getAllByLabelText( 'Closing' ).length ).toEqual( 1 ) );
 
-		userEvent.click( screen.getByLabelText( 'Add Hours' ) );
+		await user.click( screen.getByLabelText( 'Add Hours' ) );
 
 		const newHours = [
 			{ opening: '09:00', closing: '17:00' },
@@ -173,6 +173,7 @@ describe( 'Business Hours', () => {
 	} );
 
 	test( 'should remove an additional set of opening/closing hours', async () => {
+		const user = userEvent.setup();
 		const propsSelectedSingleDay = { ...defaultProps, isSelected: true };
 		propsSelectedSingleDay.attributes.days = dayStringsShort.map( day => ( {
 			name: day,
@@ -188,7 +189,7 @@ describe( 'Business Hours', () => {
 		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ).length ).toEqual( 2 ) );
 		await waitFor( () => expect( screen.getAllByLabelText( 'Closing' ).length ).toEqual( 2 ) );
 
-		userEvent.click( screen.getAllByLabelText( 'Remove Hours' )[ 1 ] );
+		await user.click( screen.getAllByLabelText( 'Remove Hours' )[ 1 ] );
 
 		const newHours = [ { opening: '09:00', closing: '17:00' } ];
 		expect( setAttributes.mock.calls[ 0 ][ 0 ].days[ 0 ] ).toEqual( {

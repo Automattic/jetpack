@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { combineReducers } from 'redux';
 import {
 	STATS_SWITCH_TAB,
 	STATS_DATA_FETCH,
@@ -62,7 +55,7 @@ const requests = ( state = {}, action ) => {
 			return assign( {}, state, { fetchingPluginUpdates: false } );
 		case VAULTPRESS_SITE_DATA_FETCH_FAIL:
 		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
-			return assign( {}, state, { fetchingVaultPressData: false } );
+			return assign( {}, state, { fetchingVaultPressData: false, hasLoadedVaultPressData: true } );
 
 		default:
 			return state;
@@ -165,8 +158,8 @@ export const dashboard = combineReducers( {
 /**
  * Returns string of active Stats tab in At A Glance section
  *
- * @param  {Object}  state  Global state tree
- * @return {String}         Which Stats tab is open.
+ * @param  {Object}  state -  Global state tree
+ * @returns {string}         Which Stats tab is open.
  */
 export function getActiveStatsTab( state ) {
 	return state.jetpack.dashboard.activeStatsTab;
@@ -175,8 +168,8 @@ export function getActiveStatsTab( state ) {
 /**
  * Returns true if currently requesting Stats data.
  *
- * @param  {Object}  state  Global state tree
- * @return {Boolean}        Whether Stats data is being requested
+ * @param  {Object}  state -  Global state tree
+ * @returns {boolean}        Whether Stats data is being requested
  */
 export function isFetchingStatsData( state ) {
 	return !! state.jetpack.dashboard.requests.fetchingStatsData;
@@ -185,8 +178,8 @@ export function isFetchingStatsData( state ) {
 /**
  * Returns object with Stats data.
  *
- * @param  {Object}  state  Global state tree
- * @return {Object}			Stats data.
+ * @param  {Object}  state -  Global state tree
+ * @returns {Object}			Stats data.
  */
 export function getStatsData( state ) {
 	return state.jetpack.dashboard.statsData;
@@ -195,8 +188,8 @@ export function getStatsData( state ) {
 /**
  * Returns true if currently requesting Akismet data
  *
- * @param  {Object}  state  Global state tree
- * @return {Boolean}        Whether Akismet data is being requested
+ * @param  {Object}  state -  Global state tree
+ * @returns {boolean}        Whether Akismet data is being requested
  */
 export function isFetchingAkismetData( state ) {
 	return !! state.jetpack.dashboard.requests.fetchingAkismetData;
@@ -205,8 +198,8 @@ export function isFetchingAkismetData( state ) {
 /**
  * Returns int of protect count of blocked attempts.
  *
- * @param  {Object}  state  Global state tree
- * @return {int} Number of comments blocked by Akismet
+ * @param  {Object}  state -  Global state tree
+ * @returns {int} Number of comments blocked by Akismet
  */
 export function getAkismetData( state ) {
 	return state.jetpack.dashboard.akismetData;
@@ -215,8 +208,8 @@ export function getAkismetData( state ) {
 /**
  * Returns true if currently checking Akismet API key for validity.
  *
- * @param  {Object}  state  Global state tree
- * @return {Boolean}        Whether Akismet API key is being checked.
+ * @param  {Object}  state -  Global state tree
+ * @returns {boolean}        Whether Akismet API key is being checked.
  */
 export function isCheckingAkismetKey( state ) {
 	return !! state.jetpack.dashboard.requests.checkingAkismetKey;
@@ -225,8 +218,8 @@ export function isCheckingAkismetKey( state ) {
 /**
  * Checks if the Akismet key is valid.
  *
- * @param  {Object}  state  Global state tree
- * @return {boolean} True if Akismet API key is valid.
+ * @param  {Object}  state -  Global state tree
+ * @returns {boolean} True if Akismet API key is valid.
  */
 export function isAkismetKeyValid( state ) {
 	return get( state.jetpack.dashboard, [ 'akismet', 'validKey' ], false );
@@ -235,8 +228,8 @@ export function isAkismetKeyValid( state ) {
 /**
  * Returns true if currently requesting Protect data
  *
- * @param  {Object}  state  Global state tree
- * @return {Boolean}        Whether Protect data is being requested
+ * @param  {Object}  state -  Global state tree
+ * @returns {boolean}        Whether Protect data is being requested
  */
 export function isFetchingProtectData( state ) {
 	return !! state.jetpack.dashboard.requests.fetchingProtectData;
@@ -245,18 +238,29 @@ export function isFetchingProtectData( state ) {
 /**
  * Returns int of protect count of blocked attempts.
  *
- * @param  {Object}  state  Global state tree
- * @return {int} Number of blocked brute force login attempts
+ * @param  {Object}  state -  Global state tree
+ * @returns {int} Number of blocked brute force login attempts
  */
 export function getProtectCount( state ) {
 	return state.jetpack.dashboard.protectCount;
 }
 
 /**
+ * Returns true if a fetch to VaultPress data has completed.
+ * Both success and error states will set hasLoadedVaultPressData = true.
+ *
+ * @param  {Object} state - Global state tree.
+ * @returns {boolean} Whether a VaultPress data fetch has finished.
+ */
+export function hasLoadedVaultPressData( state ) {
+	return !! state.jetpack.dashboard.requests.hasLoadedVaultPressData;
+}
+
+/**
  * Returns true if currently requesting VaultPress data
  *
- * @param  {Object}  state  Global state tree
- * @return {Boolean}        Whether VaultPress data is being requested
+ * @param  {Object}  state -  Global state tree
+ * @returns {boolean}        Whether VaultPress data is being requested
  */
 export function isFetchingVaultPressData( state ) {
 	return !! state.jetpack.dashboard.requests.fetchingVaultPressData;
@@ -266,8 +270,8 @@ export function isFetchingVaultPressData( state ) {
  *
  * Returns all VaultPress data as an object.
  *
- * @param  {Object}  state  Global state tree
- * @return {Object} All VaultPress configuration/status data
+ * @param  {Object}  state -  Global state tree
+ * @returns {Object} All VaultPress configuration/status data
  */
 export function getVaultPressData( state ) {
 	return state.jetpack.dashboard.vaultPressData;
@@ -277,8 +281,8 @@ export function getVaultPressData( state ) {
  *
  * Returns number of VaultPress Scan threats found.
  *
- * @param  {Object}  state  Global state tree
- * @return {int} The number of current security threats found by VaultPress
+ * @param  {Object}  state -  Global state tree
+ * @returns {int} The number of current security threats found by VaultPress
  */
 export function getVaultPressScanThreatCount( state ) {
 	return get( state.jetpack.dashboard.vaultPressData, 'data.security.notice_count', 0 );
@@ -287,8 +291,8 @@ export function getVaultPressScanThreatCount( state ) {
 /**
  * Returns true if currently requesting Plugin Updates
  *
- * @param  {Object}  state  Global state tree
- * @return {Boolean}        Whether Plugin Updates are being requested
+ * @param  {Object}  state -  Global state tree
+ * @returns {boolean}        Whether Plugin Updates are being requested
  */
 export function isFetchingPluginUpdates( state ) {
 	return !! state.jetpack.dashboard.requests.fetchingPluginUpdates;
@@ -297,9 +301,30 @@ export function isFetchingPluginUpdates( state ) {
 /**
  * Returns int of plugin updates
  *
- * @param  {Object}  state  Global state tree
- * @return {int} Number of plugin updates currently available
+ * @param  {Object}  state -  Global state tree
+ * @returns {int} Number of plugin updates currently available
  */
 export function getPluginUpdates( state ) {
 	return state.jetpack.dashboard.pluginUpdates;
+}
+
+/**
+ * Returns true if currently requesting plugins data.
+ *
+ * @param  {object}  state -  Global state tree
+ * @returns {boolean}        Whether plugins data is being requested
+ */
+export function isFetchingPluginsData( state ) {
+	return !! state.jetpack.pluginsData.requests.isFetchingPluginsData;
+}
+
+/**
+ * Returns the plugins data items object, with key being the plugin basepath
+ * and value being an object containing plugin details
+ *
+ * @param  {object}  state -  Global state tree
+ * @returns {object} The plugins data items
+ */
+export function getPluginItems( state ) {
+	return state.jetpack.pluginsData.items || {};
 }

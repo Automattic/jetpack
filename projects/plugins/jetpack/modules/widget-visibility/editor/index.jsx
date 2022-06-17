@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { Fragment, useCallback, useMemo } from '@wordpress/element';
-import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
-import { __, _x } from '@wordpress/i18n';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { InspectorAdvancedControls } from '@wordpress/block-editor'; // eslint-disable-line import/no-unresolved
+import { BaseControl, Button, SelectControl, ToggleControl } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
+import { Fragment, useCallback, useMemo } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import analytics from '../../../_inc/client/lib/analytics';
 
 /* global widget_conditions_data */
@@ -207,7 +200,7 @@ const VisibilityRule = props => {
 				</div>
 			) }
 			<div className="widget-vis__delete-rule">
-				<Button onClick={ onDelete } isSmall isSecondary>
+				<Button onClick={ onDelete } isSmall variant="secondary">
 					{ _x( 'Remove', 'Delete this visibility rule', 'jetpack' ) }
 				</Button>
 			</div>
@@ -354,7 +347,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 						'jetpack'
 					) }
 				>
-					<Button isSecondary onClick={ addNewRule } className="widget-vis__add-new-rule">
+					<Button variant="secondary" onClick={ addNewRule } className="widget-vis__add-new-rule">
 						{ __( 'Add new rule', 'jetpack' ) }
 					</Button>
 				</BaseControl>
@@ -395,7 +388,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 							onChange={ toggleMatchAll }
 						/>
 					) }
-					<Button isSecondary onClick={ addNewRule }>
+					<Button variant="secondary" onClick={ addNewRule }>
 						{ __( 'Add new rule', 'jetpack' ) }
 					</Button>
 				</BaseControl>

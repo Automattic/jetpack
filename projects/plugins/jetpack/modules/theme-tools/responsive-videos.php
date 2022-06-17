@@ -1,4 +1,9 @@
 <?php
+/**
+ * Theme Tools: Responsive videos enhancements.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Load the Responsive videos plugin
@@ -31,10 +36,10 @@ function jetpack_responsive_videos_init() {
 }
 add_action( 'after_setup_theme', 'jetpack_responsive_videos_init', 99 );
 
-
 /**
  * Adds a wrapper to videos and enqueue script
  *
+ * @param string $html The video embed HTML.
  * @return string
  */
 function jetpack_responsive_videos_embed_html( $html ) {
@@ -59,14 +64,19 @@ function jetpack_responsive_videos_embed_html( $html ) {
 		return $html;
 	}
 
-	if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG ) {
+	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
 		wp_enqueue_script( 'jetpack-responsive-videos-script', plugins_url( 'responsive-videos/responsive-videos.js', __FILE__ ), array( 'jquery' ), '1.3', true );
 	} else {
 		wp_enqueue_script( 'jetpack-responsive-videos-min-script', plugins_url( 'responsive-videos/responsive-videos.min.js', __FILE__ ), array( 'jquery' ), '1.3', true );
 	}
 
 	// Enqueue CSS to ensure compatibility with all themes
-	wp_enqueue_style( 'jetpack-responsive-videos-style', plugins_url( 'responsive-videos/responsive-videos.css', __FILE__ ) );
+	wp_enqueue_style(
+		'jetpack-responsive-videos-style',
+		plugins_url( 'responsive-videos/responsive-videos.css', __FILE__ ),
+		array(),
+		JETPACK__VERSION
+	);
 
 	return '<div class="jetpack-video-wrapper">' . $html . '</div>';
 }
@@ -99,7 +109,7 @@ function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
 	}
 
 	/**
-	 * oEmbed Video Providers.
+	 * The oEmbed video providers.
 	 *
 	 * An allowed list of oEmbed video provider Regex patterns to check against before wrapping the output.
 	 *

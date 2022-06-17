@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import AutomatticBylineLogo from '../automattic-byline-logo';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo';
@@ -20,7 +13,7 @@ import JetpackLogo from '../jetpack-logo';
  * @returns {React.Component} JetpackFooter component.
  */
 const JetpackFooter = props => {
-	const { a8cLogoHref, moduleName, className, ...otherProps } = props;
+	const { a8cLogoHref, moduleName, className, moduleNameHref, ...otherProps } = props;
 	return (
 		<div className={ classnames( 'jp-dashboard-footer', className ) } { ...otherProps }>
 			<div className="jp-dashboard-footer__footer-left">
@@ -31,7 +24,15 @@ const JetpackFooter = props => {
 					className="jp-dashboard-footer__jetpack-symbol"
 					aria-label={ __( 'Jetpack logo', 'jetpack' ) }
 				/>
-				<span className="jp-dashboard-footer__module-name">{ moduleName }</span>
+				<span className="jp-dashboard-footer__module-name">
+					{ moduleNameHref ? (
+						<a href={ moduleNameHref } aria-label={ moduleName }>
+							{ moduleName }
+						</a>
+					) : (
+						moduleName
+					) }
+				</span>
 			</div>
 			<div className="jp-dashboard-footer__footer-right">
 				<a href={ a8cLogoHref } aria-label={ __( 'An Automattic Airline', 'jetpack' ) }>
@@ -43,9 +44,10 @@ const JetpackFooter = props => {
 };
 
 JetpackFooter.defaultProps = {
-	a8cLogoHref: 'https://jetpack.com',
+	a8cLogoHref: 'https://automattic.com',
 	moduleName: __( 'Jetpack', 'jetpack' ),
 	className: '',
+	moduleNameHref: 'https://jetpack.com',
 };
 
 JetpackFooter.propTypes = {
@@ -55,6 +57,8 @@ JetpackFooter.propTypes = {
 	moduleName: PropTypes.string,
 	/** additional className of the wrapper, `jp-dashboard-footer` always included. */
 	className: PropTypes.string,
+	/** Link that the Module name will link to (optional). */
+	moduleNameHref: PropTypes.string,
 };
 
 export default JetpackFooter;

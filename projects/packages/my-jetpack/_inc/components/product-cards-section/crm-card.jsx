@@ -1,33 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
-import ProductCard from '../product-card';
-import { useProduct } from '../../hooks/use-product';
-import { CrmIcon } from '../icons';
+import React from 'react';
+import ProductCard from '../connected-product-card';
 
 const CrmCard = ( { admin } ) => {
-	const { status, activate, deactivate, detail, isFetching } = useProduct( 'crm' );
-	const { name, description, slug } = detail;
-
-	return (
-		<ProductCard
-			name={ name }
-			description={ description }
-			status={ status }
-			icon={ <CrmIcon /> }
-			isFetching={ isFetching }
-			admin={ admin }
-			onDeactivate={ deactivate }
-			onActivate={ activate }
-			slug={ slug }
-		/>
-	);
+	return <ProductCard admin={ admin } slug="crm" />;
 };
 
 CrmCard.propTypes = {

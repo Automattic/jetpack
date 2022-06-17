@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Plugins_Installer;
 use WP_Error;
 
@@ -79,13 +80,15 @@ abstract class Product {
 	}
 
 	/**
-	 * Get the installed plugin filename
+	 * Get the installed plugin filename, considering all possible filenames a plugin might have
+	 *
+	 * @param string $plugin Which plugin to check. jetpack for the jetpack plugin or product for the product specific plugin.
 	 *
 	 * @return ?string
 	 */
-	public static function get_installed_plugin_filename() {
+	public static function get_installed_plugin_filename( $plugin = 'product' ) {
 		$all_plugins = Plugins_Installer::get_plugins();
-		$filename    = static::get_plugin_filename();
+		$filename    = 'jetpack' === $plugin ? self::JETPACK_PLUGIN_FILENAME : static::get_plugin_filename();
 		if ( ! is_array( $filename ) ) {
 			$filename = array( $filename );
 		}
@@ -104,7 +107,7 @@ abstract class Product {
 	 * @return array
 	 */
 	public static function get_info() {
-		if ( is_null( static::$slug ) ) {
+		if ( static::$slug === null ) {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 		return array(
@@ -116,9 +119,14 @@ abstract class Product {
 			'features'                 => static::get_features(),
 			'status'                   => static::get_status(),
 			'pricing_for_ui'           => static::get_pricing_for_ui(),
+			'is_bundle'                => static::is_bundle_product(),
+			'is_upgradable_by_bundle'  => static::is_upgradable_by_bundle(),
+			'supported_products'       => static::get_supported_products(),
 			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
 			'requires_user_connection' => static::$requires_user_connection,
 			'has_required_plan'        => static::has_required_plan(),
+			'manage_url'               => static::get_manage_url(),
+			'post_activation_url'      => static::get_post_activation_url(),
 			'class'                    => get_called_class(),
 		);
 	}
@@ -166,6 +174,22 @@ abstract class Product {
 	abstract public static function get_pricing_for_ui();
 
 	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	abstract public static function get_manage_url();
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return static::get_manage_url();
+	}
+
+	/**
 	 * Get the WPCOM product slug used to make the purchase
 	 *
 	 * @return ?string
@@ -188,17 +212,54 @@ abstract class Product {
 	}
 
 	/**
+	 * Checks whether product is a bundle.
+	 *
+	 * @return boolean True if product is a bundle. Otherwise, False.
+	 */
+	public static function is_bundle_product() {
+		return false;
+	}
+
+	/**
+	 * Check whether the product is upgradable
+	 * by a product bundle.
+	 *
+	 * @return boolean|array Bundles list or False if not upgradable by a bundle.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return false;
+	}
+
+	/**
+	 * In case it's a bundle product,
+	 * return all the products it contains.
+	 * Empty array by default.
+	 *
+	 * @return Array Product slugs
+	 */
+	public static function get_supported_products() {
+		return array();
+	}
+
+	/**
 	 * Undocumented function
 	 *
 	 * @return string
 	 */
 	public static function get_status() {
-		if ( ! static::has_required_plan() ) {
-			$status = 'needs_purchase';
+
+		if ( ! static::is_plugin_installed() ) {
+			$status = 'plugin_absent';
 		} elseif ( static::is_active() ) {
 			$status = 'active';
-		} elseif ( ! self::is_plugin_installed() ) {
-			$status = 'plugin_absent';
+			// We only consider missing user connection an error when the Product is active.
+			if ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
+				$status = 'error';
+			} elseif ( ! static::has_required_plan() ) {
+				$status = 'needs_purchase'; // We need needs_purchase here as well because some products we consider active without the required plan.
+			}
+		} elseif ( ! static::has_required_plan() ) {
+			$status = 'needs_purchase';
 		} else {
 			$status = 'inactive';
 		}
@@ -211,7 +272,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return static::is_plugin_active();
+		return static::is_plugin_active() && static::has_required_plan();
 	}
 
 	/**
@@ -238,8 +299,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_jetpack_plugin_installed() {
-		$all_plugins = Plugins_Installer::get_plugins();
-		return array_key_exists( self::JETPACK_PLUGIN_FILENAME, $all_plugins );
+		return (bool) static::get_installed_plugin_filename( 'jetpack' );
 	}
 
 	/**
@@ -248,21 +308,24 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_jetpack_plugin_active() {
-		foreach ( self::JETPACK_PLUGIN_FILENAME as $jetpack_filename ) {
-			$active = Plugins_Installer::is_plugin_active( $jetpack_filename );
-			if ( $active ) {
-				return true;
-			}
-		}
-		return false;
+		return Plugins_Installer::is_plugin_active( static::get_installed_plugin_filename( 'jetpack' ) );
 	}
 
 	/**
-	 * Activates the product by installing and activating its plugin
+	 * Activates the plugin
 	 *
-	 * @return boolean|WP_Error
+	 * @return null|WP_Error Null on success, WP_Error on invalid file.
 	 */
-	public static function activate() {
+	public static function activate_plugin() {
+		return activate_plugin( static::get_installed_plugin_filename() );
+	}
+
+	/**
+	 * Perform the top level activation routines, which is installing and activating the required plugin
+	 *
+	 * @return bool|WP_Error
+	 */
+	private static function do_activation() {
 		if ( static::is_active() ) {
 			return true;
 		}
@@ -278,11 +341,47 @@ abstract class Product {
 			return new WP_Error( 'not_allowed', __( 'You are not allowed to activate plugins on this site.', 'jetpack-my-jetpack' ) );
 		}
 
-		$result = activate_plugin( static::get_installed_plugin_filename() );
+		$result = static::activate_plugin();
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
-		return is_null( $result );
+
+		return true;
+	}
+
+	/**
+	 * Activates the product by installing and activating its plugin
+	 *
+	 * @return boolean|WP_Error
+	 */
+	final public static function activate() {
+
+		$result = self::do_activation();
+
+		$result = static::do_product_specific_activation( $result );
+
+		$product_slug = static::$slug;
+
+		/**
+		 * Fires after My Jetpack activates a product and filters the result
+		 * Use this filter to run additional routines for a product activation on stand-alone plugins
+		 *
+		 * @param bool|WP_Error $result The result of the previous steps of activation.
+		 */
+		$result = apply_filters( "my_jetpack_{$product_slug}_activation", $result );
+
+		return $result;
+
+	}
+
+	/**
+	 * Override this method to perform product specific activation routines.
+	 *
+	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $current_result ) {
+		return $current_result;
 	}
 
 	/**
@@ -294,4 +393,45 @@ abstract class Product {
 		deactivate_plugins( static::get_installed_plugin_filename() );
 		return true;
 	}
+
+	/**
+	 * Returns filtered Jetpack plugin actions links.
+	 *
+	 * @param array $actions - Jetpack plugin action links.
+	 * @return array           Filtered Jetpack plugin actions links.
+	 */
+	public static function get_plugin_actions_links( $actions ) {
+		// My Jetpack action link.
+		$my_jetpack_home_link = array(
+			'jetpack-home' => sprintf(
+				'<a href="%1$s" title="%3$s">%2$s</a>',
+				admin_url( 'admin.php?page=my-jetpack' ),
+				__( 'My Jetpack', 'jetpack-my-jetpack' ),
+				__( 'My Jetpack dashboard', 'jetpack-my-jetpack' )
+			),
+		);
+
+		// Otherwise, add it to the beginning of the array.
+		return array_merge( $my_jetpack_home_link, $actions );
+	}
+
+	/**
+	 * Extend the plugin action links.
+	 */
+	public static function extend_plugin_action_links() {
+
+		$filenames = static::get_plugin_filename();
+		if ( ! is_array( $filenames ) ) {
+			$filenames = array( $filenames );
+		}
+
+		foreach ( $filenames as $filename ) {
+			$hook     = 'plugin_action_links_' . $filename;
+			$callback = array( static::class, 'get_plugin_actions_links' );
+			if ( ! has_filter( $hook, $callback ) ) {
+				add_filter( $hook, $callback, 20, 2 );
+			}
+		}
+	}
+
 }

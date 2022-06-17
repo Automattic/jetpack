@@ -1,40 +1,23 @@
 <script>
-	/**
-	 * External dependencies
-	 */
-	import { derived } from 'svelte/store';
-
-	/**
-	 * Internal dependencies
-	 */
-	import Tips from './sections/Tips.svelte';
-	import Score from './sections/Score.svelte';
-	import urlFragment from '../../stores/url-fragment';
+	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
-
-	// Map of sub-pages to display for each URL fragment.
-	const subPages = {
-		'#critical-css-advanced': AdvancedCriticalCss,
-	};
-
-	const subPage = derived( urlFragment, fragment => subPages[ fragment ] );
+	import Score from './sections/Score.svelte';
+	import Support from './sections/Support.svelte';
+	import Tips from './sections/Tips.svelte';
 </script>
 
-<div class="jb-section--alt jb-section--scores">
+<div class="jb-section jb-section--alt jb-section--scores">
 	<Score />
 </div>
 
-{#if $subPage}
-	<div class="jb-section jb-section--subpage">
-		<svelte:component this={$subPage} />
-	</div>
-{:else}
+<Router>
 	<div class="jb-section jb-section--main">
-		<Modules />
+		<Route path="critical-css-advanced" component={AdvancedCriticalCss} />
+		<Route path="/" component={Modules} />
 	</div>
-{/if}
+</Router>
 
-<div class="jb-section--alt">
-	<Tips />
-</div>
+<Tips />
+
+<Support />

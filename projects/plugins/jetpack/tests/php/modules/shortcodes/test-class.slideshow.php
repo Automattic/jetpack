@@ -99,7 +99,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertEquals( ! false, strpos( $shortcode_content, 'class="slideshow-window jetpack-slideshow' ) );
+		$this->assertEquals( ! false, strpos( $shortcode_content, 'class="jetpack-slideshow-window jetpack-slideshow' ) );
 	}
 
 	public function test_shortcodes_slideshow_autostart_off() {

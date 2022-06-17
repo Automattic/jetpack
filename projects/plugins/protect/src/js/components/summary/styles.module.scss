@@ -1,0 +1,10 @@
+.title {
+	display: flex;
+	align-items: center;
+	color: var( --jp-black );
+}
+
+.icon {
+	margin-left: -4px; // this fix a blank space on right/left from @wordpress/icons
+	margin-right: var(--spacing-base);
+}

@@ -84,17 +84,18 @@ async function reportTestRunResults( suite = 'e2e' ) {
 	// Expected structure spec: {tests: [{results: [{}]}]}
 	specs.forEach( spec => {
 		if ( ! spec.ok ) {
-			console.log( `${ spec.title } failed` );
 			isSuccess = false;
 			detailLines.push( `- ${ spec.title }` );
 
 			// Go through each test of the spec
 			spec.tests.forEach( t => {
 				t.results.forEach( r => {
-					const content = `*${ spec.title }*\n\n\`\`\`${ r.error.message }\`\`\``;
+					const content = `*${ spec.title }*\n\n\`\`\`${
+						r.error ? r.error.message : 'unknown error'
+					}\`\`\``;
 					failureDetails.push( {
 						type: 'stacktrace',
-						content: content.substr( 0, 3000 ), //Slack max allowed
+						content: content.substring( 0, 3000 ), //Slack max allowed
 					} );
 
 					r.attachments.forEach( attachment => {
@@ -117,17 +118,18 @@ async function reportTestRunResults( suite = 'e2e' ) {
 	let testListHeader = `*${ specs.length } ${ suite }* tests ran successfully`;
 	if ( detailLines.length > 0 ) {
 		testListHeader = `*${ detailLines.length }/${ specs.length } \`${ suite }\`* tests failed:`;
-		detailLines.push( '\nmore details in :thread:' );
 	}
 
 	detailLines.splice( 0, 0, testListHeader );
 
 	const testsListBlock = {
-		type: 'section',
-		text: {
-			type: 'mrkdwn',
-			text: detailLines.join( '\n' ),
-		},
+		type: 'context',
+		elements: [
+			{
+				type: 'mrkdwn',
+				text: detailLines.join( '\n' ),
+			},
+		],
 	};
 
 	mainMsgBlocks.splice( 1, 0, testsListBlock );
@@ -219,7 +221,7 @@ function getGithubContext() {
 
 		gh.branch.name = ctx.head_ref;
 	} else {
-		gh.branch.name = ctx.ref.substr( 11 );
+		gh.branch.name = ctx.ref.substring( 11 );
 	}
 
 	gh.branch.url = `${ ctx.server_url }/${ ctx.repository }/tree/${ gh.branch.name }`;
@@ -248,7 +250,7 @@ async function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			type: 'button',
 			text: {
 				type: 'plain_text',
-				text: `${ gh.branch.name } branch`,
+				text: `${ gh.branch.name.substring( 0, 50 ) } branch`,
 			},
 			url: gh.branch.url,
 			style: btnStyle,
@@ -281,7 +283,7 @@ async function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			? forceHeaderText
 			: `${
 					isSuccess ? 'All tests passed' : 'There are test failures'
-			  } ${ reportNameString }in PR \`<${ gh.pr.url }|${ gh.pr.title }>\``;
+			  } ${ reportNameString }for PR \`<${ gh.pr.url }|${ gh.pr.title }>\``;
 
 		reportUrl = `${ dashboardUrl }/${ gh.pr.number }/report`;
 	} else {
@@ -311,14 +313,8 @@ async function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			},
 		},
 		{
-			type: 'divider',
-		},
-		{
 			type: 'actions',
 			elements: buttons,
-		},
-		{
-			type: 'divider',
 		},
 	];
 
@@ -327,11 +323,13 @@ async function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 
 	if ( jetpackVersion ) {
 		blocks.splice( 1, 0, {
-			type: 'section',
-			text: {
-				type: 'mrkdwn',
-				text: `Jetpack version: ${ jetpackVersion }`,
-			},
+			type: 'context',
+			elements: [
+				{
+					type: 'mrkdwn',
+					text: `Jetpack version: ${ jetpackVersion }`,
+				},
+			],
 		} );
 	}
 

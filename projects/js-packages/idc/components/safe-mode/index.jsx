@@ -1,25 +1,18 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
+import restApi from '@automattic/jetpack-api';
+import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { removeQueryArgs } from '@wordpress/url';
-import restApi from '@automattic/jetpack-api';
-import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 import { STORE_ID } from '../../state/store';
+import customContentShape from '../../tools/custom-content-shape';
 import trackAndBumpMCStats from '../../tools/tracking';
 import ErrorMessage from '../error-message';
 import './style.scss';
-import customContentShape from '../../tools/custom-content-shape';
 
 /**
  * Render the "Stay safe" button.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Detect Renovate PRs created by self-hosted renovate.

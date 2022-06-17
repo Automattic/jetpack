@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import { getExternalLibrary } from '../sources';
 import MediaButtonMenu from './media-menu';
 
@@ -30,6 +23,7 @@ function MediaButton( props ) {
 		}
 
 		setSelectedSource( null );
+		mediaProps.onClose?.();
 	};
 
 	return (
@@ -44,7 +38,7 @@ function MediaButton( props ) {
 				hasImage={ mediaProps.value > 0 }
 			/>
 
-			{ ExternalLibrary && <ExternalLibrary onClose={ closeLibrary } { ...mediaProps } /> }
+			{ ExternalLibrary && <ExternalLibrary { ...mediaProps } onClose={ closeLibrary } /> }
 		</div>
 	);
 }

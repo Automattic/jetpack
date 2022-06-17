@@ -1,0 +1,20 @@
+@import "../../../scss/typography";
+@import 'node_modules/@automattic/jetpack-base-styles/style';
+
+.jp-recommendations-recommended-header {
+	display: flex;
+	align-items: center;
+
+	padding: 0.5rem;
+
+	background: #F3F3EA;
+	border-top-left-radius: inherit;
+	border-top-right-radius: inherit;
+	color: var( --jp-black );
+
+	font-weight: $bold;
+
+	.gridicon {
+		margin-inline-end: 0.5rem;
+	}
+}

@@ -38,4 +38,5 @@ vendor/tedivm/** 			  production-include
 /phpunit.xml.dist                               production-exclude
 /README.md                                      production-exclude
 /rollup.config.js                               production-exclude
+/rollup-tsconfig.json                           production-exclude
 /tsconfig.json                                  production-exclude

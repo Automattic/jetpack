@@ -1,29 +1,48 @@
+@import './mixin';
 @import '../scss/mixin_breakpoint.scss';
+@import '../scss/mixins/rna';
+@import 'node_modules/@automattic/jetpack-base-styles/style';
 
 .jp-recommendations-question__main {
 	min-height: 480px;
 	box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
 	border: 1px solid $gray-lighten-20;
-	background: #fff;
+	background: var( --jp-white );
+
+	a:not( [type='button'] ) {
+		@include rna-link;
+	}
 }
 
-.jp-recommendations-question__main--with-illustration {
+.jp-recommendations-question__main--with-sidebar {
 	display: grid;
-	grid-template-columns: 55% 45%;
+	grid-template-columns: repeat( 2, 1fr );
 
-	@include breakpoint( '<660px' ) {
-		grid-template-columns: 100% 0%;
-		background: #fff;
+	@include breakpoint( '<1040px' ) {
+		grid-template-columns: auto;
+		background: var( --jp-white );
 	}
-
-	background: linear-gradient(
-		120deg,
-		rgba( 255, 255, 255, 1 ) 0%,
-		rgba( 255, 255, 255, 1 ) 55%,
-		rgba( 197, 217, 237, 1 ) 55%
-	);
 }
 
 .jp-recommendations__loading {
 	padding-top: 48px;
+}
+
+.jp-recommendations__new-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	color: var( --jp-green-30 );
+	border: 1px solid var( --jp-green-30 );
+	text-transform: uppercase;
+	font-weight: 500;
+	border-radius: 3px;
+	font-size: 12px;
+}
+
+.jp-recommendations-question__sidebar {
+	@include recommendation-sidebar-blob;
+
+	@include breakpoint( '<1040px' ) {
+		background: none;
+	}
 }

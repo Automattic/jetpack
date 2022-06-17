@@ -174,6 +174,32 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests Video Privacy Settings.
+	 *
+	 * @dataProvider privacy_settings_data_provider
+	 *
+	 * @covers VIDEOPRESS_PRIVACY::
+	 *
+	 * @param int $expected The expected privacy constant value.
+	 * @param int $actual   The actual privacy constant value.
+	 */
+	public function test_videopress_privacy_settings_constants( $expected, $actual ) {
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * Provides data for Video Privacy Settings Tests.
+	 *
+	 * @return array
+	 */
+	public function privacy_settings_data_provider() {
+		return array(
+			array( 0, VIDEOPRESS_PRIVACY::IS_PUBLIC ),
+			array( 1, VIDEOPRESS_PRIVACY::IS_PRIVATE ),
+			array( 2, VIDEOPRESS_PRIVACY::SITE_DEFAULT ),
+		);
+	}
+	/**
 	 * Tests a helper function to get the post id by guid.
 	 *
 	 * @covers ::videopress_get_post_id_by_guid

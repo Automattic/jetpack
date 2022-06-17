@@ -1,18 +1,12 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
-import styles from './style.module.scss';
+import React from 'react';
 import JetpackFooter from '../jetpack-footer';
 import JetpackLogo from '../jetpack-logo';
-import Container from '../layout/container';
 import Col from '../layout/col';
+import Container from '../layout/container';
+import styles from './style.module.scss';
 
 /**
  * This is the base structure for any admin page. It comes with Header and Footer.
@@ -23,15 +17,25 @@ import Col from '../layout/col';
  * @returns {React.Component} AdminPage component.
  */
 const AdminPage = props => {
-	const { children, moduleName, a8cLogoHref, showHeader, showFooter } = props;
+	const {
+		children,
+		moduleName,
+		moduleNameHref,
+		a8cLogoHref,
+		showHeader,
+		showFooter,
+		showBackground,
+		header,
+	} = props;
+	const rootClassName = classNames( styles[ 'admin-page' ], {
+		[ styles.background ]: showBackground,
+	} );
 
 	return (
-		<div className={ styles[ 'admin-page' ] }>
+		<div className={ rootClassName }>
 			{ showHeader && (
 				<Container horizontalSpacing={ 5 }>
-					<Col>
-						<JetpackLogo />
-					</Col>
+					<Col>{ header ? header : <JetpackLogo /> }</Col>
 				</Container>
 			) }
 			<Container fluid horizontalSpacing={ 0 }>
@@ -40,7 +44,11 @@ const AdminPage = props => {
 			{ showFooter && (
 				<Container horizontalSpacing={ 5 }>
 					<Col>
-						<JetpackFooter moduleName={ moduleName } a8cLogoHref={ a8cLogoHref } />
+						<JetpackFooter
+							moduleName={ moduleName }
+							a8cLogoHref={ a8cLogoHref }
+							moduleNameHref={ moduleNameHref }
+						/>
 					</Col>
 				</Container>
 			) }
@@ -49,10 +57,11 @@ const AdminPage = props => {
 };
 
 AdminPage.defaultProps = {
-	a8cLogoHref: 'https://jetpack.com',
 	moduleName: __( 'Jetpack', 'jetpack' ),
 	showHeader: true,
+	header: null,
 	showFooter: true,
+	showBackground: true,
 };
 
 AdminPage.propTypes = {
@@ -62,8 +71,14 @@ AdminPage.propTypes = {
 	moduleName: PropTypes.string,
 	/** Whether or not to display the Header */
 	showHeader: PropTypes.bool,
+	/** Custom header. Optional */
+	header: PropTypes.node,
 	/** Whether or not to display the Footer */
 	showFooter: PropTypes.bool,
+	/** Link that the Footer Module name will link to (optional). */
+	moduleNameHref: PropTypes.string,
+	/** Whether or not to display the Background Color */
+	showBackground: PropTypes.bool,
 };
 
 export default AdminPage;

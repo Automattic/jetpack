@@ -92,11 +92,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->reregister_menu_items();
 
-		$this->assertSame(
-			array_keys( $menu ),
-			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 58, 59, 60, 65, 70, 75, 80 ),
-			'Admin menu should not have unexpected top menu items.'
-		);
+		$this->assertCount( 18, $menu, 'Admin menu should not have unexpected top menu items.' );
 
 		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
 	}
@@ -142,63 +138,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_upsell_nudge
-	 *
-	 * @covers ::add_upsell_nudge
-	 */
-	public function test_add_upsell_nudge() {
-		global $menu;
-		$nudge = array(
-			'content'     => 'Free domain with an <a href="somehref">annual plan</a>',
-			'cta'         => '<b>Upgrade</b>',
-			'link'        => '/plans/example.com?addDomainFlow=true',
-			'dismissible' => false,
-		);
-		static::$admin_menu->add_upsell_nudge( $nudge );
-
-		$markup = '
-<div class="upsell_banner">
-	<div class="banner__info">
-		<div class="banner__title">Free domain with an annual plan</div>
-	</div>
-	<div class="banner__action">
-		<button type="button" class="button">Upgrade</button>
-	</div>
-</div>';
-		$link   = 'https://wordpress.com/plans/example.com?addDomainFlow=true';
-
-		$this->assertSame( $markup, $menu[1][0] );
-		$this->assertSame( $link, $menu[1][2] );
-
-		// Reset.
-		$menu = static::$menu_data;
-
-		$nudge = array(
-			'content'     => 'Some content',
-			'cta'         => '<b>CTA</b>',
-			'link'        => 'https://wordpress.org',
-			'dismissible' => false,
-		);
-		static::$admin_menu->add_upsell_nudge( $nudge );
-		$this->assertSame( 'https://wordpress.org', $menu[1][2] );
-
-		// Reset.
-		$menu = static::$menu_data;
-
-		$nudge = array(
-			'content'       => 'Some content',
-			'cta'           => '<b>CTA</b>',
-			'link'          => 'https://wordpress.org',
-			'dismissible'   => true,
-			'id'            => 'an_identifier',
-			'feature_class' => 'the_feature_class',
-		);
-		static::$admin_menu->add_upsell_nudge( $nudge );
-
-		$this->assertStringContainsString( '<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="the_feature_class" data-feature_id="an_identifier"', $menu[1][0] );
-	}
-
-	/**
 	 * Tests add_stats_menu
 	 *
 	 * @covers ::add_stats_menu
@@ -208,7 +147,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_stats_menu();
 
-		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu['3.86682'][2] );
+		// Ignore position keys, since the key used for the Stats menu contains a pseudorandom number
+		// that we shouldn't hardcode. The only thing that matters is that the menu should be in the
+		// 3rd position regardless of the key.
+		// @see https://core.trac.wordpress.org/ticket/40927
+		ksort( $menu );
+		$menu_items = array_values( $menu );
+
+		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu_items[2][2] );
 	}
 
 	/**
@@ -632,37 +578,5 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 55, $menu );
 
 		remove_all_filters( 'jetpack_show_wpcom_woocommerce_installation_menu' );
-	}
-
-	/**
-	 * Check if the dashboard switcher is registered correctly.
-	 */
-	public function test_register_dashboard_switcher() {
-		global $pagenow;
-		$pagenow = 'edit.php?post_type=feedback';
-
-		$output = static::$admin_menu->register_dashboard_switcher( '' );
-		$this->assertNull( $output );
-
-		$screens = array(
-			'edit.php'                             => 'https://wordpress.com/posts/',
-			'edit.php?post_type=page'              => 'https://wordpress.com/pages/',
-			'edit.php?post_type=jetpack-portfolio' => 'https://wordpress.com/types/jetpack-portfolio/',
-			'edit-tags.php?taxonomy=category'      => 'https://wordpress.com/settings/taxonomies/category/',
-		);
-
-		foreach ( $screens as $screen => $mapping ) {
-			$pagenow  = $screen;
-			$output   = static::$admin_menu->register_dashboard_switcher( '' );
-			$expected = sprintf(
-				'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
-				__( 'Screen features', 'jetpack' ),
-				__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
-				'?preferred-view=default',
-				__( 'Use WordPress.com view', 'jetpack' )
-			);
-
-			$this->assertEquals( $expected, $output );
-		}
 	}
 }

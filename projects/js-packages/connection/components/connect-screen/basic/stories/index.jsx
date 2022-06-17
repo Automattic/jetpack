@@ -1,13 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
-import React from 'react';
 import { action } from '@storybook/addon-actions';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import ConnectScreenVisual from '../visual';
 
 export default {
@@ -56,4 +49,10 @@ export const Errored = Template.bind( {} );
 Errored.args = {
 	...DefaultArgs,
 	displayButtonError: true,
+};
+
+export const Footer = Template.bind( {} );
+Footer.args = {
+	...DefaultArgs,
+	footer: <div>Hi I'm a Footer</div>,
 };

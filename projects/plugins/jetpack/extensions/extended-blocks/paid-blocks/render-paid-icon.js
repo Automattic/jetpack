@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
+import { isUpgradable } from '@automattic/jetpack-shared-extension-utils';
 import { cloneElement } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import PaidSymbol from './paid-symbol';
-import { isUpgradable } from '../../shared/plan-utils';
 
 /**
  * Enhance the default block icon with a paid indicator

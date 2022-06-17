@@ -95,7 +95,7 @@ class Tracking {
 			$this->tracking->record_user_event( '_aliasUser', array( 'anonId' => $anon_id ) );
 			delete_user_meta( $user_id, 'jetpack_tracks_anon_id' );
 			if ( ! headers_sent() ) {
-				setcookie( 'tk_ai', 'expired', time() - 1000 );
+				setcookie( 'tk_ai', 'expired', time() - 1000, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false );  // phpcs:ignore Jetpack.Functions.SetCookie -- Want this accessible.
 			}
 		}
 

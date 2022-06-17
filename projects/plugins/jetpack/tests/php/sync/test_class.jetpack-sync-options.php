@@ -16,7 +16,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	public function set_up() {
 		parent::set_up();
 
-		$this->options_module = Modules::get_module( "options" );
+		$this->options_module = Modules::get_module( 'options' );
 
 		$this->options_module->set_options_whitelist( array( 'test_option' ) );
 
@@ -41,14 +41,14 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		delete_option( 'test_option' );
 		$this->sender->do_sync();
 		$synced_option_value = $this->server_replica_storage->get_option( 'test_option' );
-		$this->assertEquals( false, $synced_option_value );
+		$this->assertFalse( $synced_option_value );
 	}
 
 	public function test_don_t_sync_option_if_not_on_whitelist() {
 		add_option( 'don_t_sync_test_option', 'foo' );
 		$this->sender->do_sync();
 		$synced_option_value = $this->server_replica_storage->get_option( 'don_t_sync_test_option' );
-		$this->assertEquals( false, $synced_option_value );
+		$this->assertFalse( $synced_option_value );
 	}
 
 	public function test_sync_options_that_use_filter() {
@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		update_option( 'foo_option_bar', '123' );
 		$this->sender->do_sync();
 
-		$this->assertEquals( '123', $this->server_replica_storage->get_option( 'foo_option_bar' ) );
+		$this->assertSame( '123', $this->server_replica_storage->get_option( 'foo_option_bar' ) );
 	}
 
 	public function test_sync_default_options() {
@@ -217,12 +217,14 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_publicize_options'                    => array(),
 			'jetpack_connection_active_plugins'            => array( 'jetpack' ),
 			'jetpack_sync_non_blocking'                    => false,
+			'jetpack_sync_settings_dedicated_sync_enabled' => false,
 			'jetpack_sync_settings_comment_meta_whitelist' => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_post_meta_whitelist'    => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_post_types_blacklist'   => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_taxonomies_blacklist'   => array( 'jetpack', 'pineapple' ),
 			'ce4wp_referred_by'                            => array(),
 			'wpcom_is_fse_activated'                       => '1',
+			'videopress_private_enabled_for_site'          => false,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -246,7 +248,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$unique_whitelist = array_unique( $whitelist );
 
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
-		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
+		$this->assertEmpty( $whitelist_and_option_keys_difference, 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
 	}
 
 	public function test_sync_default_contentless_options() {
@@ -279,13 +281,13 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			count( $contentless_options ),
 			'The duplicate keys are: ' . print_r( array_diff_key( $contentless_options, array_unique( $contentless_options ) ), 1 )
 		);
-		$this->assertTrue(
-			empty( $contentless_options_difference ),
+		$this->assertEmpty(
+			$contentless_options_difference,
 			'Some contentless options don\'t have a test: ' . print_r( $contentless_options_difference, 1 )
 		);
 	}
 
-	function assertOptionIsSynced( $option_name, $value ) {
+	public function assertOptionIsSynced( $option_name, $value ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' didn\'t have the expected value of ' . wp_json_encode( $value ) );
 	}
 

@@ -34,11 +34,11 @@ while :; do
 	echo "::group::Fetching open PRs (page $PAGE)"
 	JSON=$(curl -v --fail \
 		--header "authorization: Bearer $API_TOKEN_GITHUB" \
-		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls?state=open&base=master&per_page=100&page=${PAGE}&direction=asc" \
+		--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls?state=open&base=trunk&per_page=100&page=${PAGE}&direction=asc" \
 	) || { echo "$JSON"; exit 1; }
 	echo "::endgroup::"
 
-	for PR in $(jq '.[] | select( .user.login == "renovate[bot]" ) | .number' <<<"$JSON"); do
+	for PR in $(jq '.[] | select( ( .head.ref | startswith( "renovate/" ) ) and ( .user.login == "renovate[bot]" or .user.login == "matticbot" ) ) | .number' <<<"$JSON"); do
 		if [[ $PR -ge $MIN_PR ]]; then
 			echo "PR #$PR is ok"
 			continue

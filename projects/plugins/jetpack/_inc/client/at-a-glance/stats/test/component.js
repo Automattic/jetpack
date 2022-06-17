@@ -1,21 +1,12 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { shallow } from 'enzyme';
+import React from 'react';
 import { DashStats } from '../index';
 
 describe( 'Dashboard Stats', () => {
-	let wrapper,
-		testProps;
+	let wrapper, testProps;
 
-	before( function() {
+	beforeAll( () => {
 		testProps = {
 			siteRawUrl: 'example.org',
 			siteAdminUrl: 'example.org/wp-admin',
@@ -45,13 +36,13 @@ describe( 'Dashboard Stats', () => {
 						shares_twitter: 0,
 						'shares_google-plus-1': 0,
 						'shares_custom-1513105119': 0,
-						shares_facebook: 0
+						shares_facebook: 0,
 					},
 					visits: {
 						unit: 'day',
 						fields: [ 'period', 'views', 'visitors' ],
-						data: [ [ '2018-02-20', 0, 0 ] ]
-					}
+						data: [ [ '2018-02-20', 0, 0 ] ],
+					},
 				},
 				day: undefined,
 			},
@@ -68,63 +59,61 @@ describe( 'Dashboard Stats', () => {
 	} );
 
 	describe( 'Initially', () => {
-		before( function() {
+		beforeAll( () => {
 			wrapper = shallow( <DashStats { ...testProps } /> );
 		} );
 
 		it( 'renders header and card', () => {
-			expect( wrapper.find( 'DashSectionHeader' ) ).to.have.length( 1 );
-			expect( wrapper.find( '.jp-at-a-glance__stats-card' ) ).to.have.length( 1 );
+			expect( wrapper.find( 'DashSectionHeader' ) ).toHaveLength( 1 );
+			expect( wrapper.find( '.jp-at-a-glance__stats-card' ) ).toHaveLength( 1 );
 		} );
 
 		it( 'does not render date range tabs', () => {
-			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).to.have.length( 0 );
+			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).toHaveLength( 0 );
 		} );
 
-		describe( 'when stats are present, but empty', function() {
-			before( function() {
+		describe( 'when stats are present, but empty', () => {
+			beforeAll( () => {
 				testProps.statsData.day = {
 					unit: 'day',
 					fields: [ 'period', 'views', 'visitors' ],
 					// Mock no views for this date
-					data: [ [ '2018-02-20', 0, 0 ] ]
+					data: [ [ '2018-02-20', 0, 0 ] ],
 				};
 				wrapper = shallow( <DashStats { ...testProps } /> );
 			} );
 
 			it( 'renders the empty stats container', () => {
-				expect( wrapper.find( '.jp-at-a-glance__stats-empty' ) ).to.have.length( 1 );
+				expect( wrapper.find( '.jp-at-a-glance__stats-empty' ) ).toHaveLength( 1 );
 			} );
 		} );
 	} );
 
 	describe( 'When empty stats card was dismissed', () => {
-		before( function() {
+		beforeAll( () => {
 			wrapper = shallow( <DashStats { ...testProps } isEmptyStatsCardDismissed={ true } /> );
 		} );
 
 		it( 'renders date range tabs', () => {
-			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).to.have.length( 1 );
+			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).toHaveLength( 1 );
 		} );
 	} );
 
 	describe( 'When there is stats data', () => {
-		before( function() {
+		beforeAll( () => {
 			testProps.statsData.day = {
 				unit: 'day',
 				fields: [ 'period', 'views', 'visitors' ],
 				// Mock 32 views for this date
-				data: [ [ '2018-02-20', 32, 0 ] ]
+				data: [ [ '2018-02-20', 32, 0 ] ],
 			};
-			wrapper = shallow(
-				<DashStats { ...testProps } />
-			);
+			wrapper = shallow( <DashStats { ...testProps } /> );
 		} );
 		it( 'renders some stats', () => {
-			expect( wrapper.find( '.jp-at-a-glance__stats-chart' ) ).to.have.length( 1 );
+			expect( wrapper.find( '.jp-at-a-glance__stats-chart' ) ).toHaveLength( 1 );
 		} );
 		it( 'and range tabs', () => {
-			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).to.have.length( 1 );
+			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).toHaveLength( 1 );
 		} );
 	} );
 } );

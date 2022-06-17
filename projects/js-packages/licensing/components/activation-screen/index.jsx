@@ -1,21 +1,13 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
+import lockImage from '../jetpack-license-activation-with-lock.png';
+import successImage from '../jetpack-license-activation-with-success.png';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 /**
@@ -51,24 +43,18 @@ const parseAttachLicensesResult = result => {
  * The Activation Screen component.
  *
  * @param {object} props -- The properties.
- * @param {string} props.assetBaseUrl -- The assets base URL.
- * @param {string} props.lockImage -- Image to display within the illustration.
  * @param {Function?} props.onActivationSuccess -- A function to call on success.
  * @param {string} props.siteRawUrl -- url of the Jetpack Site
  * @param {string?} props.startingLicense -- pre-fill the license value
- * @param {string} props.successImage -- Image to display within the illustration.
  * @param {string} props.siteAdminUrl -- URL of the Jetpack Site Admin
  * @param {string} props.currentRecommendationsStep -- The current recommendation step.
  * @returns {React.Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
 	const {
-		assetBaseUrl,
-		lockImage,
 		onActivationSuccess = () => null,
 		siteRawUrl,
 		startingLicense,
-		successImage,
 		siteAdminUrl,
 		currentRecommendationsStep,
 	} = props;
@@ -113,10 +99,7 @@ const ActivationScreen = props => {
 				siteAdminUrl={ siteAdminUrl }
 				currentRecommendationsStep={ currentRecommendationsStep }
 			/>
-			<ActivationScreenIllustration
-				imageUrl={ assetBaseUrl + successImage }
-				showSupportLink={ false }
-			/>
+			<ActivationScreenIllustration imageUrl={ successImage } showSupportLink={ false } />
 		</div>
 	);
 
@@ -130,7 +113,7 @@ const ActivationScreen = props => {
 				licenseError={ licenseError }
 				isActivating={ isSaving }
 			/>
-			<ActivationScreenIllustration imageUrl={ assetBaseUrl + lockImage } showSupportLink />
+			<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
 		</div>
 	);
 
@@ -138,12 +121,9 @@ const ActivationScreen = props => {
 };
 
 ActivationScreen.propTypes = {
-	assetBaseUrl: PropTypes.string.isRequired,
-	lockImage: PropTypes.string.isRequired,
 	onActivationSuccess: PropTypes.func,
 	siteRawUrl: PropTypes.string.isRequired,
 	startingLicense: PropTypes.string,
-	successImage: PropTypes.string.isRequired,
 	siteAdminUrl: PropTypes.string.isRequired,
 	currentRecommendationsStep: PropTypes.string,
 };

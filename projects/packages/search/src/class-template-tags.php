@@ -24,11 +24,11 @@ class Template_Tags {
 	 * @param array $post_types An array of post types to make filterable.
 	 */
 	public static function render_available_filters( $filters = null, $post_types = null ) {
-		if ( is_null( $filters ) ) {
+		if ( $filters === null ) {
 			$filters = Classic_Search::instance()->get_filters();
 		}
 
-		if ( is_null( $post_types ) ) {
+		if ( $post_types === null ) {
 			$post_types = get_post_types( array( 'exclude_from_search' => false ) );
 		}
 
@@ -77,7 +77,7 @@ class Template_Tags {
 	 * @param array $filters    The available filters for the current query.
 	 */
 	public static function render_instant_filters( $filters = null ) {
-		if ( is_null( $filters ) ) {
+		if ( $filters === null ) {
 			$filters = Classic_Search::instance()->get_filters();
 		}
 

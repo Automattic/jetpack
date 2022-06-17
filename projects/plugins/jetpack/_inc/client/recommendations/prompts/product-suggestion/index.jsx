@@ -1,106 +1,45 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
-import { connect } from 'react-redux';
-import { __, sprintf } from '@wordpress/i18n';
-import { getCurrencyObject } from '@automattic/format-currency';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import Button from 'components/button';
-import ExternalLink from 'components/external-link';
 import analytics from 'lib/analytics';
-import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
-import { addSelectedRecommendation as addSelectedRecommendationAction } from 'state/recommendations';
+import PropTypes from 'prop-types';
+import React, { useCallback, useMemo } from 'react';
+import { connect } from 'react-redux';
+import {
+	addSelectedRecommendation as addSelectedRecommendationAction,
+	getUpsell,
+} from 'state/recommendations';
+import { getSiteDiscount } from 'state/site';
+import { ProductCardUpsell } from '../../product-card-upsell';
+import { isCouponValid } from '../../utils';
 
-/**
- * Style dependencies
- */
-import './style.scss';
+const ProductSuggestionComponent = ( {
+	product,
+	addSelectedRecommendation,
+	upsell,
+	discountData,
+} ) => {
+	const hasDiscount = useMemo( () => isCouponValid( discountData ), [ discountData ] );
 
-const generateCheckoutLink = ( { product, siteAdminUrl, siteRawUrl } ) => {
-	return getRedirectUrl( 'jetpack-recommendations-product-checkout', {
-		site: siteRawUrl,
-		path: product.slug,
-		query: `redirect_to=${ siteAdminUrl }admin.php?jp-react-redirect=product-purchased`,
-	} );
-};
-
-const ProductSuggestionComponent = props => {
-	const { product, addSelectedRecommendation } = props;
-
-	const onPurchaseClick = useCallback( () => {
+	const onClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_click', {
-			type: product.slug,
+			product_slug: product.slug,
+			discount: hasDiscount,
 		} );
 
 		addSelectedRecommendation( 'product-suggestions' );
-	}, [ product, addSelectedRecommendation ] );
-
-	const onExternalLinkClick = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_learn_more_click', {
-			type: product.slug,
+	}, [ product, addSelectedRecommendation, hasDiscount ] );
+	const onMount = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_product_suggestion_display', {
+			product_slug: product.slug,
+			discount: hasDiscount,
 		} );
-	}, [ product ] );
-
-	const currencyObject = getCurrencyObject( product.cost, product.currency_code );
+	}, [ product, hasDiscount ] );
 
 	return (
-		<div className="jp-recommendations-product-suggestion-item jp-recommendations-product-suggestion__item">
-			<div className="jp-recommendations-product-suggestion-item__content">
-				<h2 className="jp-recommendations-product-suggestion-item__title">{ product.title }</h2>
-				<p className="jp-recommendations-product-suggestion-item__description">
-					{ product.description }
-				</p>
-				<div className="jp-recommendations-product-suggestion-item__price">
-					<h3 className="jp-recommendations-product-suggestion-item__raw-price">
-						<sup className="jp-recommendations-product-suggestion-item__currency-symbol">
-							{ currencyObject.symbol }
-						</sup>
-						<span className="jp-recommendations-product-suggestion-item__price-integer">
-							{ currencyObject.integer }
-						</span>
-						<sup className="jp-recommendations-product-suggestion-item__price-fraction">
-							{ currencyObject.fraction }
-						</sup>
-					</h3>
-					<span className="jp-recommendations-product-suggestion-item__billing-time-frame">
-						{ product.cost_timeframe },
-						<br />
-						{ product.billing_timeframe }
-					</span>
-				</div>
-				<div className="jp-recommendations-product-suggestion-item__actions">
-					<Button
-						className="jp-recommendations-product-suggestion-item__checkout-button"
-						primary
-						href={ generateCheckoutLink( props ) }
-						onClick={ onPurchaseClick }
-					>
-						{ sprintf(
-							/* translators: %s: Name of a Jetpack product. */
-							__( 'Continue with %s', 'jetpack' ),
-							product.title
-						) }
-					</Button>
-					{ !! product.cta_link && !! product.cta_text && (
-						<ExternalLink
-							className="jp-recommendations-product-suggestion-item__external-link"
-							href={ product.cta_link }
-							target="_blank"
-							icon={ true }
-							iconSize={ 16 }
-							onClick={ onExternalLinkClick }
-							children={ product.cta_text }
-						/>
-					) }
-				</div>
-			</div>
-		</div>
+		<ProductCardUpsell
+			{ ...product }
+			isRecommended={ product.slug === upsell?.product_slug }
+			onClick={ onClick }
+			onMount={ onMount }
+		/>
 	);
 };
 
@@ -110,8 +49,8 @@ ProductSuggestionComponent.propTypes = {
 
 const ProductSuggestion = connect(
 	state => ( {
-		siteAdminUrl: getSiteAdminUrl( state ),
-		siteRawUrl: getSiteRawUrl( state ),
+		upsell: getUpsell( state ),
+		discountData: getSiteDiscount( state ),
 	} ),
 	dispatch => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),

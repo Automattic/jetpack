@@ -46,8 +46,14 @@ class Test_Product_Multiple_Filenames extends TestCase {
 	 */
 	public function set_up() {
 
+		// See https://stackoverflow.com/a/41611876.
 		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
 			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
+		}
+
+		if ( file_exists( WP_PLUGIN_DIR . '/jetpack/jetpack.php' ) ) {
+			unlink( WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
+			rmdir( WP_PLUGIN_DIR . '/jetpack' );
 		}
 
 	}
@@ -157,12 +163,12 @@ class Test_Product_Multiple_Filenames extends TestCase {
 
 		$filename = Backup::get_installed_plugin_filename();
 
-		$this->assertFalse( Backup::is_active() );
+		$this->assertFalse( Backup::is_plugin_active() );
 		$this->assertFalse( is_plugin_active( $filename ) );
 
 		Backup::activate();
 
-		$this->assertTrue( Backup::is_active() );
+		$this->assertTrue( Backup::is_plugin_active() );
 		$this->assertTrue( is_plugin_active( $filename ) );
 
 	}

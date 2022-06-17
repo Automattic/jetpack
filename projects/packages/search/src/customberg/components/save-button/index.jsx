@@ -1,15 +1,8 @@
-/**
- * WordPress dependencies
- */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import useEntityRecordState from 'hooks/use-entity-record-state';
 import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
 import { eventPrefix, recordEvent } from 'lib/analytics';
-import useEntityRecordState from 'hooks/use-entity-record-state';
 import './styles.scss';
 
 /**
@@ -43,7 +36,7 @@ export default function SaveButton() {
 			className="jp-search-configure-save-button"
 			disabled={ ! hasUnsavedEdits }
 			isBusy={ isSaving }
-			isPrimary
+			variant="primary"
 			onClick={ onClick }
 		>
 			{ isSaving

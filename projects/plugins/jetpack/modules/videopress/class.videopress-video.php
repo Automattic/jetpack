@@ -1,10 +1,15 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * VideoPress video object retrieved from VideoPress servers and parsed.
  *
  * @since 1.3
  */
 class VideoPress_Video {
+	/**
+	 * VideoPress version.
+	 *
+	 * @var int
+	 */
 	public $version = 3;
 
 	/**
@@ -13,7 +18,7 @@ class VideoPress_Video {
 	 * @var string
 	 * @since 1.3
 	 */
-	const manifest_version = '1.5';
+	const manifest_version = '1.5'; // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase
 
 	/**
 	 * Expiration of the video expressed in Unix time
@@ -172,8 +177,8 @@ class VideoPress_Video {
 	 * Request video information from VideoPress servers and process the response.
 	 *
 	 * @since 1.3
-	 * @var string $guid VideoPress unique identifier
-	 * @var int $maxwidth maximum requested video width. final width and height are calculated on VideoPress servers based on the aspect ratio of the original video upload.
+	 * @param string $guid VideoPress unique identifier.
+	 * @param int    $maxwidth maximum requested video width. final width and height are calculated on VideoPress servers based on the aspect ratio of the original video upload.
 	 */
 	public function __construct( $guid, $maxwidth = 640 ) {
 		$this->guid = $guid;
@@ -278,10 +283,10 @@ class VideoPress_Video {
 	}
 
 	/**
-	 * Convert an Expires HTTP header value into Unix time for use in WP Cache
+	 * Convert an Expires HTTP header value into Unix time for use in WP Cache.
 	 *
 	 * @since 1.3
-	 * @var string $expires_header
+	 * @param string $expires_header Expires header value.
 	 * @return int|bool Unix time or false
 	 */
 	public static function calculate_expiration( $expires_header ) {
@@ -289,19 +294,9 @@ class VideoPress_Video {
 			return false;
 		}
 
-		if (
-			class_exists( 'DateTimeZone' )
-			&& method_exists( 'DateTime', 'createFromFormat' )
-		) {
-			$expires_date = DateTime::createFromFormat( 'D, d M Y H:i:s T', $expires_header, new DateTimeZone( 'UTC' ) );
-			if ( $expires_date instanceof DateTime ) {
-				return date_format( $expires_date, 'U' );
-			}
-		} else {
-			$expires_array = strptime( $expires_header, '%a, %d %b %Y %H:%M:%S %Z' );
-			if ( is_array( $expires_array ) && isset( $expires_array['tm_hour'] ) && isset( $expires_array['tm_min'] ) && isset( $expires_array['tm_sec'] ) && isset( $expires_array['tm_mon'] ) && isset( $expires_array['tm_mday'] ) && isset( $expires_array['tm_year'] ) ) {
-				return gmmktime( $expires_array['tm_hour'], $expires_array['tm_min'], $expires_array['tm_sec'], 1 + $expires_array['tm_mon'], $expires_array['tm_mday'], 1900 + $expires_array['tm_year'] );
-			}
+		$expires_date = DateTime::createFromFormat( 'D, d M Y H:i:s T', $expires_header, new DateTimeZone( 'UTC' ) );
+		if ( $expires_date instanceof DateTime ) {
+			return date_format( $expires_date, 'U' );
 		}
 		return false;
 	}
@@ -310,13 +305,12 @@ class VideoPress_Video {
 	 * Extract the site's host domain for statistics and comparison against an allowed site list in the case of restricted embeds.
 	 *
 	 * @since 1.2
-	 * @param string $url absolute URL
-	 * @return bool|string host component of the URL, or false if none found
+	 * @param string $url absolute URL.
+	 * @return bool|string host component of the URL, or false if none found.
 	 */
 	public static function hostname( $url ) {
 		return wp_parse_url( esc_url_raw( $url ), PHP_URL_HOST );
 	}
-
 
 	/**
 	 * Request data from WordPress.com for the given guid, maxwidth, and calculated blog hostname.
@@ -356,8 +350,10 @@ class VideoPress_Video {
 		} elseif ( $response_code === 400 ) {
 			return new WP_Error( 'bad_config', __( 'The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade.', 'jetpack' ) );
 		} elseif ( $response_code === 403 ) {
+			/* translators: %s URL of site trying to embed a VideoPress video */
 			return new WP_Error( 'http_forbidden', '<p>' . sprintf( __( '<strong>%s</strong> is not an allowed embed site.', 'jetpack' ), esc_html( $domain ) ) . '</p><p>' . __( 'Publisher limits playback of video embeds.', 'jetpack' ) . '</p>' );
 		} elseif ( $response_code === 404 ) {
+			/* translators: %s VideoPress object identifier */
 			return new WP_Error( 'http_not_found', '<p>' . sprintf( __( 'No data found for VideoPress identifier: <strong>%s</strong>.', 'jetpack' ), $this->guid ) . '</p>' );
 		} elseif ( $response_code !== 200 || empty( $response_body ) ) {
 			return;

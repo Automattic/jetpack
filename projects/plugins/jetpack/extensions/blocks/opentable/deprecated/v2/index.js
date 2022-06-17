@@ -1,11 +1,8 @@
-/**
- * Internal dependencies
- */
 import { defaultAttributes } from '../../attributes';
 
 export default {
 	attributes: defaultAttributes,
-	migrate: ( attributes ) => {
+	migrate: attributes => {
 		const { style, className } = attributes;
 		const styleClassName = 'standard' === style ? '' : `is-style-${ style }`;
 
@@ -23,8 +20,8 @@ export default {
 	},
 	save: ( { attributes: { rid } } ) => (
 		<div>
-			{ rid.map( ( restaurantId ) => (
-				<a href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` } >
+			{ rid.map( restaurantId => (
+				<a href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }>
 					{ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
 				</a>
 			) ) }

@@ -31,6 +31,11 @@ class Test_Wpcom_Products extends TestCase {
 	 */
 	public function set_up() {
 
+		// See https://stackoverflow.com/a/41611876.
+		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
+			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
+		}
+
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -107,6 +112,11 @@ class Test_Wpcom_Products extends TestCase {
 				'cost_display'           => 'R$4.90',
 				'cost'                   => 4.9,
 				'currency_code'          => 'BRL',
+				'sale_coupon'            => (object) array(
+					'start_date' => gmdate( 'Y' ) . '-01-01',
+					'expires'    => gmdate( 'Y' ) . '-12-31',
+					'discount'   => 50,
+				),
 			),
 		);
 	}
@@ -197,12 +207,14 @@ class Test_Wpcom_Products extends TestCase {
 		$this->create_user_and_login();
 
 		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
-		$product_price = Wpcom_Products::get_product_currency_and_price( 'jetpack_videopress_monthly' );
+		$product_price = Wpcom_Products::get_product_pricing( 'jetpack_videopress_monthly' );
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
 		$expected = array(
-			'currency_code' => 'BRL',
-			'full_price'    => 4.9,
+			'currency_code'   => 'BRL',
+			'full_price'      => 4.9,
+			'discount_price'  => 2.45,
+			'coupon_discount' => 50,
 		);
 
 		$this->assertSame( $expected, $product_price );
@@ -216,7 +228,7 @@ class Test_Wpcom_Products extends TestCase {
 		$this->create_user_and_login();
 
 		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
-		$product_price = Wpcom_Products::get_product_currency_and_price( 'invalid' );
+		$product_price = Wpcom_Products::get_product_pricing( 'invalid' );
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
 		$this->assertSame( array(), $product_price );

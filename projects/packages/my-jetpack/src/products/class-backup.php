@@ -10,11 +10,12 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 
 /**
- * Class responsible for handling the CRM product
+ * Class responsible for handling the Backup product
  */
 class Backup extends Hybrid_Product {
 
@@ -110,10 +111,10 @@ class Backup extends Hybrid_Product {
 	public static function get_pricing_for_ui() {
 		return array_merge(
 			array(
-				'available'            => true,
-				'promotion_percentage' => 50,
+				'available'          => true,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
 			),
-			Wpcom_Products::get_product_currency_and_price( static::get_wpcom_product_slug() )
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
 	}
 
@@ -127,13 +128,13 @@ class Backup extends Hybrid_Product {
 	private static function get_state_from_wpcom() {
 		static $status = null;
 
-		if ( ! is_null( $status ) ) {
+		if ( $status !== null ) {
 			return $status;
 		}
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'rewind_state_fetch_failed' );
@@ -157,4 +158,44 @@ class Backup extends Hybrid_Product {
 		return is_object( $rewind_data ) && isset( $rewind_data->state ) && 'unavailable' !== $rewind_data->state;
 	}
 
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'security' );
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page or continue the purchase flow if needed.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		if ( static::is_jetpack_plugin_active() ) {
+			return Redirect::get_url( 'my-jetpack-manage-backup' );
+		} elseif ( static::is_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack-backup' );
+		}
+	}
+
+	/**
+	 * Checks whether the Product is active
+	 *
+	 * @return boolean
+	 */
+	public static function is_active() {
+		return parent::is_active() && static::has_required_plan();
+	}
 }

@@ -5,6 +5,89 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.14] - 2022-06-14
+### Changed
+- Updated package dependencies. [#24529]
+
+## [0.8.13] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## [0.8.12] - 2022-05-30
+### Changed
+- Updated package dependencies
+
+## [0.8.11] - 2022-05-18
+### Changed
+- Updated package dependencies [#24372]
+
+## [0.8.10] - 2022-05-10
+### Changed
+- Updated package dependencies. [#24302]
+
+## [0.8.9] - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+
+### Changed
+- Updated package dependencies. [#24095] [#24198]
+
+### Deprecated
+- Moved the options class into Connection. [#24095]
+
+## [0.8.8] - 2022-04-26
+### Changed
+- Updated package dependencies.
+- Update package.json metadata.
+
+## [0.8.7] - 2022-04-19
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+
+## [0.8.6] - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+## [0.8.5] - 2022-04-06
+### Changed
+- Updated package dependencies
+
+### Removed
+- Removed tracking dependency.
+
+## [0.8.4] - 2022-03-29
+### Changed
+- Microperformance: Use === null instead of is_null
+- Updated package dependencies.
+
+## [0.8.3] - 2022-03-23
+### Changed
+- Updated package dependencies
+
+## [0.8.2] - 2022-03-15
+### Changed
+- Updated package dependencies.
+
+## [0.8.1] - 2022-03-08
+### Changed
+- Updated package dependencies.
+
+## [0.8.0] - 2022-03-02
+### Added
+- IDC: add detection for possibly dynamic HTTP_HOST being used in WP_SITEURL or WP_HOME.
+
+### Changed
+- Bring back the IDC screen in Staging mode.
+- Updated package dependencies.
+
+## [0.7.4] - 2022-02-22
+### Added
+- Add blog ID to event tracking.
+
+## [0.7.3] - 2022-02-16
+### Changed
+- Updated package dependencies.
+
 ## [0.7.2] - 2022-02-09
 ### Changed
 - Updated package dependencies
@@ -149,6 +232,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
+[0.8.14]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.13...v0.8.14
+[0.8.13]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.12...v0.8.13
+[0.8.12]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.11...v0.8.12
+[0.8.11]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.10...v0.8.11
+[0.8.10]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.9...v0.8.10
+[0.8.9]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.8...v0.8.9
+[0.8.8]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.7...v0.8.8
+[0.8.7]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.6...v0.8.7
+[0.8.6]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.5...v0.8.6
+[0.8.5]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.4...v0.8.5
+[0.8.4]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.3...v0.8.4
+[0.8.3]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.2...v0.8.3
+[0.8.2]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.7.4...v0.8.0
+[0.7.4]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.6.4...v0.7.0

@@ -4,7 +4,7 @@ on:
     - cron: '0 0 * * *'
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
   cleanup:
@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 15  # 2021-03-25: Wild guess.
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: .github/files/renovate-close-old-PRs.sh
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}

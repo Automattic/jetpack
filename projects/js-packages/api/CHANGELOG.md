@@ -2,6 +2,71 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.13.5 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.13.4 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## 0.13.3 - 2022-05-30
+### Changed
+- Updated package dependencies
+
+## 0.13.2 - 2022-05-10
+### Changed
+- Updated package dependencies [#24301]
+
+## 0.13.1 - 2022-05-04
+### Added
+- Added an endpoint to load the firewall's settings. [#23769]
+- Add missing JavaScript dependencies. [#24096]
+
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+## 0.13.0 - 2022-04-26
+### Added
+- Add endpoints for site discount
+- Add endpoint to fetch intro offers
+
+### Changed
+- Updated package dependencies.
+
+## 0.12.0 - 2022-04-19
+### Added
+- Added API routes for WordAds settings
+- Search: added API support for search product tier pricing
+
+## 0.11.0 - 2022-04-12
+### Added
+- Add endpoint for conditional recommendations
+
+## 0.10.2 - 2022-04-05
+### Changed
+- Updated package dependencies
+
+## 0.10.1 - 2022-03-29
+### Changed
+- Updated package dependencies.
+
+## 0.10.0 - 2022-03-23
+### Added
+- New API which returns the list of licenses from WPCOM
+
+## 0.9.1 - 2022-03-02
+### Changed
+- Updated package dependencies
+
+## 0.9.0 - 2022-02-22
+### Added
+- API: add Jetpack Search stats endpoint
+
+### Removed
+- Removed testing dependency on `chai-fetch-mock`. It was unused.
+
 ## 0.8.4 - 2022-02-09
 ### Changed
 - Updated package dependencies

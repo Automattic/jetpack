@@ -1,27 +1,16 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import {
 	InspectorControls,
 	RichText,
-	__experimentalUseGradient as useGradient,
+	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	withColors,
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
 import applyFallbackStyles from './apply-fallback-styles';
-import ButtonControls from './controls';
 import { IS_GRADIENT_AVAILABLE } from './constants';
+import ButtonControls from './controls';
 import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
 
@@ -41,12 +30,6 @@ export function ButtonEdit( props ) {
 	const previousAlign = usePrevious( align );
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
-
-	const onChange = value => {
-		// TODO: Remove `replace` once minimum Gutenberg version is 8.0 (to fully support `disableLineBreaks`)
-		const newValue = 'input' === element ? value.replace( /<br>/gim, ' ' ) : value;
-		setAttributes( { text: newValue } );
-	};
 
 	useEffect( () => {
 		// Reset button width if switching to left or right (floated) alignment for first time.
@@ -98,7 +81,7 @@ export function ButtonEdit( props ) {
 				allowedFormats={ 'input' === element ? [] : undefined }
 				className={ buttonClasses }
 				disableLineBreaks={ 'input' === element }
-				onChange={ onChange }
+				onChange={ value => setAttributes( { text: value } ) }
 				placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 				style={ buttonStyles }
 				value={ text }

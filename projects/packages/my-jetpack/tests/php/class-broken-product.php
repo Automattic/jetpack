@@ -72,4 +72,13 @@ class Broken_Product extends Module_Product {
 		return array();
 	}
 
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return '';
+	}
+
 }

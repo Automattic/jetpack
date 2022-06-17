@@ -247,13 +247,14 @@ class WPCOM_JSON_API {
 	 * @param string|null $post_body POST body. Read from `php://input` if null and method is POST.
 	 */
 	public function setup_inputs( $method = null, $url = null, $post_body = null ) {
-		if ( is_null( $method ) ) {
-			$this->method = strtoupper( $_SERVER['REQUEST_METHOD'] );
+		if ( $method === null ) {
+			$this->method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : '';
 		} else {
 			$this->method = strtoupper( $method );
 		}
-		if ( is_null( $url ) ) {
-			$this->url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+		if ( $url === null ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sniff misses the esc_url_raw.
+			$this->url = esc_url_raw( set_url_scheme( 'http://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ) );
 		} else {
 			$this->url = $url;
 		}
@@ -267,18 +268,18 @@ class WPCOM_JSON_API {
 			wp_parse_str( $parsed['query'], $this->query );
 		}
 
-		if ( isset( $_SERVER['HTTP_ACCEPT'] ) && $_SERVER['HTTP_ACCEPT'] ) {
-			$this->accept = $_SERVER['HTTP_ACCEPT'];
+		if ( ! empty( $_SERVER['HTTP_ACCEPT'] ) ) {
+			$this->accept = filter_var( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) );
 		}
 
 		if ( 'POST' === $this->method ) {
-			if ( is_null( $post_body ) ) {
+			if ( $post_body === null ) {
 				$this->post_body = file_get_contents( 'php://input' );
 
-				if ( isset( $_SERVER['HTTP_CONTENT_TYPE'] ) && $_SERVER['HTTP_CONTENT_TYPE'] ) {
-					$this->content_type = $_SERVER['HTTP_CONTENT_TYPE'];
-				} elseif ( isset( $_SERVER['CONTENT_TYPE'] ) && $_SERVER['CONTENT_TYPE'] ) {
-					$this->content_type = $_SERVER['CONTENT_TYPE'];
+				if ( ! empty( $_SERVER['HTTP_CONTENT_TYPE'] ) ) {
+					$this->content_type = filter_var( wp_unslash( $_SERVER['HTTP_CONTENT_TYPE'] ) );
+				} elseif ( ! empty( $_SERVER['CONTENT_TYPE'] ) ) {
+					$this->content_type = filter_var( wp_unslash( $_SERVER['CONTENT_TYPE'] ) );
 				} elseif ( '{' === $this->post_body[0] ) {
 					$this->content_type = 'application/json';
 				} else {
@@ -300,7 +301,7 @@ class WPCOM_JSON_API {
 			$this->content_type = null;
 		}
 
-		$this->_server_https = array_key_exists( 'HTTPS', $_SERVER ) ? $_SERVER['HTTPS'] : '--UNset--';
+		$this->_server_https = array_key_exists( 'HTTPS', $_SERVER ) ? filter_var( wp_unslash( $_SERVER['HTTPS'] ) ) : '--UNset--';
 	}
 
 	/**
@@ -627,7 +628,7 @@ class WPCOM_JSON_API {
 			header( 'Access-Control-Allow-Credentials: true' );
 		}
 
-		if ( is_null( $response ) ) {
+		if ( $response === null ) {
 			$response = new stdClass();
 		}
 
@@ -1003,7 +1004,7 @@ class WPCOM_JSON_API {
 	}
 
 	/**
-	 * Counts the number of comments on a site, excluding certain comment types.
+	 * Counts the number of comments on a site, including certain comment types.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return array Array of counts, matching the output of https://developer.wordpress.org/reference/functions/get_comment_count/.
@@ -1020,26 +1021,39 @@ class WPCOM_JSON_API {
 		);
 
 		/**
-		 * Exclude certain comment types from comment counts in the REST API.
-		 *
-		 * @since 6.9.0
-		 * @module json-api
-		 *
-		 * @param array Array of comment types to exclude (default: 'order_note', 'webhook_delivery', 'review', 'action_log')
-		 */
-		$exclude = apply_filters(
-			'jetpack_api_exclude_comment_types_count',
-			array( 'order_note', 'webhook_delivery', 'review', 'action_log' )
+		* Exclude certain comment types from comment counts in the REST API.
+		*
+		* @since 6.9.0
+		* @deprecated 11.1
+		* @module json-api
+		*
+		* @param array Array of comment types to exclude (default: 'order_note', 'webhook_delivery', 'review', 'action_log')
+		*/
+		$exclude = apply_filters_deprecated( 'jetpack_api_exclude_comment_types_count', array( 'order_note', 'webhook_delivery', 'review', 'action_log' ), 'jetpack-11.1', 'jetpack_api_include_comment_types_count' ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		/**
+		* Include certain comment types in comment counts in the REST API.
+		* Note: the default array of comment types includes an empty string,
+		* to support comments posted before WP 5.5, that used an empty string as comment type.
+		*
+		* @since 11.1
+		* @module json-api
+		*
+		* @param array Array of comment types to include (default: 'comment', 'pingback', 'trackback')
+		*/
+		$include = apply_filters(
+			'jetpack_api_include_comment_types_count',
+			array( 'comment', 'pingback', 'trackback', '' )
 		);
 
-		if ( empty( $exclude ) ) {
+		if ( empty( $include ) ) {
 			return wp_count_comments( $post_id );
 		}
 
-		array_walk( $exclude, 'esc_sql' );
+		array_walk( $include, 'esc_sql' );
 		$where = sprintf(
-			"WHERE comment_type NOT IN ( '%s' )",
-			implode( "','", $exclude )
+			"WHERE comment_type IN ( '%s' )",
+			implode( "','", $include )
 		);
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- `$where` is built with escaping just above.
@@ -1103,7 +1117,7 @@ class WPCOM_JSON_API {
 			$die_handler = 'wp_die_handler';
 		}
 
-		if ( is_null( $error_code ) ) {
+		if ( $error_code === null ) {
 			$this->trapped_error = null;
 			// Stop trapping.
 			remove_filter( $die_handler, array( $this, 'wp_die_handler_callback' ) );

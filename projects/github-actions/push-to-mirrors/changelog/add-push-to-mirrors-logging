@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Log the fetched base revision when preparing the push.

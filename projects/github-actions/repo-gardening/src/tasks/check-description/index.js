@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 const fs = require( 'fs' );
-const moment = require( 'moment' );
 const path = require( 'path' );
-
-/**
- * Internal dependencies
- */
+const moment = require( 'moment' );
 const debug = require( '../../debug' );
 const getAffectedChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
 const getFiles = require( '../../get-files' );
@@ -375,8 +368,8 @@ My PR adds *x* and *y*.
 			'`, `'
 		) }\`
 
-Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
-Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md)
+Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
+Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/trunk/docs/writing-a-good-changelog-entry.md)
 `,
 	};
 
@@ -477,6 +470,7 @@ async function checkDescription( payload, octokit ) {
 	const {
 		number,
 		user: { login: author },
+		head: { ref: ref },
 	} = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
@@ -484,8 +478,8 @@ async function checkDescription( payload, octokit ) {
 
 	debug( `check-description: Status checks: ${ JSON.stringify( statusChecks ) }` );
 
-	if ( author === 'renovate[bot]' ) {
-		debug( `check-description: PR was created by ${ author }, skipping` );
+	if ( ref.startsWith( 'renovate/' ) && ( author === 'renovate[bot]' || author === 'matticbot' ) ) {
+		debug( `check-description: Renovate PR, skipping` );
 		return;
 	}
 
@@ -494,7 +488,7 @@ async function checkDescription( payload, octokit ) {
 	// We'll add any remarks we may have about the PR to that comment body.
 	let comment = `**Thank you for your PR!**
 
-When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
+When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/trunk/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
 
 	comment += renderStatusChecks( statusChecks );
 	comment += `

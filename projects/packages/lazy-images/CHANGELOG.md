@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.17] - 2022-06-14
+
+## [2.1.16] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## [2.1.15] - 2022-05-24
+### Fixed
+- Do not lazy-load images when in RSS feeds. [#24471]
+
+## [2.1.14] - 2022-05-18
+### Changed
+- Setup lazy-images filters to run on 'the_post' hook not 'wp_head' to fix a variety of issues. [#24277]
+- Updated package dependencies [#24372]
+
+## [2.1.13] - 2022-05-10
+### Changed
+- Updated package dependencies. [#24302]
+
+## [2.1.12] - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+
+### Changed
+- Update JS sources to modern syntax. [#24213]
+
+## [2.1.11] - 2022-04-26
+### Changed
+- Updated package dependencies.
+- Update package.json metadata.
+
+## [2.1.10] - 2022-04-06
+### Changed
+- Microperformance: Use === null instead of is_null
+
+## [2.1.9] - 2022-03-29
+### Changed
+- Microperformance: Use === null instead of is_null
+
+## [2.1.8] - 2022-03-23
+### Changed
+- Updated package dependencies.
+
+## [2.1.7] - 2022-03-02
+### Changed
+- Updated package dependencies.
+
+## [2.1.6] - 2022-02-16
+### Changed
+- Updated package dependencies.
+
 ## [2.1.5] - 2022-02-09
 ### Changed
 - Updated package dependencies.
@@ -180,6 +231,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.1.17]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.16...v2.1.17
+[2.1.16]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.15...v2.1.16
+[2.1.15]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.14...v2.1.15
+[2.1.14]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.13...v2.1.14
+[2.1.13]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.12...v2.1.13
+[2.1.12]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.11...v2.1.12
+[2.1.11]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.10...v2.1.11
+[2.1.10]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.9...v2.1.10
+[2.1.9]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.8...v2.1.9
+[2.1.8]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.7...v2.1.8
+[2.1.7]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.6...v2.1.7
+[2.1.6]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.5...v2.1.6
 [2.1.5]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.4...v2.1.5
 [2.1.4]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.3...v2.1.4
 [2.1.3]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.2...v2.1.3

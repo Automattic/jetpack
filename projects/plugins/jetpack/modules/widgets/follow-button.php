@@ -1,15 +1,24 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 // @todo Fix performance issues before shipping.
-//add_action( 'widgets_init', 'follow_button_register_widget' );
+// add_action( 'widgets_init', 'follow_button_register_widget' );
+/**
+ * Register the Follow Button widget.
+ */
 function follow_button_register_widget() {
 	if ( Jetpack::is_connection_ready() ) {
 		register_widget( 'Jetpack_Follow_Button_Widget' );
 	}
 }
 
+/**
+ * Jetpack_Follow_Button_Widget main class.
+ */
 class Jetpack_Follow_Button_Widget extends WP_Widget {
 
+	/**
+	 * Jetpack_Follow_Button_Widget constructor.
+	 */
 	public function __construct() {
 		parent::__construct(
 			'follow_button_widget',
@@ -22,10 +31,19 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 		);
 	}
 
+	/**
+	 * Front-end display of widget.
+	 *
+	 * @see WP_Widget::widget() for more information on widget parameters.
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Saved values from database.
+	 */
 	public function widget( $args, $instance ) {
 		$attributes = array();
 		$instance   = wp_parse_args(
-			(array) $instance, array(
+			(array) $instance,
+			array(
 				'show_name'  => 1,
 				'show_count' => 0,
 			)
@@ -54,7 +72,7 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 			$attributes[] = 'data-show-follower-count="true"';
 		}
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 
 		<a
@@ -64,23 +82,35 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 			data-lang="<?php echo esc_attr( $wpcom_locale ); ?>"
 									<?php
 									if ( ! empty( $attributes ) ) {
-										echo implode( ' ', $attributes );}
-?>
+										echo implode( ' ', $attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+									}
+									?>
 		>
-			<?php sprintf( __( 'Follow %s on WordPress.com', 'jetpack' ), get_bloginfo( 'name' ) ); ?>
+			<?php
+			/* Translators: %s is the site name. */
+			sprintf( __( 'Follow %s on WordPress.com', 'jetpack' ), get_bloginfo( 'name' ) );
+			?>
 		</a>
 		<script type="text/javascript">(function(d){var f = d.getElementsByTagName('SCRIPT')[0], p = d.createElement('SCRIPT');p.type = 'text/javascript';p.async = true;p.src = '//widgets.wp.com/platform.js';f.parentNode.insertBefore(p,f);}(document));</script>
 
 		<?php
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'follow_button' );
 	}
 
+	/**
+	 * Back-end widget form.
+	 *
+	 * @see WP_Widget::form() for more information on parameters.
+	 *
+	 * @param array $instance Previously saved values from database.
+	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args(
-			(array) $instance, array(
+			(array) $instance,
+			array(
 				'show_name'  => 1,
 				'show_count' => 0,
 			)
@@ -91,16 +121,24 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 		?>
 
 		<p>
-		<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id( 'show_name' ); ?>" name="<?php echo $this->get_field_name( 'show_name' ); ?>"<?php checked( $show_name ); ?> />
-		<label for="<?php echo $this->get_field_id( 'show_name' ); ?>"><?php esc_html_e( 'Show blog name', 'jetpack' ); ?></label>
+		<input type="checkbox" class="checkbox" id="<?php echo esc_attr( $this->get_field_id( 'show_name' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_name' ) ); ?>"<?php checked( $show_name ); ?> />
+		<label for="<?php echo esc_attr( $this->get_field_id( 'show_name' ) ); ?>"><?php esc_html_e( 'Show blog name', 'jetpack' ); ?></label>
 		<br />
-		<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id( 'show_count' ); ?>" name="<?php echo $this->get_field_name( 'show_count' ); ?>"<?php checked( $show_count ); ?> />
-		<label for="<?php echo $this->get_field_id( 'show_count' ); ?>"><?php esc_html_e( 'Show follower count', 'jetpack' ); ?></label>
+		<input type="checkbox" class="checkbox" id="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_count' ) ); ?>"<?php checked( $show_count ); ?> />
+		<label for="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>"><?php esc_html_e( 'Show follower count', 'jetpack' ); ?></label>
 		</p>
 
 		<?php
 	}
 
+	/**
+	 * Update widget.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param array $new_instance New widget instance data.
+	 * @param array $old_instance Old widget instance data.
+	 */
 	public function update( $new_instance, $old_instance ) {
 		$old_instance['show_name']  = ! empty( $new_instance['show_name'] ) ? 1 : 0;
 		$old_instance['show_count'] = ! empty( $new_instance['show_count'] ) ? 1 : 0;

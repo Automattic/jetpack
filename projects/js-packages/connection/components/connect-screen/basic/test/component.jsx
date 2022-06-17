@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { expect } from 'chai';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { expect } from 'chai';
+import React from 'react';
 import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
 import ConnectScreen from '../visual';
 
 const requiredProps = {
@@ -63,11 +56,12 @@ describe( 'ConnectScreen', () => {
 	// we have an acessibility breach into our loading state
 	it.skip( 'shows loading into button', () => {} );
 
-	it( 'calls handleButtonClick', () => {
+	it( 'calls handleButtonClick', async () => {
+		const user = userEvent.setup();
 		const handleButtonClick = sinon.stub();
 		render( <ConnectScreen { ...requiredProps } handleButtonClick={ handleButtonClick } /> );
 		const button = screen.getByRole( 'button', { name: 'Setup Jetpack' } );
-		userEvent.click( button );
+		await user.click( button );
 		expect( handleButtonClick.called ).to.be.true;
 	} );
 } );

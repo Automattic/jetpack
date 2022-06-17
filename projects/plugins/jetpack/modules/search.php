@@ -15,8 +15,7 @@
  */
 
 use Automattic\Jetpack\Search\Classic_Search;
-
-Automattic\Jetpack\Search\Jetpack_Initializer::initialize();
+use Automattic\Jetpack\Search\Helper as Search_Helper;
 
 /**
  * These are old legacy class names that were deprecated due to the move to packages.
@@ -40,6 +39,7 @@ class Jetpack_Search {
 	 * Return the instance of the new class.
 	 */
 	public static function instance() {
-		return Classic_Search::initialize( get_current_blog_id() );
+		// Explicitly provide the blog ID, just in case.
+		return Classic_Search::instance( Search_Helper::get_wpcom_site_id() );
 	}
 }

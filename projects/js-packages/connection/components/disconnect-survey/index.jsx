@@ -1,14 +1,7 @@
-/**
- * External Dependencies
- */
-import React, { useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
-
-/**
- * Internal Dependencies
- */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 import SurveyChoice from './survey-choice';
 
 /**
@@ -164,7 +157,7 @@ const DisconnectSurvey = props => {
 			<p>
 				<Button
 					disabled={ ! selectedAnswer || isSubmittingFeedback }
-					isPrimary
+					variant="primary"
 					onClick={ handleSurveySubmit }
 					className="jp-connection__disconnect-dialog__btn-back-to-wp"
 				>

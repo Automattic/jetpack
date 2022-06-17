@@ -1,5 +1,26 @@
 # Changelog
 
+## 3.1.2 - 2022-06-08
+### Added
+- Adding trunk branch cases in preparation for monorepo branch renaming
+- Set `Update URI` in the plugin header.
+
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+- Updated package dependencies.
+
+### Fixed
+- Download from the correct URL when updating to a version tagged like "v3.1.1" rather than "3.1.1".
+- Ensure that WP CLI is present before extending the class.
+- Fixed testing tips links
+
+## 3.1.1 - 2022-03-01
+### Added
+- Added docs to JS file.
+
+### Changed
+- Updated composer.lock
+
 ## 3.1.0 - 2021-12-08
 ### Added
 - Added an action to auto-create a GitHub release when a version is tagged.

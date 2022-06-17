@@ -93,10 +93,11 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 	public function get_videopress_data( $attachment_id, $blog_id ) {
 		$info = video_get_info_by_blogpostid( $blog_id, $attachment_id );
 		return array(
-			'guid'           => $info->guid,
-			'rating'         => $info->rating,
-			'allow_download' =>
+			'guid'            => $info->guid,
+			'rating'          => $info->rating,
+			'allow_download'  =>
 				isset( $info->allow_download ) && $info->allow_download ? 1 : 0,
+			'privacy_setting' => ! isset( $info->privacy_setting ) ? VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting ),
 		);
 	}
 

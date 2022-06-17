@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Update `wp-coding-standards/wpcs` to `dev-develop`. They haven't done a release in over a year, and we need fixes for errors in PHP 8.0 and 8.1.

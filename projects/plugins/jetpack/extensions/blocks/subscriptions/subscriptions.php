@@ -26,7 +26,16 @@ function register_block() {
 	) {
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
-			array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+			array(
+				'render_callback' => __NAMESPACE__ . '\render_block',
+				'supports'        => array(
+					'spacing' => array(
+						'margin'  => true,
+						'padding' => true,
+					),
+					'align'   => array( 'wide', 'full' ),
+				),
+			)
 		);
 	}
 }

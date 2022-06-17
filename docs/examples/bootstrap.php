@@ -1,12 +1,6 @@
 <?php
 /**
- * PHPUnit bootstrap file to apply WordPress core's monkey-patching to versions
- * of PHPUnit that don't natively support PHP 8.0 for PHP 8.0.
- *
- * WARNING: This is outdated as of September 2021. WordPress is in the midst of
- * updating their stuff to stop being hacky, but have left WP 5.7 and 5.8 in a
- * strange in-between state. Once we only support 5.9+ we should update this
- * for whatever it turns out to be.
+ * PHPUnit bootstrap file.
  *
  * @package automattic/jetpack
  */
@@ -52,31 +46,11 @@ if ( ! isset( $_tests_dir ) || ! file_exists( $_tests_dir . '/includes/bootstrap
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 echo "Using test root $_tests_dir\n";
 
-// WordPress requires PHPUnit 7.5 or earlier and hacks around a few things to
-// make it work with PHP 8. Unfortunately for MockObjects they do it via
-// composer.json rather than bootstrap.php, so we have to manually do it here.
-if ( version_compare( PHP_VERSION, '8.0', '>=' ) &&
-	( ! class_exists( PHPUnit\Runner\Version::class ) || version_compare( PHPUnit\Runner\Version::id(), '9.3', '<' ) )
-) {
-	if ( ! class_exists( PHPUnit\Framework\MockObject\InvocationMocker::class, false ) &&
-		file_exists( "$_tests_dir/includes/phpunit7/MockObject/InvocationMocker.php" )
-	) {
-		// phpcs:disable WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-		require "$_tests_dir/includes/phpunit7/MockObject/Builder/NamespaceMatch.php";
-		require "$_tests_dir/includes/phpunit7/MockObject/Builder/ParametersMatch.php";
-		require "$_tests_dir/includes/phpunit7/MockObject/InvocationMocker.php";
-		require "$_tests_dir/includes/phpunit7/MockObject/MockMethod.php";
-		// phpcs:enable
-	} else {
-		fprintf(
-			STDOUT,
-			"Warning: PHPUnit <9.3 is not compatible with PHP 8.0+, and the hack could not be loaded.\n  Class %s exists: %s\n  File %s exists: %s\n",
-			PHPUnit\Framework\MockObject\InvocationMocker::class,
-			class_exists( PHPUnit\Framework\MockObject\InvocationMocker::class, false ) ? 'yes (bad)' : 'no (good)',
-			"$_tests_dir/includes/phpunit7/MockObject/InvocationMocker.php",
-			file_exists( "$_tests_dir/includes/phpunit7/MockObject/InvocationMocker.php" ) ? 'yes (good)' : 'no (bad)'
-		);
-	}
+if ( ! is_readable( $_plugin_root . '/vendor/autoload.php' ) ) {
+	echo 'The plugin is not ready for testing.' . PHP_EOL;
+	echo PHP_EOL;
+	echo 'Composer dependencies must be installed.' . PHP_EOL;
+	exit( 1 );
 }
 
 // Give access to tests_add_filter() function.
@@ -96,7 +70,3 @@ require $_tests_dir . '/includes/bootstrap.php';
 
 // Load Composer autoloader.
 require $_plugin_root . '/vendor/autoload.php';
-
-// Using the Speed Trap Listener provided by WordPress Core testing suite to expose
-// slowest running tests. See the configuration in phpunit.xml.dist.
-require $_tests_dir . '/includes/listener-loader.php';

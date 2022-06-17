@@ -44,10 +44,10 @@ jobs:
 
     steps:
      - name: Checkout
-       uses: actions/checkout@v2
+       uses: actions/checkout@v3
 
      - name: Setup Node
-       uses: actions/setup-node@v2
+       uses: actions/setup-node@v3
         with:
           node-version: lts
 
@@ -57,7 +57,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
      - name: 'Run gardening action'
-       uses: automattic/action-repo-gardening@v2
+       uses: automattic/action-repo-gardening@v3
        with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
@@ -93,7 +93,7 @@ Certain tasks require filesystem access to the PR, which `pull_request_target` d
 ```yaml
      - name: Checkout the PR
        if: github.event_name == 'pull_request_target'
-       uses: actions/checkout@v2
+       uses: actions/checkout@v3
        with:
          ref: ${{ github.event.pull_request.head.ref }}
          repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -105,7 +105,7 @@ As the comment says, **do not** run any code in that checkout, not even an `npm 
 Then pass the path as environment variable to the repo-gardening action, like
 ```yaml
      - name: 'Run gardening action'
-       uses: automattic/action-repo-gardening@v2
+       uses: automattic/action-repo-gardening@v3
        env:
          PR_WORKSPACE: ${{ github.workspace }}${{ github.event_name == 'pull_request_target' && '/pr-checkout' || '' }}
        with:

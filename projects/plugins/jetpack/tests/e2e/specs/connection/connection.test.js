@@ -1,6 +1,10 @@
-import { test, expect } from '../../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { doSiteLevelConnection, doClassicConnection } from 'jetpack-e2e-commons/flows/index.js';
-import { Sidebar, JetpackPage, DashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import {
+	Sidebar,
+	JetpackDashboardPage,
+	DashboardPage,
+} from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
 test.describe( 'Connection', () => {
@@ -28,8 +32,9 @@ test.describe( 'Connection', () => {
 		} );
 
 		await test.step( 'Can assert that site is connected', async () => {
-			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isConnected() ).toBeTruthy();
+			const jetpackPage = await JetpackDashboardPage.visit( page );
+			expect( await jetpackPage.isSiteConnected(), 'Site should be connected' ).toBeTruthy();
+			expect( await jetpackPage.isNotUserConnected(), 'User should not be connected' ).toBeTruthy();
 		} );
 	} );
 
@@ -39,8 +44,9 @@ test.describe( 'Connection', () => {
 		} );
 
 		await test.step( 'Can assert that site is connected', async () => {
-			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isConnected() ).toBeTruthy();
+			const jetpackPage = await JetpackDashboardPage.visit( page );
+			expect( await jetpackPage.isSiteConnected(), 'Site should be connected' ).toBeTruthy();
+			expect( await jetpackPage.isUserConnected(), 'User should be connected' ).toBeTruthy();
 		} );
 	} );
 } );

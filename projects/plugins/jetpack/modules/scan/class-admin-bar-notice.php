@@ -94,7 +94,7 @@ class Admin_Bar_Notice {
 	public function enqueue_toolbar_script() {
 		$this->add_inline_styles();
 
-		if ( ! is_null( $this->has_threats() ) ) {
+		if ( $this->has_threats() !== null ) {
 			return;
 		}
 

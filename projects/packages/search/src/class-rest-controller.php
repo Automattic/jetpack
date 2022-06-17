@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -41,8 +42,8 @@ class REST_Controller {
 	 */
 	public function __construct( $is_wpcom = false, $module_control = null, $plan = null ) {
 		$this->is_wpcom      = $is_wpcom;
-		$this->search_module = is_null( $module_control ) ? new Module_Control() : $module_control;
-		$this->plan          = is_null( $plan ) ? new Plan() : $plan;
+		$this->search_module = $module_control === null ? new Module_Control() : $module_control;
+		$this->plan          = $plan === null ? new Plan() : $plan;
 	}
 
 	/**
@@ -81,6 +82,15 @@ class REST_Controller {
 		);
 		register_rest_route(
 			'jetpack/v4',
+			'/search/stats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_stats' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+		register_rest_route(
+			'jetpack/v4',
 			'/search',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -104,6 +114,15 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'deactivate_plan' ),
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+		register_rest_route(
+			'jetpack/v4',
+			'/search/pricing',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'product_pricing' ),
+				'permission_callback' => 'is_user_logged_in',
 			)
 		);
 	}
@@ -159,14 +178,14 @@ class REST_Controller {
 		}
 
 		$errors = array();
-		if ( ! is_null( $module_active ) ) {
-			$module_active_updated = $this->search_module->update_status( $module_active );
+		if ( $module_active !== null ) {
+			$module_active_updated = ( new Modules() )->update_status( Package::SLUG, $module_active, false, false );
 			if ( is_wp_error( $module_active_updated ) ) {
 				$errors['module_active'] = $module_active_updated;
 			}
 		}
 
-		if ( ! is_null( $instant_search_enabled ) ) {
+		if ( $instant_search_enabled !== null ) {
 			$instant_search_enabled_updated = $this->search_module->update_instant_search_status( $instant_search_enabled );
 			if ( is_wp_error( $instant_search_enabled_updated ) ) {
 				$errors['instant_search_enabled'] = $instant_search_enabled_updated;
@@ -198,7 +217,7 @@ class REST_Controller {
 	 * @param boolean $instant_search_enabled - Instant Search status.
 	 */
 	protected function validate_search_settings( $module_active, $instant_search_enabled ) {
-		if ( ( true === $instant_search_enabled && false === $module_active ) || ( is_null( $module_active ) && is_null( $instant_search_enabled ) ) ) {
+		if ( ( true === $instant_search_enabled && false === $module_active ) || ( $module_active === null && $instant_search_enabled === null ) ) {
 			return new WP_Error(
 				'rest_invalid_arguments',
 				esc_html__( 'The arguments passed in are invalid.', 'jetpack-search-pkg' ),
@@ -221,6 +240,16 @@ class REST_Controller {
 	}
 
 	/**
+	 * Proxy the request to WPCOM and return the response.
+	 *
+	 * GET `jetpack/v4/search/stats`
+	 */
+	public function get_stats() {
+		$response = ( new Stats() )->get_stats_from_wpcom();
+		return $this->make_proper_response( $response );
+	}
+
+	/**
 	 * Search Endpoint for private sites.
 	 *
 	 * GET `jetpack/v4/search`
@@ -234,7 +263,7 @@ class REST_Controller {
 			$request->get_query_params(),
 			sprintf( '/sites/%d/search', absint( $blog_id ) )
 		);
-		$response = Client::wpcom_json_api_request_as_user( $path, '1.3', array(), null, 'rest' );
+		$response = Client::wpcom_json_api_request_as_blog( $path, '1.3', array(), null, 'rest' );
 		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 
@@ -247,29 +276,43 @@ class REST_Controller {
 	 * @param WP_REST_Request $request - REST request.
 	 */
 	public function activate_plan( $request ) {
+		$default_options = array(
+			'search_plan_info'      => null,
+			'enable_search'         => true,
+			'enable_instant_search' => true,
+			'auto_config_search'    => true,
+		);
+		$payload         = $request->get_json_params();
+		$payload         = wp_parse_args( $payload, $default_options );
+
 		// Update plan data, plan info is in the request body.
 		// We do this to avoid another call to WPCOM and reduce latency.
-		$plan_info = $request->get_json_params();
-		if ( ! $this->plan->set_plan_options( $plan_info ) ) {
+		if ( $payload['search_plan_info'] === null || ! $this->plan->set_plan_options( $payload['search_plan_info'] ) ) {
 			$this->plan->get_plan_info_from_wpcom();
 		}
-		// Activate module.
-		// Eligibility is checked in `activate` function.
-		$ret = $this->search_module->activate();
-		if ( is_wp_error( $ret ) ) {
-			return $ret;
-		}
-		// Enable Instant Search.
-		// Eligibility is checked in `enable_instant_search` function.
-		$ret = $this->search_module->enable_instant_search();
-		if ( is_wp_error( $ret ) ) {
-			return $ret;
+
+		// Enable search module by default, unless `enable_search` is explicitly set to boolean `false`.
+		if ( false !== $payload['enable_search'] ) {
+			// Eligibility is checked in `activate` function.
+			$ret = $this->search_module->activate();
+			if ( is_wp_error( $ret ) ) {
+				return $ret;
+			}
 		}
 
-		// Automatically configure necessary settings for instant search.
-		// TODO: need to revist the logic here when Instant Search migration is finished.
-		// We will either to make sure the auto config process idempotent or call it only once.
-		// Automattic\Jetpack\Search\Instant_Search::instanace()->auto_config_search();//.
+		// Enable instant search by default, unless `enable_instant_search` is explicitly set to boolean `false`.
+		if ( false !== $payload['enable_instant_search'] ) {
+			// Eligibility is checked in `enable_instant_search` function.
+			$ret = $this->search_module->enable_instant_search();
+			if ( is_wp_error( $ret ) ) {
+				return $ret;
+			}
+		}
+
+		// Automatically configure necessary settings for instant search, unless `auto_config_search` is explicitly set to boolean `false`.
+		if ( false !== $payload['auto_config_search'] ) {
+			Instant_Search::instance( $this->get_blog_id() )->auto_config_search();
+		}
 
 		return rest_ensure_response(
 			array(
@@ -296,9 +339,18 @@ class REST_Controller {
 	}
 
 	/**
+	 * Pricing for record count of the site
+	 */
+	public function product_pricing() {
+		$record_count = intval( Stats::estimate_count() );
+		$tier_pricing = Product::get_site_tier_pricing( $record_count );
+		return rest_ensure_response( $tier_pricing );
+	}
+
+	/**
 	 * Forward remote response to client with error handling.
 	 *
-	 * @param array|WP_Error $response - Resopnse from WPCOM.
+	 * @param array|WP_Error $response - Response from WPCOM.
 	 */
 	protected function make_proper_response( $response ) {
 		if ( is_wp_error( $response ) ) {

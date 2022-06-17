@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -62,7 +59,7 @@ const CRMJetpackFormsExtensionActivation = ( {
 	}
 
 	return (
-		<Button isSecondary onClick={ onExtensionActivationClick }>
+		<Button variant="secondary" onClick={ onExtensionActivationClick }>
 			{ __( 'Enable Jetpack Forms Extension', 'jetpack' ) }
 		</Button>
 	);

@@ -1,30 +1,15 @@
-/**
- * External dependencies
- */
-import { castArray } from 'lodash';
-import { useEffect, useCallback } from 'react';
-
-/**
- * WordPress dependencies
- */
+import { Button } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
+import { external, Icon } from '@wordpress/icons';
 import { registerPlugin } from '@wordpress/plugins';
-import { Button } from '@wordpress/components';
+import { castArray } from 'lodash';
+import { useEffect, useCallback } from 'react';
 import '@wordpress/notices';
-
-/**
- * Internal dependencies
- */
+import analytics from '../../../_inc/client/lib/analytics';
 import { waitForEditor } from '../../shared/wait-for-editor';
 import { basicTemplate, spotifyBadgeTemplate } from './templates';
-import analytics from '../../../_inc/client/lib/analytics';
-
-/**
- * Style dependencies
- */
 import './editor.scss';
 
 async function insertTemplate( params ) {
@@ -83,7 +68,7 @@ const ConvertToAudio = () => {
 				onClick={ handleClick }
 				onKeyDown={ handleClick }
 			>
-				<Button isPrimary href="https://anchor.fm/wordpressdotcom" target="_top">
+				<Button variant="primary" href="https://anchor.fm/wordpressdotcom" target="_top">
 					{ __( 'Create a podcast episode', 'jetpack' ) }{ ' ' }
 					<Icon icon={ external } className="anchor-post-publish-outbound-link__external_icon" />
 				</Button>

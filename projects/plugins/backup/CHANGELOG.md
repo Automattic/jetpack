@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.0 - 2022-05-19
+### Changed
+- Now requires WordPress 5.9 since WordPress 6.0 is just around the corner.
+- Updated package dependencies
+
+### Fixed
+- Fixed progress state in admin page to use real site title.
+
+## 1.2.0 - 2022-02-28
+### Added
+- Added My Jetpack.
+- Smarter connection handling when disconnecting.
+
+### Changed
+- Updated: Upgraded from Jetpack Sync 1.28 to 1.29
+- Updated package dependencies.
+
+### Fixed
+- Backup: Update spacing for all containers.
+- Fixed various JavaScript warnings.
+
 ## 1.1.0 - 2022-01-26
 ### Added
 - Added My Jetpack page work in progress behind a feature flag.

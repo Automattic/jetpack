@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { Button } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { getPlainText } from '../utils';
 
 function ParticipantsLabelControl( { className, participants, onDelete } ) {
@@ -14,15 +7,13 @@ function ParticipantsLabelControl( { className, participants, onDelete } ) {
 		<div className={ `${ className }__participant-control` }>
 			{ participants.map( ( { label, slug } ) => (
 				<div key={ `${ slug }-key` } className={ `${ className }__participant` }>
-					<div className={ `${ className }__participant-label` }>
-						{ getPlainText( label ) }
-					</div>
+					<div className={ `${ className }__participant-label` }>{ getPlainText( label ) }</div>
 
 					<Button
 						className={ `${ className }__remove-participant` }
 						label={ __( 'Remove participant', 'jetpack' ) }
 						onClick={ () => onDelete( slug ) }
-						isTertiary
+						variant="tertiary"
 						isSmall
 					>
 						{ _x( 'Remove', 'verb: remove item from a list', 'jetpack' ) }

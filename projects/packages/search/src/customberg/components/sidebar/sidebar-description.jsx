@@ -1,14 +1,7 @@
-/**
- * WordPress dependencies
- */
 import { BlockIcon } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
 import { svg as jetpackColophonSvg } from 'instant-search/components/jetpack-colophon';
 
 /**
@@ -27,7 +20,7 @@ export default function SidebarDescription() {
 						'jetpack-search-pkg'
 					) }
 				</p>
-				<Button href={ 'widgets.php' } isTertiary>
+				<Button href={ 'widgets.php' } variant="tertiary">
 					{ __( 'Edit widgets', 'jetpack-search-pkg' ) }
 				</Button>
 				<Button
@@ -35,7 +28,7 @@ export default function SidebarDescription() {
 						'autofocus[section]': 'jetpack_search',
 						return: `${ window.location.pathname }${ window.location.search }`,
 					} ) }
-					isTertiary
+					variant="tertiary"
 				>
 					{ __( 'Configure in the Customizer', 'jetpack-search-pkg' ) }
 				</Button>

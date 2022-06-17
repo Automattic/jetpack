@@ -1,32 +1,20 @@
-/**
- * External Dependencies
- */
-import 'url-polyfill';
-import { isEqual } from 'lodash';
-import queryString from 'query-string';
-
-/**
- * WordPress dependencies
- */
 import { InnerBlocks } from '@wordpress/block-editor';
+import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Button, ExternalLink, Placeholder, Spinner, withNotices } from '@wordpress/components';
+import { select, dispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getBlockDefaultClassName } from '@wordpress/blocks';
-import { select, dispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { isEqual } from 'lodash';
+import queryString from 'query-string';
 import './editor.scss';
 import './view.scss';
-import icon from './icon';
-import attributeDetails from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import testEmbedUrl from '../../shared/test-embed-url';
+import attributeDetails from './attributes';
+import CalendlyControls from './controls';
+import icon from './icon';
 import { getAttributesFromEmbedCode } from './utils';
 import { CALENDLY_EXAMPLE_URL, innerButtonBlock } from './';
-import testEmbedUrl from '../../shared/test-embed-url';
-import CalendlyControls from './controls';
 
 export function CalendlyEdit( props ) {
 	const {
@@ -141,7 +129,7 @@ export function CalendlyEdit( props ) {
 					className="components-placeholder__input"
 				/>
 				<div>
-					<Button isSecondary type="submit">
+					<Button variant="secondary" type="submit">
 						{ _x( 'Embed', 'button label', 'jetpack' ) }
 					</Button>
 				</div>

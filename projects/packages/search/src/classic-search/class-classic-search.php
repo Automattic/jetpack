@@ -22,7 +22,7 @@ class Classic_Search {
 	 * @since 5.0.0
 	 * @var Classic_Search
 	 */
-	protected static $instance;
+	private static $instance;
 
 	/**
 	 * The number of found posts.
@@ -95,27 +95,27 @@ class Classic_Search {
 	}
 
 	/**
-	 * Returns the singleton of the class. Does not perform any instantiation.
-	 *
-	 * @return static The class singleton.
-	 */
-	public static function instance() {
-		return self::$instance;
-	}
-
-	/**
-	 * Instantiate and initialize a singleton instance of the class.
+	 * Returns a class singleton. Initializes with first-time setup if given a blog ID parameter.
 	 *
 	 * @param string $blog_id Blog id.
 	 * @return static The class singleton.
 	 */
-	public static function initialize( $blog_id ) {
+	public static function instance( $blog_id = null ) {
 		if ( ! isset( self::$instance ) ) {
+			if ( null === $blog_id ) {
+				$blog_id = Helper::get_wpcom_site_id();
+			}
 			self::$instance = new static();
 			self::$instance->setup( $blog_id );
 		}
-
 		return self::$instance;
+	}
+
+	/**
+	 * Alias of the instance function.
+	 */
+	public static function initialize() {
+		return call_user_func_array( array( static::class, 'instance' ), func_get_args() );
 	}
 
 	/**
@@ -309,7 +309,7 @@ class Classic_Search {
 	 * @param WP_Query $query A WP_Query instance.
 	 */
 	public function maybe_add_post_type_as_var( WP_Query $query ) {
-		$post_type = ( ! empty( $_GET['post_type'] ) ) ? $_GET['post_type'] : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$post_type = ( ! empty( $_GET['post_type'] ) ) ? sanitize_key( $_GET['post_type'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $this->should_handle_query( $query ) && $post_type ) {
 			$post_types = ( is_string( $post_type ) && false !== strpos( $post_type, ',' ) )
 				? explode( ',', $post_type )
@@ -461,7 +461,6 @@ class Classic_Search {
 		$this->do_search( $query );
 
 		if ( ! is_array( $this->search_result ) ) {
-			/** This action is documented in modules/search/class.jetpack-search.php */
 			do_action( 'jetpack_search_abort', 'no_search_results_array', $this->search_result );
 			return $posts;
 		}
@@ -507,7 +506,6 @@ class Classic_Search {
 	public function do_search( WP_Query $query ) {
 		if ( ! $this->should_handle_query( $query ) ) {
 			// If we make it here, either 'filter__posts_pre_query' somehow allowed it or a different entry to do_search.
-			/** This action is documented in modules/search/class.jetpack-search.php */
 			do_action( 'jetpack_search_abort', 'search_attempted_non_search_query', $query );
 			return;
 		}

@@ -1,19 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { shallow } from 'enzyme';
+import React from 'react';
 import { SettingsGroup } from '../index';
 
 describe( 'SettingsGroup', () => {
-
 	const allGroupsNonAdminCantAccess = [
 			'widget-visibility',
 			'contact-form',
@@ -48,13 +38,11 @@ describe( 'SettingsGroup', () => {
 			'enhanced-distribution',
 			'comments',
 			'json-api',
-			'photon'
+			'photon',
 		],
-		allGroupsForNonAdmin = [
-			'post-by-email'
-		];
+		allGroupsForNonAdmin = [ 'post-by-email' ];
 
-	let testProps = {
+	const testProps = {
 		info: {
 			text: 'Help text about Protect',
 			link: getRedirectUrl( 'jetpack-support-protect' ),
@@ -63,75 +51,80 @@ describe( 'SettingsGroup', () => {
 		isSitePublic: true,
 		userCanManageModules: true,
 		isLinked: true,
-		isUnavailableInOfflineMode: () => false
+		isUnavailableInOfflineMode: () => false,
 	};
 
 	const settingsGroup = shallow( <SettingsGroup support={ testProps.info } hasChild /> );
 
 	it( 'outputs a special CSS class when it has the hasChild property', () => {
-		expect( settingsGroup.find( 'Card' ).props().className ).to.contain( 'jp-form-has-child' );
+		expect( settingsGroup.find( 'Card' ).props().className ).toContain( 'jp-form-has-child' );
 	} );
 
 	it( 'the support info icon has an informational tooltip', () => {
-		expect( settingsGroup.find( 'SupportInfo' ) ).to.have.length( 1 );
+		expect( settingsGroup.find( 'SupportInfo' ) ).toHaveLength( 1 );
 	} );
 
 	it( 'does not have a support info icon if no link or module was passed', () => {
-		expect( shallow( <SettingsGroup /> ).find( 'SupportInfo' ) ).to.have.length( 0 );
+		expect( shallow( <SettingsGroup /> ).find( 'SupportInfo' ) ).toHaveLength( 0 );
 	} );
 
 	describe( 'has a fading layer', () => {
-
 		it( 'visible in in Offline Mode', () => {
 			const disabled = {
 				disableInOfflineMode: true,
-				isUnavailableInOfflineMode: () => true
+				isUnavailableInOfflineMode: () => true,
 			};
-			expect( shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' ) ).to.have.length( 1 );
+			expect(
+				shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' )
+			).toHaveLength( 1 );
 		} );
 
 		it( 'visible in Post by Email when user is unlinked', () => {
 			const disabled = {
 				module: {
-					module: 'post-by-email'
+					module: 'post-by-email',
 				},
-				isLinked: false
+				isLinked: false,
 			};
-			expect( shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' ) ).to.have.length( 1 );
+			expect(
+				shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' )
+			).toHaveLength( 1 );
 		} );
 
 		it( 'not visible in Post by Email when user is linked', () => {
 			const disabled = {
 				module: {
-					module: 'post-by-email'
+					module: 'post-by-email',
 				},
-				isLinked: true
+				isLinked: true,
 			};
-			expect( shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' ) ).to.have.length( 0 );
+			expect(
+				shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' )
+			).toHaveLength( 0 );
 		} );
-
 	} );
 
 	describe( 'When user is not an admin', () => {
-
 		Object.assign( testProps, {
-			userCanManageModules: false
+			userCanManageModules: false,
 		} );
 
 		it( 'does not render groups that are not After the Deadline or Post by Email', () => {
 			allGroupsNonAdminCantAccess.forEach( item => {
 				testProps.module = item;
-				expect( shallow( <SettingsGroup module={ testProps } /> ).find( '.jp-form-settings-group' ) ).to.have.length( 0 );
+				expect(
+					shallow( <SettingsGroup module={ testProps } /> ).find( '.jp-form-settings-group' )
+				).toHaveLength( 0 );
 			} );
 		} );
 
 		it( 'renders After the Deadline and Post by Email groups', () => {
 			allGroupsForNonAdmin.forEach( item => {
 				testProps.module = item;
-				expect( shallow( <SettingsGroup module={ testProps } /> ).find( '.jp-form-settings-group' ) ).to.have.length( 1 );
+				expect(
+					shallow( <SettingsGroup module={ testProps } /> ).find( '.jp-form-settings-group' )
+				).toHaveLength( 1 );
 			} );
 		} );
-
 	} );
-
 } );

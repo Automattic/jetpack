@@ -1,24 +1,5 @@
-/**
- * External dependencies
- */
-// import React from 'react';
-import chai, { expect } from 'chai';
-// import chaiFetch from 'chai-fetch';
-import chaiFetchMock from 'chai-fetch-mock';
-import fetchMock from 'fetch-mock';
-chai.use( chaiFetchMock );
-// chai.use(chaiFetch);
-
-// import { shallow } from 'enzyme';
-// import ShallowRenderer from 'react-test-renderer/shallow';
-
-/**
- * Internal dependencies
- */
+import fetchMock from 'fetch-mock-jest';
 import restApi from '../index';
-// import { getLocal } from "mockttp";
-
-// const mockServer = getLocal();
 
 // mock out some values to make testing easier
 restApi.setApiRoot( '/fakeApiRoot/' );
@@ -34,7 +15,7 @@ restApi.setCacheBusterCallback( route => {
 
 describe( 'restApi', () => {
 	describe( 'GET requests', () => {
-		before( () => {
+		beforeAll( () => {
 			fetchMock.mock(
 				{
 					method: 'POST',
@@ -48,22 +29,20 @@ describe( 'restApi', () => {
 				JSON.stringify( 'the body' )
 			);
 		} );
-		after( () => fetchMock.restore() );
 
 		it( 'returns an object with methods', () => {
-			expect( typeof restApi ).to.equal( 'object' );
-			expect( restApi ).to.respondTo( 'setApiRoot' );
+			expect( typeof restApi ).toBe( 'object' );
+			expect( restApi.setApiRoot ).toBeInstanceOf( Function );
 		} );
 
 		it( 'can fetchSiteConnectionStatus', async () => {
 			const connectionStatus = await restApi.fetchSiteConnectionStatus();
-			// expect(fetchMock).route('connection').to.have.been.called;
-			expect( connectionStatus ).to.equal( 'the body' );
+			expect( connectionStatus ).toBe( 'the body' );
 		} );
 
 		it( 'can post attachLicenses', async () => {
 			const results = await restApi.attachLicenses();
-			expect( results ).to.deep.equal( [ { activatedProductId: 1 } ] );
+			expect( results ).toEqual( [ { activatedProductId: 1 } ] );
 		} );
 	} );
 } );

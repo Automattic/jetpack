@@ -58,13 +58,12 @@ class Search_Widget extends \WP_Widget {
 	 */
 	public function __construct( $name = null ) {
 		if ( empty( $name ) ) {
-			$name = esc_html__( 'Search', 'jetpack-search-pkg' );
+			$name = esc_html__( 'Search (Jetpack)', 'jetpack-search-pkg' );
 		}
 		$this->module_control = new Module_Control();
 		parent::__construct(
 			Helper::FILTER_WIDGET_BASE,
-			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name', $name ),
+			$name,
 			array(
 				'classname'   => 'jetpack-filters widget_search',
 				'description' => __( 'Instant search and filtering to help visitors quickly find relevant answers and explore your site.', 'jetpack-search-pkg' ),
@@ -131,8 +130,7 @@ class Search_Widget extends \WP_Widget {
 			)
 		);
 
-		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
-		$dotcom_data = ( new Connection_Manager( 'jetpack-search' ) )->get_connected_user_data();
+		$dotcom_data = ( new Connection_Manager( Package::SLUG ) )->get_connected_user_data();
 
 		wp_localize_script(
 			'jetpack-search-widget-admin',
@@ -606,11 +604,11 @@ class Search_Widget extends \WP_Widget {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$parts   = explode( '|', $sort );
 		$orderby = isset( $_GET['orderby'] )
-			? $_GET['orderby']
+			? sanitize_sql_orderby( wp_unslash( $_GET['orderby'] ) )
 			: $parts[0];
 
 		$order = isset( $_GET['order'] )
-			? strtoupper( $_GET['order'] )
+			? ( strtoupper( $_GET['order'] ) === 'ASC' ? 'ASC' : 'DESC' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			: ( ( isset( $parts[1] ) && 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
 
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended

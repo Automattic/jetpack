@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+General: Clean up use of FILTER_SANITIZE_STRING as it is deprecated in PHP 8.1

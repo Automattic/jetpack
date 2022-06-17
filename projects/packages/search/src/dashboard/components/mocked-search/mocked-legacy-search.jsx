@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
+import { Gridicon } from '@automattic/jetpack-components';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
-// TODO change to our own gridicon component, when instant search is migrated.
-import Gridicon from 'gridicons';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-legacy-search.scss';
 

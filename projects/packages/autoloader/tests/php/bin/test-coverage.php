@@ -164,7 +164,8 @@ function get_path_transformation_map( $report_file_paths ) {
  * @return SebastianBergmann\CodeCoverage\CodeCoverage The processed report.
  */
 function process_coverage_9( $report ) {
-	$data = $report->getData( true );
+	$data      = $report->getData( true );
+	$classname = get_class( $data );
 
 	// We're going to merge the line coverage from compiled files into the src files.
 	$line_coverage   = $data->lineCoverage();
@@ -187,7 +188,7 @@ function process_coverage_9( $report ) {
 		}
 
 		// Merge the coverage since multiple compiled files may map to a single src file.
-		$merge = new SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData();
+		$merge = new $classname();
 		$merge->setLineCoverage( $new_coverage );
 		$data->merge( $merge );
 

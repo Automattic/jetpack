@@ -1,12 +1,6 @@
-/**
- * External Dependencies
- */
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
 
-/**
- * Internal Dependencies
- */
 import './style.scss';
 
 /**
@@ -38,7 +32,7 @@ DisconnectCard.propTypes = {
 	/** The title to show on the disconnect card. */
 	title: PropTypes.string,
 	/** Optional value/ statistic to show. */
-	value: PropTypes.string | PropTypes.number,
+	value: PropTypes.oneOfType( [ PropTypes.string, PropTypes.number ] ),
 	/** Description to go with the stat value. */
 	description: PropTypes.number,
 };

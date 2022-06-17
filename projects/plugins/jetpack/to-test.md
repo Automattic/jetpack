@@ -1,61 +1,64 @@
-## 10.6
+## Jetpack 10.11
 
-### Before you start
+### Before you start:
 
-- **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
-- Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
+- **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
+- Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Instant Search
+### Jetpack connection sharing
 
-In this release, we've continued to make progress towards a Jetpack Search plugin. This involved making changes to the Search feature as it is packaged in the Jetpack plugin, so it's worth testing it still works as advertized. Try the following:
+We improved how Jetpack shares the connection with Jetpack standalone plugins. To test this, try the following:
 
-1. Purchase a Search plan.
-2. Go to Jetpack > Settings > Performance and toggle the feature on and off.
-3. Go to Jetpack > Search and toggle the feature on and off.
-4. Click the link there to go and customize the search page.
-5. Check that your changes still look good on the site's frontend.
-6. In Appearance > Widgets, add widgets to the Jetpack Search Sidebar area, and ensure those widgets appear when you view the Search results on your site's frontend.
+- Connect Jetpack.
+- Activate a secondary plugin like Boost and/or Backup.
+- Go to Plugins.
+- Confirm the link to deactivate Jetpack says only "Deactivate" (and not 'Disconnect and Deactivate').
+- Click Deactivate.
+- Confirm the dialog shows information about the active features you have and no mention to other plugins.
+- Reconnect Jetpack and try disabling standalone plugins.
+- Make sure disconnecting from the Jetpack Dashboard still works.
 
-### Pay with PayPal Block
+### Lazy load
 
-In this release we've fixed some bugs with this block. It's a good opportunity to test it again. You'll need to purchase a paid bundle first, such as the Complete plan. Then, head to Posts > Add New and try adding a Pay with PayPal block. Let us know if you run into any issues with the layout in the editor, currencies, or layout on the site's frontend.
+We added Lazy Load option to the Instagram Latest Post block and improved support for Lazy Load on block based themes
 
-### Tiled Gallery Block
+You can test this out with the Latest Instagram Posts Block:
 
-We've made changes to the Tiled Gallery block to ensure it can be used from the mobile apps as well. You'll want to make sure it can still be used from the block editor on the web (no need to test on mobile for this release specifically):
+- Add a Latest Instagram Posts block to a test post
+- Place a large spacer block above the Instagram one to test the lazy load aspect.
+- Inspect the HTML of the block images to see that they contain the lazy attribute.
+- If you inspect the network tab in the browser tools, the images should load in lazily on page scroll.
 
-1. Look for posts that were published in the past and that included tiled galleries; edit those posts, and ensure you can edit the galleries without any errors.
-2. Try publishing new posts with one or more tiled galleries.
+For the block based themes:
 
-### Widget Visibility
+- Make sure you are using a block based theme such as Twenty-Twenty Two
+- Create a post with a core gallery block, and insert a few images. You can add a spacer block above this block with say 1000px spacing to force the images far enough off the browser viewport.
+- Inspect the page elements, and make sure the post content image elements contain the Jetpack lazy load metadata like the `jetpack-lazy-image` class.
 
-We've fixed some issues with the Widget Visibility feature. Could you try the following?
+### Publicize
 
-- Install the Classic Widgets plugin, then head to Appearance > Widgets and try using the Widget Visibility button appearing below each widget.
-- Head to Appearance > Customize > Widgets and do the same thing.
-- Deactivate the Classic Widgets plugin, then head to Appearance > Widgets; you should see the Visibility button for legacy widgets, and the Visibility rules in the "Advanced" panel for each block.
+We've made multiple under-the-hood changes to the Publicize feature to prepare for the first release of the Jetpack Social plugin. The feature should continue to work just like before for Jetpack plugin users. Please try to use the Publicize feature to share posts to Twitter, Facebook, et al., and try using Publicize's Twitter Thread feature as well.
 
-### At-a-glance Partner Coupon Redemption
+### Sharing
 
-We've introduced a new callout to redeem a coupon that may have been provided by a partner.
+We've made some changes to the Email Sharing button in this release. It now fully relies on the email client or service you use on your computer, instead of trying to send out emails from your server. To test the changes, try the following:
 
-- Make sure Jetpack is activated and connected, has Jetpack Free as its plan, and has no other products.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 1 below.
-- Visit `/wp-admin/?jetpack-partner-coupon=PARTNER_COUPON_CODE` to store a partner coupon code. Please reach out to team Avalon to get a coupon code.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 2 below. Clicking on the Redeem button should redirect you to checkout with your partner coupon applied.
-- Purchase a product to your test site that provides backups.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 3 below.
+1. Go to Jetpack > Settings > Sharing and ensure that the sharing buttons are active.
+2. Go to Settings > Sharing and add an email sharing button to your site.
+3. Visit one of your posts, and try clicking the button.
 
-Screenshot 1) No backup product, no partner coupon:
+Let us know if you run into any issues!
 
-![Screen Shot 2022-02-01 at 19 08 35](https://user-images.githubusercontent.com/22746396/152016113-1da5365c-3f54-40c9-b079-47e97767bd40.png)
 
-Screenshot 2) No backup product, partner coupon available:
+### VideoPress
 
-![Screen Shot 2022-02-01 at 19 03 52](https://user-images.githubusercontent.com/22746396/152016107-bf474b8b-2970-44f5-b11a-b5f997bb613c.png)
+We added support for automatic seekbar color.
 
-Screenshot 3) Backup product active, partner coupon status is irrelevant:
-
-![Screen Shot 2022-02-01 at 18 57 18](https://user-images.githubusercontent.com/22746396/152016100-6fe4a8f5-4ac4-482e-9501-8ed7f216f592.png)
+- Enable VideoPress on your site 
+- In your media library, add a VideoPress video and, when uploaded,copy the GUID.
+- Create a new postand add a shortcode block `[wpvideo <replace with your guid> useAverageColor=true]`
+- Play the video. The seekbar should change its color automatically during video playback.
+- Edit the shortcode and set the `useAverageColor` to `false`
+- Save and play video. The seekbar should not change its color anymore.
 
 **Thank you for all your help!**

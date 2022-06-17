@@ -2,7 +2,7 @@
 /**
  * Handles fetching of the site's plan and products from WordPress.com and caching values locally.
  *
- * This file was copied and adapted from the Jetpack plugin on Jan 2022
+ * This file was copied and adapted from the Jetpack plugin on Mar 2022
  *
  * @package automattic/jetpack
  */
@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
 
 /**
  * Provides methods methods for fetching the site's plan and products from WordPress.com.
@@ -62,9 +61,11 @@ class Current_Plan {
 				'personal-bundle',
 				'personal-bundle-monthly',
 				'personal-bundle-2y',
+				'starter-plan',
 			),
 			'supports' => array(
 				'akismet',
+				'payments',
 				'recurring-payments',
 				'premium-content/container',
 				'videopress',
@@ -109,6 +110,7 @@ class Current_Plan {
 				'ecommerce-bundle',
 				'ecommerce-bundle-monthly',
 				'ecommerce-bundle-2y',
+				'pro-plan',
 			),
 			'supports' => array(),
 		),
@@ -326,6 +328,16 @@ class Current_Plan {
 	 * @return bool True if plan supports feature, false if not
 	 */
 	public static function supports( $feature ) {
+		// Hijack the feature eligibility check on WordPress.com sites since they are gated differently.
+		$should_wpcom_gate_feature = (
+			function_exists( 'wpcom_site_has_feature' ) &&
+			function_exists( 'wpcom_feature_exists' ) &&
+			wpcom_feature_exists( $feature )
+		);
+		if ( $should_wpcom_gate_feature ) {
+			return wpcom_site_has_feature( $feature );
+		}
+
 		// Search product bypasses plan feature check.
 		if ( 'search' === $feature && (bool) get_option( 'has_jetpack_search_product' ) ) {
 			return true;
@@ -337,18 +349,6 @@ class Current_Plan {
 		}
 
 		$plan = self::get();
-
-		// Manually mapping WordPress.com features to Jetpack module slugs.
-		foreach ( $plan['features']['active'] as $wpcom_feature ) {
-			switch ( $wpcom_feature ) {
-				case 'wordads-jetpack':
-					// WordAds are supported for this site.
-					if ( 'wordads' === $feature ) {
-						return true;
-					}
-					break;
-			}
-		}
 
 		if (
 			in_array( $feature, $plan['supports'], true )

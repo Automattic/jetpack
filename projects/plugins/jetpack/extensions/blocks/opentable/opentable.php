@@ -32,17 +32,6 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Adds an inline script which updates the block editor settings to
- * add the site locale. This feels sligktly better than calling back
- * to the API before registering the block. It also seemed better than
- * creating a global
- */
-function add_language_setting() {
-	wp_add_inline_script( 'jetpack-blocks-editor', sprintf( "wp.data.dispatch( 'core/block-editor' ).updateSettings( { siteLocale: '%s' } )", str_replace( '_', '-', get_locale() ) ), 'before' );
-}
-add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_language_setting' );
-
-/**
  * OpenTable block registration/dependency declaration.
  *
  * @param array $attributes    Array containing the OpenTable block attributes.

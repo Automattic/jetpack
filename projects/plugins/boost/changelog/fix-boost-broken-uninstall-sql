@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix broken SQL query on uninstall.

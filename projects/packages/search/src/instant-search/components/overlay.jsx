@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
-
-/**
- * Internal dependencies
- */
 import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import './overlay.scss';
 
@@ -35,13 +28,21 @@ const Overlay = props => {
 		};
 
 		window.addEventListener( 'keydown', closeWithEscape );
-		window.addEventListener( 'click', closeWithOutsideClick );
+
+		// Ensures that the click closed handler only fires when the overlay is active.
+		// This ensures it doesn't erroneously intercept filter links or overlay spawner buttons.
+		if ( isVisible ) {
+			window.addEventListener( 'click', closeWithOutsideClick );
+		} else {
+			window.removeEventListener( 'click', closeWithOutsideClick );
+		}
+
 		return () => {
 			// Cleanup on component dismount
 			window.removeEventListener( 'keydown', closeWithEscape );
 			window.removeEventListener( 'click', closeWithOutsideClick );
 		};
-	}, [ closeOverlay ] );
+	}, [ closeOverlay, isVisible ] );
 
 	return (
 		<div

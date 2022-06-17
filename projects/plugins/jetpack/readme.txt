@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.6
-Requires at least: 5.8
+Stable tag: 11.0
+Requires at least: 5.9
 Requires PHP: 5.6
-Tested up to: 5.9
+Tested up to: 6.0
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -242,27 +242,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.7-a.3 - 2022-02-09
-#### Enhancements
-- Dashboard: the Backup banner CTA on the At-a-Glance page will now be replaced with a "Redeem Coupon" CTA when a partner coupon is detected.
-- Dashboard: updated the logic for "Activate a Product" button in "My Plan" to be always visible.
-- Payment Block: updated the Payment block Upgrade nudge description to include the plan name that's required to use the block.
-- Premium Content Block: remove option to transform a premium content block to a premium content block.
-- Premium Content Block: use 'Guest' rather than visitor/Logged-out.
-
-#### Improved compatibility
-- Internet Defense League widget: Widget deprecation.
-- VideoPress: Added title and aria-label to VideoPress iframe embeds for better screen reader support.
-- WordAds: deprecate the legacy Ad Widget in favor of the Ad Block when adding new Ad Widgets via the block-based widget editor.
-
+### 11.1-a.3 - 2022-06-14
 #### Bug fixes
-- Block Editor: cast selectedPlanId to boolean to remove a "0" character after block upgrade nudge.
-- Contact Form: ensure form validation uses the correct variable types.
-- Dashboard: fix broken image in plan loading placeholder in "My Plan"
-- Tiled Gallery Block: Fix performance issue affecting page views that use the Tiled Gallery.
-- Unroll Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.
-- Widget Visibility: update to match new user query parameter introduced in WordPress 5.9.
+- Connection: move the connection_url_redirect action handling to the connection package.
+- Dashboard: format anti-spam stats properly, including in languages using a space as thousands separator.
+- Mailchimp Block: center spinner during loading block content.
 
 --------
 
-[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/jetpack/CHANGELOG.md#changelog)
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

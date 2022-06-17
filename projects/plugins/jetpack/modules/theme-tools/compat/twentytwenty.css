@@ -273,7 +273,7 @@
 
 /* GIF Block */
 .wp-block-jetpack-gif {
-	/* !important because the gif block styles are loaded in the footer after this file */
+	/* Uses !important because the gif block styles are loaded in the footer after this file */
 	margin: 1em auto !important;
 }
 

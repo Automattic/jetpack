@@ -1,23 +1,14 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { DisconnectDialog } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getFragment } from '@wordpress/url';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Button from 'components/button';
+import QuerySiteBenefits from 'components/data/query-site-benefits';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	isDisconnectingSite as _isDisconnectingSite,
@@ -38,15 +29,14 @@ import {
 	getApiNonce,
 	getApiRootUrl,
 	getInitialStateConnectedPlugins,
-	getInitialStateJetpackBenefits,
 	getPluginBaseUrl,
 	getUserWpComLogin,
 	getUserWpComId,
 	getSiteId,
 } from 'state/initial-state';
+import { getSiteBenefits } from 'state/site';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import './style.scss';
-import { DisconnectDialog } from '@automattic/jetpack-connection';
 import JetpackBenefits from '../jetpack-benefits';
 
 export class ConnectButton extends React.Component {
@@ -109,6 +99,12 @@ export class ConnectButton extends React.Component {
 			// Dispatch user in place authorization.
 			this.props.doConnectUser();
 		}
+	};
+
+	renderDisconnectStepComponent = () => {
+		return this.props.siteBenefits ? (
+			<JetpackBenefits siteBenefits={ this.props.siteBenefits } />
+		) : null;
 	};
 
 	renderUserButton = () => {
@@ -209,6 +205,7 @@ export class ConnectButton extends React.Component {
 	render() {
 		return (
 			<div>
+				<QuerySiteBenefits />
 				{ ! this.props.isSiteConnected && (
 					<p className="jp-banner__tos-blurb">
 						{ createInterpolateElement(
@@ -246,7 +243,7 @@ export class ConnectButton extends React.Component {
 						login: this.props.userWpComLogin,
 					} }
 					connectedSiteId={ this.props.connectedSiteId }
-					disconnectStepComponent={ <JetpackBenefits siteBenefits={ this.props.siteBenefits } /> }
+					disconnectStepComponent={ this.renderDisconnectStepComponent() }
 					onDisconnected={ this.handleDisconnected } // On disconnect, need to update the connection status in the app state.
 					isOpen={ this.state.showModal }
 					onClose={ this.toggleVisibility }
@@ -273,7 +270,7 @@ export default connect(
 			apiNonce: getApiNonce( state ),
 			apiRoot: getApiRootUrl( state ),
 			connectedPlugins: getInitialStateConnectedPlugins( state ),
-			siteBenefits: getInitialStateJetpackBenefits( state ),
+			siteBenefits: getSiteBenefits( state ),
 			pluginUrl: getPluginBaseUrl( state ),
 			userWpComLogin: getUserWpComLogin( state ),
 			userWpComId: getUserWpComId( state ),

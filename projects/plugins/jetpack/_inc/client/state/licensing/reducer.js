@@ -1,16 +1,12 @@
-/**
- * External dependencies
- */
 import { assign, get } from 'lodash';
 import { combineReducers } from 'redux';
-
-/**
- * Internal dependencies
- */
 import {
 	JETPACK_LICENSING_ERROR_UPDATE,
 	JETPACK_LICENSING_USER_LICENSE_COUNTS_UPDATE,
 	JETPACK_LICENSING_ACTIVATION_NOTICE_DISMISS_UPDATE,
+	JETPACK_LICENSING_GET_USER_LICENSES_SUCCESS,
+	JETPACK_LICENSING_GET_USER_LICENSES_FETCH,
+	JETPACK_LICENSING_GET_USER_LICENSES_FAILURE,
 } from 'state/action-types';
 
 /**
@@ -71,12 +67,49 @@ export const activationNoticeDismiss = (
 };
 
 /**
+ * "user"-licenses.
+ *
+ * @param {number} state - Global state tree
+ * @param {object} action - The action
+ * @returns {object} - The 'items' and 'loading' state
+ */
+export const licenses = (
+	state = window.Initial_State.licensing.licenses ?? {
+		items: [],
+		loading: false,
+	},
+	action
+) => {
+	switch ( action.type ) {
+		case JETPACK_LICENSING_GET_USER_LICENSES_FETCH:
+			return {
+				...state,
+				loading: true,
+			};
+		case JETPACK_LICENSING_GET_USER_LICENSES_SUCCESS:
+			return {
+				...state,
+				...action.data,
+				loading: false,
+			};
+		case JETPACK_LICENSING_GET_USER_LICENSES_FAILURE:
+			return {
+				...state,
+				loading: false,
+			};
+		default:
+			return state;
+	}
+};
+
+/**
  * Licensing combined reducer.
  */
 export const reducer = combineReducers( {
 	error,
 	userCounts,
 	activationNoticeDismiss,
+	licenses,
 } );
 
 /**
@@ -97,6 +130,27 @@ export function getLicensingError( state ) {
  */
 export function hasDetachedUserLicenses( state ) {
 	return !! get( state.jetpack.licensing.userCounts, [ 'detached' ], 0 );
+}
+
+/**
+ * Get the licenses
+ *
+ * @param {object} state - Global state tree.
+ * @returns {Array} - An array containing all the detached licenses
+ */
+export function getDetachedLicenses( state ) {
+	const allLicenses = get( state.jetpack.licensing.licenses, [ 'items' ], {} );
+	return Object.values( allLicenses ).filter( ( { attached_at } ) => attached_at === null );
+}
+
+/**
+ * Get the license loading info
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} - A boolean value of loading state of licenses
+ */
+export function getDetachedLicensesLoadingInfo( state ) {
+	return get( state.jetpack.licensing.licenses, [ 'loading' ], false );
 }
 
 /**

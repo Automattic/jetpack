@@ -3,13 +3,13 @@ name: Tests
 on:
   pull_request:
   push:
-    branches: [ 'master', '*/branch-*' ]
+    branches: [ 'trunk', '*/branch-*' ]
 concurrency:
   group: tests-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
   create-matrix:
@@ -19,7 +19,7 @@ jobs:
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
@@ -51,7 +51,7 @@ jobs:
         include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # codecov.io requires a fetch depth > 1.
           fetch-depth: 2
@@ -167,6 +167,9 @@ jobs:
           exit $EXIT
 
       - name: Process coverage results
+        env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         if: matrix.script == 'test-coverage'
         run: .github/files/process-coverage.sh
 
@@ -183,7 +186,7 @@ jobs:
           fi
       - name: Upload artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.artifact }}
           path: artifacts

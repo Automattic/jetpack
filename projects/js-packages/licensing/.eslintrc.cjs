@@ -1,14 +1,9 @@
-const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
-
 module.exports = {
-	// This project uses react, so load the shared react config.
-	root: true,
-	extends: [ '../../../.eslintrc.react.js' ],
-	ignorePatterns: loadIgnorePatterns( __dirname ),
+	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/react' ) ],
 	parserOptions: {
 		requireConfigFile: false,
 		babelOptions: {
-			presets: [ '@babel/preset-react' ],
+			presets: [ require.resolve( '@babel/preset-react' ) ],
 		},
 	},
 	rules: {

@@ -13,7 +13,8 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 
-// phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: WP Core string.
+// phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: Code copied from Core, so using Core strings.
+// phpcs:disable WordPress.Utils.I18nTextDomainFixer.MissingArgDomain --reason: Code copied from Core, so using Core strings.
 
 /**
  * Short circuits the {@see `wp_notify_postauthor`} function via the `comment_notification_recipients` filter.
@@ -50,12 +51,12 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 	$notify_author = apply_filters( 'comment_notification_notify_author', false, $comment->comment_ID );
 
 	// The comment was left by the author.
-	if ( $author && ! $notify_author && $comment->user_id == $post->post_author ) {
+	if ( $author && ! $notify_author && $comment->user_id === $post->post_author ) {
 		unset( $emails[ $author->user_email ] );
 	}
 
 	// The author moderated a comment on their own post.
-	if ( $author && ! $notify_author && get_current_user_id() == $post->post_author ) {
+	if ( $author && ! $notify_author && get_current_user_id() === $post->post_author ) {
 		unset( $emails[ $author->user_email ] );
 	}
 
@@ -84,7 +85,10 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 	$comment_content = wp_specialchars_decode( $comment->comment_content );
 
 	// Original function modified.
-	$moderate_on_wpcom = ! in_array( false, array_map( 'jetpack_notify_is_user_connected_by_email', $emails ) );
+	$moderate_on_wpcom = ! in_array( // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+		false,
+		array_map( 'jetpack_notify_is_user_connected_by_email', $emails )
+	);
 
 	switch ( $comment->comment_type ) {
 		case 'trackback':
@@ -179,16 +183,16 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 		) . "\r\n";
 	}
 
-	$wp_email = 'wordpress@' . preg_replace( '#^www\.#', '', strtolower( $_SERVER['SERVER_NAME'] ) );
+	$wp_email = 'wordpress@' . preg_replace( '#^www\.#', '', strtolower( isset( $_SERVER['SERVER_NAME'] ) ? filter_var( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '' ) );
 
-	if ( '' == $comment->comment_author ) {
+	if ( '' === $comment->comment_author ) {
 		$from = "From: \"$blogname\" <$wp_email>";
-		if ( '' != $comment->comment_author_email ) {
+		if ( '' !== $comment->comment_author_email ) {
 			$reply_to = "Reply-To: $comment->comment_author_email";
 		}
 	} else {
 		$from = "From: \"$comment->comment_author\" <$wp_email>";
-		if ( '' != $comment->comment_author_email ) {
+		if ( '' !== $comment->comment_author_email ) {
 			$reply_to = "Reply-To: \"$comment->comment_author_email\" <$comment->comment_author_email>";
 		}
 	}
@@ -324,7 +328,10 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
 	$emails = apply_filters( 'comment_moderation_recipients', $emails, $comment_id );
 
 	// Original function modified.
-	$moderate_on_wpcom = ! in_array( false, array_map( 'jetpack_notify_is_user_connected_by_email', $emails ) );
+	$moderate_on_wpcom = ! in_array( // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+		false,
+		array_map( 'jetpack_notify_is_user_connected_by_email', $emails )
+	);
 
 	$base_wpcom_edit_comment_url = Redirect::get_url(
 		'calypso-edit-comment',

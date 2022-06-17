@@ -1,29 +1,26 @@
-/**
- * External dependencies
- */
-import React from 'react';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { _x, sprintf } from '@wordpress/i18n';
+import SectionNav from 'components/section-nav';
+import NavItem from 'components/section-nav/item';
+import NavTabs from 'components/section-nav/tabs';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import { hasConnectedOwner, isCurrentUserLinked, isOfflineMode } from 'state/connection';
-import { isModuleActivated as _isModuleActivated } from 'state/modules';
-import NavTabs from 'components/section-nav/tabs';
-import NavItem from 'components/section-nav/item';
-import SectionNav from 'components/section-nav';
 import {
+	getSiteAdminUrl,
 	getSiteRawUrl,
 	showRecommendations,
+	showMyJetpack,
+	getNewRecommendationsCount,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
 } from 'state/initial-state';
+import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 export class Navigation extends React.Component {
 	trackNavClick = target => {
@@ -47,6 +44,10 @@ export class Navigation extends React.Component {
 
 	trackRecommendationsClick = () => {
 		this.trackNavClick( 'recommendations' );
+	};
+
+	trackMyJetpackClick = () => {
+		this.trackNavClick( 'my-jetpack' );
 	};
 
 	render() {
@@ -98,7 +99,31 @@ export class Navigation extends React.Component {
 							onClick={ this.trackRecommendationsClick }
 							selected={ this.props.location.pathname.startsWith( '/recommendations' ) }
 						>
-							{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
+							{ createInterpolateElement(
+								sprintf(
+									/* translators: %d is a count of how many new (unread) recommendations are available. */
+									_x( 'Recommendations <count>%d</count>', 'Navigation item.', 'jetpack' ),
+									this.props.newRecommendationsCount
+								),
+								{
+									count: (
+										<span
+											className={
+												'dops-section-nav-tab__update-badge count-' +
+												this.props.newRecommendationsCount
+											}
+										></span>
+									),
+								}
+							) }
+						</NavItem>
+					) }
+					{ this.props.showMyJetpack && (
+						<NavItem
+							path={ this.props.adminUrl + 'admin.php?page=my-jetpack' }
+							onClick={ this.trackMyJetpackClick }
+						>
+							{ _x( 'My Jetpack', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 				</NavTabs>
@@ -139,7 +164,10 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		showRecommendations: showRecommendations( state ),
+		newRecommendationsCount: getNewRecommendationsCount( state ),
 		siteUrl: getSiteRawUrl( state ),
+		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),
+		showMyJetpack: showMyJetpack( state ),
 	};
 } )( withRouter( Navigation ) );

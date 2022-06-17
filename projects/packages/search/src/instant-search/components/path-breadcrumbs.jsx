@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React from 'react';
 
 import './path-breadcrumbs.scss';
@@ -32,7 +29,7 @@ const PathBreadcrumbs = ( { className, onClick, url } ) => {
 				onClick={ onClick }
 			>
 				{ breadcrumbPieces.map( ( piece, index, pieces ) => (
-					<span className="jetpack-instant-search__path-breadcrumb-piece">
+					<span className="jetpack-instant-search__path-breadcrumb-piece" key={ piece }>
 						{ decodeURIComponent( piece ) }
 						{ index !== pieces.length - 1 ? ' › ' : '' }
 					</span>

@@ -41,7 +41,7 @@ class Utils {
 	 * @return mixed | null
 	 */
 	public static function jetpack_api_constant_filter( $constant_value, $constant_name ) {
-		if ( ! is_null( $constant_value ) ) {
+		if ( $constant_value !== null ) {
 			// If the constant value was already set elsewhere, use that value.
 			return $constant_value;
 		}

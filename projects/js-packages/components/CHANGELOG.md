@@ -2,6 +2,191 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.1 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.16.0 - 2022-06-08
+### Added
+- Add sortByCount prop to RecordMeterBar component [#24518]
+
+### Changed
+- JS Component: move Product offer placeholder above button [#24510]
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24596, #24597, #24598]
+
+### Fixed
+- Fixed lints in TS types for Text component [#24579]
+
+## 0.15.1 - 2022-05-31
+### Added
+- Added an option to display a custom disclaimer below the product add button. [#24523]
+
+## 0.15.0 - 2022-05-30
+### Added
+- added formatting prop to RecordMeterBar component legend
+- JS Components: Add isCard prop to Dialog component
+- JS Components: add isExternalLink button property
+
+### Changed
+- Added TS check to build process
+- Converted QRCode component to TypeScript
+- JS Components: fix ProductOffer icons size
+- JS Components: remove deprecated external-link variant
+- Layout: Support start/end props in Cols and use sass based structure
+- Social: Updated the icon to the final design
+- Updated package dependencies
+
+### Removed
+- JS Components: remove Dialog isCard property
+
+### Fixed
+- Fix styles defined by the ThemeProvider in the storybook stories
+
+## 0.14.0 - 2022-05-24
+### Added
+- Icons: Added the Jetpack Social product icon [#24449]
+
+## 0.13.0 - 2022-05-18
+### Added
+- Components: Add useBreakpointMach hook [#24263]
+- Gridicon: added info-outline gridicon to the available subset of icons [#24328]
+- JS Components: tweak and improve Dialog component [#24280]
+- Replace CSS @media by using useBreakpointsMatch() hook in Dialog component [#24375]
+
+### Changed
+- Convert JS Components Button to TypeScript [#24267]
+- JS Components: iterate over Dialog component [#24374]
+- Moved SocialServiceIcon component from Jetpack Icons.js file to js-package/components. Updated it's ref in the Jetpack plugin directory [#23795]
+- Protect: improve Dialog layout in medium viewport size [#24390]
+- Updated package dependencies [#24361]
+
+## 0.12.0 - 2022-05-10
+### Changed
+- Converted Text component to TypeScript [#24256]
+- JS Components: re-write Alter component with TS [#24204]
+- JS Components: typescriptify Dialog component [#24257]
+- Updated package dependencies [#24276]
+
+### Fixed
+- JS Components: fix Warning when defining AdminPage header prop [#24236]
+
+## 0.11.4 - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+- JS Components: add getProductCheckoutUrl helper function [#24113]
+- JS Components: Add Protect Icon [#24139]
+- JS Components: add `weight` prop to Button component [#24219]
+
+### Changed
+- JS Components: Add className prop to Protect icon [#24142]
+- JS Components: Introduce `header` prop to AdminPage component [#24232]
+- Protect: update new version of icon [#24215]
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+### Fixed
+- JS Components: fix weird spinner issue [#24206]
+
+## 0.11.3 - 2022-04-26
+### Added
+- Added RecordMeterBar component with stories and unit tests
+- Expose and use IconsCard component
+- JS Components: add `icon` property to ProductOffer component
+- JS Components: Introduce Alert component. Add error to ProductOffer components
+- JS Components: Update Alter level colors via ThemeProvider
+
+### Changed
+- JS Components: improve box-model composed by dialog and product-offer components
+- Updated package dependencies
+- Updated package dependencies.
+
+### Fixed
+- Components: Avoid reset global text components when usin Text
+
+## 0.11.2 - 2022-04-19
+### Added
+- Added Gridicon component
+- Added TypeScript support
+- Protect: add ProductOffer component
+
+### Changed
+- Converted numberFormat to TypeScript
+- JS Components: Add subTitle prop to ProductOffer component
+- JS Components: Update loading state for Button
+- RNA: Add buttonText property to the ProductOffer component
+
+## 0.11.1 - 2022-04-12
+### Added
+- JS Components: Add Dialog component.
+- JS Components: Add ProductDetailCard component.
+- JS Components: Add ProductPrice component.
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Button: Fix export, external link target and padding.
+- JS Components: fix className prop in Button component.
+- RNA: fix ProductOffer button loading state issue.
+
+## 0.11.0 - 2022-04-05
+### Added
+- Components: add Button component.
+- JS Components: add spacing props to Text component.
+- JS Components: add story doc to Text components.
+- My Jetpack: improve Product and Interstitial components.
+
+### Changed
+- Updated package dependencies.
+
+## 0.10.12 - 2022-03-29
+### Added
+- Jetpack components: Add ThemeProvider stories for typographies and colors
+- JS Components: add H2, H3 and Title components
+
+### Changed
+- JS Components: Minor Product Icons story and doc improvements
+- Moved in product icon components from My Jetpack
+- Updated package dependencies.
+
+## 0.10.11 - 2022-03-23
+### Added
+- Components: Add Text component
+- Introduced SplitButton component
+
+### Changed
+- Updated package dependencies
+
+## 0.10.10 - 2022-03-15
+### Added
+- My Jetpack: Add new values to ThemeProvider
+
+### Changed
+- Bump version
+- Updated dependencies
+
+## 0.10.9 - 2022-03-09
+### Added
+- RNA: Add ThemeProvider
+
+## 0.10.8 - 2022-03-08
+### Added
+- Add optional link to the Module name in the JetpackFooter component
+- Components: replace Spinner with the core one
+- JS Components: Add QRPost component
+
+### Changed
+- Components: update attributes used within the Button component to match recent deprecations and changes.
+
+## 0.10.7 - 2022-03-02
+### Changed
+- Updated package dependencies.
+
+## 0.10.6 - 2022-02-22
+### Added
+- Components: Add showBackground prop
+
 ## 0.10.5 - 2022-02-09
 ### Changed
 - Updated package dependencies

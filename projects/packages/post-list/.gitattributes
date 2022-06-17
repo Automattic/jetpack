@@ -3,7 +3,6 @@
 .github/          export-ignore
 package.json      export-ignore
 webpack.config.js export-ignore
-gulpfile.babel.js export-ignore
 phpunit.xml.dist  export-ignore
 .babelrc          export-ignore
 

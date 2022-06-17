@@ -321,7 +321,62 @@ class Sender {
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
 	public function do_sync() {
-		return $this->do_sync_and_set_delays( $this->sync_queue );
+		if ( ! Settings::is_dedicated_sync_enabled() ) {
+			$result = $this->do_sync_and_set_delays( $this->sync_queue );
+		} else {
+			$result = Dedicated_Sender::spawn_sync( $this->sync_queue );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Trigger incremental sync and early exit on Dedicated Sync request.
+	 *
+	 * @access public
+	 *
+	 * @param bool $do_real_exit If we should exit at the end of the request. We should by default.
+	 *                           In the context of running this in the REST API, we actually want to return an error.
+	 *
+	 * @return void|WP_Error
+	 */
+	public function do_dedicated_sync_and_exit( $do_real_exit = true ) {
+		nocache_headers();
+
+		if ( ! Settings::is_dedicated_sync_enabled() ) {
+			return new WP_Error( 'dedicated_sync_disabled', 'Dedicated Sync flow is disabled.' );
+		}
+
+		if ( ! Dedicated_Sender::is_dedicated_sync_request() ) {
+			return new WP_Error( 'non_dedicated_sync_request', 'Not a Dedicated Sync request.' );
+		}
+
+		/**
+		 * Output an `OK` to show that Dedicated Sync is enabled and we can process events.
+		 * This is used to test the feature is working.
+		 *
+		 * @see \Automattic\Jetpack\Sync\Dedicated_Sender::can_spawn_dedicated_sync_request
+		 */
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING;
+
+		// Try to disconnect the request as quickly as possible and process things in the background.
+		$this->fastcgi_finish_request();
+
+		// Output not used right now. Try to release dedicated sync lock
+		Dedicated_Sender::try_release_lock_spawn_request();
+
+		// Actually try to send Sync events.
+		$result = $this->do_sync_and_set_delays( $this->sync_queue );
+
+		// If no errors occurred, re-spawn a dedicated Sync request.
+		if ( true === $result ) {
+			Dedicated_Sender::spawn_sync( $this->sync_queue );
+		}
+
+		if ( $do_real_exit ) {
+			exit;
+		}
 	}
 
 	/**

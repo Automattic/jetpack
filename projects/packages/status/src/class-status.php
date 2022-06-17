@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Status\Cache;
+use Automattic\Jetpack\Status\Host;
 use WPCOM_Masterbar;
 
 /**
@@ -37,6 +39,11 @@ class Status {
 	 * @return bool Whether Jetpack's offline mode is active.
 	 */
 	public function is_offline_mode() {
+		$cached = Cache::get( 'is_offline_mode' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
 		$offline_mode = false;
 
 		if ( defined( '\\JETPACK_DEV_DEBUG' ) ) {
@@ -73,6 +80,7 @@ class Status {
 		 */
 		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
 
+		Cache::set( 'is_offline_mode', $offline_mode );
 		return $offline_mode;
 	}
 
@@ -101,16 +109,24 @@ class Status {
 	public function is_multi_network() {
 		global $wpdb;
 
+		$cached = Cache::get( 'is_multi_network' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
 		// If we don't have a multi site setup no need to do any more.
 		if ( ! is_multisite() ) {
+			Cache::set( 'is_multi_network', false );
 			return false;
 		}
 
 		$num_sites = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->site}" );
 		if ( $num_sites > 1 ) {
+			Cache::set( 'is_multi_network', true );
 			return true;
 		}
 
+		Cache::set( 'is_multi_network', false );
 		return false;
 	}
 
@@ -122,12 +138,17 @@ class Status {
 	public function is_single_user_site() {
 		global $wpdb;
 
-		$some_users = get_transient( 'jetpack_is_single_user' );
-		if ( false === $some_users ) {
-			$some_users = $wpdb->get_var( "SELECT COUNT(*) FROM (SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' LIMIT 2) AS someusers" );
-			set_transient( 'jetpack_is_single_user', (int) $some_users, 12 * HOUR_IN_SECONDS );
+		$ret = Cache::get( 'is_single_user_site' );
+		if ( null === $ret ) {
+			$some_users = get_transient( 'jetpack_is_single_user' );
+			if ( false === $some_users ) {
+				$some_users = $wpdb->get_var( "SELECT COUNT(*) FROM (SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' LIMIT 2) AS someusers" );
+				set_transient( 'jetpack_is_single_user', (int) $some_users, 12 * HOUR_IN_SECONDS );
+			}
+			$ret = 1 === (int) $some_users;
+			Cache::set( 'is_single_user_site', $ret );
 		}
-		return 1 === (int) $some_users;
+		return $ret;
 	}
 
 	/**
@@ -138,8 +159,15 @@ class Status {
 	 * @return bool
 	 */
 	public function is_local_site() {
+		$cached = Cache::get( 'is_local_site' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
+		$site_url = site_url();
+
 		// Check for localhost and sites using an IP only first.
-		$is_local = site_url() && false === strpos( site_url(), '.' );
+		$is_local = $site_url && false === strpos( $site_url, '.' );
 
 		// @todo Remove function_exists when the package has a documented minimum WP version.
 		// Use Core's environment check, if available. Added in 5.5.0 / 5.5.1 (for `local` return value).
@@ -160,7 +188,7 @@ class Status {
 
 		if ( ! $is_local ) {
 			foreach ( $known_local as $url ) {
-				if ( preg_match( $url, site_url() ) ) {
+				if ( preg_match( $url, $site_url ) ) {
 					$is_local = true;
 					break;
 				}
@@ -174,7 +202,10 @@ class Status {
 		 *
 		 * @param bool $is_local If the current site is a local site.
 		 */
-		return apply_filters( 'jetpack_is_local_site', $is_local );
+		$is_local = apply_filters( 'jetpack_is_local_site', $is_local );
+
+		Cache::set( 'is_local_site', $is_local );
+		return $is_local;
 	}
 
 	/**
@@ -185,13 +216,18 @@ class Status {
 	 * @return bool
 	 */
 	public function is_staging_site() {
+		$cached = Cache::get( 'is_staging_site' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
 		// @todo Remove function_exists when the package has a documented minimum WP version.
 		// Core's wp_get_environment_type allows for a few specific options. We should default to bowing out gracefully for anything other than production or local.
 		$is_staging = function_exists( 'wp_get_environment_type' ) && ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
 
 		$known_staging = array(
 			'urls'      => array(
-				'#\.staging\.wpengine\.com$#i', // WP Engine.
+				'#\.staging\.wpengine\.com$#i', // WP Engine. This is their legacy staging URL structure. Their new platform does not have a common URL. https://github.com/Automattic/jetpack/issues/21504
 				'#\.staging\.kinsta\.com$#i',   // Kinsta.com.
 				'#\.kinsta\.cloud$#i',          // Kinsta.com.
 				'#\.stage\.site$#i',            // DreamPress.
@@ -205,7 +241,7 @@ class Status {
 				'#\-liquidwebsites\.com$#i',    // Liquidweb.
 			),
 			'constants' => array(
-				'IS_WPE_SNAPSHOT',      // WP Engine.
+				'IS_WPE_SNAPSHOT',      // WP Engine. This is used on their legacy staging environment. Their new platform does not have a constant. https://github.com/Automattic/jetpack/issues/21504
 				'KINSTA_DEV_ENV',       // Kinsta.com.
 				'WPSTAGECOACH_STAGING', // WP Stagecoach.
 				'JETPACK_STAGING_MODE', // Generic.
@@ -227,8 +263,9 @@ class Status {
 		$known_staging = apply_filters( 'jetpack_known_staging', $known_staging );
 
 		if ( isset( $known_staging['urls'] ) ) {
+			$site_url = site_url();
 			foreach ( $known_staging['urls'] as $url ) {
-				if ( preg_match( $url, wp_parse_url( site_url(), PHP_URL_HOST ) ) ) {
+				if ( preg_match( $url, wp_parse_url( $site_url, PHP_URL_HOST ) ) ) {
 					$is_staging = true;
 					break;
 				}
@@ -256,7 +293,25 @@ class Status {
 		 *
 		 * @param bool $is_staging If the current site is a staging site.
 		 */
-		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+		$is_staging = apply_filters( 'jetpack_is_staging_site', $is_staging );
+
+		Cache::set( 'is_staging_site', $is_staging );
+		return $is_staging;
+	}
+
+	/**
+	 * Whether the site is currently onboarding or not.
+	 * A site is considered as being onboarded if it currently has an onboarding token.
+	 *
+	 * @since-jetpack 5.8
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool True if the site is currently onboarding, false otherwise
+	 */
+	public function is_onboarding() {
+		return \Jetpack_Options::get_option( 'onboarding' ) !== false;
 	}
 
 	/**
@@ -276,13 +331,25 @@ class Status {
 			return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
 		}
 
+		// Grab the 'site_url' option for WoA sites to avoid plugins to interfere with the site
+		// identifier (e.g. i18n plugins may change the main url to '<DOMAIN>/<LOCALE>', but we
+		// want to exclude the locale since it's not part of the site suffix).
+		if ( ( new Host() )->is_woa_site() ) {
+			$url = \site_url();
+		}
+
 		if ( empty( $url ) ) {
+			// WordPress can be installed in subdirectories (e.g. make.wordpress.org/plugins)
+			// where the 'site_url' option points to the root domain (e.g. make.wordpress.org)
+			// which could collide with another site in the same domain but with WordPress
+			// installed in a different subdirectory (e.g. make.wordpress.org/core). To avoid
+			// such collision, we identify the site with the 'home_url' option.
 			$url = \home_url();
 		}
 
 		$url = preg_replace( '#^.*?://#', '', $url );
 		$url = str_replace( '/', '::', $url );
 
-		return $url;
+		return rtrim( $url, ':' );
 	}
 }

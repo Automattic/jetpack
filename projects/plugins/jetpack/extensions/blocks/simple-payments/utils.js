@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
 import { getCurrencyDefaults } from '@automattic/format-currency';
 import { trimEnd } from 'lodash';
-import { select } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE } from './constants';
 
 export const isValidSimplePaymentsProduct = product =>
@@ -43,7 +35,9 @@ export const formatPrice = ( price = 0, currency, withSymbol = true ) => {
 	if ( ! window.Intl || 'function' !== typeof Intl.NumberFormat ) {
 		return formatPriceFallback( price, currency, withSymbol );
 	}
-	const { siteLocale } = select( 'core/block-editor' ).getSettings();
+
+	const siteLocale = window?.Jetpack_Editor_Initial_State?.siteLocale ?? 'en-US';
+
 	const tryLocales = [ siteLocale, getNavigatorLanguage(), 'en-US' ];
 
 	let formatOptions = {};

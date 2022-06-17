@@ -1,22 +1,11 @@
-/**
- * External dependencies
- */
+import { imagePath } from 'constants/urls';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect } from 'react';
-
-/**
- * Internal dependencies
- */
 import AppsBadge from 'components/apps-badge';
-import { Layout } from '../layout';
-import Gridicon from 'components/gridicon';
-import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
+import React, { useCallback, useEffect } from 'react';
+import { Layout } from '../layout';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const MobileApp = () => {
@@ -74,10 +63,7 @@ const MobileApp = () => {
 					</p>
 					<ul className="jp-recommendations-sidebar-card__features">
 						{ features.map( feature => (
-							<li>
-								<Gridicon icon="checkmark-circle" />
-								{ feature }
-							</li>
+							<li>{ feature }</li>
 						) ) }
 					</ul>
 					<div className="jp-recommendations-sidebar-card__apps-badge">

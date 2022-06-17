@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import {
 	BlockEditorPage,
 	PinterestBlock,
@@ -51,7 +51,10 @@ test.describe.parallel( 'Free blocks', () => {
 
 		await test.step( 'Can assert that Pinterest block is rendered', async () => {
 			const frontend = await PostFrontendPage.init( page );
-			expect( await frontend.isRenderedBlockPresent( PinterestBlock, { pinId } ) ).toBeTruthy();
+			expect(
+				await frontend.isRenderedBlockPresent( PinterestBlock, { pinId } ),
+				'Block should be displayed'
+			).toBeTruthy();
 		} );
 	} );
 
@@ -79,7 +82,8 @@ test.describe.parallel( 'Free blocks', () => {
 			expect(
 				await frontend.isRenderedBlockPresent( EventbriteBlock, {
 					eventId,
-				} )
+				} ),
+				'Block should be displayed'
 			).toBeTruthy();
 		} );
 	} );

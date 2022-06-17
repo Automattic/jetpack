@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import {
 	REST_API_SITE_PURCHASES_ENDPOINT,
 	REST_API_SITE_PRODUCTS_ENDPOINT,
@@ -51,7 +45,15 @@ const myJetpackResolvers = {
 			dispatch.setPurchasesIsFetching( false );
 		} catch ( error ) {
 			dispatch.setPurchasesIsFetching( false );
-			throw error;
+			dispatch.setGlobalNotice(
+				__(
+					'There was an error fetching your purchases information. Check your site connectivity and try again.',
+					'jetpack-my-jetpack'
+				),
+				{
+					status: 'error',
+				}
+			);
 		}
 	},
 };

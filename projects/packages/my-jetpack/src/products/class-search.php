@@ -8,16 +8,16 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use Jetpack_Options;
 use WP_Error;
 
 /**
  * Class responsible for handling the Search product
  */
-class Search extends Module_Product {
-
+class Search extends Hybrid_Product {
 	/**
 	 * The product slug
 	 *
@@ -31,6 +31,24 @@ class Search extends Module_Product {
 	 * @var string
 	 */
 	public static $module_name = 'search';
+
+	/**
+	 * The slug of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_slug = 'jetpack-search';
+
+	/**
+	 * The filename (id) of the plugin associated with this product.
+	 *
+	 * @var string
+	 */
+	public static $plugin_filename = array(
+		'jetpack-search/jetpack-search.php',
+		'search/jetpack-search.php',
+		'jetpack-search-dev/jetpack-search.php',
+	);
 
 	/**
 	 * Get the internationalized product name
@@ -47,7 +65,7 @@ class Search extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Site Search', 'jetpack-my-jetpack' );
+		return __( 'Jetpack Search', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -88,12 +106,51 @@ class Search extends Module_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array_merge(
+		// Basic pricing info.
+		$pricing = array_merge(
 			array(
-				'available'            => true,
-				'promotion_percentage' => 50,
+				'available'          => true,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
 			),
-			Wpcom_Products::get_product_currency_and_price( static::get_wpcom_product_slug() )
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
+		);
+
+		$record_count = intval( Search_Stats::estimate_count() );
+
+		// Check whether the price is available.
+		// Bail early return the pricing info if not.
+		$product = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
+		if ( ! isset( $product->price_tier_list ) ) {
+			return $pricing;
+		}
+
+		// Sort the tiers.
+		$price_tier_list = $product->price_tier_list;
+		array_multisort( array_column( $price_tier_list, 'maximum_units' ), SORT_ASC, $price_tier_list );
+
+		// Pick the first tier that is less than or equal to the record count.
+		foreach ( $product->price_tier_list as $price_tier ) {
+			if ( $record_count <= $price_tier->maximum_units ) {
+				break;
+			}
+		}
+
+		// Compute the minimum price.
+		$minimum_price = $price_tier->minimum_price / 100;
+
+		// Re define the display price based on the tier.
+		$pricing = Wpcom_Products::populate_with_discount( $product, $pricing, $minimum_price );
+
+		// 1. Flat fee in the same tier, so for search, `minimum_price == maximum_price`.
+		// 2. `maximum_units` is empty on the highest tier, so the logic displays the highest or the highest matching tier.
+		return array_merge(
+			$pricing,
+			array(
+				'minimum_units'   => $price_tier->minimum_units,
+				'maximum_units'   => $price_tier->maximum_units,
+				'estimated_count' => $record_count,
+				'full_price'      => $minimum_price, // reset the full price to the minimum price.
+			)
 		);
 	}
 
@@ -116,7 +173,7 @@ class Search extends Module_Product {
 	private static function get_state_from_wpcom() {
 		static $status = null;
 
-		if ( ! is_null( $status ) ) {
+		if ( $status !== null ) {
 			return $status;
 		}
 
@@ -125,7 +182,7 @@ class Search extends Module_Product {
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
 			'2',
-			array(),
+			array( 'timeout' => 2 ),
 			null,
 			'wpcom'
 		);
@@ -152,4 +209,43 @@ class Search extends Module_Product {
 		$search_state = static::get_state_from_wpcom();
 		return ! empty( $search_state->supports_search ) || ! empty( $search_state->supports_instant_search );
 	}
+
+	/**
+	 * Activates the product. Try to enable instant search after the Search module was enabled.
+	 *
+	 * @param bool|WP_Error $product_activation Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $product_activation ) {
+		$product_activation = parent::do_product_specific_activation( $product_activation );
+		if ( is_wp_error( $product_activation ) ) {
+			return $product_activation;
+		}
+
+		if ( class_exists( 'Automattic\Jetpack\Search\Module_Control' ) ) {
+			( new Search_Module_Control() )->enable_instant_search();
+		}
+
+		// we don't want to change the success of the activation if we fail to activate instant search. That's not mandatory.
+		return $product_activation;
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page or continue the purchase flow if needed.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return admin_url( 'admin.php?page=jetpack-search' );
+	}
+
 }

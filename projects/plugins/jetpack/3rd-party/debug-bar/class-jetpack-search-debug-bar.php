@@ -43,7 +43,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return Jetpack_Search_Debug_Bar
 	 */
 	public static function instance() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Search_Debug_Bar();
 		}
 		return self::$instance;
@@ -93,11 +93,17 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function render() {
-		$jetpack_search  = (
+		$jetpack_search = (
 			Jetpack_Search\Options::is_instant_enabled() ?
 			Jetpack_Search\Instant_Search::instance() :
 			Jetpack_Search\Classic_Search::instance()
 		);
+
+		// Search hasn't been initialized. Exit early and do not display the debug bar.
+		if ( ! method_exists( $jetpack_search, 'get_last_query_info' ) ) {
+			return;
+		}
+
 		$last_query_info = $jetpack_search->get_last_query_info();
 
 		// If not empty, let's reshuffle the order of some things.
@@ -110,7 +116,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 			unset( $last_query_info['response'] );
 			unset( $last_query_info['response_code'] );
 
-			if ( is_null( $last_query_info['es_time'] ) ) {
+			if ( $last_query_info['es_time'] === null ) {
 				$last_query_info['es_time'] = esc_html_x(
 					'cache hit',
 					'displayed in search results when results are cached',

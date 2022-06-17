@@ -16,7 +16,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$result = Jetpack_PostImages::from_html( $s );
 
 		$this->assertIsArray( $result );
-		$this->assertFalse( empty( $result ) );
+		$this->assertNotEmpty( $result );
 		$this->assertEquals( 'Alt Text.', $result[0]['alt_text'] );
 	}
 
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$result = Jetpack_PostImages::from_html( $s );
 
 		$this->assertIsArray( $result );
-		$this->assertFalse( empty( $result ) );
+		$this->assertNotEmpty( $result );
 		$this->assertEquals( 'Alt Text.', $result[0]['alt_text'] );
 	}
 
@@ -42,7 +42,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_from_slideshow_is_array() {
-		$slideshow = new Jetpack_Slideshow_Shortcode();
+		$slideshow = new Jetpack_Slideshow_Shortcode(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$post_id = $this->factory->post->create(
 			array(

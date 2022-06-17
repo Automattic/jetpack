@@ -55,6 +55,13 @@ export default class MailchimpBlock extends PageActions {
 			const connectionsUrl = await hrefProperty.jsonValue();
 			const wpComTab = await this.clickAndWaitForNewPage( this.setupFormBtnSel );
 
+			// Quick fix for redirect URL not working with site ID
+			const workingUrl = connectionsUrl.replace(
+				/\d+/,
+				resolveSiteUrl().replace( 'https://', '' )
+			);
+			await wpComTab.goto( workingUrl );
+
 			if ( ! isLoggedIn ) {
 				await ( await LoginPage.init( wpComTab ) ).login();
 			}
@@ -71,8 +78,11 @@ export default class MailchimpBlock extends PageActions {
 					await wpComConnectionsPage.selectMailchimpList();
 					done = true;
 				} catch ( e ) {
+					logger.error( e );
 					if ( count > 4 ) {
-						throw new Error( `Mailchimp connection failed after ${ count } attempts` );
+						throw new Error(
+							`Mailchimp connection failed after ${ count } attempts.\nLast error: ${ e }`
+						);
 					}
 					logger.warn(
 						'Mailchimp connection failed. Attempt: ' + count + '; URL: ' + connectionsUrl

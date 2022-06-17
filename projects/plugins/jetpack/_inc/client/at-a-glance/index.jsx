@@ -1,44 +1,46 @@
-/**
- * External dependencies
- */
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
+import { __ } from '@wordpress/i18n';
+import DashSectionHeader from 'components/dash-section-header';
+import QueryScanStatus from 'components/data/query-scan-status';
+import QuerySite from 'components/data/query-site';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import analytics from 'lib/analytics';
+import { chunk, get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-import { chunk, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import DashSectionHeader from 'components/dash-section-header';
-import DashActivity from './activity';
-import DashBoost from './boost';
-import DashStats from './stats/index.jsx';
-import DashProtect from './protect';
-import DashMonitor from './monitor';
-import DashScan from './scan';
-import DashAkismet from './akismet';
-import DashBackups from './backups';
-import DashPhoton from './photon';
-import DashSearch from './search';
-import DashSecurityBundle from './security-bundle';
-import DashVideoPress from './videopress';
-import DashConnections from './connections';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import QuerySite from 'components/data/query-site';
-import QueryScanStatus from 'components/data/query-scan-status';
+import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import {
 	isAtomicSite,
+	getApiNonce,
+	getApiRootUrl,
+	getPartnerCoupon,
+	getPluginBaseUrl,
+	getRegistrationNonce,
+	getTracksUserData,
 	isMultisite,
 	userCanManageModules,
 	userCanManagePlugins,
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { isOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
+import DashActivity from './activity';
+import DashAkismet from './akismet';
+import DashBackups from './backups';
+import DashBlocks from './blocks';
+import DashBoost from './boost';
+import DashConnections from './connections';
+import DashCRM from './crm';
+import DashMonitor from './monitor';
+import DashPhoton from './photon';
+import DashProtect from './protect';
+import DashScan from './scan';
+import DashSearch from './search';
+import DashSecurityBundle from './security-bundle';
+import DashStats from './stats/index.jsx';
+import DashVideoPress from './videopress';
 
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
@@ -98,17 +100,6 @@ class AtAGlance extends Component {
 			);
 		}
 
-		if ( ! this.props.multisite ) {
-			securityCards.push(
-				<DashBackups
-					{ ...settingsProps }
-					siteRawUrl={ this.props.siteRawUrl }
-					rewindStatus={ rewindStatus }
-					rewindStatusReason={ rewindStatusReason }
-					trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
-				/>
-			);
-		}
 		securityCards.push(
 			<DashAkismet
 				{ ...urls }
@@ -155,19 +146,53 @@ class AtAGlance extends Component {
 			}
 
 			if ( this.props.userCanManagePlugins ) {
-				performanceCards.push( <DashBoost siteAdminUrl={ this.props.siteAdminUrl } /> );
+				performanceCards.push(
+					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
+					<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
+				);
 			}
+
+			// Add Blocks card.
+			performanceCards.push( <DashBlocks /> );
+
+			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
+				<PartnerCouponRedeem
+					apiNonce={ this.props.apiNonce }
+					registrationNonce={ this.props.registrationNonce }
+					apiRoot={ this.props.apiRoot }
+					assetBaseUrl={ this.props.pluginBaseUrl }
+					connectionStatus={ this.props.connectionStatus }
+					partnerCoupon={ this.props.partnerCoupon }
+					siteRawUrl={ this.props.siteRawUrl }
+					tracksUserData={ !! this.props.tracksUserData }
+					analytics={ analytics }
+				/>
+			);
+
+			const pinnedBundle = canDisplaybundleCard ? (
+				<div className="jp-at-a-glance__pinned-bundle">
+					<DashSecurityBundle />
+					<DashBackups
+						{ ...settingsProps }
+						siteRawUrl={ this.props.siteRawUrl }
+						rewindStatus={ rewindStatus }
+						rewindStatusReason={ rewindStatusReason }
+						trackUpgradeButtonView={ this.trackUpgradeButtonView( 'backups' ) }
+					/>
+				</div>
+			) : null;
 
 			return (
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
 					<QueryScanStatus />
+					{ redeemPartnerCoupon }
 					<DashStats { ...settingsProps } { ...urls } />
 					<Section
 						header={ securityHeader }
 						cards={ securityCards }
-						pinnedBundle={ canDisplaybundleCard ? <DashSecurityBundle /> : null }
+						pinnedBundle={ pinnedBundle }
 					/>
 					<Section
 						header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
@@ -218,6 +243,13 @@ export default connect( state => {
 		scanStatus: getScanStatus( state ),
 		fetchingScanStatus: isFetchingScanStatus( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
+		connectionStatus: getConnectionStatus( state ),
+		partnerCoupon: getPartnerCoupon( state ),
+		pluginBaseUrl: getPluginBaseUrl( state ),
+		tracksUserData: getTracksUserData( state ),
+		apiRoot: getApiRootUrl( state ),
+		apiNonce: getApiNonce( state ),
+		registrationNonce: getRegistrationNonce( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );
 

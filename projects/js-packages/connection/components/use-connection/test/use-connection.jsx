@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { renderHook } from '@testing-library/react-hooks';
 import restApi from '@automattic/jetpack-api';
+import { renderHook } from '@testing-library/react-hooks';
 import { useSelect, useDispatch } from '@wordpress/data';
-import sinon from 'sinon';
 import { expect } from 'chai';
-
-/**
- * Internal dependencies
- */
-import { STORE_ID } from '../../../state/store';
+import sinon from 'sinon';
 import useConnection from '../';
+import { STORE_ID } from '../../../state/store';
 
 let storeSelect;
 
@@ -114,7 +107,8 @@ describe( 'useConnection', () => {
 		result.current.handleRegisterSite();
 
 		setTimeout( () => {
-			expect( stubConnectUser.calledOnceWith( { from: 'JETPACK' } ) ).to.be.true;
+			expect( stubConnectUser.calledOnceWith( { from: 'JETPACK', redirectUri: 'REDIRECT' } ) ).to.be
+				.true;
 			done();
 		}, 100 );
 	} );
@@ -126,6 +120,7 @@ describe( 'useConnection', () => {
 		} );
 		result.current.handleRegisterSite();
 		expect( stubRegisterSite.called ).to.be.false;
-		expect( stubConnectUser.calledOnceWith( { from: 'JETPACK' } ) ).to.be.true;
+		expect( stubConnectUser.calledOnceWith( { from: 'JETPACK', redirectUri: undefined } ) ).to.be
+			.true;
 	} );
 } );

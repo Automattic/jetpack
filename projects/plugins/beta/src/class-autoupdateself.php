@@ -67,17 +67,18 @@ class AutoupdateSelf {
 	 * Set update arguments in `$this->config`.
 	 */
 	private function set_update_args() {
-		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->config['plugin_file'] );
-		$github_data = $this->get_github_data();
+		$plugin_data    = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->config['plugin_file'] );
+		$github_data    = $this->get_github_data();
+		$tagged_version = $this->get_latest_prerelease();
 
 		$this->config['plugin_name']  = $plugin_data['Name'];
 		$this->config['version']      = $plugin_data['Version'];
 		$this->config['author']       = $plugin_data['Author'];
 		$this->config['homepage']     = $plugin_data['PluginURI'];
-		$this->config['new_version']  = $this->get_latest_prerelease();
+		$this->config['new_version']  = ltrim( $tagged_version, 'v' );
 		$this->config['last_updated'] = empty( $github_data->updated_at ) ? false : gmdate( 'Y-m-d', strtotime( $github_data->updated_at ) );
 		$this->config['description']  = empty( $github_data->description ) ? false : $github_data->description;
-		$this->config['zip_url']      = 'https://github.com/Automattic/jetpack-beta/zipball/' . $this->config['new_version'];
+		$this->config['zip_url']      = 'https://github.com/Automattic/jetpack-beta/zipball/' . $tagged_version;
 	}
 
 	/**
@@ -98,7 +99,7 @@ class AutoupdateSelf {
 				foreach ( $releases as $release ) {
 					// Since 2.2, so that we don't have to maker the Jetpack Beta 2.0.3 as prerelease.
 					if ( ! $release->prerelease ) {
-						$tagged_version = ltrim( $release->tag_name, 'v' );
+						$tagged_version = $release->tag_name;
 						break;
 					}
 				}
@@ -160,6 +161,8 @@ class AutoupdateSelf {
 	 * We need to somehow inject ourself into the list of plugins needing update
 	 * when an update is available. This is the way: catch the setting of the relevant
 	 * transient and add ourself in.
+	 *
+	 * @todo Consider switching to the `update_plugins_${hostmane}` hook introduced in WP 5.8.
 	 *
 	 * @param object $transient The transient we're checking.
 	 * @return object $transient

@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { expect } from 'chai';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { expect } from 'chai';
+import React from 'react';
 import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
 import ConnectScreenRequiredPlan from '../visual';
 
 const requiredProps = {
@@ -68,23 +61,25 @@ describe( 'ConnectScreenRequiredPlan', () => {
 	// we have an acessibility breach into our loading state
 	it.skip( 'shows loading into button', () => {} );
 
-	it( 'calls handleButtonClick into main button', () => {
+	it( 'calls handleButtonClick into main button', async () => {
+		const user = userEvent.setup();
 		const handleButtonClick = sinon.stub();
 		render(
 			<ConnectScreenRequiredPlan { ...requiredProps } handleButtonClick={ handleButtonClick } />
 		);
 		const button = screen.getByRole( 'button', { name: 'Setup Jetpack' } );
-		userEvent.click( button );
+		await user.click( button );
 		expect( handleButtonClick.called ).to.be.true;
 	} );
 
-	it( 'calls handleButtonClick into login button', () => {
+	it( 'calls handleButtonClick into login button', async () => {
+		const user = userEvent.setup();
 		const handleButtonClick = sinon.stub();
 		render(
 			<ConnectScreenRequiredPlan { ...requiredProps } handleButtonClick={ handleButtonClick } />
 		);
-		const button = screen.getByRole( 'button', { name: 'Log in' } );
-		userEvent.click( button );
+		const button = screen.getByRole( 'button', { name: 'Log in to get started' } );
+		await user.click( button );
 		expect( handleButtonClick.called ).to.be.true;
 	} );
 } );

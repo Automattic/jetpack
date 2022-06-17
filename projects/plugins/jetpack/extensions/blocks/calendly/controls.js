@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -12,10 +9,6 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 
 export const CalendlyBlockControls = ( { onEditClick } ) => {
@@ -51,7 +44,7 @@ export const CalendlyInspectorControls = props => {
 						className="components-placeholder__input"
 					/>
 					<div>
-						<Button isSecondary type="submit">
+						<Button variant="secondary" type="submit">
 							{ _x( 'Embed', 'button label', 'jetpack' ) }
 						</Button>
 					</div>

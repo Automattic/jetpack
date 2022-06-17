@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl, PricingCard, ActionButton } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
 import ConnectScreenLayout from '../layout';
 import './style.scss';
 
@@ -56,11 +49,11 @@ const ConnectScreenRequiredPlanVisual = props => {
 	);
 
 	const withSubscription = createInterpolateElement(
-		__( 'Already have a subscription? <connectButton/> to get started.', 'jetpack' ),
+		__( 'Already have a subscription? <connectButton/>', 'jetpack' ),
 		{
 			connectButton: (
 				<ActionButton
-					label={ __( 'Log in', 'jetpack' ) }
+					label={ __( 'Log in to get started', 'jetpack' ) }
 					onClick={ handleButtonClick }
 					isLoading={ buttonIsLoading }
 				/>

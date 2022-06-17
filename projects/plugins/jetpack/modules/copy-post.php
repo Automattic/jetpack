@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Copy Post
  * Module Description: Enable the option to copy entire posts and pages, including tags and settings
@@ -9,6 +9,8 @@
  * Module Tags: Writing
  * Feature: Writing
  * Additional Search Queries: copy, duplicate
+ *
+ * @package automattic/jetpack
  */
 
 /**
@@ -29,7 +31,7 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) {
+		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- update_post_data() handles access check.
 			add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
 			add_filter( 'pre_option_default_post_format', '__return_empty_string' );
 		}
@@ -49,7 +51,12 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		$source_post = get_post( $_GET['jetpack-copy'] );
+		// Shouldn't happen, since this filter is only added when the value isn't empty, but check anyway.
+		if ( empty( $_GET['jetpack-copy'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		$source_post = get_post( intval( $_GET['jetpack-copy'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $source_post instanceof WP_Post ||
 			! $this->user_can_access_post( $source_post->ID ) ||
 			! $this->validate_post_type( $source_post ) ) {
@@ -316,8 +323,8 @@ class Jetpack_Copy_Post {
 		);
 
 		// Insert the Copy action before the Trash action.
-		$edit_offset = array_search( 'trash', array_keys( $actions ), true );
-		$updated_actions     = array_merge(
+		$edit_offset     = array_search( 'trash', array_keys( $actions ), true );
+		$updated_actions = array_merge(
 			array_slice( $actions, 0, $edit_offset ),
 			$edit_action,
 			array_slice( $actions, $edit_offset )

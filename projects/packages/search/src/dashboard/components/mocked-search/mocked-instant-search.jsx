@@ -1,14 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
+import { Gridicon } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-// TODO change to our own gridicon component, when instant search is migrated.
-import Gridicon from 'gridicons';
+import React from 'react';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-instant-search.scss';
 

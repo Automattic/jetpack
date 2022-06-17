@@ -89,6 +89,9 @@
 	.block-editor-block-icon {
 		margin-right: $grid-unit-20;
 	}
+	.components-button.is-tertiary {
+		margin-left: -( $grid-unit-15 * 0.5 );
+	}
 }
 
 .jp-search-configure-sidebar-options {

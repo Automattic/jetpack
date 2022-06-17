@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use WP_Error;
+
 /**
  * Registers the REST routes for Products.
  */
@@ -31,7 +33,7 @@ class REST_Products {
 		$product_arg = array(
 			'description'       => __( 'Product slug', 'jetpack-my-jetpack' ),
 			'type'              => 'string',
-			'enum'              => Products::get_product_names(),
+			'enum'              => Products::get_products_slugs(),
 			'required'          => true,
 			'validate_callback' => __CLASS__ . '::check_product_argument',
 		);
@@ -178,7 +180,7 @@ class REST_Products {
 	}
 
 	/**
-	 * Callback for activating a product
+	 * Callback for deactivating a product
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 * @return \WP_REST_Response

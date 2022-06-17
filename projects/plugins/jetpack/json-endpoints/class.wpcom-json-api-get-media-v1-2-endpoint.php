@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 jetpack_require_lib( 'class.media' );
 
@@ -54,8 +54,19 @@ new WPCOM_JSON_API_Get_Media_v1_2_Endpoint(
 	)
 );
 
-class WPCOM_JSON_API_Get_Media_v1_2_Endpoint extends WPCOM_JSON_API_Get_Media_v1_1_Endpoint {
-	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
+/**
+ * GET Media v1_2 endpoint class.
+ */
+class WPCOM_JSON_API_Get_Media_v1_2_Endpoint extends WPCOM_JSON_API_Get_Media_v1_1_Endpoint { //phpcs:ignore
+	/**
+	 *
+	 * API callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $blog_id - the blog ID.
+	 * @param int    $media_id - the media ID.
+	 */
+	public function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
 		$response = parent::callback( $path, $blog_id, $media_id );
 
 		if ( is_wp_error( $response ) ) {
@@ -67,8 +78,8 @@ class WPCOM_JSON_API_Get_Media_v1_2_Endpoint extends WPCOM_JSON_API_Get_Media_v1
 
 		// expose `revision_history` object.
 		$response->revision_history = (object) array(
-			'items'       => (array) Jetpack_Media::get_revision_history( $media_id ),
-			'original'    => (object) Jetpack_Media::get_original_media( $media_id )
+			'items'    => (array) Jetpack_Media::get_revision_history( $media_id ),
+			'original' => (object) Jetpack_Media::get_original_media( $media_id ),
 		);
 
 		return $response;

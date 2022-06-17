@@ -151,15 +151,59 @@ class Wpcom_Products {
 	 *
 	 * @return array An array with currency_code and full_price. Empty array if product not found.
 	 */
-	public static function get_product_currency_and_price( $product_slug ) {
-		$products = self::get_products();
-		if ( ! empty( $products->$product_slug ) ) {
-			return array(
-				'currency_code' => $products->$product_slug->currency_code,
-				'full_price'    => $products->$product_slug->cost,
-			);
+	public static function get_product_pricing( $product_slug ) {
+		$product = self::get_product( $product_slug );
+		if ( empty( $product ) ) {
+			return array();
 		}
-		return array();
+
+		$cost           = $product->cost;
+		$discount_price = $cost;
+
+		// Get/compute the discounted price.
+		if ( isset( $product->introductory_offer->cost_per_interval ) ) {
+			$discount_price = $product->introductory_offer->cost_per_interval;
+		}
+
+		$pricing = array(
+			'currency_code'  => $product->currency_code,
+			'full_price'     => $cost,
+			'discount_price' => $discount_price,
+		);
+
+		return self::populate_with_discount( $product, $pricing, $discount_price );
 	}
 
+	/**
+	 * Populate the pricing array with the discount information.
+	 *
+	 * @param {object} $product - The product object.
+	 * @param {object} $pricing - The pricing array.
+	 * @param {float}  $price   - The price to be discounted.
+	 * @return {object} The pricing array with the discount information.
+	 */
+	public static function populate_with_discount( $product, $pricing, $price ) {
+		// Check whether the product has a coupon.
+		if ( ! isset( $product->sale_coupon ) ) {
+			return $pricing;
+		}
+
+		// Check whether it is still valid.
+		$coupon            = $product->sale_coupon;
+		$coupon_start_date = strtotime( $coupon->start_date );
+		$coupon_expires    = strtotime( $coupon->expires );
+		if ( $coupon_start_date > time() || $coupon_expires < time() ) {
+			return $pricing;
+		}
+
+		$coupon_discount = intval( $coupon->discount );
+
+		// Populate response with coupon discount.
+		$pricing['coupon_discount'] = $coupon_discount;
+
+		// Apply coupon discount to the price.
+		$pricing['discount_price'] = $price * ( 100 - $coupon_discount ) / 100;
+
+		return $pricing;
+	}
 }

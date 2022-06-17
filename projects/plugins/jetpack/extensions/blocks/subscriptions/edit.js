@@ -1,27 +1,20 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-import { isEqual } from 'lodash';
-import apiFetch from '@wordpress/api-fetch';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { TextControl, withFallbackStyles } from '@wordpress/components';
 import {
 	InspectorControls,
 	RichText,
 	withColors,
 	withFontSizes,
-	__experimentalUseGradient as useGradient,
+	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
+import { TextControl, withFallbackStyles } from '@wordpress/components';
+import { compose, usePrevious } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
-import { compose } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
+import { __, _n, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { isEqual } from 'lodash';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import { getSubscriberCount } from './api';
 import './view.scss';
 import defaultAttributes from './attributes';
-import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import {
 	DEFAULT_BORDER_RADIUS_VALUE,
 	DEFAULT_BORDER_WEIGHT_VALUE,
@@ -64,6 +57,7 @@ export function SubscriptionEdit( props ) {
 		fallbackTextColor,
 		setTextColor,
 		borderColor,
+		setBorderColor,
 		fontSize,
 	} = props;
 
@@ -169,25 +163,6 @@ export function SubscriptionEdit( props ) {
 		width: buttonWidth,
 	};
 
-	const getSubscriberCount = () => {
-		apiFetch( { path: '/wpcom/v2/subscribers/count' } ).then( count => {
-			// Handle error condition
-			if ( ! count.hasOwnProperty( 'count' ) ) {
-				setSubscriberCountString( __( 'Subscriber count unavailable', 'jetpack' ) );
-				setSubscriberCount( 0 );
-			} else {
-				setSubscriberCountString(
-					sprintf(
-						/* translators: Placeholder is a number of subscribers. */
-						_n( 'Join %s other subscriber', 'Join %s other subscribers', count.count, 'jetpack' ),
-						count.count
-					)
-				);
-				setSubscriberCount( count.count );
-			}
-		} );
-	};
-
 	const getBlockClassName = () => {
 		return classnames(
 			className,
@@ -198,8 +173,35 @@ export function SubscriptionEdit( props ) {
 	};
 
 	useEffect( () => {
-		getSubscriberCount();
+		getSubscriberCount(
+			count => {
+				setSubscriberCountString(
+					sprintf(
+						/* translators: Placeholder is a number of subscribers. */
+						_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
+						count
+					)
+				);
+				setSubscriberCount( count );
+			},
+			() => {
+				setSubscriberCountString( __( 'Subscriber count unavailable', 'jetpack' ) );
+				setSubscriberCount( 0 );
+			}
+		);
 	}, [] );
+
+	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );
+
+	useEffect( () => {
+		if (
+			previousButtonBackgroundColor?.color !== borderColor?.color ||
+			borderColor?.color === buttonBackgroundColor?.color
+		) {
+			return;
+		}
+		setBorderColor( buttonBackgroundColor.color );
+	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
 
 	return (
 		<>
@@ -218,6 +220,7 @@ export function SubscriptionEdit( props ) {
 					isGradientAvailable={ isGradientAvailable }
 					padding={ padding }
 					setAttributes={ setAttributes }
+					setBorderColor={ setBorderColor }
 					setButtonBackgroundColor={ setButtonBackgroundColor }
 					setTextColor={ setTextColor }
 					showSubscribersTotal={ showSubscribersTotal }

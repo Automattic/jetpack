@@ -1,9 +1,5 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
-import { Component, createRef, Fragment } from '@wordpress/element';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
@@ -12,20 +8,17 @@ import {
 	withNotices,
 	ResizableBox,
 } from '@wordpress/components';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import { compose } from '@wordpress/compose';
+import { withDispatch } from '@wordpress/data';
+import { Component, createRef, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { getActiveStyleName } from '../../shared/block-styles';
 import AddPoint from './add-point';
 import Map from './component.js';
 import Controls from './controls';
-import { settings } from './settings.js';
-import previewPlaceholder from './map-preview.jpg';
-import { compose } from '@wordpress/compose';
-import { withDispatch } from '@wordpress/data';
-import { getActiveStyleName } from '../../shared/block-styles';
 import { getCoordinates } from './get-coordinates.js';
+import previewPlaceholder from './map-preview.jpg';
+import { settings } from './settings.js';
 
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
@@ -293,7 +286,7 @@ class MapEdit extends Component {
 							onChange={ this.updateAPIKeyControl }
 						/>
 						<Button
-							isSecondary
+							variant="secondary"
 							disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
 							onClick={ this.updateAPIKey }
 						>

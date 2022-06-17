@@ -1,28 +1,22 @@
-/**
- * External dependencies
- */
-import React, { useEffect } from 'react';
-import { __ } from '@wordpress/i18n';
-import { Notice } from '@wordpress/components';
-import { Icon, warning, info } from '@wordpress/icons';
 import {
 	AdminSection,
 	AdminSectionHero,
 	AdminPage,
 	Container,
 	Col,
+	Text,
 } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { Notice } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { Icon, warning, info } from '@wordpress/icons';
+import React, { useEffect } from 'react';
+import useAnalytics from '../../hooks/use-analytics';
+import useConnectionWatcher from '../../hooks/use-connection-watcher';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useGlobalNotice from '../../hooks/use-notice';
 import ConnectionsSection from '../connections-section';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
-import useAnalytics from '../../hooks/use-analytics';
-import useGlobalNotice from '../../hooks/use-notice';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, options, clean } ) => {
@@ -52,9 +46,7 @@ export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
 
-	const {
-		tracks: { recordEvent },
-	} = useAnalytics();
+	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view' );
@@ -72,12 +64,9 @@ export default function MyJetpackScreen() {
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 7 } lg={ 6 }>
-						<h1 className={ styles.heading }>
-							{ __(
-								'Manage your Jetpack plan and products all in one place',
-								'jetpack-my-jetpack'
-							) }
-						</h1>
+						<Text variant="headline-small">
+							{ __( 'Manage your Jetpack products', 'jetpack-my-jetpack' ) }
+						</Text>
 					</Col>
 					{ message && (
 						<Col>

@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import IDCScreenVisual from '../visual';
 
 export default {
-	title: 'Identity Crisis/Admin Screen',
+	title: 'JS Packages/Identity Crisis/Admin Screen',
 	component: IDCScreenVisual,
 	parameters: {
 		layout: 'centered',

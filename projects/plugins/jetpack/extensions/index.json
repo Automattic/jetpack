@@ -17,6 +17,7 @@
 		"map",
 		"markdown",
 		"opentable",
+		"payments",
 		"pinterest",
 		"podcast-player",
 		"publicize",
@@ -37,17 +38,12 @@
 		"subscriptions",
 		"tiled-gallery",
 		"videopress",
-		"wordads"
+		"wordads",
+		"payments-intro",
+		"post-publish-qr-post-panel"
 	],
-	"beta": [
-		"amazon"
-	],
-	"experimental": [
-		"anchor-fm",
-		"premium-content",
-		"conversation",
-		"dialogue"
-	],
+	"beta": [ "amazon", "recipe" ],
+	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",
@@ -65,13 +61,11 @@
 		"opentable",
 		"pinterest",
 		"rating-star",
-		"recurring-payments",
 		"related-posts",
 		"repeat-visitor",
 		"revue",
 		"simple-payments",
 		"slideshow",
-		"subscriptions",
 		"tiled-gallery",
 		"videopress",
 		"wordads"

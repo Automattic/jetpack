@@ -1,33 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
-import ProductCard from '../product-card';
-import { useProduct } from '../../hooks/use-product';
-import { VideopressIcon } from '../icons';
+import React from 'react';
+import ProductCard from '../connected-product-card';
 
 const VideopressCard = ( { admin } ) => {
-	const { status, activate, deactivate, detail, isFetching } = useProduct( 'videopress' );
-	const { name, description, slug } = detail;
-
-	return (
-		<ProductCard
-			name={ name }
-			description={ description }
-			status={ status }
-			icon={ <VideopressIcon /> }
-			admin={ admin }
-			isFetching={ isFetching }
-			onDeactivate={ deactivate }
-			onActivate={ activate }
-			slug={ slug }
-		/>
-	);
+	return <ProductCard admin={ admin } slug="videopress" />;
 };
 
 VideopressCard.propTypes = {

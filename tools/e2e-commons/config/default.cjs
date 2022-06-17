@@ -1,6 +1,8 @@
 const outputDir = './output';
 const configDir = './config';
 const tempDir = `${ configDir }/tmp`;
+const resultsDir = `${ outputDir }/results`;
+
 const config = {
 	WP_BASE_URL: 'http://localhost',
 	testCardCredentials: {
@@ -16,19 +18,18 @@ const config = {
 		config: configDir,
 		output: outputDir,
 		temp: tempDir,
-		screenshots: `./${ outputDir }/screenshots`,
-		videos: `./${ outputDir }/videos`,
+		results: resultsDir,
+		reporters: `./reporters`,
 		logs: `./${ outputDir }/logs`,
-		reports: `./${ outputDir }/reports`,
+		screenshots: `./${ resultsDir }/screenshots`,
+		videos: `./${ resultsDir }/videos`,
+		reports: `./${ resultsDir }/reports`,
 	},
 	temp: {
 		storage: `${ tempDir }/storage.json`,
 		tunnels: `${ tempDir }/e2e-tunnels.txt`,
 		jetpackPrivateOptions: `${ tempDir }/jetpack-private-options.json`,
 		planData: `${ tempDir }/plan-data.json`,
-		sidebarsWidgetsFile: `${ tempDir }/sidebars-widgets.json`,
-		searchWidgetFile: `${ tempDir }/search-widget.json`,
-		blockWidgetsFile: `${ tempDir }/widget-block.json`,
 	},
 	consoleIgnore: [
 		'This is a global warning',
@@ -37,10 +38,12 @@ const config = {
 		'elements with non-unique id #_wpnonce',
 		'is deprecated',
 		'SharedArrayBuffer will require cross-origin isolation as of M91, around May 2021',
+		'Warning: getDefaultProps is only used on classic React.createClass definitions',
+		'Warning: A future version of React will block javascript: URLs as a security precaution',
 	],
 	repository: {
 		url: 'https://github.com/Automattic/jetpack',
-		mainBranch: 'master',
+		mainBranch: 'trunk',
 	},
 	blocks: {
 		pinterest: {

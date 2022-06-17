@@ -1,18 +1,11 @@
-/**
- * WordPress dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
-import save from './save';
-import deprecatedV1 from './deprecated/v1';
+import { __, _x } from '@wordpress/i18n';
 import icon from './_inc/icon';
 import { blockContainsPremiumBlock, blockHasParentPremiumBlock } from './_inc/premium';
 import { transformToCoreGroup } from './_inc/transform-to-core-group';
+import deprecatedV1 from './deprecated/v1';
+import edit from './edit';
+import save from './save';
 
 /**
  * A list of blocks that should be disallowed to be transformed to Premium content block since they are mostly markup blocks.
@@ -65,10 +58,35 @@ export const settings = {
 	icon,
 	category: 'grow',
 	keywords: [
-		_x( 'paywall', 'keyword', 'jetpack' ),
-		_x( 'paid', 'keyword', 'jetpack' ),
-		_x( 'subscribe', 'keyword', 'jetpack' ),
-		_x( 'membership', 'keyword', 'jetpack' ),
+		_x( 'buy', 'block search term', 'jetpack' ),
+		_x( 'credit card', 'block search term', 'jetpack' ),
+		_x( 'debit card', 'block search term', 'jetpack' ),
+		_x( 'earn', 'block search term', 'jetpack' ),
+		_x( 'exclusive', 'block search term', 'jetpack' ),
+		_x( 'gated', 'block search term', 'jetpack' ),
+		'gofundme',
+		_x( 'memberships', 'block search term', 'jetpack' ),
+		_x( 'money', 'block search term', 'jetpack' ),
+		_x( 'newsletter', 'block search term', 'jetpack' ),
+		_x( 'paid', 'block search term', 'jetpack' ),
+		'patreon',
+		_x( 'pay', 'block search term', 'jetpack' ),
+		_x( 'payments', 'block search term', 'jetpack' ),
+		_x( 'paywall', 'block search term', 'jetpack' ),
+		_x( 'purchase', 'block search term', 'jetpack' ),
+		_x( 'recurring', 'block search term', 'jetpack' ),
+		_x( 'repeat', 'block search term', 'jetpack' ),
+		_x( 'signin', 'block search term', 'jetpack' ),
+		'stripe',
+		_x( 'subscribe', 'block search term', 'jetpack' ),
+		_x( 'subscriptions', 'block search term', 'jetpack' ),
+		_x( 'support', 'block search term', 'jetpack' ),
+		_x( 'sponsor', 'block search term', 'jetpack' ),
+		'square',
+		'toast',
+		'venmo',
+		'stripe',
+		'substack',
 	],
 	attributes: {
 		newPlanName: {

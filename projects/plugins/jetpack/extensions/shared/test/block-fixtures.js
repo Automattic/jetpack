@@ -1,23 +1,11 @@
-/**
- * External dependencies
- */
 import { omit, uniq, pick } from 'lodash';
 import { format } from 'util';
 import fs from 'fs';
 import path from 'path';
 import { __, sprintf } from '@wordpress/i18n';
 
-/**
- * WordPress dependencies
- */
 import { parse, serialize, registerBlockType, setCategories } from '@wordpress/blocks';
 import { parse as grammarParse } from '@wordpress/block-serialization-default-parser';
-
-/* eslint-disable no-console */
-console.warn = jest.fn();
-console.error = jest.fn();
-console.info = jest.fn();
-/* eslint-enable no-console */
 
 let FIXTURES_DIR;
 
@@ -81,21 +69,26 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 					);
 				}
 
+				// @wordpress/blocks may call these. Noop them to avoid unnecessary output.
+				jest.spyOn( console, 'groupCollapsed' ).mockReset();
+				jest.spyOn( console, 'groupEnd' ).mockReset();
+
 				const blocksActual = parse( htmlFixtureContent );
+
+				console.groupCollapsed.mockRestore();
+				console.groupEnd.mockRestore();
+
+				// @wordpress/blocks needlessly calls console.info. Ignore that.
+				console.info.mockClear();
 
 				// Block validation may log errors during deprecation migration,
 				// unless explicitly handled from a valid block via isEligible.
 				// Match on basename for deprecated blocks fixtures to allow.
 				const isDeprecated = /__deprecated([-_]|$)/.test( basename );
 				if ( isDeprecated ) {
-					/* eslint-disable no-console */
-					console.warn.mockReset();
-					console.error.mockReset();
-					console.info.mockReset();
-					/* eslint-enable no-console */
+					console.warn.mockClear();
+					console.error.mockClear();
 				}
-
-
 
 				const validationIssues = gatherValidationIssues( blocksActual );
 				const blocksActualNormalized = normalizeParsedBlocks( blocksActual );

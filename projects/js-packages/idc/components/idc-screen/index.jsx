@@ -1,22 +1,14 @@
-/**
- * External dependencies
- */
-import React, { useEffect, useState, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import IDCScreenVisual from './visual';
-import trackAndBumpMCStats from '../../tools/tracking';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState, useCallback } from 'react';
 import useMigration from '../../hooks/use-migration';
 import useMigrationFinished from '../../hooks/use-migration-finished';
 import useStartFresh from '../../hooks/use-start-fresh';
-import customContentShape from '../../tools/custom-content-shape';
 import { STORE_ID } from '../../state/store';
+import customContentShape from '../../tools/custom-content-shape';
+import trackAndBumpMCStats, { initializeAnalytics } from '../../tools/tracking';
+import IDCScreenVisual from './visual';
 
 /**
  * The IDC screen component.
@@ -36,6 +28,7 @@ const IDCScreen = props => {
 		tracksUserData,
 		tracksEventData,
 		isAdmin,
+		possibleDynamicSiteUrlDetected,
 	} = props;
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
@@ -58,13 +51,7 @@ const IDCScreen = props => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 
-		if (
-			tracksUserData &&
-			tracksUserData.hasOwnProperty( 'userid' ) &&
-			tracksUserData.hasOwnProperty( 'username' )
-		) {
-			analytics.initialize( tracksUserData.userid, tracksUserData.username );
-		}
+		initializeAnalytics( tracksEventData, tracksUserData );
 
 		if ( tracksEventData ) {
 			if ( tracksEventData.hasOwnProperty( 'isAdmin' ) && tracksEventData.isAdmin ) {
@@ -97,6 +84,7 @@ const IDCScreen = props => {
 			hasStaySafeError={ errorType === 'safe-mode' }
 			hasFreshError={ errorType === 'start-fresh' }
 			hasMigrateError={ errorType === 'migrate' }
+			possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 		/>
 	);
 };
@@ -122,6 +110,8 @@ IDCScreen.propTypes = {
 	tracksEventData: PropTypes.object,
 	/** Whether to display the "admin" or "non-admin" screen. */
 	isAdmin: PropTypes.bool.isRequired,
+	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
+	possibleDynamicSiteUrlDetected: PropTypes.bool,
 };
 
 IDCScreen.defaultProps = {

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Module Name: Shortcode Embeds
  * Module Description: Shortcodes are WordPress-specific markup that let you add media from popular sites. This feature is no longer necessary as the editor now handles media embeds rather gracefully.
@@ -10,7 +9,9 @@
  * Auto Activate: No
  * Module Tags: Photos and Videos, Social, Writing, Appearance
  * Feature: Writing
- * Additional Search Queries: shortcodes, shortcode, embeds, media, bandcamp, dailymotion, facebook, flickr, google calendars, google maps, google+, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube
+ * Additional Search Queries: shortcodes, shortcode, embeds, media, bandcamp, dailymotion, facebook, flickr, google calendars, google maps, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube
+ *
+ * @package automattic/jetpack
  */
 
 /**
@@ -47,7 +48,7 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 function jetpack_load_shortcodes() {
 	$shortcode_includes = array();
 
-	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/shortcodes' ) as $file ) {
+	foreach ( Jetpack::glob_php( __DIR__ . '/shortcodes' ) as $file ) {
 		$filename = substr( basename( $file ), 0, -4 );
 
 		$shortcode_includes[ $filename ] = $file;
@@ -178,7 +179,7 @@ function wpcom_shortcodereverse_parseattr( $attrs ) {
 
 	$attrs = shortcode_atts( $defaults, $attrs );
 
-	$attrs['src']    = strip_tags( $attrs['src'] ); // For sanity
+	$attrs['src']    = wp_strip_all_tags( $attrs['src'] ); // For sanity.
 	$attrs['width']  = ( is_numeric( $attrs['width'] ) ) ? abs( (int) $attrs['width'] ) : $defaults['width'];
 	$attrs['height'] = ( is_numeric( $attrs['height'] ) ) ? abs( (int) $attrs['height'] ) : $defaults['height'];
 
@@ -188,6 +189,11 @@ function wpcom_shortcodereverse_parseattr( $attrs ) {
 /**
  * When an embed service goes away, we can use this handler
  * to output a link for history's sake.
+ *
+ * @param array  $matches Regex partial matches against the URL passed.
+ * @param array  $attr    Attributes received in embed response.
+ * @param string $url     Requested URL to be embedded.
+ * @return string Link to output.
  */
 function jetpack_deprecated_embed_handler( $matches, $attr, $url ) {
 	return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( esc_url( $url ) ) );

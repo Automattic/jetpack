@@ -1,21 +1,26 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Jetpack_Google_Analytics_Universal hooks and and enqueues support for analytics.js
+ * https://developers.google.com/analytics/devguides/collection/analyticsjs/
+ * https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce
+ *
+ * @author allendav
+ */
 
 /**
-* Jetpack_Google_Analytics_Universal hooks and and enqueues support for analytics.js
-* https://developers.google.com/analytics/devguides/collection/analyticsjs/
-* https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce
-*
-* @author allendav
-*/
-
-/**
-* Bail if accessed directly
-*/
+ * Bail if accessed directly
+ */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Jetpack_Google_Analytics_Universal main class.
+ */
 class Jetpack_Google_Analytics_Universal {
+	/**
+	 * Jetpack_Google_Analytics_Universal constructor.
+	 */
 	public function __construct() {
 		add_filter( 'jetpack_wga_universal_commands', array( $this, 'maybe_anonymize_ip' ) );
 		add_filter( 'jetpack_wga_universal_commands', array( $this, 'maybe_track_purchases' ) );
@@ -37,6 +42,9 @@ class Jetpack_Google_Analytics_Universal {
 		add_action( 'wp_footer', array( $this, 'send_pageview_in_footer' ), 24 );
 	}
 
+	/**
+	 * Hook for the `wp_head` action to output the analytics code.
+	 */
 	public function wp_head() {
 		$tracking_code = Jetpack_Google_Analytics_Options::get_tracking_code();
 		if ( empty( $tracking_code ) ) {
@@ -66,6 +74,7 @@ class Jetpack_Google_Analytics_Universal {
 		 */
 		$universal_commands = apply_filters( 'jetpack_wga_universal_commands', array() );
 
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Script is added to wp_head.
 		$async_code = "
 			<!-- Jetpack Google Analytics -->
 			<script>
@@ -76,15 +85,21 @@ class Jetpack_Google_Analytics_Universal {
 			</script>
 			<script async src='https://www.google-analytics.com/analytics.js'></script>
 			<!-- End Jetpack Google Analytics -->
-		";
+		"; // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		$async_code = str_replace( '%tracking_id%', $tracking_code, $async_code );
 
 		$universal_commands_string = implode( "\r\n", $universal_commands );
-		$async_code = str_replace( '%universal_commands%', $universal_commands_string, $async_code );
+		$async_code                = str_replace( '%universal_commands%', $universal_commands_string, $async_code );
 
-		echo "$async_code\r\n";
+		echo "$async_code\r\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
+	/**
+	 * Check if the 'anonymize_ip' option should be added to the universal Google Analytics queue (ga) commands.
+	 *
+	 * @param array $command_array Array of commands.
+	 * @return array `$command_array` with the additional command conditionally added.
+	 */
 	public function maybe_anonymize_ip( $command_array ) {
 		if ( Jetpack_Google_Analytics_Options::anonymize_ip_is_enabled() ) {
 			array_push( $command_array, "ga( 'set', 'anonymizeIp', true );" );
@@ -93,6 +108,14 @@ class Jetpack_Google_Analytics_Universal {
 		return $command_array;
 	}
 
+	/**
+	 * Process purchase tracking options for the universal Google Analytics queue (ga) commands.
+	 *
+	 * May also update post meta to indicate the order has been tracked.
+	 *
+	 * @param array $command_array Array of commands.
+	 * @return array `$command_array` with additional commands conditionally added.
+	 */
 	public function maybe_track_purchases( $command_array ) {
 		global $wp;
 
@@ -114,47 +137,47 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
-		if ( 0 == $order_id ) {
+		if ( 0 === (int) $order_id ) {
 			return $command_array;
 		}
 
 		// A 1 indicates we've already tracked this order - don't do it again
-		if ( 1 == get_post_meta( $order_id, '_ga_tracked', true ) ) {
+		if ( 1 === (int) get_post_meta( $order_id, '_ga_tracked', true ) ) {
 			return $command_array;
 		}
 
-		$order = new WC_Order( $order_id );
+		$order          = new WC_Order( $order_id );
 		$order_currency = $order->get_currency();
-		$command = "ga( 'set', '&cu', '" . esc_js( $order_currency ) . "' );";
+		$command        = "ga( 'set', '&cu', '" . esc_js( $order_currency ) . "' );";
 		array_push( $command_array, $command );
 
 		// Order items
 		if ( $order->get_items() ) {
 			foreach ( $order->get_items() as $item ) {
-				$product = $order->get_product_from_item( $item );
+				$product           = $order->get_product_from_item( $item );
 				$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 				$item_details = array(
-					'id' => $product_sku_or_id,
-					'name' => $item['name'],
+					'id'       => $product_sku_or_id,
+					'name'     => $item['name'],
 					'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
-					'price' => $order->get_item_total( $item ),
+					'price'    => $order->get_item_total( $item ),
 					'quantity' => $item['qty'],
 				);
-				$command = "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );";
+				$command      = "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );';
 				array_push( $command_array, $command );
 			}
 		}
 
 		// Order summary
 		$summary = array(
-			'id' => $order->get_order_number(),
+			'id'          => $order->get_order_number(),
 			'affiliation' => get_bloginfo( 'name' ),
-			'revenue' => $order->get_total(),
-			'tax' => $order->get_total_tax(),
-			'shipping' => $order->get_total_shipping()
+			'revenue'     => $order->get_total(),
+			'tax'         => $order->get_total_tax(),
+			'shipping'    => $order->get_total_shipping(),
 		);
-		$command = "ga( 'ec:setAction', 'purchase', " . wp_json_encode( $summary ) . " );";
+		$command = "ga( 'ec:setAction', 'purchase', " . wp_json_encode( $summary ) . ' );';
 		array_push( $command_array, $command );
 
 		update_post_meta( $order_id, '_ga_tracked', 1 );
@@ -162,6 +185,9 @@ class Jetpack_Google_Analytics_Universal {
 		return $command_array;
 	}
 
+	/**
+	 * Enqueue add-to-cart click tracking script, if enabled.
+	 */
 	public function add_to_cart() {
 		if ( ! Jetpack_Google_Analytics_Options::track_add_to_cart_is_enabled() ) {
 			return;
@@ -174,7 +200,7 @@ class Jetpack_Google_Analytics_Universal {
 		global $product;
 
 		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
-		$selector = ".single_add_to_cart_button";
+		$selector          = '.single_add_to_cart_button';
 
 		wc_enqueue_js(
 			"$( '" . esc_js( $selector ) . "' ).click( function() {
@@ -190,6 +216,9 @@ class Jetpack_Google_Analytics_Universal {
 		);
 	}
 
+	/**
+	 * Enqueue add-to-cart click tracking script for looped product views, if enabled.
+	 */
 	public function loop_add_to_cart() {
 		if ( ! Jetpack_Google_Analytics_Options::track_add_to_cart_is_enabled() ) {
 			return;
@@ -204,7 +233,7 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		$selector = ".add_to_cart_button:not(.product_type_variable, .product_type_grouped)";
+		$selector = '.add_to_cart_button:not(.product_type_variable, .product_type_grouped)';
 
 		wc_enqueue_js(
 			"$( '" . esc_js( $selector ) . "' ).click( function() {
@@ -221,6 +250,9 @@ class Jetpack_Google_Analytics_Universal {
 		);
 	}
 
+	/**
+	 * Enqueue remove-from-cart click tracking script, if enabled.
+	 */
 	public function remove_from_cart() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
@@ -273,6 +305,9 @@ class Jetpack_Google_Analytics_Universal {
 		return $url;
 	}
 
+	/**
+	 * Enqueue listing impression tracking script, if enabled.
+	 */
 	public function listing_impression() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
@@ -282,25 +317,28 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		if ( isset( $_GET['s'] ) ) {
-			$list = "Search Results";
+		if ( isset( $_GET['s'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No site actions, just GA options being set.
+			$list = 'Search Results';
 		} else {
-			$list = "Product List";
+			$list = 'Product List';
 		}
 
 		global $product, $woocommerce_loop;
 		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 		$item_details = array(
-			'id' => $product_sku_or_id,
-			'name' => $product->get_title(),
+			'id'       => $product_sku_or_id,
+			'name'     => $product->get_title(),
 			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
-			'list' => $list,
-			'position' => $woocommerce_loop['loop']
+			'list'     => $list,
+			'position' => $woocommerce_loop['loop'],
 		);
-		wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details ) . " );" );
+		wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details ) . ' );' );
 	}
 
+	/**
+	 * Enqueue listing click tracking script, if enabled.
+	 */
 	public function listing_click() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
@@ -310,22 +348,22 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		if ( isset( $_GET['s'] ) ) {
-			$list = "Search Results";
+		if ( isset( $_GET['s'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No site actions, just GA options being set.
+			$list = 'Search Results';
 		} else {
-			$list = "Product List";
+			$list = 'Product List';
 		}
 
 		global $product, $woocommerce_loop;
 		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
-		$selector = ".products .post-" . esc_js( $product->get_id() ) . " a";
+		$selector = '.products .post-' . esc_js( $product->get_id() ) . ' a';
 
 		$item_details = array(
-			'id' => $product_sku_or_id,
-			'name' => $product->get_title(),
+			'id'       => $product_sku_or_id,
+			'name'     => $product->get_title(),
 			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
-			'position' => $woocommerce_loop['loop']
+			'position' => $woocommerce_loop['loop'],
 		);
 
 		wc_enqueue_js(
@@ -341,6 +379,9 @@ class Jetpack_Google_Analytics_Universal {
 		);
 	}
 
+	/**
+	 * Enqueue product detail view tracking script, if enabled.
+	 */
 	public function product_detail() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
@@ -354,17 +395,20 @@ class Jetpack_Google_Analytics_Universal {
 		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 		$item_details = array(
-			'id' => $product_sku_or_id,
-			'name' => $product->get_title(),
+			'id'       => $product_sku_or_id,
+			'name'     => $product->get_title(),
 			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
-			'price' => $product->get_price()
+			'price'    => $product->get_price(),
 		);
 		wc_enqueue_js(
-			"ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );" .
+			"ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );' .
 			"ga( 'ec:setAction', 'detail' );"
 		);
 	}
 
+	/**
+	 * Enqueue post-checkout tracking script, if enabled.
+	 */
 	public function checkout_process() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
@@ -375,24 +419,24 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		$universal_commands = array();
-		$cart = WC()->cart->get_cart();
+		$cart               = WC()->cart->get_cart();
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
 			* This filter is already documented in woocommerce/templates/cart/cart.php
 			*/
-			$product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+			$product           = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 			$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 			$item_details = array(
-				'id' => $product_sku_or_id,
-				'name' => $product->get_title(),
+				'id'       => $product_sku_or_id,
+				'name'     => $product->get_title(),
 				'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
-				'price' => $product->get_price(),
-				'quantity' => $cart_item[ 'quantity' ]
+				'price'    => $product->get_price(),
+				'quantity' => $cart_item['quantity'],
 			);
 
-			array_push( $universal_commands, "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );" );
+			array_push( $universal_commands, "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );' );
 		}
 
 		array_push( $universal_commands, "ga( 'ec:setAction','checkout' );" );
@@ -400,6 +444,11 @@ class Jetpack_Google_Analytics_Universal {
 		wc_enqueue_js( implode( "\r\n", $universal_commands ) );
 	}
 
+	/**
+	 * Enqueue pageview event in footer of all pages.
+	 *
+	 * Action hook added with later priority to come after all of the above tracking.
+	 */
 	public function send_pageview_in_footer() {
 		if ( ! Jetpack_Google_Analytics_Options::has_tracking_code() ) {
 			return;

@@ -36,8 +36,7 @@ class Initial_State {
 	 * @param Module_Control     $module_control - Module control instance.
 	 */
 	public function __construct( $connection_manager = null, $module_control = null ) {
-		// TODO: 'jetpack-search' better to be the current plugin where the package is running.
-		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( 'jetpack-search' );
+		$this->connection_manager = $connection_manager ? $connection_manager : new Connection_Manager( Package::SLUG );
 		$this->module_control     = $module_control ? $module_control : new Module_Control();
 	}
 
@@ -70,8 +69,7 @@ class Initial_State {
 				'showPromotions'    => apply_filters( 'jetpack_show_promotions', true ),
 				'adminUrl'          => esc_url( admin_url() ),
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
-				// TODO: add JETPACK_SEARCH_PACKAGE_VERSION to a proper place after major PRs merged.
-				'version'           => defined( 'JETPACK_SEARCH_PACKAGE_VERSION' ) ? JETPACK_SEARCH_PACKAGE_VERSION : 'dev',
+				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
 			),
 			'userData'        => array(
@@ -81,8 +79,11 @@ class Initial_State {
 				'search'                 => $this->module_control->is_active(),
 				'instant_search_enabled' => $this->module_control->is_instant_search_enabled(),
 			),
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			'features'        => array_map( 'sanitize_text_field', explode( ',', $_GET['features'] ) ),
+			'features'        => array_map(
+				'sanitize_text_field',
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
+			),
 		);
 	}
 

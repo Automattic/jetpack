@@ -56,9 +56,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Gather extends WP_REST_Controller {
 				'private_site_security_settings' => array(
 					'allow_blog_token_access' => true,
 				),
-				'permission_callback'            => function () {
-					return current_user_can( 'edit_posts' );
-				},
+				'permission_callback'            => '__return_true',
 			)
 		);
 	}

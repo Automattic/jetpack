@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Check that the Assets::alias_textdomains_from_file method exists before calling it.

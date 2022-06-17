@@ -47,12 +47,7 @@ if ( empty( $from_version ) ) {
 	// Get latest stable version in svn.
 	$jetpack_info = json_decode( file_get_contents( 'https://api.wordpress.org/plugins/info/1.0/jetpack.json' ) );
 	$org_versions = array_reverse( (array) $jetpack_info->versions );
-	foreach ( $org_versions as $version => $zip_path ) {
-		if ( ! preg_match( '/[a-z]/i', $version ) ) {
-			$from_version = $version;
-			break;
-		}
-	}
+	$from_version = $jetpack_info->version;
 }
 
 // Download and unzip "from" version.

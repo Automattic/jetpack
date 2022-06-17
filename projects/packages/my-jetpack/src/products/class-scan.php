@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WP_Error;
 
@@ -71,13 +72,14 @@ class Scan extends Module_Product {
 	/**
 	 * Get the internationalized features list
 	 *
-	 * @return array Boost features list
+	 * @return array Scan features list
 	 */
 	public static function get_features() {
 		return array(
 			_x( 'Automated daily scanning', 'Scan Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'One-click fixes for most issues', 'Scan Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Instant email notifications', 'Scan Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Access to latest Firewall rules', 'Scan Product Feature', 'jetpack-my-jetpack' ),
 		);
 	}
 
@@ -89,10 +91,10 @@ class Scan extends Module_Product {
 	public static function get_pricing_for_ui() {
 		return array_merge(
 			array(
-				'available'            => true,
-				'promotion_percentage' => 50,
+				'available'          => true,
+				'wpcom_product_slug' => static::get_wpcom_product_slug(),
 			),
-			Wpcom_Products::get_product_currency_and_price( static::get_wpcom_product_slug() )
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
 	}
 
@@ -115,13 +117,13 @@ class Scan extends Module_Product {
 	private static function get_state_from_wpcom() {
 		static $status = null;
 
-		if ( ! is_null( $status ) ) {
+		if ( $status !== null ) {
 			return $status;
 		}
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'scan_state_fetch_failed' );
@@ -159,11 +161,12 @@ class Scan extends Module_Product {
 	/**
 	 * Activates the product by installing and activating its plugin
 	 *
+	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
 	 * @return boolean|\WP_Error
 	 */
-	public static function activate() {
+	public static function do_product_specific_activation( $current_result ) {
 
-		$product_activation = parent::activate();
+		$product_activation = parent::do_product_specific_activation( $current_result );
 
 		if ( is_wp_error( $product_activation ) && 'module_activation_failed' === $product_activation->get_error_code() ) {
 			// Scan is not a module. There's nothing in the plugin to be activated, so it's ok to fail to activate the module.
@@ -185,4 +188,31 @@ class Scan extends Module_Product {
 		return true;
 	}
 
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return boolean|array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'security' );
+	}
+
+	/**
+	 * Get the URL the user is taken after activating the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_activation_url() {
+		return ''; // stay in My Jetpack page.
+	}
+
+	/**
+	 * Get the URL where the user manages the product
+	 *
+	 * @return ?string
+	 */
+	public static function get_manage_url() {
+		return Redirect::get_url( 'my-jetpack-manage-scan' );
+	}
 }

@@ -198,7 +198,7 @@ class Constants extends Module {
 		foreach ( $constants as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
 			// Explicitly not using Identical comparison as get_option returns a string.
-			if ( ! $this->still_valid_checksum( $constants_checksums, $name, $checksum ) && ! is_null( $value ) ) {
+			if ( ! $this->still_valid_checksum( $constants_checksums, $name, $checksum ) && $value !== null ) {
 				/**
 				 * Tells the client to sync a constant to the server
 				 *

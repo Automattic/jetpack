@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl, ActionButton } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
 import ConnectScreenLayout from '../layout';
 import './style.scss';
 
@@ -48,6 +41,7 @@ const ConnectScreenVisual = props => {
 		handleButtonClick,
 		displayButtonError,
 		buttonIsLoading,
+		footer,
 	} = props;
 
 	return (
@@ -75,6 +69,8 @@ const ConnectScreenVisual = props => {
 						<div className="jp-connection__connect-screen__tos">{ ToS }</div>
 					</>
 				) }
+
+				{ footer && <div className="jp-connection__connect-screen__footer">{ footer }</div> }
 			</div>
 		</ConnectScreenLayout>
 	);
@@ -99,6 +95,8 @@ ConnectScreenVisual.propTypes = {
 	displayButtonError: PropTypes.bool,
 	/** Whether the button is loading or not. */
 	buttonIsLoading: PropTypes.bool,
+	/** Node that will be rendered after ToS */
+	footer: PropTypes.node,
 };
 
 ConnectScreenVisual.defaultProps = {
@@ -107,6 +105,7 @@ ConnectScreenVisual.defaultProps = {
 	buttonIsLoading: false,
 	displayButtonError: false,
 	handleButtonClick: () => {},
+	footer: null,
 };
 
 export default ConnectScreenVisual;

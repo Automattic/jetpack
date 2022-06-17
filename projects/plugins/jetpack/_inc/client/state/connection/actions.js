@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
+import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
@@ -28,8 +22,6 @@ import {
 	SITE_RECONNECT_FAIL,
 	JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
-import { isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 
 export const fetchSiteConnectionStatus = () => {
 	return dispatch => {
@@ -240,7 +232,7 @@ export const resetConnectUser = () => {
 };
 
 export const reconnectSite = () => {
-	return ( dispatch, getState ) => {
+	return dispatch => {
 		dispatch( {
 			type: SITE_RECONNECT,
 		} );
@@ -256,11 +248,9 @@ export const reconnectSite = () => {
 				const authorizeUrl = connectionStatusData.authorizeUrl;
 				// status: in_progress, aka user needs to re-connect their WP.com account.
 				if ( 'in_progress' === status ) {
-					// Redirect user to authorize WP.com if in-place connection is restricted.
-					if ( isSafari( getState() ) || doNotUseConnectionIframe( getState() ) ) {
-						return window.location.replace( authorizeUrl );
-					}
-					// Set connectUrl and initiate in-place auth flow.
+					dispatch( { type: UNLINK_USER_SUCCESS } );
+
+					// Set connectUrl and initiate the connection flow.
 					dispatch( {
 						type: CONNECT_URL_FETCH_SUCCESS,
 						connectUrl: authorizeUrl,

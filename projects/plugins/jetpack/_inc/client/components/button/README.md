@@ -22,3 +22,4 @@ render: function() {
 * `scary`: (bool) whether the button has modified styling to warn users (delete, remove, etc).
 * `href`: (string) if this property is added, it will use an `a` rather than a `button` element.
 * `disabled`: (bool) whether the button should be in the disabled state.
+* `rna`: (bool) whether the button should be a RNA component. Jetpack RNA is a set of shared components that allow for a more modular Jetpack plugin experience.

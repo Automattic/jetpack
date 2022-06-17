@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { assign, get, merge } from 'lodash';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { assign, get, merge } from 'lodash';
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
+import { isCurrentUserLinked } from 'state/connection';
 import { getPlanDuration } from 'state/plans/reducer';
 import { getProducts } from 'state/products';
-import { isCurrentUserLinked } from 'state/connection';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -63,16 +56,6 @@ export function getInitialStateStatsData( state ) {
  */
 export function getInitialStateConnectedPlugins( state ) {
 	return get( state.jetpack.initialState, 'connectedPlugins', {} );
-}
-
-/**
- * Returns an array of benefits provided by the Jetpack plugin.
- *
- * @param   {object}  state - Global state tree
- * @returns {Array}          Array of benefits provided by the Jetpack Plugin.
- */
-export function getInitialStateJetpackBenefits( state ) {
-	return get( state.jetpack.initialState, 'jetpackBenefits', [] );
 }
 
 export function getAdminEmailAddress( state ) {
@@ -402,6 +385,36 @@ export function showRecommendations( state ) {
 }
 
 /**
+ * Determines if My Jetpack should be referenced.
+ *
+ * @param {object} state - Global state tree
+ * @returns {boolean} True if the My Jetpack should be referenced, false otherwise.
+ */
+export function showMyJetpack( state ) {
+	return get( state.jetpack.initialState.siteData, 'showMyJetpack', true );
+}
+
+/**
+ * Get an array of new recommendations for this site
+ *
+ * @param {object} state - Global state tree
+ * @returns {Array} - Array of recommendation slugs
+ */
+export function getNewRecommendations( state ) {
+	return get( state.jetpack.initialState, 'newRecommendations', [] );
+}
+
+/**
+ * Get a count of new recommendations for this site
+ *
+ * @param {object} state - Global state tree
+ * @returns {number} - Count of recommendations
+ */
+export function getNewRecommendationsCount( state ) {
+	return getNewRecommendations( state ).length;
+}
+
+/**
  * Determines if the Jetpack Licensing UI should be displayed
  *
  * @param {object} state - Global state tree
@@ -515,6 +528,16 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 
 	return getRedirectUrl( source, redirectArgs );
 };
+
+/**
+ * Returns the list of products that are available for purchase in the initial state.
+ *
+ * @param {object} state - Global state tree
+ * @returns {Array} - Array of Products that you can purchase.
+ */
+export function getStaticProductsForPurchase( state ) {
+	return get( state.jetpack.initialState, 'products', {} );
+}
 
 /**
  * Returns the list of products that are available for purchase.

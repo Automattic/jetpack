@@ -2,6 +2,79 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.10.14 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.10.13 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
+## 0.10.12 - 2022-05-30
+### Changed
+- Updated package dependencies
+
+## 0.10.11 - 2022-05-18
+### Changed
+- Updated package dependencies. [#23795]
+
+## 0.10.10 - 2022-05-10
+### Changed
+- Updated package dependencies. [#24204]
+
+## 0.10.9 - 2022-05-04
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+## 0.10.8 - 2022-04-26
+### Changed
+- Updated package dependencies.
+
+## 0.10.7 - 2022-04-19
+### Changed
+- Updated package dependencies.
+
+## 0.10.6 - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+## 0.10.5 - 2022-04-06
+### Changed
+- Updated package dependencies
+
+## 0.10.4 - 2022-03-29
+### Changed
+- Updated package dependencies.
+
+## 0.10.3 - 2022-03-23
+### Changed
+- Updated package dependencies
+
+## 0.10.2 - 2022-03-15
+### Changed
+- Updated package dependencies.
+
+## 0.10.1 - 2022-03-08
+### Changed
+- Updated package dependencies.
+
+## 0.10.0 - 2022-03-02
+### Added
+- IDCScreen: use possibleDynamicSiteUrlDetected prop from initial state to show a helpful notice.
+
+### Changed
+- Reorganize stories by project-type/project-name
+- Updated package dependencies
+
+## 0.9.3 - 2022-02-22
+### Added
+- Add blog ID to event tracking.
+
+### Changed
+- Updated package dependencies.
+
 ## 0.9.2 - 2022-02-09
 ### Changed
 - Updated package dependencies

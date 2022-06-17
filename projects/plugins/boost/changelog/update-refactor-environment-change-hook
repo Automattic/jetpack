@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Renamed hook `handle_theme_change` to `handle_environment_change`

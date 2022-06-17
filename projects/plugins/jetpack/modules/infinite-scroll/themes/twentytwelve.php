@@ -3,17 +3,22 @@
  * Infinite Scroll Theme Assets
  *
  * Register support for Twenty Twelve and enqueue relevant styles.
+ *
+ * @package jetpack
  */
 
 /**
  * Add theme support for infinite scroll
  */
 function jetpack_twentytwelve_infinite_scroll_init() {
-	add_theme_support( 'infinite-scroll', array(
-		'container'      => 'content',
-		'footer'         => 'page',
-		'footer_widgets' => jetpack_twentytwelve_has_footer_widgets(),
-	) );
+	add_theme_support(
+		'infinite-scroll',
+		array(
+			'container'      => 'content',
+			'footer'         => 'page',
+			'footer_widgets' => jetpack_twentytwelve_has_footer_widgets(),
+		)
+	);
 }
 add_action( 'after_setup_theme', 'jetpack_twentytwelve_infinite_scroll_init' );
 
@@ -33,10 +38,11 @@ add_action( 'wp_enqueue_scripts', 'jetpack_twentytwelve_infinite_scroll_enqueue_
  */
 function jetpack_twentytwelve_has_footer_widgets() {
 	if ( function_exists( 'jetpack_is_mobile' ) && jetpack_is_mobile() ) {
-		if ( is_front_page() && ( is_active_sidebar( 'sidebar-2' ) || is_active_sidebar( 'sidebar-3' ) ) )
+		if ( is_front_page() && ( is_active_sidebar( 'sidebar-2' ) || is_active_sidebar( 'sidebar-3' ) ) ) {
 			return true;
-		elseif ( is_active_sidebar( 'sidebar-1' ) )
+		} elseif ( is_active_sidebar( 'sidebar-1' ) ) {
 			return true;
+		}
 	}
 
 	return false;

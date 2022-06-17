@@ -38,31 +38,30 @@ class WordAds_Params {
 			'wordads_ccpa_privacy_policy_url' => get_option( 'wp_page_for_privacy_policy' ) ? get_permalink( (int) get_option( 'wp_page_for_privacy_policy' ) ) : '',
 		);
 
-		// grab settings, or set as default if it doesn't exist.
+		// Grab settings, or set as default if it doesn't exist.
 		$this->options = array();
+
 		foreach ( $settings as $setting => $default ) {
 			$option = get_option( $setting, null );
 
-			if ( is_null( $option ) ) {
+			if ( $option === null ) {
 
 				// Handle retroactively setting wordads_custom_adstxt_enabled to true if custom ads.txt content is already entered.
 				if ( 'wordads_custom_adstxt_enabled' === $setting ) {
 					$default = get_option( 'wordads_custom_adstxt' ) !== '';
 				}
 
-				update_option( $setting, $default, true );
+				// Convert boolean options to string first to work around update_option not setting the option if the value is false.
+				// This sets the option to either '1' if true or '' if false.
+				update_option( $setting, (string) $default, true );
+
 				$option = $default;
 			}
 
 			$this->options[ $setting ] = is_bool( $default ) ? (bool) $option : $option;
 		}
 
-		$host = 'localhost';
-		if ( isset( $_SERVER['HTTP_HOST'] ) ) {
-			$host = $_SERVER['HTTP_HOST'];
-		}
-
-		$this->url = ( is_ssl() ? 'https' : 'http' ) . '://' . $host . $_SERVER['REQUEST_URI'];
+		$this->url = esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : 'localhost' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) );
 		if ( ! ( false === strpos( $this->url, '?' ) ) && ! isset( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->url = substr( $this->url, 0, strpos( $this->url, '?' ) );
 		}

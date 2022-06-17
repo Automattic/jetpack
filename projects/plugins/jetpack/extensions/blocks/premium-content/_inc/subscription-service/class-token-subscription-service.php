@@ -174,7 +174,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 */
 	private function set_token_cookie( $token ) {
 		if ( ! empty( $token ) ) {
-			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/' );
+			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
 		}
 	}
 
@@ -234,6 +234,8 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return string URL of the JWT endpoint.
 	 */
 	private function get_rest_api_token_url( $site_id, $redirect_url ) {
+		// The redirect url might have a part URL encoded but not the whole URL.
+		$redirect_url = rawurldecode( $redirect_url );
 		return sprintf( '%smemberships/jwt?site_id=%d&redirect_url=%s', self::REST_URL_ORIGIN, $site_id, rawurlencode( $redirect_url ) );
 	}
 

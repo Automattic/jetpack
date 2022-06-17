@@ -16,7 +16,7 @@ const config = {
 					{
 						scopeVariable: 'createElement',
 						scopeVariableFrag: 'Fragment',
-						source: '@wordpress/element',
+						source: require.resolve( '@wordpress/element' ),
 						isDefault: false,
 					},
 				],
@@ -29,22 +29,12 @@ const config = {
 				],
 			],
 		},
-		{
-			// Transpile ES Modules syntax (`import`) in config files (but not elsewhere)
-			test: [ './gulpfile.babel.js', './tools/webpack.config.js', './tools/builder/' ],
-			presets: [
-				[
-					'@automattic/jetpack-webpack-config/babel/preset',
-					{ presetEnv: { modules: 'commonjs' } },
-				],
-			],
-		},
 	],
 	env: {
 		test: {
 			presets: [ [ require.resolve( '@babel/preset-env' ), { targets: { node: 'current' } } ] ],
 			plugins: [
-				[ require.resolve( '@babel/plugin-transform-runtime' ), { absoluteRuntime: true } ],
+				[ require.resolve( '@babel/plugin-transform-runtime' ), { absoluteRuntime: __dirname } ],
 			],
 		},
 	},
