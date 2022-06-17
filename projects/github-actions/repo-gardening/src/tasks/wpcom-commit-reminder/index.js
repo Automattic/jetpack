@@ -76,9 +76,9 @@ async function wpcomCommitReminder( payload, octokit ) {
 	const { commits, ref, repository } = payload;
 	const { name: repo, owner } = repository;
 
-	// We should not get to that point as the action is triggered on pushes to master, but...
-	if ( ref !== 'refs/heads/master' ) {
-		debug( 'wpcom-commit-reminder: Commit is not to `master`. Aborting' );
+	// We should not get to that point as the action is triggered on pushes to trunk, but...
+	if ( ref !== 'refs/heads/trunk' ) {
+		debug( 'wpcom-commit-reminder: Commit is not to `trunk`. Aborting' );
 		return;
 	}
 

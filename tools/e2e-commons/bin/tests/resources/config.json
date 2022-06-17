@@ -4,7 +4,7 @@
 		"mentions": {
 			"branches": [
 				{
-					"name": "master",
+					"name": "trunk",
 					"users": [ "<@abcd>", "<@xyz>" ]
 				}
 			],

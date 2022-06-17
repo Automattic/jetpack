@@ -62,7 +62,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "2.2.x-dev"
+			"dev-trunk": "2.2.x-dev"
 		}
 	}
 }

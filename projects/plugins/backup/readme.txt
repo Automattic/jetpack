@@ -168,4 +168,4 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 
 --------
 
-[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/backup/CHANGELOG.md#changelog)
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/backup/CHANGELOG.md#changelog)

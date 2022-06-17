@@ -8,7 +8,7 @@ It enables the user to quickly jump into a full-page search experience with filt
 
 ### High-level overview of the development flow
 
-1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
+1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/trunk/tools/docker#readme).
 2. Start a new branch.
 3. Modify/improve the code in the instant-search directories. New packages should be added to the common package.json.
 4. Run `pnpm build-search --watch` to compile your changes.
