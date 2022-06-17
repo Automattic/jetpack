@@ -29,8 +29,8 @@
 		"slack": "NODE_CONFIG_DIR='./config' slack"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.20.1",
-		"allure-playwright": "2.0.0-beta.15",
+		"@playwright/test": "1.22.2",
+		"allure-playwright": "2.0.0-beta.17",
 		"config": "3.3.7",
 		"jetpack-e2e-commons": "*"
 	},
