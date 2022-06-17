@@ -124,7 +124,7 @@ class MailchimpSubscribeEdit extends Component {
 				className="wp-block-jetpack-mailchimp"
 				label={ __( 'Mailchimp', 'jetpack' ) }
 			>
-				<div class="align-center">
+				<div className="align-center">
 					<Spinner />
 				</div>
 			</Placeholder>

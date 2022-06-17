@@ -565,7 +565,7 @@ async function checkChangelogFiles() {
 		`--no-renames`,
 		`--name-only`,
 		`--merge-base`,
-		`origin/master`,
+		`origin/trunk`,
 	] );
 	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
 
