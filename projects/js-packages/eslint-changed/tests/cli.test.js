@@ -404,7 +404,7 @@ describe( 'bin/eslint-changed.js', () => {
 					},
 				},
 				{
-					name: 'master',
+					name: 'trunk',
 					files: {
 						'1.js': "var x;\nconsole.log( 'Hello, world!' );\n",
 					},
