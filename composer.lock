@@ -9,11 +9,11 @@
     "packages-dev": [
         {
             "name": "automattic/ignorefile",
-            "version": "dev-master",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "83df3961934b8068249d09ef1d4167e5e537eca4"
+                "reference": "7704685efc4c1a3bbca372e92bae7915c8056de9"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
@@ -28,7 +28,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-trunk": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -57,11 +57,11 @@
         },
         {
             "name": "automattic/jetpack-codesniffer",
-            "version": "dev-master",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "9cbcac7a0228a2893e25b10b46b2702d6ed6d357"
+                "reference": "437b9dfce548a504e509c72d0ced329c543efe68"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -84,7 +84,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.6.x-dev"
+                    "dev-trunk": "2.6.x-dev"
                 }
             },
             "autoload": {
@@ -119,11 +119,11 @@
         },
         {
             "name": "automattic/jetpack-phpcs-filter",
-            "version": "dev-master",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "b3777393b31aa50e37f3f2f92af1d668fca3c826"
+                "reference": "1f79cb2734137f5bcd6ab045ea0848b08e0b3f94"
             },
             "require": {
                 "automattic/ignorefile": "^1.0",
@@ -136,7 +136,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-trunk": "1.0.x-dev"
                 }
             },
             "autoload": {
