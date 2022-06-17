@@ -1,5 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { Button, Icon } from '@wordpress/components';
+import { Button, Icon, ExternalLink } from '@wordpress/components';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -122,13 +122,13 @@ export default function ResumableUpload( { file } ) {
 						<>
 							{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
 							&nbsp;
-							<a
+							<ExternalLink
 								href="https://wordpress.com/support/videopress/recommended-video-settings/"
 								target="_blank"
 								rel="noreferrer"
 							>
 								{ __( 'Check the recommended video settings.', 'jetpack' ) }
-							</a>
+							</ExternalLink>
 						</>
 					);
 				} else {
