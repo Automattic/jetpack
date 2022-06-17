@@ -104,13 +104,14 @@ importers:
       '@babel/preset-react': 7.17.12
       '@storybook/addon-actions': 6.5.9
       '@storybook/react': 6.5.9
+      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5
-      '@types/chai': 4.3.0
       '@types/jest': 27.4.1
       '@types/qrcode.react': 1.0.2
       '@types/react': 17.0.45
       '@types/react-dom': 17.0.17
       '@types/react-test-renderer': 17.0.2
+      '@types/testing-library__jest-dom': 5.14.1
       '@types/wordpress__components': 19.10.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.12.0
@@ -119,16 +120,14 @@ importers:
       '@wordpress/i18n': 4.10.0
       '@wordpress/icons': 9.1.0
       classnames: 2.3.1
-      jetpack-js-test-runner: workspace:*
-      lodash: 4.17.21
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       prop-types: ^15.7.2
       qrcode.react: 2.0.0
       react: 17.0.2
       react-dom: 17.0.2
       react-test-renderer: 17.0.2
       require-from-string: 2.0.2
-      sass: 1.43.3
       storybook-addon-mock: 2.0.2
       typescript: 4.7.2
       webpack: 5.72.1
@@ -142,7 +141,6 @@ importers:
       '@wordpress/i18n': 4.10.0
       '@wordpress/icons': 9.1.0
       classnames: 2.3.1
-      lodash: 4.17.21
       prop-types: 15.8.1
       qrcode.react: 2.0.0_react@17.0.2
     devDependencies:
@@ -151,21 +149,21 @@ importers:
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
       '@storybook/addon-actions': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/react': 6.5.9_usslld4f3sws4wk7z2hrsixmjm
+      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
-      '@types/chai': 4.3.0
       '@types/jest': 27.4.1
       '@types/qrcode.react': 1.0.2
       '@types/react': 17.0.45
       '@types/react-dom': 17.0.17
       '@types/react-test-renderer': 17.0.2
+      '@types/testing-library__jest-dom': 5.14.1
       '@types/wordpress__components': 19.10.0_sfoxds7t5ydpegc3knd667wn6m
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
       require-from-string: 2.0.2
-      sass: 1.43.3
       storybook-addon-mock: 2.0.2_sfoxds7t5ydpegc3knd667wn6m
       typescript: 4.7.2
       webpack: 5.72.1_webpack-cli@4.9.1
@@ -1877,6 +1875,8 @@ importers:
       '@automattic/eslint-config-target-es': workspace:*
       '@babel/core': 7.18.5
       '@babel/eslint-parser': 7.18.2
+      '@babel/preset-react': 7.17.12
+      '@babel/preset-typescript': 7.17.12
       '@octokit/auth-token': 2.5.0
       '@octokit/rest': 18.12.0
       '@rushstack/eslint-patch': 1.1.3
@@ -1922,6 +1922,8 @@ importers:
       '@automattic/eslint-config-target-es': link:../../projects/js-packages/eslint-config-target-es
       '@babel/core': 7.18.5
       '@babel/eslint-parser': 7.18.2_mw7va3pzj4xh5zikainml3ydb4
+      '@babel/preset-react': 7.17.12_@babel+core@7.18.5
+      '@babel/preset-typescript': 7.17.12_@babel+core@7.18.5
       '@octokit/auth-token': 2.5.0
       '@octokit/rest': 18.12.0
       '@rushstack/eslint-patch': 1.1.3
@@ -6374,10 +6376,6 @@ packages:
     dependencies:
       '@babel/types': 7.18.4
 
-  /@types/chai/4.3.0:
-    resolution: {integrity: sha512-/ceqdqeRraGolFTcfoXNiqjyQhZzbINDngeoAq9GoHa8PPK1yNzTaxWjA6BFWp5Ua9JpXEMSS4s5i9tS0hOJtw==}
-    dev: true
-
   /@types/cheerio/0.22.31:
     resolution: {integrity: sha512-Kt7Cdjjdi2XWSfrZ53v4Of0wG3ZcmaegFXjMmz9tfNrZSkzzo36G0AL1YqSdcIA78Etjt6E609pt5h1xnQkPUw==}
     dependencies:
@@ -6626,6 +6624,12 @@ packages:
 
   /@types/stack-utils/2.0.1:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
+
+  /@types/testing-library__jest-dom/5.14.1:
+    resolution: {integrity: sha512-Gk9vaXfbzc5zCXI9eYE9BI5BNHEp4D3FWjgqBE/ePGYElLAP+KvxBcsdkwfIVvezs605oiyd/VrpiHe3Oeg+Aw==}
+    dependencies:
+      '@types/jest': 28.1.1
+    dev: true
 
   /@types/testing-library__jest-dom/5.14.3:
     resolution: {integrity: sha512-oKZe+Mf4ioWlMuzVBaXQ9WDnEm1+umLx0InILg+yvZVBBDmzV5KfZyLrCvadtWcx8+916jLmHafcmqqffl+iIw==}
