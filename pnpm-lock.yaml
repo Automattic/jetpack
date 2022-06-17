@@ -171,11 +171,11 @@ importers:
 
   projects/js-packages/config:
     specifiers:
-      jetpack-js-test-runner: workspace:*
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
     devDependencies:
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
 
   projects/js-packages/connection:
     specifiers:
