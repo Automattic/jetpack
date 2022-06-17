@@ -1,0 +1,38 @@
+.upsell {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	grid-template-rows: repeat( 2, auto );
+	column-gap: var( --spacing-base );
+	position: relative;
+	border: 2px solid var( --jp-green-40 );
+	border-radius: 4px;
+	padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 );
+
+	&::after {
+		content: '→';
+		grid-row: 1 / 3;
+		grid-column: 2;
+		font-size: 24px;
+		color: var( --jp-green-40 );
+		align-self: center;
+	}
+}
+
+.link {
+	grid-column: 1;
+
+	a {
+		color: inherit;
+		font-weight: 600;
+		text-decoration: none;
+
+		&::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+		}
+	}
+}

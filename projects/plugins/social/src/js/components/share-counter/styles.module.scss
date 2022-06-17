@@ -1,0 +1,27 @@
+.text {
+	color: var( --jp-gray-80 );
+}
+
+.meter {
+	position: relative;
+	margin-top: 16px;
+	height: 24px;
+	background-color: var( --jp-gray );
+	border-radius: 24px;
+	overflow: hidden;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: var( --width );
+		background-color: var( --jp-green-primary );
+	}
+}
+
+.meter--full::before {
+	// TODO: Add yellow-30 to the ThemeProvider component
+	background-color: var( --jp-yellow-20 );
+}
