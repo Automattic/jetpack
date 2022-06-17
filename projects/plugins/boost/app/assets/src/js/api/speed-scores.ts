@@ -195,7 +195,10 @@ export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
 }
 
 export function scoreChangeModal( scores: SpeedScoresSet ) {
-	const changePercentage = getScoreMovementPercentage( scores );
+	let changePercentage = getScoreMovementPercentage( scores );
+
+	changePercentage = 10;
+
 	if ( changePercentage > 0 ) {
 		return {
 			id: 'score-increase',
