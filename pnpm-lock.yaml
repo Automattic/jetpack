@@ -447,7 +447,7 @@ importers:
       react-dom: 17.0.2
       react-page-visibility: 6.4.0
       refx: 3.1.1
-      rememo: 3.0.0
+      rememo: 4.0.1
     dependencies:
       '@automattic/jetpack-components': link:../components
       '@automattic/jetpack-shared-extension-utils': link:../shared-extension-utils
@@ -464,7 +464,7 @@ importers:
       prop-types: 15.8.1
       react-page-visibility: 6.4.0_react@17.0.2
       refx: 3.1.1
-      rememo: 3.0.0
+      rememo: 4.0.1
     devDependencies:
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-base-styles': link:../base-styles
@@ -1712,6 +1712,18 @@ importers:
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.72.1
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
+
+  projects/plugins/starter-plugin/tests/e2e:
+    specifiers:
+      '@playwright/test': 1.22.2
+      allure-playwright: 2.0.0-beta.17
+      config: 3.3.7
+      jetpack-e2e-commons: '*'
+    devDependencies:
+      '@playwright/test': 1.22.2
+      allure-playwright: 2.0.0-beta.17
+      config: 3.3.7
+      jetpack-e2e-commons: link:../../../../../tools/e2e-commons
 
   tools/cli:
     specifiers:
@@ -7088,7 +7100,7 @@ packages:
       '@wordpress/rich-text': 5.8.0_react@17.0.2
       lodash: 4.17.21
       react: 17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
       uuid: 8.3.2
     dev: false
 
@@ -7189,7 +7201,7 @@ packages:
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
       react-easy-crop: 3.5.3_sfoxds7t5ydpegc3knd667wn6m
-      rememo: 3.0.0
+      rememo: 4.0.1
       traverse: 0.6.6
     transitivePeerDependencies:
       - '@babel/core'
@@ -7240,7 +7252,7 @@ packages:
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
       react-easy-crop: 3.5.3_sfoxds7t5ydpegc3knd667wn6m
-      rememo: 3.0.0
+      rememo: 4.0.1
       traverse: 0.6.6
     transitivePeerDependencies:
       - '@babel/core'
@@ -7373,7 +7385,7 @@ packages:
       lodash: 4.17.21
       memize: 1.1.0
       react: 17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
       showdown: 1.9.1
       simple-html-tokenizer: 0.5.11
       uuid: 8.3.2
@@ -7527,7 +7539,7 @@ packages:
       lodash: 4.17.21
       memize: 1.1.0
       react: 17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
       uuid: 8.3.2
 
   /@wordpress/data/6.10.0_react@17.0.2:
@@ -7628,7 +7640,7 @@ packages:
       memize: 1.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/react'
@@ -7674,7 +7686,7 @@ packages:
       react: 17.0.2
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/react'
@@ -7719,7 +7731,7 @@ packages:
       react: 17.0.2
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/react'
@@ -7928,7 +7940,7 @@ packages:
       '@wordpress/keycodes': 3.10.0
       lodash: 4.17.21
       react: 17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
 
   /@wordpress/keycodes/3.10.0:
     resolution: {integrity: sha512-Udr9a8m39v4yFVdOlRv/yG82RkzBHxMNVJ6M9bhuQttpqeO7SzkYH2HyFIxg0wFvmZLXz9EYLZkr9AI8jhnDJw==}
@@ -8137,7 +8149,7 @@ packages:
       lodash: 4.17.21
       memize: 1.1.0
       react: 17.0.2
-      rememo: 3.0.0
+      rememo: 4.0.1
 
   /@wordpress/server-side-render/3.8.0_5gkpiavnb3ypizn66heqoa7rm4:
     resolution: {integrity: sha512-BN5Qk6m9M4f38CvmCYVqd6IvKn+2eFhcqUvbPNWzk+In4UfqwTwHFgO7d8kgzi61q9Szyjo8q0QGrsUakvA8ZA==}
@@ -18030,8 +18042,8 @@ packages:
       mdast-squeeze-paragraphs: 4.0.0
     dev: true
 
-  /rememo/3.0.0:
-    resolution: {integrity: sha512-eWtut/7pqMRnSccbexb647iPjN7ir6Tmf4RG92ZVlykFEkHqGYy9tWnpHH3I+FS+WQ6lQ1i1iDgarYzGKgTcRQ==}
+  /rememo/4.0.1:
+    resolution: {integrity: sha512-x/T5q/pCDh8k4OlvJGqkI3eO+O8hmJv9HhJHo4avwlluwUpDbteDvyqw1PTarEITkeH9bfW6GSKeRke+XKgykw==}
 
   /remove-trailing-separator/1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
@@ -20790,7 +20802,7 @@ packages:
       yargs-parser: 21.0.1
 
   /yauzl/2.10.0:
-    resolution: {integrity: sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g==}
+    resolution: {integrity: sha1-x+sXyT4RLLEIb6bY5R+wZnt5pfk=}
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0

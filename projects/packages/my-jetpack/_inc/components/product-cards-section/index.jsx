@@ -18,31 +18,31 @@ import VideopressCard from './videopress-card';
 const ProductCardsSection = () => {
 	return (
 		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
-			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<BackupCard admin={ true } />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<ScanCard admin={ true } />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<AntiSpamCard admin={ true } />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<BoostCard admin={ true } />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<SearchCard admin={ true } />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<VideopressCard admin={ true } />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<CrmCard admin={ true } />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<SocialCard admin={ true } />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 3 }>
+			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<ExtrasCard admin={ true } />
 			</Col>
 		</Container>
