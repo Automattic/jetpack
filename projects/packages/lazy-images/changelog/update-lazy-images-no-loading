@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Disable core lazy loading implementation for images that get lazy loaded by Jetpack

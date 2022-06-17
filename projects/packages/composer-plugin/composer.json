@@ -47,7 +47,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-master": "1.1.x-dev"
+			"dev-trunk": "1.1.x-dev"
 		}
 	}
 }
