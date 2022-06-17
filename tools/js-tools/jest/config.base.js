@@ -7,7 +7,15 @@ module.exports = {
 			__dirname,
 			'jest-extensions-asset-stub.js'
 		),
-		'\\.[jt]sx?$': require.resolve( 'babel-jest' ),
+		'\\.[jt]sx?$': [
+			require.resolve( 'babel-jest' ),
+			{
+				presets: [
+					require.resolve( '@babel/preset-react' ),
+					require.resolve( '@babel/preset-typescript' ),
+				],
+			},
+		],
 	},
 	testMatch: [
 		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',

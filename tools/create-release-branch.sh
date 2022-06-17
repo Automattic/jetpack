@@ -75,11 +75,11 @@ if [[ "$(git status --porcelain)" ]]; then
 	die "Working directory is not clean. Aborting."
 fi
 
-# Make sure we're on latest master, or at least that the user is fine with it.
+# Make sure we're on latest trunk, or at least that the user is fine with it.
 git fetch
-if [[ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]]; then
-	if proceed_p "Current branch is $(git rev-parse --abbrev-ref HEAD)." "Check out master?"; then
-		git checkout master
+if [[ "$(git rev-parse --abbrev-ref HEAD)" != "trunk" ]]; then
+	if proceed_p "Current branch is $(git rev-parse --abbrev-ref HEAD)." "Check out trunk?"; then
+		git checkout trunk
 	else
 		proceed_p " " "Continue anyway?"
 	fi
