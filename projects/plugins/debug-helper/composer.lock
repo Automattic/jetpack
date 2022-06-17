@@ -9,11 +9,11 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-changelogger",
-            "version": "dev-master",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "7818e70646db9201be1957b342f0f13449bf2c45"
+                "reference": "b5b9a87636cd9554a2b04b24bdbc8509b4c71a51"
             },
             "require": {
                 "php": ">=5.6",
@@ -32,7 +32,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-master": "3.1.x-dev"
+                    "dev-trunk": "3.1.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {

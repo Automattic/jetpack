@@ -44,11 +44,11 @@ If you run in a situation where you are only getting empty responses from our te
 
 ## Contribute
 
-Please refer to the [Contribute](https://github.com/Automattic/jetpack/blob/master/readme.md#contribute) section in the README.md file at the root of the repository.
+Please refer to the [Contribute](https://github.com/Automattic/jetpack/blob/trunk/readme.md#contribute) section in the README.md file at the root of the repository.
 
 ## Security
 
-Please refer to the [Security](https://github.com/Automattic/jetpack/blob/master/readme.md#security) section in the README.md file at the root of the repository.
+Please refer to the [Security](https://github.com/Automattic/jetpack/blob/trunk/readme.md#security) section in the README.md file at the root of the repository.
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
 

@@ -42,7 +42,7 @@
 			const contents = `
 				<p><strong>This branch is already merged.</strong></p>
 				<p><a target="_blank" rel="nofollow noopener" href="${ getLink() }">
-					Test with <code>master</code> branch instead.
+					Test with <code>trunk</code> branch instead.
 				</a></p>
 			`;
 			appendHtml( markdownBody, contents );

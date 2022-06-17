@@ -54,7 +54,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "2.1.x-dev"
+			"dev-trunk": "2.1.x-dev"
 		}
 	},
 	"config": {

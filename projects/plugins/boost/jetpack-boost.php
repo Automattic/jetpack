@@ -71,7 +71,7 @@ if ( is_readable( $boost_packages_path ) ) {
 			sprintf(
 			/* translators: Placeholder is a link to a support document. */
 				__( 'Your installation of Jetpack Boost is incomplete. If you installed Jetpack Boost from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack-boost' ),
-				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
 			)
 		);
 	}
@@ -98,7 +98,7 @@ if ( is_readable( $boost_packages_path ) ) {
 							),
 						)
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
+					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
 				);
 				?>
 			</p>
