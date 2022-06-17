@@ -18,8 +18,8 @@
 		"eslint-changed": "bin/eslint-changed.js"
 	},
 	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest tests",
-		"test-coverage": "NODE_OPTIONS=--experimental-vm-modules jest tests --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover --coverageReporters=html"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
+		"test-coverage": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"dependencies": {
 		"chalk": "5.0.1",

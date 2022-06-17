@@ -10,7 +10,7 @@ EXIT=0
 #
 # @param $1 Anchor.
 function doclink {
-	blue "  See https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#$1"
+	blue "  See https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#$1"
 }
 
 # Print the bullet to start a check.
