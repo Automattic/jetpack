@@ -45,7 +45,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-password-checker/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.2.x-dev"
+			"dev-trunk": "0.2.x-dev"
 		}
 	},
 	"config": {
