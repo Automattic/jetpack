@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-admin-ui",
-	"version": "0.2.8",
+	"version": "0.2.9-alpha",
 	"description": "Generic Jetpack wp-admin UI elements",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/admin-ui/#readme",
 	"bugs": {
