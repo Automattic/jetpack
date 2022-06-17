@@ -167,7 +167,6 @@ export function didScoresChange( scores: SpeedScoresSet ): boolean {
 	const current = scores.current;
 	const noBoost = scores.noBoost;
 
-	//this now returns a boolean if scores have changed. If they have. Show a pop out
 	return (
 		null !== current &&
 		null !== noBoost &&
@@ -183,9 +182,41 @@ export function didScoresChange( scores: SpeedScoresSet ): boolean {
  * @return percentage
  */
 export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
-	const current = scores.current.mobile + scores.current.desktop;
-	const noBoost = scores.noBoost.mobile + scores.noBoost.desktop;
-	const change = current / noBoost - 1;
+	const current = scores.current;
+	const noBoost = scores.noBoost;
 
-	return Math.round( change * 100 );
+	if ( current !== null && noBoost !== null ) {
+		current = scores.current.mobile + scores.current.desktop;
+		noBoost = scores.noBoost.mobile + scores.noBoost.desktop;
+		const change = current / noBoost - 1;
+		return Math.round( change * 100 );
+	}
+	return 0;
+}
+
+export function scoreChangeModal( scores: SpeedScoresSet ) {
+	let changePercentage = getScoreMovementPercentage( scores );
+
+	changePercentage = 5;
+
+	if ( changePercentage > 0 ) {
+		return {
+			id: 'score-increase',
+			title: __( 'Your site got faster', 'jetpack-boost' ),
+			message: __( 'That great! If you’re happy, why not rate Boost?', 'jetpack-boost' ),
+			cta: __( 'Rate the Plugin', 'jetpack-boost' ),
+			ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post',
+		};
+	} else if ( changePercentage < -5 ) {
+		return {
+			id: 'score-decrease',
+			title: __( 'Speed score has fallen', 'jetpack-boost' ),
+			message: __(
+				'Jetpack Boost should not slow down your site. Try refreshing your score. If the problem persists please contact support',
+				'jetpack-boost'
+			),
+			cta: __( 'Contact Support', 'jetpack-boost' ),
+			ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/#new-topic-0',
+		};
+	}
 }

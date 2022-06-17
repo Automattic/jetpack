@@ -1,11 +1,11 @@
 <script>
 	import { derived, writable } from 'svelte/store';
-	import { __, sprintf } from '@wordpress/i18n';
+	import { __ } from '@wordpress/i18n';
 	import {
 		getScoreLetter,
 		requestSpeedScores,
 		didScoresChange,
-		getScoreMovementPercentage,
+		scoreChangeModal,
 	} from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import { criticalCssStatus, isGenerating } from '../../../stores/critical-css-status';
@@ -21,17 +21,12 @@
 	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;
 
+	// eslint-disable-next-line camelcase
+	$: dismissedPrompts = Jetpack_Boost.dismissedScorePrompts;
+
 	let loadError;
 	let showPrevScores;
 	let scoreLetter = '';
-	let changePercentage = 0;
-	let currentPercentage = 0;
-
-	//modal stuff
-	let title = '';
-	let message = '';
-	let ctaLink = '';
-	let cta = '';
 
 	const isLoading = writable( siteIsOnline );
 
@@ -120,44 +115,14 @@
 		}
 	}, 2000 );
 
-	// eslint-disable-next-line camelcase
-	const respawnRatingPrompt = writable( Jetpack_Boost.preferences.showRatingPrompt );
-	// eslint-disable-next-line camelcase
-	const respawnScorePrompt = writable( Jetpack_Boost.preferences.showScorePrompt );
-
-	$: showModal =
-		didScoresChange( $scores ) && $respawnScorePrompt && ! $isLoading && ! $scores.isStale;
+	$: showModal = ! $isLoading && ! $scores.isStale && scoreChangeModal( $scores );
 
 	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
-	$: if ( showModal ) {
-		changePercentage = getScoreMovementPercentage( $scores );
-
-		if ( changePercentage > 0 ) {
-			title = sprintf(
-				/* translators: %d is the speed score improvement percentage */
-				__( 'Faster by %1$d%%', 'jetpack-boost' ),
-				changePercentage
-			);
-			message = __(
-				'That’s a great result! If you’re happy with your result, why not rate Boost?',
-				'jetpack-boost'
-			);
-			cta = __( 'Rate the Plugin', 'jetpack-boost' );
-			ctaLink = 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post';
-		} else {
-			title = __( 'Site score has fallen', 'jetpack-boost' );
-			message = __(
-				'Jetpack Boost should not slow down your site. Try refreshing your score. If the problem persists please contact support',
-				'jetpack-boost'
-			);
-			cta = __( 'Contact Support', 'jetpack-boost' );
-			ctaLink = 'https://wordpress.org/support/plugin/jetpack-boost/#new-topic-0';
-		}
-
-		currentPercentage = ( $scores.current.mobile + $scores.current.desktop ) / 2;
+	function dismissModal() {
+		showModal = false;
 	}
 </script>
 
@@ -250,6 +215,15 @@
 
 	We can apply DRY and make the codebase a little easier for future us. 
 -->
+
 {#if showModal}
-	<PopOut {title} on:dismiss={() => respawnRatingPrompt.set( false )} {message} {ctaLink} {cta} />
+	<PopOut
+		id={showModal.id}
+		title={showModal.title}
+		on:dismiss={() => dismissModal( showModal.id )}
+		message={showModal.message}
+		ctaLink={showModal.ctaLink}
+		cta={showModal.cta}
+		{dismissedPrompts}
+	/>
 {/if}

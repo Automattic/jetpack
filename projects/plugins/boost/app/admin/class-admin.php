@@ -29,8 +29,7 @@ class Admin {
 	/**
 	 * Nonce action for setting the statuses of rating and score prompts.
 	 */
-	const SET_SHOW_RATING_PROMPT_NONCE = 'set_show_rating_prompt';
-	const SET_SHOW_SCORE_PROMPT_NONCE  = 'set_show_score_prompt';
+	const SET_SHOW_SCORE_PROMPT_NONCE = 'set_show_score_prompt';
 
 	/**
 	 * Option to store options that have been dismissed.
@@ -40,8 +39,7 @@ class Admin {
 	/**
 	 * Name of option to store status of show/hide rating and score prompts
 	 */
-	const SHOW_RATING_PROMPT_OPTION = 'jb_show_rating_prompt';
-	const SHOW_SCORE_PROMPT_OPTION  = 'jb_show_score_prompt';
+	const SHOW_SCORE_PROMPT_OPTION = 'jb_show_score_prompt';
 
 	/**
 	 * Main plugin instance.
@@ -66,7 +64,6 @@ class Admin {
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
 		add_action( 'admin_notices', array( $this, 'show_notices' ) );
-		add_action( 'wp_ajax_set_show_rating_prompt', array( $this, 'handle_set_show_rating_prompt' ) );
 		add_action( 'wp_ajax_set_show_score_prompt', array( $this, 'handle_set_show_score_prompt' ) );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_js_constants' ) );
 
@@ -145,9 +142,7 @@ class Admin {
 			),
 			'shownAdminNoticeIds' => $this->get_shown_admin_notice_ids(),
 			'preferences'         => array(
-				'showRatingPrompt' => $this->get_show_rating_prompt(),
-				'showScorePrompt'  => $this->get_show_score_prompt(),
-				'prioritySupport'  => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
+				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
 
 			/**
@@ -293,45 +288,37 @@ class Admin {
 	/**
 	 * Handle the ajax request to set show-rating-prompt status.
 	 */
-	public function handle_set_show_rating_prompt() {
-		if ( check_ajax_referer( self::SET_SHOW_RATING_PROMPT_NONCE, 'nonce' ) && $this->check_for_permissions() ) {
-			$response = array(
-				'status' => 'ok',
-			);
-
-			$is_enabled = isset( $_POST['value'] ) && 'true' === $_POST['value'] ? '1' : '0';
-			\update_option( self::SHOW_RATING_PROMPT_OPTION, $is_enabled );
-
-			wp_send_json( $response );
-		} else {
-			$error = new \WP_Error( 'authorization', __( 'You do not have permission to take this action.', 'jetpack-boost' ) );
-			wp_send_json_error( $error, 403 );
-		}
-	}
-
-	/**
-	 * Get the value of show_rating_prompt.
-	 *
-	 * This determines if there should be a prompt after speed score improvements. Initially the value is set to true by
-	 * default. Once the user clicks on the rating button, it is switched to false.
-	 *
-	 * @return bool
-	 */
-	public function get_show_rating_prompt() {
-		return \get_option( self::SHOW_RATING_PROMPT_OPTION, '1' ) === '1';
-	}
-
-	/**
-	 * Handle the ajax request to set show-rating-prompt status.
-	 */
 	public function handle_set_show_score_prompt() {
 		if ( check_ajax_referer( self::SET_SHOW_SCORE_PROMPT_NONCE, 'nonce' ) && $this->check_for_permissions() ) {
 			$response = array(
 				'status' => 'ok',
 			);
 
-			$is_enabled = isset( $_POST['value'] ) && 'true' === $_POST['value'] ? '1' : '0';
-			\update_option( self::SHOW_SCORE_PROMPT_OPTION, $is_enabled );
+			// sanitize the id of the variable and then check it is one of the modals we
+			// allow.
+			if ( isset( $_POST['id'] ) ) {
+				$modal_to_banish = sanitize_text_field( wp_unslash( $_POST['id'] ) );
+				$allowed_modals  = array(
+					'score-increase',
+					'score-decrease',
+				);
+				if ( ! in_array( $modal_to_banish, $allowed_modals, true ) ) {
+					$error = new \WP_Error( 'authorization', __( 'This modal is not dismissable.', 'jetpack-boost' ) );
+					wp_send_json_error( $error, 403 );
+				}
+
+				// get the current dismissed modals
+				$is_dismissed = \get_option( self::SHOW_SCORE_PROMPT_OPTION, '' );
+
+				if ( is_array( $is_dismissed ) ) {
+					array_push( $is_dismissed, $modal_to_banish );
+					$is_dismissed = array_unique( $is_dismissed );
+				} else {
+					$is_dismissed = array( $modal_to_banish );
+				}
+
+				\update_option( self::SHOW_SCORE_PROMPT_OPTION, $is_dismissed, false );
+			}
 
 			wp_send_json( $response );
 		} else {
@@ -343,13 +330,12 @@ class Admin {
 	/**
 	 * Get the value of show_score_prompt.
 	 *
-	 * This determines if there should be a prompt after speed score worsens. Initially the value is set to true by
-	 * default. Once the user clicks on the support button, it is switched to false.
+	 * This now holds an array of score change ids
 	 *
 	 * @return bool
 	 */
 	public function get_show_score_prompt() {
-		return \get_option( self::SHOW_SCORE_PROMPT_OPTION, '1' ) === '1';
+		return \get_option( self::SHOW_SCORE_PROMPT_OPTION, '' );
 	}
 
 	/**
@@ -357,13 +343,6 @@ class Admin {
 	 */
 	public static function clear_dismissed_notices() {
 		\delete_option( self::DISMISSED_NOTICE_OPTION );
-	}
-
-	/**
-	 * Clear the status of show_rating_prompt
-	 */
-	public static function clear_show_rating_prompt() {
-		\delete_option( self::SHOW_RATING_PROMPT_OPTION );
 	}
 
 	/**
@@ -396,8 +375,9 @@ class Admin {
 	 */
 	public function add_js_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
-		$constants['showRatingPromptNonce'] = wp_create_nonce( self::SET_SHOW_RATING_PROMPT_NONCE );
-		$constants['showScorePromptNonce']  = wp_create_nonce( self::SET_SHOW_SCORE_PROMPT_NONCE );
+		$constants['showScorePromptNonce'] = wp_create_nonce( self::SET_SHOW_SCORE_PROMPT_NONCE );
+
+		$constants['dismissedScorePrompts'] = \get_option( self::SHOW_SCORE_PROMPT_OPTION, '' );
 
 		return $constants;
 	}
