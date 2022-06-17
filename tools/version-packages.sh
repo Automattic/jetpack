@@ -11,7 +11,7 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 #
 # Probably will be most useful in the release scripts that branch off, since we:
 # a. Want to ship Jetpack with specific versions of packages
-# b. Want to preserve @dev in master branch
+# b. Want to preserve @dev in trunk branch
 
 function usage {
 	cat <<-EOH

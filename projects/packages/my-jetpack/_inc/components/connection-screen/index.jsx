@@ -15,7 +15,7 @@ const ConnectionScreenFooter = () => {
 	return (
 		<>
 			{ /* not using p here since connect screen apply styles for all p down the tree */ }
-			{ /* https://github.com/Automattic/jetpack/blob/master/projects/js-packages/connection/components/connect-screen/layout/style.scss#L49-L54 */ }
+			{ /* https://github.com/Automattic/jetpack/blob/trunk/projects/js-packages/connection/components/connect-screen/layout/style.scss#L49-L54 */ }
 			<div className={ styles[ 'account-description' ] }>
 				{ __(
 					'You can use your existing account on any of these services:',
