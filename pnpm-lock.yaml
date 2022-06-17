@@ -53,15 +53,12 @@ importers:
   projects/js-packages/analytics:
     specifiers:
       debug: 4.3.3
-      jetpack-js-test-runner: workspace:*
-      lodash: 4.17.21
-      nyc: 15.1.0
-    dependencies:
-      lodash: 4.17.21
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
     devDependencies:
       debug: 4.3.3
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
 
   projects/js-packages/api:
     specifiers:
