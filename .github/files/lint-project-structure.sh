@@ -229,10 +229,10 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
-	# - Packages must have a dev-master branch-alias.
-	if [[ "$TYPE" == "packages" ]] && ! jq -e '.extra["branch-alias"]["dev-master"]' "$PROJECT/composer.json" >/dev/null; then
+	# - Packages must have a dev-trunk branch-alias.
+	if [[ "$TYPE" == "packages" ]] && ! jq -e '.extra["branch-alias"]["dev-trunk"]' "$PROJECT/composer.json" >/dev/null; then
 		EXIT=1
-		echo "::error file=$PROJECT/composer.json::Package $SLUG should set \`.extra.branch-alias.dev-master\` in composer.json."
+		echo "::error file=$PROJECT/composer.json::Package $SLUG should set \`.extra.branch-alias.dev-trunk\` in composer.json."
 	fi
 
 	SUGGESTION="You might add this with \`composer config autoloader-suffix '$(printf "%s" "$SLUG" | md5sum | sed -e 's/[[:space:]]*-$//')_$(sed -e 's/[^0-9a-zA-Z]/_/g' <<<"${SLUG##*/}")ⓥversion'\` in the appropriate directory."
@@ -243,7 +243,7 @@ for PROJECT in projects/*/*; do
 	then
 		EXIT=1
 		echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-		echo "::error file=$PROJECT/composer.json::Since $SLUG production-includes an autoloader, $PROJECT/composer.json must set .config.autoloader-suffix.%0AThis avoids spurious changes with every build, cf. https://github.com/Automattic/jetpack-production/commits/master/vendor/autoload.php?after=a59e4613559b9822cfc9db88524f09b669f32296+0.%0A${SUGGESTION}"
+		echo "::error file=$PROJECT/composer.json::Since $SLUG production-includes an autoloader, $PROJECT/composer.json must set .config.autoloader-suffix.%0AThis avoids spurious changes with every build, cf. https://github.com/Automattic/jetpack-production/commits/trunk/vendor/autoload.php?after=a59e4613559b9822cfc9db88524f09b669f32296+0.%0A${SUGGESTION}"
 		echo "---"
 	fi
 

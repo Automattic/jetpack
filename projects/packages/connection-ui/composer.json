@@ -49,7 +49,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "2.4.x-dev"
+			"dev-trunk": "2.4.x-dev"
 		}
 	}
 }

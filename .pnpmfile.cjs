@@ -105,12 +105,6 @@ function fixDeps( pkg ) {
 		pkg.dependencies.trim = '^0.0.3';
 	}
 
-	// Avoid broken version of rememo. Looks like 4.0.0 doesn't actually change the API, so this should work.
-	// https://github.com/aduth/rememo/issues/8
-	if ( pkg.dependencies.rememo === '^4.0.0' ) {
-		pkg.dependencies.rememo = '^3.0.0 || ^4.0.1';
-	}
-
 	// Cheerio 1.0.0-rc.11 breaks enzyme 3.11.0.
 	// No bug link, we're planning on dropping enzyme soonish anyway.
 	if ( pkg.name === 'enzyme' && pkg.dependencies.cheerio === '^1.0.0-rc.3' ) {

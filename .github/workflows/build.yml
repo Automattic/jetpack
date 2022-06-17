@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - 'master'
+      - 'trunk'
       # The `**/*/` works around the fact that GitHub considers a leading `**/` as meaning "zero or more path components" where we want "one or more".
       - '**/*/branch-**'
   pull_request:
@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
   build:
