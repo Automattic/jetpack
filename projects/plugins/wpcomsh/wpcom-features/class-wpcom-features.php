@@ -480,6 +480,10 @@ class WPCOM_Features {
 			self::WPCOM_SEARCH_MONTHLY,
 			self::WP_P2_PLUS_MONTHLY,
 		),
+		self::CLOUD_CRITICAL_CSS            => array(
+			self::JETPACK_BOOST,
+			self::JETPACK_BOOST_MONTHLY,
+		),
 		self::CLOUDFLARE_ANALYTICS          => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -596,18 +600,18 @@ class WPCOM_Features {
 			self::JETPACK_SEARCH_MONTHLY,
 			self::JETPACK_COMPLETE_PLANS,
 		),
-		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2
+		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2.
 		self::LIVE_SUPPORT                  => array(
-			// Premium (Excluding Monthly)
+			// Premium (Excluding Monthly).
 			self::BUNDLE_PRO,
 			self::VALUE_BUNDLE,
 			self::VALUE_BUNDLE_2Y,
-			// Pro
+			// Pro.
 			self::PRO_PLAN,
-			// Business (Excluding Monthly)
+			// Business (Excluding Monthly).
 			self::BUSINESS_BUNDLE,
 			self::BUSINESS_BUNDLE_2Y,
-			// Ecommerce (Excluding Monthly)
+			// Ecommerce (Excluding Monthly).
 			self::ECOMMERCE_BUNDLE,
 			self::ECOMMERCE_BUNDLE_2Y,
 		),
@@ -618,7 +622,7 @@ class WPCOM_Features {
 		),
 		self::NO_ADVERTS_NO_ADVERTS_PHP     => array(
 			self::NO_ADS,
-			// Deliberately leaves out the Starter plan
+			// Deliberately leaves out the Starter plan.
 			self::WPCOM_BLOGGER_PLANS,
 			self::WPCOM_PERSONAL_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -946,10 +950,6 @@ class WPCOM_Features {
 		self::WORDADS_JETPACK               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
-		),
-		self::CLOUD_CRITICAL_CSS            => array(
-			self::JETPACK_BOOST,
-			self::JETPACK_BOOST_MONTHLY,
 		),
 	);
 
