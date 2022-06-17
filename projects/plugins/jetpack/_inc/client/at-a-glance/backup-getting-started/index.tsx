@@ -1,0 +1,52 @@
+import { imagePath, GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL } from 'constants/urls';
+import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
+import Card from 'components/card';
+import analytics from 'lib/analytics';
+import React, { useCallback } from 'react';
+
+import './style.scss';
+
+const BackupGettingStarted = () => {
+	const trackOpenVideo = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_backup_getting_started_video_click', {
+			position: 'at_a_glance',
+		} );
+	}, [] );
+
+	return (
+		<Card className="dash-backup-getting-started">
+			<a href={ GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL } target="_blank" rel="noreferrer">
+				<img
+					className="dash-backup-getting-started__thumbnail"
+					src={ imagePath + 'backup-getting-started-thumbnail.png' }
+					srcSet={ `${ imagePath + 'backup-getting-started-thumbnail.png' } 1x, ${
+						imagePath + 'backup-getting-started-thumbnail-2x.png'
+					} 2x` }
+					alt={ __( 'Getting started with Jetpack Backup video thumbnail', 'jetpack' ) }
+				/>
+			</a>
+			<div className="dash-backup-getting-started__content">
+				<h3 className="dash-backup-getting-started__header">
+					{ __( 'Getting started with Jetpack Backup', 'jetpack' ) }
+				</h3>
+				<p className="dash-backup-getting-started__text">
+					{ __( 'A short video guide on how to back up your website', 'jetpack' ) }
+				</p>
+			</div>
+			<Button
+				className="dash-backup-getting-started__cta"
+				href={ GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL }
+				onClick={ trackOpenVideo }
+				target="_blank"
+				rel="noreferrer"
+				compact
+				primary
+			>
+				{ __( 'Watch the video', 'jetpack' ) }
+			</Button>
+		</Card>
+	);
+};
+
+export default BackupGettingStarted;
