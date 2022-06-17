@@ -1,4 +1,5 @@
 import restApi from '@automattic/jetpack-api';
+import { numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -159,7 +160,7 @@ class DashAkismet extends Component {
 			if ( '0' !== this.props.akismetData ) {
 				return (
 					<>
-						<h2 className="jp-dash-item__count">{ this.props.akismetData }</h2>
+						<h2 className="jp-dash-item__count">{ numberFormat( this.props.akismetData ) }</h2>
 						<p className="jp-dash-item__description">
 							{ _x( 'Spam comments blocked.', 'Example: "412 Spam comments blocked"', 'jetpack' ) }
 						</p>

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.20
+// @version      1.21
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -17,6 +17,18 @@
 	const $ = jQuery.noConflict();
 	doit();
 
+	/**
+	 * Determine the current repo.
+	 *
+	 * Currently looks at the URL, expecting it to match a `@match` pattern from the script header.
+	 *
+	 * @returns {string|null} Repo name.
+	 */
+	function determineRepo() {
+		const m = location.pathname.match( /^\/([^/]+\/[^/]+)\/pull\// );
+		return m && m[ 1 ] ? decodeURIComponent( m[ 1 ] ) : null;
+	}
+
 	/** Function. */
 	function doit() {
 		const host = 'https://jurassic.ninja';
@@ -24,12 +36,13 @@
 		const currentBranch = jQuery( '.head-ref:first' ).text();
 		const branchIsForked = currentBranch.includes( ':' );
 		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
+		const repo = determineRepo();
 
 		if ( branchStatus === 'Merged' ) {
 			const contents = `
 				<p><strong>This branch is already merged.</strong></p>
 				<p><a target="_blank" rel="nofollow noopener" href="${ getLink() }">
-					Test with <code>master</code> branch instead.
+					Test with <code>trunk</code> branch instead.
 				</a></p>
 			`;
 			appendHtml( markdownBody, contents );
@@ -43,6 +56,11 @@
 				markdownBody,
 				"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</strong></p>"
 			);
+		} else if ( ! repo ) {
+			appendHtml(
+				markdownBody,
+				'<p><strong>Cannot determine the repository for this PR.</strong></p>'
+			);
 		} else {
 			dofetch( `${ host }/wp-json/jurassic.ninja/jetpack-beta/plugins` )
 				.then( body => {
@@ -54,13 +72,18 @@
 						);
 						Object.keys( body.data ).forEach( k => {
 							const data = body.data[ k ];
-							plugins.push( {
-								name: `branches.${ k }`,
-								value: currentBranch,
-								label: encodeHtmlEntities( data.name ),
-								checked: data.labels && data.labels.some( l => labels.has( l ) ),
-							} );
+							if ( data.repo === repo ) {
+								plugins.push( {
+									name: `branches.${ k }`,
+									value: currentBranch,
+									label: encodeHtmlEntities( data.name ),
+									checked: data.labels && data.labels.some( l => labels.has( l ) ),
+								} );
+							}
 						} );
+						if ( ! plugins.length ) {
+							throw new Error( `No plugins are configured for ${ repo }` );
+						}
 						plugins.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 					} else if ( body.code === 'rest_no_route' ) {
 						plugins.push( {

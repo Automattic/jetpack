@@ -14,7 +14,7 @@ function git {
 # Initialize the repo in the current directory.
 #
 # Inputs:
-#  $BRANCH: Base branch, e.g. master.
+#  $BRANCH: Base branch, e.g. main.
 #  $GITHUB_SERVER_URL: GitHub server URL.
 #  $GITHUB_REPOSITORY: GitHub repository slug.
 #  ${TAGS[@]}: Tags to check against.
@@ -117,7 +117,7 @@ function die {
 #
 # Inputs:
 #  $*: PR numbers to fetch.
-#  $BRANCH: Base branch, e.g. master.
+#  $BRANCH: Base branch, e.g. main.
 function fetch_prs {
 	local PR REFS=()
 	for PR in "$@"; do
@@ -131,7 +131,7 @@ function fetch_prs {
 #
 # Inputs:
 #  $1: PR number to test.
-#  $BRANCH: Base branch, e.g. master.
+#  $BRANCH: Base branch, e.g. main.
 #  $DEEPENBY: How much to deepen by if we're having to deepen $BRANCH. If empty, it'll deepen by just enough to find the merge base.
 #  ${PATHS[@]}: Paths that must be touched.
 # Returns: 0 if the PR should be processed, non-zero otherwise.

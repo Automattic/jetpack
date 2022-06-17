@@ -2126,7 +2126,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					$variation,
 					$block_list_path,
 					$block_constant,
-					'https://github.com/Automattic/jetpack/blob/master/extensions/README.md#develop-new-blocks'
+					'https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#developing-block-editor-extensions-in-jetpack'
 				) . '--------------------------------------------------------------------------------------------------------------------'
 			);
 		}

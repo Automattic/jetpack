@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
   changed_files:

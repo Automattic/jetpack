@@ -239,8 +239,9 @@ export async function generateProject(
 ) {
 	const type = pluralize( answers.type );
 	const project = type + '/' + answers.name;
-	const projDir = fileURLToPath(
-		new URL( `../../../projects/${ type }/${ answers.name }`, import.meta.url )
+	const projDir = path.join(
+		fileURLToPath( new URL( './', import.meta.url ) ),
+		`../../../projects/${ type }/${ answers.name }`
 	);
 
 	if ( 'plugin' === answers.type && 'starter' === answers.pluginTemplate ) {
@@ -506,7 +507,7 @@ async function createComposerJson( composerJson, answers ) {
 		case 'package':
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
-			composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
 			composerJson.extra.textdomain = name;
 			break;
 		case 'plugin':
