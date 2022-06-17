@@ -187,15 +187,19 @@ importers:
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12
       '@storybook/addon-actions': 6.5.9
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5
+      '@testing-library/react-hooks': 8.0.0
+      '@testing-library/user-event': 14.1.1
       '@wordpress/base-styles': 4.5.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.12.0
       '@wordpress/data': 6.10.0
       '@wordpress/element': 4.8.0
       '@wordpress/i18n': 4.10.0
-      jetpack-js-test-runner: workspace:*
-      lodash: 4.17.21
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       prop-types: ^15.7.2
       react: 17.0.2
       react-dom: 17.0.2
@@ -211,15 +215,19 @@ importers:
       '@wordpress/data': 6.10.0_react@17.0.2
       '@wordpress/element': 4.8.0
       '@wordpress/i18n': 4.10.0
-      lodash: 4.17.21
       prop-types: 15.8.1
     devDependencies:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
       '@storybook/addon-actions': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
+      '@testing-library/react-hooks': 8.0.0_7qv3rjnqa3j7exc7qtvho7thru
+      '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
