@@ -58,7 +58,7 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 			sprintf(
 				/* translators: Placeholder is a link to a support document. */
 				__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack Beta from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack-beta' ),
-				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
 			)
 		);
 	}
@@ -85,7 +85,7 @@ if ( is_readable( $jetpack_beta_autoloader ) ) {
 							),
 						)
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
 				);
 				?>
 			</p>

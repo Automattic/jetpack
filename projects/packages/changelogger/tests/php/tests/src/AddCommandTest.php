@@ -46,7 +46,7 @@ class AddCommandTest extends CommandTestCase {
 		// Test with no git checkout.
 		$this->assertMatchesRegularExpression( '/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d{6}$/', $w->getDefaultFilename( $output ) );
 
-		// Create a git checkout, master branch.
+		// Create a git checkout, trunk branch.
 		$args = array(
 			$output,
 			new DebugFormatterHelper(),
@@ -61,7 +61,7 @@ class AddCommandTest extends CommandTestCase {
 			),
 		);
 		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
-		Utils::runCommand( array( 'git', 'checkout', '-b', 'master' ), ...$args );
+		Utils::runCommand( array( 'git', 'checkout', '-b', 'trunk' ), ...$args );
 		Utils::runCommand( array( 'git', 'commit', '--allow-empty', '-m', 'Empty' ), ...$args );
 		$this->assertMatchesRegularExpression( '/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d{6}$/', $w->getDefaultFilename( $output ) );
 
