@@ -67,20 +67,18 @@ importers:
     specifiers:
       '@automattic/jetpack-config': workspace:* || ^0.1
       '@wordpress/url': 3.11.0
-      fetch-mock: 9.11.0
-      jetpack-js-test-runner: workspace:*
-      lodash: 4.17.21
+      fetch-mock-jest: 1.5.1
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       node-fetch: 2.6.7
-      nyc: 15.1.0
     dependencies:
       '@automattic/jetpack-config': link:../config
       '@wordpress/url': 3.11.0
-      lodash: 4.17.21
     devDependencies:
-      fetch-mock: 9.11.0_node-fetch@2.6.7
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      fetch-mock-jest: 1.5.1_node-fetch@2.6.7
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       node-fetch: 2.6.7
-      nyc: 15.1.0
 
   projects/js-packages/babel-plugin-replace-textdomain:
     specifiers:
@@ -12153,6 +12151,21 @@ packages:
 
   /fecha/4.2.3:
     resolution: {integrity: sha512-OP2IUU6HeYKJi3i0z4A19kHMQoLVs4Hc+DPqqxI2h/DPZHTm/vjsfC6P0b4jCMy14XizLBqvndQ+UilD7707Jw==}
+    dev: true
+
+  /fetch-mock-jest/1.5.1_node-fetch@2.6.7:
+    resolution: {integrity: sha512-+utwzP8C+Pax1GSka3nFXILWMY3Er2L+s090FOgqVNrNCPp0fDqgXnAHAJf12PLHi0z4PhcTaZNTz8e7K3fjqQ==}
+    engines: {node: '>=8.0.0'}
+    peerDependencies:
+      node-fetch: '*'
+    peerDependenciesMeta:
+      node-fetch:
+        optional: true
+    dependencies:
+      fetch-mock: 9.11.0_node-fetch@2.6.7
+      node-fetch: 2.6.7
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /fetch-mock/9.11.0_node-fetch@2.6.7:
