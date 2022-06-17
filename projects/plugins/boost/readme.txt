@@ -182,4 +182,4 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 
 --------
 
-[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/CHANGELOG.md#changelog)
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/boost/CHANGELOG.md#changelog)

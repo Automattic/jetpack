@@ -148,7 +148,7 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 			sprintf(
 				/* translators: Placeholder is a link to a support document. */
 				__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack' ),
-				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
 			)
 		);
 	}
@@ -175,7 +175,7 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 							),
 						)
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
+					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
 				);
 				?>
 			</p>

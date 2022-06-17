@@ -6,7 +6,7 @@ on:
     types: [opened, reopened]
   push:
     branches:
-      - master # Every time a PR is merged to master.
+      - trunk # Every time a PR is merged to trunk.
 concurrency:
   # For pull_request_target, cancel any concurrent jobs with the same type (e.g. "opened", "labeled") and branch.
   # Don't cancel any for other events, accomplished by grouping on the unique run_id.
@@ -45,7 +45,7 @@ jobs:
 
       - name: Building Action
         env:
-          COMPOSER_ROOT_VERSION: dev-master
+          COMPOSER_ROOT_VERSION: dev-trunk
         run: |
           pnpm install
           composer install

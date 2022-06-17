@@ -1713,6 +1713,18 @@ importers:
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
+  projects/plugins/starter-plugin/tests/e2e:
+    specifiers:
+      '@playwright/test': 1.22.2
+      allure-playwright: 2.0.0-beta.17
+      config: 3.3.7
+      jetpack-e2e-commons: '*'
+    devDependencies:
+      '@playwright/test': 1.22.2
+      allure-playwright: 2.0.0-beta.17
+      config: 3.3.7
+      jetpack-e2e-commons: link:../../../../../tools/e2e-commons
+
   tools/cli:
     specifiers:
       '@octokit/auth-token': 2.5.0
@@ -20790,7 +20802,7 @@ packages:
       yargs-parser: 21.0.1
 
   /yauzl/2.10.0:
-    resolution: {integrity: sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g==}
+    resolution: {integrity: sha1-x+sXyT4RLLEIb6bY5R+wZnt5pfk=}
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0

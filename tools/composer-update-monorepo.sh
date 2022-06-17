@@ -86,7 +86,7 @@ mapfile -t TO_UPDATE < <(
 		fi
 	) | sort -u
 )
-COMPOSER_ROOT_VERSION=dev-master composer update "${COMPOSER_ARGS[@]}" --working-dir="$DIR" -- "${TO_UPDATE[@]}"
+COMPOSER_ROOT_VERSION=dev-trunk composer update "${COMPOSER_ARGS[@]}" --working-dir="$DIR" -- "${TO_UPDATE[@]}"
 
 # Point out if the user's composer version is outdated.
 VER="$(composer --version 2>/dev/null | sed -n -E 's/^Composer( version)? ([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*/\2/p')"
