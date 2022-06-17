@@ -4,7 +4,7 @@ import React from 'react';
 import './style.scss';
 
 const Layout = props => {
-	const { header, content, illustrationPath } = props;
+	const { header, content, illustrationPath, compact } = props;
 
 	return (
 		<div
@@ -21,7 +21,13 @@ const Layout = props => {
 			) : (
 				header
 			) }
-			<div className="jp-recommendations-sidebar-card__content">{ content }</div>
+			<div
+				className={ classNames( 'jp-recommendations-sidebar-card__content', {
+					'is-compact': compact,
+				} ) }
+			>
+				{ content }
+			</div>
 		</div>
 	);
 };
