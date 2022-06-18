@@ -1,6 +1,7 @@
 <script>
 	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
 	import Connection from './pages/connection/Connection.svelte';
+	import GetStarted from './pages/nux/GetStarted.svelte';
 	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
 	import Settings from './pages/settings/Settings.svelte';
 	import Footer from './sections/Footer.svelte';
@@ -12,6 +13,7 @@
 </script>
 
 <Router history={routerHistory}>
+	<Route path="settings" component={Settings} />
 	<Route path="upgrade" component={BenefitsInterstitial} />
 	<Route path="purchase-successful" component={PurchaseSuccess} />
 	<Route>
@@ -21,7 +23,7 @@
 			</div>
 
 			{#if $connection.connected || ! config.site.online}
-				<Settings />
+				<GetStarted />
 			{:else}
 				<Connection />
 			{/if}
