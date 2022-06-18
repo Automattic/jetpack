@@ -1,5 +1,4 @@
 import { render } from '@testing-library/react';
-import { expect } from 'chai';
 import Spinner from '../index';
 
 describe( 'Spinner', () => {
@@ -11,13 +10,14 @@ describe( 'Spinner', () => {
 		it( 'component exists', () => {
 			const { container } = render( <Spinner { ...testProps } /> );
 
-			expect( container ).to.be.an.instanceof( HTMLDivElement );
+			expect( container ).toBeInstanceOf( HTMLDivElement );
 		} );
 
 		it( 'validate the class name', () => {
 			const { container } = render( <Spinner { ...testProps } /> );
 
-			expect( container.firstElementChild.className ).to.include( testProps.className );
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( container.firstElementChild.className ).toContain( testProps.className );
 		} );
 	} );
 } );
