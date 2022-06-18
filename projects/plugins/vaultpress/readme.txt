@@ -56,4 +56,4 @@ Yes, VaultPress supports Multisite installs. Each site will require its own subs
 
 --------
 
-[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/vaultpress/CHANGELOG.md#changelog)
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/vaultpress/CHANGELOG.md#changelog)

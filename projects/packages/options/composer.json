@@ -33,7 +33,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.16.x-dev"
+			"dev-trunk": "1.16.x-dev"
 		}
 	},
 	"abandoned": "automattic/jetpack-connection"

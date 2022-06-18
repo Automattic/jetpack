@@ -4,7 +4,7 @@ on:
     - cron: '0 0 * * *'
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
   cleanup:
