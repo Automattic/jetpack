@@ -15,6 +15,9 @@ env:
 
 jobs:
   changed_files:
+    permissions:
+      contents: read  # for dorny/paths-filter to fetch a list of changed files
+      pull-requests: read  # for dorny/paths-filter to read pull requests
     name: detect changed files
     runs-on: ubuntu-latest
     timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds.

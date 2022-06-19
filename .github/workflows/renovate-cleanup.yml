@@ -6,6 +6,9 @@ on:
 env:
   COMPOSER_ROOT_VERSION: "dev-trunk"
 
+permissions:
+  contents: read
+
 jobs:
   cleanup:
     name: Close old PRs

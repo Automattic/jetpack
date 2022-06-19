@@ -10,8 +10,13 @@ on:
       - PR is up-to-date
     branches: [ 'trunk', '*/branch-*' ]
 
+permissions:
+  contents: read
+
 jobs:
   notify:
+    permissions:
+      contents: none
     name: Notify failure
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
