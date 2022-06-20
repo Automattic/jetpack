@@ -1,6 +1,4 @@
 <script>
-	import { criticalCssStatus } from '../../../stores/critical-css-status';
-
 	export let progress = 0;
 </script>
 
