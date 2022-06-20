@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.1 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.16.0 - 2022-06-08
+### Added
+- Add sortByCount prop to RecordMeterBar component [#24518]
+
+### Changed
+- JS Component: move Product offer placeholder above button [#24510]
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24596, #24597, #24598]
+
+### Fixed
+- Fixed lints in TS types for Text component [#24579]
+
 ## 0.15.1 - 2022-05-31
 ### Added
 - Added an option to display a custom disclaimer below the product add button. [#24523]

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.17 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.2.16 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
 ## 0.2.15 - 2022-05-31
 ### Changed
 - Updated package dependencies. [#24475] [#24573]

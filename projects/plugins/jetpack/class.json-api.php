@@ -1004,7 +1004,7 @@ class WPCOM_JSON_API {
 	}
 
 	/**
-	 * Counts the number of comments on a site, excluding certain comment types.
+	 * Counts the number of comments on a site, including certain comment types.
 	 *
 	 * @param int $post_id Post ID.
 	 * @return array Array of counts, matching the output of https://developer.wordpress.org/reference/functions/get_comment_count/.
@@ -1021,26 +1021,39 @@ class WPCOM_JSON_API {
 		);
 
 		/**
-		 * Exclude certain comment types from comment counts in the REST API.
-		 *
-		 * @since 6.9.0
-		 * @module json-api
-		 *
-		 * @param array Array of comment types to exclude (default: 'order_note', 'webhook_delivery', 'review', 'action_log')
-		 */
-		$exclude = apply_filters(
-			'jetpack_api_exclude_comment_types_count',
-			array( 'order_note', 'webhook_delivery', 'review', 'action_log' )
+		* Exclude certain comment types from comment counts in the REST API.
+		*
+		* @since 6.9.0
+		* @deprecated 11.1
+		* @module json-api
+		*
+		* @param array Array of comment types to exclude (default: 'order_note', 'webhook_delivery', 'review', 'action_log')
+		*/
+		$exclude = apply_filters_deprecated( 'jetpack_api_exclude_comment_types_count', array( 'order_note', 'webhook_delivery', 'review', 'action_log' ), 'jetpack-11.1', 'jetpack_api_include_comment_types_count' ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		/**
+		* Include certain comment types in comment counts in the REST API.
+		* Note: the default array of comment types includes an empty string,
+		* to support comments posted before WP 5.5, that used an empty string as comment type.
+		*
+		* @since 11.1
+		* @module json-api
+		*
+		* @param array Array of comment types to include (default: 'comment', 'pingback', 'trackback')
+		*/
+		$include = apply_filters(
+			'jetpack_api_include_comment_types_count',
+			array( 'comment', 'pingback', 'trackback', '' )
 		);
 
-		if ( empty( $exclude ) ) {
+		if ( empty( $include ) ) {
 			return wp_count_comments( $post_id );
 		}
 
-		array_walk( $exclude, 'esc_sql' );
+		array_walk( $include, 'esc_sql' );
 		$where = sprintf(
-			"WHERE comment_type NOT IN ( '%s' )",
-			implode( "','", $exclude )
+			"WHERE comment_type IN ( '%s' )",
+			implode( "','", $include )
 		);
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- `$where` is built with escaping just above.

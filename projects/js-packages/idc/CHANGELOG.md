@@ -2,6 +2,15 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.10.14 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.10.13 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
 ## 0.10.12 - 2022-05-30
 ### Changed
 - Updated package dependencies

@@ -2,12 +2,54 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.0-beta - 2022-05-31
+## 11.1-a.3 - 2022-06-14
+### Bug fixes
+- Connection: move the connection_url_redirect action handling to the connection package. [#24529]
+- Dashboard: format anti-spam stats properly, including in languages using a space as thousands separator. [#24676]
+- Mailchimp Block: center spinner during loading block content. [#24694]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Modified gendered language in code comments to be inclusive. [#24716]
+- Updated package dependencies. [#23871]
+- WPcom: fix crashing of server-side rendered blocks. [#24720]
+
+## 11.1-a.1 - 2022-06-08
 ### Enhancements
+- Recipe Block (beta): introduce a new Recipe block to display an easy to read recipe anywhere on your site. Currently a JETPACK_BETA_BLOCKS feature. [#24343]
+- WAF: update messaging around sites without latest firewall rules access. [#24642]
+- WAF: add links to support documentation. [#24641]
+
+### Improved compatibility
+- Blocks: add Jetpack block elements to WPML configuration so they can be translated. [#24651]
+- Publicize: configure Publicize only when the module is active. [#24557]
+
+### Bug fixes
+- Contact Form: support saving array of data, such as multiple checkboxes. [#24645]
+- Payment Block: fix issue preventing images in payment buttons. [#24667]
+- VideoPress: fix average color parameter for seekbar. [#24606]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Dashboard: update link to Protect features in disconnect modal. [#24618]
+- P2: display integration tools menu item for P2 hub sites. [#24663]
+- PHPCS: contact form cleanup. [#24450]
+- PHPCS: remaining cleanup for class.jetpack.php file. [#24531]
+- Related Posts: avoid fatal errors when calling related posts with multiple exclusions. [#24629]
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510, #24576, #24596]
+- VideoPress: add "allow='clipboard-write'" in iframe for embed in order to fix the Clipboard API on Chrome. [#24616]
+- VideoPress: make sure "false" will be casted as false for useaveragecolor. [#24615]
+- WoA: add check to prevent duplicate Custom CSS menu item on plan-less sites. [#24631]
+- WPcom: add support for WordPress.com Starter plan. [#24496]
+- WPcom: deprecate jetpack_api_exclude_comment_types_count filter in favor of jetpack_api_include_comment_types_count for more accurate comment counts. [#24512]
+
+## [11.0] - 2022-05-31
+### Enhancements
+- Publicize: load Publicize only if the Publicize module is active. [#24557]
 - Sharing: update the email sharing button to use mailto links instead of server submissions. [#24040]
 
 ### Bug fixes
 - Comments: update UI to reflect that Google accounts are no longer a sign-in option. [#24528]
+- VideoPress: remove strict comparison to fix average color parameter. [#24606]
 - Stats: ensure the Stats column can always be displayed, even when the post type does not support comments. [#24482]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
@@ -6665,6 +6707,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.0]: https://wp.me/p1moTy-IbF
 [10.9]: https://wp.me/p1moTy-EHd
 [10.8]: https://wp.me/p1moTy-CTQ
 [10.7]: https://wp.me/p1moTy-AMD

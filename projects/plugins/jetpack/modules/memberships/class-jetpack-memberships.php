@@ -109,7 +109,8 @@ class Jetpack_Memberships {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
 			// Yes, `pro-plan` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'pro-plan' : 'jetpack_personal';
+			$wpcom_plan_slug     = defined( 'ENABLE_PRO_PLAN' ) ? 'pro-plan' : 'personal-bundle';
+			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? $wpcom_plan_slug : 'jetpack_personal';
 		}
 
 		return self::$instance;
@@ -312,7 +313,7 @@ class Jetpack_Memberships {
 			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
 			$content       = str_replace( 'wp-block-jetpack-recurring-payments', 'wp-block-jetpack-recurring-payments wp-block-button', $content );
 			$subscribe_url = $this->get_subscription_url( $plan_id );
-			return preg_replace( '/(href=".*")/', 'href="' . $subscribe_url . '"', $content );
+			return preg_replace( '/(href=".*")/U', 'href="' . $subscribe_url . '"', $content );
 		}
 
 		return $this->deprecated_render_button_v1( $attributes, $plan_id );

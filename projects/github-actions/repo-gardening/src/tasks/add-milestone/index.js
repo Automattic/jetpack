@@ -16,9 +16,9 @@ async function addMilestone( payload, octokit ) {
 	const { name: repo, owner } = repository;
 	const ownerLogin = owner.login;
 
-	// We should not get to that point as the action is triggered on pushes to master, but...
-	if ( ref !== 'refs/heads/master' ) {
-		debug( 'add-milestone: Commit is not to `master`. Aborting' );
+	// We should not get to that point as the action is triggered on pushes to trunk, but...
+	if ( ref !== 'refs/heads/trunk' ) {
+		debug( 'add-milestone: Commit is not to `trunk`. Aborting' );
 		return;
 	}
 
