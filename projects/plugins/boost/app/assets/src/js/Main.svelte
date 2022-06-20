@@ -23,7 +23,7 @@
 			</div>
 
 			{#if $connection.connected || ! config.site.online}
-				{#if config.module.css.generated}
+				{#if ! config.modules.css.generated}
 					<GetStarted />
 				{:else}
 					<Settings />
