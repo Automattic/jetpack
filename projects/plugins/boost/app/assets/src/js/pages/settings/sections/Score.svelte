@@ -21,9 +21,6 @@
 	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;
 
-	// eslint-disable-next-line camelcase
-	$: dismissedPrompts = Jetpack_Boost.dismissedScorePrompts;
-
 	let loadError;
 	let showPrevScores;
 	let scoreLetter = '';
@@ -215,6 +212,5 @@
 		message={showModal.message}
 		ctaLink={showModal.ctaLink}
 		cta={showModal.cta}
-		{dismissedPrompts}
 	/>
 {/if}

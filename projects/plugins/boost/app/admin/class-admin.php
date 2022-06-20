@@ -308,7 +308,7 @@ class Admin {
 				}
 
 				// get the current dismissed modals
-				$is_dismissed = \get_option( self::SHOW_SCORE_PROMPT_OPTION, '' );
+				$is_dismissed = $this->get_show_score_prompt();
 
 				if ( is_array( $is_dismissed ) ) {
 					array_push( $is_dismissed, $modal_to_banish );
@@ -335,7 +335,7 @@ class Admin {
 	 * @return bool
 	 */
 	public function get_show_score_prompt() {
-		return \get_option( self::SHOW_SCORE_PROMPT_OPTION, '' );
+		return \get_option( self::SHOW_SCORE_PROMPT_OPTION, array() );
 	}
 
 	/**
@@ -375,9 +375,8 @@ class Admin {
 	 */
 	public function add_js_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
-		$constants['showScorePromptNonce'] = wp_create_nonce( self::SET_SHOW_SCORE_PROMPT_NONCE );
-
-		$constants['dismissedScorePrompts'] = \get_option( self::SHOW_SCORE_PROMPT_OPTION, '' );
+		$constants['showScorePromptNonce']  = wp_create_nonce( self::SET_SHOW_SCORE_PROMPT_NONCE );
+		$constants['dismissedScorePrompts'] = $this->get_show_score_prompt();
 
 		return $constants;
 	}

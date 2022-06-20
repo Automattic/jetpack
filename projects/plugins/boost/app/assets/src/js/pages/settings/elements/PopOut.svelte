@@ -11,6 +11,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { __ } from '@wordpress/i18n/';
 	import CloseButton from '../../../elements/CloseButton.svelte';
+	import { dismissedPopOuts } from '../../../stores/config';
 	import { makeAdminAjaxRequest } from '../../../utils/make-admin-ajax-request';
 	import slideRightTransition from '../../../utils/slide-right-transition';
 
@@ -19,7 +20,6 @@
 	export let message = '';
 	export let ctaLink = '';
 	export let cta = '';
-	export let dismissedPrompts = [];
 
 	let data = '';
 
@@ -42,12 +42,12 @@
 
 		await makeAdminAjaxRequest( data );
 
-		dismissedPrompts = [ ...dismissedPrompts, id ];
+		dismissedPopOuts.dismiss( id );
 		dispatch( 'dismiss' );
 	}
 </script>
 
-{#if ! dismissedPrompts.includes( id )}
+{#if ! $dismissedPopOuts.includes( id )}
 	<div class="jb-rating-card" transition:slideRightTransition>
 		<CloseButton on:click={() => dispatch( 'dismiss' )} />
 		<h3 class="jb-rating-card__headline">
