@@ -43,7 +43,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-google-fonts-provider/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.3.x-dev"
+			"dev-trunk": "0.3.x-dev"
 		},
 		"textdomain": "jetpack-google-fonts-provider"
 	}

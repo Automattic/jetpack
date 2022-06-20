@@ -17,7 +17,7 @@
 			"pnpm run test"
 		],
 		"test-coverage": [
-			"pnpm nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

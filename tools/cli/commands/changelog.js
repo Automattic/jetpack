@@ -2,6 +2,7 @@ import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { readComposerJson } from '../helpers/json.js';
@@ -564,7 +565,7 @@ async function checkChangelogFiles() {
 		`--no-renames`,
 		`--name-only`,
 		`--merge-base`,
-		`origin/master`,
+		`origin/trunk`,
 	] );
 	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
 
@@ -597,9 +598,9 @@ async function checkChangelogFiles() {
 function doesFilenameExist( fileName, needChangelog ) {
 	let fileExists = false;
 	for ( const proj of needChangelog ) {
-		const projPath = new URL(
-			`../../../projects/${ proj }/changelog/${ fileName }`,
-			import.meta.url
+		const projPath = path.join(
+			fileURLToPath( new URL( './', import.meta.url ) ),
+			`../../../projects/${ proj }/changelog/${ fileName }`
 		);
 		try {
 			if ( fs.existsSync( projPath ) ) {
