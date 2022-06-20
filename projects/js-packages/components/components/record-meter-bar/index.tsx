@@ -117,8 +117,8 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 					{ itemsToRender.map( ( { label, count } ) => {
 						return (
 							<tr key={ label }>
-								<td key={ label }>{ label }</td>
-								<td key={ count }>{ count }</td>
+								<td>{ label }</td>
+								<td>{ count }</td>
 							</tr>
 						);
 					} ) }
