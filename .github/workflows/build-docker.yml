@@ -1,7 +1,7 @@
 name: Build Docker
 on:
   push:
-    branches: [ 'master' ]
+    branches: [ 'trunk' ]
     paths:
       - 'tools/docker/Dockerfile'
       - 'tools/docker/bin/run.sh'
@@ -61,7 +61,7 @@ jobs:
           echo "::set-output name=node-version::$NODE_VERSION"
           echo "::set-output name=pnpm-version::$PNPM_VERSION"
 
-          # We're not git-tagging for the env. Just tag all master builds as latest.
+          # We're not git-tagging for the env. Just tag all trunk builds as latest.
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
             echo "::set-output name=tags::type=raw,latest"
             echo "::set-output name=images::automattic/jetpack-wordpress-dev%0Aghcr.io/automattic/jetpack-wordpress-dev"
@@ -83,7 +83,7 @@ jobs:
           labels: |
             org.opencontainers.image.title=Jetpack Development Environment
             org.opencontainers.image.description=Unified environment for developing in the Jetpack Monorepo using Docker containers.
-            org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/blob/master/tools/docker/README.md
+            org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/blob/trunk/tools/docker/README.md
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3

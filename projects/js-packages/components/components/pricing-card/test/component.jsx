@@ -1,9 +1,12 @@
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import { noop } from 'lodash';
+import { jest } from '@jest/globals';
+import { render, screen, cleanup } from '@testing-library/react/pure';
 import React from 'react';
-import ShallowRenderer from 'react-test-renderer/shallow';
 import PricingCard from '../index';
+import '@testing-library/jest-dom';
+
+// Note we're using @testing-library/react/pure here to disable the automatic cleanup.
+// So be sure to call `cleanup()` for each `render()`.
+/* eslint-disable testing-library/no-render-in-setup */
 
 describe( 'PricingCard', () => {
 	const testProps = {
@@ -13,90 +16,76 @@ describe( 'PricingCard', () => {
 		priceAfter: 4.5,
 		ctaText: 'Get Dummy Offer',
 		infoText: 'Dummy Info Text',
-		onCtaClick: noop,
+		onCtaClick: jest.fn(),
 	};
 
 	describe( 'Initially', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <PricingCard { ...testProps } /> );
+		let container;
 
-		const wrapper = shallow( renderer.getRenderOutput() );
+		beforeAll( () => {
+			( { container } = render( <PricingCard { ...testProps } /> ) );
+		} );
+		afterAll( () => {
+			cleanup();
+		} );
 
 		it( 'renders the title', () => {
-			expect( wrapper.find( '.jp-components__pricing-card__title' ).render().text() ).to.be.equal(
-				'Dummy Pricing Card'
-			);
+			expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'Dummy Pricing Card' );
 		} );
 
 		it( 'renders the icon', () => {
-			expect( wrapper.find( '.jp-components__pricing-card__icon img' ).prop( 'src' ) ).to.be.equal(
-				'dummy_icon'
-			);
+			const img = screen.getByAltText( 'Icon for the product Dummy Pricing Card' );
+			expect( img ).toBeInTheDocument();
+			expect( img ).toHaveAttribute( 'src', 'dummy_icon' );
 		} );
 
 		it( 'renders the price before', () => {
-			expect(
-				wrapper
-					.find( '.jp-components__pricing-card__price-before .jp-components__pricing-card__price' )
-					.render()
-					.text()
-			).to.be.equal( '9' );
+			// eslint-disable-next-line testing-library/no-node-access
+			const node = container.querySelector( '.jp-components__pricing-card__price-before' );
+			expect( node ).toBeInTheDocument();
+			expect( node ).toHaveTextContent( '$9' );
 		} );
 
-		it( 'renders the integer portion of the price after', () => {
-			expect(
-				wrapper
-					.find( '.jp-components__pricing-card__price-after .jp-components__pricing-card__price' )
-					.render()
-					.text()
-			).to.be.equal( '4' );
-		} );
-
-		it( 'renders the decimal portion of the price after', () => {
-			expect(
-				wrapper
-					.find(
-						'.jp-components__pricing-card__price-after .jp-components__pricing-card__price-decimal'
-					)
-					.render()
-					.text()
-			).to.be.equal( '.50' );
+		it( 'renders the price after', () => {
+			// eslint-disable-next-line testing-library/no-node-access
+			const node = container.querySelector( '.jp-components__pricing-card__price-after' );
+			expect( node ).toBeInTheDocument();
+			expect( node ).toHaveTextContent( '$4.50' );
 		} );
 
 		it( 'renders the CTA button', () => {
-			expect( wrapper.find( '.jp-components__pricing-card__button' ).render().text() ).to.be.equal(
-				'Get Dummy Offer'
-			);
+			expect( screen.getByRole( 'button' ) ).toHaveTextContent( 'Get Dummy Offer' );
 		} );
 
 		it( 'renders the info text', () => {
-			expect( wrapper.find( '.jp-components__pricing-card__info' ).render().text() ).to.be.equal(
-				'Dummy Info Text'
-			);
+			// eslint-disable-next-line testing-library/no-node-access
+			const node = container.querySelector( '.jp-components__pricing-card__info' );
+			expect( node ).toBeInTheDocument();
+			expect( node ).toHaveTextContent( 'Dummy Info Text' );
 		} );
 	} );
 
 	describe( 'When price before and price after match', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <PricingCard { ...testProps } priceAfter={ 9 } /> );
+		let container;
 
-		const wrapper = shallow( renderer.getRenderOutput() );
+		beforeAll( () => {
+			( { container } = render( <PricingCard { ...testProps } priceAfter={ 9 } /> ) );
+		} );
+		afterAll( () => {
+			cleanup();
+		} );
 
 		it( "doesn't render the price before", () => {
-			expect(
-				wrapper.find(
-					'.jp-components__pricing-card__price-before .jp-components__pricing-card__price'
-				)
-			).to.have.length( 0 );
+			// eslint-disable-next-line testing-library/no-node-access
+			const node = container.querySelector( '.jp-components__pricing-card__price-before' );
+			expect( node ).not.toBeInTheDocument();
 		} );
 
 		it( 'renders the price after', () => {
-			expect(
-				wrapper
-					.find( '.jp-components__pricing-card__price-after .jp-components__pricing-card__price' )
-					.render()
-					.text()
-			).to.be.equal( '9' );
+			// eslint-disable-next-line testing-library/no-node-access
+			const node = container.querySelector( '.jp-components__pricing-card__price-after' );
+			expect( node ).toBeInTheDocument();
+			expect( node ).toHaveTextContent( '$9' );
 		} );
 	} );
 } );

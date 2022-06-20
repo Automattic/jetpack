@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use plain jest for tests. No change to the package itself.
+
+

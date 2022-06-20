@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove unused JS dev deps. No change to the package.
+
+
