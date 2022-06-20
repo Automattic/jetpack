@@ -1,24 +1,14 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { DisconnectDialog } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getFragment } from '@wordpress/url';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Button from 'components/button';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	isDisconnectingSite as _isDisconnectingSite,
@@ -47,7 +37,6 @@ import {
 import { getSiteBenefits } from 'state/site';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import './style.scss';
-import { DisconnectDialog } from '@automattic/jetpack-connection';
 import JetpackBenefits from '../jetpack-benefits';
 
 export class ConnectButton extends React.Component {

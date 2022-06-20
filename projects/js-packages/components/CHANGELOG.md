@@ -2,6 +2,47 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.1 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.16.0 - 2022-06-08
+### Added
+- Add sortByCount prop to RecordMeterBar component [#24518]
+
+### Changed
+- JS Component: move Product offer placeholder above button [#24510]
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24596, #24597, #24598]
+
+### Fixed
+- Fixed lints in TS types for Text component [#24579]
+
+## 0.15.1 - 2022-05-31
+### Added
+- Added an option to display a custom disclaimer below the product add button. [#24523]
+
+## 0.15.0 - 2022-05-30
+### Added
+- added formatting prop to RecordMeterBar component legend
+- JS Components: Add isCard prop to Dialog component
+- JS Components: add isExternalLink button property
+
+### Changed
+- Added TS check to build process
+- Converted QRCode component to TypeScript
+- JS Components: fix ProductOffer icons size
+- JS Components: remove deprecated external-link variant
+- Layout: Support start/end props in Cols and use sass based structure
+- Social: Updated the icon to the final design
+- Updated package dependencies
+
+### Removed
+- JS Components: remove Dialog isCard property
+
+### Fixed
+- Fix styles defined by the ThemeProvider in the storybook stories
+
 ## 0.14.0 - 2022-05-24
 ### Added
 - Icons: Added the Jetpack Social product icon [#24449]

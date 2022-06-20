@@ -1,13 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * WordPress dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import React from 'react';
+
+import './record-count.scss';
 
 /**
  * Returns record count component showing current records indexed and max records available for tier.
@@ -27,7 +22,6 @@ export function RecordCount( props ) {
 		typeof props.tierMaximumRecords === 'number'
 			? props.tierMaximumRecords?.toLocaleString()
 			: props.tierMaximumRecords;
-
 	let message;
 
 	if ( recordLimit ) {

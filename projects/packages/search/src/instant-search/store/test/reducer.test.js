@@ -2,9 +2,7 @@
  * @jest-environment jsdom
  */
 
-/**
- * Internal dependencies
- */
+import { SERVER_OBJECT_NAME } from '../../lib/constants';
 import {
 	clearFilters,
 	clearQueryValues,
@@ -27,7 +25,6 @@ import {
 	searchQuery,
 	sort,
 } from '../reducer';
-import { SERVER_OBJECT_NAME } from '../../lib/constants';
 
 describe( 'hasError Reducer', () => {
 	test( 'defaults to false', () => {
@@ -219,7 +216,7 @@ describe( 'response Reducer', () => {
 describe( 'searchQuery Reducer', () => {
 	test( 'defaults to null', () => {
 		const state = searchQuery( undefined, {} );
-		expect( state ).toBe( null );
+		expect( state ).toBeNull();
 	} );
 	test( 'is updated by a set search query action', () => {
 		const state = searchQuery( undefined, setSearchQuery( 'Some new query' ) );
@@ -227,22 +224,22 @@ describe( 'searchQuery Reducer', () => {
 	} );
 	test( 'is set to null by a clear query values action', () => {
 		const state = searchQuery( undefined, clearQueryValues() );
-		expect( state ).toBe( null );
+		expect( state ).toBeNull();
 	} );
 } );
 
 describe( 'sort Reducer', () => {
 	test( 'defaults to null', () => {
 		const state = sort( undefined, {} );
-		expect( state ).toBe( null );
+		expect( state ).toBeNull();
 	} );
 	test( 'is updated by a set search query action', () => {
 		const state = sort( undefined, setSort( 'newest' ) );
 		expect( state ).toBe( 'newest' );
 	} );
 	test( 'is set to null by a clear query values action', () => {
-		expect( sort( undefined, clearQueryValues() ) ).toBe( null );
-		expect( sort( 'newest', clearQueryValues() ) ).toBe( null );
+		expect( sort( undefined, clearQueryValues() ) ).toBeNull();
+		expect( sort( 'newest', clearQueryValues() ) ).toBeNull();
 	} );
 } );
 

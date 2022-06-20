@@ -42,7 +42,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.4.x-dev"
+			"dev-trunk": "1.4.x-dev"
 		}
 	}
 }

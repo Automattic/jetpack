@@ -1,18 +1,12 @@
-/**
- * External dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import SimpleNotice from 'components/notice';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { createElement, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import { getSiteAdminUrl } from 'state/initial-state';
 import {
 	getDetachedLicensesCount,
@@ -22,7 +16,6 @@ import {
 	updateUserLicenses as updateUserLicensesAction,
 	getDetachedLicensesLoadingInfo,
 } from 'state/licensing';
-import SimpleNotice from 'components/notice';
 
 /**
  * Jetpack "user"-licenses activation notice. (a license key is available for activation)

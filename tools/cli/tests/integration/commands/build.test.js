@@ -1,17 +1,17 @@
-/**
- * External dependencies
- */
-import chai from 'chai';
-import child_process from 'child_process';
+import { fileURLToPath } from 'url';
+import execa from 'execa';
 
-const testHelp = child_process.execFileSync(
-	'node',
-	[ './tools/cli/bin/jetpack', 'build', '--help' ],
-	{ encoding: 'utf8' }
-);
+describe( 'build command', () => {
+	test( 'production flag exists', async () => {
+		const { stdout: testHelp } = await execa(
+			fileURLToPath( new URL( '../../../bin/jetpack.js', import.meta.url ) ),
+			[ 'build', '--help' ],
+			{
+				encoding: 'utf8',
+			}
+		);
 
-describe( 'build command', function () {
-	it( 'production flag exists', () => {
-		chai.expect( testHelp ).to.contain( '--production' ).and.contain( '-p,' ); // Need trailing comma since --production contains -p :)
+		expect( testHelp ).toMatch( /--production/ );
+		expect( testHelp ).toMatch( /-p,/ ); // Need trailing comma since --production contains -p :)
 	} );
 } );

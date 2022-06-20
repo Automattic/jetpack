@@ -1,15 +1,7 @@
-/**
- * External dependencies
- */
+import { render } from '@testing-library/react';
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import ShallowRenderer from 'react-test-renderer/shallow';
-
-/**
- * Internal dependencies
- */
 import JetpackFooter from '../index';
+import '@testing-library/jest-dom';
 
 describe( 'JetpackFooter', () => {
 	const testProps = {
@@ -17,17 +9,11 @@ describe( 'JetpackFooter', () => {
 	};
 
 	describe( 'Render the JetpackFooter component', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <JetpackFooter { ...testProps } /> );
-
-		const wrapper = shallow( renderer.getRenderOutput() );
-
-		it( 'component exists', () => {
-			expect( wrapper.find( 'JetpackFooter' ) ).to.exist;
-		} );
+		const { container } = render( <JetpackFooter { ...testProps } /> );
 
 		it( 'validate the class name', () => {
-			expect( wrapper.hasClass( 'sample-classname' ) ).to.equal( true );
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( container.firstChild ).toHaveClass( 'sample-classname' );
 		} );
 	} );
 } );

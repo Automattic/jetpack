@@ -1,19 +1,11 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { expect } from 'chai';
 import { shallow } from 'enzyme';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import { NavigationSettings } from '../index';
 
 describe( 'NavigationSettings', () => {
 	let wrapper, testProps;
 
-	before( () => {
+	beforeAll( () => {
 		testProps = {
 			hasAnyOfTheseModules: () => true,
 			hasAnyPerformanceFeature: true,
@@ -68,28 +60,28 @@ describe( 'NavigationSettings', () => {
 
 	describe( 'initially', () => {
 		it( 'renders a div with a className of "dops-navigation"', () => {
-			expect( wrapper.find( '.dops-navigation' ) ).to.have.length( 1 );
+			expect( wrapper.find( '.dops-navigation' ) ).toHaveLength( 1 );
 		} );
 
 		it( 'renders NavigationSettings, SectionNav, NavTabs', () => {
-			expect( wrapper.find( 'NavigationSettings' ) ).to.exist;
-			expect( wrapper.find( 'SectionNav' ) ).to.exist;
-			expect( wrapper.find( 'NavTabs' ) ).to.exist;
+			expect( wrapper.find( 'NavigationSettings' ) ).toBeDefined();
+			expect( wrapper.find( 'SectionNav' ) ).toBeDefined();
+			expect( wrapper.find( 'NavTabs' ) ).toBeDefined();
 		} );
 	} );
 
 	describe( 'for a Subscriber user', () => {
 		it( 'does not render Settings tabs', () => {
-			expect( wrapper.find( 'NavItem' ) ).to.have.length( 0 );
+			expect( wrapper.find( 'NavItem' ) ).toHaveLength( 0 );
 		} );
 
 		it( 'does not display Search', () => {
-			expect( wrapper.find( 'Search' ) ).to.have.length( 0 );
+			expect( wrapper.find( 'Search' ) ).toHaveLength( 0 );
 		} );
 	} );
 
 	describe( 'for Editor, Author and Contributor users', () => {
-		before( () => {
+		beforeAll( () => {
 			Object.assign( testProps, {
 				userCanManageModules: false,
 				isSubscriber: false,
@@ -106,7 +98,7 @@ describe( 'NavigationSettings', () => {
 					.getElements()
 					.filter( item => 'string' === typeof item )
 					.every( item => [ 'Writing', 'Sharing' ].includes( item ) )
-			).to.be.true;
+			).toBe( true );
 		} );
 
 		it( 'show only Writing if Publicize is disabled', () => {
@@ -123,7 +115,7 @@ describe( 'NavigationSettings', () => {
 					.getElements()
 					.filter( item => 'string' === typeof item )
 					.every( item => [ 'Writing' ].includes( item ) )
-			).to.be.true;
+			).toBe( true );
 		} );
 
 		it( 'show only Sharing if Post By Email is disabled', () => {
@@ -140,7 +132,7 @@ describe( 'NavigationSettings', () => {
 					.getElements()
 					.filter( item => 'string' === typeof item )
 					.every( item => [ 'Sharing' ].includes( item ) )
-			).to.be.true;
+			).toBe( true );
 		} );
 
 		it( 'has /sharing as selected navigation item, accessing through /settings, even when both PBE and Publicize are active', () => {
@@ -148,22 +140,22 @@ describe( 'NavigationSettings', () => {
 				userCanManageModules: false,
 				isSubscriber: false,
 				userCanPublish: true,
-				isModuleActivated: m => true,
+				isModuleActivated: () => true,
 			} );
 			expect(
 				shallow( <NavigationSettings { ...allActivatedProps } /> )
 					.find( 'NavItem' )
 					.get( 1 ).props.selected
-			).to.be.true;
+			).toBe( true );
 			expect(
 				shallow( <NavigationSettings { ...allActivatedProps } /> )
 					.find( 'NavItem' )
 					.get( 1 ).props.path
-			).to.equal( '#sharing' );
+			).toBe( '#sharing' );
 		} );
 
 		it( 'does not display Search', () => {
-			expect( wrapper.find( 'Search' ) ).to.have.length( 0 );
+			expect( wrapper.find( 'Search' ) ).toHaveLength( 0 );
 		} );
 
 		it( 'do not show Sharing to contributors', () => {
@@ -180,12 +172,13 @@ describe( 'NavigationSettings', () => {
 					.getElements()
 					.filter( item => 'string' === typeof item )
 					.every( item => [ 'Writing' ].includes( item ) )
-			).to.be.true;
+			).toBe( true );
 		} );
 
 		describe( 'if Publicize is active', () => {
-			before( () => {
-				let publicizeProps = Object.assign( {}, testProps, {
+			let publicizeProps;
+			beforeAll( () => {
+				publicizeProps = Object.assign( {}, testProps, {
 					userCanManageModules: false,
 					isSubscriber: false,
 					userCanPublish: true,
@@ -195,22 +188,22 @@ describe( 'NavigationSettings', () => {
 					routeName: 'General',
 					isModuleActivated: m => 'publicize' === m,
 				} );
-				it( 'show Sharing if user is linked', () => {
-					expect(
-						shallow( <NavigationSettings { ...publicizeProps } /> )
-							.find( 'NavItem' )
-							.children()
-							.getElements()
-							.filter( item => 'string' === typeof item )
-							.every( item => [ 'Writing', 'Sharing' ].includes( item ) )
-					).to.be.true;
-				} );
+			} );
+			it( 'show Sharing if user is linked', () => {
+				expect(
+					shallow( <NavigationSettings { ...publicizeProps } /> )
+						.find( 'NavItem' )
+						.children()
+						.getElements()
+						.filter( item => 'string' === typeof item )
+						.every( item => [ 'Writing', 'Sharing' ].includes( item ) )
+				).toBe( true );
 			} );
 		} );
 	} );
 
 	describe( 'for an Admin user', () => {
-		before( () => {
+		beforeAll( () => {
 			Object.assign( testProps, {
 				userCanManageModules: true,
 				isSubscriber: false,
@@ -229,34 +222,34 @@ describe( 'NavigationSettings', () => {
 					.every( item =>
 						[ 'Writing', 'Discussion', 'Traffic', 'Security', 'Sharing' ].includes( item )
 					)
-			).to.be.true;
+			).toBe( true );
 		} );
 
 		it( 'displays Search', () => {
-			expect( wrapper.find( 'Search' ) ).to.have.length( 1 );
+			expect( wrapper.find( 'Search' ) ).toHaveLength( 1 );
 		} );
 
 		describe( 'when Search is opened', () => {
 			let instance;
 
-			before( () => {
+			beforeAll( () => {
 				instance = wrapper.instance();
 			} );
 
 			it( 'does not change hash to #search', () => {
-				expect( window.location.hash ).to.be.equal( '#settings' );
+				expect( window.location.hash ).toBe( '#settings' );
 			} );
 
 			describe( 'and a search term is opened', () => {
 				it( 'adds a search term in a query string', () => {
 					instance.doSearch( 'search-term' );
-					expect( window.location.hash ).to.be.equal( '#settings?term=search-term' );
+					expect( window.location.hash ).toBe( '#settings?term=search-term' );
 				} );
 
 				describe( 'and a search term is deleted', () => {
 					it( 'changes hash back to #settings', () => {
 						instance.doSearch( '' );
-						expect( window.location.hash ).to.be.equal( '#settings' );
+						expect( window.location.hash ).toBe( '#settings' );
 					} );
 				} );
 			} );
@@ -270,7 +263,7 @@ describe( 'NavigationSettings', () => {
 				routeName: 'Security',
 			} );
 			wrapper = shallow( <NavigationSettings { ...testProps } /> );
-			expect( wrapper.find( 'SectionNav' ).props().selectedText ).to.be.equal( 'Security' );
+			expect( wrapper.find( 'SectionNav' ).props().selectedText ).toBe( 'Security' );
 		} );
 	} );
 } );

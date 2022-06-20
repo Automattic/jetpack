@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Replace deprecated external-link variation by using isExternalLink prop

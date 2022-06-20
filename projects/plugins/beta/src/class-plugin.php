@@ -343,6 +343,11 @@ class Plugin {
 					sprintf( __( 'Failed to download manifest for plugin \'%s\'. Check your Internet connection.', 'jetpack-beta' ), $this->slug )
 				);
 			}
+			// Update old data.
+			if ( ! isset( $data->trunk ) && isset( $data->master ) ) {
+				$data->trunk = $data->master;
+			}
+			unset( $data->master );
 			$this->manifest_data = $data;
 		}
 		return $this->manifest_data;
@@ -393,6 +398,10 @@ class Plugin {
 		}
 		global $wp_filesystem;
 		$info = json_decode( $wp_filesystem->get_contents( $file ) );
+		if ( is_object( $info ) && $info->source === 'master' ) {
+			// Update old data.
+			$info->source = 'trunk';
+		}
 		return is_object( $info ) ? $info : null;
 	}
 
@@ -453,7 +462,7 @@ class Plugin {
 	/**
 	 * Install & activate the plugin for the given branch.
 	 *
-	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
+	 * @param string $source Source of installation: "stable", "trunk", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
 	 * @return null|WP_Error
 	 * @throws InvalidArgumentException If `$source` is invalid.
@@ -525,7 +534,7 @@ class Plugin {
 	/**
 	 * Get branch info for a source and ID.
 	 *
-	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
+	 * @param string $source Source of installation: "stable", "trunk", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
 	 * @return object|WP_Error
 	 * @throws InvalidArgumentException If `$source` is invalid.
@@ -559,9 +568,9 @@ class Plugin {
 		$slug     = $this->dev_plugin_slug();
 		$info     = null;
 
-		if ( 'pr' === $dev_info->source && ! isset( $manifest->pr->{$dev_info->id} ) && isset( $manifest->master ) ) {
-			// It's a PR that is gone. Update to master.
-			list( , $info ) = $this->get_which_and_info( 'master', '' );
+		if ( 'pr' === $dev_info->source && ! isset( $manifest->pr->{$dev_info->id} ) && isset( $manifest->trunk ) ) {
+			// It's a PR that is gone. Update to trunk.
+			list( , $info ) = $this->get_which_and_info( 'trunk', '' );
 		} elseif ( 'pr' === $dev_info->source && isset( $manifest->pr->{$dev_info->id} ) &&
 			Semver::greaterThan( $manifest->pr->{$dev_info->id}->version, $dev_info->version )
 		) {
@@ -572,11 +581,11 @@ class Plugin {
 		) {
 			// It's an RC that has a new version.
 			list( , $info ) = $this->get_which_and_info( 'rc', '' );
-		} elseif ( 'master' === $dev_info->source && isset( $manifest->master ) &&
-			Semver::greaterThan( $manifest->master->version, $dev_info->version )
+		} elseif ( 'trunk' === $dev_info->source && isset( $manifest->trunk ) &&
+			Semver::greaterThan( $manifest->trunk->version, $dev_info->version )
 		) {
-			// Master has been updated.
-			list( , $info ) = $this->get_which_and_info( 'master', '' );
+			// Trunk has been updated.
+			list( , $info ) = $this->get_which_and_info( 'trunk', '' );
 		}
 
 		if ( $info ) {
@@ -695,7 +704,7 @@ class Plugin {
 	 */
 	private function pretty_version( $info ) {
 		switch ( $info->source ) {
-			case 'master':
+			case 'trunk':
 				return __( 'Bleeding Edge', 'jetpack-beta' );
 
 			case 'rc':
@@ -720,7 +729,7 @@ class Plugin {
 	/**
 	 * Get the "which" and info for the requested source and ID.
 	 *
-	 * @param string $source Source of installation: "stable", "master", "rc", "pr", or "release".
+	 * @param string $source Source of installation: "stable", "trunk", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
 	 * @return array|WP_Error ( $which, $info )
 	 * @throws InvalidArgumentException If `$source` is invalid.
@@ -747,18 +756,21 @@ class Plugin {
 				$id     = $wporg_data->version;
 				break;
 
+			// Master case remains purely for back-compatibility (in case anyone has bookmarked URLs).
 			case 'master':
+				$source = 'trunk'; // Change source to trunk, then fall-through to the 'trunk' case.
+			case 'trunk':
 				$id       = '';
 				$which    = 'dev';
 				$manifest = $this->get_manifest();
-				if ( ! isset( $manifest->master->download_url ) ) {
+				if ( ! isset( $manifest->trunk->download_url ) ) {
 					return new WP_Error(
-						'master_missing',
-						// translators: %s: Plugin slug. Also, "master" is the branch name and should not be translated.
-						sprintf( __( 'No master build is available for %s.', 'jetpack-beta' ), $this->plugin_slug() )
+						'trunk_missing',
+						// translators: %s: Plugin slug. Also, "trunk" is the branch name and should not be translated.
+						sprintf( __( 'No trunk build is available for %s.', 'jetpack-beta' ), $this->plugin_slug() )
 					);
 				}
-				$info             = $manifest->master;
+				$info             = $manifest->trunk;
 				$info->plugin_url = sprintf( 'https://github.com/%s', $this->mirror_repo() );
 				break;
 

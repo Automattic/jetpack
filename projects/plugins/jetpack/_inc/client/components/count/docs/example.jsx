@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import React from 'react';
-
-/**
- * Internal dependencies
- */
 import Count from 'components/count';
+import React from 'react';
 
 export default class extends React.PureComponent {
 	static displayName = 'Count';

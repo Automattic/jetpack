@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-
-/**
- * Internal dependencies
- */
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
 
 /*

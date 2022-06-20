@@ -1447,7 +1447,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	public function get_akismet_data() {
 		$akismet_status = $this->akismet_is_active_and_registered();
 		if ( ! is_wp_error( $akismet_status ) ) {
-			return number_format_i18n( get_option( 'akismet_spam_count', 0 ) );
+			return (int) get_option( 'akismet_spam_count', 0 );
 		} else {
 			return $akismet_status->get_error_code();
 		}

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React, { useMemo } from 'react';
 
 import './style.scss';
@@ -33,6 +30,10 @@ export type RecordMeterBarProps = {
 	 * The formatting style for legend item display. If not provided, it defaults to showing legend label after count
 	 */
 	showLegendLabelBeforeCount?: boolean;
+	/**
+	 * The sort style for legend item. If not provided, it defaults to no sorting.
+	 */
+	sortByCount?: 'ascending' | 'descending';
 };
 
 /**
@@ -45,6 +46,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	totalCount,
 	items = [],
 	showLegendLabelBeforeCount = false,
+	sortByCount,
 } ) => {
 	const total = useMemo( () => {
 		// If total count is not given, then compute it from items' count
@@ -56,10 +58,20 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 		);
 	}, [ items, totalCount ] );
 
+	const itemsToRender = useMemo( () => {
+		if ( sortByCount ) {
+			// create a new array because .sort() updates the array in place.
+			return [ ...items ].sort( ( a, z ) => {
+				return 'ascending' === sortByCount ? a.count - z.count : z.count - a.count;
+			} );
+		}
+		return items;
+	}, [ items, sortByCount ] );
+
 	return (
 		<div className="record-meter-bar">
 			<div className="record-meter-bar__items">
-				{ items.map( ( { count, label, backgroundColor } ) => {
+				{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
 					const widthPercent = ( ( count / total ) * 100 ).toPrecision( 2 );
 					return (
 						<div key={ label } style={ { backgroundColor, flexBasis: `${ widthPercent }%` } }></div>
@@ -68,7 +80,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 			</div>
 			<div className="record-meter-bar__legend">
 				<ul className="record-meter-bar__legend--items">
-					{ items.map( ( { count, label, backgroundColor } ) => {
+					{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
 						return (
 							<li key={ label } className="record-meter-bar__legend--item">
 								<div

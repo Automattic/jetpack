@@ -1,8 +1,3 @@
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo, useState } from '@wordpress/element';
 import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import {
 	Panel,
@@ -13,15 +8,13 @@ import {
 	Button,
 } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { useCallback, useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import './editor.scss';
-import { ParticipantsSelector } from './components/participants-controls';
-import TranscriptionContext from './components/context';
-import { TranscriptIcon as icon } from '../../shared/icons';
 import createBlocksFromInnerBlocksTemplate from '../../shared/create-block-from-inner-blocks-template';
+import { TranscriptIcon as icon } from '../../shared/icons';
+import TranscriptionContext from './components/context';
+import { ParticipantsSelector } from './components/participants-controls';
 import {
 	getParticipantByLabel,
 	parseTranscriptFile,

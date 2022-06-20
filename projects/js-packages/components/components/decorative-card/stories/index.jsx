@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import DecorativeCard from '../index.jsx';
 

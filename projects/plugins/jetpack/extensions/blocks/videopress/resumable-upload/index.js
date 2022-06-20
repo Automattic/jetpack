@@ -1,16 +1,5 @@
-/**
- * External Dependencies
- */
-import filesize from 'filesize';
-
-/**
- * WordPress dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
-import { escapeHTML } from '@wordpress/escape-html';
-import { getJWT, resumableUploader } from './use-uploader';
-import { Button, Icon } from '@wordpress/components';
 import { useBlockProps } from '@wordpress/block-editor';
+import { Button, Icon, ExternalLink } from '@wordpress/components';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -19,12 +8,12 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
-
-/**
- * Internal Dependencies
- */
+import { escapeHTML } from '@wordpress/escape-html';
+import { __, sprintf } from '@wordpress/i18n';
+import filesize from 'filesize';
 import { VideoPressIcon } from '../../../shared/icons';
 import { VideoPressBlockContext } from '../components';
+import { getJWT, resumableUploader } from './use-uploader';
 import './style.scss';
 
 export default function ResumableUpload( { file } ) {
@@ -117,6 +106,39 @@ export default function ResumableUpload( { file } ) {
 
 	const fileSizeLabel = filesize( file.size );
 
+	const getErrorMessage = () => {
+		let errorMessage = __(
+			'An error was encountered during the upload. Check your network connection.',
+			'jetpack'
+		);
+		if ( typeof error === 'object' ) {
+			const apiResponse = error.toString().match( /message":"([^"]+)"/ );
+			// tus doesnt give us direct acces to the API response, but let's try to parse it to provide useful feedback for the user.
+			if ( typeof apiResponse === 'object' && apiResponse.length === 2 ) {
+				const apiResponseMessage = apiResponse[ 1 ];
+				// Let's give this error a better message.
+				if ( apiResponseMessage === 'Invalid Mime' ) {
+					errorMessage = (
+						<>
+							{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
+							&nbsp;
+							<ExternalLink
+								href="https://wordpress.com/support/videopress/recommended-video-settings/"
+								target="_blank"
+								rel="noreferrer"
+							>
+								{ __( 'Check the recommended video settings.', 'jetpack' ) }
+							</ExternalLink>
+						</>
+					);
+				} else {
+					return apiResponseMessage;
+				}
+			}
+		}
+		return errorMessage;
+	};
+
 	return (
 		<div { ...blockProps }>
 			<div className="resumable-upload__logo">
@@ -125,18 +147,13 @@ export default function ResumableUpload( { file } ) {
 			</div>
 			{ null !== error ? (
 				<div className="resumable-upload__error">
-					<div className="resumable-upload__error-text">
-						{ __(
-							'An error was encountered during the upload. Check your network connection.',
-							'jetpack'
-						) }
-					</div>
+					<div className="resumable-upload__error-text">{ getErrorMessage() }</div>
 					<Button variant="primary" onClick={ () => restartUpload() }>
 						{ __( 'Try again', 'jetpack' ) }
 					</Button>
 					<Button
 						variant="secondary"
-						onClick={ () => onUploadFinished() }
+						onClick={ () => onUploadFinished( {} ) }
 						className="resumable-upload__error-cancel"
 					>
 						{ __( 'Cancel', 'jetpack' ) }

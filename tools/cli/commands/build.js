@@ -1,31 +1,24 @@
-/**
- * External dependencies
- */
-import chalk from 'chalk';
-import execa from 'execa';
-import fs from 'fs/promises';
 import { constants as fsconstants } from 'fs';
+import fs from 'fs/promises';
 import npath from 'path';
 import readline from 'readline';
+import chalk from 'chalk';
+import execa from 'execa';
 import inquirer from 'inquirer';
 import Listr from 'listr';
-import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
+import ListrState from 'listr/lib/state.js';
 import pLimit from 'p-limit';
-
-/**
- * Internal dependencies
- */
-import { chalkJetpackGreen } from '../helpers/styling.js';
-import { coerceConcurrency } from '../helpers/normalizeArgv.js';
-import formatDuration from '../helpers/format-duration.js';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
-import promptForProject from '../helpers/promptForProject.js';
-import { getInstallArgs, projectDir } from '../helpers/install.js';
-import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
 import FilterStream from '../helpers/filter-stream.js';
+import formatDuration from '../helpers/format-duration.js';
+import { getInstallArgs, projectDir } from '../helpers/install.js';
+import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import PrefixStream from '../helpers/prefix-stream.js';
+import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
+import promptForProject from '../helpers/promptForProject.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
@@ -842,7 +835,7 @@ async function buildProject( t ) {
 	// Build succeeded! Now do some bookkeeping.
 	t.ctx.versions[ t.project ] = {
 		name: composerJson.name,
-		version: composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-master' ] || 'dev-master',
+		version: composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-trunk' ] || 'dev-trunk',
 	};
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore

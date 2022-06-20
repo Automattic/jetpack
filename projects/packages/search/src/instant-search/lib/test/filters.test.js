@@ -1,9 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-/**
- * Internal dependencies
- */
 import {
 	FILTER_KEYS,
 	getFilterKeys,

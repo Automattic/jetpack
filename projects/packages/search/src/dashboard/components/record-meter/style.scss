@@ -35,64 +35,15 @@ ul.jp-search-chart-legend {
 	padding: 0 10px 0 3px;
 }
 
-.jp-search-chart-legend li .jp-search-chart-legend__label,
-.jp-search-chart-legend li .jp-search-chart-legend__count {
-	max-width: 200px;
+.jp-search-record-meter .record-meter-bar__legend--item-label {
+	max-width: 125px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	display: inherit;
-}
-
-.jp-search-notice-box {
-	background-color: white;
-	color: black;
-	border: $studio-gray-5 0.5px solid;
-	border-radius: 5px;
-}
-
-.jp-search-notice-box__important {
-	border: $studio-red-50 0.5px solid;
-}
-
-.jp-search-notice-box a.dops-notice__action {
-	display: inline;
-	color: black;
-	padding: 0 0 0 5px;
-	font-weight: bold;
-}
-
-.jp-search-notice-box span.dops-notice__dismiss > svg {
-	color: black;
-}
-
-.jp-search-notice-box span.dops-notice__dismiss > svg:hover {
-	color: black;
-}
-
-.jp-search-notice-box .dops-notice__icon-wrapper {
-	vertical-align: text-top;
-	color: black;
-}
-
-.jp-search-notice-box__important a.dops-notice__action,
-.jp-search-notice-box__important .dops-notice__icon-wrapper,
-.jp-search-notice-box__important,
-.jp-search-notice-box__important a.dops-notice__action {
-	color: $studio-red-50;
-}
-
-.jp-search-notice-box > span.dops-notice__icon-wrapper > svg {
-	margin: 0;
 }
 
 .jp-search-record-count p {
 	font-size: 1em;
-}
-
-.jp-search-record-meter .jp-search-notice-box > span.dops-notice__icon-wrapper {
-	background-color: rgba( 255, 255, 255, 0 );
-	padding-top: 13px;
 }
 
 .jp-search-record-meter {
@@ -100,6 +51,31 @@ ul.jp-search-chart-legend {
 	padding: 64px 0;
 }
 
+.jp-search-record-meter__content h2 {
+	margin-top: 0;
+}
+
+.jp-search-record-meter__content {
+	width: 100%; // fixes overflow issues in Firefox
+}
+
+.jp-search-record-meter .record-meter-bar__items div {
+	min-width: 10px;
+}
+
 .jp-search-record-meter__title h2 {
 	margin-top: 0;
+}
+
+.jp-search-record-meter .record-meter-bar__items {
+	height: 24px;
+}
+
+.jp-search-record-meter .record-meter-bar__legend--items {
+	flex-wrap: wrap;
+	text-transform: capitalize;
+}
+
+.jp-search-record-meter div.record-meter-bar > div.record-meter-bar__legend ul > li {
+	padding-bottom: 15px;
 }

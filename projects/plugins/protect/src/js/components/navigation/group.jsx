@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React, { useState, useCallback, useContext } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import styles from './styles.module.scss';
+import React, { useState, useCallback, useContext } from 'react';
 import ItemLabel from './label';
+import styles from './styles.module.scss';
 import { NavigationContext } from './use-menu-navigation';
 
 const MAX_ITEMS = 8;

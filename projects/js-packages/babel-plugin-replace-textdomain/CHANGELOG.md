@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2022-06-14
+### Changed
+- Updated package dependencies. [#24724]
+
+## [1.0.8] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
 ## [1.0.7] - 2022-05-10
 ### Changed
 - Updated package dependencies [#24276] [#24296]
@@ -42,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release.
 - Replace missing domains too.
 
+[1.0.9]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.8...v1.0.9
+[1.0.8]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.4...v1.0.5

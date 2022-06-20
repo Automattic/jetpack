@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { __ } from '@wordpress/i18n';
 import { Button, Spinner } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import React from 'react';
 
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 /**

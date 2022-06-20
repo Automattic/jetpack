@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import PropTypes from 'prop-types';
+import React from 'react';
 import Label from './label';
 
 export default class ModuleChartXAxis extends React.Component {

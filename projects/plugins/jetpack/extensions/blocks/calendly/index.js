@@ -1,23 +1,13 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import icon from './icon';
 import save from './save';
 import { getAttributesFromEmbedCode, REGEX } from './utils';
-import { getIconColor } from '../../shared/block-icons';
 
-/**
- * Style dependencies
- */
 import './editor.scss';
 
 export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wpcom/jetpack-block-example';

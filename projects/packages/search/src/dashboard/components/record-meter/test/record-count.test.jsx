@@ -2,17 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import { RecordCount } from 'components/record-meter/record-count';
+import React from 'react';
 
 describe( 'record count', () => {
 	test( 'outputs correct record counts', () => {

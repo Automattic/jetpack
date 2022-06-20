@@ -165,15 +165,17 @@ abstract class Sharing_Source {
 	/**
 	 * Get the HTML markup to display a sharing link.
 	 *
-	 * @param string   $url   Post URL to share.
-	 * @param string   $text  Sharing display text.
-	 * @param string   $title Post title.
-	 * @param string   $query Sharing service URL parameter.
-	 * @param bool|int $id    Sharing ID.
+	 * @param string      $url             Post URL to share.
+	 * @param string      $text            Sharing display text.
+	 * @param string      $title           The title for the link.
+	 * @param string      $query           Additional query arguments to add to the link. They should be in 'foo=bar&baz=1' format.
+	 * @param bool|string $id              Sharing ID to include in the data-shared attribute.
+	 * @param array       $data_attributes The keys are used as additional attribute names with 'data-' prefix.
+	 *                                     The values are used as the attribute values.
 	 *
-	 * @return string
+	 * @return string The HTML for the link.
 	 */
-	public function get_link( $url, $text, $title, $query = '', $id = false ) {
+	public function get_link( $url, $text, $title, $query = '', $id = false, $data_attributes = array() ) {
 		$args    = func_get_args();
 		$klasses = array( 'share-' . $this->get_class(), 'sd-button' );
 
@@ -197,7 +199,7 @@ abstract class Sharing_Source {
 		 *
 		 * @since 3.4.0
 		 *
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param object $this Sharing service properties.
 		 * @param array $args Array of sharing service options.
 		 */
@@ -211,7 +213,7 @@ abstract class Sharing_Source {
 		 *
 		 * @param string $url Post URL.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$url = apply_filters( 'sharing_display_link', $url, $this, $id, $args ); // backwards compatibility
@@ -224,7 +226,7 @@ abstract class Sharing_Source {
 		 *
 		 * @param string $url Post URL.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$url = apply_filters( 'jetpack_sharing_display_link', $url, $this, $id, $args );
@@ -237,7 +239,7 @@ abstract class Sharing_Source {
 		 *
 		 * @param string $query Sharing service URL parameter.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$query = apply_filters( 'jetpack_sharing_display_query', $query, $this, $id, $args );
@@ -263,7 +265,7 @@ abstract class Sharing_Source {
 		 *
 		 * @param array $klasses Sharing service classes.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$klasses = apply_filters( 'jetpack_sharing_display_classes', $klasses, $this, $id, $args );
@@ -276,7 +278,7 @@ abstract class Sharing_Source {
 		 *
 		 * @param string $title Sharing service title.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$title = apply_filters( 'jetpack_sharing_display_title', $title, $this, $id, $args );
@@ -289,19 +291,53 @@ abstract class Sharing_Source {
 		 *
 		 * @param string $text Sharing service text.
 		 * @param object $this Sharing service properties.
-		 * @param int|false $id Sharing ID.
+		 * @param string|false $id Sharing ID.
 		 * @param array $args Array of sharing service options.
 		 */
 		$text = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
 
+		/**
+		 * Filter the sharing data attributes.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 11.0
+		 *
+		 * @param array $data_attributes Attributes supplied from the sharing source.
+		 *                               Note that 'data-' will be prepended to all keys.
+		 * @param Sharing_Source $this Sharing source instance.
+		 * @param string|false $id Sharing ID.
+		 * @param array $args Array of sharing service options.
+		 */
+		$data_attributes = apply_filters( 'jetpack_sharing_data_attributes', (array) $data_attributes, $this, $id, $args );
+
+		$encoded_data_attributes = '';
+		if ( ! empty( $data_attributes ) ) {
+			$encoded_data_attributes = implode(
+				' ',
+				array_map(
+					function ( $data_key, $data_value ) {
+						return sprintf(
+							'data-%s="%s"',
+							esc_attr( str_replace( array( ' ', '"' ), '', $data_key ) ),
+							esc_attr( $data_value )
+						);
+					},
+					array_keys( $data_attributes ),
+					array_values( $data_attributes )
+				)
+			);
+		}
+
 		return sprintf(
-			'<a rel="nofollow%s" data-shared="%s" class="%s" href="%s"%s title="%s"><span%s>%s</span></a>',
+			'<a rel="nofollow%s" data-shared="%s" class="%s" href="%s"%s title="%s" %s><span%s>%s</span></a>',
 			( true === $this->open_link_in_new ) ? ' noopener noreferrer' : '',
 			( $id ? esc_attr( $id ) : '' ),
 			implode( ' ', $klasses ),
 			$url,
 			( true === $this->open_link_in_new ) ? ' target="_blank"' : '',
 			$title,
+			$encoded_data_attributes,
 			( 'icon' === $this->button_style ) ? '></span><span class="sharing-screen-reader-text"' : '',
 			$text
 		);
@@ -856,6 +892,20 @@ class Share_Email extends Sharing_Source {
 	}
 
 	/**
+	 * Helper function to return a nonce action based on the current post.
+	 *
+	 * @param WP_Post|null $post The current post if it is defined.
+	 * @return string The nonce action name.
+	 */
+	protected function get_email_share_nonce_action( $post ) {
+		if ( ! empty( $post ) && $post instanceof WP_Post ) {
+			return 'jetpack-email-share-' . $post->ID;
+		}
+
+		return 'jetpack-email-share';
+	}
+
+	/**
 	 * Process sharing request. Add actions that need to happen when sharing here.
 	 *
 	 * @param WP_Post $post Post object.
@@ -864,117 +914,32 @@ class Share_Email extends Sharing_Source {
 	 * @return void
 	 */
 	public function process_request( $post, array $post_data ) {
-		$ajax = false;
+		$is_ajax = false;
 		if (
 			isset( $_SERVER['HTTP_X_REQUESTED_WITH'] )
 			&& strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) ) === 'xmlhttprequest'
 		) {
-			$ajax = true;
+			$is_ajax = true;
 		}
 
-		$source_name  = false;
-		$target_email = $source_name;
-		$source_email = $target_email;
-
-		if ( isset( $post_data['source_email'] ) && is_email( $post_data['source_email'] ) ) {
-			$source_email = $post_data['source_email'];
+		// Require an AJAX-driven submit and a valid nonce to process the request
+		if (
+			$is_ajax
+			&& isset( $post_data['email-share-nonce'] )
+			&& wp_verify_nonce( $post_data['email-share-nonce'], $this->get_email_share_nonce_action( $post ) )
+		) {
+			// Ensure that we bump stats
+			parent::process_request( $post, $post_data );
 		}
 
-		if ( isset( $post_data['target_email'] ) && is_email( $post_data['target_email'] ) ) {
-			$target_email = $post_data['target_email'];
-		}
-
-		if ( isset( $post_data['source_name'] ) && strlen( $post_data['source_name'] ) < 200 ) {
-			$source_name = $post_data['source_name'];
-		} elseif ( isset( $post_data['source_name'] ) ) {
-			$source_name = substr( $post_data['source_name'], 0, 200 );
-		} else {
-			$source_name = '';
-		}
-
-		// Test email
-		$error = 1;   // Failure in data
-		if ( empty( $post_data['source_f_name'] ) && $source_email && $target_email && $source_name ) {
-			/**
-			 * Allow plugins to stop the email sharing button from running the shared message through Akismet.
-			 *
-			 * @module sharedaddy
-			 *
-			 * @since 1.1.0
-			 *
-			 * @param bool true Should we check if the message isn't spam?
-			 * @param object $post Post information.
-			 * @param array $post_data Information about the shared message.
-			 */
-			if ( apply_filters( 'sharing_email_check', true, $post, $post_data ) ) {
-				$data = array(
-					'post'           => $post,
-					'source'         => $source_email,
-					'target'         => $target_email,
-					'name'           => $source_name,
-					'sharing_source' => $this,
-				);
-				// todo: implement an error message when email doesn't get sent.
-				/**
-				 * Filter whether an email can be sent from the Email sharing button.
-				 *
-				 * @module sharedaddy
-				 *
-				 * @since 1.1.0
-				 *
-				 * @param array $data Array of information about the shared message.
-				 */
-				$data = apply_filters( 'sharing_email_can_send', $data );
-				if ( $data !== false ) {
-					// Record stats
-					parent::process_request( $data['post'], $post_data );
-
-					/**
-					 * Fires when an email is sent via the Email sharing button.
-					 *
-					 * @module sharedaddy
-					 *
-					 * @since 1.1.0
-					 *
-					 * @param array $data Array of information about the shared message.
-					 */
-					do_action( 'sharing_email_send_post', $data );
-				}
-
-				// Return a positive regardless of whether the user is subscribed or not
-				if ( $ajax ) {
-					?>
-<div class="response">
-	<div class="response-title"><?php esc_html_e( 'This post has been shared!', 'jetpack' ); ?></div>
-	<div class="response-sub">
-						<?php
-							printf(
-								/* Translators: placeholder is an email address. */
-								esc_html__( 'You have shared this post with %s', 'jetpack' ),
-								esc_html( $target_email )
-							);
-						?>
-	</div>
-	<div class="response-close"><a href="#" class="sharing_cancel"><?php esc_html_e( 'Close', 'jetpack' ); ?></a></div>
-</div>
-					<?php
-				} else {
-					wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email' );
-				}
-
-				die();
-			} else {
-				$error = 2;   // Email check failed
-			}
-		}
-
-		if ( $ajax ) {
-			echo (int) $error;
+		if ( $is_ajax ) {
+			wp_send_json_success();
 		} else {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
+			exit;
 		}
 
-		die();
+		wp_die();
 	}
 
 	/**
@@ -982,10 +947,50 @@ class Share_Email extends Sharing_Source {
 	 *
 	 * @param WP_Post $post Post object.
 	 *
-	 * @return string
+	 * @return string The HTML for the button.
 	 */
 	public function get_display( $post ) {
-		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Email', 'share to', 'jetpack' ), __( 'Click to email this to a friend', 'jetpack' ), 'share=email' );
+		$tracking_url = $this->get_process_request_url( $post->ID );
+		if ( false === stripos( $tracking_url, '?' ) ) {
+			$tracking_url .= '?';
+		} else {
+			$tracking_url .= '&';
+		}
+		$tracking_url .= 'share=email';
+
+		$data_attributes = array(
+			'email-share-error-title' => __( 'Do you have email set up?', 'jetpack' ),
+			'email-share-error-text'  => __(
+				"If you're having problems sharing via email, you might not have email set up for your browser. You may need to create a new email yourself.",
+				'jetpack'
+			),
+			'email-share-nonce'       => wp_create_nonce( $this->get_email_share_nonce_action( $post ) ),
+			'email-share-track-url'   => $tracking_url,
+		);
+
+		$post_title = $this->get_share_title( $post->ID );
+		$post_url   = $this->get_share_url( $post->ID );
+
+		/** This filter is documented in plugins/jetpack/modules/sharedaddy/sharedaddy.php */
+		$email_subject = apply_filters(
+			'wp_sharing_email_send_post_subject',
+			sprintf( '[%s] %s', __( 'Shared Post', 'jetpack' ), $post_title )
+		);
+
+		$mailto_query = sprintf(
+			'subject=%s&body=%s&share=email',
+			rawurlencode( $email_subject ),
+			rawurlencode( $post_url )
+		);
+
+		return $this->get_link(
+			'mailto:',
+			_x( 'Email', 'share to', 'jetpack' ),
+			__( 'Click to email a link to a friend', 'jetpack' ),
+			$mailto_query,
+			false,
+			$data_attributes
+		);
 	}
 
 	/**
@@ -1000,72 +1005,6 @@ class Share_Email extends Sharing_Source {
 		);
 
 		return $this->build_amp_markup( $attrs );
-	}
-
-	/**
-	 * Outputs the hidden email dialog
-	 */
-	public function display_footer() {
-		global $current_user;
-
-		$request_uri = isset( $_SERVER['REQUEST_URI'] )
-			? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) )
-			: '';
-		?>
-	<div id="sharing_email" style="display: none;">
-		<form action="<?php echo esc_url( $request_uri ); ?>" method="post">
-			<label for="target_email"><?php esc_html_e( 'Send to Email Address', 'jetpack' ); ?></label>
-			<input type="email" name="target_email" id="target_email" value="" />
-
-			<?php if ( is_user_logged_in() ) : ?>
-				<input type="hidden" name="source_name" value="<?php echo esc_attr( $current_user->display_name ); ?>" />
-				<input type="hidden" name="source_email" value="<?php echo esc_attr( $current_user->user_email ); ?>" />
-			<?php else : ?>
-
-				<label for="source_name"><?php esc_html_e( 'Your Name', 'jetpack' ); ?></label>
-				<input type="text" name="source_name" id="source_name" value="" />
-
-				<label for="source_email"><?php esc_html_e( 'Your Email Address', 'jetpack' ); ?></label>
-				<input type="email" name="source_email" id="source_email" value="" />
-
-			<?php endif; ?>
-			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" title="<?php esc_attr_e( 'This field is for validation and should not be changed', 'jetpack' ); ?>" />
-			<?php
-				/**
-				 * Fires when the Email sharing dialog is loaded.
-				 *
-				 * @module sharedaddy
-				 *
-				 * @since 1.1.0
-				 *
-				 * @param string jetpack Eail sharing source.
-				 */
-				do_action( 'sharing_email_dialog', 'jetpack' );
-			?>
-
-			<img style="float: right; display: none" class="loading" src="
-			<?php
-			/** This filter is documented in modules/stats.php */
-			echo esc_url( apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ) );
-			?>
-			" alt="loading" width="16" height="16" />
-			<input type="submit" value="<?php esc_attr_e( 'Send Email', 'jetpack' ); ?>" class="sharing_send" />
-			<a rel="nofollow" href="#cancel" class="sharing_cancel" role="button"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></a>
-
-			<div class="errors errors-1" style="display: none;">
-				<?php esc_html_e( 'Post was not sent - check your email addresses!', 'jetpack' ); ?>
-			</div>
-
-			<div class="errors errors-2" style="display: none;">
-				<?php esc_html_e( 'Email check failed, please try again', 'jetpack' ); ?>
-			</div>
-
-			<div class="errors errors-3" style="display: none;">
-				<?php esc_html_e( 'Sorry, your blog cannot share posts by email.', 'jetpack' ); ?>
-			</div>
-		</form>
-	</div>
-		<?php
 	}
 }
 
