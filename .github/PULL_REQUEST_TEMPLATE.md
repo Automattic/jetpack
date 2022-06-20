@@ -9,6 +9,11 @@ Fixes #
 <!--- Explain what functional changes your PR includes -->
 *
 
+#### Other information:
+
+- [ ] Have you written new tests for your changes, if applicable?
+- [ ] Have you checked the E2E test CI results, and verified that your changes do not break them?
+
 #### Jetpack product discussion
 <!-- If you're an Automattician, include a shortlink to the p2 discussion with Jetpack Product here. -->
 <!-- Make sure any changes to existing products have been discussed and agreed upon -->
@@ -26,3 +31,4 @@ Fixes #
 
 * Go to '..'
 *
+
