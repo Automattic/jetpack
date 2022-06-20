@@ -14,12 +14,6 @@
 					'jetpack-boost'
 				)}
 			</p>
-
-			<p>
-				<a class="settings-link" href="#/settings">
-					{__( 'Turn on/off other performance features.', 'jetpack-boost' )}
-				</a>
-			</p>
 		</div>
 	</div>
 </div>
