@@ -110,13 +110,13 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 			<table className="screen-reader-text">
 				<caption>{ __( 'Summary of the records', 'jetpack' ) }</caption>
 				<tbody>
-					<tr>
+					<tr key="tableheading">
 						<th scope="col">{ __( 'Record type', 'jetpack' ) }</th>
 						<th scope="col">{ __( 'Record count', 'jetpack' ) }</th>
 					</tr>
 					{ itemsToRender.map( ( { label, count } ) => {
 						return (
-							<tr>
+							<tr key={ label }>
 								<td key={ label }>{ label }</td>
 								<td key={ count }>{ count }</td>
 							</tr>
