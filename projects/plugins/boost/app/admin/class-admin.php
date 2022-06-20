@@ -149,6 +149,11 @@ class Admin {
 				'showScorePrompt'  => $this->get_show_score_prompt(),
 				'prioritySupport'  => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
+			'modules'             => array(
+				'css' => array(
+					'generated' => $this->is_critical_css_generated(),
+				),
+			),
 
 			/**
 			 * A bit of necessary magic,
@@ -401,4 +406,16 @@ class Admin {
 
 		return $constants;
 	}
+
+	/**
+	 * Utility functions for whether critical css has been generated or not
+	 *
+	 * @return boolean
+	 */
+
+	public function is_critical_css_generated() {
+		// for testing
+		return false;
+	}
+
 }

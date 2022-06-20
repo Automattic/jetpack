@@ -13,7 +13,7 @@
 </script>
 
 <Router history={routerHistory}>
-	<Route path="settings" component={Settings} />
+	<!-- <Route path="settings" component={Settings} /> -->
 	<Route path="upgrade" component={BenefitsInterstitial} />
 	<Route path="purchase-successful" component={PurchaseSuccess} />
 	<Route>
@@ -23,7 +23,11 @@
 			</div>
 
 			{#if $connection.connected || ! config.site.online}
-				<GetStarted />
+				{#if config.module.css.generated}
+					<GetStarted />
+				{:else}
+					<Settings />
+				{/if}
 			{:else}
 				<Connection />
 			{/if}
