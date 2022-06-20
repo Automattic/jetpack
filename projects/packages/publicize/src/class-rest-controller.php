@@ -99,8 +99,17 @@ class REST_Controller {
 	 */
 	public function get_publicize_shares_count() {
 		$blog_id  = $this->get_blog_id();
-		$path     = sprintf( '/sites/%d/shares-count', absint( $blog_id ) );
-		$response = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d/shares-count', absint( $blog_id ) ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+
 		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 
