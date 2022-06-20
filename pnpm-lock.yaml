@@ -336,12 +336,16 @@ importers:
       '@automattic/jetpack-components': workspace:* || ^0.16
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5
+      '@testing-library/user-event': 14.1.1
       '@wordpress/components': 19.12.0
       '@wordpress/element': 4.8.0
       '@wordpress/i18n': 4.10.0
       '@wordpress/icons': 9.1.0
-      jetpack-js-test-runner: workspace:*
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       prop-types: 15.7.2
       react: 17.0.2
       react-dom: 17.0.2
@@ -358,8 +362,12 @@ importers:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
+      '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
