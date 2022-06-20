@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Convert JS Components SplitButton to TypeScript
