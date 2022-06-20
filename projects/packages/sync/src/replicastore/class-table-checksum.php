@@ -188,7 +188,7 @@ class Table_Checksum {
 				'checksum_fields'           => array( 'post_modified_gmt' ),
 				'filter_values'             => Sync\Settings::get_disallowed_post_types_structured(),
 				'is_table_enabled_callback' => function () {
-					return Sync\Modules::get_module( 'posts' );
+					return false !== Sync\Modules::get_module( 'posts' );
 				},
 			),
 			'postmeta'                   => array(
@@ -201,7 +201,7 @@ class Table_Checksum {
 				'parent_join_field'         => 'ID',
 				'table_join_field'          => 'post_id',
 				'is_table_enabled_callback' => function () {
-					return Sync\Modules::get_module( 'posts' );
+					return false !== Sync\Modules::get_module( 'posts' );
 				},
 			),
 			'comments'                   => array(
@@ -223,7 +223,7 @@ class Table_Checksum {
 					),
 				),
 				'is_table_enabled_callback' => function () {
-					return Sync\Modules::get_module( 'comments' );
+					return false !== Sync\Modules::get_module( 'comments' );
 				},
 			),
 			'commentmeta'                => array(
@@ -236,7 +236,7 @@ class Table_Checksum {
 				'parent_join_field'         => 'comment_ID',
 				'table_join_field'          => 'comment_id',
 				'is_table_enabled_callback' => function () {
-					return Sync\Modules::get_module( 'comments' );
+					return false !== Sync\Modules::get_module( 'comments' );
 				},
 			),
 			'terms'                      => array(
@@ -247,7 +247,7 @@ class Table_Checksum {
 				'checksum_text_fields'      => array( 'name', 'slug' ),
 				'parent_table'              => 'term_taxonomy',
 				'is_table_enabled_callback' => function () {
-					return Sync\Modules::get_module( 'terms' );
+					return false !== Sync\Modules::get_module( 'terms' );
 				},
 			),
 			'termmeta'                   => array(
@@ -257,7 +257,7 @@ class Table_Checksum {
 				'checksum_text_fields'      => array( 'meta_key', 'meta_value' ),
 				'parent_table'              => 'term_taxonomy',
 				'is_table_enabled_callback' => function () {
-					return Sync\Modules::get_module( 'terms' );
+					return false !== Sync\Modules::get_module( 'terms' );
 				},
 			),
 			'term_relationships'         => array(
@@ -269,7 +269,7 @@ class Table_Checksum {
 				'parent_join_field'         => 'term_taxonomy_id',
 				'table_join_field'          => 'term_taxonomy_id',
 				'is_table_enabled_callback' => function () {
-					return Sync\Modules::get_module( 'terms' );
+					return false !== Sync\Modules::get_module( 'terms' );
 				},
 			),
 			'term_taxonomy'              => array(
@@ -280,7 +280,7 @@ class Table_Checksum {
 				'checksum_text_fields'      => array( 'taxonomy', 'description' ),
 				'filter_values'             => Sync\Settings::get_allowed_taxonomies_structured(),
 				'is_table_enabled_callback' => function () {
-					return Sync\Modules::get_module( 'terms' );
+					return false !== Sync\Modules::get_module( 'terms' );
 				},
 			),
 			'links'                      => $wpdb->links, // TODO describe in the array format or add exceptions.
@@ -311,7 +311,7 @@ class Table_Checksum {
 				'checksum_text_fields'      => array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ),
 				'filter_values'             => array(),
 				'is_table_enabled_callback' => function () {
-					return Sync\Modules::get_module( 'users' );
+					return false !== Sync\Modules::get_module( 'users' );
 				},
 			),
 
@@ -330,7 +330,7 @@ class Table_Checksum {
 				'key_fields'                => array(),
 				'checksum_fields'           => array(),
 				'is_table_enabled_callback' => function () {
-					return Sync\Modules::get_module( 'users' );
+					return false !== Sync\Modules::get_module( 'users' );
 				},
 			),
 		);
