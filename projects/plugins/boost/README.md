@@ -12,11 +12,11 @@ Please refer to the [Development guide](./docs/DEVELOPEMENT_GUIDE.md) section of
 
 ## Contribute
 
-Please refer to the [Contribute](https://github.com/Automattic/jetpack/blob/master/readme.md#contribute) section in the README.md file at the root of the repository.
+Please refer to the [Contribute](https://github.com/Automattic/jetpack/blob/trunk/readme.md#contribute) section in the README.md file at the root of the repository.
 
 ## Security
 
-Please refer to the [Security](https://github.com/Automattic/jetpack/blob/master/readme.md#security) section in the README.md file at the root of the repository.
+Please refer to the [Security](https://github.com/Automattic/jetpack/blob/trunk/readme.md#security) section in the README.md file at the root of the repository.
 
 ## License
 

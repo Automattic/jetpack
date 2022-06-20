@@ -47,7 +47,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-abtest/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.10.x-dev"
+			"dev-trunk": "1.10.x-dev"
 		}
 	},
 	"config": {

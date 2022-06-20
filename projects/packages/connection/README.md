@@ -8,9 +8,9 @@ Package is published in [Packagist](https://packagist.org/packages/automattic/je
 
 ```
 "require": {
-    "automattic/jetpack-autoloader": "dev-master",
-    "automattic/jetpack-config": "dev-master",
-    "automattic/jetpack-connection": "dev-master"
+    "automattic/jetpack-autoloader": "dev-trunk",
+    "automattic/jetpack-config": "dev-trunk",
+    "automattic/jetpack-connection": "dev-trunk"
 }
 ```
 

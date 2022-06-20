@@ -14,6 +14,8 @@
 		"@automattic/eslint-config-target-es": "workspace:*",
 		"@babel/core": "7.18.5",
 		"@babel/eslint-parser": "7.18.2",
+		"@babel/preset-react": "7.17.12",
+		"@babel/preset-typescript": "7.17.12",
 		"@octokit/auth-token": "2.5.0",
 		"@octokit/rest": "18.12.0",
 		"@rushstack/eslint-patch": "1.1.3",

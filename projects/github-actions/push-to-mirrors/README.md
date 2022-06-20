@@ -9,7 +9,7 @@ directory to multiple GitHub mirror repositories.
 name: Build
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   build:
