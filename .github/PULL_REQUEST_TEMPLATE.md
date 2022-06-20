@@ -26,3 +26,8 @@ Fixes #
 
 * Go to '..'
 *
+
+### Other information:
+
+- [ ] Have you written new tests for your changes, if applicable?
+- [ ] Have you checked the E2E test CI results, and verified that your changes does not break them?
