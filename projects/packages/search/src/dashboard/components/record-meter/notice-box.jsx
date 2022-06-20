@@ -22,9 +22,9 @@ const getNotices = ( tierMaximumRecords = null ) => {
 		},
 		2: {
 			id: 2,
-			header: __( "We weren't yet able to locate any content for Search", 'jetpack-search-pkg' ),
+			header: __( "We weren't able to locate any content for Search", 'jetpack-search-pkg' ),
 			message: __(
-				"This can happen if you don't have any posts or pages yet. If you have recently set up Search, please allow a little time for indexing to complete.",
+				'If you have recently set up Search, please allow a little time for indexing to complete.',
 				'jetpack-search-pkg'
 			),
 		},
