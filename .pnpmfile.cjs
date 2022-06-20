@@ -11,7 +11,8 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Way too many dependencies, some of them vulnerable, that we don't need for the one piece of this that we actually use.
+	// Way too many dependencies, some of them vulnerable, that we don't need for the one piece of this (dist/esm/progress-bar) that we actually use.
+	// p1655760691502999-slack-CBG1CP4EN
 	if ( pkg.name === '@automattic/components' ) {
 		delete pkg.dependencies[ '@automattic/data-stores' ];
 		delete pkg.dependencies[ 'i18n-calypso' ];
@@ -25,6 +26,7 @@ function fixDeps( pkg ) {
 	}
 
 	// Even though Storybook works with webpack 5, they still have a bunch of deps on webpack4.
+	// I hear v7 is supposed to fix that <https://github.com/storybookjs/storybook/issues/18261#issuecomment-1132031458>.
 	if ( pkg.name.startsWith( '@storybook/' ) ) {
 		if ( pkg.dependencies[ '@storybook/builder-webpack4' ] ) {
 			pkg.dependencies[ '@storybook/builder-webpack4' ] = 'npm:@storybook/builder-webpack5@^6';
@@ -53,7 +55,7 @@ function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on @babel/runtime
 	// https://github.com/WordPress/gutenberg/issues/41343
-	// https://github.com/Automattic/wp-calypso/issues/64034
+	// https://github.com/Automattic/wp-calypso/issues/64034 - Fixed, awaiting release.
 	// https://github.com/Automattic/wp-calypso/pull/64464
 	if (
 		( pkg.name === '@wordpress/reusable-blocks' ||
@@ -66,6 +68,7 @@ function fixDeps( pkg ) {
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
+	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( 'eslint-plugin-' ) || dep.endsWith( '/eslint-plugin' ) ) {
@@ -76,6 +79,7 @@ function fixDeps( pkg ) {
 	}
 
 	// Override @types/react* dependencies in order to use their specific versions
+	// @todo This is probably not safe: https://github.com/Automattic/jetpack/pull/24294#discussion_r881708463
 	for ( const dep of [ '@types/react', '@types/react-dom', '@types/react-test-renderer' ] ) {
 		if ( pkg.dependencies?.[ dep ] ) {
 			pkg.dependencies[ dep ] = '17.x';
@@ -83,6 +87,7 @@ function fixDeps( pkg ) {
 	}
 
 	// Regular expression DOS.
+	// Dep is via storybook, fix in v7: https://github.com/storybookjs/storybook/issues/14603#issuecomment-1105006210
 	if ( pkg.dependencies.trim === '0.0.1' ) {
 		pkg.dependencies.trim = '^0.0.3';
 	}
@@ -99,18 +104,27 @@ function fixDeps( pkg ) {
  * @returns {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
-	// React 17 is entirely compatible with React 16, but a lot of junk hasn't updated deps yet.
-	for ( const p of [ 'react', 'react-dom' ] ) {
-		if (
-			pkg.peerDependencies?.[ p ] &&
-			pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^16|16\.x)/ ) &&
-			! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ )
-		) {
-			pkg.peerDependencies[ p ] += ' || ^17';
+	// React 17 is entirely compatible with React 16, but of course abandoned packages exist...
+	const react16Pkgs = new Set( [
+		'react-dates', // @wordpress/components <https://github.com/WordPress/gutenberg/issues/21820?>
+		'airbnb-prop-types', // @wordpress/components → react-dates
+		'react-with-direction', // @wordpress/components → react-dates → react-with-styles
+		'react-autosize-textarea', // @wordpress/block-editor <https://github.com/WordPress/gutenberg/issues/39619>
+	] );
+	if ( react16Pkgs.has( pkg.name ) ) {
+		for ( const p of [ 'react', 'react-dom' ] ) {
+			if (
+				pkg.peerDependencies?.[ p ] &&
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^16|16\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ )
+			) {
+				pkg.peerDependencies[ p ] += ' || ^17';
+			}
 		}
 	}
 
 	// Missing peer dependency.
+	// https://github.com/Automattic/wp-calypso/pull/64238 - Fixed, awaiting release.
 	if (
 		pkg.name === 'eslint-plugin-wpcalypso' &&
 		! pkg.peerDependencies?.[ 'eslint-plugin-react' ]
