@@ -110,7 +110,7 @@ export default function Save( { className, attributes } ) {
 		button_on_newline: buttonOnNewLine,
 		submit_button_text:
 			submitButtonText !== defaultAttributes.submitButtonText.default
-				? submitButtonText.replace( /"/g, '&quot;' )
+				? submitButtonText
 				: undefined,
 		custom_background_emailfield_color: emailFieldBackgroundStyle,
 		custom_background_button_color: buttonBackgroundStyle,
@@ -128,13 +128,31 @@ export default function Save( { className, attributes } ) {
 		success_message: successMessage,
 	};
 
+	/**
+	 * Apply HTML encoding for special characters inside shortcode attributes: <, >, " and '.
+	 *
+	 * @see https://codex.wordpress.org/Shortcode_API#Attributes
+	 * @param {string} value - Value to encode.
+	 * @returns {string} Encoded value.
+	 */
+	const encodeValueForShortcodeAttribute = value => {
+		return value
+			.replace( /</g, '&lt;' )
+			.replace( />/g, '&gt;' )
+			.replace( /"/g, '&quot;' )
+			.replace( /'/g, '&#039;' );
+	};
+
 	const shortcodeAttributesStringified = reduce(
 		shortcodeAttributes,
 		( stringifiedAttributes, value, key ) => {
 			if ( undefined === value ) {
 				return stringifiedAttributes;
 			}
-			return stringifiedAttributes + ` ${ key }="${ value }"`;
+			return (
+				stringifiedAttributes +
+				` ${ key }="${ encodeValueForShortcodeAttribute( value.toString() ) }"`
+			);
 		},
 		''
 	);
