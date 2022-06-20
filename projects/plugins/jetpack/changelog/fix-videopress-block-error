@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix Cancel button on VideoPress block and provided better error message when video foramt is not supported
