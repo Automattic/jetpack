@@ -110,7 +110,11 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		dispatch( removeNotice( 'module-setting-update' ) );
 		dispatch( removeNotice( 'module-setting-update-success' ) );
 
-		const suppressNoticeFor = [ 'dismiss_dash_app_card', 'dismiss_empty_stats_card' ];
+		const suppressNoticeFor = [
+			'dismiss_dash_app_card',
+			'dismiss_empty_stats_card',
+			'dismiss_dash_backup_getting_started',
+		];
 		if (
 			'object' === typeof newOptionValues &&
 			! some( suppressNoticeFor, optionValue => optionValue in newOptionValues )
