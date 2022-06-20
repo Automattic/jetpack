@@ -32,7 +32,7 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect( screen.getByText( /index your content/i ) ).toBeVisible();
+		expect( screen.getByText( /locate any content/i ) ).toBeVisible();
 	} );
 
 	test( 'unable to locate content notice is displayed', () => {
