@@ -142,12 +142,6 @@ class Search extends Hybrid_Product {
 	 * @return array|WP_Error
 	 */
 	public static function get_pricing_from_wpcom( $record_count ) {
-		static $pricing;
-
-		if ( null !== $pricing ) {
-			return $pricing;
-		}
-
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
 			'2',
