@@ -176,9 +176,25 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.4.2 - 2022-04-11
+### 1.5.0-beta - 2022-06-21
+#### Added
+- Cloud CSS: Added support for generating Critical CSS in the cloud.
+- Critical CSS: Added an explanation for Console output during Critical CSS Generation.
+- General: Added an option to purchase a premium Jetpack Boost plan.
+- General: Added option to contact premium support for paid users.
+- Speed Scores: Added prompt for reaching out to support when the speed score decreases.
+
+#### Changed
+- General: Remove soft disconnect.
+- General: Remove use of `pnpx` in preparation for pnpm 7.0.
+- General: Renamed hook `handle_theme_change` to `handle_environment_change`
+- General: Renaming `master` branch to `trunk`.
+- General: Updated external links to use Jetpack Redirects.
+
 #### Fixed
-- Fixed critical CSS generation failure while using a CDN to serve CSS
+- Stability: Fix broken SQL query on uninstall.
+- General: Fix VS Code ESLint and prettier config.
+- General: Clean up use of FILTER_SANITIZE_STRING as it is deprecated in PHP 8.1
 
 --------
 

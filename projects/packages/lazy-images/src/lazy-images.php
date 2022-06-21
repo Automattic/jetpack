@@ -529,7 +529,7 @@ class Jetpack_Lazy_Images {
 	 *
 	 * See: https://github.com/Automattic/jetpack/issues/23553
 	 *
-	 * @since $$next-version$$
+	 * @since 2.1.18
 	 *
 	 * @param string|bool $value  The value to use for the loading attribute.
 	 * @param string      $image  The markup for the image.
