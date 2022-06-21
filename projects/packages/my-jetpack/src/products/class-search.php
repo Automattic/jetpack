@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use Jetpack_Options;
 use WP_Error;
@@ -105,20 +106,32 @@ class Search extends Hybrid_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		$record_count = intval( Search_Stats::estimate_count() );
-		$pricing      = static::get_pricing_from_wpcom( $record_count );
-
-		if ( is_wp_error( $pricing ) ) {
-			return $pricing;
-		}
-
-		return array_merge(
+		// Basic pricing info.
+		$pricing = array_merge(
 			array(
 				'available'          => true,
 				'wpcom_product_slug' => static::get_wpcom_product_slug(),
 			),
-			$pricing
+			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
+
+		$record_count   = intval( Search_Stats::estimate_count() );
+		$search_pricing = static::get_pricing_from_wpcom( $record_count );
+
+		if ( is_wp_error( $search_pricing ) ) {
+			return $pricing;
+		}
+
+		return array_merge( $pricing, $search_pricing );
+	}
+
+	/**
+	 * Get the WPCOM product slug used to make the purchase
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_product_slug() {
+		return 'jetpack_search';
 	}
 
 	/**
@@ -150,15 +163,6 @@ class Search extends Hybrid_Product {
 		$body    = wp_remote_retrieve_body( $response );
 		$pricing = json_decode( $body, true );
 		return $pricing;
-	}
-
-	/**
-	 * Get the WPCOM product slug used to make the purchase
-	 *
-	 * @return ?string
-	 */
-	public static function get_wpcom_product_slug() {
-		return 'jetpack_search';
 	}
 
 	/**
