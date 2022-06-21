@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\My_Jetpack\Products\Search_Stats;
 use Jetpack_Options;
 
 /**
