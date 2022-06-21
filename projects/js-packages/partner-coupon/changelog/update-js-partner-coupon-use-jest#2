@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Declare `type: module` in package.json, as `.js` files in the package use `include` rather than `require`.
