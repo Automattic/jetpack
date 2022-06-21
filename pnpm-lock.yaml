@@ -420,7 +420,10 @@ importers:
       '@babel/plugin-transform-react-jsx': 7.17.12
       '@babel/preset-react': 7.17.12
       '@babel/runtime': 7.18.3
-      '@wojtekmaj/enzyme-adapter-react-17': 0.6.3
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5
+      '@testing-library/user-event': 14.1.1
       '@wordpress/annotations': 2.10.0
       '@wordpress/babel-plugin-import-jsx-pragma': 3.1.2
       '@wordpress/components': 19.12.0
@@ -432,13 +435,9 @@ importers:
       '@wordpress/i18n': 4.10.0
       babel-jest: 28.1.0
       classnames: 2.3.1
-      enzyme: 3.11.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
-      jest-enzyme: 7.1.2
-      jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
-      nyc: 15.1.0
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
@@ -470,15 +469,14 @@ importers:
       '@babel/plugin-transform-react-jsx': 7.17.12_@babel+core@7.18.5
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
       '@babel/runtime': 7.18.3
-      '@wojtekmaj/enzyme-adapter-react-17': 0.6.3_7ltvq4e2railvf5uya4ffxpe2a
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
+      '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
       '@wordpress/babel-plugin-import-jsx-pragma': 3.1.2_@babel+core@7.18.5
       babel-jest: 28.1.0_@babel+core@7.18.5
-      enzyme: 3.11.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
-      jest-enzyme: 7.1.2_x3fx6ski7nqiropha7uejbvcbi
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
 
@@ -6292,7 +6290,6 @@ packages:
       react-dom: 17.0.2_react@17.0.2
       react-error-boundary: 3.1.4_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
-    dev: false
 
   /@testing-library/react-hooks/8.0.0_bllccsag72s5i2q7zhblnmav4q:
     resolution: {integrity: sha512-uZqcgtcUUtw7Z9N32W13qQhVAD+Xki2hxbTR461MKax8T6Jr8nsUvZB+vcBTkzY2nFvsUet434CsgF0ncW2yFw==}
@@ -16978,7 +16975,6 @@ packages:
 
   /preact/10.5.15:
     resolution: {integrity: sha512-5chK29n6QcJc3m1lVrKQSQ+V7K1Gb8HeQY6FViQ5AxCAEGu3DaHffWNDkC9+miZgsLvbvU9rxbV1qinGHMHzqA==}
-    dev: false
 
   /prelude-ls/1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}
@@ -18502,7 +18498,6 @@ packages:
     hasBin: true
     dependencies:
       chokidar: 3.5.3
-    dev: false
 
   /sass/1.43.3:
     resolution: {integrity: sha512-BJnLngqWpMeS65UvlYYEuCb3/fLxDxhHtOB/gWPxs6NKrslTxGt3ZxwIvOe/0Jm4tWwM/+tIpE3wj4dLEhPDeQ==}
@@ -19432,7 +19427,6 @@ packages:
   /svelte/3.42.4:
     resolution: {integrity: sha512-DqC0AmDdBrrbIA+Kzl3yhBb6qCn4vZOAfxye2pTnIpinLegyagC5sLI8Pe9GPlXu9VpHBXIwpDDedpMfu++epA==}
     engines: {node: '>= 8'}
-    dev: true
 
   /svelte2tsx/0.1.193_jnm2dayjvyndfzimboulpsettu:
     resolution: {integrity: sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==}
