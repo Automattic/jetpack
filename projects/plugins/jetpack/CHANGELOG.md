@@ -13,7 +13,7 @@
 - SEO Tools: allow WooCommerce to use custom SEO description for the shop page. [#24726]
 - Sharing: avoid fatal errors when email sharing process is called  without clicking on the button. [#24776]
 - VideoPress: fix embeds in classic editor when theme has no $content_width set. [#24756]
-- VideoPress Block: fix Cancel button on block and provide better error message when video foramt is not supported. [#24757]
+- VideoPress Block: fix Cancel button on block and provide better error message when video format is not supported. [#24757]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - E2E tests: bump @playwright/test and allure-playwright versions. [#24749]
