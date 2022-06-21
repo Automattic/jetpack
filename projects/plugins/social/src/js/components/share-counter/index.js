@@ -1,24 +1,27 @@
 import { Text } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
-const ShareCounter = ( { value, max } ) => {
-	const classname = classnames( styles.meter, {
-		[ styles[ 'meter--full' ] ]: value === max,
-	} );
-
-	const { sharesCount } = useSelect( select => {
-		console.log( ' i am here my man!!' );
+const ShareCounter = () => {
+	const { sharesCountResponse } = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
-			sharesCount: store.getSharesCount(),
+			sharesCountResponse: store.getSharesCount(),
 		};
 	} );
-	console.log( 'shares count is ' + sharesCount );
+
+	const sharesCountLoaded = sharesCountResponse && sharesCountResponse.results;
+	const sharesCount = sharesCountLoaded ? sharesCountResponse.results.total : 0;
+	const maxShares = 30;
+
+	useDispatch( STORE_ID ).getSharesCount();
+	const classname = classnames( styles.meter, {
+		[ styles[ 'meter--full' ] ]: sharesCount === 30,
+	} );
 
 	const text = createInterpolateElement(
 		sprintf(
@@ -27,23 +30,22 @@ const ShareCounter = ( { value, max } ) => {
 				'You’ve used <boldText>%1$d of %2$d</boldText> shares over the past 30 days.',
 				'jetpack-social'
 			),
-			value,
-			max
+			sharesCount,
+			maxShares
 		),
 		{
 			boldText: <strong />,
 		}
 	);
-
-	return (
+	return sharesCountLoaded ? (
 		<div>
 			<Text className={ styles.text }>{ text }</Text>
 			<div
 				className={ classname }
-				style={ { '--width': `${ Math.round( ( value / max ) * 100 ) }%` } }
+				style={ { '--width': `${ Math.round( ( sharesCount / maxShares ) * 100 ) }%` } }
 			></div>
 		</div>
-	);
+	) : null;
 };
 
 export default ShareCounter;

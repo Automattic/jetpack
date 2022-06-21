@@ -1,5 +1,7 @@
 const sharesCountSelectors = {
-	getSharesCount: state => state,
+	getSharesCount: state => {
+		return state.sharesCount;
+	},
 };
 
 export default sharesCountSelectors;

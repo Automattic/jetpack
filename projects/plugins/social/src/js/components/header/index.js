@@ -35,7 +35,7 @@ const SideColumn = ( { hasConnections, hasPaidUpgrade } ) => {
 
 	return (
 		<div className={ styles.column }>
-			<ShareCounter value={ 18 } max={ 30 } />
+			<ShareCounter />
 			<Upsell />
 		</div>
 	);
