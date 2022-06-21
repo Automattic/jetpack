@@ -129,7 +129,12 @@ class Search extends Hybrid_Product {
 	 * @return array|WP_Error
 	 */
 	public static function get_pricing_from_wpcom( $record_count ) {
-		static $status;
+		static $pricing;
+
+		if ( null !== $pricing ) {
+			return $pricing;
+		}
+
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/jetpack-search/pricing?record_count=%d', $record_count ),
 			'2',
@@ -142,9 +147,9 @@ class Search extends Hybrid_Product {
 			return new WP_Error( 'search_pricing_fetch_failed' );
 		}
 
-		$body   = wp_remote_retrieve_body( $response );
-		$status = json_decode( $body, true );
-		return $status;
+		$body    = wp_remote_retrieve_body( $response );
+		$pricing = json_decode( $body, true );
+		return $pricing;
 	}
 
 	/**
