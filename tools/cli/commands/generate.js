@@ -239,8 +239,9 @@ export async function generateProject(
 ) {
 	const type = pluralize( answers.type );
 	const project = type + '/' + answers.name;
-	const projDir = fileURLToPath(
-		new URL( `../../../projects/${ type }/${ answers.name }`, import.meta.url )
+	const projDir = path.join(
+		fileURLToPath( new URL( './', import.meta.url ) ),
+		`../../../projects/${ type }/${ answers.name }`
 	);
 
 	if ( 'plugin' === answers.type && 'starter' === answers.pluginTemplate ) {

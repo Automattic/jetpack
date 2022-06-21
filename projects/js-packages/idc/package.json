@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-idc",
-	"version": "0.10.14",
+	"version": "0.10.15-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -21,8 +21,6 @@
 	"devDependencies": {
 		"@babel/core": "7.18.5",
 		"@babel/preset-react": "7.17.12",
-		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-test-renderer": "17.0.2"
@@ -39,9 +37,7 @@
 		"*.css",
 		"*.scss"
 	],
-	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
-	},
+	"scripts": {},
 	"engines": {
 		"node": "^16.13.2",
 		"pnpm": "^7.1.1",
