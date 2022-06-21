@@ -196,7 +196,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 			return;
 		}
 
-		$this->generate_cloud_css( $post );
+		$this->generate_cloud_css();
 	}
 
 	/**
