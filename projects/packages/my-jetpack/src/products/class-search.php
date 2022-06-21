@@ -105,11 +105,11 @@ class Search extends Hybrid_Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		$record_count   = intval( Search_Stats::estimate_count() );
-		$search_pricing = static::get_pricing_from_wpcom( $record_count );
+		$record_count = intval( Search_Stats::estimate_count() );
+		$pricing      = static::get_pricing_from_wpcom( $record_count );
 
-		if ( is_wp_error( $search_pricing ) ) {
-			return $search_pricing;
+		if ( is_wp_error( $pricing ) ) {
+			return $pricing;
 		}
 
 		return array_merge(
@@ -117,7 +117,7 @@ class Search extends Hybrid_Product {
 				'available'          => true,
 				'wpcom_product_slug' => static::get_wpcom_product_slug(),
 			),
-			$search_pricing
+			$pricing
 		);
 	}
 
