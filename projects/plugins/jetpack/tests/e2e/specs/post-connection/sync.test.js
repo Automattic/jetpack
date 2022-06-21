@@ -66,7 +66,7 @@ test.describe( 'Sync', () => {
 				'Previously created post should be present in the synced posts'
 			).toContainEqual(
 				expect.objectContaining( {
-					title: 'Testing Sync',
+					title: postTitle,
 				} )
 			);
 		} );
