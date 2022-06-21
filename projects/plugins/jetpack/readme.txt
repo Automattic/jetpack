@@ -253,7 +253,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - SEO Tools: allow WooCommerce to use custom SEO description for the shop page.
 - Sharing: avoid fatal errors when email sharing process is called  without clicking on the button.
 - VideoPress: fix embeds in classic editor when theme has no $content_width set.
-- VideoPress Block: fix Cancel button on block and provide better error message when video foramt is not supported.
+- VideoPress Block: fix Cancel button on block and provide better error message when video format is not supported.
 
 --------
 
