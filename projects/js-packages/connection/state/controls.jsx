@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { createRegistryControl } from '@wordpress/data';
-import { STORE_ID } from './store';
+import STORE_ID from './store-id';
 
 const REGISTER_SITE = ( { registrationNonce, redirectUri } ) =>
 	restApi.registerSite( registrationNonce, redirectUri );
