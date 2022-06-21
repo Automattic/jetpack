@@ -6,8 +6,7 @@ import reducer from './reducers';
 import resolvers from './resolvers';
 import selectors from './selectors';
 import storeHolder from './store-holder';
-
-const STORE_ID = 'jetpack-connection';
+import STORE_ID from './store-id';
 
 const initialState = window.JP_CONNECTION_INITIAL_STATE;
 
