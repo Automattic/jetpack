@@ -2,6 +2,12 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.2 - 2022-06-21
+### Changed
+- Convert JetpackLogo component to TypeScript
+- Convert JS Components SplitButton to TypeScript
+- Updated package dependencies.
+
 ## 0.16.1 - 2022-06-14
 ### Changed
 - Updated package dependencies. [#24722]

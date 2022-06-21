@@ -1,7 +1,7 @@
 import { ButtonGroup, Button, DropdownMenu } from '@wordpress/components';
-import PropTypes from 'prop-types';
-import React from 'react';
 import styles from './style.module.scss';
+import { SplitButtonProps } from './types';
+import type React from 'react';
 
 const DownIcon = () => (
 	<svg width="15" height="9" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="10 9 4 7">
@@ -13,35 +13,27 @@ const DownIcon = () => (
 	</svg>
 );
 
-const SplitButton = ( { variant, controls, popoverProps, toggleProps, ...buttonProps } ) => {
+const SplitButton: React.FC< SplitButtonProps > = ( {
+	variant,
+	controls,
+	popoverProps,
+	toggleProps,
+	label,
+	...buttonProps
+} ) => {
 	return (
 		<ButtonGroup className={ styles[ 'split-button' ] }>
 			<Button variant={ variant } { ...buttonProps } className={ styles.button } />
 			<DropdownMenu
 				toggleProps={ { variant, className: styles.button, ...toggleProps } }
 				popoverProps={ { noArrow: false, ...popoverProps } }
-				icon={ DownIcon }
+				icon={ <DownIcon /> }
 				disableOpenOnArrowDown={ true }
 				controls={ controls }
+				label={ label }
 			/>
 		</ButtonGroup>
 	);
-};
-
-SplitButton.propTypes = {
-	popoverProps: PropTypes.object,
-	toggleProps: PropTypes.object,
-	controls: PropTypes.arrayOf( PropTypes.object ),
-};
-
-SplitButton.defaultProps = {
-	controls: [
-		{
-			title: 'Control 1',
-			icon: null,
-			onClick: () => {},
-		},
-	],
 };
 
 export default SplitButton;

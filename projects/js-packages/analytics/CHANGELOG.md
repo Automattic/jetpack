@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Analytics package releases.
 
+## 0.1.15 - 2022-06-21
+### Changed
+- Drop dependency on lodash, use `Object.assign` instead.
+
 ## 0.1.14 - 2022-06-14
 
 ## 0.1.13 - 2022-06-08

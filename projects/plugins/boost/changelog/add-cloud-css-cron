@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Added cron job that checks if last attempt to cloud css failed and resends the request
