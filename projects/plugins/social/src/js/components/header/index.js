@@ -6,8 +6,6 @@ import { Icon, edit, lifesaver } from '@wordpress/icons';
 import classnames from 'classnames';
 import { STORE_ID } from '../../store';
 import ShareCounter from '../share-counter';
-import StatCards from '../stat-cards';
-import Upsell from '../upsell';
 import illustration from './illustration.svg';
 import styles from './styles.module.scss';
 
@@ -24,19 +22,14 @@ const Actions = ( { actions } ) => (
 	</div>
 );
 
-const SideColumn = ( { hasConnections, hasPaidUpgrade } ) => {
+const SideColumn = ( { hasConnections } ) => {
 	if ( ! hasConnections ) {
 		return <img src={ illustration } alt="" />;
-	}
-
-	if ( hasPaidUpgrade ) {
-		return <StatCards />;
 	}
 
 	return (
 		<div className={ styles.column }>
 			<ShareCounter />
-			<Upsell />
 		</div>
 	);
 };
@@ -95,7 +88,7 @@ const Header = () => {
 				lg={ { start: hasPaidUpgrade ? 7 : 6, end: 12 } }
 				className={ columnClassname }
 			>
-				<SideColumn hasConnections={ hasConnections } hasPaidUpgrade={ hasPaidUpgrade } />
+				<SideColumn hasConnections={ hasConnections } />
 			</Col>
 		</Container>
 	);
