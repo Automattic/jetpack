@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a proxy end-point to get the shares count for Publicize.
