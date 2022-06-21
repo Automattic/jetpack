@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.18.6 - 2022-06-21
+### Added
+- JS Connection: return a Promise when registering site [#24238]
+
 ## 0.18.5 - 2022-06-14
 ### Changed
 - Updated package dependencies. [#24722]

@@ -50,6 +50,16 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/publicize/shares-count',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_publicize_shares_count' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -79,6 +89,27 @@ class REST_Controller {
 		$blog_id  = $this->get_blog_id();
 		$path     = sprintf( '/sites/%d/publicize/connections', absint( $blog_id ) );
 		$response = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
+		return rest_ensure_response( $this->make_proper_response( $response ) );
+	}
+
+	/**
+	 * Gets the publicize shares count for the site.
+	 *
+	 * GET `jetpack/v4/publicize/shares-count`
+	 */
+	public function get_publicize_shares_count() {
+		$blog_id  = $this->get_blog_id();
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d/shares-count', absint( $blog_id ) ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+
 		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 
