@@ -1,6 +1,11 @@
 <script>
 	import { __ } from '@wordpress/i18n';
+	//	import { criticalCssStatus, showError } from '../../../stores/critical-css-status';
+	import { criticalCssStatus } from '../../stores/critical-css-status';
+	import { maybeGenerateCriticalCss } from '../../utils/generate-critical-css';
 	import ProgressBar from '../settings/elements/ProgressBar.svelte';
+
+	maybeGenerateCriticalCss();
 </script>
 
 <div id="jb-start" class="jb-settings">
@@ -15,6 +20,6 @@
 			)}
 		</p>
 
-		<ProgressBar progress={25} />
+		<ProgressBar progress={$criticalCssStatus.progress} />
 	</div>
 </div>

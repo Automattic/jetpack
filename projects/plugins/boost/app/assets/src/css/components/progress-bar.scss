@@ -21,3 +21,13 @@
 		background-color: #069E08;
 	}
 }
+
+#jb-start{
+	.jb-progress-bar{
+		height:30px;
+		border-radius: 20px;
+		&__filler{
+			border-radius: 20px;
+		}
+	}
+}
