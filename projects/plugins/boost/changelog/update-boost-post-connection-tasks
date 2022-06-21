@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Make sure that modules state is refreshed during connection

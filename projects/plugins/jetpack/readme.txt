@@ -242,11 +242,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.1-a.3 - 2022-06-14
+### 11.1-a.5 - 2022-06-21
+#### Enhancements
+- VideoPress: enable blocks with VideoPress markdown to be previewed within the mobile app.
+
 #### Bug fixes
-- Connection: move the connection_url_redirect action handling to the connection package.
-- Dashboard: format anti-spam stats properly, including in languages using a space as thousands separator.
-- Mailchimp Block: center spinner during loading block content.
+- Contact Form Block: display expected success message when used in FSE header or footer.
+- Photon: do not return Photonized URLs to the block editor in WordPress 6.0.
+- Search: avoid broken images in search results by preferring the _jetpack_featured_media_url postmeta over the GUID.
+- SEO Tools: allow WooCommerce to use custom SEO description for the shop page.
+- Sharing: avoid fatal errors when email sharing process is called  without clicking on the button.
+- VideoPress: fix embeds in classic editor when theme has no $content_width set.
+- VideoPress Block: fix Cancel button on block and provide better error message when video format is not supported.
 
 --------
 
