@@ -1,11 +1,5 @@
 <!--
 	This component pops out and shows a message based on the props passed to it
-    - title
-    - message
-    - call to action
-    - CTA link
-    - action 
-    - nonce 
 -->
 <script>
 	import { createEventDispatcher } from 'svelte';
@@ -24,11 +18,6 @@
 	let data = '';
 
 	const dispatch = createEventDispatcher();
-
-	//need to set this as a writable so it is updated by the app. Page refresh sorts it but if I hit refresh score
-	//it will show it again even if the wp_option has been set on the back end. Writable store should solve this
-	//then the work is complete - some tidy up of the codebase will be neded since we do not need score increase
-	//or score decrease.
 
 	async function disablePrompt() {
 		// Send a request to back-end to permanently disable the rating prompt.
