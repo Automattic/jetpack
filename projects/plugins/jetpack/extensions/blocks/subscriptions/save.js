@@ -140,7 +140,11 @@ export default function Save( { className, attributes } ) {
 			.replace( /</g, '&lt;' )
 			.replace( />/g, '&gt;' )
 			.replace( /"/g, '&quot;' )
-			.replace( /'/g, '&#039;' );
+			.replace( /'/g, '&#039;' )
+			.replace( /\[/g, '&#091;' )
+			.replace( /\]/g, '&#093;' )
+			.replace( /\u00a0/g, '&nbsp;' )
+			.replace( /\u200b/g, '&#x200b;' );
 	};
 
 	const shortcodeAttributesStringified = reduce(
