@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixed VideoPress embeds in classic editor when theme has no $content_width set.
