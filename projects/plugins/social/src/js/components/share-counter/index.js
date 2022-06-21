@@ -1,13 +1,24 @@
 import { Text } from '@automattic/jetpack-components';
+import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
+import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
 const ShareCounter = ( { value, max } ) => {
 	const classname = classnames( styles.meter, {
 		[ styles[ 'meter--full' ] ]: value === max,
 	} );
+
+	const { sharesCount } = useSelect( select => {
+		console.log( ' i am here my man!!' );
+		const store = select( STORE_ID );
+		return {
+			sharesCount: store.getSharesCount(),
+		};
+	} );
+	console.log( 'shares count is ' + sharesCount );
 
 	const text = createInterpolateElement(
 		sprintf(

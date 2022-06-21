@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 
 export const FETCH_JETPACK_SETTINGS = 'FETCH_JETPACK_SETTINGS';
 export const UPDATE_JETPACK_SETTINGS = 'UPDATE_JETPACK_SETTINGS';
+export const GET_SHARES_COUNT = 'GET_SHARES_COUNT';
 
 /**
  * fetchJetpackSettings action
@@ -26,6 +27,18 @@ export const updateJetpackSettings = settings => {
 		settings,
 	};
 };
+
+/**
+ * fetchSharesCount action
+ *
+ * @returns {object} - an action object.
+ */
+export const fetchSharesCount = () => {
+	return {
+		type: GET_SHARES_COUNT,
+	};
+};
+
 export default {
 	[ FETCH_JETPACK_SETTINGS ]: function () {
 		return apiFetch( { path: '/jetpack/v4/social/settings' } );
@@ -36,5 +49,8 @@ export default {
 			method: 'POST',
 			data: action.settings,
 		} );
+	},
+	[ GET_SHARES_COUNT ]: function () {
+		return apiFetch( { path: '/jetpack/v4/publicize/shares-count' } );
 	},
 };
