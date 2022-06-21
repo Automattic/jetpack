@@ -6,4 +6,4 @@ This is our components and utilities to compose interfaces, it's based in our cu
 
 **CSS Grid Layout:** https://developer.mozilla.org/pt-BR/docs/Web/CSS/CSS_Grid_Layout
 
-_Access it component folder to see specific documentation_
+_Access each component folder to see specific documentation_
