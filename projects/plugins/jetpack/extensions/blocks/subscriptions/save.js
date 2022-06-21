@@ -129,7 +129,7 @@ export default function Save( { className, attributes } ) {
 	};
 
 	/**
-	 * Apply HTML encoding for special characters inside shortcode attributes: <, >, " and '.
+	 * Apply HTML encoding for special characters inside shortcode attributes.
 	 *
 	 * @see https://codex.wordpress.org/Shortcode_API#Attributes
 	 * @param {string} value - Value to encode.
