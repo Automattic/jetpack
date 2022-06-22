@@ -1,4 +1,4 @@
-import { Container, Col, H3, Text } from '@automattic/jetpack-components';
+import { Container, Col, H3, Text, Spinner } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -28,23 +28,17 @@ const Header = () => {
 	} );
 	const sharesCountLoaded = sharesCountResponse && sharesCountResponse.results;
 	const sharesCount = sharesCountLoaded ? sharesCountResponse.results.total : 0;
-	const text = sharesCountLoaded
-		? createInterpolateElement(
-				sprintf(
-					// translators: %1$d is the number of shares used.
-					__(
-						'You’ve made <boldText>%1$d</boldText> shares over the past 30 days.',
-						'jetpack-social'
-					),
-					sharesCount
-				),
-				{
-					boldText: <strong />,
-				}
-		  )
-		: __( 'Computing your shares', 'jetpack-social' );
+	const text = createInterpolateElement(
+		sprintf(
+			// translators: %1$d is the number of shares used.
+			__( 'You’ve made <boldText>%1$d</boldText> shares over the past 30 days.', 'jetpack-social' ),
+			sharesCount
+		),
+		{
+			boldText: <strong />,
+		}
+	);
 
-	// TODO: Add real links
 	const actions = [
 		{
 			link: '/wp-admin/post-new.php',
@@ -56,7 +50,11 @@ const Header = () => {
 		<Container horizontalSpacing={ 3 } horizontalGap={ 7 } className={ styles.container }>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
 				<H3 mt={ 2 }>{ __( 'Post everywhere', 'jetpack-social' ) }</H3>
-				{ <Text className={ styles.title }>{ text }</Text> }
+				{ sharesCountLoaded ? (
+					<Text className={ styles.title }>{ text }</Text>
+				) : (
+					<Spinner color="#000" size={ 32 } />
+				) }
 				<Actions actions={ actions } />
 			</Col>
 		</Container>
