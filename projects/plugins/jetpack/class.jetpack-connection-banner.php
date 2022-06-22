@@ -297,7 +297,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-connection-banner__logo">
 						<?php echo $jetpack_logo->get_jp_emblem_larger(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</div>
-					<h2 class="jp-connection-banner__title"><?php esc_html_e( 'Simplify your site security and performance with&nbsp;Jetpack', 'jetpack' ); ?></h2>
+					<h2 class="jp-connection-banner__title"><?php esc_html_e( 'Simplify your site security and performance with Jetpack', 'jetpack' ); ?></h2>
 					<div class="jp-connection-banner__columns">
 						<div class="jp-connection-banner__text"><?php esc_html_e( 'Jetpack provides easy-to-use, comprehensive WordPress site security and backups, so you can focus on running your business.', 'jetpack' ); ?></div>
 						<div class="jp-connection-banner__text"><?php esc_html_e( 'Jetpack’s performance features make your site lightning-fast, while also improving your SEO and giving your visitors a better experience.', 'jetpack' ); ?></div>
