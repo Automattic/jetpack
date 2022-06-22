@@ -30,7 +30,7 @@ useBreakpointMatch([ 'lg', 'sm' ]);
 
 An Single or Array of operator to match less, equal or greater than breakpoint.
 
-In Array, it match against the same index from breakpoint.
+In Array, it matches against the same index from breakpoint.
 
 - Type: `String`|`Array<String>`
 - Required: `false`
