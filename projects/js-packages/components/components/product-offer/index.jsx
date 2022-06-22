@@ -2,7 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, starFilled as star, plus, check } from '@wordpress/icons';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { Fragment, ReactElement } from 'react';
+import React, { Fragment } from 'react';
 import Alert from '../alert';
 import Button from '../button/index';
 import { getIconBySlug, CheckmarkIcon } from '../icons/index.jsx';
@@ -91,7 +91,7 @@ export function IconsCard( { products, icon, size = 24 } ) {
  * @param {Function} props.onAdd           - Callback function to be executed on click on Add button.
  * @param {string} props.addProductUrl     - The checkout URL to add/buy the product.
  * @param {string} props.buttonText        - The text to be displayed on the Add button.
- * @param {ReactElement} props.buttonDisclaimer - Content displayed below the Add button.
+ * @param {React.ReactElement} props.buttonDisclaimer - Content displayed below the Add button.
  * @param {string} props.error             - Error message.
  * @returns {React.ReactElement}             ProductOffer react component. Optional.
  */

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Photon: Do not return Photonized URLs to the block editor in WordPress 6.0.

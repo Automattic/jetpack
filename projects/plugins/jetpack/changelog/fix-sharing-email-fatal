@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Sharing: avoid Fatal errors when email sharing process is called  without clicking on the button.
