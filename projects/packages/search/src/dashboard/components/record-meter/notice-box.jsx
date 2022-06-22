@@ -12,7 +12,7 @@ const DISMISSED_NOTICES = 'jetpack-search-dismissed-notices';
 const getNotices = ( tierMaximumRecords = null ) => {
 	const recordLimit =
 		typeof tierMaximumRecords === 'number'
-			? tierMaximumRecords?.toLocaleString()
+			? tierMaximumRecords.toLocaleString()
 			: tierMaximumRecords;
 
 	return {
