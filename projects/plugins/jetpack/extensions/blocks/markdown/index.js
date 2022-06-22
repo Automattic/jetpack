@@ -39,7 +39,7 @@ const supportLink =
 		: 'https://jetpack.com/support/jetpack-blocks/markdown-block/';
 
 export const settings = {
-	title: __( 'Markdown', 'jetpack' ),
+	title: __( 'Markdown Testing', 'jetpack' ),
 
 	description: (
 		<Fragment>
