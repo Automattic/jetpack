@@ -31,7 +31,7 @@ A custom class to append with the default ones.
 
 ### sm
 
-Number of columns that will be applied in small breakpoints, or you could force the column it starts and ends.
+The number of columns that will be applied in small breakpoints, or you could force the column it starts and ends.
 
 Max of `4` columns.
 
@@ -48,7 +48,7 @@ Max of `4` columns.
 
 ### md
 
-Number of columns that will be applied in medium breakpoints, or you could force the column it starts and ends.
+The number of columns that will be applied in medium breakpoints, or you could force the column it starts and ends.
 
 Max of `8` columns.
 
@@ -65,7 +65,7 @@ Max of `8` columns.
 
 ### lg
 
-Number of columns that will be applied in large breakpoints, or you could force the column it starts and ends.
+The number of columns will be applied in large breakpoints, or you could force where the column starts and ends.
 
 Max of `12` columns.
 

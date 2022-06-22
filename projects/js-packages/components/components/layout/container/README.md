@@ -1,6 +1,6 @@
 # Container
 
-Primitive component to be the [ `Grid Container` ](https://www.w3schools.com/css/css_grid_container.asp) in a Layout composition.
+The primitive component to be the [ `Grid Container` ](https://www.w3schools.com/css/css_grid_container.asp) in a Layout composition.
 
 It's made to be used with `Col` as children.
 
@@ -30,7 +30,7 @@ A custom class to append with the default ones.
 
 ### fluid
 
-Makes the container take the full width, and removes the right and left padding.
+It makes the container take the entire width and removes the right and left padding.
 
 - Type: `Boolean`
 - Default: `false`
@@ -46,7 +46,7 @@ Makes the container take the full width, and removes the right and left padding.
 
 The space on top and bottom of the container.
 
-Value is multiplied per `8px`, following our specs.
+Value is multiplied by `8px`, following our specs.
 
 - Type: `Number`
 - Default: `1`
@@ -63,7 +63,7 @@ Value is multiplied per `8px`, following our specs.
 
 The space between each row.
 
-Value is multiplied per `8px`, following our specs.
+Value is multiplied by `8px`, following our specs.
 
 - Type: `Number`
 - Default: `1`
