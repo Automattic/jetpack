@@ -432,9 +432,18 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * <name>
 		 * : The name of the data field to retrieve
 		 *
+		 * [--format=<format>]
+		 * : Render output in a particular format.
+		 * ---
+		 * default: list
+		 * options:
+		 *   - list
+		 *   - json
+		 * ---
+		 *
 		 * @subcommand persistent-data
 		 */
-		public function persistent_data( $args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		public function persistent_data( $args, $assoc_args ) {
 			if ( empty( $args[0] ) ) {
 				WP_CLI::error( 'Missing required field name.' );
 			}
@@ -442,7 +451,16 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			$name            = $args[0];
 			$persistent_data = new Atomic_Persistent_Data();
 
-			WP_CLI::log( $persistent_data->{ $name } );
+			$output = json_decode( $persistent_data->{ $name } );
+			if ( null === $output ) {
+				$output = $persistent_data->{ $name };
+			}
+
+			if ( 'json' === $assoc_args['format'] ) {
+				$output = wp_json_encode( $output, JSON_PRETTY_PRINT );
+			}
+
+			WP_CLI::log( print_r( $output, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 		}
 	}
 }
