@@ -46,7 +46,7 @@ Makes the container take the full width, and removes the right and left padding.
 
 The space on top and bottom of the container.
 
-Value is mutiplied per `8px`, following our specs.
+Value is multiplied per `8px`, following our specs.
 
 - Type: `Number`
 - Default: `1`
