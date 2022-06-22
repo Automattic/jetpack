@@ -11,6 +11,7 @@
 	margin-right: calc( var( --spacing-base ) / 2 );
 	width: calc( var( --spacing-base ) * 3 );
 	height: calc( var( --spacing-base ) * 3 );
+	align-self: flex-start;
 }
 
 .is-error {
