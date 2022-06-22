@@ -1852,7 +1852,17 @@ class Search extends Module {
 	 * @return array List of taxonomies that get synced.
 	 */
 	public static function get_all_taxonomies() {
-		return self::$taxonomies_to_sync;
+		/**
+		 * Filters the taxonomies that get synced for search.
+		 *
+		 * Note: the list only controls whether to show the taxonomy in the search widget (at least for now).
+		 * If you want to change which taxonomies are indexed, you'd change `class.jetpack-sync-module-search.php` on WPCOM.
+		 *
+		 * @since  $$next-version$$
+		 *
+		 * @param array $taxonomies_to_sync List of taxonomies that get synced for search.
+		 */
+		return apply_filters( 'jetpack_sync_taxonomies_to_sync_for_search', self::$taxonomies_to_sync );
 	}
 
 }
