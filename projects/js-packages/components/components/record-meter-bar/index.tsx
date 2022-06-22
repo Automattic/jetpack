@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import numberFormat from '../number-format';
 
 import './style.scss';
 
@@ -81,6 +82,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 			<div className="record-meter-bar__legend">
 				<ul className="record-meter-bar__legend--items">
 					{ itemsToRender.map( ( { count, label, backgroundColor } ) => {
+						const formattedCount = numberFormat( count );
 						return (
 							<li key={ label } className="record-meter-bar__legend--item">
 								<div
@@ -89,7 +91,7 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 								/>
 								{ ! showLegendLabelBeforeCount && (
 									<span>
-										<span className="record-meter-bar__legend--item-count">{ count }</span>
+										<span className="record-meter-bar__legend--item-count">{ formattedCount }</span>
 										<span className="record-meter-bar__legend--item-label">{ label }</span>
 									</span>
 								) }
@@ -98,7 +100,9 @@ const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 										<span className="record-meter-bar__legend--item-label record-meter-bar__legend--item-label-first">
 											{ label }
 										</span>
-										<span className="record-meter-bar__legend--item-count">({ count })</span>
+										<span className="record-meter-bar__legend--item-count">
+											({ formattedCount })
+										</span>
 									</span>
 								) }
 							</li>
