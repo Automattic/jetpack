@@ -4,8 +4,8 @@ import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
 import React, { useCallback, useEffect } from 'react';
 import withUpgradeUrl from '../../hoc/with-upgrade-url';
-import { Layout } from '../layout';
 import RecommendedHeader from '../recommended-header';
+import { SidebarCard } from '../sidebar-card';
 
 const ProductCardUpsellNoPriceComponent = props => {
 	const { upgradeUrl } = props;
@@ -29,7 +29,7 @@ const ProductCardUpsellNoPriceComponent = props => {
 	];
 
 	return (
-		<Layout
+		<SidebarCard
 			header={ <RecommendedHeader /> }
 			content={
 				<div>

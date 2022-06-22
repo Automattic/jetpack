@@ -3,7 +3,13 @@ import React from 'react';
 
 import './style.scss';
 
-const Layout = props => {
+type Props = {
+	header: React.ReactNode;
+	content: React.ReactNode;
+	illustrationPath?: string;
+	compact?: boolean;
+};
+const SidebarCard: React.FC< Props > = props => {
 	const { header, content, illustrationPath, compact } = props;
 
 	return (
@@ -32,4 +38,4 @@ const Layout = props => {
 	);
 };
 
-export { Layout };
+export { SidebarCard };

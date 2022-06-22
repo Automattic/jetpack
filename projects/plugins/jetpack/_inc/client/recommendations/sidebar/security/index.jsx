@@ -7,7 +7,7 @@ import analytics from 'lib/analytics';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { getSiteRawUrl } from 'state/initial-state';
-import { Layout } from '../layout';
+import { SidebarCard } from '../sidebar-card';
 
 const SecurityComponent = props => {
 	const { siteRawUrl } = props;
@@ -25,7 +25,7 @@ const SecurityComponent = props => {
 	}, [] );
 
 	return (
-		<Layout
+		<SidebarCard
 			illustrationPath={ imagePath + '/recommendations/manage-security.svg' }
 			content={
 				<div>

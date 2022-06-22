@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import AppsBadge from 'components/apps-badge';
 import analytics from 'lib/analytics';
 import React, { useCallback, useEffect } from 'react';
-import { Layout } from '../layout';
+import { SidebarCard } from '../sidebar-card';
 
 import './style.scss';
 
@@ -37,7 +37,7 @@ const MobileApp = () => {
 	}, [] );
 
 	return (
-		<Layout
+		<SidebarCard
 			illustrationPath={ imagePath + '/recommendations/mobile-app.svg' }
 			content={
 				<div>

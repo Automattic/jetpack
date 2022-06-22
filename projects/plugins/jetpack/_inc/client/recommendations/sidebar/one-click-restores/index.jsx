@@ -7,7 +7,7 @@ import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { getSiteRawUrl } from 'state/initial-state';
 import { hasActiveSiteFeature } from 'state/site';
-import { Layout } from '../layout';
+import { SidebarCard } from '../sidebar-card';
 
 import './style.scss';
 
@@ -40,7 +40,7 @@ const OneClickRestoresComponent = props => {
 
 	return (
 		<>
-			<Layout
+			<SidebarCard
 				illustrationPath={ imagePath + '/recommendations/one-click-restores.svg' }
 				content={
 					<div className="jp-recommendations-one-click-restores">
@@ -73,7 +73,7 @@ const OneClickRestoresComponent = props => {
 					</div>
 				}
 			/>
-			<Layout
+			<SidebarCard
 				compact
 				content={
 					<div className="jp-recommendations-getting-started-compact">
