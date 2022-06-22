@@ -18,12 +18,12 @@ use WP_REST_Templates_Controller;
  */
 class Instant_Search extends Classic_Search {
 	/**
-	 * The name of instant search sidebar
+	 * The name of instant search sidebar. The typo is intended which walks around the mechanism that WP automatically adds widgets to it.
 	 *
 	 * @since 9.8.0
 	 * @var string
 	 */
-	const INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-sidebar';
+	const INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-sidebaar';
 
 	const AUTO_CONFIG_SIDEBAR = 'sidebar-1';
 
