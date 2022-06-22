@@ -44,7 +44,7 @@ const BackupGettingStarted = ( { isDismissed, dismiss }: Props ) => {
 					srcSet={ `${ imagePath + 'backup-getting-started-thumbnail.png' } 1x, ${
 						imagePath + 'backup-getting-started-thumbnail-2x.png'
 					} 2x` }
-					alt={ __( 'Getting started with Jetpack Backup video thumbnail', 'jetpack' ) }
+					alt=""
 				/>
 			</a>
 			<div className="dash-backup-getting-started__content">
