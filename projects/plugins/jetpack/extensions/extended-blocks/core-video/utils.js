@@ -9,7 +9,7 @@ import { ASPECT_RATIOS } from './constants';
  * Removes all previously set aspect ratio related classes and return the rest
  * existing class names.
  *
- * @param {string} existingClassNames Any existing class names.
+ * @param {string} existingClassNames - Any existing class names.
  * @returns {string} The class names without any aspect ratio related class.
  */
 export const removeAspectRatioClasses = existingClassNames => {
@@ -26,9 +26,9 @@ export const removeAspectRatioClasses = existingClassNames => {
 /**
  * Returns class names with any relevant responsive aspect ratio names.
  *
- * @param {string}  html               The preview HTML that possibly contains an iframe with width and height set.
- * @param {string}  existingClassNames Any existing class names.
- * @param {boolean} allowResponsive    If the responsive class names should be added, or removed.
+ * @param {string}  html               - The preview HTML that possibly contains an iframe with width and height set.
+ * @param {string}  existingClassNames - Any existing class names.
+ * @param {boolean} allowResponsive    - If the responsive class names should be added, or removed.
  * @returns {string} Deduped class names.
  */
 export function getClassNames( html, existingClassNames = '', allowResponsive = true ) {
