@@ -331,7 +331,7 @@ class Jetpack_Connection_Banner {
 	 * Renders the license-away version of the connection banner.
 	 *
 	 * @since 9.0.0
-	 * @since 11.1  Adjusted the banner to Emerald style
+	 * @since $$next-version$$  Adjusted the banner to Emerald style
 	 */
 	public function render_license_aware_banner() {
 		$jetpack_logo = new Logo();
