@@ -29,13 +29,13 @@ export default function useProtectData() {
 
 	return {
 		numVulnerabilities: status.numVulnerabilities || 0,
-		numCoreVulnerabilities: status.wordpress?.vulnerabilities?.length || 0,
+		numCoreVulnerabilities: status.core?.vulnerabilities?.length || 0,
 		numPluginsVulnerabilities: status.numPluginsVulnerabilities || 0,
 		numThemesVulnerabilities: status.numThemesVulnerabilities || 0,
 		lastChecked: status.lastChecked || null,
 		errorCode: status.errorCode || null,
 		errorMessage: status.errorMessage || null,
-		core: status.wordpress || {},
+		core: status.core || {},
 		plugins: status.plugins || [],
 		themes: status.themes || [],
 		currentStatus,

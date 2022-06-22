@@ -311,7 +311,7 @@ class Status {
 		$installed_themes    = Sync_Functions::get_themes();
 		$report_data->themes = self::merge_installed_and_checked_lists( $installed_themes, $report_data->themes, array( 'type' => 'theme' ) );
 
-		$report_data->wordpress = self::normalize_core_information( $report_data->wordpress );
+		$report_data->core = self::normalize_core_information( $report_data->core );
 
 		return $report_data;
 	}
