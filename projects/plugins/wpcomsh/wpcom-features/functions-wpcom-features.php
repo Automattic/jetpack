@@ -156,6 +156,8 @@ function wpcom_datetime_to_iso8601( $date, $default = 'now' ) {
  * This function converts atomic supported plan slugs and other product aliases to product objects. It then uses
  * WPCOM_Features to check if product include the requested $feature.
  *
+ * Do not pass a Store_Subscription to this function. For that case, use wpcom_purchase_has_feature().
+ *
  * @param string|int|Store_Product $product A Store_Product object, a product slug, or ID.
  * @param string                   $feature The name of the feature to check.
  *
@@ -173,12 +175,21 @@ function wpcom_product_has_feature( $product, $feature ) {
  * This function is similar to `wpcom_product_has_feature` with the difference that this function can check for legacy
  * features because purchases contain a `subscribed_date` field whereas products do not.
  *
+ * Do not pass a Store_Product to this function. For that case, use wpcom_product_has_feature().
+ *
  * @param Store_Subscription $purchase A Store_Subscription object.
  * @param string             $feature The name of the feature to check.
  *
  * @return bool
  */
 function wpcom_purchase_has_feature( $purchase, $feature ) {
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		_doing_it_wrong(
+			__FUNCTION__,
+			'Support for this function is only in available in contexts where the store products database is available.',
+			false // No version.
+		);
+	}
 	if ( ! ( $purchase instanceof Store_Subscription ) ) {
 		_doing_it_wrong(
 			__FUNCTION__,
@@ -186,6 +197,16 @@ function wpcom_purchase_has_feature( $purchase, $feature ) {
 			false // No version.
 		);
 	}
+	/**
+	 * We retrieve the product_slug directly from the Store_Product_List cache
+	 * instead of relying on the internals of Store_Subscription to retrieve it.
+	 *
+	 * The issue is that simply "->product_slug" can call a custom __get(),
+	 * which can issue SQL queries that take > 10ms for information is not needed.
+	 * This assignment grabs the value directly from the cached store_products data
+	 * avoiding any unnecessary queries.
+	 */
+	$purchase->product_slug = Store_Product_List::get_from_cache()[ $purchase->product_id ]['product_slug'];
 	return WPCOM_Features::has_feature( $feature, array( $purchase ) );
 }
 
