@@ -23,7 +23,7 @@ import { Container, Col, Text } from '@automattic/jetpack-components';
 
 ### className
 
-An custom class to append with the default ones.
+A custom class to append with the default ones.
 
 - Type: `String`
 - Default: `undefined`
