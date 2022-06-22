@@ -83,7 +83,7 @@ class WPCOM_Features {
 	private const WOOCOMMERCE_GIFT_CARDS_YEARLY               = 'woocommerce_gift_cards_yearly'; // 951
 	private const WOOCOMMERCE_GIFT_CARDS_MONTHLY              = 'woocommerce_gift_cards_monthly'; // 952
 	private const WOOCOMMERCE_PRODUCT_FILTERS_YEARLY          = 'woocommerce_product_filters_yearly'; // 953
-	private const WOOCOMMERCE_PRODUCT_FILTERS_MONTHLY         = 'woocommerce_product_filters_MONTHLY'; // 954
+	private const WOOCOMMERCE_PRODUCT_FILTERS_MONTHLY         = 'woocommerce_product_filters_monthly'; // 954
 	private const VALUE_BUNDLE                                = 'value_bundle'; // 1003
 	private const BUNDLE_PRO                                  = 'bundle_pro'; // 1004
 	private const BUNDLE_SUPER                                = 'bundle_super'; // 1005
@@ -322,6 +322,7 @@ class WPCOM_Features {
 	public const GOOGLE_ANALYTICS              = 'google-analytics';
 	public const GOOGLE_MY_BUSINESS            = 'google-my-business';
 	public const INSTALL_PLUGINS               = 'install-plugins';
+	public const INSTALL_PURCHASED_PLUGINS     = 'install-purchased-plugins';
 	public const INSTALL_THEMES                = 'install-themes';
 	public const INSTANT_SEARCH                = 'instant-search';
 	public const LIVE_SUPPORT                  = 'live_support';
@@ -588,6 +589,10 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
+		self::INSTALL_PURCHASED_PLUGINS     => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
 		self::INSTALL_THEMES                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
@@ -757,11 +762,7 @@ class WPCOM_Features {
 		),
 		self::SIMPLE_PAYMENTS               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_PREMIUM_PLANS,
-			self::JETPACK_BUSINESS_PLANS,
-			self::JETPACK_COMPLETE_PLANS,
-			self::JETPACK_SECURITY_DAILY_PLANS,
-			self::JETPACK_SECURITY_REALTIME_PLANS,
+			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 		self::SOCIAL_PREVIEWS               => array(
 			self::WPCOM_PRO_PLANS,
@@ -919,6 +920,8 @@ class WPCOM_Features {
 				self::JETPACK_SECURITY_REALTIME_PLANS,
 				self::JETPACK_SECURITY_T1_PLANS,
 				self::JETPACK_SECURITY_T2_PLANS,
+				self::JETPACK_PREMIUM_PLANS,
+				self::JETPACK_BUSINESS_PLANS,
 			),
 		),
 		self::WHATSAPP_BUTTON               => array(
