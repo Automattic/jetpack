@@ -1,6 +1,6 @@
 # Layout
 
-This is our components and utilities to compose interfaces, it's based in our current specs for Layout composition and CSS Grid Layout.
+These are our components and utilities to compose interfaces, it's based on our current specs for Layout composition and CSS Grid Layout.
 
 **Design Specs for Layout:** PbJqbW-7N-p2
 
