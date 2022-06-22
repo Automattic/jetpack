@@ -23,6 +23,9 @@ class Helper {
 	 */
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
 
+	/**
+	 * The post types to hide from 'Excluded post types'.
+	 */
 	const POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST = array( 'attachment' );
 
 	/**
