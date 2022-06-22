@@ -9,4 +9,12 @@ export async function onConnectionComplete(): Promise< void > {
 	if ( isEnabled( 'cloud-css' ) ) {
 		await requestCloudCss();
 	}
+
+	/**
+	 * Reload the window to reload Jetpack_Boost constant.
+	 *
+	 * @todo Implement a better way to fetch the new value for constant via AJAX.
+	 * @see app\admin\class-admin.php
+	 */
+	window.location.reload();
 }
