@@ -46,6 +46,11 @@ class Jetpack_JSON_API_Themes_Active_Endpoint extends Jetpack_JSON_API_Themes_En
 			return new WP_Error( 'theme_not_found', __( 'Theme is empty.', 'jetpack' ), 404 );
 		}
 
+		/**
+		* Trigger action before the switch theme happens.
+		*/
+		do_action( 'jetpack_pre_switch_theme', $theme_slug, $args );
+
 		$theme = wp_get_theme( $theme_slug );
 
 		if ( ! $theme->exists() ) {
