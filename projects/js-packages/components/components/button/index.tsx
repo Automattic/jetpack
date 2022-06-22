@@ -1,9 +1,9 @@
 import { Button as WPButton, Spinner } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
 import classNames from 'classnames';
+import React from 'react';
 import styles from './style.module.scss';
 import type { ButtonProps } from './types';
-import type React from 'react';
 
 /**
  * Button component
