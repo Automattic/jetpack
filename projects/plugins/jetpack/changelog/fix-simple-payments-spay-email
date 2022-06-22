@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Payments Block: only add PayPal email meta to Payment posts.
