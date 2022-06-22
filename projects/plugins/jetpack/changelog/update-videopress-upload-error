@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Update VideoPress upload error handling to match the new API response format
