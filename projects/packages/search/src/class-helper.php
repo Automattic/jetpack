@@ -817,7 +817,7 @@ class Helper {
 		$post_type_labels = array_filter(
 			$post_type_labels,
 			function ( $key ) {
-				return ! in_array( $key, self::POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST );
+				return ! in_array( $key, self::POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST, true );
 			},
 			ARRAY_FILTER_USE_KEY
 		);
