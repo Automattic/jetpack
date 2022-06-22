@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Modules\Search as Search_Sync_Module;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -964,7 +965,7 @@ class Search_Widget extends \WP_Widget {
 						$seen_taxonomy_labels = array();
 					?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat taxonomy-select">
-						<?php foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $taxonomy ) : ?>
+						<?php foreach ( $this->get_supported_taxonomies() as $taxonomy ) : ?>
 							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php $this->render_widget_option_selected( 'taxonomy', $args['taxonomy'], $taxonomy->name, $is_template ); ?>>
 								<?php
 									$label = in_array( $taxonomy->label, $seen_taxonomy_labels, true )
@@ -1052,5 +1053,18 @@ class Search_Widget extends \WP_Widget {
 			</p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Returns the taxonomies supported for users to choose from.
+	 */
+	protected function get_supported_taxonomies() {
+		$taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
+		return array_filter(
+			$taxonomies,
+			function ( $taxonomy ) {
+				return in_array( $taxonomy->name, Search_Sync_Module::get_all_taxonomies(), true );
+			}
+		);
 	}
 }

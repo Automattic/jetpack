@@ -1700,6 +1700,16 @@ class Search extends Module {
 		'timeline-pillar',
 		'timeline-type',
 
+		/*
+		 * User requested custom taxonomies.
+		 */
+		// https://dev.oecm.ca
+		'oecm_audience',
+		// https://tspa-iss-1219.mystagingwebsite.com
+		'tspa-resources-topic',
+		'tspa-resources-type',
+		'tspa-curriculum-type',
+
 	); // end taxonomies.
 
 	/**
