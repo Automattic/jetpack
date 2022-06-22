@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Reload the window on connection to make sure the upgrade flow is smooth
