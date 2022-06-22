@@ -28,7 +28,7 @@ useBreakpointMatch([ 'lg', 'sm' ]);
 
 ### operator
 
-An Single or Array of operator to match less, equal or greater than breakpoint.
+A Single or Array of operators to match less, equal, or greater than the breakpoint.
 
 In Array, it matches against the same index from breakpoint.
 
