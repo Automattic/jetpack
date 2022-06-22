@@ -1,5 +1,5 @@
 import { Container, Col, H3, Text } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, edit, lifesaver } from '@wordpress/icons';
@@ -22,27 +22,30 @@ const Actions = ( { actions } ) => (
 	</div>
 );
 
-const SideColumn = ( { hasConnections } ) => {
+const SideColumn = ( { hasConnections, sharesCount } ) => {
 	if ( ! hasConnections ) {
 		return <img src={ illustration } alt="" />;
 	}
 
 	return (
 		<div className={ styles.column }>
-			<ShareCounter />
+			<ShareCounter sharesCount={ sharesCount } />
 		</div>
 	);
 };
 
 const Header = () => {
-	const { hasConnections, hasPaidUpgrade } = useSelect( select => {
+	useDispatch( STORE_ID ).getSharesCount();
+	const { hasConnections, hasPaidUpgrade, sharesCountResponse } = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
 			hasConnections: store.hasConnections(),
 			hasPaidUpgrade: store.hasPaidUpgrade(),
+			sharesCountResponse: store.getSharesCount(),
 		};
 	} );
-
+	const sharesCountLoaded = sharesCountResponse && sharesCountResponse.results;
+	const sharesCount = sharesCountLoaded ? sharesCountResponse.results.total : 0;
 	const columnClassname = classnames( {
 		[ styles.illustration ]: ! hasConnections,
 	} );
@@ -71,7 +74,7 @@ const Header = () => {
 		actions.push( { link: '', label: __( 'Need help?', 'jetpack-social' ), icon: lifesaver } );
 	}
 
-	return (
+	return sharesCountLoaded ? (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 7 } className={ styles.container }>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
 				<H3 mt={ 2 }>
@@ -88,10 +91,10 @@ const Header = () => {
 				lg={ { start: hasPaidUpgrade ? 7 : 6, end: 12 } }
 				className={ columnClassname }
 			>
-				<SideColumn hasConnections={ hasConnections } />
+				<SideColumn hasConnections={ hasConnections } sharesCount={ sharesCount } />
 			</Col>
 		</Container>
-	);
+	) : null;
 };
 
 export default Header;
