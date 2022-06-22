@@ -686,6 +686,8 @@ class Search extends Module {
 		'link_category',
 		'nav_menu',
 		'post_format', // Special, limited to certain values.
+		'category',
+		'post_tag',
 
 		// bbpress.
 		'topic',
