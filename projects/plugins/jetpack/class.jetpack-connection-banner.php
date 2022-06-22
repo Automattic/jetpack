@@ -269,7 +269,7 @@ class Jetpack_Connection_Banner {
 	 *
 	 * @since 4.4.0
 	 * @since 7.2   Copy and visual elements reduced to show the new focus of Jetpack on Security and Performance.
-	 * @since 11.1  Adjusted the banner to Emerald style
+	 * @since $$next-version$$  Adjusted the banner to Emerald style
 	 */
 	public function render_banner() {
 		$jetpack_logo = new Logo();
