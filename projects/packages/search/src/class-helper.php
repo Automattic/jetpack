@@ -23,6 +23,8 @@ class Helper {
 	 */
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
 
+	const POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST = array( 'attachment' );
+
 	/**
 	 * Create a URL for the current search that doesn't include the "paged" parameter.
 	 *
@@ -809,6 +811,13 @@ class Helper {
 				'name'          => $obj->labels->name,
 			);
 		}
+		$post_type_labels = array_filter(
+			$post_type_labels,
+			function ( $key ) {
+				return ! in_array( $key, self::POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
 
 		$prefix         = Options::OPTION_PREFIX;
 		$posts_per_page = (int) get_option( 'posts_per_page' );
