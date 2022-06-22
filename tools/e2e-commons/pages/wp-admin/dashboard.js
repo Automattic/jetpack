@@ -8,12 +8,12 @@ export default class DashboardPage extends WpPage {
 	}
 
 	async isConnectBannerVisible() {
-		const selector = ".jp-wpcom-connect__container a[href*='register']";
+		const selector = ".jp-connection-banner a[href*='register']";
 		return await this.isElementVisible( selector );
 	}
 
 	async connect() {
-		const selector = ".jp-wpcom-connect__container a[href*='register']";
+		const selector = ".jp-connection-banner a[href*='register']";
 		return await this.click( selector );
 	}
 }
