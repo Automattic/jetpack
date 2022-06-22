@@ -47,7 +47,7 @@ const Header = () => {
 	// TODO: Add real links
 	const actions = [
 		{
-			link: '',
+			link: '/wp-admin/post-new.php',
 			label: __( 'Write a post', 'jetpack-social' ),
 			icon: edit,
 		},
