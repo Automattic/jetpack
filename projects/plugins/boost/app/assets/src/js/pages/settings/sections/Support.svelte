@@ -3,7 +3,7 @@
 	import { hasPrioritySupport, openPaidSupport } from '../../../utils/paid-plan';
 </script>
 
-{#if hasPrioritySupport}
+{#if $hasPrioritySupport}
 	<div class="jb-section">
 		<div class="jb-container--narrow">
 			<div class="jb-support">
