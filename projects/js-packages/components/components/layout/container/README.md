@@ -63,7 +63,7 @@ Value is mutiplied per `8px`, following our specs.
 
 The space between each row.
 
-Value is mutiplied per `8px`, following our specs.
+Value is multiplied per `8px`, following our specs.
 
 - Type: `Number`
 - Default: `1`
