@@ -40,65 +40,59 @@ const OneClickRestoresComponent = props => {
 
 	return (
 		<>
-			<SidebarCard
-				illustrationPath={ imagePath + '/recommendations/one-click-restores.svg' }
-				content={
-					<div className="jp-recommendations-one-click-restores">
-						<h2>{ __( 'Enable one-click restores', 'jetpack' ) }</h2>
-						<p>
-							{ sprintf(
-								/* translators: placeholder is the name of a backups plan: Daily Backups or Real-time Backups */
-								__(
-									'Get the most out of your %s. One-click restores ensure you’ll be able to easily restore your site, if anything goes wrong.',
-									'jetpack'
-								),
-								backupsName
-							) }
-						</p>
-						<p>
-							{ __(
-								'Enter your server credentials to enable one-click restores included in your plan.',
+			<SidebarCard illustrationPath={ imagePath + '/recommendations/one-click-restores.svg' }>
+				<div className="jp-recommendations-one-click-restores">
+					<h2>{ __( 'Enable one-click restores', 'jetpack' ) }</h2>
+					<p>
+						{ sprintf(
+							/* translators: placeholder is the name of a backups plan: Daily Backups or Real-time Backups */
+							__(
+								'Get the most out of your %s. One-click restores ensure you’ll be able to easily restore your site, if anything goes wrong.',
 								'jetpack'
-							) }
-						</p>
-						<div className="jp-recommendations-one-click-restores__cta">
-							<Button
-								rna
-								href={ getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ) }
-								onClick={ onCtaClick }
-							>
-								{ __( 'Enable one-click restores', 'jetpack' ) }
-							</Button>
-						</div>
-					</div>
-				}
-			/>
-			<SidebarCard
-				compact
-				content={
-					<div className="jp-recommendations-getting-started-compact">
-						<a
-							href={ GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL }
-							onClick={ trackOpenVideo }
-							target="_blank"
-							rel="noreferrer"
+							),
+							backupsName
+						) }
+					</p>
+					<p>
+						{ __(
+							'Enter your server credentials to enable one-click restores included in your plan.',
+							'jetpack'
+						) }
+					</p>
+					<div className="jp-recommendations-one-click-restores__cta">
+						<Button
+							rna
+							href={ getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ) }
+							onClick={ onCtaClick }
 						>
-							<img
-								className="jp-recommendations-getting-started-compact__thumbnail"
-								src={ imagePath + 'backup-getting-started-thumbnail.png' }
-								srcSet={ `${ imagePath + 'backup-getting-started-thumbnail.png' } 1x, ${
-									imagePath + 'backup-getting-started-thumbnail-2x.png'
-								} 2x` }
-								alt=""
-							/>
-						</a>
-						<div>
-							<h2>{ __( 'Getting started with Jetpack Backup', 'jetpack' ) }</h2>
-							<p>{ __( 'A short video guide on how to back up your website', 'jetpack' ) }</p>
-						</div>
+							{ __( 'Enable one-click restores', 'jetpack' ) }
+						</Button>
 					</div>
-				}
-			/>
+				</div>
+			</SidebarCard>
+			<SidebarCard compact>
+				<div className="jp-recommendations-getting-started-compact">
+					<a
+						href={ GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL }
+						onClick={ trackOpenVideo }
+						target="_blank"
+						rel="noreferrer"
+					>
+						<img
+							className="jp-recommendations-getting-started-compact__thumbnail"
+							src={ imagePath + 'backup-getting-started-thumbnail.png' }
+							srcSet={ `${ imagePath + 'backup-getting-started-thumbnail.png' } 1x, ${
+								imagePath + 'backup-getting-started-thumbnail-2x.png'
+							} 2x` }
+							alt=""
+						/>
+					</a>
+					<div>
+						<h2>{ __( 'Getting started with Jetpack Backup', 'jetpack' ) }</h2>
+						<p>{ __( 'A short video guide on how to back up your website', 'jetpack' ) }</p>
+					</div>
+				</div>
+			</SidebarCard>
 		</>
 	);
 };

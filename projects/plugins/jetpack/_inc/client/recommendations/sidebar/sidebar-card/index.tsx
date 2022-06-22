@@ -5,12 +5,11 @@ import './style.scss';
 
 type Props = {
 	header: React.ReactNode;
-	content: React.ReactNode;
 	illustrationPath?: string;
 	compact?: boolean;
 };
 const SidebarCard: React.FC< Props > = props => {
-	const { header, content, illustrationPath, compact } = props;
+	const { header, children, illustrationPath, compact } = props;
 
 	return (
 		<div
@@ -32,7 +31,7 @@ const SidebarCard: React.FC< Props > = props => {
 					'is-compact': compact,
 				} ) }
 			>
-				{ content }
+				{ children }
 			</div>
 		</div>
 	);
