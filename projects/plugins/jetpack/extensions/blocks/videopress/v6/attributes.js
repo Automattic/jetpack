@@ -1,4 +1,7 @@
 export default {
+	src: {
+		type: 'string',
+	},
 	autoplay: {
 		type: 'boolean',
 	},
