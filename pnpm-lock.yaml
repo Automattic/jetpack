@@ -775,7 +775,6 @@ importers:
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/data': 6.10.0
       '@wordpress/i18n': 4.10.0
-      enzyme: 3.11.0
       jest: 28.1.0
       react: 17.0.2
       react-dom: 17.0.2
@@ -795,7 +794,6 @@ importers:
       '@babel/runtime': 7.18.3
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/i18n': 4.10.0
-      enzyme: 3.11.0
       jest: 28.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2

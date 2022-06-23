@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove unused JS dep on `enzyme`. No change to the package itself.
+
+
