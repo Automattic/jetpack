@@ -53,7 +53,9 @@ const Header = () => {
 				<div className={ styles.socialIcon }>
 					<SocialIcon />
 				</div>
-				<div className={ styles.sharesCardHeading }>{ __( 'Total shares this month', 'jetpack-social' ) }</div>
+				<div className={ styles.sharesCardHeading }>
+					{ __( 'Total shares for this month', 'jetpack-social' ) }
+				</div>
 				<div className={ styles.sharesCount }>
 					{ sharesCountLoaded ? sharesCount : <Spinner color="#000" size={ 24 } /> }
 				</div>
