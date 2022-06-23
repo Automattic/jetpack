@@ -14,6 +14,7 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import { encodeValueForShortcodeAttribute } from './utils';
 
 export default function Save( { className, attributes } ) {
 	const {
@@ -126,25 +127,6 @@ export default function Save( { className, attributes } ) {
 		email_field_classes: emailFieldClasses,
 		show_only_email_and_button: true,
 		success_message: successMessage,
-	};
-
-	/**
-	 * Apply HTML encoding for special characters inside shortcode attributes.
-	 *
-	 * @see https://codex.wordpress.org/Shortcode_API#Attributes
-	 * @param {string} value - Value to encode.
-	 * @returns {string} Encoded value.
-	 */
-	const encodeValueForShortcodeAttribute = value => {
-		return value
-			.replace( /</g, '&lt;' )
-			.replace( />/g, '&gt;' )
-			.replace( /"/g, '&quot;' )
-			.replace( /'/g, '&#039;' )
-			.replace( /\[/g, '&#091;' )
-			.replace( /\]/g, '&#093;' )
-			.replace( /\u00a0/g, '&nbsp;' )
-			.replace( /\u200b/g, '&#x200b;' );
 	};
 
 	const shortcodeAttributesStringified = reduce(
