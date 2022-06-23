@@ -48,22 +48,28 @@
 }
 
 .sharesCard{
-	position: absolute;
 	width: 168px;
 	height: 168px;
-	right: 72px;
 	background: #FFFFFF;
 	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
+	@media ( min-width: 800px ) {
+		position: relative;
+		position: absolute;
+		width: 168px;
+		height: 168px;
+		right: 72px;
+		background: #FFFFFF;
+		box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
+		border-radius: 4px;
+	}
 }
 
 .sharesCardHeading{
-	position: absolute;
 	width: 96px;
 	height: 46px;
-	left: 24px;
-	top: 60px;
-
+	margin-top: 12px;
+	margin-left: 24px;
 	font-family: 'SF Pro Text';
 	font-style: normal;
 	font-weight: 600;
@@ -78,12 +84,9 @@
 }
 
 .sharesCount{
-	position: absolute;
 	width: 46px;
 	height: 40px;
-	left: 24px;
-	top: 107px;
-
+	margin-left: 24px;
 	font-family: 'SF Pro Display';
 	font-style: normal;
 	font-weight: 600;
@@ -98,9 +101,8 @@
 }
 
 .socialIcon{
-	position: absolute;
 	width: 24px;
 	height: 24px;
-	left: 24px;
-	top: 24px;
+	margin-left: 24px;
+	margin-top: 24px;
 }
