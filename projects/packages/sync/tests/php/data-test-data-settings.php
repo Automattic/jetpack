@@ -38,12 +38,7 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_options_whitelist'      => \Automattic\Jetpack\Sync\Defaults::$default_options_whitelist,
 				'jetpack_sync_options_contentless'    => \Automattic\Jetpack\Sync\Defaults::$default_options_contentless,
 				'jetpack_sync_constants_whitelist'    => array(),
-				'jetpack_sync_callable_whitelist'     => array(
-					'site_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
-					'home_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
-					'paused_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
-					'paused_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
-				),
+				'jetpack_sync_callable_whitelist'     => \Automattic\Jetpack\Sync\Defaults::$default_callable_whitelist,
 				'jetpack_sync_multisite_callable_whitelist' => array(),
 				'jetpack_sync_post_meta_whitelist'    => array(),
 				'jetpack_sync_comment_meta_whitelist' => array(),
@@ -53,8 +48,51 @@ class Data_Test_Data_Settings {
 			'set_filters' => array(
 				'jetpack_sync_modules',
 				'jetpack_sync_constants_whitelist',
-				'jetpack_sync_callable_whitelist',
-				'jetpack_sync_multisite_callable_whitelist',
+				'jetpack_sync_post_meta_whitelist',
+				'jetpack_sync_comment_meta_whitelist',
+				'jetpack_sync_capabilities_whitelist',
+				'jetpack_sync_known_importers',
+			),
+		);
+	}
+
+	/**
+	 * Returns an the test data for a scenario with some modules enabled and no custom filter settings.
+	 * Same as data_test_1 to verify the same behaviour when a MUST_SYNC module (Callables) is also provided as input.
+	 *
+	 * @return array The test input array.
+	 */
+	public static function data_test_1_2() {
+		return array(
+			'input'       => array(
+				'jetpack_sync_modules' => array(
+					'Automattic\Jetpack\Sync\Modules\Callables',
+					'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync',
+					'Automattic\\Jetpack\\Sync\\Modules\\Options',
+					'Automattic\\Jetpack\\Sync\\Modules\\Plugins',
+				),
+			),
+			'output'      => array(
+				'jetpack_sync_modules'                => array(
+					'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync',
+					'Automattic\\Jetpack\\Sync\\Modules\\Options',
+					'Automattic\\Jetpack\\Sync\\Modules\\Plugins',
+					'Automattic\Jetpack\Sync\Modules\Callables',
+					'Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately',
+				),
+				'jetpack_sync_options_whitelist'      => \Automattic\Jetpack\Sync\Defaults::$default_options_whitelist,
+				'jetpack_sync_options_contentless'    => \Automattic\Jetpack\Sync\Defaults::$default_options_contentless,
+				'jetpack_sync_constants_whitelist'    => array(),
+				'jetpack_sync_callable_whitelist'     => \Automattic\Jetpack\Sync\Defaults::$default_callable_whitelist,
+				'jetpack_sync_multisite_callable_whitelist' => array(),
+				'jetpack_sync_post_meta_whitelist'    => array(),
+				'jetpack_sync_comment_meta_whitelist' => array(),
+				'jetpack_sync_capabilities_whitelist' => array(),
+				'jetpack_sync_known_importers'        => array(),
+			),
+			'set_filters' => array(
+				'jetpack_sync_modules',
+				'jetpack_sync_constants_whitelist',
 				'jetpack_sync_post_meta_whitelist',
 				'jetpack_sync_comment_meta_whitelist',
 				'jetpack_sync_capabilities_whitelist',
@@ -137,7 +175,7 @@ class Data_Test_Data_Settings {
 	}
 
 	/**
-	 * Returns an the test data for a scenario with some modules enabled and some custom filter settings
+	 * Returns the test data for a scenario with some modules enabled and some custom filter settings
 	 * for disabled modules. Since the modules associated with the filters are disabled, the custom filter
 	 * settings are not used.
 	 *
@@ -176,10 +214,11 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_options_contentless'    => array(),
 				'jetpack_sync_constants_whitelist'    => \Automattic\Jetpack\Sync\Defaults::$default_constants_whitelist,
 				'jetpack_sync_callable_whitelist'     => array(
-					'site_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
-					'home_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
-					'paused_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
-					'paused_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
+					'site_url'              => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
+					'home_url'              => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
+					'paused_plugins'        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
+					'paused_themes'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
+					'test_input_2_callable' => array( 'Automattic\\Jetpack\\Sync\\Test_Input_2', 'test_method_input_2' ),
 				),
 				'jetpack_sync_multisite_callable_whitelist' => array(),
 				'jetpack_sync_post_meta_whitelist'    => array(),
@@ -192,7 +231,6 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_options_whitelist',
 				'jetpack_sync_options_contentless',
 				'jetpack_sync_callable_whitelist',
-				'jetpack_sync_multisite_callable_whitelist',
 				'jetpack_sync_post_meta_whitelist',
 				'jetpack_sync_comment_meta_whitelist',
 				'jetpack_sync_capabilities_whitelist',
@@ -238,12 +276,7 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_options_whitelist'      => array(),
 				'jetpack_sync_options_contentless'    => array(),
 				'jetpack_sync_constants_whitelist'    => \Automattic\Jetpack\Sync\Defaults::$default_constants_whitelist,
-				'jetpack_sync_callable_whitelist'     => array(
-					'site_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
-					'home_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
-					'paused_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
-					'paused_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
-				),
+				'jetpack_sync_callable_whitelist'     => \Automattic\Jetpack\Sync\Defaults::$default_callable_whitelist,
 				'jetpack_sync_multisite_callable_whitelist' => array(),
 				'jetpack_sync_post_meta_whitelist'    => array(),
 				'jetpack_sync_comment_meta_whitelist' => array_merge(
@@ -257,8 +290,6 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_modules',
 				'jetpack_sync_options_whitelist',
 				'jetpack_sync_options_contentless',
-				'jetpack_sync_callable_whitelist',
-				'jetpack_sync_multisite_callable_whitelist',
 				'jetpack_sync_post_meta_whitelist',
 				'jetpack_sync_comment_meta_whitelist',
 				'jetpack_sync_capabilities_whitelist',
@@ -307,12 +338,7 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_options_whitelist'      => array(),
 				'jetpack_sync_options_contentless'    => array(),
 				'jetpack_sync_constants_whitelist'    => \Automattic\Jetpack\Sync\Defaults::$default_constants_whitelist,
-				'jetpack_sync_callable_whitelist'     => array(
-					'site_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
-					'home_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
-					'paused_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
-					'paused_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
-				),
+				'jetpack_sync_callable_whitelist'     => \Automattic\Jetpack\Sync\Defaults::$default_callable_whitelist,
 				'jetpack_sync_multisite_callable_whitelist' => array(),
 				'jetpack_sync_post_meta_whitelist'    => array(),
 				'jetpack_sync_comment_meta_whitelist' => \Automattic\Jetpack\Sync\Defaults::$comment_meta_whitelist,
@@ -323,8 +349,6 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_modules',
 				'jetpack_sync_options_whitelist',
 				'jetpack_sync_options_contentless',
-				'jetpack_sync_callable_whitelist',
-				'jetpack_sync_multisite_callable_whitelist',
 				'jetpack_sync_post_meta_whitelist',
 				'jetpack_sync_capabilities_whitelist',
 				'jetpack_sync_known_importers',
@@ -382,7 +406,6 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_modules',
 				'jetpack_sync_options_whitelist',
 				'jetpack_sync_options_contentless',
-				'jetpack_sync_callable_whitelist',
 				'jetpack_sync_multisite_callable_whitelist',
 				'jetpack_sync_post_meta_whitelist',
 				'jetpack_sync_capabilities_whitelist',
@@ -392,7 +415,7 @@ class Data_Test_Data_Settings {
 	}
 
 	/**
-	 * Returns an the test data for a scenario with some modules enabled and an empty array used for a
+	 * Returns the test data for a scenario with some modules enabled and an empty array used for a
 	 * filter setting.
 	 *
 	 * @return array The test input array.
@@ -425,12 +448,7 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_options_whitelist'      => array(),
 				'jetpack_sync_options_contentless'    => array(),
 				'jetpack_sync_constants_whitelist'    => \Automattic\Jetpack\Sync\Defaults::$default_constants_whitelist,
-				'jetpack_sync_callable_whitelist'     => array(
-					'site_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
-					'home_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
-					'paused_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
-					'paused_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
-				),
+				'jetpack_sync_callable_whitelist'     => \Automattic\Jetpack\Sync\Defaults::$default_callable_whitelist,
 				'jetpack_sync_multisite_callable_whitelist' => array(),
 				'jetpack_sync_post_meta_whitelist'    => array(),
 				'jetpack_sync_comment_meta_whitelist' => array(),
@@ -441,8 +459,6 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_modules',
 				'jetpack_sync_options_whitelist',
 				'jetpack_sync_options_contentless',
-				'jetpack_sync_callable_whitelist',
-				'jetpack_sync_multisite_callable_whitelist',
 				'jetpack_sync_post_meta_whitelist',
 				'jetpack_sync_comment_meta_whitelist',
 				'jetpack_sync_capabilities_whitelist',
@@ -452,8 +468,8 @@ class Data_Test_Data_Settings {
 	}
 
 	/**
-	 * Returns an the test data for a scenario with two inputs. The first input uses custom filters, and the
-	 * second input uses defaults.
+	 * Returns the test data for a scenario with two inputs. The first input uses custom filters,
+	 *  and the second input uses defaults.
 	 *
 	 * @return array The test input array.
 	 */
@@ -490,8 +506,6 @@ class Data_Test_Data_Settings {
 			'set_filters' => array(
 				'jetpack_sync_modules',
 				'jetpack_sync_constants_whitelist',
-				'jetpack_sync_callable_whitelist',
-				'jetpack_sync_multisite_callable_whitelist',
 				'jetpack_sync_post_meta_whitelist',
 				'jetpack_sync_comment_meta_whitelist',
 				'jetpack_sync_capabilities_whitelist',
@@ -501,8 +515,8 @@ class Data_Test_Data_Settings {
 	}
 
 	/**
-	 * Returns an the test data for a scenario with two inputs. The first input uses defaults, and the
-	 * second input uses custom filters.
+	 * Returns the test data for a scenario with two inputs. The first input uses defaults,
+	 * and the second one uses custom filters.
 	 *
 	 * @return array The test input array.
 	 */
@@ -539,8 +553,56 @@ class Data_Test_Data_Settings {
 			'set_filters' => array(
 				'jetpack_sync_modules',
 				'jetpack_sync_constants_whitelist',
+				'jetpack_sync_post_meta_whitelist',
+				'jetpack_sync_comment_meta_whitelist',
+				'jetpack_sync_capabilities_whitelist',
+				'jetpack_sync_known_importers',
+			),
+		);
+	}
+
+	/**
+	 * Returns the test data for a scenario with two inputs. The first input uses custom filters for a MUST-sync module (callables), and the second one uses defaults.
+	 *
+	 * @return array The test input array.
+	 */
+	public static function data_test_9_2() {
+		return array(
+			'input_1'     => array(
+				'jetpack_sync_modules'             => array(
+					'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+					'Automattic\\Jetpack\\Sync\\Modules\\Options',
+				),
+				'jetpack_sync_callable_whitelist'  => array(
+					'get_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+					'get_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
+					'wp_version'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+				),
+				'jetpack_sync_options_contentless' => array(),
+				'jetpack_sync_options_whitelist'   => array(
+					'active_plugins',
+					'stylesheet',
+				),
+			),
+			'input_2'     => array(),
+			'output'      => array(
+				'jetpack_sync_modules'                => \Automattic\Jetpack\Sync\Modules::DEFAULT_SYNC_MODULES,
+				'jetpack_sync_options_whitelist'      => \Automattic\Jetpack\Sync\Defaults::$default_options_whitelist,
+				'jetpack_sync_options_contentless'    => \Automattic\Jetpack\Sync\Defaults::$default_options_contentless,
+				'jetpack_sync_constants_whitelist'    => \Automattic\Jetpack\Sync\Defaults::$default_constants_whitelist,
+				'jetpack_sync_callable_whitelist'     => \Automattic\Jetpack\Sync\Defaults::$default_callable_whitelist,
+				'jetpack_sync_multisite_callable_whitelist' => \Automattic\Jetpack\Sync\Defaults::$default_multisite_callable_whitelist,
+				'jetpack_sync_post_meta_whitelist'    => \Automattic\Jetpack\Sync\Defaults::$post_meta_whitelist,
+				'jetpack_sync_comment_meta_whitelist' => \Automattic\Jetpack\Sync\Defaults::$comment_meta_whitelist,
+				'jetpack_sync_capabilities_whitelist' => \Automattic\Jetpack\Sync\Defaults::$default_capabilities_whitelist,
+				'jetpack_sync_known_importers'        => \Automattic\Jetpack\Sync\Defaults::$default_known_importers,
+			),
+			'set_filters' => array(
+				'jetpack_sync_modules',
+				'jetpack_sync_options_whitelist',
+				'jetpack_sync_options_contentless',
+				'jetpack_sync_constants_whitelist',
 				'jetpack_sync_callable_whitelist',
-				'jetpack_sync_multisite_callable_whitelist',
 				'jetpack_sync_post_meta_whitelist',
 				'jetpack_sync_comment_meta_whitelist',
 				'jetpack_sync_capabilities_whitelist',

@@ -146,7 +146,7 @@ class Data_Settings {
 		$all_modules     = Modules::DEFAULT_SYNC_MODULES;
 
 		foreach ( $all_modules as $module ) {
-			if ( in_array( $module, $enabled_modules, true ) ) {
+			if ( in_array( $module, $enabled_modules, true ) || in_array( $module, self::MUST_SYNC_DATA_SETTINGS['jetpack_sync_modules'], true ) ) {
 				$this->add_filters_for_enabled_module( $module, $filters_settings );
 			} else {
 				$this->add_filters_for_disabled_module( $module );
@@ -251,6 +251,10 @@ class Data_Settings {
 	 */
 	private function add_required_settings() {
 		foreach ( self::MUST_SYNC_DATA_SETTINGS as $filter => $setting ) {
+			// If the corresponding setting is already set and matches the default one, no need to proceed.
+			if ( isset( static::$data_settings[ $filter ] ) && static::$data_settings[ $filter ] === $this->get_default_setting_for_filter( $filter ) ) {
+				continue;
+			}
 			$this->add_custom_filter_setting( $filter, $setting );
 		}
 	}

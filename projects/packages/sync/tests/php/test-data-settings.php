@@ -124,6 +124,9 @@ class Test_Data_Settings extends BaseTestCase {
 			'some modules, no filters set'                 => array(
 				Data_Test_Data_Settings::data_test_1(),
 			),
+			'some modules, no filters set 2'               => array(
+				Data_Test_Data_Settings::data_test_1_2(),
+			),
 			'some modules, some filters set'               => array(
 				Data_Test_Data_Settings::data_test_2(),
 			),
@@ -188,6 +191,9 @@ class Test_Data_Settings extends BaseTestCase {
 			),
 			'first input uses defaults, second uses custom filters' => array(
 				Data_Test_Data_Settings::data_test_9(),
+			),
+			'first input uses custom filters for must-sync module, second uses defaults' => array(
+				Data_Test_Data_Settings::data_test_9_2(),
 			),
 			'both inputs use custom filters' => array(
 				Data_Test_Data_Settings::data_test_10(),
