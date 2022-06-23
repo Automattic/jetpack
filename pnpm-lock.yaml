@@ -521,9 +521,7 @@ importers:
       '@wordpress/i18n': 4.10.0
       '@wordpress/plugins': 4.8.0
       '@wordpress/url': 3.11.0
-      jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
-      nyc: 15.1.0
       react: 17.0.2
     dependencies:
       '@wordpress/compose': 5.8.0_react@17.0.2
@@ -534,8 +532,6 @@ importers:
     devDependencies:
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
       react: 17.0.2
 
   projects/js-packages/storybook:
