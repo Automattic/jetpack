@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: other
 
-Adds an action before calling switch_theme from /wp-content/plugins/jetpack/json-endpoints/jetpack/class.jetpack-json-api-themes-active-endpoint.php
+WordPress.com REST API: add new action allowing you to trigger an action right before we switch themes via the API.
