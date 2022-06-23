@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { VideoPressIcon as icon } from '../../../shared/icons';
+import { VideoPressIcon as icon } from '../../shared/icons';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';

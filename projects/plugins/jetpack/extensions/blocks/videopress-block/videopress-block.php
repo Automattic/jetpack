@@ -12,9 +12,8 @@ namespace Automattic\Jetpack\Extensions\VideoPress;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME   = 'videopress-block';
-const FEATURE_FOLDER = 'videopress';
-const BLOCK_NAME     = 'jetpack/' . FEATURE_NAME;
+const FEATURE_NAME = 'videopress-block';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
  * Registers the block for use in Gutenberg
@@ -38,6 +37,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attrs, $content ) {
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_FOLDER );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 	return $content;
 }
