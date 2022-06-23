@@ -1,24 +1,21 @@
-import { shallow } from 'enzyme';
 import React from 'react';
+import { render, screen } from 'test/test-utils';
 import { Masthead } from '../index';
 
 describe( 'Masthead', () => {
-	let component = shallow( <Masthead /> );
-
-	it( 'renders main nav', () => {
-		expect( component.find( 'Masthead' ) ).toBeDefined();
-	} );
-
 	it( 'finds selector .jp-masthead in main nav', () => {
-		expect( component.find( '.jp-masthead' ) ).toHaveLength( 1 );
+		const { container } = render( <Masthead /> );
+		// eslint-disable-next-line testing-library/no-container
+		expect( container.querySelector( '.jp-masthead' ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not display the Offline Mode badge when connected', () => {
-		expect( component.find( 'code' ) ).toHaveLength( 0 );
+		render( <Masthead /> );
+		expect( screen.queryByText( 'Offline Mode', { selector: 'code' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'displays the badge in Offline Mode', () => {
-		component = shallow( <Masthead siteConnectionStatus="offline" /> );
-		expect( component.find( 'code' ) ).toHaveLength( 1 );
+		render( <Masthead siteConnectionStatus="offline" /> );
+		expect( screen.getByText( 'Offline Mode', { selector: 'code' } ) ).toBeInTheDocument();
 	} );
 } );
