@@ -16,15 +16,72 @@ class Data_Settings {
 	 * The data that must be synced for every synced site.
 	 */
 	const MUST_SYNC_DATA_SETTINGS = array(
-		'jetpack_sync_modules'            => array(
+		'jetpack_sync_modules'             => array(
 			'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+			'Automattic\\Jetpack\\Sync\\Modules\\Constants',
 			'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately', // enable Initial Sync on Site Connection.
+			'Automattic\\Jetpack\\Sync\\Modules\\Options',
 		),
-		'jetpack_sync_callable_whitelist' => array(
-			'site_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
-			'home_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
-			'paused_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
-			'paused_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
+		'jetpack_sync_callable_whitelist'  => array(
+			'site_url'                => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
+			'home_url'                => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
+			'get_plugins'             => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+			'get_themes'              => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
+			'paused_plugins'          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
+			'paused_themes'           => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
+			'timezone'                => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_timezone' ),
+			'wp_get_environment_type' => 'wp_get_environment_type',
+			'wp_max_upload_size'      => 'wp_max_upload_size',
+			'wp_version'              => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+		),
+		'jetpack_sync_constants_whitelist' => array(
+			'ABSPATH',
+			'ALTERNATE_WP_CRON',
+			'ATOMIC_CLIENT_ID',
+			'AUTOMATIC_UPDATER_DISABLED',
+			'DISABLE_WP_CRON',
+			'DISALLOW_FILE_EDIT',
+			'DISALLOW_FILE_MODS',
+			'EMPTY_TRASH_DAYS',
+			'FS_METHOD',
+			'IS_PRESSABLE',
+			'PHP_VERSION',
+			'WP_ACCESSIBLE_HOSTS',
+			'WP_AUTO_UPDATE_CORE',
+			'WP_CONTENT_DIR',
+			'WP_CRON_LOCK_TIMEOUT',
+			'WP_DEBUG',
+			'WP_HTTP_BLOCK_EXTERNAL',
+			'WP_MAX_MEMORY_LIMIT',
+			'WP_MEMORY_LIMIT',
+			'WP_POST_REVISIONS',
+		),
+		'jetpack_sync_options_whitelist'   => array(
+			/**
+			 * Sync related options
+			 */
+			'jetpack_sync_non_blocking',
+			'jetpack_sync_non_public_post_stati',
+			'jetpack_sync_settings_comment_meta_whitelist',
+			'jetpack_sync_settings_post_meta_whitelist',
+			'jetpack_sync_settings_post_types_blacklist',
+			'jetpack_sync_settings_taxonomies_blacklist',
+			'jetpack_sync_settings_dedicated_sync_enabled',
+			/**
+			 * Connection related options
+			 */
+			'jetpack_connection_active_plugins',
+			/**
+			 * Generic site options
+			 */
+			'blog_charset',
+			'blog_public',
+			'blogdescription',
+			'blogname',
+			'permalink_structure',
+			'stylesheet',
+			'time_format',
+			'timezone_string',
 		),
 	);
 
