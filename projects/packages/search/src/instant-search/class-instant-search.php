@@ -23,7 +23,7 @@ class Instant_Search extends Classic_Search {
 	 * @since 9.8.0
 	 * @var string
 	 */
-	const INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-sidebaar';
+	const INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-side-bar';
 
 	const AUTO_CONFIG_SIDEBAR = 'sidebar-1';
 
