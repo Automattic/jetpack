@@ -1,4 +1,12 @@
-import { Container, Col, H3, Text, Spinner, SocialIcon } from '@automattic/jetpack-components';
+import {
+	Container,
+	Col,
+	H3,
+	Text,
+	Spinner,
+	SocialIcon,
+	getUserLocale,
+} from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -23,14 +31,13 @@ const Header = () => {
 	useEffect( () => {
 		dispatch.getSharesCount();
 	}, [ dispatch ] );
-	const { sharesCountResponse } = useSelect( select => {
-		const store = select( STORE_ID );
-		return {
-			sharesCountResponse: store.getSharesCount(),
-		};
+	const sharesCount = useSelect(
+		select => select( STORE_ID ).getSharesCount()?.results?.total ?? null
+	);
+	const formatter = Intl.NumberFormat( getUserLocale(), {
+		notation: 'compact',
+		compactDisplay: 'short',
 	} );
-	const sharesCountLoaded = sharesCountResponse && sharesCountResponse.results;
-	const sharesCount = sharesCountLoaded ? sharesCountResponse.results.total : 0;
 	const actions = [
 		{
 			link: '/wp-admin/post-new.php',
@@ -57,7 +64,11 @@ const Header = () => {
 					{ __( 'Total shares this month', 'jetpack-social' ) }
 				</div>
 				<div className={ styles.sharesCount }>
-					{ sharesCountLoaded ? sharesCount : <Spinner color="#000" size={ 24 } /> }
+					{ null !== sharesCount ? (
+						formatter.format( sharesCount )
+					) : (
+						<Spinner color="#000" size={ 24 } />
+					) }
 				</div>
 			</div>
 		</Container>
