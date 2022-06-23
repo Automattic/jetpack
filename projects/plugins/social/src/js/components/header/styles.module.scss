@@ -46,3 +46,61 @@
 		margin-top: calc( var( --spacing-base ) * 3 );
 	}
 }
+
+.sharesCard{
+	position: absolute;
+	width: 168px;
+	height: 168px;
+	right: 72px;
+	background: #FFFFFF;
+	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
+	border-radius: 4px;
+}
+
+.sharesCardHeading{
+	position: absolute;
+	width: 96px;
+	height: 46px;
+	left: 24px;
+	top: 60px;
+
+	font-family: 'SF Pro Text';
+	font-style: normal;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 23px;
+	/* or 144% */
+
+	display: flex;
+	align-items: center;
+
+	color: #23282D;
+}
+
+.sharesCount{
+	position: absolute;
+	width: 46px;
+	height: 40px;
+	left: 24px;
+	top: 107px;
+
+	font-family: 'SF Pro Display';
+	font-style: normal;
+	font-weight: 600;
+	font-size: 36px;
+	line-height: 40px;
+	/* identical to box height, or 111% */
+
+
+	/* Black & White / Black */
+
+	color: #000000;
+}
+
+.socialIcon{
+	position: absolute;
+	width: 24px;
+	height: 24px;
+	left: 24px;
+	top: 24px;
+}
