@@ -38,7 +38,7 @@ const Header = () => {
 			icon: edit,
 		},
 		{
-			link: '/wp-admin/post-new.php',
+			link: 'https://jetpack.com/support/',
 			label: __( 'Need help?', 'jetpack-social' ),
 			icon: lifesaver,
 		},
