@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Extensions\VideoPress;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'videopress';
+const FEATURE_NAME = 'videopress-block';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
