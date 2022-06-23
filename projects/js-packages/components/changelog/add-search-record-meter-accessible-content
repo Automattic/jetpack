@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+RecordMeterBar component: adds accessible content fallback table
