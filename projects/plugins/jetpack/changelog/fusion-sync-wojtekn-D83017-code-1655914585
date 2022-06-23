@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: other
 
-Add amp_is_deprecated for WPCOM settings API
+WordPress.com REST API: add new AMP Deprecation field to the site settings.
