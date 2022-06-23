@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+CLI: avoid PHP notice when running connection tests.

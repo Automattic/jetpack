@@ -1,3 +1,4 @@
+import config from '../stores/config';
 import { isEnabled } from '../stores/modules';
 import { requestCloudCss } from './cloud-css';
 
@@ -9,4 +10,6 @@ export async function onConnectionComplete(): Promise< void > {
 	if ( isEnabled( 'cloud-css' ) ) {
 		await requestCloudCss();
 	}
+
+	await config.refresh();
 }
