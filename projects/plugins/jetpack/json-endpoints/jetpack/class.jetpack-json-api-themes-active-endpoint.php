@@ -47,8 +47,15 @@ class Jetpack_JSON_API_Themes_Active_Endpoint extends Jetpack_JSON_API_Themes_En
 		}
 
 		/**
-		* Trigger action before the switch theme happens.
-		*/
+		 * Trigger action before the switch theme happens.
+		 *
+		 * @module json-api
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $theme_slug Directory name for the theme.
+		 * @param mixed  $args       POST body data, including info about the theme we must switch to.
+		 */
 		do_action( 'jetpack_pre_switch_theme', $theme_slug, $args );
 
 		$theme = wp_get_theme( $theme_slug );
