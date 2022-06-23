@@ -10,7 +10,7 @@
 		"automattic/jetpack-licensing": "^1.7",
 		"automattic/jetpack-plugins-installer": "^0.1",
 		"automattic/jetpack-redirect": "^1.7",
-		"automattic/jetpack-constants": "1.6.x-dev"
+		"automattic/jetpack-constants": "^1.6"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
