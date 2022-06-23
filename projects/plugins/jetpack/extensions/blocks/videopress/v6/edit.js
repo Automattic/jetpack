@@ -7,7 +7,7 @@ import {
 	BlockIcon,
 	MediaPlaceholder,
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, Tooltip } from '@wordpress/components';
+import { ExternalLink, PanelBody, ToggleControl, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -19,9 +19,9 @@ const ALLOWED_MEDIA_TYPES = [ 'video' ];
 // @Todo: replace with uploading implementation.
 const noop = () => {};
 
-export default function VideoPressEdit( props ) {
-	const { attributes, setAttributes } = props;
+export default function VideoPressEdit( { attributes, setAttributes } ) {
 	const { controls, src } = attributes;
+
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-videopress',
 	} );
@@ -58,6 +58,10 @@ export default function VideoPressEdit( props ) {
 		</>
 	);
 
+	function onSelectURL( newSrc ) {
+		setAttributes( { src: newSrc } );
+	}
+
 	if ( ! src ) {
 		return (
 			<>
@@ -69,7 +73,7 @@ export default function VideoPressEdit( props ) {
 							title: __( 'VideoPress', 'jetpack' ),
 						} }
 						onSelect={ noop }
-						onSelectURL={ noop }
+						onSelectURL={ onSelectURL }
 						accept="video/*"
 						allowedTypes={ ALLOWED_MEDIA_TYPES }
 						value={ attributes }
@@ -80,5 +84,12 @@ export default function VideoPressEdit( props ) {
 		);
 	}
 
-	return <div { ...blockProps }>{ __( 'VideoPress', 'jetpack' ) }</div>;
+	return (
+		<div { ...blockProps }>
+			{ __( 'VideoPress', 'jetpack' ) }
+			<div>
+				<ExternalLink href={ src }>source</ExternalLink>
+			</div>
+		</div>
+	);
 }
