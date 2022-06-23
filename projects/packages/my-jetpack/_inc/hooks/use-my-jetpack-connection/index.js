@@ -12,7 +12,7 @@ export default function useMyJetpackConnection() {
 	const { topJetpackMenuItemUrl } = myJetpackInitialState;
 	const connectionData = useConnection( { apiRoot, apiNonce } );
 
-	// Alias: https://github.com/Automattic/jetpack/blob/master/projects/packages/connection/src/class-rest-connector.php/#L315
+	// Alias: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/connection/src/class-rest-connector.php/#L315
 	const isSiteConnected = connectionData.isRegistered;
 
 	return {

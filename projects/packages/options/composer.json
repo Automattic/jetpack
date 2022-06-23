@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.40"
+		"automattic/jetpack-connection": "^1.41"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
@@ -33,7 +33,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.16.x-dev"
+			"dev-trunk": "1.16.x-dev"
 		}
 	},
 	"abandoned": "automattic/jetpack-connection"

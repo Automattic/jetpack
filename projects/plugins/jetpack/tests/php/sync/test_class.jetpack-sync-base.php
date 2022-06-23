@@ -54,7 +54,12 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		// Stop triggering 'jetpack.fetchPublicizeConnection' remote XML-RPC call to
 		// WPCOM on every `save_post` action.
+		global $publicize_ui;
+		if ( ! isset( $publicize_ui ) ) {
+			$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
+		}
 		global $publicize;
+
 		$publicize->set_refresh_wait_transient( HOUR_IN_SECONDS );
 
 		// Bind the two storage systems to the server events.
@@ -80,6 +85,8 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		unset( $_SERVER['HTTP_USER_AGENT'] );
+		unset( $GLOBALS['publicize'] );
+		unset( $GLOBALS['publicize_ui'] );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );

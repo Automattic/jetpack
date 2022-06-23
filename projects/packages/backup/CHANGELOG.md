@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2022-06-21
+### Added
+- Added UI to support backup warning state [#24680]
+
+### Changed
+- Renaming master to trunk. [#24661]
+- Updated package dependencies. [#24679]
+
+## [1.3.9] - 2022-06-14
+### Changed
+- Updated package dependencies. [#24529]
+
+### Removed
+- Removed extra headline from connection screen. [#24696]
+
+## [1.3.8] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
 ## [1.3.7] - 2022-05-31
 ### Changed
 - Updated package dependencies. [#24432] [#24573] [#24475] [#24505] [#24515]
@@ -155,6 +175,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.4.0]: https://github.com/Automattic/jetpack-backup/compare/v1.3.9...v1.4.0
+[1.3.9]: https://github.com/Automattic/jetpack-backup/compare/v1.3.8...v1.3.9
+[1.3.8]: https://github.com/Automattic/jetpack-backup/compare/v1.3.7...v1.3.8
 [1.3.7]: https://github.com/Automattic/jetpack-backup/compare/v1.3.6...v1.3.7
 [1.3.6]: https://github.com/Automattic/jetpack-backup/compare/v1.3.5...v1.3.6
 [1.3.5]: https://github.com/Automattic/jetpack-backup/compare/v1.3.4...v1.3.5

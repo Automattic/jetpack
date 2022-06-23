@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.13.6 - 2022-06-21
+### Changed
+- Drop dependency on lodash, use `Object.assign` instead.
+
+## 0.13.5 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.13.4 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
 ## 0.13.3 - 2022-05-30
 ### Changed
 - Updated package dependencies

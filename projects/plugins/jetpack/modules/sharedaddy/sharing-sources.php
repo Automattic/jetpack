@@ -934,6 +934,9 @@ class Share_Email extends Sharing_Source {
 
 		if ( $is_ajax ) {
 			wp_send_json_success();
+		} else {
+			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
+			exit;
 		}
 
 		wp_die();

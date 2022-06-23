@@ -115,43 +115,14 @@ class Search extends Hybrid_Product {
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
 
-		$record_count = intval( Search_Stats::estimate_count() );
+		$record_count   = intval( Search_Stats::estimate_count() );
+		$search_pricing = static::get_pricing_from_wpcom( $record_count );
 
-		// Check whether the price is available.
-		// Bail early return the pricing info if not.
-		$product = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
-		if ( ! isset( $product->price_tier_list ) ) {
+		if ( is_wp_error( $search_pricing ) ) {
 			return $pricing;
 		}
 
-		// Sort the tiers.
-		$price_tier_list = $product->price_tier_list;
-		array_multisort( array_column( $price_tier_list, 'maximum_units' ), SORT_ASC, $price_tier_list );
-
-		// Pick the first tier that is less than or equal to the record count.
-		foreach ( $product->price_tier_list as $price_tier ) {
-			if ( $record_count <= $price_tier->maximum_units ) {
-				break;
-			}
-		}
-
-		// Compute the minimum price.
-		$minimum_price = $price_tier->minimum_price / 100;
-
-		// Re define the display price based on the tier.
-		$pricing = Wpcom_Products::populate_with_discount( $product, $pricing, $minimum_price );
-
-		// 1. Flat fee in the same tier, so for search, `minimum_price == maximum_price`.
-		// 2. `maximum_units` is empty on the highest tier, so the logic displays the highest or the highest matching tier.
-		return array_merge(
-			$pricing,
-			array(
-				'minimum_units'   => $price_tier->minimum_units,
-				'maximum_units'   => $price_tier->maximum_units,
-				'estimated_count' => $record_count,
-				'full_price'      => $minimum_price, // reset the full price to the minimum price.
-			)
-		);
+		return array_merge( $pricing, $search_pricing );
 	}
 
 	/**
@@ -161,6 +132,31 @@ class Search extends Hybrid_Product {
 	 */
 	public static function get_wpcom_product_slug() {
 		return 'jetpack_search';
+	}
+
+	/**
+	 * Use centralized Search pricing API
+	 *
+	 * @param int $record_count Record count to estimate pricing.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_pricing_from_wpcom( $record_count ) {
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
+			'2',
+			array( 'timeout' => 2 ),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'search_pricing_fetch_failed' );
+		}
+
+		$body    = wp_remote_retrieve_body( $response );
+		$pricing = json_decode( $body, true );
+		return $pricing;
 	}
 
 	/**

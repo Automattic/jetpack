@@ -78,7 +78,7 @@ const JetpackBenefits = props => {
 								{
 									ExternalLink: (
 										<ExternalLink
-											href={ getRedirectUrl( 'jetpack-features-security' ) }
+											href={ getRedirectUrl( 'jetpack-features-brute-force' ) }
 											rel="noopener noreferrer"
 											target="_blank"
 										></ExternalLink>

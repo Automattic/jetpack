@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix missing imports in `button` and `product-offer`.
