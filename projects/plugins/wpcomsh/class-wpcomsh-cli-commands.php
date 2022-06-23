@@ -462,6 +462,26 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			WP_CLI::log( print_r( $output, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 		}
+
+		/**
+		 * Retrieves the WPCOM_PURCHASES field from Atomic Persistent Data.
+		 *
+		 * ## OPTIONS
+		 *
+		 * [--format=<format>]
+		 * : Render output in a particular format.
+		 * ---
+		 * default: list
+		 * options:
+		 *   - list
+		 *   - json
+		 * ---
+		 *
+		 * @subcommand purchases
+		 */
+		public function purchases( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			WP_CLI::runcommand( 'wpcomsh persistent-data WPCOM_PURCHASES --format=' . $assoc_args['format'], array( 'launch' => false ) );
+		}
 	}
 }
 
