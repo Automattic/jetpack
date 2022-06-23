@@ -1,4 +1,10 @@
 export default {
+	id: {
+		type: 'number',
+	},
+	guid: {
+		type: 'string',
+	},
 	src: {
 		type: 'string',
 	},
