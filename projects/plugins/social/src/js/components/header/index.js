@@ -1,5 +1,6 @@
 import { Container, Col, H3, Text, Spinner, SocialIcon } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, edit, lifesaver } from '@wordpress/icons';
 import { STORE_ID } from '../../store';
@@ -18,7 +19,10 @@ const Actions = ( { actions } ) => (
 	</div>
 );
 const Header = () => {
-	useDispatch( STORE_ID ).getSharesCount();
+	const dispatch = useDispatch( STORE_ID );
+	useEffect( () => {
+		dispatch.getSharesCount();
+	}, [ dispatch ] );
 	const { sharesCountResponse } = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
