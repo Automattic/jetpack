@@ -38,19 +38,19 @@ class Test_Instant_Search extends TestCase {
 	public function test_remove_wp_migrated_widgets() {
 		$old_sidebars_widgets = $this->get_old_sidebars_widgets_fixture();
 		$new_sidebars_widgets = array(
-			'wp_inactive_widgets'            => array( 'search-2' ),
-			'jetpack-instant-search-sidebar' => array( 'jetpack-search-filters-2', 'archives-2', 'categories-2', 'meta-2' ),
-			'sidebar-1'                      => array( 'jetpack-search-filters-1', 'recent-posts-2', 'recent-comments-2' ),
-			'sidebar-2'                      => array(),
-			'array_version'                  => 3,
+			'wp_inactive_widgets'                  => array( 'search-2' ),
+			Instant_Search::INSTANT_SEARCH_SIDEBAR => array( 'jetpack-search-filters-2', 'archives-2', 'categories-2', 'meta-2' ),
+			'sidebar-1'                            => array( 'jetpack-search-filters-1', 'recent-posts-2', 'recent-comments-2' ),
+			'sidebar-2'                            => array(),
+			'array_version'                        => 3,
 		);
 		// Note: sidebar-2 widgets moved to wp_inactive_widgets.
 		$expected_sidebars_widgets = array(
-			'wp_inactive_widgets'            => array( 'archives-2', 'categories-2', 'meta-2', 'search-2' ),
-			'jetpack-instant-search-sidebar' => array( 'jetpack-search-filters-2' ),
-			'sidebar-1'                      => array( 'jetpack-search-filters-1', 'recent-posts-2', 'recent-comments-2' ),
-			'sidebar-2'                      => array(),
-			'array_version'                  => 3,
+			'wp_inactive_widgets'                  => array( 'archives-2', 'categories-2', 'meta-2', 'search-2' ),
+			Instant_Search::INSTANT_SEARCH_SIDEBAR => array( 'jetpack-search-filters-2' ),
+			'sidebar-1'                            => array( 'jetpack-search-filters-1', 'recent-posts-2', 'recent-comments-2' ),
+			'sidebar-2'                            => array(),
+			'array_version'                        => 3,
 		);
 		$this->set_private_member_value( static::$instant_search, 'old_sidebars_widgets', $old_sidebars_widgets );
 
@@ -92,11 +92,11 @@ class Test_Instant_Search extends TestCase {
 	 */
 	private function get_old_sidebars_widgets_fixture() {
 		return array(
-			'wp_inactive_widgets'            => array( 'search-2' ),
-			'jetpack-instant-search-sidebar' => array( 'jetpack-search-filters-2' ),
-			'sidebar-1'                      => array( 'jetpack-search-filters-1', 'recent-posts-2', 'recent-comments-2' ),
-			'sidebar-2'                      => array( 'archives-2', 'categories-2', 'meta-2' ),
-			'array_version'                  => 3,
+			'wp_inactive_widgets'                  => array( 'search-2' ),
+			Instant_Search::INSTANT_SEARCH_SIDEBAR => array( 'jetpack-search-filters-2' ),
+			'sidebar-1'                            => array( 'jetpack-search-filters-1', 'recent-posts-2', 'recent-comments-2' ),
+			'sidebar-2'                            => array( 'archives-2', 'categories-2', 'meta-2' ),
+			'array_version'                        => 3,
 		);
 	}
 

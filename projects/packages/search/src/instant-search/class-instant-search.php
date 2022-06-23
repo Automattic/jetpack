@@ -18,7 +18,9 @@ use WP_REST_Templates_Controller;
  */
 class Instant_Search extends Classic_Search {
 	/**
-	 * The name of instant search sidebar. The typo is intended which walks around the mechanism that WP automatically adds widgets to it.
+	 * The name of instant search sidebar.
+	 *
+	 * 'sidbar' is broken to 'side-bar' on purpose to walk around the mechanism that WP automatically adds widgets to it.
 	 *
 	 * @since 9.8.0
 	 * @var string
@@ -89,8 +91,8 @@ class Instant_Search extends Classic_Search {
 		 * 2. WP.com runs after_switch_theme hook from the frontend, so we'll need to hook it.
 		 *      No matter it's admin or frontend.
 		 */
-		add_action( 'after_switch_theme', array( $this, 'save_old_sidebars_widgets' ), 5, 0 );
-		add_action( 'pre_update_option_sidebars_widgets', array( $this, 'remove_wp_migrated_widgets' ) );
+		// add_action( 'after_switch_theme', array( $this, 'save_old_sidebars_widgets' ), 5, 0 );
+		// add_action( 'pre_update_option_sidebars_widgets', array( $this, 'remove_wp_migrated_widgets' ) );
 
 		add_action( 'widgets_init', array( $this, 'register_jetpack_instant_sidebar' ) );
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
