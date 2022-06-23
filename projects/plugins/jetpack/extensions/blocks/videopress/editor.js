@@ -20,9 +20,9 @@ import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
-import { name as videoPressBlockName, settings as videoPressBlockSettings } from './deprecated/v6';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
+import { name as videoPressBlockName, settings as videoPressBlockSettings } from './v6';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 
 import './editor.scss';
