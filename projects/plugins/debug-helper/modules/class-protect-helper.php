@@ -78,7 +78,7 @@ class Protect_Helper {
 			<th scope="row">Overwrite Protect Status</th>
 			<td>
 				<fieldset>
-					<p>If enable, Protet status fetched from the server will be ignored and the rules below will define the current status.</p>
+					<p>If enabled, the Protect status fetched from the server will be ignored and the rules below will define the current status.</p>
 					<label><input type="radio" name="overwrite_status" value="1" <?php echo ( $settings['overwrite_status'] ? 'checked="checked"' : '' ); ?>> enabled</label><br>
 					<label><input type="radio" name="overwrite_status" value="0" <?php echo ( ! $settings['overwrite_status'] ? 'checked="checked"' : '' ); ?>> disabled</label><br>
 				</fieldset>
