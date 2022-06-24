@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import ProductDetailButton from '../';
 
 export default {
@@ -17,5 +10,5 @@ const DetaiilButton = args => <ProductDetailButton { ...args } slug="backup" />;
 
 export const Default = DetaiilButton.bind( {} );
 Default.args = {
-	children: 'Add Jetpack Site Search',
+	children: 'Add Jetpack Search',
 };

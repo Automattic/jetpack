@@ -47,6 +47,9 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		global $publicize_ui;
+		$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
+
 		$this->publicize          = publicize_init();
 		$this->publicized_post_id = null;
 
@@ -96,6 +99,9 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * Tear down.
 	 */
 	public function tear_down() {
+		unset( $GLOBALS['publicize'] );
+		unset( $GLOBALS['publicize_ui'] );
+
 		wp_set_current_user( $this->original_user );
 
 		parent::tear_down();
@@ -126,7 +132,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	}
 
 	public function test_filter_can_prevent_publicize() {
-		add_filter( 'publicize_should_publicize_published_post', array( $this, 'prevent_publicize_post' ), 10, 2 );
+		add_filter( 'publicize_should_publicize_published_post', array( $this, 'prevent_publicize_post' ) );
 
 		$this->post->post_status = 'publish';
 
@@ -151,7 +157,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		unregister_post_type( 'foo' );
 	}
 
-	function assertPublicized( $should_have_publicized, $post ) {
+	public function assertPublicized( $should_have_publicized, $post ) {
 		if ( $should_have_publicized ) {
 			$this->assertEquals( $post->ID, $this->publicized_post_id, 'Is not the same post ID' );
 			$this->assertTrue( $this->in_publish_filter, 'Not in filter' );
@@ -161,7 +167,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		}
 	}
 
-	function set_post_flags_check( $flags, $post ) {
+	public function set_post_flags_check( $flags, $post ) {
 		if ( $flags['publicize_post'] ) {
 			$this->publicized_post_id = $post->ID;
 		}
@@ -169,7 +175,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		return $flags;
 	}
 
-	function prevent_publicize_post( $should_publicize, $post ) {
+	public function prevent_publicize_post() {
 		return false;
 	}
 

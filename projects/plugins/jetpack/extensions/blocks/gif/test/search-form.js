@@ -2,16 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event'
 
-/**
- * Internal dependencies
- */
 import SearchForm from '../components/search-form';
 
 describe( 'SearchForm', () => {
@@ -34,9 +28,10 @@ describe( 'SearchForm', () => {
 		expect( screen.getByPlaceholderText( 'Enter search terms, e.g. cat…' ).value ).toBe( 'Woolloomooloo' );
 	} );
 
-	test( 'loads and applies passed props to children', () => {
+	test( 'loads and applies passed props to children', async () => {
+		const user = userEvent.setup();
 		render( <SearchForm { ...defaultProps } value={ '' }/> );
-		userEvent.type( screen.getByPlaceholderText( 'Enter search terms, e.g. cat…' ), 'Hi' );
+		await user.type( screen.getByPlaceholderText( 'Enter search terms, e.g. cat…' ), 'Hi' );
 		expect( onChange ).toHaveBeenCalledTimes( 2 );
 	} );
 

@@ -1,16 +1,12 @@
 <script>
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
 	import RightArrow from '../../../svg/right-arrow.svg';
+	import routerHistory from '../../../utils/router-history';
+
+	const { navigate } = routerHistory;
 
 	function showBenefits() {
-		// Todo: Navigate to Benefits Interstitial.
+		navigate( '/upgrade' );
 	}
 </script>
 

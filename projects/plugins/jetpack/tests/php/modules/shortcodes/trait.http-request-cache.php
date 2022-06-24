@@ -57,7 +57,6 @@ trait HttpRequestCacheTrait {
 		if ( empty( static::$update_cache ) ) {
 			$filename = self::get_http_request_cache_filename();
 			if ( file_exists( $filename ) ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 				static::$request_cache = (array) json_decode( file_get_contents( $filename ), true );
 			}
 		}
@@ -72,10 +71,8 @@ trait HttpRequestCacheTrait {
 		if ( ! empty( static::$update_cache ) ) {
 			$filename = self::get_http_request_cache_filename();
 			if ( array() !== static::$request_cache ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 				file_put_contents(
 					$filename,
-					// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 					json_encode( static::$request_cache, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
 				);
 			} elseif ( file_exists( $filename ) ) {
@@ -114,7 +111,6 @@ trait HttpRequestCacheTrait {
 						if ( $data['args'] === $args ) {
 							$ret = $data['response'];
 							if ( is_string( $ret ) ) {
-								// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 								$ret = unserialize( $ret );
 							} elseif ( is_array( $ret ) && isset( $ret['headers'] ) ) {
 								$headers = new Requests_Utility_CaseInsensitiveDictionary();
@@ -126,7 +122,6 @@ trait HttpRequestCacheTrait {
 							return $ret;
 						}
 					}
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 					throw new UnexpectedValueException( "No cache for $url with the specified arguments\n" . var_export( $args, 1 ) );
 				},
 				90,
@@ -141,7 +136,6 @@ trait HttpRequestCacheTrait {
 
 					if ( is_object( $response ) ) {
 						// Probably a WP_Error.
-						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 						$response = serialize( $response );
 					} elseif ( is_array( $response ) ) {
 						// We probably don't care about most of these fields. If it turns out you do, comment

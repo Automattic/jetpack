@@ -5,6 +5,86 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.41.1] - 2022-06-21
+### Changed
+- Renaming master to trunk.
+- Renaming `master` references to `trunk`
+
+## [1.41.0] - 2022-06-14
+### Changed
+- Updated package dependencies. [#24529]
+
+### Fixed
+- Fixed old tk_ai regex to accurately match tk_ai ids. [#24697]
+- Moved the connection_url_redirect action handling to the connection package. [#24529]
+
+## [1.40.5] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## [1.40.4] - 2022-05-24
+### Added
+- Allow plugins to filter the list of available modules. Only activate and consider active modules that are available [#24454]
+
+## [1.40.3] - 2022-05-19
+### Added
+- PHPCS updates. [#24418]
+
+## [1.40.2] - 2022-05-18
+### Changed
+- Updated package dependencies [#24372]
+
+### Fixed
+- Fix new PHPCS sniffs. [#24366]
+
+## [1.40.1] - 2022-05-10
+### Added
+- Bundle and transpile JavaScript with Webpack. [#24216]
+
+### Changed
+- Deprecate soft disconnect [#24105]
+
+## [1.40.0] - 2022-05-04
+### Added
+- Connection: Expose wpVersion and siteSuffix in the global initial state var [#24137]
+
+### Deprecated
+- Moved the options class into Connection. [#24095]
+
+## [1.39.2] - 2022-05-19
+### Added
+- PHPCS updates.
+
+## [1.39.1] - 2022-04-27
+### Fixed
+- Reverts soft disconnect deprecation
+
+## [1.39.0] - 2022-04-26
+### Changed
+- Make remove_connection a proxy method to ensure all trackings are triggered
+- Updated package dependencies.
+
+### Deprecated
+- Removed Heartbeat by hoisting it into Connection.
+
+### Removed
+- Deprecated Soft disconnect
+
+## [1.38.0] - 2022-04-19
+### Added
+- Added list of connected list to the connection initial state
+- Add token lock functionality.
+
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+
+### Deprecated
+- Deprecated in-place connection.
+
+## [1.37.6] - 2022-04-12
+### Changed
+- Updated package dependencies.
+
 ## [1.37.5] - 2022-04-06
 ### Removed
 - Removed tracking dependency.
@@ -545,6 +625,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.41.1]: https://github.com/Automattic/jetpack-connection/compare/v1.41.0...v1.41.1
+[1.41.0]: https://github.com/Automattic/jetpack-connection/compare/v1.40.5...v1.41.0
+[1.40.5]: https://github.com/Automattic/jetpack-connection/compare/v1.40.4...v1.40.5
+[1.40.4]: https://github.com/Automattic/jetpack-connection/compare/v1.40.3...v1.40.4
+[1.40.3]: https://github.com/Automattic/jetpack-connection/compare/v1.40.2...v1.40.3
+[1.40.2]: https://github.com/Automattic/jetpack-connection/compare/v1.40.1...v1.40.2
+[1.40.1]: https://github.com/Automattic/jetpack-connection/compare/v1.40.0...v1.40.1
+[1.40.0]: https://github.com/Automattic/jetpack-connection/compare/v1.39.1...v1.40.0
+[1.39.2]: https://github.com/Automattic/jetpack-connection/compare/v1.39.1...v1.39.2
+[1.39.1]: https://github.com/Automattic/jetpack-connection/compare/v1.39.0...v1.39.1
+[1.39.0]: https://github.com/Automattic/jetpack-connection/compare/v1.38.0...v1.39.0
+[1.38.0]: https://github.com/Automattic/jetpack-connection/compare/v1.37.6...v1.38.0
+[1.37.6]: https://github.com/Automattic/jetpack-connection/compare/v1.37.5...v1.37.6
 [1.37.5]: https://github.com/Automattic/jetpack-connection/compare/v1.37.4...v1.37.5
 [1.37.4]: https://github.com/Automattic/jetpack-connection/compare/v1.37.3...v1.37.4
 [1.37.3]: https://github.com/Automattic/jetpack-connection/compare/v1.37.2...v1.37.3

@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
-/**
- * Internal dependencies
- */
 import PhoneEdit from '../edit';
 
 const setAttributes = jest.fn();
@@ -60,10 +54,12 @@ describe( 'Phone', () => {
 		expect( screen.getByText( 'call me on:' ) ).toBeInTheDocument();
 	} );
 
-	test( 'entering value into the phone field updates the phone attribute', () => {
+	test( 'entering value into the phone field updates the phone attribute', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <PhoneEdit { ...propsSelected } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'Phone number' ), '123-456-7890' );
+		await user.click( screen.getByPlaceholderText( 'Phone number' ) );
+		await user.paste( '123-456-7890' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { phone: '123-456-7890' } );
 	} );

@@ -1,9 +1,15 @@
 <?php
+/**
+ * Jetpack Compatibility File
+ * See: https://jetpack.com/
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * A last try to show posts, in case the Featured Content plugin returns no IDs.
  *
- * @param array $featured_ids
+ * @param array $featured_ids Array of 'featured' post IDs.
  * @return array
  */
 function twentyfourteen_featured_content_post_ids( $featured_ids ) {
@@ -29,7 +35,7 @@ add_action( 'customize_register', 'twentyfourteen_customizer_default' );
 /**
  * Sets a default tag of 'featured' for Featured Content.
  *
- * @param array $settings
+ * @param array $settings Featured content settings.
  * @return array
  */
 function twentyfourteen_featured_content_default_settings( $settings ) {
@@ -56,6 +62,9 @@ function twentyfourteen_mute_content_filters( $show, $post ) {
 }
 add_filter( 'sharing_show', 'twentyfourteen_mute_content_filters', 10, 2 );
 
+/**
+ * Enqueue Jetpack compat styles for Twenty Fourteen.
+ */
 function twentyfourteen_init_jetpack() {
 	/**
 	 * Add our compat CSS file for custom widget stylings and such.

@@ -1,15 +1,16 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-publicize",
-	"version": "0.1.0-alpha",
+	"version": "0.7.0",
 	"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/publicize/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Publicize"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/publicize"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -22,8 +23,8 @@
 	},
 	"devDependencies": {},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
+		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

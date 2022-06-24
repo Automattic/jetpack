@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search: auto config should not override option if exists

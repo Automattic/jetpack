@@ -42,19 +42,20 @@ class CookieState {
 
 		// Extract state from cookies and delete cookies.
 		if ( isset( $_COOKIE['jetpackState'] ) && is_array( $_COOKIE['jetpackState'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- User should sanitize if necessary.
 			$yum = wp_unslash( $_COOKIE['jetpackState'] );
 			unset( $_COOKIE['jetpackState'] );
 			foreach ( $yum as $k => $v ) {
 				if ( strlen( $v ) ) {
 					$state[ $k ] = $v;
 				}
-				setcookie( "jetpackState[$k]", false, 0, $path, $domain );
+				setcookie( "jetpackState[$k]", false, 0, $path, $domain, is_ssl(), true );
 			}
 		}
 
 		if ( $restate ) {
 			foreach ( $state as $k => $v ) {
-				setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
+				setcookie( "jetpackState[$k]", $v, 0, $path, $domain, is_ssl(), true );
 			}
 			return;
 		}
@@ -75,7 +76,7 @@ class CookieState {
 			$state[ $key ] = $value;
 			if ( ! headers_sent() ) {
 				if ( $this->should_set_cookie( $key ) ) {
-					setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
+					setcookie( "jetpackState[$key]", $value, 0, $path, $domain, is_ssl(), true );
 				}
 			}
 		}

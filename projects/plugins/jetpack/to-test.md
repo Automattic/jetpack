@@ -1,65 +1,64 @@
-## Jetpack 10.8
+## Jetpack 10.11
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### QR Post Feature
+### Jetpack connection sharing
 
-QR Post is a new Jetpack feature which automatically generates QR codes for your published posts. When scanned, the QR code will link visitors to the post. Take this feature for a spin by:
+We improved how Jetpack shares the connection with Jetpack standalone plugins. To test this, try the following:
 
-- Open an existing published post on your site (or create a new one).
-- Click on the Jetpack icon in the post editor, then locate the QR Code section.
-- Then click on the "Get QR Code" button to view or download the QR code for the post.
-- With a smartphone, try scanning the QR code to test that it forwards to the published post.
-- If your site has a custom logo set, it will be shown in the generated QR code image instead of the Jetpack logo.
+- Connect Jetpack.
+- Activate a secondary plugin like Boost and/or Backup.
+- Go to Plugins.
+- Confirm the link to deactivate Jetpack says only "Deactivate" (and not 'Disconnect and Deactivate').
+- Click Deactivate.
+- Confirm the dialog shows information about the active features you have and no mention to other plugins.
+- Reconnect Jetpack and try disabling standalone plugins.
+- Make sure disconnecting from the Jetpack Dashboard still works.
 
-### Openverse Media Support
+### Lazy load
 
-[Openverse](https://wordpress.org/openverse/) is a search engine for openly-licensed media which we've added as an extneral media provider. This will allow you to search Openverse for media you'd like to use right from the post editor! To see this in action:
+We added Lazy Load option to the Instagram Latest Post block and improved support for Lazy Load on block based themes
 
-- Open the post editor for a new/existing post.
-- Insert an Image or Gallery block.
-- Click on "Select Image(s)" for the block you inserted, then choose the Openverse option.
-- Search for something you'd like to see images of.
-- Once you have chosen your images and clicked "Select", the images will be inserted into the block.
+You can test this out with the Latest Instagram Posts Block:
 
-### Google Fonts In Global Styles
+- Add a Latest Instagram Posts block to a test post
+- Place a large spacer block above the Instagram one to test the lazy load aspect.
+- Inspect the HTML of the block images to see that they contain the lazy attribute.
+- If you inspect the network tab in the browser tools, the images should load in lazily on page scroll.
 
-We've begun adding support for a selection of Google Fonts available from the Global Styles setting. To test this out, try:
+For the block based themes:
 
-- Have the Gutenberg plugin version 12.8.1 or later installed on your site.
-- Activate a block-based theme such as Twenty Twenty Two.
-- Turn on the the Google Fonts feature from Jetpack settings: `Jetpack > Settings > Writing > Theme enhancements`
-- Next, navigate to the Full Site Editor: `Appearance > Editor`
-- Once in the Site Editor, click on the `Styles` icon which is next to the Settings icon.
-- Clicking on the `Typography` options will show the subset of Google Fonts which are available for selection, such as: Bodoni Moda, Merriweather, Roboto, or Nunito among others.
-- Save your Typography settings and check that the frontend of your site loads content with the selected font.
+- Make sure you are using a block based theme such as Twenty-Twenty Two
+- Create a post with a core gallery block, and insert a few images. You can add a spacer block above this block with say 1000px spacing to force the images far enough off the browser viewport.
+- Inspect the page elements, and make sure the post content image elements contain the Jetpack lazy load metadata like the `jetpack-lazy-image` class.
 
-### Jetpack Block Settings Discoverability
+### Publicize
 
-We've improved the discoverability of Jetpack Blocks in settings and added the ability to toggle them if desired:
+We've made multiple under-the-hood changes to the Publicize feature to prepare for the first release of the Jetpack Social plugin. The feature should continue to work just like before for Jetpack plugin users. Please try to use the Publicize feature to share posts to Twitter, Facebook, et al., and try using Publicize's Twitter Thread feature as well.
 
-- Navigate to `Jetpack > Settings`.
-- Click on the Search icon and search for "blocks".
-- You should see a toggle setting with "Jetpack Blocks give you the power to deliver quality content..."
-- That toggle **must** be active by default.
-- Try checking out the information tooltip/link for the setting.
-- Test that disabling the Jetpack Blocks setting works as expected. If the setting is off for example, you would not be able to insert a Jetpack block such as the Tiled Gallery block.
+### Sharing
 
-### Jetpack CRM Installable Via Form Block
+We've made some changes to the Email Sharing button in this release. It now fully relies on the email client or service you use on your computer, instead of trying to send out emails from your server. To test the changes, try the following:
 
-Jetpack CRM is now directly installable from the Form block settings. Follow these steps to test:
+1. Go to Jetpack > Settings > Sharing and ensure that the sharing buttons are active.
+2. Go to Settings > Sharing and add an email sharing button to your site.
+3. Visit one of your posts, and try clicking the button.
 
-- If you already have Jetpack CRM on your test site, uninstall it.
-- Open a post for editing, and in the editor insert a Form block (Contact type will work fine).
-- In the Form block sidebar (ensure you're selecting the parent Form block, and not a child block of the Form block) you will see the "CRM Integration" panel.
-- Expand the CRM Integration panel, and follow the prompt to install Jetpack CRM.
-- For further testing, head over to the Plugins menu, and deactivate (don't uninstall) the Jetpack CRM plugin.
-- Go back to the post editor with your Form block, and you should have an option to activate the plugin which you should do.
-- Test that the toggle option to save form entries to the CRM works; it should get saved properly when saving and refreshing the post.
-- Head to the Plugins menu again, and use a plugin such as WP Rollback to downgrade to Jetpack CRM version 4.9.0 or earlier.
-- Then open your post for editing again, and you should observe a notice that a plugin update is required in the CRM Integration panel section.
+Let us know if you run into any issues!
+
+
+### VideoPress
+
+We added support for automatic seekbar color.
+
+- Enable VideoPress on your site 
+- In your media library, add a VideoPress video and, when uploaded,copy the GUID.
+- Create a new postand add a shortcode block `[wpvideo <replace with your guid> useAverageColor=true]`
+- Play the video. The seekbar should change its color automatically during video playback.
+- Edit the shortcode and set the `useAverageColor` to `false`
+- Save and play video. The seekbar should not change its color anymore.
 
 **Thank you for all your help!**

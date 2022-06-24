@@ -124,8 +124,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 			$url = empty( $url ) ? wp_login_url() : $url;
 			$url = add_query_arg(
 				array(
-					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
-					'user_id'                           => $_GET['user_id'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+					'validate_jetpack_protect_recovery' => isset( $_GET['validate_jetpack_protect_recovery'] ) ? filter_var( wp_unslash( $_GET['validate_jetpack_protect_recovery'] ) ) : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+					'user_id'                           => isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 					'checkemail'                        => 'confirm',
 				),
 				$url
@@ -144,8 +144,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 	public function add_args_to_lostpassword_url( $url, $redirect ) {
 		if ( $this->valid_blocked_user_id ) {
 			$args = array(
-				'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
-				'user_id'                           => $_GET['user_id'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+				'validate_jetpack_protect_recovery' => isset( $_GET['validate_jetpack_protect_recovery'] ) ? filter_var( wp_unslash( $_GET['validate_jetpack_protect_recovery'] ) ) : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+				'user_id'                           => isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 				'action'                            => 'lostpassword',
 			);
 			if ( ! empty( $redirect ) ) {
@@ -168,8 +168,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 		if ( $this->valid_blocked_user_id && ( 'login_post' === $scheme || 'login' === $scheme ) ) {
 			$url = add_query_arg(
 				array(
-					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
-					'user_id'                           => $_GET['user_id'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+					'validate_jetpack_protect_recovery' => isset( $_GET['validate_jetpack_protect_recovery'] ) ? filter_var( wp_unslash( $_GET['validate_jetpack_protect_recovery'] ) ) : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+					'user_id'                           => isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 				),
 				$url
 			);
@@ -189,8 +189,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 	public function add_args_to_login_url( $url, $redirect, $force_reauth ) {
 		if ( $this->valid_blocked_user_id ) {
 			$args = array(
-				'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
-				'user_id'                           => $_GET['user_id'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+				'validate_jetpack_protect_recovery' => isset( $_GET['validate_jetpack_protect_recovery'] ) ? filter_var( wp_unslash( $_GET['validate_jetpack_protect_recovery'] ) ) : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+				'user_id'                           => isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 			);
 
 			if ( ! empty( $redirect ) ) {
@@ -235,7 +235,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			return false;
 		}
 
-		if ( ! $this->is_valid_protect_recovery_key( $_GET['validate_jetpack_protect_recovery'], $_GET['user_id'] ) ) { // phpcs:ignore: WordPress.Security.NonceVerification.Recommended -- no changes made if this isn't set.
+		if ( ! $this->is_valid_protect_recovery_key( filter_var( wp_unslash( $_GET['validate_jetpack_protect_recovery'] ) ), (int) $_GET['user_id'] ) ) { // phpcs:ignore: WordPress.Security.NonceVerification.Recommended -- no changes made if this isn't set.
 			return false;
 		}
 
@@ -285,7 +285,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			return;
 		}
 
-		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) && $_GET['user_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes, just throws invalid token error.
+		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) && ! empty( $_GET['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes, just throws invalid token error.
 			$error = new WP_Error( 'invalid_token', __( "Oops, we couldn't validate the recovery token.", 'jetpack' ) );
 			$this->protect_die( $error );
 
@@ -295,7 +295,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		if (
 			isset( $_GET['jetpack-protect-recovery'] ) &&
 			isset( $_POST['_wpnonce'] ) &&
-			wp_verify_nonce( $_POST['_wpnonce'], 'bypass-protect' )
+			wp_verify_nonce( $_POST['_wpnonce'], 'bypass-protect' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP Core doesn't unstrip or sanitize nonces either.
 		) {
 			$this->process_recovery_email();
 
@@ -336,7 +336,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 * Send the recovery form.
 	 */
 	public function send_recovery_email() {
-		$email = isset( $_POST['email'] ) ? $_POST['email'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- only triggered after bypass-protect nonce check is done.
+		$email = isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only triggered after bypass-protect nonce check is done, and sanitization is checked on the next line.
 		if ( sanitize_email( $email ) !== $email || ! is_email( $email ) ) {
 			return new WP_Error( 'invalid_email', __( "Oops, looks like that's not the right email address. Please try again!", 'jetpack' ) );
 		}

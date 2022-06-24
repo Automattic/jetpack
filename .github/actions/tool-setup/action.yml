@@ -21,6 +21,11 @@ runs:
         # Read tool versions
         . .github/versions.sh
 
+        if [[ "${INPUT_PHP:-$PHP_VERSION}" == 5.6 || "${INPUT_PHP:-$PHP_VERSION}" == 7.[01] ]]; then
+          printf "Downgrading composer for PHP %s\n\n" "${INPUT_PHP:-$PHP_VERSION}"
+          COMPOSER_VERSION=2.2.12
+        fi
+
         printf "\n\e[1mSelected tool versions\e[0m\n"
         echo " PHP: ${INPUT_PHP:-$PHP_VERSION}"
         echo "::set-output name=php-version::${INPUT_PHP:-$PHP_VERSION}"
@@ -80,7 +85,7 @@ runs:
 
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/action-setup@v2.2.1
+      uses: pnpm/action-setup@v2.2.2
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
     - name: Setup Node

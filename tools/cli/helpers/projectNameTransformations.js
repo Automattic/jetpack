@@ -4,7 +4,7 @@
  * Example: project-slug into Project Slug
  *
  * @param {string} name - The project name
- * @param {boolean} jetpackPrefix - Whether to prefix the name with Jetpack
+ * @param {boolean} jetpackPrefix - Whether to prefix the name with Jetpack, default true.
  * @returns {string} The transformed string
  */
 export function transformToReadableName( name, jetpackPrefix = true ) {

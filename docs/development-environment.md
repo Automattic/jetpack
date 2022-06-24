@@ -114,7 +114,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 	Composer is a PHP package manager and it's used to install packages that are required to run development tools and build projects.
 
-	The monorepo requires version 2.2.x.
+	The monorepo requires version 2.3.x.
 
 	 * ##### Installing Composer on macOS
 
@@ -139,7 +139,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 * #### jetpack CLI
 
-	The `jetpack` CLI tool is used to help with development in the Jetpack monorepo. Find out more and install it by following the instructions on the [Jetpack CLI page](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md).
+	The `jetpack` CLI tool is used to help with development in the Jetpack monorepo. Find out more and install it by following the instructions on the [Jetpack CLI page](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md).
 
 ### Check if your environment is ready for Jetpack development
 
@@ -163,7 +163,7 @@ Once you have a local copy of Jetpack and all development tools installed, you c
 
 ## Building your project
 
-The Jetpack monorepo is home to different projects, with different needs. Some require that you build PHP, JavaScript, and CSS components. [The Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md) will help you with all building steps.
+The Jetpack monorepo is home to different projects, with different needs. Some require that you build PHP, JavaScript, and CSS components. [The Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md) will help you with all building steps.
 
 There are different types of builds:
 
@@ -193,7 +193,7 @@ There are different types of builds:
 # Unit-testing
 
 
-The Jetpack plugin includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/tests) that you can run in your local environment before submitting a new Pull Request.
+The Jetpack plugin includes several [unit tests](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/jetpack/tests) that you can run in your local environment before submitting a new Pull Request.
 
 If you're not familiar with PHP Unit Testing, you can also check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/)
 

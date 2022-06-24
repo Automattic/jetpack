@@ -1,29 +1,18 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
+	import { PricingCard } from '@automattic/jetpack-components';
+	import React from 'react';
+	import { derived } from 'svelte/store';
+	import { createInterpolateElement } from '@wordpress/element';
+	import { __ } from '@wordpress/i18n';
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-
+	import config from '../../stores/config';
 	import Logo from '../../svg/jetpack-green.svg';
-
-	/**
-	 * External dependencies
-	 */
-	import { PricingCard } from '@automattic/jetpack-components';
-
-	/**
-	 * WordPress dependencies
-	 */
-	import { __ } from '@wordpress/i18n';
 	import { jetpackURL } from '../../utils/jetpack-url';
-	import { createInterpolateElement } from '@wordpress/element';
+	import { getUpgradeURL } from '../../utils/upgrade';
 
-	import React from 'react';
-
-	function onCtaClick() {
-		/* eslint-disable no-console */
-		console.log( 'CTA clicked' );
+	function goToCheckout() {
+		window.location.href = getUpgradeURL();
 	}
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
@@ -47,6 +36,12 @@
 			} ),
 		}
 	);
+
+	const pricing = derived( config, $config => $config.pricing );
+
+	if ( ! ( 'yearly' in $pricing ) ) {
+		goToCheckout();
+	}
 </script>
 
 <div id="jb-settings" class="jb-settings">
@@ -70,18 +65,20 @@
 			</div>
 
 			<div class="jb-card__cta px-2 my-4">
-				<ReactComponent
-					this={PricingCard}
-					title={'Jetpack Boost'}
-					icon={`${ window.Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
-					priceBefore={19.95}
-					priceAfter={9.95}
-					priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
-					currencyCode={'USD'}
-					ctaText={__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}
-					{onCtaClick}
-					{infoText}
-				/>
+				{#if 'yearly' in $pricing}
+					<ReactComponent
+						this={PricingCard}
+						title={'Jetpack Boost'}
+						icon={`${ window.Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
+						priceBefore={$pricing.yearly.priceBefore / 12}
+						priceAfter={$pricing.yearly.priceAfter / 12}
+						priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
+						currencyCode={$pricing.yearly.currencyCode}
+						ctaText={__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}
+						onCtaClick={goToCheckout}
+						{infoText}
+					/>
+				{/if}
 			</div>
 		</div>
 		<footer class="jb-footer-note">

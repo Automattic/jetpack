@@ -42,7 +42,7 @@
 		"payments-intro",
 		"post-publish-qr-post-panel"
 	],
-	"beta": [ "amazon" ],
+	"beta": [ "amazon", "recipe" ],
 	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",
@@ -61,7 +61,6 @@
 		"opentable",
 		"pinterest",
 		"rating-star",
-		"recurring-payments",
 		"related-posts",
 		"repeat-visitor",
 		"revue",

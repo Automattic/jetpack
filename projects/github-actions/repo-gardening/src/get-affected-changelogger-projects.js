@@ -1,5 +1,5 @@
-const glob = require( 'glob' );
 const fs = require( 'fs' );
+const glob = require( 'glob' );
 const getPrWorkspace = require( './get-pr-workspace' );
 
 /**

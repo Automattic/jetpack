@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Migration from Jetpack Custom CSS to WordPress' Core CSS.
  *
@@ -18,7 +18,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 		add_action( 'init', array( __CLASS__, 'register_legacy_post_type' ) );
 		add_action( 'admin_init', array( __CLASS__, 'do_migration' ) );
 
-		include_once( dirname( __FILE__ ) . '/custom-css.php' );
+		include_once __DIR__ . '/custom-css.php';
 		if ( ! is_admin() ) {
 			add_action( 'init', array( 'Jetpack_Custom_CSS', 'init' ) );
 		}
@@ -38,15 +38,15 @@ class Jetpack_Custom_CSS_Data_Migration {
 		}
 
 		/** This filter is documented in modules/custom-css/custom-css.php */
-		$preprocessors      = apply_filters( 'jetpack_custom_css_preprocessors', array() );
-		$core_css_post      = wp_get_custom_css_post();
-		$jetpack_css_post   = self::get_post();
+		$preprocessors    = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+		$core_css_post    = wp_get_custom_css_post();
+		$jetpack_css_post = self::get_post();
 
 		if ( ! $jetpack_css_post ) {
 			return;
 		}
 
-		$revisions          = self::get_all_revisions();
+		$revisions = self::get_all_revisions();
 
 		// Migrate the settings from revision meta to theme mod.
 		$options = self::get_options( $jetpack_css_post->ID );
@@ -63,11 +63,11 @@ class Jetpack_Custom_CSS_Data_Migration {
 			return null;
 		}
 
-		$revisions            = array_reverse( $revisions );
-		$themes               = Jetpack_Custom_CSS_Enhancements::get_themes();
-		$migrated             = array();
+		$revisions = array_reverse( $revisions );
+		$themes    = Jetpack_Custom_CSS_Enhancements::get_themes();
+		$migrated  = array();
 
-		foreach ( $revisions as $post_id => $post ) {
+		foreach ( $revisions as $post ) {
 			// Jetpack had stored the theme Name, not the stylesheet directory, for ... reasons.
 			// Get the stylesheet.  If null, the theme is no longer available.  Skip.
 			$stylesheet = isset( $themes[ $post->post_excerpt ] ) ? $themes[ $post->post_excerpt ] : null;
@@ -75,10 +75,10 @@ class Jetpack_Custom_CSS_Data_Migration {
 				continue;
 			}
 
-			$migrated[] = $post->ID;
+			$migrated[]   = $post->ID;
 			$preprocessor = get_post_meta( $post->ID, 'custom_css_preprocessor', true );
-			$css = $post->post_content;
-			$pre = '';
+			$css          = $post->post_content;
+			$pre          = '';
 
 			// Do a revision by revision parsing.
 			if ( $preprocessor && isset( $preprocessors[ $preprocessor ] ) ) {
@@ -87,10 +87,13 @@ class Jetpack_Custom_CSS_Data_Migration {
 			}
 
 			kses_remove_filters();
-			wp_update_custom_css_post( $css, array(
-				'stylesheet'   => $stylesheet,
-				'preprocessed' => $pre,
-			) );
+			wp_update_custom_css_post(
+				$css,
+				array(
+					'stylesheet'   => $stylesheet,
+					'preprocessed' => $pre,
+				)
+			);
 			kses_init();
 		}
 
@@ -113,9 +116,12 @@ class Jetpack_Custom_CSS_Data_Migration {
 				$css .= $jetpack_css_post->post_content;
 			}
 
-			wp_update_custom_css_post( $css, array(
-				'preprocessed' => $pre,
-			) );
+			wp_update_custom_css_post(
+				$css,
+				array(
+					'preprocessed' => $pre,
+				)
+			);
 		}
 
 		Jetpack::log( 'custom_css_4.7_migration', count( $migrated ) . 'revisions migrated' );
@@ -131,21 +137,24 @@ class Jetpack_Custom_CSS_Data_Migration {
 		}
 		// Register safecss as a custom post_type
 		// Explicit capability definitions are largely unnecessary because the posts are manipulated in code via an options page, managing CSS revisions does check the capabilities, so let's ensure that the proper caps are checked.
-		register_post_type( 'safecss', array(
-			'label'        => 'Custom CSS',
-			'supports'     => array( 'revisions' ),
-			'can_export'   => false,
-			'rewrite'      => false,
-			'capabilities' => array(
-				'edit_post'          => 'edit_theme_options',
-				'read_post'          => 'read',
-				'delete_post'        => 'edit_theme_options',
-				'edit_posts'         => 'edit_theme_options',
-				'edit_others_posts'  => 'edit_theme_options',
-				'publish_posts'      => 'edit_theme_options',
-				'read_private_posts' => 'read',
-			),
-		) );
+		register_post_type(
+			'safecss',
+			array(
+				'label'        => 'Custom CSS',
+				'supports'     => array( 'revisions' ),
+				'can_export'   => false,
+				'rewrite'      => false,
+				'capabilities' => array(
+					'edit_post'          => 'edit_theme_options',
+					'read_post'          => 'read',
+					'delete_post'        => 'edit_theme_options',
+					'edit_posts'         => 'edit_theme_options',
+					'edit_others_posts'  => 'edit_theme_options',
+					'publish_posts'      => 'edit_theme_options',
+					'read_private_posts' => 'read',
+				),
+			)
+		);
 	}
 
 	/**
@@ -158,20 +167,22 @@ class Jetpack_Custom_CSS_Data_Migration {
 	public static function get_post() {
 		/** This filter is documented in modules/custom-css/custom-css.php */
 		$custom_css_post_id = apply_filters( 'jetpack_custom_css_pre_post_id', null );
-		if ( ! is_null( $custom_css_post_id ) ) {
+		if ( $custom_css_post_id !== null ) {
 			return get_post( $custom_css_post_id );
 		}
 
 		$custom_css_post_id = wp_cache_get( 'custom_css_post_id' );
 
 		if ( false === $custom_css_post_id ) {
-			$custom_css_posts = get_posts( array(
-				'posts_per_page' => 1,
-				'post_type'      => 'safecss',
-				'post_status'    => 'publish',
-				'orderby'        => 'date',
-				'order'          => 'DESC',
-			) );
+			$custom_css_posts = get_posts(
+				array(
+					'posts_per_page' => 1,
+					'post_type'      => 'safecss',
+					'post_status'    => 'publish',
+					'orderby'        => 'date',
+					'order'          => 'DESC',
+				)
+			);
 
 			$custom_css_post_id = 0;
 			if ( count( $custom_css_posts ) > 0 ) {
@@ -201,11 +212,14 @@ class Jetpack_Custom_CSS_Data_Migration {
 			return array();
 		}
 
-		$revisions = wp_get_post_revisions( $post->ID, array(
-			'posts_per_page' => -1,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-		) );
+		$revisions = wp_get_post_revisions(
+			$post->ID,
+			array(
+				'posts_per_page' => -1,
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			)
+		);
 
 		return $revisions;
 	}
@@ -221,7 +235,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 	 */
 	public static function get_options( $post_id = null ) {
 		if ( empty( $post_id ) ) {
-			$post = self::get_post();
+			$post    = self::get_post();
 			$post_id = $post->ID;
 		}
 
@@ -235,7 +249,7 @@ class Jetpack_Custom_CSS_Data_Migration {
 		return array(
 			'preprocessor'  => isset( $meta['custom_css_preprocessor'][0] ) ? $meta['custom_css_preprocessor'][0] : '',
 			'replace'       => $replace,
-			'content_width' => isset( $meta['content_width'][0] )           ? $meta['content_width'][0]           : '',
+			'content_width' => isset( $meta['content_width'][0] ) ? $meta['content_width'][0] : '',
 		);
 	}
 }

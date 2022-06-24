@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Moved the options class into Connection.

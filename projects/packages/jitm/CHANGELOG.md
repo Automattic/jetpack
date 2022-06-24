@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.20] - 2022-06-21
+### Changed
+- Renaming master to trunk. [#24661]
+
+## [2.2.19] - 2022-06-14
+### Changed
+- Updated package dependencies. [#24529]
+
+## [2.2.18] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## [2.2.17] - 2022-05-18
+### Changed
+- Updated package dependencies [#24372]
+
+## [2.2.16] - 2022-05-10
+### Changed
+- Updated package dependencies. [#24302]
+
+## [2.2.15] - 2022-05-04
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies. [#24095]
+
+### Deprecated
+- Moved the options class into Connection. [#24095]
+
+## [2.2.14] - 2022-04-26
+### Changed
+- Updated package dependencies.
+- Update package.json metadata.
+
+## [2.2.13] - 2022-04-19
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+
+## [2.2.12] - 2022-04-12
+### Changed
+- Updated package dependencies.
+
 ## [2.2.11] - 2022-04-06
 ### Changed
 - Updated package dependencies
@@ -409,6 +450,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[2.2.20]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.19...v2.2.20
+[2.2.19]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.18...v2.2.19
+[2.2.18]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.17...v2.2.18
+[2.2.17]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.16...v2.2.17
+[2.2.16]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.15...v2.2.16
+[2.2.15]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.14...v2.2.15
+[2.2.14]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.13...v2.2.14
+[2.2.13]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.12...v2.2.13
+[2.2.12]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.11...v2.2.12
 [2.2.11]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.10...v2.2.11
 [2.2.10]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.9...v2.2.10
 [2.2.9]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.8...v2.2.9

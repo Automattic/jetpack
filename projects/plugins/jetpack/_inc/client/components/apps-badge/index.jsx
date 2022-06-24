@@ -1,22 +1,11 @@
-/**
- * External dependencies
- */
-
+import { imagePath } from 'constants/urls';
+import { getUserLocale as getLocaleSlug } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
+import { startsWith } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { startsWith } from 'lodash';
-import classNames from 'classnames';
-import { __ } from '@wordpress/i18n';
 
-/**
- * Internal dependencies
- */
-import { getUserLocale as getLocaleSlug } from '@automattic/jetpack-components';
-import { imagePath } from 'constants/urls';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 
 // the locale slugs for each stores' image paths follow different rules

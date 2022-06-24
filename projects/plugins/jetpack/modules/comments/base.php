@@ -61,17 +61,18 @@ class Highlander_Comments_Base {
 		if ( empty( $_POST['hc_post_as'] ) ) {
 			return false;
 		}
+		$hc_post_as = wp_unslash( $_POST['hc_post_as'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized here by comparing against known values.
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		if ( $args ) {
 			foreach ( $args as $id_source ) {
-				if ( $id_source === $_POST['hc_post_as'] ) {
+				if ( $id_source === $hc_post_as ) {
 					return $id_source;
 				}
 			}
 			return false;
 		}
-		return is_string( $_POST['hc_post_as'] ) && in_array( $_POST['hc_post_as'], $this->id_sources, true ) ? $_POST['hc_post_as'] : false;
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		return is_string( $hc_post_as ) && in_array( $hc_post_as, $this->id_sources, true ) ? $hc_post_as : false;
 	}
 
 	/**
@@ -177,15 +178,15 @@ class Highlander_Comments_Base {
 		$comment_author_url   = '';
 
 		if ( isset( $_COOKIE[ 'comment_author_' . COOKIEHASH ] ) ) {
-			$comment_author = $_COOKIE[ 'comment_author_' . COOKIEHASH ];
+			$comment_author = sanitize_text_field( wp_unslash( $_COOKIE[ 'comment_author_' . COOKIEHASH ] ) );
 		}
 
 		if ( isset( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) ) {
-			$comment_author_email = $_COOKIE[ 'comment_author_email_' . COOKIEHASH ];
+			$comment_author_email = sanitize_email( wp_unslash( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) );
 		}
 
 		if ( isset( $_COOKIE[ 'comment_author_url_' . COOKIEHASH ] ) ) {
-			$comment_author_url = $_COOKIE[ 'comment_author_url_' . COOKIEHASH ];
+			$comment_author_url = esc_url_raw( wp_unslash( $_COOKIE[ 'comment_author_url_' . COOKIEHASH ] ) );
 		}
 
 		if ( is_user_logged_in() ) {
@@ -203,7 +204,7 @@ class Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function allow_logged_out_user_to_comment_as_external() {
-		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter', 'googleplus' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter' ) ) {
 			return;
 		}
 
@@ -227,12 +228,12 @@ class Highlander_Comments_Base {
 		}
 
 		// Bail if user is not logged in or not a post request.
-		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) || ! is_user_logged_in() ) {
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) || ! is_user_logged_in() ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- simple comparison
 			return $comment_data;
 		}
 
 		// Bail if this is not a guest or external service credentialed request.
-		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter', 'googleplus' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter' ) ) {
 			return $comment_data;
 		}
 
@@ -249,10 +250,11 @@ class Highlander_Comments_Base {
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification should happen in Jetpack_Comments::pre_comment_on_post()
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitization too
 		if ( get_option( 'require_name_email' ) ) {
-			if ( 6 > strlen( $_POST['email'] ) || empty( $_POST['author'] ) ) {
+			if ( isset( $_POST['email'] ) && 6 > strlen( wp_unslash( $_POST['email'] ) ) || empty( $_POST['author'] ) ) {
 				wp_die( esc_html__( 'Error: please fill the required fields (name, email).', 'jetpack' ), 400 );
-			} elseif ( ! is_email( $_POST['email'] ) ) {
+			} elseif ( ! isset( $_POST['email'] ) || ! is_email( wp_unslash( $_POST['email'] ) ) ) {
 				wp_die( esc_html__( 'Error: please enter a valid email address.', 'jetpack' ), 400 );
 			}
 		}
@@ -263,12 +265,12 @@ class Highlander_Comments_Base {
 			'comment_author_email' => 'email',
 			'comment_author_url'   => 'url',
 		) as $comment_field => $post_field ) {
-			if ( $comment_data[ $comment_field ] !== $_POST[ $post_field ] && 'url' !== $post_field ) {
+			if ( ( ! isset( $_POST[ $post_field ] ) || $comment_data[ $comment_field ] !== $_POST[ $post_field ] ) && 'url' !== $post_field ) {
 				$author_change = true;
 			}
-			$comment_data[ $comment_field ] = $_POST[ $post_field ];
+			$comment_data[ $comment_field ] = isset( $_POST[ $post_field ] ) ? wp_unslash( $_POST[ $post_field ] ) : null;
 		}
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		// phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		// Mark as guest comment if name or email were changed.
 		if ( $author_change ) {
@@ -302,9 +304,9 @@ class Highlander_Comments_Base {
 		if ( ( 'wordpress' !== $id_source ) && is_user_logged_in() ) {
 			/** This filter is already documented in core/wp-includes/comment-functions.php */
 			$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
-			setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
-			setcookie( 'comment_author_email_' . COOKIEHASH, $comment->comment_author_email, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
-			setcookie( 'comment_author_url_' . COOKIEHASH, esc_url( $comment->comment_author_url ), time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+			setcookie( 'comment_author_email_' . COOKIEHASH, $comment->comment_author_email, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+			setcookie( 'comment_author_url_' . COOKIEHASH, esc_url( $comment->comment_author_url ), time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 		}
 	}
 

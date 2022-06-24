@@ -7,9 +7,6 @@
  * deprecation V2 to remove the mapStyle attribute.
  */
 
-/**
- * Internal dependencies
- */
 import save from './save';
 
 const attributes = {

@@ -1,4 +1,16 @@
 <?php
+/**
+ * File with a single function for loading library files.
+ *
+ * @package automattic/jetpack
+ */
+
+/**
+ * Function for loading library files.
+ *
+ * @param string $slug Library slug.
+ * @return void
+ */
 function jetpack_require_lib( $slug ) {
 	static $loaded = array();
 

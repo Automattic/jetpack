@@ -1,13 +1,12 @@
-/**
- * External dependencies
- */
 import { _x } from '@wordpress/i18n';
-import { combineReducers } from 'redux';
+import {
+	isJetpackPlanWithAntiSpam,
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_VIDEOPRESS,
+	PLAN_JETPACK_ANTI_SPAM,
+} from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { combineReducers } from 'redux';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
@@ -28,13 +27,21 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
+	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
 } from 'state/action-types';
+import { hasConnectedOwner } from 'state/connection';
+import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
-import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
-import { hasConnectedOwner } from 'state/connection';
+import {
+	getSitePlan,
+	hasActiveProductPurchase,
+	hasActiveSecurityPurchase,
+	hasActiveSiteFeature,
+	hasActiveAntiSpamPurchase,
+	hasSecurityComparableLegacyPlan,
+} from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
-import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
 
 const mergeArrays = ( x, y ) => {
 	if ( Array.isArray( x ) && Array.isArray( y ) ) {
@@ -180,6 +187,18 @@ const conditional = ( state = [], action ) => {
 	}
 };
 
+const siteDiscount = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED:
+			return {
+				...state,
+				viewed: action.step,
+			};
+		default:
+			return state;
+	}
+};
+
 const getConditionalRecommendations = state => {
 	return get( state.jetpack, [ 'recommendations', 'conditional' ] );
 };
@@ -191,6 +210,7 @@ export const reducer = combineReducers( {
 	upsell,
 	productSuggestions,
 	conditional,
+	siteDiscount,
 } );
 
 export const isFetchingRecommendationsData = state => {
@@ -221,6 +241,10 @@ export const isUpdatingRecommendationsStep = state => {
 	return !! state.jetpack.recommendations.requests.isUpdatingRecommendationsStep;
 };
 
+export const recommendationsSiteDiscountViewedStep = state => {
+	return state.jetpack.recommendations.siteDiscount.viewed || '';
+};
+
 export const getDataByKey = ( state, key ) => {
 	return get( state.jetpack, [ 'recommendations', 'data', key ], false );
 };
@@ -229,7 +253,7 @@ const stepToNextStep = {
 	'setup-wizard-completed': 'summary',
 	'banner-completed': 'woocommerce',
 	'not-started': 'site-type-question',
-	'site-type-question': 'product-suggestions',
+	'site-type-question': 'woocommerce',
 	'product-suggestions': 'woocommerce',
 	woocommerce: 'monitor',
 	monitor: 'related-posts',
@@ -238,11 +262,12 @@ const stepToNextStep = {
 	'site-accelerator': 'publicize',
 	publicize: 'summary',
 	'security-plan': 'summary',
+	'anti-spam': 'summary',
 	videopress: 'summary',
 	summary: 'summary',
 };
 
-const stepToRoute = {
+export const stepToRoute = {
 	'not-started': '#/recommendations/site-type',
 	'site-type-question': '#/recommendations/site-type',
 	'product-suggestions': '#/recommendations/product-suggestions',
@@ -253,8 +278,17 @@ const stepToRoute = {
 	'site-accelerator': '#/recommendations/site-accelerator',
 	publicize: '#/recommendations/publicize',
 	'security-plan': '#/recommendations/security-plan',
+	'anti-spam': '#/recommendations/anti-spam',
 	videopress: '#/recommendations/videopress',
 	summary: '#/recommendations/summary',
+};
+
+export const isStepViewed = ( state, featureSlug ) => {
+	const recommendationsData = get( state.jetpack, [ 'recommendations', 'data' ] );
+	return (
+		recommendationsData.viewedRecommendations &&
+		recommendationsData.viewedRecommendations.includes( featureSlug )
+	);
 };
 
 export const isFeatureActive = ( state, featureSlug ) => {
@@ -297,6 +331,36 @@ export const isProductSuggestionsAvailable = state => {
 	return isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
 };
 
+export const getProductSlugForStep = ( state, step ) => {
+	switch ( step ) {
+		case 'publicize':
+		case 'security-plan':
+			if ( ! hasActiveSecurityPurchase( state ) && ! hasSecurityComparableLegacyPlan( state ) ) {
+				return PLAN_JETPACK_SECURITY_T1_YEARLY;
+			}
+			break;
+		case 'anti-spam':
+			if (
+				! isPluginActive( state, 'akismet/akismet.php' ) &&
+				! hasActiveAntiSpamPurchase( state ) &&
+				! isJetpackPlanWithAntiSpam( getSitePlan( state ) )
+			) {
+				return PLAN_JETPACK_ANTI_SPAM;
+			}
+			break;
+		case 'videopress':
+			if (
+				! hasActiveSiteFeature( state, 'videopress-1tb-storage' ) &&
+				! hasActiveSiteFeature( state, 'videopress-unlimited-storage' )
+			) {
+				return PLAN_JETPACK_VIDEOPRESS;
+			}
+			break;
+	}
+
+	return false;
+};
+
 const isConditionalRecommendationEnabled = ( state, step ) => {
 	const conditionalRecommendations = getConditionalRecommendations( state );
 	return (
@@ -322,6 +386,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'publicize':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		case 'security-plan':
+		case 'anti-spam':
 			return isConditionalRecommendationEnabled( state, step );
 		case 'videopress':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
@@ -412,6 +477,7 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 		case 'publicize':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'security-plan':
+		case 'anti-spam':
 			return isConditionalRecommendationEnabled( state, slug );
 		case 'videopress':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
@@ -453,7 +519,7 @@ export const getSummaryFeatureSlugs = state => {
 };
 
 export const getSummaryResourceSlugs = state => {
-	const resourceSlugs = [ 'security-plan' ];
+	const resourceSlugs = [ 'security-plan', 'anti-spam' ];
 
 	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
 };
@@ -472,7 +538,7 @@ export const getSidebarCardSlug = state => {
 		return 'upsell';
 	}
 
-	if ( 'awaiting_credentials' === rewindState && ! hasActiveScanPurchase( state ) ) {
+	if ( 'awaiting_credentials' === rewindState && ! hasActiveSiteFeature( state, 'scan' ) ) {
 		return 'one-click-restores';
 	}
 

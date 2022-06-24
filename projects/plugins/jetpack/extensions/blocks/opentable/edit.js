@@ -1,15 +1,10 @@
-/**
- * External dependencies
- */
-import 'url-polyfill';
-import classnames from 'classnames';
-import { isEmpty, isEqual, join } from 'lodash';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
 import { InspectorControls, InspectorAdvancedControls } from '@wordpress/block-editor';
+import {
+	getBlockDefaultClassName,
+	registerBlockStyle,
+	unregisterBlockStyle,
+} from '@wordpress/blocks';
 import {
 	ExternalLink,
 	PanelBody,
@@ -18,22 +13,13 @@ import {
 	ToggleControl,
 	withNotices,
 } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
-import {
-	getBlockDefaultClassName,
-	registerBlockStyle,
-	unregisterBlockStyle,
-} from '@wordpress/blocks';
 import { useEffect } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { __, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { isEmpty, isEqual, join } from 'lodash';
 import './editor.scss';
-import icon from './icon';
-import RestaurantPicker from './restaurant-picker';
-import usePrevious from './use-previous';
-
+import { getActiveStyleName } from '../../shared/block-styles';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import {
 	buttonStyle,
 	defaultAttributes,
@@ -42,8 +28,9 @@ import {
 	languageOptions,
 	languageValues,
 } from './attributes';
-import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import { getActiveStyleName } from '../../shared/block-styles';
+import icon from './icon';
+import RestaurantPicker from './restaurant-picker';
+import usePrevious from './use-previous';
 import { getAttributesFromEmbedCode } from './utils';
 
 function OpenTableEdit( {

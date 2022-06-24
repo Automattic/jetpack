@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
 import { derived, writable } from 'svelte/store';
-
-/**
- * Internal dependencies
- */
 import api from '../api/api';
-import type { JSONObject } from '../utils/json-types';
+import { modules } from './modules';
 import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
+import type { JSONObject } from '../utils/json-types';
 import type { Viewport } from '../utils/types';
 
 export type CriticalCssErrorDetails = {
@@ -19,9 +13,8 @@ export type CriticalCssErrorDetails = {
 
 /* eslint-disable camelcase */
 export interface CriticalCssStatus {
-	generating: boolean;
 	progress: number;
-	retried_show_stopper: boolean;
+	retried_show_stopper?: boolean;
 	callback_passthrough?: JSONObject;
 	generation_nonce?: string;
 	proxy_nonce?: string;
@@ -39,23 +32,33 @@ export interface CriticalCssStatus {
 	provider_key_labels?: { [ name: string ]: string };
 	success_count?: number;
 	created?: number;
-	percent_complete?: number;
 	viewports?: Viewport[];
 }
 /* eslint-enable camelcase */
 
-const success = 'success';
-const fail = 'fail';
+const SUCCESS = 'success';
+const FAIL = 'fail';
+const REQUESTING = 'requesting';
 
-// eslint-disable-next-line camelcase
-const initialState = Jetpack_Boost.criticalCssStatus || {
-	generating: false,
+const resetState = {
 	progress: 0,
-	status: 'not_generated',
+	success_count: 0,
 	retried_show_stopper: false,
+	status: 'not_generated',
 };
 
-const { subscribe, update } = writable< CriticalCssStatus >( initialState );
+// eslint-disable-next-line camelcase
+const initialState = Jetpack_Boost.criticalCssStatus || resetState;
+
+const store = writable< CriticalCssStatus >( initialState );
+const { subscribe, update } = store;
+
+let status;
+subscribe( state => ( status = state ) );
+
+export function getStatus() {
+	return status;
+}
 
 /**
  * Derived datastore: contains the number of provider keys which failed in the
@@ -70,8 +73,25 @@ export const failedProviderKeyCount = derived( { subscribe }, state =>
  * is complete - i.e.: is success or fail.
  */
 export const isFinished = derived( { subscribe }, state =>
-	[ success, fail ].includes( state.status )
+	[ SUCCESS, FAIL ].includes( state.status )
 );
+
+/**
+ * Derived datastore: Returns whether to show an error.
+ * Show an error if in error state, or if a success has 0 results.
+ */
+export const showError = derived(
+	{ subscribe },
+	state => state.status === 'error' || ( state.status === 'success' && state.success_count === 0 )
+);
+
+export const isGenerating = derived( [ store, modules ], ( [ $store, $modules ] ) => {
+	const statusIsRequesting = REQUESTING === $store.status;
+	const criticalCssIsEnabled = $modules[ 'critical-css' ] && $modules[ 'critical-css' ].enabled;
+	const cloudCssIsEnabled = $modules[ 'cloud-css' ] && $modules[ 'cloud-css' ].enabled;
+
+	return statusIsRequesting && ( criticalCssIsEnabled || cloudCssIsEnabled );
+} );
 
 type CriticalCssApiResponse = {
 	status: string;
@@ -99,7 +119,7 @@ async function callCriticalCssEndpoint(
 		return false;
 	}
 
-	if ( response.status !== success ) {
+	if ( response.status !== SUCCESS ) {
 		throw new Error(
 			response.code ||
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,15 +141,12 @@ async function callCriticalCssEndpoint(
 /**
  * Helper method to update Critical CSS generation progress status.
  *
- * @param {boolean} generating True if generation process is running.
- * @param {number}  progress   Progress expressed as a %.
+ * @param {CriticalCssStatus} cssStatus Critical CSS generation status.
  */
-export function updateGenerateStatus( generating: boolean, progress: number ): void {
+export function updateGenerateStatus( cssStatus: CriticalCssStatus ): void {
 	return update( state => ( {
 		...state,
-		generating,
-		progress,
-		status: generating ? 'requesting' : state.status,
+		...cssStatus,
 	} ) );
 }
 
@@ -166,6 +183,30 @@ export function storeGenerateError( error: Error ): void {
 		...oldState,
 		status: 'error',
 		status_error: error,
+	} ) );
+}
+
+export function resetCloudStatus(): void {
+	return update( state => ( {
+		...state,
+		...resetState,
+		status: REQUESTING,
+	} ) );
+}
+
+export function resetCloudRetryStatus(): void {
+	return update( state => ( {
+		...state,
+		...resetState,
+		status: REQUESTING,
+		retried_show_stopper: true,
+	} ) );
+}
+
+export function setError(): void {
+	return update( state => ( {
+		...state,
+		status: 'error',
 	} ) );
 }
 

@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { assign, get, merge } from 'lodash';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { assign, get, merge } from 'lodash';
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
+import { isCurrentUserLinked } from 'state/connection';
 import { getPlanDuration } from 'state/plans/reducer';
 import { getProducts } from 'state/products';
-import { isCurrentUserLinked } from 'state/connection';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -535,6 +528,16 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 
 	return getRedirectUrl( source, redirectArgs );
 };
+
+/**
+ * Returns the list of products that are available for purchase in the initial state.
+ *
+ * @param {object} state - Global state tree
+ * @returns {Array} - Array of Products that you can purchase.
+ */
+export function getStaticProductsForPurchase( state ) {
+	return get( state.jetpack.initialState, 'products', {} );
+}
 
 /**
  * Returns the list of products that are available for purchase.

@@ -49,7 +49,7 @@ class Authorize_Redirect {
 		);
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$dest_url = empty( $_GET['dest_url'] ) ? null : $_GET['dest_url'];
+		$dest_url = empty( $_GET['dest_url'] ) ? null : esc_url_raw( wp_unslash( $_GET['dest_url'] ) );
 
 		if ( ! $dest_url || ( 0 === stripos( $dest_url, 'https://jetpack.com/' ) && 0 === stripos( $dest_url, 'https://wordpress.com/' ) ) ) {
 			// The destination URL is missing or invalid, nothing to do here.

@@ -2,16 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 
-/**
- * Internal dependencies
- */
 import ErrorNotice from '../components/error-notice';
 
 jest.mock( '@wordpress/blocks', () => ( {
@@ -30,9 +24,10 @@ describe( 'ErrorNotice', () => {
 		onClick.mockClear();
 	} );
 
-	test( 'calls onClick when clicking button', () => {
+	test( 'calls onClick when clicking button', async () => {
+		const user = userEvent.setup();
 		render( <ErrorNotice { ...defaultProps } /> );
-		userEvent.click( screen.getByText( 'Convert block to link' ) );
+		await user.click( screen.getByText( 'Convert block to link' ) );
 		expect( onClick ).toHaveBeenCalledWith( {
 			blockName: 'core/paragraph',
 			contentObj: {

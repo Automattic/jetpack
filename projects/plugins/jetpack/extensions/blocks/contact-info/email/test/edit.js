@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
-/**
- * Internal dependencies
- */
 import EmailEdit from '../edit';
 
 const setAttributes = jest.fn();
@@ -60,10 +54,12 @@ describe( 'Email', () => {
 		expect( screen.getByText( 'email me at:' ) ).toBeInTheDocument();
 	} );
 
-	test( 'entering value into the email field updates the email attribute', () => {
+	test( 'entering value into the email field updates the email attribute', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <EmailEdit { ...propsSelected } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'Email' ), 'test@example.com' );
+		await user.click( screen.getByPlaceholderText( 'Email' ) );
+		await user.paste( 'test@example.com' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { email: 'test@example.com' } );
 	} );

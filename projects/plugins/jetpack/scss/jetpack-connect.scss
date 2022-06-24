@@ -1,21 +1,8 @@
 @import '_inc/client/scss/variables/colors';
 
 // =====================================================================
-// iFrame
+// Connect button
 // ==========================================================================
-
-.jp-jetpack-connect__iframe {
-	height: 340px;
-	width: 380px;
-	max-width: 100%;
-	margin: 1rem auto 0;
-	background: #FFFFFF;
-
-	.jp-jetpack-connect__site_connection & {
-		width: 600px;
-		height: 600px;
-	}
-}
 
 .jp-connect-full__button-container-loading {
 	margin-top: 84px;

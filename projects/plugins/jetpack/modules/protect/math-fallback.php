@@ -48,7 +48,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		public static function math_authenticate() {
 			if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 				$jetpack_protect = Jetpack_Protect_Module::instance();
-				$transient       = $jetpack_protect->get_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'] );
+				$transient       = $jetpack_protect->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
 
 				if ( ! $transient || $transient < 1 ) {
 					self::generate_math_page();
@@ -57,7 +57,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			}
 
 			$ans         = isset( $_POST['jetpack_protect_num'] ) ? (int) $_POST['jetpack_protect_num'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- answers are salted.
-			$correct_ans = isset( $_POST['jetpack_protect_answer'] ) ? $_POST['jetpack_protect_answer'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$correct_ans = isset( $_POST['jetpack_protect_answer'] ) ? sanitize_key( $_POST['jetpack_protect_answer'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 			$time_window  = self::time_window();
 			$salt         = get_site_option( 'jetpack_protect_key' ) . '|' . get_site_option( 'admin_email' ) . '|';
@@ -116,7 +116,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		 */
 		public function process_generate_math_page() {
 			$ans         = isset( $_POST['jetpack_protect_num'] ) ? (int) $_POST['jetpack_protect_num'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- answers are salted.
-			$correct_ans = isset( $_POST['jetpack_protect_answer'] ) ? $_POST['jetpack_protect_answer'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$correct_ans = isset( $_POST['jetpack_protect_answer'] ) ? sanitize_key( $_POST['jetpack_protect_answer'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 			$time_window  = self::time_window();
 			$salt         = get_site_option( 'jetpack_protect_key' ) . '|' . get_site_option( 'admin_email' ) . '|';
@@ -130,7 +130,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 
 				$jetpack_protect = Jetpack_Protect_Module::instance();
 				$jetpack_protect->set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
-				setcookie( 'jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false );
+				setcookie( 'jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
 				remove_action( 'login_form', array( $this, 'math_form' ) );
 				return true;
 			}
@@ -145,7 +145,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			// Check if jpp_math_pass cookie is set and it matches valid transient.
 			if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 				$jetpack_protect = Jetpack_Protect_Module::instance();
-				$transient       = $jetpack_protect->get_transient( 'jpp_math_pass_' . $_COOKIE['jpp_math_pass'] );
+				$transient       = $jetpack_protect->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
 
 				if ( $transient && $transient > 0 ) {
 					return '';

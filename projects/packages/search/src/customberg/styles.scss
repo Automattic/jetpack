@@ -20,4 +20,9 @@ html.wp-toolbar {
 	display: none;
 }
 
+// Fix fill color for gridicons in dark mode
+.jp-search-configure-app-wrapper .jetpack-instant-search__overlay--dark .gridicon {
+	fill: $white;
+}
+
 @include wordpress-admin-schemes();

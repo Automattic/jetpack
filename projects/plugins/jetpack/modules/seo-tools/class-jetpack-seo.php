@@ -91,6 +91,13 @@ class Jetpack_SEO {
 		$post_custom_description = Jetpack_SEO_Posts::get_post_custom_description( get_post() );
 		$front_page_meta         = Jetpack_SEO_Utils::get_front_page_meta_description();
 
+		if ( class_exists( 'woocommerce' ) && is_shop() ) {
+			$shop_page_id = get_option( 'woocommerce_shop_page_id' );
+			if ( $shop_page_id ) {
+				$post_custom_description = Jetpack_SEO_Posts::get_post_custom_description( get_post( $shop_page_id ) );
+			}
+		}
+
 		if ( is_front_page() && ! empty( $front_page_meta ) ) {
 			$tags['og:description'] = $front_page_meta;
 		} else {

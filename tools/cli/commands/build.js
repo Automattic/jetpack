@@ -1,31 +1,24 @@
-/**
- * External dependencies
- */
-import chalk from 'chalk';
-import execa from 'execa';
-import fs from 'fs/promises';
 import { constants as fsconstants } from 'fs';
+import fs from 'fs/promises';
 import npath from 'path';
 import readline from 'readline';
+import chalk from 'chalk';
+import execa from 'execa';
 import inquirer from 'inquirer';
 import Listr from 'listr';
-import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
+import ListrState from 'listr/lib/state.js';
 import pLimit from 'p-limit';
-
-/**
- * Internal dependencies
- */
-import { chalkJetpackGreen } from '../helpers/styling.js';
-import { coerceConcurrency } from '../helpers/normalizeArgv.js';
-import formatDuration from '../helpers/format-duration.js';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
-import promptForProject from '../helpers/promptForProject.js';
-import { getInstallArgs, projectDir } from '../helpers/install.js';
-import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
 import FilterStream from '../helpers/filter-stream.js';
+import formatDuration from '../helpers/format-duration.js';
+import { getInstallArgs, projectDir } from '../helpers/install.js';
+import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import PrefixStream from '../helpers/prefix-stream.js';
+import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
+import promptForProject from '../helpers/promptForProject.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
@@ -539,16 +532,31 @@ async function buildProject( t ) {
 
 	if ( t.argv.forMirrors ) {
 		// Mirroring needs to munge the project's composer.json to point to the built files..
-		if ( composerJson.repositories && Object.keys( t.ctx.versions ).length > 0 ) {
-			const idx = composerJson.repositories.findIndex( r => r.options?.monorepo );
-			if ( idx >= 0 ) {
+		const idx = composerJson.repositories?.findIndex( r => r.options?.monorepo );
+		if ( typeof idx === 'number' && idx >= 0 ) {
+			// Extract only the versions this project actually depends on, in a consistent order,
+			// to avoid vendor/composer/installed.json changing randomly every build.
+			const deps = new Set( t.ctx.dependencies.get( t.project ) );
+			for ( const dep of deps ) {
+				for ( const d of t.ctx.dependencies.get( dep ) ) {
+					deps.add( d );
+				}
+			}
+			const versions = {};
+			for ( const dep of [ ...deps ].sort() ) {
+				if ( t.ctx.versions[ dep ] ) {
+					versions[ t.ctx.versions[ dep ].name ] = t.ctx.versions[ dep ].version;
+				}
+			}
+
+			if ( Object.keys( versions ).length > 0 ) {
 				t.output( `\n=== Munging composer.json to fetch built packages ===\n\n` );
 				composerJson.repositories.splice( idx, 0, {
 					type: 'path',
 					url: t.argv.forMirrors + '/*/*',
 					options: {
 						monorepo: true,
-						versions: t.ctx.versions,
+						versions,
 					},
 				} );
 				await writeFileAtomic(
@@ -558,17 +566,9 @@ async function buildProject( t ) {
 				);
 				// Update composer.lock too, if any.
 				if ( await fsExists( `${ t.cwd }/composer.lock` ) ) {
-					const res = await t.execa( 'composer', [ 'info', '--locked', '--name-only' ], {
+					await t.execa( 'composer', [ 'update', '--no-install', ...Object.keys( versions ) ], {
 						cwd: t.cwd,
-						stdio: [ null, 'pipe', null ],
 					} );
-					const pkgs = res.stdout
-						.split( '\n' )
-						.map( s => s.trim() )
-						.filter( s => t.ctx.versions.hasOwnProperty( s ) );
-					if ( pkgs.length ) {
-						await t.execa( 'composer', [ 'update', '--no-install', ...pkgs ], { cwd: t.cwd } );
-					}
 				}
 			}
 		}
@@ -833,8 +833,10 @@ async function buildProject( t ) {
 	}
 
 	// Build succeeded! Now do some bookkeeping.
-	t.ctx.versions[ composerJson.name ] =
-		composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-master' ] || 'dev-master';
+	t.ctx.versions[ t.project ] = {
+		name: composerJson.name,
+		version: composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-trunk' ] || 'dev-trunk',
+	};
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore
 		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );

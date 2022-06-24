@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import { chunk, drop, take } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import Row from './row';
+import { MAX_COLUMNS } from '../constants';
 import Column from './column';
 import Gallery from './gallery';
-import { MAX_COLUMNS } from '../constants';
+import Row from './row';
 
 export default function Square( { columns, renderedImages } ) {
 	const columnCount = Math.min( MAX_COLUMNS, columns );

@@ -249,7 +249,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_send_json_error( 'missing_params', 400 );
 			}
 
-			$params = wp_unslash( $_POST['params'] );
+			$params = wp_unslash( $_POST['params'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Manually validated by validate_ajax_params().
 			$errors = $this->validate_ajax_params( $params );
 			if ( ! empty( $errors->errors ) ) {
 				wp_send_json_error( $errors );
@@ -317,7 +317,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_send_json_error( 'missing_params', 400 );
 			}
 
-			$params         = wp_unslash( $_POST['params'] );
+			$params         = wp_unslash( $_POST['params'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Manually validated just below.
 			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id' ) );
 			if ( ! empty( $illegal_params ) ) {
 				wp_send_json_error( 'illegal_params', 400 );

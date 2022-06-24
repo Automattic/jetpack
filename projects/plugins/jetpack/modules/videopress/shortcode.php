@@ -1,15 +1,21 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
  * VideoPress Shortcode Handler
  *
  * This file may or may not be included from the Jetpack VideoPress module.
  */
-
 class VideoPress_Shortcode {
-	/** @var VideoPress_Shortcode */
+	/**
+	 * Singleton VideoPress_Shortcode instance.
+	 *
+	 * @var VideoPress_Shortcode
+	 */
 	protected static $instance;
 
+	/**
+	 * VideoPress_Shortcode constructor.
+	 */
 	protected function __construct() {
 
 		// By explicitly declaring the provider here, we can speed things up by not relying on oEmbed discovery.
@@ -27,6 +33,8 @@ class VideoPress_Shortcode {
 	}
 
 	/**
+	 * VideoPress_Shortcode initialization.
+	 *
 	 * @return VideoPress_Shortcode
 	 */
 	public static function initialize() {
@@ -46,7 +54,7 @@ class VideoPress_Shortcode {
 	 * [wpvideo OcobLTqC]
 	 *
 	 * @link https://codex.wordpress.org/Shortcode_API Shortcode API
-	 * @param array $attr shortcode attributes
+	 * @param array $attr shortcode attributes.
 	 * @return string HTML markup or blank string on fail
 	 */
 	public function shortcode_callback( $attr ) {
@@ -85,6 +93,7 @@ class VideoPress_Shortcode {
 			'muted'           => false, // Whether the video should start without sound.
 			'controls'        => true,  // Whether the video should display controls.
 			'playsinline'     => false, // Whether the video should be allowed to play inline (for browsers that support this).
+			'useaveragecolor' => false, // Whether the video should use the seekbar automatic average color.
 		);
 
 		$attr = shortcode_atts( $defaults, $attr, 'videopress' );
@@ -121,6 +130,11 @@ class VideoPress_Shortcode {
 			$attr['width'] --;
 		}
 
+		// Make sure "false" being passed as useaveragecolor will be actually false.
+		if ( is_string( $attr['useaveragecolor'] ) && 'false' === strtolower( $attr['useaveragecolor'] ) ) {
+			$attr['useaveragecolor'] = false;
+		}
+
 		/**
 		 * Filter the default VideoPress shortcode options.
 		 *
@@ -146,22 +160,23 @@ class VideoPress_Shortcode {
 				'muted'           => $attr['muted'],
 				'controls'        => $attr['controls'],
 				'playsinline'     => $attr['playsinline'],
+				'useAverageColor' => (bool) $attr['useaveragecolor'], // The casing is intentional, shortcode params are lowercase, but player expects useAverageColor
 			// accessible via the `videopress_shortcode_options` filter.
 			)
 		);
 
 		// Register VideoPress scripts
-		wp_register_script( 'videopress', 'https://v0.wordpress.com/js/videopress.js', array( 'jquery', 'swfobject' ), '1.09' );
+		wp_register_script( 'videopress', 'https://v0.wordpress.com/js/videopress.js', array( 'jquery', 'swfobject' ), '1.09', false );
 
-		require_once dirname( __FILE__ ) . '/class.videopress-video.php';
-		require_once dirname( __FILE__ ) . '/class.videopress-player.php';
+		require_once __DIR__ . '/class.videopress-video.php';
+		require_once __DIR__ . '/class.videopress-player.php';
 
 		$player = new VideoPress_Player( $guid, $attr['width'], $options );
 
 		if ( is_feed() ) {
-			return $player->asXML();
+			return $player->as_xml();
 		} else {
-			return $player->asHTML();
+			return $player->as_html();
 		}
 	}
 
@@ -178,7 +193,7 @@ class VideoPress_Shortcode {
 	 *
 	 * @return string
 	 */
-	public function video_shortcode_override( $html, $attr, $content, $instance ) {
+	public function video_shortcode_override( $html, $attr, $content, $instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$videopress_guid = null;
 
@@ -234,7 +249,7 @@ class VideoPress_Shortcode {
 	/**
 	 * Adds a `for` query parameter to the oembed provider request URL.
 	 *
-	 * @param String $oembed_provider
+	 * @param String $oembed_provider URL of the oEmbed provider.
 	 * @return String $ehnanced_oembed_provider
 	 */
 	public function add_oembed_for_parameter( $oembed_provider ) {

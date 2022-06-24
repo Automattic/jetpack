@@ -1,5 +1,11 @@
 <?php
 /**
+ * Theme Tools: Author Bio functions.
+ *
+ * @package automattic/jetpack
+ */
+
+/**
  * The function to display Author Bio in a theme.
  */
 function jetpack_author_bio() {
@@ -46,13 +52,21 @@ function jetpack_author_bio() {
 		</div><!-- .author-avatar -->
 
 		<div class="author-heading">
-			<h2 class="author-title"><?php printf( esc_html__( 'Published by %s', 'jetpack' ), '<span class="author-name">' . get_the_author() . '</span>' ); ?></h2>
+			<h2 class="author-title">
+				<?php
+					/* translators: %s: post author */
+					printf( esc_html__( 'Published by %s', 'jetpack' ), '<span class="author-name">' . get_the_author() . '</span>' );
+				?>
+			</h2>
 		</div><!-- .author-heading -->
 
 		<p class="author-bio">
 			<?php the_author_meta( 'description' ); ?>
 			<a class="author-link" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ); ?>" rel="author">
-				<?php printf( esc_html__( 'View all posts by %s', 'jetpack' ), get_the_author() ); ?>
+				<?php
+					/* translators: %s: post author */
+					printf( esc_html__( 'View all posts by %s', 'jetpack' ), get_the_author() );
+				?>
 			</a>
 		</p><!-- .author-bio -->
 	</div><!-- .entry-auhtor -->

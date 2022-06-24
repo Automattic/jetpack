@@ -1,16 +1,12 @@
 /* eslint-disable no-console */
 
-/**
- * Internal dependencies
- */
-import reducer from './reducers';
 import actions from './actions';
-import selectors from './selectors';
-import resolvers from './resolvers';
 import controls from './controls';
+import reducer from './reducers';
+import resolvers from './resolvers';
+import selectors from './selectors';
 import storeHolder from './store-holder';
-
-const STORE_ID = 'jetpack-connection';
+import STORE_ID from './store-id';
 
 const initialState = window.JP_CONNECTION_INITIAL_STATE;
 
@@ -21,6 +17,7 @@ if ( ! initialState ) {
 }
 
 storeHolder.mayBeInit( STORE_ID, {
+	__experimentalUseThunks: true,
 	reducer,
 	actions,
 	selectors,

@@ -191,7 +191,7 @@ add_filter( 'jetpack_learn_more_button_sharedaddy', 'sharedaddy_load_more_link' 
  */
 function sharedaddy_more_info() {
 	esc_html_e(
-		'Visitors can share your posts with Twitter, Facebook, Reddit, Digg, LinkedIn, Google+, print,
+		'Visitors can share your posts with Twitter, Facebook, Reddit, Digg, LinkedIn, print,
 		and email. You can configure services to appear as icons, text, or both and some services like Twitter
 		have additional options.',
 		'jetpack'
@@ -889,3 +889,19 @@ function jetpack_more_info_google_fonts() {
 	esc_html_e( 'A selection of Google fonts for block enabled themes.  This feature is still being developed.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_google-fonts', 'jetpack_more_info_google_fonts' );
+
+/**
+ * WAF support link.
+ */
+function jetpack_waf_more_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-support-waf' ) );
+}
+add_action( 'jetpack_learn_more_button_waf', 'jetpack_waf_more_link' );
+
+/**
+ * WAF description.
+ */
+function jetpack_more_info_waf() {
+	esc_html_e( 'The Jetpack Firewall is a web application firewall designed to protect your WordPress site from malicious requests.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_waf', 'jetpack_more_info_waf' );

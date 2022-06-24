@@ -135,12 +135,6 @@
 	flex: 0 0 100%;
 }
 
-.wp-block-jetpack-button button {
-	padding: 20px 30px;
-	border: inherit;
-	font: inherit;
-}
-
 .wp-block-jetpack-button.alignright button {
 	float: right;
 }

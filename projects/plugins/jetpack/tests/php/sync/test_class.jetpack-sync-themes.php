@@ -5,7 +5,7 @@ use Automattic\Jetpack\Sync\Modules;
 
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-//Mock object requiered for test_theme_update()
+// Mock object requiered for test_theme_update()
 class Dummy_Sync_Test_WP_Upgrader {
 	public $skin;
 
@@ -17,22 +17,24 @@ class Dummy_Sync_Test_WP_Upgrader {
 		);
 	}
 
-	function theme_info() {
-		$reflection = new ReflectionClass("WP_Theme" );
+	public function theme_info() {
+		$reflection = new ReflectionClass( 'WP_Theme' );
 
 		$instance = $reflection->newInstanceWithoutConstructor();
 
-		$reflectionStyleProperty = $reflection->getProperty( 'stylesheet' );
-		$reflectionStyleProperty->setAccessible( true ) ;
-		$reflectionStyleProperty->setValue( $instance, 'foobar-theme' );
+		$prop = $reflection->getProperty( 'stylesheet' );
+		$prop->setAccessible( true );
+		$prop->setValue( $instance, 'foobar-theme' );
 		return $instance;
 	}
 }
 
 /**
  * Testing CRUD on Options
+ * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
+	// phpcs:enable Generic.Files.OneObjectStructurePerFile.MultipleFound
 	protected $theme;
 
 	/**
@@ -104,9 +106,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$current_theme = wp_get_theme();
-		$switch_data = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_current_theme_support' );
-		$this->assertEquals( $current_theme->name, $switch_data->args[0]['name']);
-		$this->assertEquals( $current_theme->version, $switch_data->args[0]['version']);
+		$switch_data   = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_current_theme_support' );
+		$this->assertEquals( $current_theme->name, $switch_data->args[0]['name'] );
+		$this->assertEquals( $current_theme->version, $switch_data->args[0]['version'] );
 
 		$this->assertTrue( isset( $switch_data->args[1]['name'] ) );
 		$this->assertTrue( isset( $switch_data->args[1]['version'] ) );
@@ -123,7 +125,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->theme, $this->server_replica_storage->get_option( 'stylesheet' ) );
 
 		$local_value = get_option( 'theme_mods_' . $this->theme );
-		$remote_value = $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme );
 
 		if ( isset( $local_value[0] ) ) {
 			// this is a spurious value that sometimes gets set during tests, and is
@@ -177,7 +178,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			array(
 				'theme-file-sync-child',
 				'Child Sync Theme',
-			)
+			),
 		);
 
 		$themes = array(
@@ -187,7 +188,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$theme_slugs = array_keys( $themes );
 
-		//Test enable multiple themes
+		// Test enable multiple themes
 		/**
 		 * This filter is already documented in wp-includes/option.php
 		 *
@@ -199,7 +200,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, $theme_slugs );
 		$this->server_event_storage->reset();
 
-		//Test disable multiple themes
+		// Test disable multiple themes
 		/**
 		 * This filter is already documented in wp-includes/option.php
 		 *
@@ -211,12 +212,12 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, array() );
 		$this->server_event_storage->reset();
 
-		//Prepare for single theme enable and disable tests
+		// Prepare for single theme enable and disable tests
 		$test_themes = array( $test_themes[0] );
-		$themes = array( $test_themes[0][0] => 1 );
+		$themes      = array( $test_themes[0][0] => 1 );
 		$theme_slugs = array_keys( $themes );
 
-		//Test enable single theme
+		// Test enable single theme
 		/**
 		 * This filter is already documented in wp-includes/option.php
 		 *
@@ -228,7 +229,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, $theme_slugs );
 		$this->server_event_storage->reset();
 
-		//Test disable single theme
+		// Test disable single theme
 		/**
 		 * This filter is already documented in wp-includes/option.php
 		 *
@@ -254,10 +255,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$theme_slug = 'itek';
 		$theme_name = 'iTek';
 
-		delete_theme( $theme_slug ); //Ensure theme is not lingering on file system
+		delete_theme( $theme_slug ); // Ensure theme is not lingering on file system
 		$this->server_event_storage->reset();
 
-		//Test Install Theme
+		// Test Install Theme
 
 		$this->install_theme( $theme_slug );
 		$this->sender->do_sync();
@@ -269,7 +270,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $event_data->args[1]['version'] );
 		$this->assertTrue( (bool) $event_data->args[1]['uri'] );
 
-		//Test Edit Theme
+		// Test Edit Theme
 
 		/**
 		 * This filter is already documented in wp-includes/pluggable.php
@@ -289,7 +290,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		unset( $_POST['newcontent'] );
 
-		//Test Delete Theme
+		// Test Delete Theme
 
 		delete_theme( $theme_slug );
 		$this->sender->do_sync();
@@ -355,31 +356,30 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	public function test_widgets_changes_get_synced() {
 		global $wp_registered_sidebars;
 
-		$sidebar_id = 'sidebar-1';
+		$sidebar_id   = 'sidebar-1';
 		$sidebar_name = $wp_registered_sidebars[ $sidebar_id ]['name'];
 
 		$sidebar_widgets = array(
 			'wp_inactive_widgets' => array( 'author-1' ),
-			'sidebar-1' => array( 'nav_menu-1' ),
-			'array_version' => 3
+			'sidebar-1'           => array( 'nav_menu-1' ),
+			'array_version'       => 3,
 		);
 		wp_set_sidebars_widgets( $sidebar_widgets );
 
 		$this->sender->do_sync();
 
-		$local_value = get_option( 'sidebars_widgets' );
+		$local_value  = get_option( 'sidebars_widgets' );
 		$remote_value = $this->server_replica_storage->get_option( 'sidebars_widgets' );
 		$this->assertEquals( $local_value, $remote_value, 'We are not syncing sidebar_widgets' );
 
 		// Add widget
 		$sidebar_widgets = array(
 			'wp_inactive_widgets' => array( 'author-1' ),
-			'sidebar-1' => array( 'nav_menu-1', 'calendar-1' ),
-			'array_version' => 3
+			'sidebar-1'           => array( 'nav_menu-1', 'calendar-1' ),
+			'array_version'       => 3,
 		);
 		wp_set_sidebars_widgets( $sidebar_widgets );
 		$this->sender->do_sync();
-
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_added' );
 
@@ -389,10 +389,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[3], 'Calendar', 'Added widget name not found' );
 
 		// Reorder widget
-		$sidebar_widgets  = array(
+		$sidebar_widgets = array(
 			'wp_inactive_widgets' => array( 'author-1' ),
-			'sidebar-1' => array( 'calendar-1', 'nav_menu-1' ),
-			'array_version' => 3
+			'sidebar-1'           => array( 'calendar-1', 'nav_menu-1' ),
+			'array_version'       => 3,
 		);
 		wp_set_sidebars_widgets( $sidebar_widgets );
 		$this->sender->do_sync();
@@ -403,10 +403,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[1], $sidebar_name, 'Reordered sidebar name not found' );
 
 		// Deleted widget
-		$sidebar_widgets  = array(
+		$sidebar_widgets = array(
 			'wp_inactive_widgets' => array( 'author-1' ),
-			'sidebar-1' => array( 'calendar-1' ),
-			'array_version' => 3
+			'sidebar-1'           => array( 'calendar-1' ),
+			'array_version'       => 3,
 		);
 		wp_set_sidebars_widgets( $sidebar_widgets );
 		$this->sender->do_sync();
@@ -421,10 +421,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[3], 'Navigation Menu', 'Added widget name not found' );
 
 		// Moved to inactive
-		$sidebar_widgets  = array(
+		$sidebar_widgets = array(
 			'wp_inactive_widgets' => array( 'author-1', 'calendar-1' ),
-			'sidebar-1' => array(),
-			'array_version' => 3
+			'sidebar-1'           => array(),
+			'array_version'       => 3,
 		);
 		wp_set_sidebars_widgets( $sidebar_widgets );
 		$this->sender->do_sync();
@@ -434,10 +434,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[1], array( 'Calendar' ), 'Moved to inactive not present' );
 
 		// Cleared inavite
-		$sidebar_widgets  = array(
+		$sidebar_widgets = array(
 			'wp_inactive_widgets' => array(),
-			'sidebar-1' => array(),
-			'array_version' => 3
+			'sidebar-1'           => array(),
+			'array_version'       => 3,
 		);
 		wp_set_sidebars_widgets( $sidebar_widgets );
 		$this->sender->do_sync();
@@ -449,12 +449,12 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	public function test_widget_edited() {
 		$object = (object) array(
 			'name' => 'Search',
-			'id' => 'search-1',
+			'id'   => 'search-1',
 		);
 		/**
 		 * This filter is already documented in wp-includes/class-wp-widget.php
 		 */
-		do_action( 'widget_update_callback', array(), array( 'title' => 'My Widget' ), array( 'dummy' => 'data' ), $object);
+		do_action( 'widget_update_callback', array(), array( 'title' => 'My Widget' ), array( 'dummy' => 'data' ), $object );
 
 		$this->sender->do_sync();
 
@@ -472,7 +472,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$api       = themes_api(
 			'theme_information',
 			array(
-				'slug'   => $slug,
+				'slug' => $slug,
 			)
 		);
 		$overwrite = '';

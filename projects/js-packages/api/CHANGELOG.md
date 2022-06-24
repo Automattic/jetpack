@@ -2,6 +2,52 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.13.6 - 2022-06-21
+### Changed
+- Drop dependency on lodash, use `Object.assign` instead.
+
+## 0.13.5 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.13.4 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## 0.13.3 - 2022-05-30
+### Changed
+- Updated package dependencies
+
+## 0.13.2 - 2022-05-10
+### Changed
+- Updated package dependencies [#24301]
+
+## 0.13.1 - 2022-05-04
+### Added
+- Added an endpoint to load the firewall's settings. [#23769]
+- Add missing JavaScript dependencies. [#24096]
+
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+## 0.13.0 - 2022-04-26
+### Added
+- Add endpoints for site discount
+- Add endpoint to fetch intro offers
+
+### Changed
+- Updated package dependencies.
+
+## 0.12.0 - 2022-04-19
+### Added
+- Added API routes for WordAds settings
+- Search: added API support for search product tier pricing
+
+## 0.11.0 - 2022-04-12
+### Added
+- Add endpoint for conditional recommendations
+
 ## 0.10.2 - 2022-04-05
 ### Changed
 - Updated package dependencies

@@ -165,7 +165,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		if ( ! $is_valid ) {
 			$this->assertTrue( is_wp_error( $result ) );
 			$expected_message = "Invalid field name: $field is not allowed";
-			$this->assertSame( $result->get_error_message(), $expected_message );
+			$this->assertSame( $expected_message, $result->get_error_message() );
 		} else {
 			$this->assertFalse( is_wp_error( $result ) );
 		}
@@ -264,7 +264,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		if ( ! $is_valid ) {
 			$this->assertTrue( is_wp_error( $result ) );
 			$expected_message = "Invalid field name: field '{$field}' doesn't exist in table {$wpdb->posts}";
-			$this->assertSame( $result->get_error_message(), $expected_message );
+			$this->assertSame( $expected_message, $result->get_error_message() );
 		} else {
 			$this->assertFalse( is_wp_error( $result ) );
 		}

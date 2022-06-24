@@ -71,11 +71,6 @@ class Initial_State {
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
 				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
-				'pricing'           => array(
-					'currency_code'  => 'USD',
-					'discount_price' => '30',
-					'full_price'     => '60',
-				),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
@@ -86,8 +81,8 @@ class Initial_State {
 			),
 			'features'        => array_map(
 				'sanitize_text_field',
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				isset( $_GET['features'] ) ? explode( ',', $_GET['features'] ) : array()
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
 			),
 		);
 	}

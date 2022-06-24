@@ -11,7 +11,11 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 
 require_once __DIR__ . '/../../../../modules/widgets/milestone.php';
 
+/**
+ * phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
+ */
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
+	// phpcs:enable PEAR.NamingConventions.ValidClassName.Invalid
 
 	/**
 	 * Used to store an instance of the WP_REST_Server.
@@ -92,10 +96,10 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param string $route       REST API path to be append to /jetpack/v4/
-	 * @param array  $json_params When present, parameters are added to request in JSON format
-	 * @param string $method      Request method to use, GET or POST
-	 * @param array  $params      Parameters to add to endpoint
+	 * @param string $route       REST API path to be appended to /jetpack/v4/.
+	 * @param array  $json_params When present, parameters are added to request in JSON format.
+	 * @param string $method      Request method to use, GET or POST.
+	 * @param array  $params      Parameters to add to endpoint.
 	 *
 	 * @return WP_REST_Response
 	 */
@@ -879,7 +883,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$widget_instances[3] = array_merge(
 			$widget_instances[3],
 			array(
-				'year' => date( 'Y' ) + 1,
+				'year' => gmdate( 'Y' ) + 1,
 				'unit' => 'months',
 			)
 		);
@@ -952,7 +956,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		);
 
 		foreach ( wp_get_sidebars_widgets() as $sidebar ) {
-			$this->assertFalse( array_search( 'milestone_widget-3', $sidebar ) );
+			$this->assertFalse( array_search( 'milestone_widget-3', $sidebar, true ) );
 		}
 
 		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
@@ -1018,41 +1022,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->create_and_get_request( 'recommendations/step', array(), 'GET' );
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData( array( 'step' => $test_data ), $response );
-	}
-
-	/**
-	 * Test saving and retrieving licensing errors.
-	 *
-	 * @since 9.0.0
-	 */
-	public function test_licensing_error() {
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_admin_page' );
-		wp_set_current_user( $user->ID );
-
-		// Should be empty by default.
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
-		$response = $this->server->dispatch( $request );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertSame( '', $response->get_data() );
-
-		// Should accept updates.
-		$response = $this->create_and_get_request(
-			'licensing/error',
-			array(
-				'error' => 'foo',
-			),
-			'POST'
-		);
-		$this->assertResponseStatus( 200, $response );
-		$this->assertTrue( $response->get_data() );
-
-		// Should return updated value.
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
-		$response = $this->server->dispatch( $request );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( 'foo', $response->get_data() );
 	}
 
 	/**

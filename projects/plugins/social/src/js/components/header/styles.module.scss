@@ -1,0 +1,94 @@
+.container {
+	align-items: center;
+}
+
+.title {
+	color: var( --jp-gray-80 );
+	margin: calc( var( --spacing-base ) * 2 ) 0;
+
+	a {
+		color: inherit;
+	}
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+
+	> * + * {
+		margin-left: calc( var( --spacing-base ) * 2 );
+	}
+}
+
+.action {
+	display: flex;
+	align-items: center;
+	font-weight: 600;
+	color: var( --jp-gray-80 );
+	line-height: 1;
+	margin: calc( var( --spacing-base ) * 3 ) 0;
+
+	svg {
+		margin-right: var( --spacing-base );
+	}
+}
+
+.illustration {
+	display: none;
+
+	@media ( min-width: 600px ) {
+		display: block;
+	}
+}
+
+.column {
+	> * + * {
+		margin-top: calc( var( --spacing-base ) * 3 );
+	}
+}
+
+.sharesCard{
+	width: 168px;
+	height: 168px;
+	background: #FFFFFF;
+	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
+	border-radius: 4px;
+	@media ( min-width: 800px ) {
+		position: absolute;
+		width: 168px;
+		height: 168px;
+		right: 72px;
+		background: #FFFFFF;
+		box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
+		border-radius: 4px;
+	}
+}
+
+.sharesCardHeading{
+	width: 96px;
+	height: 46px;
+	margin-top: 12px;
+	margin-left: 24px;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 23px;
+	display: flex;
+	align-items: center;
+	color: #23282D;
+}
+
+.sharesCount{
+	height: 40px;
+	margin-left: 24px;
+	font-weight: 600;
+	font-size: 36px;
+	line-height: 40px;
+	color: #000000;
+}
+
+.socialIcon{
+	width: 24px;
+	height: 24px;
+	margin-left: 24px;
+	margin-top: 24px;
+}

@@ -27,6 +27,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
+		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
 
 		if ( ! $this->is_api_request ) {
 			add_filter( 'submenu_file', array( $this, 'override_the_theme_installer' ), 10, 2 );
@@ -72,11 +73,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
-			$nudge = $this->get_upsell_nudge();
-			if ( $nudge ) {
-				parent::add_upsell_nudge( $nudge );
-			}
-
 			$this->add_new_site_link();
 		}
 
@@ -399,7 +395,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
 	 */
 	public function ajax_sidebar_state() {
-		$expanded = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$expanded = isset( $_REQUEST['expanded'] ) ? filter_var( wp_unslash( $_REQUEST['expanded'] ), FILTER_VALIDATE_BOOLEAN ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		Client::wpcom_json_api_request_as_user(
 			'/me/preferences',
 			'2',
@@ -419,7 +415,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function wp_ajax_jitm_dismiss() {
 		check_ajax_referer( 'jitm_dismiss' );
 		$jitm = \Automattic\Jetpack\JITMS\JITM::get_instance();
-		$jitm->dismiss( $_REQUEST['id'], $_REQUEST['feature_class'] );
+		if ( isset( $_REQUEST['id'] ) && isset( $_REQUEST['feature_class'] ) ) {
+			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
+		}
 		wp_die();
 	}
 

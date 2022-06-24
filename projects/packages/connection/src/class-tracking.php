@@ -15,6 +15,7 @@ class Tracking {
 	 * The assets version.
 	 *
 	 * @since 1.13.1
+	 * @deprecated since 1.40.1
 	 *
 	 * @var string Assets version.
 	 */
@@ -71,7 +72,7 @@ class Tracking {
 		// Check for nonce.
 		if (
 			empty( $_REQUEST['tracksNonce'] )
-			|| ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' )
+			|| ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 		) {
 			wp_send_json_error(
 				__( 'You aren’t authorized to do that.', 'jetpack-connection' ),
@@ -89,13 +90,13 @@ class Tracking {
 		$tracks_data = array();
 		if ( 'click' === $_REQUEST['tracksEventType'] && isset( $_REQUEST['tracksEventProp'] ) ) {
 			if ( is_array( $_REQUEST['tracksEventProp'] ) ) {
-				$tracks_data = $_REQUEST['tracksEventProp'];
+				$tracks_data = array_map( 'filter_var', wp_unslash( $_REQUEST['tracksEventProp'] ) );
 			} else {
-				$tracks_data = array( 'clicked' => $_REQUEST['tracksEventProp'] );
+				$tracks_data = array( 'clicked' => filter_var( wp_unslash( $_REQUEST['tracksEventProp'] ) ) );
 			}
 		}
 
-		$this->record_user_event( $_REQUEST['tracksEventName'], $tracks_data, null, false );
+		$this->record_user_event( filter_var( wp_unslash( $_REQUEST['tracksEventName'] ) ), $tracks_data, null, false );
 
 		wp_send_json_success();
 	}
@@ -116,38 +117,33 @@ class Tracking {
 			true
 		);
 
-		if ( $enqueue ) {
-			// Enqueue jp-tracks-functions script.
-			wp_enqueue_script(
-				'jp-tracks-functions',
-				Assets::get_file_url_for_environment( 'js/tracks-callables.js', 'js/tracks-callables.js', __FILE__ ),
-				array( 'jp-tracks' ),
-				self::ASSETS_VERSION,
-				true
-			);
-		} else {
-			// Register jp-tracks-functions script.
-			wp_register_script(
-				'jp-tracks-functions',
-				Assets::get_file_url_for_environment( 'js/tracks-callables.js', 'js/tracks-callables.js', __FILE__ ),
-				array( 'jp-tracks' ),
-				self::ASSETS_VERSION,
-				true
-			);
-		}
-
+		Assets::register_script(
+			'jp-tracks-functions',
+			'../dist/tracks-callables.js',
+			__FILE__,
+			array(
+				'dependencies' => array( 'jp-tracks' ),
+				'enqueue'      => $enqueue,
+				'in_footer'    => true,
+				'nonmin_path'  => 'js/tracks-callables.js',
+			)
+		);
 	}
 
 	/**
 	 * Enqueue script necessary for tracking.
 	 */
 	public function enqueue_tracks_scripts() {
-		wp_enqueue_script(
+		Assets::register_script(
 			'jptracks',
-			Assets::get_file_url_for_environment( 'js/tracks-ajax.js', 'js/tracks-ajax.js', __FILE__ ),
-			array( 'jquery' ),
-			self::ASSETS_VERSION,
-			true
+			'../dist/tracks-ajax.js',
+			__FILE__,
+			array(
+				'dependencies' => array( 'jquery' ),
+				'enqueue'      => true,
+				'in_footer'    => true,
+				'nonmin_path'  => 'js/tracks-ajax.js',
+			)
 		);
 
 		wp_localize_script(
@@ -175,9 +171,9 @@ class Tracking {
 		}
 		$site_url = get_option( 'siteurl' );
 
-		$data['_via_ua']  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
-		$data['_via_ip']  = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
-		$data['_lg']      = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '';
+		$data['_via_ua']  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$data['_via_ip']  = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$data['_lg']      = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) : '';
 		$data['blog_url'] = $site_url;
 		$data['blog_id']  = \Jetpack_Options::get_option( 'id' );
 
@@ -313,7 +309,7 @@ class Tracking {
 		}
 
 		if ( ! isset( $_COOKIE['tk_ai'] ) && ! headers_sent() ) {
-			setcookie( 'tk_ai', $anon_id );
+			setcookie( 'tk_ai', $anon_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- This is a random string and should be fine.
 		}
 
 		return array(

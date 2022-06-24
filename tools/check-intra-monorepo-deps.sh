@@ -85,7 +85,7 @@ else
 fi
 
 function get_packages {
-	PACKAGES_DEV=$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= if $in.extra["branch-alias"]["dev-master"] then [ $in.extra["branch-alias"]["dev-master"], ( $in.extra["branch-alias"]["dev-master"] | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "^\(.v)" ) ) ] else [ "@dev" ] end )' "$BASE"/projects/packages/*/composer.json)
+	PACKAGES_DEV=$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= if $in.extra["branch-alias"]["dev-trunk"] then [ $in.extra["branch-alias"]["dev-trunk"], ( $in.extra["branch-alias"]["dev-trunk"] | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "^\(.v)" ) ) ] else [ "@dev" ] end )' "$BASE"/projects/packages/*/composer.json)
 	PACKAGES_NODEV=$(jq -c '( .[][0] | select( . != "@dev" ) ) |= empty' <<<"$PACKAGES_DEV")
 	PACKAGES_STAR=$(jq -c '.[] |= [ "@dev" ]' <<<"$PACKAGES_DEV")
 	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:* || ^\( $in.version | sub( "^(?<v>[0-9]+\\.[0-9]+)(?:\\..*)$"; "\(.v)" ) )", "workspace:* || \($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
@@ -98,7 +98,7 @@ DO_PNPM_LOCK=true
 SLUGS=()
 if [[ $# -le 0 ]]; then
 	# Use a temp variable so pipefail works
-	TMP="$(pnpx --no-install jetpack dependencies build-order --pretty)" || { echo "$TMP"; exit 1; }
+	TMP="$(pnpm jetpack dependencies build-order --pretty)" || { echo "$TMP"; exit 1; }
 	mapfile -t SLUGS <<<"$TMP"
 	TMP="$(git ls-files '**/composer.json' '**/package.json' | sed -E -n -e '\!^projects/[^/]*/[^/]*/(composer|package)\.json$! d' -e 's!/(composer|package)\.json$!!' -e 's/^/nonproject:/p' | sort -u)"
 	mapfile -t -O ${#SLUGS[@]} SLUGS <<<"$TMP"

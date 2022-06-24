@@ -13,7 +13,7 @@ use Exception;
 /**
  * Handles the bootstrap.
  */
-class WafStandaloneBootstrap {
+class Waf_Standalone_Bootstrap {
 
 	/**
 	 * Ensures that constants are initialized if this class is used.
@@ -42,9 +42,7 @@ class WafStandaloneBootstrap {
 	 * @return void
 	 */
 	private function initialize_constants() {
-		if ( ! defined( 'JETPACK_WAF_DIR' ) ) {
-			define( 'JETPACK_WAF_DIR', trailingslashit( WP_CONTENT_DIR ) . 'jetpack-waf' );
-		}
+		Waf_Constants::initialize_constants();
 	}
 
 	/**
@@ -53,6 +51,10 @@ class WafStandaloneBootstrap {
 	 * @return void
 	 */
 	protected function initialize_filesystem() {
+		if ( ! function_exists( '\\WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
 		WP_Filesystem();
 	}
 
@@ -69,7 +71,7 @@ class WafStandaloneBootstrap {
 
 		// Try the Jetpack autoloader.
 		if ( isset( $jetpack_autoloader_loader ) ) {
-			$class_file = $jetpack_autoloader_loader->find_class_file( WafRunner::class );
+			$class_file = $jetpack_autoloader_loader->find_class_file( Waf_Runner::class );
 			if ( $class_file ) {
 				$autoload_file = dirname( dirname( dirname( dirname( dirname( $class_file ) ) ) ) ) . '/vendor/autoload.php';
 			}
@@ -103,6 +105,15 @@ class WafStandaloneBootstrap {
 	}
 
 	/**
+	 * Gets the path to the bootstrap.php file.
+	 *
+	 * @return string The bootstrap.php file path.
+	 */
+	public function get_bootstrap_file_path() {
+		return trailingslashit( JETPACK_WAF_DIR ) . 'bootstrap.php';
+	}
+
+	/**
 	 * Generates the bootstrap file.
 	 *
 	 * @return string Absolute path to the bootstrap file.
@@ -117,13 +128,18 @@ class WafStandaloneBootstrap {
 			throw new Exception( 'Can not work without the file system being initialized.' );
 		}
 
-		$bootstrap_file = trailingslashit( JETPACK_WAF_DIR ) . 'bootstrap.php';
-		$mode_option    = get_option( WafRunner::MODE_OPTION_NAME, false );
+		$bootstrap_file    = $this->get_bootstrap_file_path();
+		$mode_option       = get_option( Waf_Runner::MODE_OPTION_NAME, false );
+		$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
 
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
 		$code = "<?php\n"
+			. sprintf( "define( 'DISABLE_JETPACK_WAF', %s );\n", var_export( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF, true ) )
+			. "if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) return;\n"
 			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( $mode_option ? $mode_option : 'silent', true ) )
+			. sprintf( "define( 'JETPACK_WAF_SHARE_DATA', %s );\n", var_export( $share_data_option, true ) )
 			. sprintf( "define( 'JETPACK_WAF_DIR', %s );\n", var_export( JETPACK_WAF_DIR, true ) )
+			. sprintf( "define( 'JETPACK_WAF_WPCONFIG', %s );\n", var_export( JETPACK_WAF_WPCONFIG, true ) )
 			. 'require_once ' . var_export( $this->locate_autoloader_file(), true ) . ";\n"
 			. 'include ' . var_export( dirname( __DIR__ ) . '/run.php', true ) . ";\n";
 		// phpcs:enable

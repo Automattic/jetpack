@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack\Waf;
 
 /**
- * WafTransforms class
+ * Waf_Transforms class
  */
-class WafTransforms {
+class Waf_Transforms {
 	/**
 	 * Decode a Base64-encoded string.
 	 *

@@ -5,6 +5,98 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.1] - 2022-06-21
+### Fixed
+- My Jetpack: Replace wordpress from PNG to SVG at Connection [#24793]
+
+## [1.7.0] - 2022-06-21
+### Changed
+- My Jetpack: set products grid to 3x3 for large viewport size
+- Renaming master to trunk.
+- Renaming `master` references to `trunk`
+
+## [1.6.2] - 2022-06-14
+### Changed
+- Updated package dependencies. [#24529]
+
+## [1.6.1] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
+## [1.6.0] - 2022-05-30
+### Added
+- Added Social to My Jetpack.
+
+### Changed
+- Make My Jetpack use the new Modules class
+- Replace deprecated external-link variation by using isExternalLink prop
+- Updated package dependencies
+
+## [1.5.0] - 2022-05-24
+### Changed
+- Default licensing UI in My Jetpack to be enabled [#24396]
+- Updated package dependencies. [#24449]
+
+## [1.4.1] - 2022-05-19
+### Changed
+- Updated package dependencies. [#24395]
+
+## [1.4.0] - 2022-05-18
+### Added
+- Added a filter to allow stand-alone plugins to add product specific activation routines [#24334]
+- My Jetpack: Add Protect class [#24347]
+- My Jetpack: compute Search plugin price based on price tier [#24337]
+
+### Changed
+- Add tiered pricing copy and update titles for Jetpack Search [#24357]
+- Hide Activate a license link if there is no user connection since user connection is required [#24251]
+- My Jetpack Hybrid products: Install Jetpack if stand-alone plugin installation fails [#24335]
+- Updated Jetpack Scan feature list. [#23863] [#23795] [#24361] [#24372]
+
+## [1.3.0] - 2022-05-10
+### Changed
+- Adds from arg to connection screen in My Jetpack so that we can begin tracking connections originating from My Jetpack [#24283]
+- Updated package dependencies. [#24189]
+- Updated references to old licensing activation UI to licensing activation UI in My Jetpack [#24189]
+
+## [1.2.1] - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+
+### Changed
+- My Jetpack: remove duplicated site suffix stored on rawUrl. Use siteSuffix instead. [#24094]
+- Updated package dependencies. [#24095] [#24198]
+
+### Deprecated
+- Moved the options class into Connection. [#24095]
+
+## [1.2.0] - 2022-04-26
+### Added
+- Added activation screen component to My Jetpack licensing page
+
+### Changed
+- Updated package dependencies.
+- Update package.json metadata.
+
+## [1.1.0] - 2022-04-19
+### Added
+- Adds a skeleton for the licensing UI along with a feature flag
+- Better error handling for when the WPCOM server is unreachable
+- Introduced ConnectedProductOffer component
+
+### Changed
+- Turn Search into a Hybrid Product
+- Updated package dependencies
+- use connected plugin list from the connection store and ask for an update after activating a product
+
+## [1.0.2] - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed bug in checkout URLs for sites installed in subdirs.
+
 ## [1.0.1] - 2022-04-06
 ### Removed
 - Removed tracking dependency.
@@ -420,6 +512,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[1.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.7.0...1.7.1
+[1.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.6.2...1.7.0
+[1.6.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.6.1...1.6.2
+[1.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.6.0...1.6.1
+[1.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.5.0...1.6.0
+[1.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.4.1...1.5.0
+[1.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.4.0...1.4.1
+[1.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.3.0...1.4.0
+[1.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.2.1...1.3.0
+[1.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.2.0...1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.1.0...1.2.0
+[1.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.2...1.1.0
+[1.0.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.13...1.0.0
 [0.6.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/0.6.12...0.6.13

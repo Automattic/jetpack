@@ -1,8 +1,13 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { isBlobURL } from '@wordpress/blob';
+import {
+	BlockControls,
+	InspectorControls,
+	MediaUpload,
+	MediaUploadCheck,
+	RichText,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import {
 	BaseControl,
 	Button,
@@ -17,31 +22,19 @@ import {
 } from '@wordpress/components';
 import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import {
-	BlockControls,
-	InspectorControls,
-	MediaUpload,
-	MediaUploadCheck,
-	RichText,
-	useBlockProps,
-} from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, pencil } from '@wordpress/icons';
 import classnames from 'classnames';
 import { get, indexOf } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { VideoPressBlockProvider } from './components';
+import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
-import { getVideoPressUrl } from './url';
-import { getClassNames } from './utils';
 import ResumableUpload from './resumable-upload';
 import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
-import { VideoPressBlockProvider } from './components';
-import { VIDEO_PRIVACY } from './constants';
+import { getVideoPressUrl } from './url';
+import { getClassNames } from './utils';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -319,6 +312,19 @@ const VideoPressEdit = CoreVideoEdit =>
 				  )
 				: null;
 		}
+
+		getPrivacySettingHelp = selectedSetting => {
+			const privacySetting = parseInt( selectedSetting, 10 );
+			if ( VIDEO_PRIVACY.PRIVATE === privacySetting ) {
+				return __( 'Restrict views to members of this site', 'jetpack' );
+			}
+
+			if ( VIDEO_PRIVACY.PUBLIC === privacySetting ) {
+				return __( 'Video can be viewed by anyone', 'jetpack' );
+			}
+
+			return __( 'Follow the site privacy setting', 'jetpack' );
+		};
 
 		renderControlLabelWithTooltip( label, tooltipText ) {
 			return (
@@ -623,8 +629,8 @@ const VideoPressEdit = CoreVideoEdit =>
 								disabled={ isFetchingMedia || isUpdatingAllowDownload }
 							/>
 							<SelectControl
-								label={ __( 'Privacy', 'jetpack' ) }
-								help={ __( 'Restrict views to members of this site', 'jetpack' ) }
+								label={ __( 'Video Privacy', 'jetpack' ) }
+								help={ this.getPrivacySettingHelp( privacySetting ) }
 								onChange={ this.onChangePrivacySetting }
 								value={ privacySetting }
 								options={ [
@@ -811,14 +817,16 @@ const VpBlock = props => {
 		scripts = [];
 	}
 
-	const videopresAjaxURLBlob = new Blob(
-		[ `var videopressAjax = { ajaxUrl: '${ window.videopressAjax.ajaxUrl }' };` ],
-		{
-			type: 'text/javascript',
-		}
-	);
+	if ( window.videopressAjax ) {
+		const videopresAjaxURLBlob = new Blob(
+			[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
+			{
+				type: 'text/javascript',
+			}
+		);
 
-	scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
+		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
+	}
 
 	return (
 		<figure { ...blockProps }>

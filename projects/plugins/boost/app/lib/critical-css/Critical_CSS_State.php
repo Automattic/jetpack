@@ -21,7 +21,7 @@ class Critical_CSS_State {
 	const FAIL          = 'error';
 	const REQUESTING    = 'requesting';
 
-	const KEY_PREFIX = 'critical_css_state:';
+	const KEY_PREFIX = 'critical_css_state-';
 
 	/**
 	 * Critical CSS state.
@@ -90,7 +90,7 @@ class Critical_CSS_State {
 	 */
 	private function check_for_timeout() {
 		if ( self::REQUESTING === $this->state && ( microtime( true ) - $this->created ) > HOUR_IN_SECONDS ) {
-			$this->set_as_failed( 'timeout' );
+			$this->set_as_failed( __( 'Timeout while waiting for Critical CSS from the Boost Service.', 'jetpack-boost' ) );
 		}
 	}
 
@@ -107,37 +107,17 @@ class Critical_CSS_State {
 		);
 	}
 
-	public function get_generation_status() {
-		// Todo: created time may be different in browser.
-		$state  = $this->get_state_transient();
-		$status = $this->get_providers_status( $state['sources'] );
-
-		return array(
-			'created'   => $state['created'],
-			'updated'   => $state['updated'],
-			'completed' => $status['completed'],
-			'total'     => $status['total'],
-			'pending'   => $status['pending'],
-		);
-	}
-
-	private function get_providers_status( $providers ) {
-		$completed = 0;
-		$pending   = false;
-
-		foreach ( $providers as $provider ) {
-			if ( self::SUCCESS === $provider['status'] ) {
-				$completed++;
-			} elseif ( self::REQUESTING === $provider['status'] ) {
-				$pending = true;
+	public function maybe_set_status() {
+		if ( $this->get_total_providers_count() === $this->get_processed_providers_count() ) {
+			// Only consider the generation a success if at least one provider was successful
+			if ( $this->get_providers_success_count() > 0 ) {
+				$this->state = self::SUCCESS;
+			} else {
+				$this->state = self::FAIL;
 			}
-		}
 
-		return array(
-			'total'     => count( $providers ),
-			'completed' => $completed,
-			'pending'   => $pending,
-		);
+			$this->save();
+		}
 	}
 
 	/**
@@ -197,6 +177,10 @@ class Critical_CSS_State {
 	 * @param string $key Provider key.
 	 */
 	public function set_source_success( $key ) {
+		// If this success was result of a retry by Cloud_CSS_Cron. This provider may contain error data from the
+		// original attempt. We have to remove that first.
+		$this->sources[ $key ]['error'] = null;
+
 		$this->set_source_status( $key, self::SUCCESS );
 	}
 
@@ -309,7 +293,11 @@ class Critical_CSS_State {
 		return $sources;
 	}
 
-	public function has_pending_provider( $providers ) {
+	public function has_pending_provider( $providers = array() ) {
+		if ( empty( $providers ) ) {
+			$providers = array_keys( $this->sources );
+		}
+
 		$state   = $this->get_state_transient();
 		$pending = false;
 		foreach ( $state['sources'] as $name => $source_state ) {
@@ -339,6 +327,11 @@ class Critical_CSS_State {
 	 */
 	public function get_created_time() {
 		return $this->created;
+	}
+
+	public function get_updated_time() {
+		$state = $this->get_state_transient();
+		return $state['updated'];
 	}
 
 	/**
@@ -413,6 +406,10 @@ class Critical_CSS_State {
 	 */
 	public function get_provider_success_ratios() {
 		return $this->collate_column( 'success_ratio' );
+	}
+
+	public function get_total_providers_count() {
+		return count( $this->sources );
 	}
 
 	/**

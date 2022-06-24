@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
-
-/**
- * Internal dependencies
- */
 import Gridicon from './gridicon';
 import PathBreadcrumbs from './path-breadcrumbs';
 import PostTypeIcon from './post-type-icon';

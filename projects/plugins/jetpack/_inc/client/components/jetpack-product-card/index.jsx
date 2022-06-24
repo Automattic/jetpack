@@ -1,39 +1,13 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { getCurrencyObject } from '@automattic/format-currency';
+import { ProductPrice } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import classNames from 'classnames';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect } from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
-
-const formatPrice = ( price, currencyCode, isOldPrice = false ) => {
-	const priceObject = getCurrencyObject( price, currencyCode );
-	const classes = classNames( {
-		'jp-product-card__raw-price': true,
-		'jp-product-card__raw-price--is-old-price': isOldPrice,
-	} );
-
-	return (
-		<div className={ classes }>
-			<sup className="jp-product-card__currency-symbol">{ priceObject.symbol }</sup>
-			<span className="jp-product-card__price-integer">{ priceObject.integer }</span>
-			<sup className="jp-product-card__price-fraction">{ priceObject.fraction }</sup>
-		</div>
-	);
-};
 
 const JetpackProductCard = props => {
 	const {
@@ -44,7 +18,7 @@ const JetpackProductCard = props => {
 		features,
 		currencyCode,
 		price,
-		discount,
+		discountedPrice,
 		billingDescription,
 		callToAction,
 		checkoutText,
@@ -53,8 +27,6 @@ const JetpackProductCard = props => {
 		illustrationPath,
 	} = props;
 
-	const discountedPrice = ( price * ( 100 - discount ) ) / 100;
-	const isDiscounted = discount > 0;
 	const hasMedia = !! illustrationPath;
 	const hasCta = !! callToAction;
 
@@ -107,10 +79,14 @@ const JetpackProductCard = props => {
 				) }
 
 				<div className="jp-product-card__price">
-					{ formatPrice( price, currencyCode, !! isDiscounted ) }
-					{ !! isDiscounted && formatPrice( discountedPrice, currencyCode ) }
+					<ProductPrice
+						currency={ currencyCode }
+						price={ price }
+						offPrice={ discountedPrice }
+						showNotOffPrice={ !! discountedPrice }
+						leyend={ billingDescription }
+					/>
 				</div>
-				<span className="jp-product-card__price-description">{ billingDescription }</span>
 
 				<Button className={ buttonClasses } href={ checkoutUrl } onClick={ onClick }>
 					{ checkoutText }
@@ -137,12 +113,12 @@ JetpackProductCard.propTypes = {
 	checkoutUrl: PropTypes.string.isRequired,
 	title: PropTypes.string.isRequired,
 	price: PropTypes.number.isRequired,
+	discountedPrice: PropTypes.number,
 	currencyCode: PropTypes.string.isRequired,
 	billingDescription: PropTypes.string.isRequired,
 	productSlug: PropTypes.string.isRequired,
 	description: PropTypes.string,
 	features: PropTypes.array,
-	discount: PropTypes.number,
 	icon: PropTypes.element,
 	callToAction: PropTypes.string,
 	priority: PropTypes.string,
@@ -150,9 +126,7 @@ JetpackProductCard.propTypes = {
 };
 
 JetpackProductCard.defaultProps = {
-	arePromotionsActive: false,
 	description: '',
-	discount: 0,
 	features: [],
 	priority: 'primary',
 	showIllustration: '',

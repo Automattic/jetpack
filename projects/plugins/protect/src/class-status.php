@@ -43,7 +43,14 @@ class Status {
 	 *
 	 * @var int
 	 */
-	const OPTION_EXPIRES_AFTER = 43200; // 12 hours.
+	const OPTION_EXPIRES_AFTER = 3600; // 1 hour.
+
+	/**
+	 * Time in seconds that the cache for the initial empty response should last
+	 *
+	 * @var int
+	 */
+	const INITIAL_OPTION_EXPIRES_AFTER = 1 * MINUTE_IN_SECONDS;
 
 	/**
 	 * Memoization for the current status
@@ -85,8 +92,81 @@ class Status {
 	 * @return boolean
 	 */
 	public static function has_vulnerabilities() {
+		return 0 < self::get_total_vulnerabilities();
+	}
+
+	/**
+	 * Gets the total number of vulnerabilities found
+	 *
+	 * @return integer
+	 */
+	public static function get_total_vulnerabilities() {
 		$status = self::get_status();
-		return isset( $status['num_vulnerabilities'] ) && is_int( $status['num_vulnerabilities'] ) && 0 < $status['num_vulnerabilities'];
+		return isset( $status->num_vulnerabilities ) && is_int( $status->num_vulnerabilities ) ? $status->num_vulnerabilities : 0;
+	}
+
+	/**
+	 * Get all vulnerabilities combined
+	 *
+	 * @return array
+	 */
+	public static function get_all_vulnerabilities() {
+		return array_merge(
+			self::get_wordpress_vulnerabilities(),
+			self::get_themes_vulnerabilities(),
+			self::get_plugins_vulnerabilities()
+		);
+	}
+
+	/**
+	 * Get vulnerabilities found for WordPress core
+	 *
+	 * @return array
+	 */
+	public static function get_wordpress_vulnerabilities() {
+		return self::get_vulnerabilities( 'core' );
+	}
+
+	/**
+	 * Get vulnerabilities found for themes
+	 *
+	 * @return array
+	 */
+	public static function get_themes_vulnerabilities() {
+		return self::get_vulnerabilities( 'themes' );
+	}
+
+	/**
+	 * Get vulnerabilities found for plugins
+	 *
+	 * @return array
+	 */
+	public static function get_plugins_vulnerabilities() {
+		return self::get_vulnerabilities( 'plugins' );
+	}
+
+	/**
+	 * Get the vulnerabilities for one type of extension or core
+	 *
+	 * @param string $type What vulnerabilities you want to get. Possible values are 'core', 'themes' and 'plugins'.
+	 *
+	 * @return array
+	 */
+	public static function get_vulnerabilities( $type ) {
+		$status = self::get_status();
+		if ( 'core' === $type ) {
+			return isset( $status->$type ) && ! empty( $status->$type->vulnerabilities ) ? $status->$type->vulnerabilities : array();
+		}
+
+		$vuls = array();
+		if ( isset( $status->$type ) ) {
+			foreach ( (array) $status->$type as $item ) {
+				if ( ! empty( $item->vulnerabilities ) ) {
+					$vuls = array_merge( $vuls, $item->vulnerabilities );
+				}
+			}
+		}
+		return $vuls;
 	}
 
 	/**
@@ -96,10 +176,12 @@ class Status {
 	 */
 	public static function is_cache_expired() {
 		$option_timestamp = get_option( self::OPTION_TIMESTAMP_NAME );
+
 		if ( ! $option_timestamp ) {
 			return true;
 		}
-		return time() - $option_timestamp > self::OPTION_EXPIRES_AFTER;
+
+		return time() > (int) $option_timestamp;
 	}
 
 	/**
@@ -128,6 +210,9 @@ class Status {
 
 		if ( defined( 'JETPACK_PROTECT_DEV__API_RESPONSE_TYPE' ) && is_string( JETPACK_PROTECT_DEV__API_RESPONSE_TYPE ) ) {
 			$api_url = add_query_arg( array( 'response_type' => JETPACK_PROTECT_DEV__API_RESPONSE_TYPE ), $api_url );
+		}
+		if ( defined( 'JETPACK_PROTECT_DEV__API_CORE_VULS' ) && is_int( JETPACK_PROTECT_DEV__API_CORE_VULS ) ) {
+			$api_url = add_query_arg( array( 'core_vuls' => JETPACK_PROTECT_DEV__API_CORE_VULS ), $api_url );
 		}
 		return $api_url;
 	}
@@ -180,7 +265,33 @@ class Status {
 	public static function update_option( $status ) {
 		// TODO: Sanitize $status.
 		update_option( self::OPTION_NAME, $status );
-		update_option( self::OPTION_TIMESTAMP_NAME, time() );
+		$end_date = self::get_cache_end_date_by_status( $status );
+		update_option( self::OPTION_TIMESTAMP_NAME, $end_date );
+	}
+
+	/**
+	 * Returns the timestamp the cache should expire depending on the current status
+	 *
+	 * Initial empty status, which are returned before the first check was performed, should be cache for less time
+	 *
+	 * @param object $status The response from the server being cached.
+	 * @return int The timestamp when the cache should expire.
+	 */
+	public static function get_cache_end_date_by_status( $status ) {
+		if ( ! is_object( $status ) || empty( $status->last_checked ) ) {
+			return time() + self::INITIAL_OPTION_EXPIRES_AFTER;
+		}
+		return time() + self::OPTION_EXPIRES_AFTER;
+	}
+
+	/**
+	 * Delete the cached status and its timestamp
+	 *
+	 * @return void
+	 */
+	public static function delete_option() {
+		delete_option( self::OPTION_NAME );
+		delete_option( self::OPTION_TIMESTAMP_NAME );
 	}
 
 }

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
@@ -25,6 +22,7 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
+	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
 } from 'state/action-types';
 
 export const fetchRecommendationsData = () => {
@@ -100,6 +98,13 @@ export const updateRecommendationsStep = step => {
 			.catch( error => {
 				dispatch( { type: JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL, error } );
 			} );
+	};
+};
+
+export const markSiteDiscountAsViewedInRecommendations = step => {
+	return {
+		type: JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
+		step,
 	};
 };
 

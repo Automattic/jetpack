@@ -1,4 +1,10 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Theme Tools: functions for Customizer enhancements.
+ *
+ * @package automattic/jetpack
+ */
+
 /**
  * Add Content section to the Theme Customizer.
  *
@@ -32,7 +38,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 	$fi_fallback_default  = ( isset( $featured_images['fallback-default'] ) && false === $featured_images['fallback-default'] ) ? '' : 1;
 
 	// If the theme doesn't support 'jetpack-content-options[ 'blog-display' ]', 'jetpack-content-options[ 'author-bio' ]', 'jetpack-content-options[ 'post-details' ]' and 'jetpack-content-options[ 'featured-images' ]', don't continue.
-	if ( ( ! in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ) ) )
+	if ( ( ! in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ), true ) )
 		&& ( true !== $author_bio )
 		&& ( ( empty( $post_details['stylesheet'] ) )
 			&& ( empty( $date )
@@ -44,11 +50,21 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 		return;
 	}
 
-	// New control type: Title.
+	/**
+	 * New Customizer control type: Title.
+	 */
 	class Jetpack_Customize_Control_Title extends WP_Customize_Control {
+		/**
+		 * Customizer control type.
+		 *
+		 * @var string
+		 */
 		public $type = 'title';
 
-		public function render_content() {
+		/**
+		 * Render the control's content.
+		 */
+		public function render_content() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			?>
 			<span class="customize-control-title"><?php echo wp_kses_post( $this->label ); ?></span>
 			<?php
@@ -66,7 +82,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 	);
 
 	// Add Blog Display option.
-	if ( in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ) ) ) {
+	if ( in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ), true ) ) {
 		if ( 'mixed' === $blog_display ) {
 			$blog_display_choices = array(
 				'content' => esc_html__( 'Full post', 'jetpack' ),
@@ -167,7 +183,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			)
 		);
 
-		// Post Details: Date
+		// Post Details: Date.
 		if ( ! empty( $date ) ) {
 			$wp_customize->add_setting(
 				'jetpack_content_post_details_date',
@@ -189,7 +205,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			);
 		}
 
-		// Post Details: Categories
+		// Post Details: Categories.
 		if ( ! empty( $categories ) ) {
 			$wp_customize->add_setting(
 				'jetpack_content_post_details_categories',
@@ -211,7 +227,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			);
 		}
 
-		// Post Details: Tags
+		// Post Details: Tags.
 		if ( ! empty( $tags ) ) {
 			$wp_customize->add_setting(
 				'jetpack_content_post_details_tags',
@@ -233,7 +249,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			);
 		}
 
-		// Post Details: Author
+		// Post Details: Author.
 		if ( ! empty( $author ) ) {
 			$wp_customize->add_setting(
 				'jetpack_content_post_details_author',
@@ -255,7 +271,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			);
 		}
 
-		// Post Details: Comment link
+		// Post Details: Comment link.
 		if ( ! empty( $comment ) ) {
 			$wp_customize->add_setting(
 				'jetpack_content_post_details_comment',
@@ -295,7 +311,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			)
 		);
 
-		// Featured Images: Archive
+		// Featured Images: Archive.
 		if ( true === $fi_archive ) {
 			$wp_customize->add_setting(
 				'jetpack_content_featured_images_archive',
@@ -317,7 +333,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			);
 		}
 
-		// Featured Images: Post
+		// Featured Images: Post.
 		if ( true === $fi_post ) {
 			$wp_customize->add_setting(
 				'jetpack_content_featured_images_post',
@@ -339,7 +355,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			);
 		}
 
-		// Featured Images: Page
+		// Featured Images: Page.
 		if ( true === $fi_page ) {
 			$wp_customize->add_setting(
 				'jetpack_content_featured_images_page',
@@ -361,7 +377,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			);
 		}
 
-		// Featured Images: Portfolio
+		// Featured Images: Portfolio.
 		if ( true === $fi_portfolio && post_type_exists( 'jetpack-portfolio' ) ) {
 			$wp_customize->add_setting(
 				'jetpack_content_featured_images_portfolio',
@@ -383,7 +399,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			);
 		}
 
-		// Featured Images: Fallback
+		// Featured Images: Fallback.
 		if ( true === $fi_fallback ) {
 			$wp_customize->add_setting(
 				'jetpack_content_featured_images_fallback',
@@ -418,21 +434,21 @@ function jetpack_post_thumbnail_supports() {
 /**
  * Sanitize the checkbox.
  *
- * @param int $input.
+ * @param int $input The unsanitized value from the setting.
  * @return boolean|string
  */
 function jetpack_content_options_sanitize_checkbox( $input ) {
-	return ( 1 == $input ) ? 1 : '';
+	return ( 1 === (int) $input ) ? 1 : '';
 }
 
 /**
  * Sanitize the Display value.
  *
- * @param string $display.
+ * @param string $display The unsanitized value from the setting.
  * @return string.
  */
 function jetpack_content_options_sanitize_blog_display( $display ) {
-	if ( ! in_array( $display, array( 'content', 'excerpt', 'mixed' ) ) ) {
+	if ( ! in_array( $display, array( 'content', 'excerpt', 'mixed' ), true ) ) {
 		$display = 'content';
 	}
 	return $display;

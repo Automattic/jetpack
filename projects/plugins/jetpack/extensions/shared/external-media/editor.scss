@@ -1,7 +1,8 @@
 /**
  * External Media
  */
-@import '../styles/gutenberg-base-styles.scss';
+
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 $grid-size: 8px;
 

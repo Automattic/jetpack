@@ -184,8 +184,8 @@ class Jetpack_Tracks_Client {
 		if ( ! isset( $anon_id ) ) {
 
 			// Did the browser send us a cookie?
-			if ( isset( $_COOKIE['tk_ai'] ) && preg_match( '#^[A-Za-z0-9+/=]{24}$#', $_COOKIE['tk_ai'] ) ) {
-				$anon_id = $_COOKIE['tk_ai'];
+			if ( isset( $_COOKIE['tk_ai'] ) && preg_match( '#^[a-z]+:[A-Za-z0-9+/=]{24}$#', $_COOKIE['tk_ai'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
+				$anon_id = $_COOKIE['tk_ai']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			} else {
 
 				$binary = '';
@@ -202,7 +202,7 @@ class Jetpack_Tracks_Client {
 					&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
 					&& ! ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
 				) {
-					setcookie( 'tk_ai', $anon_id );
+					setcookie( 'tk_ai', $anon_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- This is a random value and should be fine.
 				}
 			}
 		}

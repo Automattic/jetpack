@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`

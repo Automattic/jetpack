@@ -3,7 +3,7 @@
  * Nosara Tracks for Jetpack
  *
  * @package automattic/jetpack-tracking
- * @deprecated $$next-version$$
+ * @deprecated 1.14.7
  * @see automattic/jetpack-connection
  */
 

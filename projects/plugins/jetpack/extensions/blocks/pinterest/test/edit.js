@@ -2,17 +2,11 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event'
 import { fireEvent, render, screen } from '@testing-library/react';
 import { SandBox } from '@wordpress/components';
 
-/**
- * Internal dependencies
- */
 import { PinterestEdit } from '../edit';
 import useTestPinterestEmbedUrl from '../hooks/use-test-pinterest-embed-url';
 
@@ -80,10 +74,11 @@ describe( '', () => {
 		expect( screen.getByText( 'Embedding…' ) ).toBeInTheDocument();
 	} );
 
-	test( 'fires off a call to test the url', () => {
+	test( 'fires off a call to test the url', async () => {
+		const user = userEvent.setup();
 		const { container } = render( <PinterestEdit { ...defaultProps } /> );
 		const form = container.querySelector( 'form' );
-		userEvent.type( screen.getByLabelText( 'Pinterest URL' ), 'https://www.pinterest.com.au/jeanette1952/decor-enamelwarecloisonn%C3%A9glassware/' );
+		await user.type( screen.getByLabelText( 'Pinterest URL' ), 'https://www.pinterest.com.au/jeanette1952/decor-enamelwarecloisonn%C3%A9glassware/' );
 		fireEvent.submit( form );
 		expect( testUrl ).toHaveBeenCalled();
 	} );

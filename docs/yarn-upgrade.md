@@ -44,11 +44,7 @@ pnpm's structure.
 Most of the built-in commands are the same, although arguments accepted may differ. Also note that simply `yarn` with no command was equivalent to `yarn install`,
 while with `pnpm` you need to explicitly specify the `install` command.
 
-Scripts formerly run using `yarn foobar` may now be run using `pnpm foobar`. A few (that are bins rather than script), such as `yarn jetpack` or `yarn eslint`,
-need to use `pnpx` instead of `pnpm`. If you're familiar with npm, it's the same as the distinction between `npm` and `npx`.
-
-When passing arguments to scripts, pnpm requires a `--` before the arguments while yarn did not. If you forget, you'll get a somewhat confusing error from pnpm
-that the argument was not recognized since pnpm was trying to interpret it itself instead of passing it to the script.
+Scripts formerly run using `yarn foobar` may now be run using `pnpm foobar`.
 
 Note that many commands are available via the Jetpack CLI, which should be used when available in preference to using pnpm (or yarn) to run scripts.
 This includes all the docker commands: instead of `yarn docker:up` or `pnpm docker:up`, you can do `jetpack docker up` and be ready for any future changes.

@@ -51,6 +51,7 @@
 }
 
 .jp-recommendations-site-type__illustration {
-	height: 200px;
-	padding: 65px;
+	justify-self: flex-end;
+
+	max-width: 100%;
 }

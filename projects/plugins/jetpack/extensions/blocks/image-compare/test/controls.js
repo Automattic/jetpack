@@ -2,16 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 
-/**
- * Internal dependencies
- */
 import ImageCompareControls from '../controls';
 
 describe( 'ImageCompareControls', () => {
@@ -46,9 +40,10 @@ describe( 'ImageCompareControls', () => {
 		expect( screen.getByLabelText( 'Above and below' ) ).toHaveAttribute( 'checked' );
 	} );
 
-	test( 'sets the orientation attribute ', () => {
+	test( 'sets the orientation attribute ', async () => {
+		const user = userEvent.setup();
 		render( <ImageCompareControls { ...defaultProps } /> )
-		userEvent.click( screen.getByLabelText( 'Above and below' ) );
+		await user.click( screen.getByLabelText( 'Above and below' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { orientation: 'vertical' } );
 	} );

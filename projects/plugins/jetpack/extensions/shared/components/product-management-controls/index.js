@@ -1,23 +1,18 @@
-/**
- * WordPress dependencies
- */
 import { BlockControls } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { PRODUCT_TYPE_PAYMENT_PLAN } from './constants';
-import ProductManagementInspectorControl from './inspector-control';
-import ProductManagementToolbarControl from './toolbar-control';
-import InvalidProductWarning from './invalid-product-warning';
-import StripeConnectToolbarButton from '../stripe-connect-toolbar-button';
 import { store as membershipProductsStore } from '../../../store/membership-products';
+import StripeConnectToolbarButton from '../stripe-connect-toolbar-button';
+import { PRODUCT_TYPE_PAYMENT_PLAN } from './constants';
+import { ProductManagementContext } from './context';
+import ProductManagementInspectorControl from './inspector-control';
+import InvalidProductWarning from './invalid-product-warning';
+import ProductManagementToolbarControl from './toolbar-control';
 
 import './style.scss';
 
 export default function ProductManagementControls( {
 	blockName,
+	clientId,
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
 	setSelectedProductId = () => {},
@@ -45,12 +40,22 @@ export default function ProductManagementControls( {
 		}
 	);
 
-	if ( shouldUpgrade ) {
+	// Don't display this on free sites with Stripe disconnected.
+	if ( shouldUpgrade && ! isApiConnected ) {
 		return null;
 	}
 
+	const context = {
+		blockName,
+		clientId,
+		products,
+		productType,
+		selectedProductId,
+		setSelectedProductId,
+	};
+
 	return (
-		<>
+		<ProductManagementContext.Provider value={ context }>
 			{ ! isApiConnected && !! connectUrl && (
 				<BlockControls __experimentalShareWithChildBlocks group="block">
 					<StripeConnectToolbarButton blockName={ blockName } connectUrl={ connectUrl } />
@@ -58,19 +63,11 @@ export default function ProductManagementControls( {
 			) }
 			{ isApiConnected && (
 				<>
-					<ProductManagementInspectorControl
-						productType={ productType }
-						setSelectedProductId={ setSelectedProductId }
-					/>
-					<ProductManagementToolbarControl
-						products={ products }
-						productType={ productType }
-						selectedProductId={ selectedProductId }
-						setSelectedProductId={ setSelectedProductId }
-					/>
+					<ProductManagementInspectorControl />
+					<ProductManagementToolbarControl />
 				</>
 			) }
 			{ isApiConnected && isSelectedProductInvalid && <InvalidProductWarning /> }
-		</>
+		</ProductManagementContext.Provider>
 	);
 }

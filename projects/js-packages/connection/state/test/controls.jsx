@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
-import { expect } from 'chai';
 import restApi from '@automattic/jetpack-api';
-import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
+import { jest } from '@jest/globals';
 import controls from '../controls';
 
 const {
@@ -16,18 +8,18 @@ const {
 	FETCH_AUTHORIZATION_URL: fetchAuthorizationUrl,
 } = controls;
 
-const stubRegisterSite = sinon.stub( restApi, 'registerSite' );
-const stubFetchAuthorizationUrl = sinon.stub( restApi, 'fetchAuthorizationUrl' );
-const stubAssign = ( window.location.assign = sinon.stub() );
+const stubRegisterSite = jest.spyOn( restApi, 'registerSite' ).mockReset();
+const stubFetchAuthorizationUrl = jest.spyOn( restApi, 'fetchAuthorizationUrl' ).mockReset();
+const stubAssign = jest.spyOn( window.location, 'assign' ).mockReset();
 
-const getAuthorizationUrl = sinon.stub();
+const getAuthorizationUrl = jest.fn();
 const resolveSelect = () => ( { getAuthorizationUrl } );
 
 describe( 'controls', () => {
 	beforeEach( () => {
-		stubAssign.resetHistory();
-		stubRegisterSite.resetHistory();
-		stubFetchAuthorizationUrl.resetHistory();
+		stubAssign.mockClear();
+		stubRegisterSite.mockClear();
+		stubFetchAuthorizationUrl.mockClear();
 	} );
 
 	describe( 'REGISTER_SITE', () => {
@@ -35,20 +27,17 @@ describe( 'controls', () => {
 			const registrationNonce = 'REGISTRATION_NONCE';
 			const redirectUri = 'REDIRECT_URI';
 			const fakeResult = {};
-			stubRegisterSite.resolves( fakeResult );
+			stubRegisterSite.mockResolvedValue( fakeResult );
 
 			const result = await registerSite( { registrationNonce, redirectUri } );
-			expect( result ).to.be.equal( fakeResult );
-			expect( stubRegisterSite.calledWith( registrationNonce, redirectUri ) ).to.be.true;
+			expect( result ).toEqual( fakeResult );
+			expect( stubRegisterSite ).toHaveBeenCalledWith( registrationNonce, redirectUri );
 		} );
 
-		it( 'resolves with error', done => {
+		it( 'resolves with error', async () => {
 			const fakeError = new Error( 'failed' );
-			stubRegisterSite.rejects( fakeError );
-			registerSite( {} ).catch( error => {
-				expect( error ).to.be.equal( fakeError );
-				done();
-			} );
+			stubRegisterSite.mockRejectedValue( fakeError );
+			await expect( registerSite( {} ) ).rejects.toThrow( fakeError );
 		} );
 	} );
 
@@ -75,11 +64,11 @@ describe( 'controls', () => {
 
 		it( 'redirects with assign', async () => {
 			const { authorizeUrl } = generateUrls();
-			getAuthorizationUrl.resolves( authorizeUrl );
+			getAuthorizationUrl.mockResolvedValue( authorizeUrl );
 
 			const url = await connectUser( { resolveSelect } )();
-			expect( stubAssign.calledWith( authorizeUrl ) ).to.be.true;
-			expect( url ).to.be.equal( authorizeUrl );
+			expect( stubAssign ).toHaveBeenCalledWith( authorizeUrl );
+			expect( url ).toEqual( authorizeUrl );
 		} );
 
 		it( 'redirects adding from', async () => {
@@ -91,33 +80,30 @@ describe( 'controls', () => {
 			} = generateUrls();
 
 			// url without param
-			getAuthorizationUrl.resolves( authorizeUrl );
+			getAuthorizationUrl.mockResolvedValue( authorizeUrl );
 			const noParam = await connectUser( { resolveSelect } )( { from: 'jetpack' } );
-			expect( stubAssign.calledWith( authorizeUrlWithFrom ) ).to.be.true;
-			expect( noParam ).to.be.equal( authorizeUrlWithFrom );
+			expect( stubAssign ).toHaveBeenCalledWith( authorizeUrlWithFrom );
+			expect( noParam ).toEqual( authorizeUrlWithFrom );
 
 			// url with param
-			getAuthorizationUrl.resolves( authorizeUrlWithParam );
+			getAuthorizationUrl.mockResolvedValue( authorizeUrlWithParam );
 			const param = await connectUser( { resolveSelect } )( { from: 'jetpack' } );
-			expect( stubAssign.calledWith( authorizeUrlWithParamAndFrom ) ).to.be.true;
-			expect( param ).to.be.equal( authorizeUrlWithParamAndFrom );
+			expect( stubAssign ).toHaveBeenCalledWith( authorizeUrlWithParamAndFrom );
+			expect( param ).toEqual( authorizeUrlWithParamAndFrom );
 		} );
 
 		it( 'redirects with custom func', async () => {
-			const redirectFunc = sinon.stub();
+			const redirectFunc = jest.fn();
 			const { authorizeUrl } = generateUrls();
-			getAuthorizationUrl.resolves( authorizeUrl );
+			getAuthorizationUrl.mockResolvedValue( authorizeUrl );
 			await connectUser( { resolveSelect } )( { redirectFunc } );
-			expect( redirectFunc.calledWith( authorizeUrl ) ).to.be.true;
+			expect( redirectFunc ).toHaveBeenCalledWith( authorizeUrl );
 		} );
 
-		it( 'rejects with error', done => {
+		it( 'rejects with error', async () => {
 			const error = new Error( 'failed' );
-			getAuthorizationUrl.rejects( error );
-			connectUser( { resolveSelect } )( {} ).catch( err => {
-				expect( err ).to.be.equal( error );
-				done();
-			} );
+			getAuthorizationUrl.mockRejectedValue( error );
+			await expect( connectUser( { resolveSelect } )( {} ) ).rejects.toThrow( error );
 		} );
 	} );
 
@@ -125,21 +111,18 @@ describe( 'controls', () => {
 		it( 'resolves with result', async () => {
 			const redirectUri = 'REDIRECT_URI';
 			const URL = 'https://authorize.url';
-			stubFetchAuthorizationUrl.resolves( URL );
+			stubFetchAuthorizationUrl.mockResolvedValue( URL );
 
 			const result = await fetchAuthorizationUrl( { redirectUri } );
-			expect( result ).to.be.equal( URL );
-			expect( stubFetchAuthorizationUrl.calledWith( redirectUri ) ).to.be.true;
+			expect( result ).toEqual( URL );
+			expect( stubFetchAuthorizationUrl ).toHaveBeenCalledWith( redirectUri );
 		} );
 
-		it( 'resolves with error', done => {
+		it( 'resolves with error', async () => {
 			const fakeError = new Error( 'failed' );
-			stubFetchAuthorizationUrl.rejects( fakeError );
+			stubFetchAuthorizationUrl.mockRejectedValue( fakeError );
 
-			fetchAuthorizationUrl( {} ).catch( error => {
-				expect( error ).to.be.equal( fakeError );
-				done();
-			} );
+			await expect( fetchAuthorizationUrl( {} ) ).rejects.toThrow( fakeError );
 		} );
 	} );
 } );

@@ -30,7 +30,7 @@ export default class RecommendationsPage extends WpPage {
 	}
 
 	get saveSiteTypeButtonSel() {
-		return 'a[href*="recommendations/product-suggestions"] >> text="Continue"';
+		return 'a[href*="recommendations/monitor"] >> text="Continue"';
 	}
 
 	get skipProductSuggestionsButtonSel() {

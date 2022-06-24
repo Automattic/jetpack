@@ -1,6 +1,27 @@
+@import 'node_modules/@automattic/jetpack-base-styles/style';
+
 @mixin card( $borderless: false ) {
 	border-radius: 0.5rem;
 
 	background-color: var( --jp-white );
-	border: 1px solid var( --jp-gray-5 );
+	
+	@if $borderless == false {
+		border: 1px solid var( --jp-gray-5 );
+	}
+}
+
+@mixin features-list {
+	margin: 1.5rem 0;
+	padding: 0;
+	
+	list-style-type: none;
+
+	li {
+		margin-bottom: 0.5rem;
+		padding-inline-start: 2.25rem;
+
+		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+		background-size: 24px;
+		color: var( --jp-black );
+	}
 }

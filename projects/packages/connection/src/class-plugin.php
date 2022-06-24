@@ -91,28 +91,32 @@ class Plugin {
 	/**
 	 * Add the plugin to the set of disconnected ones.
 	 *
+	 * @deprecated since 1.39.0.
+	 *
 	 * @return bool
 	 */
 	public function disable() {
-		return Plugin_Storage::disable_plugin( $this->slug );
+		return true;
 	}
 
 	/**
 	 * Remove the plugin from the set of disconnected ones.
 	 *
+	 * @deprecated since 1.39.0.
+	 *
 	 * @return bool
 	 */
 	public function enable() {
-		return Plugin_Storage::enable_plugin( $this->slug );
+		return true;
 	}
 
 	/**
 	 * Whether this plugin is allowed to use the connection.
 	 *
+	 * @deprecated since $next-version$$
 	 * @return bool
 	 */
 	public function is_enabled() {
-		return ! in_array( $this->slug, Plugin_Storage::get_all_disabled_plugins(), true );
+		return true;
 	}
-
 }

@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		);
 	}
 
-	function test_delete_non_compact_option_returns_true_when_successfully_deleted() {
+	public function test_delete_non_compact_option_returns_true_when_successfully_deleted() {
 		Jetpack_Options::update_option( 'migrate_for_idc', true );
 
 		// Make sure the option is set
@@ -43,11 +43,11 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		// Was the option successfully deleted?
 		$this->assertFalse( Jetpack_Options::get_option( 'migrate_for_idc' ) );
 
-		// Did Jetpack_Options::delete_option() properly return true?
+		// Check if Jetpack_Options::delete_option() properly returned true?
 		$this->assertTrue( $deleted );
 	}
 
-	function test_raw_option_update_will_bypass_wp_cache_and_filters() {
+	public function test_raw_option_update_will_bypass_wp_cache_and_filters() {
 		$this->setup_option_cache();
 
 		update_option( 'test_option', 'cached_value' );
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		$this->assertEquals( 'cached_value', get_option( 'test_option' ) );
 	}
 
-	function test_raw_option_with_constant_does_not_by_pass_wp_cache_filters() {
+	public function test_raw_option_with_constant_does_not_by_pass_wp_cache_filters() {
 		$this->setup_option_cache();
 
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
@@ -69,7 +69,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		}
 	}
 
-	function test_raw_option_with_filter_does_not_by_pass_wp_cache_filters() {
+	public function test_raw_option_with_filter_does_not_by_pass_wp_cache_filters() {
 		$this->setup_option_cache();
 
 		add_filter(
@@ -86,7 +86,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		$this->assertEquals( 'updated_value', Jetpack_Options::get_raw_option( 'test_option' ) );
 	}
 
-	function test_raw_option_get_will_bypass_wp_cache_and_filters() {
+	public function test_raw_option_get_will_bypass_wp_cache_and_filters() {
 		$this->setup_option_cache();
 
 		update_option( 'test_option', 'cached_value' );
@@ -95,7 +95,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		$this->assertEquals( 'updated_value', Jetpack_Options::get_raw_option( 'test_option' ) );
 	}
 
-	function test_raw_option_delete_will_bypass_wp_cache_and_filters() {
+	public function test_raw_option_delete_will_bypass_wp_cache_and_filters() {
 		$this->setup_option_cache();
 
 		update_option( 'test_option', 'cached_value' );
@@ -104,7 +104,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		$this->assertNull( Jetpack_Options::get_raw_option( 'test_option' ) );
 	}
 
-	function test_raw_option_update_with_duplicate_value_returns_false() {
+	public function test_raw_option_update_with_duplicate_value_returns_false() {
 		Jetpack_Options::delete_raw_option( 'test_option_2' );
 
 		Jetpack_Options::update_raw_option( 'test_option_2', 'blue' );

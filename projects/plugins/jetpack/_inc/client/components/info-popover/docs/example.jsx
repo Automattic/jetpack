@@ -1,29 +1,15 @@
 /* eslint jsx-a11y/no-onchange: 0 */
-/**
- * External dependencies
- */
+import InfoPopover from 'components/info-popover';
 import React from 'react';
 
-import PureRenderMixin from 'react-pure-render/mixin';
-import createReactClass from 'create-react-class';
+class InfoPopoverExample extends React.PureComponent {
+	static displayName = 'InfoPopover';
 
-/**
- * Internal dependencies
- */
-import InfoPopover from 'components/info-popover';
+	state = {
+		popoverPosition: 'bottom left',
+	};
 
-const InfoPopoverExample = createReactClass( {
-	displayName: 'InfoPopover',
-
-	mixins: [ PureRenderMixin ],
-
-	getInitialState: function () {
-		return {
-			popoverPosition: 'bottom left',
-		};
-	},
-
-	render: function () {
+	render() {
 		const id = 'example-select';
 		return (
 			<div>
@@ -52,11 +38,11 @@ const InfoPopoverExample = createReactClass( {
 				</InfoPopover>
 			</div>
 		);
-	},
+	}
 
-	_changePopoverPosition: function ( event ) {
+	_changePopoverPosition = event => {
 		this.setState( { popoverPosition: event.target.value } );
-	},
-} );
+	};
+}
 
 export default InfoPopoverExample;

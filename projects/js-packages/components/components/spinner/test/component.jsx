@@ -1,15 +1,7 @@
-/**
- * External dependencies
- */
+import { render } from '@testing-library/react';
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import ShallowRenderer from 'react-test-renderer/shallow';
-
-/**
- * Internal dependencies
- */
 import Spinner from '../index';
+import '@testing-library/jest-dom';
 
 describe( 'Spinner', () => {
 	const testProps = {
@@ -17,17 +9,11 @@ describe( 'Spinner', () => {
 	};
 
 	describe( 'Render the Spinner component', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <Spinner { ...testProps } /> );
-
-		const wrapper = shallow( renderer.getRenderOutput() );
-
-		it( 'component exists', () => {
-			expect( wrapper.find( 'Spinner' ) ).to.exist;
-		} );
+		const { container } = render( <Spinner { ...testProps } /> );
 
 		it( 'validate the class name', () => {
-			expect( wrapper.hasClass( 'sample-classname' ) ).to.equal( true );
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( container.firstChild ).toHaveClass( 'sample-classname' );
 		} );
 	} );
 } );
