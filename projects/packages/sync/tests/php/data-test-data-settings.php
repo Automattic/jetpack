@@ -55,7 +55,7 @@ class Data_Test_Data_Settings {
 
 	/**
 	 * Returns an the test data for a scenario with some modules enabled and no custom filter settings.
-	 * Same as data_test_1 to verify the same behaviour when a MUST_SYNC module (Callables) is also provided as input.
+	 * Same as data_test_1 to verify the same behaviour when a required module (Callables) is also provided as input.
 	 *
 	 * @return array The test input array.
 	 */
@@ -179,7 +179,7 @@ class Data_Test_Data_Settings {
 	/**
 	 * Returns the test data for a scenario with some modules enabled and some custom filter settings
 	 * for disabled modules. Since the modules associated with the filters are disabled, the custom filter
-	 * settings are not used.
+	 * settings are not used. For required modules, the custom filter settings should still be used.
 	 *
 	 * @return array The test input array.
 	 */
@@ -355,7 +355,7 @@ class Data_Test_Data_Settings {
 	}
 
 	/**
-	 * Returns an the test data for a scenario with some modules enabled and a custom filter settings which
+	 * Returns the test data for a scenario with some modules enabled and a custom filter settings which
 	 * has an invalid item for an indexed filter array. Since the filter setting is invalid, it won't be used
 	 * and the default value will be used instead.
 	 *
@@ -470,7 +470,8 @@ class Data_Test_Data_Settings {
 
 	/**
 	 * Returns the test data for a scenario with some modules enabled and an empty array used for a
-	 * filter setting.
+	 * required and a non-required filter setting. The required one should be populated with the minimum
+	 * required Sync data settings, while the non-required should be empty.
 	 *
 	 * @return array The test input array.
 	 */
@@ -487,6 +488,7 @@ class Data_Test_Data_Settings {
 					'Automattic\\Jetpack\\Sync\\Modules\\Term_Relationships',
 				),
 				'jetpack_sync_comment_meta_whitelist' => array(),
+				'jetpack_sync_options_whitelist'      => array(),
 			),
 			'output'      => array(
 				'jetpack_sync_modules'                => array(
@@ -500,7 +502,24 @@ class Data_Test_Data_Settings {
 					'Automattic\\Jetpack\\Sync\\Modules\\Term_Relationships',
 					'Automattic\\Jetpack\\Sync\\Modules\\Callables',
 				),
-				'jetpack_sync_options_whitelist'      => \Automattic\Jetpack\Sync\Defaults::$default_options_whitelist,
+				'jetpack_sync_options_whitelist'      => array(
+					'jetpack_sync_non_blocking',
+					'jetpack_sync_non_public_post_stati',
+					'jetpack_sync_settings_comment_meta_whitelist',
+					'jetpack_sync_settings_post_meta_whitelist',
+					'jetpack_sync_settings_post_types_blacklist',
+					'jetpack_sync_settings_taxonomies_blacklist',
+					'jetpack_sync_settings_dedicated_sync_enabled',
+					'jetpack_connection_active_plugins',
+					'blog_charset',
+					'blog_public',
+					'blogdescription',
+					'blogname',
+					'permalink_structure',
+					'stylesheet',
+					'time_format',
+					'timezone_string',
+				),
 				'jetpack_sync_options_contentless'    => \Automattic\Jetpack\Sync\Defaults::$default_options_contentless,
 				'jetpack_sync_constants_whitelist'    => \Automattic\Jetpack\Sync\Defaults::$default_constants_whitelist,
 				'jetpack_sync_callable_whitelist'     => \Automattic\Jetpack\Sync\Defaults::$default_callable_whitelist,
@@ -512,6 +531,7 @@ class Data_Test_Data_Settings {
 			),
 			'set_filters' => array(
 				'jetpack_sync_modules',
+				'jetpack_sync_options_whitelist',
 				'jetpack_sync_post_meta_whitelist',
 				'jetpack_sync_comment_meta_whitelist',
 				'jetpack_sync_capabilities_whitelist',
