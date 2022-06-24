@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import React from 'react';
 import ShallowRenderer from 'react-test-renderer/shallow';
 import ConnectUser from '../index';
@@ -24,7 +23,7 @@ describe( 'ConnectUser', () => {
 		);
 
 		it( 'the redirect happened', () => {
-			expect( redirectUrl ).to.be.equal( testProps.connectUrl + '&from=' + testProps.from );
+			expect( redirectUrl ).toEqual( testProps.connectUrl + '&from=' + testProps.from );
 		} );
 	} );
 } );

@@ -8,7 +8,7 @@ import { NoticeBox } from 'components/record-meter/notice-box';
 import React from 'react';
 
 describe( 'with notices to display', () => {
-	test( 'not-indexed notice is displayed', () => {
+	test( 'unable to locate content notice is displayed when not yet indexed', () => {
 		render(
 			<NoticeBox
 				recordCount={ 20 }
@@ -18,7 +18,7 @@ describe( 'with notices to display', () => {
 				hasItems={ true }
 			></NoticeBox>
 		);
-		expect( screen.getByText( /not yet been indexed/i ) ).toBeVisible();
+		expect( screen.getByText( /locate any content/i ) ).toBeVisible();
 	} );
 
 	test( 'unable to access data notice is displayed', () => {
@@ -35,7 +35,7 @@ describe( 'with notices to display', () => {
 		expect( screen.getByText( /index your content/i ) ).toBeVisible();
 	} );
 
-	test( 'unable to locate content notice is displayed', () => {
+	test( 'unable to locate content notice is displayed when there are no items', () => {
 		render(
 			<NoticeBox
 				recordCount={ 20 }

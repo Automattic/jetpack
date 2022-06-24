@@ -187,15 +187,19 @@ importers:
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12
       '@storybook/addon-actions': 6.5.9
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5
+      '@testing-library/react-hooks': 8.0.0
+      '@testing-library/user-event': 14.1.1
       '@wordpress/base-styles': 4.5.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.12.0
       '@wordpress/data': 6.10.0
       '@wordpress/element': 4.8.0
       '@wordpress/i18n': 4.10.0
-      jetpack-js-test-runner: workspace:*
-      lodash: 4.17.21
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       prop-types: ^15.7.2
       react: 17.0.2
       react-dom: 17.0.2
@@ -211,15 +215,19 @@ importers:
       '@wordpress/data': 6.10.0_react@17.0.2
       '@wordpress/element': 4.8.0
       '@wordpress/i18n': 4.10.0
-      lodash: 4.17.21
       prop-types: 15.8.1
     devDependencies:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
       '@storybook/addon-actions': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
+      '@testing-library/react-hooks': 8.0.0_7qv3rjnqa3j7exc7qtvho7thru
+      '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
@@ -305,8 +313,6 @@ importers:
       '@wordpress/element': 4.8.0
       '@wordpress/i18n': 4.10.0
       '@wordpress/url': 3.11.0
-      jetpack-js-test-runner: workspace:*
-      nyc: 15.1.0
       prop-types: ^15.7.2
       react: 17.0.2
       react-dom: 17.0.2
@@ -327,8 +333,6 @@ importers:
     devDependencies:
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
@@ -340,12 +344,16 @@ importers:
       '@automattic/jetpack-components': workspace:* || ^0.16
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5
+      '@testing-library/user-event': 14.1.1
       '@wordpress/components': 19.12.0
       '@wordpress/element': 4.8.0
       '@wordpress/i18n': 4.10.0
       '@wordpress/icons': 9.1.0
-      jetpack-js-test-runner: workspace:*
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       prop-types: 15.7.2
       react: 17.0.2
       react-dom: 17.0.2
@@ -362,8 +370,12 @@ importers:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
+      '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
@@ -376,12 +388,18 @@ importers:
       '@automattic/jetpack-connection': workspace:* || ^0.18
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5
+      '@testing-library/react-hooks': 8.0.0
+      '@testing-library/user-event': 14.1.1
       '@wordpress/base-styles': 4.5.0
       '@wordpress/data': 6.10.0
       '@wordpress/i18n': 4.10.0
       classnames: 2.3.1
-      jetpack-js-test-runner: workspace:*
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
+      jest-extended: 2.0.0
       prop-types: 15.7.2
       react: 17.0.2
       react-dom: 17.0.2
@@ -397,10 +415,16 @@ importers:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
+      '@testing-library/react-hooks': 8.0.0_7qv3rjnqa3j7exc7qtvho7thru
+      '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
       '@wordpress/base-styles': 4.5.0
       '@wordpress/data': 6.10.0_react@17.0.2
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
+      jest-extended: 2.0.0_jest@28.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
@@ -416,7 +440,10 @@ importers:
       '@babel/plugin-transform-react-jsx': 7.17.12
       '@babel/preset-react': 7.17.12
       '@babel/runtime': 7.18.3
-      '@wojtekmaj/enzyme-adapter-react-17': 0.6.3
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5
+      '@testing-library/user-event': 14.1.1
       '@wordpress/annotations': 2.10.0
       '@wordpress/babel-plugin-import-jsx-pragma': 3.1.2
       '@wordpress/components': 19.12.0
@@ -428,13 +455,9 @@ importers:
       '@wordpress/i18n': 4.10.0
       babel-jest: 28.1.0
       classnames: 2.3.1
-      enzyme: 3.11.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
-      jest-enzyme: 7.1.2
-      jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
-      nyc: 15.1.0
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
@@ -466,15 +489,14 @@ importers:
       '@babel/plugin-transform-react-jsx': 7.17.12_@babel+core@7.18.5
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
       '@babel/runtime': 7.18.3
-      '@wojtekmaj/enzyme-adapter-react-17': 0.6.3_7ltvq4e2railvf5uya4ffxpe2a
+      '@testing-library/dom': 8.13.0
+      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
+      '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
       '@wordpress/babel-plugin-import-jsx-pragma': 3.1.2_@babel+core@7.18.5
       babel-jest: 28.1.0_@babel+core@7.18.5
-      enzyme: 3.11.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
-      jest-enzyme: 7.1.2_x3fx6ski7nqiropha7uejbvcbi
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
 
@@ -499,9 +521,7 @@ importers:
       '@wordpress/i18n': 4.10.0
       '@wordpress/plugins': 4.8.0
       '@wordpress/url': 3.11.0
-      jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
-      nyc: 15.1.0
       react: 17.0.2
     dependencies:
       '@wordpress/compose': 5.8.0_react@17.0.2
@@ -512,8 +532,6 @@ importers:
     devDependencies:
       '@babel/core': 7.18.5
       '@babel/preset-react': 7.17.12_@babel+core@7.18.5
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
-      nyc: 15.1.0
       react: 17.0.2
 
   projects/js-packages/storybook:
@@ -630,7 +648,6 @@ importers:
       css-minimizer-webpack-plugin: 4.0.0
       duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5
-      nyc: 15.1.0
       terser-webpack-plugin: 5.3.3
       thread-loader: 3.0.4
       webpack: 5.72.1
@@ -661,7 +678,6 @@ importers:
     devDependencies:
       '@babel/core': 7.18.5
       '@babel/runtime': 7.18.3
-      nyc: 15.1.0
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
@@ -757,7 +773,6 @@ importers:
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/data': 6.10.0
       '@wordpress/i18n': 4.10.0
-      enzyme: 3.11.0
       jest: 28.1.0
       react: 17.0.2
       react-dom: 17.0.2
@@ -777,7 +792,6 @@ importers:
       '@babel/runtime': 7.18.3
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/i18n': 4.10.0
-      enzyme: 3.11.0
       jest: 28.1.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -861,15 +875,12 @@ importers:
       '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-api': workspace:* || ^0.13
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.16
       '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-licensing': workspace:* || ^0.5
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.5
       '@babel/preset-env': 7.18.2
-      '@babel/register': 7.17.7
-      '@babel/runtime': 7.18.3
       '@storybook/addons': 6.5.9
       '@storybook/client-api': 6.5.9
       '@storybook/preview-web': 6.5.9
@@ -878,7 +889,6 @@ importers:
       '@testing-library/dom': 8.13.0
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5
-      '@testing-library/react-hooks': 8.0.0
       '@testing-library/user-event': 14.1.1
       '@wordpress/api-fetch': 6.7.0
       '@wordpress/components': 19.12.0
@@ -886,10 +896,8 @@ importers:
       '@wordpress/i18n': 4.10.0
       '@wordpress/icons': 9.1.0
       classnames: 2.3.1
-      enzyme: 3.11.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
-      jetpack-js-test-runner: workspace:1.0.0
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
@@ -918,12 +926,9 @@ importers:
       prop-types: 15.8.1
       react-router-dom: 6.2.2_sfoxds7t5ydpegc3knd667wn6m
     devDependencies:
-      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.18.5
       '@babel/preset-env': 7.18.2_@babel+core@7.18.5
-      '@babel/register': 7.17.7_@babel+core@7.18.5
-      '@babel/runtime': 7.18.3
       '@storybook/addons': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/client-api': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/preview-web': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
@@ -932,12 +937,9 @@ importers:
       '@testing-library/dom': 8.13.0
       '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
-      '@testing-library/react-hooks': 8.0.0_7qv3rjnqa3j7exc7qtvho7thru
       '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
-      enzyme: 3.11.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
-      jetpack-js-test-runner: link:../../../tools/js-test-runner
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
@@ -1286,7 +1288,7 @@ importers:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
-      '@automattic/components': 1.0.0-alpha.3
+      '@automattic/components': 2.0.1
       '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-api': workspace:* || ^0.13
@@ -1295,7 +1297,7 @@ importers:
       '@automattic/jetpack-connection': workspace:* || ^0.18
       '@automattic/jetpack-licensing': workspace:* || ^0.5
       '@automattic/jetpack-partner-coupon': workspace:* || ^0.2
-      '@automattic/jetpack-publicize-components': workspace:* || ^0.2
+      '@automattic/jetpack-publicize-components': workspace:* || ^0.3
       '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.4
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@automattic/popup-monitor': 1.0.1
@@ -1398,7 +1400,7 @@ importers:
       webpack-cli: 4.9.1
     dependencies:
       '@automattic/calypso-color-schemes': 2.1.1
-      '@automattic/components': 1.0.0-alpha.3_sfoxds7t5ydpegc3knd667wn6m
+      '@automattic/components': 2.0.1_jfhrtvsyzpite3zowpo33qq2t4
       '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
@@ -1605,7 +1607,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.16
       '@automattic/jetpack-connection': workspace:* || ^0.18
-      '@automattic/jetpack-publicize-components': workspace:* || ^0.2
+      '@automattic/jetpack-publicize-components': workspace:* || ^0.3
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.5
       '@babel/preset-env': 7.18.2
@@ -2004,24 +2006,38 @@ packages:
   /@automattic/calypso-color-schemes/2.1.1:
     resolution: {integrity: sha512-X5gmQEDJVtw8N9NARgZGM/pmalfapV8ZyRzEn2o0sCLmTAXGYg6A28ucLCQdBIn1l9t2rghBDFkY71vyqjyyFQ==}
 
+  /@automattic/calypso-url/1.0.0:
+    resolution: {integrity: sha512-d2odYhxkIFlpCcJ7r+FDI7yBAcm86gtDHteYLcijkOu/2cM+u5D47x/ttYR1+dux9RtT12usBTNc0gGHb89hkA==}
+    dependencies:
+      photon: 4.0.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /@automattic/color-studio/2.5.0:
     resolution: {integrity: sha512-gZWaJbx3p1oennAIoJtMGluTmoM95Efk4rc44TSBxWSZZ8gH3Am2eh1o3i1NhrZmg2Zt3AiVFeZZ4AJccIpBKQ==}
 
-  /@automattic/components/1.0.0-alpha.3_sfoxds7t5ydpegc3knd667wn6m:
-    resolution: {integrity: sha512-6PgogtcbvKEM7dQDXMUBbnGkwhf+0h29p/6sd8jfNoDlSxJJylcfZCio0yWuVKiSLAm9KWozeY5cqgI0nRcuzg==}
+  /@automattic/components/2.0.1_jfhrtvsyzpite3zowpo33qq2t4:
+    resolution: {integrity: sha512-xvIfbLcX869Cx4ccDUC5hb9MqTvZDNC5ho2yI0g1aveUfVGn7FqPxNiHwCEfW2fi5f85T63CZ727Q+ECawDoKQ==}
     peerDependencies:
-      react: ^16.8 || ^17
-      react-dom: ^16.8 || ^17
+      '@wordpress/data': ^6.1.5
+      react: ^17.0.2
+      react-dom: ^17.0.2
     dependencies:
-      '@babel/runtime': 7.18.3
+      '@automattic/calypso-url': 1.0.0
+      '@automattic/typography': 1.0.0
       '@wordpress/base-styles': 4.5.0
+      '@wordpress/data': 6.10.0_react@17.0.2
       classnames: 2.3.1
       gridicons: 3.4.0_react@17.0.2
       lodash: 4.17.21
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-modal: 3.15.1_sfoxds7t5ydpegc3knd667wn6m
+      utility-types: 3.10.0
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /@automattic/format-currency/1.0.1:
@@ -2068,6 +2084,10 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/react'
+    dev: false
+
+  /@automattic/typography/1.0.0:
+    resolution: {integrity: sha512-TnT+vPaNUXQYwDsPCPxhNY0d4LnOKvrb0SizUCC5iybo5sfOlX/rYalGDyz6nPQDF0EBaQwMf7qhVsflFR0cBg==}
     dev: false
 
   /@automattic/viewport/1.0.0:
@@ -8599,19 +8619,8 @@ packages:
     resolution: {integrity: sha512-jlpIfsOoNoafl92Sz//64uQHGSyMrD2vYG5d8o2a4qGvyNCvXur7bzIsWtAC/6flI2RYAp3kv8rsfBtaLm7w0g==}
     dev: true
 
-  /append-transform/2.0.0:
-    resolution: {integrity: sha512-7yeyCEurROLQJFv5Xj4lEGTy0borxepjFv1g22oAdqFu//SrAlDl1O1Nxx15SH1RoliUml6p8dwJW9jvZughhg==}
-    engines: {node: '>=8'}
-    dependencies:
-      default-require-extensions: 3.0.0
-    dev: true
-
   /aproba/2.0.0:
     resolution: {integrity: sha512-lYe4Gx7QT+MKGbDsA+Z+he/Wtef0BiwDOlK/XkBrdfsh9J/jPPXbX0tE9x9cl27Tmu5gg3QUbUrQYa/y+KOHPQ==}
-    dev: true
-
-  /archy/1.0.0:
-    resolution: {integrity: sha512-Xg+9RwCg/0p32teKdGMPTPnVXKD0w3DfHnFTficozsAgsvq2XenPJq/MYpzzQ/v8zrOyJn6Ds39VA4JIDwFfqw==}
     dev: true
 
   /are-we-there-yet/2.0.0:
@@ -9383,16 +9392,6 @@ packages:
       unset-value: 1.0.0
     dev: true
 
-  /caching-transform/4.0.0:
-    resolution: {integrity: sha512-kpqOvwXnjjN44D89K5ccQC+RUrsy7jB/XLlRrx0D7/2HNcTPqzsb6XgYoErwko6QsV184CA2YgS1fxDiiDZMWA==}
-    engines: {node: '>=8'}
-    dependencies:
-      hasha: 5.2.2
-      make-dir: 3.1.0
-      package-hash: 4.0.0
-      write-file-atomic: 3.0.3
-    dev: true
-
   /call-bind/1.0.2:
     resolution: {integrity: sha512-7O+FbCihrB5WGbFYesctwmTKae6rOiIzmz1icreWJ+0aA7LJfuqhEso2T9ncpcFtzMQtzXf2QGGueWJGTYsqrA==}
     dependencies:
@@ -9748,14 +9747,6 @@ packages:
       string-width: 3.1.0
       strip-ansi: 5.2.0
       wrap-ansi: 5.1.0
-
-  /cliui/6.0.0:
-    resolution: {integrity: sha512-t6wbgtoCXvAzst7QgXxJYqPt0usEfbgQdftEPbLL/cvv6HPE5VgvqCuAIDR0NgU52ds6rFwqrgakNLrHEjCbrQ==}
-    dependencies:
-      string-width: 4.2.3
-      strip-ansi: 6.0.1
-      wrap-ansi: 6.2.0
-    dev: true
 
   /cliui/7.0.4:
     resolution: {integrity: sha512-OcRE68cOsVMXp1Yvonl/fzkQOyjLSu/8bhPDfQt0e0/Eb283TKP20Fs2MqoPsr9SwA595rRCA+QMzYc9nBP+JQ==}
@@ -10562,13 +10553,6 @@ packages:
     dev: true
     optional: true
 
-  /default-require-extensions/3.0.0:
-    resolution: {integrity: sha512-ek6DpXq/SCpvjhpFsLFRVtIxJCRw6fUR42lYMVZuUMK7n8eMz4Uh5clckdBjEpLhn/gEBZo7hDJnJcwdKLKQjg==}
-    engines: {node: '>=8'}
-    dependencies:
-      strip-bom: 4.0.0
-    dev: true
-
   /define-lazy-prop/2.0.0:
     resolution: {integrity: sha512-Ds09qNh8yw3khSjiJjiUInaGX9xlqZDY7JVryGxdxV7NPeuqQfplOpQ66yJFZut3jLa5zOwkXw1g9EI2uKh4Og==}
     engines: {node: '>=8'}
@@ -11110,10 +11094,6 @@ packages:
   /es5-shim/4.6.7:
     resolution: {integrity: sha512-jg21/dmlrNQI7JyyA2w7n+yifSxBng0ZralnSfVZjoCawgNTCnS+yBCyVM9DL5itm7SUnDGgv7hcq2XCZX4iRQ==}
     engines: {node: '>=0.4.0'}
-    dev: true
-
-  /es6-error/4.1.1:
-    resolution: {integrity: sha512-Um/+FxMr9CISWh0bi5Zv0iOD+4cFh5qLeks1qhAopKVAJw3drgKbKySikp7wGhDL0HPeaja0P5ULZrxLkniUVg==}
     dev: true
 
   /es6-promise/3.3.1:
@@ -12516,10 +12496,6 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
-  /fromentries/1.3.2:
-    resolution: {integrity: sha512-cHEpEQHUg0f8XdtZCc2ZAhrHzKzT0MrFUTcvx+hfxYu7rGMDc5SKoXFh+n4YigxsHXRzc6OrCshdR1bWH6HHyg==}
-    dev: true
-
   /fs-constants/1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
     dev: true
@@ -13033,14 +13009,6 @@ packages:
     engines: {node: '>= 0.4.0'}
     dependencies:
       function-bind: 1.1.1
-
-  /hasha/5.2.2:
-    resolution: {integrity: sha512-Hrp5vIK/xr5SkeN2onO32H0MgNZ0f17HRNH39WfL0SYUNOTZ5Lz1TJ8Pajo/87dYGEFlLMm7mIc/k/s6Bvz9HQ==}
-    engines: {node: '>=8'}
-    dependencies:
-      is-stream: 2.0.1
-      type-fest: 0.8.1
-    dev: true
 
   /hast-to-hyperscript/9.0.1:
     resolution: {integrity: sha512-zQgLKqF+O2F72S1aa4y2ivxzSlko3MAvxkwG8ehGmNiqd98BIN3JM1rAJPmplEyLmGLO2QZYJtIneOSZ2YbJuA==}
@@ -13868,25 +13836,6 @@ packages:
     resolution: {integrity: sha512-eOeJ5BHCmHYvQK7xt9GkdHuzuCGS1Y6g9Gvnx3Ym33fz/HpLRYxiS0wHNr+m/MBC8B647Xt608vCDEvhl9c6Mw==}
     engines: {node: '>=8'}
 
-  /istanbul-lib-hook/3.0.0:
-    resolution: {integrity: sha512-Pt/uge1Q9s+5VAZ+pCo16TYMWPBIl+oaNIjgLQxcX0itS6ueeaA+pEfThZpH8WxhFgCiEb8sAJY6MdUKgiIWaQ==}
-    engines: {node: '>=8'}
-    dependencies:
-      append-transform: 2.0.0
-    dev: true
-
-  /istanbul-lib-instrument/4.0.3:
-    resolution: {integrity: sha512-BXgQl9kf4WTCPCCpmFGoJkz/+uhvm7h7PFKUYxh7qarQd3ER33vHG//qaE8eN25l07YqZPpHXU9I09l/RD5aGQ==}
-    engines: {node: '>=8'}
-    dependencies:
-      '@babel/core': 7.18.5
-      '@istanbuljs/schema': 0.1.3
-      istanbul-lib-coverage: 3.2.0
-      semver: 6.3.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /istanbul-lib-instrument/5.2.0:
     resolution: {integrity: sha512-6Lthe1hqXHBNsqvgDzGO6l03XNeu3CrG4RqQ1KM9+l5+jNGpEJfIELx1NS3SEHmJQA8np/u+E4EPRKRiu6m19A==}
     engines: {node: '>=8'}
@@ -13898,18 +13847,6 @@ packages:
       semver: 6.3.0
     transitivePeerDependencies:
       - supports-color
-
-  /istanbul-lib-processinfo/2.0.3:
-    resolution: {integrity: sha512-NkwHbo3E00oybX6NGJi6ar0B29vxyvNwoC7eJ4G4Yq28UfY758Hgn/heV8VRFhevPED4LXfFz0DQ8z/0kw9zMg==}
-    engines: {node: '>=8'}
-    dependencies:
-      archy: 1.0.0
-      cross-spawn: 7.0.3
-      istanbul-lib-coverage: 3.2.0
-      p-map: 3.0.0
-      rimraf: 3.0.2
-      uuid: 8.3.2
-    dev: true
 
   /istanbul-lib-report/3.0.0:
     resolution: {integrity: sha512-wcdi+uAKzfiGT2abPpKZ0hSU1rGQjUQnLvtY5MpQ7QCTahD3VODhcu4wcfY1YtkGaDD5yuydOLINXsfbus9ROw==}
@@ -15457,14 +15394,14 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /mini-create-react-context/0.4.1_mv67koxdvxhyejehvpcoenu3ai:
+  /mini-create-react-context/0.4.1_at7mkepldmzoo6silmqc5bca74:
     resolution: {integrity: sha512-YWCYEmd5CQeHGSAKrYvXgmzzkrvssZcuuQDDeqkT+PziKGMgE+0MCCtcKbROzocGBG1meBLl2FotlRwf4gAzbQ==}
     peerDependencies:
       prop-types: ^15.0.0
       react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
     dependencies:
       '@babel/runtime': 7.18.3
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
       tiny-warning: 1.0.3
     dev: false
@@ -15726,13 +15663,6 @@ packages:
   /node-int64/0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
 
-  /node-preload/0.2.1:
-    resolution: {integrity: sha512-RM5oyBy45cLEoHqCeh+MNuFAxO0vTFBLskvQbOKnEE7YTTSN4tbN8QWDIPQ6L+WvKsB/qLEGpYe2ZZ9d4W9OIQ==}
-    engines: {node: '>=8'}
-    dependencies:
-      process-on-spawn: 1.0.0
-    dev: true
-
   /node-releases/2.0.5:
     resolution: {integrity: sha512-U9h1NLROZTq9uE1SNffn6WuPDg8icmi3ns4rEl/oTfIle4iLjTliCzgTsbaIFMq/Xn078/lfY/BL0GWZ+psK4Q==}
 
@@ -15816,42 +15746,6 @@ packages:
 
   /nwsapi/2.2.0:
     resolution: {integrity: sha512-h2AatdwYH+JHiZpv7pt/gSX1XoRGb7L/qSIeuqA6GwYoF9w1vP1cw42TO0aI2pNyshRK5893hNSl+1//vHK7hQ==}
-
-  /nyc/15.1.0:
-    resolution: {integrity: sha512-jMW04n9SxKdKi1ZMGhvUTHBN0EICCRkHemEoE5jm6mTYcqcdas0ATzgUgejlQUHMvpnOZqGB5Xxsv9KxJW1j8A==}
-    engines: {node: '>=8.9'}
-    hasBin: true
-    dependencies:
-      '@istanbuljs/load-nyc-config': 1.1.0
-      '@istanbuljs/schema': 0.1.3
-      caching-transform: 4.0.0
-      convert-source-map: 1.8.0
-      decamelize: 1.2.0
-      find-cache-dir: 3.3.2
-      find-up: 4.1.0
-      foreground-child: 2.0.0
-      get-package-type: 0.1.0
-      glob: 7.2.3
-      istanbul-lib-coverage: 3.2.0
-      istanbul-lib-hook: 3.0.0
-      istanbul-lib-instrument: 4.0.3
-      istanbul-lib-processinfo: 2.0.3
-      istanbul-lib-report: 3.0.0
-      istanbul-lib-source-maps: 4.0.1
-      istanbul-reports: 3.1.4
-      make-dir: 3.1.0
-      node-preload: 0.2.1
-      p-map: 3.0.0
-      process-on-spawn: 1.0.0
-      resolve-from: 5.0.0
-      rimraf: 3.0.2
-      signal-exit: 3.0.7
-      spawn-wrap: 2.0.0
-      test-exclude: 6.0.0
-      yargs: 15.4.1
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
 
   /object-assign/4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
@@ -16187,16 +16081,6 @@ packages:
       degenerator: 3.0.2
       ip: 1.1.8
       netmask: 2.0.2
-    dev: true
-
-  /package-hash/4.0.0:
-    resolution: {integrity: sha512-whdkPIooSu/bASggZ96BWVvZTRMOFxnyUG5PnTSGKoJE2gd5mbVNmR2Nj20QFzxYYgAXpoqC+AiXzl+UMRh7zQ==}
-    engines: {node: '>=8'}
-    dependencies:
-      graceful-fs: 4.2.10
-      hasha: 5.2.2
-      lodash.flattendeep: 4.4.0
-      release-zalgo: 1.0.0
     dev: true
 
   /pako/0.2.9:
@@ -17068,13 +16952,6 @@ packages:
     resolution: {integrity: sha512-GYBRQtL4v3wgigq10Pv58jmTbFXlIiTbSfgnNqZLY0ldUPqy1rRxDI5fCjoCpnM6TqmHQI8ydzTBXW86OYc0gA==}
     dev: true
 
-  /process-on-spawn/1.0.0:
-    resolution: {integrity: sha512-1WsPDsUSMmZH5LeMLegqkPDrsGgsWwk1Exipy2hvB0o/F0ASzbpIctSCcZIK1ykJvtTJULEH+20WOFjMvGnCTg==}
-    engines: {node: '>=8'}
-    dependencies:
-      fromentries: 1.3.2
-    dev: true
-
   /process/0.11.10:
     resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
     engines: {node: '>= 0.6.0'}
@@ -17522,7 +17399,7 @@ packages:
       react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
     dependencies:
       exenv: 1.2.2
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-lifecycles-compat: 3.0.4
@@ -17631,9 +17508,9 @@ packages:
       history: 4.10.1
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
-      mini-create-react-context: 0.4.1_mv67koxdvxhyejehvpcoenu3ai
+      mini-create-react-context: 0.4.1_at7mkepldmzoo6silmqc5bca74
       path-to-regexp: 1.8.0
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
       react-is: 16.13.1
       tiny-invariant: 1.2.0
@@ -17983,13 +17860,6 @@ packages:
   /relateurl/0.2.7:
     resolution: {integrity: sha512-G08Dxvm4iDN3MLM0EsP62EDV9IuhXPR6blNz6Utcp7zyV3tr4HVNINt6MpaRWbxoOHT3Q7YN2P+jaHX8vUbgog==}
     engines: {node: '>= 0.10'}
-    dev: true
-
-  /release-zalgo/1.0.0:
-    resolution: {integrity: sha512-gUAyHVHPPC5wdqX/LG4LWtRYtgjxyX78oanFNTMMyFEfOqdC54s3eE82imuWKbOeqYht2CrNf64Qb8vgmmtZGA==}
-    engines: {node: '>=4'}
-    dependencies:
-      es6-error: 4.1.1
     dev: true
 
   /remark-external-links/8.0.0:
@@ -18950,18 +18820,6 @@ packages:
 
   /spawn-command/0.0.2-1:
     resolution: {integrity: sha512-n98l9E2RMSJ9ON1AKisHzz7V42VDiBQGY6PB1BwRglz99wpVsSuGzQ+jOi6lFXBGVTCrRpltvjm+/XA+tpeJrg==}
-    dev: true
-
-  /spawn-wrap/2.0.0:
-    resolution: {integrity: sha512-EeajNjfN9zMnULLwhZZQU3GWBoFNkbngTUPfaawT4RkMiviTxcX0qfhVbGey39mfctfDHkWtuecgQ8NJcyQWHg==}
-    engines: {node: '>=8'}
-    dependencies:
-      foreground-child: 2.0.0
-      is-windows: 1.0.2
-      make-dir: 3.1.0
-      rimraf: 3.0.2
-      signal-exit: 3.0.7
-      which: 2.0.2
     dev: true
 
   /spdx-correct/3.1.1:
@@ -20141,6 +19999,11 @@ packages:
     resolution: {integrity: sha512-Z0DbgELS9/L/75wZbro8xAnT50pBVFQZ+hUEueGDU5FN51YSCYM+jdxsfCiHjwNP/4LCDD0i/graKpeBnOXKRA==}
     dev: true
 
+  /utility-types/3.10.0:
+    resolution: {integrity: sha512-O11mqxmi7wMKCo6HKFt5AhO4BwY3VV68YU07tgxfz8zJTIxr4BpsezN49Ffwy9j3ZpwwJp4fkRwjRzq3uWE6Rg==}
+    engines: {node: '>= 4'}
+    dev: false
+
   /utils-merge/1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
@@ -20556,15 +20419,6 @@ packages:
       string-width: 3.1.0
       strip-ansi: 5.2.0
 
-  /wrap-ansi/6.2.0:
-    resolution: {integrity: sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==}
-    engines: {node: '>=8'}
-    dependencies:
-      ansi-styles: 4.3.0
-      string-width: 4.2.3
-      strip-ansi: 6.0.1
-    dev: true
-
   /wrap-ansi/7.0.0:
     resolution: {integrity: sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==}
     engines: {node: '>=10'}
@@ -20702,14 +20556,6 @@ packages:
       camelcase: 5.3.1
       decamelize: 1.2.0
 
-  /yargs-parser/18.1.3:
-    resolution: {integrity: sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==}
-    engines: {node: '>=6'}
-    dependencies:
-      camelcase: 5.3.1
-      decamelize: 1.2.0
-    dev: true
-
   /yargs-parser/20.2.4:
     resolution: {integrity: sha512-WOkpgNhPTlE73h4VFAFsOnomJVaovO8VqLDzy5saChRBFQFBoMYirowyW+Q9HB4HFF4Z7VZTiG3iSzJJA29yRA==}
     engines: {node: '>=10'}
@@ -20747,23 +20593,6 @@ packages:
       which-module: 2.0.0
       y18n: 4.0.3
       yargs-parser: 15.0.3
-
-  /yargs/15.4.1:
-    resolution: {integrity: sha512-aePbxDmcYW++PaqBsJ+HYUFwCdv4LVvdnhBy78E57PIor8/OVvhMrADFFEDh8DHDFRv/O9i3lPhsENjO7QX0+A==}
-    engines: {node: '>=8'}
-    dependencies:
-      cliui: 6.0.0
-      decamelize: 1.2.0
-      find-up: 4.1.0
-      get-caller-file: 2.0.5
-      require-directory: 2.1.1
-      require-main-filename: 2.0.0
-      set-blocking: 2.0.0
-      string-width: 4.2.3
-      which-module: 2.0.0
-      y18n: 4.0.3
-      yargs-parser: 18.1.3
-    dev: true
 
   /yargs/16.2.0:
     resolution: {integrity: sha512-D1mvvtDG0L5ft/jGWkLpG1+m0eQxOfaBvTNELraWj22wSVUMWxZUvYgJYcKh6jGGIkJFhH4IZPQhR4TKpc8mBw==}

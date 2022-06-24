@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WordPress.com REST API: add new action allowing you to trigger an action right before we switch themes via the API.
