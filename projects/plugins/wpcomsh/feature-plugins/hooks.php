@@ -43,6 +43,15 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 		case 'activate_plugins':
 		case 'install_plugins':
 		case 'edit_plugins':
+			/*
+			 * Requests like /sites/207323956/plugins rely on the activate_plugins capability.
+			 * Allow this for sites with INSTALL_PURCHASED_PLUGINS feature, to accommodate
+			 * limited sites that can only install marketplace plugins and not any plugin.
+			 */
+			if ( wpcomsh_is_plugin_list_request() && wpcom_site_has_feature( WPCOM_Features::INSTALL_PURCHASED_PLUGINS ) ) {
+				break;
+			}
+
 			if ( ! wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS ) ) {
 				$caps[] = 'do_not_allow';
 			}
@@ -60,24 +69,21 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 add_filter( 'map_meta_cap', 'wpcomsh_map_feature_cap', 10, 2 );
 
 /**
+ * Whether the current request is an XML-RPC request from Calypso to list plugins.
+ *
+ * @return bool
+ */
+function wpcomsh_is_plugin_list_request() {
+	return wpcomsh_is_xmlrpc_request_matching( '@^/sites/([^/]+)/plugins$@' );
+}
+
+/**
  * Whether the current request is an XML-RPC request from Calypso to install a WP.com theme.
  *
  * @return bool
  */
 function wpcomsh_is_theme_install_request() {
-	// Return early for all non-API requests.
-	if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
-		return false;
-	}
-
-	// Return early-ish when it's not a varified XML-RPC request.
-	if (
-		! method_exists( 'Automattic\Jetpack\Connection\Manager', 'verify_xml_rpc_signature' ) ||
-		! ( new Automattic\Jetpack\Connection\Manager() )->verify_xml_rpc_signature() ) {
-		return false;
-	}
-
-	return class_exists( 'WPCOM_JSON_API' ) && preg_match( '@/sites/(.+)/themes/(.+)/install@', WPCOM_JSON_API::$self->path );
+	return wpcomsh_is_xmlrpc_request_matching( '@/sites/(.+)/theme/(.+)/install@' );
 }
 
 /**

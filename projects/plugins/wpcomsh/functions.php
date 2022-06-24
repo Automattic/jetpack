@@ -372,3 +372,25 @@ function wpcomsh_get_at_site_info() {
 
 	return $site_info;
 }
+
+/**
+ * Whether the current request is an XML-RPC request from Calypso to install a theme or plugin.
+ *
+ * @param string $path_regex Regular expression of paths to allow
+ * @return bool
+ */
+function wpcomsh_is_xmlrpc_request_matching( $path_regex ) {
+	// Return early for all non-API requests.
+	if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
+		return false;
+	}
+
+	// Return early-ish when it's not a verified XML-RPC request.
+	if (
+		! method_exists( 'Automattic\Jetpack\Connection\Manager', 'verify_xml_rpc_signature' ) ||
+		! ( new Automattic\Jetpack\Connection\Manager() )->verify_xml_rpc_signature() ) {
+		return false;
+	}
+
+	return class_exists( 'WPCOM_JSON_API' ) && preg_match( $path_regex, WPCOM_JSON_API::$self->path );
+}
