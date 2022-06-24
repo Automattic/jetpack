@@ -10,6 +10,7 @@ import {
 	MediaPlaceholder,
 } from '@wordpress/block-editor';
 import { SandBox, PanelBody, ToggleControl, Tooltip } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -43,8 +44,8 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	// Check whether it's working on the video preview
 	const { preview, isRequestingEmbedPreview } = useSelect(
 		select => ( {
-			preview: select( 'core' ).getEmbedPreview( videoPressUrl ),
-			isRequestingEmbedPreview: select( 'core' ).isRequestingEmbedPreview( videoPressUrl ),
+			preview: select( coreStore ).getEmbedPreview( videoPressUrl ),
+			isRequestingEmbedPreview: select( coreStore ).isRequestingEmbedPreview( videoPressUrl ),
 		} ),
 		[ videoPressUrl ]
 	);
