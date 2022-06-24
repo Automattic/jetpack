@@ -25,6 +25,9 @@
 		<exclude name="Squiz.PHP.CommentedOutCode.Found" />
 		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
 		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+
+		<!-- Warning are displayed in GitHub diffs but not blocked from commit. Elevating them to errors will avoid that. -->
+		<type>error</type>
 	</rule>
 
 	<rule ref="WordPress-Extra">
