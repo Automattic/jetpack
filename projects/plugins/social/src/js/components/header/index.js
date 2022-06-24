@@ -7,8 +7,7 @@ import {
 	SocialIcon,
 	getUserLocale,
 } from '@automattic/jetpack-components';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, edit, lifesaver } from '@wordpress/icons';
 import { STORE_ID } from '../../store';
@@ -27,10 +26,6 @@ const Actions = ( { actions } ) => (
 	</div>
 );
 const Header = () => {
-	const dispatch = useDispatch( STORE_ID );
-	useEffect( () => {
-		dispatch.getSharesCount();
-	}, [ dispatch ] );
 	const sharesCount = useSelect(
 		select => select( STORE_ID ).getSharesCount()?.results?.total ?? null
 	);
