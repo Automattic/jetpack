@@ -98,7 +98,7 @@ class Protect_Helper {
 		<tr>
 			<th scope="row">Vulnerabilities</th>
 			<td>
-				<label><input type="checkbox" name="vuls_for_core" <?php echo ( $settings['vuls_for_core'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to core</label><br>
+				<label><input type="checkbox" name="vuls_for_core" <?php echo ( $settings['vuls_for_core'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Core</label><br>
 				<label><input type="checkbox" name="vuls_for_plugins" <?php echo ( $settings['vuls_for_plugins'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Plugins</label><br>
 				<label><input type="checkbox" name="vuls_for_themes" <?php echo ( $settings['vuls_for_themes'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Themes</label><br>
 			</td>
