@@ -337,7 +337,7 @@ function wpcomsh_get_wpcom_active_subscriptions() {
 		function ( $assoc_array, $purchase ) {
 			// 1. Remove _monthly or _yearly ( mainly found in marketplace plugins ).
 			// 2. Transform to plugin slug pattern with dashes.
-			$product_slug                 = preg_replace( array( '/_monthly|_yearly$/', '/_/' ), array( '', '-' ), $purchase->product_slug );
+			$product_slug                 = preg_replace( array( '/(_monthly|_yearly)$/', '/_/' ), array( '', '-' ), $purchase->product_slug );
 			$assoc_array[ $product_slug ] = $purchase;
 
 			return $assoc_array;
