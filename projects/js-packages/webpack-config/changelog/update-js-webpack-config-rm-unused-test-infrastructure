@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove unused test infrastructure. No change to the package.
+
+
