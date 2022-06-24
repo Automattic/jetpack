@@ -4,10 +4,8 @@
  * This file started from wp-content/mu-plugins/full-site-editing.php in order to bring
  * theme homepage switch to Atomic.
  *
- * @package A8C\MU\Full_Site_Editing
+ * @package wpcomsh
  */
-
-namespace A8C\MU\Full_Site_Editing;
 
 /**
  * Class Template_First_Themes
@@ -298,7 +296,7 @@ class Template_First_Themes {
 			$locale = strtok( $locale, '-' );
 		}
 
-		$themes_dir = WP_CONTENT_DIR . '/themes';
+		$themes_dir     = WP_CONTENT_DIR . '/themes';
 		$annotation_dir = 'inc/headstart';
 		// 1. Check valid theme.
 		$theme = wp_get_theme( $theme_name );
@@ -321,6 +319,7 @@ class Template_First_Themes {
 			}
 		}
 		// 4. Get annotation content.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$annotation_string = file_get_contents( $annotation_uri );
 		// 5. Check for content.
 		if ( false === $annotation_string ) {
@@ -379,12 +378,15 @@ class Template_First_Themes {
 			'post_type'      => 'page',
 			'post_status'    => 'any',
 			'posts_per_page' => 1,
-			'meta_key'       => '_tft_existing_frontpage', // phpcs:ignore WordPress.VIP.SlowDBQuery
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_key'       => '_tft_existing_frontpage',
 		);
 
 		if ( $this->has_autoloading_homepage( $stylesheet ) ) {
-			$args['meta_key']   = '_tft_homepage_template'; // phpcs:ignore WordPress.VIP.SlowDBQuery
-			$args['meta_value'] = $stylesheet; // phpcs:ignore WordPress.VIP.SlowDBQuery
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			$args['meta_key'] = '_tft_homepage_template';
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			$args['meta_value'] = $stylesheet;
 		}
 
 		$ids = ( new \WP_Query() )->query( $args );
@@ -401,13 +403,14 @@ class Template_First_Themes {
 		$args = array(
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
-			// phpcs:ignore WordPress.VIP.PostsPerPage.posts_per_page_nopaging
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'nopaging'       => true,
 			'post_type'      => 'page',
 			'post_status'    => 'any',
 			'posts_per_page' => 1,
-			// phpcs:ignore WordPress.VIP.SlowDBQuery
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 			'meta_key'       => '_tft_posts_page',
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			'meta_value'     => '1',
 		);
 
