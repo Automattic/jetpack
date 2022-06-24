@@ -1,4 +1,11 @@
 export default {
+	autoplay: {
+		type: 'boolean',
+	},
+	controls: {
+		type: 'boolean',
+		default: true,
+	},
 	id: {
 		type: 'number',
 	},
@@ -7,12 +14,5 @@ export default {
 	},
 	src: {
 		type: 'string',
-	},
-	autoplay: {
-		type: 'boolean',
-	},
-	controls: {
-		type: 'boolean',
-		default: true,
 	},
 };
