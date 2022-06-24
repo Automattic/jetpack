@@ -92,7 +92,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		} else {
 			$error = array();
 			foreach ( $cxntests->list_fails() as $fail ) {
-				$error[] = $fail['name'] . ': ' . $fail['message'];
+				$error[] = $fail['name'] . ( empty( $fail['message'] ) ? '' : ': ' . $fail['message'] );
 			}
 			WP_CLI::error_multi_line( $error );
 

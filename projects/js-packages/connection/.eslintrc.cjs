@@ -16,4 +16,10 @@ module.exports = {
 			},
 		],
 	},
+	overrides: [
+		{
+			files: [ '**/test/*.[jt]s?(x)' ],
+			extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
+		},
+	],
 };

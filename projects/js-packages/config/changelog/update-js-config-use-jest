@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Use jest for tests, and add some missing tests. No change to the package itself.
-
-

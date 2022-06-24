@@ -229,7 +229,7 @@ class Jetpack_Recommendations_Banner {
 							<?php $this->render_checkbox( 'other', __( 'Other', 'jetpack' ) ); ?>
 						</div>
 					</form>
-					<a id="jp-recommendations-banner__continue-button" class="jp-recommendations-banner__continue-button">
+					<a id="jp-recommendations-banner__continue-button" class="jp-banner-cta-button">
 						<?php esc_html_e( 'Continue', 'jetpack' ); ?>
 					</a>
 					<div class="jp-recommendations-banner__continue-description">

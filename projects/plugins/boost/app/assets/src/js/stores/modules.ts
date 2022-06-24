@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import api from '../api/api';
 import { setModuleState } from '../api/modules';
 import config from './config';
@@ -15,7 +15,7 @@ export type ModulesState = {
 };
 
 const { subscribe, update, set } = writable< ModulesState >(
-	buildModuleState( config.optimizations )
+	buildModuleState( get( config ).optimizations )
 );
 
 // Keep a subscribed copy for quick reading.
