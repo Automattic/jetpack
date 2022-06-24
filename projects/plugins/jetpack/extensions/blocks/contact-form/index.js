@@ -16,6 +16,7 @@ import deprecated from './deprecated';
 import edit from './edit';
 import transforms from './transforms';
 import variations from './variations';
+import './view';
 
 export const name = 'contact-form';
 
