@@ -73,38 +73,38 @@ class Protect_Helper {
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 
 		<table class="form-table" role="presentation">
-		<tbody>
-		<tr>
-			<th scope="row">Overwrite Protect Status</th>
-			<td>
-				<fieldset>
-					<p>If enabled, the Protect status fetched from the server will be ignored and the rules below will define the current status.</p>
-					<label><input type="radio" name="overwrite_status" value="1" <?php echo ( $settings['overwrite_status'] ? 'checked="checked"' : '' ); ?>> enabled</label><br>
-					<label><input type="radio" name="overwrite_status" value="0" <?php echo ( ! $settings['overwrite_status'] ? 'checked="checked"' : '' ); ?>> disabled</label><br>
-				</fieldset>
-			</td>
-		</tr>
-		<tr>
-			<th scope="row"><label for="idc_siteurl">Status</label></th>
-			<td>
-				<select name="status">
-					<option value="empty" <?php selected( 'empty', $settings['status'] ); ?>>Empty - When the initial scan did not run yet</option>
-					<option value="error" <?php selected( 'error', $settings['status'] ); ?>>Error - When there's an error fetching the status</option>
-					<option value="incomplete" <?php selected( 'incomplete', $settings['status'] ); ?>>Incomplete - When we have results, but some extensions were not scanned</option>
-					<option value="complete" <?php selected( 'complete', $settings['status'] ); ?>>Complete - When we have results for all extensions</option>
-				</select>
-			</td>
-		</tr>
-		<tr>
-			<th scope="row">Vulnerabilities</th>
-			<td>
-				<label><input type="checkbox" name="vuls_for_core" <?php echo ( $settings['vuls_for_core'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Core</label><br>
-				<label><input type="checkbox" name="vuls_for_plugins" <?php echo ( $settings['vuls_for_plugins'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Plugins</label><br>
-				<label><input type="checkbox" name="vuls_for_themes" <?php echo ( $settings['vuls_for_themes'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Themes</label><br>
-			</td>
-		</tr>
+			<tbody>
+				<tr>
+					<th scope="row">Overwrite Protect Status</th>
+					<td>
+						<fieldset>
+							<p>If enabled, the Protect status fetched from the server will be ignored and the rules below will define the current status.</p>
+							<label><input type="radio" name="overwrite_status" value="1" <?php echo ( $settings['overwrite_status'] ? 'checked="checked"' : '' ); ?>> enabled</label><br>
+							<label><input type="radio" name="overwrite_status" value="0" <?php echo ( ! $settings['overwrite_status'] ? 'checked="checked"' : '' ); ?>> disabled</label><br>
+						</fieldset>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="idc_siteurl">Status</label></th>
+					<td>
+						<select name="status">
+							<option value="empty" <?php selected( 'empty', $settings['status'] ); ?>>Empty - When the initial scan did not run yet</option>
+							<option value="error" <?php selected( 'error', $settings['status'] ); ?>>Error - When there's an error fetching the status</option>
+							<option value="incomplete" <?php selected( 'incomplete', $settings['status'] ); ?>>Incomplete - When we have results, but some extensions were not scanned</option>
+							<option value="complete" <?php selected( 'complete', $settings['status'] ); ?>>Complete - When we have results for all extensions</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">Vulnerabilities</th>
+					<td>
+						<label><input type="checkbox" name="vuls_for_core" <?php echo ( $settings['vuls_for_core'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Core</label><br>
+						<label><input type="checkbox" name="vuls_for_plugins" <?php echo ( $settings['vuls_for_plugins'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Plugins</label><br>
+						<label><input type="checkbox" name="vuls_for_themes" <?php echo ( $settings['vuls_for_themes'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Themes</label><br>
+					</td>
+				</tr>
 
-		</tbody>
+			</tbody>
 		</table>
 
 		<input type="hidden" name="action" value="protect_helper_store_options">
