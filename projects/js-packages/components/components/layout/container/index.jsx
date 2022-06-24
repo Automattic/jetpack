@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import styles from './style.module.scss';
 
 /**
  * JP Container
  *
- * @param {object} props - Component properties.
- * @returns {React.Component} Container component.
+ * @param {object} props         - Component properties.
+ * @returns {React.ReactElement}   Container component.
  */
 const Container = props => {
 	const { children, fluid, className } = props;
@@ -48,6 +41,9 @@ Container.propTypes = {
 	horizontalSpacing: PropTypes.number,
 	/** Number of gap betwen rows, it gets multipled by 8px. Needs to be an integer */
 	horizontalGap: PropTypes.number,
+
+	/** Children to be inserted. */
+	children: PropTypes.node,
 };
 
 Container.defaultProps = {

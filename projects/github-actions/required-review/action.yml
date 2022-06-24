@@ -21,10 +21,10 @@ inputs:
   token:
     description: >
       GitHub Access Token. The user associated with this token will show up
-      as the "creator" of the status check, and must have access to read your
-      organization's teams.
-    required: false
-    default: ${{ github.token }}
+      as the "creator" of the status check, and must have access to read
+      pull request data, create status checks (`repo:status`), and to read
+      your organization's teams (`read:org`).
+    required: true
 runs:
-  using: node12
+  using: node16
   main: dist/index.js

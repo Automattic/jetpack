@@ -22,8 +22,9 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
 
     steps:
-      - uses: Automattic/action-required-review@v2
+      - uses: Automattic/action-required-review@v3
         with:
+          token: ${{ secrets.REQUIRED_REVIEWS_TOKEN }}
           requirements: |
             - paths: unmatched
               teams:
@@ -60,9 +61,11 @@ This action is intended to be triggered by the `pull_request_review` event.
     # PR's checks list.
     status: Required review
 
-    # Personal access token used to fetch the list of changed files from Github
-    # REST API, and to submit the status check.
-    token: ${{ github.token }}
+    # GitHub Access Token. The user associated with this token will show up
+    # as the "creator" of the status check, and must have access to read
+    # pull request data, create status checks (`repo:status`), and to read
+    # your organization's teams (`read:org`).
+    token: ${{ secrets.SOME_TOKEN }}
 ```
 
 ## Requirements Format

@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
-import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
+import { Button, H3, Text } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { STORE_ID } from '../../state/store';
 import ConnectUser from '../connect-user';
 import DisconnectDialog from '../disconnect-dialog';
-import { STORE_ID } from '../../state/store';
 import useConnection from '../use-connection';
 import './style.scss';
 
@@ -44,6 +37,7 @@ const ConnectionStatusCard = props => {
 		apiNonce,
 	} );
 
+	const missingConnectedOwner = requiresUserConnection && ! hasConnectedOwner;
 	const avatarRef = useRef();
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
@@ -109,9 +103,9 @@ const ConnectionStatusCard = props => {
 
 	return (
 		<div className="jp-connection-status-card">
-			<h3>{ title }</h3>
+			<H3>{ title }</H3>
 
-			<p>{ connectionInfoText }</p>
+			<Text variant="body">{ connectionInfoText }</Text>
 
 			<div className="jp-connection-status-card--status">
 				<div className="jp-connection-status-card--cloud"></div>
@@ -130,6 +124,7 @@ const ConnectionStatusCard = props => {
 					{ __( 'Site connected.', 'jetpack' ) }&nbsp;
 					<Button
 						variant="link"
+						weight="regular"
 						onClick={ openDisconnectDialog }
 						className="jp-connection__disconnect-dialog__link"
 					>
@@ -155,13 +150,13 @@ const ConnectionStatusCard = props => {
 					</li>
 				) }
 
-				{ ! hasConnectedOwner && (
+				{ ( ! isUserConnected || ! hasConnectedOwner ) && (
 					<li
 						className={ `jp-connection-status-card--list-item-${
-							requiresUserConnection ? 'error' : 'info'
+							missingConnectedOwner ? 'error' : 'info'
 						}` }
 					>
-						{ requiresUserConnection && __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
+						{ missingConnectedOwner && __( 'Requires user connection.', 'jetpack' ) }{ ' ' }
 						<Button
 							variant="link"
 							disabled={ userIsConnecting }
@@ -187,7 +182,7 @@ ConnectionStatusCard.propTypes = {
 	/** The redirect admin URI after the user has connected their WordPress.com account. */
 	redirectUri: PropTypes.string,
 	/** An object of the plugins currently using the Jetpack connection. */
-	connectedPlugins: PropTypes.object,
+	connectedPlugins: PropTypes.array,
 	/** ID of the currently connected site. */
 	connectedSiteId: PropTypes.number,
 	/** The Card title. */
@@ -206,10 +201,7 @@ ConnectionStatusCard.propTypes = {
 
 ConnectionStatusCard.defaultProps = {
 	title: __( 'Connection', 'jetpack' ),
-	connectionInfoText: __(
-		'Leverages the Jetpack Cloud for more features on your side.',
-		'jetpack'
-	),
+	connectionInfoText: __( 'Leverages the cloud for more powerful Jetpack features.', 'jetpack' ),
 	redirectUri: null,
 	onConnectUser: null,
 	requiresUserConnection: true,

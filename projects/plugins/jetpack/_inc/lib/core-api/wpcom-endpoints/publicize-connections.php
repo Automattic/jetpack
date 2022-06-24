@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Fetch information about Publicize connections on a site.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Publicize: List Connections
@@ -24,6 +29,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	 */
 	public $wpcom_is_wpcom_only_endpoint = true;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/connections';
@@ -86,6 +94,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	}
 
 	/**
+	 * Schema for the endpoint.
+	 *
 	 * @return array
 	 */
 	public function get_item_schema() {
@@ -132,7 +142,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	}
 
 	/**
-	 * @param WP_REST_Request $request
+	 * Get list of connected Publicize connections.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
 	public function get_items( $request ) {
@@ -152,8 +165,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	/**
 	 * Filters out data based on ?_fields= request parameter
 	 *
-	 * @param array           $connection
-	 * @param WP_REST_Request $request
+	 * @param array           $connection Array of info about a specific Publicize connection.
+	 * @param WP_REST_Request $request    Full details about the request.
+	 *
 	 * @return array filtered $connection
 	 */
 	public function prepare_item_for_response( $connection, $request ) {
@@ -200,5 +214,4 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 		);
 	}
 }
-
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections' );

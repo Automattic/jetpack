@@ -101,7 +101,7 @@ class Jetpack_Password_Checker {
 		 */
 		$this->common_passwords = apply_filters( 'jetpack_password_checker_restricted_strings', array() );
 
-		if ( is_null( $user ) ) {
+		if ( $user === null ) {
 			$this->user_id = get_current_user_id();
 		} elseif ( is_object( $user ) && isset( $user->ID ) ) {
 

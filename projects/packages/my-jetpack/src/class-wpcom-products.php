@@ -171,6 +171,18 @@ class Wpcom_Products {
 			'discount_price' => $discount_price,
 		);
 
+		return self::populate_with_discount( $product, $pricing, $discount_price );
+	}
+
+	/**
+	 * Populate the pricing array with the discount information.
+	 *
+	 * @param {object} $product - The product object.
+	 * @param {object} $pricing - The pricing array.
+	 * @param {float}  $price   - The price to be discounted.
+	 * @return {object} The pricing array with the discount information.
+	 */
+	public static function populate_with_discount( $product, $pricing, $price ) {
 		// Check whether the product has a coupon.
 		if ( ! isset( $product->sale_coupon ) ) {
 			return $pricing;
@@ -184,11 +196,13 @@ class Wpcom_Products {
 			return $pricing;
 		}
 
-		// Populate response with coupon discount.
-		$pricing['coupon_discount'] = $coupon->discount;
+		$coupon_discount = intval( $coupon->discount );
 
-		// Apply coupon discount to discount price.
-		$pricing['discount_price'] = $discount_price * ( 100 - $coupon->discount ) / 100;
+		// Populate response with coupon discount.
+		$pricing['coupon_discount'] = $coupon_discount;
+
+		// Apply coupon discount to the price.
+		$pricing['discount_price'] = $price * ( 100 - $coupon_discount ) / 100;
 
 		return $pricing;
 	}

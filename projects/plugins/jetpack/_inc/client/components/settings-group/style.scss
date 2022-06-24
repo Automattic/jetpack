@@ -6,6 +6,10 @@
 		font-size: $font-body-small;
 		margin-top: 0;
 		margin-bottom: rem( 24px );
+
+		&.jp-settings-card__blocks-description {
+			margin-bottom: 0;
+		}
 	}
 	fieldset p:last-child {
 		margin-bottom: 8px;

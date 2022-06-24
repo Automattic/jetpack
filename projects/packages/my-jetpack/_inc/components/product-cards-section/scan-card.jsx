@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import ProductCard from '../connected-product-card';
 
 const ScanCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } showDeactivate={ false } slug="scan" />;
+	return <ProductCard admin={ admin } slug="scan" />;
 };
 
 ScanCard.propTypes = {

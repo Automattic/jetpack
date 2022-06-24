@@ -1,12 +1,12 @@
-const loadIgnorePatterns = require( '../../tools/js-tools/load-eslint-ignore.js' );
+const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 
 // .eslintrc.js
 module.exports = {
 	root: true,
 	extends: [
-		'plugin:@wordpress/eslint-plugin/esnext',
-		'plugin:playwright/playwright-test',
-		'prettier',
+		require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/esnext' ),
+		require.resolve( 'jetpack-js-tools/eslintrc/playwright' ),
+		require.resolve( 'jetpack-js-tools/eslintrc/prettier' ),
 	],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
 	parserOptions: {

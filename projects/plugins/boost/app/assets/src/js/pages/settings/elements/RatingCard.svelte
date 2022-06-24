@@ -2,18 +2,11 @@
 	This component shows a prompt to rate Boost if scores improved after enabling a feature.
 -->
 <script>
-	/**
-	 * WordPress dependencies
-	 */
-	import { __, sprintf } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
-	import CloseButton from '../../../elements/CloseButton.svelte';
 	import { createEventDispatcher } from 'svelte';
-	import slideRightTransition from '../../../utils/slide-right-transition';
+	import { __, sprintf } from '@wordpress/i18n';
+	import CloseButton from '../../../elements/CloseButton.svelte';
 	import { makeAdminAjaxRequest } from '../../../utils/make-admin-ajax-request';
+	import slideRightTransition from '../../../utils/slide-right-transition';
 
 	export let improvement;
 	export let currentPercentage;

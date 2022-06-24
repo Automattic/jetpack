@@ -33,6 +33,7 @@ class Data_Test_Data_Settings {
 					'Automattic\\Jetpack\\Sync\\Modules\\Options',
 					'Automattic\\Jetpack\\Sync\\Modules\\Plugins',
 					'Automattic\Jetpack\Sync\Modules\Callables',
+					'Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately',
 				),
 				'jetpack_sync_options_whitelist'      => \Automattic\Jetpack\Sync\Defaults::$default_options_whitelist,
 				'jetpack_sync_options_contentless'    => \Automattic\Jetpack\Sync\Defaults::$default_options_contentless,
@@ -596,6 +597,7 @@ class Data_Test_Data_Settings {
 				'jetpack_sync_modules'                => array(
 					'Automattic\\Jetpack\\Sync\\Modules\\Constants',
 					'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+					'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately',
 					'Automattic\\Jetpack\\Sync\\Modules\\Options',
 				),
 				'jetpack_sync_options_whitelist'      => array(

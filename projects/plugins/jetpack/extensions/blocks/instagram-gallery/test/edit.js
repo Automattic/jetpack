@@ -2,17 +2,11 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
 
-/**
- * Internal dependencies
- */
 import InstagramGalleryEdit from '../edit';
 
 const originalFetch = window.fetch;
@@ -85,6 +79,7 @@ describe( 'InstagramGalleryEdit', () => {
 	} );
 
 	test( 'updates instagram user and access token when selecting existing connection', async () => {
+		const user = userEvent.setup();
 		// Mock call to the `instagram-gallery/connections` endpoint.
 		window.fetch.mockReturnValue(
 			Promise.resolve( {
@@ -105,8 +100,8 @@ describe( 'InstagramGalleryEdit', () => {
 			expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument()
 		);
 
-		await waitFor( () => userEvent.click( screen.getByLabelText( '@testjetpackuser' ) ) );
-		await waitFor( () => userEvent.click( screen.getByText( 'Connect to Instagram' ) ) );
+		await waitFor( async () => await user.click( screen.getByLabelText( '@testjetpackuser' ) ) );
+		await waitFor( async () => await user.click( screen.getByText( 'Connect to Instagram' ) ) );
 
 		expect( setAttributes ).toHaveBeenLastCalledWith( {
 			accessToken: '123456',
@@ -115,6 +110,7 @@ describe( 'InstagramGalleryEdit', () => {
 	} );
 
 	test( 'displays text to tell the user to log out of instagram when there is an existing connection', async () => {
+		const user = userEvent.setup();
 		// Mock call to the `instagram-gallery/connections` endpoint.
 		window.fetch.mockReturnValue(
 			Promise.resolve( {
@@ -135,7 +131,7 @@ describe( 'InstagramGalleryEdit', () => {
 			expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument()
 		);
 
-		await waitFor( () => userEvent.click( screen.getByLabelText( 'Add a new account' ) ) );
+		await waitFor( async () => await user.click( screen.getByLabelText( 'Add a new account' ) ) );
 		await waitFor( () =>
 			expect(
 				screen.getByText(

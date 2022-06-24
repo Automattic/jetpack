@@ -1,21 +1,11 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
+import InfoPopover from 'components/info-popover';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import InfoPopover from 'components/info-popover';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import { getDataByKey, updateRecommendationsData } from 'state/recommendations';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheckboxAnswer } ) => {
@@ -36,7 +26,7 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 			<div className={ classNames( 'jp-checkbox-answer__checkbox', { checked } ) }>
 				<input
 					id={ answerKey }
-					class="jp-checkbox-answer__checkbox-input"
+					className="jp-checkbox-answer__checkbox-input"
 					type="checkbox"
 					checked={ checked }
 					onChange={ toggleCheckbox }

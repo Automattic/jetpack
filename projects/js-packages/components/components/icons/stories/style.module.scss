@@ -1,0 +1,33 @@
+.icons-container {
+	display: flex;
+	flex-wrap: wrap;
+	margin-bottom: 20px;
+}
+
+.icon-wrapper {
+	padding: 10px;
+	box-shadow: 0 0 1px inset rgba(0, 0, 0 , 0.5 );
+	background-color: white;
+	border-radius: 5px;
+	margin: 2px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	&.small {
+		font-size: 11px;
+	}
+
+	&.medium {
+		font-size: 12px;
+	}
+
+	&.large {
+		font-size: 14px;
+	}
+
+	span {
+		margin-top: 10px;
+		color: #444;
+	}
+}

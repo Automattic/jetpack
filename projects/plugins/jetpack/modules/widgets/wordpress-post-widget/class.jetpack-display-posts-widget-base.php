@@ -482,7 +482,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		/**
 		 * If there is a problem with parsing the posts return an empty array.
 		 */
-		if ( is_null( $parsed_data ) ) {
+		if ( $parsed_data === null ) {
 			return new WP_Error(
 				'no_body',
 				__( 'Invalid remote response.', 'jetpack' ),

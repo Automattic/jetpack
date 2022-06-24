@@ -1,18 +1,11 @@
 /* eslint-disable react/react-in-jsx-scope */
 
-/**
- * External dependencies
- */
 import React from 'react';
-
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import withMock from 'storybook-addon-mock';
-
-/**
- * Internal dependencies
- */
 import ConnectedProductCard from '../';
 import { initStore } from '../../../state/store';
+import { PRODUCT_STATUSES } from '../../product-card';
 import { getAllMockData, getProductSlugs } from '../../product-detail-card/stories/utils.js';
 
 // Set myJetpackRest global var.
@@ -29,6 +22,10 @@ export default {
 	argTypes: {
 		slug: {
 			options: getProductSlugs(),
+			control: { type: 'select' },
+		},
+		status: {
+			options: Object.values( PRODUCT_STATUSES ),
 			control: { type: 'select' },
 		},
 	},

@@ -16,12 +16,14 @@ use Automattic\Jetpack_Boost\Lib\Utils;
  * Class Speed_Score
  */
 class Speed_Score {
-
 	public function __construct( Optimizations $modules ) {
 		$this->modules = $modules;
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'jetpack_boost_deactivate', array( $this, 'clear_speed_score_request_cache' ) );
+
+		add_action( 'handle_environment_change', array( Speed_Score_History::class, 'mark_stale' ) );
+		add_action( 'jetpack_boost_deactivate', array( Speed_Score_History::class, 'mark_stale' ) );
 	}
 
 	/**
@@ -174,19 +176,13 @@ class Speed_Score {
 
 		$url_no_boost = $this->get_boost_modules_disabled_url( $url );
 
-		$history        = new Speed_Score_History( $url_no_boost );
-		$latest_history = $history->latest();
-		$score_request  = $this->get_score_request_by_url( $url_no_boost );
-
+		$history       = new Speed_Score_History( $url_no_boost );
+		$score_request = $this->get_score_request_by_url( $url_no_boost );
 		if (
 			// If there isn't already a pending request.
 			( empty( $score_request ) || ! $score_request->is_pending() )
 			&& $this->modules->have_enabled_modules()
-			&& (
-				null === $latest_history
-				|| $latest_history['timestamp'] < strtotime( '- 24 hours' ) // Refetch if it is older than a day.
-				|| wp_get_theme()->get( 'Name' ) !== $latest_history['theme'] // Refetch if then theme was changed.
-			)
+			&& $history->is_stale()
 		) {
 			$score_request = new Speed_Score_Request( $url_no_boost ); // Dispatch a new speed score request to measure score without boost.
 			$score_request->store( 3600 ); // Keep the request for 1 hour even if no one access the results. The value is persisted for 1 hour in wp.com from initial request.
@@ -263,13 +259,12 @@ class Speed_Score {
 				'noBoost' => null,
 			);
 
-			// Only include noBoost scores if at least one modules is enabled.
-			$latest_history = $history->latest();
-			if ( ! empty( $this->modules->available_modules() ) ) {
+			// Only include noBoost scores if at least one module is enabled.
+			if ( $this->modules->have_enabled_modules() ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
 
-			$response['scores']['isStale'] = wp_get_theme()->get( 'Name' ) !== $latest_history['theme'];
+			$response['scores']['isStale'] = $history->is_stale();
 
 		} else {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.

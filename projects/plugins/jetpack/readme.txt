@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.7
-Requires at least: 5.8
+Stable tag: 11.0
+Requires at least: 5.9
 Requires PHP: 5.6
-Tested up to: 5.9
+Tested up to: 6.0
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -242,25 +242,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.8-a.3 - 2022-03-08
+### 11.1-a.5 - 2022-06-21
 #### Enhancements
-- Jetpack: assistant style updates and other improvements.
-- Jetpack: using the new Webfont API in Gutenberg, registers a selection of Google fonts for use with block and Global styles.
-- Markdown block: add default spacing controls.
-- Masterbar: make the Desktop Switcher look the same between Calypso and wp-admin.
-- Payments Block: adds a link to the support reference page on the block configuration panel.
-- Payment Button Block: make Stripe connection button visible from child block elements.
-
-#### Improved compatibility
-- Premium Content Block: prevent block from being nested inside itself.
-- Various Blocks: remove deprecated attributes from Button components.
-- CLI Tools: ensure WP CLI is present before extending the class.
+- VideoPress: enable blocks with VideoPress markdown to be previewed within the mobile app.
 
 #### Bug fixes
-- Jetpack: remove the duplicated `jetpack_relatedposts_returned_results filter`.
-- Premium Content Block: login button now redirects to the correct post instead of to a 404 page when the URL contains characters that have been previously encoded.
-- Payment Blocks: fixed an issue with the upgrade banner being obscured from all payment blocks.
+- Contact Form Block: display expected success message when used in FSE header or footer.
+- Photon: do not return Photonized URLs to the block editor in WordPress 6.0.
+- Search: avoid broken images in search results by preferring the _jetpack_featured_media_url postmeta over the GUID.
+- SEO Tools: allow WooCommerce to use custom SEO description for the shop page.
+- Sharing: avoid fatal errors when email sharing process is called  without clicking on the button.
+- VideoPress: fix embeds in classic editor when theme has no $content_width set.
+- VideoPress Block: fix Cancel button on block and provide better error message when video format is not supported.
 
 --------
 
-[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/jetpack/CHANGELOG.md#changelog)
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

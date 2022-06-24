@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
 import path from 'path';
-import Listr from 'listr';
-import VerboseRenderer from 'listr-verbose-renderer';
-import UpdateRenderer from 'listr-update-renderer';
-import execa from 'execa';
-import PATH from 'path-name';
 import { fileURLToPath } from 'url';
-
-/**
- * Internal dependencies
- */
+import execa from 'execa';
+import Listr from 'listr';
+import UpdateRenderer from 'listr-update-renderer';
+import VerboseRenderer from 'listr-verbose-renderer';
+import PATH from 'path-name';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**
@@ -24,7 +17,7 @@ function cliStatus() {
 				fileURLToPath( new URL( `../../../`, import.meta.url ) )
 		)
 	);
-	console.log( 'To change the linked directory of the CLI, run `pnpm cli-setup` ' );
+	console.log( 'To change the linked directory of the CLI, run `pnpm jetpack cli link` ' );
 }
 /**
  * CLI link.

@@ -1,19 +1,20 @@
-/**
- * External dependencies
- */
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 
 export const typography = {
-	// Typography
-	'--font-title-large': '36px',
-	'--font-title-small': '24px',
+	// Headline
+	'--font-headline-medium': '48px',
+	'--font-headline-small': '36px',
+	'--font-title-medium': '24px',
+	'--font-title-small': '20px',
 	'--font-body': '16px',
 	'--font-body-small': '14px',
-	'--font-label': '12px',
+	'--font-body-extra-small': '12px',
+	// Deprecated
+	'--font-title-large': 'var(--font-headline-small)',
+	'--font-label': 'var(--font-body-extra-small)',
 };
 
 export const colors = {
-	// Colors
 	'--jp-black': '#000000',
 	'--jp-black-80': '#2c3338',
 	// White
@@ -33,8 +34,15 @@ export const colors = {
 	'--jp-red-0': '#F7EBEC',
 	'--jp-red-50': '#D63638',
 	'--jp-red-60': '#B32D2E',
-	'--jp-red-80': '#8A2424',
+	'--jp-red-70': '#8A2424',
+	'--jp-red-80': '#691C1C',
 	'--jp-red': '#d63639',
+	// Yellow
+	'--jp-yellow-20': '#F0C930',
+	'--jp-yellow-40': '#C08C00',
+	// Blue
+	'--jp-blue-20': '#68B3E8',
+	'--jp-blue-40': '#1689DB',
 	// Pink
 	'--jp-pink': '#C9356E',
 	// Green
@@ -56,7 +64,6 @@ export const colors = {
 };
 
 export const borders = {
-	// Borders
 	'--jp-border-radius': '4px',
 	'--jp-menu-border-height': '1px',
 	'--jp-underline-thickness': '2px',
@@ -66,21 +73,62 @@ export const spacing = {
 	'--spacing-base': '8px',
 };
 
-const setup = () => {
-	const root = document.getElementById( 'jetpack-theme-provider' );
-	const tokens = { ...typography, ...colors, ...borders, ...spacing };
+const globalThemeInstances = {};
 
+const setup = ( root, id ) => {
+	const tokens = { ...typography, ...colors, ...borders, ...spacing };
 	for ( const key in tokens ) {
 		root.style.setProperty( key, tokens[ key ] );
 	}
+
+	if ( ! id ) {
+		return;
+	}
+
+	// Register theme provider instance.
+	globalThemeInstances[ id ] = {
+		provided: true,
+		root,
+	};
 };
 
-const ThemeProvider = ( { children = null } ) => {
-	useLayoutEffect( () => {
-		setup();
-	}, [] );
+/**
+ * ThemeProvider React component.
+ *
+ * @param {object} props           - Component properties.
+ * @param {object} props.id        - An optional id to register and identify the provider instance.
+ * @param {object} props.targetDom - Target DOM element to store theme styles. Optional.
+ * @param {object} props.children  - Component children.
+ * @returns {React.ReactNode}        ThemeProvider component.
+ */
+const ThemeProvider = ( { children = null, targetDom, id } ) => {
+	const themeWrapperRef = useRef();
 
-	return <div id="jetpack-theme-provider">{ children }</div>;
+	// Check whether the theme provider instance is already registered.
+	const isAlreadyProvided = globalThemeInstances?.[ id ]?.provided;
+
+	useLayoutEffect( () => {
+		if ( isAlreadyProvided ) {
+			return;
+		}
+
+		if ( targetDom ) {
+			return setup( targetDom, id );
+		}
+
+		if ( ! themeWrapperRef?.current ) {
+			return;
+		}
+
+		setup( themeWrapperRef.current, id );
+	}, [ targetDom, themeWrapperRef, isAlreadyProvided, id ] );
+
+	// Do not wrap when the DOM element target is defined.
+	if ( targetDom ) {
+		return children;
+	}
+
+	return <div ref={ themeWrapperRef }>{ children }</div>;
 };
 
 export default ThemeProvider;

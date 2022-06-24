@@ -1,0 +1,5 @@
+{
+	"compilerOptions": {},
+	// List all sources and source-containing subdirs.
+	"include": [ "./bin" ]
+}

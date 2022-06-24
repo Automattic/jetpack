@@ -188,7 +188,7 @@ class Error_Handler {
 	 * @return Error_Handler $instance
 	 */
 	public static function get_instance() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new self();
 		}
 		return self::$instance;

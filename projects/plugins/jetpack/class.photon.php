@@ -1092,7 +1092,7 @@ class Jetpack_Photon {
 		}
 
 		// Bail if no host is found.
-		if ( is_null( $url_info['host'] ) ) {
+		if ( $url_info['host'] === null ) {
 			return false;
 		}
 
@@ -1102,7 +1102,7 @@ class Jetpack_Photon {
 		}
 
 		// Bail if no path is found.
-		if ( is_null( $url_info['path'] ) ) {
+		if ( $url_info['path'] === null ) {
 			return false;
 		}
 
@@ -1309,6 +1309,7 @@ class Jetpack_Photon {
 				&& 'edit' === $request->get_param( 'context' )
 			)
 			|| false !== strpos( $route, 'wpcom/v2/external-media/copy' )
+			|| (bool) $request->get_header( 'x-wp-api-fetch-from-editor' )
 		) {
 			// Don't use `__return_true()`: Use something unique. See ::_override_image_downsize_in_rest_edit_context()
 			// Late execution to avoid conflict with other plugins as we really don't want to run in this situation.

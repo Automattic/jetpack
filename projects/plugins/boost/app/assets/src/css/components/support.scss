@@ -1,0 +1,13 @@
+.jb-support {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+
+  & &__title {
+	margin-bottom: $halfling;
+  }
+
+  &__cta {
+	text-align: right;
+  }
+}

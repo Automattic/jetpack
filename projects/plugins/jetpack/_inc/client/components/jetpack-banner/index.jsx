@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
+import { Banner, connect as bannerConnect } from 'components/banner';
+import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { connect } from 'react-redux';
-import { noop } from 'lodash';
-import Banner from 'components/banner';
-
-/**
- * Internal dependencies
- */
+import { connect as reduxConnect } from 'react-redux';
 import { arePromotionsActive, userCanManageModules } from 'state/initial-state';
 
-class JetpackBanner extends Banner {
+export class JetpackBanner extends Banner {
 	static propTypes = {
 		callToAction: PropTypes.string,
 		className: PropTypes.string,
@@ -54,12 +47,22 @@ class JetpackBanner extends Banner {
 	}
 }
 
-export default connect( ( state, ownProps ) => {
-	const userCanPurchasePlan = userCanManageModules( state );
+/**
+ * Redux-connect a JetpackBanner or subclass.
+ *
+ * @param {JetpackBanner} Component - Component to connect.
+ * @returns {Component} Wrapped component.
+ */
+export function connect( Component ) {
+	return reduxConnect( ( state, ownProps ) => {
+		const userCanPurchasePlan = userCanManageModules( state );
 
-	return {
-		arePromotionsActive: arePromotionsActive( state ),
-		userCanPurchasePlan: userCanPurchasePlan,
-		hidePromotionBanner: !! ownProps.plan && ! userCanPurchasePlan,
-	};
-} )( JetpackBanner );
+		return {
+			arePromotionsActive: arePromotionsActive( state ),
+			userCanPurchasePlan: userCanPurchasePlan,
+			hidePromotionBanner: !! ownProps.plan && ! userCanPurchasePlan,
+		};
+	} )( bannerConnect( Component ) );
+}
+
+export default connect( JetpackBanner );

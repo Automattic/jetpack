@@ -4,17 +4,10 @@
  * Shows available services and allows opening up the preview modal.
  */
 
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
+import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import { AVAILABLE_SERVICES } from './constants';
-import { SocialServiceIcon } from '../../shared/icons';
 
 const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgradeNudge } ) {
 	const buttonText = showUpgradeNudge
@@ -33,7 +26,7 @@ const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgra
 				) }
 			</p>
 
-			{ showUpgradeNudge && <p>{ __( 'Business or eCommerce plan required.', 'jetpack' ) }</p> }
+			{ showUpgradeNudge && <p>{ __( 'Pro plan required.', 'jetpack' ) }</p> }
 
 			<div className="jetpack-gutenberg-social-icons">
 				{ AVAILABLE_SERVICES.map( service => (

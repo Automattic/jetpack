@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { ModuleToggle } from 'components/module-toggle';
+import analytics from 'lib/analytics';
+import React, { Component } from 'react';
 
 export const ShareButtons = withModuleSettingsFormHelpers(
 	class extends Component {

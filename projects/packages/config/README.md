@@ -15,8 +15,8 @@ Add every other package you're planning to configure:
 
 ```
 composer require automattic/jetpack-sync
-composer require automattic/jetpack-tracking
-composer require automattic/jetpack-terms-of-service
+composer require automattic/jetpack-options
+composer require automattic/jetpack-my-jetpack
 ```
 
 In your code initialize the configuration package at or before

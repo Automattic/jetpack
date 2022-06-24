@@ -413,14 +413,16 @@ class Actions {
 	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null, $buffer_id = null ) {
 
 		$query_args = array(
-			'sync'       => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
-			'codec'      => $codec_name,
-			'timestamp'  => $sent_timestamp,
-			'queue'      => $queue_id,
-			'cd'         => sprintf( '%.4f', $checkout_duration ),
-			'pd'         => sprintf( '%.4f', $preprocess_duration ),
-			'queue_size' => $queue_size,
-			'buffer_id'  => $buffer_id,
+			'sync'           => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
+			'codec'          => $codec_name,
+			'timestamp'      => $sent_timestamp,
+			'queue'          => $queue_id,
+			'cd'             => sprintf( '%.4f', $checkout_duration ),
+			'pd'             => sprintf( '%.4f', $preprocess_duration ),
+			'queue_size'     => $queue_size,
+			'buffer_id'      => $buffer_id,
+			// TODO this will be extended in the future. Might be good to extract in a separate method to support future entries too.
+			'sync_flow_type' => Settings::is_dedicated_sync_enabled() ? 'dedicated' : 'default',
 		);
 
 		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 20;
@@ -673,6 +675,14 @@ class Actions {
 			// Explicitly only allow 1 do_full_sync call until issue with Immediate Full Sync is resolved.
 			// For more context see p1HpG7-9pe-p2.
 			if ( 'full_sync' === $type && $executions >= 1 ) {
+				break;
+			}
+
+			/**
+			 * Only try to sync once if Dedicated Sync is enabled. Dedicated Sync has its own requeueing mechanism
+			 * that will re-run it if there are items in the queue at the end.
+			 */
+			if ( 'sync' === $type && $executions >= 1 && Settings::is_dedicated_sync_enabled() ) {
 				break;
 			}
 

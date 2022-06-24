@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
 use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
@@ -126,28 +127,60 @@ class Test_Webhooks extends TestCase {
 	public function test_controller() {
 		$webhooks = $this->getMockBuilder( Webhooks::class )
 			->setConstructorArgs( array( new Manager() ) )
-			->setMethods( array( 'do_exit', 'handle_authorize' ) )
+			->setMethods( array( 'do_exit', 'handle_authorize', 'handle_authorize_redirect' ) )
 			->getMock();
 
 		$controller_skipped = $webhooks->controller();
 
-		$webhooks->expects( $this->exactly( 2 ) )
-			->method( 'do_exit' );
-
 		$webhooks->expects( $this->once() )
 			->method( 'handle_authorize' );
+
+		$webhooks->expects( $this->once() )
+			->method( 'handle_authorize_redirect' );
 
 		$_GET['handler'] = 'jetpack-connection-webhooks';
 		$_GET['action']  = 'invalid-action';
 
-		// `do_exit` gets called for the first time.
+		// No callback should be called because action is empty.
 		$webhooks->controller();
 
 		$_GET['action'] = 'authorize';
 
-		// `do_exit` gets called for the second time, and `handle_authorize` - for the first and only time.
+		// `handle_authorize` gets called.
+		$webhooks->controller();
+
+		$_GET['action'] = 'authorize_redirect';
+
+		// `handle_authorize_redirect` gets called.
 		$webhooks->controller();
 
 		static::assertNull( $controller_skipped );
+	}
+
+	/**
+	 * Unit test for the `Webhooks::handle_connect_url_redirect()` method.
+	 * Testing the repeated attempt to authorize user.
+	 *
+	 * @covers \Automattic\Jetpack\Connection\Webhooks::handle_authorize
+	 */
+	public function test_handle_connect_url_redirect() {
+		$webhooks = $this->getMockBuilder( Webhooks::class )
+			->setConstructorArgs( array( new Manager() ) )
+			->setMethods( array( 'do_exit' ) )
+			->getMock();
+
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
+		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
+
+		set_transient( 'jetpack_assumed_site_creation_date', '2022-06-02 11:22:33' );
+
+		$webhooks->handle_connect_url_redirect();
+
+		delete_transient( 'jetpack_assumed_site_creation_date' );
+		Constants::clear_single_constant( 'JETPACK__API_BASE' );
+		Constants::clear_single_constant( 'JETPACK__API_VERSION' );
+
+		static::assertCount( 1, $this->redirect_stack );
+		static::assertStringStartsWith( 'https://example.com/api/base.authorize/1/?response_type=code&', $this->redirect_stack[0] );
 	}
 }

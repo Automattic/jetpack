@@ -1,28 +1,54 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-include JETPACK__PLUGIN_DIR . '/modules/module-info.php';
+require JETPACK__PLUGIN_DIR . '/modules/module-info.php';
 
 /**
  * Base class for Jetpack Endpoints, has the validate_call helper function.
  */
 abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 
+	/**
+	 * Needed capabilities.
+	 *
+	 * @var string
+	 */
 	protected $needed_capabilities;
+
+	/**
+	 * Expected actions.
+	 *
+	 * @var array
+	 */
 	protected $expected_actions = array();
+
+	/**
+	 * The action.
+	 *
+	 * @var string
+	 */
 	protected $action;
 
-
+	/**
+	 * Callback function.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $blog_id - the blog ID.
+	 * @param object $object - parameter is for making the method signature compatible with its parent class method.
+	 */
 	public function callback( $path = '', $blog_id = 0, $object = null ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, $this->needed_capabilities ) ) ) {
+		$error = $this->validate_call( $blog_id, $this->needed_capabilities );
+		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
 
-		if ( is_wp_error( $error = $this->validate_input( $object ) ) ) {
+		$error = $this->validate_input( $object );
+		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
 
 		if ( ! empty( $this->action ) ) {
-			if( is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
+			$error = call_user_func( array( $this, $this->action ) );
+			if ( is_wp_error( $error ) ) {
 				return $error;
 			}
 		}
@@ -30,32 +56,47 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return $this->result();
 	}
 
+	/**
+	 * The result function.
+	 */
 	abstract protected function result();
 
-	protected function validate_input( $object ) {
+	/**
+	 * Validate input.
+	 *
+	 * @param object $object - unused, for parent class compatability.
+	 *
+	 * @return bool
+	 */
+	protected function validate_input( $object ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$args = $this->input();
 
-		if( isset( $args['action'] ) && $args['action'] == 'update' ) {
+		if ( isset( $args['action'] ) && $args['action'] === 'update' ) {
 			$this->action = 'update';
 		}
 
-		if ( preg_match( "/\/update\/?$/", $this->path ) ) {
+		if ( preg_match( '!/update/?$!', $this->path ) ) {
 			$this->action = 'update';
 
-		} elseif( preg_match( "/\/install\/?$/", $this->path ) ) {
+		} elseif ( preg_match( '/\/install\/?$/', $this->path ) ) {
 			$this->action = 'install';
 
-		} elseif( ! empty( $args['action'] ) ) {
-			if( ! in_array( $args['action'], $this->expected_actions ) ) {
+		} elseif ( ! empty( $args['action'] ) ) {
+			if ( ! in_array( $args['action'], $this->expected_actions, true ) ) {
 				return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ) );
 			}
-			$this->action =  $args['action'];
+			$this->action = $args['action'];
 		}
 		return true;
 	}
 
 	/**
 	 * Switches to the blog and checks current user capabilities.
+	 *
+	 * @param int   $_blog_id - the blog ID.
+	 * @param array $capability - the capabilities of the user.
+	 * @param bool  $check_validation - if we're checking the validation.
+	 *
 	 * @return bool|WP_Error a WP_Error object or true if things are good.
 	 */
 	protected function validate_call( $_blog_id, $capability, $check_validation = true ) {
@@ -64,7 +105,8 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
-		if ( is_wp_error( $error = $this->check_capability( $capability ) ) ) {
+		$error = $this->check_capability( $capability );
+		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
 
@@ -89,7 +131,9 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * @param $capability
+	 * Check capability.
+	 *
+	 * @param array $capability - the compatability.
 	 *
 	 * @return bool|WP_Error
 	 */
@@ -106,8 +150,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$must_pass = ( isset( $capability['must_pass'] ) && is_int( $capability['must_pass'] ) ? $capability['must_pass'] : count( $capabilities ) );
 
 			$failed = array(); // store the failed capabilities
-			$passed = 0; //
-
+			$passed = 0;
 			foreach ( $capabilities as $cap ) {
 				if ( current_user_can( $cap ) ) {
 					$passed ++;
@@ -125,7 +168,8 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 				);
 			}
 		} else {
-			if ( !current_user_can( $capability ) ) {
+			if ( ! current_user_can( $capability ) ) {
+				// Translators: the capability that the user is not authorized for.
 				return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.', 'jetpack' ), $capability ), 403 );
 			}
 		}

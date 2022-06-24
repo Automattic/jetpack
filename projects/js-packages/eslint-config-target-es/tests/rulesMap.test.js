@@ -1,6 +1,6 @@
-const rulesMap = require( '../src/rulesMap.js' );
 const mdn = require( '@mdn/browser-compat-data' );
 const { rules: esRules } = require( 'eslint-plugin-es' );
+const rulesMap = require( '../src/rulesMap.js' );
 
 test( 'All rules are mapped', () => {
 	expect( Object.keys( rulesMap ).sort() ).toEqual( Object.keys( esRules ).sort() );

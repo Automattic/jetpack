@@ -2,18 +2,17 @@
 
 set -eo pipefail
 
-. tests/maybe-downgrade-phpunit.sh
-
 PLUGINDIR="$PWD"
 
 cd "$MONOREPO_BASE/projects/plugins/jetpack"
 
 echo "::group::Jetpack Admimnpage coverage"
-pnpx nyc --reporter=clover -x '_inc/**/**/test/*.js' --report-dir="$COVERAGE_DIR/adminpage" pnpm run test-adminpage
+pnpm run test-client --coverage --collectCoverageFrom='_inc/client/state/**/*.js' --coverageDirectory="$COVERAGE_DIR/client" --coverageReporters=clover
+pnpm run test-gui --coverage --collectCoverageFrom='_inc/client/**/*.js' --coverageDirectory="$COVERAGE_DIR/gui" --coverageReporters=clover
 echo "::endgroup::"
 
 echo "::group::Jetpack Extensions coverage"
-pnpm run test-extensions -- --coverage --collectCoverageFrom='extensions/**/*.js' --coverageDirectory="$COVERAGE_DIR/extensions" --coverageReporters=clover
+pnpm run test-extensions --coverage --collectCoverageFrom='extensions/**/*.js' --coverageDirectory="$COVERAGE_DIR/extensions" --coverageReporters=clover
 echo "::endgroup::"
 
 cd "$PLUGINDIR"

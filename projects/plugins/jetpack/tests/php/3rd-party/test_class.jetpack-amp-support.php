@@ -1,4 +1,4 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-support.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';

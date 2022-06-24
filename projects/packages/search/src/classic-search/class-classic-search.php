@@ -309,7 +309,7 @@ class Classic_Search {
 	 * @param WP_Query $query A WP_Query instance.
 	 */
 	public function maybe_add_post_type_as_var( WP_Query $query ) {
-		$post_type = ( ! empty( $_GET['post_type'] ) ) ? $_GET['post_type'] : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$post_type = ( ! empty( $_GET['post_type'] ) ) ? sanitize_key( $_GET['post_type'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $this->should_handle_query( $query ) && $post_type ) {
 			$post_types = ( is_string( $post_type ) && false !== strpos( $post_type, ',' ) )
 				? explode( ',', $post_type )

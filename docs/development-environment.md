@@ -62,7 +62,11 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 
 * ### Developing and contributing code to Jetpack from a Windows machine
 
-	When working on a Windows machine, you can use [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
+	When working on a Windows machine, you will need to use [Windows Subsystem for Linux version 2](https://docs.microsoft.com/en-us/windows/wsl/install). If you are currently using WSL version 1, you will need to update to version 2 first.
+
+	If you use VS Code, you can use [their Remote Development extension pack](https://code.visualstudio.com/docs/remote/wsl) to develop in WSL.
+
+	You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
 
 ## Get started with development
 
@@ -110,7 +114,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 	Composer is a PHP package manager and it's used to install packages that are required to run development tools and build projects.
 
-	The monorepo requires version 2.2.x.
+	The monorepo requires version 2.3.x.
 
 	 * ##### Installing Composer on macOS
 
@@ -135,7 +139,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 * #### jetpack CLI
 
-	The `jetpack` CLI tool is used to help with development in the Jetpack monorepo. Find out more and install it by following the instructions on the [Jetpack CLI page](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md).
+	The `jetpack` CLI tool is used to help with development in the Jetpack monorepo. Find out more and install it by following the instructions on the [Jetpack CLI page](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md).
 
 ### Check if your environment is ready for Jetpack development
 
@@ -159,7 +163,7 @@ Once you have a local copy of Jetpack and all development tools installed, you c
 
 ## Building your project
 
-The Jetpack monorepo is home to different projects, with different needs. Some require that you build PHP, JavaScript, and CSS components. [The Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md) will help you with all building steps.
+The Jetpack monorepo is home to different projects, with different needs. Some require that you build PHP, JavaScript, and CSS components. [The Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md) will help you with all building steps.
 
 There are different types of builds:
 
@@ -189,7 +193,7 @@ There are different types of builds:
 # Unit-testing
 
 
-The Jetpack plugin includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/tests) that you can run in your local environment before submitting a new Pull Request.
+The Jetpack plugin includes several [unit tests](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/jetpack/tests) that you can run in your local environment before submitting a new Pull Request.
 
 If you're not familiar with PHP Unit Testing, you can also check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/)
 

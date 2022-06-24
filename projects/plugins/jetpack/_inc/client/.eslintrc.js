@@ -1,4 +1,4 @@
-const loadIgnorePatterns = require( '../../../../../tools/js-tools/load-eslint-ignore.js' );
+const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 
 module.exports = {
 	// Use root level ESlint configuration.
@@ -15,4 +15,10 @@ module.exports = {
 			},
 		],
 	},
+	overrides: [
+		{
+			files: [ '**/test/*.[jt]s?(x)' ],
+			extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
+		},
+	],
 };

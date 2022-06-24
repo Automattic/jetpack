@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Infinite Scroll
  * Module Description: Automatically load new content when a visitor scrolls
@@ -16,12 +16,17 @@
  */
 class Jetpack_Infinite_Scroll_Extras {
 	/**
-	 * Class variables
+	 * Class variable singleton.
+	 *
+	 * @var Jetpack_Infinite_Scroll_Extras
 	 */
-	// Oh look, a singleton
-	private static $__instance = null;
+	private static $instance = null;
 
-	// Option names
+	/**
+	 * Option names.
+	 *
+	 * @var string
+	 */
 	private $option_name_google_analytics = 'infinite_scroll_google_analytics';
 
 	/**
@@ -30,17 +35,17 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$__instance, 'Jetpack_Infinite_Scroll_Extras' ) )
-			self::$__instance = new Jetpack_Infinite_Scroll_Extras;
+		if ( ! self::$instance instanceof Jetpack_Infinite_Scroll_Extras ) {
+			self::$instance = new Jetpack_Infinite_Scroll_Extras();
+		}
 
-		return self::$__instance;
+		return self::$instance;
 	}
 
 	/**
 	 * Register actions and filters
 	 *
 	 * @uses add_action, add_filter
-	 * @return null
 	 */
 	private function __construct() {
 		add_action( 'jetpack_modules_loaded', array( $this, 'action_jetpack_modules_loaded' ) );
@@ -59,7 +64,6 @@ class Jetpack_Infinite_Scroll_Extras {
 	 *
 	 * @uses Jetpack::enable_module_configurable
 	 * @action jetpack_modules_loaded
-	 * @return null
 	 */
 	public function action_jetpack_modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
@@ -70,9 +74,12 @@ class Jetpack_Infinite_Scroll_Extras {
 	 *
 	 * @uses add_settings_field, __, register_setting
 	 * @action admin_init
-	 * @return null
 	 */
 	public function action_admin_init() {
+		if ( ! Jetpack_Plan::supports( 'google-analytics' ) ) {
+			return;
+		}
+
 		add_settings_field( $this->option_name_google_analytics, '<span id="infinite-scroll-google-analytics">' . __( 'Use Google Analytics with Infinite Scroll', 'jetpack' ) . '</span>', array( $this, 'setting_google_analytics' ), 'reading' );
 		register_setting( 'reading', $this->option_name_google_analytics, array( $this, 'sanitize_boolean_value' ) );
 	}
@@ -81,17 +88,16 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * Render Google Analytics option
 	 *
 	 * @uses checked, get_option, __
-	 * @return html
 	 */
 	public function setting_google_analytics() {
-		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( $this->option_name_google_analytics, false ), false ) . ' /> ' . esc_html__( 'Track each scroll load (7 posts by default) as a page view in Google Analytics', 'jetpack' )  . '</label>';
+		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( $this->option_name_google_analytics, false ), false ) . ' /> ' . esc_html__( 'Track each scroll load (7 posts by default) as a page view in Google Analytics', 'jetpack' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'Check the box above to record each new set of posts loaded via Infinite Scroll as a page view in Google Analytics.', 'jetpack' ) . '</p>';
 	}
 
 	/**
 	 * Sanitize value as a boolean
 	 *
-	 * @param mixed $value
+	 * @param mixed $value - the value we're sanitizing.
 	 * @return bool
 	 */
 	public function sanitize_boolean_value( $value ) {
@@ -108,23 +114,24 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * @action setup_theme
 	 * @return null
 	 */
-	function action_after_setup_theme() {
+	public function action_after_setup_theme() {
 		$theme = wp_get_theme();
 
-		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) )
+		if ( ! $theme instanceof WP_Theme && ! is_array( $theme ) ) {
 			return;
+		}
 
 		/** This filter is already documented in modules/infinite-scroll/infinity.php */
-		$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
+		$customization_file = apply_filters( 'infinite_scroll_customization_file', __DIR__ . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
 
 		if ( is_readable( $customization_file ) ) {
-			require_once( $customization_file );
-		}
-		elseif ( ! empty( $theme['Template'] ) ) {
-			$customization_file = dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Template']}.php";
+			require_once $customization_file;
+		} elseif ( ! empty( $theme['Template'] ) ) {
+			$customization_file = __DIR__ . "/infinite-scroll/themes/{$theme['Template']}.php";
 
-			if ( is_readable( $customization_file ) )
-				require_once( $customization_file );
+			if ( is_readable( $customization_file ) ) {
+				require_once $customization_file;
+			}
 		}
 	}
 
@@ -133,19 +140,22 @@ class Jetpack_Infinite_Scroll_Extras {
 	 *
 	 * @uses Jetpack::get_active_modules, is_user_logged_in, stats_get_options, Jetpack_Options::get_option, get_option, JETPACK__API_VERSION, JETPACK__VERSION
 	 * @filter infinite_scroll_js_settings
+	 *
+	 * @param array $settings - the settings.
 	 * @return array
 	 */
 	public function filter_infinite_scroll_js_settings( $settings ) {
 		// Provide WP Stats info for tracking Infinite Scroll loads
 		// Abort if Stats module isn't active
-		if ( in_array( 'stats', Jetpack::get_active_modules() ) ) {
+		if ( in_array( 'stats', Jetpack::get_active_modules(), true ) ) {
 			// Abort if user is logged in but logged-in users shouldn't be tracked.
 			if ( is_user_logged_in() && function_exists( 'stats_get_options' ) ) {
-				$stats_options = stats_get_options();
+				$stats_options        = stats_get_options();
 				$track_loggedin_users = isset( $stats_options['reg_users'] ) ? (bool) $stats_options['reg_users'] : false;
 
-				if ( ! $track_loggedin_users )
+				if ( ! $track_loggedin_users ) {
 					return $settings;
+				}
 			}
 
 			// We made it this far, so gather the data needed to track IS views
@@ -153,14 +163,15 @@ class Jetpack_Infinite_Scroll_Extras {
 
 			// Pagetype parameter
 			$settings['stats'] .= '&x_pagetype=infinite';
-			if ( 'click' == $settings['type'] )
+			if ( 'click' === $settings['type'] ) {
 				$settings['stats'] .= '-click';
+			}
 
 			$settings['stats'] .= '-jetpack';
 		}
 
-		// Check if Google Analytics tracking is requested
-		$settings['google_analytics'] = (bool) Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
+		// Check if Google Analytics tracking is requested.
+		$settings['google_analytics'] = Jetpack_Plan::supports( 'google-analytics' ) && Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
 
 		return $settings;
 	}
@@ -222,7 +233,7 @@ Jetpack_Infinite_Scroll_Extras::instance();
 /**
  * Load main IS file
  */
-require_once( dirname( __FILE__ ) . "/infinite-scroll/infinity.php" );
+require_once __DIR__ . '/infinite-scroll/infinity.php';
 
 /**
  * Remove the IS annotation loading function bundled with the IS plugin in favor of the Jetpack-specific version in Jetpack_Infinite_Scroll_Extras::action_after_setup_theme();

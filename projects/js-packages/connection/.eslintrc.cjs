@@ -1,5 +1,5 @@
 module.exports = {
-	extends: [ '../../../tools/js-tools/eslintrc/react.js' ],
+	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/react' ) ],
 	parserOptions: {
 		requireConfigFile: false,
 		babelOptions: {
@@ -16,4 +16,10 @@ module.exports = {
 			},
 		],
 	},
+	overrides: [
+		{
+			files: [ '**/test/*.[jt]s?(x)' ],
+			extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
+		},
+	],
 };

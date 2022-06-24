@@ -1,8 +1,10 @@
-// Additional eslint config for react-using projects.
-
+/**
+ * @type {import("eslint").Linter.Config}
+ */
 module.exports = {
 	extends: [
-		'wpcalypso/react',
+		'./preload.js',
+		'plugin:wpcalypso/react',
 		// Re-extend our base to re-override wpcalypso.
 		'./base.js',
 	],
@@ -25,5 +27,7 @@ module.exports = {
 		'react/no-is-mounted': 2,
 		'react/prefer-es6-class': 1,
 		'react/no-string-refs': 0,
+		// suppress errors for missing 'import React' in files
+		'react/react-in-jsx-scope': 'off',
 	},
 };

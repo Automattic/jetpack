@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.17 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.2.16 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
+## 0.2.15 - 2022-05-31
+### Changed
+- Updated package dependencies. [#24475] [#24573]
+
+## 0.2.14 - 2022-05-24
+### Changed
+- Updated package dependencies. [#24449]
+
+## 0.2.13 - 2022-05-18
+### Changed
+- Updated package dependencies. [#23795]
+
+## 0.2.12 - 2022-05-10
+### Changed
+- Updated package dependencies. [#24189]
+
+## 0.2.11 - 2022-05-04
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+## 0.2.10 - 2022-04-26
+### Changed
+- Update package.json metadata.
+
+## 0.2.9 - 2022-04-19
+### Changed
+- Updated package dependencies.
+
+## 0.2.8 - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+## 0.2.7 - 2022-04-06
+### Changed
+- Updated package dependencies
+
+## 0.2.6 - 2022-03-29
+### Changed
+- Updated package dependencies.
+
+## 0.2.5 - 2022-03-23
+### Changed
+- Updated package dependencies
+
+## 0.2.4 - 2022-03-15
+### Changed
+- Updated package dependencies.
+
 ## 0.2.3 - 2022-03-08
 ### Changed
 - Updated package dependencies.

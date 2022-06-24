@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Status\Cache;
+use Automattic\Jetpack\Status\Host;
 use WPCOM_Masterbar;
 
 /**
@@ -226,7 +227,7 @@ class Status {
 
 		$known_staging = array(
 			'urls'      => array(
-				'#\.staging\.wpengine\.com$#i', // WP Engine.
+				'#\.staging\.wpengine\.com$#i', // WP Engine. This is their legacy staging URL structure. Their new platform does not have a common URL. https://github.com/Automattic/jetpack/issues/21504
 				'#\.staging\.kinsta\.com$#i',   // Kinsta.com.
 				'#\.kinsta\.cloud$#i',          // Kinsta.com.
 				'#\.stage\.site$#i',            // DreamPress.
@@ -240,7 +241,7 @@ class Status {
 				'#\-liquidwebsites\.com$#i',    // Liquidweb.
 			),
 			'constants' => array(
-				'IS_WPE_SNAPSHOT',      // WP Engine.
+				'IS_WPE_SNAPSHOT',      // WP Engine. This is used on their legacy staging environment. Their new platform does not have a constant. https://github.com/Automattic/jetpack/issues/21504
 				'KINSTA_DEV_ENV',       // Kinsta.com.
 				'WPSTAGECOACH_STAGING', // WP Stagecoach.
 				'JETPACK_STAGING_MODE', // Generic.
@@ -299,6 +300,21 @@ class Status {
 	}
 
 	/**
+	 * Whether the site is currently onboarding or not.
+	 * A site is considered as being onboarded if it currently has an onboarding token.
+	 *
+	 * @since-jetpack 5.8
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool True if the site is currently onboarding, false otherwise
+	 */
+	public function is_onboarding() {
+		return \Jetpack_Options::get_option( 'onboarding' ) !== false;
+	}
+
+	/**
 	 * Returns the site slug suffix to be used as part of Calypso URLs.
 	 *
 	 * Strips http:// or https:// from a url, replaces forward slash with ::.
@@ -315,7 +331,19 @@ class Status {
 			return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
 		}
 
+		// Grab the 'site_url' option for WoA sites to avoid plugins to interfere with the site
+		// identifier (e.g. i18n plugins may change the main url to '<DOMAIN>/<LOCALE>', but we
+		// want to exclude the locale since it's not part of the site suffix).
+		if ( ( new Host() )->is_woa_site() ) {
+			$url = \site_url();
+		}
+
 		if ( empty( $url ) ) {
+			// WordPress can be installed in subdirectories (e.g. make.wordpress.org/plugins)
+			// where the 'site_url' option points to the root domain (e.g. make.wordpress.org)
+			// which could collide with another site in the same domain but with WordPress
+			// installed in a different subdirectory (e.g. make.wordpress.org/core). To avoid
+			// such collision, we identify the site with the 'home_url' option.
 			$url = \home_url();
 		}
 

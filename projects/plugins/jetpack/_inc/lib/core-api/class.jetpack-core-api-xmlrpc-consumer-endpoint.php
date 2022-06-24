@@ -1,7 +1,12 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * This is the base class for every Core API endpoint that needs an XMLRPC client.
  *
+ * @package automattic/jetpack
+ */
+
+/**
+ * Base class for every Core API endpoint that needs an XMLRPC client.
  */
 abstract class Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
@@ -14,10 +19,11 @@ abstract class Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	protected $xmlrpc;
 
 	/**
+	 * Constructor.
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param Jetpack_IXR_Client $xmlrpc
+	 * @param Jetpack_IXR_Client $xmlrpc Jetpack_IXR_Client instance.
 	 */
 	public function __construct( $xmlrpc = null ) {
 		$this->xmlrpc = $xmlrpc;

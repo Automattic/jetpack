@@ -1,6 +1,8 @@
 <?php
 /**
- * INFINITE SCROLL
+ * Theme Tools: Infinite Scroll functions.
+ *
+ * @package automattic/jetpack
  */
 
 /**
@@ -14,20 +16,20 @@
  * @return null
  */
 function jetpack_load_infinite_scroll_annotation() {
-	if ( is_admin() && isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
-			$theme = wp_get_theme();
+	if ( is_admin() && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Function loads theme specific IS file provided by Jetpack if possible.
+		$theme = wp_get_theme();
 
 		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) ) {
 			return;
 		}
 
 		/** This filter is already documented in modules/infinite-scroll/infinity.php */
-		$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
+		$customization_file = apply_filters( 'infinite_scroll_customization_file', __DIR__ . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
 
 		if ( is_readable( $customization_file ) ) {
 			require_once $customization_file;
 		} elseif ( ! empty( $theme['Template'] ) ) {
-			$customization_file = dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Template']}.php";
+			$customization_file = __DIR__ . "/infinite-scroll/themes/{$theme['Template']}.php";
 
 			if ( is_readable( $customization_file ) ) {
 				require_once $customization_file;
@@ -40,7 +42,6 @@ add_action( 'setup_theme', 'jetpack_load_infinite_scroll_annotation' );
 /**
  * Prevent IS from being activated if theme doesn't support it
  *
- * @param bool $can_activate
  * @filter jetpack_can_activate_infinite-scroll
  * @return bool
  */

@@ -139,7 +139,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * @return bool True if the append succeeded, False if not.
 	 */
 	public function append( $array ) {
-		if ( is_null( $array ) ) {
+		if ( $array === null ) {
 			return true;
 		}
 

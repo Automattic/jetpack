@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { BaseControl, PanelBody, ToggleControl } from '@wordpress/components';
 import { InspectorControls } from '@wordpress/block-editor';
+import { BaseControl, PanelBody, ToggleControl } from '@wordpress/components';
 import { withInstanceId } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
-import JetpackFieldLabel from './jetpack-field-label';
+import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from './jetpack-field-controls';
+import JetpackFieldLabel from './jetpack-field-label';
 
 function JetpackFieldCheckbox( props ) {
 	const { id, instanceId, required, label, setAttributes, width, defaultValue } = props;

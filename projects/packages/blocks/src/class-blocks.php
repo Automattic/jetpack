@@ -256,7 +256,8 @@ class Blocks {
 	 * @return bool True if the current theme is an FSE/Site Editor theme.
 	 */
 	public static function is_fse_theme() {
-		$is_fse_theme = function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme();
+		$is_fse_theme = wp_is_block_theme()
+			|| ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() );
 
 		/**
 		 * Returns true if the current theme is an FSE/Site Editor theme.

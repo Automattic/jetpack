@@ -118,7 +118,7 @@ class Jetpack_Google_AMP_Analytics {
 	 * Send the stored events to GA.
 	 */
 	public function amp_send_ga_events() {
-		if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Simple comparison
 			return;
 		}
 

@@ -1,22 +1,10 @@
-/**
- * External dependencies
- */
-import React from 'react';
+import { jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { useSelect } from '@wordpress/data';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
-import ConnectionStatusCard from '../index';
+import React from 'react';
 import { STORE_ID } from '../../../state/store';
-
-let stubGetConnectionStatus;
-let storeSelect;
-let wrapper;
+import ConnectionStatusCard from '../index';
 
 // TODO Mock requests with dummy data.
 describe( 'ConnectionStatusCard', () => {
@@ -26,130 +14,112 @@ describe( 'ConnectionStatusCard', () => {
 		redirectUri: 'https://example.org',
 	};
 
-	before( () => {
-		renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
-		stubGetConnectionStatus = sinon.stub( storeSelect, 'getConnectionStatus' );
-	} );
-
-	after( function () {
-		storeSelect.getConnectionStatus.restore();
-	} );
-
 	describe( 'When the user has not connected their WordPress.com account', () => {
-		beforeEach( () => {
-			stubGetConnectionStatus.reset();
-			stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: false } );
-			wrapper = shallow( <ConnectionStatusCard { ...testProps } /> );
-		} );
-
-		it( 'renders the title', () => {
-			expect( wrapper.find( 'h3' ).first().render().text() ).to.be.equal( 'Connection' );
-		} );
-
-		it( 'renders the connection info', () => {
-			expect( wrapper.find( 'p' ).first().render().text() ).to.be.equal(
-				'Leverages the Jetpack Cloud for more features on your side.'
-			);
-		} );
+		const setup = () => {
+			let storeSelect;
+			renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
+			jest
+				.spyOn( storeSelect, 'getConnectionStatus' )
+				.mockReset()
+				.mockReturnValue( { isRegistered: true, isUserConnected: false } );
+			return render( <ConnectionStatusCard { ...testProps } /> );
+		};
 
 		it( 'renders the "Site connected" success list item', () => {
-			expect(
-				wrapper.find( '.jp-connection-status-card--list-item-success' ).first().render().text()
-			).to.be.equal( 'Site connected.\u00a0Disconnect' );
+			setup();
+			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "DisconnectDialog"', () => {
-			expect( wrapper.find( 'DisconnectDialog' ) ).to.exist;
+		it( 'renders the "Disconnect" button', () => {
+			setup();
+			expect( screen.getByRole( 'button', { name: 'Disconnect' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Account not connected" error list item', () => {
-			expect(
-				wrapper.find( '.jp-connection-status-card--list-item-error' ).first().render().text()
-			).to.be.equal( 'Requires user connection. Connect your user account' );
+		it( 'renders the "Requires user connection" error list item', () => {
+			setup();
+			expect( screen.getByText( 'Requires user connection.' ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the "Connect your user account" button', () => {
-			expect( wrapper.find( '.jp-connection-status-card--btn-connect-user' ) ).to.have.lengthOf(
-				1
-			);
+			setup();
+			expect(
+				screen.getByRole( 'button', { name: 'Connect your user account' } )
+			).toBeInTheDocument();
 		} );
 	} );
 
 	describe( "When the user has not connected their WordPress.com account but the site has an owner and we don't need a user connection", () => {
-		beforeEach( () => {
-			stubGetConnectionStatus.reset();
-			stubGetConnectionStatus.returns( {
+		const setup = () => {
+			let storeSelect;
+			renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
+			jest.spyOn( storeSelect, 'getConnectionStatus' ).mockReset().mockReturnValue( {
 				isRegistered: true,
 				isUserConnected: false,
 				hasConnectedOwner: true,
 			} );
-			wrapper = shallow(
-				<ConnectionStatusCard { ...testProps } requiresUserConnection={ false } />
-			);
-		} );
+			return render( <ConnectionStatusCard { ...testProps } requiresUserConnection={ false } /> );
+		};
 
 		it( 'renders the "Site connected" success list item', () => {
+			setup();
+			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders the "Disconnect" button', () => {
+			setup();
+			expect( screen.getByRole( 'button', { name: 'Disconnect' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'Doesn\'t render the "Requires user connection" error list item', () => {
+			setup();
+			expect( screen.queryByText( 'Requires user connection.' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'renders the "Connect your user account" button', () => {
+			setup();
 			expect(
-				wrapper.find( '.jp-connection-status-card--list-item-success' ).first().render().text()
-			).to.be.equal( 'Site connected.\u00a0Disconnect' );
-		} );
-
-		it( 'renders the "DisconnectDialog"', () => {
-			expect( wrapper.find( 'DisconnectDialog' ) ).to.exist;
-		} );
-
-		it( 'Doesn\'t render the "Account not connected" error list item', () => {
-			expect( wrapper.find( '.jp-connection-status-card--list-item-error' ) ).to.have.lengthOf( 0 );
-		} );
-
-		it( 'Doesn\'t render the "Connect your user account" button', () => {
-			expect( wrapper.find( '.jp-connection-status-card--btn-connect-user' ) ).to.have.lengthOf(
-				0
-			);
+				screen.getByRole( 'button', { name: 'Connect your user account' } )
+			).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'When the user has connected their WordPress.com account', () => {
-		beforeEach( () => {
-			stubGetConnectionStatus.reset();
-			stubGetConnectionStatus.returns( {
+		const setup = () => {
+			let storeSelect;
+			renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
+			jest.spyOn( storeSelect, 'getConnectionStatus' ).mockReset().mockReturnValue( {
 				isRegistered: true,
 				isUserConnected: true,
 				hasConnectedOwner: true,
 			} );
-			wrapper = shallow( <ConnectionStatusCard { ...testProps } /> );
-		} );
-
-		it( 'renders the title', () => {
-			expect( wrapper.find( 'h3' ).first().render().text() ).to.be.equal( 'Connection' );
-		} );
-
-		it( 'renders the connection info', () => {
-			expect( wrapper.find( 'p' ).first().render().text() ).to.be.equal(
-				'Leverages the Jetpack Cloud for more features on your side.'
-			);
-		} );
+			return render( <ConnectionStatusCard { ...testProps } /> );
+		};
 
 		it( 'renders the "Site connected" success list item', () => {
-			expect(
-				wrapper.find( '.jp-connection-status-card--list-item-success' ).first().render().text()
-			).to.be.equal( 'Site connected.\u00a0Disconnect' );
+			setup();
+			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "DisconnectDialog"', () => {
-			expect( wrapper.find( 'DisconnectDialog' ) ).to.exist;
+		it( 'renders the "Disconnect" button', () => {
+			setup();
+			expect( screen.getByRole( 'button', { name: 'Disconnect' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the "Logged in as" success list item', () => {
-			expect(
-				wrapper.find( '.jp-connection-status-card--list-item-success' ).at( 1 ).render().text()
-			).to.be.equal( 'Logged in as ' );
+			setup();
+			expect( screen.getByText( /Logged in as/ ) ).toBeInTheDocument();
+		} );
+
+		it( 'Doesn\'t render the "Requires user connection" error list item', () => {
+			setup();
+			expect( screen.queryByText( 'Requires user connection.' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'doesn\'t render the "Connect your WordPress.com account" button', () => {
-			expect( wrapper.find( '.jp-connection-status-card--btn-connect-user' ) ).to.have.lengthOf(
-				0
-			);
+			setup();
+			expect(
+				screen.queryByRole( 'button', { name: 'Connect your user account' } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 } );

@@ -1,25 +1,14 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
-import { createHigherOrderComponent } from '@wordpress/compose';
-import { useState, useEffect, useMemo, useContext } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import {
 	isStillUsableWithFreePlan,
 	getRequiredPlan,
 	getUsableBlockProps,
-} from '../../shared/plan-utils';
-import UpgradePlanBanner from './upgrade-plan-banner';
+} from '@automattic/jetpack-shared-extension-utils';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
+import { useState, useEffect, useMemo, useContext } from '@wordpress/element';
+import classNames from 'classnames';
 import { PaidBlockContext, PaidBlockProvider } from './components';
+import UpgradePlanBanner from './upgrade-plan-banner';
 import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 
 export default createHigherOrderComponent(

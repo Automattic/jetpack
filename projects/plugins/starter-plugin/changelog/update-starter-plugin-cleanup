@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack CLI: correctly replace project description and release-branch-prefix.

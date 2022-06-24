@@ -40,6 +40,19 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					'customize_selective_refresh' => true,
 				)
 			);
+
+			add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+		}
+
+		/**
+		 * Remove the "Mailchimp Subscriber Popup" widget from the Legacy Widget block
+		 *
+		 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+		 * @return array $widget_types New list of widgets that will be removed.
+		 */
+		public function hide_widget_in_block_editor( $widget_types ) {
+			$widget_types[] = 'widget_mailchimp_subscriber_popup';
+			return $widget_types;
 		}
 
 		/**

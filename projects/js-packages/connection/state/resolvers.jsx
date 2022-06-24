@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { dispatch, select } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import actions from './actions';
-import { STORE_ID } from './store';
+import STORE_ID from './store-id';
 
 const connectionResolvers = {
 	getAuthorizationUrl: {

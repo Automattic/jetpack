@@ -162,6 +162,8 @@ class AutoupdateSelf {
 	 * when an update is available. This is the way: catch the setting of the relevant
 	 * transient and add ourself in.
 	 *
+	 * @todo Consider switching to the `update_plugins_${hostmane}` hook introduced in WP 5.8.
+	 *
 	 * @param object $transient The transient we're checking.
 	 * @return object $transient
 	 */

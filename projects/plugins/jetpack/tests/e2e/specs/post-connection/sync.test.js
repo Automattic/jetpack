@@ -1,11 +1,11 @@
-import { test, expect } from '../../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import {
 	enableSync,
 	disableSync,
 	enableDedicatedSync,
 	disableDedicatedSync,
-	waitTillSyncQueueIsEmpty,
+	isSyncQueueEmpty,
 } from '../../helpers/sync-helper.js';
 import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
@@ -34,6 +34,8 @@ test.describe( 'Sync', () => {
 		await test.step( 'Visit block editor page', async () => {
 			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.resolveWelcomeGuide( false );
+
+			await assertSyncQueueIsEmpty( 'Sync queue should be empty [before]' );
 		} );
 	} );
 
@@ -45,22 +47,26 @@ test.describe( 'Sync', () => {
 	} );
 
 	test( 'Normal Sync flow', async ( { page } ) => {
+		const postTitle = `Normal Sync ${ Date.now() }`;
+
 		await test.step( 'Publish a post', async () => {
-			await blockEditor.setTitle( 'Testing Sync' );
-			await blockEditor.selectPostTitle();
-			await blockEditor.publishPost();
+			await publishPost( postTitle );
 			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await waitTillSyncQueueIsEmpty();
+			await assertSyncQueueIsEmpty( 'Sync queue should be empty [after post publish]' );
+
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
-			expect( wpcomPostsResponse.ok() ).toBeTruthy();
+			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
 			wpcomPosts = await wpcomPostsResponse.json();
-			expect( wpcomPosts.posts ).toContainEqual(
+			expect(
+				wpcomPosts.posts,
+				'Previously created post should be present in the synced posts'
+			).toContainEqual(
 				expect.objectContaining( {
-					title: 'Testing Sync',
+					title: postTitle,
 				} )
 			);
 		} );
@@ -72,19 +78,22 @@ test.describe( 'Sync', () => {
 			expect( syncDisabled ).toMatch( 'Sync Disabled' );
 		} );
 
+		const postTitle = `Disabled Sync ${ Date.now() }`;
+
 		await test.step( 'Publish a post', async () => {
-			await blockEditor.setTitle( 'Disabled Sync' );
-			await blockEditor.selectPostTitle();
-			await blockEditor.publishPost();
+			await publishPost( postTitle );
 			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is not synced', async () => {
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
-			expect( wpcomPostsResponse.ok() ).toBeTruthy();
+			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
 			wpcomPosts = await wpcomPostsResponse.json();
-			expect( wpcomPosts.posts ).toContainEqual(
+			expect(
+				wpcomPosts.posts,
+				'Previously created post should NOT be present in the synced posts'
+			).toContainEqual(
 				expect.not.objectContaining( {
 					title: 'Disabled Sync',
 				} )
@@ -98,24 +107,48 @@ test.describe( 'Sync', () => {
 			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
 		} );
 
+		const postTitle = `Dedicated Sync ${ Date.now() }`;
+
 		await test.step( 'Publish a post', async () => {
-			await blockEditor.setTitle( 'Dedicated Sync' );
-			await blockEditor.selectPostTitle();
-			await blockEditor.publishPost();
+			await publishPost( postTitle );
 			await blockEditor.viewPost();
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await waitTillSyncQueueIsEmpty();
+			await assertSyncQueueIsEmpty( 'Sync queue should be empty [after post publish]', 60000 );
+
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
-			expect( wpcomPostsResponse.ok() ).toBeTruthy();
+			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
 			wpcomPosts = await wpcomPostsResponse.json();
-			expect( wpcomPosts.posts ).toContainEqual(
+			expect(
+				wpcomPosts.posts,
+				'Previously created post should be present in the synced posts'
+			).toContainEqual(
 				expect.objectContaining( {
-					title: 'Dedicated Sync',
+					title: postTitle,
 				} )
 			);
 		} );
 	} );
+
+	async function publishPost( title ) {
+		await blockEditor.setTitle( title );
+		await blockEditor.selectPostTitle();
+		await blockEditor.publishPost();
+	}
+
+	async function assertSyncQueueIsEmpty( message = 'Sync queue should be empty', timeout = 30000 ) {
+		await expect
+			.poll(
+				async () => {
+					return await isSyncQueueEmpty();
+				},
+				{
+					message,
+					timeout,
+				}
+			)
+			.toBeTruthy();
+	}
 } );

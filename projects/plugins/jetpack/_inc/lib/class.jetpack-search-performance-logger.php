@@ -36,7 +36,7 @@ class Jetpack_Search_Performance_Logger {
 	 * Initialize the class.
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Search_Performance_Logger();
 		}
 

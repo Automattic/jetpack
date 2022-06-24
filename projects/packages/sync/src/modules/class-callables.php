@@ -77,8 +77,9 @@ class Callables extends Module {
 	 */
 	const OPTION_NAMES_TO_CALLABLE_NAMES = array(
 		// @TODO: Audit the other option names for differences between the option names and callable names.
-		'home'    => 'home_url',
-		'siteurl' => 'site_url',
+		'home'                   => 'home_url',
+		'siteurl'                => 'site_url',
+		'jetpack_active_modules' => 'active_modules',
 	);
 
 	/**
@@ -484,7 +485,7 @@ class Callables extends Module {
 			$checksum = $this->get_check_sum( $value );
 
 			// Explicitly not using Identical comparison as get_option returns a string.
-			if ( ! is_null( $value ) && $this->should_send_callable( $callable_checksums, $name, $checksum ) ) {
+			if ( $value !== null && $this->should_send_callable( $callable_checksums, $name, $checksum ) ) {
 
 				// Only send callable if the non sorted checksum also does not match.
 				if ( $this->should_send_callable( $callable_checksums, $name, $this->get_check_sum( $value, false ) ) ) {

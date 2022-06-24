@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { combineReducers } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import {
 	SET_CONNECTION_STATUS,
 	SET_CONNECTION_STATUS_IS_FETCHING,
@@ -14,12 +7,22 @@ import {
 	CLEAR_REGISTRATION_ERROR,
 	SET_REGISTRATION_ERROR,
 	SET_AUTHORIZATION_URL,
+	SET_CONNECTED_PLUGINS,
 } from './actions';
 
 const connectionStatus = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_STATUS:
 			return { ...state, ...action.connectionStatus };
+	}
+
+	return state;
+};
+
+const connectedPlugins = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_CONNECTED_PLUGINS:
+			return action.connectedPlugins;
 	}
 
 	return state;
@@ -87,6 +90,7 @@ const reducers = combineReducers( {
 	registrationError,
 	authorizationUrl,
 	userConnectionData,
+	connectedPlugins,
 } );
 
 export default reducers;

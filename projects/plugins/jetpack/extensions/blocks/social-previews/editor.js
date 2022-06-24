@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { registerPlugin } from '@wordpress/plugins';
 import {
 	isSimpleSite,
 	getJetpackExtensionAvailability,
 	registerJetpackPlugin,
 } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
+import { registerPlugin } from '@wordpress/plugins';
 import { name, settings, SocialPreviews } from '.';
 
 /*

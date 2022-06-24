@@ -395,7 +395,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 						return null;
 					}
 				} else {
-					if ( is_null( $return ) && wp_json_encode( null ) !== $input ) {
+					if ( $return === null && wp_json_encode( null ) !== $input ) {
 						return null;
 					}
 				}
@@ -409,7 +409,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				// attempt JSON first, since probably a curl command.
 				$return = json_decode( $input, true );
 
-				if ( is_null( $return ) ) {
+				if ( $return === null ) {
 					wp_parse_str( $input, $return );
 				}
 
@@ -648,7 +648,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				break;
 			case 'object':
 				// Fallback object -> false.
-				if ( is_scalar( $value ) || is_null( $value ) ) {
+				if ( is_scalar( $value ) || $value === null ) {
 					if ( ! empty( $types[0] ) && 'false' === $types[0]['type'] ) {
 						return $this->cast_and_filter_item( $return, 'false', $key, $value, $types, $for_output );
 					}
@@ -1650,6 +1650,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$response['thumbnail_generating'] = (bool) intval( $metadata['videopress']['thumbnail_generating'] );
 				}
 
+				if ( isset( $info->privacy_setting ) ) {
+					$response['privacy_setting'] = (int) $info->privacy_setting;
+				} elseif ( isset( $metadata['videopress']['privacy_setting'] ) ) {
+					$response['privacy_setting'] = (int) $metadata['videopress']['privacy_setting'];
+				}
+
 				// Thumbnails.
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
 					$response['thumbnails'] = array(
@@ -2352,7 +2358,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		// bail early if they already have the upgrade..
-		if ( (string) get_option( 'video_upgrade' ) === '1' ) {
+		if ( wpcom_site_has_videopress() ) {
 			return $mimes;
 		}
 

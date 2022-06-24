@@ -1,25 +1,16 @@
-/**
- * External dependencies
- */
+import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
+import { getSiteConnectionStatus } from 'state/connection';
 import {
 	getActiveFeatures,
 	getActiveProductPurchases,
 	getAvailableFeatures,
 	getSitePlan,
 	getSitePurchases,
-	hasActiveSearchPurchase,
 } from 'state/site';
-import QuerySite from 'components/data/query-site';
-import { getSiteConnectionStatus } from 'state/connection';
-
-import MyPlanHeader from './my-plan-header';
 import MyPlanBody from './my-plan-body';
+import MyPlanHeader from './my-plan-header';
 import MyPlanPartnerCoupon from './my-plan-partner-coupon';
 
 export function MyPlan( props ) {
@@ -45,7 +36,6 @@ export function MyPlan( props ) {
 			<MyPlanBody
 				activeFeatures={ activeFeatures }
 				availableFeatures={ availableFeatures }
-				hasActiveSearchPurchase={ props.hasActiveSearchPurchase }
 				plan={ sitePlan }
 				rewindStatus={ props.rewindStatus }
 				siteAdminUrl={ props.siteAdminUrl }
@@ -61,7 +51,6 @@ export default connect( state => {
 		activeProducts: getActiveProductPurchases( state ),
 		availableFeatures: getAvailableFeatures( state ),
 		getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
-		hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
 		purchases: getSitePurchases( state ),
 		sitePlan: getSitePlan( state ),
 	};

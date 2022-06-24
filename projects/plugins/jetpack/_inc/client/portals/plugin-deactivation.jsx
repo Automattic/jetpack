@@ -1,32 +1,21 @@
-/**
- * External dependencies
- */
+import restApi from '@automattic/jetpack-api';
+import { DisconnectDialog } from '@automattic/jetpack-connection';
+import { __ } from '@wordpress/i18n';
 import React, { useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import PortalSidecar from './utilities/portal-sidecar';
-import { getApiRootUrl, getApiNonce } from '../state/initial-state';
+import {
+	fetchUserConnectionData as actionFetchUserConnectionData,
+	getConnectedWpComUser,
+} from 'state/connection';
 import {
 	fetchConnectedPlugins as actionFetchConnectedPlugins,
 	fetchSiteBenefits as actionFetchSiteBenefits,
 	getConnectedPluginsMap,
 	getSiteBenefits,
 } from 'state/site';
-import {
-	fetchUserConnectionData as actionFetchUserConnectionData,
-	getConnectedWpComUser,
-} from 'state/connection';
-import restApi from '@automattic/jetpack-api';
-import { DisconnectDialog } from '@automattic/jetpack-connection';
 import JetpackBenefits from '../components/jetpack-benefits';
+import { getApiRootUrl, getApiNonce } from '../state/initial-state';
+import PortalSidecar from './utilities/portal-sidecar';
 
 /**
  * Component that loads on the plugins page and manages presenting the disconnection modal.
@@ -34,7 +23,6 @@ import JetpackBenefits from '../components/jetpack-benefits';
  * @param {object} props - The props object for the component.
  * @param {string} props.apiRoot - Root URL for the API, which is required by the <DisconnectDialog/> component.
  * @param {string} props.apiNonce - Nonce value for the API, which is required by the <DisconnectDialog/> component.
- * @param {object} props.connectedPlugins - An object of plugins that are using the Jetpack connection.
  * @param {Array} props.siteBenefits - An array of benefits provided by Jetpack.
  * @param {string} props.pluginUrl - The URL of the plugin directory.
  * @returns {React.Component} - The PluginDeactivation component.
@@ -43,10 +31,8 @@ const PluginDeactivation = props => {
 	const {
 		apiRoot,
 		apiNonce,
-		connectedPlugins,
 		siteBenefits,
 		connectionUserData,
-		fetchConnectedPlugins,
 		fetchSiteBenefits,
 		fetchUserConnectionData,
 	} = props;
@@ -54,15 +40,13 @@ const PluginDeactivation = props => {
 
 	useEffect( () => {
 		fetchSiteBenefits();
-		fetchConnectedPlugins();
 		fetchUserConnectionData();
-	}, [ fetchSiteBenefits, fetchConnectedPlugins, fetchUserConnectionData ] );
+	}, [ fetchSiteBenefits, fetchUserConnectionData ] );
 
 	// Modify the deactivation link.
 	const deactivationLink = document.querySelector( '#deactivate-jetpack, #deactivate-jetpack-dev' ); // ID set by WP on the deactivation link.
 
 	deactivationLink.setAttribute( 'title', __( 'Deactivate Jetpack', 'jetpack' ) );
-	deactivationLink.textContent = __( 'Disconnect and Deactivate', 'jetpack' );
 
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -98,15 +82,16 @@ const PluginDeactivation = props => {
 	}, [ deactivationLink ] );
 
 	const disconnectStepComponent = siteBenefits ? (
-		<JetpackBenefits siteBenefits={ siteBenefits } />
+		<JetpackBenefits siteBenefits={ siteBenefits } context="deactivate" />
 	) : null;
 
 	return (
 		<PortalSidecar>
 			<DisconnectDialog
+				title={ __( 'Are you sure you want to deactivate?', 'jetpack' ) }
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
-				connectedPlugins={ connectedPlugins }
+				connectedPlugins={ [] } // We no longer disconnect Jetpack if other plugins are active, so no need to warn.
 				connectedUser={ {
 					ID: connectionUserData?.ID,
 					login: connectionUserData?.login,

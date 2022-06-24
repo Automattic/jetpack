@@ -86,7 +86,7 @@ class Admin {
 	 */
 	public function update_option() {
 		check_admin_referer( 'store-debug-modules' );
-		$active_modules = ! empty( $_POST['active_modules'] ) ? (array) $_POST['active_modules'] : array();
+		$active_modules = ! empty( $_POST['active_modules'] ) ? array_map( 'filter_var', wp_unslash( (array) $_POST['active_modules'] ) ) : array();
 		update_option( self::OPTION_NAME, $active_modules );
 		if ( wp_get_referer() ) {
 			wp_safe_redirect( wp_get_referer() );

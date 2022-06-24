@@ -2,21 +2,14 @@
  *WARNING: No ES6 modules here. Not transpiled! ****
  */
 
-/**
- * External dependencies
- */
 const fs = require( 'fs' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const webpack = jetpackWebpackConfig.webpack;
-const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jsdom = require( 'jsdom' );
-
-/**
- * Internal dependencies
- */
+const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
 
 /**
@@ -150,7 +143,7 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
+							postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
 						},
 					},
 					'sass-loader',
@@ -253,6 +246,7 @@ module.exports = [
 					CSS: {
 						supports: () => false,
 					},
+					MessageChannel: null, // React <17.1 is broken on Node 16 if this is set. https://github.com/facebook/react/issues/20756#issuecomment-780927519
 				},
 			} ),
 			new RemoveAssetWebpackPlugin( {

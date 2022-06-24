@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
-use GP_Locales; // TODO: Migrate this to the package, or find an alternative.
+use GP_Locales;
 use Jetpack; // TODO: Remove this once migrated.
 
 /**
@@ -348,8 +348,8 @@ class Helper {
 			return false;
 		}
 
-		// WordPress search doesn't use nonces.
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- WordPress search doesn't use nonces.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- Sanitization happens at the end.
 		if ( empty( $_GET['post_type'] ) ) {
 			$post_types_from_query = array();
 		} elseif ( is_array( $_GET['post_type'] ) ) {
@@ -357,9 +357,9 @@ class Helper {
 		} else {
 			$post_types_from_query = (array) explode( ',', $_GET['post_type'] );
 		}
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 
-		$post_types_from_query = array_map( 'trim', $post_types_from_query );
+		$post_types_from_query = array_map( 'sanitize_key', $post_types_from_query );
 
 		$diff_query = self::array_diff( (array) $post_types, $post_types_from_query );
 
@@ -692,14 +692,9 @@ class Helper {
 	 * @return bool
 	 */
 	public static function is_valid_locale( $locale ) {
-		// TODO: Replace JETPACK__GLOTPRESS_LOCALES_PATH.
 		if ( ! class_exists( 'GP_Locales' ) ) {
-			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
-				require JETPACK__GLOTPRESS_LOCALES_PATH;
-			} else {
-				// Assume locale to be valid if we can't check with GlotPress.
-				return true;
-			}
+			// Assume locale to be valid if we can't check with GlotPress.
+			return true;
 		}
 		return false !== GP_Locales::by_field( 'wp_locale', $locale );
 	}
@@ -712,9 +707,9 @@ class Helper {
 	 * @return string $script_version Version number.
 	 */
 	public static function get_asset_version( $file ) {
-		return is_development_version() && file_exists( JETPACK_SEARCH_PKG__DIR . $file )
-			? filemtime( JETPACK_SEARCH_PKG__DIR . $file )
-			: JETPACK_SEARCH_PKG__VERSION;
+		return Package::is_development_version() && file_exists( Package::get_installed_path() . $file )
+			? filemtime( Package::get_installed_path() . $file )
+			: Package::VERSION;
 	}
 
 	/**
@@ -859,7 +854,7 @@ class Helper {
 			'homeUrl'               => home_url(),
 			'locale'                => str_replace( '_', '-', self::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
 			'postsPerPage'          => $posts_per_page,
-			'siteId'                => class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'get_option' ) ? Jetpack::get_option( 'id' ) : get_current_blog_id(),
+			'siteId'                => self::get_wpcom_site_id(),
 			'postTypes'             => $post_type_labels,
 			'webpackPublicPath'     => plugins_url( '/build/instant-search/', __DIR__ ),
 			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,

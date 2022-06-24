@@ -96,7 +96,7 @@ class Nonce_Handler {
 				$this->db->prepare( "SELECT 1 FROM `{$this->db->options}` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
 			);
 
-			if ( is_null( $old_nonce ) ) {
+			if ( $old_nonce === null ) {
 				$return = (bool) $this->db->query(
 					$this->db->prepare(
 						"INSERT INTO `{$this->db->options}` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",

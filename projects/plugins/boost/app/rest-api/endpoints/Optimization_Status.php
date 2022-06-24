@@ -30,7 +30,7 @@ class Optimization_Status implements Endpoint {
 		$success    = $state->update( (bool) $params['status'] );
 
 		return rest_ensure_response(
-			$success ? $new_status : ! $new_status
+			$success ? $new_status : $state->is_enabled()
 		);
 	}
 

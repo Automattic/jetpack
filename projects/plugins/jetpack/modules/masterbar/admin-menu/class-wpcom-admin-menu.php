@@ -30,6 +30,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
+		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
 	}
@@ -47,10 +48,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
-			$nudge = $this->get_upsell_nudge();
-			if ( $nudge ) {
-				parent::add_upsell_nudge( $nudge );
-			}
 			$this->add_new_site_link();
 		}
 
@@ -88,10 +85,22 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Retrieve the number of blogs that the current user has.
+	 *
+	 * @return int
+	 */
+	public function get_current_user_blog_count() {
+		if ( function_exists( '\get_blog_count_for_user' ) ) {
+			return \get_blog_count_for_user( get_current_user_id() );
+		}
+		return count( get_blogs_of_user( get_current_user_id() ) );
+	}
+
+	/**
 	 * Adds the site switcher link if user has more than one site.
 	 */
 	public function add_browse_sites_link() {
-		if ( count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) {
+		if ( $this->get_current_user_blog_count() < 2 ) {
 			return;
 		}
 
@@ -123,7 +132,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds a link to the menu to create a new site.
 	 */
 	public function add_new_site_link() {
-		if ( count( get_blogs_of_user( get_current_user_id() ) ) > 1 ) {
+		if ( $this->get_current_user_blog_count() > 1 ) {
 			return;
 		}
 
@@ -384,7 +393,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
 	 */
 	public function ajax_sidebar_state() {
-		$expanded    = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$expanded    = isset( $_REQUEST['expanded'] ) ? filter_var( wp_unslash( $_REQUEST['expanded'] ), FILTER_VALIDATE_BOOLEAN ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$user_id     = get_current_user_id();
 		$preferences = get_user_attribute( $user_id, 'calypso_preferences' );
 		if ( empty( $preferences ) ) {
@@ -410,7 +419,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function wp_ajax_jitm_dismiss() {
 		check_ajax_referer( 'jitm_dismiss' );
 		require_lib( 'jetpack-jitm/jitm-engine' );
-		JITM\Engine::dismiss( $_REQUEST['id'], $_REQUEST['feature_class'] );
+		if ( isset( $_REQUEST['id'] ) && isset( $_REQUEST['feature_class'] ) ) {
+			JITM\Engine::dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
+		}
 		wp_die();
 	}
 

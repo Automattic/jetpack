@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { RichText } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
 import getColorAndStyleProps from '../../color-props';
 
 export default {

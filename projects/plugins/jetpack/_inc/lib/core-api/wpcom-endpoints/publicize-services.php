@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Endpoint used to fetch information to connect to a Publicize service.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Publicize: List Publicize Services
@@ -23,6 +28,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	 */
 	public $wpcom_is_wpcom_only_endpoint = true;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/services';
@@ -49,6 +57,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	}
 
 	/**
+	 * Schema for the publicize services endpoint.
+	 *
 	 * @return array
 	 */
 	public function get_item_schema() {
@@ -81,7 +91,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	 *
 	 * @see Publicize::get_available_service_data()
 	 *
-	 * @param WP_REST_Request $request
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
 	public function get_items( $request ) {
@@ -113,8 +124,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 	/**
 	 * Filters out data based on ?_fields= request parameter
 	 *
-	 * @param array           $service
-	 * @param WP_REST_Request $request
+	 * @param array           $service UI service connection data for a specific Publicize service.
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
 	 * @return array filtered $service
 	 */
 	public function prepare_item_for_response( $service, $request ) {
@@ -161,5 +173,4 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 		);
 	}
 }
-
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Services' );

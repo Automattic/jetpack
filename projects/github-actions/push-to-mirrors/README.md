@@ -9,14 +9,14 @@ directory to multiple GitHub mirror repositories.
 name: Build
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   build:
     name: Build all projects
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build all projects
         id: build

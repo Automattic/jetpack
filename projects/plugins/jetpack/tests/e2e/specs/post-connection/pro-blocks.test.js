@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import {
 	BlockEditorPage,
 	MailchimpBlock,
@@ -47,7 +47,10 @@ test.describe( 'Paid blocks', () => {
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
 			const frontend = await PostFrontendPage.init( page );
-			expect( await frontend.isRenderedBlockPresent( MailchimpBlock ) ).toBeTruthy();
+			expect(
+				await frontend.isRenderedBlockPresent( MailchimpBlock ),
+				'Block should be displayed'
+			).toBeTruthy();
 		} );
 	} );
 
@@ -73,7 +76,10 @@ test.describe( 'Paid blocks', () => {
 				await blockEditor.publishPost();
 				await blockEditor.viewPost();
 				const frontend = await PostFrontendPage.init( page );
-				expect( await frontend.isRenderedBlockPresent( SimplePaymentBlock ) ).toBeTruthy();
+				expect(
+					await frontend.isRenderedBlockPresent( SimplePaymentBlock ),
+					'Block should be displayed'
+				).toBeTruthy();
 			}
 		);
 	} );
@@ -101,7 +107,10 @@ test.describe( 'Paid blocks', () => {
 			await blockEditor.viewPost();
 
 			const frontend = await PostFrontendPage.init( page );
-			expect( await frontend.isRenderedBlockPresent( WordAdsBlock ) ).toBeTruthy();
+			expect(
+				await frontend.isRenderedBlockPresent( WordAdsBlock ),
+				'Block should be displayed'
+			).toBeTruthy();
 		} );
 	} );
 } );

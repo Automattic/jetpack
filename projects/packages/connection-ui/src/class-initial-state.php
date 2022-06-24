@@ -45,8 +45,6 @@ class Initial_State {
 	 * @return string
 	 */
 	public function render() {
-		add_action( 'jetpack_use_iframe_authorization_flow', '__return_true' );
-
 		return 'var CUI_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->get_data() ) ) . '"));';
 	}
 

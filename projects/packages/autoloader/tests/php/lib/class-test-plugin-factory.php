@@ -150,6 +150,19 @@ class Test_Plugin_Factory {
 	}
 
 	/**
+	 * Calls `error_clear_last()` or emulates it.
+	 */
+	public static function error_clear_last() {
+		if ( is_callable( 'error_clear_last' ) ) {
+			// phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.error_clear_lastFound
+			error_clear_last();
+		} else {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+			@trigger_error( '', E_USER_NOTICE );
+		}
+	}
+
+	/**
 	 * Adds a file to the plugin being built.
 	 *
 	 * @param string $path    The path for the file in the plugin directory.
@@ -328,7 +341,7 @@ class Test_Plugin_Factory {
 			'autoload' => $this->autoloads,
 		);
 		if ( $this->is_using_local_package() ) {
-			$composer_config['require']      = array( 'automattic/jetpack-autoloader' => 'dev-master' );
+			$composer_config['require']      = array( 'automattic/jetpack-autoloader' => 'dev-trunk' );
 			$composer_config['repositories'] = array(
 				array(
 					'type'    => 'path',
@@ -400,8 +413,14 @@ class Test_Plugin_Factory {
 		// Download the selected version of Composer if we haven't already done so.
 		$composer_bin = TEST_TEMP_BIN_DIR . DIRECTORY_SEPARATOR . 'composer_' . str_replace( '.', '_', $selected ) . '.phar';
 		if ( ! file_exists( $composer_bin ) ) {
-			$data    = $composer_versions[ $selected ];
+			$data = $composer_versions[ $selected ];
+			self::error_clear_last();
 			$content = file_get_contents( $data['url'] );
+			if ( false === $content ) {
+				$err = error_get_last();
+				$err = $err ? $err['message'] : 'unknown error';
+				throw new \RuntimeException( "Failed to download {$data['url']}: $err" );
+			}
 			if ( hash( 'sha256', $content ) !== $data['sha256'] ) {
 				throw new \RuntimeException( 'The Composer file downloaded has a different SHA256 than expected.' );
 			}
@@ -430,7 +449,7 @@ class Test_Plugin_Factory {
 
 				$content = file_get_contents( $manifest );
 				// Use a sufficiently large version so that the local package will always be the latest autoloader.
-				$content = str_replace( 'dev-master', self::VERSION_CURRENT, $content );
+				$content = str_replace( 'dev-trunk', self::VERSION_CURRENT, $content );
 				file_put_contents( $manifest, $content );
 			}
 		}

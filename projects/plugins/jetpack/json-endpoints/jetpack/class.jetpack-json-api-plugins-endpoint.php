@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Functions;
@@ -8,52 +8,88 @@ use Automattic\Jetpack\Sync\Functions;
  */
 abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoint {
 
+	/**
+	 * Plugins.
+	 *
+	 * @var array
+	 */
 	protected $plugins = array();
 
+	/**
+	 * If the plugin is network wide.
+	 *
+	 * @var boolean
+	 */
 	protected $network_wide = false;
 
+	/**
+	 * If we're working in bulk.
+	 *
+	 * @var boolean
+	 */
 	protected $bulk = true;
+
+	/**
+	 * The log.
+	 *
+	 * @var array
+	 */
 	protected $log;
 
-	static $_response_format = array(
-		'id'              => '(safehtml)  The plugin\'s ID',
-		'slug'            => '(safehtml)  The plugin\'s .org slug',
-		'active'          => '(boolean) The plugin status.',
-		'update'          => '(object)  The plugin update info.',
-		'name'            => '(safehtml)  The name of the plugin.',
-		'plugin_url'      => '(url)  Link to the plugin\'s web site.',
-		'version'         => '(safehtml)  The plugin version number.',
-		'description'     => '(safehtml)  Description of what the plugin does and/or notes from the author',
-		'author'          => '(safehtml)  The author\'s name',
-		'author_url'      => '(url)  The authors web site address',
-		'network'         => '(boolean) Whether the plugin can only be activated network wide.',
-		'autoupdate'      => '(boolean) Whether the plugin is automatically updated',
+	/**
+	 * Response format.
+	 *
+	 * @var array
+	 */
+	public static $_response_format = array( // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+		'id'                     => '(safehtml)  The plugin\'s ID',
+		'slug'                   => '(safehtml)  The plugin\'s .org slug',
+		'active'                 => '(boolean) The plugin status.',
+		'update'                 => '(object)  The plugin update info.',
+		'name'                   => '(safehtml)  The name of the plugin.',
+		'plugin_url'             => '(url)  Link to the plugin\'s web site.',
+		'version'                => '(safehtml)  The plugin version number.',
+		'description'            => '(safehtml)  Description of what the plugin does and/or notes from the author',
+		'author'                 => '(safehtml)  The author\'s name',
+		'author_url'             => '(url)  The authors web site address',
+		'network'                => '(boolean) Whether the plugin can only be activated network wide.',
+		'autoupdate'             => '(boolean) Whether the plugin is automatically updated',
 		'autoupdate_translation' => '(boolean) Whether the plugin is automatically updating translations',
-		'next_autoupdate' => '(string) Y-m-d H:i:s for next scheduled update event',
-		'log'             => '(array:safehtml) An array of update log strings.',
-		'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
-		'action_links'    => '(array) An array of action links that the plugin uses.',
+		'next_autoupdate'        => '(string) Y-m-d H:i:s for next scheduled update event',
+		'log'                    => '(array:safehtml) An array of update log strings.',
+		'uninstallable'          => '(boolean) Whether the plugin is unistallable.',
+		'action_links'           => '(array) An array of action links that the plugin uses.',
 	);
 
-	static $_response_format_v1_2 = array(
-		'slug'            => '(safehtml) The plugin\'s .org slug',
-		'active'          => '(boolean) The plugin status.',
-		'update'          => '(object) The plugin update info.',
-		'name'            => '(safehtml) The plugin\'s ID',
-		'display_name'    => '(safehtml) The name of the plugin.',
-		'version'         => '(safehtml) The plugin version number.',
-		'description'     => '(safehtml) Description of what the plugin does and/or notes from the author',
-		'author'          => '(safehtml) The author\'s name',
-		'author_url'      => '(url) The authors web site address',
-		'plugin_url'      => '(url) Link to the plugin\'s web site.',
-		'network'         => '(boolean) Whether the plugin can only be activated network wide.',
-		'autoupdate'      => '(boolean) Whether the plugin is automatically updated',
+	/**
+	 * Response format v1_2
+	 *
+	 * @var array
+	 */
+	public static $_response_format_v1_2 = array( // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+		'slug'                   => '(safehtml) The plugin\'s .org slug',
+		'active'                 => '(boolean) The plugin status.',
+		'update'                 => '(object) The plugin update info.',
+		'name'                   => '(safehtml) The plugin\'s ID',
+		'display_name'           => '(safehtml) The name of the plugin.',
+		'version'                => '(safehtml) The plugin version number.',
+		'description'            => '(safehtml) Description of what the plugin does and/or notes from the author',
+		'author'                 => '(safehtml) The author\'s name',
+		'author_url'             => '(url) The authors web site address',
+		'plugin_url'             => '(url) Link to the plugin\'s web site.',
+		'network'                => '(boolean) Whether the plugin can only be activated network wide.',
+		'autoupdate'             => '(boolean) Whether the plugin is automatically updated',
 		'autoupdate_translation' => '(boolean) Whether the plugin is automatically updating translations',
-		'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
-		'action_links'    => '(array) An array of action links that the plugin uses.',
-		'log'             => '(array:safehtml) An array of update log strings.',
+		'uninstallable'          => '(boolean) Whether the plugin is unistallable.',
+		'action_links'           => '(array) An array of action links that the plugin uses.',
+		'log'                    => '(array:safehtml) An array of update log strings.',
 	);
 
+	/**
+	 * The result.
+	 *
+	 * @return array
+	 */
 	protected function result() {
 
 		$plugins = $this->get_plugins();
@@ -66,13 +102,22 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	}
 
+	/**
+	 * Validate the input.
+	 *
+	 * @param string $plugin - the plugin we're validating.
+	 *
+	 * @return bool|WP_Error
+	 */
 	protected function validate_input( $plugin ) {
 
-		if ( is_wp_error( $error = parent::validate_input( $plugin ) ) ) {
+		$error = parent::validate_input( $plugin );
+		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
 
-		if ( is_wp_error( $error = $this->validate_network_wide() ) ) {
+		$error = $this->validate_network_wide();
+		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
 
@@ -89,31 +134,33 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				$this->plugins[] = $args['plugins'];
 			}
 		} else {
-			$this->bulk = false;
+			$this->bulk      = false;
 			$this->plugins[] = urldecode( $plugin );
 		}
 
-		if ( is_wp_error( $error = $this->validate_plugins() ) ) {
+		$error = $this->validate_plugins();
+		if ( is_wp_error( $error ) ) {
 			return $error;
-		};
+		}
 
 		return true;
 	}
 
 	/**
 	 * Walks through submitted plugins to make sure they are valid
+	 *
 	 * @return bool|WP_Error
 	 */
 	protected function validate_plugins() {
 		if ( empty( $this->plugins ) || ! is_array( $this->plugins ) ) {
-			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ));
+			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ) );
 		}
-		foreach( $this->plugins as $index => $plugin ) {
-			if ( ! preg_match( "/\.php$/", $plugin ) ) {
-				$plugin =  $plugin . '.php';
+		foreach ( $this->plugins as $index => $plugin ) {
+			if ( ! preg_match( '/\.php$/', $plugin ) ) {
+				$plugin                  = $plugin . '.php';
 				$this->plugins[ $index ] = $plugin;
 			}
-			$valid = $this->validate_plugin( urldecode( $plugin ) ) ;
+			$valid = $this->validate_plugin( urldecode( $plugin ) );
 			if ( is_wp_error( $valid ) ) {
 				return $valid;
 			}
@@ -122,12 +169,20 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return true;
 	}
 
+	/**
+	 * Format the plugin.
+	 *
+	 * @param string $plugin_file - the plugin file.
+	 * @param array  $plugin_data - the plugin data.
+	 *
+	 * @return array
+	 */
 	protected function format_plugin( $plugin_file, $plugin_data ) {
 		if ( version_compare( $this->min_version, '1.2', '>=' ) ) {
 			return $this->format_plugin_v1_2( $plugin_file, $plugin_data );
 		}
-		$plugin = array();
-		$plugin['id']              = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+		$plugin                    = array();
+		$plugin['id']              = preg_replace( '/(.+)\.php$/', '$1', $plugin_file );
 		$plugin['slug']            = Jetpack_Autoupdate::get_plugin_slug( $plugin_file );
 		$plugin['active']          = Jetpack::is_plugin_active( $plugin_file );
 		$plugin['name']            = $plugin_data['Name'];
@@ -138,8 +193,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['author_url']      = $plugin_data['AuthorURI'];
 		$plugin['network']         = $plugin_data['Network'];
 		$plugin['update']          = $this->get_plugin_updates( $plugin_file );
-		$plugin['next_autoupdate'] = date( 'Y-m-d H:i:s', wp_next_scheduled( 'wp_maybe_auto_update' ) );
-		$action_link = $this->get_plugin_action_links( $plugin_file );
+		$plugin['next_autoupdate'] = gmdate( 'Y-m-d H:i:s', wp_next_scheduled( 'wp_maybe_auto_update' ) );
+		$action_link               = $this->get_plugin_action_links( $plugin_file );
 		if ( ! empty( $action_link ) ) {
 			$plugin['action_links'] = $action_link;
 		}
@@ -151,35 +206,43 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$autoupdate           = ( new WP_Automatic_Updater() )->should_update( 'plugin', (object) $plugin, WP_PLUGIN_DIR );
 		$plugin['autoupdate'] = $autoupdate;
 
-		$autoupdate_translation = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
+		$autoupdate_translation           = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ), true );
 		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
 
-		$plugin['uninstallable']   = is_uninstallable_plugin( $plugin_file );
+		$plugin['uninstallable'] = is_uninstallable_plugin( $plugin_file );
 
 		if ( is_multisite() ) {
 			$plugin['network_active'] = is_plugin_active_for_network( $plugin_file );
 		}
 
-		if ( ! empty ( $this->log[ $plugin_file ] ) ) {
+		if ( ! empty( $this->log[ $plugin_file ] ) ) {
 			$plugin['log'] = $this->log[ $plugin_file ];
 		}
 		return $plugin;
 	}
 
+	/**
+	 * Format the plugin for v1_2.
+	 *
+	 * @param string $plugin_file - the plugin file.
+	 * @param array  $plugin_data - the plugin data.
+	 *
+	 * @return array
+	 */
 	protected function format_plugin_v1_2( $plugin_file, $plugin_data ) {
-		$plugin = array();
-		$plugin['slug']            = Jetpack_Autoupdate::get_plugin_slug( $plugin_file );
-		$plugin['active']          = Jetpack::is_plugin_active( $plugin_file );
-		$plugin['name']            = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
-		$plugin['display_name']	   = $plugin_data['Name'];
-		$plugin['plugin_url']      = $plugin_data['PluginURI'];
-		$plugin['version']         = $plugin_data['Version'];
-		$plugin['description']     = $plugin_data['Description'];
-		$plugin['author']          = $plugin_data['Author'];
-		$plugin['author_url']      = $plugin_data['AuthorURI'];
-		$plugin['network']         = $plugin_data['Network'];
-		$plugin['update']          = $this->get_plugin_updates( $plugin_file );
-		$action_link = $this->get_plugin_action_links( $plugin_file );
+		$plugin                 = array();
+		$plugin['slug']         = Jetpack_Autoupdate::get_plugin_slug( $plugin_file );
+		$plugin['active']       = Jetpack::is_plugin_active( $plugin_file );
+		$plugin['name']         = preg_replace( '/(.+)\.php$/', '$1', $plugin_file );
+		$plugin['display_name'] = $plugin_data['Name'];
+		$plugin['plugin_url']   = $plugin_data['PluginURI'];
+		$plugin['version']      = $plugin_data['Version'];
+		$plugin['description']  = $plugin_data['Description'];
+		$plugin['author']       = $plugin_data['Author'];
+		$plugin['author_url']   = $plugin_data['AuthorURI'];
+		$plugin['network']      = $plugin_data['Network'];
+		$plugin['update']       = $this->get_plugin_updates( $plugin_file );
+		$action_link            = $this->get_plugin_action_links( $plugin_file );
 		if ( ! empty( $action_link ) ) {
 			$plugin['action_links'] = $action_link;
 		}
@@ -191,37 +254,47 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$autoupdate           = ( new WP_Automatic_Updater() )->should_update( 'plugin', (object) $plugin, WP_PLUGIN_DIR );
 		$plugin['autoupdate'] = $autoupdate;
 
-		$autoupdate_translation = $this->plugin_has_translations_autoupdates_enabled( $plugin_file );
+		$autoupdate_translation           = $this->plugin_has_translations_autoupdates_enabled( $plugin_file );
 		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
-		$plugin['uninstallable']   = is_uninstallable_plugin( $plugin_file );
+		$plugin['uninstallable']          = is_uninstallable_plugin( $plugin_file );
 
 		if ( is_multisite() ) {
 			$plugin['network_active'] = is_plugin_active_for_network( $plugin_file );
 		}
 
-		if ( ! empty ( $this->log[ $plugin_file ] ) ) {
+		if ( ! empty( $this->log[ $plugin_file ] ) ) {
 			$plugin['log'] = $this->log[ $plugin_file ];
 		}
 
 		return $plugin;
 	}
 
+	/**
+	 * Check if plugin has autoupdates for translations enabled.
+	 *
+	 * @param string $plugin_file - the plugin file.
+	 *
+	 * @return bool
+	 */
 	protected function plugin_has_translations_autoupdates_enabled( $plugin_file ) {
-		return (bool) in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
+		return (bool) in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ), true );
 	}
 
+	/**
+	 * Get file mod capabilities.
+	 */
 	protected function get_file_mod_capabilities() {
-		$reasons_can_not_autoupdate = array();
+		$reasons_can_not_autoupdate   = array();
 		$reasons_can_not_modify_files = array();
 
 		$has_file_system_write_access = Functions::file_system_write_access();
 		if ( ! $has_file_system_write_access ) {
-			$reasons_can_not_modify_files['has_no_file_system_write_access'] =  __( 'The file permissions on this host prevent editing files.', 'jetpack' );
+			$reasons_can_not_modify_files['has_no_file_system_write_access'] = __( 'The file permissions on this host prevent editing files.', 'jetpack' );
 		}
 
-		$disallow_file_mods = Constants::get_constant('DISALLOW_FILE_MODS' );
+		$disallow_file_mods = Constants::get_constant( 'DISALLOW_FILE_MODS' );
 		if ( $disallow_file_mods ) {
-			$reasons_can_not_modify_files['disallow_file_mods'] =  __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack' );
+			$reasons_can_not_modify_files['disallow_file_mods'] = __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack' );
 		}
 
 		$automatic_updater_disabled = Constants::get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
@@ -232,16 +305,16 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		if ( is_multisite() ) {
 			// is it the main network ? is really is multi network
 			if ( Jetpack::is_multi_network() ) {
-				$reasons_can_not_modify_files['is_multi_network'] =  __( 'Multi network install are not supported.', 'jetpack' );
+				$reasons_can_not_modify_files['is_multi_network'] = __( 'Multi network install are not supported.', 'jetpack' );
 			}
 			// Is the site the main site here.
 			if ( ! is_main_site() ) {
-				$reasons_can_not_modify_files['is_sub_site'] =  __( 'The site is not the main network site', 'jetpack' );
+				$reasons_can_not_modify_files['is_sub_site'] = __( 'The site is not the main network site', 'jetpack' );
 			}
 		}
 
 		$file_mod_capabilities = array(
-			'modify_files' => (bool) empty( $reasons_can_not_modify_files ), // install, remove, update
+			'modify_files'     => (bool) empty( $reasons_can_not_modify_files ), // install, remove, update
 			'autoupdate_files' => (bool) empty( $reasons_can_not_modify_files ) && empty( $reasons_can_not_autoupdate ), // enable autoupdates
 		);
 
@@ -255,6 +328,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return $file_mod_capabilities;
 	}
 
+	/**
+	 * Get plugins.
+	 *
+	 * @return array
+	 */
 	protected function get_plugins() {
 		$plugins = array();
 		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
@@ -299,6 +377,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return $plugins;
 	}
 
+	/**
+	 * Validate network wide.
+	 *
+	 * @return bool|WP_Error
+	 */
 	protected function validate_network_wide() {
 		$args = $this->input();
 
@@ -318,25 +401,39 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return true;
 	}
 
-
+	/**
+	 * Validate the plugin.
+	 *
+	 * @param string $plugin - the plugin we're validating.
+	 *
+	 * @return bool|WP_Error
+	 */
 	protected function validate_plugin( $plugin ) {
-		if ( ! isset( $plugin) || empty( $plugin ) ) {
+		if ( ! isset( $plugin ) || empty( $plugin ) ) {
 			return new WP_Error( 'missing_plugin', __( 'You are required to specify a plugin to activate.', 'jetpack' ), 400 );
 		}
 
-		if ( is_wp_error( $error = validate_plugin( $plugin ) ) ) {
-			return new WP_Error( 'unknown_plugin', $error->get_error_messages() , 404 );
+		$error = validate_plugin( $plugin );
+		if ( is_wp_error( $error ) ) {
+			return new WP_Error( 'unknown_plugin', $error->get_error_messages(), 404 );
 		}
 
 		return true;
 	}
 
+	/**
+	 * Get plugin updates.
+	 *
+	 * @param string $plugin_file - the plugin file.
+	 *
+	 * @return object|null
+	 */
 	protected function get_plugin_updates( $plugin_file ) {
 		$plugin_updates = get_plugin_updates();
 		if ( isset( $plugin_updates[ $plugin_file ] ) ) {
-			$update = $plugin_updates[ $plugin_file ]->update;
+			$update         = $plugin_updates[ $plugin_file ]->update;
 			$cleaned_update = array();
-			foreach( (array) $update as $update_key => $update_value ) {
+			foreach ( (array) $update as $update_key => $update_value ) {
 				switch ( $update_key ) {
 					case 'id':
 					case 'slug':
@@ -356,6 +453,13 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return null;
 	}
 
+	/**
+	 * Get plugin action links.
+	 *
+	 * @param string $plugin_file - the plugin file.
+	 *
+	 * @return array
+	 */
 	protected function get_plugin_action_links( $plugin_file ) {
 		return Functions::get_plugins_action_links( $plugin_file );
 	}

@@ -24,7 +24,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_constructor() {
-		$librarian = new Jetpack_Sitemap_Librarian();
+		$librarian = new Jetpack_Sitemap_Librarian(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertTrue( true );
 	}
 
@@ -37,7 +37,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	public function test_sitemap_librarian_get_unset_row_is_null() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$row       = $librarian->read_sitemap_data( 'unset', 'unset' );
-		$this->assertTrue( is_null( $row ) );
+		$this->assertTrue( $row === null );
 	}
 
 	/**
@@ -148,9 +148,9 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$librarian->delete_numbered_sitemap_rows_after( 0, 'type' );
 
 		// It's gone!
-		$this->assertTrue( is_null( $librarian->read_sitemap_data( 'name-1', 'type' ) ) );
-		$this->assertTrue( is_null( $librarian->read_sitemap_data( 'name-2', 'type' ) ) );
-		$this->assertTrue( is_null( $librarian->read_sitemap_data( 'name-3', 'type' ) ) );
+		$this->assertTrue( $librarian->read_sitemap_data( 'name-1', 'type' ) === null );
+		$this->assertTrue( $librarian->read_sitemap_data( 'name-2', 'type' ) === null );
+		$this->assertTrue( $librarian->read_sitemap_data( 'name-3', 'type' ) === null );
 	}
 
 }

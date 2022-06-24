@@ -46,7 +46,7 @@ class Partner {
 	 * @since 1.0.0
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Partner();
 			add_filter( 'jetpack_build_authorize_url', array( self::$instance, 'add_subsidiary_id_as_query_arg' ) );
 			add_filter( 'jetpack_build_authorize_url', array( self::$instance, 'add_affiliate_code_as_query_arg' ) );

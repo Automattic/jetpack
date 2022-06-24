@@ -1,88 +1,64 @@
-## 10.7
+## Jetpack 10.11
 
-### Before you start
+### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
-- Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
+- Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### My Jetpack
+### Jetpack connection sharing
 
-This release contains the first iteration of My Jetpack, the new dashboard for managing standalone Jetpack plugins on the site. There's a lot to test here!
+We improved how Jetpack shares the connection with Jetpack standalone plugins. To test this, try the following:
 
-For Jetpack, start on a free plan and go to Dashboard > Jetpack > My Dashboard. From there:
+- Connect Jetpack.
+- Activate a secondary plugin like Boost and/or Backup.
+- Go to Plugins.
+- Confirm the link to deactivate Jetpack says only "Deactivate" (and not 'Disconnect and Deactivate').
+- Click Deactivate.
+- Confirm the dialog shows information about the active features you have and no mention to other plugins.
+- Reconnect Jetpack and try disabling standalone plugins.
+- Make sure disconnecting from the Jetpack Dashboard still works.
 
-- Check the various links
-- Attempt to activate features and install additional standalone plugins.
-- Check styling on desktop and mobile.
-- Make sure Conntion links work.
+### Lazy load
+
+We added Lazy Load option to the Instagram Latest Post block and improved support for Lazy Load on block based themes
+
+You can test this out with the Latest Instagram Posts Block:
+
+- Add a Latest Instagram Posts block to a test post
+- Place a large spacer block above the Instagram one to test the lazy load aspect.
+- Inspect the HTML of the block images to see that they contain the lazy attribute.
+- If you inspect the network tab in the browser tools, the images should load in lazily on page scroll.
+
+For the block based themes:
+
+- Make sure you are using a block based theme such as Twenty-Twenty Two
+- Create a post with a core gallery block, and insert a few images. You can add a spacer block above this block with say 1000px spacing to force the images far enough off the browser viewport.
+- Inspect the page elements, and make sure the post content image elements contain the Jetpack lazy load metadata like the `jetpack-lazy-image` class.
+
+### Publicize
+
+We've made multiple under-the-hood changes to the Publicize feature to prepare for the first release of the Jetpack Social plugin. The feature should continue to work just like before for Jetpack plugin users. Please try to use the Publicize feature to share posts to Twitter, Facebook, et al., and try using Publicize's Twitter Thread feature as well.
+
+### Sharing
+
+We've made some changes to the Email Sharing button in this release. It now fully relies on the email client or service you use on your computer, instead of trying to send out emails from your server. To test the changes, try the following:
+
+1. Go to Jetpack > Settings > Sharing and ensure that the sharing buttons are active.
+2. Go to Settings > Sharing and add an email sharing button to your site.
+3. Visit one of your posts, and try clicking the button.
+
+Let us know if you run into any issues!
 
 
-### Color, Spacing, and Alignment Options for Various Blocks
+### VideoPress
 
-Color, spacing, and alignment options were added for the following blocks:
+We added support for automatic seekbar color.
 
-- Form 
-- Mailchimp
-- Podcast Player
-- Related Posts
-
-Color and spacing options were added for:
-
-- Business Hours
-
-Alignment options were also added to:
-
-- Repeat Visitor blocks
-
-We can check and make sure those new features work as expected by adding them to posts and block widget areas and playing around with color, spacing and alignment.
-
-### At-a-glance Partner Coupon Redemption CTA
-
-We've introduced a new CTA to redeem a coupon that may have been provided by a partner at the top of the At-a-glance page.
-
-- Make sure Jetpack is activated but not connected.
-- Visit `/wp-admin/?jetpack-partner-coupon=PARTNER_COUPON_CODE` to store a partner coupon code. Please reach out to team Avalon to get a coupon code.
-- Confirm you are redirected to `/wp-admin/admin.php?page=jetpack&showCouponRedemption=1#/` which matches screenshot 1 below.
-- For every step, make sure that the Redeem button redirects you to checkout with your partner coupon applied. The "Set up & redeem" buttons should first connect you and then redirect you to checkout instead.
-- Establish a site connection by bailing out of the connection flow before approving the connection to your account.
-- Go to Jetpack Dashboard and confirm it matches screenshot 2 below.
-- Establish a user connection.
-- Go to Jetpack Dashboard and confirm it matches screenshot 3 below.
-- Go to Jetpack Dashboard, add `&showCouponRedemption=1` to your URL and confirm it matches screenshot 4 below.
-
-Screenshot 1) No connection with and without showCouponRedemption=1:
-![Screen Shot 2022-01-20 at 19 28 40](https://user-images.githubusercontent.com/22746396/150391173-39ae5381-a9ce-4fb4-ae70-954a3d28266e.png)
-
-Screenshot 2) Site connection with and without showCouponRedemption=1:
-![Screen Shot 2022-01-20 at 19 29 41](https://user-images.githubusercontent.com/22746396/150391194-e9ce9d7d-a93c-4a4e-9e26-e631c0406517.png)
-
-Screenshot 3) User connection without showCouponRedemption=1:
-![Screen Shot 2022-02-08 at 21 43 14](https://user-images.githubusercontent.com/22746396/153063496-80f4423d-d9d3-456c-a19e-c2c3bb108163.png)
-
-Screenshot 4) User connection and showCouponRedemption=1:
-![Screen Shot 2022-02-08 at 21 43 41](https://user-images.githubusercontent.com/22746396/153063516-8d121e0a-0fb1-4a71-b296-5339965393f7.png)
-
-### At-a-glance Partner Coupon Redemption Backup Banner
-
-We've introduced a new callout to redeem a coupon that may have been provided by a partner replacing the Backup upgrade banner.
-
-- Make sure Jetpack is activated and connected, has Jetpack Free as its plan, and has no other products.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 1 below.
-- Visit `/wp-admin/?jetpack-partner-coupon=PARTNER_COUPON_CODE` to store a partner coupon code. Please reach out to team Avalon to get a coupon code.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 2 below. Clicking on the Redeem button should redirect you to checkout with your partner coupon applied.
-- Purchase a product to your test site that provides backups.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 3 below.
-
-Screenshot 1) No backup product, no partner coupon:
-
-![Screen Shot 2022-02-01 at 19 08 35](https://user-images.githubusercontent.com/22746396/152016113-1da5365c-3f54-40c9-b079-47e97767bd40.png)
-
-Screenshot 2) No backup product, partner coupon available:
-
-![Screen Shot 2022-02-01 at 19 03 52](https://user-images.githubusercontent.com/22746396/152016107-bf474b8b-2970-44f5-b11a-b5f997bb613c.png)
-
-Screenshot 3) Backup product active, partner coupon status is irrelevant:
-
-![Screen Shot 2022-02-01 at 18 57 18](https://user-images.githubusercontent.com/22746396/152016100-6fe4a8f5-4ac4-482e-9501-8ed7f216f592.png)
+- Enable VideoPress on your site 
+- In your media library, add a VideoPress video and, when uploaded,copy the GUID.
+- Create a new postand add a shortcode block `[wpvideo <replace with your guid> useAverageColor=true]`
+- Play the video. The seekbar should change its color automatically during video playback.
+- Edit the shortcode and set the `useAverageColor` to `false`
+- Save and play video. The seekbar should not change its color anymore.
 
 **Thank you for all your help!**

@@ -1,13 +1,12 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import restApi from '@automattic/jetpack-api';
-
-/**
- * Internal dependencies
- */
-import { getSiteAdminUrl } from 'state/initial-state';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
+import {
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_VIDEOPRESS,
+	PLAN_JETPACK_ANTI_SPAM,
+} from 'lib/plans/constants';
+import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
 
@@ -41,6 +40,22 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=cdn',
 			};
+		case 'publicize':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Social Media Sharing', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: getRedirectUrl( 'calypso-marketing-connections', {
+					site: getSiteRawUrl( state ),
+				} ),
+			};
+		case 'videopress':
+			return {
+				configureButtonLabel: __( 'How To', 'jetpack' ),
+				displayName: __( 'VideoPress', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
+			};
 		case 'woocommerce':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -50,6 +65,25 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		default:
 			throw `Unknown feature slug in mapStateToSummaryFeatureProps() recommendations/feature-utils.js: ${ featureSlug }`;
+	}
+};
+
+export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
+	switch ( resourceSlug ) {
+		case 'security-plan':
+			return {
+				displayName: __( 'Site Security', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+			};
+		case 'anti-spam':
+			return {
+				displayName: __( 'Spam Management', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+			};
+		default:
+			throw `Unknown resource slug in mapStateToSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
 	}
 };
 
@@ -90,6 +124,18 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 					);
 				},
 			};
+		case 'publicize':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { publicize: true } ) );
+				},
+			};
+		case 'videopress':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { videopress: true } ) );
+				},
+			};
 		case 'woocommerce':
 			return {
 				activateFeature: () => {
@@ -116,7 +162,7 @@ export const getStepContent = stepSlug => {
 				descriptionLink:
 					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
 				ctaText: __( 'Install Creative Mail', 'jetpack' ),
-				illustrationPath: '/recommendations/creative-mail-illustration.svg',
+				illustration: 'assistant-creative-mail',
 			};
 		case 'monitor':
 			return {
@@ -131,7 +177,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/monitor/',
 				ctaText: __( 'Enable Downtime Monitoring', 'jetpack' ),
-				illustrationPath: '/recommendations/monitor-illustration.svg',
+				illustration: 'assistant-downtime-monitoring',
 			};
 		case 'related-posts':
 			return {
@@ -146,7 +192,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/related-posts/',
 				ctaText: __( 'Enable Related Posts', 'jetpack' ),
-				illustrationPath: '/recommendations/related-posts-illustration.jpg',
+				illustration: 'assistant-related-post',
 			};
 		case 'site-accelerator':
 			return {
@@ -158,7 +204,62 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/site-accelerator/',
 				ctaText: __( 'Enable Site Accelerator', 'jetpack' ),
-				illustrationPath: '/recommendations/site-accelerator-illustration.svg',
+				illustration: 'assistant-site-accelerator',
+			};
+		case 'publicize':
+			return {
+				question: __(
+					'Automatically share your posts to social media to grow your audience.',
+					'jetpack'
+				),
+				description: __(
+					'It’s easy to share your content to a wider audience by connecting your social media accounts to Jetpack. When you publish a post, it will automatically appear on all your favorite platforms. Best of all, it’s free. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: getRedirectUrl( 'jetpack-blog-social-sharing' ),
+				ctaText: __( 'Enable Social Media Sharing', 'jetpack' ),
+			};
+		case 'security-plan':
+			return {
+				question: __( 'With more plugins comes more responsibility.', 'jetpack' ),
+				description: __(
+					'As you add plugins to your site, you have to start thinking about vulnerabilities, failed updates, and incompatible plugins. You should ensure that the plugins you install:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Have good user ratings', 'jetpack' ),
+					__( 'Are compatible with the most recent version of WordPress', 'jetpack' ),
+					__( 'Are developed by teams that respond to support requests promptly', 'jetpack' ),
+				],
+				descriptionSecondary: __(
+					'Or let Jetpack handle your security and backups so you can focus on your business.',
+					'jetpack'
+				),
+				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+			};
+		case 'anti-spam':
+			return {
+				question: __( 'It’s time to block spam comments.', 'jetpack' ),
+				description: __(
+					'Congratulations! Your content is getting traction and receiving comments. The more popular your content is, the more likely it is you will be a target for spam comments. To ensure a great experience for your readers, we recommend manually moderating spam or using an automated product like Jetpack Anti-spam.',
+					'jetpack'
+				),
+				ctaText: __( 'Learn how to block spam', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+			};
+		case 'videopress':
+			return {
+				question: __(
+					'Share videos on your site to increase engagement and purchases.',
+					'jetpack'
+				),
+				description: __(
+					'No matter your business, adding videos to your site is essential for success. Jetpack VideoPress offers HD, ad-free video hosting, so you can keep the focus on your content. Try it for free or upgrade for more space. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: getRedirectUrl( 'jetpack-videopress' ),
+				ctaText: __( 'Try VideoPress for free', 'jetpack' ),
 			};
 		case 'woocommerce':
 			return {
@@ -170,9 +271,76 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
-				illustrationPath: '/recommendations/woocommerce-illustration.jpg',
 			};
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;
 	}
+};
+
+// Gets data for the product suggestion card that can show on a recommendation step.
+export const getProductCardData = ( state, productSlug ) => {
+	const siteRawUrl = getSiteRawUrl( state );
+	const products = getStaticProductsForPurchase( state );
+
+	switch ( productSlug ) {
+		// Security Plan
+		case PLAN_JETPACK_SECURITY_T1_YEARLY:
+			return {
+				productCardTitle: __( 'Increase your site security!', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get Jetpack Security', 'jetpack' ),
+				productCardList: products.security ? products.security.features : [],
+				productCardIcon: '/recommendations/cloud-icon.svg',
+			};
+		case PLAN_JETPACK_ANTI_SPAM:
+			return {
+				productCardTitle: __( 'Block spam automatically with Jetpack Anti-spam', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get Anti-spam', 'jetpack' ),
+				productCardList: products.akismet ? products.akismet.features : [],
+				productCardIcon: '/recommendations/bug-icon.svg',
+			};
+		case PLAN_JETPACK_VIDEOPRESS:
+			return {
+				productCardTitle: __( 'Upgrade for more videos and storage', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get VideoPress', 'jetpack' ),
+				productCardList: products.videopress ? products.videopress.features : [],
+				productCardIcon: '/recommendations/video-icon.svg',
+			};
+		default:
+			throw `Unknown product slug for getProductCardData: ${ productSlug }`;
+	}
+};
+
+// Sets step-specific props for when products are shown on different recommendation steps
+// Important that this be called after getProductCardData when setting up props
+export const getProductCardDataStepOverrides = ( state, productSlug, stepSlug ) => {
+	switch ( productSlug ) {
+		case PLAN_JETPACK_SECURITY_T1_YEARLY:
+			if ( stepSlug === 'publicize' ) {
+				return {
+					productCardTitle: __( 'Your site is growing. It’s time for a security plan.', 'jetpack' ),
+				};
+			} else if ( stepSlug === 'security-plan' ) {
+				return {
+					productCardTitle: __(
+						'Jetpack Security gives you complete site protection and backups.',
+						'jetpack'
+					),
+				};
+			}
+			break;
+	}
+
+	return {};
 };

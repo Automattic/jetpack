@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { createHigherOrderComponent } from '@wordpress/compose';
 import { TextControl, Disabled } from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
-
-/**
- * Internal dependencies
- */
-import JetpackFieldLabel from './jetpack-field-label';
+import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from './jetpack-field-controls';
+import JetpackFieldLabel from './jetpack-field-label';
 
 export default function JetpackField( props ) {
 	const { id, type, required, label, setAttributes, placeholder, width } = props;

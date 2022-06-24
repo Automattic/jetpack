@@ -135,7 +135,7 @@ class Client {
 		}
 
 		// Kind of annoying.  Maybe refactor Jetpack_Signature to handle body-hashing.
-		if ( is_null( $body ) ) {
+		if ( $body === null ) {
 			$body_hash = '';
 
 		} else {

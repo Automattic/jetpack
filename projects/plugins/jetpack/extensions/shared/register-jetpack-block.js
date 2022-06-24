@@ -1,17 +1,11 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
-import { addFilter } from '@wordpress/hooks';
-import { registerBlockType } from '@wordpress/blocks';
 import {
 	getJetpackExtensionAvailability,
 	withHasWarningIsInteractiveClassNames,
+	requiresPaidPlan,
 } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
+import { registerBlockType } from '@wordpress/blocks';
+import { addFilter } from '@wordpress/hooks';
+import { __, _x } from '@wordpress/i18n';
 import extensionList from '../index.json';
 
 const availableBlockTags = {
@@ -20,20 +14,6 @@ const availableBlockTags = {
 };
 
 const betaExtensions = extensionList.beta || [];
-
-/**
- * Checks whether the block requires a paid plan or not.
- *
- * @param {string} unavailableReason - The reason why block is unavailable
- * @param {object} details - The block details
- * @returns {string|boolean} Either false if the block doesn't require a paid plan, or the actual plan name it requires.
- */
-export function requiresPaidPlan( unavailableReason, details ) {
-	if ( unavailableReason === 'missing_plan' ) {
-		return details.required_plan;
-	}
-	return false;
-}
 
 /**
  * Builds an array of tags associated with this block, such as ["paid", "beta"].

@@ -1,11 +1,8 @@
-/**
- * External dependencies
- */
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { installAndActivatePlugin, activatePlugin } from './../../../shared/plugin-management';
 import { get } from 'lodash';
+import { installAndActivatePlugin, activatePlugin } from './../../../shared/plugin-management';
 
 const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-plugin';
 const pluginSlug = 'creative-mail-by-constant-contact';
@@ -37,7 +34,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 	isInstalling,
 } ) => {
 	return (
-		<p>
+		<p className="jetpack-contact-form__integration-panel">
 			<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
 				{ __(
 					'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
@@ -57,7 +54,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 
 const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalling } ) => {
 	return (
-		<p>
+		<p className="jetpack-contact-form__integration-panel">
 			<em>
 				{ __(
 					'To start sending email campaigns, activate the Creative Mail plugin for WordPress.',

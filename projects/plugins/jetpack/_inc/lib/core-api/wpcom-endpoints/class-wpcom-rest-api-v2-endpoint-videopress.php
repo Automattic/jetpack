@@ -31,7 +31,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			$this->rest_base . '/meta',
 			array(
 				'args'                => array(
-					'id'             => array(
+					'id'              => array(
 						'description'       => __( 'The post id for the attachment.', 'jetpack' ),
 						'type'              => 'int',
 						'required'          => true,
@@ -39,35 +39,43 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 							return is_numeric( $param );
 						},
 					),
-					'title'          => array(
+					'title'           => array(
 						'description'       => __( 'The title of the video.', 'jetpack' ),
 						'type'              => 'string',
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'description'    => array(
+					'description'     => array(
 						'description'       => __( 'The description of the video.', 'jetpack' ),
 						'type'              => 'string',
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'rating'         => array(
+					'rating'          => array(
 						'description'       => __( 'The video content rating. One of G, PG-13 or R-17', 'jetpack' ),
 						'type'              => 'string',
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'display_embed'  => array(
+					'display_embed'   => array(
 						'description'       => __( 'Display the share menu in the player.', 'jetpack' ),
 						'type'              => 'boolean',
 						'required'          => false,
 						'sanitize_callback' => 'rest_sanitize_boolean',
 					),
-					'allow_download' => array(
+					'allow_download'  => array(
 						'description'       => __( 'Display download option and allow viewers to download this video', 'jetpack' ),
 						'type'              => 'boolean',
 						'required'          => false,
 						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
+					'privacy_setting' => array(
+						'description'       => __( 'How to determine if the video should be public or private', 'jetpack' ),
+						'type'              => 'int',
+						'required'          => false,
+						'validate_callback' => function ( $param ) {
+							return is_numeric( $param );
+						},
 					),
 				),
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -160,6 +168,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					if ( ! isset( $meta['videopress']['allow_download'] ) || $meta['videopress']['allow_download'] !== $allow_download ) {
 						$meta['videopress']['allow_download'] = $allow_download;
 						$should_update_meta                   = true;
+					}
+				}
+
+				if ( isset( $json_params['privacy_setting'] ) ) {
+					$privacy_setting = $json_params['privacy_setting'];
+					if ( ! isset( $meta['videopress']['privacy_setting'] ) || $meta['videopress']['privacy_setting'] !== $privacy_setting ) {
+						$meta['videopress']['privacy_setting'] = $privacy_setting;
+						$should_update_meta                    = true;
 					}
 				}
 

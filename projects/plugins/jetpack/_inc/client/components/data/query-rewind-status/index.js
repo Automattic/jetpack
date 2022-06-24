@@ -1,28 +1,18 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
-import { fetchRewindStatus, isFetchingRewindStatus } from 'state/rewind';
-import { getSitePlan } from 'state/site';
 import { isOfflineMode } from 'state/connection';
+import { fetchRewindStatus, isFetchingRewindStatus } from 'state/rewind';
 
 class QueryRewindStatus extends Component {
 	static propTypes = {
 		isFetchingRewindStatus: PropTypes.bool,
 		isOfflineMode: PropTypes.bool,
-		sitePlan: PropTypes.object,
 	};
 
 	static defaultProps = {
 		isFetchingRewindStatus: false,
 		isOfflineMode: false,
-		sitePlan: {},
 	};
 
 	UNSAFE_componentWillMount() {
@@ -41,7 +31,6 @@ export default connect(
 		return {
 			isFetchingRewindStatus: isFetchingRewindStatus( state ),
 			isOfflineMode: isOfflineMode( state ),
-			sitePlan: getSitePlan( state ),
 		};
 	},
 	dispatch => {

@@ -33,6 +33,10 @@ export default class RecommendationsPage extends WpPage {
 		return 'a[href*="recommendations/monitor"] >> text="Continue"';
 	}
 
+	get skipProductSuggestionsButtonSel() {
+		return 'a[href*="recommendations/monitor"] >> text="Decide later"';
+	}
+
 	get enableMonitoringButtonSel() {
 		return 'a[href*="recommendations/related-posts"] >> text="Enable Downtime Monitoring"';
 	}
@@ -118,6 +122,14 @@ export default class RecommendationsPage extends WpPage {
 
 	async saveSiteTypeAndContinue() {
 		return await this.click( this.saveSiteTypeButtonSel );
+	}
+
+	async isSkipProductSuggestionsButtonVisible() {
+		return await this.isElementVisible( this.skipProductSuggestionsButtonSel );
+	}
+
+	async skipProductSuggestionsAndContinue() {
+		return await this.click( this.skipProductSuggestionsButtonSel );
 	}
 
 	async isEnableMonitoringButtonVisible() {

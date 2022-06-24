@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from 'lib/constants';
 
 /**
@@ -56,8 +45,13 @@ export default function Tabs( { enabledSidebarName, enableSidebar } ) {
  * @returns {Element} component instance
  */
 function Tab( { enableSidebar, identifier, label, isActive } ) {
-	// translators: %s: sidebar label e.g: "Options".
-	const ariaLabel = isActive ? sprintf( __( '%s (selected)', 'jetpack-search-pkg' ), label ) : label;
+	const ariaLabel = isActive
+		? sprintf(
+				// translators: %s: sidebar label e.g: "Options".
+				__( '%s (selected)', 'jetpack-search-pkg' ),
+				label
+		  )
+		: label;
 	return (
 		<Button
 			// eslint-disable-next-line react/jsx-no-bind

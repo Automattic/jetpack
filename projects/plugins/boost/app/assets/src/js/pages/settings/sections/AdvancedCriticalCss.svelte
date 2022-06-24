@@ -1,14 +1,9 @@
 <script>
-	/**
-	 * External dependencies
-	 */
 	import { slide } from 'svelte/transition';
-
-	/**
-	 * Internal dependencies
-	 */
-	import LeftArrow from '../../../svg/left-arrow.svg';
-	import { navigateTo } from '../../../stores/url-fragment';
+	import { __, _n, sprintf } from '@wordpress/i18n';
+	import BackButton from '../../../elements/BackButton.svelte';
+	import CloseButton from '../../../elements/CloseButton.svelte';
+	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import {
 		dismissRecommendation,
 		activeRecommendations,
@@ -17,21 +12,17 @@
 		dismissalError,
 		setDismissalError,
 	} from '../../../stores/critical-css-recommendations.ts';
+	import { isFinished } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
-	import CloseButton from '../../../elements/CloseButton.svelte';
-	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
+	import routerHistory from '../../../utils/router-history';
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
-	import { isFinished } from '../../../stores/critical-css-status';
 
-	/**
-	 * WordPress dependencies
-	 */
-	import { __, _n, sprintf } from '@wordpress/i18n';
+	const { navigate } = routerHistory;
 
 	function onRetry() {
 		generateCriticalCss();
-		navigateTo();
+		navigate( -1 );
 	}
 
 	/**
@@ -75,15 +66,12 @@
 	 * Automatically navigate back to main Settings page if generator isn't done.
 	 */
 	$: if ( ! $isFinished ) {
-		navigateTo();
+		navigate( -1 );
 	}
 </script>
 
 <div class="jb-container--narrow jb-critical-css__advanced">
-	<button class="components-button is-link close" on:click={() => navigateTo()}>
-		<LeftArrow />
-		{__( 'Go back', 'jetpack-boost' )}
-	</button>
+	<BackButton />
 
 	<h3>
 		{__( 'Critical CSS advanced recommendations', 'jetpack-boost' )}

@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import ConnectScreenVisual from './visual';
+import PropTypes from 'prop-types';
+import React from 'react';
 import useConnection from '../../use-connection';
+import ConnectScreenVisual from './visual';
 
 /**
  * The Connection Screen component.
@@ -31,6 +24,7 @@ const ConnectScreen = props => {
 		assetBaseUrl,
 		autoTrigger,
 		footer,
+		skipUserConnection,
 	} = props;
 
 	const {
@@ -47,6 +41,7 @@ const ConnectScreen = props => {
 		apiNonce,
 		autoTrigger,
 		from,
+		skipUserConnection,
 	} );
 
 	const showConnectButton = ! isRegistered || ! isUserConnected;
@@ -91,6 +86,8 @@ ConnectScreen.propTypes = {
 	images: PropTypes.arrayOf( PropTypes.string ),
 	/** The assets base URL. */
 	assetBaseUrl: PropTypes.string,
+	/** Whether to not require a user connection and just redirect after site connection. */
+	skipUserConnection: PropTypes.bool,
 };
 
 ConnectScreen.defaultProps = {
@@ -99,6 +96,7 @@ ConnectScreen.defaultProps = {
 	images: [],
 	redirectUri: null,
 	autoTrigger: false,
+	skipUserConnection: false,
 };
 
 export default ConnectScreen;

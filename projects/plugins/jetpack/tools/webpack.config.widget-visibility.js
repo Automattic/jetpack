@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-
-/**
- * Internal dependencies
- */
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
 
 module.exports = {
@@ -64,7 +57,7 @@ module.exports = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
+							postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
 						},
 					},
 					'sass-loader',

@@ -1,13 +1,10 @@
-/**
- * WordPress dependencies
- */
 import { createContext } from '@wordpress/element';
 
 /**
  * @typedef { import('react').ReactElement } ReactElement
  * @typedef { import('./tab').Tab } Tab
  * @typedef { (isSelected: boolean) => void } Callback
- * @typedef { {selectedTab: Tab, stripeNudge: ?ReactElement } } TabbedInterface
+ * @typedef { {selectedTab: Tab } } TabbedInterface
  */
 
 /**
@@ -15,7 +12,6 @@ import { createContext } from '@wordpress/element';
  */
 const defaultContext = {
 	selectedTab: { id: '', className: '', label: <></> },
-	stripeNudge: null,
 };
 
 /**

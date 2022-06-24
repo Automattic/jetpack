@@ -2,16 +2,10 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-/**
- * Internal dependencies
- */
 import EditUrlForm from '../components/edit-url-form';
 
 describe( 'EditUrlForm', () => {
@@ -50,9 +44,10 @@ describe( 'EditUrlForm', () => {
 		expect( onSubmit ).toHaveBeenCalled();
 	} );
 
-	test( 'calls setUrl when updating input field', () => {
+	test( 'calls setUrl when updating input field', async () => {
+		const user = userEvent.setup();
 		render( <EditUrlForm { ...defaultProps } /> );
-		userEvent.type( screen.getByLabelText( 'Pinterest URL' ), 'blah' );
+		await user.type( screen.getByLabelText( 'Pinterest URL' ), 'blah' );
 
 		expect( setUrl ).toHaveBeenCalledTimes( 4 );
 	} );
