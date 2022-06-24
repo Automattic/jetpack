@@ -9,7 +9,8 @@ import {
 	BlockIcon,
 	MediaPlaceholder,
 } from '@wordpress/block-editor';
-import { ExternalLink, PanelBody, ToggleControl, Tooltip } from '@wordpress/components';
+import { SandBox, PanelBody, ToggleControl, Tooltip } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -17,7 +18,9 @@ import { __ } from '@wordpress/i18n';
  */
 import { VideoPressIcon as icon } from '../../../shared/icons';
 import { VideoPressBlockProvider } from '../components';
+import Loading from '../loading';
 import ResumableUpload from '../resumable-upload';
+import { getVideoPressUrl } from '../url';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
@@ -25,8 +28,28 @@ const ALLOWED_MEDIA_TYPES = [ 'video' ];
 const noop = () => {};
 
 export default function VideoPressEdit( { attributes, setAttributes } ) {
-	const { controls, src } = attributes;
+	const { controls, src, guid } = attributes;
+
+	/*
+	 * Store here the file uploaded by the user to the client
+	 * This file is going to be uploaded to the VideoPress infrastructure
+	 */
 	const [ fileForUpload, setFileForUpload ] = useState( null );
+
+	const videoPressUrl = getVideoPressUrl( guid, {
+		controls: true, // @todo: behave all video options here.
+	} );
+
+	// Check whether it's working on the video preview
+	const { preview, isRequestingEmbedPreview } = useSelect(
+		select => ( {
+			preview: select( 'core' ).getEmbedPreview( videoPressUrl ),
+			isRequestingEmbedPreview: select( 'core' ).isRequestingEmbedPreview( videoPressUrl ),
+		} ),
+		[ videoPressUrl ]
+	);
+
+	const { html, scripts } = preview ? preview : { html: null, scripts: null };
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-videopress',
@@ -46,6 +69,22 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		};
 	};
 
+	/**
+	 * Handler to add a video via an URL.
+	 * todo: finish the implementation
+	 *
+	 * @param {string} videoUrl - URL of the video to attach
+	 */
+	function onSelectURL( videoUrl ) {
+		setAttributes( { src: videoUrl } );
+	}
+
+	/**
+	 * Uploading file handler
+	 *
+	 * @param {File} media - meida file to upload
+	 * @returns {void}
+	 */
 	function onSelectVideo( media ) {
 		const fileUrl = media?.url;
 		if ( ! isBlobURL( fileUrl ) ) {
@@ -61,16 +100,21 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		setFileForUpload( file );
 	}
 
-	function onSelectURL( newSrc ) {
-		setAttributes( { src: newSrc } );
-	}
-
-	const uploadFinished = ( { mediaId, guid: videoGuid, src: videoSrc } ) => {
-		setFileForUpload( null );
+	/**
+	 * Handler to set block attributes
+	 * once the uploading to VideoPress infrastructure finishes
+	 *
+	 * @param {object} data         - ResumableUpload onSuccess callback data
+	 * @param {string} data.mediaId - Media ID of the uploaded media file
+	 * @param {string} data.guid    - Media GUID of the uploaded media file
+	 * @param {string} data.src     - Media SRC of the uploaded media file
+	 */
+	function videoPressUploadingFinished( { mediaId, guid: videoGuid, src: videoSrc } ) {
+		setFileForUpload( null ); // clean the state
 		if ( mediaId && videoGuid && videoSrc ) {
 			setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
 		}
-	};
+	}
 
 	const blockSettings = (
 		<>
@@ -94,14 +138,19 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		return (
 			<>
 				{ blockSettings }
-				<VideoPressBlockProvider onUploadFinished={ uploadFinished }>
+				<VideoPressBlockProvider onUploadFinished={ videoPressUploadingFinished }>
 					<ResumableUpload file={ fileForUpload } />
 				</VideoPressBlockProvider>
 			</>
 		);
 	}
 
-	if ( ! src ) {
+	/*
+	 * 1 - Initial block state
+	 *     Show MediaPlaceholder when no src attrbitute,
+	 *     but also when there is not a file to upload to VideoPress
+	 */
+	if ( ! src && ! fileForUpload ) {
 		return (
 			<>
 				{ blockSettings }
@@ -123,12 +172,20 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		);
 	}
 
-	return (
-		<div { ...blockProps }>
-			{ __( 'VideoPress', 'jetpack' ) }
-			<div>
-				<ExternalLink href={ src }>source</ExternalLink>
-			</div>
-		</div>
-	);
+	// 2 - Uploading file to VideoPress infrastructure
+	if ( fileForUpload ) {
+		return (
+			<VideoPressBlockProvider onUploadFinished={ videoPressUploadingFinished }>
+				<ResumableUpload file={ fileForUpload } />
+			</VideoPressBlockProvider>
+		);
+	}
+
+	// 3 - Generating video preview
+	if ( isRequestingEmbedPreview || ! preview ) {
+		return <Loading text={ __( 'Generating preview…', 'jetpack' ) } />;
+	}
+
+	// X - Show VideoPress player
+	return <SandBox html={ html } scripts={ scripts } />;
 }
