@@ -144,7 +144,7 @@ class Initializer {
 				'purchases'             => array(
 					'items' => array(),
 				),
-				'redirectUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
+				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
