@@ -118,6 +118,9 @@ class Search extends Hybrid_Product {
 
 		$record_count   = intval( Search_Stats::estimate_count() );
 		$search_pricing = static::get_pricing_from_wpcom( $record_count );
+		$search_pricing = static::get_pricing_from_wpcom( $record_count );
+		$search_pricing = static::get_pricing_from_wpcom( $record_count );
+		$search_pricing = static::get_pricing_from_wpcom( $record_count );
 
 		if ( is_wp_error( $search_pricing ) ) {
 			return $pricing;
@@ -145,10 +148,10 @@ class Search extends Hybrid_Product {
 	 * @return array|WP_Error
 	 */
 	public static function get_pricing_from_wpcom( $record_count ) {
-		static $pricing = null;
+		static $pricings = array();
 
-		if ( $pricing !== null ) {
-			return $pricing;
+		if ( isset( $pricings[ $record_count ] ) ) {
+			return $pricings[ $record_count ];
 		}
 
 		$response = wp_remote_get(
@@ -160,9 +163,9 @@ class Search extends Hybrid_Product {
 			return new WP_Error( 'search_pricing_fetch_failed' );
 		}
 
-		$body    = wp_remote_retrieve_body( $response );
-		$pricing = json_decode( $body, true );
-		return $pricing;
+		$body                      = wp_remote_retrieve_body( $response );
+		$pricings[ $record_count ] = json_decode( $body, true );
+		return $pricings[ $record_count ];
 	}
 
 	/**
