@@ -1577,13 +1577,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "276061d56a9b4dbeecbdcf0c9672abc34751acd7"
+                "reference": "ae097952ada5d1b2314aa80a9186c8c0a9a9b2ab"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-config": "^1.9",
                 "automattic/jetpack-connection": "^1.41",
                 "automattic/jetpack-constants": "^1.6",
+                "automattic/jetpack-my-jetpack": "^1.7",
                 "automattic/jetpack-status": "^1.14"
             },
             "require-dev": {
