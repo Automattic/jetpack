@@ -9,19 +9,22 @@ import {
 	BlockIcon,
 	MediaPlaceholder,
 } from '@wordpress/block-editor';
-import { SandBox, PanelBody, ToggleControl, Tooltip } from '@wordpress/components';
+import { Button, PanelBody, ToggleControl, Tooltip } from '@wordpress/components';
+import { usePrevious } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import { VideoPressIcon as icon } from '../../../shared/icons';
-import { VideoPressBlockProvider } from '../components';
+import { VpBlock } from '../edit';
 import Loading from '../loading';
-import ResumableUpload from '../resumable-upload';
+// import { getJWT, useResumableUploader } from '../resumable-upload/use-uploader';
 import { getVideoPressUrl } from '../url';
+import { useResumableUploader } from './hooks/use-uploader.js';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
@@ -30,6 +33,7 @@ const noop = () => {};
 
 export default function VideoPressEdit( { attributes, setAttributes } ) {
 	const { controls, src, guid } = attributes;
+	const prevMediaSrc = usePrevious( src );
 
 	/*
 	 * Store here the file uploaded by the user to the client
@@ -41,16 +45,47 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		controls: true, // @todo: behave all video options here.
 	} );
 
-	// Check whether it's working on the video preview
-	const { preview, isRequestingEmbedPreview } = useSelect(
-		select => ( {
-			preview: select( coreStore ).getEmbedPreview( videoPressUrl ),
-			isRequestingEmbedPreview: select( coreStore ).isRequestingEmbedPreview( videoPressUrl ),
-		} ),
-		[ videoPressUrl ]
+	// Uploading file to backend states.
+	const [ uploadingProgress, setUploadingProgress ] = useState( [] );
+	const isUploadingFile = !! (
+		uploadingProgress?.length && uploadingProgress[ 0 ] !== uploadingProgress[ 1 ]
+	);
+	const fileHasBeenUploaded = !! (
+		uploadingProgress?.length && uploadingProgress[ 0 ] === uploadingProgress[ 1 ]
 	);
 
+	// Get video preview status
+	const { preview, isRequestingEmbedPreview } = useSelect(
+		select => {
+			return {
+				preview: select( coreStore ).getEmbedPreview( videoPressUrl ),
+				isRequestingEmbedPreview: select( coreStore ).isRequestingEmbedPreview( videoPressUrl ),
+			};
+		},
+		[ videoPressUrl ]
+	);
 	const { html, scripts } = preview ? preview : { html: null, scripts: null };
+
+	// Helper to invalidate the preview cache.
+	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
+	const invalidateCachedEmbedPreview = useCallback( () => {
+		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+	}, [ videoPressUrl, invalidateResolution ] );
+
+	/*
+	 * Due to a current bug in Gutenberg (https://github.com/WordPress/gutenberg/issues/16831),
+	 * the `SandBox` component is not rendered again when the injected `html` prop changes.
+	 * To work around that, we invalidate the cached preview of the embed VideoPress player
+	 * in order to force the rendering of a new instance of the `SandBox` component
+	 * that ensures the injected `html` will be rendered.
+	 */
+	useEffect( () => {
+		if ( ! src || src === prevMediaSrc ) {
+			return;
+		}
+
+		invalidateCachedEmbedPreview();
+	}, [ src, prevMediaSrc, invalidateCachedEmbedPreview ] );
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-videopress',
@@ -70,6 +105,12 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		};
 	};
 
+	// Helper instance to upload the video to the VideoPress infrastructure.
+	const [ videoPressUploader ] = useResumableUploader( {
+		onProgress: ( progress, total ) => setUploadingProgress( [ progress, total ] ),
+		onSuccess: setAttributes,
+	} );
+
 	/**
 	 * Handler to add a video via an URL.
 	 * todo: finish the implementation
@@ -81,9 +122,9 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	}
 
 	/**
-	 * Uploading file handler
+	 * Uploading file handler.
 	 *
-	 * @param {File} media - meida file to upload
+	 * @param {File} media - media file to upload
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
@@ -98,23 +139,10 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 			return;
 		}
 
-		setFileForUpload( file );
-	}
+		setUploadingProgress( [ 0, file.size ] );
 
-	/**
-	 * Handler to set block attributes
-	 * once the uploading to VideoPress infrastructure finishes
-	 *
-	 * @param {object} data         - ResumableUpload onSuccess callback data
-	 * @param {string} data.mediaId - Media ID of the uploaded media file
-	 * @param {string} data.guid    - Media GUID of the uploaded media file
-	 * @param {string} data.src     - Media SRC of the uploaded media file
-	 */
-	function videoPressUploadingFinished( { mediaId, guid: videoGuid, src: videoSrc } ) {
-		setFileForUpload( null ); // clean the state
-		if ( mediaId && videoGuid && videoSrc ) {
-			setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
-		}
+		// Upload file to VideoPress infrastructure.
+		videoPressUploader( file );
 	}
 
 	const blockSettings = (
@@ -135,58 +163,108 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		</>
 	);
 
-	if ( fileForUpload ) {
+	/*
+	 * 1 - Initial block state. Show MediaPlaceholder when:
+	 *     - no src attribute,
+	 *     - no in-progress uploading file to the backend
+	 *     - no file recently uploaded to the backend
+	 */
+	if ( ! src && ! isUploadingFile && ! fileHasBeenUploaded ) {
 		return (
-			<>
-				{ blockSettings }
-				<VideoPressBlockProvider onUploadFinished={ videoPressUploadingFinished }>
-					<ResumableUpload file={ fileForUpload } />
-				</VideoPressBlockProvider>
-			</>
+			<div { ...blockProps }>
+				<MediaPlaceholder
+					icon={ <BlockIcon icon={ icon } /> }
+					labels={ {
+						title: __( 'VideoPress', 'jetpack' ),
+					} }
+					onSelect={ onSelectVideo }
+					onSelectURL={ onSelectURL }
+					accept="video/*"
+					allowedTypes={ ALLOWED_MEDIA_TYPES }
+					value={ attributes }
+					onError={ noop }
+				/>
+			</div>
 		);
 	}
 
-	/*
-	 * 1 - Initial block state
-	 *     Show MediaPlaceholder when no src attrbitute,
-	 *     but also when there is not a file to upload to VideoPress
-	 */
-	if ( ! src && ! fileForUpload ) {
+	// 2 - Uploading file to backend
+	if ( isUploadingFile ) {
 		return (
 			<>
 				{ blockSettings }
 				<div { ...blockProps }>
-					<MediaPlaceholder
-						icon={ <BlockIcon icon={ icon } /> }
-						labels={ {
-							title: __( 'VideoPress', 'jetpack' ),
-						} }
-						onSelect={ onSelectVideo }
-						onSelectURL={ onSelectURL }
-						accept="video/*"
-						allowedTypes={ ALLOWED_MEDIA_TYPES }
-						value={ attributes }
-						onError={ noop }
-					/>
+					<Loading text={ __( '(2) Uploading file to backend…', 'jetpack' ) } />;
 				</div>
 			</>
 		);
 	}
 
-	// 2 - Uploading file to VideoPress infrastructure
-	if ( fileForUpload ) {
+	// 3 - Uploading file to VideoPress infrastructure
+	if ( fileHasBeenUploaded && ! isRequestingEmbedPreview && ! videoPressUrl ) {
 		return (
-			<VideoPressBlockProvider onUploadFinished={ videoPressUploadingFinished }>
-				<ResumableUpload file={ fileForUpload } />
-			</VideoPressBlockProvider>
+			<>
+				{ blockSettings }
+				<div { ...blockProps }>
+					<Loading text={ __( '(3) Uploading file to VideoPress…', 'jetpack' ) } />;
+				</div>
+			</>
 		);
 	}
 
-	// 3 - Generating video preview
-	if ( isRequestingEmbedPreview || ! preview ) {
-		return <Loading text={ __( 'Generating preview…', 'jetpack' ) } />;
+	// 4 - Generating video preview
+	if ( isRequestingEmbedPreview && ! preview ) {
+		return (
+			<>
+				{ blockSettings }
+				<div { ...blockProps }>
+					<Loading text={ __( '(4) Generating preview…', 'jetpack' ) } />
+				</div>
+			</>
+		);
 	}
 
-	// X - Show VideoPress player
-	return <SandBox html={ html } scripts={ scripts } />;
+	// 5 - Generating video preview: exposing cache issue: @todo remove this once the bug is fixed.
+	if ( fileHasBeenUploaded && ! isRequestingEmbedPreview && ! preview ) {
+		return (
+			<>
+				{ blockSettings }
+				<div { ...blockProps }>
+					<p>
+						{ __( "The video is still being processed. It'll take a little bit more…", 'jetpack' ) }
+					</p>
+					<Button variant="secondary" onClick={ invalidateCachedEmbedPreview }>
+						Clear Cache
+					</Button>
+				</div>
+			</>
+		);
+	}
+
+	// 6 - Generating video preview. Happens when component mounts.
+	if ( ! preview ) {
+		return (
+			<>
+				{ blockSettings }
+				<div { ...blockProps }>
+					<Loading text={ __( '(6) Generating preview…', 'jetpack' ) } />
+				</div>
+			</>
+		);
+	}
+
+	// X - Show VideoPress player. @todo: finish
+	return (
+		<>
+			{ blockSettings }
+			<VpBlock
+				html={ html }
+				scripts={ scripts }
+				interactive={ true }
+				hideOverlay={ false }
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+			/>
+		</>
+	);
 }
