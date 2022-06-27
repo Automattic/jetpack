@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove focus outline on navigation for headers

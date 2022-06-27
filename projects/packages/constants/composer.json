@@ -43,7 +43,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-constants/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.6.x-dev"
+			"dev-trunk": "1.6.x-dev"
 		}
 	}
 }

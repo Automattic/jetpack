@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-boost",
-	"version": "1.4.3-alpha",
+	"version": "1.5.1-alpha",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
@@ -24,7 +24,7 @@
 		"@rollup/plugin-json": "4.1.0",
 		"@rollup/plugin-node-resolve": "13.3.0",
 		"@rollup/plugin-replace": "4.0.0",
-		"@rollup/plugin-typescript": "8.3.2",
+		"@rollup/plugin-typescript": "8.3.3",
 		"@types/jquery": "3.5.14",
 		"@wordpress/i18n": "4.10.0",
 		"concurrently": "6.0.2",

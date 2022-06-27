@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
 
@@ -251,7 +251,7 @@ jobs:
 
   ### Runs phpcs-changed on PHP files listed in phpcs-excludelist.json.
   # Local equivalent: `composer phpcs:changed -- --git-base=<base> <files...>`
-  # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
+  # `<base>` is the branch this PR is to be merged into, probably `origin/trunk`.
   #
   # Pre-commit, you might also `git add` the relevant files and run `composer phpcs:changed`
   phpcs_changed:
@@ -310,7 +310,7 @@ jobs:
 
   ### Runs eslint-changed on JS files listed in eslint-excludelist.json.
   # Local equivalent: `pnpm run lint-changed --git-base=<base>`
-  # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
+  # `<base>` is the branch this PR is to be merged into, probably `origin/trunk`.
   #
   # Pre-commit, you might also `git add` the relevant files and run `pnpm run lint-changed`
   eslint_changed:
@@ -395,7 +395,7 @@ jobs:
         run: tools/js-tools/check-excludelist-diff.js
 
   ### Checks that changelogger change files are being created.
-  # Local equivalent: Probably `tools/check-changelogger-use.php origin/master HEAD`
+  # Local equivalent: Probably `tools/check-changelogger-use.php origin/trunk HEAD`
   changelogger_used:
     name: Changelogger use
     runs-on: ubuntu-latest

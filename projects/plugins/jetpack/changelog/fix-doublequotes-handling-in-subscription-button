@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscribe Block: fix double-quote breaking the Subscribe block button

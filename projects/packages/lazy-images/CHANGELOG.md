@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.18] - 2022-06-21
+### Changed
+- Disable core lazy loading implementation for images that get lazy loaded by Jetpack
+- Renaming master to trunk.
+- Updated package dependencies.
+
 ## [2.1.17] - 2022-06-14
 
 ## [2.1.16] - 2022-06-08
@@ -231,6 +237,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.1.18]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.17...v2.1.18
 [2.1.17]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.16...v2.1.17
 [2.1.16]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.15...v2.1.16
 [2.1.15]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.14...v2.1.15

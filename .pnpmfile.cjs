@@ -11,13 +11,11 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Why do they not publish new versions from their monorepo?
+	// Way too many dependencies, some of them vulnerable, that we don't need for the one piece of this that we actually use.
 	if ( pkg.name === '@automattic/components' ) {
-		// 1.0.0-alpha.3 published 2020-11-11.
-		if ( ! pkg.dependencies[ '@wordpress/base-styles' ] ) {
-			// Depends on this but doesn't specify it.
-			pkg.dependencies[ '@wordpress/base-styles' ] = '^4.0.4';
-		}
+		delete pkg.dependencies[ '@automattic/data-stores' ];
+		delete pkg.dependencies[ 'i18n-calypso' ];
+		delete pkg.dependencies[ 'wpcom-proxy-request' ];
 	}
 
 	// Depends on punycode but doesn't declare it.
@@ -105,12 +103,6 @@ function fixDeps( pkg ) {
 		pkg.dependencies.trim = '^0.0.3';
 	}
 
-	// Avoid broken version of rememo. Looks like 4.0.0 doesn't actually change the API, so this should work.
-	// https://github.com/aduth/rememo/issues/8
-	if ( pkg.dependencies.rememo === '^4.0.0' ) {
-		pkg.dependencies.rememo = '^3.0.0 || ^4.0.1';
-	}
-
 	// Cheerio 1.0.0-rc.11 breaks enzyme 3.11.0.
 	// No bug link, we're planning on dropping enzyme soonish anyway.
 	if ( pkg.name === 'enzyme' && pkg.dependencies.cheerio === '^1.0.0-rc.3' ) {
@@ -167,8 +159,29 @@ function readPackage( pkg, context ) {
 	return pkg;
 }
 
+/**
+ * Pnpm lockfile hook.
+ *
+ * @see https://pnpm.io/pnpmfile#hooksafterallresolvedlockfile-context-lockfile--promiselockfile
+ * @param {object} lockfile - Lockfile data.
+ * @returns {object} Modified lockfile.
+ */
+function afterAllResolved( lockfile ) {
+	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
+		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
+		// https://github.com/pnpm/pnpm/issues/3935
+		if ( k.startsWith( '/webpack/' ) && ! v.dependencies[ 'webpack-cli' ] ) {
+			throw new Error(
+				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report."
+			);
+		}
+	}
+	return lockfile;
+}
+
 module.exports = {
 	hooks: {
 		readPackage,
+		afterAllResolved,
 	},
 };

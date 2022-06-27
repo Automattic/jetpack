@@ -12,7 +12,7 @@ This guide assumes you are using MacOS or a Linux machine and are an Automattici
 
 To speed up the installation process, you may use our monorepo installation script. To do so:
  - clone the Jetpack repo using one of these two methods: 
- 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
+ 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
 	- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
  - `cd` into the cloned `jetpack` folder.
  - run `tools/install-monorepo.sh` from the monorepo root.
@@ -28,7 +28,7 @@ Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to mana
 The Jetpack Monorepo requires the following to be installed on your machine:
 
 - Start by cloning the GitHub repo using one of these two methods:
- 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
+ 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
 	- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
 	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
 - Bash (will need to be updated from default Mac version): `brew install bash`
@@ -39,7 +39,7 @@ The Jetpack Monorepo requires the following to be installed on your machine:
 - PHP (the language at the core of the WordPress ecosystem): `source .github/versions.sh && brew install php@$PHP_VERSION`
 - Composer (our PHP package manager): `brew install composer`
 - Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpm jetpack cli link`
-	- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md).
+	- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md).
 
 ## Running Jetpack locally
 
@@ -76,7 +76,7 @@ In order to test features that require a WordPress.com connection and other netw
 - Now, you can start your site with `jetpack docker jt-up`
 - Your site should be avalable at `https://custom-subdomain.jurassic.tube`
 
-Note: This is for Automattician use only. For other methods, check out [ngrok](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
+Note: This is for Automattician use only. For other methods, check out [ngrok](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
 
 ### Check if your environment is ready for Jetpack development
 

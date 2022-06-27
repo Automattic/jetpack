@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Microperformance: Use === null instead of is_null

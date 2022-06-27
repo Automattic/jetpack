@@ -2,9 +2,9 @@ name: "CodeQL Code Scanning Analysis"
 
 on:
   push:
-    branches: [ master ]
+    branches: [ trunk ]
   pull_request:
-    branches: [ master ]
+    branches: [ trunk ]
   schedule:
     - cron: '0 19 * * 0'
 concurrency:
