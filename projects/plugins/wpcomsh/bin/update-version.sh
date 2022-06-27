@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+
+# https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+set -euo pipefail
 
 # Enable nicer messaging for build status.
 BLUE_BOLD='\033[1;34m';
@@ -32,7 +35,10 @@ npm --no-git-tag-version version $VERSION || {
 }
 
 status "Bump version in other files"
-php bin/update-version.php
+php bin/update-version.php || {
+    error "Failed."
+    exit 1
+}
 
 status "Make sure the following changes have been made, then commit them and push them to a new PR."
 echo "- package.json: new version number"
