@@ -28,9 +28,6 @@ import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-// @Todo: replace with uploading implementation.
-const noop = () => {};
-
 export default function VideoPressEdit( { attributes, setAttributes } ) {
 	const { controls, src, guid } = attributes;
 	const prevMediaSrc = usePrevious( src );
@@ -101,6 +98,10 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	const [ videoPressUploader ] = useResumableUploader( {
+		onError: error => {
+			// eslint-disable-next-line no-console
+			console.error( error );
+		},
 		onProgress: ( progress, total ) => setUploadingProgress( [ progress, total ] ),
 		onSuccess: setAttributes,
 	} );
@@ -175,7 +176,10 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 				accept="video/*"
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 				value={ attributes }
-				onError={ noop }
+				onError={ error => {
+					// eslint-disable-next-line no-console
+					console.error( error );
+				} }
 			/>
 		);
 	}
