@@ -1,7 +1,8 @@
 /**
  * WordPress dependencies
  */
-import { useBlockProps } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import { PanelBody, ToggleControl, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -9,10 +10,51 @@ import { __ } from '@wordpress/i18n';
  */
 import './editor.scss';
 
-export default function VideoPressEdit() {
+export default function VideoPressEdit( props ) {
+	const { attributes, setAttributes } = props;
+
+	const { controls } = attributes;
+
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-videopress',
 	} );
 
-	return <div { ...blockProps }>{ __( 'VideoPress', 'jetpack' ) }</div>;
+	const renderControlLabelWithTooltip = ( label, tooltipText ) => {
+		return (
+			<Tooltip text={ tooltipText } position="top">
+				<span>{ label }</span>
+			</Tooltip>
+		);
+	};
+
+	const toggleAttribute = attribute => {
+		return newValue => {
+			setAttributes( { [ attribute ]: newValue } );
+		};
+	};
+
+	const blockSettings = (
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Video Settings', 'jetpack' ) }>
+					<ToggleControl
+						label={ renderControlLabelWithTooltip(
+							__( 'Playback Controls', 'jetpack' ),
+							/* translators: Tooltip describing the "controls" option for the VideoPress player */
+							__( 'Display the video playback controls', 'jetpack' )
+						) }
+						onChange={ toggleAttribute( 'controls' ) }
+						checked={ controls }
+					/>
+				</PanelBody>
+			</InspectorControls>
+		</>
+	);
+
+	return (
+		<>
+			{ blockSettings }
+			<div { ...blockProps }>{ __( 'VideoPress', 'jetpack' ) }</div>
+		</>
+	);
 }
