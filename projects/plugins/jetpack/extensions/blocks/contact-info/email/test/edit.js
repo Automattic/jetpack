@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
 import EmailEdit from '../edit';
+import '@testing-library/jest-dom';
 
 const setAttributes = jest.fn();
 
@@ -48,9 +47,10 @@ describe( 'Email', () => {
 		};
 		render( <EmailEdit { ...propsNotSelected } /> );
 
-		expect(
-			screen.getByRole( 'link', { name: 'test@example.com' } ).getAttribute( 'href' )
-		).toEqual( 'mailto:test@example.com' );
+		expect( screen.getByRole( 'link', { name: 'test@example.com' } ) ).toHaveAttribute(
+			'href',
+			'mailto:test@example.com'
+		);
 		expect( screen.getByText( 'email me at:' ) ).toBeInTheDocument();
 	} );
 
