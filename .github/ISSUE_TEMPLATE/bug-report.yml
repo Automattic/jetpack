@@ -81,6 +81,13 @@ body:
         - Some (< 50%)
         - Most (> 50%)
         - All
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Additional context
+
+        Please provide whatever additional information you have available to you. If not, please scroll to the bottom and submit the issue.
   - type: dropdown
     id: os
     attributes:
