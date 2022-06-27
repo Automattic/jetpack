@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
@@ -135,28 +136,33 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
-	 * Use centralized Search pricing API
+	 * Use centralized Search pricing API.
+	 *
+	 * The function is also used by the search package, as a result it could be called before site connection - i.e. blog token might not be available.
 	 *
 	 * @param int $record_count Record count to estimate pricing.
 	 *
 	 * @return array|WP_Error
 	 */
 	public static function get_pricing_from_wpcom( $record_count ) {
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
-			'2',
-			array( 'timeout' => 2 ),
-			null,
-			'wpcom'
+		static $pricings = array();
+
+		if ( isset( $pricings[ $record_count ] ) ) {
+			return $pricings[ $record_count ];
+		}
+
+		$response = wp_remote_get(
+			sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
+			array( 'timeout' => 2 )
 		);
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'search_pricing_fetch_failed' );
 		}
 
-		$body    = wp_remote_retrieve_body( $response );
-		$pricing = json_decode( $body, true );
-		return $pricing;
+		$body                      = wp_remote_retrieve_body( $response );
+		$pricings[ $record_count ] = json_decode( $body, true );
+		return $pricings[ $record_count ];
 	}
 
 	/**
