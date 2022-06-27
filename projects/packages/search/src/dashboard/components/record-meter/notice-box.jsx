@@ -10,6 +10,11 @@ const CLOSE_TO_LIMIT_PERCENT = 0.8;
 const DISMISSED_NOTICES = 'jetpack-search-dismissed-notices';
 
 const getNotices = ( tierMaximumRecords = null ) => {
+	const recordLimit =
+		typeof tierMaximumRecords === 'number'
+			? tierMaximumRecords.toLocaleString()
+			: tierMaximumRecords;
+
 	return {
 		1: {
 			id: 1,
@@ -22,25 +27,15 @@ const getNotices = ( tierMaximumRecords = null ) => {
 		},
 		2: {
 			id: 2,
-			header: __( 'Your content has not yet been indexed for Search', 'jetpack-search-pkg' ),
+			header: __( "We weren't able to locate any content for Search", 'jetpack-search-pkg' ),
 			message: __(
 				'If you have recently set up Search, please allow a little time for indexing to complete.',
 				'jetpack-search-pkg'
 			),
 		},
+
 		3: {
 			id: 3,
-			header: __(
-				"We weren't able to locate any content for Search to index",
-				'jetpack-search-pkg'
-			),
-			message: __(
-				"This can happen if you don't have any posts or pages yet.",
-				'jetpack-search-pkg'
-			),
-		},
-		4: {
-			id: 4,
 			header: __(
 				"You're close to the maximum records for this billing tier",
 				'jetpack-search-pkg'
@@ -52,7 +47,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 						"You won't be charged for the new tier until your next billing date.",
 					'jetpack-search-pkg'
 				),
-				tierMaximumRecords
+				recordLimit
 			),
 			link: {
 				text: __( 'Learn more', 'jetpack-search-pkg' ),
@@ -83,8 +78,8 @@ export function NoticeBox( props ) {
 
 	const DATA_NOT_VALID = '1',
 		HAS_NOT_BEEN_INDEXED = '2',
-		NO_INDEXABLE_ITEMS = '3',
-		CLOSE_TO_LIMIT = '4';
+		NO_INDEXABLE_ITEMS = '2',
+		CLOSE_TO_LIMIT = '3';
 
 	// check if data is valid
 	props.hasValidData === false &&

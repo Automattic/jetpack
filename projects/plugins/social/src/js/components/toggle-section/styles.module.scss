@@ -63,15 +63,4 @@
 	@media ( min-width: 600px ) {
 		grid-column: 2;
 	}
-
-	// Required because the Button component wraps all children in a span element.
-	span {
-		display: inline-flex;
-		align-items: center;
-		font-weight: 500;
-	}
-}
-
-.external-icon {
-	margin-left: calc( var( --spacing-base ) ); // 8px
 }

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { render, screen } from 'test/test-utils';
 import { buildInitialState, sitePurchases } from '../../prompts/product-suggestions/test/fixtures';
 import { ProductPurchased } from '../index';
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 
 describe( 'Recommendations – Product Purchased', () => {
 	const initialState = buildInitialState();

@@ -11,13 +11,11 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Why do they not publish new versions from their monorepo?
+	// Way too many dependencies, some of them vulnerable, that we don't need for the one piece of this that we actually use.
 	if ( pkg.name === '@automattic/components' ) {
-		// 1.0.0-alpha.3 published 2020-11-11.
-		if ( ! pkg.dependencies[ '@wordpress/base-styles' ] ) {
-			// Depends on this but doesn't specify it.
-			pkg.dependencies[ '@wordpress/base-styles' ] = '^4.0.4';
-		}
+		delete pkg.dependencies[ '@automattic/data-stores' ];
+		delete pkg.dependencies[ 'i18n-calypso' ];
+		delete pkg.dependencies[ 'wpcom-proxy-request' ];
 	}
 
 	// Depends on punycode but doesn't declare it.
@@ -72,15 +70,6 @@ function fixDeps( pkg ) {
 		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
-	}
-
-	// Need to match the version of jest used everywhere else.
-	if (
-		pkg.name === '@wordpress/jest-preset-default' &&
-		pkg.dependencies[ 'babel-jest' ] &&
-		pkg.dependencies[ 'babel-jest' ].startsWith( '^27' )
-	) {
-		pkg.dependencies[ 'babel-jest' ] = '^28';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
