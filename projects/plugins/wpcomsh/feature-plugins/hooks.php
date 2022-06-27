@@ -15,6 +15,14 @@
 function wpcomsh_map_feature_cap( $caps, $cap ) {
 
 	switch ( $cap ) {
+		case 'update_core':
+		case 'update_languages':
+			// Restrict access to Home > Updates on sites that can't manage plugins.
+			if ( ! wpcom_site_has_feature( WPCOM_Features::MANAGE_PLUGINS ) ) {
+				$caps[] = 'do_not_allow';
+			}
+			break;
+
 		case 'edit_themes':
 		case 'update_themes':
 		case 'delete_themes':
@@ -42,6 +50,7 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 
 		case 'activate_plugins':
 		case 'install_plugins':
+		case 'update_plugins':
 		case 'edit_plugins':
 			/*
 			 * Requests like /sites/207323956/plugins rely on the activate_plugins capability.
