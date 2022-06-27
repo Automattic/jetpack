@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { getVideoPressUrl } from '../url';
 
 export default function save( { attributes } ) {
-	const { align, autoplay, guid } = attributes;
+	const { align, autoplay, guid, controls } = attributes;
 
 	const blockProps = useBlockProps.save( {
 		className: classnames( 'jetpack-videopress', {
@@ -19,7 +19,7 @@ export default function save( { attributes } ) {
 
 	const url = getVideoPressUrl( guid, {
 		autoplay,
-		controls: true, // @todo: implement.
+		controls,
 	} );
 
 	return (
