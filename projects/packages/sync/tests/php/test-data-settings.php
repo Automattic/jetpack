@@ -200,15 +200,15 @@ class Test_Data_Settings extends BaseTestCase {
 			'first input uses custom filters, second uses defaults' => array(
 				Data_Test_Data_Settings::data_test_8(),
 			),
-			// 'first input uses defaults, second uses custom filters' => array(
-			// Data_Test_Data_Settings::data_test_9(),
-			// ),
-			// 'first input uses custom filters for must-sync module, second uses defaults' => array(
-			// Data_Test_Data_Settings::data_test_9_2(),
-			// ),
-			// 'both inputs use custom filters' => array(
-			// Data_Test_Data_Settings::data_test_10(),
-			// ),
+			'first input uses defaults, second uses custom filters' => array(
+				Data_Test_Data_Settings::data_test_9(),
+			),
+			'first input uses custom filters for must-sync module, second uses defaults' => array(
+				Data_Test_Data_Settings::data_test_9_2(),
+			),
+			'both inputs use custom filters' => array(
+				Data_Test_Data_Settings::data_test_10(),
+			),
 		);
 	}
 
