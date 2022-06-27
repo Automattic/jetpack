@@ -248,7 +248,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response[ $key ] = htmlspecialchars_decode( (string) $response[ $key ], ENT_QUOTES );
 					}
 					break;
-				case 'parent': /** (object|false) */
+				/** (object|false) */
+				case 'parent':
 					if ( $post->post_parent ) {
 						$parent = get_post( $post->post_parent );
 						if ( 'display' === $context ) {
@@ -345,7 +346,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response[ $key ] = 'standard';
 					}
 					break;
-				case 'geo': /** (object|false) */
+				/** (object|false) */
+				case 'geo':
 					if ( ! $geo ) {
 						$response[ $key ] = false;
 					} else {
@@ -439,7 +441,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					$response[ $key ] = (object) $response[ $key ];
 					break;
-				case 'metadata': /** (array|false) */
+				/** (array|false) */
+				case 'metadata':
 					$metadata = array();
 					foreach ( (array) has_meta( $post_id ) as $meta ) {
 						// Don't expose protected fields.
