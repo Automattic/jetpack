@@ -1,13 +1,32 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { useBlockProps } from '@wordpress/block-editor';
-import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+/**
+ * Internal dependencies
+ */
+import { getVideoPressUrl } from '../url';
 
-export default function save() {
+export default function save( { attributes } ) {
+	const { align, autoplay, guid } = attributes;
+
 	const blockProps = useBlockProps.save( {
-		className: 'jetpack-videopress',
+		className: classnames( 'jetpack-videopress', {
+			[ `align${ align }` ]: align,
+		} ),
 	} );
 
-	return <div { ...blockProps }>{ __( 'VideoPress', 'jetpack' ) }</div>;
+	const url = getVideoPressUrl( guid, {
+		autoplay,
+		controls: true, // @todo: implement.
+	} );
+
+	return (
+		<figure { ...blockProps }>
+			<div className="jetpack-videopress__wrapper">
+				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
+			</div>
+		</figure>
+	);
 }
