@@ -5,7 +5,7 @@ import { getProductsForPurchase } from 'state/initial-state';
 import { render, screen } from 'test/test-utils';
 import ProductDescription from '../index';
 import { buildInitialState } from './fixtures';
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 
 describe( 'Product Description', () => {
 	const initialState = buildInitialState();

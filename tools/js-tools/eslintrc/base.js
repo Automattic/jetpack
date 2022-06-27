@@ -29,7 +29,6 @@ module.exports = {
 	env: {
 		browser: true,
 		es6: true,
-		mocha: true,
 		node: true,
 		jquery: true,
 		jest: true,
@@ -79,8 +78,6 @@ module.exports = {
 		'no-shadow': 2,
 		'no-spaced-func': 2,
 		'no-trailing-spaces': 2,
-		// Allows Chai `expect` expressions
-		'no-unused-expressions': 0,
 		'no-var': 2,
 		'object-curly-spacing': [ 2, 'always' ],
 		'operator-linebreak': [
