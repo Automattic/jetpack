@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use testing-library instead of enzyme for tests. No change to the package itself.
+
+
