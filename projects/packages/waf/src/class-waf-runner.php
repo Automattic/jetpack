@@ -29,6 +29,23 @@ class Waf_Runner {
 	const SHARE_DATA_OPTION_NAME        = 'jetpack_waf_share_data';
 
 	/**
+	 * Run the WAF
+	 */
+	public static function initialize() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+		self::define_mode();
+		self::define_share_data();
+		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+			return;
+		}
+		if ( ! self::did_run() ) {
+			self::run();
+		}
+	}
+
+	/**
 	 * Set action hooks
 	 *
 	 * @return void

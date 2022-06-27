@@ -39,5 +39,5 @@ if ( ( new Automattic\Jetpack\Status\Host() )->is_atomic_platform() ) {
  */
 add_action( 'upgrader_process_complete', array( 'Automattic\Jetpack\Waf_Runner', 'update_rules_if_changed' ) );
 
-// TODO: This may still need the plugins loaded action hook, but I don't think so
-require_once __DIR__ . '/run.php';
+// TODO: This may still need to be wrapped in the plugins loaded action hook?
+Automattic\Jetpack\Waf\Waf_Runner::initialize();
