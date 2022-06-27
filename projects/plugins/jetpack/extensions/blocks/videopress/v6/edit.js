@@ -27,9 +27,9 @@ export default function VideoPressEdit( props ) {
 		);
 	};
 
-	const toggleAttribute = attribute => {
+	const handleAttributeChange = attributeName => {
 		return newValue => {
-			setAttributes( { [ attribute ]: newValue } );
+			setAttributes( { [ attributeName ]: newValue } );
 		};
 	};
 
@@ -43,7 +43,7 @@ export default function VideoPressEdit( props ) {
 							/* translators: Tooltip describing the "controls" option for the VideoPress player */
 							__( 'Display the video playback controls', 'jetpack' )
 						) }
-						onChange={ toggleAttribute( 'controls' ) }
+						onChange={ handleAttributeChange( 'controls' ) }
 						checked={ controls }
 					/>
 				</PanelBody>
