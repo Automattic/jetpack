@@ -7,7 +7,7 @@ if ( typeof window !== 'undefined' ) {
 		const unsubscribe = subscribe( () => {
 			const newBlockList = getBlockList();
 			const forms = newBlockList.filter( block => ( block.name = 'jetpack/contact-form' ) );
-			if ( forms ) {
+			if ( forms.length > 0 ) {
 				unsubscribe();
 				forms.forEach( form => {
 					const button = form.innerBlocks.find( block => block.name === 'jetpack/button' );
