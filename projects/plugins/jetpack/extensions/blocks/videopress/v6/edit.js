@@ -25,6 +25,7 @@ import Loading from '../loading';
 // import { getJWT, useResumableUploader } from '../resumable-upload/use-uploader';
 import { getVideoPressUrl } from '../url';
 import { useResumableUploader } from './hooks/use-uploader.js';
+import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
@@ -88,7 +89,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	}, [ src, prevMediaSrc, invalidateCachedEmbedPreview ] );
 
 	const blockProps = useBlockProps( {
-		className: 'wp-block-jetpack-videopress',
+		className: 'wp-block-jetpack-videopress is-placeholder-container',
 	} );
 
 	const renderControlLabelWithTooltip = ( label, tooltipText ) => {
@@ -171,20 +172,18 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	 */
 	if ( ! src && ! isUploadingFile && ! fileHasBeenUploaded ) {
 		return (
-			<div { ...blockProps }>
-				<MediaPlaceholder
-					icon={ <BlockIcon icon={ icon } /> }
-					labels={ {
-						title: __( 'VideoPress', 'jetpack' ),
-					} }
-					onSelect={ onSelectVideo }
-					onSelectURL={ onSelectURL }
-					accept="video/*"
-					allowedTypes={ ALLOWED_MEDIA_TYPES }
-					value={ attributes }
-					onError={ noop }
-				/>
-			</div>
+			<MediaPlaceholder
+				icon={ <BlockIcon icon={ icon } /> }
+				labels={ {
+					title: __( 'VideoPress', 'jetpack' ),
+				} }
+				onSelect={ onSelectVideo }
+				onSelectURL={ onSelectURL }
+				accept="video/*"
+				allowedTypes={ ALLOWED_MEDIA_TYPES }
+				value={ attributes }
+				onError={ noop }
+			/>
 		);
 	}
 
