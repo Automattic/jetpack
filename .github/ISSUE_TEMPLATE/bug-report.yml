@@ -54,6 +54,33 @@ body:
     attributes:
       label: Other information
       placeholder: Screenshots, additional logs, notes, etc.
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Issue severity
+
+        Please provide details around how often the issue is reproducible & how many users are affected.
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Reproducibility
+      options:
+        - Consistent
+        - Intermittent
+        - Once
+    validations:
+      required: true
+  - type: dropdown
+    id: users-affected
+    attributes:
+      label: Severity
+      description: How many users are impacted? A guess is fine.
+      options:
+        - One
+        - Some (< 50%)
+        - Most (> 50%)
+        - All
   - type: dropdown
     id: os
     attributes:
