@@ -13,9 +13,8 @@ import { Button, PanelBody, ToggleControl, Tooltip } from '@wordpress/components
 import { usePrevious } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
