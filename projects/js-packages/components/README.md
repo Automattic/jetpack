@@ -1,6 +1,6 @@
 # Components Package
 
-The package includes a set of individual components shared between RNA packages.
+The package includes a set of individual componentss shared between RNA packages.
 
 ## Tools
 
