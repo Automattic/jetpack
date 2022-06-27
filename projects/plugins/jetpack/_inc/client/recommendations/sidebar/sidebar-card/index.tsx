@@ -3,8 +3,13 @@ import React from 'react';
 
 import './style.scss';
 
-const Layout = props => {
-	const { header, content, illustrationPath } = props;
+type Props = {
+	header: React.ReactNode;
+	illustrationPath?: string;
+	compact?: boolean;
+};
+const SidebarCard: React.FC< Props > = props => {
+	const { header, children, illustrationPath, compact } = props;
 
 	return (
 		<div
@@ -21,9 +26,15 @@ const Layout = props => {
 			) : (
 				header
 			) }
-			<div className="jp-recommendations-sidebar-card__content">{ content }</div>
+			<div
+				className={ classNames( 'jp-recommendations-sidebar-card__content', {
+					'is-compact': compact,
+				} ) }
+			>
+				{ children }
+			</div>
 		</div>
 	);
 };
 
-export { Layout };
+export { SidebarCard };
