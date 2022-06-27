@@ -135,10 +135,9 @@ class Data_Settings {
 	 *                               from the DATA_FILTER_DEFAULTS list as keys.
 	 */
 	public function add_settings_list( $plugin_settings = array() ) {
-		if ( empty( $plugin_settings[ self::MODULES_FILTER_NAME ] )
-			|| ! is_array( $plugin_settings[ self::MODULES_FILTER_NAME ] ) ) {
+		if ( empty( $plugin_settings ) || ! is_array( $plugin_settings ) ) {
 			/*
-			 * No modules have been set, so use defaults for everything and bail early.
+			 * No custom plugin settings, so use defaults for everything and bail early.
 			 */
 			$this->set_all_defaults();
 			return;
@@ -192,15 +191,15 @@ class Data_Settings {
 	 * @param array $filters_settings The custom settings.
 	 */
 	private function add_filters_custom_settings_and_hooks( $filters_settings ) {
-		if ( ! isset( $filters_settings[ self::MODULES_FILTER_NAME ] ) ) {
-			// This shouldn't happen.
-			return;
+		if ( isset( $filters_settings[ self::MODULES_FILTER_NAME ] ) && is_array( $filters_settings[ self::MODULES_FILTER_NAME ] ) ) {
+			$this->add_custom_filter_setting( self::MODULES_FILTER_NAME, $filters_settings[ self::MODULES_FILTER_NAME ] );
+			$enabled_modules = $filters_settings[ self::MODULES_FILTER_NAME ];
+		} else {
+			$this->add_sync_filter_setting( self::MODULES_FILTER_NAME, Modules::DEFAULT_SYNC_MODULES );
+			$enabled_modules = Modules::DEFAULT_SYNC_MODULES;
 		}
 
-		$this->add_custom_filter_setting( self::MODULES_FILTER_NAME, $filters_settings[ self::MODULES_FILTER_NAME ] );
-
-		$enabled_modules = $filters_settings[ self::MODULES_FILTER_NAME ];
-		$all_modules     = Modules::DEFAULT_SYNC_MODULES;
+		$all_modules = Modules::DEFAULT_SYNC_MODULES;
 
 		foreach ( $all_modules as $module ) {
 			if ( in_array( $module, $enabled_modules, true ) || in_array( $module, self::MUST_SYNC_DATA_SETTINGS['jetpack_sync_modules'], true ) ) {

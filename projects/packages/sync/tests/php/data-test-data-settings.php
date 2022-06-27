@@ -541,6 +541,110 @@ class Data_Test_Data_Settings {
 	}
 
 	/**
+	 * Same with data_test_7 but without specifying jetpack_sync_modules. In this case, it's expected that all Sync modules are enabled and the custom filters are applied.
+	 *
+	 * @return array The test input array.
+	 */
+	public static function data_test_7_1() {
+		return array(
+			'input'       => array(
+				'jetpack_sync_comment_meta_whitelist' => array(),
+				'jetpack_sync_options_whitelist'      => array(),
+			),
+			'output'      => array(
+				'jetpack_sync_modules'                => \Automattic\Jetpack\Sync\Modules::DEFAULT_SYNC_MODULES,
+				'jetpack_sync_options_whitelist'      => array(
+					'jetpack_sync_non_blocking',
+					'jetpack_sync_non_public_post_stati',
+					'jetpack_sync_settings_comment_meta_whitelist',
+					'jetpack_sync_settings_post_meta_whitelist',
+					'jetpack_sync_settings_post_types_blacklist',
+					'jetpack_sync_settings_taxonomies_blacklist',
+					'jetpack_sync_settings_dedicated_sync_enabled',
+					'jetpack_connection_active_plugins',
+					'blog_charset',
+					'blog_public',
+					'blogdescription',
+					'blogname',
+					'permalink_structure',
+					'stylesheet',
+					'time_format',
+					'timezone_string',
+				),
+				'jetpack_sync_options_contentless'    => \Automattic\Jetpack\Sync\Defaults::$default_options_contentless,
+				'jetpack_sync_constants_whitelist'    => \Automattic\Jetpack\Sync\Defaults::$default_constants_whitelist,
+				'jetpack_sync_callable_whitelist'     => \Automattic\Jetpack\Sync\Defaults::$default_callable_whitelist,
+				'jetpack_sync_multisite_callable_whitelist' => array(),
+				'jetpack_sync_post_meta_whitelist'    => \Automattic\Jetpack\Sync\Defaults::$post_meta_whitelist,
+				'jetpack_sync_comment_meta_whitelist' => array(),
+				'jetpack_sync_capabilities_whitelist' => \Automattic\Jetpack\Sync\Defaults::$default_capabilities_whitelist,
+				'jetpack_sync_known_importers'        => \Automattic\Jetpack\Sync\Defaults::$default_known_importers,
+			),
+			'set_filters' => array(
+				'jetpack_sync_options_whitelist',
+				'jetpack_sync_comment_meta_whitelist',
+			),
+		);
+	}
+
+	/**
+	 * Same with data_test_7 but with empty jetpack_sync_modules. In this case, it's expected that the minimum required Sync modules are enabled and the custom filters are applied.
+	 *
+	 * @return array The test input array.
+	 */
+	public static function data_test_7_2() {
+		return array(
+			'input'       => array(
+				'jetpack_sync_modules'                => array(),
+				'jetpack_sync_comment_meta_whitelist' => array(),
+				'jetpack_sync_options_whitelist'      => array(),
+			),
+			'output'      => array(
+				'jetpack_sync_modules'                => array(
+					'Automattic\Jetpack\Sync\Modules\Callables',
+					'Automattic\Jetpack\Sync\Modules\Constants',
+					'Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately',
+					'Automattic\Jetpack\Sync\Modules\Options',
+				),
+				'jetpack_sync_options_whitelist'      => array(
+					'jetpack_sync_non_blocking',
+					'jetpack_sync_non_public_post_stati',
+					'jetpack_sync_settings_comment_meta_whitelist',
+					'jetpack_sync_settings_post_meta_whitelist',
+					'jetpack_sync_settings_post_types_blacklist',
+					'jetpack_sync_settings_taxonomies_blacklist',
+					'jetpack_sync_settings_dedicated_sync_enabled',
+					'jetpack_connection_active_plugins',
+					'blog_charset',
+					'blog_public',
+					'blogdescription',
+					'blogname',
+					'permalink_structure',
+					'stylesheet',
+					'time_format',
+					'timezone_string',
+				),
+				'jetpack_sync_options_contentless'    => \Automattic\Jetpack\Sync\Defaults::$default_options_contentless,
+				'jetpack_sync_constants_whitelist'    => \Automattic\Jetpack\Sync\Defaults::$default_constants_whitelist,
+				'jetpack_sync_callable_whitelist'     => \Automattic\Jetpack\Sync\Defaults::$default_callable_whitelist,
+				'jetpack_sync_multisite_callable_whitelist' => array(),
+				'jetpack_sync_post_meta_whitelist'    => array(),
+				'jetpack_sync_comment_meta_whitelist' => array(),
+				'jetpack_sync_capabilities_whitelist' => array(),
+				'jetpack_sync_known_importers'        => array(),
+			),
+			'set_filters' => array(
+				'jetpack_sync_modules',
+				'jetpack_sync_options_whitelist',
+				'jetpack_sync_comment_meta_whitelist',
+				'jetpack_sync_post_meta_whitelist',
+				'jetpack_sync_capabilities_whitelist',
+				'jetpack_sync_known_importers',
+			),
+		);
+	}
+
+	/**
 	 * Returns the test data for a scenario with two inputs. The first input uses custom filters,
 	 *  and the second input uses defaults.
 	 *
