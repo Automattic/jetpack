@@ -444,7 +444,8 @@ abstract class Publicize_Base {
 				return false;
 			}
 
-			$profile_url_query = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
+			$profile_url_query      = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
+			$profile_url_query_args = null;
 			wp_parse_str( $profile_url_query, $profile_url_query_args );
 
 			$id = null;

@@ -97,7 +97,7 @@ export default function useProtectData() {
 		installedThemes,
 		status.themes || {}
 	).map( theme => ( { ...theme, type: 'theme' } ) );
-	const core = normalizeCoreInformation( wpVersion, status.wordpress );
+	const core = normalizeCoreInformation( wpVersion, status.core );
 
 	let currentStatus = 'error';
 	if ( true === statusIsFetching ) {

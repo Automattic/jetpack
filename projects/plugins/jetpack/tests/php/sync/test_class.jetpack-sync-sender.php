@@ -783,7 +783,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 				'code' => 200,
 			),
 			'status_code' => 200,
-			'body'        => 'OK',
+			'body'        => Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING,
 		);
 	}
 }
