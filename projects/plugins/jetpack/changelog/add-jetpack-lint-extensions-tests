@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Lint extensions tests, and remove use of enzyme there. No change to the plugin itself.
+
+
