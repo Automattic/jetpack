@@ -35,14 +35,8 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	const { controls, src, guid } = attributes;
 	const prevMediaSrc = usePrevious( src );
 
-	/*
-	 * Store here the file uploaded by the user to the client
-	 * This file is going to be uploaded to the VideoPress infrastructure
-	 */
-	const [ fileForUpload, setFileForUpload ] = useState( null );
-
 	const videoPressUrl = getVideoPressUrl( guid, {
-		controls: true, // @todo: behave all video options here.
+		controls,
 	} );
 
 	// Uploading file to backend states.
