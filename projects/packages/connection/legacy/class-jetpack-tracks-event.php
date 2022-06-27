@@ -6,8 +6,6 @@
  */
 
 /*
- * @autounit nosara tracks-client
- *
  * Example Usage:
 ```php
 	require_once( dirname(__FILE__) . 'path/to/tracks/class-jetpack-tracks-event.php' );
