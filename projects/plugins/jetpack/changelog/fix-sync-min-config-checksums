@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Add integration tests for Sync checksums.

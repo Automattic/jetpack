@@ -1,15 +1,14 @@
-import '@testing-library/jest-dom/extend-expect';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render, screen, act, waitFor } from '@testing-library/react';
-
 import { MailChimpBlockControls } from '../controls';
+import '@testing-library/jest-dom';
 
 const originalFetch = window.fetch;
 
 /**
  * Mock return value for a successful fetch JSON return value.
  *
- * @return {Promise} Mock return value.
+ * @returns {Promise} Mock return value.
  */
 const RESOLVED_FETCH_PROMISE = Promise.resolve( {
 	interest_categories: [
@@ -28,6 +27,7 @@ const DEFAULT_FETCH_MOCK_RETURN = Promise.resolve( {
 
 describe( 'Mailchimp block controls component', () => {
 	beforeEach( () => {
+		// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
 		window.fetch = jest.fn();
 		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );
 	} );
@@ -132,8 +132,7 @@ describe( 'Mailchimp block controls component', () => {
 	test( 'updates selected groups', async () => {
 		const user = userEvent.setup();
 		render( <MailChimpBlockControls { ...defaultProps } /> );
-		await waitFor( () => screen.getByLabelText( 'golf' ) );
-		await user.click( screen.getByLabelText( 'golf' ) );
+		await user.click( await screen.findByLabelText( 'golf' ) );
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			interests: [ 1 ],
 		} );

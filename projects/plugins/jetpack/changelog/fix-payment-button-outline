@@ -1,0 +1,6 @@
+Significance: patch
+Type: bugfix
+
+Removed hardcoded recurring-payments button color.
+
+Previously this was white. Removing it altogether means  that the outline button style works on white backgrounds.

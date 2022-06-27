@@ -5,7 +5,7 @@ import analytics from 'lib/analytics';
 import * as React from 'react';
 import { render, screen } from 'test/test-utils';
 import JetpackProductCard from '../index';
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 
 describe( 'Jetpack Product Card', () => {
 	const mockAttributes = {
