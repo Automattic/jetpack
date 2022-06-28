@@ -92,7 +92,7 @@ function wpcomsh_is_plugin_list_request() {
  * @return bool
  */
 function wpcomsh_is_theme_install_request() {
-	return wpcomsh_is_xmlrpc_request_matching( '@/sites/(.+)/theme/(.+)/install@' );
+	return wpcomsh_is_xmlrpc_request_matching( '@/sites/(.+)/themes/(.+)/install@' );
 }
 
 /**
