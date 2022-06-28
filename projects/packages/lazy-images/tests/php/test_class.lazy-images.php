@@ -513,6 +513,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 
 		$processed_attrs_again = $instance->process_image_attributes( $processed_attrs );
 
+		// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.PHP.StrictComparisons.LooseEqual.
 		$this->assertTrue( $processed_attrs == $processed_attrs_again, 'Attributes are not the same after processing twice.' );
 
 		$instance->remove_filters();
