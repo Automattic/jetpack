@@ -74,8 +74,17 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 	}, [ videoPressUrl, invalidateResolution ] );
 
+	/*
+	 * Getting VideoPress preview.
+	 * The following code tries to handle issues
+	 * when the preview is not available even when
+	 * the VideoPress URL is gotten.
+	 * It attempts every two seconds to get the so desired video preview.
+	 */
+	const [ isGeneratingPreview, setIsGeneratingPreview ] = useState( 0 );
+
 	const rePreviewAttemptTimer = useRef();
-	function cleanTimer() {
+	function cleanRegeneratingProcess() {
 		if ( ! rePreviewAttemptTimer?.current ) {
 			return;
 		}
@@ -83,27 +92,21 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		rePreviewAttemptTimer.current = clearInterval( rePreviewAttemptTimer.current );
 	}
 
-	/*
-	 * Getting VideoPress preview
-	 * The following block tries to handle issues
-	 * when the preview is not available.
-	 * There are some race conditions even
-	 * the VideoPress URL is properly defined.
-	 */
 	useEffect( () => {
 		// VideoPress URL is not defined. Bail early and cleans the time.
 		if ( ! videoPressUrl ) {
-			return cleanTimer();
+			return cleanRegeneratingProcess();
 		}
 
 		// Bail early (clean the timer) if the preview is already being requested.
 		if ( isRequestingEmbedPreview ) {
-			return cleanTimer();
+			return cleanRegeneratingProcess();
 		}
 
 		// Bail early (clean the timer) when preview is defined.
 		if ( preview ) {
-			return cleanTimer();
+			setIsGeneratingPreview( 0 );
+			return cleanRegeneratingProcess();
 		}
 
 		// Bail early (clean the timer) when it has been already started.
@@ -114,13 +117,15 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		rePreviewAttemptTimer.current = setTimeout( () => {
 			// Abort whether the preview is already defined.
 			if ( preview ) {
+				setIsGeneratingPreview( 0 );
 				return;
 			}
 
+			setIsGeneratingPreview( v => v + 1 );
 			invalidateCachedEmbedPreview();
 		}, 2000 );
 
-		return cleanTimer;
+		return cleanRegeneratingProcess;
 	}, [
 		rePreviewAttemptTimer,
 		invalidateCachedEmbedPreview,
@@ -226,38 +231,14 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	}
 
 	// 4 - Generating video preview
-	if ( isRequestingEmbedPreview && ! preview ) {
+	if ( isRequestingEmbedPreview || !! isGeneratingPreview || ! preview ) {
 		return (
 			<>
 				<div { ...blockProps }>
-					<Loading text={ __( '(4) Generating preview…', 'jetpack' ) } />
-				</div>
-			</>
-		);
-	}
-
-	// 5 - Generating video preview: exposing cache issue: @todo remove this once the bug is fixed.
-	if ( fileHasBeenUploaded && ! isRequestingEmbedPreview && ! preview ) {
-		return (
-			<>
-				<div { ...blockProps }>
-					<p>
-						{ __( "The video is still being processed. It'll take a little bit more…", 'jetpack' ) }
-					</p>
-					<Button variant="secondary" onClick={ invalidateCachedEmbedPreview }>
-						Clear Cache
-					</Button>
-				</div>
-			</>
-		);
-	}
-
-	// 6 - Generating video preview. Happens when component mounts.
-	if ( ! preview ) {
-		return (
-			<>
-				<div { ...blockProps }>
-					<Loading text={ __( '(6) Generating preview…', 'jetpack' ) } />
+					<Loading text={ __( '(4) Generating preview…', 'jetpack' ) } />;
+					<div>
+						Attempt: <strong>{ isGeneratingPreview }</strong>
+					</div>
 				</div>
 			</>
 		);
