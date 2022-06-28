@@ -3,13 +3,8 @@
  */
 
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
-import {
-	InspectorControls,
-	useBlockProps,
-	BlockIcon,
-	MediaPlaceholder,
-} from '@wordpress/block-editor';
-import { Button, PanelBody, ToggleControl, Tooltip } from '@wordpress/components';
+import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
+import { Button } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -24,6 +19,7 @@ import Loading from '../loading';
 // import { getJWT, useResumableUploader } from '../resumable-upload/use-uploader';
 import { getVideoPressUrl } from '../url';
 import { useResumableUploader } from './hooks/use-uploader.js';
+import VideoPressInspectorControls from './inspector-controls';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
@@ -85,20 +81,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		className: 'wp-block-jetpack-videopress is-placeholder-container',
 	} );
 
-	const renderControlLabelWithTooltip = ( label, tooltipText ) => {
-		return (
-			<Tooltip text={ tooltipText } position="top">
-				<span>{ label }</span>
-			</Tooltip>
-		);
-	};
-
-	const handleAttributeChange = attributeName => {
-		return newValue => {
-			setAttributes( { [ attributeName ]: newValue } );
-		};
-	};
-
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	const [ videoPressUploader ] = useResumableUploader( {
 		onProgress: ( progress, total ) => setUploadingProgress( [ progress, total ] ),
@@ -140,21 +122,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	}
 
 	const blockSettings = (
-		<>
-			<InspectorControls>
-				<PanelBody title={ __( 'Video Settings', 'jetpack' ) }>
-					<ToggleControl
-						label={ renderControlLabelWithTooltip(
-							__( 'Playback Controls', 'jetpack' ),
-							/* translators: Tooltip describing the "controls" option for the VideoPress player */
-							__( 'Display the video playback controls', 'jetpack' )
-						) }
-						onChange={ handleAttributeChange( 'controls' ) }
-						checked={ controls }
-					/>
-				</PanelBody>
-			</InspectorControls>
-		</>
+		<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 	);
 
 	/*
