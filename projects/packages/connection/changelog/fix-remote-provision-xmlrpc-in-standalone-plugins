@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Connection: fix fatal error due to undefined constant in remote_provision()
