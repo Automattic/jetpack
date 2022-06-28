@@ -504,6 +504,17 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 
 		$this->assertSame( $processed, $processed_again );
 
+		$attributes = array(
+			'src'    => 'image.jpg',
+			'srcset' => 'medium.jpg 1000w, large.jpg 2000w',
+		);
+
+		$processed_attrs = $instance->process_image_attributes( $attributes );
+
+		$processed_attrs_again = $instance->process_image_attributes( $processed_attrs );
+
+		$this->assertTrue( $processed_attrs == $processed_attrs_again, 'Attributes are not the same after processing twice.' );
+
 		$instance->remove_filters();
 	}
 

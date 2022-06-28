@@ -307,6 +307,11 @@ class Jetpack_Lazy_Images {
 	 * @return array The updated image attributes array with lazy load attributes.
 	 */
 	public static function process_image_attributes( $attributes ) {
+		// Do not process more than once. See https://github.com/Automattic/jetpack/issues/23553.
+		if ( ! empty( $attributes['data-lazy-src'] ) ) {
+			return $attributes;
+		}
+
 		if ( empty( $attributes['src'] ) ) {
 			return $attributes;
 		}
