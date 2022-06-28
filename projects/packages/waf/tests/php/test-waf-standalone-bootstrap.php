@@ -86,7 +86,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 							&& strpos( $file_contents, "define( 'JETPACK_WAF_DIR', '/awesome/dir/jetpack-waf' );" ) !== false
 							// Checking the require and include paths fuzzy because it will vary depending on the system that the test is executed on.
 							&& preg_match( '/require_once.*autoload\.php/', $file_contents ) === 1
-							&& preg_match( '/include.*run\.php/', $file_contents ) === 1;
+							&& preg_match( '/Automattic\\\Jetpack\\\Waf\\\Waf_Runner::initialize/', $file_contents ) === 1;
 					}
 				)
 			)
