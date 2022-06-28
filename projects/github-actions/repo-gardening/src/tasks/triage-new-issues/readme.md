@@ -9,4 +9,4 @@ This is best used in combination with GitHub [issue forms](https://docs.github.c
 
 ## Rationale
 
-Adding a label to new issues allows each team to get quick notices of issues that need their attention, without having to wait for a nanual triage. Priority also allows them to sort through the issues in the right order.
+Adding a label to new issues allows each team to get quick notices of issues that need their attention, without having to wait for manual triage. Priority also allows them to sort through the issues in the right order.
