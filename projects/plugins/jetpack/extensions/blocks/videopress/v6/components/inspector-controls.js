@@ -4,6 +4,7 @@
 import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl, Tooltip, SelectControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -20,11 +21,14 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 		);
 	};
 
-	const handleAttributeChange = attributeName => {
-		return newValue => {
-			setAttributes( { [ attributeName ]: newValue } );
-		};
-	};
+	const handleAttributeChange = useCallback(
+		attributeName => {
+			return newValue => {
+				setAttributes( { [ attributeName ]: newValue } );
+			};
+		},
+		[ setAttributes ]
+	);
 
 	return (
 		<InspectorControls>
