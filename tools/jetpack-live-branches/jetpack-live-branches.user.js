@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.21
+// @version      1.22
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -136,6 +136,12 @@
 						<h4>Plugins</h4>
 						${ getOptionsList(
 							[
+								{
+									label: 'Jetpack',
+									name: 'nojetpack',
+									checked: true,
+									invert: true,
+								},
 								{
 									label: 'WordPress Beta Tester',
 									name: 'wordpress-beta-tester',
@@ -277,7 +283,9 @@
 		 */
 		function getLink() {
 			const query = [ 'jetpack-beta' ];
-			$( '#jetpack-live-branches input[type=checkbox]:checked' ).each( ( i, input ) => {
+			$(
+				'#jetpack-live-branches input[type=checkbox]:checked:not([data-invert]), #jetpack-live-branches input[type=checkbox][data-invert]:not(:checked)'
+			).each( ( i, input ) => {
 				if ( input.value ) {
 					query.push( encodeURIComponent( input.name ) + '=' + encodeURIComponent( input.value ) );
 				} else {
@@ -297,18 +305,19 @@
 		 * @param {string} [opts.value] - Checkbox value, if any.
 		 * @param {boolean} [opts.checked] - Whether the checkbox is default checked.
 		 * @param {boolean} [opts.disabled] - Whether the checkbox is disabled.
+		 * @param {boolean} [opts.invert] - Whether the sense of the checkbox is inverted.
 		 * @param {number} columnWidth - Column width.
 		 * @returns {string} HTML.
 		 */
 		function getOption(
-			{ disabled = false, checked = false, value = '', label, name },
+			{ disabled = false, checked = false, invert = false, value = '', label, name },
 			columnWidth
 		) {
 			// prettier-ignore
 			return `
 			<li style="min-width: ${ columnWidth }%">
 				<label style="font-weight: inherit; ">
-					<input type="checkbox" name="${ encodeHtmlEntities( name ) }" value="${ encodeHtmlEntities( value ) }"${ checked ? ' checked' : '' }${ disabled ? ' disabled' : '' }>
+					<input type="checkbox" name="${ encodeHtmlEntities( name ) }" value="${ encodeHtmlEntities( value ) }"${ checked ? ' checked' : '' }${ disabled ? ' disabled' : '' }${ invert ? ' data-invert' : '' }>
 					${ label }
 				</label>
 			</li>
