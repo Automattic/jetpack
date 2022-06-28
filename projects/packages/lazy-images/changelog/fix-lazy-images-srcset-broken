@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixes an issue where process image attributes more than once resulted in images not being shown
