@@ -61,7 +61,6 @@ class Initial_State {
 				'WP_API_root'       => esc_url_raw( rest_url() ),
 				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-				'postTypeLabels'    => $this->get_post_type_labels(),
 				'purchaseToken'     => $this->get_purchase_token(),
 				/**
 				 * Whether promotions are visible or not.
@@ -86,6 +85,7 @@ class Initial_State {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
 			),
+			'postTypeLabels'  => $this->get_post_type_labels(),
 		);
 	}
 
