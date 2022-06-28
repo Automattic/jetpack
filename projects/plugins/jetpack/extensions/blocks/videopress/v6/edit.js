@@ -22,9 +22,6 @@ import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-// @Todo: replace with uploading implementation.
-const noop = () => {};
-
 export default function VideoPressEdit( { attributes, setAttributes } ) {
 	const { controls, src, guid } = attributes;
 
@@ -198,7 +195,10 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 				accept="video/*"
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 				value={ attributes }
-				onError={ noop }
+				onError={ function ( error ) {
+					// eslint-disable-next-line no-console
+					console.error( 'Error: ', error );
+				} }
 			/>
 		);
 	}
