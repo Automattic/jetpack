@@ -6,8 +6,26 @@
 	justify-content: space-between;
 	align-items: center;
 	gap: calc( var(--spacing-base) * 3 );
+	cursor: pointer;
+
+	& .icon {
+		fill: var(--jp-green-40);
+		transition: transform .1s ease-out;
+	}
+
+	& .cta {
+		font-weight: 600;
+	}
+
+	&:hover {
+		& .icon {
+			transform: translateX( calc( var(--spacing-base) * 2 ) );
+		}
+
+		& .cta {
+			text-decoration: underline;
+			text-decoration-thickness: 2px;
+		}
+	}
 }
 
-.icon {
-	fill: var(--jp-green-40);
-}
