@@ -5,10 +5,9 @@
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
-import { usePrevious } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect, useState, useCallback } from '@wordpress/element';
+import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -16,7 +15,6 @@ import { __ } from '@wordpress/i18n';
 import { VideoPressIcon as icon } from '../../../shared/icons';
 import { VpBlock } from '../edit';
 import Loading from '../loading';
-// import { getJWT, useResumableUploader } from '../resumable-upload/use-uploader';
 import { getVideoPressUrl } from '../url';
 import VideoPressInspectorControls from './components/inspector-controls';
 import { useResumableUploader } from './hooks/use-uploader.js';
@@ -29,7 +27,6 @@ const noop = () => {};
 
 export default function VideoPressEdit( { attributes, setAttributes } ) {
 	const { controls, src, guid } = attributes;
-	const prevMediaSrc = usePrevious( src );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		controls,
@@ -65,8 +62,9 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	const { preview, isRequestingEmbedPreview } = useSelect(
 		select => {
 			return {
-				preview: select( coreStore ).getEmbedPreview( videoPressUrl ),
-				isRequestingEmbedPreview: select( coreStore ).isRequestingEmbedPreview( videoPressUrl ),
+				preview: select( coreStore ).getEmbedPreview( videoPressUrl ) || false,
+				isRequestingEmbedPreview:
+					select( coreStore ).isRequestingEmbedPreview( videoPressUrl ) || false,
 			};
 		},
 		[ videoPressUrl ]
@@ -79,20 +77,60 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 	}, [ videoPressUrl, invalidateResolution ] );
 
-	/*
-	 * Due to a current bug in Gutenberg (https://github.com/WordPress/gutenberg/issues/16831),
-	 * the `SandBox` component is not rendered again when the injected `html` prop changes.
-	 * To work around that, we invalidate the cached preview of the embed VideoPress player
-	 * in order to force the rendering of a new instance of the `SandBox` component
-	 * that ensures the injected `html` will be rendered.
-	 */
-	useEffect( () => {
-		if ( ! src || src === prevMediaSrc ) {
+	const rePreviewAttemptTimer = useRef();
+	function cleanTimer() {
+		if ( ! rePreviewAttemptTimer?.current ) {
 			return;
 		}
 
-		invalidateCachedEmbedPreview();
-	}, [ src, prevMediaSrc, invalidateCachedEmbedPreview ] );
+		rePreviewAttemptTimer.current = clearInterval( rePreviewAttemptTimer.current );
+	}
+
+	/*
+	 * Getting VideoPress preview
+	 * The following block tries to handle issues
+	 * when the preview is not available.
+	 * There are some race conditions even
+	 * the VideoPress URL is properly defined.
+	 */
+	useEffect( () => {
+		// VideoPress URL is not defined. Bail early and cleans the time.
+		if ( ! videoPressUrl ) {
+			return cleanTimer();
+		}
+
+		// Bail early (clean the timer) if the preview is already being requested.
+		if ( isRequestingEmbedPreview ) {
+			return cleanTimer();
+		}
+
+		// Bail early (clean the timer) when preview is defined.
+		if ( preview ) {
+			return cleanTimer();
+		}
+
+		// Bail early (clean the timer) when it has been already started.
+		if ( rePreviewAttemptTimer?.current ) {
+			return;
+		}
+
+		rePreviewAttemptTimer.current = setTimeout( () => {
+			// Abort whether the preview is already defined.
+			if ( preview ) {
+				return;
+			}
+
+			invalidateCachedEmbedPreview();
+		}, 2000 );
+
+		return cleanTimer;
+	}, [
+		rePreviewAttemptTimer,
+		invalidateCachedEmbedPreview,
+		preview,
+		videoPressUrl,
+		isRequestingEmbedPreview,
+	] );
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-videopress is-placeholder-container',
@@ -100,6 +138,10 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	const [ videoPressUploader ] = useResumableUploader( {
+		onError: function ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Error: ', error );
+		},
 		onProgress: setUploadingProgress,
 		onSuccess: setAttributes,
 	} );
