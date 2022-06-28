@@ -47,10 +47,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	 */
 	const [ uploadingProgress, setUploadingProgressState ] = useState( [] );
 
-	/*
-	 * Uploading progress handler, wrapper by the useCallback() hook
-	 * to avoid re-rendering the component when the progress is updated.
-	 */
+	// Define a memoized function to register the upload progress.
 	const setUploadingProgress = useCallback( function ( ...args ) {
 		setUploadingProgressState( args );
 	}, [] );
