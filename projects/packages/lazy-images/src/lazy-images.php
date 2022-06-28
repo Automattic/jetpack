@@ -551,7 +551,7 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Helper method for determining if image has been processed before or not.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.1.19
 	 *
 	 * @param array $attributes The image attributes.
 	 *
