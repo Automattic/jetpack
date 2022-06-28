@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Jetpack: memoize uploading progress handler function
