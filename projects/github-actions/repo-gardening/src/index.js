@@ -3,6 +3,7 @@ const { context, getOctokit } = require( '@actions/github' );
 const debug = require( './debug' );
 const ifNotClosed = require( './if-not-closed' );
 const ifNotFork = require( './if-not-fork' );
+const addIssueToBoard = require( './tasks/add-issue-to-board' );
 const addLabels = require( './tasks/add-labels' );
 const addMilestone = require( './tasks/add-milestone' );
 const assignIssues = require( './tasks/assign-issues' );
@@ -63,6 +64,11 @@ const automations = [
 		event: 'issues',
 		action: [ 'opened', 'reopened' ],
 		task: triageNewIssues,
+	},
+	{
+		event: 'issues',
+		action: [ 'labeled' ],
+		task: addIssueToBoard,
 	},
 ];
 

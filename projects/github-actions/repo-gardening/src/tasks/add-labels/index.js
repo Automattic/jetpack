@@ -167,6 +167,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		}
 
 		// Existing blocks and block plugins.
+		// If you update the label names here, make sure to update them in add-issue-to-board/index.js as well.
 		const blocks = file.match(
 			/^projects\/plugins\/jetpack\/extensions\/(?<type>blocks|plugins)\/(?<block>[^/]*)\//
 		);

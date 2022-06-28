@@ -24,6 +24,14 @@ inputs:
     description: "Slack channel ID where general notifications should be sent"
     required: false
     default: ""
+  project_automation_token:
+    description: "Personal access token (with repo and project scopes) for the Project Automation task"
+    required: false
+    default: ""
+  project_automation_block_project:
+    description: "ID of the project that is used to triage block-related issues."
+    required: false
+    default: ""
   tasks:
     description: "Comma-separated selection of task names (function name, camelCase) this action should run. e.g. addLabels,cleanLabels"
     required: false
