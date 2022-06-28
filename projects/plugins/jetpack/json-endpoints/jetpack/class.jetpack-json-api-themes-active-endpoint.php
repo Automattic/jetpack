@@ -51,7 +51,7 @@ class Jetpack_JSON_API_Themes_Active_Endpoint extends Jetpack_JSON_API_Themes_En
 		 *
 		 * @module json-api
 		 *
-		 * @since $$next-version$$
+		 * @since 11.1
 		 *
 		 * @param string $theme_slug Directory name for the theme.
 		 * @param mixed  $args       POST body data, including info about the theme we must switch to.

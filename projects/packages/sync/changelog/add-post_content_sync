@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Posts: added a Sync call to make sure post content is up to date before publishing.

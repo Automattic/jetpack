@@ -242,16 +242,42 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.1-a.5 - 2022-06-21
+### 11.1-beta - 2022-06-28
 #### Enhancements
+- Add "Getting started with Jetpack Backup" video to Assistant and "At a glance" dashboard
+- Jetpack: handle VideoPress block saving process
+- Jetpack: implement uploading video to VPBlock
+- Jetpack: introduce VideoPress (beta) block
+- Recipe Block (beta): introduce a new Recipe block to display an easy to read recipe anywhere on your site. Currently a JETPACK_BETA_BLOCKS feature.
+- Updated Jetpack connection banner to the Emerald style
 - VideoPress: enable blocks with VideoPress markdown to be previewed within the mobile app.
+- WAF: add links to support documentation.
+- WAF: update messaging around sites without latest firewall rules access.
+
+#### Improved compatibility
+- Blocks: add Jetpack block elements to WPML configuration so they can be translated.
+- Publicize: configure Publicize only when the module is active.
+- Updated the non-iframed VideoPress player script url to point to the latest version of the VideoPress player. This only affects sites that implement the `jetpack_videopress_player_use_iframe` filter
 
 #### Bug fixes
+- CLI: avoid PHP notice when running connection tests.
+- Connection: move the connection_url_redirect action handling to the connection package.
+- Contact Form: ensure the forms are always properly displayed, regardless of how you add them to your site.
+- Contact Form: support saving array of data, such as multiple checkboxes.
 - Contact Form Block: display expected success message when used in FSE header or footer.
+- Dashboard: format anti-spam stats properly, including in languages using a space as thousands separator.
+- Mailchimp Block: center spinner during loading block content.
+- Payment Block: fix issue preventing images in payment buttons.
+- Payments Block: only add PayPal email meta to Payment posts.
 - Photon: do not return Photonized URLs to the block editor in WordPress 6.0.
+- Removed hardcoded recurring-payments button color.
+  
+  Previously this was white. Removing it altogether means  that the outline button style works on white backgrounds.
 - Search: avoid broken images in search results by preferring the _jetpack_featured_media_url postmeta over the GUID.
 - SEO Tools: allow WooCommerce to use custom SEO description for the shop page.
 - Sharing: avoid fatal errors when email sharing process is called  without clicking on the button.
+- Subscribe Block: fix double-quote breaking the Subscribe block button
+- VideoPress: fix average color parameter for seekbar.
 - VideoPress: fix embeds in classic editor when theme has no $content_width set.
 - VideoPress Block: fix Cancel button on block and provide better error message when video format is not supported.
 
