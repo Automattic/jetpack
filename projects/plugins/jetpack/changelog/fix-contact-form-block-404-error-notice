@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form Block: Prevent error notice when processing submission from 404 page
