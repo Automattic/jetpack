@@ -72,6 +72,7 @@ class Initial_State {
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
 				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
+				'postTypeLabels'    => $this->get_post_type_labels(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
@@ -85,7 +86,6 @@ class Initial_State {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
 			),
-			'postTypeLabels'  => $this->get_post_type_labels(),
 		);
 	}
 
