@@ -35,9 +35,7 @@ if ( ( new Automattic\Jetpack\Status\Host() )->is_atomic_platform() ) {
 
 /**
  * Triggers when the Jetpack plugin is updated
- * TODO: if this is hooking into whatever plugin is running it, then this can be moved to the class instead
  */
-add_action( 'upgrader_process_complete', array( 'Automattic\Jetpack\Waf_Runner', 'update_rules_if_changed' ) );
+add_action( 'upgrader_process_complete', array( 'Automattic\Jetpack\Waf\Waf_Runner', 'update_rules_if_changed' ) );
 
-// TODO: This may still need to be wrapped in the plugins loaded action hook?
 Automattic\Jetpack\Waf\Waf_Runner::initialize();

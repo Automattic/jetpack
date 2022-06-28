@@ -40,6 +40,10 @@ class Waf_Runner {
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
+		// Don't run if in standalone mode
+		if ( function_exists( 'add_action' ) ) {
+			self::add_hooks();
+		}
 		if ( ! self::did_run() ) {
 			self::run();
 		}
@@ -51,12 +55,11 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function add_hooks() {
-		// we may want to refactor the "activate" method (possibly rename method?)
 		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, 'activate', 10, 0 );
 		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, 'activate', 10, 0 );
 		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, 'activate', 10, 0 );
 		add_action( 'jetpack_waf_rules_update_cron', 'update_rules_cron' );
-		// This doesn't exactly fit here - may need to find another home
+		// TODO: This doesn't exactly fit here - may need to find another home
 		if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
 			wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
 		}
