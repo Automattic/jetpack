@@ -35,16 +35,33 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		controls,
 	} );
 
-	// Uploading file to backend states.
-	const [ uploadingProgress, setUploadingProgress ] = useState( [] );
+	/*
+	 * Tracking state when uploading the video file.
+	 * uploadingProgress is an array with two items:
+	 *  - the first item is the upload progress
+	 *  - the second item is total
+	 */
+	const [ uploadingProgress, setUploadingProgressState ] = useState( [] );
+
+	// Define a memoized function to register the upload progress.
+	const setUploadingProgress = useCallback( function ( ...args ) {
+		setUploadingProgressState( args );
+	}, [] );
+
+	/*
+	 * It's considered the file is uploading
+	 * when the progress value is lower than the total.
+	 */
 	const isUploadingFile = !! (
-		uploadingProgress?.length && uploadingProgress[ 0 ] !== uploadingProgress[ 1 ]
+		uploadingProgress?.length && uploadingProgress[ 0 ] < uploadingProgress[ 1 ]
 	);
+
+	// File has been upload when the progress value is equal to the total.
 	const fileHasBeenUploaded = !! (
 		uploadingProgress?.length && uploadingProgress[ 0 ] === uploadingProgress[ 1 ]
 	);
 
-	// Get video preview status
+	// Get video preview status.
 	const { preview, isRequestingEmbedPreview } = useSelect(
 		select => {
 			return {
@@ -83,7 +100,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	const [ videoPressUploader ] = useResumableUploader( {
-		onProgress: ( progress, total ) => setUploadingProgress( [ progress, total ] ),
+		onProgress: setUploadingProgress,
 		onSuccess: setAttributes,
 	} );
 
