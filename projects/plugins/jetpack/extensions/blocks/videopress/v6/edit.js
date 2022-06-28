@@ -121,10 +121,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		videoPressUploader( file );
 	}
 
-	const blockSettings = (
-		<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
-	);
-
 	/*
 	 * 1 - Initial block state. Show MediaPlaceholder when:
 	 *     - no src attribute,
@@ -152,7 +148,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	if ( isUploadingFile ) {
 		return (
 			<>
-				{ blockSettings }
 				<div { ...blockProps }>
 					<Loading text={ __( '(2) Uploading file to backend…', 'jetpack' ) } />;
 				</div>
@@ -164,7 +159,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	if ( fileHasBeenUploaded && ! isRequestingEmbedPreview && ! videoPressUrl ) {
 		return (
 			<>
-				{ blockSettings }
 				<div { ...blockProps }>
 					<Loading text={ __( '(3) Uploading file to VideoPress…', 'jetpack' ) } />;
 				</div>
@@ -176,7 +170,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	if ( isRequestingEmbedPreview && ! preview ) {
 		return (
 			<>
-				{ blockSettings }
 				<div { ...blockProps }>
 					<Loading text={ __( '(4) Generating preview…', 'jetpack' ) } />
 				</div>
@@ -188,7 +181,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	if ( fileHasBeenUploaded && ! isRequestingEmbedPreview && ! preview ) {
 		return (
 			<>
-				{ blockSettings }
 				<div { ...blockProps }>
 					<p>
 						{ __( "The video is still being processed. It'll take a little bit more…", 'jetpack' ) }
@@ -205,7 +197,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	if ( ! preview ) {
 		return (
 			<>
-				{ blockSettings }
 				<div { ...blockProps }>
 					<Loading text={ __( '(6) Generating preview…', 'jetpack' ) } />
 				</div>
@@ -216,7 +207,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	// X - Show VideoPress player. @todo: finish
 	return (
 		<>
-			{ blockSettings }
+			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			<VpBlock
 				html={ html }
 				scripts={ scripts }
