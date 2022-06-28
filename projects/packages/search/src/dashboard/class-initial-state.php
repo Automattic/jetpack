@@ -15,6 +15,7 @@ use Jetpack_Options;
  * The React initial state.
  */
 class Initial_State {
+
 	/**
 	 * Connection Manager
 	 *
@@ -60,6 +61,7 @@ class Initial_State {
 				'WP_API_root'       => esc_url_raw( rest_url() ),
 				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+				'postTypeLabels'    => $this->get_post_type_labels(),
 				'purchaseToken'     => $this->get_purchase_token(),
 				/**
 				 * Whether promotions are visible or not.
@@ -110,6 +112,27 @@ class Initial_State {
 		);
 
 		return $current_user_data;
+	}
+
+	/**
+	 * Gets the post type labels for all of the site's post types (including custom post types)
+	 *
+	 * @return array
+	 */
+	protected function get_post_type_labels() {
+		global $wp_post_types;
+		$post_type_labels = array();
+
+		// We don't need all the additional post_type data, just the slug & label
+		foreach ( $wp_post_types as $post_type_object ) {
+			$post_type_data = array(
+				'slug'  => $post_type_object->name,
+				'label' => $post_type_object->label,
+			);
+
+			$post_type_labels[] = $post_type_data;
+		}
+		return $post_type_labels;
 	}
 
 	/**
