@@ -124,13 +124,13 @@ class Initial_State {
 		$post_type_labels = array();
 
 		// We don't need all the additional post_type data, just the slug & label
-		foreach ( $wp_post_types as $post_type_object ) {
-			$post_type_data = array(
-				'slug'  => $post_type_object->name,
-				'label' => $post_type_object->label,
+		foreach ( $wp_post_types as $wp_post_type ) {
+			$post_type = array(
+				'slug'  => $wp_post_type->name,
+				'label' => $wp_post_type->label,
 			);
 
-			$post_type_labels[] = $post_type_data;
+			$post_type_labels[] = $post_type;
 		}
 		return $post_type_labels;
 	}
