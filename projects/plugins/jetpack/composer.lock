@@ -911,16 +911,16 @@
         },
         {
             "name": "automattic/jetpack-lazy-images",
-            "version": "v2.1.18",
+            "version": "v2.1.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-lazy-images.git",
-                "reference": "55ac4d1dbbf5214e30171b0cc19ac0d9765a23e3"
+                "reference": "88e6cf1e686f78cc56e42726c419c7d729ce54a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-lazy-images/zipball/55ac4d1dbbf5214e30171b0cc19ac0d9765a23e3",
-                "reference": "55ac4d1dbbf5214e30171b0cc19ac0d9765a23e3",
+                "url": "https://api.github.com/repos/Automattic/jetpack-lazy-images/zipball/88e6cf1e686f78cc56e42726c419c7d729ce54a5",
+                "reference": "88e6cf1e686f78cc56e42726c419c7d729ce54a5",
                 "shasum": ""
             },
             "require": {
@@ -955,9 +955,9 @@
             ],
             "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-lazy-images/tree/v2.1.18"
+                "source": "https://github.com/Automattic/jetpack-lazy-images/tree/v2.1.19"
             },
-            "time": "2022-06-21T07:32:29+00:00"
+            "time": "2022-06-28T23:05:35+00:00"
         },
         {
             "name": "automattic/jetpack-licensing",
