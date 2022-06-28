@@ -4,7 +4,6 @@
 
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
