@@ -9,7 +9,7 @@
 
 We've updated Jetpack's [Lazy Images feature](https://jetpack.com/support/lazy-images/) to be compatible with a recent Safari browser update which enables native lazy loading of images by default. To test, try the following:
 
-- Make sure you are using Safari version 15.4 or later to test with.
+- Make sure you are using Safari version 15.4 or later to test with. If you have an iPhone or iPad running iOS 15.4+, this will be the perfect place to test that change.
 - On a Jetpack connected site, check that Lazy Images are toggled on in: Jetpack → Settings → Performance
 - Create a test post/page with a gallery block. Add enough images for multiple rows and so that you will need to scroll down the page to view all the images (you could also use a spacer block above the gallery).
 - In Safari, view your created gallery at multiple viewport widths. Refresh the page a few times and make sure that when you are scrolling down to lazily load images, all of the images load.
@@ -21,7 +21,7 @@ We've updated Jetpack's [Lazy Images feature](https://jetpack.com/support/lazy-i
 
 The [Contact Form](https://jetpack.com/support/jetpack-blocks/contact-form/) has undergone some maintenance cleanup. Verify expected functionality of forms remains by:
 
-- On a Jetpack conencted site, add a Jetpack Contact Form block to a new test post.
+- On a Jetpack connected site, add a Jetpack Contact Form block to a new test post.
 - Start with any form type and try adding/editing a few form fields. In particular, try adding a multiple checkbox field, with multiple possible entries.
 - In the form block settings, specify an email address for new form submission notifications.
 - Using a private browsing window, submit some test form responses.
