@@ -18,8 +18,8 @@ import { VpBlock } from '../edit';
 import Loading from '../loading';
 // import { getJWT, useResumableUploader } from '../resumable-upload/use-uploader';
 import { getVideoPressUrl } from '../url';
+import VideoPressInspectorControls from './components/inspector-controls';
 import { useResumableUploader } from './hooks/use-uploader.js';
-import VideoPressInspectorControls from './inspector-controls';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
