@@ -5,6 +5,7 @@ const path = require( 'path' );
 const myCustomLevels = {
 	levels: {
 		error: 3,
+		sync: 3.5,
 		warn: 4,
 		notice: 5,
 		info: 6,
@@ -19,6 +20,7 @@ const myCustomLevels = {
 		step: 'cyan',
 		prerequisites: 'cyan',
 		cli: 'cyanBG black',
+		sync: 'red',
 	},
 };
 
@@ -60,6 +62,12 @@ module.exports = createLogger( {
 			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-debug.log' ),
 			format: stringFormat,
 			level: 'debug',
+		} ),
+
+		new transports.File( {
+			filename: path.resolve( config.get( 'dirs.logs' ), 'sync-debug.log' ),
+			format: stringFormat,
+			level: 'sync',
 		} ),
 
 		new transports.Console( {

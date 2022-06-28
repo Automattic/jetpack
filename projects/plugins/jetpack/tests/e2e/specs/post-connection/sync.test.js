@@ -7,13 +7,13 @@ import {
 	disableDedicatedSync,
 	isSyncQueueEmpty,
 } from '../../helpers/sync-helper.js';
-import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import { BlockEditorPage, JetpackDashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
+import logger from 'jetpack-e2e-commons/logger.cjs';
 
 test.describe( 'Sync', () => {
 	const wpcomRestAPIBase = 'https://public-api.wordpress.com/rest/';
-	let blockEditor;
 	let wpcomBlogId;
 	let wpcomForcedPostsUrl;
 	let wpcomPostsResponse;
@@ -28,13 +28,11 @@ test.describe( 'Sync', () => {
 		wpcomBlogId = JSON.parse( jetpackOptions ).id;
 		wpcomForcedPostsUrl =
 			wpcomRestAPIBase + `v1/sites/${ wpcomBlogId }/posts?force=wpcom&search=Sync`;
+		logger.sync( `START: ${ jetpackOptions }` );
 	} );
 
-	test.beforeEach( async ( { page } ) => {
-		await test.step( 'Visit block editor page', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
-			await blockEditor.resolveWelcomeGuide( false );
-
+	test.beforeEach( async () => {
+		await test.step( 'Check sync queue status before test', async () => {
 			await assertSyncQueueIsEmpty( 'Sync queue should be empty [before]' );
 		} );
 	} );
@@ -50,8 +48,7 @@ test.describe( 'Sync', () => {
 		const postTitle = `Normal Sync ${ Date.now() }`;
 
 		await test.step( 'Publish a post', async () => {
-			await publishPost( postTitle );
-			await blockEditor.viewPost();
+			await publishPost( postTitle, page );
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
@@ -81,8 +78,7 @@ test.describe( 'Sync', () => {
 		const postTitle = `Disabled Sync ${ Date.now() }`;
 
 		await test.step( 'Publish a post', async () => {
-			await publishPost( postTitle );
-			await blockEditor.viewPost();
+			await publishPost( postTitle, page );
 		} );
 
 		await test.step( 'Assert post is not synced', async () => {
@@ -105,13 +101,18 @@ test.describe( 'Sync', () => {
 		await test.step( 'Enable Dedicated Sync', async () => {
 			const dedicatedSyncEnabled = await enableDedicatedSync();
 			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
+			await JetpackDashboardPage.visit( page );
+			logger.sync( `Navigate to Jetpack dashboard page` );
+			await assertSyncQueueIsEmpty(
+				'Sync queue should be empty [before post publish, after enabling dedicated sync]',
+				60000
+			);
 		} );
 
 		const postTitle = `Dedicated Sync ${ Date.now() }`;
 
 		await test.step( 'Publish a post', async () => {
-			await publishPost( postTitle );
-			await blockEditor.viewPost();
+			await publishPost( postTitle, page );
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
@@ -132,10 +133,16 @@ test.describe( 'Sync', () => {
 		} );
 	} );
 
-	async function publishPost( title ) {
+	async function publishPost( title, page ) {
+		logger.sync( 'Publishing new post' );
+		const blockEditor = await BlockEditorPage.visit( page );
+		await blockEditor.resolveWelcomeGuide( false );
 		await blockEditor.setTitle( title );
 		await blockEditor.selectPostTitle();
 		await blockEditor.publishPost();
+		logger.sync( `Post published: ${ title }` );
+		await blockEditor.viewPost();
+		logger.sync( `Post visited: ${ title }` );
 	}
 
 	async function assertSyncQueueIsEmpty( message = 'Sync queue should be empty', timeout = 30000 ) {
