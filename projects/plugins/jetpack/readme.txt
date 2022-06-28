@@ -248,7 +248,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - VideoPress: introduce VideoPress block currently in beta status.
 
 #### Improved compatibility
-- Connection: update connection banner to use updated Emerald stylying.
+- Connection: update connection banner to use updated Emerald styling.
 - VideoPress: update non-iframe player to latest version for sites using the `jetpack_videopress_player_use_iframe` filter.
 
 #### Bug fixes

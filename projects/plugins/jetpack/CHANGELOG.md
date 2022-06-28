@@ -8,7 +8,7 @@
 - VideoPress: introduce VideoPress block currently in beta status. [#24821, #24844, #24848]
 
 ### Improved compatibility
-- Connection: update connection banner to use updated Emerald stylying. [#24501]
+- Connection: update connection banner to use updated Emerald styling. [#24501]
 - VideoPress: update non-iframe player to latest version for sites using the `jetpack_videopress_player_use_iframe` filter. [#24846]
 
 ### Bug fixes
