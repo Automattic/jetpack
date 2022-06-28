@@ -163,7 +163,7 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 - Added Social card to My Jetpack.
 
 #### Changed
-- Renames main branch `master` references to `trunk
+- Renamed main branch `master` references to `trunk
 - Updated package dependencies.
 
 --------

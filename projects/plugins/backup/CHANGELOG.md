@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Social card to My Jetpack.
 
 ### Changed
-- Renames main branch `master` references to `trunk`
+- Renamed main branch `master` references to `trunk`
 - Updated package dependencies.
 
 ## 1.3.0 - 2022-05-19
