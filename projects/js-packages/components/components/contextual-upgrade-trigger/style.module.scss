@@ -7,14 +7,13 @@
 	align-items: center;
 	gap: calc( var(--spacing-base) * 3 );
 	cursor: pointer;
+	text-align: left;
+	background: none;
+	margin: 0;
+	width: 100%;
 
-	& .icon {
-		fill: var(--jp-green-40);
-		transition: transform .1s ease-out;
-	}
-
-	& .cta {
-		font-weight: 600;
+	&:focus, &:active {
+		outline-color: var(--jp-black);
 	}
 
 	&:hover {
@@ -29,3 +28,11 @@
 	}
 }
 
+.cta {
+	font-weight: 600;
+}
+
+.icon {
+	fill: var(--jp-green-40);
+	transition: transform .1s ease-out;
+}

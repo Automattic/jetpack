@@ -1,16 +1,18 @@
 import { Icon, arrowRight } from '@wordpress/icons';
 import Text from '../text';
 import styles from './style.module.scss';
+import { CutBaseProps } from './types';
+import type React from 'react';
 
-const ContextualUpgradeTrigger = () => {
+const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( { description, cta, onClick } ) => {
 	return (
-		<div className={ styles.cut }>
+		<button className={ styles.cut } onClick={ onClick } role="link">
 			<div>
-				<Text>Your site is updated with new content several times a day</Text>
-				<Text className={ styles.cta }>Consider upgrading to real-time protection</Text>
+				<Text>{ description }</Text>
+				<Text className={ styles.cta }>{ cta }</Text>
 			</div>
 			<Icon icon={ arrowRight } className={ styles.icon } size={ 30 } />
-		</div>
+		</button>
 	);
 };
 
