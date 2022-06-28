@@ -108,7 +108,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 			return cleanRegeneratingProcess();
 		}
 
-		// Bail early (clean the timer) when it has been already started.
+		// Bail early when it has been already started.
 		if ( rePreviewAttemptTimer?.current ) {
 			return;
 		}
