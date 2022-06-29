@@ -64,6 +64,26 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	}, [] );
 
 	/*
+	 * Tracking error data
+	 */
+	const [ uploadErrorData, setUploadErrorDataState ] = useState( null );
+
+	// Define a memoized function to register the error data.
+	const setUploadErrorData = useCallback( function ( error ) {
+		if ( error?.originalResponse ) {
+			try {
+				// parse failed request response message
+				const body = error?.originalResponse?.getBody?.();
+				const parsedBody = JSON.parse( body );
+				setUploadErrorDataState( parsedBody );
+				return;
+			} catch {}
+		}
+
+		setUploadErrorDataState( error );
+	}, [] );
+
+	/*
 	 * It's considered the file is uploading
 	 * when the progress value is lower than the total.
 	 */
@@ -161,10 +181,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	const [ videoPressUploader ] = useResumableUploader( {
-		onError: function ( error ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Error: ', error );
-		},
+		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
 		onSuccess: setAttributes,
 	} );
@@ -197,6 +214,11 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 			return;
 		}
 
+		// reset error
+		if ( uploadErrorData ) {
+			setUploadErrorData( null );
+		}
+
 		setUploadingProgress( [ 0, file.size ] );
 
 		// Upload file to VideoPress infrastructure.
@@ -209,6 +231,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	 *     - no in-progress uploading file to the backend
 	 *     - no file recently uploaded to the backend
 	 */
+
 	if ( ! src && ! isUploadingFile && ! fileHasBeenUploaded ) {
 		return (
 			<MediaPlaceholder
@@ -225,7 +248,18 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 					// eslint-disable-next-line no-console
 					console.error( 'Error: ', error );
 				} }
-			/>
+			>
+				{ uploadErrorData && (
+					<div
+						role="alert"
+						aria-live="assertive"
+						className="jetpack-videopress-upload-error-message"
+					>
+						{ uploadErrorData?.data?.message ??
+							__( 'Failed to upload your video. Please try again.', 'jetpack' ) }
+					</div>
+				) }
+			</MediaPlaceholder>
 		);
 	}
 
