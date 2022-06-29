@@ -42,4 +42,5 @@ export { default as ProductOffer, IconsCard } from './components/product-offer';
 export { default as Dialog } from './components/dialog';
 export { default as RecordMeterBar } from './components/record-meter-bar';
 export { default as Alert } from './components/alert';
+export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger';
 export { getUserLocale, cleanLocale } from './lib/locale';

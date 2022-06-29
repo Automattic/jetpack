@@ -1,12 +1,7 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
-
+import userEvent from '@testing-library/user-event';
 import { PinterestBlockControls } from '../controls';
+import '@testing-library/jest-dom';
 
 describe( 'PinterestBlockControls', () => {
 	const setEditingState = jest.fn();

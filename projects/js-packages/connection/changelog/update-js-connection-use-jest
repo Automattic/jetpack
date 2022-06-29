@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix include loop between state/store and state/controls + state/resolvers.
