@@ -206,18 +206,36 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		);
 	}
 
-	// 2 - No html preview. Show generating message.
-	if ( ! html ) {
+	// 4 - Generating video preview
+	if (
+		isRequestingEmbedPreview ||
+		( isGeneratingPreview > 0 && isGeneratingPreview < 10 ) ||
+		! preview
+	) {
 		return (
 			<>
 				<div { ...blockProps }>
 					<Spinner />
-					<div>{ __( '(4) Generating preview…', 'jetpack' ) }</div>
+					<div>{ __( '(4) Generating preview…', 'jetpack' ) } </div>
 					<div>
 						Attempt: <strong>{ isGeneratingPreview }</strong>
 					</div>
 				</div>
 			</>
+		);
+	}
+
+	// 5 - Generating video preview
+	if ( isGeneratingPreview >= 10 && ! preview ) {
+		return (
+			<div { ...blockProps }>
+				<div>
+					{ __(
+						'(5) Impossible to get a video preview after ten attempts. Show error.',
+						'jetpack'
+					) }
+				</div>
+			</div>
 		);
 	}
 
