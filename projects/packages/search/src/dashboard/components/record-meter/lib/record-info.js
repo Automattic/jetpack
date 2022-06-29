@@ -56,11 +56,12 @@ export default function getRecordInfo(
 			postTypeBreakdown,
 			postTypeLabels
 		);
-		for ( let i = 0; i < numItems; i++ ) {
+
+		for ( let i = 0; i < numItems - 1; i++ ) {
 			const postTypeDetails = Object.values( postTypeBreakdownWithLabels )[ i ];
-			const { count, slug: slug, label: name } = postTypeDetails;
+			const { count, label } = postTypeDetails;
 			chartPostTypeBreakdown.push( {
-				data: createData( count, colors[ i ], name, slug ),
+				data: createData( count, colors[ i ], label ),
 			} );
 			currentCount = currentCount + count;
 		}
@@ -121,9 +122,9 @@ export function addLabelsToPostTypeBreakdown( postTypeBreakdown, postTypeLabels 
 		for ( const label of postTypeLabels ) {
 			if ( postType.slug === label.slug ) {
 				postTypeBreakdownWithLabels.push( {
-					label: label.label,
-					slug: label.slug,
 					count: postType.count,
+					slug: label.slug,
+					label: label.label,
 				} );
 			}
 		}
