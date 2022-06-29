@@ -38,13 +38,16 @@ class SiteStatsComponent extends React.Component {
 			roles_contributor: includes( roles, 'contributor', false ),
 			roles_subscriber: includes( roles, 'subscriber', false ),
 		};
+
+		// This allows for custom role stats settings to be properly recognized and saved.
+		this.addCustomRolesState( roles, countRoles );
 	}
 
 	/**
 	 * Update state so toggles are updated.
 	 *
-	 * @param {string} optionName the slug of the option to update
-	 * @param {string} optionSet  the name of a set of options ?
+	 * @param {string} optionName - the slug of the option to update
+	 * @param {string} optionSet  - the name of a set of options ?
 	 */
 	updateOptions = ( optionName, optionSet ) => {
 		let value = this.props.getOptionValue( optionSet, 'stats' ),
@@ -98,6 +101,28 @@ class SiteStatsComponent extends React.Component {
 	handleRoleToggleChange = ( role, setting ) => {
 		return () => this.updateOptions( role, setting );
 	};
+
+	/**
+	 * Allows for custom role stats settings to be properly recognized and saved.
+	 *
+	 * @param {string} roles - All user roles, as an array.
+	 * @param {number} countRoles - The number of roles that are in use.
+	 */
+	addCustomRolesState( roles, countRoles ) {
+		roles.forEach( role => {
+			if (
+				role === 'administrator' ||
+				role === 'editor' ||
+				role === 'author' ||
+				role === 'subscriber' ||
+				role === 'contributor'
+			) {
+				return;
+			}
+			this.state[ `roles_${ role }` ] = includes( roles, role, false );
+			this.state[ `count_roles_${ role }` ] = includes( countRoles, role, false );
+		} );
+	}
 
 	handleStatsOptionToggle( option_slug ) {
 		return () => this.props.updateFormStateModuleOption( 'stats', option_slug );
