@@ -5,15 +5,15 @@ import {
 	disableSync,
 	enableDedicatedSync,
 	disableDedicatedSync,
-	waitTillSyncQueueIsEmpty,
+	isSyncQueueEmpty,
 } from '../../helpers/sync-helper.js';
-import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import { BlockEditorPage, JetpackDashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
+import logger from 'jetpack-e2e-commons/logger.cjs';
 
 test.describe( 'Sync', () => {
 	const wpcomRestAPIBase = 'https://public-api.wordpress.com/rest/';
-	let blockEditor;
 	let wpcomBlogId;
 	let wpcomForcedPostsUrl;
 	let wpcomPostsResponse;
@@ -28,12 +28,12 @@ test.describe( 'Sync', () => {
 		wpcomBlogId = JSON.parse( jetpackOptions ).id;
 		wpcomForcedPostsUrl =
 			wpcomRestAPIBase + `v1/sites/${ wpcomBlogId }/posts?force=wpcom&search=Sync`;
+		logger.sync( `START: ${ jetpackOptions }` );
 	} );
 
-	test.beforeEach( async ( { page } ) => {
-		await test.step( 'Visit block editor page', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
-			await blockEditor.resolveWelcomeGuide( false );
+	test.beforeEach( async () => {
+		await test.step( 'Check sync queue status before test', async () => {
+			await assertSyncQueueIsEmpty( 'Sync queue should be empty [before]' );
 		} );
 	} );
 
@@ -45,18 +45,15 @@ test.describe( 'Sync', () => {
 	} );
 
 	test( 'Normal Sync flow', async ( { page } ) => {
+		const postTitle = `Normal Sync ${ Date.now() }`;
+
 		await test.step( 'Publish a post', async () => {
-			await blockEditor.setTitle( 'Testing Sync' );
-			await blockEditor.selectPostTitle();
-			await blockEditor.publishPost();
-			await blockEditor.viewPost();
+			await publishPost( postTitle, page );
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await expect(
-				waitTillSyncQueueIsEmpty(),
-				'Sync queue should be empty'
-			).resolves.toBeTruthy();
+			await assertSyncQueueIsEmpty( 'Sync queue should be empty [after post publish]' );
+
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
@@ -66,7 +63,7 @@ test.describe( 'Sync', () => {
 				'Previously created post should be present in the synced posts'
 			).toContainEqual(
 				expect.objectContaining( {
-					title: 'Testing Sync',
+					title: postTitle,
 				} )
 			);
 		} );
@@ -78,11 +75,10 @@ test.describe( 'Sync', () => {
 			expect( syncDisabled ).toMatch( 'Sync Disabled' );
 		} );
 
+		const postTitle = `Disabled Sync ${ Date.now() }`;
+
 		await test.step( 'Publish a post', async () => {
-			await blockEditor.setTitle( 'Disabled Sync' );
-			await blockEditor.selectPostTitle();
-			await blockEditor.publishPost();
-			await blockEditor.viewPost();
+			await publishPost( postTitle, page );
 		} );
 
 		await test.step( 'Assert post is not synced', async () => {
@@ -107,18 +103,26 @@ test.describe( 'Sync', () => {
 			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
 		} );
 
+		await test.step( 'Visit Jetpack Dashboard page', async () => {
+			await JetpackDashboardPage.visit( page );
+			logger.sync( `Navigate to Jetpack dashboard page` );
+		} );
+
+		await test.step( 'Assert sync queue is empty', async () => {
+			await assertSyncQueueIsEmpty(
+				'Sync queue should be empty [before post publish, after enabling dedicated sync]'
+			);
+		} );
+
+		const postTitle = `Dedicated Sync ${ Date.now() }`;
+
 		await test.step( 'Publish a post', async () => {
-			await blockEditor.setTitle( 'Dedicated Sync' );
-			await blockEditor.selectPostTitle();
-			await blockEditor.publishPost();
-			await blockEditor.viewPost();
+			await publishPost( postTitle, page );
 		} );
 
 		await test.step( 'Assert post is synced', async () => {
-			await expect(
-				waitTillSyncQueueIsEmpty( 3000, 30 ),
-				'Sync queue should be empty'
-			).resolves.toBeTruthy();
+			await assertSyncQueueIsEmpty( 'Sync queue should be empty [after post publish]' );
+
 			wpcomPostsResponse = await page.request.get( wpcomForcedPostsUrl );
 			expect( wpcomPostsResponse.ok(), 'WPCOM get posts response is OK' ).toBeTruthy();
 
@@ -128,9 +132,35 @@ test.describe( 'Sync', () => {
 				'Previously created post should be present in the synced posts'
 			).toContainEqual(
 				expect.objectContaining( {
-					title: 'Dedicated Sync',
+					title: postTitle,
 				} )
 			);
 		} );
 	} );
+
+	async function publishPost( title, page ) {
+		logger.sync( 'Publishing new post' );
+		const blockEditor = await BlockEditorPage.visit( page );
+		await blockEditor.resolveWelcomeGuide( false );
+		await blockEditor.setTitle( title );
+		await blockEditor.selectPostTitle();
+		await blockEditor.publishPost();
+		logger.sync( `Post published: ${ title }` );
+		await blockEditor.viewPost();
+		logger.sync( `Post visited: ${ title }` );
+	}
+
+	async function assertSyncQueueIsEmpty( message = 'Sync queue should be empty', timeout = 30000 ) {
+		await expect
+			.poll(
+				async () => {
+					return await isSyncQueueEmpty();
+				},
+				{
+					message,
+					timeout,
+				}
+			)
+			.toBeTruthy();
+	}
 } );

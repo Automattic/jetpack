@@ -1,8 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
 import WhatsAppButtonConfiguration from '../configuration';
+import '@testing-library/jest-dom';
 
 const defaultAttributes = {
 	countryCode: 'us',
@@ -100,8 +99,6 @@ describe( 'Toolbar settings', () => {
 		const user = userEvent.setup();
 		render( <WhatsAppButtonConfiguration { ...props } /> );
 		await user.click( screen.getByLabelText( 'WhatsApp Button Settings' ) );
-		await waitFor( () => screen.getByLabelText( 'Country code' ) );
-
-		expect( screen.getByLabelText( 'Country code' ) ).toBeInTheDocument();
+		await expect( screen.findByLabelText( 'Country code' ) ).resolves.toBeInTheDocument();
 	} );
 } );

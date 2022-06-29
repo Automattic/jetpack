@@ -10,6 +10,11 @@ const CLOSE_TO_LIMIT_PERCENT = 0.8;
 const DISMISSED_NOTICES = 'jetpack-search-dismissed-notices';
 
 const getNotices = ( tierMaximumRecords = null ) => {
+	const recordLimit =
+		typeof tierMaximumRecords === 'number'
+			? tierMaximumRecords.toLocaleString()
+			: tierMaximumRecords;
+
 	return {
 		1: {
 			id: 1,
@@ -42,7 +47,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 						"You won't be charged for the new tier until your next billing date.",
 					'jetpack-search-pkg'
 				),
-				tierMaximumRecords
+				recordLimit
 			),
 			link: {
 				text: __( 'Learn more', 'jetpack-search-pkg' ),
