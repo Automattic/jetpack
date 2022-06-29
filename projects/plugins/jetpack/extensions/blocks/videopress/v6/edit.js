@@ -3,13 +3,8 @@
  */
 
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
-import {
-	InspectorControls,
-	useBlockProps,
-	BlockIcon,
-	MediaPlaceholder,
-} from '@wordpress/block-editor';
-import { Button, PanelBody, ToggleControl, Tooltip } from '@wordpress/components';
+import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
+import { Button } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -23,6 +18,7 @@ import { VpBlock } from '../edit';
 import Loading from '../loading';
 // import { getJWT, useResumableUploader } from '../resumable-upload/use-uploader';
 import { getVideoPressUrl } from '../url';
+import VideoPressInspectorControls from './components/inspector-controls';
 import { useResumableUploader } from './hooks/use-uploader.js';
 import './editor.scss';
 
@@ -39,16 +35,33 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		controls,
 	} );
 
-	// Uploading file to backend states.
-	const [ uploadingProgress, setUploadingProgress ] = useState( [] );
+	/*
+	 * Tracking state when uploading the video file.
+	 * uploadingProgress is an array with two items:
+	 *  - the first item is the upload progress
+	 *  - the second item is total
+	 */
+	const [ uploadingProgress, setUploadingProgressState ] = useState( [] );
+
+	// Define a memoized function to register the upload progress.
+	const setUploadingProgress = useCallback( function ( ...args ) {
+		setUploadingProgressState( args );
+	}, [] );
+
+	/*
+	 * It's considered the file is uploading
+	 * when the progress value is lower than the total.
+	 */
 	const isUploadingFile = !! (
-		uploadingProgress?.length && uploadingProgress[ 0 ] !== uploadingProgress[ 1 ]
+		uploadingProgress?.length && uploadingProgress[ 0 ] < uploadingProgress[ 1 ]
 	);
+
+	// File has been upload when the progress value is equal to the total.
 	const fileHasBeenUploaded = !! (
 		uploadingProgress?.length && uploadingProgress[ 0 ] === uploadingProgress[ 1 ]
 	);
 
-	// Get video preview status
+	// Get video preview status.
 	const { preview, isRequestingEmbedPreview } = useSelect(
 		select => {
 			return {
@@ -85,23 +98,9 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		className: 'wp-block-jetpack-videopress is-placeholder-container',
 	} );
 
-	const renderControlLabelWithTooltip = ( label, tooltipText ) => {
-		return (
-			<Tooltip text={ tooltipText } position="top">
-				<span>{ label }</span>
-			</Tooltip>
-		);
-	};
-
-	const handleAttributeChange = attributeName => {
-		return newValue => {
-			setAttributes( { [ attributeName ]: newValue } );
-		};
-	};
-
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	const [ videoPressUploader ] = useResumableUploader( {
-		onProgress: ( progress, total ) => setUploadingProgress( [ progress, total ] ),
+		onProgress: setUploadingProgress,
 		onSuccess: setAttributes,
 	} );
 
@@ -139,24 +138,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		videoPressUploader( file );
 	}
 
-	const blockSettings = (
-		<>
-			<InspectorControls>
-				<PanelBody title={ __( 'Video Settings', 'jetpack' ) }>
-					<ToggleControl
-						label={ renderControlLabelWithTooltip(
-							__( 'Playback Controls', 'jetpack' ),
-							/* translators: Tooltip describing the "controls" option for the VideoPress player */
-							__( 'Display the video playback controls', 'jetpack' )
-						) }
-						onChange={ handleAttributeChange( 'controls' ) }
-						checked={ controls }
-					/>
-				</PanelBody>
-			</InspectorControls>
-		</>
-	);
-
 	/*
 	 * 1 - Initial block state. Show MediaPlaceholder when:
 	 *     - no src attribute,
@@ -184,7 +165,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	if ( isUploadingFile ) {
 		return (
 			<>
-				{ blockSettings }
 				<div { ...blockProps }>
 					<Loading text={ __( '(2) Uploading file to backend…', 'jetpack' ) } />;
 				</div>
@@ -196,7 +176,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	if ( fileHasBeenUploaded && ! isRequestingEmbedPreview && ! videoPressUrl ) {
 		return (
 			<>
-				{ blockSettings }
 				<div { ...blockProps }>
 					<Loading text={ __( '(3) Uploading file to VideoPress…', 'jetpack' ) } />;
 				</div>
@@ -208,7 +187,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	if ( isRequestingEmbedPreview && ! preview ) {
 		return (
 			<>
-				{ blockSettings }
 				<div { ...blockProps }>
 					<Loading text={ __( '(4) Generating preview…', 'jetpack' ) } />
 				</div>
@@ -220,7 +198,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	if ( fileHasBeenUploaded && ! isRequestingEmbedPreview && ! preview ) {
 		return (
 			<>
-				{ blockSettings }
 				<div { ...blockProps }>
 					<p>
 						{ __( "The video is still being processed. It'll take a little bit more…", 'jetpack' ) }
@@ -237,7 +214,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	if ( ! preview ) {
 		return (
 			<>
-				{ blockSettings }
 				<div { ...blockProps }>
 					<Loading text={ __( '(6) Generating preview…', 'jetpack' ) } />
 				</div>
@@ -248,7 +224,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	// X - Show VideoPress player. @todo: finish
 	return (
 		<>
-			{ blockSettings }
+			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			<VpBlock
 				html={ html }
 				scripts={ scripts }
