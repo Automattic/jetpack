@@ -20,7 +20,7 @@ export default function VideoPressPlayer( {
 	const { align, maxWidth } = attributes;
 
 	const blockProps = useBlockProps( {
-		className: classNames( 'wp-block-jetpack-videopress', {
+		className: classNames( 'wp-block-jetpack-videopress', 'videopress-player', {
 			[ `align${ align }` ]: align,
 			[ 'is-updating-preview' ]: isUpdatingPreview,
 		} ),

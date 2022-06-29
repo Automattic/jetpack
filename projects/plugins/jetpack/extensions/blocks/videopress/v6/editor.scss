@@ -33,6 +33,10 @@
 		background-color: transparent;
 		z-index: 1;
 	}
+
+	&.videopress-player {
+		margin: 0;
+	}
 }
 
 .jetpack-videopress-upload-error-message {
