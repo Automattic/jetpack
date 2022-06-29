@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Set `"prefer-stable": true` in composer.json. No change to the package itself.
-
-
