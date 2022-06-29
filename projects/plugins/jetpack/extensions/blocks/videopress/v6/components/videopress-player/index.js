@@ -10,14 +10,13 @@ import classNames from 'classnames';
 export default function VideoPressPlayer( {
 	html,
 	isUpdatingPreview,
-	caption,
 	isSelected,
 	attributes,
 	setAttributes,
 	scripts = [],
 } ) {
 	// @todo: implemen maxWidth
-	const { align, maxWidth } = attributes;
+	const { align, maxWidth, caption } = attributes;
 
 	const blockProps = useBlockProps( {
 		className: classNames( 'wp-block-jetpack-videopress', 'videopress-player', {
