@@ -35,6 +35,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		seekbarPlayedColor,
 		src,
 		guid,
+		cacheHtml,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -87,7 +88,25 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		},
 		[ videoPressUrl ]
 	);
-	const { html, scripts } = preview ? preview : { html: null, scripts: null };
+	const { html: previewHtml, scripts } = preview ? preview : { html: null, scripts: [] };
+
+	/*
+	 * Store the preview html into a block attribute,
+	 * to be used as a fallback while it pulls the new preview.
+	 * Once the html changes, the attr will be updated, too.
+	 */
+	const html = previewHtml || cacheHtml;
+	useEffect( () => {
+		if ( ! previewHtml ) {
+			return;
+		}
+
+		if ( previewHtml === cacheHtml ) {
+			return;
+		}
+
+		setAttributes( { cacheHtml: previewHtml } );
+	}, [ previewHtml, cacheHtml, setAttributes ] );
 
 	// Helper to invalidate the preview cache.
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;

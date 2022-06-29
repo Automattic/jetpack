@@ -44,4 +44,9 @@ export default {
 	src: {
 		type: 'string',
 	},
+
+	cacheHtml: {
+		type: 'string',
+		default: '',
+	},
 };
