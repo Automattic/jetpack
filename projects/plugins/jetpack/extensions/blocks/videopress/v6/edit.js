@@ -138,7 +138,12 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	}
 
 	useEffect( () => {
-		// VideoPress URL is not defined. Bail early and cleans the timer.
+		// Attempts limit achieved. Bail early.
+		if ( isGeneratingPreview >= 10 ) {
+			return cleanRegeneratingProcess();
+		}
+
+		// VideoPress URL is not defined. Bail early and cleans the time.
 		if ( ! videoPressUrl ) {
 			return cleanRegeneratingProcess();
 		}
@@ -172,6 +177,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 		return cleanRegeneratingProcess;
 	}, [
+		isGeneratingPreview,
 		rePreviewAttemptTimer,
 		invalidateCachedEmbedPreview,
 		preview,
