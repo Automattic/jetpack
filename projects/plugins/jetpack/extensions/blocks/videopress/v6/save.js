@@ -9,7 +9,20 @@ import classnames from 'classnames';
 import { getVideoPressUrl } from '../url';
 
 export default function save( { attributes } ) {
-	const { align, autoplay, guid, controls } = attributes;
+	const {
+		align,
+		autoplay,
+		loop,
+		muted,
+		controls,
+		playsinline,
+		preload,
+		useAverageColor,
+		seekbarColor,
+		seekbarLoadingColor,
+		seekbarPlayedColor,
+		guid,
+	} = attributes;
 
 	const blockProps = useBlockProps.save( {
 		className: classnames( 'jetpack-videopress', {
@@ -17,15 +30,23 @@ export default function save( { attributes } ) {
 		} ),
 	} );
 
-	const url = getVideoPressUrl( guid, {
+	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
 		controls,
+		loop,
+		muted,
+		playsinline,
+		preload,
+		seekbarColor,
+		seekbarLoadingColor,
+		seekbarPlayedColor,
+		useAverageColor,
 	} );
 
 	return (
 		<figure { ...blockProps }>
 			<div className="jetpack-videopress__wrapper">
-				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
+				{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
 			</div>
 		</figure>
 	);
