@@ -31,13 +31,13 @@ import { get, indexOf } from 'lodash';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
-import { getVideoPressUrl } from './url';
-import { getClassNames, removeFileNameExtension } from './utils';
 import ResumableUpload from './resumable-upload';
 import SeekbarColorSettings from './seekbar-color-settings';
+import { VideoPressIcon } from '../../shared/icons';
 import TracksEditor from './tracks-editor';
 import { UploadingEditor } from './uploading-editor';
-import { VideoPressIcon } from '../../shared/icons';
+import { getVideoPressUrl } from './url';
+import { getClassNames, removeFileNameExtension } from './utils';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 

@@ -2,7 +2,6 @@
  * External Dependencies
  */
 import filesize from 'filesize';
-
 /**
  * WordPress dependencies
  */
@@ -24,8 +23,8 @@ import filesize from 'filesize';
  * Internal Dependencies
  */
 import { VideoPressBlockContext } from '../components';
-import { getJWT, resumableUploader } from './use-uploader';
 import './style.scss';
+import { getJWT, resumableUploader } from './use-uploader';
 
 export default function ResumableUpload( { file } ) {
 	const [ progress, setProgress ] = useState( 0 );
