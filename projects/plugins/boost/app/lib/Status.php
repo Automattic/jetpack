@@ -50,6 +50,14 @@ class Status {
 		return 'jetpack_boost_status_' . $module_slug;
 	}
 
+	/**
+	 * Update modules which are to follow the status of the current module.
+	 *
+	 * For example: critical-css module status should be synced with cloud-css module.
+	 *
+	 * @param $new_status
+	 * @return void
+	 */
 	protected function update_mapped_modules( $new_status ) {
 		if ( ! isset( $this->status_sync_map[ $this->slug ] ) ) {
 			return;
