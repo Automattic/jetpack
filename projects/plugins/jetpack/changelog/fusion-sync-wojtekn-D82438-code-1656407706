@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WordPress.com tests: mark AMP-related tests as skipped when running in WP.com

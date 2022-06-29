@@ -2,6 +2,32 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.1-beta - 2022-06-28
+### Enhancements
+- Dashboard: add "Getting started with Jetpack Backup" video to Assistant and "At a glance" dashboard. [#24774]
+- VideoPress: introduce VideoPress block currently in beta status. [#24821, #24844, #24848]
+
+### Improved compatibility
+- Connection: update connection banner to use updated Emerald styling. [#24501]
+- VideoPress: update non-iframe player to latest version for sites using the `jetpack_videopress_player_use_iframe` filter. [#24846]
+
+### Bug fixes
+- CLI: avoid PHP notice when running connection tests. [#24802]
+- Contact Form: ensure the forms are always properly displayed. [#24857]
+- Payments Block: only add PayPal email meta to Payment posts. [#24806]
+- Payments Block: remove hardcoded recurring-payments button color. [#24801]
+- Subscribe Block: fix double-quote breaking the Subscribe block button. [#24763]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add integration tests for Sync checksums. [#24772]
+- E2E tests: improve sync tests. [#24798]
+- E2E tests: retry failing tests. [#24809]
+- Minor phpcs fixes to bring things in sync with dotcom. [#24608]
+- Remove autounit annotation. [#24845]
+- Updated package dependencies. [#24794, #24827, #24831]
+- WordPress.com REST API: add new action allowing you to trigger an action right before we switch themes via the API. [#24818]
+- WordPress.com REST API: add new AMP deprecation field to the site settings. [#24814]
+
 ## 11.1-a.5 - 2022-06-21
 ### Enhancements
 - VideoPress: enable blocks with VideoPress markdown to be previewed within the mobile app. [#24548]

@@ -1,0 +1,21 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.wp-block-jetpack-videopress {
+	background: var( --wp-admin-theme-color );
+
+	&.is-placeholder-container {
+		background: $white;
+		color: $gray-900;
+		font-family: $default-font;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-start;
+		padding: 20px;
+		border: 1px solid $gray-900;
+		border-radius: 2px;
+		font-size: $default-font-size;
+		min-height: 200px;
+	}
+}

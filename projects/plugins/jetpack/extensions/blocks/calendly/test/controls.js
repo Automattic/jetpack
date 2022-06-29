@@ -1,12 +1,7 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, render, screen } from '@testing-library/react';
-
 import { CalendlyBlockControls, CalendlyInspectorControls } from '../controls';
+import '@testing-library/jest-dom';
 
 describe( 'CalendlyBlockControls', () => {
 	const onEditClick = jest.fn();
@@ -24,7 +19,7 @@ describe( 'CalendlyBlockControls', () => {
 		expect( wrapper ).toHaveAttribute( 'type', 'button' );
 	} );
 
-	test( 'triggers onEditClick when user clicks button', async () =>{
+	test( 'triggers onEditClick when user clicks button', async () => {
 		const user = userEvent.setup();
 		render( <CalendlyBlockControls { ...defaultProps } /> );
 
@@ -66,6 +61,7 @@ describe( 'CalendlyInspectorControls', () => {
 	test( 'displays calendar settings panel', () => {
 		render( <CalendlyInspectorControls { ...defaultProps } /> );
 		const panelHeaderButton = screen.getByText( 'Calendar settings' );
+		// eslint-disable-next-line testing-library/no-node-access
 		const panel = panelHeaderButton.closest( '.components-panel__body' );
 
 		expect( panelHeaderButton ).toBeInTheDocument();
@@ -104,7 +100,7 @@ describe( 'CalendlyInspectorControls', () => {
 		const user = userEvent.setup();
 
 		// Have parseEmbedCode call preventDefault() to avoid jsdom complaining that it doesn't know how to submit a form.
-		parseEmbedCode.mockImplementation((e) => e.preventDefault());
+		parseEmbedCode.mockImplementation( e => e.preventDefault() );
 
 		await renderExpandedSettings( user, defaultProps );
 
@@ -149,13 +145,15 @@ describe( 'CalendlyInspectorControls', () => {
 		const user = userEvent.setup();
 		await renderExpandedSettings( user, defaultProps );
 
-		const colorHelpUrl = 'https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-';
+		const colorHelpUrl =
+			'https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-';
 		const noticeClass = `${ defaultProps.defaultClassName }-color-notice`;
 		const linkText = 'Follow these instructions to change the colors in this block.';
 		const link = screen.getByText( linkText );
 
 		expect( link ).toBeInTheDocument();
 		expect( link ).toHaveAttribute( 'href', colorHelpUrl );
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( link.closest( '.components-notice' ) ).toHaveClass( noticeClass );
 	} );
 
@@ -163,11 +161,14 @@ describe( 'CalendlyInspectorControls', () => {
 		const user = userEvent.setup();
 		const noticeClass = `.${ defaultProps.defaultClassName }-color-notice`;
 		const attributes = { ...defaultAttributes, url: undefined };
-		const { container } = render( <CalendlyInspectorControls { ...{ ...defaultProps, attributes } } /> );
+		const { container } = render(
+			<CalendlyInspectorControls { ...{ ...defaultProps, attributes } } />
+		);
 
 		await user.click( screen.getByText( 'Calendar settings' ) );
 
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( noticeClass ) ).not.toBeInTheDocument();
 	} );
 } );

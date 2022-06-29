@@ -240,6 +240,8 @@ When implementing tests within a new plugin, you can follow the example set in [
 
 If a project contains JavaScript tests, it must define `.scripts.test-js` in `composer.json` to run the tests. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-js`.
 
+JavaScript tests should use `jest`, not `mocha`/`chai`/`sinon`. For React testing, use `@testing-library/react` rather than `enzyme`.
+
 ### E2E tests
 
 **This is not implemented yet!**
