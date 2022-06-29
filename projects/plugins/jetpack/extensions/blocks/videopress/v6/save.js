@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useBlockProps } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 import classnames from 'classnames';
 /**
  * Internal dependencies
@@ -12,6 +12,7 @@ export default function save( { attributes } ) {
 	const {
 		align,
 		autoplay,
+		caption,
 		loop,
 		muted,
 		controls,
@@ -56,6 +57,10 @@ export default function save( { attributes } ) {
 			<div className="jetpack-videopress__wrapper">
 				{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
 			</div>
+
+			{ ! RichText.isEmpty( caption ) && (
+				<RichText.Content tagName="figcaption" value={ caption } />
+			) }
 		</figure>
 	);
 }
