@@ -101,12 +101,16 @@ test.describe( 'Sync', () => {
 		await test.step( 'Enable Dedicated Sync', async () => {
 			const dedicatedSyncEnabled = await enableDedicatedSync();
 			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
+		} );
 
+		await test.step( 'Visit Jetpack Dashboard page', async () => {
 			await JetpackDashboardPage.visit( page );
 			logger.sync( `Navigate to Jetpack dashboard page` );
+		} );
+
+		await test.step( 'Assert sync queue is empty', async () => {
 			await assertSyncQueueIsEmpty(
-				'Sync queue should be empty [before post publish, after enabling dedicated sync]',
-				60000
+				'Sync queue should be empty [before post publish, after enabling dedicated sync]'
 			);
 		} );
 
