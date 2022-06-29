@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix caching of purchased plan features to reduce calls to wpcom api
