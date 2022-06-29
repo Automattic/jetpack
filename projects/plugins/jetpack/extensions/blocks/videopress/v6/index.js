@@ -24,4 +24,7 @@ export const settings = {
 	edit,
 	save,
 	attributes,
+	supports: {
+		align: true,
+	},
 };
