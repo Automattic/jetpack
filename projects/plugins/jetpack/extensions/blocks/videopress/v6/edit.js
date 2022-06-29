@@ -4,11 +4,9 @@
 
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button } from '@wordpress/components';
-import { usePrevious } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect, useState, useCallback } from '@wordpress/element';
+import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -16,7 +14,6 @@ import { __ } from '@wordpress/i18n';
 import { VideoPressIcon as icon } from '../../../shared/icons';
 import { VpBlock } from '../edit';
 import Loading from '../loading';
-// import { getJWT, useResumableUploader } from '../resumable-upload/use-uploader';
 import { getVideoPressUrl } from '../url';
 import VideoPressInspectorControls from './components/inspector-controls';
 import { useResumableUploader } from './hooks/use-uploader.js';
@@ -24,12 +21,8 @@ import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-// @Todo: replace with uploading implementation.
-const noop = () => {};
-
 export default function VideoPressEdit( { attributes, setAttributes } ) {
 	const { controls, src, guid } = attributes;
-	const prevMediaSrc = usePrevious( src );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		controls,
@@ -65,8 +58,9 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	const { preview, isRequestingEmbedPreview } = useSelect(
 		select => {
 			return {
-				preview: select( coreStore ).getEmbedPreview( videoPressUrl ),
-				isRequestingEmbedPreview: select( coreStore ).isRequestingEmbedPreview( videoPressUrl ),
+				preview: select( coreStore ).getEmbedPreview( videoPressUrl ) || false,
+				isRequestingEmbedPreview:
+					select( coreStore ).isRequestingEmbedPreview( videoPressUrl ) || false,
 			};
 		},
 		[ videoPressUrl ]
@@ -80,19 +74,64 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	}, [ videoPressUrl, invalidateResolution ] );
 
 	/*
-	 * Due to a current bug in Gutenberg (https://github.com/WordPress/gutenberg/issues/16831),
-	 * the `SandBox` component is not rendered again when the injected `html` prop changes.
-	 * To work around that, we invalidate the cached preview of the embed VideoPress player
-	 * in order to force the rendering of a new instance of the `SandBox` component
-	 * that ensures the injected `html` will be rendered.
+	 * Getting VideoPress preview.
+	 * The following code tries to handle issues
+	 * when the preview is not available even when
+	 * the VideoPress URL is gotten.
+	 * It attempts every two seconds to get the so desired video preview.
 	 */
-	useEffect( () => {
-		if ( ! src || src === prevMediaSrc ) {
+	const [ isGeneratingPreview, setIsGeneratingPreview ] = useState( 0 );
+
+	const rePreviewAttemptTimer = useRef();
+	function cleanRegeneratingProcess() {
+		if ( ! rePreviewAttemptTimer?.current ) {
 			return;
 		}
 
-		invalidateCachedEmbedPreview();
-	}, [ src, prevMediaSrc, invalidateCachedEmbedPreview ] );
+		rePreviewAttemptTimer.current = clearInterval( rePreviewAttemptTimer.current );
+	}
+
+	useEffect( () => {
+		// VideoPress URL is not defined. Bail early and cleans the time.
+		if ( ! videoPressUrl ) {
+			return cleanRegeneratingProcess();
+		}
+
+		// Bail early (clean the timer) if the preview is already being requested.
+		if ( isRequestingEmbedPreview ) {
+			return cleanRegeneratingProcess();
+		}
+
+		// Bail early (clean the timer) when preview is defined.
+		if ( preview ) {
+			setIsGeneratingPreview( 0 );
+			return cleanRegeneratingProcess();
+		}
+
+		// Bail early when it has been already started.
+		if ( rePreviewAttemptTimer?.current ) {
+			return;
+		}
+
+		rePreviewAttemptTimer.current = setTimeout( () => {
+			// Abort whether the preview is already defined.
+			if ( preview ) {
+				setIsGeneratingPreview( 0 );
+				return;
+			}
+
+			setIsGeneratingPreview( v => v + 1 );
+			invalidateCachedEmbedPreview();
+		}, 2000 );
+
+		return cleanRegeneratingProcess;
+	}, [
+		rePreviewAttemptTimer,
+		invalidateCachedEmbedPreview,
+		preview,
+		videoPressUrl,
+		isRequestingEmbedPreview,
+	] );
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-videopress is-placeholder-container',
@@ -100,6 +139,10 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	const [ videoPressUploader ] = useResumableUploader( {
+		onError: function ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Error: ', error );
+		},
 		onProgress: setUploadingProgress,
 		onSuccess: setAttributes,
 	} );
@@ -156,7 +199,10 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 				accept="video/*"
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 				value={ attributes }
-				onError={ noop }
+				onError={ function ( error ) {
+					// eslint-disable-next-line no-console
+					console.error( 'Error: ', error );
+				} }
 			/>
 		);
 	}
@@ -184,38 +230,14 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	}
 
 	// 4 - Generating video preview
-	if ( isRequestingEmbedPreview && ! preview ) {
+	if ( isRequestingEmbedPreview || !! isGeneratingPreview || ! preview ) {
 		return (
 			<>
 				<div { ...blockProps }>
-					<Loading text={ __( '(4) Generating preview…', 'jetpack' ) } />
-				</div>
-			</>
-		);
-	}
-
-	// 5 - Generating video preview: exposing cache issue: @todo remove this once the bug is fixed.
-	if ( fileHasBeenUploaded && ! isRequestingEmbedPreview && ! preview ) {
-		return (
-			<>
-				<div { ...blockProps }>
-					<p>
-						{ __( "The video is still being processed. It'll take a little bit more…", 'jetpack' ) }
-					</p>
-					<Button variant="secondary" onClick={ invalidateCachedEmbedPreview }>
-						Clear Cache
-					</Button>
-				</div>
-			</>
-		);
-	}
-
-	// 6 - Generating video preview. Happens when component mounts.
-	if ( ! preview ) {
-		return (
-			<>
-				<div { ...blockProps }>
-					<Loading text={ __( '(6) Generating preview…', 'jetpack' ) } />
+					<Loading text={ __( '(4) Generating preview…', 'jetpack' ) } />;
+					<div>
+						Attempt: <strong>{ isGeneratingPreview }</strong>
+					</div>
 				</div>
 			</>
 		);
