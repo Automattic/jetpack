@@ -7,9 +7,15 @@ const PALETTE = require( '@automattic/color-studio' );
  * @param {number} postCount - The total count of indexed post records
  * @param {object} postTypeBreakdown - Post type breakdown (post type => number of posts)
  * @param {string} lastIndexedDate - The date on which the site was last indexed as a string
+ * @param {object} postTypeLabels - Post type labels (post type label => post type slug)
  * @returns {object} data in correct form to use in chart and notice-box
  */
-export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexedDate ) {
+export default function getRecordInfo(
+	postCount,
+	postTypeBreakdown,
+	lastIndexedDate,
+	postTypeLabels
+) {
 	const maxPostTypeCount = 5; // this value determines when to cut off displaying post times & compound into an 'other'
 	const recordInfo = [];
 	const chartPostTypeBreakdown = [];
@@ -44,13 +50,18 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
 		PALETTE.colors[ 'Yellow 30' ],
 	];
 
+	// add labels to post type breakdown
+	const postTypeBreakdownWithLabels = addLabelsToPostTypeBreakdown(
+		postTypeBreakdown,
+		postTypeLabels
+	);
+
 	if ( numItems > 0 && hasValidData && hasBeenIndexed ) {
 		for ( let i = 0; i < numItems; i++ ) {
-			const postTypeDetails = Object.values( postTypeBreakdown )[ i ];
-			const { count, slug: name } = postTypeDetails;
-
+			const postTypeDetails = Object.values( postTypeBreakdownWithLabels )[ i ];
+			const { count, slug: slug, label: name } = postTypeDetails;
 			chartPostTypeBreakdown.push( {
-				data: createData( count, colors[ i ], name ),
+				data: createData( count, colors[ i ], name, slug ),
 			} );
 			currentCount = currentCount + count;
 		}
@@ -96,6 +107,29 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
 		hasItems,
 		isValid,
 	};
+}
+
+/**
+ * adds the appropriate labels the post type breakdown
+ *
+ * @param {Array} postTypeBreakdown - an array of the different post types with their counts
+ * @param {Array} postTypeLabels - an array of the different post types labels matched with their slugs
+ * @returns {object} updated postTypeBreakdown containing the post type slug, label, and count
+ */
+export function addLabelsToPostTypeBreakdown( postTypeBreakdown, postTypeLabels ) {
+	const postTypeBreakdownWithLabels = [];
+	for ( const postType of postTypeBreakdown ) {
+		for ( const label of postTypeLabels ) {
+			if ( postType.slug === label.slug ) {
+				postTypeBreakdownWithLabels.push( {
+					label: label.label,
+					slug: label.slug,
+					count: postType.count,
+				} );
+			}
+		}
+	}
+	return postTypeBreakdownWithLabels;
 }
 
 /**
