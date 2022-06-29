@@ -15,7 +15,7 @@ import { VideoPressIcon as icon } from '../../../shared/icons';
 import Loading from '../loading';
 import { getVideoPressUrl } from '../url';
 import VideoPressInspectorControls from './components/inspector-controls';
-import VideoPressSandbox from './components/videopress-sandbox';
+import VideoPressPlayer from './components/videopress-player';
 import { useResumableUploader } from './hooks/use-uploader.js';
 import './editor.scss';
 
@@ -269,7 +269,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
-			<VideoPressSandbox
+			<VideoPressPlayer
 				html={ html }
 				scripts={ scripts }
 				attributes={ attributes }

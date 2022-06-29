@@ -7,7 +7,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 
-export default function VideoPressSandbox( {
+export default function VideoPressPlayer( {
 	html,
 	caption,
 	isSelected,
