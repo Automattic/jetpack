@@ -105,6 +105,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 			return;
 		}
 
+		// Update html cache when the preview changes.
 		setAttributes( { cacheHtml: previewHtml } );
 	}, [ previewHtml, cacheHtml, setAttributes ] );
 
