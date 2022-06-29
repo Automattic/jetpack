@@ -22,10 +22,32 @@ import './editor.scss';
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
 export default function VideoPressEdit( { attributes, setAttributes } ) {
-	const { controls, src, guid } = attributes;
+	const {
+		autoplay,
+		loop,
+		muted,
+		controls,
+		playsinline,
+		preload,
+		useAverageColor,
+		seekbarColor,
+		seekbarLoadingColor,
+		seekbarPlayedColor,
+		src,
+		guid,
+	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
+		autoplay,
 		controls,
+		loop,
+		muted,
+		playsinline,
+		preload,
+		seekbarColor,
+		seekbarLoadingColor,
+		seekbarPlayedColor,
+		useAverageColor,
 	} );
 
 	/*
