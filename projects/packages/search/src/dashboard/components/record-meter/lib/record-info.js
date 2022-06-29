@@ -50,13 +50,12 @@ export default function getRecordInfo(
 		PALETTE.colors[ 'Yellow 30' ],
 	];
 
-	// add labels to post type breakdown
-	const postTypeBreakdownWithLabels = addLabelsToPostTypeBreakdown(
-		postTypeBreakdown,
-		postTypeLabels
-	);
-
 	if ( numItems > 0 && hasValidData && hasBeenIndexed ) {
+		// add labels to post type breakdown
+		const postTypeBreakdownWithLabels = addLabelsToPostTypeBreakdown(
+			postTypeBreakdown,
+			postTypeLabels
+		);
 		for ( let i = 0; i < numItems; i++ ) {
 			const postTypeDetails = Object.values( postTypeBreakdownWithLabels )[ i ];
 			const { count, slug: slug, label: name } = postTypeDetails;
