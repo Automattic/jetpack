@@ -4,23 +4,23 @@ const path = require( 'path' );
 
 const myCustomLevels = {
 	levels: {
-		error: 3,
-		sync: 3.5,
-		warn: 4,
-		notice: 5,
-		info: 6,
-		step: 7,
-		action: 8,
-		prerequisites: 9,
-		cli: 10,
-		debug: 11,
+		error: 30,
+		sync: 35,
+		warn: 40,
+		notice: 50,
+		info: 60,
+		step: 70,
+		action: 80,
+		prerequisites: 90,
+		cli: 100,
+		debug: 110,
 	},
 	colors: {
 		action: 'cyan',
 		step: 'cyan',
 		prerequisites: 'cyan',
 		cli: 'cyanBG black',
-		sync: 'red',
+		sync: 'cyan',
 	},
 };
 

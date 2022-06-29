@@ -12,6 +12,7 @@ export async function disableSync() {
 }
 
 export async function getSyncStatus() {
+	logger.sync( 'Checking sync status' );
 	return execWpCommand( 'jetpack sync status' );
 }
 
@@ -27,7 +28,6 @@ export async function disableDedicatedSync() {
 
 export async function isSyncQueueEmpty() {
 	try {
-		logger.sync( 'Checking sync status' );
 		const status = await getSyncStatus();
 		logger.sync( status );
 		return status.includes( 'queue_size' ) && status.includes( 'queue_size	0' );
