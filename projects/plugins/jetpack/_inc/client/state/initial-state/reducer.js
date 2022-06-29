@@ -563,6 +563,7 @@ export function getProductsForPurchase( state ) {
 			promotionPercentage: product.discount_percent,
 			includedInPlans: product.included_in_plans,
 			fullPrice: get( jetpackProducts, [ product.slug, 'cost' ], '' ),
+			saleCoupon: get( jetpackProducts, [ product.slug, 'sale_coupon' ], null ),
 			upgradeUrl: getRedirectUrl( 'jetpack-product-description-checkout', {
 				path: product.slug,
 			} ),
