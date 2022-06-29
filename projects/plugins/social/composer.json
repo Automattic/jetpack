@@ -4,18 +4,18 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-admin-ui": "0.2.x-dev",
-		"automattic/jetpack-assets": "1.17.x-dev",
-		"automattic/jetpack-autoloader": "2.11.x-dev",
-		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.9.x-dev",
-		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-publicize": "0.7.x-dev",
-		"automattic/jetpack-options": "1.16.x-dev",
-		"automattic/jetpack-connection": "1.41.x-dev",
-		"automattic/jetpack-my-jetpack": "1.7.x-dev",
-		"automattic/jetpack-sync": "1.36.x-dev",
-		"automattic/jetpack-status": "1.14.x-dev"
+		"automattic/jetpack-admin-ui": "^0.2.9",
+		"automattic/jetpack-assets": "^1.17",
+		"automattic/jetpack-autoloader": "^2.11",
+		"automattic/jetpack-composer-plugin": "^1.1",
+		"automattic/jetpack-config": "^1.9",
+		"automattic/jetpack-identity-crisis": "^0.8.15",
+		"automattic/jetpack-publicize": "^0.7.1",
+		"automattic/jetpack-options": "^1.16",
+		"automattic/jetpack-connection": "^1.41",
+		"automattic/jetpack-my-jetpack": "^1.7",
+		"automattic/jetpack-sync": "^1.36",
+		"automattic/jetpack-status": "^1.14"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.1",
@@ -50,15 +50,7 @@
 		],
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
