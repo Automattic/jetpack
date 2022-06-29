@@ -15,7 +15,7 @@ class Status {
 	protected $slug;
 
 	/**
-	 *
+	 * A map of modules whose status are synced.
 	 *
 	 * @var array[] $status_sync_map
 	 */
