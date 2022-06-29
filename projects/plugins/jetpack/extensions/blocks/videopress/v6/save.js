@@ -22,6 +22,7 @@ export default function save( { attributes } ) {
 		seekbarLoadingColor,
 		seekbarPlayedColor,
 		guid,
+		maxWidth,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -43,8 +44,15 @@ export default function save( { attributes } ) {
 		useAverageColor,
 	} );
 
+	// Adjust block with based on custom maxWidth.
+	const style = {};
+	if ( maxWidth && maxWidth.length > 0 && '100%' !== maxWidth ) {
+		style.maxWidth = maxWidth;
+		style.margin = 'auto';
+	}
+
 	return (
-		<figure { ...blockProps }>
+		<figure { ...blockProps } style={ style }>
 			<div className="jetpack-videopress__wrapper">
 				{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
 			</div>
