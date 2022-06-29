@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.4 - 2022-06-29
+### Added
+- Components: Introduce CUT component
+
 ## 0.16.3 - 2022-06-28
 ### Added
 - Components: Add README docs for Layout related components [#24804]

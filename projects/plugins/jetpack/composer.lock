@@ -515,7 +515,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "55f64edb149ab978f085a64e1a8f2d69bcfa378a"
+                "reference": "75ec9255690dafee114361739651c4f154d7d1a8"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1"
