@@ -3507,7 +3507,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'post_date'    => addslashes( $feedback_time ),
 				'post_type'    => 'feedback',
 				'post_status'  => addslashes( $feedback_status ),
-				'post_parent'  => (int) $post->ID,
+				'post_parent'  => $post ? (int) $post->ID : 0,
 				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // so that search will pick up this data

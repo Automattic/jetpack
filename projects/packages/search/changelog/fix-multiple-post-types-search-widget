@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Restores support for multiple post types in the Jetpack Search Widget.
