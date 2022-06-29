@@ -176,6 +176,10 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
+### 1.5.1 - 2022-06-29
+#### Fixed
+- General: Fix caching of purchased plan features to reduce calls to wpcom api
+
 ### 1.5.0 - 2022-06-27
 #### Added
 - Cloud CSS: Added support for generating Critical CSS in the cloud.
