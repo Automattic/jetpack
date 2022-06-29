@@ -14,7 +14,7 @@ export const useResumableUploader = ( { onError, onProgress, onSuccess, key } ) 
 	// collect the jwt for the key
 	useEffect( () => {
 		getJWT( key ).then( setData ).catch( setError );
-	}, [ key, data ] );
+	}, [ key ] );
 
 	const uploaded = file => {
 		const upload = new tus.Upload( file, {

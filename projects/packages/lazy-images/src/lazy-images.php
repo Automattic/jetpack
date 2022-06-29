@@ -285,7 +285,7 @@ class Jetpack_Lazy_Images {
 		unset( $old_attributes['loading'] );
 
 		// If we've already processed the image don't process it again.
-		if ( isset( $old_attributes['data-lazy-src'] ) ) {
+		if ( self::has_image_been_processed( $old_attributes ) ) {
 			return sprintf( '<img %1$s>', self::build_attributes_string( $old_attributes ) );
 		}
 
@@ -307,6 +307,10 @@ class Jetpack_Lazy_Images {
 	 * @return array The updated image attributes array with lazy load attributes.
 	 */
 	public static function process_image_attributes( $attributes ) {
+		if ( self::has_image_been_processed( $attributes ) ) {
+			return $attributes;
+		}
+
 		if ( empty( $attributes['src'] ) ) {
 			return $attributes;
 		}
@@ -542,5 +546,39 @@ class Jetpack_Lazy_Images {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Helper method for determining if image has been processed before or not.
+	 *
+	 * @since 2.1.19
+	 *
+	 * @param array $attributes The image attributes.
+	 *
+	 * @return boolean True if image has been processed before, false otherwise.
+	 */
+	public static function has_image_been_processed( $attributes ) {
+		$non_empty_attributes = array(
+			'data-lazy-src',
+			'data-lazy-srcset',
+			'data-lazy-sizes',
+		);
+
+		foreach ( $non_empty_attributes as $attribute ) {
+			if ( ! empty( $attributes[ $attribute ] ) ) {
+				return true;
+			}
+		}
+
+		if ( isset( $attributes['class'] ) && false !== strpos( $attributes['class'], 'jetpack-lazy-image' ) ) {
+			return true;
+		}
+
+		// If placeholder image is set, then we've already processed the image.
+		if ( isset( $attributes['srcset'] ) && self::get_placeholder_image() === $attributes['srcset'] ) {
+			return true;
+		}
+
+		return false;
 	}
 }
