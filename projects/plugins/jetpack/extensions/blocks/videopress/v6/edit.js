@@ -12,10 +12,10 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { VideoPressIcon as icon } from '../../../shared/icons';
-import { VpBlock } from '../edit';
 import Loading from '../loading';
 import { getVideoPressUrl } from '../url';
 import VideoPressInspectorControls from './components/inspector-controls';
+import VideoPressSandbox from './components/videopress-sandbox';
 import { useResumableUploader } from './hooks/use-uploader.js';
 import './editor.scss';
 
@@ -247,11 +247,9 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
-			<VpBlock
+			<VideoPressSandbox
 				html={ html }
 				scripts={ scripts }
-				interactive={ true }
-				hideOverlay={ false }
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 			/>
