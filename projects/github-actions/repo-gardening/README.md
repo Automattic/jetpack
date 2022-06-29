@@ -76,8 +76,8 @@ The action relies on the following parameters.
 - (Optional) `slack_design_channel` is the Slack public channel ID where messages for the design team will be posted. Again, the value should be stored in a secret.
 - (Optional) `slack_editorial_channel` is the Slack public channel ID where messages for the Editorial team will be posted. Again, the value should be stored in a secret.
 - (Optional) `slack_team_channel` is the Slack public channel ID where general notifications about your repo should be posted. Again, the value should be stored in a secret.
-- (Optional) `project_automation_token` is a [personal access token](https://github.com/settings/tokens/new) with `repo` and `project` scopes. The token should be stored in a secret.
-- (Optional) `project_automation_block_project` is the node ID of the project that is used to triage block-related issues. The value should be stored in a secret.
+- (Optional) `project_automation_token` is a [personal access token](https://github.com/settings/tokens/new) with `repo` and `project` scopes. The token should be stored in a secret. This is required if you want to use the `addIssueToBoard` task.
+- (Optional) `project_automation_block_project` is the ID of the project that is used to triage block-related issues. The value should be stored in a secret. This is required if you want to use the `addIssueToBoard` task.
 
 To create a bot and get your `SLACK_TOKEN`, follow [the general instructions here](https://slack.com/intl/en-hu/help/articles/115005265703-Create-a-bot-for-your-workspace):
 

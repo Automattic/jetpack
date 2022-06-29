@@ -82,11 +82,11 @@ async function addIssueToBoard( payload, octokit ) {
 				projectNumber: parseInt( blockProjectId, 10 ),
 			}
 		);
-		debug( `add-issue-to-board: ${ JSON.stringify( projectDetails ) }` );
+
+		// Get project board id.
 		const blockProjectNodeId = projectDetails.organization?.projectV2.id;
 
-		debug( `add-issue-to-board: block project node ID is ${ blockProjectNodeId }` );
-
+		// Add issue to project board.
 		await projectOctokit.graphql(
 			`mutation addIssueToProject($input: AddProjectV2ItemByIdInput!) {
 				addProjectV2ItemById(input: $input) {
