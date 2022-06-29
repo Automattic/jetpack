@@ -32,12 +32,12 @@ class Status {
 	}
 
 	public function is_enabled() {
-		return '1' === get_option( $this->get_status_slug( $this->slug ) );
+		return '1' === get_option( $this->get_option_name( $this->slug ) );
 	}
 
 	public function update( $new_status ) {
 
-		if ( update_option( $this->get_status_slug( $this->slug ), (bool) $new_status ) ) {
+		if ( update_option( $this->get_option_name( $this->slug ), (bool) $new_status ) ) {
 			$this->update_mapped_modules( $new_status );
 			// Only record analytics event if the config update succeeds.
 			$this->track_module_status( (bool) $new_status );
@@ -46,7 +46,7 @@ class Status {
 		return false;
 	}
 
-	protected function get_status_slug( $module_slug ) {
+	protected function get_option_name( $module_slug ) {
 		return 'jetpack_boost_status_' . $module_slug;
 	}
 
@@ -56,7 +56,7 @@ class Status {
 		}
 
 		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			update_option( $this->get_status_slug( $mapped_module ), (bool) $new_status );
+			update_option( $this->get_option_name( $mapped_module ), (bool) $new_status );
 		}
 	}
 
