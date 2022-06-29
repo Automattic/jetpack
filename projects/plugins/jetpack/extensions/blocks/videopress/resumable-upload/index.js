@@ -1,8 +1,4 @@
 /**
- * External Dependencies
- */
-import filesize from 'filesize';
-/**
  * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
@@ -19,6 +15,10 @@ import {
 } from '@wordpress/element';
 import filesize from 'filesize';
 
+/**
+ * External Dependencies
+ */
+import filesize from 'filesize';
 /**
  * Internal Dependencies
  */
