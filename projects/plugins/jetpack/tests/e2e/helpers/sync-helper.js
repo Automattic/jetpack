@@ -25,11 +25,6 @@ export async function disableDedicatedSync() {
 	return execWpCommand( 'option update jetpack_sync_settings_dedicated_sync_enabled 0' );
 }
 
-export async function disableSoftLock() {
-	await execWpCommand( 'option update jetpack_sync_settings_sync_wait_time 0' );
-	await execWpCommand( 'option update jetpack_sync_settings_sync_wait_threshold 1000' );
-}
-
 export async function isSyncQueueEmpty() {
 	try {
 		logger.sync( 'Checking sync status' );

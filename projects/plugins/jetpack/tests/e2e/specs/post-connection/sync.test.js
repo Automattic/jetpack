@@ -6,7 +6,6 @@ import {
 	enableDedicatedSync,
 	disableDedicatedSync,
 	isSyncQueueEmpty,
-	disableSoftLock,
 } from '../../helpers/sync-helper.js';
 import { BlockEditorPage, JetpackDashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
@@ -102,8 +101,6 @@ test.describe( 'Sync', () => {
 		await test.step( 'Enable Dedicated Sync', async () => {
 			const dedicatedSyncEnabled = await enableDedicatedSync();
 			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
-
-			await disableSoftLock();
 
 			await JetpackDashboardPage.visit( page );
 			logger.sync( `Navigate to Jetpack dashboard page` );
