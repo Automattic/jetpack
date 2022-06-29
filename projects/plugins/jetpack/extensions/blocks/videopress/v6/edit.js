@@ -291,6 +291,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			<VideoPressPlayer
 				html={ html }
+				isUpdatingPreview={ ! previewHtml }
 				scripts={ scripts }
 				attributes={ attributes }
 				setAttributes={ setAttributes }

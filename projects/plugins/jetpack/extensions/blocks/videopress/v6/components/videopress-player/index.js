@@ -9,6 +9,7 @@ import classNames from 'classnames';
 
 export default function VideoPressPlayer( {
 	html,
+	isUpdatingPreview,
 	caption,
 	isSelected,
 	attributes,
@@ -21,6 +22,7 @@ export default function VideoPressPlayer( {
 	const blockProps = useBlockProps( {
 		className: classNames( 'wp-block-jetpack-videopress', {
 			[ `align${ align }` ]: align,
+			[ 'is-updating-preview' ]: isUpdatingPreview,
 		} ),
 	} );
 

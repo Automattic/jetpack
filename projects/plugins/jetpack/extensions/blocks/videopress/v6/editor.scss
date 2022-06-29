@@ -16,4 +16,8 @@
 		font-size: $default-font-size;
 		min-height: 200px;
 	}
+
+	&.is-updating-preview {
+		opacity: 0.5;
+	}
 }
