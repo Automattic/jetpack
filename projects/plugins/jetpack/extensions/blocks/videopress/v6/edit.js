@@ -270,8 +270,8 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		);
 	}
 
-	// 4 - Generating video preview
-	if ( isRequestingEmbedPreview || !! isGeneratingPreview || ! preview ) {
+	// 4 - No html preview. Show generating message.
+	if ( ! html ) {
 		return (
 			<>
 				<div { ...blockProps }>
