@@ -39,7 +39,6 @@ class SiteStatsComponent extends React.Component {
 			roles_subscriber: includes( roles, 'subscriber', false ),
 		};
 
-		// This allows for custom role stats settings to be properly recognized and saved.
 		this.addCustomRolesState( roles, countRoles );
 	}
 
@@ -111,16 +110,11 @@ class SiteStatsComponent extends React.Component {
 	addCustomRolesState( roles, countRoles ) {
 		roles.forEach( role => {
 			if (
-				role === 'administrator' ||
-				role === 'editor' ||
-				role === 'author' ||
-				role === 'subscriber' ||
-				role === 'contributor'
+				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
 			) {
-				return;
+				this.state[ `roles_${ role }` ] = includes( roles, role, false );
+				this.state[ `count_roles_${ role }` ] = includes( countRoles, role, false );
 			}
-			this.state[ `roles_${ role }` ] = includes( roles, role, false );
-			this.state[ `count_roles_${ role }` ] = includes( countRoles, role, false );
 		} );
 	}
 
