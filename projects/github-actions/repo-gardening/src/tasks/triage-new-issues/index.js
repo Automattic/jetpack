@@ -95,7 +95,7 @@ async function triageNewIssues( payload, octokit ) {
 	// Find Priority.
 	const priority = findPriority( body );
 	const hasPriorityLabel = await hasPriorityLabels( octokit, ownerLogin, name, number );
-	if ( null !== priority && ! hasPriorityLabel ) {
+	if ( priority !== null && ! hasPriorityLabel ) {
 		debug( `triage-new-issues: Adding priority label to issue #${ number }` );
 
 		await octokit.rest.issues.addLabels( {
