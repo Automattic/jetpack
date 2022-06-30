@@ -21,7 +21,6 @@ class SiteStatsComponent extends React.Component {
 		super( props );
 		const countRoles = props.getOptionValue( 'count_roles', 'stats' ),
 			roles = props.getOptionValue( 'roles', 'stats' );
-
 		this.state = {
 			count_roles: countRoles,
 			roles: roles,
@@ -39,7 +38,8 @@ class SiteStatsComponent extends React.Component {
 			roles_subscriber: includes( roles, 'subscriber', false ),
 		};
 
-		this.addCustomRolesState( roles, countRoles );
+		this.addCustomRolesState( roles );
+		this.addCustomCountRolesState( countRoles );
 	}
 
 	/**
@@ -102,18 +102,33 @@ class SiteStatsComponent extends React.Component {
 	};
 
 	/**
-	 * Allows for custom role stats settings to be properly recognized and saved.
+	 * Allows for custom roles 'count logged in page views' stats settings to be added to the current state.
 	 *
-	 * @param {string} roles - All user roles, as an array.
-	 * @param {number} countRoles - The number of roles that are in use.
+	 * @param {number} countRoles - All roles (including custom) that have 'count logged in page views' enabled.
 	 */
-	addCustomRolesState( roles, countRoles ) {
+	addCustomCountRolesState( countRoles ) {
+		countRoles.forEach( role => {
+			if (
+				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes(
+					countRoles
+				)
+			) {
+				this.state[ `count_roles_${ role }` ] = includes( countRoles, role, false );
+			}
+		} );
+	}
+
+	/**
+	 * Allows for custom roles 'allow stats reports' stats settings to be added to the current state.
+	 *
+	 * @param {string} roles - All roles (including custom) that have 'allow stats reports' enabled.
+	 */
+	addCustomRolesState( roles ) {
 		roles.forEach( role => {
 			if (
 				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
 			) {
 				this.state[ `roles_${ role }` ] = includes( roles, role, false );
-				this.state[ `count_roles_${ role }` ] = includes( countRoles, role, false );
 			}
 		} );
 	}
