@@ -35,6 +35,7 @@ class Performance extends Component {
 		return (
 			<div>
 				<QuerySite />
+				<h1 className="jp-heading-sr-only">{ __( 'Jetpack Performance Settings', 'jetpack' ) }</h1>
 				<Card
 					title={
 						this.props.searchTerm

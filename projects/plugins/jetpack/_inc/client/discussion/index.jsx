@@ -49,6 +49,7 @@ export class Discussion extends React.Component {
 		return (
 			<div>
 				<QuerySite />
+				<h1 className="jp-heading-sr-only">{ __( 'Jetpack Discussion Settings', 'jetpack' ) }</h1>
 				<Card
 					title={
 						this.props.searchTerm

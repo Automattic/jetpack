@@ -67,6 +67,7 @@ export class Traffic extends React.Component {
 		return (
 			<div>
 				<QuerySite />
+				<h1 className="jp-heading-sr-only">{ __( 'Jetpack Traffic Settings', 'jetpack' ) }</h1>
 				<Card
 					title={
 						this.props.searchTerm
