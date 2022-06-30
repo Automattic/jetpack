@@ -64,7 +64,6 @@ export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
 				icon={ get( blockType, [ 'icon', 'src' ] ) }
 				label={ get( blockType, [ 'title' ] ) }
 				instructions={ __( "Please select which kind of payment you'd like to add.", 'jetpack' ) }
-				//className="block-editor-block-variation-picker"
 				className="wp-payments-intro-wrapper"
 			>
 				<JetpackBlockVariationPicker
