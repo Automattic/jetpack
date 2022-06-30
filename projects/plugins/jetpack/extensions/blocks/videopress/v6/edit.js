@@ -12,10 +12,10 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { VideoPressIcon as icon } from '../../../shared/icons';
-import { VpBlock } from '../edit';
 import Loading from '../loading';
 import { getVideoPressUrl } from '../url';
 import VideoPressInspectorControls from './components/inspector-controls';
+import VideoPressPlayer from './components/videopress-player';
 import { useResumableUploader } from './hooks/use-uploader.js';
 import './editor.scss';
 
@@ -35,6 +35,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		seekbarPlayedColor,
 		src,
 		guid,
+		cacheHtml,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -64,6 +65,26 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	}, [] );
 
 	/*
+	 * Tracking error data
+	 */
+	const [ uploadErrorData, setUploadErrorDataState ] = useState( null );
+
+	// Define a memoized function to register the error data.
+	const setUploadErrorData = useCallback( function ( error ) {
+		if ( error?.originalResponse ) {
+			try {
+				// parse failed request response message
+				const body = error?.originalResponse?.getBody?.();
+				const parsedBody = JSON.parse( body );
+				setUploadErrorDataState( parsedBody );
+				return;
+			} catch {}
+		}
+
+		setUploadErrorDataState( error );
+	}, [] );
+
+	/*
 	 * It's considered the file is uploading
 	 * when the progress value is lower than the total.
 	 */
@@ -87,7 +108,26 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		},
 		[ videoPressUrl ]
 	);
-	const { html, scripts } = preview ? preview : { html: null, scripts: null };
+	const { html: previewHtml, scripts } = preview ? preview : { html: null, scripts: [] };
+
+	/*
+	 * Store the preview html into a block attribute,
+	 * to be used as a fallback while it pulls the new preview.
+	 * Once the html changes, the attr will be updated, too.
+	 */
+	const html = previewHtml || cacheHtml;
+	useEffect( () => {
+		if ( ! previewHtml ) {
+			return;
+		}
+
+		if ( previewHtml === cacheHtml ) {
+			return;
+		}
+
+		// Update html cache when the preview changes.
+		setAttributes( { cacheHtml: previewHtml } );
+	}, [ previewHtml, cacheHtml, setAttributes ] );
 
 	// Helper to invalidate the preview cache.
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
@@ -161,10 +201,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	const [ videoPressUploader ] = useResumableUploader( {
-		onError: function ( error ) {
-			// eslint-disable-next-line no-console
-			console.error( 'Error: ', error );
-		},
+		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
 		onSuccess: setAttributes,
 	} );
@@ -197,6 +234,11 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 			return;
 		}
 
+		// reset error
+		if ( uploadErrorData ) {
+			setUploadErrorData( null );
+		}
+
 		setUploadingProgress( [ 0, file.size ] );
 
 		// Upload file to VideoPress infrastructure.
@@ -209,6 +251,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	 *     - no in-progress uploading file to the backend
 	 *     - no file recently uploaded to the backend
 	 */
+
 	if ( ! src && ! isUploadingFile && ! fileHasBeenUploaded ) {
 		return (
 			<MediaPlaceholder
@@ -225,7 +268,18 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 					// eslint-disable-next-line no-console
 					console.error( 'Error: ', error );
 				} }
-			/>
+			>
+				{ uploadErrorData && (
+					<div
+						role="alert"
+						aria-live="assertive"
+						className="jetpack-videopress-upload-error-message"
+					>
+						{ uploadErrorData?.data?.message ??
+							__( 'Failed to upload your video. Please try again.', 'jetpack' ) }
+					</div>
+				) }
+			</MediaPlaceholder>
 		);
 	}
 
@@ -251,8 +305,8 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		);
 	}
 
-	// 4 - Generating video preview
-	if ( isRequestingEmbedPreview || !! isGeneratingPreview || ! preview ) {
+	// 4 - No html preview. Show generating message.
+	if ( ! html ) {
 		return (
 			<>
 				<div { ...blockProps }>
@@ -269,11 +323,10 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
-			<VpBlock
+			<VideoPressPlayer
 				html={ html }
+				isUpdatingPreview={ ! previewHtml }
 				scripts={ scripts }
-				interactive={ true }
-				hideOverlay={ false }
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 			/>

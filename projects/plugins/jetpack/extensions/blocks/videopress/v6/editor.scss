@@ -1,8 +1,6 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-videopress {
-	background: var( --wp-admin-theme-color );
-
 	&.is-placeholder-container {
 		background: $white;
 		color: $gray-900;
@@ -18,4 +16,14 @@
 		font-size: $default-font-size;
 		min-height: 200px;
 	}
+
+	&.is-updating-preview {
+		opacity: 0.5;
+	}
 }
+
+.jetpack-videopress-upload-error-message {
+	color: $alert-red;
+	width: 100%;
+}
+
