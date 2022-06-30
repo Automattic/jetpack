@@ -120,11 +120,16 @@ class Initial_State {
 	 * @return array
 	 */
 	protected function get_post_type_labels() {
-		global $wp_post_types;
+
+		$args = array(
+			'public' => true,
+		);
+
 		$post_type_labels = array();
+		$post_types       = get_post_types( $args, 'objects' );
 
 		// We don't need all the additional post_type data, just the slug & label
-		foreach ( $wp_post_types as $wp_post_type ) {
+		foreach ( $post_types as $wp_post_type ) {
 			$post_type = array(
 				'slug'  => $wp_post_type->name,
 				'label' => $wp_post_type->label,
