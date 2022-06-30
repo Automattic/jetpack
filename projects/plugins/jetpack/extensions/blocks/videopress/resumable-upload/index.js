@@ -127,7 +127,7 @@ export default function ResumableUpload( { file } ) {
 		if ( typeof error === 'object' ) {
 			const apiResponse = error.toString().match( /message":"([^"]+)"/ );
 			// tus doesnt give us direct acces to the API response, but let's try to parse it to provide useful feedback for the user.
-			if ( typeof apiResponse === 'object' && apiResponse.length === 2 ) {
+			if ( apiResponse && typeof apiResponse === 'object' && apiResponse.length === 2 ) {
 				const apiResponseMessage = apiResponse[ 1 ];
 				// Let's give this error a better message.
 				if ( apiResponseMessage === 'Invalid Mime' ) {

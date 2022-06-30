@@ -1,16 +1,20 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
 
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { Button, TextControl, BaseControl, RangeControl, TabPanel } from '@wordpress/components';
 import { MediaUpload } from '@wordpress/block-editor';
-import { useEffect, useRef, useState } from '@wordpress/element';
-import { chevronRightSmall } from '@wordpress/icons';
+import { BaseControl, Button, TextControl, RangeControl } from '@wordpress/components';
+import { createInterpolateElement, useEffect, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { Icon } from '@wordpress/icons';
+import classNames from 'classnames';
+/**
+ * Internal dependencies
+ */
+import { PlayIcon } from '../../shared/icons';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -45,7 +49,6 @@ export const UploadingEditor = props => {
 	const {
 		file,
 		onSelectPoster,
-		onEditorShown,
 		videoPosterImageData,
 		title,
 		onChangeTitle,
@@ -53,7 +56,6 @@ export const UploadingEditor = props => {
 		onPosterSelectionTabChange,
 	} = props;
 	const [ maxDuration, setMaxDuration ] = useState( 0 );
-	const [ showEditor, setShowEditor ] = useState( false );
 	const [ selectedTab, setSelectedTab ] = useState( 'tab-frame' );
 	const [ canDisplayThumbnailScrubber, setCanDisplayThumbnailScrubber ] = useState( true );
 	const videoPlayer = useRef( null );
@@ -92,14 +94,6 @@ export const UploadingEditor = props => {
 		videoPlayer.current.currentTime = newRangeValue;
 	};
 
-	const summaryButtonClasses = classNames( 'uploading-editor__summary-button', {
-		active: showEditor,
-	} );
-
-	const fieldsClasses = classNames( 'uploading-editor__fields', {
-		show: showEditor,
-	} );
-
 	const frameClasses = classNames( 'uploading-editor__frame-selector', {
 		'active-tab': 'tab-frame' === selectedTab,
 	} );
@@ -107,11 +101,6 @@ export const UploadingEditor = props => {
 	const onSelectedTab = tabName => {
 		setSelectedTab( tabName );
 		onPosterSelectionTabChange( tabName );
-	};
-
-	const handleShowEditor = () => {
-		onEditorShown();
-		setShowEditor( ! showEditor );
 	};
 
 	const tabsToDisplay = [
@@ -131,66 +120,60 @@ export const UploadingEditor = props => {
 	return (
 		<>
 			<div className="uploading-editor">
-				<div className="uploading-editor__summary">
-					<div
-						className={ summaryButtonClasses }
-						role="button"
-						tabIndex="0"
-						onKeyDown={ handleShowEditor }
-						onClick={ handleShowEditor }
-					>
-						{ chevronRightSmall }
-						{ __(
-							'Your video is uploading. You can edit your title and poster image while you wait.',
-							'jetpack'
-						) }
-					</div>
-				</div>
-				<div className={ fieldsClasses }>
+				<div className="uploading-editor__summary"></div>
+				<div className="uploading-editor__fields">
 					<TextControl
+						label={ __( 'Video title', 'jetpack' ) }
 						className="uploading-editor__title"
 						onChange={ onChangeTitle }
 						value={ title }
 					/>
-					<TabPanel
-						className="uploading-editor__tabs"
-						tabs={ tabsToDisplay }
-						onSelect={ onSelectedTab }
-					>
-						{ () => {
-							// Necessary evil to avoid TabPanel error
-						} }
-					</TabPanel>
 					<div className="uploading-editor__tab-content">
-						{ canDisplayThumbnailScrubber && (
+						{ canDisplayThumbnailScrubber ? (
 							<div className={ frameClasses }>
-								<video
-									ref={ videoPlayer }
-									muted
-									class="uploading-editor__video"
-									onDurationChange={ onDurationChange }
-									onError={ onVideoError }
-									onLoadedMetadata={ onVideoLoad }
-								/>
-								<RangeControl
-									className="uploading-editor__range"
-									min="0"
-									step="0.1"
-									max={ maxDuration }
-									showTooltip={ false }
-									withInputField={ false }
-									onChange={ onRangeChange }
-									help={ __( 'Select a poster frame', 'jetpack' ) }
-								/>
+								<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>
+									<div className="uploading-editor__video-container">
+										<video
+											ref={ videoPlayer }
+											muted
+											class="uploading-editor__video"
+											onDurationChange={ onDurationChange }
+											onError={ onVideoError }
+											onLoadedMetadata={ onVideoLoad }
+										/>
+										<Icon className="uploading-editor__play-icon" icon={ PlayIcon } />
+									</div>
+									<RangeControl
+										className="uploading-editor__range"
+										min="0"
+										step="0.1"
+										max={ maxDuration }
+										showTooltip={ false }
+										withInputField={ false }
+										onChange={ onRangeChange }
+									/>
+									<span className="uploading-editor__scrubber-help">
+										{ createInterpolateElement(
+											__(
+												'This is how the video will look. Use the slider to choose a poster or <a>upload an image</a>.',
+												'jetpack'
+											),
+											{
+												a: <a href="javascript:void(0)" onClick={ () => {} } />,
+											}
+										) }
+									</span>
+								</BaseControl>
 							</div>
+						) : (
+							<PosterSelector
+								className={
+									'tab-upload' === selectedTab || ! canDisplayThumbnailScrubber ? 'active-tab' : ''
+								}
+								onSelectPoster={ onSelectPoster }
+								videoPosterImageUrl={ videoPosterImageData ? videoPosterImageData.url : null }
+							/>
 						) }
-						<PosterSelector
-							className={
-								'tab-upload' === selectedTab || ! canDisplayThumbnailScrubber ? 'active-tab' : ''
-							}
-							onSelectPoster={ onSelectPoster }
-							videoPosterImageUrl={ videoPosterImageData ? videoPosterImageData.url : null }
-						/>
 					</div>
 				</div>
 			</div>
