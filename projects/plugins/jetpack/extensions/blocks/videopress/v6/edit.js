@@ -21,7 +21,7 @@ import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-export default function VideoPressEdit( { attributes, setAttributes } ) {
+export default function VideoPressEdit( { attributes, setAttributes, isSelected } ) {
 	const {
 		autoplay,
 		loop,
@@ -349,6 +349,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 				scripts={ scripts }
 				attributes={ attributes }
 				setAttributes={ setAttributes }
+				isSelected={ isSelected }
 			/>
 		</>
 	);

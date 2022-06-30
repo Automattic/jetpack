@@ -68,6 +68,7 @@ export default function VideoPressPlayer( {
 				style={ { margin: 'auto' } }
 				onResizeStop={ onBlockResize }
 			>
+				{ ! isSelected && <div className="wp-block-jetpack-videopress__overlay" /> }
 				<SandBox html={ html } scripts={ scripts } />
 			</ResizableBox>
 
