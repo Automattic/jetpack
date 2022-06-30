@@ -1,9 +1,8 @@
-/* eslint-disable react/react-in-jsx-scope */
 import { action } from '@storybook/addon-actions';
-import React from 'react';
 import PricingCard from '../index.jsx';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-export default {
+const meta: ComponentMeta< typeof PricingCard > = {
 	title: 'JS Packages/Components/Pricing Card',
 	component: PricingCard,
 	// TODO: Storybook Actions are not working. See https://github.com/storybookjs/storybook/issues/7215
@@ -12,8 +11,10 @@ export default {
 	},
 };
 
+export default meta;
+
 // Export additional stories using pre-defined values
-const Template = args => <PricingCard { ...args } />;
+const Template: ComponentStory< typeof PricingCard > = args => <PricingCard { ...args } />;
 
 const DefaultArgs = {
 	title: 'Jetpack Backup',
