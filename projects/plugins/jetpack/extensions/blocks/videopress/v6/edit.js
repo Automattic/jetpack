@@ -208,10 +208,17 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		onSuccess: setAttributes,
 	} );
 
+	// Returns true if the object represents a valid host for a VideoPress video.
+	// Private vidoes are hosted under video.wordpress.com
+	const isValidVideoPressUrl = urlObject => {
+		const validHosts = [ 'videopress.com', 'video.wordpress.com' ];
+		return urlObject.protocol === 'https:' && validHosts.includes( urlObject.host );
+	};
+
 	const getGuidFromVideoUrl = url => {
 		try {
 			const urlObject = new URL( url );
-			if ( urlObject.protocol === 'https:' && urlObject.host === 'videopress.com' ) {
+			if ( isValidVideoPressUrl( urlObject ) ) {
 				const videoGuid = urlObject.pathname.match( /^\/v\/([a-zA-Z0-9]+)$/ );
 				return videoGuid.length === 2 ? videoGuid[ 1 ] : false;
 			}
