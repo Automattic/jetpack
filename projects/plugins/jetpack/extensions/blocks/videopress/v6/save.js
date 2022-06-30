@@ -27,14 +27,9 @@ export default function save( { attributes } ) {
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
-		className: classnames(
-			'wp-block-jetpack-videopress',
-			'jetpack-videopress-player',
-			'wp-block-embed',
-			{
-				[ `align${ align }` ]: align,
-			}
-		),
+		className: classnames( 'wp-block-jetpack-videopress', 'jetpack-videopress-player', {
+			[ `align${ align }` ]: align,
+		} ),
 	} );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
