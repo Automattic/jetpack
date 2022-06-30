@@ -117,18 +117,12 @@ export default function getRecordInfo(
  * @returns {object} updated postTypeBreakdown containing the post type slug, label, and count
  */
 export function addLabelsToPostTypeBreakdown( postTypeBreakdown, postTypeLabels ) {
-	const postTypeBreakdownWithLabels = [];
-	for ( const postType of postTypeBreakdown ) {
-		for ( const label of postTypeLabels ) {
-			if ( postType.slug === label.slug ) {
-				postTypeBreakdownWithLabels.push( {
-					count: postType.count,
-					slug: label.slug,
-					label: label.label,
-				} );
-			}
-		}
-	}
+	const postTypeBreakdownWithLabels = postTypeBreakdown.map( postType => {
+		const postTypeLabelItem = postTypeLabels.find( label => label.slug === postType.slug );
+		postType.label = postTypeLabelItem ? postTypeLabelItem.label : null;
+		return postType;
+	} );
+
 	return postTypeBreakdownWithLabels;
 }
 
