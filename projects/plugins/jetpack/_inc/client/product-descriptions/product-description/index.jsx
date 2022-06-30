@@ -5,7 +5,7 @@ import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import analytics from 'lib/analytics';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { getProductsForPurchase } from 'state/initial-state';
 import { getIntroOffers } from 'state/intro-offers';
