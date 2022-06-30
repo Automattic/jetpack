@@ -44,7 +44,7 @@ function findPriority( body ) {
 			return 'High';
 		} else if ( blocking === 'Yes, difficult to implement' ) {
 			return severity === 'All' ? 'High' : 'Normal';
-		} else if ( blocking !== '' ) {
+		} else if ( blocking !== '' && blocking !== '_No response_' ) {
 			return severity === 'All' || severity === 'Most (> 50%)' ? 'Normal' : 'Low';
 		}
 		return null;
