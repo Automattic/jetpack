@@ -41,6 +41,7 @@ function grunion_contact_form_require_endpoint() {
 function grunion_contact_form_set_block_template_attribute( $template ) {
 	global $_wp_current_template_content;
 	if ( ABSPATH . WPINC . '/template-canvas.php' === $template ) {
+		Grunion_Contact_Form::style_on();
 		$_wp_current_template_content = grunion_contact_form_apply_block_attribute(
 			$_wp_current_template_content,
 			array(
@@ -95,6 +96,7 @@ add_filter( 'render_block', 'grunion_contact_form_unset_block_template_part_id_g
  * @return string
  */
 function grunion_contact_form_filter_widget_block_content( $content, $instance, $widget ) {
+	Grunion_Contact_Form::style_on();
 	// Inject 'block_template' => <widget-id> into all instances of the contact form block.
 	return grunion_contact_form_apply_block_attribute(
 		$content,
@@ -2564,6 +2566,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return '';
 		}
 		if ( isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
+			self::style_on();
 			$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
 		}
 		// Create a new Grunion_Contact_Form object (this class)

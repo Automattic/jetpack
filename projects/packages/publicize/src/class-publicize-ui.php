@@ -571,9 +571,8 @@ jQuery( function($) {
 			/**
 			 * Filter the Publicize details form.
 			 *
-			 * @module publicize
-			 *
-			 * @since 2.0.0
+			 * @since 0.1.0
+			 * @since-jetpack 2.0.0
 			 *
 			 * @param string $publicize_form Publicize Details form appearing above Publish button in the editor.
 			 */
@@ -586,7 +585,8 @@ jQuery( function($) {
 	/**
 	 * Generates HTML content for connections form.
 	 *
-	 * @since 6.7
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 *
 	 * @global WP_Post $post The current post instance being published.
 	 *

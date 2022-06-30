@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+E2E tests: improve stability of dedicated sync test
