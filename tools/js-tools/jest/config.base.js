@@ -11,7 +11,7 @@ module.exports = {
 			require.resolve( 'babel-jest' ),
 			{
 				presets: [
-					require.resolve( '@babel/preset-react' ),
+					[ require.resolve( '@babel/preset-react' ), { runtime: 'automatic' } ],
 					require.resolve( '@babel/preset-typescript' ),
 				],
 			},

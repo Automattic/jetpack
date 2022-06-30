@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals';
 import { render, screen, cleanup } from '@testing-library/react/pure';
-import React from 'react';
 import PricingCard from '../index';
 import '@testing-library/jest-dom';
 
