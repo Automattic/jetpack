@@ -30,9 +30,9 @@ function findPlugin( body ) {
 function findPriority( body ) {
 	// Look for priority indicators in body.
 	const priorityRegex = /###\sSeverity\n\n(?<severity>.*)\n\n###\sAvailable\sworkarounds\?\n\n(?<blocking>.*)\n/gm;
-	const priority = body.match( priorityRegex );
-	if ( priority ) {
-		const [ , severity = '', blocking = '' ] = priority.groups;
+	let match;
+	while ( ( match = priorityRegex.exec( body ) ) ) {
+		const [ , severity = '', blocking = '' ] = match;
 
 		debug(
 			`triage-new-issues: Reported priority indicators for issue: "${ severity }" / "${ blocking }"`
