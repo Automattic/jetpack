@@ -1,8 +1,8 @@
 import { Path, SVG, G, Polygon } from '@wordpress/components';
 import classNames from 'classnames';
+import React from 'react';
 import styles from './style.module.scss';
 import { BaseIconProps, SocialIconWrapperProps } from './types';
-import type React from 'react';
 
 /**
  * Icon Wrapper component.
