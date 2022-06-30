@@ -438,22 +438,6 @@ function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) 
 add_filter( 'pre_option_auto_update_plugins', 'wpcomsh_auto_update_new_plugins_by_default' );
 
 /**
- * TODO: Remove this once Page Optimize stops breaking CSS load order (has any version after v0.5.1)
- * This is a temporary fix for a page-optimize bug that causes spinner icons to show
- * all the time in the plugins list auto-update column
- */
-function wpcomsh_patch_auto_update_spinner_style() {
-		$current_screen = get_current_screen();
-	if ( isset( $current_screen->id ) && 'plugins' === $current_screen->id ) {
-			wp_add_inline_style(
-				'dashicons',
-				'.toggle-auto-update .dashicons.hidden { display: none; }'
-			);
-	}
-}
-add_action( 'admin_enqueue_scripts', 'wpcomsh_patch_auto_update_spinner_style', 999 );
-
-/**
  * Get atomic managed theme template auto update label
  *
  * @return string
