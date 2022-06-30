@@ -21,31 +21,29 @@ function findPlugin( body ) {
 }
 
 /**
- * Find priority of issue, based off issue contents.
+ * Figure out the priority of the issue, based off issue contents.
+ * Logic follows this priority matrix: pciE2j-oG-p2
  *
  * @param {string} body - The issue content.
  * @returns {string} Priority of issue.
  */
 function findPriority( body ) {
-	const regex = /###\sSeverity\n\n(.*)\n/gm;
+	// Look for priority indicators in body.
+	const priorityRegex = /###\sSeverity\n\n(?<severity>.*)\n\n###\sAvailable\sworkarounds\?\n\n(?<blocking>.*)\n/gm;
+	const priority = body.match( priorityRegex );
+	if ( priority ) {
+		const [ , severity = '', blocking = '' ] = priority;
 
-	let match;
-	while ( ( match = regex.exec( body ) ) ) {
-		const [ , severity ] = match;
-
-		switch ( severity ) {
-			case 'All':
-				return 'High';
-			case 'Some (< 50%)':
-				return 'High';
-			case 'Most (> 50%)':
-				return 'Normal';
-			case 'One':
-				return 'Low';
-			default:
-				// This includes the "_No response_" case, where one does not fill in the severity field.
-				return null;
+		if ( blocking === 'No and the platform is unusable' ) {
+			return severity === 'One' ? 'High' : 'BLOCKER';
+		} else if ( blocking === 'No but the platform is still usable' ) {
+			return 'High';
+		} else if ( blocking === 'Yes, difficult to implement' ) {
+			return severity === 'All' ? 'High' : 'Normal';
+		} else if ( blocking !== '' ) {
+			return severity === 'All' || severity === 'Most (> 50%)' ? 'Normal' : 'Low';
 		}
+		return null;
 	}
 
 	return null;
