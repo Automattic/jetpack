@@ -9,6 +9,10 @@ export default {
 	loop: {
 		type: 'boolean',
 	},
+	maxWidth: {
+		type: 'string',
+		default: '100%',
+	},
 	muted: {
 		type: 'boolean',
 	},
