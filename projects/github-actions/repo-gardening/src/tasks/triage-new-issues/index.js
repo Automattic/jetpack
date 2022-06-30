@@ -32,7 +32,11 @@ function findPriority( body ) {
 	const priorityRegex = /###\sSeverity\n\n(?<severity>.*)\n\n###\sAvailable\sworkarounds\?\n\n(?<blocking>.*)\n/gm;
 	const priority = body.match( priorityRegex );
 	if ( priority ) {
-		const [ , severity = '', blocking = '' ] = priority;
+		const [ , severity = '', blocking = '' ] = priority.groups;
+
+		debug(
+			`triage-new-issues: Reported priority indicators for issue: "${ severity }" / "${ blocking }"`
+		);
 
 		if ( blocking === 'No and the platform is unusable' ) {
 			return severity === 'One' ? 'High' : 'BLOCKER';
@@ -46,6 +50,7 @@ function findPriority( body ) {
 		return null;
 	}
 
+	debug( `triage-new-issues: No priority indicators found.` );
 	return null;
 }
 
@@ -74,6 +79,7 @@ async function triageNewIssues( payload, octokit ) {
 	}
 
 	// Find Priority.
+	debug( `triage-new-issues: Finding priority for issue #${ number }` );
 	const priority = findPriority( body );
 	if ( null !== priority ) {
 		debug( `triage-new-issues: Adding priority label to issue #${ number }` );
