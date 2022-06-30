@@ -7,15 +7,10 @@ const PALETTE = require( '@automattic/color-studio' );
  * @param {number} postCount - The total count of indexed post records
  * @param {object} postTypeBreakdown - Post type breakdown (post type => number of posts)
  * @param {string} lastIndexedDate - The date on which the site was last indexed as a string
- * @param {object} postTypeLabels - Post type labels (post type label => post type slug)
+ * @param {object} postTypes - Post types (post type label => post type slug)
  * @returns {object} data in correct form to use in chart and notice-box
  */
-export default function getRecordInfo(
-	postCount,
-	postTypeBreakdown,
-	lastIndexedDate,
-	postTypeLabels
-) {
+export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexedDate, postTypes ) {
 	const maxPostTypeCount = 5; // this value determines when to cut off displaying post times & compound into an 'other'
 	const recordInfo = [];
 	const chartPostTypeBreakdown = [];
@@ -54,7 +49,7 @@ export default function getRecordInfo(
 		// add labels to post type breakdown
 		const postTypeBreakdownWithLabels = addLabelsToPostTypeBreakdown(
 			postTypeBreakdown,
-			postTypeLabels
+			postTypes
 		);
 
 		for ( let i = 0; i < numItems - 1; i++ ) {
@@ -113,12 +108,12 @@ export default function getRecordInfo(
  * adds the appropriate labels the post type breakdown
  *
  * @param {Array} postTypeBreakdown - an array of the different post types with their counts
- * @param {Array} postTypeLabels - an array of the different post types labels matched with their slugs
+ * @param {Array} postTypes - an array of the different post types labels matched with their slugs
  * @returns {object} updated postTypeBreakdown containing the post type slug, label, and count
  */
-export function addLabelsToPostTypeBreakdown( postTypeBreakdown, postTypeLabels ) {
+export function addLabelsToPostTypeBreakdown( postTypeBreakdown, postTypes ) {
 	const postTypeBreakdownWithLabels = postTypeBreakdown.map( postType => {
-		const postTypeLabelItem = postTypeLabels.find( label => label.slug === postType.slug );
+		const postTypeLabelItem = postTypes.find( label => label.slug === postType.slug );
 		postType.label = postTypeLabelItem ? postTypeLabelItem.label : null;
 		return postType;
 	} );

@@ -65,7 +65,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	const postCount = useSelect( select => select( STORE_ID ).getPostCount() );
 	const postTypeBreakdown = useSelect( select => select( STORE_ID ).getPostTypeBreakdown() );
 	const lastIndexedDate = useSelect( select => select( STORE_ID ).getLastIndexedDate() );
-	const postTypeLabels = useSelect( select => select( STORE_ID ).getPostTypeLabels() );
+	const postTypes = useSelect( select => select( STORE_ID ).getPostTypes() );
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
 
@@ -164,7 +164,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							postTypeBreakdown={ postTypeBreakdown }
 							tierMaximumRecords={ tierMaximumRecords }
 							lastIndexedDate={ lastIndexedDate }
-							postTypeLabels={ postTypeLabels }
+							postTypes={ postTypes }
 						/>
 					) }
 					{ renderModuleControl() }

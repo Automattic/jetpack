@@ -72,7 +72,7 @@ class Initial_State {
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
 				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
-				'postTypeLabels'    => $this->get_post_type_labels(),
+				'postTypes'         => $this->get_post_types_with_labels(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
@@ -119,25 +119,26 @@ class Initial_State {
 	 *
 	 * @return array
 	 */
-	protected function get_post_type_labels() {
+	protected function get_post_types_with_labels() {
 
 		$args = array(
 			'public' => true,
 		);
 
-		$post_type_labels = array();
-		$post_types       = get_post_types( $args, 'objects' );
+		$post_types_with_labels = array();
+
+		$post_types = get_post_types( $args, 'objects' );
 
 		// We don't need all the additional post_type data, just the slug & label
-		foreach ( $post_types as $wp_post_type ) {
-			$post_type = array(
-				'slug'  => $wp_post_type->name,
-				'label' => $wp_post_type->label,
+		foreach ( $post_types as $post_type ) {
+			$post_type_with_label = array(
+				'slug'  => $post_type->name,
+				'label' => $post_type->label,
 			);
 
-			$post_type_labels[] = $post_type;
+			$post_types_with_labels[] = $post_type_with_label;
 		}
-		return $post_type_labels;
+		return $post_types_with_labels;
 	}
 
 	/**
