@@ -27,9 +27,14 @@ export default function save( { attributes } ) {
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
-		className: classnames( 'jetpack-videopress', {
-			[ `align${ align }` ]: align,
-		} ),
+		className: classnames(
+			'wp-block-jetpack-videopress',
+			'jetpack-videopress-player',
+			'wp-block-embed',
+			{
+				[ `align${ align }` ]: align,
+			}
+		),
 	} );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -53,8 +58,8 @@ export default function save( { attributes } ) {
 	}
 
 	return (
-		<figure { ...blockProps } style={ style }>
-			<div className="jetpack-videopress__wrapper">
+		<figure { ...blockProps }>
+			<div className="jetpack-videopress-player__wrapper">
 				{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
 			</div>
 
