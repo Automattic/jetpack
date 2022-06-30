@@ -1,5 +1,16 @@
+// eslint-disable-next-line no-unused-vars
+/* global myJetpackInitialState */
+
 import { getCurrencyObject } from '@automattic/format-currency';
-import { CheckmarkIcon, getIconBySlug, StarIcon, Text, H3 } from '@automattic/jetpack-components';
+import {
+	CheckmarkIcon,
+	getIconBySlug,
+	StarIcon,
+	Text,
+	H3,
+	Alert,
+} from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -55,6 +66,7 @@ function Price( { value, currency, isOld } ) {
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
+	const fileSystemWriteAccess = window?.myJetpackInitialState?.fileSystemWriteAccess;
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
@@ -64,7 +76,11 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		isBundle,
 		supportedProducts,
 		hasRequiredPlan,
+		status,
+		pluginSlug,
 	} = detail;
+
+	const cantInstallPlugin = status === 'plugin_absent' && 'no' === fileSystemWriteAccess;
 
 	const {
 		isFree,
@@ -181,11 +197,31 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 
 				{ isFree && <H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3> }
 
+				{ cantInstallPlugin && (
+					<Alert>
+						<Text>
+							{ sprintf(
+								// translators: %s is the plugin name.
+								__(
+									"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
+									'jetpack-my-jetpack'
+								),
+								title
+							) }
+							&nbsp;
+							<ExternalLink href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
+								{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
+							</ExternalLink>
+						</Text>
+					</Alert>
+				) }
+
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
 						isLoading={ isFetching }
+						disabled={ cantInstallPlugin }
 						isPrimary={ ! isBundle }
 						href={ onClick ? undefined : addProductUrl }
 						className={ styles[ 'checkout-button' ] }
