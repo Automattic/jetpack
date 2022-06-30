@@ -1,6 +1,22 @@
 const debug = require( '../../debug' );
+const getLabels = require( '../../get-labels' );
 
 /* global GitHub, WebhookPayloadIssue */
+
+/**
+ * Check for Priority label on an issue
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} number  - Issue number.
+ * @returns {Promise<boolean>} Promise resolving to boolean.
+ */
+async function hasPriorityLabels( octokit, owner, repo, number ) {
+	const labels = await getLabels( octokit, owner, repo, number );
+	// We're only interested in priority labels.
+	return !! labels.find( label => label.match( /^\[Pri\].*$/ ) );
+}
 
 /**
  * Find specific plugin impacted by issue, based off issue contents.
@@ -61,6 +77,7 @@ async function triageNewIssues( payload, octokit ) {
 	const { issue, repository } = payload;
 	const { number, body } = issue;
 	const { owner, name } = repository;
+	const ownerLogin = owner.login;
 
 	// Find impacted plugin.
 	const impactedPlugin = findPlugin( body );
@@ -68,7 +85,7 @@ async function triageNewIssues( payload, octokit ) {
 		debug( `triage-new-issues: Adding plugin label to issue #${ number }` );
 
 		await octokit.rest.issues.addLabels( {
-			owner: owner.login,
+			owner: ownerLogin,
 			repo: name,
 			issue_number: number,
 			labels: [ `[Plugin] ${ impactedPlugin }` ],
@@ -77,11 +94,12 @@ async function triageNewIssues( payload, octokit ) {
 
 	// Find Priority.
 	const priority = findPriority( body );
-	if ( null !== priority ) {
+	const hasPriorityLabel = await hasPriorityLabels( octokit, ownerLogin, name, number );
+	if ( priority !== null && ! hasPriorityLabel ) {
 		debug( `triage-new-issues: Adding priority label to issue #${ number }` );
 
 		await octokit.rest.issues.addLabels( {
-			owner: owner.login,
+			owner: ownerLogin,
 			repo: name,
 			issue_number: number,
 			labels: [ `[Pri] ${ priority }` ],
