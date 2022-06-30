@@ -49,4 +49,7 @@ export default {
 		type: 'string',
 		default: '',
 	},
+	poster: {
+		type: 'string',
+	},
 };

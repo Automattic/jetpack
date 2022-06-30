@@ -15,6 +15,7 @@ import { VideoPressIcon as icon } from '../../../shared/icons';
 import Loading from '../loading';
 import { getVideoPressUrl } from '../url';
 import VideoPressInspectorControls from './components/inspector-controls';
+import PosterImageBlockControl from './components/poster-image-block-control';
 import VideoPressPlayer from './components/videopress-player';
 import { useResumableUploader } from './hooks/use-uploader.js';
 import './editor.scss';
@@ -343,6 +344,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+			<PosterImageBlockControl attributes={ attributes } setAttributes={ setAttributes } />
 			<VideoPressPlayer
 				html={ html }
 				isUpdatingPreview={ ! previewHtml }
