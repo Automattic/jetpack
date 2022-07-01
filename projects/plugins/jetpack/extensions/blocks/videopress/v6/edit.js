@@ -38,7 +38,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		cacheHtml,
 	} = attributes;
 
-	const initialVideoPressUrl = getVideoPressUrl( guid, {
+	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
 		controls,
 		loop,
@@ -50,8 +50,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		seekbarPlayedColor,
 		useAverageColor,
 	} );
-
-	const [ videoPressUrl, setVideoPressUrl ] = useState( initialVideoPressUrl );
 
 	/*
 	 * Tracking state when uploading the video file.
@@ -215,7 +213,14 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		return urlObject.protocol === 'https:' && validHosts.includes( urlObject.host );
 	};
 
-	const getGuidFromVideoUrl = url => {
+	/**
+	 * Helper function to pick up the guid
+	 * from the VideoPress URL.
+	 *
+	 * @param {string} url - VideoPress URL.
+	 * @returns {void}       The guid picked up from the URL. Otherwise, False.
+	 */
+	function getGuidFromVideoUrl( url ) {
 		try {
 			const urlObject = new URL( url );
 			if ( isValidVideoPressUrl( urlObject ) ) {
@@ -225,11 +230,10 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		} catch ( e ) {
 			return false;
 		}
-	};
+	}
 
 	/**
 	 * Handler to add a video via an URL.
-	 * todo: finish the implementation
 	 *
 	 * @param {string} videoUrl - URL of the video to attach
 	 */
@@ -239,8 +243,9 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 			setUploadErrorDataState( { data: { message: __( 'Invalid VideoPress URL', 'jetpack' ) } } );
 			return;
 		}
+
+		// Update guid based on the URL.
 		setAttributes( { guid: videoGuid, src: videoUrl } );
-		setVideoPressUrl( videoUrl );
 	}
 
 	/**
