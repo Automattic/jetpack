@@ -46,6 +46,15 @@ module.exports = {
 			files: [ '*.ts', '*.tsx' ],
 			extends: './typescript',
 		},
+		{
+			files: [
+				// Note: Keep the patterns here in sync with tools/js-tools/jest/config.base.js.
+				'**/__tests__/**/*.[jt]s?(x)',
+				'**/?(*.)+(spec|test).[jt]s?(x)',
+				'**/test/*.[jt]s?(x)',
+			],
+			extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
+		},
 	],
 	plugins: [ 'import', 'prettier', 'jsx-a11y', 'lodash', 'jsdoc', '@typescript-eslint' ],
 	rules: {

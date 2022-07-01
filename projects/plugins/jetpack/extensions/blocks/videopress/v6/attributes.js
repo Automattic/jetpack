@@ -2,6 +2,11 @@ export default {
 	autoplay: {
 		type: 'boolean',
 	},
+	caption: {
+		type: 'string',
+		source: 'html',
+		selector: 'figcaption',
+	},
 	controls: {
 		type: 'boolean',
 		default: true,
