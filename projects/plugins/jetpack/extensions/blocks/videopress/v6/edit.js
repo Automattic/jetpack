@@ -35,7 +35,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		cacheHtml,
 	} = attributes;
 
-	const initialVideoPressUrl = getVideoPressUrl( guid, {
+	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
 		controls,
 		loop,
@@ -47,8 +47,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		seekbarPlayedColor,
 		useAverageColor,
 	} );
-
-	const [ videoPressUrl, setVideoPressUrl ] = useState( initialVideoPressUrl );
 
 	// Get video preview status.
 	const { preview, isRequestingEmbedPreview } = useSelect(
@@ -163,7 +161,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		return (
 			<VideoPressUploader
 				setAttributes={ setAttributes }
-				setVideoPressUrl={ setVideoPressUrl }
 				attributes={ attributes }
 				blockProps={ blockProps }
 			/>

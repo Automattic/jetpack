@@ -8,7 +8,7 @@ import { useResumableUploader } from '../../hooks/use-uploader.js';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-const VideoPressUploader = ( { blockProps, attributes, setAttributes, setVideoPressUrl } ) => {
+const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
 	/*
 	 * Tracking state when uploading the video file.
 	 * uploadingProgress is an array with two items:
@@ -68,6 +68,13 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes, setVideoPr
 		return urlObject.protocol === 'https:' && validHosts.includes( urlObject.host );
 	};
 
+	/**
+	 * Helper function to pick up the guid
+	 * from the VideoPress URL.
+	 *
+	 * @param {string} url - VideoPress URL.
+	 * @returns {void}       The guid picked up from the URL. Otherwise, False.
+	 */
 	const getGuidFromVideoUrl = url => {
 		try {
 			const urlObject = new URL( url );
@@ -92,8 +99,9 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes, setVideoPr
 			setUploadErrorDataState( { data: { message: __( 'Invalid VideoPress URL', 'jetpack' ) } } );
 			return;
 		}
+
+		// Update guid based on the URL.
 		setAttributes( { guid: videoGuid, src: videoUrl } );
-		setVideoPressUrl( videoUrl );
 	}
 
 	/**
