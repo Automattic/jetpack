@@ -319,9 +319,9 @@ class Status {
 	/**
 	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
 	 *
-	 * @param object $installed The list of installed extensions, where each attribute key is the extension slug.
-	 * @param object $checked   The list of checked extensions.
-	 * @param array  $append    Additional data to append to each result in the list.
+	 * @param array $installed The list of installed extensions, where each attribute key is the extension slug.
+	 * @param array $checked   The list of checked extensions.
+	 * @param array $append    Additional data to append to each result in the list.
 	 * @return array Normalized list of extensions.
 	 */
 	private static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
