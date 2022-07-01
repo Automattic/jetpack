@@ -7,6 +7,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 /**
  * Internal dependencies
  */
@@ -151,6 +152,12 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		className: 'wp-block-jetpack-videopress is-placeholder-container',
 	} );
 
+	const videoPlayerBlockProps = useBlockProps( {
+		className: classNames( 'wp-block-jetpack-videopress', {
+			'is-updating-preview': ! previewHtml,
+		} ),
+	} );
+
 	/*
 	 * 1 - Initial block state. Show VideoPressUploader when:
 	 *     - no src attribute,
@@ -183,7 +190,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 	// X - Show VideoPress player. @todo: finish
 	return (
-		<>
+		<div { ...videoPlayerBlockProps }>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			<VideoPressPlayer
 				html={ html }
@@ -194,6 +201,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 				isSelected={ isSelected }
 				className="wp-block-jetpack-videopress"
 			/>
-		</>
+		</div>
 	);
 }
