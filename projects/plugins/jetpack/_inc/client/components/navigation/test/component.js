@@ -1,5 +1,5 @@
-import { shallow } from 'enzyme';
 import React from 'react';
+import { render, screen } from 'test/test-utils';
 import { Navigation } from '../index';
 
 describe( 'Navigation', () => {
@@ -12,65 +12,118 @@ describe( 'Navigation', () => {
 		routeName: 'At a Glance',
 		isModuleActivated: () => false,
 	};
-	const wrapper = shallow( <Navigation { ...testProps } /> );
-
-	it( 'renders a div with a className of "dops-navigation"', () => {
-		expect( wrapper.find( '.dops-navigation' ) ).toHaveLength( 1 );
-	} );
 
 	describe( 'User that can view Stats but not manage modules and Protect is inactive', () => {
-		it( 'renders Navigation, SectionNav, NavTabs', () => {
-			expect( wrapper.find( 'Navigation' ) ).toBeDefined();
-			expect( wrapper.find( 'SectionNav' ) ).toBeDefined();
-			expect( wrapper.find( 'NavTabs' ) ).toBeDefined();
-		} );
+		it( 'renders 1 NavItem component', () => {
+			render( <Navigation { ...testProps } /> );
 
-		it( 'renders 2 NavItem components', () => {
-			expect( wrapper.find( 'NavItem' ) ).toHaveLength( 1 );
+			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
+			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 1 );
+			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 1 );
+
+			expect( screen.getByRole( 'menuitem', { name: 'At a Glance' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'At a Glance' } ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( "User can't view Stats or manage modules but Protect is active", () => {
-		testProps.isModuleActivated = () => true;
-
-		const wrapperProtect = shallow( <Navigation { ...testProps } /> );
+		const currentTestProps = {
+			...testProps,
+			isModuleActivated: () => true,
+		};
 
 		it( 'renders 1 NavItem components', () => {
-			expect( wrapperProtect.find( 'NavItem' ) ).toHaveLength( 1 );
+			render( <Navigation { ...currentTestProps } /> );
+			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
+			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 1 );
+			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 1 );
 		} );
 
 		it( 'renders tabs with At a Glance', () => {
-			expect(
-				wrapperProtect
-					.find( 'NavItem' )
-					.children()
-					.map( item => item.text() )
-					.join()
-			).toBe( 'At a Glance' );
+			render( <Navigation { ...currentTestProps } /> );
+			expect( screen.getByRole( 'menuitem', { name: 'At a Glance' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'At a Glance' } ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'User that can manage modules', () => {
-		Object.assign( testProps, {
+		const currentTestProps = {
+			...testProps,
 			userCanManageModules: true,
 			userCanViewStats: false,
-			isModuleActivated: () => false,
-		} );
-
-		const wrapperManage = shallow( <Navigation { ...testProps } /> );
+		};
 
 		it( 'renders 2 NavItem components', () => {
-			expect( wrapperManage.find( 'NavItem' ) ).toHaveLength( 2 );
+			render( <Navigation { ...currentTestProps } /> );
+			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 2 );
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 2 );
 		} );
 
 		it( 'renders At a Glance and Plans tabs', () => {
-			expect(
-				wrapperManage
-					.find( 'NavItem' )
-					.children()
-					.map( item => item.text() )
-					.join()
-			).toBe( 'At a Glance,Plans' );
+			render( <Navigation { ...currentTestProps } /> );
+			expect( screen.getByRole( 'menuitem', { name: 'At a Glance' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'At a Glance' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Plans' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Plans' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'does not render Plans tab when offline', () => {
+			render( <Navigation { ...currentTestProps } isOfflineMode={ true } /> );
+			expect( screen.queryByRole( 'menuitem', { name: 'Plans' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'option', { name: 'Plans' } ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'User that can manage modules, site is linked', () => {
+		const currentTestProps = {
+			...testProps,
+			userCanManageModules: true,
+			userCanViewStats: false,
+			isLinked: true,
+		};
+
+		it( 'renders 3 NavItem components', () => {
+			render( <Navigation { ...currentTestProps } /> );
+			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 3 );
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 3 );
+		} );
+
+		it( 'renders At a Glance, My Plan, and Plans tabs', () => {
+			render( <Navigation { ...currentTestProps } /> );
+			expect( screen.getByRole( 'menuitem', { name: 'At a Glance' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'At a Glance' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'My Plan' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'My Plan' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Plans' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Plans' } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'User that can manage modules, on-request tabs', () => {
+		const currentTestProps = {
+			...testProps,
+			userCanManageModules: true,
+			userCanViewStats: false,
+		};
+
+		it( 'renders Recommendations tab', () => {
+			render(
+				<Navigation
+					{ ...currentTestProps }
+					showRecommendations={ true }
+					newRecommendationsCount={ 1 }
+				/>
+			);
+			expect( screen.getByRole( 'menuitem', { name: 'Recommendations 1' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Recommendations 1' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders My Jetpack tab', () => {
+			render( <Navigation { ...currentTestProps } showMyJetpack={ true } /> );
+			expect( screen.getByRole( 'menuitem', { name: 'My Jetpack' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'My Jetpack' } ) ).toBeInTheDocument();
 		} );
 	} );
 } );
