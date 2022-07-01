@@ -34,6 +34,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		src,
 		guid,
 		cacheHtml,
+		align,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -154,6 +155,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 	const videoPlayerBlockProps = useBlockProps( {
 		className: classNames( 'wp-block-jetpack-videopress', {
+			[ `align${ align }` ]: align,
 			'is-updating-preview': ! previewHtml,
 		} ),
 	} );
