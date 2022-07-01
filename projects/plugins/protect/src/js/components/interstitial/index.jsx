@@ -55,7 +55,7 @@ const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
 const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
 	const [ isMediumSize ] = useBreakpointMatch( 'md' );
 	const mediaClassName = `${ styles.section } ${
-		isMediumSize ? styles[ 'is-viewport-medium' ] : null
+		isMediumSize ? styles[ 'is-viewport-medium' ] : ''
 	}`;
 
 	return (
