@@ -35,6 +35,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		guid,
 		cacheHtml,
 		align,
+		cacheThumbnail,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -62,7 +63,9 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		[ videoPressUrl ]
 	);
 
-	const { html: previewHtml, scripts } = preview ? preview : { html: null, scripts: [] };
+	const { html: previewHtml, scripts, thumbnail_url: previewThumbnail } = preview
+		? preview
+		: { html: null, scripts: [] };
 
 	/*
 	 * Store the preview html into a block attribute,
@@ -82,6 +85,21 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		// Update html cache when the preview changes.
 		setAttributes( { cacheHtml: previewHtml } );
 	}, [ previewHtml, cacheHtml, setAttributes ] );
+
+	// Store video thumbnail in the block attribute.
+	useEffect( () => {
+		if ( ! previewThumbnail ) {
+			return;
+		}
+
+		if ( previewThumbnail === cacheThumbnail ) {
+			return;
+		}
+
+		setAttributes( { cacheThumbnail: previewThumbnail } );
+	}, [ previewThumbnail, cacheThumbnail, setAttributes ] );
+
+	const videoThumbnail = previewThumbnail || cacheThumbnail;
 
 	// Helper to invalidate the preview cache.
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
@@ -196,6 +214,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			<VideoPressPlayer
 				html={ html }
+				thumbnail={ videoThumbnail }
 				isUpdatingPreview={ ! previewHtml }
 				scripts={ scripts }
 				attributes={ attributes }

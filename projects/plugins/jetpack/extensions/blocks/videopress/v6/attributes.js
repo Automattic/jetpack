@@ -53,8 +53,11 @@ export default {
 	src: {
 		type: 'string',
 	},
-
 	cacheHtml: {
+		type: 'string',
+		default: '',
+	},
+	cacheThumbnail: {
 		type: 'string',
 		default: '',
 	},
