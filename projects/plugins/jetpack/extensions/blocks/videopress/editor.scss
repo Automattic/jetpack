@@ -153,4 +153,8 @@
 	width: 100%;
 	justify-content: space-between;
 	align-items: center;
+	padding: 20px 20px 0;
+	border-top: 1px solid $gray-200;
+	box-sizing: border-box;
+	margin-top: $grid-unit-30;
 }

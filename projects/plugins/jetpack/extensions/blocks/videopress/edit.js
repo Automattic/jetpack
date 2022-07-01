@@ -60,7 +60,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				isUpdatingIsPrivate: false,
 				isEditingWhileUploading: false,
 				isUploadComplete: false,
-				hasShownUploadingEditor: false,
+				hasUsedUploadingEditor: false,
 				lastPosterValueSource: '',
 			};
 			this.posterImageButton = createRef();
@@ -717,12 +717,23 @@ const VideoPressEdit = CoreVideoEdit =>
 			const filename = escapeHTML(
 				fileForUpload ? removeFileNameExtension( fileForUpload.name ) : ''
 			);
-			const onChangeTitle = newTitle => this.setState( { title: newTitle } );
+			const onChangeTitle = newTitle => {
+				this.setState( { title: newTitle, hasUsedUploadingEditor: true } );
+			};
 
 			const onSelectPoster = attachment => {
 				this.setState( {
 					videoPosterImageData: attachment,
 					videoFrameSelectedInMillis: null,
+					hasUsedUploadingEditor: true,
+				} );
+			};
+
+			const onVideoFrameSelected = ms => {
+				this.setState( {
+					videoFrameSelectedInMillis: ms,
+					videoPosterImageData: null,
+					hasUsedUploadingEditor: true,
 				} );
 			};
 
@@ -761,17 +772,6 @@ const VideoPressEdit = CoreVideoEdit =>
 				} ).catch( e => e );
 			};
 
-			const onEditorShown = () => {
-				this.setState( { hasShownUploadingEditor: true } );
-			};
-
-			const onVideoFrameSelected = ms => {
-				this.setState( {
-					videoFrameSelectedInMillis: ms,
-					videoPosterImageData: null,
-				} );
-			};
-
 			const dismissEditor = () => {
 				this.setState( { isEditingWhileUploading: false } );
 
@@ -790,7 +790,7 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			if (
 				isResumableUploading ||
-				( this.state.isEditingWhileUploading && this.state.hasShownUploadingEditor )
+				( this.state.isEditingWhileUploading && this.state.hasUsedUploadingEditor )
 			) {
 				if ( ! this.state.isEditingWhileUploading ) {
 					this.setState( { isEditingWhileUploading: true } );
@@ -810,7 +810,6 @@ const VideoPressEdit = CoreVideoEdit =>
 						onChangeTitle={ onChangeTitle }
 						title={ title }
 						videoPosterImageData={ this.state.videoPosterImageData }
-						onEditorShown={ onEditorShown }
 						onVideoFrameSelected={ onVideoFrameSelected }
 					/>
 				);
@@ -913,7 +912,6 @@ const UploaderBlock = props => {
 		fileForUpload,
 		isUploadComplete,
 		onDismissEditor,
-		onEditorShown,
 		onVideoFrameSelected,
 	} = props;
 
@@ -933,7 +931,6 @@ const UploaderBlock = props => {
 						onChangeTitle={ onChangeTitle }
 						onSelectPoster={ onSelectPoster }
 						videoPosterImageData={ videoPosterImageData }
-						onEditorShown={ onEditorShown }
 						onVideoFrameSelected={ onVideoFrameSelected }
 					/>
 					{ ! isUploadComplete && <ResumableUpload file={ fileForUpload } /> }
