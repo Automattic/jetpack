@@ -357,6 +357,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				isSelected={ isSelected }
+				className="wp-block-jetpack-videopress"
 			/>
 		</>
 	);
