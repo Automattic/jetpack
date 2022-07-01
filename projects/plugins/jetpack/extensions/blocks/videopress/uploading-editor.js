@@ -59,6 +59,7 @@ export const UploadingEditor = props => {
 	const [ selectedTab, setSelectedTab ] = useState( 'tab-frame' );
 	const [ canDisplayThumbnailScrubber, setCanDisplayThumbnailScrubber ] = useState( true );
 	const videoPlayer = useRef( null );
+	const posterImageLink = useRef( null );
 
 	const onVideoError = () => {
 		setCanDisplayThumbnailScrubber( false );
@@ -117,6 +118,11 @@ export const UploadingEditor = props => {
 		} );
 	}
 
+	// We need the video tag to reload to force the poster image to show again.
+	if ( videoPlayer && videoPlayer.current && videoPosterImageData ) {
+		videoPlayer.current.load();
+	}
+
 	return (
 		<>
 			<div className="uploading-editor">
@@ -128,10 +134,10 @@ export const UploadingEditor = props => {
 						onChange={ onChangeTitle }
 						value={ title }
 					/>
-					<div className="uploading-editor__tab-content">
-						{ canDisplayThumbnailScrubber ? (
-							<div className={ frameClasses }>
-								<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>
+					<div className="uploading-editor__content">
+						<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>
+							{ canDisplayThumbnailScrubber ? (
+								<div className={ frameClasses }>
 									<div className="uploading-editor__video-container">
 										<video
 											ref={ videoPlayer }
@@ -140,6 +146,7 @@ export const UploadingEditor = props => {
 											onDurationChange={ onDurationChange }
 											onError={ onVideoError }
 											onLoadedMetadata={ onVideoLoad }
+											poster={ videoPosterImageData ? videoPosterImageData.url : null }
 										/>
 										<Icon className="uploading-editor__play-icon" icon={ PlayIcon } />
 									</div>
@@ -155,25 +162,40 @@ export const UploadingEditor = props => {
 									<span className="uploading-editor__scrubber-help">
 										{ createInterpolateElement(
 											__(
-												'This is how the video will look. Use the slider to choose a poster or <a>upload an image</a>.',
+												'This is how the video will look. Use the slider to choose a poster or <a>select a custom one</a>.',
 												'jetpack'
 											),
 											{
-												a: <a href="javascript:void(0)" onClick={ () => {} } />,
+												a: (
+													<MediaUpload
+														title={ __( 'Select Poster Image', 'jetpack' ) }
+														onSelect={ onSelectPoster }
+														allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
+														render={ ( { open } ) => (
+															<a
+																className="uploading-editor__upload-link"
+																onClick={ open }
+																onKeyDown={ open }
+																ref={ posterImageLink }
+																role="button"
+																tabIndex={ 0 }
+															>
+																{ __( 'select a custom one', 'jetpack' ) }
+															</a>
+														) }
+													/>
+												),
 											}
 										) }
 									</span>
-								</BaseControl>
-							</div>
-						) : (
-							<PosterSelector
-								className={
-									'tab-upload' === selectedTab || ! canDisplayThumbnailScrubber ? 'active-tab' : ''
-								}
-								onSelectPoster={ onSelectPoster }
-								videoPosterImageUrl={ videoPosterImageData ? videoPosterImageData.url : null }
-							/>
-						) }
+								</div>
+							) : (
+								<PosterSelector
+									onSelectPoster={ onSelectPoster }
+									videoPosterImageUrl={ videoPosterImageData ? videoPosterImageData.url : null }
+								/>
+							) }
+						</BaseControl>
 					</div>
 				</div>
 			</div>

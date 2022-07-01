@@ -722,6 +722,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			const onSelectPoster = attachment => {
 				this.setState( {
 					videoPosterImageData: attachment,
+					videoFrameSelectedInMillis: null,
 				} );
 			};
 
@@ -767,6 +768,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			const onVideoFrameSelected = ms => {
 				this.setState( {
 					videoFrameSelectedInMillis: ms,
+					videoPosterImageData: null,
 				} );
 			};
 

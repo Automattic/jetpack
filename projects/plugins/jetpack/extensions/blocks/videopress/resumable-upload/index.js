@@ -107,16 +107,6 @@ export default function ResumableUpload( { file } ) {
 		startUpload();
 	};
 
-	const escapedFileName = escapeHTML( file.name );
-	const fileNameLabel = createInterpolateElement(
-		sprintf(
-			/* translators: Placeholder is a video file name. */
-			__( 'Uploading <strong>%s</strong>', 'jetpack' ),
-			escapedFileName
-		),
-		{ strong: <strong /> }
-	);
-
 	const fileSizeLabel = filesize( file.size );
 
 	const getErrorMessage = () => {
@@ -170,16 +160,29 @@ export default function ResumableUpload( { file } ) {
 				</div>
 			) : (
 				<div className="resumable-upload__status">
-					<div className="resumable-upload__file-info">
-						<div className="resumable-upload__file-name">{ fileNameLabel }</div>
-						&nbsp;&#8212;&nbsp;
-						<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
-					</div>
 					<div className="resumable-upload__progress">
 						<div className="resumable-upload__progress-loaded" style={ cssWidth } />
 					</div>
+					<div className="resumable-upload__file-info">
+						<div>
+							{ /* eslint-disable */ }
+							{ /* valid-sprintf doesn't understand double percent escape */ }
+							{ hasPaused
+								? sprintf(
+										/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
+										__( 'Paused (%s%%)', 'jetpack' ),
+										roundedProgress
+								  )
+								: sprintf(
+										/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
+										__( 'Uploading (%s%%)', 'jetpack' ),
+										roundedProgress
+								  ) }
+							{ /* eslint-enable */ }
+						</div>
+						<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
+					</div>
 					<div className="resumable-upload__actions">
-						<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
 						<Button variant="link" onClick={ () => pauseOrResumeUpload() }>
 							{ hasPaused ? 'Resume' : 'Pause' }
 						</Button>

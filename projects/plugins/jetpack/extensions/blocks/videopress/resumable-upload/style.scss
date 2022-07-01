@@ -54,31 +54,44 @@
 	background-color: black;
 }
 
+.resumable-upload__status, .resumable-upload__error {
+	border-top: 1px solid $gray-200;
+	width: 100%;
+	box-sizing: border-box;
+	margin-top: $grid-unit-30;
+}
+
 .resumable-upload__status {
 	display: flex;
-	flex-direction: column;
-	width: 100%;
+	flex-direction: row;
 	align-items: center;
-	margin-top: $grid-unit-30;
-	border-top: 1px solid $gray-200;
 	padding: 20px 20px 0;
-	box-sizing: border-box;
+}
+
+.resumable-upload__error {
+	padding: 0 20px;
 }
 
 .resumable-upload__file-info {
 	display: flex;
 	flex-direction: row;
 	width: 100%;
-	margin-bottom: $grid-unit-20;
+}
+
+.resumable-upload__file-size {
+	color: $gray-700;
+	margin-left: $grid-unit-15;
 }
 
 .resumable-upload__progress {
 	height: 8px;
 	background: #D2D2D2;
 	width: 100%;
+	max-width: 160px;
 	border-radius: 4px;
 	box-sizing: border-box;
 	overflow: hidden;
+	margin-right: $grid-unit-15;
 }
 
 .resumable-upload__progress-loaded {
@@ -102,10 +115,10 @@
 
 .resumable-upload__actions {
 	display: flex;
+	flex-direction: row;
+	justify-self: flex-end;
 	justify-content: space-between;
 	align-items: center;
-	margin-top: $grid-unit-20;
-	width: 100%;
 
 	.components-button.is-link {
 		text-decoration: none;
