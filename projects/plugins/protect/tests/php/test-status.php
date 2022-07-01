@@ -38,7 +38,7 @@ class Test_Status extends BaseTestCase {
 		$item = (object) array(
 			'version'         => '1.0.2',
 			'name'            => 'Sample Theme',
-			'not_checked'     => false,
+			'checked'         => true,
 			'type'            => 'theme',
 			'vulnerabilities' => array(),
 		);
@@ -58,7 +58,7 @@ class Test_Status extends BaseTestCase {
 		$item = (object) array(
 			'version'         => '1.0.2',
 			'name'            => 'Sample Plugin',
-			'not_checked'     => false,
+			'checked'         => true,
 			'type'            => 'plugin',
 			'vulnerabilities' => array(),
 		);
@@ -80,7 +80,7 @@ class Test_Status extends BaseTestCase {
 		$item = (object) array(
 			'version'         => $wp_version,
 			'vulnerabilities' => array(),
-			'not_checked'     => false,
+			'checked'         => true,
 			'name'            => 'WordPress',
 			'type'            => 'core',
 		);

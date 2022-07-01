@@ -25,7 +25,7 @@ export default function useProtectData() {
 		...( status.themes || [] ),
 		...( status.plugins || [] ),
 		status.core || {},
-	].some( item => item.not_checked );
+	].some( item => ! item.checked );
 
 	return {
 		numVulnerabilities: status.numVulnerabilities || 0,

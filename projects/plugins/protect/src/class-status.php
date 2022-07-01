@@ -333,7 +333,7 @@ class Status {
 						'name'            => $installed[ $slug ]['Name'],
 						'version'         => $checked->{ $slug }->version,
 						'vulnerabilities' => $checked->{ $slug }->vulnerabilities,
-						'not_checked'     => false,
+						'checked'         => true,
 					),
 					$append
 				);
@@ -343,7 +343,7 @@ class Status {
 						'name'            => $installed[ $slug ]['Name'],
 						'version'         => $installed[ $slug ]['Version'],
 						'vulnerabilities' => array(),
-						'not_checked'     => true,
+						'checked'         => false,
 					),
 					$append
 				);
@@ -354,8 +354,8 @@ class Status {
 			function ( $a, $b ) {
 				$vuls_a    = count( $a->vulnerabilities ) > 0 ? 2 : 0;
 				$vuls_b    = count( $b->vulnerabilities ) > 0 ? 2 : 0;
-				$checked_a = $a->not_checked ? 1 : 0;
-				$checked_b = $b->not_checked ? 1 : 0;
+				$checked_a = $a->checked ? 0 : 1;
+				$checked_b = $b->checked ? 0 : 1;
 				return $vuls_b + $checked_b - ( $vuls_a + $checked_a );
 			}
 		);
@@ -379,7 +379,7 @@ class Status {
 		} else {
 			$core->version         = $wp_version;
 			$core->vulnerabilities = array();
-			$core->not_checked     = true;
+			$core->checked         = false;
 			$core->name            = 'WordPress';
 			$core->type            = 'core';
 		}
