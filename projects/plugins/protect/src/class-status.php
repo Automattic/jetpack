@@ -328,30 +328,24 @@ class Status {
 		$new_list = array();
 		foreach ( $installed as $slug => $item ) {
 			if ( isset( $checked->{ $slug } ) && $checked->{ $slug }->version === $installed[ $slug ]['Version'] ) {
-				array_push(
-					$new_list,
-					(object) array_merge(
-						array(
-							'name'            => $installed[ $slug ]['Name'],
-							'version'         => $checked->{ $slug }->version,
-							'vulnerabilities' => $checked->{ $slug }->vulnerabilities,
-							'not_checked'     => false,
-						),
-						$append
-					)
+				$new_list[] = (object) array_merge(
+					array(
+						'name'            => $installed[ $slug ]['Name'],
+						'version'         => $checked->{ $slug }->version,
+						'vulnerabilities' => $checked->{ $slug }->vulnerabilities,
+						'not_checked'     => false,
+					),
+					$append
 				);
 			} else {
-				array_push(
-					$new_list,
-					(object) array_merge(
-						array(
-							'name'            => $installed[ $slug ]['Name'],
-							'version'         => $installed[ $slug ]['Version'],
-							'vulnerabilities' => array(),
-							'not_checked'     => true,
-						),
-						$append
-					)
+				$new_list[] = (object) array_merge(
+					array(
+						'name'            => $installed[ $slug ]['Name'],
+						'version'         => $installed[ $slug ]['Version'],
+						'vulnerabilities' => array(),
+						'not_checked'     => true,
+					),
+					$append
 				);
 			}
 		}
