@@ -12,7 +12,7 @@ import { __, sprintf } from '@wordpress/i18n';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
-export default function PosterImageBlockControl( { attributes, setAttributes } ) {
+export default function PosterImageBlockControl( { attributes, setAttributes, clientId } ) {
 	const { poster } = attributes;
 	const onSelectPoster = image => {
 		setAttributes( { poster: image.url } );
@@ -40,12 +40,10 @@ export default function PosterImageBlockControl( { attributes, setAttributes } )
 						//icon={ captionIcon }
 					/>
 				) }
-				renderContent={ () => {
-					// todo return unique string for instance.
-					const videoPosterDescription = 'temp';
+				renderContent={ ( { onClose } ) => {
+					const videoPosterDescription = `video-block__poster-image-description-${ clientId }`;
 					return (
 						<>
-							Upload a file to override the default Poster image:
 							<MediaUploadCheck>
 								<BaseControl
 									className="editor-video-poster-control"
@@ -53,7 +51,10 @@ export default function PosterImageBlockControl( { attributes, setAttributes } )
 								>
 									<MediaUpload
 										title={ __( 'Select Poster Image', 'jetpack' ) }
-										onSelect={ onSelectPoster }
+										onSelect={ image => {
+											onSelectPoster( image );
+											onClose();
+										} }
 										allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
 										render={ ( { open } ) => (
 											<Button

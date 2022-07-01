@@ -22,7 +22,7 @@ import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-export default function VideoPressEdit( { attributes, setAttributes } ) {
+export default function VideoPressEdit( { attributes, setAttributes, clientId } ) {
 	const {
 		autoplay,
 		loop,
@@ -37,6 +37,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		src,
 		guid,
 		cacheHtml,
+		poster,
 	} = attributes;
 
 	const initialVideoPressUrl = getVideoPressUrl( guid, {
@@ -50,6 +51,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		seekbarLoadingColor,
 		seekbarPlayedColor,
 		useAverageColor,
+		poster,
 	} );
 
 	const [ videoPressUrl, setVideoPressUrl ] = useState( initialVideoPressUrl );
@@ -344,7 +346,11 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
-			<PosterImageBlockControl attributes={ attributes } setAttributes={ setAttributes } />
+			<PosterImageBlockControl
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				clientId={ clientId }
+			/>
 			<VideoPressPlayer
 				html={ html }
 				isUpdatingPreview={ ! previewHtml }
