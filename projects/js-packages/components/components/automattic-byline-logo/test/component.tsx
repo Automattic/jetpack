@@ -1,5 +1,4 @@
 import { render } from '@testing-library/react';
-import React from 'react';
 import AutomatticBylineLogo from '../index';
 import '@testing-library/jest-dom';
 
@@ -9,9 +8,8 @@ describe( 'AutomatticBylineLogo', () => {
 	};
 
 	describe( 'Render the AutomatticBylineLogo component', () => {
-		const { container } = render( <AutomatticBylineLogo { ...testProps } /> );
-
 		it( 'validate the class name', () => {
+			const { container } = render( <AutomatticBylineLogo { ...testProps } /> );
 			// eslint-disable-next-line testing-library/no-node-access
 			expect( container.firstChild ).toHaveClass( 'sample-classname' );
 		} );
