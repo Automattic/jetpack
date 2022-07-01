@@ -3,6 +3,7 @@ import {
 	AdminSection,
 	AdminSectionHero,
 	Container,
+	ContextualUpgradeTrigger,
 	Col,
 	getRedirectUrl,
 	PricingCard,
@@ -66,6 +67,10 @@ const Admin = () => {
 	};
 
 	const sendToCart = () => {
+		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
+	};
+
+	const sendToReview = () => {
 		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
 	};
 
@@ -209,6 +214,14 @@ const Admin = () => {
 							</a>
 						</p>
 					) }
+				</Col>
+				<Col lg={ 6 } md={ 4 }>
+					<ContextualUpgradeTrigger
+						description={ __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' ) }
+						cta={ __( 'Please leave a review and help us spread the word!', 'jetpack-backup-pkg' ) }
+						// eslint-disable-next-line react/jsx-no-bind
+						onClick={ sendToReview }
+					/>
 				</Col>
 			</Container>
 		);
