@@ -2,12 +2,11 @@
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
-import React, { useState } from 'react';
+import React from 'react';
 
 import './notice-box.scss';
 
 const CLOSE_TO_LIMIT_PERCENT = 0.8;
-const DISMISSED_NOTICES = 'jetpack-search-dismissed-notices';
 
 const getNotices = ( tierMaximumRecords = null ) => {
 	const recordLimit =
@@ -71,10 +70,6 @@ const getNotices = ( tierMaximumRecords = null ) => {
 export function NoticeBox( props ) {
 	const activeNoticeIds = [];
 	const NOTICES = getNotices( props.tierMaximumRecords );
-	const [ showNotice, setShowNotice ] = useState( true );
-
-	// deal with sessionStorage for ensuring dismissed notice boxes are not re-displayed
-	const dismissedNoticesString = sessionStorage.getItem( DISMISSED_NOTICES ) ?? '';
 
 	const DATA_NOT_VALID = '1',
 		HAS_NOT_BEEN_INDEXED = '2',
@@ -82,28 +77,21 @@ export function NoticeBox( props ) {
 		CLOSE_TO_LIMIT = '3';
 
 	// check if data is valid
-	props.hasValidData === false &&
-		! dismissedNoticesString.includes( DATA_NOT_VALID ) &&
-		activeNoticeIds.push( DATA_NOT_VALID );
+	props.hasValidData === false && activeNoticeIds.push( DATA_NOT_VALID );
 
 	// check site has been indexed
-	props.hasBeenIndexed === false &&
-		! dismissedNoticesString.includes( HAS_NOT_BEEN_INDEXED ) &&
-		activeNoticeIds.push( HAS_NOT_BEEN_INDEXED );
+	props.hasBeenIndexed === false && activeNoticeIds.push( HAS_NOT_BEEN_INDEXED );
 
 	// check at least one indexable item
-	props.hasItems === false &&
-		! dismissedNoticesString.includes( NO_INDEXABLE_ITEMS ) &&
-		activeNoticeIds.push( NO_INDEXABLE_ITEMS );
+	props.hasItems === false && activeNoticeIds.push( NO_INDEXABLE_ITEMS );
 
 	// check if close to reaching limit
 	typeof props.tierMaximumRecords === 'number' &&
 		props.recordCount > props.tierMaximumRecords * CLOSE_TO_LIMIT_PERCENT &&
 		props.recordCount < props.tierMaximumRecords &&
-		! dismissedNoticesString.includes( CLOSE_TO_LIMIT ) &&
 		activeNoticeIds.push( CLOSE_TO_LIMIT );
 
-	if ( activeNoticeIds.length < 1 || ! showNotice ) {
+	if ( activeNoticeIds.length < 1 ) {
 		return null;
 	}
 
@@ -113,20 +101,13 @@ export function NoticeBox( props ) {
 		? 'jp-search-notice-box jp-search-notice-box__important'
 		: 'jp-search-notice-box';
 
-	const dismissNoticeBox = () => {
-		setShowNotice( false );
-		if ( ! dismissedNoticesString.includes( notice.id ) ) {
-			sessionStorage.setItem( DISMISSED_NOTICES, dismissedNoticesString + notice.id );
-		}
-	};
-
 	return (
 		<SimpleNotice
 			isCompact={ false }
 			status={ 'is-info' }
 			className={ noticeBoxClassName }
-			onDismissClick={ dismissNoticeBox }
 			icon={ 'info-outline' }
+			showDismiss={ false }
 		>
 			{ notice.header && <h3 className="dops-notice__header">{ notice.header }</h3> }
 			{ notice.message && <span className="dops-notice__body">{ notice.message }</span> }

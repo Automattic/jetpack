@@ -18,6 +18,7 @@ module.exports = {
 		],
 	},
 	testMatch: [
+		// Note: Keep the patterns here in sync with tools/js-tools/eslintrc/base.js.
 		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',
 		'<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
 		'<rootDir>/**/test/*.[jt]s?(x)',

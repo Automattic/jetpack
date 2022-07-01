@@ -1,3 +1,7 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.jetpack-videopress {}
+.wp-block-jetpack-videopress {
+	figcaption {
+		@include caption-style-theme();
+	}
+}
