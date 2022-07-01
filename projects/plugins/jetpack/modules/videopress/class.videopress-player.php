@@ -697,7 +697,7 @@ class VideoPress_Player {
 
 		} else {
 			$videopress_options = wp_json_encode( $videopress_options );
-			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress.js';
+			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress.js';
 
 			return "<div id='{$video_container_id}'></div>
 				<script src='{$js_url}'></script>

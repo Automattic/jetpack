@@ -1,7 +1,19 @@
-import ConnectButton from 'components/connect-button';
-import { shallow } from 'enzyme';
 import React from 'react';
+import { render, screen } from 'test/test-utils';
 import { ConnectionBanner } from '../index';
+
+// Mock ConnectButton for easier testing.
+jest.mock( 'components/connect-button', () => ( {
+	__esModule: true,
+	default: props => {
+		const data = {};
+		for ( const [ k, v ] of Object.entries( props ) ) {
+			data[ 'data-' + k.replace( /[A-Z]/g, m => `-${ m.toLowerCase() }` ) ] =
+				v === undefined ? undefined : JSON.stringify( v );
+		}
+		return <div data-testid="ConnectButton" { ...data }></div>;
+	},
+} ) );
 
 describe( 'ConnectionBanner', () => {
 	const testProps = {
@@ -10,77 +22,68 @@ describe( 'ConnectionBanner', () => {
 	};
 
 	describe( 'Initially', () => {
-		const wrapper = shallow( <ConnectionBanner { ...testProps } /> );
-
 		it( 'does not pass any properties to ConnectButton', () => {
-			expect( wrapper.find( ConnectButton ).props().connectUser ).toBeFalsy();
-			expect( wrapper.find( ConnectButton ).props().from ).toBeFalsy();
-			expect( wrapper.find( ConnectButton ).props().asLink ).toBeFalsy();
-			expect( wrapper.find( ConnectButton ).props().connectInPlace ).toBeFalsy();
+			render( <ConnectionBanner { ...testProps } /> );
+			const button = screen.getByTestId( 'ConnectButton' );
+			expect( button ).not.toHaveAttribute( 'data-connect-user' );
+			expect( button ).not.toHaveAttribute( 'data-from' );
+			expect( button ).not.toHaveAttribute( 'data-as-link' );
+			expect( button ).not.toHaveAttribute( 'data-connect-in-place' );
 		} );
 	} );
 
 	describe( "When the 'connectUser' property is set", () => {
-		testProps.connectUser = true;
-
-		const wrapper = shallow( <ConnectionBanner { ...testProps } /> );
-
 		it( "sets the ConnectButton 'connectUser' property to true", () => {
-			expect( wrapper.find( ConnectButton ).props().connectUser ).toBe( true );
+			render( <ConnectionBanner { ...testProps } connectUser={ true } /> );
+			expect( screen.getByTestId( 'ConnectButton' ) ).toHaveAttribute(
+				'data-connect-user',
+				'true'
+			);
 		} );
 
-		testProps.connectUser = false;
-
-		const wrapper2 = shallow( <ConnectionBanner { ...testProps } /> );
-
 		it( "sets the ConnectButton 'connectUser' property to false", () => {
-			expect( wrapper2.find( ConnectButton ).props().connectUser ).toBe( false );
+			render( <ConnectionBanner { ...testProps } connectUser={ false } /> );
+			expect( screen.getByTestId( 'ConnectButton' ) ).toHaveAttribute(
+				'data-connect-user',
+				'false'
+			);
 		} );
 	} );
 
 	describe( "When the 'from' property is set", () => {
-		testProps.from = 'from';
-
-		const wrapper = shallow( <ConnectionBanner { ...testProps } /> );
-
 		it( "sets the ConnectButton 'from' property", () => {
-			expect( wrapper.find( ConnectButton ).props().from ).toBe( 'from' );
+			render( <ConnectionBanner { ...testProps } from="somewhere" /> );
+			expect( screen.getByTestId( 'ConnectButton' ) ).toHaveAttribute( 'data-from', '"somewhere"' );
 		} );
 	} );
 
 	describe( "When the 'asLink' property is set", () => {
-		testProps.asLink = true;
-
-		const wrapper = shallow( <ConnectionBanner { ...testProps } /> );
-
 		it( "sets the ConnectButton 'asLink' property to true", () => {
-			expect( wrapper.find( ConnectButton ).props().asLink ).toBe( true );
+			render( <ConnectionBanner { ...testProps } asLink={ true } /> );
+			expect( screen.getByTestId( 'ConnectButton' ) ).toHaveAttribute( 'data-as-link', 'true' );
 		} );
 
-		testProps.asLink = false;
-
-		const wrapper2 = shallow( <ConnectionBanner { ...testProps } /> );
-
 		it( "sets the ConnectButton 'asLink' property to false", () => {
-			expect( wrapper2.find( ConnectButton ).props().asLink ).toBe( false );
+			render( <ConnectionBanner { ...testProps } asLink={ false } /> );
+			expect( screen.getByTestId( 'ConnectButton' ) ).toHaveAttribute( 'data-as-link', 'false' );
 		} );
 	} );
 
 	describe( "When the 'connectInPlace' property is set", () => {
-		testProps.connectInPlace = true;
-
-		const wrapper = shallow( <ConnectionBanner { ...testProps } /> );
-
 		it( "sets the ConnectButton 'connectInPlace' property to true", () => {
-			expect( wrapper.find( ConnectButton ).props().connectInPlace ).toBe( true );
+			render( <ConnectionBanner { ...testProps } connectInPlace={ true } /> );
+			expect( screen.getByTestId( 'ConnectButton' ) ).toHaveAttribute(
+				'data-connect-in-place',
+				'true'
+			);
 		} );
 
-		testProps.connectInPlace = false;
-
-		const wrapper2 = shallow( <ConnectionBanner { ...testProps } /> );
-
 		it( "sets the ConnectButton 'connectInPlace' property to false", () => {
-			expect( wrapper2.find( ConnectButton ).props().connectInPlace ).toBe( false );
+			render( <ConnectionBanner { ...testProps } connectInPlace={ false } /> );
+			expect( screen.getByTestId( 'ConnectButton' ) ).toHaveAttribute(
+				'data-connect-in-place',
+				'false'
+			);
 		} );
 	} );
 } );

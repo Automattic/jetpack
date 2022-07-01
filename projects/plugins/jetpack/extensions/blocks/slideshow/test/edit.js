@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-
 import { SlideshowEdit } from '../edit';
+import '@testing-library/jest-dom';
 
 const defaultAttributes = {
 	ids: [ 1, 2 ],

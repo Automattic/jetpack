@@ -1,11 +1,6 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
-
 import { EventbriteEdit } from '../edit';
+import '@testing-library/jest-dom';
 
 describe( 'Eventbrite Edit', () => {
 	const defaultAttributes = {
@@ -31,6 +26,8 @@ describe( 'Eventbrite Edit', () => {
 	test( 'renders form by default', () => {
 		render( <EventbriteEdit { ...defaultProps } /> );
 
-		expect( screen.getByPlaceholderText( 'Enter an event URL to embed here…' ) ).toBeInTheDocument();
+		expect(
+			screen.getByPlaceholderText( 'Enter an event URL to embed here…' )
+		).toBeInTheDocument();
 	} );
 } );

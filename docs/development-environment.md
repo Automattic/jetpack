@@ -265,7 +265,7 @@ To get started, there are several ways to run the unit tests, depending on how y
 
 ## JavaScript unit tests
 
-Jetpack includes also several [Mocha](https://mochajs.org/) based unit tests.
+Jetpack includes also several [Jest](https://jestjs.io/) based unit tests.
 To execute them in your local environment, you can use the following commands.
 
 * ### Admin Page unit tests

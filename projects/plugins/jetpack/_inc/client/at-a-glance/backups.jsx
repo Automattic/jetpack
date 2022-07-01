@@ -20,6 +20,7 @@ import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection'
 import { getPartnerCoupon, showBackups } from 'state/initial-state';
 import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
+import BackupGettingStarted from './backup-getting-started';
 import BackupUpgrade from './backup-upgrade';
 
 /**
@@ -327,6 +328,14 @@ class DashBackups extends Component {
 		return <div className="jp-dash-item">{ this.getRewindContent() }</div>;
 	}
 
+	renderGettingStartedVideo() {
+		if ( this.props.rewindStatus !== 'awaiting_credentials' ) {
+			return null;
+		}
+
+		return <BackupGettingStarted />;
+	}
+
 	render() {
 		if ( ! this.props.showBackups ) {
 			return null;
@@ -352,6 +361,7 @@ class DashBackups extends Component {
 			<div>
 				<QueryVaultPressData />
 				{ this.renderFromRewindStatus() }
+				{ this.renderGettingStartedVideo() }
 			</div>
 		);
 	}

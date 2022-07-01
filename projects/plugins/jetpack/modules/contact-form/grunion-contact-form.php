@@ -41,6 +41,7 @@ function grunion_contact_form_require_endpoint() {
 function grunion_contact_form_set_block_template_attribute( $template ) {
 	global $_wp_current_template_content;
 	if ( ABSPATH . WPINC . '/template-canvas.php' === $template ) {
+		Grunion_Contact_Form::style_on();
 		$_wp_current_template_content = grunion_contact_form_apply_block_attribute(
 			$_wp_current_template_content,
 			array(
@@ -95,6 +96,7 @@ add_filter( 'render_block', 'grunion_contact_form_unset_block_template_part_id_g
  * @return string
  */
 function grunion_contact_form_filter_widget_block_content( $content, $instance, $widget ) {
+	Grunion_Contact_Form::style_on();
 	// Inject 'block_template' => <widget-id> into all instances of the contact form block.
 	return grunion_contact_form_apply_block_attribute(
 		$content,
@@ -2564,6 +2566,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return '';
 		}
 		if ( isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
+			self::style_on();
 			$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
 		}
 		// Create a new Grunion_Contact_Form object (this class)
@@ -3504,7 +3507,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'post_date'    => addslashes( $feedback_time ),
 				'post_type'    => 'feedback',
 				'post_status'  => addslashes( $feedback_status ),
-				'post_parent'  => (int) $post->ID,
+				'post_parent'  => $post ? (int) $post->ID : 0,
 				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // so that search will pick up this data
@@ -4291,7 +4294,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
-			if ( $option ) {
+			if ( is_string( $option ) && $option !== '' ) {
 				$field .= "\t\t<label class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 				$field .= "<input
 									type='radio'
@@ -4309,7 +4312,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Return the HTML for the email field.
+	 * Return the HTML for the checkbox field.
 	 *
 	 * @param int    $id - the ID.
 	 * @param string $label - the label.
@@ -4368,7 +4371,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
-			if ( $option ) {
+			if ( is_string( $option ) && $option !== '' ) {
 				$field .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 				$field .= "<input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value, true ), true, false ) . ' /> ';
 				$field .= esc_html( $option ) . "</label>\n";
@@ -4396,7 +4399,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
-			if ( $option ) {
+			if ( is_string( $option ) && $option !== '' ) {
 				$field .= "\t\t<option"
 								. selected( $option, $value, false )
 								. " value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) )

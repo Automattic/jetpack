@@ -196,3 +196,13 @@ export function appsCardDismissed( state ) {
 export function emptyStatsCardDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
 }
+
+/**
+ * Returns true if Backup Getting Started card has been dismissed.
+ *
+ * @param  {Object} state - Global state tree
+ * @returns {boolean} Whether the card has been dismissed
+ */
+export function backupGettingStartedDismissed( state ) {
+	return get( state.jetpack.settings.items, 'dismiss_dash_backup_getting_started', false );
+}
