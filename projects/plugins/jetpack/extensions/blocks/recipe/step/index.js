@@ -19,7 +19,7 @@ export const settings = {
 		src: RecipeStepIcon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'embed',
 	edit,
 	save,
 	parent: [ 'jetpack/recipe' ],

@@ -25,7 +25,7 @@ export const settings = {
 		src: DetailIcon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'embed',
 	attributes,
 	edit,
 	save,

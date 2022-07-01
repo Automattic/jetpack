@@ -34,7 +34,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'embed',
 	keywords: [
 		'recipes',
 		'recipe block',

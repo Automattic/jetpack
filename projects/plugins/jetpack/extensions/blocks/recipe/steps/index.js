@@ -22,7 +22,7 @@ export const settings = {
 		src: RecipeStepsIcon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'embed',
 	attributes,
 	edit,
 	save,

@@ -21,7 +21,7 @@ export const settings = {
 		src: IngredientsListIcon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'embed',
 	keywords: [],
 	attributes,
 	edit,
