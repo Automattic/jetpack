@@ -99,6 +99,8 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
 			setUploadErrorDataState( { data: { message: __( 'Invalid VideoPress URL', 'jetpack' ) } } );
 			return;
 		}
+
+		// Update guid based on the URL.
 		setAttributes( { guid: videoGuid, src: videoUrl } );
 	}
 
