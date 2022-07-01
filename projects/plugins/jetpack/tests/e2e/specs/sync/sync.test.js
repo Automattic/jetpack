@@ -97,7 +97,7 @@ test.describe( 'Sync', () => {
 		} );
 	} );
 
-	test( 'Dedicated Sync Flow', async ( { page } ) => {
+	test.skip( 'Dedicated Sync Flow', async ( { page } ) => {
 		await test.step( 'Enable Dedicated Sync', async () => {
 			const dedicatedSyncEnabled = await enableDedicatedSync();
 			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
