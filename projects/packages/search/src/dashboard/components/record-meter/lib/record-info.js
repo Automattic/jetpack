@@ -113,7 +113,7 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
  */
 export function addLabelsToPostTypeBreakdown( postTypeBreakdown, postTypes ) {
 	const postTypeBreakdownWithLabels = postTypeBreakdown.map( postType => {
-		const postTypeLabelItem = postType[ postType.slug ];
+		const postTypeLabelItem = postTypes[ postType.slug ];
 		postType.label = postTypeLabelItem ? postTypeLabelItem.label : null;
 		return postType;
 	} );
