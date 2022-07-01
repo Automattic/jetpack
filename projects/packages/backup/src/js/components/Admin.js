@@ -219,6 +219,7 @@ const Admin = () => {
 					<ContextualUpgradeTrigger
 						description={ __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' ) }
 						cta={ __( 'Please leave a review and help us spread the word!', 'jetpack-backup-pkg' ) }
+						// eslint-disable-next-line react/jsx-no-bind
 						onClick={ sendToReview }
 					/>
 				</Col>
