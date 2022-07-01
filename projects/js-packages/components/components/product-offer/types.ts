@@ -1,3 +1,4 @@
+import { ProductPriceProps } from '../product-price/types';
 import type { IconSlug } from '../icons';
 
 export type ProductOfferProps = {
@@ -97,26 +98,11 @@ export type ProductOfferProps = {
 	error?: string;
 };
 
-export type Pricing = {
-	/**
-	 * Product currency code.
-	 */
-	currency?: string;
-
+export type Pricing = Pick< ProductPriceProps, 'currency' | 'offPrice' | 'price' > & {
 	/**
 	 * Whether it is a free product
 	 */
 	isFree?: boolean;
-
-	/**
-	 * Product price.
-	 */
-	price?: string;
-
-	/**
-	 * Product with discount.
-	 */
-	offPrice?: string;
 };
 
 export type IconsCardProps = {
