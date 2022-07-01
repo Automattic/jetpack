@@ -1,19 +1,24 @@
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import PropTypes from 'prop-types';
-import React from 'react';
 import AutomatticBylineLogo from '../automattic-byline-logo';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo';
+import type { JetpackFooterProps } from './types';
+import type React from 'react';
 
 /**
  * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
  *
- * @param {object} props - Component properties.
- * @returns {React.Component} JetpackFooter component.
+ * @param {JetpackFooterProps} props - Component properties.
+ * @returns {React.ReactNode} JetpackFooter component.
  */
-const JetpackFooter = props => {
-	const { a8cLogoHref, moduleName, className, moduleNameHref, ...otherProps } = props;
+const JetpackFooter: React.FC< JetpackFooterProps > = ( {
+	a8cLogoHref = 'https://automattic.com',
+	moduleName = __( 'Jetpack', 'jetpack' ),
+	className,
+	moduleNameHref = 'https://jetpack.com',
+	...otherProps
+} ) => {
 	return (
 		<div className={ classnames( 'jp-dashboard-footer', className ) } { ...otherProps }>
 			<div className="jp-dashboard-footer__footer-left">
@@ -41,24 +46,6 @@ const JetpackFooter = props => {
 			</div>
 		</div>
 	);
-};
-
-JetpackFooter.defaultProps = {
-	a8cLogoHref: 'https://automattic.com',
-	moduleName: __( 'Jetpack', 'jetpack' ),
-	className: '',
-	moduleNameHref: 'https://jetpack.com',
-};
-
-JetpackFooter.propTypes = {
-	/** Link for 'An Automattic Airline'. */
-	a8cLogoHref: PropTypes.string,
-	/** Name of the module, e.g. 'Jetpack Search'. */
-	moduleName: PropTypes.string,
-	/** additional className of the wrapper, `jp-dashboard-footer` always included. */
-	className: PropTypes.string,
-	/** Link that the Module name will link to (optional). */
-	moduleNameHref: PropTypes.string,
 };
 
 export default JetpackFooter;
