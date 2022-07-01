@@ -55,24 +55,19 @@ export const UploadingEditor = props => {
 		title,
 		onChangeTitle,
 		onVideoFrameSelected,
-		onPosterSelectionTabChange,
 	} = props;
 	const [ maxDuration, setMaxDuration ] = useState( 0 );
-	const [ selectedTab, setSelectedTab ] = useState( 'tab-frame' );
 	const [ canDisplayThumbnailScrubber, setCanDisplayThumbnailScrubber ] = useState( true );
 	const videoPlayer = useRef( null );
 	const posterImageLink = useRef( null );
 
 	const onVideoError = () => {
 		setCanDisplayThumbnailScrubber( false );
-		onSelectedTab( 'tab-upload' );
 	};
 
 	const onVideoLoad = event => {
 		if ( ! event.target.videoHeight ) {
 			onVideoError();
-		} else {
-			onPosterSelectionTabChange( selectedTab );
 		}
 	};
 
@@ -97,29 +92,6 @@ export const UploadingEditor = props => {
 		videoPlayer.current.currentTime = newRangeValue;
 	};
 
-	const frameClasses = classNames( 'uploading-editor__frame-selector', {
-		'active-tab': 'tab-frame' === selectedTab,
-	} );
-
-	const onSelectedTab = tabName => {
-		setSelectedTab( tabName );
-		onPosterSelectionTabChange( tabName );
-	};
-
-	const tabsToDisplay = [
-		{
-			name: 'tab-upload',
-			title: __( 'Upload', 'jetpack' ),
-		},
-	];
-
-	if ( canDisplayThumbnailScrubber ) {
-		tabsToDisplay.unshift( {
-			name: 'tab-frame',
-			title: __( 'Select frame', 'jetpack' ),
-		} );
-	}
-
 	// We need the video tag to reload to force the poster image to show again.
 	if ( videoPlayer && videoPlayer.current && videoPosterImageData ) {
 		videoPlayer.current.load();
@@ -139,7 +111,7 @@ export const UploadingEditor = props => {
 					<div className="uploading-editor__content">
 						<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>
 							{ canDisplayThumbnailScrubber ? (
-								<div className={ frameClasses }>
+								<>
 									<div className="uploading-editor__video-container">
 										<video
 											ref={ videoPlayer }
@@ -190,7 +162,7 @@ export const UploadingEditor = props => {
 											}
 										) }
 									</span>
-								</div>
+								</>
 							) : (
 								<PosterSelector
 									onSelectPoster={ onSelectPoster }

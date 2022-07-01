@@ -772,23 +772,18 @@ const VideoPressEdit = CoreVideoEdit =>
 				} );
 			};
 
-			const onPosterSelectionTabChange = tabName => {
-				this.setState( { lastPosterValueSource: tabName } );
-			};
-
 			const dismissEditor = () => {
 				this.setState( { isEditingWhileUploading: false } );
-				const posterValueSource = this.state.lastPosterValueSource;
 
 				if ( this.state.title ) {
 					sendUpdateTitleRequest();
 				}
 
-				if ( 'tab-upload' === posterValueSource && this.state.videoPosterImageData ) {
+				if ( this.state.videoPosterImageData ) {
 					sendUpdatePosterRequest();
 				}
 
-				if ( 'tab-frame' === posterValueSource && this.state.videoFrameSelectedInMillis ) {
+				if ( this.state.videoFrameSelectedInMillis ) {
 					sendUpdatePosterFromMillisecondsRequest();
 				}
 			};
@@ -817,7 +812,6 @@ const VideoPressEdit = CoreVideoEdit =>
 						videoPosterImageData={ this.state.videoPosterImageData }
 						onEditorShown={ onEditorShown }
 						onVideoFrameSelected={ onVideoFrameSelected }
-						onPosterSelectionTabChange={ onPosterSelectionTabChange }
 					/>
 				);
 			}
@@ -921,7 +915,6 @@ const UploaderBlock = props => {
 		onDismissEditor,
 		onEditorShown,
 		onVideoFrameSelected,
-		onPosterSelectionTabChange,
 	} = props;
 
 	return (
@@ -942,7 +935,6 @@ const UploaderBlock = props => {
 						videoPosterImageData={ videoPosterImageData }
 						onEditorShown={ onEditorShown }
 						onVideoFrameSelected={ onVideoFrameSelected }
-						onPosterSelectionTabChange={ onPosterSelectionTabChange }
 					/>
 					{ ! isUploadComplete && <ResumableUpload file={ fileForUpload } /> }
 					{ isUploadComplete && (
