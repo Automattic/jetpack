@@ -14,7 +14,9 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import { PlayIcon } from '../../shared/icons';
+import { PlayIcon } from '../../../shared/icons';
+
+import './style.scss';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
