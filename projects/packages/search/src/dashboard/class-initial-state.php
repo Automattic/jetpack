@@ -136,7 +136,7 @@ class Initial_State {
 				'label' => $post_type->label,
 			);
 
-			$post_types_with_labels[] = $post_type_with_label;
+			$post_types_with_labels[ $post_type->name ] = $post_type_with_label;
 		}
 		return $post_types_with_labels;
 	}
