@@ -212,7 +212,7 @@ input.components-text-control__input {
 
 	// TODO: make this a class, @enej
 	[data-type='jetpack/field-select'] & {
-		border: 1px solid rgba( 0, 0, 0, 0.4 );
+		border: 1px solid rgba(0, 0, 0, 0.4);
 		border-radius: 4px;
 		padding: 4px;
 	}
@@ -230,6 +230,7 @@ input.components-text-control__input {
 
 // Duplicated to elevate specificity in order to overwrite core styles
 .jetpack-option__input.jetpack-option__input.jetpack-option__input {
+	color: inherit;
 	border-color: transparent;
 	background: transparent;
 	border-radius: 0;
