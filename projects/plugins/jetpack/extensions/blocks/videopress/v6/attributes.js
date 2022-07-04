@@ -62,6 +62,6 @@ export default {
 		default: '',
 	},
 	videoRatio: {
-		type: 'string',
+		type: 'number',
 	},
 };

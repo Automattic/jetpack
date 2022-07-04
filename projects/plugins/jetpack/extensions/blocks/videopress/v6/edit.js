@@ -36,6 +36,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		cacheHtml,
 		align,
 		cacheThumbnail,
+		videoRatio,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -63,9 +64,13 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		[ videoPressUrl ]
 	);
 
-	const { html: previewHtml, scripts, thumbnail_url: previewThumbnail } = preview
-		? preview
-		: { html: null, scripts: [] };
+	const {
+		html: previewHtml,
+		scripts,
+		thumbnail_url: previewThumbnail,
+		width: previewWidth,
+		height: previewHeight,
+	} = preview ? preview : { html: null, scripts: [] };
 
 	/*
 	 * Store the preview html into a block attribute,
@@ -101,6 +106,19 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 	const videoThumbnail = previewThumbnail || cacheThumbnail;
 
+	useEffect( () => {
+		if ( ! previewWidth || ! previewHeight ) {
+			return;
+		}
+
+		const ratio = ( previewHeight / previewWidth ) * 100;
+		if ( ratio === videoRatio ) {
+			return;
+		}
+
+		setAttributes( { videoRatio: ratio } );
+	}, [ videoRatio, previewWidth, previewHeight, setAttributes ] );
+
 	// Helper to invalidate the preview cache.
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 	const invalidateCachedEmbedPreview = useCallback( () => {
@@ -126,7 +144,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	}
 
 	useEffect( () => {
-		// VideoPress URL is not defined. Bail early and cleans the time.
+		// VideoPress URL is not defined. Bail early and cleans the timer.
 		if ( ! videoPressUrl ) {
 			return cleanRegeneratingProcess();
 		}
@@ -138,7 +156,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 		// Bail early (clean the timer) when preview is defined.
 		if ( preview ) {
-			setIsGeneratingPreview( 0 );
+			setIsGeneratingPreview( 0 ); // reset counter.
 			return cleanRegeneratingProcess();
 		}
 
@@ -150,7 +168,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		rePreviewAttemptTimer.current = setTimeout( () => {
 			// Abort whether the preview is already defined.
 			if ( preview ) {
-				setIsGeneratingPreview( 0 );
+				setIsGeneratingPreview( 0 ); // reset counter.
 				return;
 			}
 

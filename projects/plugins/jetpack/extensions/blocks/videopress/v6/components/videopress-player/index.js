@@ -3,7 +3,7 @@
  */
 import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export default function VideoPressPlayer( {
@@ -12,9 +12,19 @@ export default function VideoPressPlayer( {
 	attributes,
 	setAttributes,
 	scripts = [],
+	thumbnail,
 } ) {
-	// @todo: implemen maxWidth
-	const { maxWidth, caption } = attributes;
+	const ref = useRef();
+	const [ height, setHeight ] = useState();
+	const { maxWidth, caption, videoRatio } = attributes;
+
+	useEffect( () => {
+		if ( ! ref?.current ) {
+			return;
+		}
+
+		setHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
+	}, [ ref, setHeight, videoRatio ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
@@ -44,6 +54,11 @@ export default function VideoPressPlayer( {
 		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
 	}
 
+	const style = {
+		height,
+		backgroundImage: `url(${ thumbnail })`,
+	};
+
 	return (
 		<figure className="jetpack-videopress-player">
 			<ResizableBox
@@ -59,7 +74,9 @@ export default function VideoPressPlayer( {
 				onResizeStop={ onBlockResize }
 			>
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
-				<SandBox html={ html } scripts={ scripts } />
+				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
+					<SandBox html={ html } scripts={ scripts } />
+				</div>
 			</ResizableBox>
 
 			{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
