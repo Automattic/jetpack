@@ -64,6 +64,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		[ videoPressUrl ]
 	);
 
+	// Pick video properties from preview.
 	const {
 		html: previewHtml,
 		scripts,
@@ -73,39 +74,32 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	} = preview ? preview : { html: null, scripts: [] };
 
 	/*
-	 * Store the preview html into a block attribute,
-	 * to be used as a fallback while it pulls the new preview.
-	 * Once the html changes, the attr will be updated, too.
+	 * Store the preview markup and video thumbnail image
+	 * into a block `html` and `thumbnail` attributes respectively.
+	 *
+	 * `html` will be used to render the player asap,
+	 * while a fresh preview is geing fetched from the server,
+	 * via the core store selectors.
+	 *
+	 * `thumbnail` will be shown as a fallback image
+	 * until the fetching preview process finishes.
 	 */
+	useEffect( () => {
+		if ( previewHtml && previewHtml !== cacheHtml ) {
+			// Update html cache when the preview changes.
+			setAttributes( { cacheHtml: previewHtml } );
+		}
+
+		if ( previewThumbnail && previewThumbnail !== cacheThumbnail ) {
+			// Update thumbnail cache when the preview changes.
+			setAttributes( { cacheThumbnail: previewThumbnail } );
+		}
+	}, [ previewHtml, cacheHtml, setAttributes, previewThumbnail, cacheThumbnail ] );
+
 	const html = previewHtml || cacheHtml;
-	useEffect( () => {
-		if ( ! previewHtml ) {
-			return;
-		}
-
-		if ( previewHtml === cacheHtml ) {
-			return;
-		}
-
-		// Update html cache when the preview changes.
-		setAttributes( { cacheHtml: previewHtml } );
-	}, [ previewHtml, cacheHtml, setAttributes ] );
-
-	// Store video thumbnail in the block attribute.
-	useEffect( () => {
-		if ( ! previewThumbnail ) {
-			return;
-		}
-
-		if ( previewThumbnail === cacheThumbnail ) {
-			return;
-		}
-
-		setAttributes( { cacheThumbnail: previewThumbnail } );
-	}, [ previewThumbnail, cacheThumbnail, setAttributes ] );
-
 	const videoThumbnail = previewThumbnail || cacheThumbnail;
 
+	// Store the video ratio to define the initial height of the video.
 	useEffect( () => {
 		if ( ! previewWidth || ! previewHeight ) {
 			return;
@@ -239,6 +233,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 				setAttributes={ setAttributes }
 				isSelected={ isSelected }
 				className="wp-block-jetpack-videopress"
+				preview={ preview }
 			/>
 		</div>
 	);
