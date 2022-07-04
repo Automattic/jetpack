@@ -1,7 +1,6 @@
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MailChimpBlockControls } from '../controls';
-import '@testing-library/jest-dom';
 
 const originalFetch = window.fetch;
 
