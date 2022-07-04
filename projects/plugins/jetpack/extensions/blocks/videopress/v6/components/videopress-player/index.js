@@ -58,6 +58,7 @@ export default function VideoPressPlayer( {
 
 	const style = {
 		height,
+		paddingBottom: 12,
 	};
 
 	return (
