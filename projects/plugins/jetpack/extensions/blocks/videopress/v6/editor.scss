@@ -24,10 +24,6 @@
 		opacity: 0.5; // @todo: consider improve this state in the UI
 	}
 
-	.components-resizable-box__container {
-		box-shadow: 0px 0px 10px red inset;
-	}
-
 	.jetpack-videopress-player__overlay {
 		position: absolute;
 		top: 0;
@@ -39,10 +35,13 @@
 	}
 
 	.jetpack-videopress-player__wrapper {
-		background-repeat: no-repeat;
-		background-size: cover;
-		background-position: top;
-		margin-bottom: 12px;
+		padding-bottom: 12px;
+		.jetpack-videopress-player__thumbnail {
+			object-fit: cover;			
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
 	}
 }
 

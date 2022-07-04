@@ -42,6 +42,8 @@ export default function VideoPressPlayer( {
 		[ setAttributes ]
 	);
 
+	const onBlockResizeStart = useCallback( () => setHeight( 'auto' ), [ setHeight ] );
+
 	// Populate scripts array with videopresAjaxURLBlob blobal var.
 	if ( window.videopressAjax ) {
 		const videopresAjaxURLBlob = new Blob(
@@ -56,7 +58,6 @@ export default function VideoPressPlayer( {
 
 	const style = {
 		height,
-		backgroundImage: `url(${ thumbnail })`,
 	};
 
 	return (
@@ -72,9 +73,15 @@ export default function VideoPressPlayer( {
 				size={ { width: maxWidth } }
 				style={ { margin: 'auto' } }
 				onResizeStop={ onBlockResize }
+				onResizeStart={ onBlockResizeStart }
 			>
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
+					<img
+						src={ thumbnail }
+						alt={ __( 'Video thumbnail', 'jetpack' ) }
+						className="jetpack-videopress-player__thumbnail"
+					/>
 					<SandBox html={ html } scripts={ scripts } />
 				</div>
 			</ResizableBox>
