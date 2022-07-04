@@ -71,7 +71,7 @@ class Status {
 			return self::$status;
 		}
 
-		if ( ! self::should_use_cache() || self::is_cache_expired() ) {
+		if ( ! self::should_use_cache() || self::is_cache_expired() || self::is_cache_outdated() ) {
 			$status = self::fetch_from_server();
 		} else {
 			$status = self::get_from_options();
@@ -187,6 +187,21 @@ class Status {
 	}
 
 	/**
+	 * Checks if the current cached status was generated with an outdated version.
+	 *
+	 * @return boolean
+	 */
+	public static function is_cache_outdated() {
+		$cached_status = self::get_from_options();
+
+		if ( ! $cached_status || ! isset( $cached_status->version ) || $cached_status->version !== JETPACK_PROTECT_STATUS_VERSION ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Checks if we should consider the stored cache or bypass it
 	 *
 	 * @return boolean
@@ -238,7 +253,8 @@ class Status {
 			return new WP_Error( 'failed_fetching_status', 'Failed to fetch Protect Status data from server', array( 'status' => $response_code ) );
 		}
 
-		$body = self::normalize_report_data( wp_remote_retrieve_body( $response ) );
+		$body          = self::normalize_report_data( wp_remote_retrieve_body( $response ) );
+		$body->version = JETPACK_PROTECT_STATUS_VERSION;
 		self::update_option( $body );
 		return $body;
 	}

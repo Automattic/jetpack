@@ -42,6 +42,7 @@ define( 'JETPACK_PROTECT_NAME', 'Jetpack Protect' );
 define( 'JETPACK_PROTECT_URI', 'https://jetpack.com/jetpack-protect' );
 define( 'JETPACK_PROTECT_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 define( 'JETPACK_PROTECT_BASE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'JETPACK_PROTECT_STATUS_VERSION', '1' );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_PROTECT_DIR . 'vendor/autoload_packages.php';

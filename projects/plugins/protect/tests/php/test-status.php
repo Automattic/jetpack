@@ -13,6 +13,8 @@ use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 
+define( 'JETPACK_PROTECT_STATUS_VERSION', 'test' );
+
 /**
  * The Protect Status class.
  */
@@ -158,6 +160,7 @@ class Test_Status extends BaseTestCase {
 			'num_vulnerabilities'         => 4,
 			'num_themes_vulnerabilities'  => 1,
 			'num_plugins_vulnerabilities' => 2,
+			'version'                     => 'test',
 		);
 	}
 
