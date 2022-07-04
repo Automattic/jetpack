@@ -13,7 +13,8 @@ describe( 'GlobalNotices', function () {
 			const { container } = render(
 				<GlobalNotices notices={ [ { id: 1, status: 'success' } ] } />
 			);
-			expect( container.firstChild.className ).toContain( 'global-notices' );
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( container.firstChild ).toHaveClass( 'global-notices' );
 		} );
 	} );
 } );
