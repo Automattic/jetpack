@@ -8,6 +8,7 @@ const addMilestone = require( './tasks/add-milestone' );
 const assignIssues = require( './tasks/assign-issues' );
 const checkDescription = require( './tasks/check-description' );
 const cleanLabels = require( './tasks/clean-labels' );
+const fixShorthand = require( './tasks/fix-shorthand' );
 const flagOss = require( './tasks/flag-oss' );
 const notifyDesign = require( './tasks/notify-design' );
 const notifyEditorial = require( './tasks/notify-editorial' );
@@ -63,6 +64,11 @@ const automations = [
 		event: 'issues',
 		action: [ 'opened', 'reopened' ],
 		task: triageNewIssues,
+	},
+	{
+		event: 'issue_comment',
+		action: [ 'created' ],
+		task: fixShorthand,
 	},
 ];
 

@@ -4,6 +4,8 @@ on:
     types: [opened, reopened, synchronize, edited, labeled, closed]
   issues: # For auto-triage of issues.
     types: [opened, reopened]
+  issue_comment:
+    types: [created]
   push:
     branches:
       - trunk # Every time a PR is merged to trunk.
@@ -32,10 +34,10 @@ jobs:
   #             body: 'Howdy! The Jetpack team has disappeared for a few days to a secret island lair to concoct new ways to make Jetpack one hundred billion percent better. As a result, your Pull Request may not be reviewed right away. Do not worry, we will be back next week to look at your work! Thank you for your understanding.'
   #           })
   repo-gardening:
-    name: "Manage labels and assignees"
+    name: 'Manage labels and assignees'
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-    timeout-minutes: 10  # 2021-03-12: Successful runs seem to take a few seconds, but can sometimes take a lot longer since we wait for previous runs to complete.
+    timeout-minutes: 10 # 2021-03-12: Successful runs seem to take a few seconds, but can sometimes take a lot longer since we wait for previous runs to complete.
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -66,7 +68,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Run the action (assign, manage milestones, for issues and PRs)"
+      - name: 'Run the action (assign, manage milestones, for issues and PRs)'
         uses: ./projects/github-actions/repo-gardening
         env:
           PR_WORKSPACE: ${{ github.workspace }}${{ github.event_name == 'pull_request_target' && '/pr-checkout' || '' }}
