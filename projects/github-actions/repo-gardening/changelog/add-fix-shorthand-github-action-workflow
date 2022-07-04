@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+GitHub action to fix incorrect Automattic shorthand formats on issue or PR comments
