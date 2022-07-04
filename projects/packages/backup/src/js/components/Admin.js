@@ -71,7 +71,7 @@ const Admin = () => {
 	};
 
 	const sendToReview = () => {
-		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
+		window.location.href = getRedirectUrl( 'jetpack-backup-new-review' );
 	};
 
 	const renderNoBackupCapabilities = () => {
