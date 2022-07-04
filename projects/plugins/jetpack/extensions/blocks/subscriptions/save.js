@@ -144,8 +144,10 @@ export default function Save( { className, attributes } ) {
 	);
 
 	return (
-		<div className={ getBlockClassName() }>
-			<RawHTML>{ `[jetpack_subscription_form${ shortcodeAttributesStringified }]` }</RawHTML>
+		<div>
+			<div className={ getBlockClassName() }>
+				<RawHTML>{ `[jetpack_subscription_form${ shortcodeAttributesStringified }]` }</RawHTML>
+			</div>
 		</div>
 	);
 }

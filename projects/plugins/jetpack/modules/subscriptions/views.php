@@ -365,18 +365,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo wpautop( $subscribe_text );
 				}
-				if ( $show_subscribers_total && $subscribers_total ) {
-					?>
-					<div class="jetpack-subscribe-count">
-						<p>
-						<?php
-						/* translators: %s: number of folks following the blog */
-						echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
-						?>
-						</p>
-					</div>
-					<?php
-				}
 				$email_field_id  = 'subscribe-field';
 				$email_field_id .= self::$instance_count > 1
 					? '-' . self::$instance_count
@@ -446,6 +434,17 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				</p>
 			</form>
 			<?php
+
+			if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
+				?>
+					<p class="jetpack-subscribe-count">
+					<?php
+					/* translators: %s: number of folks following the blog */
+					echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					?>
+					</p>
+				<?php
+			}
 		}
 
 		if ( self::is_jetpack() ) {
@@ -471,18 +470,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 														<?php
 				}
 
-				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
-					?>
-					<div class="jetpack-subscribe-count">
-						<p>
-						<?php
-						/* translators: %s: number of folks following the blog */
-						echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
-						?>
-						</p>
-					</div>
-					<?php
-				}
 				if ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display of unsubmitted form.
 					?>
 					<p id="subscribe-email">
@@ -538,6 +525,17 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<?php } ?>
 			</form>
 			<?php
+
+			if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
+				?>
+					<p class="jetpack-subscribe-count">
+					<?php
+					/* translators: %s: number of folks following the blog */
+					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
+					?>
+					</p>
+				<?php
+			}
 		}
 	}
 
