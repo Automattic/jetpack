@@ -66,7 +66,7 @@ export class Writing extends React.Component {
 		return (
 			<div>
 				<QuerySite />
-				<h1 className="jp-heading-sr-only">{ __( 'Jetpack Writing Settings', 'jetpack' ) }</h1>
+				<h1 className="screen-reader-text">{ __( 'Jetpack Writing Settings', 'jetpack' ) }</h1>
 				<Card
 					title={
 						this.props.searchTerm

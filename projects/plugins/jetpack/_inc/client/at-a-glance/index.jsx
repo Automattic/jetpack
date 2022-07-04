@@ -184,7 +184,7 @@ class AtAGlance extends Component {
 
 			return (
 				<div className="jp-at-a-glance">
-					<h1 className="jp-heading-sr-only">
+					<h1 className="screen-reader-text">
 						{ __( 'Jetpack At A Glance Dashboard', 'jetpack' ) }
 					</h1>
 					<QuerySitePlugins />

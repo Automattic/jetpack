@@ -26,7 +26,7 @@ export function MyPlan( props ) {
 
 	return (
 		<React.Fragment>
-			<h1 className="jp-heading-sr-only">{ __( 'Jetpack My Plan Details', 'jetpack' ) }</h1>
+			<h1 className="screen-reader-text">{ __( 'Jetpack My Plan Details', 'jetpack' ) }</h1>
 			<QuerySite />
 			<MyPlanPartnerCoupon siteRawUrl={ props.siteRawUrl } />
 			<MyPlanHeader

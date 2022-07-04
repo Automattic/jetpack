@@ -42,7 +42,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		// Adding in a hidden h1 heading for screen-readers.
 		?>
-		<h1 class="jp-heading-sr-only"><?php esc_html_e( 'Jetpack Modules List', 'jetpack' ); ?></h1>
+		<h1 class="screen-reader-text"><?php esc_html_e( 'Jetpack Modules List', 'jetpack' ); ?></h1>
 		<?php
 
 		wp_register_script(
