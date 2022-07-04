@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Display subscribe block element with correct padding when extra padding is applied and subscriptions counts is displayed
