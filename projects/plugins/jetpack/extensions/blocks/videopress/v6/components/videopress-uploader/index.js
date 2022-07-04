@@ -1,14 +1,24 @@
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
-import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { useState, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
+import { Icon } from '@wordpress/components';
+import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
+import { escapeHTML } from '@wordpress/escape-html';
+import { __, sprintf } from '@wordpress/i18n';
+import filesize from 'filesize';
 import { VideoPressIcon as icon } from '../../../../../shared/icons';
-import Loading from '../../../loading';
 import { useResumableUploader } from '../../hooks/use-uploader.js';
+import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
+const VideoPressUploader = ( { attributes, setAttributes } ) => {
+	const progressBlockProps = useBlockProps( { className: 'resumable-upload' } );
+
+	/*
+	 * Storing the file to get it name and size for progress.
+	 */
+	const [ uploadFile, setFile ] = useState( null );
+
 	/*
 	 * Tracking state when uploading the video file.
 	 * uploadingProgress is an array with two items:
@@ -16,6 +26,7 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
 	 *  - the second item is total
 	 */
 	const [ uploadingProgress, setUploadingProgressState ] = useState( [] );
+
 	// Define a memoized function to register the upload progress.
 	const setUploadingProgress = useCallback( function ( ...args ) {
 		setUploadingProgressState( args );
@@ -118,6 +129,7 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
 
 		const file = getBlobByURL( fileUrl );
 		const isResumableUploading = null !== file && file instanceof File;
+
 		if ( ! isResumableUploading ) {
 			return;
 		}
@@ -127,6 +139,7 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
 			setUploadErrorData( null );
 		}
 
+		setFile( file );
 		setUploadingProgress( [ 0, file.size ] );
 
 		// Upload file to VideoPress infrastructure.
@@ -134,29 +147,46 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
 	}
 
 	// Uploading file to backend
-	if ( isUploadingFile ) {
-		return (
-			<>
-				<div { ...blockProps }>
-					<Loading text={ __( '(2) Uploading file to backend…', 'jetpack' ) } />;
-				</div>
-			</>
-		);
-	}
+	if ( isUploadingFile || fileHasBeenUploaded ) {
+		const progress = ( uploadingProgress[ 0 ] / uploadingProgress[ 1 ] ) * 100;
+		const roundedProgress = Math.round( progress );
+		const cssWidth = { width: `${ roundedProgress }%` };
 
-	// Uploading file to VideoPress infrastructure
-	if ( fileHasBeenUploaded ) {
+		const fileSizeLabel = filesize( uploadFile?.size );
+		const escapedFileName = escapeHTML( uploadFile?.name );
+		const fileNameLabel = createInterpolateElement(
+			sprintf(
+				/* translators: Placeholder is a video file name. */
+				__( 'Uploading <strong>%s</strong>', 'jetpack' ),
+				escapedFileName
+			),
+			{ strong: <strong /> }
+		);
+
 		return (
-			<>
-				<div { ...blockProps }>
-					<Loading text={ __( '(3) Uploading file to VideoPress…', 'jetpack' ) } />;
+			<div { ...progressBlockProps }>
+				<div className="resumable-upload__logo">
+					<Icon icon={ icon } />
+					<div>{ __( 'VideoPress', 'jetpack' ) }</div>
 				</div>
-			</>
+				<div className="resumable-upload__status">
+					<div className="resumable-upload__file-info">
+						<div className="resumable-upload__file-name">{ fileNameLabel }</div>
+						&nbsp;&#8212;&nbsp;
+						<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
+					</div>
+					<div className="resumable-upload__progress">
+						<div className="resumable-upload__progress-loaded" style={ cssWidth } />
+					</div>
+					<div className="resumable-upload__actions">
+						<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
+					</div>
+				</div>
+			</div>
 		);
 	}
 
 	// Default view to select file to upload
-
 	return (
 		<MediaPlaceholder
 			icon={ <BlockIcon icon={ icon } /> }
