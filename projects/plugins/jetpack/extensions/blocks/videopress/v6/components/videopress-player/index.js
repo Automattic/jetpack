@@ -10,17 +10,17 @@ import classNames from 'classnames';
 export default function VideoPressPlayer( {
 	html,
 	isUpdatingPreview,
-	caption,
 	isSelected,
 	attributes,
 	setAttributes,
 	scripts = [],
+	className,
 } ) {
 	// @todo: implemen maxWidth
-	const { align, maxWidth } = attributes;
+	const { align, maxWidth, caption } = attributes;
 
 	const blockProps = useBlockProps( {
-		className: classNames( 'wp-block-jetpack-videopress', {
+		className: classNames( className, 'jetpack-videopress-player', {
 			[ `align${ align }` ]: align,
 			[ 'is-updating-preview' ]: isUpdatingPreview,
 		} ),
@@ -68,6 +68,7 @@ export default function VideoPressPlayer( {
 				style={ { margin: 'auto' } }
 				onResizeStop={ onBlockResize }
 			>
+				{ ! isSelected && <div className="wp-block-jetpack-videopress__overlay" /> }
 				<SandBox html={ html } scripts={ scripts } />
 			</ResizableBox>
 

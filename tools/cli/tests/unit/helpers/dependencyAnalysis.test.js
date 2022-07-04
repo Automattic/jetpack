@@ -3,21 +3,61 @@ import { getDependencies, filterDeps, getBuildOrder } from '../../../helpers/dep
 
 const dataDir = fileURLToPath( new URL( '../../data', import.meta.url ) );
 
-const compareDeps = ( actual, xpect ) => {
-	expect( actual ).toBeInstanceOf( Map );
-	const map = {};
-	for ( const [ k, v ] of actual ) {
-		expect( v ).toBeInstanceOf( Set );
-		map[ k ] = [ ...v ];
-	}
-	expect( map ).toEqual( xpect );
-};
+expect.extend( {
+	toMatchDeps( received, expected ) {
+		const options = {
+			isNot: this.isNot,
+			promise: this.promise,
+		};
+
+		if ( ! ( received instanceof Map ) ) {
+			return {
+				message: () =>
+					this.utils.matcherHint( 'toMatchDeps', undefined, undefined, options ) +
+					`\n\nExpected: a Map` +
+					`\nReceived: ${ this.utils.printReceived( received ) }`,
+				pass: false,
+			};
+		}
+
+		const map = {};
+		for ( const [ k, v ] of received ) {
+			if ( ! ( v instanceof Set ) ) {
+				return {
+					message: () =>
+						this.utils.matcherHint( 'toMatchDeps', undefined, undefined, options ) +
+						`\n\nExpected: a Set at index "${ k }"` +
+						`\nReceived: ${ this.utils.printReceived( v ) }`,
+					pass: false,
+				};
+			}
+			map[ k ] = [ ...v ];
+		}
+
+		if ( ! this.equals( map, expected ) ) {
+			return {
+				message: () =>
+					this.utils.matcherHint( 'toMatchDeps', undefined, undefined, options ) +
+					'\n\n' +
+					this.utils.printDiffOrStringify( expected, map, 'expected', 'received', this.expand ),
+				pass: false,
+			};
+		}
+
+		return {
+			message: () =>
+				this.utils.matcherHint( 'toMatchDeps', undefined, undefined, options ) +
+				`\n\nExpected: not ${ this.utils.printReceived( expected ) }`,
+			pass: true,
+		};
+	},
+} );
 
 describe( 'dependencyAnalysis', () => {
 	describe( 'getDependencies', () => {
 		test( 'monorepo', async () => {
 			const ret = await getDependencies( dataDir + '/monorepo' );
-			compareDeps( ret, {
+			expect( ret ).toMatchDeps( {
 				monorepo: [ 'packages/a' ],
 				'packages/a': [],
 				'packages/b': [ 'packages/a' ],
@@ -30,7 +70,7 @@ describe( 'dependencyAnalysis', () => {
 
 		test( 'monorepo, build deps', async () => {
 			const ret = await getDependencies( dataDir + '/monorepo', 'build' );
-			compareDeps( ret, {
+			expect( ret ).toMatchDeps( {
 				monorepo: [ 'packages/a' ],
 				'packages/a': [],
 				'packages/b': [ 'packages/a' ],
@@ -43,7 +83,7 @@ describe( 'dependencyAnalysis', () => {
 
 		test( 'monorepo, test deps', async () => {
 			const ret = await getDependencies( dataDir + '/monorepo', 'test' );
-			compareDeps( ret, {
+			expect( ret ).toMatchDeps( {
 				monorepo: [ 'packages/a' ],
 				'packages/a': [],
 				'packages/b': [ 'packages/a' ],
@@ -56,7 +96,7 @@ describe( 'dependencyAnalysis', () => {
 
 		test( 'monorepo-cycle', async () => {
 			const ret = await getDependencies( dataDir + '/monorepo-cycle' );
-			compareDeps( ret, {
+			expect( ret ).toMatchDeps( {
 				monorepo: [ 'packages/a' ],
 				'packages/a': [],
 				'packages/b': [ 'packages/a', 'packages/c' ],
@@ -70,7 +110,7 @@ describe( 'dependencyAnalysis', () => {
 			const deps = await getDependencies( dataDir + '/monorepo', 'build' );
 			deps.delete( 'monorepo' );
 			const filteredDeps = filterDeps( deps, [ 'packages/a', 'packages/b', 'packages/c' ] );
-			compareDeps( filteredDeps, {
+			expect( filteredDeps ).toMatchDeps( {
 				'packages/a': [],
 				'packages/b': [ 'packages/a' ],
 				'packages/c': [ 'packages/a', 'packages/b' ],
@@ -80,7 +120,7 @@ describe( 'dependencyAnalysis', () => {
 		test( 'dependencies', async () => {
 			const deps = await getDependencies( dataDir + '/monorepo', 'build' );
 			const filteredDeps = filterDeps( deps, [ 'js-packages/f' ], { dependencies: true } );
-			compareDeps( filteredDeps, {
+			expect( filteredDeps ).toMatchDeps( {
 				'packages/a': [],
 				'packages/b': [ 'packages/a' ],
 				'js-packages/f': [ 'packages/b' ],
@@ -90,7 +130,7 @@ describe( 'dependencyAnalysis', () => {
 		test( 'dependents', async () => {
 			const deps = await getDependencies( dataDir + '/monorepo', 'build' );
 			const filteredDeps = filterDeps( deps, [ 'packages/b' ], { dependents: true } );
-			compareDeps( filteredDeps, {
+			expect( filteredDeps ).toMatchDeps( {
 				'packages/b': [],
 				'packages/c': [ 'packages/b' ],
 				'js-packages/f': [ 'packages/b' ],
@@ -103,7 +143,7 @@ describe( 'dependencyAnalysis', () => {
 				dependencies: true,
 				dependents: true,
 			} );
-			compareDeps( filteredDeps, {
+			expect( filteredDeps ).toMatchDeps( {
 				monorepo: [ 'packages/a' ],
 				'packages/a': [],
 				'packages/b': [ 'packages/a' ],
@@ -138,7 +178,7 @@ describe( 'dependencyAnalysis', () => {
 					throw e;
 				}
 			} ).toThrow( 'The dependency graph contains a cycle!' );
-			compareDeps( err.deps, {
+			expect( err.deps ).toMatchDeps( {
 				'packages/b': [ 'packages/c' ],
 				'packages/c': [ 'packages/b' ],
 			} );

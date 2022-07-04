@@ -76,7 +76,9 @@ test.each( configFixtures )(
 
 		if ( fixture === 'dropped-is-ok' ) {
 			const contents = fs.readFileSync( path.join( builddir, 'main.js' ), { encoding: 'utf8' } );
+			// eslint-disable-next-line jest/no-conditional-expect
 			expect( contents ).toEqual( expect.stringContaining( 'This is production' ) );
+			// eslint-disable-next-line jest/no-conditional-expect
 			expect( contents ).toEqual( expect.not.stringContaining( 'This is not production' ) );
 		}
 	},
