@@ -3,6 +3,7 @@ import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import {
 	enableSync,
 	disableSync,
+	resetSync,
 	enableDedicatedSync,
 	disableDedicatedSync,
 	isSyncQueueEmpty,
@@ -39,6 +40,7 @@ test.describe( 'Sync', () => {
 
 	test.afterEach( async () => {
 		await test.step( 'Reset Sync defaults', async () => {
+			await resetSync();
 			await enableSync();
 			await disableDedicatedSync();
 		} );
@@ -97,7 +99,7 @@ test.describe( 'Sync', () => {
 		} );
 	} );
 
-	test.skip( 'Dedicated Sync Flow', async ( { page } ) => {
+	test( 'Dedicated Sync Flow', async ( { page } ) => {
 		await test.step( 'Enable Dedicated Sync', async () => {
 			const dedicatedSyncEnabled = await enableDedicatedSync();
 			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
