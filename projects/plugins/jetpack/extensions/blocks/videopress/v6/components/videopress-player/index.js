@@ -1,30 +1,20 @@
 /**
  * External dependencies
  */
-import { RichText, useBlockProps } from '@wordpress/block-editor';
+import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
 
 export default function VideoPressPlayer( {
 	html,
-	isUpdatingPreview,
 	isSelected,
 	attributes,
 	setAttributes,
 	scripts = [],
-	className,
 } ) {
 	// @todo: implemen maxWidth
-	const { align, maxWidth, caption } = attributes;
-
-	const blockProps = useBlockProps( {
-		className: classNames( className, 'jetpack-videopress-player', {
-			[ `align${ align }` ]: align,
-			[ 'is-updating-preview' ]: isUpdatingPreview,
-		} ),
-	} );
+	const { maxWidth, caption } = attributes;
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
@@ -55,7 +45,7 @@ export default function VideoPressPlayer( {
 	}
 
 	return (
-		<figure { ...blockProps }>
+		<figure className="jetpack-videopress-player">
 			<ResizableBox
 				enable={ {
 					top: false,
@@ -68,7 +58,7 @@ export default function VideoPressPlayer( {
 				style={ { margin: 'auto' } }
 				onResizeStop={ onBlockResize }
 			>
-				{ ! isSelected && <div className="wp-block-jetpack-videopress__overlay" /> }
+				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 				<SandBox html={ html } scripts={ scripts } />
 			</ResizableBox>
 
