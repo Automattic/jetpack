@@ -12,12 +12,8 @@ import { get } from 'lodash';
 import PaymentsIntroBlockPicker from './block-picker';
 import defaultVariations from './variations';
 
-const JetpackPatternPicker = function ( { onBlockPatternSelect } ) {
+const JetpackPatternPicker = function ( { onBlockPatternSelect, patternFilter } ) {
 	const [ isPatternSelectionModalOpen, setIsPatternSelectionModalOpen ] = useState( false );
-
-	const patternFilter = pattern => {
-		return pattern.categories.includes( 'earn' );
-	};
 
 	return (
 		<>
@@ -45,12 +41,17 @@ const JetpackPatternPicker = function ( { onBlockPatternSelect } ) {
 };
 
 export default function JetpackPaymentsIntroEdit( { name, clientId, className } ) {
-	const { blockType, hasInnerBlocks } = useSelect( select => {
-		const { getBlocks } = select( blockEditorStore );
+	const patternFilter = pattern => {
+		return pattern.categories.includes( 'earn' );
+	};
+
+	const { blockType, hasInnerBlocks, hasPatterns } = useSelect( select => {
+		const { getBlocks, __experimentalGetAllowedPatterns } = select( blockEditorStore );
 
 		return {
 			blockType: getBlockType( name ),
 			hasInnerBlocks: getBlocks( clientId )?.length > 0,
+			hasPatterns: __experimentalGetAllowedPatterns().filter( patternFilter ).length > 0,
 		};
 	} );
 
@@ -70,21 +71,33 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 		}
 	} );
 
-	if ( ! hasInnerBlocks && registerBlockVariation ) {
+	const displayVariations = usableVariations.length && registerBlockVariation;
+
+	let instructions = __( "Please select which kind of payment you'd like to add", 'jetpack' );
+	if ( hasPatterns ) {
+		instructions = __( 'Start by choosing one of our suggested layout patterns', 'jetpack' );
+	}
+
+	if ( ! hasInnerBlocks && displayVariations ) {
 		return (
 			<Placeholder
 				icon={ get( blockType, [ 'icon', 'src' ] ) }
 				label={ get( blockType, [ 'title' ] ) }
-				instructions={ __( 'Start by choosing one of our suggested layout patterns', 'jetpack' ) }
+				instructions={ instructions }
 				className={ className }
 			>
-				<JetpackPatternPicker
-					onBlockPatternSelect={ blocks => {
-						const clonedBlocks = blocks.map( block => cloneBlock( block ) );
-						replaceBlock( clientId, clonedBlocks );
-					} }
-				/>
-				<p>{ __( 'Or use one of our blocks to create your own', 'jetpack' ) }</p>
+				{ hasPatterns && (
+					<>
+						<JetpackPatternPicker
+							onBlockPatternSelect={ blocks => {
+								const clonedBlocks = blocks.map( block => cloneBlock( block ) );
+								replaceBlock( clientId, clonedBlocks );
+							} }
+							patternFilter={ patternFilter }
+						/>
+						<p>{ __( 'Or use one of our blocks to create your own', 'jetpack' ) }</p>
+					</>
+				) }
 				<PaymentsIntroBlockPicker
 					label={ __( 'Payment Block list', 'jetpack' ) }
 					variations={ usableVariations }
