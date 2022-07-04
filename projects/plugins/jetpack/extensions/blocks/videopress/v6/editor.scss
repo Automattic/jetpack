@@ -1,6 +1,8 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-videopress {
+	position: relative;
+
 	&.is-placeholder-container {
 		background: $white;
 		color: $gray-900;
@@ -17,8 +19,23 @@
 		min-height: 200px;
 	}
 
+
 	&.is-updating-preview {
 		opacity: 0.5;
+	}
+
+	.wp-block-jetpack-videopress__overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: transparent;
+		z-index: 1;
+	}
+
+	&.videopress-player {
+		margin: 0;
 	}
 }
 
@@ -26,4 +43,3 @@
 	color: $alert-red;
 	width: 100%;
 }
-

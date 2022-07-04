@@ -11,7 +11,6 @@ describe( 'load the app', () => {
 	test( 'container renders', () => {
 		render( <RecordMeter /> );
 
-		const container = screen.queryByTestId( 'record-meter' );
-		expect( container ).toBeInTheDocument();
+		expect( screen.getByTestId( 'record-meter' ) ).toBeInTheDocument();
 	} );
 } );

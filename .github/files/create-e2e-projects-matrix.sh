@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":["--grep-invert", "plugin-update"],"slackArgs":[]}' '{"project":"Jetpack update","path":"projects/plugins/jetpack/tests/e2e","testArgs":["plugin-update"],"slackArgs":[]}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":[],"slackArgs":[]}' '{"project":"Search","path":"projects/plugins/search/tests/e2e","testArgs":[],"slackArgs":[]}')
+PROJECTS=('{"project":"Jetpack connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/connection"],"slackArgs":[]}' '{"project":"Jetpack pre-connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/pre-connection"],"slackArgs":[]}' '{"project":"Jetpack post-connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/post-connection"],"slackArgs":[]}' '{"project":"Jetpack sync","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/sync"],"slackArgs":[]}' '{"project":"Jetpack blocks","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/blocks"],"slackArgs":[]}' '{"project":"Jetpack update","path":"projects/plugins/jetpack/tests/e2e","testArgs":["plugin-update"],"slackArgs":[]}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":[],"slackArgs":[]}' '{"project":"Search","path":"projects/plugins/search/tests/e2e","testArgs":[],"slackArgs":[]}')
 PROJECTS_MATRIX=()
 RUN_NAME=''
 
