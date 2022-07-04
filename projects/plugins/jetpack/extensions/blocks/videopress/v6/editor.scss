@@ -1,0 +1,45 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.wp-block-jetpack-videopress {
+	position: relative;
+
+	&.is-placeholder-container {
+		background: $white;
+		color: $gray-900;
+		font-family: $default-font;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-start;
+		padding: 20px;
+		border: 1px solid $gray-900;
+		border-radius: 2px;
+		font-size: $default-font-size;
+		min-height: 200px;
+	}
+
+
+	&.is-updating-preview {
+		opacity: 0.5; // @todo: consider improve this state in the UI
+	}
+
+	.jetpack-videopress-player {
+		margin: 0;
+	}
+
+	.jetpack-videopress-player__overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: transparent;
+		z-index: 1;
+	}
+}
+
+.jetpack-videopress-upload-error-message {
+	color: $alert-red;
+	width: 100%;
+}

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "597a0fc7014d8b45140e2c5c57421291",
+    "content-hash": "31ae735f3fe18c4bf36687e04334de14",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -288,7 +288,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "55f64edb149ab978f085a64e1a8f2d69bcfa378a"
+                "reference": "75ec9255690dafee114361739651c4f154d7d1a8"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1"
@@ -618,19 +618,19 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "538d775b9e99231e2835573ae5427be562a36463"
+                "reference": "6817f009cbc46bf8c72242c5ba317d11afa05f7b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.41",
+                "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-licensing": "^1.7",
                 "automattic/jetpack-plugins-installer": "^0.1",
                 "automattic/jetpack-redirect": "^1.7"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
-                "automattic/jetpack-constants": "^1.6",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -954,7 +954,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "9851f559d48ff599e19c985cc38ac5815043afc1"
+                "reference": "d3d73f68a60261e68f92092f4fc5152455770145"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.41",
@@ -981,7 +981,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.35.x-dev"
+                    "dev-trunk": "1.36.x-dev"
                 }
             },
             "autoload": {

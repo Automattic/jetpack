@@ -1,18 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
 // this is necessary because block editor store becomes unregistered during jest initialization
-import { register } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-register( blockEditorStore );
-
+import { register } from '@wordpress/data';
 import { SimplePaymentsEdit } from '../edit';
+import '@testing-library/jest-dom';
+
+register( blockEditorStore );
 
 const setAttributes = jest.fn();
 beforeEach( () => {
-	Intl.NumberFormat = jest
-		.fn()
+	jest
+		.spyOn( Intl, 'NumberFormat' )
+		.mockImplementation()
 		.mockImplementation( () => ( { format: value => `A$${ value.toString() }.00` } ) );
 } );
 afterEach( () => {
@@ -149,7 +149,6 @@ describe( 'Edit component', () => {
 	} );
 
 	test( 'displays title and price fields when not selected', () => {
-
 		const notSelectedProps = {
 			...props,
 			isSelected: false,
