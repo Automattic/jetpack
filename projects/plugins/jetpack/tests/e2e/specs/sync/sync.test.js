@@ -8,7 +8,7 @@ import {
 	disableDedicatedSync,
 	isSyncQueueEmpty,
 } from '../../helpers/sync-helper.js';
-import { BlockEditorPage, JetpackDashboardPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
+import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
 import logger from 'jetpack-e2e-commons/logger.cjs';
@@ -103,17 +103,6 @@ test.describe( 'Sync', () => {
 		await test.step( 'Enable Dedicated Sync', async () => {
 			const dedicatedSyncEnabled = await enableDedicatedSync();
 			expect( dedicatedSyncEnabled ).toMatch( 'Success' );
-		} );
-
-		await test.step( 'Visit Jetpack Dashboard page', async () => {
-			await JetpackDashboardPage.visit( page );
-			logger.sync( `Navigate to Jetpack dashboard page` );
-		} );
-
-		await test.step( 'Assert sync queue is empty', async () => {
-			await assertSyncQueueIsEmpty(
-				'Sync queue should be empty [before post publish, after enabling dedicated sync]'
-			);
 		} );
 
 		const postTitle = `Dedicated Sync ${ Date.now() }`;
