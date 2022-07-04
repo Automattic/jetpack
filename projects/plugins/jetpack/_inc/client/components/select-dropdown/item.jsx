@@ -7,7 +7,7 @@ import React from 'react';
 
 class SelectDropdownItem extends React.Component {
 	static propTypes = {
-		children: PropTypes.string.isRequired,
+		children: PropTypes.node.isRequired,
 		path: PropTypes.string,
 		selected: PropTypes.bool,
 		onClick: PropTypes.func,

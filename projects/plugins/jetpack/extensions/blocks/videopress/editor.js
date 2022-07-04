@@ -14,6 +14,7 @@ import { useContext } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
+import registerJetpackBlock from '../../shared/register-jetpack-block';
 import { VideoPressBlockContext } from './components';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
@@ -21,6 +22,7 @@ import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
+import { name as videoPressBlockName, settings as videoPressBlockSettings } from './v6';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 
 import './editor.scss';
@@ -386,3 +388,6 @@ const addVideoPressSupport = ( settings, name ) => {
  * @see packages/block-editor/src/hooks/align.js
  */
 addFilter( 'blocks.registerBlockType', 'jetpack/videopress', addVideoPressSupport, 5 );
+
+// Register VideoPress block.
+registerJetpackBlock( videoPressBlockName, videoPressBlockSettings );

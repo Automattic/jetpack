@@ -5,7 +5,7 @@ import * as React from 'react';
 import * as recommendationsActions from 'state/recommendations/actions';
 import { render, screen } from 'test/test-utils';
 import { SiteTypeQuestion } from '../index';
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 
 /**
  * Build initial state.

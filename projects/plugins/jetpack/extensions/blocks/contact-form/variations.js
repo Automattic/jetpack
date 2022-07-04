@@ -28,6 +28,7 @@ const variations = compact( [
 				{
 					text: __( 'Contact Us', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
@@ -57,6 +58,7 @@ const variations = compact( [
 				{
 					text: __( 'Subscribe', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
@@ -91,6 +93,7 @@ const variations = compact( [
 				{
 					text: __( 'Send RSVP', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
@@ -134,6 +137,7 @@ const variations = compact( [
 				{
 					text: __( 'Send', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
@@ -173,6 +177,7 @@ const variations = compact( [
 				{
 					text: __( 'Book Appointment', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
@@ -216,6 +221,7 @@ const variations = compact( [
 				{
 					text: __( 'Send Feedback', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],

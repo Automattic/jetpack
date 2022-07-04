@@ -15,6 +15,7 @@ use Jetpack_Options;
  * The React initial state.
  */
 class Initial_State {
+
 	/**
 	 * Connection Manager
 	 *
@@ -71,6 +72,7 @@ class Initial_State {
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
 				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
+				'postTypes'         => $this->get_post_types_with_labels(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
@@ -110,6 +112,33 @@ class Initial_State {
 		);
 
 		return $current_user_data;
+	}
+
+	/**
+	 * Gets the post type labels for all of the site's post types (including custom post types)
+	 *
+	 * @return array
+	 */
+	protected function get_post_types_with_labels() {
+
+		$args = array(
+			'public' => true,
+		);
+
+		$post_types_with_labels = array();
+
+		$post_types = get_post_types( $args, 'objects' );
+
+		// We don't need all the additional post_type data, just the slug & label
+		foreach ( $post_types as $post_type ) {
+			$post_type_with_label = array(
+				'slug'  => $post_type->name,
+				'label' => $post_type->label,
+			);
+
+			$post_types_with_labels[ $post_type->name ] = $post_type_with_label;
+		}
+		return $post_types_with_labels;
 	}
 
 	/**

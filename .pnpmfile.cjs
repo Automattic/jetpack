@@ -40,13 +40,6 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Project is supposedly not dead, but still isn't being updated.
-	// For our purposes at least it seems to work fine with jest-environment-jsdom 28.
-	// https://github.com/enzymejs/enzyme-matchers/issues/353
-	if ( pkg.name === 'jest-environment-enzyme' ) {
-		pkg.dependencies[ 'jest-environment-jsdom' ] = '^28';
-	}
-
 	// Missing dep or peer dep on @wordpress/element.
 	// https://github.com/WordPress/gutenberg/issues/41341
 	// https://github.com/WordPress/gutenberg/issues/41346
@@ -72,15 +65,6 @@ function fixDeps( pkg ) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
-	// Need to match the version of jest used everywhere else.
-	if (
-		pkg.name === '@wordpress/jest-preset-default' &&
-		pkg.dependencies[ 'babel-jest' ] &&
-		pkg.dependencies[ 'babel-jest' ].startsWith( '^27' )
-	) {
-		pkg.dependencies[ 'babel-jest' ] = '^28';
-	}
-
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
@@ -101,12 +85,6 @@ function fixDeps( pkg ) {
 	// Regular expression DOS.
 	if ( pkg.dependencies.trim === '0.0.1' ) {
 		pkg.dependencies.trim = '^0.0.3';
-	}
-
-	// Cheerio 1.0.0-rc.11 breaks enzyme 3.11.0.
-	// No bug link, we're planning on dropping enzyme soonish anyway.
-	if ( pkg.name === 'enzyme' && pkg.dependencies.cheerio === '^1.0.0-rc.3' ) {
-		pkg.dependencies.cheerio = '^1.0.0-rc.3 <= 1.0.0-rc.10';
 	}
 
 	return pkg;

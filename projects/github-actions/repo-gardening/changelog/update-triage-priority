@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Triage: only add priority label when one does not exist yet.
