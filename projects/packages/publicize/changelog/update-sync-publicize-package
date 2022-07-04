@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Synced changes made in modules/publice/publicize.php tin the PR https://github.com/Automattic/jetpack/pull/24608/files#diff-17a80f9cdffa8ca74d1c2d552d8e9bfe7e8171846cdf3c1861e70f0ce34eb6b7 to the package.
