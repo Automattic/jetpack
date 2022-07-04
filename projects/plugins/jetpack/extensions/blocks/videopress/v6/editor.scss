@@ -36,9 +36,16 @@
 
 	.jetpack-videopress-player__wrapper {
 		padding-bottom: 12px;
-		.jetpack-videopress-player__thumbnail {
+
+		iframe.components-sandbox {
+			position: relative;
+			z-index: 1;
+		}
+
+		img.jetpack-videopress-player__thumbnail {
 			object-fit: cover;			
 			position: absolute;
+			z-index: 0;
 			top: 0;
 			left: 0;
 		}

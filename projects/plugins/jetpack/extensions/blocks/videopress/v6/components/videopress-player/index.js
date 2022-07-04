@@ -77,12 +77,12 @@ export default function VideoPressPlayer( {
 			>
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
+					<SandBox html={ html } scripts={ scripts } />
 					<img
 						src={ thumbnail }
 						alt={ __( 'Video thumbnail', 'jetpack' ) }
 						className="jetpack-videopress-player__thumbnail"
 					/>
-					<SandBox html={ html } scripts={ scripts } />
 				</div>
 			</ResizableBox>
 
