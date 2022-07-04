@@ -21,10 +21,14 @@
 
 
 	&.is-updating-preview {
-		opacity: 0.5;
+		opacity: 0.5; // @todo: consider improve this state in the UI
 	}
 
-	.wp-block-jetpack-videopress__overlay {
+	.jetpack-videopress-player {
+		margin: 0;
+	}
+
+	.jetpack-videopress-player__overlay {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -32,10 +36,6 @@
 		height: 100%;
 		background-color: transparent;
 		z-index: 1;
-	}
-
-	&.videopress-player {
-		margin: 0;
 	}
 }
 
