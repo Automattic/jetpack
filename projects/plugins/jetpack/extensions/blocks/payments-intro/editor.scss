@@ -8,14 +8,9 @@
 
 	.components-placeholder__fieldset {
 		// Options will render horizontally, but the immediate children of the
-		// fieldset are the options and the skip button, oriented vertically.
+		// fieldset are the choose pattern button and the block options, oriented
+		// vertically.
 		flex-direction: column;
-	}
-
-	&.has-many-variations .components-placeholder__fieldset {
-		// Allow options to occupy a greater amount of the available space if
-		// many options exist.
-		max-width: 90%;
 	}
 }
 
