@@ -168,7 +168,22 @@ const Admin = () => {
 		return (
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col lg={ 6 } md={ 4 }>
-					<h2>{ __( 'Your cloud backups', 'jetpack-backup-pkg' ) }</h2>
+					<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
+					<p>
+						{ __(
+							'No need to run a manual backup before you make changes to your site. ',
+							'jetpack-backup-pkg'
+						) }
+						<a
+							href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
+							target="_blank"
+							rel="noreferrer"
+						>
+							{ __( 'Learn more', 'jetpack-backup-pkg' ) }
+						</a>
+					</p>
+
+					<h2>{ __( 'Where are backups stored?', 'jetpack-backup-pkg' ) }</h2>
 					<p>
 						{ __(
 							'All the backups are safely stored in the cloud and available for you at any time on Jetpack.com, with full details about status and content.',

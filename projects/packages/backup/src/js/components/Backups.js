@@ -214,14 +214,26 @@ const Backups = () => {
 						</div>
 					) }
 					{ ! stats.warnings && (
-						<a
-							className="button is-full-width"
-							href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
-						</a>
+						<>
+							<a
+								className="button is-full-width"
+								href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+								target="_blank"
+								rel="noreferrer"
+							>
+								{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
+							</a>
+							<small>
+								<a
+									className=""
+									href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
+									target="_blank"
+									rel="noreferrer"
+								>
+									{ __( 'Or view your most recent restore point', 'jetpack-backup-pkg' ) }
+								</a>
+							</small>
+						</>
 					) }
 				</div>
 				<div className="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
