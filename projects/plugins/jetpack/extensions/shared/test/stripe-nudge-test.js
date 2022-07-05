@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import * as data from '@wordpress/data';
 import { StripeNudge } from '../components/stripe-nudge';
-import '@testing-library/jest-dom';
 
 describe( 'Stripe nudge component', () => {
 	describe( 'Membership store aware stripe nudge tests', () => {

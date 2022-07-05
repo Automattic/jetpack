@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import MapControls from '../controls';
-import '@testing-library/jest-dom';
 
 const API_STATE_SUCCESS = 2;
 const setAttributes = jest.fn();
