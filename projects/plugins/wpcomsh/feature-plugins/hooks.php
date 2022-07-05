@@ -208,3 +208,15 @@ function wpcomsh_gate_footer_credit_feature() {
 	return wpcom_site_has_feature( WPCOM_Features::NO_WPCOM_BRANDING );
 }
 add_filter( 'wpcom_better_footer_credit_can_customize', 'wpcomsh_gate_footer_credit_feature' );
+
+/**
+ * Remove the Jetpack > Dashboard menu if the site doesn't have the required feature.
+ */
+function wpcomsh_maybe_remove_jetpack_dashboard_menu_item() {
+	if ( wpcom_site_has_feature( WPCOM_Features::JETPACK_DASHBOARD ) ) {
+		return;
+	}
+
+	remove_submenu_page( 'jetpack', 'jetpack#/dashboard' );
+}
+add_action( 'admin_menu', 'wpcomsh_maybe_remove_jetpack_dashboard_menu_item', 1000 ); // Jetpack uses 998.
