@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add new WordPress core `block-templates` theme feature to `Defaults::$default_theme_support_whitelist`
