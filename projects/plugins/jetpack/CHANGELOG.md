@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.1 - 2022-07-05
+## [11.1] - 2022-07-05
 ### Enhancements
 - Dashboard: add "Getting started with Jetpack Backup" video to Assistant and "At a glance" dashboard. [#24774]
 - VideoPress: introduce VideoPress block currently in beta status. [#24821, #24844, #24848]
@@ -6756,6 +6756,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.1]: https://wp.me/p1moTy-Juo
 [11.0]: https://wp.me/p1moTy-IbF
 [10.9]: https://wp.me/p1moTy-EHd
 [10.8]: https://wp.me/p1moTy-CTQ
