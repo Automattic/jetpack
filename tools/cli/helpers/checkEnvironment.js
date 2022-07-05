@@ -86,7 +86,7 @@ export async function checkCliLocation() {
 
 		console.log(
 			chalk.yellow(
-				`Jetpack CLI was linked to ${ thisRoot }, but a Jetpack Monorepo checkout was found at ${ dir }. Executing the CLI from there instead.`
+				`Jetpack CLI was linked to ${ thisRoot }, but a Jetpack Monorepo checkout was found at ${ dir }. Executing the CLI from ${ dir }.`
 			)
 		);
 
