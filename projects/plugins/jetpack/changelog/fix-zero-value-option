@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Form block: radio, select, and multiple checkbox fields can now have option with a value 0.
