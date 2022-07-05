@@ -171,7 +171,7 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 		}
 
 		setFile( file );
-		setUploadingProgress( [ 0, file.size ] );
+		setUploadingProgress( 0, file.size );
 
 		// Upload file to VideoPress infrastructure.
 		videoPressUploader( file );
