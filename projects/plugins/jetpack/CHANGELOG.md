@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.1-beta - 2022-06-28
+## [11.1] - 2022-07-05
 ### Enhancements
 - Dashboard: add "Getting started with Jetpack Backup" video to Assistant and "At a glance" dashboard. [#24774]
 - VideoPress: introduce VideoPress block currently in beta status. [#24821, #24844, #24848]
@@ -14,6 +14,8 @@
 ### Bug fixes
 - CLI: avoid PHP notice when running connection tests. [#24802]
 - Contact Form: ensure the forms are always properly displayed. [#24857]
+- Dashboard: fix the link to Anti-spam stats. [#24880]
+- Form Block: radio, select, and multiple checkbox fields can now have option with a value of '0'. [#24926]
 - Payments Block: only add PayPal email meta to Payment posts. [#24806]
 - Payments Block: remove hardcoded recurring-payments button color. [#24801]
 - Subscribe Block: fix double-quote breaking the Subscribe block button. [#24763]
@@ -6754,6 +6756,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.1]: https://wp.me/p1moTy-Juo
 [11.0]: https://wp.me/p1moTy-IbF
 [10.9]: https://wp.me/p1moTy-EHd
 [10.8]: https://wp.me/p1moTy-CTQ
