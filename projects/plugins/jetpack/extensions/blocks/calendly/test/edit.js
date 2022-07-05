@@ -5,7 +5,6 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { register } from '@wordpress/data';
 import testEmbedUrl from '../../../shared/test-embed-url';
 import { CalendlyEdit } from '../edit';
-import '@testing-library/jest-dom';
 
 register( blockEditorStore );
 

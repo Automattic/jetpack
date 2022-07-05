@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import EmailEdit from '../edit';
-import '@testing-library/jest-dom';
 
 const setAttributes = jest.fn();
 

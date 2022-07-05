@@ -8,7 +8,6 @@ import {
 	splitStringAndReturnLastItem,
 	getSelectedGiphyAttributes,
 } from '../utils';
-import '@testing-library/jest-dom';
 
 describe( 'Gif Block utils', () => {
 	const GIPHY_ITEM = {

@@ -19,6 +19,7 @@
 		"@octokit/auth-token": "2.5.0",
 		"@octokit/rest": "18.12.0",
 		"@rushstack/eslint-patch": "1.1.4",
+		"@testing-library/jest-dom": "5.14.1",
 		"@typescript-eslint/eslint-plugin": "5.27.0",
 		"@typescript-eslint/parser": "5.27.0",
 		"@wordpress/eslint-plugin": "12.6.0",
