@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { AD_FORMATS, DEFAULT_FORMAT } from '../constants';
 import { AdVisibilityToggle } from '../controls';
 import FormatPicker from '../format-picker';
-import '@testing-library/jest-dom';
 
 const getFormat = format => AD_FORMATS.find( ( { tag } ) => tag === format );
 
