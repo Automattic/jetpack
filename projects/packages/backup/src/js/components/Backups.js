@@ -221,18 +221,16 @@ const Backups = () => {
 								target="_blank"
 								rel="noreferrer"
 							>
-								{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
+								{ __( 'See backups in the cloud', 'jetpack-backup-pkg' ) }
 							</a>
-							<small>
-								<a
-									className=""
-									href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
-									target="_blank"
-									rel="noreferrer"
-								>
-									{ __( 'Or view your most recent restore point', 'jetpack-backup-pkg' ) }
-								</a>
-							</small>
+							<a
+								className="backup__restore-point-link"
+								href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
+								target="_blank"
+								rel="noreferrer"
+							>
+								{ __( 'Or view your most recent restore point', 'jetpack-backup-pkg' ) }
+							</a>
 						</>
 					) }
 				</div>
