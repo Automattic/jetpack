@@ -1,7 +1,7 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-videopress {
-	background: var( --wp-admin-theme-color );
+	position: relative;
 
 	&.is-placeholder-container {
 		background: $white;
@@ -18,4 +18,28 @@
 		font-size: $default-font-size;
 		min-height: 200px;
 	}
+
+
+	&.is-updating-preview {
+		opacity: 0.5; // @todo: consider improve this state in the UI
+	}
+
+	.jetpack-videopress-player {
+		margin: 0;
+	}
+
+	.jetpack-videopress-player__overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: transparent;
+		z-index: 1;
+	}
+}
+
+.jetpack-videopress-upload-error-message {
+	color: $alert-red;
+	width: 100%;
 }

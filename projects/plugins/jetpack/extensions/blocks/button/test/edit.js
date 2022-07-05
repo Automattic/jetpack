@@ -3,7 +3,6 @@ import { render, screen, within } from '@testing-library/react';
 import { store as blockEditorStore, __experimentalUseGradient } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 import { register } from '@wordpress/data';
 import { ButtonEdit } from '../edit';
-import '@testing-library/jest-dom';
 
 register( blockEditorStore );
 

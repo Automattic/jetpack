@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove use of enzyme in tests. No change to the plugin itself.
+
+

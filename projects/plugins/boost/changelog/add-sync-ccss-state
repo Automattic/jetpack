@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Keep Critical CSS status in sync with Cloud CSS for better experience in Cloud CSS subscription expiration

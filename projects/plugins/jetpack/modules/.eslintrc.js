@@ -43,10 +43,4 @@ module.exports = {
 		'no-undef': 1,
 		'no-extra-boolean-cast': 1,
 	},
-	overrides: [
-		{
-			files: [ '**/test/*.[jt]s?(x)' ],
-			extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
-		},
-	],
 };

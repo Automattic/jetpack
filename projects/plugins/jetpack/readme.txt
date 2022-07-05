@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.0
+Stable tag: 11.1
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
@@ -242,21 +242,39 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.1-beta - 2022-06-28
+### 11.1 - 2022-07-05
 #### Enhancements
 - Dashboard: add "Getting started with Jetpack Backup" video to Assistant and "At a glance" dashboard.
-- VideoPress: introduce VideoPress block currently in beta status.
+- Recipe Block (beta): introduce a new Recipe block to display an easy to read recipe anywhere on your site. Currently a JETPACK_BETA_BLOCKS feature.
+- VideoPress: enable blocks with VideoPress markdown to be previewed within the mobile app.
+- VideoPress Block (beta): introduce VideoPress block currently in beta status.
 
 #### Improved compatibility
+- Blocks: add Jetpack block elements to WPML configuration so they can be translated.
 - Connection: update connection banner to use updated Emerald styling.
+- Publicize: configure Publicize only when the module is active.
 - VideoPress: update non-iframe player to latest version for sites using the `jetpack_videopress_player_use_iframe` filter.
 
 #### Bug fixes
 - CLI: avoid PHP notice when running connection tests.
-- Contact Form: ensure the forms are always properly displayed.
+- Connection: move the connection_url_redirect action handling to the connection package.
+- Contact Form: support saving array of data, such as multiple checkboxes.
+- Contact Form Block: display expected success message when used in FSE header or footer.
+- Contact Form Block: radio, select, and multiple checkbox fields can now have option with a value of '0'.
+- Dashboard: fix the link to Anti-spam stats.
+- Dashboard: format anti-spam stats properly, including in languages using a space as thousands separator.
+- Mailchimp Block: center spinner during loading block content.
+- Payment Block: fix issue preventing images in payment buttons.
 - Payments Block: only add PayPal email meta to Payment posts.
 - Payments Block: remove hardcoded recurring-payments button color.
+- Photon: do not return Photonized URLs to the block editor in WordPress 6.0.
+- Search: avoid broken images in search results by preferring the _jetpack_featured_media_url postmeta over the GUID.
+- SEO Tools: allow WooCommerce to use custom SEO description for the shop page.
+- Sharing: avoid fatal errors when email sharing process is called  without clicking on the button.
 - Subscribe Block: fix double-quote breaking the Subscribe block button.
+- VideoPress: fix average color parameter for seekbar.
+- VideoPress: fix embeds in classic editor when theme has no $content_width set.
+- VideoPress Block: fix Cancel button on block and provide better error message when video format is not supported.
 
 --------
 

@@ -340,7 +340,7 @@ class MyPlanBody extends React.Component {
 								this.props.isPluginActive( 'akismet/akismet.php' ) ? (
 									<Button
 										onClick={ this.handleButtonClickForTracking( 'view_spam_stats' ) }
-										href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' }
+										href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config&view=stats` }
 									>
 										{ __( 'View your spam stats', 'jetpack' ) }
 									</Button>

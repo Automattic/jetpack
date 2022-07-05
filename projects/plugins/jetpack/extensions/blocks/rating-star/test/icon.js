@@ -1,6 +1,5 @@
 import { render } from '@testing-library/react';
 import { StarIcon } from '../icon';
-import '@testing-library/jest-dom';
 
 describe( 'StarIcon', () => {
 	const defaultProps = {
