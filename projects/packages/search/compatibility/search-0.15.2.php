@@ -17,7 +17,7 @@ add_filter( 'option_sidbars_widgets', __NAMESPACE__ . '\convert_old_jetpack_sear
  * @param array $sidebars_widgets Value of `sidebars_widgets` option.
  */
 function convert_old_jetpack_search_sidebar( $sidebars_widgets ) {
-	if ( ! is_array( $sidebars_widgets ) || ! isset( $sidebars_widgets[ Instant_Search::OLD_INSTANT_SEARCH_SIDEBAR ] ) ) {
+	if ( ! empty( $sidebars_widgets[ Instant_Search::INSTANT_SEARCH_SIDEBAR ] ) || empty( $sidebars_widgets[ Instant_Search::OLD_INSTANT_SEARCH_SIDEBAR ] ) ) {
 		return $sidebars_widgets;
 	}
 	$sidebars_widgets[ Instant_Search::INSTANT_SEARCH_SIDEBAR ] = $sidebars_widgets[ Instant_Search::OLD_INSTANT_SEARCH_SIDEBAR ];
