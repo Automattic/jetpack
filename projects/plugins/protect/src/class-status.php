@@ -187,14 +187,46 @@ class Status {
 	}
 
 	/**
-	 * Checks if the current cached status was generated with an outdated version.
+	 * Checks if the current cached status contains outdated data.
 	 *
 	 * @return boolean
 	 */
 	public static function is_cache_outdated() {
+		global $wp_version;
+
 		$cached_status = self::get_from_options();
 
+		// check if the status version is outdated
 		if ( ! $cached_status || ! isset( $cached_status->version ) || $cached_status->version !== JETPACK_PROTECT_STATUS_VERSION ) {
+			return true;
+		}
+
+		// check if the cached themes are outdated
+		$current_themes = array_keys( Sync_Functions::get_themes() );
+		$cached_themes  = array_map(
+			function ( $cached_theme ) {
+				return $cached_theme->slug;
+			},
+			$cached_status->themes
+		);
+		if ( array_diff( $current_themes, $cached_themes ) || array_diff( $cached_themes, $current_themes ) ) {
+			return true;
+		}
+
+		// check if the cached plugins are outdated
+		$current_plugins = array_keys( Plugins_Installer::get_plugins() );
+		$cached_plugins  = array_map(
+			function ( $cached_plugin ) {
+				return $cached_plugin->slug;
+			},
+			$cached_status->plugins
+		);
+		if ( array_diff( $current_plugins, $cached_plugins ) || array_diff( $cached_plugins, $current_plugins ) ) {
+			return true;
+		}
+
+		// check if the cached WordPress version is outdated
+		if ( $wp_version !== $cached_status->core->version ) {
 			return true;
 		}
 
@@ -342,6 +374,7 @@ class Status {
 					array(
 						'name'            => $installed[ $slug ]['Name'],
 						'version'         => $checked->{ $slug }->version,
+						'slug'            => $slug,
 						'vulnerabilities' => $checked->{ $slug }->vulnerabilities,
 						'checked'         => true,
 					),
@@ -352,6 +385,7 @@ class Status {
 					array(
 						'name'            => $installed[ $slug ]['Name'],
 						'version'         => $installed[ $slug ]['Version'],
+						'slug'            => $slug,
 						'vulnerabilities' => array(),
 						'checked'         => false,
 					),
@@ -362,11 +396,22 @@ class Status {
 		usort(
 			$new_list,
 			function ( $a, $b ) {
-				$vuls_a    = count( $a->vulnerabilities ) > 0 ? 2 : 0;
-				$vuls_b    = count( $b->vulnerabilities ) > 0 ? 2 : 0;
-				$checked_a = $a->checked ? 0 : 1;
-				$checked_b = $b->checked ? 0 : 1;
-				return $vuls_b + $checked_b - ( $vuls_a + $checked_a );
+				// sort primarily based on the presence of vulnerabilities
+				if ( ! empty( $a->vulnerabilities ) && empty( $b->vulnerabilities ) ) {
+					return -1;
+				}
+				if ( empty( $a->vulnerabilities ) && ! empty( $b->vulnerabilities ) ) {
+					return 1;
+				}
+				// sort secondarily on whether the item has been checked
+				if ( $a->checked && ! $b->checked ) {
+					return 1;
+				}
+				if ( ! $a->checked && $b->checked ) {
+					return -1;
+				}
+
+				return 0;
 			}
 		);
 		return $new_list;
