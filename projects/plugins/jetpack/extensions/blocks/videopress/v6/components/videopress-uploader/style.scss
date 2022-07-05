@@ -1,6 +1,6 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.resumable-upload {
+.videopress-uploader {
 	background: $white;
 	color: $gray-900;
 	font-family: $default-font;
@@ -12,54 +12,54 @@
 	border: 1px solid $gray-900;
 	border-radius: 2px;
 	font-size: $default-font-size;
+
+	&__logo {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		font-size: 24px;
+		line-height: 29px;
+		gap: 10px;
+	}
 }
 
-.resumable-upload__logo {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	font-size: 24px;
-	line-height: 29px;
-	gap: 10px;
-}
-
-.resumable-upload__status {
+.videopress-uploader-progress {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
 	align-items: center;
 	margin-top: $grid-unit-30;
-}
 
-.resumable-upload__file-info {
-	display: flex;
-	flex-direction: row;
-	width: 100%;
-	margin-bottom: $grid-unit-20;
-}
+	&__file-info {
+		display: flex;
+		flex-direction: row;
+		width: 100%;
+		margin-bottom: $grid-unit-20;
+	}
 
-.resumable-upload__progress {
-	height: 8px;
-	background: #D2D2D2;
-	width: 100%;
-	border-radius: 4px;
-	box-sizing: border-box;
-	overflow: hidden;
-}
+	&__progress {
+		height: 8px;
+		background: #D2D2D2;
+		width: 100%;
+		border-radius: 4px;
+		box-sizing: border-box;
+		overflow: hidden;
+	}
 
-.resumable-upload__progress-loaded {
-	background: var(--wp-admin-theme-color);
-	text-align: center;
-	color: white;
-	height: 100%;
-	min-height: 8px;
-	transition: width 0.3s ease;
-}
+	&__progress-loaded {
+		background: var(--wp-admin-theme-color);
+		text-align: center;
+		color: white;
+		height: 100%;
+		min-height: 8px;
+		transition: width 0.3s ease;
+	}
 
-.resumable-upload__actions {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: $grid-unit-20;
-	width: 100%;
+	&__actions {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-top: $grid-unit-20;
+		width: 100%;
+	}
 }

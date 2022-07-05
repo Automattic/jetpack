@@ -11,8 +11,40 @@ import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
+const UploadProgress = ( { progress, file } ) => {
+	const roundedProgress = Math.round( progress );
+	const cssWidth = { width: `${ roundedProgress }%` };
+
+	const fileSizeLabel = filesize( file?.size );
+	const escapedFileName = escapeHTML( file?.name );
+	const fileNameLabel = createInterpolateElement(
+		sprintf(
+			/* translators: Placeholder is a video file name. */
+			__( 'Uploading <strong>%s</strong>', 'jetpack' ),
+			escapedFileName
+		),
+		{ strong: <strong /> }
+	);
+
+	return (
+		<div className="videopress-uploader-progress">
+			<div className="videopress-uploader-progress__file-info">
+				<div className="videopress-uploader-progress__file-name">{ fileNameLabel }</div>
+				&nbsp;&#8212;&nbsp;
+				<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
+			</div>
+			<div className="videopress-uploader-progress__progress">
+				<div className="videopress-uploader-progress__progress-loaded" style={ cssWidth } />
+			</div>
+			<div className="videopress-uploader-progress__actions">
+				<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
+			</div>
+		</div>
+	);
+};
+
 const VideoPressUploader = ( { attributes, setAttributes } ) => {
-	const progressBlockProps = useBlockProps( { className: 'resumable-upload' } );
+	const blockProps = useBlockProps( { className: 'videopress-uploader' } );
 
 	/*
 	 * Storing the file to get it name and size for progress.
@@ -149,39 +181,14 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 	// Uploading file to backend
 	if ( isUploadingFile || fileHasBeenUploaded ) {
 		const progress = ( uploadingProgress[ 0 ] / uploadingProgress[ 1 ] ) * 100;
-		const roundedProgress = Math.round( progress );
-		const cssWidth = { width: `${ roundedProgress }%` };
-
-		const fileSizeLabel = filesize( uploadFile?.size );
-		const escapedFileName = escapeHTML( uploadFile?.name );
-		const fileNameLabel = createInterpolateElement(
-			sprintf(
-				/* translators: Placeholder is a video file name. */
-				__( 'Uploading <strong>%s</strong>', 'jetpack' ),
-				escapedFileName
-			),
-			{ strong: <strong /> }
-		);
 
 		return (
-			<div { ...progressBlockProps }>
-				<div className="resumable-upload__logo">
+			<div { ...blockProps }>
+				<div className="videopress-uploader__logo">
 					<Icon icon={ icon } />
 					<div>{ __( 'VideoPress', 'jetpack' ) }</div>
 				</div>
-				<div className="resumable-upload__status">
-					<div className="resumable-upload__file-info">
-						<div className="resumable-upload__file-name">{ fileNameLabel }</div>
-						&nbsp;&#8212;&nbsp;
-						<div className="resumable-upload__file-size">{ fileSizeLabel }</div>
-					</div>
-					<div className="resumable-upload__progress">
-						<div className="resumable-upload__progress-loaded" style={ cssWidth } />
-					</div>
-					<div className="resumable-upload__actions">
-						<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
-					</div>
-				</div>
+				<UploadProgress file={ uploadFile } progress={ progress } />
 			</div>
 		);
 	}
