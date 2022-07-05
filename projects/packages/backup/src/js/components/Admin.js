@@ -8,8 +8,9 @@ import {
 	PricingCard,
 } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
+import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useState, useEffect } from '@wordpress/element';
+import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
@@ -170,17 +171,21 @@ const Admin = () => {
 				<Col lg={ 6 } md={ 4 }>
 					<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
 					<p className="jp-realtime-note">
-						{ __(
-							'No need to run a manual backup before you make changes to your site. ',
-							'jetpack-backup-pkg'
+						{ createInterpolateElement(
+							__(
+								'No need to run a manual backup before you make changes to your site. <ExternalLink>Learn more</ExternalLink>',
+								'jetpack-backup-pkg'
+							),
+							{
+								ExternalLink: (
+									<ExternalLink
+										href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							}
 						) }
-						<a
-							href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( 'Learn more', 'jetpack-backup-pkg' ) }
-						</a>
 					</p>
 
 					<h2>{ __( 'Where are backups stored?', 'jetpack-backup-pkg' ) }</h2>
@@ -193,13 +198,13 @@ const Admin = () => {
 					{ hasBackupPlan() && (
 						<>
 							<p>
-								<a
+								<ExternalLink
 									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 									target="_blank"
 									rel="noreferrer"
 								>
 									{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
-								</a>
+								</ExternalLink>
 							</p>
 						</>
 					) }
@@ -215,13 +220,13 @@ const Admin = () => {
 					</p>
 					{ hasBackupPlan() && (
 						<p>
-							<a
+							<ExternalLink
 								href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
 								target="_blank"
 								rel="noreferrer"
 							>
 								{ __( "See your site's activity", 'jetpack-backup-pkg' ) }
-							</a>
+							</ExternalLink>
 						</p>
 					) }
 				</Col>

@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
+import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { getDate, date, dateI18n } from '@wordpress/date';
 import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
@@ -213,26 +214,31 @@ const Backups = () => {
 							) }
 						</div>
 					) }
-					{ ! stats.warnings && (
-						<>
-							<a
-								className="button is-full-width"
-								href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-								target="_blank"
-								rel="noreferrer"
-							>
-								{ __( 'See backups in the cloud', 'jetpack-backup-pkg' ) }
-							</a>
-							<a
-								className="backup__restore-point-link"
-								href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
-								target="_blank"
-								rel="noreferrer"
-							>
-								{ __( 'Or view your most recent restore point', 'jetpack-backup-pkg' ) }
-							</a>
-						</>
-					) }
+					{ ! stats.warnings &&
+						createInterpolateElement(
+							__(
+								'<Button>See backups in the cloud</Button><br/><ExternalLink>Or view your most recent restore point</ExternalLink>',
+								'jetpack-backup-pkg'
+							),
+							{
+								Button: (
+									<a
+										className="button is-full-width"
+										href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+										target="_blank"
+										rel="noreferrer"
+									/>
+								),
+								ExternalLink: (
+									<ExternalLink
+										className="backup__restore-point-link"
+										href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
+										target="_blank"
+										rel="noreferrer"
+									/>
+								),
+							}
+						) }
 				</div>
 				<div className="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
