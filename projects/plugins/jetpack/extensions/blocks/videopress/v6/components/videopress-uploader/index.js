@@ -89,7 +89,6 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
 
 	/**
 	 * Handler to add a video via an URL.
-	 * todo: finish the implementation
 	 *
 	 * @param {string} videoUrl - URL of the video to attach
 	 */

@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import ActivationSuccessInfo from '..';
-import '@testing-library/jest-dom';
 
 describe( 'ActivationSuccessInfo', () => {
 	const testProps = {

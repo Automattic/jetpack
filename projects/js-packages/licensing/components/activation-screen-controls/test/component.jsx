@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import ActivationScreenControls from '../index';
-import '@testing-library/jest-dom';
 
 describe( 'ActivationScreenControls', () => {
 	describe( 'Render the ActivationScreenControls with fresh props', () => {

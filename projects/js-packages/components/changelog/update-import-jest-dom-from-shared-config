@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Import `@testing-library/jest-dom` from shared jest config. No change to the project itself.
+
+
