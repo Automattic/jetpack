@@ -9,6 +9,8 @@
  * Class Jetpack_Podcast_Helper
  */
 class Jetpack_Podcast_Helper {
+	const MIN_PODCAST_CACHE_TIMEOUT = 30 * MINUTE_IN_SECONDS;
+
 	/**
 	 * The RSS feed of the podcast.
 	 *
@@ -17,12 +19,26 @@ class Jetpack_Podcast_Helper {
 	protected $feed = null;
 
 	/**
+	 * The number of seconds to cache the podcast feed data for.
+	 *
+	 * @var int
+	 */
+	protected $cache_timeout = null;
+
+	/**
 	 * Initialize class.
 	 *
 	 * @param string $feed The RSS feed of the podcast.
+	 * @param int    $cache_timeout The number of seconds to cache the fetched feed. Must be greater than {@see self::MIN_PODCAST_CACHE_TIMEOUT}.
 	 */
-	public function __construct( $feed ) {
+	public function __construct( $feed, $cache_timeout = null ) {
 		$this->feed = esc_url_raw( $feed );
+
+		if ( is_int( $cache_timeout ) ) {
+			$this->cache_timeout = max( self::MIN_PODCAST_CACHE_TIMEOUT, (int) $cache_timeout );
+		} else {
+			$this->cache_timeout = null;
+		}
 	}
 
 	/**
@@ -277,6 +293,11 @@ class Jetpack_Podcast_Helper {
 		// Add action: detect the podcast feed from the provided feed URL.
 		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
 
+		if ( $this->cache_timeout !== null ) {
+			// Add filter: if we have a custom timeout, then ensure it gets applied via the following filter.
+			add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ), 10, 2 );
+		}
+
 		/**
 		 * Allow callers to set up any desired hooks when we fetch the content for a podcast.
 		 * The `jetpack_podcast_post_fetch` action can be used to perform cleanup.
@@ -294,6 +315,11 @@ class Jetpack_Podcast_Helper {
 		remove_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
 		if ( true === $force_refresh ) {
 			remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
+		}
+
+		if ( $this->cache_timeout !== null ) {
+			// Remove added filter from wp_feed_cache_transient_lifetime hook.
+			remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ) );
 		}
 
 		/**
@@ -319,6 +345,24 @@ class Jetpack_Podcast_Helper {
 		}
 
 		return $rss;
+	}
+
+	/**
+	 * Filter to override the default number of seconds to cache RSS feed data for the current feed.
+	 *
+	 * @param int    $cache_timeout_in_seconds Number of seconds to cache the feed for.
+	 * @param string $feed_url The URL of the feed we are fetching.
+	 *
+	 * @return int The number of seconds to cache the feed for.
+	 */
+	public function filter_podcast_cache_timeout( $cache_timeout_in_seconds, $feed_url ) {
+		// If we have a non-null URL and it matches our feed, return our custom cache timeout.
+		if ( $this->cache_timeout !== null && $feed_url === $this->feed ) {
+			// If the cache timeout has already been reduced, return the smaller value of the two.
+			return min( $cache_timeout_in_seconds, $this->cache_timeout );
+		}
+
+		return $cache_timeout_in_seconds;
 	}
 
 	/**
