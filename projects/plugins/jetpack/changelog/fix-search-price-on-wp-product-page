@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Product Descriptions: Fix search price on Search Product Description by accounting for sale coupons and ensuring the correct JP Search tier is shown
