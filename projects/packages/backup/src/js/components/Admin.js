@@ -169,7 +169,7 @@ const Admin = () => {
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col lg={ 6 } md={ 4 }>
 					<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
-					<p>
+					<p className="jp-realtime-note">
 						{ __(
 							'No need to run a manual backup before you make changes to your site. ',
 							'jetpack-backup-pkg'
