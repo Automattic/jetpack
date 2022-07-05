@@ -229,6 +229,7 @@ const Backups = () => {
 										rel="noreferrer"
 									/>
 								),
+								br: <br />,
 								ExternalLink: (
 									<ExternalLink
 										className="backup__restore-point-link"
