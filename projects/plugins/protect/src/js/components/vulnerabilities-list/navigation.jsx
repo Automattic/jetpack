@@ -51,12 +51,12 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				onClick={ trackNavigationClickCore }
 			/>
 			<NavigationGroup label={ __( 'Plugins', 'jetpack-protect' ) } icon={ pluginsIcon }>
-				{ plugins.map( ( { name, vulnerabilities, notChecked } ) => (
+				{ plugins.map( ( { name, vulnerabilities, checked } ) => (
 					<NavigationItem
 						key={ name }
 						id={ name }
 						label={ name }
-						notChecked={ notChecked }
+						checked={ checked }
 						badge={ vulnerabilities?.length }
 						disabled={ vulnerabilities?.length <= 0 }
 						onClick={ trackNavigationClickPlugin }
@@ -64,12 +64,12 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				) ) }
 			</NavigationGroup>
 			<NavigationGroup label={ __( 'Themes', 'jetpack-protect' ) } icon={ color }>
-				{ themes.map( ( { name, vulnerabilities, notChecked } ) => (
+				{ themes.map( ( { name, vulnerabilities, checked } ) => (
 					<NavigationItem
 						key={ name }
 						id={ name }
 						label={ name }
-						notChecked={ notChecked }
+						checked={ checked }
 						badge={ vulnerabilities?.length }
 						disabled={ vulnerabilities?.length <= 0 }
 						onClick={ trackNavigationClickTheme }
