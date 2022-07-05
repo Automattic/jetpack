@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Search\Compatibility\Jetpack;
 
 use Automattic\Jetpack\Search\Instant_Search;
 
-add_filter( 'option_sidbars_widgets', __NAMESPACE__ . '\convert_old_jetpack_search_sidebar', 10, 2 );
+add_filter( 'option_sidebars_widgets', __NAMESPACE__ . '\convert_old_jetpack_search_sidebar', 10, 2 );
 
 /**
  * Map the old Jetpack Search sidebar to the new Instant Search sidebar.
