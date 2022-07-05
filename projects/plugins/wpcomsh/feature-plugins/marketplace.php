@@ -24,12 +24,14 @@ function maybe_limit_to_marketplace_plugins( $plugins ) {
 	}
 
 	$marketplace_purchases = wp_list_pluck( $marketplace_purchases, 'product_slug' );
+	// Woocommerce is never purchased, and might not be on this site, but should be shown if it's installed.
+	$marketplace_purchases[] = 'woocommerce';
 
 	foreach ( $plugins as $plugin_file => $plugin ) {
 		foreach ( $marketplace_purchases as $product_slug ) {
 			$product_slug = preg_replace( array( '/(_monthly|_yearly)$/', '/_/' ), array( '', '-' ), $product_slug );
 
-			if ( 0 === strpos( $plugin_file, $product_slug ) ) {
+			if ( 0 === strpos( $plugin_file, $product_slug . '/' ) || 0 === strpos( $plugin_file, $product_slug . '.php' ) ) {
 				$marketplace_plugins[ $plugin_file ] = $plugin;
 			}
 		}
