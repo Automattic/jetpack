@@ -226,7 +226,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 			<>
 				<div { ...blockProps }>
 					<Spinner />
-					<div>{ __( '(4) Generating preview…', 'jetpack' ) } </div>
+					<div>{ __( '(4) Generating preview…', 'jetpack' ) }</div>
 					<div>
 						Attempt: <strong>{ generatingPreviewCounter }</strong>
 					</div>
