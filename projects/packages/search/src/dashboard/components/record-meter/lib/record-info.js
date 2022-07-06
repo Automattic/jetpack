@@ -20,17 +20,17 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
 	let hasBeenIndexed = true;
 	let hasItems = true;
 
-	//check for valid data coming in and catch it before it goes to far
-	if ( 'object' !== typeof postTypeBreakdown || 'string' !== typeof lastIndexedDate ) {
+	// Check for a post type breakdown object
+	if ( 'object' !== typeof postTypeBreakdown ) {
 		hasValidData = false;
 	}
 
-	//check if site has likely been indexed.
-	if ( 'undefined' === typeof lastIndexedDate || 'undefined' === typeof postCount ) {
+	// Check if site has likely been indexed
+	if ( 'number' !== typeof postCount ) {
 		hasBeenIndexed = false;
 	}
 
-	// make sure there are items there before going any further
+	// Make sure there are post types there before going any further
 	const numItems = hasValidData && hasBeenIndexed ? Object.keys( postTypeBreakdown ).length : 0;
 
 	if ( numItems === 0 ) {
