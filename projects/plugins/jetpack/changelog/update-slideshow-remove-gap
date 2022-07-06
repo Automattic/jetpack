@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-override container display to prevent a gap between slideshow and contents.

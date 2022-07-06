@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Site Stats: Fixes an issue with the traffic page not loading when stats is not enabled.
