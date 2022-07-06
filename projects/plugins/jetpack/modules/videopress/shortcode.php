@@ -269,7 +269,7 @@ class VideoPress_Shortcode {
 	 */
 	public function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( preg_match( '/https?:\/\/(video.wordpress.com|videopress.com)\/(v|embed)\//', $url ) ) {
-			Jetpack_VideoPress::enqueue_jwt_token_bridge();
+			Jetpack_VideoPress::enqueue_jwt_token_bridge(); // TODO: swap for new function
 		}
 		return $cache;
 	}
