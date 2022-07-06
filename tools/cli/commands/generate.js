@@ -266,6 +266,7 @@ export async function generateProject(
 
 	switch ( answers.type ) {
 		case 'package':
+			await searchReplaceInFolder( projDir, 'PACKAGE-NAME', normalizeSlug( answers.name ) );
 			break;
 		case 'js-package':
 			break;
