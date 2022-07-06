@@ -3,7 +3,6 @@ import { render, screen, act } from '@testing-library/react';
 import { registerBlocks } from '../../../shared/test/block-fixtures';
 import { settings } from '../../button';
 import MailchimpSubscribeEdit from '../edit';
-import '@testing-library/jest-dom';
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),

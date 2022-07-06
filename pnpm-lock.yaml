@@ -21,14 +21,14 @@ importers:
       '@vercel/ncc': 0.28.5
       compare-versions: 3.6.0
       glob: 7.1.6
-      moment: 2.29.2
+      moment: 2.29.4
       node-fetch: 2.6.7
     dependencies:
       '@actions/core': 1.6.0
       '@actions/github': 5.0.1
       compare-versions: 3.6.0
       glob: 7.1.6
-      moment: 2.29.2
+      moment: 2.29.4
       node-fetch: 2.6.7
     devDependencies:
       '@vercel/ncc': 0.28.5
@@ -104,7 +104,6 @@ importers:
       '@babel/preset-react': 7.18.6
       '@storybook/addon-actions': 6.5.9
       '@storybook/react': 6.5.9
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5
       '@types/jest': 27.4.1
       '@types/qrcode.react': 1.0.2
@@ -149,7 +148,6 @@ importers:
       '@babel/preset-react': 7.18.6_@babel+core@7.18.6
       '@storybook/addon-actions': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/react': 6.5.9_tanqixkrcf5zbqmj5yuujbgbpy
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
       '@types/jest': 27.4.1
       '@types/qrcode.react': 1.0.2
@@ -188,7 +186,6 @@ importers:
       '@babel/preset-react': 7.18.6
       '@storybook/addon-actions': 6.5.9
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5
       '@testing-library/react-hooks': 8.0.0
       '@testing-library/user-event': 14.1.1
@@ -222,7 +219,6 @@ importers:
       '@babel/preset-react': 7.18.6_@babel+core@7.18.6
       '@storybook/addon-actions': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
       '@testing-library/react-hooks': 8.0.0_7qv3rjnqa3j7exc7qtvho7thru
       '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
@@ -345,7 +341,6 @@ importers:
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5
       '@testing-library/user-event': 14.1.1
       '@wordpress/components': 19.14.0
@@ -371,7 +366,6 @@ importers:
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6_@babel+core@7.18.6
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
       '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
       jest: 28.1.0
@@ -389,7 +383,6 @@ importers:
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5
       '@testing-library/react-hooks': 8.0.0
       '@testing-library/user-event': 14.1.1
@@ -416,7 +409,6 @@ importers:
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6_@babel+core@7.18.6
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
       '@testing-library/react-hooks': 8.0.0_7qv3rjnqa3j7exc7qtvho7thru
       '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
@@ -441,7 +433,6 @@ importers:
       '@babel/preset-react': 7.18.6
       '@babel/runtime': 7.18.6
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5
       '@testing-library/user-event': 14.1.1
       '@wordpress/annotations': 2.12.0
@@ -490,7 +481,6 @@ importers:
       '@babel/preset-react': 7.18.6_@babel+core@7.18.6
       '@babel/runtime': 7.18.6
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
       '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0_@babel+core@7.18.6
@@ -887,7 +877,6 @@ importers:
       '@storybook/react': 6.5.9
       '@storybook/testing-react': 1.2.3
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5
       '@testing-library/user-event': 14.1.1
       '@wordpress/api-fetch': 6.9.0
@@ -935,7 +924,6 @@ importers:
       '@storybook/react': 6.5.9_tanqixkrcf5zbqmj5yuujbgbpy
       '@storybook/testing-react': 1.2.3_7l77hs3dm5whczxfr7dbcqxx5e
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
       '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
       jest: 28.1.0
@@ -975,7 +963,6 @@ importers:
       '@babel/preset-typescript': 7.18.6
       '@babel/runtime': 7.18.6
       '@size-limit/preset-app': 6.0.4
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1
       '@testing-library/react': 12.1.5
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0
@@ -1056,7 +1043,6 @@ importers:
       '@babel/preset-typescript': 7.18.6_@babel+core@7.18.6
       '@babel/runtime': 7.18.6
       '@size-limit/preset-app': 6.0.4_size-limit@6.0.4
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1_preact@10.5.15
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0_@babel+core@7.18.6
@@ -1078,6 +1064,9 @@ importers:
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
+  projects/packages/videopress:
+    specifiers: {}
+
   projects/packages/wordads:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
@@ -1094,7 +1083,6 @@ importers:
       '@babel/preset-typescript': 7.18.6
       '@babel/runtime': 7.18.6
       '@size-limit/preset-app': 6.0.4
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1
       '@testing-library/react': 12.1.5
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0
@@ -1173,7 +1161,6 @@ importers:
       '@babel/preset-typescript': 7.18.6_@babel+core@7.18.6
       '@babel/runtime': 7.18.6
       '@size-limit/preset-app': 6.0.4_size-limit@6.0.4
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/preact': 2.0.1_preact@10.5.15
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0_@babel+core@7.18.6
@@ -1312,7 +1299,6 @@ importers:
       '@babel/preset-env': 7.18.6
       '@babel/runtime': 7.18.6
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5
       '@testing-library/react-hooks': 8.0.0
       '@testing-library/user-event': 14.1.1
@@ -1475,7 +1461,6 @@ importers:
       '@babel/preset-env': 7.18.6_@babel+core@7.18.6
       '@babel/runtime': 7.18.6
       '@testing-library/dom': 8.13.0
-      '@testing-library/jest-dom': 5.14.1
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
       '@testing-library/react-hooks': 8.0.0_bllccsag72s5i2q7zhblnmav4q
       '@testing-library/user-event': 14.1.1_tlwynutqiyp5mns3woioasuxnq
@@ -1806,6 +1791,7 @@ importers:
       '@octokit/auth-token': 2.5.0
       '@octokit/rest': 18.12.0
       '@rushstack/eslint-patch': 1.1.4
+      '@testing-library/jest-dom': 5.14.1
       '@typescript-eslint/eslint-plugin': 5.27.0
       '@typescript-eslint/parser': 5.27.0
       '@wordpress/eslint-plugin': 12.6.0
@@ -1853,6 +1839,7 @@ importers:
       '@octokit/auth-token': 2.5.0
       '@octokit/rest': 18.12.0
       '@rushstack/eslint-patch': 1.1.4
+      '@testing-library/jest-dom': 5.14.1
       '@typescript-eslint/eslint-plugin': 5.27.0_nmnzi5hhuvs7q3coqyfjvrssp4
       '@typescript-eslint/parser': 5.27.0_l7s6xsljbkeyelcecm6suqju3a
       '@wordpress/eslint-plugin': 12.6.0_zzwpuy7deas2by6q3wt2r5e53a
@@ -2001,7 +1988,7 @@ packages:
       '@wordpress/i18n': 4.12.0
       classnames: 2.3.1
       lodash: 4.17.21
-      moment: 2.29.3
+      moment: 2.29.4
       prop-types: 15.7.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -7241,7 +7228,7 @@ packages:
       lodash: 4.17.21
       memize: 1.1.0
       micromodal: 0.4.10
-      moment: 2.29.3
+      moment: 2.29.4
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       remove-accents: 0.4.2
@@ -7290,7 +7277,7 @@ packages:
       lodash: 4.17.21
       memize: 1.1.0
       micromodal: 0.4.10
-      moment: 2.29.3
+      moment: 2.29.4
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       remove-accents: 0.4.2
@@ -7379,11 +7366,11 @@ packages:
       highlight-words-core: 1.2.2
       lodash: 4.17.21
       memize: 1.1.0
-      moment: 2.29.3
+      moment: 2.29.4
       re-resizable: 6.9.9_sfoxds7t5ydpegc3knd667wn6m
       react: 17.0.2
       react-colorful: 5.5.1_sfoxds7t5ydpegc3knd667wn6m
-      react-dates: 21.8.0_w7z64pbsb6bxi6skcnpby7lecq
+      react-dates: 21.8.0_zhcifnu2wdv2ij424hvphoksja
       react-dom: 17.0.2_react@17.0.2
       reakit: 1.3.11_sfoxds7t5ydpegc3knd667wn6m
       remove-accents: 0.4.2
@@ -7432,11 +7419,11 @@ packages:
       highlight-words-core: 1.2.2
       lodash: 4.17.21
       memize: 1.1.0
-      moment: 2.29.3
+      moment: 2.29.4
       re-resizable: 6.9.9_sfoxds7t5ydpegc3knd667wn6m
       react: 17.0.2
       react-colorful: 5.5.1_sfoxds7t5ydpegc3knd667wn6m
-      react-dates: 21.8.0_w7z64pbsb6bxi6skcnpby7lecq
+      react-dates: 21.8.0_zhcifnu2wdv2ij424hvphoksja
       react-dom: 17.0.2_react@17.0.2
       reakit: 1.3.11_sfoxds7t5ydpegc3knd667wn6m
       remove-accents: 0.4.2
@@ -7515,7 +7502,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.18.6
-      moment: 2.29.3
+      moment: 2.29.4
       moment-timezone: 0.5.34
 
   /@wordpress/dependency-extraction-webpack-plugin/3.6.0_webpack@5.72.1:
@@ -9907,6 +9894,7 @@ packages:
 
   /core-js-pure/3.23.0:
     resolution: {integrity: sha512-ksjJc/xVTQzT2q6trPja2qWynMEaGO36rDui2SiqLPYab9TmPgT8nIVcre/yscviPCSweUdCDGKe4MsQA9w1zQ==}
+    deprecated: core-js-pure@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js-pure.
     requiresBuild: true
     dev: true
 
@@ -15120,14 +15108,10 @@ packages:
   /moment-timezone/0.5.34:
     resolution: {integrity: sha512-3zAEHh2hKUs3EXLESx/wsgw6IQdusOT8Bxm3D9UrHPQR7zlMmzwybC8zHEM1tQ4LJwP7fcxrWr8tuBg05fFCbg==}
     dependencies:
-      moment: 2.29.3
+      moment: 2.29.4
 
-  /moment/2.29.2:
-    resolution: {integrity: sha512-UgzG4rvxYpN15jgCmVJwac49h9ly9NurikMWGPdVxm8GZD6XjkKPxDTjQQ43gtGgnV3X0cAyWDdP2Wexoquifg==}
-    dev: false
-
-  /moment/2.29.3:
-    resolution: {integrity: sha512-c6YRvhEo//6T2Jz/vVtYzqBzwvPT95JBQ+smCytzf7c50oMZRsR/a4w88aD34I+/QVSfnoAnSBFPJHItlOMJVw==}
+  /moment/2.29.4:
+    resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==}
 
   /mousetrap/1.6.5:
     resolution: {integrity: sha512-QNo4kEepaIBwiT8CDhP98umTetp+JNfQYBWvC1pc6/OAibuXtRcxZ58Qz8skvEHYvURne/7R8T5VoOI7rDsEUA==}
@@ -16828,7 +16812,7 @@ packages:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
 
-  /react-dates/21.8.0_w7z64pbsb6bxi6skcnpby7lecq:
+  /react-dates/21.8.0_zhcifnu2wdv2ij424hvphoksja:
     resolution: {integrity: sha512-PPriGqi30CtzZmoHiGdhlA++YPYPYGCZrhydYmXXQ6RAvAsaONcPtYgXRTLozIOrsQ5mSo40+DiA5eOFHnZ6xw==}
     peerDependencies:
       '@babel/runtime': ^7.0.0
@@ -16842,7 +16826,7 @@ packages:
       enzyme-shallow-equal: 1.0.4
       is-touch-device: 1.0.1
       lodash: 4.17.21
-      moment: 2.29.3
+      moment: 2.29.4
       object.assign: 4.1.2
       object.values: 1.1.5
       prop-types: 15.8.1
@@ -16981,7 +16965,7 @@ packages:
   /react-moment-proptypes/1.8.1:
     resolution: {integrity: sha512-Er940DxWoObfIqPrZNfwXKugjxMIuk1LAuEzn23gytzV6hKS/sw108wibi9QubfMN4h+nrlje8eUCSbQRJo2fQ==}
     dependencies:
-      moment: 2.29.3
+      moment: 2.29.4
 
   /react-outside-click-handler/1.3.0_sfoxds7t5ydpegc3knd667wn6m:
     resolution: {integrity: sha512-Te/7zFU0oHpAnctl//pP3hEAeobfeHMyygHB8MnjP6sX5OR8KHT1G3jmLsV3U9RnIYo+Yn+peJYWu+D5tUS8qQ==}

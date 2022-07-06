@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ErrorNotice from '../components/error-notice';
-import '@testing-library/jest-dom';
 
 jest.mock( '@wordpress/blocks', () => ( {
 	createBlock: ( blockName, contentObj ) => ( { blockName, contentObj } ),

@@ -2,7 +2,6 @@ import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import InstagramGalleryEdit from '../edit';
-import '@testing-library/jest-dom';
 
 const originalFetch = window.fetch;
 

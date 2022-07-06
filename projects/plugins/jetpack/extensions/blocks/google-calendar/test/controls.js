@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GoogleCalendarInspectorControls from '../controls';
-import '@testing-library/jest-dom';
 
 describe( 'GoogleCalendarInspectorControls', () => {
 	const onChange = jest.fn();

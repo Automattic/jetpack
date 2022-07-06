@@ -3,6 +3,7 @@
  */
 
 import { useBlockProps } from '@wordpress/block-editor';
+import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
@@ -11,7 +12,6 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import Loading from '../loading';
 import { getVideoPressUrl } from '../url';
 import VideoPressInspectorControls from './components/inspector-controls';
 import VideoPressPlayer from './components/videopress-player';
@@ -181,7 +181,8 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		return (
 			<>
 				<div { ...blockProps }>
-					<Loading text={ __( '(4) Generating preview…', 'jetpack' ) } />;
+					<Spinner />
+					<div>{ __( '(4) Generating preview…', 'jetpack' ) }</div>
 					<div>
 						Attempt: <strong>{ isGeneratingPreview }</strong>
 					</div>
