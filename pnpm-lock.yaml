@@ -21,14 +21,14 @@ importers:
       '@vercel/ncc': 0.28.5
       compare-versions: 3.6.0
       glob: 7.1.6
-      moment: 2.29.2
+      moment: 2.29.4
       node-fetch: 2.6.7
     dependencies:
       '@actions/core': 1.6.0
       '@actions/github': 5.0.1
       compare-versions: 3.6.0
       glob: 7.1.6
-      moment: 2.29.2
+      moment: 2.29.4
       node-fetch: 2.6.7
     devDependencies:
       '@vercel/ncc': 0.28.5
@@ -1063,6 +1063,9 @@ importers:
       size-limit: 6.0.4
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
+
+  projects/packages/videopress:
+    specifiers: {}
 
   projects/packages/wordads:
     specifiers:
@@ -15107,12 +15110,12 @@ packages:
     dependencies:
       moment: 2.29.3
 
-  /moment/2.29.2:
-    resolution: {integrity: sha512-UgzG4rvxYpN15jgCmVJwac49h9ly9NurikMWGPdVxm8GZD6XjkKPxDTjQQ43gtGgnV3X0cAyWDdP2Wexoquifg==}
-    dev: false
-
   /moment/2.29.3:
     resolution: {integrity: sha512-c6YRvhEo//6T2Jz/vVtYzqBzwvPT95JBQ+smCytzf7c50oMZRsR/a4w88aD34I+/QVSfnoAnSBFPJHItlOMJVw==}
+
+  /moment/2.29.4:
+    resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==}
+    dev: false
 
   /mousetrap/1.6.5:
     resolution: {integrity: sha512-QNo4kEepaIBwiT8CDhP98umTetp+JNfQYBWvC1pc6/OAibuXtRcxZ58Qz8skvEHYvURne/7R8T5VoOI7rDsEUA==}
