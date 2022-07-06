@@ -5,6 +5,10 @@ import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import vpBlockBridge from '../../scripts/vp-block-bridge';
 
 export default function VideoPressPlayer( {
 	html,
@@ -70,6 +74,9 @@ export default function VideoPressPlayer( {
 
 		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
 	}
+
+	// Load VideoPressBlock bridge script.
+	scripts.push( vpBlockBridge );
 
 	const style = {};
 	if ( temporaryHeight !== 'auto' ) {
