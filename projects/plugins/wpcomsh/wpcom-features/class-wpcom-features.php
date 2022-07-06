@@ -426,7 +426,7 @@ class WPCOM_Features {
 		self::ATOMIC                        => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_STARTER_PLANS, // 2022-06-24: Temp added to wpcomsh only for testing. Do not merge to wpcom. Contact #limited-atomic.
+			self::WPCOM_MARKETPLACE_PLANS,
 		),
 		// BACKUPS - Site has *any* kind of backups.
 		self::BACKUPS                       => array(
@@ -597,7 +597,7 @@ class WPCOM_Features {
 		self::INSTALL_PURCHASED_PLUGINS     => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_STARTER_PLANS, // 2022-06-24: Temp added to wpcomsh only for testing. Do not merge to wpcom. Contact #limited-atomic.
+			self::WPCOM_STARTER_PLANS,
 		),
 		self::INSTALL_THEMES                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
