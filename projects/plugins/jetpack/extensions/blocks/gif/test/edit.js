@@ -2,7 +2,6 @@ import { render, fireEvent } from '@testing-library/react';
 import GifEdit from '../edit';
 import useFetchGiphyData from '../hooks/use-fetch-giphy-data';
 import { getUrl, getPaddingTop, getEmbedUrl } from '../utils';
-import '@testing-library/jest-dom';
 
 const setAttributes = jest.fn();
 

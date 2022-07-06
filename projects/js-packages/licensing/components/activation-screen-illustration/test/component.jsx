@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import ActivationScreenIllustration from '../index';
-import '@testing-library/jest-dom';
 
 describe( 'ActivationScreenIllustration', () => {
 	describe( 'Render the ActivationScreenIllustration component with support link', () => {

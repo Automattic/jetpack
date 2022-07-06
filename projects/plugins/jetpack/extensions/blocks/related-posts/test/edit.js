@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { RelatedPostsEdit } from '../edit';
-import '@testing-library/jest-dom';
 
 const posts = [
 	{

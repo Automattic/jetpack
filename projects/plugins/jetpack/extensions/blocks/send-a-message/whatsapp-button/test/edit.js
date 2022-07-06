@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { register } from '@wordpress/data';
 import WhatsAppButtonEdit from '../edit';
-import '@testing-library/jest-dom';
 
 register( blockEditorStore );
 
