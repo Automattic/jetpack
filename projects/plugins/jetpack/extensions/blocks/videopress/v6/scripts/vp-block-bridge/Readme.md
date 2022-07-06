@@ -69,7 +69,7 @@ function VPBlockEdit() {
 	}, [] );
 
 	return (
-		<Sandbox html={ embedHtml } scritps=[ vpBlockBridge ] />
+		<Sandbox html={ embedHtml } scritps={ [ vpBlockBridge ] } />
 	);
 }
 ```
