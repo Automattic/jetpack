@@ -218,9 +218,9 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 	// 4 - Generating video preview
 	if (
-		isRequestingEmbedPreview ||
-		( generatingPreviewCounter > 0 && generatingPreviewCounter < 10 ) ||
-		! preview
+		( isRequestingEmbedPreview || ! preview ) &&
+		generatingPreviewCounter > 0 &&
+		generatingPreviewCounter < 10
 	) {
 		return (
 			<>
