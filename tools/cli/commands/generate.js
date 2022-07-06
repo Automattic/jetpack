@@ -509,6 +509,7 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
 			composerJson.extra.textdomain = name;
+			composerJson.type = 'jetpack-library';
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};
