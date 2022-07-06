@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Synced changes made in modules/publice/publicize.php and made sure the composer package for publicize has those changes. 
