@@ -2,6 +2,46 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.2-a.1 - 2022-07-06
+### Enhancements
+- Jetpack: add an overlay to VPBlock to improve when selecting the video player [#24899]
+- Jetpack: handle VPBlock caption attribute [#24902]
+- Jetpack: improve WPBlock video preview UX [#24890]
+- Jetpack: introduce VideoPressSandbox component (VPBlock) [#24883]
+- Jetpack: memoize uploading progress handler function [#24858]
+- Jetpack: re attempt to get the VideoPress video preview [#24869]
+- Jetpack: save video player attributes of the VPBlock [#24888]
+- Jetpack: store and apply VPBlock size [#24893]
+- Jetpack: tweak vpblock layout markup and styles [#24939]
+- Prevent users from removing the contact form submit button. [#24838]
+- Updated publicize package version. [#24943]
+- VideoPress: Add upload error message [#24894]
+- VideoPress: Add VideoPressUploader component [#24920]
+
+### Improved compatibility
+- Synced changes made to wpcom's admin-plugins/publicize.php file. [#24941]
+
+### Bug fixes
+- Contact Form Block: Prevent error notice when processing submission from 404 page [#24870]
+- Jetpack: fix bug wen getting the video preview of the VPBlock [#24936]
+- override container display to prevent a gap between slideshow and contents. [#24961]
+- Product Descriptions: Fix search price on Search Product Description by accounting for sale coupons and ensuring the correct JP Search tier is shown [#24901]
+- Related Posts: avoid PHP warnings when visiting AMP post views. [#24938]
+- Site Stats: Fixes an issue with the traffic page not loading when stats is not enabled. [#24968]
+- Stats: Allowing custom user role stats settings to be properly recognized and saved. [#24887]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- At-a-glance: Replace obsolete `javascript:void(0)` hrefs. [#24915]
+- E2E tests: disable broken dedicated sync e2e test [#24934]
+- E2E tests: improve stability of dedicated sync test [#24882]
+- E2E tests: regroup specs [#24889]
+- Included private videos URL in VideoPress block (v6) GUID parser [#24918]
+- select-dropdown/item: Fix incorrect React prop type. [#24915]
+- Updated package dependencies. [#24923]
+- Updated package dependencies. [#24924]
+- Update text and add link to the Backup aag card. [#24919]
+- WordPress.com tests: mark AMP-related tests as skipped when running in WP.com [#24855]
+
 ## [11.1] - 2022-07-05
 ### Enhancements
 - Dashboard: add "Getting started with Jetpack Backup" video to Assistant and "At a glance" dashboard. [#24774]

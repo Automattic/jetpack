@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.18.8 - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
 ## 0.18.7 - 2022-06-28
 ### Fixed
 - Fix include loop between state/store and state/controls + state/resolvers. [#24777]
