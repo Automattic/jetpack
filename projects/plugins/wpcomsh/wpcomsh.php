@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.9.42
+ * Version: 2.9.43
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.9.42' );
+define( 'WPCOMSH_VERSION', '2.9.43' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -744,7 +744,7 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) { //p
 
 		if ( ! $was_parent_theme_symlinked ) {
 			return new WP_Error(
-				'wpcom_theme_installation_falied',
+				'wpcom_theme_installation_failed',
 				"Can't install specified WPCom theme. Check error log for more details."
 			);
 		}
@@ -762,7 +762,6 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) { //p
  * @return bool
  */
 function wpcomsh_jetpack_wpcom_theme_delete( $result, $theme_slug ) { //phpcs:ignore
-
 	if (
 		! wpcomsh_is_wpcom_theme( $theme_slug ) ||
 		! wpcomsh_is_theme_symlinked( $theme_slug )
@@ -770,24 +769,45 @@ function wpcomsh_jetpack_wpcom_theme_delete( $result, $theme_slug ) { //phpcs:ig
 		return false;
 	}
 
-	// If a theme is a child theme, we first need to unsymlink the parent theme.
-	if (
-		wpcomsh_is_wpcom_child_theme( $theme_slug ) &&
-		! wpcomsh_do_other_themes_have_same_parent( $theme_slug )
-	) {
-		$was_parent_theme_unsymlinked = wpcomsh_delete_symlinked_parent_theme( $theme_slug );
+	$theme = wp_get_theme( $theme_slug );
+	if ( ! $theme->exists() ) {
+		return false;
+	}
 
-		if ( ! $was_parent_theme_unsymlinked ) {
-			return new WP_Error(
-				'wpcom_theme_deletion_falied',
-				"Can't delete specified WPCom theme. Check error log for more details."
-			);
-		}
+	$num_child_themes = wpcomsh_count_child_themes( $theme->get_stylesheet() );
+	if ( $num_child_themes > 0 ) {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
+		error_log( 'WPComSH: Cannot remove parent theme. It still has installed child themes.' );
+		return false;
+	}
+
+	$is_child_theme = wpcomsh_is_wpcom_child_theme( $theme_slug );
+
+	// Remember how many child themes there are before we delete this one.
+	// That way, we have the same count later, whether the previous themes list was cached or not.
+	$num_themes_with_same_parent = 0;
+	if ( $is_child_theme ) {
+		$num_themes_with_same_parent = wpcomsh_count_child_themes( $theme->get_template() );
 	}
 
 	$was_theme_unsymlinked = wpcomsh_delete_symlinked_theme( $theme_slug );
+	if ( is_wp_error( $was_theme_unsymlinked ) ) {
+		return $was_theme_unsymlinked;
+	}
 
-	return $was_theme_unsymlinked;
+	// If the theme was an only child, we need to unsymlink the parent theme as well.
+	if ( $is_child_theme && $num_themes_with_same_parent === 1 ) {
+		$parent_theme = $theme->get_template();
+		if ( wpcomsh_is_wpcom_theme( $parent_theme ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions
+			error_log( 'WPComSH: Unsymlinking parent theme.' );
+			// Ignore result because the child theme is already removed,
+			// and any problem should be logged by the deletion function.
+			wpcomsh_delete_symlinked_theme( $parent_theme );
+		}
+	}
+
+	return true;
 }
 
 /**

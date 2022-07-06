@@ -194,34 +194,26 @@ function wpcomsh_is_wpcom_child_theme( $theme_slug = null ) {
 }
 
 /**
- * Answers whether other themes have the same parent as the reference theme
+ * Count the number of child themes with the specified template.
  *
- * @param string $theme_slug Slug of the reference theme
- * @return bool
+ * @param string $template The theme template name
+ *
+ * @return int
  */
-function wpcomsh_do_other_themes_have_same_parent( $theme_slug ) {
-	$reference_theme = wp_get_theme( $theme_slug );
-	if ( ! $reference_theme->exists() ) {
-		return false;
-	}
-
-	if ( ! wpcomsh_is_wpcom_child_theme( $theme_slug ) ) {
-		return false;
-	}
+function wpcomsh_count_child_themes( $template ) {
+	$child_count = 0;
 
 	foreach ( wp_get_themes() as $theme ) {
 		if (
-			$theme->get_stylesheet() !== $reference_theme->get_stylesheet() &&
-			$theme->get_stylesheet() !== $reference_theme->get_template() &&
-			$theme->get_template() === $reference_theme->get_template()
+			$theme->get_template() === $template &&
+			$theme->get_stylesheet() !== $theme->get_template()
 		) {
-			return true;
+			$child_count++;
 		}
 	}
 
-	return false;
+	return $child_count;
 }
-
 
 /**
  * Symlinks the theme's parent if it's a child theme.
@@ -244,37 +236,6 @@ function wpcomsh_symlink_parent_theme( $stylesheet ) {
 	error_log( 'WPComSH: Symlinking parent theme.' );
 
 	return wpcomsh_symlink_theme( $template, wpcomsh_get_wpcom_theme_type( $template ) );
-}
-
-/**
- * Deletes the symlink to the parent theme.
- *
- * @param string $stylesheet Theme slug.
- * @return bool|WP_Error
- */
-function wpcomsh_delete_symlinked_parent_theme( $stylesheet ) {
-	$theme    = wp_get_theme( $stylesheet );
-	$template = $theme->get_template();
-
-	if ( $template === $stylesheet ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
-		error_log( "WPComSH: Can't unsymlink parent theme. $stylesheet is not a child theme." );
-
-		return false;
-	}
-
-	if ( wpcomsh_do_other_themes_have_same_parent( $stylesheet ) ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions
-		error_log(
-			"WPComSH: Can't unsymlink parent theme $template. There are other installed child themes that depend on it."
-		);
-		return false;
-	}
-
-	// phpcs:ignore WordPress.PHP.DevelopmentFunctions
-	error_log( 'WPComSH: Unsymlinking parent theme.' );
-
-	return wpcomsh_delete_symlinked_theme( $template );
 }
 
 /**
