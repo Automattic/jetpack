@@ -1,14 +1,18 @@
 const rawScript = `
 	function initWPBlockBridge() {
 		// Allowed events emitted by the videopress API.
-		const allowedVideoPressEvents = [
-			'playing',
-			'pause',
-			'seeking',
-			'resize',
-			'volumechange',
-			'ended',
-		];
+		const videoPressEventsMap = {
+			'playing': 'onVideoPressPlaying',
+			'pause': 'onVideoPressPause',
+			'seeking': 'onVideoPressSeeking',
+			'resize': 'onVideoPressResize',
+			'volumechange': 'onVideoPressVolumeChange',
+			'ended': 'onVideoPressEnded',
+			'videopress_progress': 'onVideoPressProgress',
+			'videopress_loading_state': 'onVideoPressLoadingState',
+		};
+
+		const allowedVideoPressEvents = Object.keys( videoPressEventsMap );
 
 		window.addEventListener( 'message', ( ev ) => {
 			const { data } = ev;
@@ -17,22 +21,22 @@ const rawScript = `
 				return;
 			}
 			
-			// Rename event with the 'onVPBlock' prefix.
-			const event = 'onVPBlock' + eventName[ 0 ].toUpperCase() + eventName.slice( 1 );
+			// Rename event with the 'onVideoPress' prefix.
+			const vpEventName = videoPressEventsMap[ eventName ];
 
 			// It preferrs to use the guid instead of the id.
 			const guid = data.id;
-			const videoPressEvent = data.event;
+			const originalEventName = data.event;
 
 			// clean event data object
 			delete data.event;
 			delete data.id;
 
 			// Emite custom event with the event data.
-			const videoPressBlockEvent = new CustomEvent( event, {
+			const videoPressBlockEvent = new CustomEvent( vpEventName, {
 				detail: {
 					...data,
-					videoPressEvent,
+					originalEventName,
 					guid,
 				},
 			} );
