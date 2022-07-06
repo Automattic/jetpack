@@ -4,43 +4,34 @@
 
 ## 11.2-a.1 - 2022-07-06
 ### Enhancements
-- Jetpack: add an overlay to VPBlock to improve when selecting the video player [#24899]
-- Jetpack: handle VPBlock caption attribute [#24902]
-- Jetpack: improve WPBlock video preview UX [#24890]
-- Jetpack: introduce VideoPressSandbox component (VPBlock) [#24883]
-- Jetpack: memoize uploading progress handler function [#24858]
-- Jetpack: re attempt to get the VideoPress video preview [#24869]
-- Jetpack: save video player attributes of the VPBlock [#24888]
-- Jetpack: store and apply VPBlock size [#24893]
-- Jetpack: tweak vpblock layout markup and styles [#24939]
-- Prevent users from removing the contact form submit button. [#24838]
-- Updated publicize package version. [#24943]
-- VideoPress: Add upload error message [#24894]
-- VideoPress: Add VideoPressUploader component [#24920]
-
-### Improved compatibility
-- Synced changes made to wpcom's admin-plugins/publicize.php file. [#24941]
+- Contact Form Block: add a lock to the contact form submit button. [#24838]
+- VideoPress: add an overlay to VideoPress Block to improve the UX when selecting the video player. [#24899]
+- VideoPress: allow caption style attribute to be edited and applied. [#24902]
+- VideoPress: improve VideoPress block preview behavior. [#24890] [#24869]
+- VideoPress: improve VideoPress block layout markup and styles. [#24939]
+- VideoPress: add upload error message. [#24894]
 
 ### Bug fixes
-- Contact Form Block: Prevent error notice when processing submission from 404 page [#24870]
-- Jetpack: fix bug wen getting the video preview of the VPBlock [#24936]
-- override container display to prevent a gap between slideshow and contents. [#24961]
-- Product Descriptions: Fix search price on Search Product Description by accounting for sale coupons and ensuring the correct JP Search tier is shown [#24901]
+- Contact Form Block: prevent error notice when processing submission from 404 page. [#24870]
+- Product Descriptions: fix search price on Search Product Description by accounting for sale coupons and ensuring the correct JP Search tier is shown. [#24901]
 - Related Posts: avoid PHP warnings when visiting AMP post views. [#24938]
-- Site Stats: Fixes an issue with the traffic page not loading when stats is not enabled. [#24968]
-- Stats: Allowing custom user role stats settings to be properly recognized and saved. [#24887]
+- Slideshow Block: override container display to prevent a gap between slideshow and contents. [#24961]
+- Stats: allow custom user role stats settings to be properly recognized and saved. [#24887]
+- VideoPress: fix bug when getting the video preview of the VideoPress block. [#24936]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- At-a-glance: Replace obsolete `javascript:void(0)` hrefs. [#24915]
-- E2E tests: disable broken dedicated sync e2e test [#24934]
-- E2E tests: improve stability of dedicated sync test [#24882]
-- E2E tests: regroup specs [#24889]
-- Included private videos URL in VideoPress block (v6) GUID parser [#24918]
-- select-dropdown/item: Fix incorrect React prop type. [#24915]
+- Admin dashboard: update text and add link to the Backup aag card. [#24919]
+- At-a-glance: replace obsolete `javascript:void(0)` hrefs. [#24915]
+- E2E tests: improvements to E2E and dedicated sync tests. [#24934] [#24882]
+- E2E tests: regroup specs. [#24889]
+- Publicize: synced changes made to Publicize package files. [#24941] [#24943]
+- Tests: fix incorrect React prop type in select-dropdown/item. [#24915]
 - Updated package dependencies. [#24923]
-- Updated package dependencies. [#24924]
-- Update text and add link to the Backup aag card. [#24919]
-- WordPress.com tests: mark AMP-related tests as skipped when running in WP.com [#24855]
+- VideoPress: under the hood improvements including moving to a VideoPressPlayer component, uploading progress handler function and saving custom sizes  [#24883] [#24858] [#24893]
+- VideoPress: save video player attributes of the VideoPress block. [#24888]
+- VideoPress: add VideoPressUploader component. [#24920]
+- VideoPress: include private videos URL in VideoPress block (v6) GUID parse. [#24918]
+- WordPress.com tests: mark AMP-related tests as skipped when running in WP.com. [#24855]
 
 ## [11.1] - 2022-07-05
 ### Enhancements
