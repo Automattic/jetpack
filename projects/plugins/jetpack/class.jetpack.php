@@ -2925,10 +2925,22 @@ p {
 	private static function handle_default_module_activation( $should_activate_user_modules ) {
 		$active_modules = Jetpack_Options::get_option( 'active_modules' );
 		if ( $active_modules ) {
+			/**
+			 * If there were previously activated modules (a reconnection or a standalone plugin),
+			 * re-activate them all including those that require a user,
+			 * and re-enable default modules because we might be in a situation where
+			 * Jetpack is activated after a standalone plugin.
+			 */
 			self::delete_active_modules();
 
-			// If there was previously activated modules (a reconnection), re-activate them all including those that require a user, and do not re-activate those that have been deactivated.
-			self::activate_default_modules( 999, 1, $active_modules, false );
+			$default_modules = self::get_default_modules();
+
+			self::activate_default_modules(
+				999, // This version trick basically excludes every default module.
+				1,
+				array_merge( $active_modules, $default_modules ),
+				false
+			);
 		} else {
 			// Check for a user connection.
 			if ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) {
