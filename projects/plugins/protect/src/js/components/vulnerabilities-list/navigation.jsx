@@ -41,6 +41,7 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				badge={ numVulnerabilities }
 				disabled={ numVulnerabilities <= 0 }
 				onClick={ trackNavigationClickAll }
+				checked={ true }
 			/>
 			<NavigationItem
 				id="wordpress"
@@ -49,6 +50,7 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				badge={ numCoreVulnerabilities }
 				disabled={ numCoreVulnerabilities <= 0 }
 				onClick={ trackNavigationClickCore }
+				checked={ true }
 			/>
 			<NavigationGroup label={ __( 'Plugins', 'jetpack-protect' ) } icon={ pluginsIcon }>
 				{ plugins.map( ( { name, vulnerabilities, checked } ) => (
