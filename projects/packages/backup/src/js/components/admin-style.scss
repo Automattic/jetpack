@@ -1,4 +1,5 @@
 @import '@automattic/jetpack-base-styles/style';
+@import 'masthead/calypso-mixins';
 
 .jp-header,
 .jp-footer {
@@ -114,6 +115,9 @@
 
 	.jp-realtime-note + h2 {
 		margin-top: 37px;
+		@include responsive( one-col ) {
+			margin-top: 56px;
+		}
 	}
 }
 

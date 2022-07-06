@@ -192,9 +192,8 @@ const Backups = () => {
 							alt=""
 							className={ stats.warnings ? 'backup__warning-color' : '' }
 						/>
-						<h2>{ __( 'Latest Backup', 'jetpack-backup-pkg' ) }</h2>
+						<h2>{ formatDateString( latestTime ) }</h2>
 					</div>
-					<h1>{ formatDateString( latestTime ) }</h1>
 					{ stats.warnings && (
 						<div className="backup__warning-text">
 							{ createInterpolateElement(

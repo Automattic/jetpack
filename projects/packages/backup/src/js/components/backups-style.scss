@@ -61,7 +61,7 @@
 .backup__latest {
 	display: flex;
 	align-items: center;
-	margin-bottom: 8px;
+	margin-bottom: 32px;
 
 	svg,
 	img {
@@ -84,6 +84,7 @@
 	font-size: 14px;
 	line-height: 22px;
 	display: inline-block;
+	margin-top: 8px;
 }
 
 .backup__animation {
