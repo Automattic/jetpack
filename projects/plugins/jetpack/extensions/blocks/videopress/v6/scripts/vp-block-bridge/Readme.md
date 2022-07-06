@@ -63,7 +63,7 @@ import vpBlockBridge from './scripts/vp-block-bridge';
 
 function VPBlockEdit() {
 	useEffect( () => {
-		window.addEventListener( 'onVPBlockPlaying', event => {
+		window.addEventListener( 'onVideoPressPlaying', event => {
 			console.log( 'video is playing...' );
 		} );
 	}, [] );
@@ -78,14 +78,18 @@ function VPBlockEdit() {
 
 The bridge triggers the following custom events:
 
-#### onVPBlockPlaying
+#### onVideoPressProgress
 
-#### onVPBlockPause
+#### onVideoPressLoadingState
 
-#### onVPBlockPeeking
+#### onVideoPressPlaying
 
-#### onVPBlockPesize
+#### onVideoPressPause
 
-#### onVPBlockPolumechange
+#### onVideoPressPeeking
 
-#### onVPBlockPnded
+#### onVideoPressResize
+
+#### onVideoPressVolumechange
+
+#### onVideoPressEnded
