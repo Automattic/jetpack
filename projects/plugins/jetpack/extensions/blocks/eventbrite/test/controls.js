@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ToolbarControls } from '../controls';
-import '@testing-library/jest-dom';
 
 describe( 'Eventbrite block controls', () => {
 	const setEditingUrl = jest.fn();

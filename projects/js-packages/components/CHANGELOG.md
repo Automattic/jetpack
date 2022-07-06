@@ -2,6 +2,16 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.5 - 2022-07-06
+### Added
+- Export Alert component [#24884]
+
+### Changed
+- Updated package dependencies. [#24923]
+
+### Fixed
+- AutomatticBylineLogo & JetpackLogo: Change title tag to desc [#24935]
+
 ## 0.16.4 - 2022-06-29
 ### Added
 - Components: Introduce CUT component

@@ -3,14 +3,15 @@
  */
 
 import { useBlockProps } from '@wordpress/block-editor';
+import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import Loading from '../loading';
 import { getVideoPressUrl } from '../url';
 import VideoPressInspectorControls from './components/inspector-controls';
 import PosterImageBlockControl from './components/poster-image-block-control';
@@ -35,6 +36,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		guid,
 		cacheHtml,
 		poster,
+		align,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -154,6 +156,13 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		className: 'wp-block-jetpack-videopress is-placeholder-container',
 	} );
 
+	const videoPlayerBlockProps = useBlockProps( {
+		className: classNames( 'wp-block-jetpack-videopress', {
+			[ `align${ align }` ]: align,
+			'is-updating-preview': ! previewHtml,
+		} ),
+	} );
+
 	/*
 	 * 1 - Initial block state. Show VideoPressUploader when:
 	 *     - no src attribute,
@@ -175,7 +184,8 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		return (
 			<>
 				<div { ...blockProps }>
-					<Loading text={ __( '(4) Generating preview…', 'jetpack' ) } />;
+					<Spinner />
+					<div>{ __( '(4) Generating preview…', 'jetpack' ) }</div>
 					<div>
 						Attempt: <strong>{ isGeneratingPreview }</strong>
 					</div>
@@ -186,7 +196,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 
 	// X - Show VideoPress player. @todo: finish
 	return (
-		<>
+		<div { ...videoPlayerBlockProps }>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			<PosterImageBlockControl
 				attributes={ attributes }
@@ -202,6 +212,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 				isSelected={ isSelected }
 				className="wp-block-jetpack-videopress"
 			/>
-		</>
+		</div>
 	);
 }

@@ -104,3 +104,7 @@ $customberg-container-selector: '.jp-search-configure-app-wrapper' !default;
 		outline: none;
 	}
 }
+
+@mixin remove-header-styling() {
+	letter-spacing: inherit;
+}

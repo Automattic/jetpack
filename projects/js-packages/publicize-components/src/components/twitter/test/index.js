@@ -5,7 +5,6 @@
 import { render } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import TwitterThreadListener from '..';
-import '@testing-library/jest-dom';
 
 // Override data handlers, so we can control data changes.
 jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
