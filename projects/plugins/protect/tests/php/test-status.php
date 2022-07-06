@@ -33,16 +33,18 @@ class Test_Status extends BaseTestCase {
 	/**
 	 * Get a sample checked theme result
 	 *
-	 * @param bool $with_vuls Whether the sample should include a vulnerability.
+	 * @param string $id The unique theme ID.
+	 * @param bool   $with_vuls Whether the sample should include a vulnerability.
 	 * @return object
 	 */
-	public function get_sample_theme( $with_vuls = true ) {
+	public function get_sample_theme( $id, $with_vuls = true ) {
 		$item = (object) array(
 			'version'         => '1.0.2',
 			'name'            => 'Sample Theme',
 			'checked'         => true,
 			'type'            => 'theme',
 			'vulnerabilities' => array(),
+			'slug'            => "theme-$id",
 		);
 		if ( $with_vuls ) {
 			$item->vulnerabilities[] = $this->get_sample_vul();
@@ -53,16 +55,18 @@ class Test_Status extends BaseTestCase {
 	/**
 	 * Get a sample checked plugin result
 	 *
-	 * @param bool $with_vuls Whether the sample should include a vulnerability.
+	 * @param string $id The unique plugin ID.
+	 * @param bool   $with_vuls Whether the sample should include a vulnerability.
 	 * @return object
 	 */
-	public function get_sample_plugin( $with_vuls = true ) {
+	public function get_sample_plugin( $id, $with_vuls = true ) {
 		$item = (object) array(
 			'version'         => '1.0.2',
 			'name'            => 'Sample Plugin',
 			'checked'         => true,
 			'type'            => 'plugin',
 			'vulnerabilities' => array(),
+			'slug'            => "plugin-$id",
 		);
 		if ( $with_vuls ) {
 			$item->vulnerabilities[] = $this->get_sample_vul();
@@ -129,11 +133,11 @@ class Test_Status extends BaseTestCase {
 			'num_themes_vulnerabilities'  => 1,
 			'num_plugins_vulnerabilities' => 2,
 			'themes'                      => array(
-				'theme-1' => $this->get_sample_theme(),
+				'theme-1' => $this->get_sample_theme( '1' ),
 			),
 			'plugins'                     => array(
-				'plugin-1' => $this->get_sample_plugin(),
-				'plugin-2' => $this->get_sample_plugin(),
+				'plugin-1' => $this->get_sample_plugin( '1' ),
+				'plugin-2' => $this->get_sample_plugin( '2' ),
 			),
 			'core'                        => $this->get_sample_core(),
 			'wordpress'                   => $this->get_sample_core(),
@@ -148,11 +152,11 @@ class Test_Status extends BaseTestCase {
 	public function get_sample_status() {
 		return (object) array(
 			'plugins'                     => array(
-				$this->get_sample_plugin(),
-				$this->get_sample_plugin(),
+				$this->get_sample_plugin( '1' ),
+				$this->get_sample_plugin( '2' ),
 			),
 			'themes'                      => array(
-				$this->get_sample_theme(),
+				$this->get_sample_theme( '1' ),
 			),
 			'core'                        => $this->get_sample_core(),
 			'wordpress'                   => $this->get_sample_core(),
