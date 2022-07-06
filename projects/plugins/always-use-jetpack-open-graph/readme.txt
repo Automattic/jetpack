@@ -31,7 +31,7 @@ Jetpack's implementation of Open Graph and Twitter Card tags is the same as what
 == Changelog ==
 ### 1.0.2 - 2022-07-06
 #### Added
-- Added to the repo
+- Add plugin temporarily to the Jetpack monorepo for automated SVN/WPorg testing.
 
 #### Changed
 - Renaming master to trunk.

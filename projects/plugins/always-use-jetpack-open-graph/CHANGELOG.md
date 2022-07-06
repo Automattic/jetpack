@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.2] - 2022-07-06
 ### Added
-- Added to the repo [#23387]
+- Add plugin temporarily to the Jetpack monorepo for automated SVN/WPorg testing. [#23387]
 
 ### Changed
 - Renaming master to trunk. [#24661]

@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2022-07-06
 ### Added
-- Added several enhancements to the Autoloader debugger module that make debugging easier. [#23927]
 - Added the Autoloader debugger helper to the Debug tool. [#23726]
 - Add Protect helper module. [#24805]
 - Debug helper plugin: add debug helper page for Jetpack modules. [#24456]
