@@ -89,7 +89,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.1.0-beta - 2022-07-06
+### 1.1.0 - 2022-07-06
 #### Changed
 - Renaming master to trunk.
 - Renaming `master` references to `trunk`
