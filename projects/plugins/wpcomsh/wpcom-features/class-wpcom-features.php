@@ -23,7 +23,9 @@ class WPCOM_Features {
 	private const SPACE_100GB                                 = '50gb_space_upgrade'; // 19
 	private const SPACE_200GB                                 = '100gb_space_upgrade'; // 20
 	private const SPACE_3GB                                   = '3gb_space_upgrade'; // 21
+	private const WPCOM_CUSTOM_DESIGN                         = 'custom-design'; // 45
 	private const WPCOM_VIDEOPRESS_PRO                        = 'videopress-pro'; // 47
+	private const WPCOM_UNLIMITED_THEMES                      = 'unlimited_themes'; // 49
 	private const GAPPS                                       = 'gapps'; // 69
 	private const GAPPS_UNLIMITED                             = 'gapps_unlimited'; // 70
 	private const WP_TITAN_MAIL_MONTHLY                       = 'wp_titan_mail_monthly'; // 400
@@ -531,6 +533,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
 		self::CUSTOM_DESIGN                 => array(
+			self::WPCOM_CUSTOM_DESIGN,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
 		self::CUSTOM_DOMAIN                 => array(
@@ -667,6 +670,7 @@ class WPCOM_Features {
 			self::WP_P2_PLUS_MONTHLY,
 		),
 		self::PREMIUM_THEMES                => array(
+			self::WPCOM_UNLIMITED_THEMES,
 			self::BUNDLE_ENTERPRISE,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
