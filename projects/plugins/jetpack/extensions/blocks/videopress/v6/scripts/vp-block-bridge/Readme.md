@@ -72,7 +72,7 @@ function VPBlockEdit() {
 		<Sandbox html={ embedHtml } scritps=[ vpBlockBridge ] />
 	);
 }
-
+```
 
 ### Events
 
