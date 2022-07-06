@@ -105,7 +105,6 @@ export default function PosterImageBlockControl( { attributes, setAttributes, cl
 											onRemovePoster();
 											onClose();
 										} }
-										isDestructive
 										icon={ linkOff }
 									>
 										{ __( 'Remove and use default', 'jetpack' ) }
