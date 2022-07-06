@@ -11,7 +11,6 @@ import { __ } from '@wordpress/i18n';
  */
 import { VideoPressIcon as icon } from '../../../../../shared/icons';
 import { useResumableUploader } from '../../hooks/use-uploader.js';
-import { VideoPressIcon as icon } from '../icons';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
