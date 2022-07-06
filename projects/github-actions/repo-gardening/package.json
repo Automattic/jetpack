@@ -1,6 +1,6 @@
 {
 	"name": "repo-gardening",
-	"version": "3.0.0-alpha",
+	"version": "3.0.1-alpha",
 	"description": "Manage Pull Requests and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...)",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -17,7 +17,7 @@
 		"@actions/github": "5.0.1",
 		"compare-versions": "3.6.0",
 		"glob": "7.1.6",
-		"moment": "2.29.2",
+		"moment": "2.29.4",
 		"node-fetch": "2.6.7"
 	},
 	"devDependencies": {

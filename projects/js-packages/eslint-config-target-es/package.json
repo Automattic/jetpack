@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-config-target-es",
-	"version": "1.0.3-alpha",
+	"version": "1.0.3",
 	"description": "ESLint sharable config to activate eslint-plugin-es checks based on browserslist targets.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-config-target-es/README.md#readme",
 	"bugs": {

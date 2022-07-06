@@ -2,6 +2,37 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.2-a.1 - 2022-07-06
+### Enhancements
+- Contact Form Block: add a lock to the contact form submit button. [#24838]
+- VideoPress: add an overlay to VideoPress Block to improve the UX when selecting the video player. [#24899]
+- VideoPress: allow caption style attribute to be edited and applied. [#24902]
+- VideoPress: improve VideoPress block preview behavior. [#24890] [#24869]
+- VideoPress: improve VideoPress block layout markup and styles. [#24939]
+- VideoPress: add upload error message. [#24894]
+
+### Bug fixes
+- Contact Form Block: prevent error notice when processing submission from 404 page. [#24870]
+- Product Descriptions: fix search price on Search Product Description by accounting for sale coupons and ensuring the correct JP Search tier is shown. [#24901]
+- Related Posts: avoid PHP warnings when visiting AMP post views. [#24938]
+- Slideshow Block: override container display to prevent a gap between slideshow and contents. [#24961]
+- Stats: allow custom user role stats settings to be properly recognized and saved. [#24887]
+- VideoPress: fix bug when getting the video preview of the VideoPress block. [#24936]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin dashboard: update text and add link to the Backup aag card. [#24919]
+- At-a-glance: replace obsolete `javascript:void(0)` hrefs. [#24915]
+- E2E tests: improvements to E2E and dedicated sync tests. [#24934] [#24882]
+- E2E tests: regroup specs. [#24889]
+- Publicize: synced changes made to Publicize package files. [#24941] [#24943]
+- Tests: fix incorrect React prop type in select-dropdown/item. [#24915]
+- Updated package dependencies. [#24923]
+- VideoPress: under the hood improvements including moving to a VideoPressPlayer component, uploading progress handler function and saving custom sizes  [#24883] [#24858] [#24893]
+- VideoPress: save video player attributes of the VideoPress block. [#24888]
+- VideoPress: add VideoPressUploader component. [#24920]
+- VideoPress: include private videos URL in VideoPress block (v6) GUID parse. [#24918]
+- WordPress.com tests: mark AMP-related tests as skipped when running in WP.com. [#24855]
+
 ## [11.1] - 2022-07-05
 ### Enhancements
 - Dashboard: add "Getting started with Jetpack Backup" video to Assistant and "At a glance" dashboard. [#24774]
