@@ -126,7 +126,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	 * the VideoPress URL is gotten.
 	 * It attempts every two seconds to get the so desired video preview.
 	 */
-	const [ isGeneratingPreview, setIsGeneratingPreview ] = useState( 0 );
+	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
 	const rePreviewAttemptTimer = useRef();
 	function cleanRegeneratingProcess() {
@@ -139,7 +139,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 	useEffect( () => {
 		// Attempts limit achieved. Bail early.
-		if ( isGeneratingPreview >= 10 ) {
+		if ( generatingPreviewCounter >= 10 ) {
 			return cleanRegeneratingProcess();
 		}
 
@@ -155,7 +155,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 		// Bail early (clean the timer) when preview is defined.
 		if ( preview ) {
-			setIsGeneratingPreview( 0 ); // reset counter.
+			setGeneratingPreviewCounter( 0 ); // reset counter.
 			return cleanRegeneratingProcess();
 		}
 
@@ -167,17 +167,21 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		rePreviewAttemptTimer.current = setTimeout( () => {
 			// Abort whether the preview is already defined.
 			if ( preview ) {
+<<<<<<< HEAD
 				setIsGeneratingPreview( 0 ); // reset counter.
+=======
+				setGeneratingPreviewCounter( 0 );
+>>>>>>> 1feb97fc8c ([not verified] rename local state to handle attempts to get the preview)
 				return;
 			}
 
-			setIsGeneratingPreview( v => v + 1 );
+			setGeneratingPreviewCounter( v => v + 1 );
 			invalidateCachedEmbedPreview();
 		}, 2000 );
 
 		return cleanRegeneratingProcess;
 	}, [
-		isGeneratingPreview,
+		generatingPreviewCounter,
 		rePreviewAttemptTimer,
 		invalidateCachedEmbedPreview,
 		preview,
@@ -215,7 +219,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	// 4 - Generating video preview
 	if (
 		isRequestingEmbedPreview ||
-		( isGeneratingPreview > 0 && isGeneratingPreview < 10 ) ||
+		( generatingPreviewCounter > 0 && generatingPreviewCounter < 10 ) ||
 		! preview
 	) {
 		return (
@@ -224,7 +228,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 					<Spinner />
 					<div>{ __( '(4) Generating preview…', 'jetpack' ) } </div>
 					<div>
-						Attempt: <strong>{ isGeneratingPreview }</strong>
+						Attempt: <strong>{ generatingPreviewCounter }</strong>
 					</div>
 				</div>
 			</>
@@ -232,7 +236,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	}
 
 	// 5 - Generating video preview
-	if ( isGeneratingPreview >= 10 && ! preview ) {
+	if ( generatingPreviewCounter >= 10 && ! preview ) {
 		return (
 			<div { ...blockProps }>
 				<div>
