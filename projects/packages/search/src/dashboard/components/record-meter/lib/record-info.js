@@ -52,7 +52,7 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
 			postTypes
 		);
 
-		for ( let i = 0; i < numItems - 1; i++ ) {
+		for ( let i = 0; i < numItems; i++ ) {
 			const postTypeDetails = Object.values( postTypeBreakdownWithLabels )[ i ];
 			const { count, label } = postTypeDetails;
 			chartPostTypeBreakdown.push( {
@@ -114,8 +114,10 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
 export function addLabelsToPostTypeBreakdown( postTypeBreakdown, postTypes ) {
 	const postTypeBreakdownWithLabels = postTypeBreakdown.map( postType => {
 		const postTypeLabelItem = postTypes[ postType.slug ];
-		postType.label = postTypeLabelItem ? postTypeLabelItem.label : null;
-		return postType;
+
+		// Fallback to the slug if we can't find the label
+		const label = postTypeLabelItem ? postTypeLabelItem.label : postType.slug;
+		return { ...postType, label };
 	} );
 
 	return postTypeBreakdownWithLabels;
