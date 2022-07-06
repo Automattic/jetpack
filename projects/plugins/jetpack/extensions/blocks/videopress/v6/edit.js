@@ -19,6 +19,8 @@ import VideoPressUploader from './components/videopress-uploader';
 
 import './editor.scss';
 
+const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
+
 export default function VideoPressEdit( { attributes, setAttributes, isSelected } ) {
 	const {
 		autoplay,
@@ -139,7 +141,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 	useEffect( () => {
 		// Attempts limit achieved. Bail early.
-		if ( generatingPreviewCounter >= 10 ) {
+		if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
 			return cleanRegeneratingProcess();
 		}
 
@@ -220,7 +222,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	if (
 		( isRequestingEmbedPreview || ! preview ) &&
 		generatingPreviewCounter > 0 &&
-		generatingPreviewCounter < 10
+		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
 	) {
 		return (
 			<>
@@ -236,7 +238,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	}
 
 	// 5 - Generating video preview
-	if ( generatingPreviewCounter >= 10 && ! preview ) {
+	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
 		return (
 			<div { ...blockProps }>
 				<div>
