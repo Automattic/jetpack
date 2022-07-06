@@ -39,8 +39,10 @@ class SiteStatsComponent extends React.Component {
 			roles_subscriber: includes( roles, 'subscriber', false ),
 		};
 
-		this.addCustomRolesState( roles );
-		this.addCustomCountRolesState( countRoles );
+		if ( roles ) {
+			this.addCustomCountRolesState( countRoles );
+			this.addCustomRolesState( roles );
+		}
 	}
 
 	/**

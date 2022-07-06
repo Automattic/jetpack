@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Related Posts: avoid PHP warnings when visiting AMP post views.

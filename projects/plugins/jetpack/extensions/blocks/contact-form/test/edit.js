@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { JetpackContactFormEdit } from '../edit';
-import '@testing-library/jest-dom';
 
 describe( 'Contact form', () => {
 	const defaultAttributes = {

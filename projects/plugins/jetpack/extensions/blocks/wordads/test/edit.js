@@ -5,7 +5,6 @@ import wideSkyscraperExample from '../example_160x600.png';
 import rectangleExample from '../example_300x250.png';
 import mobileLeaderboardExample from '../example_320x50.png';
 import leaderboardExample from '../example_728x90.png';
-import '@testing-library/jest-dom';
 
 describe( 'WordAdsEdit', () => {
 	const defaultAttributes = { format: DEFAULT_FORMAT };

@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DEFAULT_FONTSIZE_VALUE } from '../constants';
 import SubscriptionsInspectorControls from '../controls';
-import '@testing-library/jest-dom';
 
 // Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
 // dependencies in the jest test runner.
