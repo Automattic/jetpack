@@ -4,7 +4,7 @@
 import { MediaUploadCheck, BlockControls, MediaUpload } from '@wordpress/block-editor';
 import { ToolbarButton, Dropdown, NavigableMenu, MenuItem } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { linkOff, media as mediaIcon } from '@wordpress/icons';
+import { linkOff, image as imageIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -52,7 +52,7 @@ export default function PosterImageBlockControl( { attributes, setAttributes, cl
 						aria-expanded={ isOpen }
 						aria-haspopup="true"
 						onClick={ onToggle }
-						icon={ mediaIcon }
+						icon={ imageIcon }
 					/>
 				) }
 				renderContent={ ( { onClose } ) => {
@@ -70,7 +70,7 @@ export default function PosterImageBlockControl( { attributes, setAttributes, cl
 										allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
 										render={ ( { open } ) => (
 											<MenuItem
-												icon={ mediaIcon }
+												icon={ imageIcon }
 												onClick={ open }
 												aria-describedby={ videoPosterDescription }
 											>
