@@ -612,6 +612,8 @@ class VideoPress_Player {
 	public function html5_dynamic_next() {
 		$video_container_id = 'v-' . $this->video->guid;
 
+		add_action( 'wp_enqueue_scripts', array( 'Jetpack_VideoPress', 'enqueue_jwt_token_bridge' ) );
+
 		// Must not use iframes for IE11 due to a fullscreen bug
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 'Trident/7.0; rv:11.0' ) ) {
 			$iframe_embed = false;

@@ -1,5 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
+require_once plugin_dir_path( __FILE__ ) . 'class.jetpack-videopress.php';
 /**
  * VideoPress Shortcode Handler
  *
@@ -17,6 +17,8 @@ class VideoPress_Shortcode {
 	 * VideoPress_Shortcode constructor.
 	 */
 	protected function __construct() {
+
+		add_filter( 'embed_oembed_html', array( $this, 'video_enqueue_bridge_when_oembed_present' ), 10, 4 );
 
 		add_shortcode( 'videopress', array( $this, 'shortcode_callback' ) );
 		add_shortcode( 'wpvideo', array( $this, 'shortcode_callback' ) );
@@ -253,6 +255,23 @@ class VideoPress_Shortcode {
 		/** This filter is already documented in core/wp-includes/embed.php */
 		$filter = apply_filters( 'wp_video_embed_handler', 'wp_embed_handler_video' );
 		wp_embed_register_handler( 'video', $regex, $filter, 10 );
+	}
+
+	/**
+	 * Enqueues VideoPress token bridge when a VideoPress oembed is present on the current page.
+	 *
+	 * @param string|false $cache   The cached HTML result, stored in post meta.
+	 * @param string       $url     The attempted embed URL.
+	 * @param array        $attr    An array of shortcode attributes.
+	 * @param int          $post_ID Post ID.
+	 *
+	 * @return string|false
+	 */
+	public function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) {
+		if ( stripos( $url, 'video.wordpress.com' ) || stripos( $url, 'videopress.com' ) ) { // todo: regex for v|embed
+			add_action( 'wp_enqueue_scripts', array( 'Jetpack_VideoPress', 'enqueue_jwt_token_bridge' ) );
+		}
+		return $cache;
 	}
 }
 
