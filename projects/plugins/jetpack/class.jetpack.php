@@ -2925,20 +2925,25 @@ p {
 	private static function handle_default_module_activation( $should_activate_user_modules ) {
 		$active_modules = Jetpack_Options::get_option( 'active_modules' );
 		if ( $active_modules ) {
-			/**
-			 * If there were previously activated modules (a reconnection or a standalone plugin),
-			 * re-activate them all including those that require a user,
-			 * and re-enable default modules because we might be in a situation where
-			 * Jetpack is activated after a standalone plugin.
-			 */
 			self::delete_active_modules();
 
-			$default_modules = self::get_default_modules();
+			/**
+			 * Previously active modules could mean two things. First, it could mean
+			 * that Jetpack was previously active on the site. In this case we would like
+			 * to only activate the modules that were set to active.
+			 * Another case could be that the module option was set by a standalone
+			 * plugin. In that case the `active_modules_initalized` option will not
+			 * be set, so we need to enable default Jetpack modules as well.
+			 */
+			if ( ! Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
+				$default_modules = self::get_default_modules();
+				$active_modules  = array_merge( $active_modules, $default_modules );
+			}
 
 			self::activate_default_modules(
 				999, // This version trick basically excludes every default module.
 				1,
-				array_merge( $active_modules, $default_modules ),
+				$active_modules,
 				false
 			);
 		} else {
