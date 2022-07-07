@@ -702,7 +702,7 @@ class Main extends React.Component {
 						message={ this.handleRouterWillLeave }
 					/>
 					{ this.renderMainContent( this.props.location.pathname ) }
-					<AgenciesCard />
+					<AgenciesCard path={ this.props.location.pathname } />
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
