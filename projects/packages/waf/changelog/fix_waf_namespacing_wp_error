@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Fix error ‘Automattic\Jetpack\Waf\WP_Error’ not found
