@@ -21,5 +21,6 @@ function convert_old_jetpack_search_sidebar( $sidebars_widgets ) {
 		return $sidebars_widgets;
 	}
 	$sidebars_widgets[ Instant_Search::INSTANT_SEARCH_SIDEBAR ] = $sidebars_widgets[ Instant_Search::OLD_INSTANT_SEARCH_SIDEBAR ];
+	unset( $sidebars_widgets[ Instant_Search::OLD_INSTANT_SEARCH_SIDEBAR ] );
 	return $sidebars_widgets;
 }
