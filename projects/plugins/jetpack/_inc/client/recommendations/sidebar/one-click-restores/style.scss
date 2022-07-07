@@ -1,14 +1,46 @@
+@import '../../../scss/mixin_breakpoint.scss';
+
 .jp-recommendations-one-click-restores {
 	h2 {
-		margin-top: 32px;
+		margin-top: 2rem;
 	}
 
 	p {
-		margin: 16px 0;
+		margin: 1rem 0;
 	}
 
 	.jp-recommendations-one-click-restores__cta {
-		margin-top: 32px;
+		margin-top: 2rem;
 		text-align: center;
 	}
+}
+
+.jp-recommendations-getting-started-compact {
+	display: grid;
+	padding: 1.125rem 0;
+	grid-template-columns: minmax(0, 130px) minmax(0, 150px);
+	grid-gap: 1rem;
+
+	@include breakpoint( '660px-1040px' ) {
+		grid-template-columns: 1fr;
+	}
+
+	h2 {
+		margin: 0 0 0.2rem;
+		font-size: 0.75rem;
+		line-height: 1rem;
+		letter-spacing: -0.02em;
+	}
+
+	p {
+		margin: 0;
+		font-size: 0.625rem;
+		line-height: 1rem;
+		letter-spacing: -0.02em;
+	}
+}
+
+.jp-recommendations-getting-started-compact__thumbnail {
+	display: block;
+	width: 100%;
 }

@@ -11,7 +11,7 @@ class Lazy_Images implements Feature {
 		add_action( 'wp', array( Jetpack_Lazy_Images::class, 'instance' ) );
 	}
 
-	public function get_slug() {
+	public static function get_slug() {
 		return 'lazy-images';
 	}
 

@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.0
+Stable tag: 11.1
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
@@ -242,18 +242,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.1-a.5 - 2022-06-21
+### 11.2-a.1 - 2022-07-06
 #### Enhancements
-- VideoPress: enable blocks with VideoPress markdown to be previewed within the mobile app.
+- Contact Form Block: add a lock to the contact form submit button.
+- VideoPress: add an overlay to VideoPress Block to improve the UX when selecting the video player.
+- VideoPress: allow caption style attribute to be edited and applied.
+- VideoPress: improve VideoPress block preview behavior.
+- VideoPress: improve VideoPress block layout markup and styles.
+- VideoPress: add upload error message.
 
 #### Bug fixes
-- Contact Form Block: display expected success message when used in FSE header or footer.
-- Photon: do not return Photonized URLs to the block editor in WordPress 6.0.
-- Search: avoid broken images in search results by preferring the _jetpack_featured_media_url postmeta over the GUID.
-- SEO Tools: allow WooCommerce to use custom SEO description for the shop page.
-- Sharing: avoid fatal errors when email sharing process is called  without clicking on the button.
-- VideoPress: fix embeds in classic editor when theme has no $content_width set.
-- VideoPress Block: fix Cancel button on block and provide better error message when video format is not supported.
+- Contact Form Block: prevent error notice when processing submission from 404 page.
+- Product Descriptions: fix search price on Search Product Description by accounting for sale coupons and ensuring the correct JP Search tier is shown.
+- Related Posts: avoid PHP warnings when visiting AMP post views.
+- Slideshow Block: override container display to prevent a gap between slideshow and contents.
+- Stats: allow custom user role stats settings to be properly recognized and saved.
+- VideoPress: fix bug when getting the video preview of the VideoPress block.
 
 --------
 

@@ -306,7 +306,7 @@ class Render_Blocking_JS implements Feature {
 		return $opening_tags_count > $closing_tags_count;
 	}
 
-	public function get_slug() {
+	public static function get_slug() {
 		return 'render-blocking-js';
 	}
 

@@ -2,6 +2,32 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.5 - 2022-07-06
+### Added
+- Export Alert component [#24884]
+
+### Changed
+- Updated package dependencies. [#24923]
+
+### Fixed
+- AutomatticBylineLogo & JetpackLogo: Change title tag to desc [#24935]
+
+## 0.16.4 - 2022-06-29
+### Added
+- Components: Introduce CUT component
+
+## 0.16.3 - 2022-06-28
+### Added
+- Components: Add README docs for Layout related components [#24804]
+- RecordMeterBar component: adds accessible content fallback table [#24748]
+
+### Changed
+- JS Components: Fix multiline visual issue in Alert component [#24788]
+- Record meter: format the numbers for each entry. [#24811]
+
+### Fixed
+- Fix missing imports in `button` and `product-offer`. [#24792]
+
 ## 0.16.2 - 2022-06-21
 ### Changed
 - Convert JetpackLogo component to TypeScript

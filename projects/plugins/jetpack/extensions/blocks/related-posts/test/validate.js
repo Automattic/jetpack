@@ -6,10 +6,12 @@ import runBlockFixtureTests from '../../../shared/test/block-fixtures';
  * involved in this set of tests.
  *
  * Example containing multiple blocks:
+ * ```
  * const blocks = [
- *		{ name: 'jetpack/whatsapp-button', settings },
- *		{ name: 'jetpack/send-a-message', settings: parentSettings },
+ *    { name: 'jetpack/whatsapp-button', settings },
+ *    { name: 'jetpack/send-a-message', settings: parentSettings },
  * ];
+ * ```
  */
 const blocks = [ { name: `jetpack/${ name }`, settings } ];
 runBlockFixtureTests( `jetpack/${ name }`, blocks, __dirname );
