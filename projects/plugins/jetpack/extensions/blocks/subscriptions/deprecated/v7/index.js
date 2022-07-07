@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import save from './save';
+import attributes from './attributes';
 
 /**
  * Deprecation reason
@@ -10,5 +11,6 @@ import save from './save';
  * overriden by user added styles (via Block settings, e.g. extra padding)
  */
 export default {
+	attributes,
 	save,
 };
