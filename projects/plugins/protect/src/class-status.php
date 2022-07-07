@@ -71,7 +71,7 @@ class Status {
 			return self::$status;
 		}
 
-		if ( ! self::should_use_cache() || self::is_cache_expired() || self::is_cache_outdated() ) {
+		if ( ! self::should_use_cache() || self::is_cache_expired() ) {
 			$status = self::fetch_from_server();
 		} else {
 			$status = self::get_from_options();
@@ -83,7 +83,10 @@ class Status {
 				'error_code'    => $status->get_error_code(),
 				'error_message' => $status->get_error_message(),
 			);
+		} else {
+			$status = self::normalize_report_data( $status );
 		}
+
 		self::$status = $status;
 		return $status;
 	}
@@ -187,53 +190,6 @@ class Status {
 	}
 
 	/**
-	 * Checks if the current cached status contains outdated data.
-	 *
-	 * @return boolean
-	 */
-	public static function is_cache_outdated() {
-		global $wp_version;
-
-		$cached_status = self::get_from_options();
-
-		// check if the status version is outdated
-		if ( ! $cached_status || ! isset( $cached_status->version ) || $cached_status->version !== JETPACK_PROTECT_STATUS_VERSION ) {
-			return true;
-		}
-
-		// check if the cached themes are outdated
-		$current_themes = array_keys( Sync_Functions::get_themes() );
-		$cached_themes  = array_map(
-			function ( $cached_theme ) {
-				return $cached_theme->slug;
-			},
-			$cached_status->themes
-		);
-		if ( array_diff( $current_themes, $cached_themes ) || array_diff( $cached_themes, $current_themes ) ) {
-			return true;
-		}
-
-		// check if the cached plugins are outdated
-		$current_plugins = array_keys( Plugins_Installer::get_plugins() );
-		$cached_plugins  = array_map(
-			function ( $cached_plugin ) {
-				return $cached_plugin->slug;
-			},
-			$cached_status->plugins
-		);
-		if ( array_diff( $current_plugins, $cached_plugins ) || array_diff( $cached_plugins, $current_plugins ) ) {
-			return true;
-		}
-
-		// check if the cached WordPress version is outdated
-		if ( $wp_version !== $cached_status->core->version ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * Checks if we should consider the stored cache or bypass it
 	 *
 	 * @return boolean
@@ -285,8 +241,7 @@ class Status {
 			return new WP_Error( 'failed_fetching_status', 'Failed to fetch Protect Status data from server', array( 'status' => $response_code ) );
 		}
 
-		$body          = self::normalize_report_data( wp_remote_retrieve_body( $response ) );
-		$body->version = JETPACK_PROTECT_STATUS_VERSION;
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
 		self::update_option( $body );
 		return $body;
 	}
@@ -341,12 +296,10 @@ class Status {
 	/**
 	 * Prepare the report data for the UI
 	 *
-	 * @param string $body The report status report response.
+	 * @param string $report_data The report status report response.
 	 * @return object The normalized report data.
 	 */
-	private static function normalize_report_data( $body ) {
-		$report_data = json_decode( $body );
-
+	private static function normalize_report_data( $report_data ) {
 		$installed_plugins    = Plugins_Installer::get_plugins();
 		$report_data->plugins = self::merge_installed_and_checked_lists( $installed_plugins, $report_data->plugins, array( 'type' => 'plugin' ) );
 
@@ -354,6 +307,16 @@ class Status {
 		$report_data->themes = self::merge_installed_and_checked_lists( $installed_themes, $report_data->themes, array( 'type' => 'theme' ) );
 
 		$report_data->core = self::normalize_core_information( $report_data->core );
+
+		$all_items       = array_merge( $report_data->plugins, $report_data->themes, array( $report_data->core ) );
+		$unchecked_items = array_filter(
+			$all_items,
+			function ( $item ) {
+				return ! $item->checked;
+			}
+		);
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$report_data->hasUncheckedItems = ! empty( $unchecked_items );
 
 		return $report_data;
 	}

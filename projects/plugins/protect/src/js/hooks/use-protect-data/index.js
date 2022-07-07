@@ -21,12 +21,6 @@ export default function useProtectData() {
 		currentStatus = status.status;
 	}
 
-	const hasUncheckedItems = [
-		...( status.themes || [] ),
-		...( status.plugins || [] ),
-		status.core || {},
-	].some( item => ! item.checked );
-
 	return {
 		numVulnerabilities: status.numVulnerabilities || 0,
 		numCoreVulnerabilities: status.core?.vulnerabilities?.length || 0,
@@ -39,7 +33,7 @@ export default function useProtectData() {
 		plugins: status.plugins || [],
 		themes: status.themes || [],
 		currentStatus,
-		hasUncheckedItems,
+		hasUncheckedItems: status.hasUncheckedItems,
 		securityBundle,
 		productData,
 	};

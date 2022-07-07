@@ -13,8 +13,6 @@ use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 
-define( 'JETPACK_PROTECT_STATUS_VERSION', 'test' );
-
 /**
  * The Protect Status class.
  */
@@ -132,10 +130,10 @@ class Test_Status extends BaseTestCase {
 			'num_vulnerabilities'         => 4,
 			'num_themes_vulnerabilities'  => 1,
 			'num_plugins_vulnerabilities' => 2,
-			'themes'                      => array(
+			'themes'                      => (object) array(
 				'theme-1' => $this->get_sample_theme( '1' ),
 			),
-			'plugins'                     => array(
+			'plugins'                     => (object) array(
 				'plugin-1' => $this->get_sample_plugin( '1' ),
 				'plugin-2' => $this->get_sample_plugin( '2' ),
 			),
@@ -164,7 +162,7 @@ class Test_Status extends BaseTestCase {
 			'num_vulnerabilities'         => 4,
 			'num_themes_vulnerabilities'  => 1,
 			'num_plugins_vulnerabilities' => 2,
-			'version'                     => 'test',
+			'hasUncheckedItems'           => false,
 		);
 	}
 
@@ -289,7 +287,7 @@ class Test_Status extends BaseTestCase {
 		$this->assertEquals( $this->get_sample_status(), $status );
 
 		// Make sure this was cached
-		$this->assertEquals( $this->get_sample_status(), Status::get_from_options() );
+		$this->assertEquals( $this->get_sample_response(), Status::get_from_options() );
 	}
 
 	/**
