@@ -1,5 +1,8 @@
 const rawScript = `
 	function initWPBlockBridge() {
+		const videoPressIFrame = document.querySelector('iframe');
+		const videoPressWindow = videoPressIFrame.contentWindow;
+
 		// Allowed events emitted by the videopress API.
 		const videoPressEventsMap = {
 			'playing': {
@@ -34,9 +37,16 @@ const rawScript = `
 				name: 'onVideoPressLoadingState',
 				type: 'event',
 			},
-			'videopress_action_play': {
-				name: 'onVideoPressActionPlay',
+
+			'vpblock_action_play': {
+				name: 'onVPBlockActionPlay',
 				type: 'action',
+				videoPressAction: 'videopress_action_play',
+			},
+			'vpblock_action_pause': {
+				name: 'onVPBlockActionPause',
+				type: 'action',
+				videoPressAction: 'videopress_action_pause',
 			},
 		};
 
@@ -51,9 +61,7 @@ const rawScript = `
 			
 			// Rename event with the 'onVideoPress' prefix.
 			const vpEvent = videoPressEventsMap[ eventName ];
-			const { name: vpEventName, type: vpEventType } = vpEvent;
-
-			console.log( 'vpEventName: ', vpEventName );
+			const { name: vpEventName, type: vpEventType, videoPressAction } = vpEvent;
 
 			// Dispatch event to top when it's an event
 			if ( vpEventType === 'event' ) {
@@ -73,15 +81,15 @@ const rawScript = `
 						guid,
 					},
 				} );
-	
-				top.dispatchEvent( videoPressBlockEvent );
+
+				window.parent.dispatchEvent( videoPressBlockEvent );
 			}
 
-			// if ( vpEventType === 'action' ) {
-			// 	window.postMessage( {
-			// 		event: eventName,
-			// 	} );
-			// }
+			if ( vpEventType === 'action' ) {
+				videoPressWindow.postMessage( {
+					event: videoPressAction,
+				}, '*' );
+			}
 		} );
 	}
 
