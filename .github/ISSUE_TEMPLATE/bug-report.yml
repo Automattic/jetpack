@@ -81,6 +81,23 @@ body:
         - Some (< 50%)
         - Most (> 50%)
         - All
+  - type: dropdown
+    id: workarounds
+    attributes:
+      label: Available workarounds?
+      options:
+        - No and the platform is unusable
+        - No but the platform is still usable
+        - Yes, difficult to implement
+        - Yes, easy to implement
+        - There is no user impact
+  - type: textarea
+    id: workarounds-detail
+    attributes:
+      label: Workaround details
+      description: If you are aware of a workaround, please describe it below.
+      placeholder: |
+        e.g. There is an alternative way to access this setting in the sidebar, but it's not readily apparent.
   - type: markdown
     attributes:
       value: |

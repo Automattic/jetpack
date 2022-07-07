@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import ImgUpload from '../img-upload';
-import '@testing-library/jest-dom';
 
 describe( 'ImgUpload', () => {
 	const onChange = jest.fn();

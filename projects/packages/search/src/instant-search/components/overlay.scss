@@ -44,6 +44,10 @@ $overlay-horizontal-padding-lg: 3em;
 		padding: $overlay-vertical-padding-lg $overlay-horizontal-padding-lg;
 	}
 
+	h1, h2, h3, h4, h5, h6 {
+		@include remove-header-styling();
+	}
+
 	&.is-hidden {
 		background: transparent;
 		opacity: 0;

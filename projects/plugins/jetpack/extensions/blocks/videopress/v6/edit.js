@@ -2,26 +2,24 @@
  * WordPress dependencies
  */
 
-import { getBlobByURL, isBlobURL } from '@wordpress/blob';
-import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
+import { useBlockProps } from '@wordpress/block-editor';
+import { Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import { VideoPressIcon as icon } from '../../../shared/icons';
-import Loading from '../loading';
 import { getVideoPressUrl } from '../url';
 import VideoPressInspectorControls from './components/inspector-controls';
 import VideoPressPlayer from './components/videopress-player';
-import { useResumableUploader } from './hooks/use-uploader.js';
+import VideoPressUploader from './components/videopress-uploader';
+
 import './editor.scss';
 
-const ALLOWED_MEDIA_TYPES = [ 'video' ];
-
-export default function VideoPressEdit( { attributes, setAttributes } ) {
+export default function VideoPressEdit( { attributes, setAttributes, isSelected } ) {
 	const {
 		autoplay,
 		loop,
@@ -36,6 +34,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		src,
 		guid,
 		cacheHtml,
+		align,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -51,52 +50,6 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		useAverageColor,
 	} );
 
-	/*
-	 * Tracking state when uploading the video file.
-	 * uploadingProgress is an array with two items:
-	 *  - the first item is the upload progress
-	 *  - the second item is total
-	 */
-	const [ uploadingProgress, setUploadingProgressState ] = useState( [] );
-
-	// Define a memoized function to register the upload progress.
-	const setUploadingProgress = useCallback( function ( ...args ) {
-		setUploadingProgressState( args );
-	}, [] );
-
-	/*
-	 * Tracking error data
-	 */
-	const [ uploadErrorData, setUploadErrorDataState ] = useState( null );
-
-	// Define a memoized function to register the error data.
-	const setUploadErrorData = useCallback( function ( error ) {
-		if ( error?.originalResponse ) {
-			try {
-				// parse failed request response message
-				const body = error?.originalResponse?.getBody?.();
-				const parsedBody = JSON.parse( body );
-				setUploadErrorDataState( parsedBody );
-				return;
-			} catch {}
-		}
-
-		setUploadErrorDataState( error );
-	}, [] );
-
-	/*
-	 * It's considered the file is uploading
-	 * when the progress value is lower than the total.
-	 */
-	const isUploadingFile = !! (
-		uploadingProgress?.length && uploadingProgress[ 0 ] < uploadingProgress[ 1 ]
-	);
-
-	// File has been upload when the progress value is equal to the total.
-	const fileHasBeenUploaded = !! (
-		uploadingProgress?.length && uploadingProgress[ 0 ] === uploadingProgress[ 1 ]
-	);
-
 	// Get video preview status.
 	const { preview, isRequestingEmbedPreview } = useSelect(
 		select => {
@@ -108,6 +61,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		},
 		[ videoPressUrl ]
 	);
+
 	const { html: previewHtml, scripts } = preview ? preview : { html: null, scripts: [] };
 
 	/*
@@ -199,118 +153,36 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 		className: 'wp-block-jetpack-videopress is-placeholder-container',
 	} );
 
-	// Helper instance to upload the video to the VideoPress infrastructure.
-	const [ videoPressUploader ] = useResumableUploader( {
-		onError: setUploadErrorData,
-		onProgress: setUploadingProgress,
-		onSuccess: setAttributes,
+	const videoPlayerBlockProps = useBlockProps( {
+		className: classNames( 'wp-block-jetpack-videopress', {
+			[ `align${ align }` ]: align,
+			'is-updating-preview': ! previewHtml,
+		} ),
 	} );
 
-	/**
-	 * Handler to add a video via an URL.
-	 * todo: finish the implementation
-	 *
-	 * @param {string} videoUrl - URL of the video to attach
-	 */
-	function onSelectURL( videoUrl ) {
-		setAttributes( { src: videoUrl } );
-	}
-
-	/**
-	 * Uploading file handler.
-	 *
-	 * @param {File} media - media file to upload
-	 * @returns {void}
-	 */
-	function onSelectVideo( media ) {
-		const fileUrl = media?.url;
-		if ( ! isBlobURL( fileUrl ) ) {
-			return;
-		}
-
-		const file = getBlobByURL( fileUrl );
-		const isResumableUploading = null !== file && file instanceof File;
-		if ( ! isResumableUploading ) {
-			return;
-		}
-
-		// reset error
-		if ( uploadErrorData ) {
-			setUploadErrorData( null );
-		}
-
-		setUploadingProgress( [ 0, file.size ] );
-
-		// Upload file to VideoPress infrastructure.
-		videoPressUploader( file );
-	}
-
 	/*
-	 * 1 - Initial block state. Show MediaPlaceholder when:
+	 * 1 - Initial block state. Show VideoPressUploader when:
 	 *     - no src attribute,
 	 *     - no in-progress uploading file to the backend
 	 *     - no file recently uploaded to the backend
 	 */
-
-	if ( ! src && ! isUploadingFile && ! fileHasBeenUploaded ) {
+	if ( ! src || ( ! isRequestingEmbedPreview && ! videoPressUrl ) ) {
 		return (
-			<MediaPlaceholder
-				icon={ <BlockIcon icon={ icon } /> }
-				labels={ {
-					title: __( 'VideoPress', 'jetpack' ),
-				} }
-				onSelect={ onSelectVideo }
-				onSelectURL={ onSelectURL }
-				accept="video/*"
-				allowedTypes={ ALLOWED_MEDIA_TYPES }
-				value={ attributes }
-				onError={ function ( error ) {
-					// eslint-disable-next-line no-console
-					console.error( 'Error: ', error );
-				} }
-			>
-				{ uploadErrorData && (
-					<div
-						role="alert"
-						aria-live="assertive"
-						className="jetpack-videopress-upload-error-message"
-					>
-						{ uploadErrorData?.data?.message ??
-							__( 'Failed to upload your video. Please try again.', 'jetpack' ) }
-					</div>
-				) }
-			</MediaPlaceholder>
+			<VideoPressUploader
+				setAttributes={ setAttributes }
+				attributes={ attributes }
+				blockProps={ blockProps }
+			/>
 		);
 	}
 
-	// 2 - Uploading file to backend
-	if ( isUploadingFile ) {
-		return (
-			<>
-				<div { ...blockProps }>
-					<Loading text={ __( '(2) Uploading file to backend…', 'jetpack' ) } />;
-				</div>
-			</>
-		);
-	}
-
-	// 3 - Uploading file to VideoPress infrastructure
-	if ( fileHasBeenUploaded && ! isRequestingEmbedPreview && ! videoPressUrl ) {
-		return (
-			<>
-				<div { ...blockProps }>
-					<Loading text={ __( '(3) Uploading file to VideoPress…', 'jetpack' ) } />;
-				</div>
-			</>
-		);
-	}
-
-	// 4 - No html preview. Show generating message.
+	// 2 - No html preview. Show generating message.
 	if ( ! html ) {
 		return (
 			<>
 				<div { ...blockProps }>
-					<Loading text={ __( '(4) Generating preview…', 'jetpack' ) } />;
+					<Spinner />
+					<div>{ __( '(4) Generating preview…', 'jetpack' ) }</div>
 					<div>
 						Attempt: <strong>{ isGeneratingPreview }</strong>
 					</div>
@@ -321,7 +193,7 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 
 	// X - Show VideoPress player. @todo: finish
 	return (
-		<>
+		<div { ...videoPlayerBlockProps }>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			<VideoPressPlayer
 				html={ html }
@@ -329,7 +201,9 @@ export default function VideoPressEdit( { attributes, setAttributes } ) {
 				scripts={ scripts }
 				attributes={ attributes }
 				setAttributes={ setAttributes }
+				isSelected={ isSelected }
+				className="wp-block-jetpack-videopress"
 			/>
-		</>
+		</div>
 	);
 }

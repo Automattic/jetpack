@@ -4,7 +4,6 @@ import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event'
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { register } from '@wordpress/data';
 import { SimplePaymentsEdit } from '../edit';
-import '@testing-library/jest-dom';
 
 register( blockEditorStore );
 
