@@ -169,11 +169,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		rePreviewAttemptTimer.current = setTimeout( () => {
 			// Abort whether the preview is already defined.
 			if ( preview ) {
-<<<<<<< HEAD
-				setIsGeneratingPreview( 0 ); // reset counter.
-=======
-				setGeneratingPreviewCounter( 0 );
->>>>>>> 1feb97fc8c ([not verified] rename local state to handle attempts to get the preview)
+				setGeneratingPreviewCounter( 0 ); // reset counter.
 				return;
 			}
 
