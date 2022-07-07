@@ -48,11 +48,13 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
-### 2.2.1 - 2022-02-01
+### 2.2.2 - 2022-07-06
 #### Changed
-- Colors: update colors to match the latest iterations of our brand.
-- General: update WordPress tested up to version, since the plugin works with WordPress 5.9.
-
+- Build: do not ship PHPCS configuration file.
+- Janitorial: require a more recent version of WordPress now that WP 6.0 is coming out.
+- Renaming `master` references to `trunk`.
+- Updated composer.lock
+- Updated package dependencies.
 
 --------
 

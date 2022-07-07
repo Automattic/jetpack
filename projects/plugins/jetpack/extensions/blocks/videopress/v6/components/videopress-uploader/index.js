@@ -1,10 +1,16 @@
+/**
+ * External dependencies
+ */
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
+import { Spinner } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { VideoPressIcon as icon } from '../../../../../shared/icons';
-import Loading from '../../../loading';
+/**
+ * Internal dependencies
+ */
 import { useResumableUploader } from '../../hooks/use-uploader.js';
+import { VideoPressIcon as icon } from '../icons/index.js';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
@@ -89,7 +95,6 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
 
 	/**
 	 * Handler to add a video via an URL.
-	 * todo: finish the implementation
 	 *
 	 * @param {string} videoUrl - URL of the video to attach
 	 */
@@ -138,7 +143,8 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
 		return (
 			<>
 				<div { ...blockProps }>
-					<Loading text={ __( '(2) Uploading file to backend…', 'jetpack' ) } />;
+					<Spinner />
+					<div>{ __( '(2) Uploading file to backend…', 'jetpack' ) }</div>
 				</div>
 			</>
 		);
@@ -149,7 +155,8 @@ const VideoPressUploader = ( { blockProps, attributes, setAttributes } ) => {
 		return (
 			<>
 				<div { ...blockProps }>
-					<Loading text={ __( '(3) Uploading file to VideoPress…', 'jetpack' ) } />;
+					<Spinner />
+					<div>{ __( '(3) Uploading file to VideoPress…', 'jetpack' ) }</div>
 				</div>
 			</>
 		);

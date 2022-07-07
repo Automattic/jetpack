@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CalendlyBlockControls, CalendlyInspectorControls } from '../controls';
-import '@testing-library/jest-dom';
 
 describe( 'CalendlyBlockControls', () => {
 	const onEditClick = jest.fn();

@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.13.7 - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
 ## 0.13.6 - 2022-06-21
 ### Changed
 - Drop dependency on lodash, use `Object.assign` instead.
