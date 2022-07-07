@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.1 - 2022-07-07
 ### Added
-- Added new two FAQ entries
+- Added two new FAQ entries
 - Protect: record even just after the site is registered
 
 ### Changed
