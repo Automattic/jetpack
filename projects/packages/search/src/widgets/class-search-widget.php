@@ -1059,7 +1059,7 @@ class Search_Widget extends \WP_Widget {
 	 * Returns the taxonomies supported for users to choose from.
 	 */
 	protected function get_supported_taxonomies() {
-		$taxonomies = array_filter(
+		return array_filter(
 			get_taxonomies( array( 'public' => true ), 'objects' ),
 			function ( $taxonomy ) {
 				/**
