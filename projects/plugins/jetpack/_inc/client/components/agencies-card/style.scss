@@ -1,0 +1,21 @@
+.jp-agencies-card {
+	margin-top: rem( 16px );
+	margin-bottom: 0;
+}
+
+.jp-agencies-card__wrapper {
+	margin-bottom: 0;
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.jp-agencies-card__header {
+	font-weight: 400;
+	font-size: $font-title-small;
+	margin: 0;
+}
+
+.jp-agencies-card__contact {
+	flex-shrink: 1;
+	flex-grow: 1;
+}
