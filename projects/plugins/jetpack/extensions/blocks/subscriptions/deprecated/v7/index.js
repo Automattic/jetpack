@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import save from './save';
 import attributes from './attributes';
+import save from './save';
 
 /**
  * Deprecation reason
