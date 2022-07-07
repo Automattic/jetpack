@@ -686,8 +686,6 @@ class Search extends Module {
 		'link_category',
 		'nav_menu',
 		'post_format', // Special, limited to certain values.
-		'category',
-		'post_tag',
 
 		// bbpress.
 		'topic',
@@ -1702,16 +1700,6 @@ class Search extends Module {
 		'timeline-pillar',
 		'timeline-type',
 
-		/*
-		 * User requested custom taxonomies.
-		 */
-		// https://dev.oecm.ca
-		'oecm_audience',
-		// https://tspa-iss-1219.mystagingwebsite.com
-		'tspa-resources-topic',
-		'tspa-resources-type',
-		'tspa-curriculum-type',
-
 	); // end taxonomies.
 
 	/**
@@ -1852,17 +1840,7 @@ class Search extends Module {
 	 * @return array List of taxonomies that get synced.
 	 */
 	public static function get_all_taxonomies() {
-		/**
-		 * Filters the taxonomies that get synced for search.
-		 *
-		 * Note: the list only controls whether to show the taxonomy in the search widget (at least for now).
-		 * If you want to change which taxonomies are indexed, you'd change `class.jetpack-sync-module-search.php` on WPCOM.
-		 *
-		 * @since  $$next-version$$
-		 *
-		 * @param array $taxonomies_to_sync List of taxonomies that get synced for search.
-		 */
-		return apply_filters( 'jetpack_sync_taxonomies_to_sync_for_search', self::$taxonomies_to_sync );
+		return self::$taxonomies_to_sync;
 	}
 
 }

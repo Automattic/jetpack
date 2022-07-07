@@ -1059,12 +1059,21 @@ class Search_Widget extends \WP_Widget {
 	 * Returns the taxonomies supported for users to choose from.
 	 */
 	protected function get_supported_taxonomies() {
-		$taxonomies = get_taxonomies( array( 'public' => true ), 'objects' );
-		return array_filter(
-			$taxonomies,
+		$taxonomies = array_filter(
+			get_taxonomies( array( 'public' => true ), 'objects' ),
 			function ( $taxonomy ) {
-				return in_array( $taxonomy->name, Search_Sync_Module::get_all_taxonomies(), true );
+				/**
+				 * Filters the taxonomies that shows in filter drop down of the search widget.
+				 *
+				 * @since  $$next-version$$
+				 *
+				 * @param array $taxonomies_to_show List of taxonomies that shown for search widget.
+				 */
+				return in_array( $taxonomy->name, Search_Sync_Module::get_all_taxonomies(), true )
+				|| in_array( $taxonomy->name, apply_filters( 'jetpack_search_supported_taxonomies', array( 'category', 'post_tag' ) ), true );
 			}
 		);
+
 	}
+
 }
