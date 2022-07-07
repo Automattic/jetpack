@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Moved normalization of the Protect status report data to the server side.
 - Renaming master to trunk.
-- Renaming `master` references to `trunk`
+- Renamed`master` references to `trunk`
 - Reorder JS imports for `import/order` eslint rule.
 
 ### Fixed
