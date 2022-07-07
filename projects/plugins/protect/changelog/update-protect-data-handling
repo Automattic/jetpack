@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Moved normalization of the Protect status report data to the server side.
