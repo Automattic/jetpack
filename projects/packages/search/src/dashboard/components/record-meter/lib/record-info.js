@@ -20,17 +20,17 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
 	let hasBeenIndexed = true;
 	let hasItems = true;
 
-	//check for valid data coming in and catch it before it goes to far
-	if ( 'object' !== typeof postTypeBreakdown || 'string' !== typeof lastIndexedDate ) {
+	// Check for a post type breakdown object
+	if ( 'object' !== typeof postTypeBreakdown ) {
 		hasValidData = false;
 	}
 
-	//check if site has likely been indexed.
-	if ( 'undefined' === typeof lastIndexedDate || 'undefined' === typeof postCount ) {
+	// Check if site has likely been indexed
+	if ( 'number' !== typeof postCount ) {
 		hasBeenIndexed = false;
 	}
 
-	// make sure there are items there before going any further
+	// Make sure there are post types there before going any further
 	const numItems = hasValidData && hasBeenIndexed ? Object.keys( postTypeBreakdown ).length : 0;
 
 	if ( numItems === 0 ) {
@@ -52,7 +52,7 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
 			postTypes
 		);
 
-		for ( let i = 0; i < numItems - 1; i++ ) {
+		for ( let i = 0; i < numItems; i++ ) {
 			const postTypeDetails = Object.values( postTypeBreakdownWithLabels )[ i ];
 			const { count, label } = postTypeDetails;
 			chartPostTypeBreakdown.push( {
@@ -114,8 +114,10 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
 export function addLabelsToPostTypeBreakdown( postTypeBreakdown, postTypes ) {
 	const postTypeBreakdownWithLabels = postTypeBreakdown.map( postType => {
 		const postTypeLabelItem = postTypes[ postType.slug ];
-		postType.label = postTypeLabelItem ? postTypeLabelItem.label : null;
-		return postType;
+
+		// Fallback to the slug if we can't find the label
+		const label = postTypeLabelItem ? postTypeLabelItem.label : postType.slug;
+		return { ...postType, label };
 	} );
 
 	return postTypeBreakdownWithLabels;

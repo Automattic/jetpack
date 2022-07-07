@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Icon } from '@wordpress/components';
@@ -5,8 +8,11 @@ import { createInterpolateElement, useCallback, useState } from '@wordpress/elem
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
-import { VideoPressIcon as icon } from '../../../../../shared/icons';
+/**
+ * Internal dependencies
+ */
 import { useResumableUploader } from '../../hooks/use-uploader.js';
+import { VideoPressIcon } from '../icons';
 import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
@@ -184,7 +190,7 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 		return (
 			<div { ...blockProps }>
 				<div className="videopress-uploader__logo">
-					<Icon icon={ icon } />
+					<Icon icon={ VideoPressIcon } />
 					<div>{ __( 'VideoPress', 'jetpack' ) }</div>
 				</div>
 				<UploadProgress file={ uploadFile } progress={ progress } />
@@ -195,7 +201,7 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 	// Default view to select file to upload
 	return (
 		<MediaPlaceholder
-			icon={ <BlockIcon icon={ icon } /> }
+			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			labels={ {
 				title: __( 'VideoPress', 'jetpack' ),
 			} }
