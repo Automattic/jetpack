@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
+import Button from 'components/button';
 import Card from 'components/card';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
@@ -12,7 +13,6 @@ class AgenciesCard extends Component {
 
 	static defaultProps = {
 		className: '',
-		siteConnectionStatus: false,
 	};
 
 	render() {
@@ -29,6 +29,20 @@ class AgenciesCard extends Component {
 						<h3 className="jp-agencies-card__header">
 							{ __( "Manage your clients' sites with ease", 'jetpack' ) }
 						</h3>
+						<p className="jp-agencies-card__description">
+							{
+								/* translators: % is just a percent sign, not a placeholder */
+								__(
+									'Monitor site and product activity, manage licenses, and get a 25% discount in our agency portal.',
+									'jetpack'
+								)
+							}
+						</p>
+						<p className="jp-agencies-card__description">
+							<Button href="https://jetpack.com/for/agencies" target="_blank" rel="noreferrer">
+								{ __( 'Learn More', 'jetpack' ) }
+							</Button>
+						</p>
 					</div>
 				</Card>
 			</div>
@@ -38,6 +52,7 @@ class AgenciesCard extends Component {
 
 AgenciesCard.propTypes = {
 	className: PropTypes.string,
+	connectUser: PropTypes.func,
 	isFetchingSiteData: PropTypes.bool,
 };
 
