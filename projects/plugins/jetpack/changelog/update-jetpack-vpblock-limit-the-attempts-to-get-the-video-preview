@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack: stop re-attempting to get the video preview when it achieves the limit
