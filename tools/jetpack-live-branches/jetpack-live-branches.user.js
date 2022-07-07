@@ -398,7 +398,9 @@
 			);
 			$( '#jetpack-live-branches' ).remove();
 			$el.append( liveBranches );
-			liveBranches.find( 'input[type=checkbox]' ).on( 'change', onInputChanged );
+			liveBranches
+				.find( 'input[type=checkbox]' )
+				.each( () => this.addEventListener( 'change', onInputChanged ) );
 		}
 
 		/**
