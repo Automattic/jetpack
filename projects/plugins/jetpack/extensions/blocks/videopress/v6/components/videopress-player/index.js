@@ -1,14 +1,34 @@
 /**
  * External dependencies
  */
-import { RichText } from '@wordpress/block-editor';
-import { ResizableBox, SandBox } from '@wordpress/components';
+import { InspectorControls, RichText } from '@wordpress/block-editor';
+import { Button, Panel, PanelBody, ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import vpBlockBridge from '../../scripts/vp-block-bridge';
+
+const globalScripts = [];
+
+// Populate scripts array with videopresAjaxURLBlob blobal var.
+if ( window.videopressAjax ) {
+	const videopresAjaxURLBlob = new Blob(
+		[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
+		{
+			type: 'text/javascript',
+		}
+	);
+
+	globalScripts.push(
+		URL.createObjectURL( videopresAjaxURLBlob ),
+		window.videopressAjax.bridgeUrl
+	);
+}
+
+// Load VideoPressBlock bridge script.
+globalScripts.push( vpBlockBridge );
 
 export default function VideoPressPlayer( {
 	html,
@@ -22,32 +42,17 @@ export default function VideoPressPlayer( {
 	const ref = useRef();
 	const { maxWidth, caption, videoRatio } = attributes;
 
-	useEffect( () => {
-		window.addEventListener( 'onVideoPressPlaying', event => {
-			console.log( 'video is playing...' );
-			console.log( 'event: ', event?.detail );
-		} );
-	}, [] );
-
-	useEffect( () => {
-		if ( ! ref?.current ) {
-			return;
-		}
-
-		const sandboxIFrame = ref.current.querySelector( 'iframe' );
-		console.log( 'sandboxIFrame: ', sandboxIFrame );
-
+	const pauseVideo = useCallback( () => {
+		const sandboxIFrame = ref?.current?.querySelector( 'iframe' );
 		const sandboxWindowContent = sandboxIFrame?.contentWindow;
 		if ( ! sandboxWindowContent ) {
 			return;
 		}
 
-		setTimeout( () => {
-			sandboxWindowContent.postMessage( {
-				event: 'videopress_action_play',
-			} );
-		}, 5000 );
-	}, [ ref ] );
+		sandboxWindowContent.postMessage( {
+			event: 'vpblock_action_pause',
+		} );
+	}, [] );
 
 	/*
 	 * Temporary height is used to set the height of the video
@@ -90,21 +95,6 @@ export default function VideoPressPlayer( {
 		[ setAttributes ]
 	);
 
-	// Populate scripts array with videopresAjaxURLBlob blobal var.
-	if ( window.videopressAjax ) {
-		const videopresAjaxURLBlob = new Blob(
-			[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
-			{
-				type: 'text/javascript',
-			}
-		);
-
-		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
-	}
-
-	// Load VideoPressBlock bridge script.
-	scripts.push( vpBlockBridge );
-
 	const style = {};
 	if ( temporaryHeight !== 'auto' ) {
 		style.height = temporaryHeight;
@@ -113,6 +103,21 @@ export default function VideoPressPlayer( {
 
 	return (
 		<figure className="jetpack-videopress-player">
+			<InspectorControls>
+				<Panel>
+					<PanelBody title={ __( 'VideoPress Player', 'jetpack' ) } initialOpen={ true }>
+						<Button
+							variant="primary"
+							className="jetpack-videopress-player__button"
+							onClick={ () => {
+								pauseVideo();
+							} }
+						>
+							{ __( 'Pause', 'jetpack' ) }
+						</Button>
+					</PanelBody>
+				</Panel>
+			</InspectorControls>
 			<ResizableBox
 				enable={ {
 					top: false,
@@ -127,7 +132,7 @@ export default function VideoPressPlayer( {
 			>
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
-					<SandBox html={ html } scripts={ scripts } />
+					<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
 					<img
 						src={ thumbnail }
 						alt={ __( 'Video thumbnail', 'jetpack' ) }
