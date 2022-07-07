@@ -22,6 +22,33 @@ export default function VideoPressPlayer( {
 	const ref = useRef();
 	const { maxWidth, caption, videoRatio } = attributes;
 
+	useEffect( () => {
+		window.addEventListener( 'onVideoPressPlaying', event => {
+			console.log( 'video is playing...' );
+			console.log( 'event: ', event?.detail );
+		} );
+	}, [] );
+
+	useEffect( () => {
+		if ( ! ref?.current ) {
+			return;
+		}
+
+		const sandboxIFrame = ref.current.querySelector( 'iframe' );
+		console.log( 'sandboxIFrame: ', sandboxIFrame );
+
+		const sandboxWindowContent = sandboxIFrame?.contentWindow;
+		if ( ! sandboxWindowContent ) {
+			return;
+		}
+
+		setTimeout( () => {
+			sandboxWindowContent.postMessage( {
+				event: 'videopress_action_play',
+			} );
+		}, 5000 );
+	}, [ ref ] );
+
 	/*
 	 * Temporary height is used to set the height of the video
 	 * as soon as the block is rendered into the canvas,
