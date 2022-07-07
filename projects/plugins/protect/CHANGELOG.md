@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reorder JS imports for `import/order` eslint rule.
 
 ### Fixed
-- Fixed bug that would not display Core vulnerabilities, remove legacy code and documentation and add new docs on the debug helper plugin.
+- Fixed bug that would not display Core vulnerabilities.
+- Removes legacy code and documentation and adds new docs for the debug helper plugin.
 - Fixed recommendation for plugins that don't have a fix yet
 - Protect: Fix visual issue of the Interstitial page
 
