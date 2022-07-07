@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-When a file is renamed, treat both the old and new names as modified.

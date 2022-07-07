@@ -8,9 +8,9 @@ describe( 'PrefixStream', () => {
 		const ts = new PrefixStream( { prefix: 'foobar', encoding: 'utf8' } );
 
 		ts.write( 'line 1\n\nline 2' );
-		expect( ts.read() ).toEqual( '[foobar] line 1\n[foobar] \n' );
+		expect( ts.read() ).toBe( '[foobar] line 1\n[foobar] \n' );
 		ts.end();
-		expect( ts.read() ).toEqual( '[foobar] line 2' );
+		expect( ts.read() ).toBe( '[foobar] line 2' );
 	} );
 
 	test( 'prefixes with timing info', async () => {
@@ -34,6 +34,6 @@ describe( 'PrefixStream', () => {
 		const ts = new PrefixStream( { encoding: 'utf8' } );
 
 		ts.write( 'line 1\n' );
-		expect( ts.read() ).toEqual( 'line 1\n' );
+		expect( ts.read() ).toBe( 'line 1\n' );
 	} );
 } );

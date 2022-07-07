@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useBlockProps } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 import classnames from 'classnames';
 /**
  * Internal dependencies
@@ -12,6 +12,7 @@ export default function save( { attributes } ) {
 	const {
 		align,
 		autoplay,
+		caption,
 		loop,
 		muted,
 		controls,
@@ -26,7 +27,7 @@ export default function save( { attributes } ) {
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
-		className: classnames( 'jetpack-videopress', {
+		className: classnames( 'wp-block-jetpack-videopress', 'jetpack-videopress-player', {
 			[ `align${ align }` ]: align,
 		} ),
 	} );
@@ -53,9 +54,13 @@ export default function save( { attributes } ) {
 
 	return (
 		<figure { ...blockProps } style={ style }>
-			<div className="jetpack-videopress__wrapper">
+			<div className="jetpack-videopress-player__wrapper">
 				{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
 			</div>
+
+			{ ! RichText.isEmpty( caption ) && (
+				<RichText.Content tagName="figcaption" value={ caption } />
+			) }
 		</figure>
 	);
 }
