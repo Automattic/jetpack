@@ -127,15 +127,15 @@ class Test_Status extends BaseTestCase {
 	public function get_sample_response() {
 		return (object) array(
 			'last_checked'                => '2003-03-03 03:03:03',
-			'num_vulnerabilities'         => 4,
+			'num_vulnerabilities'         => 3,
 			'num_themes_vulnerabilities'  => 1,
-			'num_plugins_vulnerabilities' => 2,
+			'num_plugins_vulnerabilities' => 1,
 			'themes'                      => (object) array(
 				'theme-1' => $this->get_sample_theme( '1' ),
 			),
 			'plugins'                     => (object) array(
 				'plugin-1' => $this->get_sample_plugin( '1' ),
-				'plugin-2' => $this->get_sample_plugin( '2' ),
+				'plugin-2' => $this->get_sample_plugin( '2', false ),
 			),
 			'core'                        => $this->get_sample_core(),
 			'wordpress'                   => $this->get_sample_core(),
@@ -151,7 +151,7 @@ class Test_Status extends BaseTestCase {
 		return (object) array(
 			'plugins'                     => array(
 				$this->get_sample_plugin( '1' ),
-				$this->get_sample_plugin( '2' ),
+				$this->get_sample_plugin( '2', false ),
 			),
 			'themes'                      => array(
 				$this->get_sample_theme( '1' ),
@@ -159,9 +159,9 @@ class Test_Status extends BaseTestCase {
 			'core'                        => $this->get_sample_core(),
 			'wordpress'                   => $this->get_sample_core(),
 			'last_checked'                => '2003-03-03 03:03:03',
-			'num_vulnerabilities'         => 4,
+			'num_vulnerabilities'         => 3,
 			'num_themes_vulnerabilities'  => 1,
-			'num_plugins_vulnerabilities' => 2,
+			'num_plugins_vulnerabilities' => 1,
 			'hasUncheckedItems'           => false,
 		);
 	}
@@ -300,7 +300,7 @@ class Test_Status extends BaseTestCase {
 		$status = Status::get_total_vulnerabilities();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 
-		$this->assertSame( 4, $status );
+		$this->assertSame( 3, $status );
 
 	}
 
@@ -311,7 +311,6 @@ class Test_Status extends BaseTestCase {
 		$this->mock_connection();
 
 		$expected = array(
-			$this->get_sample_vul(),
 			$this->get_sample_vul(),
 			$this->get_sample_vul(),
 			$this->get_sample_vul(),
