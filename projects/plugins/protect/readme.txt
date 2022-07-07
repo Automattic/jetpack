@@ -116,12 +116,12 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 
 #### Changed
 - Moved normalization of the Protect status report data to the server side.
-- Renaming master to trunk.
-- Renaming `master` references to `trunk`
+- Renamed `master` references to `trunk`
 - Reorder JS imports for `import/order` eslint rule.
 
 #### Fixed
-- Fixed bug that would not display Core vulnerabilities, remove legacy code and documentation and add new docs on the debug helper plugin.
+- Fixed bug that would not display Core vulnerabilities.
+- Removed legacy code and documentation and added new docs on the debug helper plugin.
 - Fixed recommendation for plugins that don't have a fix yet
 - Protect: Fix visual issue of the Interstitial page
 

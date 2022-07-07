@@ -12,13 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Moved normalization of the Protect status report data to the server side.
-- Renaming master to trunk.
-- Renamed`master` references to `trunk`
+- Renamed `master` references to `trunk`
 - Reorder JS imports for `import/order` eslint rule.
 
 ### Fixed
 - Fixed bug that would not display Core vulnerabilities.
-- Removes legacy code and documentation and adds new docs for the debug helper plugin.
+- Removed legacy code and documentation and adds new docs for the debug helper plugin.
 - Fixed recommendation for plugins that don't have a fix yet
 - Protect: Fix visual issue of the Interstitial page
 
