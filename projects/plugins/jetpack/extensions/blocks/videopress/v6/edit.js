@@ -19,6 +19,8 @@ import VideoPressUploader from './components/videopress-uploader';
 
 import './editor.scss';
 
+const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
+
 export default function VideoPressEdit( { attributes, setAttributes, isSelected } ) {
 	const {
 		autoplay,
@@ -126,7 +128,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	 * the VideoPress URL is gotten.
 	 * It attempts every two seconds to get the so desired video preview.
 	 */
-	const [ isGeneratingPreview, setIsGeneratingPreview ] = useState( 0 );
+	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
 	const rePreviewAttemptTimer = useRef();
 	function cleanRegeneratingProcess() {
@@ -138,7 +140,12 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	}
 
 	useEffect( () => {
-		// VideoPress URL is not defined. Bail early and cleans the timer.
+		// Attempts limit achieved. Bail early.
+		if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
+			return cleanRegeneratingProcess();
+		}
+
+		// VideoPress URL is not defined. Bail early and cleans the time.
 		if ( ! videoPressUrl ) {
 			return cleanRegeneratingProcess();
 		}
@@ -150,7 +157,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 		// Bail early (clean the timer) when preview is defined.
 		if ( preview ) {
-			setIsGeneratingPreview( 0 ); // reset counter.
+			setGeneratingPreviewCounter( 0 ); // reset counter.
 			return cleanRegeneratingProcess();
 		}
 
@@ -162,16 +169,17 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		rePreviewAttemptTimer.current = setTimeout( () => {
 			// Abort whether the preview is already defined.
 			if ( preview ) {
-				setIsGeneratingPreview( 0 ); // reset counter.
+				setGeneratingPreviewCounter( 0 ); // reset counter.
 				return;
 			}
 
-			setIsGeneratingPreview( v => v + 1 );
+			setGeneratingPreviewCounter( v => v + 1 );
 			invalidateCachedEmbedPreview();
 		}, 2000 );
 
 		return cleanRegeneratingProcess;
 	}, [
+		generatingPreviewCounter,
 		rePreviewAttemptTimer,
 		invalidateCachedEmbedPreview,
 		preview,
@@ -200,18 +208,36 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		return <VideoPressUploader setAttributes={ setAttributes } attributes={ attributes } />;
 	}
 
-	// 2 - No html preview. Show generating message.
-	if ( ! html ) {
+	// 4 - Generating video preview
+	if (
+		( isRequestingEmbedPreview || ! preview ) &&
+		generatingPreviewCounter > 0 &&
+		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
+	) {
 		return (
 			<>
 				<div { ...blockProps }>
 					<Spinner />
 					<div>{ __( '(4) Generating preview…', 'jetpack' ) }</div>
 					<div>
-						Attempt: <strong>{ isGeneratingPreview }</strong>
+						Attempt: <strong>{ generatingPreviewCounter }</strong>
 					</div>
 				</div>
 			</>
+		);
+	}
+
+	// 5 - Generating video preview
+	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
+		return (
+			<div { ...blockProps }>
+				<div>
+					{ __(
+						'(5) Impossible to get a video preview after ten attempts. Show error.',
+						'jetpack'
+					) }
+				</div>
+			</div>
 		);
 	}
 
