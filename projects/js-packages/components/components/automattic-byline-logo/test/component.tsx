@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import AutomatticBylineLogo from '../index';
-import '@testing-library/jest-dom';
 
 describe( 'AutomatticBylineLogo', () => {
 	const testProps = {

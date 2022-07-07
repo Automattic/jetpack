@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import ImageCompareEdit from '../edit';
-import '@testing-library/jest-dom';
 
 /**
  * Render image compare.

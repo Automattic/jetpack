@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Renaming master references to trunk, to work with the GitHub default branch name changing to trunk.

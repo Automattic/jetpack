@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-select-dropdown/item: Fix incorrect React prop type.

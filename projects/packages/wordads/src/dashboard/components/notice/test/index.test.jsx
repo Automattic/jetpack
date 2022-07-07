@@ -3,7 +3,6 @@
  */
 
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import SimpleNotice from 'components/notice';
 import React from 'react';
 

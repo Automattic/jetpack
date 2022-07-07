@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import addTweetstormToTweets from '../editor';
-import '@testing-library/jest-dom';
 
 jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
 
