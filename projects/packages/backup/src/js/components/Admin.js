@@ -192,15 +192,11 @@ const Admin = () => {
 						) }
 					</p>
 					{ hasBackupPlan() && (
-						<>
-							<p>
-								<ExternalLink
-									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-								>
-									{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
-								</ExternalLink>
-							</p>
-						</>
+						<p>
+							<ExternalLink href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }>
+								{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
+							</ExternalLink>
+						</p>
 					) }
 				</Col>
 				<Col lg={ 1 } md={ 1 } sm={ 0 } />
