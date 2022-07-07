@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.3] - 2022-07-06
+### Added
+- Display alert when we cant automatically install the plugin [#24884]
+
+### Changed
+- Updated package dependencies. [#24923]
+
+## [1.7.2] - 2022-06-28
+### Changed
+- Disambiguate redirectUrls vars [#24839]
+- Search: use centralized search pricing API [#24795]
+- Updated package dependencies. [#24826]
+
+### Fixed
+- Search Pricing: fix pricing fetch issue before site is connected [#24826]
+
 ## [1.7.1] - 2022-06-21
 ### Fixed
 - My Jetpack: Replace wordpress from PNG to SVG at Connection [#24793]
@@ -512,6 +528,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[1.7.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.7.2...1.7.3
+[1.7.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.7.1...1.7.2
 [1.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.7.0...1.7.1
 [1.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.6.2...1.7.0
 [1.6.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.6.1...1.6.2

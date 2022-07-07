@@ -2,7 +2,18 @@
 
 import process from 'process';
 import { fileURLToPath } from 'url';
-import { compareComposerVersion } from '../helpers/checkEnvironment.js';
+import { checkCliLocation, compareComposerVersion } from '../helpers/checkEnvironment.js';
+
+/**
+ * Checks for executing the CLI within a different monorepo checkout.
+ */
+try {
+	await checkCliLocation();
+} catch ( error ) {
+	console.error( error );
+	console.error( 'Something unexpected happened. See error above.' );
+	process.exit( 1 );
+}
 
 /**
  * Checks to make sure we're on the right version of composer.

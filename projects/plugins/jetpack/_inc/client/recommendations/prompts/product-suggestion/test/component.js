@@ -6,7 +6,6 @@ import * as recommendationsActions from 'state/recommendations/actions';
 import { render, screen } from 'test/test-utils';
 import { buildInitialState } from '../../product-suggestions/test/fixtures';
 import { ProductSuggestion } from '../index';
-import '@testing-library/jest-dom/extend-expect';
 
 describe( 'Recommendations – Product Suggestion Item', () => {
 	const DUMMY_ACTION = { type: 'dummy' };

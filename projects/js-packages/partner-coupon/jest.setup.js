@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import { toHaveBeenCalledAfter } from 'jest-extended';
 
 expect.extend( { toHaveBeenCalledAfter } );

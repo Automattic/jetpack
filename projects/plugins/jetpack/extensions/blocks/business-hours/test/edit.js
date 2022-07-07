@@ -1,11 +1,5 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor, getByLabelText } from '@testing-library/react';
-
 import BusinessHours, { defaultLocalization } from '../edit';
 
 const isWeekend = day => [ 'Sun', 'Sat' ].includes( day.substring( 0, 3 ) );
@@ -37,6 +31,7 @@ describe( 'Business Hours', () => {
 
 	beforeEach( () => {
 		setAttributes.mockClear();
+		// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
 		window.fetch = jest.fn();
 		window.fetch.mockReturnValue(
 			Promise.resolve( { status: 200, json: () => Promise.resolve( defaultLocalization ) } )
@@ -51,7 +46,7 @@ describe( 'Business Hours', () => {
 		const propsNotSelected = { ...defaultProps, isSelected: false };
 		render( <BusinessHours { ...propsNotSelected } /> );
 
-		expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toEqual(
+		expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toBe(
 			'/wpcom/v2/business-hours/localized-week?_locale=user'
 		);
 
@@ -60,17 +55,15 @@ describe( 'Business Hours', () => {
 		expect( screen.queryByText( 'Saturday' ) ).not.toBeInTheDocument();
 
 		// Displays default days and business hours
-		await waitFor( () => expect( screen.getByText( 'Monday' ) ).toBeInTheDocument() );
-		await waitFor( () => expect( screen.getByText( 'Tuesday' ) ).toBeInTheDocument() );
-		await waitFor( () => expect( screen.getByText( 'Wednesday' ) ).toBeInTheDocument() );
-		await waitFor( () => expect( screen.getByText( 'Thursday' ) ).toBeInTheDocument() );
-		await waitFor( () => expect( screen.getByText( 'Friday' ) ).toBeInTheDocument() );
-		await waitFor( () => expect( screen.getByText( 'Saturday' ) ).toBeInTheDocument() );
-		await waitFor( () => expect( screen.getByText( 'Sunday' ) ).toBeInTheDocument() );
-		await waitFor( () =>
-			expect( screen.getAllByText( '9: 00 am - 5: 00 pm' ).length ).toEqual( 5 )
-		);
-		await waitFor( () => expect( screen.getAllByText( 'Closed' ).length ).toEqual( 2 ) );
+		await expect( screen.findByText( 'Monday' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Tuesday' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Wednesday' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Thursday' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Friday' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Saturday' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Sunday' ) ).toBeInTheDocument();
+		expect( screen.getAllByText( '9: 00 am - 5: 00 pm' ) ).toHaveLength( 5 );
+		expect( screen.getAllByText( 'Closed' ) ).toHaveLength( 2 );
 	} );
 
 	test.each( dayStrings )(
@@ -89,21 +82,22 @@ describe( 'Business Hours', () => {
 
 			const openClosed = isWeekend( dayString ) ? 'Closed' : 'Open';
 
+			// eslint-disable-next-line testing-library/no-node-access
 			const dayRow = day.parentNode;
-			await user.click( getByLabelText( dayRow, openClosed ) );
+			await user.click( within( dayRow ).getByLabelText( openClosed ) );
 
+			let expectVal;
 			if ( 'Open' === openClosed ) {
-				expect(
-					setAttributes.mock.calls[ 0 ][ 0 ].days[ dayStrings.indexOf( dayString ) ]
-				).toEqual( { hours: [], name: dayString.substring( 0, 3 ) } );
+				expectVal = { hours: [], name: dayString.substring( 0, 3 ) };
 			} else {
-				expect(
-					setAttributes.mock.calls[ 0 ][ 0 ].days[ dayStrings.indexOf( dayString ) ]
-				).toEqual( {
+				expectVal = {
 					hours: [ { closing: '17:00', opening: '09:00' } ],
 					name: dayString.substring( 0, 3 ),
-				} );
+				};
 			}
+			expect( setAttributes.mock.calls[ 0 ][ 0 ].days[ dayStrings.indexOf( dayString ) ] ).toEqual(
+				expectVal
+			);
 		}
 	);
 
@@ -112,7 +106,7 @@ describe( 'Business Hours', () => {
 		const propsNotSelected = { ...defaultProps, isSelected: true };
 		render( <BusinessHours { ...propsNotSelected } /> );
 
-		await waitFor( () => expect( screen.getByText( 'Monday' ) ).toBeInTheDocument() );
+		await expect( screen.findByText( 'Monday' ) ).resolves.toBeInTheDocument();
 
 		// The behavior of <input type="time"> with user-event is kind of weird. Ctrl-A to select the contents before typing seems to work.
 		await user.type( screen.getAllByLabelText( 'Opening' )[ 0 ], '{Control>}a{/Control}6:00' );
@@ -128,7 +122,7 @@ describe( 'Business Hours', () => {
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <BusinessHours { ...propsSelected } /> );
 
-		await waitFor( () => expect( screen.getByText( 'Monday' ) ).toBeInTheDocument() );
+		await expect( screen.findByText( 'Monday' ) ).resolves.toBeInTheDocument();
 
 		// The behavior of <input type="time"> with user-event is kind of weird. Ctrl-A to select the contents before typing seems to work.
 		await user.type( screen.getAllByLabelText( 'Closing' )[ 0 ], '{Control>}a{/Control}14:00' );
@@ -150,8 +144,8 @@ describe( 'Business Hours', () => {
 
 		const { rerender } = render( <BusinessHours { ...propsSelectedSingleDay } /> );
 
-		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ).length ).toEqual( 1 ) );
-		await waitFor( () => expect( screen.getAllByLabelText( 'Closing' ).length ).toEqual( 1 ) );
+		await expect( screen.findByLabelText( 'Opening' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByLabelText( 'Closing' ) ).toBeInTheDocument();
 
 		await user.click( screen.getByLabelText( 'Add Hours' ) );
 
@@ -168,8 +162,8 @@ describe( 'Business Hours', () => {
 
 		rerender( <BusinessHours { ...propsSelectedSingleDay } /> );
 
-		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ).length ).toEqual( 2 ) );
-		await waitFor( () => expect( screen.getAllByLabelText( 'Closing' ).length ).toEqual( 2 ) );
+		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ) ).toHaveLength( 2 ) );
+		expect( screen.getAllByLabelText( 'Closing' ) ).toHaveLength( 2 );
 	} );
 
 	test( 'should remove an additional set of opening/closing hours', async () => {
@@ -186,8 +180,8 @@ describe( 'Business Hours', () => {
 
 		const { rerender } = render( <BusinessHours { ...propsSelectedSingleDay } /> );
 
-		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ).length ).toEqual( 2 ) );
-		await waitFor( () => expect( screen.getAllByLabelText( 'Closing' ).length ).toEqual( 2 ) );
+		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ) ).toHaveLength( 2 ) );
+		expect( screen.getAllByLabelText( 'Closing' ) ).toHaveLength( 2 );
 
 		await user.click( screen.getAllByLabelText( 'Remove Hours' )[ 1 ] );
 
@@ -201,7 +195,7 @@ describe( 'Business Hours', () => {
 
 		rerender( <BusinessHours { ...propsSelectedSingleDay } /> );
 
-		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ).length ).toEqual( 1 ) );
-		await waitFor( () => expect( screen.getAllByLabelText( 'Closing' ).length ).toEqual( 1 ) );
+		await expect( screen.findByLabelText( 'Opening' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByLabelText( 'Closing' ) ).toBeInTheDocument();
 	} );
 } );

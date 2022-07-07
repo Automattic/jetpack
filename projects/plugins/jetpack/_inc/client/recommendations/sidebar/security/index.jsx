@@ -7,7 +7,7 @@ import analytics from 'lib/analytics';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { getSiteRawUrl } from 'state/initial-state';
-import { Layout } from '../layout';
+import { SidebarCard } from '../sidebar-card';
 
 const SecurityComponent = props => {
 	const { siteRawUrl } = props;
@@ -25,36 +25,33 @@ const SecurityComponent = props => {
 	}, [] );
 
 	return (
-		<Layout
-			illustrationPath={ imagePath + '/recommendations/manage-security.svg' }
-			content={
-				<div>
-					<h2>{ __( 'Manage your security on Jetpack.com', 'jetpack' ) }</h2>
-					<p>
-						{ __(
-							'Did you know you can manage all your backups right from Jetpack.com?',
-							'jetpack'
-						) }
-					</p>
-					<p>
-						{ __(
-							'You can also use your included Activity feature to monitor every change that occurs on your site!',
-							'jetpack'
-						) }
-					</p>
-					<Button
-						rna
-						href={ getRedirectUrl( 'jetpack-backup', { site: siteRawUrl } ) }
-						target="_blank"
-						rel="noopener noreferrer"
-						onClick={ onCtaClick }
-					>
-						{ __( 'Manage security on Jetpack.com', 'jetpack' ) }
-						<Gridicon icon="external" />
-					</Button>
-				</div>
-			}
-		/>
+		<SidebarCard illustrationPath={ imagePath + '/recommendations/manage-security.svg' }>
+			<div>
+				<h2>{ __( 'Manage your security on Jetpack.com', 'jetpack' ) }</h2>
+				<p>
+					{ __(
+						'Did you know you can manage all your backups right from Jetpack.com?',
+						'jetpack'
+					) }
+				</p>
+				<p>
+					{ __(
+						'You can also use your included Activity feature to monitor every change that occurs on your site!',
+						'jetpack'
+					) }
+				</p>
+				<Button
+					rna
+					href={ getRedirectUrl( 'jetpack-backup', { site: siteRawUrl } ) }
+					target="_blank"
+					rel="noopener noreferrer"
+					onClick={ onCtaClick }
+				>
+					{ __( 'Manage security on Jetpack.com', 'jetpack' ) }
+					<Gridicon icon="external" />
+				</Button>
+			</div>
+		</SidebarCard>
 	);
 };
 

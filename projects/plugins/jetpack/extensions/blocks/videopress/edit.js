@@ -788,7 +788,7 @@ const VideoPressEdit = CoreVideoEdit =>
 
 // The actual, final rendered video player markup
 // In a separate function component so that `useBlockProps` could be called.
-const VpBlock = props => {
+export const VpBlock = props => {
 	let { scripts } = props;
 	const { html, interactive, caption, isSelected, hideOverlay, attributes, setAttributes } = props;
 
