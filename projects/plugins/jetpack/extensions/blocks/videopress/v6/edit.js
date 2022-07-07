@@ -197,13 +197,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	 *     - no file recently uploaded to the backend
 	 */
 	if ( ! src || ( ! isRequestingEmbedPreview && ! videoPressUrl ) ) {
-		return (
-			<VideoPressUploader
-				setAttributes={ setAttributes }
-				attributes={ attributes }
-				blockProps={ blockProps }
-			/>
-		);
+		return <VideoPressUploader setAttributes={ setAttributes } attributes={ attributes } />;
 	}
 
 	// 2 - No html preview. Show generating message.
