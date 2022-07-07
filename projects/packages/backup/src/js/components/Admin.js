@@ -178,11 +178,7 @@ const Admin = () => {
 							),
 							{
 								ExternalLink: (
-									<ExternalLink
-										href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
+									<ExternalLink href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) } />
 								),
 							}
 						) }
@@ -200,8 +196,6 @@ const Admin = () => {
 							<p>
 								<ExternalLink
 									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-									target="_blank"
-									rel="noreferrer"
 								>
 									{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
 								</ExternalLink>
@@ -222,8 +216,6 @@ const Admin = () => {
 						<p>
 							<ExternalLink
 								href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
-								target="_blank"
-								rel="noreferrer"
 							>
 								{ __( "See your site's activity", 'jetpack-backup-pkg' ) }
 							</ExternalLink>

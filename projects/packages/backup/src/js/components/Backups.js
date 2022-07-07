@@ -233,8 +233,6 @@ const Backups = () => {
 									<ExternalLink
 										className="backup__restore-point-link"
 										href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
-										target="_blank"
-										rel="noreferrer"
 									/>
 								),
 							}
