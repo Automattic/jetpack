@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\REST_Connector;
 use WP_REST_Server;
+use WP_Error;
 
 /**
  * Defines our endponts.
