@@ -774,8 +774,8 @@ class Helper {
 			$widget_options = end( $widget_options );
 		}
 
-		$overlay_widget_ids      = is_active_sidebar( 'jetpack-instant-search-sidebar' ) ?
-			wp_get_sidebars_widgets()['jetpack-instant-search-sidebar'] : array();
+		$overlay_widget_ids      = is_active_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR ) ?
+			wp_get_sidebars_widgets()[ Instant_Search::INSTANT_SEARCH_SIDEBAR ] : array();
 		$filters                 = self::get_filters_from_widgets();
 		$widgets                 = array();
 		$widgets_outside_overlay = array();
@@ -902,8 +902,8 @@ class Helper {
 	public static function print_instant_search_sidebar() {
 		?>
 		<div class="jetpack-instant-search__widget-area" style="display: none">
-			<?php if ( is_active_sidebar( 'jetpack-instant-search-sidebar' ) ) { ?>
-				<?php dynamic_sidebar( 'jetpack-instant-search-sidebar' ); ?>
+			<?php if ( is_active_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR ) ) { ?>
+				<?php dynamic_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR ); ?>
 			<?php } ?>
 		</div>
 		<?php
