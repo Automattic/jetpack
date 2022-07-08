@@ -42,15 +42,13 @@ export default function VideoPressPlayer( {
 	const ref = useRef();
 	const { maxWidth, caption, videoRatio, autoplayHovering } = attributes;
 
-	function dispatchVideoPressAction( action ) {
+	function dispatchVideoPressAction( event ) {
 		const sandboxIFrame = ref?.current?.querySelector( 'iframe' );
 		const sandboxWindowContent = sandboxIFrame?.contentWindow;
 		if ( ! sandboxWindowContent ) {
 			return;
 		}
-		sandboxWindowContent.postMessage( {
-			event: action,
-		} );
+		sandboxWindowContent.postMessage( { event } );
 	}
 
 	const playVideo = useCallback( () => {
