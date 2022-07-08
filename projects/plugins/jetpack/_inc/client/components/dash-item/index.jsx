@@ -28,7 +28,7 @@ export class DashItem extends Component {
 		pro: PropTypes.bool,
 		isModule: PropTypes.bool,
 		support: PropTypes.object,
-		overrideContent: PropTypes.bool,
+		overrideContent: PropTypes.element,
 		noToggle: PropTypes.bool,
 	};
 
