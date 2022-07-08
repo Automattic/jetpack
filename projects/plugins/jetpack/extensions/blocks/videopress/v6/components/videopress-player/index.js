@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import vpBlockBridge from '../../scripts/vp-block-bridge';
+import dispatchPlayerAction from '../../utils/dispatcher';
 
 const globalScripts = [];
 
@@ -49,14 +50,7 @@ export default function VideoPressPlayer( {
 		autoplayHoveringDuration,
 	} = attributes;
 
-	function dispatchVideoPressAction( event, eventData = {} ) {
-		const sandboxIFrame = ref?.current?.querySelector( 'iframe' );
-		const sandboxWindowContent = sandboxIFrame?.contentWindow;
-		if ( ! sandboxWindowContent ) {
-			return;
-		}
-		sandboxWindowContent.postMessage( { event, ...eventData } );
-	}
+	const sandboxIFrame = ref?.current?.querySelector( 'iframe' );
 
 	/**
 	 * Helper function to play the video at a desired time.
@@ -66,12 +60,18 @@ export default function VideoPressPlayer( {
 			return;
 		}
 
-		dispatchVideoPressAction( 'vpblock_action_set_currenttime', {
-			timePosition: autoplayHoveringStart + autoplayHoveringDuration,
+		dispatchPlayerAction( sandboxIFrame, 'vpblock_action_set_currenttime', {
+			currentTime: autoplayHoveringStart + autoplayHoveringDuration,
 		} );
 
-		dispatchVideoPressAction( 'vpblock_action_play' );
-	}, [ autoplayHovering, autoplayHoveringDuration, autoplayHoveringStart, preview ] );
+		dispatchPlayerAction( sandboxIFrame, 'vpblock_action_play' );
+	}, [
+		autoplayHovering,
+		autoplayHoveringDuration,
+		autoplayHoveringStart,
+		preview,
+		sandboxIFrame,
+	] );
 
 	/**
 	 * Helper function to pause the video.
@@ -81,8 +81,8 @@ export default function VideoPressPlayer( {
 			return;
 		}
 
-		dispatchVideoPressAction( 'vpblock_action_pause' );
-	}, [ autoplayHovering, preview ] );
+		dispatchPlayerAction( sandboxIFrame, 'vpblock_action_pause' );
+	}, [ autoplayHovering, preview, sandboxIFrame ] );
 
 	/*
 	 * Temporary height is used to set the height of the video

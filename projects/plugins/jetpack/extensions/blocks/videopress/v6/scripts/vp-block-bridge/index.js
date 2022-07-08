@@ -91,12 +91,6 @@ const rawScript = `
 			}
 
 			if ( vpEventType === 'action' ) {
-				// Translate API from/to videopress player.
-				if ( data.event === 'vpblock_action_set_currenttime' && data.timePosition !== undefined ) {
-					data.currentTime = data.timePosition;
-					delete data.timePosition;
-				}
-
 				// Overwrite event from -> to
 				data.event = videoPressAction;
 

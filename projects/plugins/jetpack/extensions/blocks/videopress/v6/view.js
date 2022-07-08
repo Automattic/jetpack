@@ -2,25 +2,14 @@
  * WordPress dependencies
  */
 import debugFactory from 'debug';
-const debug = debugFactory( 'jetpack:vpblock' );
-
 /**
  * Internal dependencies
  */
+import dispatchPlayerAction from './utils/dispatcher';
 import './style.scss';
 
+const debug = debugFactory( 'jetpack:vpblock' );
 const BLOCK_CLASSNAME = 'wp-block-jetpack-videopress';
-
-function dispatchPlayerAction( ref, event, data = {} ) {
-	debug( 'dispatching %o action [%o]', event, data );
-	ref.contentWindow.postMessage(
-		{
-			event,
-			...data,
-		},
-		'*'
-	);
-}
 
 function initVideoPressBlocks( blockDOMReference ) {
 	debug( 'initializing block instance', blockDOMReference );
