@@ -116,7 +116,7 @@ export const UploadingEditor = props => {
 										<video
 											ref={ videoPlayer }
 											muted
-											class="uploading-editor__video"
+											className="uploading-editor__video"
 											onDurationChange={ onDurationChange }
 											onError={ onVideoError }
 											onLoadedMetadata={ onVideoLoad }

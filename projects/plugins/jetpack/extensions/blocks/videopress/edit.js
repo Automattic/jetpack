@@ -69,14 +69,23 @@ const VideoPressEdit = CoreVideoEdit =>
 		}
 
 		static getDerivedStateFromProps( nextProps, state ) {
+			const newState = {};
 			if ( ! nextProps.isSelected && state.interactive ) {
 				// We only want to change this when the block is not selected, because changing it when
 				// the block becomes selected makes the overlap disappear too early. Hiding the overlay
 				// happens on mouseup when the overlay is clicked.
-				return { interactive: false };
+				newState.interactive = false;
 			}
 
-			return null;
+			if ( state.fileForUpload && ! state.isEditingWhileUploading ) {
+				const isResumableUploading =
+					null !== state.fileForUpload && state.fileForUpload instanceof File;
+				if ( isResumableUploading ) {
+					newState.isEditingWhileUploading = true;
+				}
+			}
+
+			return Object.keys( newState ).length ? newState : null;
 		}
 
 		hideOverlay = () => {
@@ -703,8 +712,6 @@ const VideoPressEdit = CoreVideoEdit =>
 				}
 			};
 
-			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
-
 			/**
 			 * Determines if api requests should be made via the `gutenberg-video-upload` script (Jetpack only).
 			 *
@@ -788,14 +795,12 @@ const VideoPressEdit = CoreVideoEdit =>
 				}
 			};
 
+			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
+
 			if (
 				isResumableUploading ||
 				( this.state.isEditingWhileUploading && this.state.hasUsedUploadingEditor )
 			) {
-				if ( ! this.state.isEditingWhileUploading ) {
-					this.setState( { isEditingWhileUploading: true } );
-				}
-
 				const title = this.state.title || filename;
 
 				return (
