@@ -3,7 +3,7 @@
  */
 import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export default function VideoPressPlayer( {
@@ -12,9 +12,36 @@ export default function VideoPressPlayer( {
 	attributes,
 	setAttributes,
 	scripts = [],
+	thumbnail,
+	preview,
 } ) {
-	// @todo: implemen maxWidth
-	const { maxWidth, caption } = attributes;
+	const ref = useRef();
+	const { maxWidth, caption, videoRatio } = attributes;
+
+	/*
+	 * Temporary height is used to set the height of the video
+	 * as soon as the block is rendered into the canvas,
+	 * while the preview fetching process is happening,
+	 * trying to remove the flicker effect.
+	 *
+	 * Once the preview is fetched, the temporary heihgt is ignored.
+	 */
+	const [ temporaryHeight, setTemporaryHeight ] = useState();
+	useEffect( () => {
+		if ( ! ref?.current ) {
+			return;
+		}
+
+		if ( temporaryHeight === 'auto' ) {
+			return;
+		}
+
+		if ( preview ) {
+			return setTemporaryHeight( 'auto' );
+		}
+
+		setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
+	}, [ ref, setTemporaryHeight, temporaryHeight, videoRatio, preview ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
@@ -44,6 +71,12 @@ export default function VideoPressPlayer( {
 		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
 	}
 
+	const style = {};
+	if ( temporaryHeight !== 'auto' ) {
+		style.height = temporaryHeight;
+		style.paddingBottom = 12;
+	}
+
 	return (
 		<figure className="jetpack-videopress-player">
 			<ResizableBox
@@ -59,7 +92,14 @@ export default function VideoPressPlayer( {
 				onResizeStop={ onBlockResize }
 			>
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
-				<SandBox html={ html } scripts={ scripts } />
+				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
+					<SandBox html={ html } scripts={ scripts } />
+					<img
+						src={ thumbnail }
+						alt={ __( 'Video thumbnail', 'jetpack' ) }
+						className="jetpack-videopress-player__thumbnail"
+					/>
+				</div>
 			</ResizableBox>
 
 			{ ( ! RichText.isEmpty( caption ) || isSelected ) && (

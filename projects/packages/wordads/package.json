@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-wordads",
-	"version": "0.2.8",
+	"version": "0.2.9-alpha",
 	"description": "Earn income by allowing Jetpack to display high quality ads.",
 	"main": "main.js",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wordads/#readme",
@@ -89,7 +89,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [
