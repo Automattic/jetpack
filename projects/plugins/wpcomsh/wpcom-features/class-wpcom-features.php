@@ -921,6 +921,16 @@ class WPCOM_Features {
 				self::JETPACK_SECURITY_T2_PLANS,
 			),
 		),
+
+		/*
+		 * Note: VIDEOPRESS_1TB_STORAGE and VIDEOPRESS_UNLIMITED_STORAGE are
+		 * currently only checked on standalone Jetpack sites.
+		 * For example, adding VIDEOPRESS_UNLIMITED_STORAGE to a WP.com plan
+		 * will not provide it with unlimited VideoPress storage.
+		 *
+		 * All WoA VIDEOPRESS sites currently get 2TB storage on their cache
+		 * site for VideoPress.
+		 */
 		self::VIDEOPRESS_1TB_STORAGE        => array(
 			array(
 				self::JETPACK_COMPLETE_PLANS,
