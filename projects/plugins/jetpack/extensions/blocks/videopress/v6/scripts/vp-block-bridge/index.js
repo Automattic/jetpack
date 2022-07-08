@@ -39,14 +39,19 @@ const rawScript = `
 			},
 
 			'vpblock_action_play': {
-				name: 'onVPBlockActionPlay',
+				name: 'vpBlockActionPlay',
 				type: 'action',
 				videoPressAction: 'videopress_action_play',
 			},
 			'vpblock_action_pause': {
-				name: 'onVPBlockActionPause',
+				name: 'vpBlockActionPause',
 				type: 'action',
 				videoPressAction: 'videopress_action_pause',
+			},
+			'vpblock_action_set_currenttime': {
+				name: 'vpBlockActionPause',
+				type: 'action',
+				videoPressAction: 'videopress_action_set_currenttime',
 			},
 		};
 
@@ -86,10 +91,17 @@ const rawScript = `
 			}
 
 			if ( vpEventType === 'action' ) {
-				console.log( '(bridge) recieve %o -> dispatching %o', eventName, videoPressAction );
-				videoPressWindow.postMessage( {
-					event: videoPressAction,
-				}, '*' );
+				// Translate API from/to videopress player.
+				if ( data.event === 'vpblock_action_set_currenttime' && data.timePosition !== undefined ) {
+					data.currentTime = data.timePosition;
+					delete data.timePosition;
+				}
+
+				// Overwrite event from -> to
+				data.event = videoPressAction;
+
+				console.log( '(bridge) recieve %o -> dispatching %o [%o]', eventName, videoPressAction, data );
+				videoPressWindow.postMessage( data, '*' );
 			}
 		} );
 	}

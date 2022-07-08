@@ -40,25 +40,42 @@ export default function VideoPressPlayer( {
 	preview,
 } ) {
 	const ref = useRef();
-	const { maxWidth, caption, videoRatio, autoplayHovering } = attributes;
+	const {
+		maxWidth,
+		caption,
+		videoRatio,
+		autoplayHovering,
+		autoplayHoveringStart,
+		autoplayHoveringDuration,
+	} = attributes;
 
-	function dispatchVideoPressAction( event ) {
+	function dispatchVideoPressAction( event, eventData = {} ) {
 		const sandboxIFrame = ref?.current?.querySelector( 'iframe' );
 		const sandboxWindowContent = sandboxIFrame?.contentWindow;
 		if ( ! sandboxWindowContent ) {
 			return;
 		}
-		sandboxWindowContent.postMessage( { event } );
+		sandboxWindowContent.postMessage( { event, ...eventData } );
 	}
 
-	const playVideo = useCallback( () => {
+	/**
+	 * Helper function to play the video at a desired time.
+	 */
+	const playbackVideo = useCallback( () => {
 		if ( ! preview || ! autoplayHovering ) {
 			return;
 		}
 
-		dispatchVideoPressAction( 'vpblock_action_play' );
-	}, [ autoplayHovering, preview ] );
+		dispatchVideoPressAction( 'vpblock_action_set_currenttime', {
+			timePosition: autoplayHoveringStart + autoplayHoveringDuration,
+		} );
 
+		dispatchVideoPressAction( 'vpblock_action_play' );
+	}, [ autoplayHovering, autoplayHoveringDuration, autoplayHoveringStart, preview ] );
+
+	/**
+	 * Helper function to pause the video.
+	 */
 	const pauseVideo = useCallback( () => {
 		if ( ! preview || ! autoplayHovering ) {
 			return;
@@ -106,14 +123,14 @@ export default function VideoPressPlayer( {
 		}
 
 		const mainWrapper = ref.current;
-		mainWrapper.addEventListener( 'mouseenter', playVideo );
+		mainWrapper.addEventListener( 'mouseenter', playbackVideo );
 		mainWrapper.addEventListener( 'mouseleave', pauseVideo );
 
 		return function () {
-			mainWrapper.removeEventListener( 'mouseenter', playVideo );
+			mainWrapper.removeEventListener( 'mouseenter', playbackVideo );
 			mainWrapper.removeEventListener( 'mouseleave', pauseVideo );
 		};
-	}, [ pauseVideo, playVideo, preview ] );
+	}, [ pauseVideo, playbackVideo, preview ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
