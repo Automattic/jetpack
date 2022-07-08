@@ -28,6 +28,8 @@ const Admin = () => {
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
 	const [ price, setPrice ] = useState( 0 );
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
+	// eslint-disable-next-line no-unused-vars
+	const [ restores, setRestores ] = useState( [] );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -38,6 +40,14 @@ const Admin = () => {
 	}, [ connectionStatus ] );
 
 	useEffect( () => {
+		apiFetch( { path: '/jetpack/v4/restores' } ).then(
+			res => {
+				setRestores( res );
+			},
+			() => {
+				setRestores( 'Failed to fetch all modules' );
+			}
+		);
 		apiFetch( { path: '/jetpack/v4/backup-capabilities' } ).then(
 			res => {
 				setCapabilities( res.capabilities );
