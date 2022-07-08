@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-JS Components: Removed unnecessary React imports in tests after using automatic runtime in jest config
