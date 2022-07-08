@@ -269,7 +269,7 @@ export type IconSlug = keyof IconsMap;
  * @param {string} slug       - Icon slug.
  * @returns {React.ComponentType<BaseIconProps>}   Icon component.
  */
-export function getIconBySlug< Slug extends IconSlug >( slug: IconSlug ): IconsMap[ Slug ] {
+export function getIconBySlug< Slug extends IconSlug >( slug: Slug ): IconsMap[ Slug ] {
 	if ( ! iconsMap[ slug ] ) {
 		return null;
 	}
