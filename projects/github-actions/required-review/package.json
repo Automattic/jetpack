@@ -1,6 +1,6 @@
 {
 	"name": "required-review",
-	"version": "3.0.0",
+	"version": "3.0.1-alpha",
 	"description": "Check that a Pull Request has reviews from required teams.",
 	"main": "index.js",
 	"author": "Automattic",
@@ -20,7 +20,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

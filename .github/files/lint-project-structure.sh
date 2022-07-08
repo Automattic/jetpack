@@ -68,7 +68,7 @@ for PROJECT in projects/*; do
 	fi
 done
 
-ROOT_PACKAGE_JSON_ENGINES="$(jq '.engines' package.json)"
+ROOT_PACKAGE_JSON_ENGINES="$(jq '.engines | .pnpm |= empty' package.json)"
 
 for PROJECT in projects/*/*; do
 	SLUG="${PROJECT#projects/}"
@@ -101,12 +101,12 @@ for PROJECT in projects/*/*; do
 			LINE=$(jq --stream --arg obj "$PACKAGE_JSON_ENGINES" 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines"] then input_line_number - ( $obj | gsub( "[^\n]"; "" ) | length ) else empty end' "$PROJECT/package.json")
 			if [[ -n "$LINE" ]]; then
 				echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must match those in the monorepo root package.json.%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
+				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must match those in the monorepo root package.json (but omitting \"pnpm\").%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
 				echo "---"
 			else
 				LINE=$(wc -l < "$PROJECT/package.json")
 				echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must be specified, matching those in the monorepo root package.json.%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
+				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must be specified, matching those in the monorepo root package.json (but omitting \"pnpm\").%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
 				echo "---"
 			fi
 		fi

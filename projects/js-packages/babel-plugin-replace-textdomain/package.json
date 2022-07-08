@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/babel-plugin-replace-textdomain",
-	"version": "1.0.10",
+	"version": "1.0.11-alpha",
 	"description": "A Babel plugin to replace the textdomain in gettext-style function calls.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/babel-plugin-replace-textdomain/#readme",
 	"bugs": {
@@ -27,7 +27,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
