@@ -42,16 +42,22 @@ export default function VideoPressPlayer( {
 	const ref = useRef();
 	const { maxWidth, caption, videoRatio } = attributes;
 
-	const pauseVideo = useCallback( () => {
+	function dispatchVideoPressAction( action ) {
 		const sandboxIFrame = ref?.current?.querySelector( 'iframe' );
 		const sandboxWindowContent = sandboxIFrame?.contentWindow;
 		if ( ! sandboxWindowContent ) {
 			return;
 		}
-
 		sandboxWindowContent.postMessage( {
-			event: 'vpblock_action_pause',
+			event: action,
 		} );
+	}
+	const playVideo = useCallback( () => {
+		dispatchVideoPressAction( 'vpblock_action_play' );
+	}, [] );
+
+	const pauseVideo = useCallback( () => {
+		dispatchVideoPressAction( 'vpblock_action_pause' );
 	}, [] );
 
 	/*
@@ -76,8 +82,31 @@ export default function VideoPressPlayer( {
 			return setTemporaryHeight( 'auto' );
 		}
 
-		setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
+		// Wrapper element is used to set the height of block,
+		// when the preview is not ready to use.
+		const wrapperDOMReference = ref.current.querySelector( '.jetpack-videopress-player__wrapper' );
+		if ( ! wrapperDOMReference ) {
+			return;
+		}
+
+		setTemporaryHeight( ( wrapperDOMReference.offsetWidth * videoRatio ) / 100 );
 	}, [ ref, setTemporaryHeight, temporaryHeight, videoRatio, preview ] );
+
+	// Autoplay when hovering the video.
+	useEffect( () => {
+		if ( ! ref?.current ) {
+			return;
+		}
+
+		const mainWrapper = ref.current;
+		mainWrapper.addEventListener( 'mouseenter', playVideo );
+		mainWrapper.addEventListener( 'mouseleave', pauseVideo );
+
+		return function () {
+			mainWrapper.removeEventListener( 'mouseenter', playVideo );
+			mainWrapper.removeEventListener( 'mouseleave', pauseVideo );
+		};
+	}, [ pauseVideo, playVideo, preview ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
@@ -102,7 +131,7 @@ export default function VideoPressPlayer( {
 	}
 
 	return (
-		<figure className="jetpack-videopress-player">
+		<figure className="jetpack-videopress-player" ref={ ref }>
 			<InspectorControls>
 				<Panel>
 					<PanelBody title={ __( 'VideoPress Player', 'jetpack' ) } initialOpen={ true }>
@@ -118,6 +147,7 @@ export default function VideoPressPlayer( {
 					</PanelBody>
 				</Panel>
 			</InspectorControls>
+
 			<ResizableBox
 				enable={ {
 					top: false,

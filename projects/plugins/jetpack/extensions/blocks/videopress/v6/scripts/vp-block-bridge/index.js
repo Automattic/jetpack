@@ -86,6 +86,7 @@ const rawScript = `
 			}
 
 			if ( vpEventType === 'action' ) {
+				console.log( '(bridge) recieve %o -> dispatching %o', eventName, videoPressAction );
 				videoPressWindow.postMessage( {
 					event: videoPressAction,
 				}, '*' );
