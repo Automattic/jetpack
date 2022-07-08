@@ -6,8 +6,9 @@ export interface AutomatticBylineLogoProps extends React.SVGProps< SVGSVGElement
 	 */
 	title?: string;
 
-	/*
-     Height for SVG. */
+	/**
+	 * Height for SVG.
+	 */
 	height?: number;
 
 	/**
