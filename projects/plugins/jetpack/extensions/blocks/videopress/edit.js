@@ -541,7 +541,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									/* translators: Tooltip describing the "preload" option for the VideoPress player */
 									__( 'Content to dowload before the video is played', 'jetpack' )
 								) }
-								value={ preload }
+								value={ preload ?? '' }
 								onChange={ value => setAttributes( { preload: value } ) }
 								options={ [
 									{ value: 'auto', label: _x( 'Auto', 'VideoPress preload setting', 'jetpack' ) },
@@ -605,7 +605,7 @@ const VideoPressEdit = CoreVideoEdit =>
 						<PanelBody title={ __( 'Video File Settings', 'jetpack' ) }>
 							<SelectControl
 								label={ _x( 'Rating', 'The age rating for this video.', 'jetpack' ) }
-								value={ rating }
+								value={ rating ?? '' }
 								disabled={ isFetchingMedia || isUpdatingRating }
 								options={ [
 									{
@@ -648,7 +648,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								label={ __( 'Video Privacy', 'jetpack' ) }
 								help={ this.getPrivacySettingHelp( privacySetting ) }
 								onChange={ this.onChangePrivacySetting }
-								value={ privacySetting }
+								value={ privacySetting ?? '' }
 								options={ [
 									{
 										value: VIDEO_PRIVACY.SITE_DEFAULT,
