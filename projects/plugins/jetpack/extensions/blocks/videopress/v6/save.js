@@ -24,6 +24,9 @@ export default function save( { attributes } ) {
 		seekbarPlayedColor,
 		guid,
 		maxWidth,
+		autoplayHovering,
+		autoplayHoveringStart,
+		autoplayHoveringDuration,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -52,8 +55,14 @@ export default function save( { attributes } ) {
 		style.margin = 'auto';
 	}
 
+	const features = {
+		autoplayHovering,
+		autoplayHoveringStart,
+		autoplayHoveringDuration,
+	};
+
 	return (
-		<figure { ...blockProps } style={ style }>
+		<figure { ...blockProps } style={ style } data-features={ JSON.stringify( features ) }>
 			<div className="jetpack-videopress-player__wrapper">
 				{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
 			</div>
