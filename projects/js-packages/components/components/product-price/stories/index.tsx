@@ -1,9 +1,8 @@
-/* eslint-disable react/react-in-jsx-scope */
 import { CURRENCIES } from '@automattic/format-currency';
-import React from 'react';
 import ProductPrice from '../';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-export default {
+const meta: ComponentMeta< typeof ProductPrice > = {
 	title: 'JS Packages/Components/Product Price',
 	component: ProductPrice,
 	argTypes: {
@@ -13,8 +12,10 @@ export default {
 	},
 };
 
+export default meta;
+
 // Export additional stories using pre-defined values
-const Template = args => <ProductPrice { ...args } />;
+const Template: ComponentStory< typeof ProductPrice > = args => <ProductPrice { ...args } />;
 
 const DefaultArgs = {
 	currency: 'USD',
