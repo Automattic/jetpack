@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, Tooltip, SelectControl } from '@wordpress/components';
+import { Panel, PanelBody, ToggleControl, Tooltip, SelectControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 /**
@@ -11,7 +11,16 @@ import { useCallback } from 'react';
 import SeekbarColorSettings from './seekbar-color-settings';
 
 export default function VideoPressInspectorControls( { attributes, setAttributes } ) {
-	const { autoplay, loop, muted, controls, playsinline, preload, useAverageColor } = attributes;
+	const {
+		autoplay,
+		loop,
+		muted,
+		controls,
+		playsinline,
+		preload,
+		useAverageColor,
+		autoplayHovering,
+	} = attributes;
 
 	const renderControlLabelWithTooltip = ( label, tooltipText ) => {
 		return (
@@ -28,6 +37,12 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 			};
 		},
 		[ setAttributes ]
+	);
+
+	/* translators: Tooltip describing the "controls" option for the VideoPress player */
+	const autoplayHoveringHelp = __(
+		'The video will be automatically played when hovering over it, and stopped when leaving.',
+		'jetpack'
 	);
 
 	return (
@@ -108,6 +123,20 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 					}
 				/>
 			</PanelBody>
+
+			<Panel>
+				<PanelBody title={ __( 'Interactive autoplay', 'jetpack' ) } initialOpen={ true }>
+					<ToggleControl
+						label={ renderControlLabelWithTooltip(
+							__( 'Autoplay when hovering', 'jetpack' ),
+							autoplayHoveringHelp
+						) }
+						onChange={ handleAttributeChange( 'autoplayHovering' ) }
+						checked={ autoplayHovering }
+						help={ autoplayHoveringHelp }
+					/>
+				</PanelBody>
+			</Panel>
 
 			<SeekbarColorSettings
 				{ ...{ attributes, setAttributes, useAverageColor } }
