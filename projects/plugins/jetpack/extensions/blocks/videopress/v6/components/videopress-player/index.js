@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { InspectorControls, RichText } from '@wordpress/block-editor';
-import { Button, Panel, PanelBody, ResizableBox, SandBox } from '@wordpress/components';
+import { RichText } from '@wordpress/block-editor';
+import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -132,22 +132,6 @@ export default function VideoPressPlayer( {
 
 	return (
 		<figure className="jetpack-videopress-player" ref={ ref }>
-			<InspectorControls>
-				<Panel>
-					<PanelBody title={ __( 'VideoPress Player', 'jetpack' ) } initialOpen={ true }>
-						<Button
-							variant="primary"
-							className="jetpack-videopress-player__button"
-							onClick={ () => {
-								pauseVideo();
-							} }
-						>
-							{ __( 'Pause', 'jetpack' ) }
-						</Button>
-					</PanelBody>
-				</Panel>
-			</InspectorControls>
-
 			<ResizableBox
 				enable={ {
 					top: false,
