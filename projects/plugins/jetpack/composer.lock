@@ -1771,7 +1771,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "12a01a9dc90cd4be268b01c16530cec0332e4999"
+                "reference": "35df99a7f8c364afa34e82c56df98ebd78bbfd60"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.41"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
