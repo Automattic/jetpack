@@ -1,30 +1,16 @@
 /**
  * WordPress dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
-import { escapeHTML } from '@wordpress/escape-html';
-import { getJWT, resumableUploader } from './use-uploader';
 import { Button, ExternalLink } from '@wordpress/components';
-import {
-	createInterpolateElement,
-	useCallback,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from '@wordpress/element';
-import filesize from 'filesize';
-
-/**
- * External Dependencies
- */
+import { useCallback, useContext, useEffect, useRef, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
 /**
  * Internal Dependencies
  */
 import { VideoPressBlockContext } from '../components';
-import './style.scss';
 import { getJWT, resumableUploader } from './use-uploader';
+import './style.scss';
 
 export default function ResumableUpload( { file } ) {
 	const [ progress, setProgress ] = useState( 0 );
