@@ -145,7 +145,7 @@
 - Number format the number of subscribers in the subscribers panel when publishing a post [#24544]
 - phpcs changes for likes [#24368]
 - Publicize Components: Move the remaining components and hooks required for Jetpack Social [#24464]
-- Refactor to use siteHasFeature to centralize the source of truth to WPCOM_Features. [#24152]
+- Refactor to use hasActiveSiteFeature to centralize the source of truth to WPCOM_Features. [#24152]
 - Sync: Add '_jetpack_blogging_prompt_key' to rest api public metadata via the rest_api_allowed_public_metadata filter [#24515]
 - Jetpack: correct prices in product descriptions [#24461]
 - Updated package dependencies. [#24432]
