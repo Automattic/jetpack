@@ -1,4 +1,8 @@
 const rawScript = `
+	const noop = () => {};
+	const debug = window.parent?.debugBridgeInstance ?? noop;
+	console.log( 'debug: ', debug );
+
 	function initWPBlockBridge() {
 		const videoPressIFrame = document.querySelector('iframe');
 		const videoPressWindow = videoPressIFrame.contentWindow;
@@ -94,7 +98,7 @@ const rawScript = `
 				// Overwrite event from -> to
 				data.event = videoPressAction;
 
-				console.log( '(bridge) recieve %o -> dispatching %o [%o]', eventName, videoPressAction, data );
+				debug( 'recieve %o -> dispatching %o [%o]', eventName, videoPressAction, data );
 				videoPressWindow.postMessage( data, '*' );
 			}
 		} );
