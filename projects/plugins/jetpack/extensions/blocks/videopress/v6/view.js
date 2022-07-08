@@ -1,15 +1,32 @@
 /**
  * WordPress dependencies
  */
-import domReady from '@wordpress/dom-ready';
-import { __ } from '@wordpress/i18n';
+import debugFactory from 'debug';
+const debug = debugFactory( 'jetpack:vpblock' );
 
 /**
  * Internal dependencies
  */
 import './style.scss';
 
-domReady( function () {
+const BLOCK_CLASSNAME = 'wp-block-jetpack-videopress';
+
+function initVideoPressBlocks( blockDOMReference ) {
+	debug( 'initializing block instance', blockDOMReference );
+
+	// Block initialized flag.
+	blockDOMReference.setAttribute( 'data-jetpack-block-initialized', 'true' );
+}
+
+document.addEventListener( 'DOMContentLoaded', function () {
 	// eslint-disable-next-line no-console
-	console.log( __( 'VideoPress init', 'jetpack' ) );
+	debug( 'init' );
+
+	const instances = document.querySelectorAll(
+		`.${ BLOCK_CLASSNAME }:not([data-jetpack-block-initialized])`
+	);
+
+	if ( instances.length ) {
+		instances.forEach( initVideoPressBlocks );
+	}
 } );
