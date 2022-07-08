@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
+import React from 'react';
 import { AutomatticBylineLogoProps } from './types';
-import type React from 'react';
 
 /**
  * Automattic "By line" Logo component.
