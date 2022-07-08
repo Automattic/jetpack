@@ -801,7 +801,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				isResumableUploading ||
 				( this.state.isEditingWhileUploading && this.state.hasUsedUploadingEditor )
 			) {
-				const title = this.state.title || filename;
+				const title = this.state.title ?? filename;
 
 				return (
 					<UploaderBlock
