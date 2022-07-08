@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide 'Media' from 'Excluded Post Types' because we don't index them

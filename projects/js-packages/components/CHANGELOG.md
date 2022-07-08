@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.6 - 2022-07-07
+### Removed
+- JS Components: Removed unnecessary React imports in tests after using automatic runtime in jest config
+
 ## 0.16.5 - 2022-07-06
 ### Added
 - Export Alert component [#24884]
