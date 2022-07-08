@@ -20,7 +20,7 @@ class Instant_Search extends Classic_Search {
 	/**
 	 * The name of instant search sidebar.
 	 *
-	 * 'sidbar' is broken to 'side-bar' on purpose to walk around the mechanism that WP automatically adds widgets to it.
+	 * 'sidebar' is broken to 'side-bar' on purpose to walk around the mechanism that WP automatically adds widgets to it.
 	 *
 	 * @since 9.8.0
 	 * @var string
