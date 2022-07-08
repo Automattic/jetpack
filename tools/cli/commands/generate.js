@@ -249,6 +249,7 @@ export async function generateProject(
 	}
 
 	createSkeleton( type, projDir, answers.name );
+	await searchReplaceInFolder( projDir, 'package-name', normalizeSlug( answers.name ) );
 
 	// Generate the composer.json file
 	const composerJson = readComposerJson( project );
@@ -266,7 +267,6 @@ export async function generateProject(
 
 	switch ( answers.type ) {
 		case 'package':
-			await searchReplaceInFolder( projDir, 'PACKAGE-NAME', normalizeSlug( answers.name ) );
 			break;
 		case 'js-package':
 			break;
