@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Gathering Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.

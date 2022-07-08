@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Record Meter: rely less on last_indexed_date from API

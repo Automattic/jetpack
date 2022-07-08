@@ -93,7 +93,6 @@
 		"photon": "4.0.0",
 		"postcss-custom-properties": "12.1.7",
 		"prop-types": "15.7.2",
-		"query-string": "7.0.0",
 		"react-redux": "7.2.8",
 		"react-router-dom": "5.2.0",
 		"redux": "4.0.5",
@@ -160,7 +159,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
