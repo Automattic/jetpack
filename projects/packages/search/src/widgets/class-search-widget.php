@@ -300,7 +300,7 @@ class Search_Widget extends \WP_Widget {
 		}
 
 		if ( Options::is_instant_enabled() ) {
-			if ( array_key_exists( 'id', $args ) && 'jetpack-instant-search-sidebar' === $args['id'] ) {
+			if ( array_key_exists( 'id', $args ) && Instant_Search::INSTANT_SEARCH_SIDEBAR === $args['id'] ) {
 				$this->widget_empty_instant( $args, $instance );
 			} else {
 				$this->widget_instant( $args, $instance );

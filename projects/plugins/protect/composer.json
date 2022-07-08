@@ -4,6 +4,7 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"ext-json": "*",
 		"automattic/jetpack-assets": "1.17.x-dev",
 		"automattic/jetpack-admin-ui": "0.2.x-dev",
 		"automattic/jetpack-autoloader": "2.11.x-dev",
@@ -71,6 +72,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ1_0_1_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ1_0_2_alpha"
 	}
 }

@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "1.7.3",
+	"version": "1.7.4-alpha",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -68,7 +68,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
