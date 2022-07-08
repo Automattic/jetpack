@@ -29,19 +29,69 @@ class Test_Status extends BaseTestCase {
 	}
 
 	/**
-	 * Get a sample response for a checked item
+	 * Get a sample checked theme result
 	 *
-	 * @param boolean $with_vuls Whether to add vulnerabilities to the item or not.
+	 * @param string $id The unique theme ID.
+	 * @param bool   $with_vuls Whether the sample should include a vulnerability.
 	 * @return object
 	 */
-	public function get_sample_item_response( $with_vuls = true ) {
+	public function get_sample_theme( $id, $with_vuls = true ) {
 		$item = (object) array(
 			'version'         => '1.0.2',
+			'name'            => 'Sample Theme',
+			'checked'         => true,
+			'type'            => 'theme',
 			'vulnerabilities' => array(),
+			'slug'            => "theme-$id",
 		);
 		if ( $with_vuls ) {
 			$item->vulnerabilities[] = $this->get_sample_vul();
 		}
+		return $item;
+	}
+
+	/**
+	 * Get a sample checked plugin result
+	 *
+	 * @param string $id The unique plugin ID.
+	 * @param bool   $with_vuls Whether the sample should include a vulnerability.
+	 * @return object
+	 */
+	public function get_sample_plugin( $id, $with_vuls = true ) {
+		$item = (object) array(
+			'version'         => '1.0.2',
+			'name'            => 'Sample Plugin',
+			'checked'         => true,
+			'type'            => 'plugin',
+			'vulnerabilities' => array(),
+			'slug'            => "plugin-$id",
+		);
+		if ( $with_vuls ) {
+			$item->vulnerabilities[] = $this->get_sample_vul();
+		}
+		return $item;
+	}
+
+	/**
+	 * Get a sample checked core result
+	 *
+	 * @param bool $with_vuls Whether the sample should include a vulnerability.
+	 * @return object
+	 */
+	public function get_sample_core( $with_vuls = true ) {
+		global $wp_version;
+
+		$item = (object) array(
+			'version'         => $wp_version,
+			'vulnerabilities' => array(),
+			'checked'         => true,
+			'name'            => 'WordPress',
+			'type'            => 'core',
+		);
+		if ( $with_vuls ) {
+			$item->vulnerabilities[] = $this->get_sample_vul();
+		}
+
 		return $item;
 	}
 
@@ -77,22 +127,47 @@ class Test_Status extends BaseTestCase {
 	public function get_sample_response() {
 		return (object) array(
 			'last_checked'                => '2003-03-03 03:03:03',
-			'num_vulnerabilities'         => 4,
+			'num_vulnerabilities'         => 3,
 			'num_themes_vulnerabilities'  => 1,
-			'num_plugins_vulnerabilities' => 2,
+			'num_plugins_vulnerabilities' => 1,
 			'themes'                      => (object) array(
-				'theme-1' => $this->get_sample_item_response(),
+				'theme-1' => $this->get_sample_theme( '1' ),
 			),
 			'plugins'                     => (object) array(
-				'plugin-1' => $this->get_sample_item_response(),
-				'plugin-2' => $this->get_sample_item_response(),
+				'plugin-1' => $this->get_sample_plugin( '1' ),
+				'plugin-2' => $this->get_sample_plugin( '2', false ),
 			),
-			'core'                        => $this->get_sample_item_response(),
+			'core'                        => $this->get_sample_core(),
+			'wordpress'                   => $this->get_sample_core(),
 		);
 	}
 
 	/**
-	 * Return a sample status.
+	 * Get a sample result of Status::get_status().
+	 *
+	 * @return object
+	 */
+	public function get_sample_status() {
+		return (object) array(
+			'plugins'                     => array(
+				$this->get_sample_plugin( '1' ),
+				$this->get_sample_plugin( '2', false ),
+			),
+			'themes'                      => array(
+				$this->get_sample_theme( '1' ),
+			),
+			'core'                        => $this->get_sample_core(),
+			'wordpress'                   => $this->get_sample_core(),
+			'last_checked'                => '2003-03-03 03:03:03',
+			'num_vulnerabilities'         => 3,
+			'num_themes_vulnerabilities'  => 1,
+			'num_plugins_vulnerabilities' => 1,
+			'hasUncheckedItems'           => false,
+		);
+	}
+
+	/**
+	 * Return a sample wpcom status response.
 	 *
 	 * @return array
 	 */
@@ -102,6 +177,38 @@ class Test_Status extends BaseTestCase {
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
+			),
+		);
+	}
+
+	/**
+	 * Return an array of sample plugins.
+	 *
+	 * @return array
+	 */
+	public function return_sample_plugins() {
+		return array(
+			'plugin-1' => array(
+				'Name'    => 'Sample Plugin',
+				'Version' => '1.0.2',
+			),
+			'plugin-2' => array(
+				'Name'    => 'Sample Plugin',
+				'Version' => '1.0.2',
+			),
+		);
+	}
+
+	/**
+	 * Return an array of sample themes.
+	 *
+	 * @return array
+	 */
+	public function return_sample_themes() {
+		return array(
+			'theme-1' => array(
+				'Name'    => 'Sample Theme',
+				'Version' => '1.0.2',
 			),
 		);
 	}
@@ -150,8 +257,12 @@ class Test_Status extends BaseTestCase {
 	 */
 	public function test_get_status_not_connected() {
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 		$status = Status::get_status();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertSame( 'site_not_connected', $status['error_code'] );
 
@@ -166,10 +277,14 @@ class Test_Status extends BaseTestCase {
 		$this->mock_connection();
 
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 		$status = Status::get_status();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
-		$this->assertEquals( $this->get_sample_response(), $status );
+		$this->assertEquals( $this->get_sample_status(), $status );
 
 		// Make sure this was cached
 		$this->assertEquals( $this->get_sample_response(), Status::get_from_options() );
@@ -185,7 +300,7 @@ class Test_Status extends BaseTestCase {
 		$status = Status::get_total_vulnerabilities();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 
-		$this->assertSame( 4, $status );
+		$this->assertSame( 3, $status );
 
 	}
 
@@ -199,12 +314,15 @@ class Test_Status extends BaseTestCase {
 			$this->get_sample_vul(),
 			$this->get_sample_vul(),
 			$this->get_sample_vul(),
-			$this->get_sample_vul(),
 		);
 
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 		$status = Status::get_all_vulnerabilities();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertEquals( $expected, $status );
 

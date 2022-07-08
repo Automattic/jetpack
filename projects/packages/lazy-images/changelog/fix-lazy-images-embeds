@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Do not attempt to lazy-load images in embeds.
