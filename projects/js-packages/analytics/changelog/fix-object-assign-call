@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix crash if `analytics.assignSuperProps()` is called without something first calling `.setSuperProps()`.
