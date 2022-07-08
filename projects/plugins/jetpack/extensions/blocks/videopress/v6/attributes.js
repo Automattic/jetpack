@@ -5,6 +5,14 @@ export default {
 	autoplayHovering: {
 		type: 'boolean',
 	},
+	autoplayHoveringStart: {
+		type: 'number',
+		default: 0,
+	},
+	autoplayHoveringDuration: {
+		type: 'number',
+		default: 5 * 3600,
+	},
 	caption: {
 		type: 'string',
 		source: 'html',

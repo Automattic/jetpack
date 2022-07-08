@@ -2,7 +2,14 @@
  * WordPress dependencies
  */
 import { InspectorControls } from '@wordpress/block-editor';
-import { Panel, PanelBody, ToggleControl, Tooltip, SelectControl } from '@wordpress/components';
+import {
+	Panel,
+	PanelBody,
+	ToggleControl,
+	Tooltip,
+	SelectControl,
+	RangeControl,
+} from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 /**
@@ -20,6 +27,8 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 		preload,
 		useAverageColor,
 		autoplayHovering,
+		autoplayHoveringStart,
+		autoplayHoveringDuration,
 	} = attributes;
 
 	const renderControlLabelWithTooltip = ( label, tooltipText ) => {
@@ -135,6 +144,37 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 						checked={ autoplayHovering }
 						help={ autoplayHoveringHelp }
 					/>
+					{ autoplayHovering && (
+						<>
+							<RangeControl
+								label={ __( 'Start', 'jetpack' ) }
+								value={ autoplayHoveringStart }
+								onChange={ newStartTime =>
+									setAttributes( {
+										autoplayHoveringStart: newStartTime,
+									} )
+								}
+								min={ 0 }
+								max={ 100 }
+								required
+								withInputField={ false }
+							/>
+
+							<RangeControl
+								label={ __( 'Duration [seconds]', 'jetpack' ) }
+								value={ autoplayHoveringDuration }
+								onChange={ newDuration =>
+									setAttributes( {
+										autoplayHoveringDuration: newDuration,
+									} )
+								}
+								min={ 0 }
+								max={ 10 }
+								required
+								withInputField={ false }
+							/>
+						</>
+					) }
 				</PanelBody>
 			</Panel>
 

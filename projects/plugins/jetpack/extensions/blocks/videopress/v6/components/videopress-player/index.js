@@ -40,7 +40,7 @@ export default function VideoPressPlayer( {
 	preview,
 } ) {
 	const ref = useRef();
-	const { maxWidth, caption, videoRatio } = attributes;
+	const { maxWidth, caption, videoRatio, autoplayHovering } = attributes;
 
 	function dispatchVideoPressAction( action ) {
 		const sandboxIFrame = ref?.current?.querySelector( 'iframe' );
@@ -52,13 +52,22 @@ export default function VideoPressPlayer( {
 			event: action,
 		} );
 	}
+
 	const playVideo = useCallback( () => {
+		if ( ! preview || ! autoplayHovering ) {
+			return;
+		}
+
 		dispatchVideoPressAction( 'vpblock_action_play' );
-	}, [] );
+	}, [ autoplayHovering, preview ] );
 
 	const pauseVideo = useCallback( () => {
+		if ( ! preview || ! autoplayHovering ) {
+			return;
+		}
+
 		dispatchVideoPressAction( 'vpblock_action_pause' );
-	}, [] );
+	}, [ autoplayHovering, preview ] );
 
 	/*
 	 * Temporary height is used to set the height of the video
