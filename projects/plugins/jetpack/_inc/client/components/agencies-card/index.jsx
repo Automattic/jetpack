@@ -10,10 +10,6 @@ import { isCurrentUserLinked, isConnectionOwner, connectUser } from 'state/conne
 import { isFetchingSiteData } from 'state/site';
 
 class AgenciesCard extends Component {
-	static defaultProps = {
-		className: '',
-	};
-
 	trackLearnClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'learn-more-click',
@@ -40,7 +36,8 @@ class AgenciesCard extends Component {
 						</h3>
 						<p className="jp-agencies-card__description">
 							{
-								/* translators: % is just a percent sign, not a placeholder */
+								/* Disabling translator comments eslint error because eslint is incorrectly assuming the % sign is a placeholder */
+								/* eslint-disable-next-line @wordpress/i18n-translator-comments */
 								__(
 									'Monitor site and product activity, manage licenses, and get a 25% discount in our agency portal.',
 									'jetpack'

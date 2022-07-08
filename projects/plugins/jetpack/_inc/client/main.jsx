@@ -33,6 +33,7 @@ import { Recommendations } from 'recommendations';
 import SearchableSettings from 'settings/index.jsx';
 import {
 	getSiteConnectionStatus,
+	getConnectedWpComUser,
 	isCurrentUserLinked,
 	isSiteConnected,
 	isConnectionOwner,
@@ -547,6 +548,18 @@ class Main extends React.Component {
 		);
 	}
 
+	shouldShowAgenciesCard() {
+		const { site_count } = this.props.connectedWpComUser;
+
+		// Only show on dashboard when users are managing 2 or more sites
+		return (
+			site_count >= 2 &&
+			this.props.isSiteConnected &&
+			! this.shouldShowWooConnectionScreen() &&
+			dashboardRoutes.includes( this.props.location.pathname )
+		);
+	}
+
 	shouldShowSupportCard() {
 		// Only show on the dashboard
 		return (
@@ -702,7 +715,9 @@ class Main extends React.Component {
 						message={ this.handleRouterWillLeave }
 					/>
 					{ this.renderMainContent( this.props.location.pathname ) }
-					<AgenciesCard path={ this.props.location.pathname } />
+					{ this.shouldShowAgenciesCard() && (
+						<AgenciesCard path={ this.props.location.pathname } />
+					) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
@@ -719,6 +734,7 @@ export default connect(
 			isOfflineMode: isOfflineMode( state ),
 			connectionStatus: getConnectionStatus( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
+			connectedWpComUser: getConnectedWpComUser( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isConnectingUser: isConnectingUser( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
