@@ -15,34 +15,14 @@ const useAnalytics = () => {
 	 * Should run when we have a connected user.
 	 */
 	useEffect( () => {
-		if ( isUserConnected && ID && login ) {
-			jetpackAnalytics.initialize( ID, login );
+		if ( ! ( isUserConnected && ID && login ) ) {
+			return;
 		}
+
+		jetpackAnalytics.initialize( ID, login );
 	}, [ ID, isUserConnected, login ] );
 
-	const {
-		clearedIdentity,
-		ga,
-		mc,
-		pageView,
-		purchase,
-		setGoogleAnalyticsEnabled,
-		setMcAnalyticsEnabled,
-		setProperties,
-		tracks,
-	} = jetpackAnalytics;
-
-	return {
-		clearedIdentity,
-		ga,
-		mc,
-		pageView,
-		purchase,
-		setGoogleAnalyticsEnabled,
-		setMcAnalyticsEnabled,
-		setProperties,
-		tracks,
-	};
+	return jetpackAnalytics;
 };
 
 export default useAnalytics;
