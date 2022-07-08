@@ -2,6 +2,9 @@ export default {
 	autoplay: {
 		type: 'boolean',
 	},
+	autoplayHovering: {
+		type: 'boolean',
+	},
 	caption: {
 		type: 'string',
 		source: 'html',
