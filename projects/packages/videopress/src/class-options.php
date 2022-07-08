@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
 
 /**
@@ -53,8 +54,9 @@ class Options {
 		self::$options['shadow_blog_id'] = 0;
 
 		// Use the Jetpack ID for the shadow blog ID if we have a plan that supports VideoPress.
-		// As of Q3 2021 - a videopress free tier is available to all plans.
-		self::$options['shadow_blog_id'] = (int) Jetpack_Options::get_option( 'id' );
+		if ( Current_Plan::supports( 'videopress' ) ) {
+			self::$options['shadow_blog_id'] = Jetpack_Options::get_option( 'id' );
+		}
 
 		return self::$options;
 	}

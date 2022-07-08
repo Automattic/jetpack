@@ -1359,6 +1359,62 @@
             }
         },
         {
+            "name": "automattic/jetpack-plans",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/plans",
+                "reference": "4512affdc11dc64e1911a81dbdde1d842d38e41d"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.41"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.1",
+                "automattic/jetpack-status": "^1.14",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Fetch information about Jetpack Plans from wpcom",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-plugins-installer",
             "version": "dev-trunk",
             "dist": {
@@ -1771,7 +1827,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "12a01a9dc90cd4be268b01c16530cec0332e4999"
+                "reference": "647cf1026536005b1b0ffe116d154035f49016a2"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.41",
+                "automattic/jetpack-plans": "0.1.x-dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
