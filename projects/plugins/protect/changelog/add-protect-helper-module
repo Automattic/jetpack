@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed bug that would not display Core vulnerabilities, remove legacy code and documentation and add new docs on the debug helper plugin.

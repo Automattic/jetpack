@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Use JS built-in `URLSearchParams` instead of `query-string` package.
