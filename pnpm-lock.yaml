@@ -966,7 +966,7 @@ importers:
       '@babel/runtime': 7.18.6
       '@size-limit/preset-app': 6.0.4
       '@testing-library/dom': 8.16.0
-      '@testing-library/preact': 2.0.1
+      '@testing-library/preact': 3.2.2
       '@testing-library/react': 12.1.5
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0
       '@wordpress/base-styles': 4.6.0
@@ -1047,7 +1047,7 @@ importers:
       '@babel/runtime': 7.18.6
       '@size-limit/preset-app': 6.0.4_size-limit@6.0.4
       '@testing-library/dom': 8.16.0
-      '@testing-library/preact': 2.0.1_preact@10.5.15
+      '@testing-library/preact': 3.2.2_osperw2vbjl6sk6oiyvwnt4tbe
       '@testing-library/react': 12.1.5_vdnpi7rkmyqe25smnb75665vfu
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0_@babel+core@7.18.6
       '@wordpress/browserslist-config': 4.1.2
@@ -1088,7 +1088,7 @@ importers:
       '@babel/runtime': 7.18.6
       '@size-limit/preset-app': 6.0.4
       '@testing-library/dom': 8.16.0
-      '@testing-library/preact': 2.0.1
+      '@testing-library/preact': 3.2.2
       '@testing-library/react': 12.1.5
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0
       '@wordpress/base-styles': 4.6.0
@@ -1167,7 +1167,7 @@ importers:
       '@babel/runtime': 7.18.6
       '@size-limit/preset-app': 6.0.4_size-limit@6.0.4
       '@testing-library/dom': 8.16.0
-      '@testing-library/preact': 2.0.1_preact@10.5.15
+      '@testing-library/preact': 3.2.2_osperw2vbjl6sk6oiyvwnt4tbe
       '@testing-library/react': 12.1.5_vdnpi7rkmyqe25smnb75665vfu
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0_@babel+core@7.18.6
       '@wordpress/browserslist-config': 4.1.2
@@ -6224,20 +6224,6 @@ packages:
   /@tannin/postfix/1.1.0:
     resolution: {integrity: sha512-oocsqY7g0cR+Gur5jRQLSrX2OtpMLMse1I10JQBm8CdGMrDkh1Mg2gjsiquMHRtBs4Qwu5wgEp5GgIYHk4SNPw==}
 
-  /@testing-library/dom/7.31.2:
-    resolution: {integrity: sha512-3UqjCpey6HiTZT92vODYLPxTBWlM8ZOOjr3LX5F37/VRipW2M1kX6I/Cm4VXzteZqfGfagg8yXywpcOgQBlNsQ==}
-    engines: {node: '>=10'}
-    dependencies:
-      '@babel/code-frame': 7.18.6
-      '@babel/runtime': 7.18.6
-      '@types/aria-query': 4.2.2
-      aria-query: 4.2.2
-      chalk: 4.1.2
-      dom-accessibility-api: 0.5.14
-      lz-string: 1.4.4
-      pretty-format: 26.6.2
-    dev: true
-
   /@testing-library/dom/8.16.0:
     resolution: {integrity: sha512-uxF4zmnLHHDlmW4l+0WDjcgLVwCvH+OVLpD8Dfp+Bjfz85prwxWGbwXgJdLtkgjD0qfOzkJF9SmA6YZPsMYX4w==}
     engines: {node: '>=12'}
@@ -6267,13 +6253,14 @@ packages:
       redent: 3.0.0
     dev: true
 
-  /@testing-library/preact/2.0.1_preact@10.5.15:
-    resolution: {integrity: sha512-79kwVOY+3caoLgaPbiPzikjgY0Aya7Fc7TvGtR1upCnz2wrtmPDnN2t9vO7I7vDP2zoA+feSwOH5Q0BFErhaaQ==}
-    engines: {node: '>= 10'}
+  /@testing-library/preact/3.2.2_osperw2vbjl6sk6oiyvwnt4tbe:
+    resolution: {integrity: sha512-mMPEp/9TOOqf3QqDHY02ieGFfRbi8fAxZvRifn+vOzrdNcCR1zchwPA6BvqXG3wAweRan4QJioYgEc1cePeC3g==}
+    engines: {node: '>= 12'}
     peerDependencies:
+      '@testing-library/dom': ^8.11.1
       preact: '>=10 || ^10.0.0-alpha.0 || ^10.0.0-beta.0'
     dependencies:
-      '@testing-library/dom': 7.31.2
+      '@testing-library/dom': 8.16.0
       preact: 10.5.15
     dev: true
 
@@ -16496,16 +16483,6 @@ packages:
     dependencies:
       lodash: 4.17.21
       renderkid: 3.0.0
-    dev: true
-
-  /pretty-format/26.6.2:
-    resolution: {integrity: sha512-7AeGuCYNGmycyQbCqd/3PWH4eOoX/OiCa0uphp57NVTeAGdJGaAliecxwBDHYQCIvrW7aDBZCYeNTP/WX69mkg==}
-    engines: {node: '>= 10'}
-    dependencies:
-      '@jest/types': 26.6.2
-      ansi-regex: 5.0.1
-      ansi-styles: 4.3.0
-      react-is: 17.0.2
     dev: true
 
   /pretty-format/27.5.1:
