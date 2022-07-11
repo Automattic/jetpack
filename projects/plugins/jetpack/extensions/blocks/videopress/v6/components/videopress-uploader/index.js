@@ -3,11 +3,12 @@
  */
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button, Placeholder } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
+import { UploadWrapper } from '../../edit.js';
 /**
  * Internal dependencies
  */
@@ -17,14 +18,6 @@ import { VideoPressIcon } from '../icons';
 import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
-
-const vpPlaceholderIcon = () => <span className="block-editor-block-icon">{ VideoPressIcon }</span>;
-
-const UploadWrapper = ( { children } ) => (
-	<Placeholder icon={ vpPlaceholderIcon } label={ title } className="videopress-uploader">
-		{ children }
-	</Placeholder>
-);
 
 const UploadProgress = ( { progress, file } ) => {
 	const roundedProgress = Math.round( progress );
@@ -246,6 +239,7 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 	// Default view to select file to upload
 	return (
 		<MediaPlaceholder
+			className="is-videopress-placeholder"
 			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			labels={ {
 				title,
