@@ -200,9 +200,6 @@ class VideoPress_Gutenberg {
 			JETPACK__VERSION,
 			false
 		);
-
-		Jwt_Token_Bridge::enqueue_script( 'jetpack-videopress-gutenberg-playback-jwt' );
-
 	}
 }
 
