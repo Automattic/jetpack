@@ -1,26 +1,10 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .videopress-uploader {
-	&__logo {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		font-size: 24px;
-		line-height: 29px;
-		gap: 10px;
-	}
-
 	&__error-message {
-		margin-top: $grid-unit-30;
 		color: $alert-red;
 		width: 100%;
-	}
-
-	&__error-actions {
-		display: flex;
-		flex-direction: row;
-		margin-top: $grid-unit-30;
-		gap: 10px;
+		margin-bottom: 1em;
 	}
 }
 
