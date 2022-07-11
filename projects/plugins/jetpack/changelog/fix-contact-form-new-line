@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Form block: preserve line breaks in form submissions.
