@@ -185,10 +185,10 @@ importers:
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6
       '@storybook/addon-actions': 6.5.9
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5
-      '@testing-library/react-hooks': 8.0.0
-      '@testing-library/user-event': 14.1.1
+      '@testing-library/react-hooks': 8.0.1
+      '@testing-library/user-event': 14.2.1
       '@wordpress/base-styles': 4.6.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/components': 19.14.0
@@ -218,10 +218,10 @@ importers:
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6_@babel+core@7.18.6
       '@storybook/addon-actions': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
-      '@testing-library/react-hooks': 8.0.0_7qv3rjnqa3j7exc7qtvho7thru
-      '@testing-library/user-event': 14.1.1_lym66lg3md65st2hyshur4m3cy
+      '@testing-library/react-hooks': 8.0.1_7qv3rjnqa3j7exc7qtvho7thru
+      '@testing-library/user-event': 14.2.1_gwcpuyfvwbszhlmedmugzivgzu
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       react: 17.0.2
@@ -340,9 +340,9 @@ importers:
       '@automattic/jetpack-components': workspace:* || ^0.16
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5
-      '@testing-library/user-event': 14.1.1
+      '@testing-library/user-event': 14.2.1
       '@wordpress/components': 19.14.0
       '@wordpress/element': 4.10.0
       '@wordpress/i18n': 4.12.0
@@ -365,9 +365,9 @@ importers:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6_@babel+core@7.18.6
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
-      '@testing-library/user-event': 14.1.1_lym66lg3md65st2hyshur4m3cy
+      '@testing-library/user-event': 14.2.1_gwcpuyfvwbszhlmedmugzivgzu
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       react: 17.0.2
@@ -382,10 +382,10 @@ importers:
       '@automattic/jetpack-connection': workspace:* || ^0.18
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5
-      '@testing-library/react-hooks': 8.0.0
-      '@testing-library/user-event': 14.1.1
+      '@testing-library/react-hooks': 8.0.1
+      '@testing-library/user-event': 14.2.1
       '@wordpress/base-styles': 4.6.0
       '@wordpress/data': 6.12.0
       '@wordpress/i18n': 4.12.0
@@ -408,10 +408,10 @@ importers:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6_@babel+core@7.18.6
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
-      '@testing-library/react-hooks': 8.0.0_7qv3rjnqa3j7exc7qtvho7thru
-      '@testing-library/user-event': 14.1.1_lym66lg3md65st2hyshur4m3cy
+      '@testing-library/react-hooks': 8.0.1_7qv3rjnqa3j7exc7qtvho7thru
+      '@testing-library/user-event': 14.2.1_gwcpuyfvwbszhlmedmugzivgzu
       '@wordpress/base-styles': 4.6.0
       '@wordpress/data': 6.12.0_react@17.0.2
       jest: 28.1.0
@@ -432,9 +432,9 @@ importers:
       '@babel/plugin-transform-react-jsx': 7.18.6
       '@babel/preset-react': 7.18.6
       '@babel/runtime': 7.18.6
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5
-      '@testing-library/user-event': 14.1.1
+      '@testing-library/user-event': 14.2.1
       '@wordpress/annotations': 2.12.0
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0
       '@wordpress/components': 19.14.0
@@ -480,9 +480,9 @@ importers:
       '@babel/plugin-transform-react-jsx': 7.18.6_@babel+core@7.18.6
       '@babel/preset-react': 7.18.6_@babel+core@7.18.6
       '@babel/runtime': 7.18.6
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
-      '@testing-library/user-event': 14.1.1_lym66lg3md65st2hyshur4m3cy
+      '@testing-library/user-event': 14.2.1_gwcpuyfvwbszhlmedmugzivgzu
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0_@babel+core@7.18.6
       babel-jest: 28.1.0_@babel+core@7.18.6
       jest: 28.1.0
@@ -876,9 +876,9 @@ importers:
       '@storybook/preview-web': 6.5.9
       '@storybook/react': 6.5.9
       '@storybook/testing-react': 1.2.3
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5
-      '@testing-library/user-event': 14.1.1
+      '@testing-library/user-event': 14.2.1
       '@wordpress/api-fetch': 6.9.0
       '@wordpress/components': 19.14.0
       '@wordpress/data': 6.12.0
@@ -923,9 +923,9 @@ importers:
       '@storybook/preview-web': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/react': 6.5.9_tanqixkrcf5zbqmj5yuujbgbpy
       '@storybook/testing-react': 1.2.3_7l77hs3dm5whczxfr7dbcqxx5e
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
-      '@testing-library/user-event': 14.1.1_lym66lg3md65st2hyshur4m3cy
+      '@testing-library/user-event': 14.2.1_gwcpuyfvwbszhlmedmugzivgzu
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       react: 17.0.2
@@ -1298,10 +1298,10 @@ importers:
       '@babel/plugin-transform-runtime': 7.18.6
       '@babel/preset-env': 7.18.6
       '@babel/runtime': 7.18.6
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5
-      '@testing-library/react-hooks': 8.0.0
-      '@testing-library/user-event': 14.1.1
+      '@testing-library/react-hooks': 8.0.1
+      '@testing-library/user-event': 14.2.1
       '@types/react': 17.0.47
       '@wordpress/api-fetch': 6.9.0
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0
@@ -1458,10 +1458,10 @@ importers:
       '@babel/plugin-transform-runtime': 7.18.6_@babel+core@7.18.6
       '@babel/preset-env': 7.18.6_@babel+core@7.18.6
       '@babel/runtime': 7.18.6
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5_sfoxds7t5ydpegc3knd667wn6m
-      '@testing-library/react-hooks': 8.0.0_xq2qrcilqnfv63wx4morfrxcvq
-      '@testing-library/user-event': 14.1.1_lym66lg3md65st2hyshur4m3cy
+      '@testing-library/react-hooks': 8.0.1_xq2qrcilqnfv63wx4morfrxcvq
+      '@testing-library/user-event': 14.2.1_gwcpuyfvwbszhlmedmugzivgzu
       '@types/react': 17.0.47
       '@wordpress/api-fetch': 6.9.0
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0_@babel+core@7.18.6
@@ -1789,7 +1789,7 @@ importers:
       '@octokit/auth-token': 2.5.0
       '@octokit/rest': 19.0.3
       '@rushstack/eslint-patch': 1.1.4
-      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/jest-dom': 5.16.4
       '@typescript-eslint/eslint-plugin': 5.27.0
       '@typescript-eslint/parser': 5.27.0
       '@wordpress/eslint-plugin': 12.6.0
@@ -1837,7 +1837,7 @@ importers:
       '@octokit/auth-token': 2.5.0
       '@octokit/rest': 19.0.3
       '@rushstack/eslint-patch': 1.1.4
-      '@testing-library/jest-dom': 5.14.1
+      '@testing-library/jest-dom': 5.16.4
       '@typescript-eslint/eslint-plugin': 5.27.0_nmnzi5hhuvs7q3coqyfjvrssp4
       '@typescript-eslint/parser': 5.27.0_l7s6xsljbkeyelcecm6suqju3a
       '@wordpress/eslint-plugin': 12.6.0_zzwpuy7deas2by6q3wt2r5e53a
@@ -6246,13 +6246,27 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@testing-library/jest-dom/5.14.1:
-    resolution: {integrity: sha512-dfB7HVIgTNCxH22M1+KU6viG5of2ldoA5ly8Ar8xkezKHKXjRvznCdbMbqjYGgO2xjRbwnR+rR8MLUIqF3kKbQ==}
+  /@testing-library/dom/8.16.0:
+    resolution: {integrity: sha512-uxF4zmnLHHDlmW4l+0WDjcgLVwCvH+OVLpD8Dfp+Bjfz85prwxWGbwXgJdLtkgjD0qfOzkJF9SmA6YZPsMYX4w==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/code-frame': 7.18.6
+      '@babel/runtime': 7.18.6
+      '@types/aria-query': 4.2.2
+      aria-query: 5.0.0
+      chalk: 4.1.2
+      dom-accessibility-api: 0.5.14
+      lz-string: 1.4.4
+      pretty-format: 27.5.1
+    dev: true
+
+  /@testing-library/jest-dom/5.16.4:
+    resolution: {integrity: sha512-Gy+IoFutbMQcky0k+bqqumXZ1cTGswLsFqmNLzNdSKkU9KGV2u9oXhukCbbJ9/LRPKiqwxEE8VpV/+YZlfkPUA==}
     engines: {node: '>=8', npm: '>=6', yarn: '>=1'}
     dependencies:
       '@babel/runtime': 7.18.6
       '@types/testing-library__jest-dom': 5.14.5
-      aria-query: 4.2.2
+      aria-query: 5.0.0
       chalk: 3.0.0
       css: 3.0.0
       css.escape: 1.5.1
@@ -6271,8 +6285,8 @@ packages:
       preact: 10.5.15
     dev: true
 
-  /@testing-library/react-hooks/8.0.0_7qv3rjnqa3j7exc7qtvho7thru:
-    resolution: {integrity: sha512-uZqcgtcUUtw7Z9N32W13qQhVAD+Xki2hxbTR461MKax8T6Jr8nsUvZB+vcBTkzY2nFvsUet434CsgF0ncW2yFw==}
+  /@testing-library/react-hooks/8.0.1_7qv3rjnqa3j7exc7qtvho7thru:
+    resolution: {integrity: sha512-Aqhl2IVmLt8IovEVarNDFuJDVWVvhnr9/GCU6UUnrYXwgDFF9h2L2o2P9KBni1AST5sT6riAyoukFLyjQUgD/g==}
     engines: {node: '>=12'}
     peerDependencies:
       '@types/react': ^16.9.0 || ^17.0.0
@@ -6294,8 +6308,8 @@ packages:
       react-test-renderer: 17.0.2_react@17.0.2
     dev: true
 
-  /@testing-library/react-hooks/8.0.0_xq2qrcilqnfv63wx4morfrxcvq:
-    resolution: {integrity: sha512-uZqcgtcUUtw7Z9N32W13qQhVAD+Xki2hxbTR461MKax8T6Jr8nsUvZB+vcBTkzY2nFvsUet434CsgF0ncW2yFw==}
+  /@testing-library/react-hooks/8.0.1_xq2qrcilqnfv63wx4morfrxcvq:
+    resolution: {integrity: sha512-Aqhl2IVmLt8IovEVarNDFuJDVWVvhnr9/GCU6UUnrYXwgDFF9h2L2o2P9KBni1AST5sT6riAyoukFLyjQUgD/g==}
     engines: {node: '>=12'}
     peerDependencies:
       '@types/react': ^16.9.0 || ^17.0.0
@@ -6332,13 +6346,13 @@ packages:
       react-dom: 17.0.2_react@17.0.2
     dev: true
 
-  /@testing-library/user-event/14.1.1_lym66lg3md65st2hyshur4m3cy:
-    resolution: {integrity: sha512-XrjH/iEUqNl9lF2HX9YhPNV7Amntkcnpw0Bo1KkRzowNDcgSN9i0nm4Q8Oi5wupgdfPaJNMAWa61A+voD6Kmwg==}
+  /@testing-library/user-event/14.2.1_gwcpuyfvwbszhlmedmugzivgzu:
+    resolution: {integrity: sha512-HOr1QiODrq+0j9lKU5i10y9TbhxMBMRMGimNx10asdmau9cb8Xb1Vyg0GvTwyIL2ziQyh2kAloOtAQFBQVuecA==}
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
     dependencies:
-      '@testing-library/dom': 8.15.0
+      '@testing-library/dom': 8.16.0
     dev: true
 
   /@tootallnate/once/1.1.2:
