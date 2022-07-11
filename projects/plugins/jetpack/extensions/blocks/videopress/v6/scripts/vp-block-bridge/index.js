@@ -1,7 +1,6 @@
 const rawScript = `
 	const noop = () => {};
 	const debug = window.parent?.debugBridgeInstance ?? noop;
-	console.log( 'debug: ', debug );
 
 	function initWPBlockBridge() {
 		const videoPressIFrame = document.querySelector('iframe');
