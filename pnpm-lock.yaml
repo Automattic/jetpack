@@ -8815,14 +8815,6 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /axios/0.21.4_debug@4.3.2:
-    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
-    dependencies:
-      follow-redirects: 1.15.1_debug@4.3.2
-    transitivePeerDependencies:
-      - debug
-    dev: true
-
   /axios/0.21.4_debug@4.3.4:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
@@ -10332,18 +10324,6 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.3
-    dev: true
-
-  /debug/4.3.2:
-    resolution: {integrity: sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==}
-    engines: {node: '>=6.0'}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-    dependencies:
-      ms: 2.1.2
     dev: true
 
   /debug/4.3.3:
@@ -12159,18 +12139,6 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
-    dev: true
-
-  /follow-redirects/1.15.1_debug@4.3.2:
-    resolution: {integrity: sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dependencies:
-      debug: 4.3.2
     dev: true
 
   /follow-redirects/1.15.1_debug@4.3.4:
@@ -14594,10 +14562,10 @@ packages:
     engines: {node: '>=8.3.0'}
     hasBin: true
     dependencies:
-      axios: 0.21.4_debug@4.3.2
-      debug: 4.3.2
+      axios: 0.21.4_debug@4.3.4
+      debug: 4.3.4
       openurl: 1.1.1
-      yargs: 17.1.1
+      yargs: 17.5.1
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -20157,19 +20125,6 @@ packages:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 20.2.9
-
-  /yargs/17.1.1:
-    resolution: {integrity: sha512-c2k48R0PwKIqKhPMWjeiF6y2xY/gPMUlro0sgxqXpbOIohWiLNXWslsootttv7E1e73QPAMQSg5FeySbVcpsPQ==}
-    engines: {node: '>=12'}
-    dependencies:
-      cliui: 7.0.4
-      escalade: 3.1.1
-      get-caller-file: 2.0.5
-      require-directory: 2.1.1
-      string-width: 4.2.3
-      y18n: 5.0.8
-      yargs-parser: 20.2.9
-    dev: true
 
   /yargs/17.4.0:
     resolution: {integrity: sha512-WJudfrk81yWFSOkZYpAZx4Nt7V4xp7S/uJkX0CnxovMCt1wCE8LNftPpNuF9X/u9gN5nsD7ycYtRcDf2pL3UiA==}

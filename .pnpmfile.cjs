@@ -99,6 +99,16 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ '@octokit/core' ] = '^4';
 	}
 
+	// Avoid annoying flip-flopping of sub-dep peer deps.
+	// https://github.com/localtunnel/localtunnel/issues/481
+	if ( pkg.name === 'localtunnel' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+	}
+
 	return pkg;
 }
 
