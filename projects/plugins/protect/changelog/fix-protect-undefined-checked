@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Minor bug fix - no logic changed, just added an isset() check.
+
+

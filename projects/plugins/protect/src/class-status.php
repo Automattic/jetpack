@@ -312,7 +312,7 @@ class Status {
 		$unchecked_items = array_filter(
 			$all_items,
 			function ( $item ) {
-				return ! $item->checked;
+				return ! isset( $item->checked ) || ! $item->checked;
 			}
 		);
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
