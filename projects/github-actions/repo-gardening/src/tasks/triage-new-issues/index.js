@@ -49,7 +49,9 @@ function findPlatforms( body ) {
 	let match;
 	while ( ( match = regex.exec( body ) ) ) {
 		const [ , platforms ] = match;
-		return platforms.split( ', ' ).filter( platform => platform !== 'Self-hosted' );
+		return platforms
+			.split( ', ' )
+			.filter( platform => platform !== 'Self-hosted' && platform.trim() !== '' );
 	}
 
 	debug( `triage-new-issues: no platform indicators found.` );
