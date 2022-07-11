@@ -19,21 +19,23 @@ async function hasPriorityLabels( octokit, owner, repo, number ) {
 }
 
 /**
- * Find specific plugin impacted by issue, based off issue contents.
+ * Find list of plugins impacted by issue, based off issue contents.
  *
  * @param {string} body - The issue content.
- * @returns {string} Plugin concerned by issue.
+ * @returns {Array} Plugins concerned by issue.
  */
-function findPlugin( body ) {
-	const regex = /###\sImpacted\splugin\n\n(\w*)\n/gm;
+function findPlugins( body ) {
+	const regex = /###\sImpacted\splugin\n\n([a-zA-Z_ ]*)\n([a-zA-Z ]*)?(?:\n)?([a-zA-Z_ ]*)?(?:\n)?([a-zA-Z_ ]*)?(?:\n)([a-zA-Z_ ]*)?(?:\n)?([a-zA-Z_ ]*)?(?:\n)?([a-zA-Z_ ]*)?(?:\n)?/gm;
+	const impactedPlugins = [];
 
 	let match;
 	while ( ( match = regex.exec( body ) ) ) {
-		const [ , plugin ] = match;
-		return plugin;
+		match
+			.filter( pluginName => pluginName !== '_No response_' && pluginName !== undefined )
+			.map( pluginName => impactedPlugins.push( pluginName ) );
 	}
 
-	return null;
+	return impactedPlugins;
 }
 
 /**
@@ -108,16 +110,18 @@ async function triageNewIssues( payload, octokit ) {
 	const { owner, name } = repository;
 	const ownerLogin = owner.login;
 
-	// Find impacted plugin.
-	const impactedPlugin = findPlugin( body );
-	if ( null !== impactedPlugin ) {
-		debug( `triage-new-issues: Adding plugin label to issue #${ number }` );
+	// Find impacted plugins.
+	const impactedPlugins = findPlugins( body );
+	if ( impactedPlugins.length > 0 ) {
+		debug( `triage-new-issues: Adding plugin labels to issue #${ number }` );
+
+		const pluginLabels = impactedPlugins.map( plugin => `[Plugin] ${ plugin }` );
 
 		await octokit.rest.issues.addLabels( {
 			owner: ownerLogin,
 			repo: name,
 			issue_number: number,
-			labels: [ `[Plugin] ${ impactedPlugin }` ],
+			labels: pluginLabels,
 		} );
 	}
 
@@ -126,13 +130,13 @@ async function triageNewIssues( payload, octokit ) {
 	if ( impactedPlatforms.length > 0 ) {
 		debug( `triage-new-issues: Adding platform labels to issue #${ number }` );
 
-		const labels = impactedPlatforms.map( platform => `[Platform] ${ platform }` );
+		const platformLabels = impactedPlatforms.map( platform => `[Platform] ${ platform }` );
 
 		await octokit.rest.issues.addLabels( {
 			owner: ownerLogin,
 			repo: name,
 			issue_number: number,
-			labels,
+			labels: platformLabels,
 		} );
 	}
 
