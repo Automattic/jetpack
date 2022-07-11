@@ -3,7 +3,7 @@
  */
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button, Icon } from '@wordpress/components';
+import { Button, Icon, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
@@ -220,6 +220,36 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 		startUpload( file );
 	}
 
+	const getErrorMessage = () => {
+		if ( ! uploadErrorData ) {
+			return '';
+		}
+
+		let errorMessage = __(
+			'An error was encountered during the upload. Check your network connection.',
+			'jetpack'
+		);
+
+		// Let's give this error a better message.
+		if ( uploadErrorData?.data?.message === 'Invalid Mime' ) {
+			errorMessage = (
+				<>
+					{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
+					&nbsp;
+					<ExternalLink
+						href="https://wordpress.com/support/videopress/recommended-video-settings/"
+						target="_blank"
+						rel="noreferrer"
+					>
+						{ __( 'Check the recommended video settings.', 'jetpack' ) }
+					</ExternalLink>
+				</>
+			);
+		}
+
+		return errorMessage;
+	};
+
 	// Showing error if upload fails
 	if ( uploadErrorData ) {
 		const onRetry = () => {
@@ -232,13 +262,7 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 			setUploadErrorData( null );
 		};
 
-		return (
-			<UploadError
-				onRetry={ onRetry }
-				onCancel={ onCancel }
-				message={ uploadErrorData?.data?.message }
-			/>
-		);
+		return <UploadError onRetry={ onRetry } onCancel={ onCancel } message={ getErrorMessage() } />;
 	}
 
 	// Uploading file to backend
