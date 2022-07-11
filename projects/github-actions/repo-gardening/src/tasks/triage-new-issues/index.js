@@ -25,17 +25,16 @@ async function hasPriorityLabels( octokit, owner, repo, number ) {
  * @returns {Array} Plugins concerned by issue.
  */
 function findPlugins( body ) {
-	const regex = /###\sImpacted\splugin\n\n([a-zA-Z_ ]*)\n([a-zA-Z ]*)?(?:\n)?([a-zA-Z_ ]*)?(?:\n)?([a-zA-Z_ ]*)?(?:\n)([a-zA-Z_ ]*)?(?:\n)?([a-zA-Z_ ]*)?(?:\n)?([a-zA-Z_ ]*)?(?:\n)?/gm;
-	const impactedPlugins = [];
+	const regex = /###\sImpacted\splugin\n\n([a-zA-Z ,]*)\n\n/gm;
 
 	let match;
 	while ( ( match = regex.exec( body ) ) ) {
-		match
-			.filter( pluginName => pluginName !== '_No response_' && pluginName !== undefined )
-			.map( pluginName => impactedPlugins.push( pluginName ) );
+		const [ , plugins ] = match;
+		return plugins.split( ', ' );
 	}
 
-	return impactedPlugins;
+	debug( `triage-new-issues: No plugin indicators found.` );
+	return [];
 }
 
 /**
@@ -45,23 +44,16 @@ function findPlugins( body ) {
  * @returns {Array} Platforms impacted by issue.
  */
 function findPlatforms( body ) {
-	const regex = /###\sPlatform\s\(Simple,\sAtomic,\sor\sboth\?\)\n\n(?<simple>Simple\n)?(?<atomic>Atomic\n)?(?<selhosted>Self-hosted\n)?/gm;
-	const impactedPlatforms = [];
+	const regex = /###\sPlatform\s\(Simple,\sAtomic,\sor\sboth\?\)\n\n([a-zA-Z ,-]*)\n\n/gm;
 
 	let match;
 	while ( ( match = regex.exec( body ) ) ) {
-		const [ , simple = '', atomic = '' ] = match;
-
-		if ( '' !== simple ) {
-			impactedPlatforms.push( 'Simple' );
-		}
-
-		if ( '' !== atomic ) {
-			impactedPlatforms.push( 'Atomic' );
-		}
+		const [ , platforms ] = match;
+		return platforms.split( ', ' ).filter( plugin => plugin !== 'Self-hosted' );
 	}
 
-	return impactedPlatforms;
+	debug( `triage-new-issues: no platform indicators found.` );
+	return [];
 }
 
 /**
