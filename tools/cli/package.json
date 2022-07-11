@@ -21,7 +21,7 @@
 		"test": "NODE_OPTIONS=--experimental-vm-modules pnpm jest --testMatch='<rootDir>/tests/**/*.test.js'"
 	},
 	"dependencies": {
-		"@octokit/auth-token": "2.5.0",
+		"@octokit/auth-token": "3.0.0",
 		"@octokit/rest": "19.0.3",
 		"chalk": "4.1.2",
 		"configstore": "5.0.1",
