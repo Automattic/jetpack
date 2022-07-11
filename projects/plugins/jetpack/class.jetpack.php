@@ -2938,6 +2938,7 @@ p {
 			if ( ! Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
 				$default_modules = self::get_default_modules();
 				$active_modules  = array_merge( $active_modules, $default_modules );
+				Jetpack_Options::update_option( 'active_modules_initialized', true );
 			}
 
 			self::activate_default_modules(
