@@ -268,7 +268,7 @@ class VideoPress_Shortcode {
 	 * @return string|false
 	 */
 	public function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) {
-		if ( stripos( $url, 'video.wordpress.com' ) || stripos( $url, 'videopress.com' ) ) { // todo: regex for v|embed
+		if ( preg_match( '/https?:\/\/(video.wordpress.com|videopress.com)\/(v|embed)\//', $url ) ) {
 			add_action( 'wp_enqueue_scripts', array( 'Jetpack_VideoPress', 'enqueue_jwt_token_bridge' ) );
 		}
 		return $cache;
