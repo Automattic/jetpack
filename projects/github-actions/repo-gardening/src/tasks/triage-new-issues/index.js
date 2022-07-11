@@ -37,6 +37,32 @@ function findPlugin( body ) {
 }
 
 /**
+ * Find platform info, based off issue contents.
+ *
+ * @param {string} body - The issue content.
+ * @returns {Array} Platforms impacted by issue.
+ */
+function findPlatforms( body ) {
+	const regex = /###\sPlatform\s\(Simple,\sAtomic,\sor\sboth\?\)\n\n(?<simple>Simple\n)?(?<atomic>Atomic\n)?(?<selhosted>Self-hosted\n)?/gm;
+	const impactedPlatforms = [];
+
+	let match;
+	while ( ( match = regex.exec( body ) ) ) {
+		const [ , simple = '', atomic = '' ] = match;
+
+		if ( '' !== simple ) {
+			impactedPlatforms.push( 'Simple' );
+		}
+
+		if ( '' !== atomic ) {
+			impactedPlatforms.push( 'Atomic' );
+		}
+	}
+
+	return impactedPlatforms;
+}
+
+/**
  * Figure out the priority of the issue, based off issue contents.
  * Logic follows this priority matrix: pciE2j-oG-p2
  *
@@ -92,6 +118,21 @@ async function triageNewIssues( payload, octokit ) {
 			repo: name,
 			issue_number: number,
 			labels: [ `[Plugin] ${ impactedPlugin }` ],
+		} );
+	}
+
+	// Find platform info.
+	const impactedPlatforms = findPlatforms( body );
+	if ( impactedPlatforms.length > 0 ) {
+		debug( `triage-new-issues: Adding platform labels to issue #${ number }` );
+
+		const labels = impactedPlatforms.map( platform => `[Platform] ${ platform }` );
+
+		await octokit.rest.issues.addLabels( {
+			owner: ownerLogin,
+			repo: name,
+			issue_number: number,
+			labels,
 		} );
 	}
 
