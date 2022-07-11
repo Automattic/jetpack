@@ -283,7 +283,7 @@ class Jetpack_Podcast_Helper {
 		 *
 		 * @param string $podcast_url URL for the podcast's RSS feed.
 		 *
-		 * @since $next-version$
+		 * @since $$next-version$$
 		 */
 		do_action( 'jetpack_podcast_pre_fetch', $this->feed );
 
@@ -304,9 +304,9 @@ class Jetpack_Podcast_Helper {
 		 * Note that this action runs after other hooks added by Jetpack have been removed.
 		 *
 		 * @param string             $podcast_url URL for the podcast's RSS feed.
-		 * @param SimplePie|WP_Error $result Either the SimplePie RSS object or an error.
+		 * @param SimplePie|WP_Error $rss Either the SimplePie RSS object or an error.
 		 *
-		 * @since $next-version$
+		 * @since $$next-version$$
 		 */
 		do_action( 'jetpack_podcast_post_fetch', $this->feed, $rss );
 
