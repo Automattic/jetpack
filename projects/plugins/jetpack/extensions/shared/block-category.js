@@ -1,12 +1,13 @@
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
+import { Platform } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo } from './icons';
 
 const isWpcom = isSimpleSite() || isAtomicSite();
 
 // We do not want the Jetpack collection on WordPress.com (Simple or Atomic).
-if ( ! isWpcom ) {
+if ( ! isWpcom || Platform.isNative ) {
 	registerBlockCollection( 'jetpack', {
 		title: 'Jetpack',
 		icon: <JetpackLogo />,
