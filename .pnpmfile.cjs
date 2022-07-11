@@ -109,6 +109,17 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Convert @testing-library/react's dep on @testing-library/dom to a peer.
+	// https://github.com/testing-library/react-testing-library/issues/906#issuecomment-1180767493
+	if (
+		( pkg.name === '@testing-library/react' || pkg.name === '@testing-library/preact' ) &&
+		pkg.dependencies[ '@testing-library/dom' ]
+	) {
+		pkg.peerDependencies ||= {};
+		pkg.peerDependencies[ '@testing-library/dom' ] = pkg.dependencies[ '@testing-library/dom' ];
+		delete pkg.dependencies[ '@testing-library/dom' ];
+	}
+
 	return pkg;
 }
 
