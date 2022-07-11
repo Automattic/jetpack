@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Editor: Only add `x-wp-api-fetch-from-editor` header on non-CORS requests.
