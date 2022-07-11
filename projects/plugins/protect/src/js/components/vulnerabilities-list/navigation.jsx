@@ -41,6 +41,7 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				badge={ numVulnerabilities }
 				disabled={ numVulnerabilities <= 0 }
 				onClick={ trackNavigationClickAll }
+				checked={ true }
 			/>
 			<NavigationItem
 				id="wordpress"
@@ -49,14 +50,15 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				badge={ numCoreVulnerabilities }
 				disabled={ numCoreVulnerabilities <= 0 }
 				onClick={ trackNavigationClickCore }
+				checked={ true }
 			/>
 			<NavigationGroup label={ __( 'Plugins', 'jetpack-protect' ) } icon={ pluginsIcon }>
-				{ plugins.map( ( { name, vulnerabilities, notChecked } ) => (
+				{ plugins.map( ( { name, vulnerabilities, checked } ) => (
 					<NavigationItem
 						key={ name }
 						id={ name }
 						label={ name }
-						notChecked={ notChecked }
+						checked={ checked }
 						badge={ vulnerabilities?.length }
 						disabled={ vulnerabilities?.length <= 0 }
 						onClick={ trackNavigationClickPlugin }
@@ -64,12 +66,12 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				) ) }
 			</NavigationGroup>
 			<NavigationGroup label={ __( 'Themes', 'jetpack-protect' ) } icon={ color }>
-				{ themes.map( ( { name, vulnerabilities, notChecked } ) => (
+				{ themes.map( ( { name, vulnerabilities, checked } ) => (
 					<NavigationItem
 						key={ name }
 						id={ name }
 						label={ name }
-						notChecked={ notChecked }
+						checked={ checked }
 						badge={ vulnerabilities?.length }
 						disabled={ vulnerabilities?.length <= 0 }
 						onClick={ trackNavigationClickTheme }

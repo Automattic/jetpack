@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+JS Components: Converted ProductPrice component to TypeScript
