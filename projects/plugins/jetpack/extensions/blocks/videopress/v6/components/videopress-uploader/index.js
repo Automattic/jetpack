@@ -3,7 +3,7 @@
  */
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button, Icon, Placeholder } from '@wordpress/components';
+import { Button, Placeholder } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
@@ -18,12 +18,10 @@ import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
+const vpPlaceholderIcon = () => <span className="block-editor-block-icon">{ VideoPressIcon }</span>;
+
 const UploadWrapper = ( { children } ) => (
-	<Placeholder
-		icon={ <Icon icon={ VideoPressIcon } /> }
-		label={ title }
-		className="videopress-uploader"
-	>
+	<Placeholder icon={ vpPlaceholderIcon } label={ title } className="videopress-uploader">
 		{ children }
 	</Placeholder>
 );
