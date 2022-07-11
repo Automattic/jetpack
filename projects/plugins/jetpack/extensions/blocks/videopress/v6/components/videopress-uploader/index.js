@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
-import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button, Icon } from '@wordpress/components';
+import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
+import { Button, Icon, Placeholder } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
@@ -12,23 +12,22 @@ import filesize from 'filesize';
  * Internal dependencies
  */
 import { useResumableUploader } from '../../hooks/use-uploader.js';
+import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
 import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-const UploadWrapper = ( { children } ) => {
-	const blockProps = useBlockProps( { className: 'videopress-uploader' } );
-	return (
-		<div { ...blockProps }>
-			<div className="videopress-uploader__logo">
-				<Icon icon={ VideoPressIcon } />
-				<div>{ __( 'VideoPress', 'jetpack' ) }</div>
-			</div>
-			{ children }
-		</div>
-	);
-};
+const UploadWrapper = ( { children } ) => (
+	<Placeholder
+		icon={ <Icon icon={ VideoPressIcon } /> }
+		label={ title }
+		instructions={ description }
+		className="videopress-uploader"
+	>
+		{ children }
+	</Placeholder>
+);
 
 const UploadProgress = ( { progress, file } ) => {
 	const roundedProgress = Math.round( progress );
@@ -252,7 +251,8 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 		<MediaPlaceholder
 			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			labels={ {
-				title: __( 'VideoPress', 'jetpack' ),
+				title,
+				instructions: description,
 			} }
 			onSelect={ onSelectVideo }
 			onSelectURL={ onSelectURL }

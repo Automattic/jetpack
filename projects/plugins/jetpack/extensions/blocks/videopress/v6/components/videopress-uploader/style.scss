@@ -1,18 +1,6 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .videopress-uploader {
-	background: $white;
-	color: $gray-900;
-	font-family: $default-font;
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	padding: 20px;
-	border: 1px solid $gray-900;
-	border-radius: 2px;
-	font-size: $default-font-size;
-
 	&__logo {
 		display: flex;
 		flex-direction: row;

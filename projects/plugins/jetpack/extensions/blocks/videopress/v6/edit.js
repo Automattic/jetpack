@@ -188,10 +188,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	] );
 
 	const blockProps = useBlockProps( {
-		className: 'wp-block-jetpack-videopress is-videopress-placeholder-container',
-	} );
-
-	const videoPlayerBlockProps = useBlockProps( {
 		className: classNames( 'wp-block-jetpack-videopress', {
 			[ `align${ align }` ]: align,
 			'is-updating-preview': ! previewHtml,
@@ -243,7 +239,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 
 	// X - Show VideoPress player. @todo: finish
 	return (
-		<div { ...videoPlayerBlockProps }>
+		<div { ...blockProps }>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			<VideoPressPlayer
 				html={ html }
