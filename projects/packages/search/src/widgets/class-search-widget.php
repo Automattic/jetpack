@@ -965,7 +965,7 @@ class Search_Widget extends \WP_Widget {
 						$seen_taxonomy_labels = array();
 					?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat taxonomy-select">
-						<?php foreach ( $this->get_taxonomies_for_widget_filter() as $taxonomy ) : ?>
+						<?php foreach ( $this->get_allowed_taxonomies_for_widget_filters() as $taxonomy ) : ?>
 							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php $this->render_widget_option_selected( 'taxonomy', $args['taxonomy'], $taxonomy->name, $is_template ); ?>>
 								<?php
 									$label = in_array( $taxonomy->label, $seen_taxonomy_labels, true )
