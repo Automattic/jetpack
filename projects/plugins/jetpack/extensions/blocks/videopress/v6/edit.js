@@ -238,7 +238,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		return (
 			<UploadWrapper>
 				<div role="alert" aria-live="assertive" className="videopress-uploader__error-message">
-					{ __( 'Impossible to get a video preview after ten attempts. Show error.', 'jetpack' ) }
+					{ __( 'Impossible to get a video preview after ten attempts.', 'jetpack' ) }
 				</div>
 				<div className="videopress-uploader__error-actions">
 					<Button variant="primary" onClick={ invalidateResolution }>
