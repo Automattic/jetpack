@@ -22,7 +22,6 @@ const UploadWrapper = ( { children } ) => (
 	<Placeholder
 		icon={ <Icon icon={ VideoPressIcon } /> }
 		label={ title }
-		instructions={ description }
 		className="videopress-uploader"
 	>
 		{ children }
