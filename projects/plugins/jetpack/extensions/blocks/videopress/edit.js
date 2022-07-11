@@ -60,7 +60,6 @@ const VideoPressEdit = CoreVideoEdit =>
 				isUpdatingIsPrivate: false,
 				isEditingWhileUploading: false,
 				isUploadComplete: false,
-				hasUsedUploadingEditor: false,
 				lastPosterValueSource: '',
 			};
 			this.posterImageButton = createRef();
@@ -724,15 +723,15 @@ const VideoPressEdit = CoreVideoEdit =>
 			const filename = escapeHTML(
 				fileForUpload ? removeFileNameExtension( fileForUpload.name ) : ''
 			);
+
 			const onChangeTitle = newTitle => {
-				this.setState( { title: newTitle, hasUsedUploadingEditor: true } );
+				this.setState( { title: newTitle } );
 			};
 
 			const onSelectPoster = attachment => {
 				this.setState( {
 					videoPosterImageData: attachment,
 					videoFrameSelectedInMillis: null,
-					hasUsedUploadingEditor: true,
 				} );
 			};
 
@@ -740,7 +739,6 @@ const VideoPressEdit = CoreVideoEdit =>
 				this.setState( {
 					videoFrameSelectedInMillis: ms,
 					videoPosterImageData: null,
-					hasUsedUploadingEditor: true,
 				} );
 			};
 
@@ -754,16 +752,18 @@ const VideoPressEdit = CoreVideoEdit =>
 				);
 			};
 
-			const sendUpdatePosterFromMillisecondsRequest = () =>
-				__sendUpdatePoster( {
+			const sendUpdatePosterFromMillisecondsRequest = () => {
+				return __sendUpdatePoster( {
 					at_time: this.state.videoFrameSelectedInMillis,
 					is_millisec: true,
 				} );
+			};
 
-			const sendUpdatePosterRequest = () =>
-				__sendUpdatePoster( {
+			const sendUpdatePosterRequest = () => {
+				return __sendUpdatePoster( {
 					poster_attachment_id: this.state.videoPosterImageData.id,
 				} );
+			};
 
 			const __sendUpdatePoster = data => {
 				if ( shouldUseJetpackVideoFetch() ) {
@@ -780,27 +780,25 @@ const VideoPressEdit = CoreVideoEdit =>
 			};
 
 			const dismissEditor = () => {
+				const { title, videoPosterImageData, videoFrameSelectedInMillis } = this.state;
 				this.setState( { isEditingWhileUploading: false } );
 
-				if ( this.state.title ) {
+				if ( title ) {
 					sendUpdateTitleRequest();
 				}
 
-				if ( this.state.videoPosterImageData ) {
+				if ( videoPosterImageData ) {
 					sendUpdatePosterRequest();
 				}
 
-				if ( this.state.videoFrameSelectedInMillis ) {
+				if ( videoFrameSelectedInMillis ) {
 					sendUpdatePosterFromMillisecondsRequest();
 				}
 			};
 
 			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
 
-			if (
-				isResumableUploading ||
-				( this.state.isEditingWhileUploading && this.state.hasUsedUploadingEditor )
-			) {
+			if ( isResumableUploading || this.state.isEditingWhileUploading ) {
 				const title = this.state.title ?? filename;
 
 				return (
