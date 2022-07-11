@@ -27,8 +27,8 @@ async function hasPriorityLabels( octokit, owner, repo, number ) {
 function findPlugins( body ) {
 	const regex = /###\sImpacted\splugin\n\n([a-zA-Z ,]*)\n\n/gm;
 
-	let match;
-	while ( ( match = regex.exec( body ) ) ) {
+	const match = regex.exec( body );
+	if ( match ) {
 		const [ , plugins ] = match;
 		return plugins.split( ', ' ).filter( v => v.trim() !== '' );
 	}
@@ -46,8 +46,8 @@ function findPlugins( body ) {
 function findPlatforms( body ) {
 	const regex = /###\sPlatform\s\(Simple,\sAtomic,\sor\sboth\?\)\n\n([a-zA-Z ,-]*)\n\n/gm;
 
-	let match;
-	while ( ( match = regex.exec( body ) ) ) {
+	const match = regex.exec( body );
+	if ( match ) {
 		const [ , platforms ] = match;
 		return platforms
 			.split( ', ' )
