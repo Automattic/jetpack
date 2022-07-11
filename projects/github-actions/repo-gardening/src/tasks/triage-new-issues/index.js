@@ -30,7 +30,7 @@ function findPlugins( body ) {
 	let match;
 	while ( ( match = regex.exec( body ) ) ) {
 		const [ , plugins ] = match;
-		return plugins.split( ', ' );
+		return plugins.split( ', ' ).filter( v => v.trim() !== '' );
 	}
 
 	debug( `triage-new-issues: No plugin indicators found.` );
