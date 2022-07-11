@@ -188,7 +188,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	] );
 
 	const blockProps = useBlockProps( {
-		className: 'wp-block-jetpack-videopress is-placeholder-container',
+		className: 'wp-block-jetpack-videopress is-videopress-placeholder-container',
 	} );
 
 	const videoPlayerBlockProps = useBlockProps( {
