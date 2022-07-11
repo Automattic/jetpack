@@ -17,7 +17,7 @@ import { connect } from 'react-redux';
 import { getAkismetData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getApiNonce } from 'state/initial-state';
-import { hasActiveSiteFeature } from 'state/site';
+import { siteHasFeature } from 'state/site';
 
 class DashAkismet extends Component {
 	static propTypes = {
@@ -289,8 +289,8 @@ export default connect(
 			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			hasAntiSpam: hasActiveSiteFeature( state, 'antispam' ),
-			hasAkismet: hasActiveSiteFeature( state, 'akismet' ),
+			hasAntiSpam: siteHasFeature( state, 'antispam' ),
+			hasAkismet: siteHasFeature( state, 'akismet' ),
 		};
 	},
 	dispatch => ( {

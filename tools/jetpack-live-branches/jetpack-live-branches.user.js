@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.22
+// @version      1.23
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -15,6 +15,37 @@
 
 ( function () {
 	const $ = jQuery.noConflict();
+	const markdownBodySelector = '.pull-discussion-timeline .markdown-body';
+	let pluginsList = null;
+
+	// Watch for relevant DOM changes that indicate we need to re-run `doit()`:
+	// - Adding a new `.markdown-body`.
+	// - Removing `#jetpack-live-branches`.
+	const observer = new MutationObserver( list => {
+		for ( const m of list ) {
+			for ( const n of m.addedNodes ) {
+				if (
+					( n.matches && n.matches( markdownBodySelector ) ) ||
+					( n.querySelector && n.querySelector( markdownBodySelector ) )
+				) {
+					doit();
+					return;
+				}
+			}
+			for ( const n of m.removedNodes ) {
+				if (
+					n.id === 'jetpack-live-branches' ||
+					( n.querySelector && n.querySelector( '#jetpack-live-branches' ) )
+				) {
+					doit();
+					return;
+				}
+			}
+		}
+	} );
+	observer.observe( document, { subtree: true, childList: true } );
+
+	// Run it on load too.
 	doit();
 
 	/**
@@ -31,8 +62,13 @@
 
 	/** Function. */
 	function doit() {
+		const markdownBody = document.querySelectorAll( markdownBodySelector )[ 0 ];
+		if ( ! markdownBody || markdownBody.querySelector( '#jetpack-live-branches' ) ) {
+			// No body or Live Branches is already there, no need to do it again.
+			return;
+		}
+
 		const host = 'https://jurassic.ninja';
-		const markdownBody = document.querySelectorAll( '.markdown-body' )[ 0 ];
 		const currentBranch = jQuery( '.head-ref:first' ).text();
 		const branchIsForked = currentBranch.includes( ':' );
 		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
@@ -62,7 +98,10 @@
 				'<p><strong>Cannot determine the repository for this PR.</strong></p>'
 			);
 		} else {
-			dofetch( `${ host }/wp-json/jurassic.ninja/jetpack-beta/plugins` )
+			if ( ! pluginsList ) {
+				pluginsList = dofetch( `${ host }/wp-json/jurassic.ninja/jetpack-beta/plugins` );
+			}
+			pluginsList
 				.then( body => {
 					const plugins = [];
 
@@ -225,6 +264,7 @@
 					updateLink();
 				} )
 				.catch( e => {
+					pluginsList = null;
 					appendHtml(
 						markdownBody,
 						// prettier-ignore
@@ -356,8 +396,11 @@
 			const liveBranches = $( '<div id="jetpack-live-branches" />' ).append(
 				`<h2>Jetpack Live Branches</h2> ${ contents }`
 			);
+			$( '#jetpack-live-branches' ).remove();
 			$el.append( liveBranches );
-			$( 'body' ).on( 'change', $el.find( 'input[type=checkbox]' ), onInputChanged );
+			liveBranches
+				.find( 'input[type=checkbox]' )
+				.each( () => this.addEventListener( 'change', onInputChanged ) );
 		}
 
 		/**

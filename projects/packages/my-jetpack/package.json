@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "1.7.3-alpha",
+	"version": "1.7.4-alpha",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -51,7 +51,6 @@
 		"@storybook/react": "6.5.9",
 		"@storybook/testing-react": "1.2.3",
 		"@testing-library/dom": "8.13.0",
-		"@testing-library/jest-dom": "5.14.1",
 		"@testing-library/react": "12.1.5",
 		"@testing-library/user-event": "14.1.1",
 		"jest": "28.1.0",
@@ -69,7 +68,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

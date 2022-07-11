@@ -1,7 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import BusinessHours, { defaultLocalization } from '../edit';
-import '@testing-library/jest-dom';
 
 const isWeekend = day => [ 'Sun', 'Sat' ].includes( day.substring( 0, 3 ) );
 

@@ -135,8 +135,11 @@ class Jetpack_Lazy_Images {
 	 * @return void
 	 */
 	public function setup_filters() {
-		// Do not lazy-load images in RSS feeds.
-		if ( is_feed() ) {
+		// Do not lazy-load images in RSS feeds or embeds.
+		if (
+			is_feed()
+			|| is_embed()
+		) {
 			return;
 		}
 
