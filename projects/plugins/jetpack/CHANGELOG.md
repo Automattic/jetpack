@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.1.1 - 2022-07-11
+### Bug fixes
+- Dashboard: avoid JavaScript errors and layout problems on sites experiencing URL-related connection issues with WordPress.com. [#25043]
+
 ## 11.1 - 2022-07-05
 ### Enhancements
 - Dashboard: add "Getting started with Jetpack Backup" video to Assistant and "At a glance" dashboard. [#24774]
