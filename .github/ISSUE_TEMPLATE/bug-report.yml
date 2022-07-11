@@ -11,7 +11,7 @@ body:
     id: plugin-type
     attributes:
       label: Impacted plugin
-      description: Multiple selection is supported.
+      description: Multiple selection is supported. If you experienced the issue on WordPress.com, please select "Jetpack".
       options:
         - Jetpack
         - Backup
