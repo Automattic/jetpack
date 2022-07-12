@@ -1,4 +1,4 @@
 Significance: minor
 Type: removed
 
-Record Meter: removes feature flag functionality so the record meter is available to all users
+Record Meter: make feature available to all users
