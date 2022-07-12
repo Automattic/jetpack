@@ -209,10 +209,12 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 			return '';
 		}
 
-		let errorMessage = __( 'Failed to upload your video. Please try again.', 'jetpack' );
+		let errorMessage =
+			uploadErrorData?.data?.message ||
+			__( 'Failed to upload your video. Please try again.', 'jetpack' );
 
 		// Let's give this error a better message.
-		if ( uploadErrorData?.data?.message === 'Invalid Mime' ) {
+		if ( errorMessage === 'Invalid Mime' ) {
 			errorMessage = (
 				<>
 					{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
