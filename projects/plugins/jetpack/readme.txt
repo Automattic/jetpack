@@ -242,22 +242,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.2-a.1 - 2022-07-06
+### 11.2-a.3 - 2022-07-12
 #### Enhancements
-- Contact Form Block: add a lock to the contact form submit button.
-- VideoPress: add an overlay to VideoPress Block to improve the UX when selecting the video player.
-- VideoPress: allow caption style attribute to be edited and applied.
-- VideoPress: improve VideoPress block preview behavior.
-- VideoPress: improve VideoPress block layout markup and styles.
-- VideoPress: add upload error message.
+- Podcast Player: add new actions to make it possible for users to set up code that runs for podcast fetches.
+- VideoPress Block: add enhancements such as an upload progress bar, improved UX, and limited preview attempts (available in Beta only).
 
 #### Bug fixes
-- Contact Form Block: prevent error notice when processing submission from 404 page.
-- Product Descriptions: fix search price on Search Product Description by accounting for sale coupons and ensuring the correct JP Search tier is shown.
-- Related Posts: avoid PHP warnings when visiting AMP post views.
-- Slideshow Block: override container display to prevent a gap between slideshow and contents.
-- Stats: allow custom user role stats settings to be properly recognized and saved.
-- VideoPress: fix bug when getting the video preview of the VideoPress block.
+- Form block: preserve line breaks in form submissions.
+- Gathering Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.
+- Stats: fix dashboard widget form name to allow form choices to be saved.
+- Subscriptions: format the number of subscribers displayed in the block editor's controls.
 
 --------
 

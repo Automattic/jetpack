@@ -15,6 +15,7 @@ import classNames from 'classnames';
 import { getVideoPressUrl } from '../url';
 import { VideoPressIcon } from './components/icons';
 import VideoPressInspectorControls from './components/inspector-controls';
+import PosterImageBlockControl from './components/poster-image-block-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { title } from '.';
@@ -33,7 +34,7 @@ export const PlaceholderWrapper = ( { children } ) => (
 	</Placeholder>
 );
 
-export default function VideoPressEdit( { attributes, setAttributes, isSelected } ) {
+export default function VideoPressEdit( { attributes, setAttributes, isSelected, clientId } ) {
 	const {
 		autoplay,
 		loop,
@@ -48,6 +49,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		src,
 		guid,
 		cacheHtml,
+		poster,
 		align,
 		cacheThumbnail,
 		videoRatio,
@@ -64,6 +66,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		seekbarLoadingColor,
 		seekbarPlayedColor,
 		useAverageColor,
+		poster,
 	} );
 
 	// Get video preview status.
@@ -259,6 +262,11 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	return (
 		<div { ...blockProps }>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+			<PosterImageBlockControl
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				clientId={ clientId }
+			/>
 			<VideoPressPlayer
 				html={ html }
 				thumbnail={ videoThumbnail }
