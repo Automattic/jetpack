@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add new `jetpack_podcast_pre_fetch` and `jetpack_podcast_post_fetch` actions to make it possible for users to set up code that runs for podcast fetches.
