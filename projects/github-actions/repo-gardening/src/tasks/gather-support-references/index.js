@@ -20,6 +20,7 @@ async function getListComment( octokit, owner, repo, number ) {
 		owner,
 		repo,
 		issue_number: +number,
+		per_page: 100,
 	} ) ) {
 		response.data.map( comment => {
 			if (
