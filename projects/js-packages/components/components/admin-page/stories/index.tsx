@@ -1,16 +1,19 @@
 import React from 'react';
 import JetpackLogo from '../../jetpack-logo/index';
 import Text from '../../text/index';
-import AdminPage from '../index.jsx';
+import AdminPage from '../index';
 import styles from './style.module.scss';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-export default {
+const meta: ComponentMeta< typeof AdminPage > = {
 	title: 'JS Packages/Components/Admin Page',
 	component: AdminPage,
 };
 
+export default meta;
+
 // Export additional stories using pre-defined values
-const Template = args => <AdminPage { ...args } />;
+const Template: ComponentStory< typeof AdminPage > = args => <AdminPage { ...args } />;
 
 // Export Default story
 export const _default = Template.bind( {} );
