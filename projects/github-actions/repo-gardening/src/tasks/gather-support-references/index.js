@@ -95,9 +95,9 @@ async function getIssueReferences( octokit, owner, repo, number ) {
 }
 
 /**
- * Creates or updates a comment on PR.
+ * Creates or updates a comment on issue.
  *
- * @param {WebhookPayloadIssue} payload - Pull request event payload.
+ * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {Array} issueReferences - Array of support references.
  */
