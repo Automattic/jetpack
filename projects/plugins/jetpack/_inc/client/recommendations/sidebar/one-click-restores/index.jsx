@@ -6,7 +6,7 @@ import analytics from 'lib/analytics';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { getSiteRawUrl } from 'state/initial-state';
-import { hasActiveSiteFeature } from 'state/site';
+import { siteHasFeature } from 'state/site';
 import { SidebarCard } from '../sidebar-card';
 
 import './style.scss';
@@ -98,7 +98,7 @@ const OneClickRestoresComponent = props => {
 };
 
 const OneClickRestores = connect( state => ( {
-	hasRealTimeBackups: hasActiveSiteFeature( state, 'real-time-backups' ),
+	hasRealTimeBackups: siteHasFeature( state, 'real-time-backups' ),
 	siteRawUrl: getSiteRawUrl( state ),
 } ) )( OneClickRestoresComponent );
 
