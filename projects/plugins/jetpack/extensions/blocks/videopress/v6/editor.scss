@@ -39,6 +39,14 @@
 }
 
 .is-videopress-placeholder {
+	.components-notice {
+		margin-left: 0;
+		box-sizing: border-box;
+		width: 100%;
+		margin-bottom: 12px;
+		padding-right: 12px;
+	}
+
 	.components-placeholder__fieldset {
 		min-height: 82px;
 	}
