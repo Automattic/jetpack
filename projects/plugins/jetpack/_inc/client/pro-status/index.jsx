@@ -22,7 +22,7 @@ import { isOfflineMode } from 'state/connection';
 import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getScanStatus } from 'state/scan';
-import { getSitePlan, hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
+import { getSitePlan, siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
 
 /**
@@ -306,7 +306,7 @@ export default connect( state => {
 		fetchingAkismetData: isFetchingAkismetData( state ),
 		rewindStatus: getRewindStatus( state ),
 		scanStatus: getScanStatus( state ),
-		purchasedVaultPressBackups: hasActiveSiteFeature( state, 'vaultpress-backups' ),
-		purchasedVaultPressScan: hasActiveSiteFeature( state, 'vaultpress-security-scanning' ),
+		purchasedVaultPressBackups: siteHasFeature( state, 'vaultpress-backups' ),
+		purchasedVaultPressScan: siteHasFeature( state, 'vaultpress-security-scanning' ),
 	};
 } )( ProStatus );

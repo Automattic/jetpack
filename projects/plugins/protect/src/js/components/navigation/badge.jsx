@@ -10,11 +10,11 @@ import styles from './styles.module.scss';
  * Gets the Badge element
  *
  * @param {number} count - The number of vulnerabilities found for this item.
- * @param {boolean} notChecked - Whether this item was not checked for vulnerabilities yet.
+ * @param {boolean} checked - Whether this item was checked for vulnerabilities yet.
  * @returns {object} The badge element
  */
-const getBadgeElement = ( count, notChecked ) => {
-	if ( notChecked ) {
+const getBadgeElement = ( count, checked ) => {
+	if ( ! checked ) {
 		return {
 			popoverText: __(
 				'This item was added to your site after the most recent scan. We will check for vulnerabilities during the next scheduled one.',
@@ -49,8 +49,8 @@ const getBadgeElement = ( count, notChecked ) => {
 	};
 };
 
-const ItemBadge = ( { count, notChecked } ) => {
-	const { popoverText, badgeElement } = getBadgeElement( count, notChecked );
+const ItemBadge = ( { count, checked } ) => {
+	const { popoverText, badgeElement } = getBadgeElement( count, checked );
 	const [ showPopover, setShowPopover ] = useState( false );
 
 	const handleEnter = useCallback( () => {
@@ -85,8 +85,8 @@ const ItemBadge = ( { count, notChecked } ) => {
 ItemBadge.propTypes = {
 	/* The number of vulnerabilities found for this item */
 	count: PropTypes.number,
-	/* Whether this item was not checked for vulnerabilities yet */
-	notChecked: PropTypes.bool,
+	/* Whether this item was checked for vulnerabilities yet */
+	checked: PropTypes.bool,
 };
 
 export default ItemBadge;

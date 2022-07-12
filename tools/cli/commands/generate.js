@@ -249,6 +249,7 @@ export async function generateProject(
 	}
 
 	createSkeleton( type, projDir, answers.name );
+	await searchReplaceInFolder( projDir, 'package-name', normalizeSlug( answers.name ) );
 
 	// Generate the composer.json file
 	const composerJson = readComposerJson( project );
