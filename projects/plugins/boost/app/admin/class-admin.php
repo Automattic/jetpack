@@ -308,14 +308,9 @@ class Admin {
 				}
 
 				// get the current dismissed modals
-				$is_dismissed = $this->get_show_score_prompt();
-
-				if ( is_array( $is_dismissed ) ) {
-					array_push( $is_dismissed, $modal_to_banish );
-					$is_dismissed = array_unique( $is_dismissed );
-				} else {
-					$is_dismissed = array( $modal_to_banish );
-				}
+				$is_dismissed = $this->get_dismissed_modals();
+				array_push( $is_dismissed, $modal_to_banish );
+				$is_dismissed = array_unique( $is_dismissed );
 
 				\update_option( self::SHOW_SCORE_PROMPT_OPTION, $is_dismissed, false );
 			}
@@ -328,14 +323,20 @@ class Admin {
 	}
 
 	/**
-	 * Get the value of show_score_prompt.
+	 * Get the which modals have been displayed.
 	 *
-	 * This now holds an array of score change ids
+	 * This now holds an array of modal IDs since we are keeping the option name
+	 * It'll be overwritten once
 	 *
 	 * @return bool
 	 */
-	public function get_show_score_prompt() {
-		return \get_option( self::SHOW_SCORE_PROMPT_OPTION, array() );
+	public function get_dismissed_modals() {
+		$score_prompts = \get_option( self::SHOW_SCORE_PROMPT_OPTION, array() );
+		// if the value is false - "rate boost" was dismissed, so return the
+		if ( ! $score_prompts ) {
+			$score_prompts = array( 'score-increase' );
+		}
+		return $score_prompts;
 	}
 
 	/**
@@ -376,7 +377,7 @@ class Admin {
 	public function add_js_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
 		$constants['showScorePromptNonce']  = wp_create_nonce( self::SET_SHOW_SCORE_PROMPT_NONCE );
-		$constants['dismissedScorePrompts'] = $this->get_show_score_prompt();
+		$constants['dismissedScorePrompts'] = $this->get_dismissed_modals();
 
 		return $constants;
 	}
