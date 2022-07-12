@@ -108,10 +108,10 @@ async function createOrUpdateComment( payload, octokit, issueReferences ) {
 	const ownerLogin = owner.login;
 
 	const comment = `**Support References**
-
 	${ issueReferences.map(
-		reference => `- [ ] ${ reference }
-	`
+		reference => `
+- [ ] ${ reference }
+`
 	) }
 
 	`;
