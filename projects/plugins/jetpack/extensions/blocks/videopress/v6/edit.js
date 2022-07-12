@@ -243,10 +243,10 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	// 5 - Generating video preview
 	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
 		return (
-			<UploadWrapper>
-				<div role="alert" aria-live="assertive" className="videopress-uploader__error-message">
-					{ __( 'Impossible to get a video preview after ten attempts.', 'jetpack' ) }
-				</div>
+			<UploadWrapper
+				errorMessage={ __( 'Impossible to get a video preview after ten attempts.', 'jetpack' ) }
+				onNoticeRemove={ invalidateResolution }
+			>
 				<div className="videopress-uploader__error-actions">
 					<Button variant="primary" onClick={ invalidateResolution }>
 						{ __( 'Try again', 'jetpack' ) }
