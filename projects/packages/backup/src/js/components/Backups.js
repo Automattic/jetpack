@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
+import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { getDate, date, dateI18n } from '@wordpress/date';
 import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
@@ -191,9 +192,8 @@ const Backups = () => {
 							alt=""
 							className={ stats.warnings ? 'backup__warning-color' : '' }
 						/>
-						<h2>{ __( 'Latest Backup', 'jetpack-backup-pkg' ) }</h2>
+						<h2>{ formatDateString( latestTime ) }</h2>
 					</div>
-					<h1>{ formatDateString( latestTime ) }</h1>
 					{ stats.warnings && (
 						<div className="backup__warning-text">
 							{ createInterpolateElement(
@@ -213,16 +213,30 @@ const Backups = () => {
 							) }
 						</div>
 					) }
-					{ ! stats.warnings && (
-						<a
-							className="button is-full-width"
-							href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
-						</a>
-					) }
+					{ ! stats.warnings &&
+						createInterpolateElement(
+							__(
+								'<Button>See backups in the cloud</Button><br/><ExternalLink>Or view your most recent restore point</ExternalLink>',
+								'jetpack-backup-pkg'
+							),
+							{
+								Button: (
+									<a
+										className="button is-full-width"
+										href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+										target="_blank"
+										rel="noreferrer"
+									/>
+								),
+								br: <br />,
+								ExternalLink: (
+									<ExternalLink
+										className="backup__restore-point-link"
+										href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
+									/>
+								),
+							}
+						) }
 				</div>
 				<div className="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
 				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">

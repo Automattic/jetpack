@@ -53,12 +53,18 @@ export default {
 	src: {
 		type: 'string',
 	},
-
 	cacheHtml: {
 		type: 'string',
 		default: '',
 	},
 	poster: {
 		type: 'string',
+	},
+	cacheThumbnail: {
+		type: 'string',
+		default: '',
+	},
+	videoRatio: {
+		type: 'number',
 	},
 };
