@@ -17,7 +17,7 @@ class VideoPress_XMLRPC {
 	 */
 	public static function init() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\VideoPress\XMLRPC' );
-		return self::init();
+		return XMLRPC::init();
 	}
 
 }
