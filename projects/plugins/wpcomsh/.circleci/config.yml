@@ -2,7 +2,6 @@ workflows:
   version: 2
   main:
     jobs:
-      - php73-build
       - php74-build
       - php8-build
       - public-access
@@ -57,12 +56,6 @@ job-references:
             WP_MULTISITE=1 phpunit
 
 jobs:
-  php73-build:
-    <<: *php_job
-    docker:
-      - image: circleci/php:7.3-buster
-      - image: *mariadb_image
-
   php74-build:
     <<: *php_job
     docker:
