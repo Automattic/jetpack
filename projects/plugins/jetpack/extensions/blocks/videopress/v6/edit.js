@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 
-import { useBlockProps } from '@wordpress/block-editor';
+import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
 import { Spinner, Placeholder, Button } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -23,11 +23,9 @@ import './editor.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
-const vpPlaceholderIcon = () => <span className="block-editor-block-icon">{ VideoPressIcon }</span>;
-
 export const UploadWrapper = ( { children } ) => (
 	<Placeholder
-		icon={ vpPlaceholderIcon }
+		icon={ <BlockIcon icon={ VideoPressIcon } /> }
 		label={ title }
 		className="videopress-uploader is-videopress-placeholder"
 	>
