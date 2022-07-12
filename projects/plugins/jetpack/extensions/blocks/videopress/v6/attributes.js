@@ -68,6 +68,9 @@ export default {
 		type: 'string',
 		default: '',
 	},
+	poster: {
+		type: 'string',
+	},
 	cacheThumbnail: {
 		type: 'string',
 		default: '',
