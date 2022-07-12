@@ -17,7 +17,7 @@ import { VideoPressIcon } from './components/icons';
 import VideoPressInspectorControls from './components/inspector-controls';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
-import { title } from '.';
+import { description, title } from '.';
 
 import './editor.scss';
 
@@ -29,6 +29,7 @@ export const UploadWrapper = ( { children, errorMessage, onNoticeRemove = () => 
 	<Placeholder
 		icon={ vpPlaceholderIcon }
 		label={ title }
+		instructions={ description }
 		className="videopress-uploader is-videopress-placeholder"
 		notices={
 			errorMessage && (
