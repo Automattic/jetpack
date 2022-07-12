@@ -4,6 +4,8 @@ on:
     types: [opened, reopened, synchronize, edited, labeled, closed]
   issues: # For auto-triage of issues.
     types: [opened, reopened]
+  issue_comment: # To gather support references in issue comments.
+    types: [created, edited]
   push:
     branches:
       - trunk # Every time a PR is merged to trunk.
