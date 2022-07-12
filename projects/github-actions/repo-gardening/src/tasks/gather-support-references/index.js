@@ -1,4 +1,5 @@
 const debug = require( '../../debug' );
+const getComments = require( '../../get-comments' );
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -16,21 +17,15 @@ async function getListComment( octokit, owner, repo, number ) {
 
 	debug( `gather-support-references: Looking for a previous comment from this task in our issue.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
-		owner,
-		repo,
-		issue_number: +number,
-		per_page: 100,
-	} ) ) {
-		response.data.map( comment => {
-			if (
-				comment.user.login === 'github-actions[bot]' &&
-				comment.body.includes( '**Support References**' )
-			) {
-				commentID = comment.id;
-			}
-		} );
-	}
+	const issueComments = await getComments( octokit, owner, repo, number );
+	issueComments.map( comment => {
+		if (
+			comment.user.login === 'github-actions[bot]' &&
+			comment.body.includes( '**Support References**' )
+		) {
+			commentID = comment.id;
+		}
+	} );
 
 	return commentID;
 }
@@ -49,16 +44,11 @@ async function getIssueReferences( octokit, owner, repo, number ) {
 	const supportIds = [];
 	const referencesRegexP = /[0-9]*-(?:chat|hc|zen|zd)/gim;
 
+	const issueComments = await getComments( octokit, owner.login, repo, number );
 	debug( `gather-support-references: Getting references from comments.` );
-	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
-		owner: owner.login,
-		repo,
-		issue_number: +number,
-	} ) ) {
-		response.data.map( comment => {
-			ticketReferences.push( ...comment.body.matchAll( referencesRegexP ) );
-		} );
-	}
+	issueComments.map( comment => {
+		ticketReferences.push( ...comment.body.matchAll( referencesRegexP ) );
+	} );
 
 	debug( `gather-support-references: Getting references from issue body.` );
 	const {
