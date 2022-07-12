@@ -3,7 +3,7 @@
  */
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button } from '@wordpress/components';
+import { Button, withNotices } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
@@ -70,7 +70,7 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 	);
 };
 
-const VideoPressUploader = ( { attributes, setAttributes } ) => {
+const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperations } ) => {
 	/*
 	 * Storing the file to get it name and size for progress.
 	 */
@@ -247,12 +247,13 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 			accept="video/*"
 			allowedTypes={ ALLOWED_MEDIA_TYPES }
 			value={ attributes }
+			notices={ noticeUI }
 			onError={ function ( error ) {
-				// eslint-disable-next-line no-console
-				console.error( 'Error: ', error );
+				noticeOperations.removeAllNotices();
+				noticeOperations.createErrorNotice( error );
 			} }
 		/>
 	);
 };
 
-export default VideoPressUploader;
+export default withNotices( VideoPressUploader );
