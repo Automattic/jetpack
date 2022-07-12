@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getPartnerCoupon, showBackups } from 'state/initial-state';
-import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
+import { siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import BackupGettingStarted from './backup-getting-started';
 import BackupUpgrade from './backup-upgrade';
@@ -417,8 +417,8 @@ export default connect(
 			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 			isFetchingSite: isFetchingSiteData( state ),
-			hasBackups: hasActiveSiteFeature( state, 'backups' ),
-			hasRealTimeBackups: hasActiveSiteFeature( state, 'real-time-backups' ),
+			hasBackups: siteHasFeature( state, 'backups' ),
+			hasRealTimeBackups: siteHasFeature( state, 'real-time-backups' ),
 			partnerCoupon: getPartnerCoupon( state ),
 		};
 	},
