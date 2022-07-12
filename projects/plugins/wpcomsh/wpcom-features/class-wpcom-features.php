@@ -88,6 +88,8 @@ class WPCOM_Features {
 	private const WOOCOMMERCE_PRODUCT_FILTERS_MONTHLY         = 'woocommerce_product_filters_monthly'; // 954
 	private const WOOCOMMERCE_PRODUCT_CSV_IMPORT_YEARLY       = 'wc_product_csv_import_suite_yearly'; // 957
 	private const WOOCOMMERCE_PRODUCT_CSV_IMPORT_MONTHLY      = 'wc_product_csv_import_suite_monthly'; // 958
+	private const WOOCOMMERCE_VARIATION_IMAGES_YEARLY         = 'wc_additional_variation_images_yearly'; // 711
+	private const WOOCOMMERCE_VARIATION_IMAGES_MONTHLY        = 'wc_additional_variation_images_monthly'; // 2404
 	private const VALUE_BUNDLE                                = 'value_bundle'; // 1003
 	private const BUNDLE_PRO                                  = 'bundle_pro'; // 1004
 	private const BUNDLE_SUPER                                = 'bundle_super'; // 1005
@@ -221,6 +223,8 @@ class WPCOM_Features {
 		self::WOOCOMMERCE_PRODUCT_FILTERS_MONTHLY,
 		self::WOOCOMMERCE_PRODUCT_CSV_IMPORT_YEARLY,
 		self::WOOCOMMERCE_PRODUCT_CSV_IMPORT_MONTHLY,
+		self::WOOCOMMERCE_VARIATION_IMAGES_YEARLY,
+		self::WOOCOMMERCE_VARIATION_IMAGES_MONTHLY,
 	);
 	private const GOOGLE_WORKSPACE_PRODUCTS = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
 	private const GSUITE_PRODUCTS           = array( self::GAPPS, self::GAPPS_UNLIMITED );
