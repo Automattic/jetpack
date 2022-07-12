@@ -269,7 +269,7 @@ class VideoPress_Shortcode {
 	 */
 	public function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) {
 		if ( preg_match( '/https?:\/\/(video.wordpress.com|videopress.com)\/(v|embed)\//', $url ) ) {
-			add_action( 'wp_enqueue_scripts', array( 'Jetpack_VideoPress', 'enqueue_jwt_token_bridge' ) );
+			Jetpack_VideoPress::enqueue_jwt_token_bridge();
 		}
 		return $cache;
 	}
