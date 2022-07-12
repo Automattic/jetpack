@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Change prop key to component for currency code
