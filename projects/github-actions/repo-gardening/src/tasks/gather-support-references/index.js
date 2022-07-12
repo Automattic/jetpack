@@ -50,7 +50,7 @@ async function getIssueReferences( octokit, owner, repo, number ) {
 
 	debug( `gather-support-references: Getting references from comments.` );
 	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
-		owner,
+		owner: owner.login,
 		repo,
 		issue_number: +number,
 	} ) ) {
