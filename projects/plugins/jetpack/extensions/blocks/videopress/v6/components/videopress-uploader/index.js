@@ -55,10 +55,7 @@ const UploadProgress = ( { progress, file } ) => {
 
 const UploadError = ( { message, onRetry, onCancel } ) => {
 	return (
-		<UploadWrapper>
-			<div role="alert" aria-live="assertive" className="videopress-uploader__error-message">
-				{ message }
-			</div>
+		<UploadWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
 			<div className="videopress-uploader__error-actions">
 				<Button variant="primary" onClick={ onRetry }>
 					{ __( 'Try again', 'jetpack' ) }
