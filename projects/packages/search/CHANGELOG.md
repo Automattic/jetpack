@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2022-07-12
+### Added
+- Hide unsupported taxonomies from widget settings [#24823]
+
+### Changed
+- Updated package dependencies. [#25055]
+
+### Fixed
+- Fix irrelevant widgets in overlay sidebar [#24824]
+- Hide 'Media' from 'Excluded Post Types' because we don't index them [#24822]
+- Record Meter: rely less on last_indexed_date from API [#24967]
+- Use consistent number formatting in Record Meter [#25003]
+
 ## [0.15.4] - 2022-07-06
 ### Added
 - Record Meter: adds labels to custom post type breakdown [#24876]
@@ -355,6 +368,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.16.0]: https://github.com/Automattic/jetpack-search/compare/v0.15.4...v0.16.0
 [0.15.4]: https://github.com/Automattic/jetpack-search/compare/v0.15.3...v0.15.4
 [0.15.3]: https://github.com/Automattic/jetpack-search/compare/v0.15.2...v0.15.3
 [0.15.2]: https://github.com/Automattic/jetpack-search/compare/v0.15.1...v0.15.2
