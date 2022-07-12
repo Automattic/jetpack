@@ -5,10 +5,7 @@
 ## 11.2-a.3 - 2022-07-12
 ### Enhancements
 - Podcast Player: add new actions to make it possible for users to set up code that runs for podcast fetches. [#25046]
-- VideoPress: add upload progress bar. [#24953]
-- VideoPress: improve the UX when rendering the block. [#24891]
-- VideoPress: improve upload error layout. [#24963]
-- VideoPress: limit preview attempts. [#24897]
+- VideoPress Block: add enhancements such as an upload progress bar, improved UX, and limited preview attempts (available in Beta only). [#24953, #24891, #24963, #24897]
 
 ### Bug fixes
 - Form block: preserve line breaks in form submissions. [#25040]

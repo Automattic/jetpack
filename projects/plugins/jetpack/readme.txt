@@ -245,10 +245,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 ### 11.2-a.3 - 2022-07-12
 #### Enhancements
 - Podcast Player: add new actions to make it possible for users to set up code that runs for podcast fetches.
-- VideoPress: add upload progress bar.
-- VideoPress: improve the UX when rendering the block.
-- VideoPress: improve upload error layout.
-- VideoPress: limit preview attempts.
+- VideoPress Block: add enhancements such as an upload progress bar, improved UX, and limited preview attempts (available in Beta only).
 
 #### Bug fixes
 - Form block: preserve line breaks in form submissions.
