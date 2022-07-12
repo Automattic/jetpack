@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.21] - 2022-07-12
+### Changed
+- Updated package dependencies.
+
 ## [2.2.20] - 2022-06-21
 ### Changed
 - Renaming master to trunk. [#24661]
@@ -450,6 +454,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[2.2.21]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.20...v2.2.21
 [2.2.20]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.19...v2.2.20
 [2.2.19]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.18...v2.2.19
 [2.2.18]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.17...v2.2.18
