@@ -63,22 +63,20 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 
 	// That array can still include duplicates, or references that are not formatted quite properly.
 	// Let's build a final array with unique and correct support IDs.
-	const correctedSupportIds = [];
+	const correctedSupportIds = new Set();
 	supportIds.map( supportId => {
 		// xxx-zen and xxx-hc are the preferred formats for tickets and chats.
 		// xxx-zd and xxx-chat, as well as uppercase versions, are considered as alternate versions.
 		const wrongId = supportId.match( /([0-9]*)-(zd|chat)/i );
 		if ( wrongId ) {
 			const correctedId = `${ wrongId[ 1 ] }-${ wrongId[ 2 ] === 'zd' ? 'zen' : 'hc' }`;
-			if ( ! correctedSupportIds.includes( correctedId ) ) {
-				correctedSupportIds.push( correctedId );
-			}
-		} else if ( ! correctedSupportIds.includes( supportId.toLowerCase() ) ) {
-			correctedSupportIds.push( supportId.toLowerCase() );
+			correctedSupportIds.add( correctedId );
+		} else {
+			correctedSupportIds.add( supportId.toLowerCase() );
 		}
 	} );
 
-	return correctedSupportIds;
+	return [ ...correctedSupportIds ];
 }
 
 /**
