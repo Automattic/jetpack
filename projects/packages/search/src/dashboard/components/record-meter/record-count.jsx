@@ -1,3 +1,4 @@
+import { numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
@@ -16,11 +17,11 @@ export function RecordCount( props ) {
 	}
 
 	const recordCount =
-		typeof props.recordCount === 'number' ? props.recordCount?.toLocaleString() : props.recordCount;
+		typeof props.recordCount === 'number' ? numberFormat( props.recordCount ) : props.recordCount;
 
 	const recordLimit =
 		typeof props.tierMaximumRecords === 'number'
-			? props.tierMaximumRecords?.toLocaleString()
+			? numberFormat( props.tierMaximumRecords )
 			: props.tierMaximumRecords;
 	let message;
 
