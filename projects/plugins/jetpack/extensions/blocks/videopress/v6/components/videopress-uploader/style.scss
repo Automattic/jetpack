@@ -1,13 +1,5 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.videopress-uploader {
-	&__error-message {
-		color: $alert-red;
-		width: 100%;
-		margin-bottom: 1em;
-	}
-}
-
 .videopress-uploader-progress {
 	display: flex;
 	flex-direction: column;
