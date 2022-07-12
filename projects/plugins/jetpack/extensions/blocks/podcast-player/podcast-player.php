@@ -118,16 +118,7 @@ function render_block( $attributes, $content ) {
 
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
-	/**
-	 * Filter the number of seconds to cache a specific podcast URL for. The returned value will be ignored if it is not a valid integer.
-	 *
-	 * @since 11.1
-	 *
-	 * @param string   $feed_url The URL of the podcast feed.
-	 * @param int|null $cache_timeout The number of seconds to cache the podcast data.
-	 */
-	$podcast_cache_timeout = apply_filters( 'jetpack_podcast_feed_cache_timeout', $attributes['url'], null );
-	$player_data           = ( new Jetpack_Podcast_Helper( $attributes['url'], $podcast_cache_timeout ) )->get_player_data( $player_args );
+	$player_data       = ( new Jetpack_Podcast_Helper( $attributes['url'] ) )->get_player_data( $player_args );
 
 	if ( is_wp_error( $player_data ) ) {
 		return render_error( $player_data->get_error_message() );

@@ -19,9 +19,11 @@ class Jetpack_Podcast_Helper {
 	protected $feed = null;
 
 	/**
-	 * The number of seconds to cache the podcast feed data for.
+	 * The number of seconds to cache the podcast feed data.
+	 * This should be specified using the `jetpack_podcast_feed_cache_timeout` filter,
+	 * and must be greater than {@see self::MIN_PODCAST_CACHE_TIMEOUT}.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	protected $cache_timeout = null;
 
@@ -29,15 +31,23 @@ class Jetpack_Podcast_Helper {
 	 * Initialize class.
 	 *
 	 * @param string $feed The RSS feed of the podcast.
-	 * @param int    $cache_timeout The number of seconds to cache the fetched feed. Must be greater than {@see self::MIN_PODCAST_CACHE_TIMEOUT}.
 	 */
-	public function __construct( $feed, $cache_timeout = null ) {
+	public function __construct( $feed ) {
 		$this->feed = esc_url_raw( $feed );
 
-		if ( is_int( $cache_timeout ) ) {
-			$this->cache_timeout = max( self::MIN_PODCAST_CACHE_TIMEOUT, (int) $cache_timeout );
-		} else {
-			$this->cache_timeout = null;
+		/**
+		 * Filter the number of seconds to cache a specific podcast URL for. The returned value will be ignored if it is not a valid integer.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string   $podcast_url   The URL of the podcast feed.
+		 * @param int|null $cache_timeout The number of seconds to cache the podcast data. Default value is null.
+		 */
+		$podcast_cache_timeout = apply_filters( 'jetpack_podcast_feed_cache_timeout', $this->feed, null );
+
+		if ( $podcast_cache_timeout !== null && is_int( $podcast_cache_timeout ) ) {
+			// Enforce our minimum cache timeout.
+			$this->cache_timeout = max( $podcast_cache_timeout, self::MIN_PODCAST_CACHE_TIMEOUT );
 		}
 	}
 
@@ -293,9 +303,11 @@ class Jetpack_Podcast_Helper {
 		// Add action: detect the podcast feed from the provided feed URL.
 		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
 
+		$cache_timeout_filter_added = false;
 		if ( $this->cache_timeout !== null ) {
-			// Add filter: if we have a custom timeout, then ensure it gets applied via the following filter.
-			add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ), 10, 2 );
+			// If we have a custom cache timeout, apply the custom timeout value.
+			add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ) );
+			$cache_timeout_filter_added = true;
 		}
 
 		/**
@@ -317,8 +329,8 @@ class Jetpack_Podcast_Helper {
 			remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
 		}
 
-		if ( $this->cache_timeout !== null ) {
-			// Remove added filter from wp_feed_cache_transient_lifetime hook.
+		if ( $cache_timeout_filter_added ) {
+			// Remove the cache timeout filter we added.
 			remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ) );
 		}
 
@@ -349,15 +361,15 @@ class Jetpack_Podcast_Helper {
 
 	/**
 	 * Filter to override the default number of seconds to cache RSS feed data for the current feed.
+	 * Note that we don't use the feed's URL because some of the SimplePie feed caches trigger this
+	 * filter with a feed identifier and not a URL.
 	 *
-	 * @param int    $cache_timeout_in_seconds Number of seconds to cache the feed for.
-	 * @param string $feed_url The URL of the feed we are fetching.
+	 * @param int $cache_timeout_in_seconds Number of seconds to cache the podcast feed.
 	 *
-	 * @return int The number of seconds to cache the feed for.
+	 * @return int The number of seconds to cache the podcast feed.
 	 */
-	public function filter_podcast_cache_timeout( $cache_timeout_in_seconds, $feed_url ) {
-		// If we have a non-null URL and it matches our feed, return our custom cache timeout.
-		if ( $this->cache_timeout !== null && $feed_url === $this->feed ) {
+	public function filter_podcast_cache_timeout( $cache_timeout_in_seconds ) {
+		if ( $this->cache_timeout !== null ) {
 			// If the cache timeout has already been reduced, return the smaller value of the two.
 			return min( $cache_timeout_in_seconds, $this->cache_timeout );
 		}
