@@ -52,18 +52,6 @@ body:
       label: What actually happened
       placeholder: |
         eg. Clicking the button does nothing visibly.
-  - type: textarea
-    id: other
-    attributes:
-      label: Other information
-      placeholder: Screenshots, additional logs, notes, etc.
-  - type: markdown
-    attributes:
-      value: |
-        ---
-        ## Additional context
-
-        Please provide whatever additional information you have available to you. If not, please scroll to the bottom and submit the issue.
   - type: dropdown
     id: browser
     attributes:
@@ -77,6 +65,18 @@ body:
         - iOS Safari
         - Android Chrome
       multiple: true
+  - type: textarea
+    id: other
+    attributes:
+      label: Other information
+      placeholder: Screenshots, additional logs, notes, etc.
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Additional context
+
+        The following section is optional. If you're an Automattician, you should be able to fill it in. If not, please scroll to the bottom and submit the issue.
   - type: dropdown
     id: site-type
     attributes:
@@ -90,7 +90,6 @@ body:
   - type: markdown
     attributes:
       value: |
-        ---
         ## Issue severity
 
         Please provide details around how often the issue is reproducible & how many users are affected.
