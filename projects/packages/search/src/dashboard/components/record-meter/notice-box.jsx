@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { numberFormat } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
@@ -11,7 +12,7 @@ const CLOSE_TO_LIMIT_PERCENT = 0.8;
 const getNotices = ( tierMaximumRecords = null ) => {
 	const recordLimit =
 		typeof tierMaximumRecords === 'number'
-			? tierMaximumRecords.toLocaleString()
+			? numberFormat( tierMaximumRecords )
 			: tierMaximumRecords;
 
 	return {

@@ -13,12 +13,14 @@ import './style.scss';
 
 export const name = 'videopress-block';
 export const title = __( 'VideoPress', 'jetpack' );
+export const description = __(
+	'Embed a video from your media library or upload a new one with VideoPress.',
+	'jetpack'
+);
+
 export const settings = {
 	title,
-	description: __(
-		'Embed a video from your media library or upload a new one with VideoPress.',
-		'jetpack'
-	),
+	description,
 	icon,
 	category: 'media',
 	edit,
