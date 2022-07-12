@@ -3,7 +3,7 @@
  */
 
 import { useBlockProps } from '@wordpress/block-editor';
-import { Spinner, Placeholder, Button } from '@wordpress/components';
+import { Spinner, Placeholder, Button, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
@@ -25,11 +25,18 @@ const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
 const vpPlaceholderIcon = () => <span className="block-editor-block-icon">{ VideoPressIcon }</span>;
 
-export const UploadWrapper = ( { children } ) => (
+export const UploadWrapper = ( { children, errorMessage, onNoticeRemove = () => {} } ) => (
 	<Placeholder
 		icon={ vpPlaceholderIcon }
 		label={ title }
 		className="videopress-uploader is-videopress-placeholder"
+		notices={
+			errorMessage && (
+				<Notice isError status="error" onRemove={ onNoticeRemove }>
+					{ errorMessage }
+				</Notice>
+			)
+		}
 	>
 		{ children }
 	</Placeholder>
