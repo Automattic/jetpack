@@ -54,12 +54,10 @@ const UploadProgress = ( { progress, file } ) => {
 };
 
 const UploadError = ( { message, onRetry, onCancel } ) => {
-	const errorMessage = message ?? __( 'Failed to upload your video. Please try again.', 'jetpack' );
-
 	return (
 		<UploadWrapper>
 			<div role="alert" aria-live="assertive" className="videopress-uploader__error-message">
-				{ errorMessage }
+				{ message }
 			</div>
 			<div className="videopress-uploader__error-actions">
 				<Button variant="primary" onClick={ onRetry }>
@@ -214,10 +212,7 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 			return '';
 		}
 
-		let errorMessage = __(
-			'An error was encountered during the upload. Check your network connection.',
-			'jetpack'
-		);
+		let errorMessage = __( 'Failed to upload your video. Please try again.', 'jetpack' );
 
 		// Let's give this error a better message.
 		if ( uploadErrorData?.data?.message === 'Invalid Mime' ) {
