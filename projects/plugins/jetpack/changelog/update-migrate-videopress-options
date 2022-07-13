@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+move VideoPress options to its package
