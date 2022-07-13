@@ -44,7 +44,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 	debug( `gather-support-references: Getting references from comments.` );
 	issueComments.map( comment => {
 		if (
-			comment.user.login !== 'github-actions[bot]' &&
+			comment.user.login !== 'github-actions[bot]' ||
 			! comment.body.includes( '**Support References**' )
 		) {
 			ticketReferences.push( ...comment.body.matchAll( referencesRegexP ) );
