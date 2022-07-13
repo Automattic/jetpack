@@ -2,33 +2,22 @@
  * External dependencies
  */
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
-import { useBlockProps, BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button, Icon } from '@wordpress/components';
+import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
+import { Button } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
+import { UploadWrapper } from '../../edit.js';
 /**
  * Internal dependencies
  */
 import { useResumableUploader } from '../../hooks/use-uploader.js';
+import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
 import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
-
-const UploadWrapper = ( { children } ) => {
-	const blockProps = useBlockProps( { className: 'videopress-uploader' } );
-	return (
-		<div { ...blockProps }>
-			<div className="videopress-uploader__logo">
-				<Icon icon={ VideoPressIcon } />
-				<div>{ __( 'VideoPress', 'jetpack' ) }</div>
-			</div>
-			{ children }
-		</div>
-	);
-};
 
 const UploadProgress = ( { progress, file } ) => {
 	const roundedProgress = Math.round( progress );
@@ -68,10 +57,7 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 	const errorMessage = message ?? __( 'Failed to upload your video. Please try again.', 'jetpack' );
 
 	return (
-		<UploadWrapper>
-			<div role="alert" aria-live="assertive" className="videopress-uploader__error-message">
-				{ errorMessage }
-			</div>
+		<UploadWrapper errorMessage={ errorMessage } onNoticeRemove={ onCancel }>
 			<div className="videopress-uploader__error-actions">
 				<Button variant="primary" onClick={ onRetry }>
 					{ __( 'Try again', 'jetpack' ) }
@@ -250,9 +236,11 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 	// Default view to select file to upload
 	return (
 		<MediaPlaceholder
+			className="is-videopress-placeholder"
 			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			labels={ {
-				title: __( 'VideoPress', 'jetpack' ),
+				title,
+				instructions: description,
 			} }
 			onSelect={ onSelectVideo }
 			onSelectURL={ onSelectURL }

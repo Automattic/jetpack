@@ -3,22 +3,6 @@
 .wp-block-jetpack-videopress {
 	position: relative;
 
-	&.is-placeholder-container {
-		background: $white;
-		color: $gray-900;
-		font-family: $default-font;
-		box-sizing: border-box;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: flex-start;
-		padding: 20px;
-		border: 1px solid $gray-900;
-		border-radius: 2px;
-		font-size: $default-font-size;
-		min-height: 200px;
-	}
-
 	.jetpack-videopress-player {
 		margin: 0;
 	}
@@ -51,5 +35,19 @@
 			left: 0;
 			width: 100%;
 		}
+	}
+}
+
+.is-videopress-placeholder {
+	.components-notice {
+		margin-left: 0;
+		box-sizing: border-box;
+		width: 100%;
+		margin-bottom: 12px;
+		padding-right: 12px;
+	}
+
+	.components-placeholder__fieldset {
+		min-height: 82px;
 	}
 }

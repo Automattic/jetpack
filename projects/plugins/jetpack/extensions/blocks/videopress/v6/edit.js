@@ -3,7 +3,7 @@
  */
 
 import { useBlockProps } from '@wordpress/block-editor';
-import { Spinner } from '@wordpress/components';
+import { Spinner, Placeholder, Button, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
@@ -13,15 +13,38 @@ import classNames from 'classnames';
  * Internal dependencies
  */
 import { getVideoPressUrl } from '../url';
+import { VideoPressIcon } from './components/icons';
 import VideoPressInspectorControls from './components/inspector-controls';
+import PosterImageBlockControl from './components/poster-image-block-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
+import { description, title } from '.';
 
 import './editor.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
-export default function VideoPressEdit( { attributes, setAttributes, isSelected } ) {
+const vpPlaceholderIcon = () => <span className="block-editor-block-icon">{ VideoPressIcon }</span>;
+
+export const UploadWrapper = ( { children, errorMessage, onNoticeRemove = () => {} } ) => (
+	<Placeholder
+		icon={ vpPlaceholderIcon }
+		label={ title }
+		instructions={ description }
+		className="videopress-uploader is-videopress-placeholder"
+		notices={
+			errorMessage && (
+				<Notice isError status="error" onRemove={ onNoticeRemove }>
+					{ errorMessage }
+				</Notice>
+			)
+		}
+	>
+		{ children }
+	</Placeholder>
+);
+
+export default function VideoPressEdit( { attributes, setAttributes, isSelected, clientId } ) {
 	const {
 		autoplay,
 		loop,
@@ -36,6 +59,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		src,
 		guid,
 		cacheHtml,
+		poster,
 		align,
 		cacheThumbnail,
 		videoRatio,
@@ -52,6 +76,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		seekbarLoadingColor,
 		seekbarPlayedColor,
 		useAverageColor,
+		poster,
 	} );
 
 	// Get video preview status.
@@ -188,10 +213,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	] );
 
 	const blockProps = useBlockProps( {
-		className: 'wp-block-jetpack-videopress is-placeholder-container',
-	} );
-
-	const videoPlayerBlockProps = useBlockProps( {
 		className: classNames( 'wp-block-jetpack-videopress', {
 			[ `align${ align }` ]: align,
 			'is-updating-preview': ! previewHtml,
@@ -215,36 +236,47 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
 	) {
 		return (
-			<>
-				<div { ...blockProps }>
-					<Spinner />
-					<div>{ __( '(4) Generating preview…', 'jetpack' ) }</div>
-					<div>
-						Attempt: <strong>{ generatingPreviewCounter }</strong>
-					</div>
-				</div>
-			</>
+			<UploadWrapper>
+				<Spinner />
+				{ __( 'Generating preview…', 'jetpack' ) }
+				<strong> { generatingPreviewCounter }</strong>
+			</UploadWrapper>
 		);
 	}
 
 	// 5 - Generating video preview
 	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
 		return (
-			<div { ...blockProps }>
-				<div>
-					{ __(
-						'(5) Impossible to get a video preview after ten attempts. Show error.',
-						'jetpack'
-					) }
+			<UploadWrapper
+				errorMessage={ __( 'Impossible to get a video preview after ten attempts.', 'jetpack' ) }
+				onNoticeRemove={ invalidateResolution }
+			>
+				<div className="videopress-uploader__error-actions">
+					<Button variant="primary" onClick={ invalidateResolution }>
+						{ __( 'Try again', 'jetpack' ) }
+					</Button>
+					<Button
+						variant="secondary"
+						onClick={ () => {
+							setAttributes( { src: undefined, id: undefined, guid: undefined } );
+						} }
+					>
+						{ __( 'Cancel', 'jetpack' ) }
+					</Button>
 				</div>
-			</div>
+			</UploadWrapper>
 		);
 	}
 
 	// X - Show VideoPress player. @todo: finish
 	return (
-		<div { ...videoPlayerBlockProps }>
+		<div { ...blockProps }>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+			<PosterImageBlockControl
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				clientId={ clientId }
+			/>
 			<VideoPressPlayer
 				html={ html }
 				thumbnail={ videoThumbnail }
