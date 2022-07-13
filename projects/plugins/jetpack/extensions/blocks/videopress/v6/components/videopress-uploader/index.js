@@ -8,7 +8,7 @@ import { createInterpolateElement, useCallback, useState } from '@wordpress/elem
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
-import { UploadWrapper } from '../../edit.js';
+import { PlaceholderWrapper } from '../../edit.js';
 /**
  * Internal dependencies
  */
@@ -35,7 +35,7 @@ const UploadProgress = ( { progress, file } ) => {
 	);
 
 	return (
-		<UploadWrapper>
+		<PlaceholderWrapper>
 			<div className="videopress-uploader-progress">
 				<div className="videopress-uploader-progress__file-info">
 					<div className="videopress-uploader-progress__file-name">{ fileNameLabel }</div>
@@ -49,7 +49,7 @@ const UploadProgress = ( { progress, file } ) => {
 					<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
 				</div>
 			</div>
-		</UploadWrapper>
+		</PlaceholderWrapper>
 	);
 };
 
@@ -57,7 +57,7 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 	const errorMessage = message ?? __( 'Failed to upload your video. Please try again.', 'jetpack' );
 
 	return (
-		<UploadWrapper errorMessage={ errorMessage } onNoticeRemove={ onCancel }>
+		<PlaceholderWrapper errorMessage={ errorMessage } onNoticeRemove={ onCancel }>
 			<div className="videopress-uploader__error-actions">
 				<Button variant="primary" onClick={ onRetry }>
 					{ __( 'Try again', 'jetpack' ) }
@@ -66,7 +66,7 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 					{ __( 'Cancel', 'jetpack' ) }
 				</Button>
 			</div>
-		</UploadWrapper>
+		</PlaceholderWrapper>
 	);
 };
 
@@ -191,8 +191,17 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
+		if ( media.videopress_guid ) {
+			const videoUrl = `https://videopress.com/v/${ media.videopress_guid[ 0 ] }`;
+			if ( getGuidFromVideoUrl( videoUrl ) ) {
+				return onSelectURL( videoUrl );
+			}
+		}
 		const fileUrl = media?.url;
 		if ( ! isBlobURL( fileUrl ) ) {
+			setUploadErrorDataState( {
+				data: { message: __( 'Please select a VideoPress video', 'jetpack' ) },
+			} );
 			return;
 		}
 
