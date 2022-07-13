@@ -32,7 +32,7 @@ const EmbedPlaceHolder = ( {
 						placeholder={ placeholder }
 						onChange={ event => updateUrl( event.target.value ) }
 					/>
-					<Button isPrimary type="submit">
+					<Button variant="primary" type="submit">
 						{ _x( 'Embed', 'button label', 'jetpack' ) }
 					</Button>
 				</form>
