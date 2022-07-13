@@ -4,6 +4,8 @@ const rawScript = `
 	}
 
 	function initWPBlockBridge() {
+		debug( '🌉 🛠 building the bridge' );
+
 		const videoPressIFrame = document.querySelector('iframe');
 		const videoPressWindow = videoPressIFrame.contentWindow;
 
@@ -91,7 +93,7 @@ const rawScript = `
 					},
 				} );
 
-				debug( '-> dispatching %o (%o)', originalEventName, eventName );
+				debug( '🌉 %o ➜ %o', originalEventName, vpEventName );
 
 				window.parent.dispatchEvent( videoPressBlockEvent );
 			}
@@ -100,7 +102,7 @@ const rawScript = `
 				// Overwrite event from -> to
 				data.event = videoPressAction;
 
-				debug( 'recieve %o -> dispatching %o [%o]', eventName, videoPressAction, data );
+				debug( '🌉 recieve %o -> dispatching %o [%o]', eventName, videoPressAction, data );
 				videoPressWindow.postMessage( data, '*' );
 			}
 		} );

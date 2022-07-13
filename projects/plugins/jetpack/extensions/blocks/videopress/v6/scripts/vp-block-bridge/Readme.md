@@ -96,3 +96,13 @@ The bridge triggers the following custom events:
 #### onVideoPressVolumechange
 
 #### onVideoPressEnded
+
+## Debug
+
+To debug the bridge actions you'd like to create a debug instance stored in the `debugBridgeInstance` window property:
+
+```es6
+import debugFactory from 'debug';
+
+window.debugBridgeInstance = debugFactory( 'jetpack:vp-block:bridge' );
+```
