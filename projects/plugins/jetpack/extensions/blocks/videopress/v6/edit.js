@@ -22,9 +22,9 @@ import { description, title } from '.';
 
 import './editor.scss';
 
-const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
-
 const vpPlaceholderIcon = () => <span className="block-editor-block-icon">{ VideoPressIcon }</span>;
+
+const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
 export const UploadWrapper = withNotices( function ( {
 	children,
