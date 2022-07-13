@@ -118,7 +118,11 @@ export default function VideoPressPlayer( {
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
 					<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
-					<div className="jetpack-videopress-player__loading">{ __( 'Loading…', 'jetpack' ) }</div>
+					{ temporaryHeight !== 'auto' && (
+						<div className="jetpack-videopress-player__loading">
+							{ __( 'Loading…', 'jetpack' ) }
+						</div>
+					) }
 				</div>
 			</ResizableBox>
 
