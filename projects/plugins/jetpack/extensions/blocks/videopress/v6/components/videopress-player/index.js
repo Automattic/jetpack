@@ -6,6 +6,24 @@ import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
+// Global scripts array to be run in the Sandbox context.
+const globalScripts = [];
+
+// Populate scripts array with videopresAjaxURLBlob blobal var.
+if ( window.videopressAjax ) {
+	const videopresAjaxURLBlob = new Blob(
+		[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
+		{
+			type: 'text/javascript',
+		}
+	);
+
+	globalScripts.push(
+		URL.createObjectURL( videopresAjaxURLBlob ),
+		window.videopressAjax.bridgeUrl
+	);
+}
+
 export default function VideoPressPlayer( {
 	html,
 	isSelected,
@@ -58,18 +76,6 @@ export default function VideoPressPlayer( {
 		[ setAttributes ]
 	);
 
-	// Populate scripts array with videopresAjaxURLBlob blobal var.
-	if ( window.videopressAjax ) {
-		const videopresAjaxURLBlob = new Blob(
-			[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
-			{
-				type: 'text/javascript',
-			}
-		);
-
-		scripts.push( URL.createObjectURL( videopresAjaxURLBlob ), window.videopressAjax.bridgeUrl );
-	}
-
 	const style = {};
 	if ( temporaryHeight !== 'auto' ) {
 		style.height = temporaryHeight || 200;
@@ -92,7 +98,7 @@ export default function VideoPressPlayer( {
 			>
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
-					<SandBox html={ html } scripts={ scripts } />
+					<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
 					<div className="jetpack-videopress-player__loading">{ __( 'Loading…', 'jetpack' ) }</div>
 				</div>
 			</ResizableBox>
