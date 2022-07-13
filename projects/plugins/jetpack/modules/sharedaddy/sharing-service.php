@@ -943,7 +943,13 @@ function sharing_display( $text = '', $echo = false ) {
 	}
 
 	// Don't output flair on excerpts.
-	if ( in_array( 'the_excerpt', (array) $wp_current_filter, true ) ) {
+	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter, true ) ) {
+		return $text;
+	}
+
+	// Ensure we don't display sharing buttons on excerpts unless we are on search, archive or home page.
+	if ( ! is_search() && ! is_home() && ! is_archive() &&
+		in_array( 'the_excerpt', (array) $wp_current_filter, true ) ) {
 		return $text;
 	}
 
