@@ -1,13 +1,15 @@
-import React from 'react';
-import Gridicon from '../index.jsx';
+import Gridicon from '../index';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-export default {
+const meta: ComponentMeta< typeof Gridicon > = {
 	title: 'JS Packages/Components/Gridicon',
 	component: Gridicon,
 };
 
+export default meta;
+
 // Export additional stories using pre-defined values
-const Template = args => <Gridicon { ...args } />;
+const Template: ComponentStory< typeof Gridicon > = args => <Gridicon { ...args } />;
 
 // Export Default story
 export const _default = Template.bind( {} );
