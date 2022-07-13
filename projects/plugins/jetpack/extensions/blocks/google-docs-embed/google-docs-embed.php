@@ -15,43 +15,6 @@ use Jetpack_Gutenberg;
 const FEATURE_NAME = 'google-docs-embed';
 
 /**
- * Add custom rest endpoints
- */
-function add_endpoints() {
-	register_rest_route(
-		'gsuite/v1',
-		'/checkDocumentVisibility',
-		array(
-			'methods'             => 'GET',
-			'callback'            => __NAMESPACE__ . '\check_document_visibility',
-			'permission_callback' => '__return_true',
-		)
-	);
-}
-add_action( 'rest_api_init', __NAMESPACE__ . '\add_endpoints' );
-
-/**
- * Check URL
- *
- * @param \WP_REST_Request $request request object.
- *
- * @return \WP_REST_Response|\WP_Error
- */
-function check_document_visibility( $request ) {
-
-	$document_url       = $request->get_param( 'url' );
-	$document_url       = map_gsuite_url( $document_url );
-	$response_head      = wp_safe_remote_head( $document_url );
-	$is_public_document = ! is_wp_error( $response_head ) && ! empty( $response_head['response']['code'] ) && 200 === absint( $response_head['response']['code'] );
-
-	if ( ! $is_public_document ) {
-		return new \WP_Error( 'Unauthorized', 'The document is not publicly accessible', array( 'status' => 401 ) );
-	}
-
-	return new \WP_REST_Response( '', 200 );
-}
-
-/**
  * Registers the blocks for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
