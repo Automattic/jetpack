@@ -164,6 +164,14 @@ function wpcom_datetime_to_iso8601( $date, $default = 'now' ) {
  * @return bool
  */
 function wpcom_product_has_feature( $product, $feature ) {
+	if ( ! is_numeric( $product ) && ! is_string( $product ) && ! ( $product instanceof Store_Product ) ) {
+		_doing_it_wrong(
+			__FUNCTION__,
+			'The $purchase parameter should be of type string|int|Store_Product.',
+			false // No version.
+		);
+		return false;
+	}
 	$product = _normalize_product( $product );
 
 	return WPCOM_Features::has_feature( $feature, array( $product ) );
@@ -189,6 +197,7 @@ function wpcom_purchase_has_feature( $purchase, $feature ) {
 			'Support for this function is only in available in contexts where the store products database is available.',
 			false // No version.
 		);
+		return false;
 	}
 	if ( ! ( $purchase instanceof Store_Subscription ) ) {
 		_doing_it_wrong(
@@ -196,6 +205,7 @@ function wpcom_purchase_has_feature( $purchase, $feature ) {
 			'The $purchase parameter should be of type Store_Subscription.',
 			false // No version.
 		);
+		return false;
 	}
 	/**
 	 * We retrieve the product_slug directly from the Store_Product_List cache
@@ -218,6 +228,15 @@ function wpcom_purchase_has_feature( $purchase, $feature ) {
  * @return string[]
  */
 function wpcom_get_product_features( $product ) {
+	if ( ! is_numeric( $product ) && ! is_string( $product ) && ! ( $product instanceof Store_Product ) ) {
+		_doing_it_wrong(
+			__FUNCTION__,
+			'The $purchase parameter should be of type string|int|Store_Product.',
+			false // No version.
+		);
+		return array();
+	}
+
 	$product = _normalize_product( $product );
 
 	$cache_group = 'site_purchases';
@@ -249,6 +268,10 @@ function wpcom_get_product_features( $product ) {
  * @return false|object|Store_Product
  */
 function _normalize_product( $product ) {
+	if ( $product instanceof Store_Product ) {
+		return $product;
+	}
+
 	if ( is_numeric( $product ) ) {
 		if ( ! function_exists( 'get_store_product' ) ) {
 			_doing_it_wrong(
@@ -260,29 +283,15 @@ function _normalize_product( $product ) {
 			return false;
 		}
 
-		$product = get_store_product( $product );
+		return get_store_product( $product );
 	}
 
 	if ( is_string( $product ) ) {
-		$atomic_plan_aliases = array(
-			'business'  => 'business-bundle',
-			'ecommerce' => 'ecommerce-bundle',
-			'pro'       => 'pro-plan',
-		);
-
-		/*
-		 * Convert atomic plan slug to wpcom yearly plan in order to check against WPCOM_Features. This conversion is
-		 * meant to be only for atomic plan slugs and should not affect other product checks.
-		 */
-		if ( ! empty( $atomic_plan_aliases[ $product ] ) ) {
-			$product = $atomic_plan_aliases[ $product ];
-		}
-
 		// has_feature expects an object with a product_slug.
-		$product = (object) array( 'product_slug' => $product );
+		return (object) array( 'product_slug' => $product );
 	}
 
-	return $product;
+	return false;
 }
 
 /**
