@@ -70,7 +70,7 @@ function render_callback( $attributes ) {
 	}
 
 	// Add loader for Google Document/Spreadsheets/Presentation blocks.
-	$iframe_markup  = '<iframe src="' . esc_url( $url ) . '" allowFullScreen frameborder="0" title="An embed" height="450"></iframe>';
+	$iframe_markup  = '<iframe src="' . esc_url( $url ) . '" allowFullScreen frameborder="0" title="' . esc_html__( 'Google Document Embed', 'jetpack' ) . '" height="450"></iframe>';
 	$loading_markup = '';
 	$amp_markup     = '';
 
