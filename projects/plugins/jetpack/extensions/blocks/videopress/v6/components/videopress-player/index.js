@@ -55,29 +55,37 @@ export default function VideoPressPlayer( {
 	 * Once the preview is fetched, the temporary heihgt is ignored.
 	 */
 	const [ temporaryHeight, setTemporaryHeight ] = useState();
+	const [ isVideoLoaded, setIsVideoLoaded ] = useState( false );
 	useEffect( () => {
 		if ( ! ref?.current ) {
 			return;
 		}
 
 		if ( preview ) {
-			return;
+			// Once the video is loaded, delegate the height to the player (iFrame)
+			return setTemporaryHeight( 'auto' );
 		}
 
 		// When no preview is available, set the height of the video.
 		setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
+
+		/*
+		 * Also, when no preview, consider the video is no loaded yet.
+		 * note: videopress API does not provide
+		 * the event to know when the video is not loaded.
+		 */
+		setIsVideoLoaded( false );
 	}, [ ref, videoRatio, preview ] );
 
-	useEffect( () => {
-		window.addEventListener( 'onVideoPressLoadingState', ( { detail } ) => {
-			const { state } = detail;
+	const onVideoLoadingStateHandler = useCallback( ( { detail } ) => {
+		setIsVideoLoaded( detail?.state === 'loaded' );
+	}, [] );
 
-			// Once the video is loaded, delegate the height to the player (iFrame)
-			setTemporaryHeight(
-				state !== 'loaded' ? ( ref.current.offsetWidth * videoRatio ) / 100 : 'auto'
-			);
-		} );
-	}, [ videoRatio ] );
+	useEffect( () => {
+		window.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+		return () =>
+			window.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+	}, [ onVideoLoadingStateHandler ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
@@ -118,7 +126,7 @@ export default function VideoPressPlayer( {
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
 					<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
-					{ temporaryHeight !== 'auto' && (
+					{ ! isVideoLoaded && (
 						<div className="jetpack-videopress-player__loading">
 							{ __( 'Loading…', 'jetpack' ) }
 						</div>
