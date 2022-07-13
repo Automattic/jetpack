@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack: replace fallback thumbail by a Loading element
