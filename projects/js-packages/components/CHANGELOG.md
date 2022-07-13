@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.7 - 2022-07-12
+### Changed
+- JS Components: Converted ProductPrice component to TypeScript [#24931]
+- Updated package dependencies. [#25048, #25055]
+
 ## 0.16.6 - 2022-07-07
 ### Removed
 - JS Components: Removed unnecessary React imports in tests after using automatic runtime in jest config
