@@ -191,8 +191,17 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
+		if ( media.videopress_guid ) {
+			const videoUrl = `https://videopress.com/v/${ media.videopress_guid[ 0 ] }`;
+			if ( getGuidFromVideoUrl( videoUrl ) ) {
+				return onSelectURL( videoUrl );
+			}
+		}
 		const fileUrl = media?.url;
 		if ( ! isBlobURL( fileUrl ) ) {
+			setUploadErrorDataState( {
+				data: { message: __( 'Please select a VideoPress video', 'jetpack' ) },
+			} );
 			return;
 		}
 
