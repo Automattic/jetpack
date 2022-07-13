@@ -1827,11 +1827,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "fb295a6082b87dd2cba7c8c04433218912401e8d"
+                "reference": "53f976da41359a2a1dde4d3d1336bc4bce253998"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.41",
-                "automattic/jetpack-plans": "0.1.x-dev"
+                "automattic/jetpack-plans": "^0.1"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
