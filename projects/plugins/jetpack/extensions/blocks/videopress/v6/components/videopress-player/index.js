@@ -5,6 +5,7 @@ import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import vpBlockBridge from '../../scripts/vp-block-bridge';
 
 // Global scripts array to be run in the Sandbox context.
 const globalScripts = [];
@@ -23,6 +24,9 @@ if ( window.videopressAjax ) {
 		window.videopressAjax.bridgeUrl
 	);
 }
+
+// Load VideoPressBlock bridge script.
+globalScripts.push( vpBlockBridge );
 
 export default function VideoPressPlayer( {
 	html,
