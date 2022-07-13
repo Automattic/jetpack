@@ -1,6 +1,6 @@
 # VideoPress Block bridge
 
-This library escentially provides a way to connect events and methods defined by the videopress player from/to the VideoPress block.
+This library essentially provides a way to connect events and methods defined by the Video Press player API from/to the VideoPress block.
 
 ## Background
 
