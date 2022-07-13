@@ -8,7 +8,7 @@ import { createInterpolateElement, useCallback, useState } from '@wordpress/elem
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
-import { UploadWrapper } from '../../edit.js';
+import { PlaceholderWrapper } from '../../edit.js';
 /**
  * Internal dependencies
  */
@@ -35,7 +35,7 @@ const UploadProgress = ( { progress, file } ) => {
 	);
 
 	return (
-		<UploadWrapper>
+		<PlaceholderWrapper>
 			<div className="videopress-uploader-progress">
 				<div className="videopress-uploader-progress__file-info">
 					<div className="videopress-uploader-progress__file-name">{ fileNameLabel }</div>
@@ -49,13 +49,13 @@ const UploadProgress = ( { progress, file } ) => {
 					<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
 				</div>
 			</div>
-		</UploadWrapper>
+		</PlaceholderWrapper>
 	);
 };
 
 const UploadError = ( { message, onRetry, onCancel } ) => {
 	return (
-		<UploadWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
+		<PlaceholderWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
 			<div className="videopress-uploader__error-actions">
 				<Button variant="primary" onClick={ onRetry }>
 					{ __( 'Try again', 'jetpack' ) }
@@ -64,7 +64,7 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 					{ __( 'Cancel', 'jetpack' ) }
 				</Button>
 			</div>
-		</UploadWrapper>
+		</PlaceholderWrapper>
 	);
 };
 
