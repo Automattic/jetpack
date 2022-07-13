@@ -3,7 +3,7 @@
  */
 
 import { useBlockProps } from '@wordpress/block-editor';
-import { Spinner, Placeholder, Button } from '@wordpress/components';
+import { Spinner, Placeholder, Button, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
@@ -15,9 +15,10 @@ import classNames from 'classnames';
 import { getVideoPressUrl } from '../url';
 import { VideoPressIcon } from './components/icons';
 import VideoPressInspectorControls from './components/inspector-controls';
+import PosterImageBlockControl from './components/poster-image-block-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
-import { title } from '.';
+import { description, title } from '.';
 
 import './editor.scss';
 
@@ -25,17 +26,25 @@ const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
 const vpPlaceholderIcon = () => <span className="block-editor-block-icon">{ VideoPressIcon }</span>;
 
-export const UploadWrapper = ( { children } ) => (
+export const UploadWrapper = ( { children, errorMessage, onNoticeRemove = () => {} } ) => (
 	<Placeholder
 		icon={ vpPlaceholderIcon }
 		label={ title }
+		instructions={ description }
 		className="videopress-uploader is-videopress-placeholder"
+		notices={
+			errorMessage && (
+				<Notice isError status="error" onRemove={ onNoticeRemove }>
+					{ errorMessage }
+				</Notice>
+			)
+		}
 	>
 		{ children }
 	</Placeholder>
 );
 
-export default function VideoPressEdit( { attributes, setAttributes, isSelected } ) {
+export default function VideoPressEdit( { attributes, setAttributes, isSelected, clientId } ) {
 	const {
 		autoplay,
 		loop,
@@ -50,6 +59,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		src,
 		guid,
 		cacheHtml,
+		poster,
 		align,
 		cacheThumbnail,
 		videoRatio,
@@ -66,6 +76,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 		seekbarLoadingColor,
 		seekbarPlayedColor,
 		useAverageColor,
+		poster,
 	} );
 
 	// Get video preview status.
@@ -236,10 +247,10 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	// 5 - Generating video preview
 	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
 		return (
-			<UploadWrapper>
-				<div role="alert" aria-live="assertive" className="videopress-uploader__error-message">
-					{ __( 'Impossible to get a video preview after ten attempts.', 'jetpack' ) }
-				</div>
+			<UploadWrapper
+				errorMessage={ __( 'Impossible to get a video preview after ten attempts.', 'jetpack' ) }
+				onNoticeRemove={ invalidateResolution }
+			>
 				<div className="videopress-uploader__error-actions">
 					<Button variant="primary" onClick={ invalidateResolution }>
 						{ __( 'Try again', 'jetpack' ) }
@@ -261,6 +272,11 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected 
 	return (
 		<div { ...blockProps }>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+			<PosterImageBlockControl
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				clientId={ clientId }
+			/>
 			<VideoPressPlayer
 				html={ html }
 				thumbnail={ videoThumbnail }
