@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import './view.scss';
+import domReady from '@wordpress/dom-ready';
 
 const showError = () => {
 	const embeds = document.querySelectorAll( '.wp-block-jetpack-google-docs-embed' );
@@ -77,6 +78,6 @@ const showError = () => {
 	} );
 };
 
-window.onload = () => {
+domReady( () => {
 	showError();
-};
+} );
