@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "98fdec18d783282aa71e2da19ecf28ec",
+    "content-hash": "3adc74c88c5bdaeb5e447c020227133c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -290,7 +290,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "0dfb8aaab87afb1f345413ed7d9a6c8285799e98"
+                "reference": "72f0bf3724949be35919cca4d0b3823fd3c9e723"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -322,7 +322,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.4.x-dev"
+                    "dev-trunk": "1.5.x-dev"
                 }
             },
             "autoload": {
@@ -1771,7 +1771,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "12a01a9dc90cd4be268b01c16530cec0332e4999"
+                "reference": "a969e07c6332e28baf3d3be1d4cec3c88fe13eca"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.1",
@@ -1779,6 +1779,11 @@
             },
             "type": "jetpack-library",
             "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-videopress",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
+                },
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
                 },
