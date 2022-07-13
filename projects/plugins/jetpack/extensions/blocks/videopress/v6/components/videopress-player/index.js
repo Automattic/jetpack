@@ -72,8 +72,8 @@ export default function VideoPressPlayer( {
 
 	const style = {};
 	if ( temporaryHeight !== 'auto' ) {
-		style.height = temporaryHeight;
-		style.paddingBottom = 12;
+		style.height = temporaryHeight || 200;
+		style.paddingBottom = temporaryHeight ? 12 : 0;
 	}
 
 	return (
