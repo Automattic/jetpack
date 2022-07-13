@@ -12,9 +12,7 @@ import save from './save'; // TODO: Replace
 import transforms from './transforms';
 
 // Icons.
-import docIcon from './google-doc-icon';
-import sheetIcon from './google-sheet-icon';
-import slideIcon from './google-slide-icon';
+import { googleDocIcon, googleSheetIcon, googleSlideIcon } from './icons';
 import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'google-docs-embed';
@@ -34,7 +32,7 @@ export const GOOGLE_DOCUMENT = {
 		_x( 'doc', 'block search term', 'jetpack' ),
 	],
 	icon: {
-		src: docIcon,
+		src: googleDocIcon,
 		foreground: getIconColor(),
 	},
 	patterns: [ /^(http|https):\/\/(docs\.google.com)\/document\/d\/([A-Za-z0-9_-]+).*?$/i ],
@@ -53,7 +51,7 @@ export const GOOGLE_SPREADSHEET = {
 		_x( 'spreadsheet', 'block search term', 'jetpack' ),
 	],
 	icon: {
-		src: sheetIcon,
+		src: googleSheetIcon,
 		foreground: getIconColor(),
 	},
 	patterns: [ /^(http|https):\/\/(docs\.google.com)\/spreadsheets\/d\/([A-Za-z0-9_-]+).*?$/i ],
@@ -68,7 +66,7 @@ export const GOOGLE_SLIDE = {
 	description: __( 'Embed a Google Slides presentation.', 'jetpack' ),
 	name: 'google-slides',
 	icon: {
-		src: slideIcon,
+		src: googleSlideIcon,
 		foreground: getIconColor(),
 	},
 	keywords: [
