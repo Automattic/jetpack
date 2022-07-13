@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 
-import { useBlockProps } from '@wordpress/block-editor';
+import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
 import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -21,8 +21,6 @@ import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
 
 import './editor.scss';
-
-const vpPlaceholderIcon = () => <span className="block-editor-block-icon">{ VideoPressIcon }</span>;
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
@@ -43,7 +41,7 @@ export const UploadWrapper = withNotices( function ( {
 
 	return (
 		<Placeholder
-			icon={ vpPlaceholderIcon }
+			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			label={ title }
 			instructions={ description }
 			className="videopress-uploader is-videopress-placeholder"
