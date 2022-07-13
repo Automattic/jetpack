@@ -20,27 +20,38 @@ import './style.scss';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
+const PosterImageWrapper = props => {
+	const { videoPosterImageUrl } = props;
+	return (
+		<div className="resumable-upload__editor-thumb-placeholder">
+			{ videoPosterImageUrl ? (
+				<img src={ videoPosterImageUrl } alt="Poster" />
+			) : (
+				<span>No Poster Selected</span>
+			) }
+		</div>
+	);
+};
+
 export const PosterSelector = props => {
-	const { onSelectPoster, videoPosterImageUrl } = props;
-	const posterImageButton = useRef( null );
+	const { onSelectPoster, onRemovePoster } = props;
 
 	return (
 		<BaseControl className={ classNames( props.className, 'editor-video-poster-control' ) }>
-			<div className="resumable-upload__editor-thumb-placeholder">
-				{ videoPosterImageUrl ? (
-					<img src={ videoPosterImageUrl } alt="Poster" />
-				) : (
-					<span>No Poster Selected</span>
-				) }
-			</div>
+			<PosterImageWrapper { ...props } />
 			<MediaUpload
 				title={ __( 'Select Poster Image', 'jetpack' ) }
 				onSelect={ onSelectPoster }
 				allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
 				render={ ( { open } ) => (
-					<Button variant="secondary" onClick={ open } ref={ posterImageButton }>
-						{ __( 'Select Poster Image', 'jetpack' ) }
-					</Button>
+					<div className="poster-selector__buttons">
+						<Button onClick={ onRemovePoster } variant="link" isDestructive>
+							{ __( 'Remove Poster Image', 'jetpack' ) }
+						</Button>
+						<Button variant="secondary" onClick={ open }>
+							{ __( 'Select Poster Image', 'jetpack' ) }
+						</Button>
+					</div>
 				) }
 			/>
 		</BaseControl>
@@ -51,6 +62,7 @@ export const UploadingEditor = props => {
 	const {
 		file,
 		onSelectPoster,
+		onRemovePoster,
 		videoPosterImageData,
 		title,
 		onChangeTitle,
@@ -84,17 +96,22 @@ export const UploadingEditor = props => {
 	const onDurationChange = event => {
 		const newDuration = event.target.duration;
 		setMaxDuration( newDuration );
-		videoPlayer.current.currentTime = newDuration / 2;
+		if ( videoPlayer.current ) {
+			videoPlayer.current.currentTime = newDuration / 2;
+		}
 	};
 
 	const onRangeChange = newRangeValue => {
 		onVideoFrameSelected( newRangeValue * 1000 );
-		videoPlayer.current.currentTime = newRangeValue;
+		if ( videoPlayer.current ) {
+			videoPlayer.current.currentTime = newRangeValue;
+		}
 	};
 
-	// We need the video tag to reload to force the poster image to show again.
-	if ( videoPlayer && videoPlayer.current && videoPosterImageData ) {
-		videoPlayer.current.load();
+	// If we have a poster image, hide the video but keep it in the dom
+	const posterSelectedStyle = {};
+	if ( videoPosterImageData ) {
+		posterSelectedStyle.display = 'none';
 	}
 
 	return (
@@ -113,27 +130,38 @@ export const UploadingEditor = props => {
 							{ canDisplayThumbnailScrubber ? (
 								<>
 									<div className="uploading-editor__video-container">
-										<video
-											ref={ videoPlayer }
-											muted
-											className="uploading-editor__video"
-											onDurationChange={ onDurationChange }
-											onError={ onVideoError }
-											onLoadedMetadata={ onVideoLoad }
-											poster={ videoPosterImageData ? videoPosterImageData.url : null }
-										/>
+										<div className="uploading-editor__video-poster-wrapper">
+											{ videoPosterImageData && (
+												<PosterSelector
+													onSelectPoster={ onSelectPoster }
+													onRemovePoster={ onRemovePoster }
+													videoPosterImageUrl={ videoPosterImageData.url }
+												/>
+											) }
+											<video
+												ref={ videoPlayer }
+												muted
+												className="uploading-editor__video"
+												onDurationChange={ onDurationChange }
+												onError={ onVideoError }
+												onLoadedMetadata={ onVideoLoad }
+												style={ posterSelectedStyle }
+											/>
+										</div>
 										<Icon className="uploading-editor__play-icon" icon={ PlayIcon } />
 									</div>
-									<RangeControl
-										className="uploading-editor__range"
-										min="0"
-										step="0.1"
-										max={ maxDuration }
-										showTooltip={ false }
-										withInputField={ false }
-										onChange={ onRangeChange }
-									/>
-									<span className="uploading-editor__scrubber-help">
+									<span style={ posterSelectedStyle }>
+										<RangeControl
+											className="uploading-editor__range"
+											min="0"
+											step="0.1"
+											max={ maxDuration }
+											showTooltip={ false }
+											withInputField={ false }
+											onChange={ onRangeChange }
+										/>
+									</span>
+									<span className="uploading-editor__scrubber-help" style={ posterSelectedStyle }>
 										{ createInterpolateElement(
 											__(
 												'This is how the video will look. Use the slider to choose a poster or <a>select a custom one</a>.',

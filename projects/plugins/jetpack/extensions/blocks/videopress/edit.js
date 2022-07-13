@@ -729,10 +729,11 @@ const VideoPressEdit = CoreVideoEdit =>
 			};
 
 			const onSelectPoster = attachment => {
-				this.setState( {
-					videoPosterImageData: attachment,
-					videoFrameSelectedInMillis: null,
-				} );
+				this.setState( { videoPosterImageData: attachment } );
+			};
+
+			const onRemovePoster = () => {
+				this.setState( { videoPosterImageData: null } );
 			};
 
 			const onVideoFrameSelected = ms => {
@@ -789,9 +790,7 @@ const VideoPressEdit = CoreVideoEdit =>
 
 				if ( videoPosterImageData ) {
 					sendUpdatePosterRequest();
-				}
-
-				if ( videoFrameSelectedInMillis ) {
+				} else if ( videoFrameSelectedInMillis ) {
 					sendUpdatePosterFromMillisecondsRequest();
 				}
 			};
@@ -810,6 +809,7 @@ const VideoPressEdit = CoreVideoEdit =>
 						onDismissEditor={ dismissEditor }
 						isUploadComplete={ this.state.isUploadComplete }
 						onSelectPoster={ onSelectPoster }
+						onRemovePoster={ onRemovePoster }
 						onChangeTitle={ onChangeTitle }
 						title={ title }
 						videoPosterImageData={ this.state.videoPosterImageData }
@@ -911,6 +911,7 @@ const UploaderBlock = props => {
 		title,
 		filename,
 		onSelectPoster,
+		onRemovePoster,
 		videoPosterImageData,
 		fileForUpload,
 		isUploadComplete,
@@ -933,6 +934,7 @@ const UploaderBlock = props => {
 						title={ title }
 						onChangeTitle={ onChangeTitle }
 						onSelectPoster={ onSelectPoster }
+						onRemovePoster={ onRemovePoster }
 						videoPosterImageData={ videoPosterImageData }
 						onVideoFrameSelected={ onVideoFrameSelected }
 					/>
