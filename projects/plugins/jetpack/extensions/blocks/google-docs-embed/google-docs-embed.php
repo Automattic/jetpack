@@ -124,7 +124,7 @@ function render_callback( $attributes ) {
 
 			$iframe_markup = '';
 			$amp_markup    = sprintf(
-				'<p class="wp-block-jetpack-google-docs-embed__error-msg"><a target="_blank" href="%s">%s %s</a>.</p>',
+				'<p class="wp-block-jetpack-google-docs-embed__error-msg"><a target="_blank" rel="noopener noreferrer" href="%s">%s %s</a>.</p>',
 				esc_url( $url ),
 				esc_html__( 'Tap to open embedded document in', 'jetpack' ),
 				esc_html( $type )
