@@ -7,6 +7,10 @@ const rawScript = `
 		debug( '🌉 🛠 building the bridge' );
 
 		const videoPressIFrame = document.querySelector('iframe');
+		if ( ! videoPressIFrame?.contentWindow ) {
+			return;
+		}
+
 		const videoPressWindow = videoPressIFrame.contentWindow;
 
 		// Allowed events emitted by the videopress API.
