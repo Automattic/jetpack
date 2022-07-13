@@ -69,7 +69,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		cacheHtml,
 		poster,
 		align,
-		cacheThumbnail,
 		videoRatio,
 	} = attributes;
 
@@ -100,13 +99,9 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	);
 
 	// Pick video properties from preview.
-	const {
-		html: previewHtml,
-		scripts,
-		thumbnail_url: previewThumbnail,
-		width: previewWidth,
-		height: previewHeight,
-	} = preview ? preview : { html: null, scripts: [] };
+	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview
+		? preview
+		: { html: null, scripts: [] };
 
 	/*
 	 * Store the preview markup and video thumbnail image
@@ -120,19 +115,14 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	 * until the fetching preview process finishes.
 	 */
 	useEffect( () => {
-		if ( previewHtml && previewHtml !== cacheHtml ) {
-			// Update html cache when the preview changes.
-			setAttributes( { cacheHtml: previewHtml } );
+		if ( ! previewHtml || previewHtml === cacheHtml ) {
+			return;
 		}
 
-		if ( previewThumbnail && previewThumbnail !== cacheThumbnail ) {
-			// Update thumbnail cache when the preview changes.
-			setAttributes( { cacheThumbnail: previewThumbnail } );
-		}
-	}, [ previewHtml, cacheHtml, setAttributes, previewThumbnail, cacheThumbnail ] );
+		setAttributes( { cacheHtml: previewHtml } );
+	}, [ previewHtml, cacheHtml, setAttributes ] );
 
 	const html = previewHtml || cacheHtml;
-	const videoThumbnail = previewThumbnail || cacheThumbnail;
 
 	// Store the video ratio to define the initial height of the video.
 	useEffect( () => {
@@ -287,7 +277,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 			/>
 			<VideoPressPlayer
 				html={ html }
-				thumbnail={ videoThumbnail }
 				isUpdatingPreview={ ! previewHtml }
 				scripts={ scripts }
 				attributes={ attributes }
