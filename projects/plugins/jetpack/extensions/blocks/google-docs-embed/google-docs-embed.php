@@ -135,15 +135,10 @@ function render_callback( $attributes ) {
 		}
 	}
 
-	$block_classes = array(
-		$align,
-		$aspect_ratio,
-	);
-
-	$block_classes = array_filter( $block_classes );
+	$block_classes = Blocks::classes( FEATURE_NAME, $attributes );
 
 	$html =
-		'<figure class="wp-block-jetpack-google-docs-embed' . esc_attr( implode( $block_classes ) ) . '">' .
+		'<figure class="' . esc_attr( $block_classes ) . '">' .
 			'<div class="wp-block-jetpack-google-docs-embed__wrapper">' .
 				$loading_markup .
 				$amp_markup .
