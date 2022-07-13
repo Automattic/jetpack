@@ -50,7 +50,7 @@ export default function VideoPressPlayer( {
 	 * Temporary height is used to set the height of the video
 	 * as soon as the block is rendered into the canvas,
 	 * while the preview fetching process is happening,
-	 * trying to remove the flicker effect.
+	 * trying to reduce the flicker effectas much as possible
 	 *
 	 * Once the preview is fetched, the temporary heihgt is ignored.
 	 */
@@ -60,16 +60,24 @@ export default function VideoPressPlayer( {
 			return;
 		}
 
-		if ( temporaryHeight === 'auto' ) {
+		if ( preview ) {
 			return;
 		}
 
-		if ( preview ) {
-			return setTemporaryHeight( 'auto' );
-		}
-
+		// When no preview is available, set the height of the video.
 		setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
-	}, [ ref, setTemporaryHeight, temporaryHeight, videoRatio, preview ] );
+	}, [ ref, videoRatio, preview ] );
+
+	useEffect( () => {
+		window.addEventListener( 'onVideoPressLoadingState', ( { detail } ) => {
+			const { state } = detail;
+
+			// Once the video is loaded, delegate the height to the player (iFrame)
+			setTemporaryHeight(
+				state !== 'loaded' ? ( ref.current.offsetWidth * videoRatio ) / 100 : 'auto'
+			);
+		} );
+	}, [ videoRatio ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
