@@ -1,7 +1,6 @@
 import { Button } from '@wordpress/components';
-import './style.scss';
 
-export default function ( { variations, onSelect, label } ) {
+export default function PaymentsIntroBlockPicker( { variations, onSelect, label } ) {
 	return (
 		<ul aria-label={ label } className="wp-payments-intro-variation-picker">
 			{ variations.map( variation => (

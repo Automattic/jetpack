@@ -5,7 +5,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
-import PaymentsIntroBlockPicker from './PaymentsIntroBlockPicker';
+import PaymentsIntroBlockPicker from './block-picker';
 import defaultVariations from './variations';
 
 export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
