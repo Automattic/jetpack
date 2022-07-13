@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Change prop key to component for currency code
+Fixed the currency code missing issue for the upsell page
