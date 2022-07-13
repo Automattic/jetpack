@@ -790,7 +790,11 @@ const VideoPressEdit = CoreVideoEdit =>
 
 				if ( videoPosterImageData ) {
 					sendUpdatePosterRequest();
-				} else if ( videoFrameSelectedInMillis ) {
+				} else if (
+					// Check if videoFrameSelectedInMillis is not undefined or null instead of bool check to allow 0ms. selection
+					'undefined' !== typeof videoFrameSelectedInMillis &&
+					null !== videoFrameSelectedInMillis
+				) {
 					sendUpdatePosterFromMillisecondsRequest();
 				}
 			};
