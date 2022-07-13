@@ -168,10 +168,19 @@ export function didScoresChange( scores: SpeedScoresSet ): boolean {
 	const current = scores.current;
 	const noBoost = scores.noBoost;
 
-	return (
-		( null !== current && null !== noBoost && current.mobile !== noBoost.mobile ) ||
-		current.desktop !== noBoost.desktop
-	);
+	// lets make this a little bit more readable. If one of the scores is null.
+	// then the scores haven't changed. So return false.
+	if ( null == current || null == noBoost ) {
+		return false;
+	}
+
+	// if either the mobile or the desktop scores have changed. Return true.
+	if ( current.mobile !== noBoost.mobile || current.desktop !== noBoost.desktop ) {
+		return true;
+	}
+
+	//else if reach here then the scores are the same.
+	return false;
 }
 
 /**
