@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { castToNumber } from '../utils/cast-to-number';
 import { castToString } from '../utils/cast-to-string';
 import { isJsonObject, JSONObject } from '../utils/json-types';
+import { SupportUrl } from '../utils/paid-plan';
 import pollPromise from '../utils/poll-promise';
 import { standardizeError } from '../utils/standardize-error';
 import api from './api';
@@ -168,9 +169,7 @@ export function didScoresChange( scores: SpeedScoresSet ): boolean {
 	const noBoost = scores.noBoost;
 
 	return (
-		null !== current &&
-		null !== noBoost &&
-		current.mobile !== noBoost.mobile &&
+		( null !== current && null !== noBoost && current.mobile !== noBoost.mobile ) ||
 		current.desktop !== noBoost.desktop
 	);
 }
@@ -198,7 +197,6 @@ export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
 
 export function scoreChangeModal( scores: SpeedScoresSet ) {
 	const changePercentage = getScoreMovementPercentage( scores );
-
 	if ( changePercentage > 0 ) {
 		return {
 			id: 'score-increase',
@@ -216,7 +214,7 @@ export function scoreChangeModal( scores: SpeedScoresSet ) {
 				'jetpack-boost'
 			),
 			cta: __( 'Contact Support', 'jetpack-boost' ),
-			ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/#new-topic-0',
+			ctaLink: SupportUrl,
 		};
 	}
 }
