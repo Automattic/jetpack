@@ -699,18 +699,6 @@ const VideoPressEdit = CoreVideoEdit =>
 				}
 			};
 
-			const uploadFinished = ( { mediaId, guid: videoGuid, src: videoSrc } ) => {
-				this.setState( {
-					fileForUpload: null,
-					isUploadComplete: !! mediaId,
-					isEditingWhileUploading: mediaId ? this.state.isEditingWhileUploading : false,
-				} );
-
-				if ( mediaId && videoGuid && videoSrc ) {
-					setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
-				}
-			};
-
 			/**
 			 * Determines if api requests should be made via the `gutenberg-video-upload` script (Jetpack only).
 			 *
@@ -723,6 +711,19 @@ const VideoPressEdit = CoreVideoEdit =>
 			const filename = escapeHTML(
 				fileForUpload ? removeFileNameExtension( fileForUpload.name ) : ''
 			);
+
+			const uploadFinished = ( { mediaId, guid: videoGuid, src: videoSrc } ) => {
+				this.setState( {
+					title: this.state.title ?? filename, // Make sure we store the filename here, as fileForUpload won't exist anymore
+					fileForUpload: null,
+					isUploadComplete: !! mediaId,
+					isEditingWhileUploading: mediaId ? this.state.isEditingWhileUploading : false,
+				} );
+
+				if ( mediaId && videoGuid && videoSrc ) {
+					setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
+				}
+			};
 
 			const onChangeTitle = newTitle => {
 				this.setState( { title: newTitle } );
