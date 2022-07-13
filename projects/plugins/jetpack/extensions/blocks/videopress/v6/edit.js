@@ -24,7 +24,7 @@ import './editor.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
-export const UploadWrapper = withNotices( function ( {
+export const VideoPressPlaceholder = withNotices( function ( {
 	children,
 	errorMessage,
 	noticeUI,
@@ -244,18 +244,18 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
 	) {
 		return (
-			<UploadWrapper>
+			<VideoPressPlaceholder>
 				<Spinner />
 				{ __( 'Generating preview…', 'jetpack' ) }
 				<strong> { generatingPreviewCounter }</strong>
-			</UploadWrapper>
+			</VideoPressPlaceholder>
 		);
 	}
 
 	// 5 - Generating video preview
 	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
 		return (
-			<UploadWrapper
+			<VideoPressPlaceholder
 				errorMessage={ __( 'Impossible to get a video preview after ten attempts.', 'jetpack' ) }
 				onNoticeRemove={ invalidateResolution }
 			>
@@ -272,7 +272,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 						{ __( 'Cancel', 'jetpack' ) }
 					</Button>
 				</div>
-			</UploadWrapper>
+			</VideoPressPlaceholder>
 		);
 	}
 
