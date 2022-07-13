@@ -14,7 +14,7 @@ use Automattic\Jetpack\Constants;
  */
 class Host {
 	/**
-	 * Determine if this site is an WordPress.com on Atomic site or not looking for presence of wpcomsh plugin.
+	 * Determine if this site is an WordPress.com on Atomic site or not by looking for presence of the wpcomsh plugin.
 	 *
 	 * @since 1.9.0
 	 *
