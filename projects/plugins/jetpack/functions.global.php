@@ -144,7 +144,7 @@ function jetpack_get_future_removed_version( $version ) {
 }
 
 /**
- * Determine if this site is an WoA site or not looking for presence of wpcomsh plugin.
+ * Determine if this site is an WoA site or not by looking for presence of the wpcomsh plugin.
  *
  * @since 4.8.1
  * @deprecated 10.3.0
