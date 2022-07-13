@@ -74,7 +74,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 		// xxx-zd and xxx-chat, as well as uppercase versions, are considered as alternate versions.
 		const wrongId = supportId.match( /([0-9]*)-(zd|chat)/i );
 		if ( wrongId ) {
-			const correctedId = `${ wrongId[ 1 ] }-${ wrongId[ 2 ] === 'zd' ? 'zen' : 'hc' }`;
+			const correctedId = `${ wrongId[ 1 ] }-${ wrongId[ 2 ].toLowerCase() === 'zd' ? 'zen' : 'hc' }`;
 			correctedSupportIds.add( correctedId );
 		} else {
 			correctedSupportIds.add( supportId.toLowerCase() );
