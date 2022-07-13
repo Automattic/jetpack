@@ -57,10 +57,7 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 	const errorMessage = message ?? __( 'Failed to upload your video. Please try again.', 'jetpack' );
 
 	return (
-		<UploadWrapper>
-			<div role="alert" aria-live="assertive" className="videopress-uploader__error-message">
-				{ errorMessage }
-			</div>
+		<UploadWrapper errorMessage={ errorMessage } onNoticeRemove={ onCancel }>
 			<div className="videopress-uploader__error-actions">
 				<Button variant="primary" onClick={ onRetry }>
 					{ __( 'Try again', 'jetpack' ) }

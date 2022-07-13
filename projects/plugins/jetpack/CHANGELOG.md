@@ -4,35 +4,24 @@
 
 ## 11.2-a.3 - 2022-07-12
 ### Enhancements
-- Add new `jetpack_podcast_pre_fetch` and `jetpack_podcast_post_fetch` actions to make it possible for users to set up code that runs for podcast fetches. [#25046]
-- Jetpack: create and update Icon dependency for VPBlock v6 [#24974]
-- Jetpack: improve initial rendering of the VPBlock [#24891]
-- Jetpack: improve VideoPress Block placeholders [#25058]
-- Jetpack: replace local Loading by Spinner in VideoPress block v6 [#24975]
-- Jetpack: stop re-attempting to get the video preview when it achieves the limit [#24897]
-- Jetpack: update the VideoPressIcon path for v6 [#24981]
-- VideoPress: Implement upload progress bar [#24953]
-- VideoPress: Improve upload error layout [#24963]
-
-### Improved compatibility
-- add videopress package as dependency [#25045]
+- Podcast Player: add new actions to make it possible for users to set up code that runs for podcast fetches. [#25046]
+- VideoPress Block: add enhancements such as an upload progress bar, improved UX, and limited preview attempts (available in Beta only). [#24953, #24891, #24963, #24897]
 
 ### Bug fixes
 - Form block: preserve line breaks in form submissions. [#25040]
 - Gathering Twitter Threads: ensure that only contributors can access the endpoint to unroll threads. [#25005]
-- Stats: Fixing dashboard widget form name to allow form choices to be saved. [#25039]
+- Stats: fix dashboard widget form name to allow form choices to be saved. [#25039]
 - Subscriptions: format the number of subscribers displayed in the block editor's controls. [#25063]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- E2E tests: fixed pretest cleanup script not running [#25051]
+- E2E tests: fixed pretest cleanup script not running. [#25051]
 - Editor: Only add `x-wp-api-fetch-from-editor` header on non-CORS requests. [#25052]
-- Init 11.2-a.2 [#24972]
-- Jetpack 11.2-a.1 changelog editorial [#24973]
-- Rename hasActiveSiteFeature -> siteHasFeature [#25044]
-- Updated package dependencies. [#24823]
-- Updated package dependencies. [#25048]
-- Updated package dependencies. [#25055]
+- Rename hasActiveSiteFeature -> siteHasFeature. [#25044]
+- Updated package dependencies. [#24823, #25048, #25055]
 - Use JS built-in `URLSearchParams` instead of `query-string` package. [#24994]
+- VideoPress: under the hood improvements such as adding new components. [#24974, #25058]
+- VideoPress: add videopress package as dependency. [#25045]
+
 
 ## 11.2-a.1 - 2022-07-06
 ### Enhancements

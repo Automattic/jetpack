@@ -24,6 +24,7 @@ export default function save( { attributes } ) {
 		seekbarPlayedColor,
 		guid,
 		maxWidth,
+		poster,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -43,6 +44,7 @@ export default function save( { attributes } ) {
 		seekbarLoadingColor,
 		seekbarPlayedColor,
 		useAverageColor,
+		poster,
 	} );
 
 	// Adjust block with based on custom maxWidth.
