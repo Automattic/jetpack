@@ -12,7 +12,6 @@ export default function VideoPressPlayer( {
 	attributes,
 	setAttributes,
 	scripts = [],
-	thumbnail,
 	preview,
 } ) {
 	const ref = useRef();
@@ -73,8 +72,8 @@ export default function VideoPressPlayer( {
 
 	const style = {};
 	if ( temporaryHeight !== 'auto' ) {
-		style.height = temporaryHeight;
-		style.paddingBottom = 12;
+		style.height = temporaryHeight || 200;
+		style.paddingBottom = temporaryHeight ? 12 : 0;
 	}
 
 	return (
@@ -94,11 +93,7 @@ export default function VideoPressPlayer( {
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
 					<SandBox html={ html } scripts={ scripts } />
-					<img
-						src={ thumbnail }
-						alt={ __( 'Video thumbnail', 'jetpack' ) }
-						className="jetpack-videopress-player__thumbnail"
-					/>
+					<div className="jetpack-videopress-player__loading">{ __( 'Loading…', 'jetpack' ) }</div>
 				</div>
 			</ResizableBox>
 

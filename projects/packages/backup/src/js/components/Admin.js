@@ -10,8 +10,9 @@ import {
 import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
+import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import useAnalytics from '../hooks/useAnalytics';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
 import Backups from './Backups';
@@ -28,8 +29,14 @@ const Admin = () => {
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
 	const [ price, setPrice ] = useState( 0 );
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
+	const { tracks } = useAnalytics();
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+
+	useEffect( () => {
+		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	useEffect( () => {
 		if ( 0 < Object.keys( connectionStatus ).length ) {
@@ -69,6 +76,18 @@ const Admin = () => {
 	const sendToCart = () => {
 		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
 	};
+
+	const trackLearnMoreClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_learn_more_click' );
+	}, [ tracks ] );
+
+	const trackSeeAllBackupsClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_see_all_backups_click', { site: domain } );
+	}, [ tracks, domain ] );
+
+	const trackSeeSiteActivityClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_see_site_activity_click', { site: domain } );
+	}, [ tracks, domain ] );
 
 	const renderNoBackupCapabilities = () => {
 		const basicInfoText = __( '14 day money back guarantee.', 'jetpack-backup-pkg' );
@@ -178,7 +197,10 @@ const Admin = () => {
 							),
 							{
 								ExternalLink: (
-									<ExternalLink href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) } />
+									<ExternalLink
+										href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
+										onClick={ trackLearnMoreClick }
+									/>
 								),
 							}
 						) }
@@ -193,7 +215,10 @@ const Admin = () => {
 					</p>
 					{ hasBackupPlan() && (
 						<p>
-							<ExternalLink href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }>
+							<ExternalLink
+								href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+								onClick={ trackSeeAllBackupsClick }
+							>
 								{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
 							</ExternalLink>
 						</p>
@@ -212,6 +237,7 @@ const Admin = () => {
 						<p>
 							<ExternalLink
 								href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
+								onClick={ trackSeeSiteActivityClick }
 							>
 								{ __( "See your site's activity", 'jetpack-backup-pkg' ) }
 							</ExternalLink>
