@@ -12,6 +12,10 @@ import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import {
+	JETPACK_BACKUP_PRODUCTS,
+	JETPACK_PLANS_WITH_BACKUP,
+} from '../../../../../../projects/plugins/jetpack/_inc/client/lib/plans/constants';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
 import Backups from './Backups';
@@ -28,9 +32,8 @@ const Admin = () => {
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
 	const [ price, setPrice ] = useState( 0 );
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
-	// eslint-disable-next-line no-unused-vars
 	const [ restores, setRestores ] = useState( [] );
-
+	const [ currentPurchases, setCurrentPurchases ] = useState( [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
 	useEffect( () => {
@@ -45,7 +48,15 @@ const Admin = () => {
 				setRestores( res );
 			},
 			() => {
-				setRestores( 'Failed to fetch all modules' );
+				setRestores( 'Failed to fetch restores' );
+			}
+		);
+		apiFetch( { path: '/jetpack/v4/site/current-purchases' } ).then(
+			res => {
+				setCurrentPurchases( res.data );
+			},
+			() => {
+				setCurrentPurchases( 'Failed to fetch current purchases' );
 			}
 		);
 		apiFetch( { path: '/jetpack/v4/backup-capabilities' } ).then(
@@ -74,6 +85,40 @@ const Admin = () => {
 
 	const hasBackupPlan = () => {
 		return capabilities.includes( 'backup' );
+	};
+
+	// Check if the site has a successful restore not older than 15 days
+	const hasRecentSuccesfulRestore = () => {
+		if ( restores[ 0 ] && restores[ 0 ].status === 'finished' ) {
+			// Number of days we consider the restore recent
+			const maxDays = 15;
+			const daysDifference = ( new Date() - Date.parse( restores[ 0 ].when ) ) / 86400000;
+
+			if ( daysDifference < maxDays ) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	const hasThreeMonthsSub = () => {
+		// TODO add logic for multiple purchases
+		// check if older purchases come first or last on sites with multiple purchases
+		for ( const purchase of currentPurchases ) {
+			const isBackupPlan =
+				JETPACK_BACKUP_PRODUCTS.includes( purchase.product_slug ) ||
+				JETPACK_PLANS_WITH_BACKUP.includes( purchase.product_slug );
+			const isActive = purchase.subscription_status === 'active';
+
+			if ( isBackupPlan && isActive ) {
+				const subscriptionTimeInDays =
+					( new Date() - Date.parse( purchase.subscribed_date ) ) / 86400000;
+				if ( subscriptionTimeInDays > 90 ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	};
 
 	const sendToCart = () => {
@@ -126,6 +171,27 @@ const Admin = () => {
 		);
 	};
 
+	const renderReviewMessage = () => {
+		let reviewMessage = '';
+
+		if ( hasRecentSuccesfulRestore() ) {
+			reviewMessage = __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' );
+		} else if ( hasThreeMonthsSub() ) {
+			reviewMessage = __( 'Placeholder message for time based trigger', 'jetpack-backup-pkg' );
+		} else {
+			return;
+		}
+		return (
+			<Col lg={ 6 } md={ 4 }>
+				<ContextualUpgradeTrigger
+					description={ reviewMessage }
+					cta={ __( 'Please leave a review and help us spread the word!', 'jetpack-backup-pkg' ) }
+					// eslint-disable-next-line react/jsx-no-bind
+					onClick={ sendToReview }
+				/>
+			</Col>
+		);
+	};
 	const renderLoadedState = () => {
 		if (
 			! connectionLoaded ||
@@ -225,14 +291,7 @@ const Admin = () => {
 						</p>
 					) }
 				</Col>
-				<Col lg={ 6 } md={ 4 }>
-					<ContextualUpgradeTrigger
-						description={ __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' ) }
-						cta={ __( 'Please leave a review and help us spread the word!', 'jetpack-backup-pkg' ) }
-						// eslint-disable-next-line react/jsx-no-bind
-						onClick={ sendToReview }
-					/>
-				</Col>
+				{ renderReviewMessage() }
 			</Container>
 		);
 	};

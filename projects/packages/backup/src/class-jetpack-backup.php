@@ -323,8 +323,7 @@ class Jetpack_Backup {
 	 * @return array An array of recent restores
 	 */
 	public static function get_recent_restores() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
-
+		$blog_id  = \Jetpack_Options::get_option( 'id' );
 		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/rewind/restores',
 			'v2',
@@ -410,7 +409,7 @@ class Jetpack_Backup {
 			array(
 				'code'    => 'success',
 				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack-backup-pkg' ),
-				'data'    => wp_remote_retrieve_body( $response ),
+				'data'    => $results,
 			)
 		);
 	}
