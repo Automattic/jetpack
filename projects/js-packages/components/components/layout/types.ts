@@ -26,3 +26,30 @@ export type ColProps = {
 	 */
 	children?: React.ReactNode;
 };
+
+export type ContainerProps = {
+	/**
+	 * Make container not having a max width.
+	 */
+	fluid?: boolean;
+
+	/**
+	 * Custom className to be inserted.
+	 */
+	className?: string;
+
+	/**
+	 * Number of spacing (top / bottom), it gets mutiplied by 8px. Needs to be an integer
+	 */
+	horizontalSpacing?: number;
+
+	/**
+	 * Number of gap betwen rows, it gets multipled by 8px. Needs to be an integer
+	 */
+	horizontalGap?: number;
+
+	/**
+	 * Children to be inserted.
+	 */
+	children?: React.ReactNode;
+};

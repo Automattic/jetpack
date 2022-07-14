@@ -1,25 +1,32 @@
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { useMemo } from 'react';
+import { ContainerProps } from '../types';
 import styles from './style.module.scss';
+import type React from 'react';
 
 /**
  * JP Container
  *
- * @param {object} props         - Component properties.
+ * @param {ContainerProps} props - Component properties.
  * @returns {React.ReactElement}   Container component.
  */
-const Container = props => {
-	const { children, fluid, className } = props;
+const Container: React.FC< ContainerProps > = ( {
+	children,
+	fluid = false,
+	className,
+	horizontalGap,
+	horizontalSpacing,
+} ) => {
+	const containerStyle = useMemo( () => {
+		const padding = `calc( var(--horizontal-spacing) * ${ horizontalSpacing } )`;
+		const rowGap = `calc( var(--horizontal-spacing) * ${ horizontalGap } )`;
 
-	const horizontalSpacing = `calc( var(--horizontal-spacing) * ${ props.horizontalSpacing } )`;
-	const horizontalGap = `calc( var(--horizontal-spacing) * ${ props.horizontalGap } )`;
-
-	const containerStyle = {
-		paddingTop: horizontalSpacing,
-		paddingBottom: horizontalSpacing,
-		rowGap: horizontalGap,
-	};
+		return {
+			paddingTop: padding,
+			paddingBottom: padding,
+			rowGap,
+		};
+	}, [ horizontalGap, horizontalSpacing ] );
 
 	const containerClassName = classNames( className, styles.container, {
 		[ styles.fluid ]: fluid,
@@ -30,26 +37,6 @@ const Container = props => {
 			{ children }
 		</div>
 	);
-};
-
-Container.propTypes = {
-	/** Make container not having a max width. */
-	fluid: PropTypes.bool,
-	/** Custom className to be inserted. */
-	className: PropTypes.string,
-	/** Number of spacing (top / bottom), it gets mutiplied by 8px. Needs to be an integer */
-	horizontalSpacing: PropTypes.number,
-	/** Number of gap betwen rows, it gets multipled by 8px. Needs to be an integer */
-	horizontalGap: PropTypes.number,
-
-	/** Children to be inserted. */
-	children: PropTypes.node,
-};
-
-Container.defaultProps = {
-	fluid: false,
-	horizontalGap: 1,
-	horizontalSpacing: 1,
 };
 
 export default Container;
