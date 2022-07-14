@@ -50,7 +50,7 @@ export default function VideoPressPlayer( {
 	 * Temporary height is used to set the height of the video
 	 * as soon as the block is rendered into the canvas,
 	 * while the preview fetching process is happening,
-	 * trying to reduce the flicker effects much as possible
+	 * trying to reduce the flicker effects as much as possible
 	 *
 	 * Once the preview is fetched, the temporary heihgt is ignored.
 	 */
