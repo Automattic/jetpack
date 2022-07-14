@@ -3,7 +3,7 @@
  */
 
 import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
-import { Spinner, Placeholder, Button, Notice } from '@wordpress/components';
+import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
@@ -24,23 +24,33 @@ import './editor.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
-export const PlaceholderWrapper = ( { children, errorMessage, onNoticeRemove = () => {} } ) => (
-	<Placeholder
-		icon={ <BlockIcon icon={ VideoPressIcon } /> }
-		label={ title }
-		instructions={ description }
-		className="videopress-uploader is-videopress-placeholder"
-		notices={
-			errorMessage && (
-				<Notice isError status="error" onRemove={ onNoticeRemove }>
-					{ errorMessage }
-				</Notice>
-			)
+export const PlaceholderWrapper = withNotices( function ( {
+	children,
+	errorMessage,
+	noticeUI,
+	noticeOperations,
+} ) {
+	useEffect( () => {
+		if ( ! errorMessage ) {
+			return;
 		}
-	>
-		{ children }
-	</Placeholder>
-);
+
+		noticeOperations.removeAllNotices();
+		noticeOperations.createErrorNotice( errorMessage );
+	}, [ errorMessage, noticeOperations ] );
+
+	return (
+		<Placeholder
+			icon={ <BlockIcon icon={ VideoPressIcon } /> }
+			label={ title }
+			instructions={ description }
+			className="videopress-uploader is-videopress-placeholder"
+			notices={ noticeUI }
+		>
+			{ children }
+		</Placeholder>
+	);
+} );
 
 export default function VideoPressEdit( { attributes, setAttributes, isSelected, clientId } ) {
 	const {
