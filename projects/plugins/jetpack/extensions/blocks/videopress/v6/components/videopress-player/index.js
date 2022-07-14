@@ -66,8 +66,17 @@ export default function VideoPressPlayer( {
 			return setTemporaryHeight( 'auto' );
 		}
 
+		if ( ! videoRatio ) {
+			return;
+		}
+
 		// When no preview is available, set the height of the video.
 		setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
+
+		setTimeout( () => {
+			// HACK: recalculated in case the sidebar is opened.
+			setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
+		}, 0 );
 
 		/*
 		 * Also, when no preview, consider the video is no loaded yet.
