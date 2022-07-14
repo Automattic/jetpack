@@ -41,7 +41,6 @@ async function getListComment( issueComments ) {
  */
 async function getIssueReferences( octokit, owner, repo, number, issueComments ) {
 	const ticketReferences = [];
-	const supportIds = [];
 	const referencesRegexP = /[0-9]*-(?:chat|hc|zen|zd)/gim;
 
 	debug( `gather-support-references: Getting references from issue body.` );
@@ -64,15 +63,11 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 		}
 	} );
 
-	// Buid a first array with only the support IDs we've collected.
-	ticketReferences.map( reference => {
-		supportIds.push( reference[ 0 ] );
-	} );
-
-	// That array can still include duplicates, or references that are not formatted quite properly.
-	// Let's build a final array with unique and correct support IDs.
+	// Let's build a array with unique and correct support IDs, formatted properly.
 	const correctedSupportIds = new Set();
-	supportIds.map( supportId => {
+	ticketReferences.map( reference => {
+		const supportId = reference[ 0 ];
+
 		// xxx-zen and xxx-hc are the preferred formats for tickets and chats.
 		// xxx-zd and xxx-chat, as well as uppercase versions, are considered as alternate versions.
 		const wrongId = supportId.match( /([0-9]*)-(zd|chat)/i );
