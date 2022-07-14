@@ -150,15 +150,12 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
 	}
 
-	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with
-	// eslint-plugin-wpcalypso 5.1.0, but they haven't released that yet.
-	if ( pkg.name === 'eslint-config-wpcalypso' ) {
-		pkg.peerDependencies.eslint = '^8';
-		pkg.peerDependencies[ 'eslint-plugin-inclusive-language' ] = '*';
-		pkg.peerDependencies[ 'eslint-plugin-jsdoc' ] = '*';
+	// Missing peer dependency.
+	if (
+		pkg.name === 'eslint-plugin-wpcalypso' &&
+		! pkg.peerDependencies?.[ 'eslint-plugin-react' ]
+	) {
 		pkg.peerDependencies[ 'eslint-plugin-react' ] = '*';
-		pkg.peerDependencies[ 'eslint-plugin-react-hooks' ] = '*';
-		pkg.peerDependencies[ 'eslint-plugin-wpcalypso' ] = '*';
 	}
 
 	return pkg;

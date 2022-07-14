@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
 
@@ -24,11 +24,14 @@ wp_register_script(
 		'modules/contact-form/js/grunion.js'
 	),
 	array( 'jquery-ui-sortable', 'jquery-ui-draggable' ),
-	JETPACK__VERSION
+	JETPACK__VERSION,
+	false
 );
 
 wp_localize_script(
-	'grunion', 'GrunionFB_i18n', array(
+	'grunion',
+	'GrunionFB_i18n',
+	array(
 		'nameLabel'             => esc_attr( _x( 'Name', 'Label for HTML form "Name" field in contact form builder', 'jetpack' ) ),
 		'emailLabel'            => esc_attr( _x( 'Email', 'Label for HTML form "Email" field in contact form builder', 'jetpack' ) ),
 		'urlLabel'              => esc_attr( _x( 'Website', 'Label for HTML form "URL/Website" field in contact form builder', 'jetpack' ) ),
@@ -55,10 +58,10 @@ wp_localize_script(
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?php esc_html_e( 'Contact Form', 'jetpack' ); ?></title>
 <script type="text/javascript">
-	var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
-	var postId = <?php echo absint( $_GET['post_id'] ); ?>;
-	var ajax_nonce_shortcode = '<?php echo wp_create_nonce( 'grunion_shortcode' ); ?>';
-	var ajax_nonce_json = '<?php echo wp_create_nonce( 'grunion_shortcode_to_json' ); ?>';
+	var ajaxurl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
+	var postId = <?php echo isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making a site change. ?>;
+	var ajax_nonce_shortcode = <?php echo wp_json_encode( wp_create_nonce( 'grunion_shortcode' ) ); ?>; 
+	var ajax_nonce_json = <?php echo wp_json_encode( wp_create_nonce( 'grunion_shortcode_to_json' ) ); ?>;
 </script>
 <?php wp_print_scripts( 'grunion' ); ?>
 <script type="text/javascript">
@@ -67,7 +70,7 @@ wp_localize_script(
 		FB.ContactForm.resizePop();
 	});
 	jQuery(window).resize(function() {
-		  setTimeout(function () { FB.ContactForm.resizePop(); }, 50);
+		setTimeout(function () { FB.ContactForm.resizePop(); }, 50);
 	});
 </script>
 <style>
@@ -112,11 +115,11 @@ wp_localize_script(
 	.fb-new-fields { position: relative; border: 1px dashed #FFF; background: #FFF; padding: 4px 10px 10px; cursor: default; }
 	.fb-new-fields:hover { border: 1px dashed #BBDBEA; background: #F7FBFD; }
 	.fb-options { width: 170px !important; }
-	.fb-remove { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-field.gif') no-repeat; position: absolute; cursor: pointer !important; right: -26px; top: 27px; width: 20px; height: 23px; }
-	.fb-remove:hover { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-field-hover.gif') no-repeat; }
+	.fb-remove { background: url('<?php echo GRUNION_PLUGIN_URL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-field.gif') no-repeat; position: absolute; cursor: pointer !important; right: -26px; top: 27px; width: 20px; height: 23px; }
+	.fb-remove:hover { background: url('<?php echo GRUNION_PLUGIN_URL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-field-hover.gif') no-repeat; }
 	.fb-remove-small { top: 2px !important; }
-	.fb-remove-option { position: absolute; top: 1px; right: 10px; width: 20px; height: 23px; background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-option.gif') no-repeat; }
-	.fb-remove-option:hover { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-option-hover.gif') no-repeat; }
+	.fb-remove-option { position: absolute; top: 1px; right: 10px; width: 20px; height: 23px; background: url('<?php echo GRUNION_PLUGIN_URL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-option.gif') no-repeat; }
+	.fb-remove-option:hover { background: url('<?php echo GRUNION_PLUGIN_URL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-option-hover.gif') no-repeat; }
 	.fb-reorder { cursor: move; position: relative; }
 	.fb-reorder:hover div { display: block !important; width: 130px !important; position: absolute; top: 0; right: 0; z-index: 200; padding: 5px 10px; color: #555; font-size: 11px; background: #FFF; border: 1px solid #CCC; -moz-border-radius:4px; border-radius:4px; -webkit-border-radius:4px; }
 	.fb-right { position: absolute; right: 0; top: 0; width: 315px; margin: 57px 21px 0 0; }
@@ -149,14 +152,14 @@ wp_localize_script(
 	.rtl .fb-success { right: auto; left: 100px;}
 	.rtl .right { float: left; }
 	@media only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
-		.fb-remove { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-field-2x.png') no-repeat; background-size: 20px 23px; }
-		.fb-remove:hover { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-field-hover-2x.png') no-repeat; background-size: 20px 23px; }
-		.fb-remove-option { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-option-2x.png') no-repeat; background-size: 20px 23px; }
-		.fb-remove-option:hover { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-option-hover-2x.png') no-repeat; background-size: 20px 23px; }
+		.fb-remove { background: url('<?php echo GRUNION_PLUGIN_URL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-field-2x.png') no-repeat; background-size: 20px 23px; }
+		.fb-remove:hover { background: url('<?php echo GRUNION_PLUGIN_URL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-field-hover-2x.png') no-repeat; background-size: 20px 23px; }
+		.fb-remove-option { background: url('<?php echo GRUNION_PLUGIN_URL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-option-2x.png') no-repeat; background-size: 20px 23px; }
+		.fb-remove-option:hover { background: url('<?php echo GRUNION_PLUGIN_URL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-option-hover-2x.png') no-repeat; background-size: 20px 23px; }
 	}
 </style>
 </head>
-
+<?php // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 <body
 <?php
 if ( is_rtl() ) {
@@ -178,6 +181,7 @@ if ( is_rtl() ) {
 			<p>
 			<?php
 			printf(
+				// translators: "Click here" as an HTML link.
 				esc_html( _x( 'Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field.', '%1$s = "Click here" in an HTML link', 'jetpack' ) ),
 				'<a href="#" class="fb-add-field" style="padding-left: 0;">' . esc_html__( 'Click here', 'jetpack' ) . '</a>'
 			);
@@ -187,8 +191,9 @@ if ( is_rtl() ) {
 			<p>
 			<?php
 			printf(
+				// translators: "Feedback" as an HTML link.
 				esc_html( _x( 'Yep, you can read your feedback at any time by clicking the "%1$s" link in the admin menu.', '%1$s = "Feedback" in an HTML link', 'jetpack' ) ),
-				'<a id="fb-feedback" href="' . admin_url( 'edit.php?post_type=feedback' ) . '">' . esc_html__( 'Feedback', 'jetpack' ) . '</a>'
+				'<a id="fb-feedback" href="' . esc_url( admin_url( 'edit.php?post_type=feedback' ) ) . '">' . esc_html__( 'Feedback', 'jetpack' ) . '</a>'
 			);
 			?>
 			</p>

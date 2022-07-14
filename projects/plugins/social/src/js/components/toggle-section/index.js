@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { useSelect } from '@wordpress/data';
 import { Button, Container, Text } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { ExternalLink } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { STORE_ID } from '../../store';
 import ModuleToggle from './../module-toggle';
 import styles from './styles.module.scss';
@@ -35,9 +29,9 @@ const ToggleSection = () => {
 						'jetpack-social'
 					) }
 					&nbsp;
-					<a href="https://wordpress.com/support/publicize/" target="_blank" rel="noreferrer">
+					<ExternalLink href="https://jetpack.com/redirect/?source=social-plugin-publicize-support-admin-page">
 						{ __( 'Learn more', 'jetpack-social' ) }
-					</a>
+					</ExternalLink>
 				</Text>
 				{ connectionsAdminUrl && (
 					<Button

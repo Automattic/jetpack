@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { Icon, warning, info, check } from '@wordpress/icons';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import styles from './style.module.scss';
 
 type AlertProps = {

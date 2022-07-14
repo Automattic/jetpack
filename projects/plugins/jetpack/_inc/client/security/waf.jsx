@@ -1,38 +1,31 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import FoldableCard from 'components/foldable-card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel } from 'components/forms';
-import {
-	getJetpackProductUpsellByFeature,
-	FEATURE_SECURITY_SCANNING_JETPACK,
-} from 'lib/plans/constants';
-import FoldableCard from 'components/foldable-card';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import {
+	getJetpackProductUpsellByFeature,
+	FEATURE_SECURITY_SCANNING_JETPACK,
+} from 'lib/plans/constants';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { getSitePlan } from 'state/site';
+import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import Textarea from '../components/textarea';
-import { createInterpolateElement } from '@wordpress/element';
-import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { getSitePlan } from 'state/site';
 import {
 	getWafBootstrapPath,
 	getWafHasRulesAccess,
 	isFetchingWafSettings,
 } from '../state/waf/reducer';
-import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
-import { ExternalLink } from '@wordpress/components';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 
 export const Waf = class extends Component {
 	/**

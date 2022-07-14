@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React, { Component } from 'react';
-
-/**
- * Internal dependencies
- */
 import SearchBox from './search-box';
 
 const noop = event => event.preventDefault();

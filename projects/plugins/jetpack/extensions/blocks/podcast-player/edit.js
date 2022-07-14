@@ -1,14 +1,12 @@
-/**
- * External dependencies
- */
-import debugFactory from 'debug';
-import { debounce, noop } from 'lodash';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
-import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from '@wordpress/element';
+import {
+	BlockControls,
+	InspectorControls,
+	withColors,
+	PanelColorSettings,
+	ContrastChecker,
+} from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import {
 	Button,
 	ExternalLink,
@@ -24,32 +22,24 @@ import {
 	ComboboxControl,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
-import { __ } from '@wordpress/i18n';
-import {
-	BlockControls,
-	InspectorControls,
-	withColors,
-	PanelColorSettings,
-	ContrastChecker,
-} from '@wordpress/block-editor';
 import { withDispatch } from '@wordpress/data';
-import { createBlock } from '@wordpress/blocks';
+import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { isURL, prependHTTP } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
+import debugFactory from 'debug';
+import { debounce, noop } from 'lodash';
+import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
+import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import './editor.scss';
-import { queueMusic } from './icons/';
+import { fetchPodcastFeed, fetchTrackQuantity } from './api';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
-import { makeCancellable } from './utils';
-import { fetchPodcastFeed, fetchTrackQuantity } from './api';
-import { podcastPlayerReducer, actions } from './state';
-import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 import { PODCAST_FEED, EMBED_BLOCK } from './constants';
-import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
+import { queueMusic } from './icons/';
+import { podcastPlayerReducer, actions } from './state';
+import { makeCancellable } from './utils';
+
+import './editor.scss';
 
 const DEFAULT_MIN_ITEMS = 1;
 const debug = debugFactory( 'jetpack:podcast-player:edit' );

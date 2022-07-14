@@ -1,11 +1,11 @@
 const path = require( 'path' );
 const webpack = require( 'webpack' );
-const { RuntimeGlobals } = webpack;
-
-const PLUGIN_NAME = require( './plugin-name' );
-const debug = require( 'debug' )( PLUGIN_NAME );
 const I18nLoaderModuleDependency = require( './I18nLoaderModuleDependency' );
 const I18nLoaderRuntimeModule = require( './I18nLoaderRuntimeModule' );
+const PLUGIN_NAME = require( './plugin-name' );
+const debug = require( 'debug' )( PLUGIN_NAME ); // eslint-disable-line import/order
+
+const { RuntimeGlobals } = webpack;
 
 const schema = {
 	title: `${ PLUGIN_NAME } plugin options`,

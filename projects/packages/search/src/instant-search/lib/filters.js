@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { SERVER_OBJECT_NAME } from './constants';
 
 // NOTE: This list is missing custom taxonomy names.

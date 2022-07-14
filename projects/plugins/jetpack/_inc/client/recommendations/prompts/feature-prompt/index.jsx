@@ -1,27 +1,12 @@
-/**
- * External dependencies
- */
 import { ProgressBar } from '@automattic/components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
+import Gridicon from 'components/gridicon';
+import analytics from 'lib/analytics';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
-import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import DiscountCard from '../../sidebar/discount-card';
-import {
-	getStepContent,
-	mapStateToSummaryFeatureProps,
-	mapDispatchToProps,
-} from '../../feature-utils';
-import { PromptLayout } from '../prompt-layout';
-import { DEFAULT_ILLUSTRATION } from '../../constants';
-import { ProductSpotlight } from '../../sidebar/product-spotlight';
-import Button from 'components/button';
-import analytics from 'lib/analytics';
 import {
 	addSelectedRecommendation as addSelectedRecommendationAction,
 	addSkippedRecommendation as addSkippedRecommendationAction,
@@ -36,7 +21,15 @@ import {
 	isStepViewed,
 	getProductSlugForStep,
 } from 'state/recommendations';
-import Gridicon from 'components/gridicon';
+import { DEFAULT_ILLUSTRATION } from '../../constants';
+import {
+	getStepContent,
+	mapStateToSummaryFeatureProps,
+	mapDispatchToProps,
+} from '../../feature-utils';
+import DiscountCard from '../../sidebar/discount-card';
+import { ProductSpotlight } from '../../sidebar/product-spotlight';
+import { PromptLayout } from '../prompt-layout';
 const FeaturePromptComponent = props => {
 	const {
 		activateFeature,

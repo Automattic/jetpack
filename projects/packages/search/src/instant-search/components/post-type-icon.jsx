@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
-import Gridicon from './gridicon';
 import arrayOverlap from '../lib/array-overlap';
+import Gridicon from './gridicon';
 
 const KNOWN_SHORTCODE_TYPES = {
 	video: [

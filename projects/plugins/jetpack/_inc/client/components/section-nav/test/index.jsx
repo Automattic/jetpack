@@ -1,10 +1,7 @@
-/**
- * External Dependencies
- */
 import { assert } from 'chai';
 import sinon from 'sinon';
-import useMockery from 'test/helpers/use-mockery';
 import useFakeDom from 'test/helpers/use-fake-dom';
+import useMockery from 'test/helpers/use-mockery';
 let ReactDom, React, TestUtils, SectionNav;
 
 function createComponent( component, props, children ) {

@@ -1,17 +1,9 @@
 /** @ssr-ready **/
 
-/**
- * External Dependencies
- */
-import PropTypes from 'prop-types';
-
-import React from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import Count from 'components/count';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 class SelectDropdownItem extends React.Component {
 	static propTypes = {

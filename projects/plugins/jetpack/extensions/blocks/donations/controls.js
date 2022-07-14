@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { CURRENCIES } from '@automattic/format-currency';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -22,10 +15,6 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
-
-/**
- * Internal dependencies
- */
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 
 const Controls = props => {

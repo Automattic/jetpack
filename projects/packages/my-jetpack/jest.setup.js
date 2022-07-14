@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import '@testing-library/jest-dom';
 window.JP_CONNECTION_INITIAL_STATE = {
 	userConnectionData: {

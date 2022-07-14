@@ -2,9 +2,6 @@
  * @jest-environment jsdom
  */
 
-/**
- * Internal dependencies
- */
 import { RELEVANCE_SORT_KEY } from '../../lib/constants';
 import { getSort, getWidgetOutsideOverlay, hasActiveQuery } from '../selectors';
 
@@ -63,10 +60,10 @@ describe( 'hasActiveQuery', () => {
 			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
 		).toEqual( false );
 	} );
-	test( 'returns true if there is a defined sort value', () => {
+	test( 'returns false if there is a defined sort value only', () => {
 		expect(
 			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: 'relevance' } )
-		).toEqual( true );
+		).toEqual( false );
 		expect(
 			hasActiveQuery( { searchQuery: null, filters: {}, staticFilters: {}, sort: null } )
 		).toEqual( false );

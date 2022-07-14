@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Container, Col, H3 } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import styles from './styles.module.scss';
+import { __ } from '@wordpress/i18n';
 import illustration from './illustration.svg';
+import styles from './styles.module.scss';
 
 const Header = () => (
 	<Container horizontalSpacing={ 3 } horizontalGap={ 7 } className={ styles.container }>

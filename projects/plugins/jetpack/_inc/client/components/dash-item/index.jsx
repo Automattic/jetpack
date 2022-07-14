@@ -1,29 +1,22 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import classNames from 'classnames';
-import { connect } from 'react-redux';
-import { includes } from 'lodash';
-import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __, _x } from '@wordpress/i18n';
+import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
-import { getModule as _getModule } from 'state/modules';
-import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
-import { isOfflineMode } from 'state/connection';
-import { ModuleToggle } from 'components/module-toggle';
-import ProStatus from 'pro-status';
-import SectionHeader from 'components/section-header';
-import SimpleNotice from 'components/notice';
-import SupportInfo from 'components/support-info';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
+import SimpleNotice from 'components/notice';
+import SectionHeader from 'components/section-header';
+import SupportInfo from 'components/support-info';
+import analytics from 'lib/analytics';
+import { includes } from 'lodash';
+import ProStatus from 'pro-status';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { isOfflineMode } from 'state/connection';
+import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
+import { getModule as _getModule } from 'state/modules';
 
 export class DashItem extends Component {
 	static propTypes = {
