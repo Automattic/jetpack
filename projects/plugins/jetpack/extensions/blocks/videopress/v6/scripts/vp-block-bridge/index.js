@@ -81,7 +81,6 @@ const rawScript = `
 		window.addEventListener( 'message', ( ev ) => {
 			const { data } = ev;
 			const eventName = data.event;
-			console.log( 'eventName: ', eventName );
 			if ( ! allowedVideoPressEvents.includes( eventName ) ) {
 				return;
 			}
