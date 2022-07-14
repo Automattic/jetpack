@@ -9,7 +9,6 @@
 		"eventbrite",
 		"gathering-tweetstorms",
 		"gif",
-		"google-docs-embed",
 		"google-calendar",
 		"image-compare",
 		"instagram-gallery",
@@ -43,7 +42,7 @@
 		"payments-intro",
 		"post-publish-qr-post-panel"
 	],
-	"beta": [ "amazon" ],
+	"beta": [ "amazon", "google-docs-embed" ],
 	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",
@@ -54,7 +53,6 @@
 		"donations",
 		"eventbrite",
 		"gif",
-		"google-docs-embed",
 		"google-calendar",
 		"instagram-gallery",
 		"mailchimp",
