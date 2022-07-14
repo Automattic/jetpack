@@ -97,7 +97,7 @@ const rawScript = `
 					},
 				} );
 
-				debug( '🌉 %o ➜ %o', originalEventName, vpEventName );
+				debug( '🌉 %o [%s] ➜ %o', originalEventName, guid, vpEventName );
 
 				window.parent.dispatchEvent( videoPressBlockEvent );
 			}
