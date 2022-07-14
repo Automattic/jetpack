@@ -74,7 +74,9 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 		// xxx-zd and xxx-chat, as well as uppercase versions, are considered as alternate versions.
 		const wrongId = supportId.match( /([0-9]*)-(zd|chat)/i );
 		if ( wrongId ) {
-			const correctedId = `${ wrongId[ 1 ] }-${ wrongId[ 2 ].toLowerCase() === 'zd' ? 'zen' : 'hc' }`;
+			const correctedId = `${ wrongId[ 1 ] }-${
+				wrongId[ 2 ].toLowerCase() === 'zd' ? 'zen' : 'hc'
+			}`;
 			correctedSupportIds.add( correctedId );
 		} else {
 			correctedSupportIds.add( supportId.toLowerCase() );
@@ -98,22 +100,6 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 	const { name: repo, owner } = repository;
 	const ownerLogin = owner.login;
 
-	const comment = `**Support References**
-	${ issueReferences
-		.map(
-			reference => `
-- [ ] ${ reference }`
-		)
-		.join( '' ) }
-
-	`;
-
-	const commentOpts = {
-		owner: ownerLogin,
-		repo,
-		body: comment,
-	};
-
 	const existingComment = await getListComment( issueComments );
 
 	// If there is a comment already, update it.
@@ -121,15 +107,73 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 		debug(
 			`gather-support-references: update comment ID ${ existingComment } with our new list of references.`
 		);
+
+		const {
+			data: { body: existingCommentBody },
+		} = await octokit.rest.issues.getComment( {
+			owner: ownerLogin,
+			repo,
+			comment_id: existingComment,
+		} );
+
+		// First, build a list of all references and whether they are checked or not.
+		const listWithStatusMatch = existingCommentBody.match(
+			/(?:-\s\[(?<checked>\s|x)\]\s)(?<ticketId>[0-9]*-(?:hc|zen))/gm
+		);
+		const statusMatches = [ ...listWithStatusMatch ];
+		// Build a new array with only checked ticket references.
+		const checkedList = [];
+		for ( const referenceStatus of statusMatches ) {
+			const [ , checked, ticketId ] = referenceStatus;
+			if ( checked !== ' ' ) {
+				checkedList.push( ticketId );
+			}
+		}
+
+		// Remove checked tickets from our existing list of issue references.
+		const uncheckedList = issueReferences.filter(
+			reference => ! checkedList.includes( reference )
+		);
+
+		// Build our comment body, with first the checked references, then the unchecked references.
+		const updatedComment = `**Support References**
+${ checkedList
+	.map(
+		checkedTicket => `
+- [x] ${ checkedTicket }`
+	)
+	.join( '' ) }${ uncheckedList
+			.map(
+				uncheckedTicket => `
+- [ ] ${ uncheckedTicket }`
+			)
+			.join( '' ) }
+
+`;
+
 		await octokit.rest.issues.updateComment( {
-			...commentOpts,
+			owner: ownerLogin,
+			repo,
+			body: updatedComment,
 			comment_id: +existingComment,
 		} );
 	} else {
 		// If no comment was published before, publish one now.
 		debug( `gather-support-references: Posting comment to issue #${ number }` );
+
+		const comment = `**Support References**
+${ issueReferences
+	.map(
+		reference => `
+- [ ] ${ reference }`
+	)
+	.join( '' ) }
+
+`;
 		await octokit.rest.issues.createComment( {
-			...commentOpts,
+			owner: ownerLogin,
+			repo,
+			body: comment,
 			issue_number: +number,
 		} );
 	}
