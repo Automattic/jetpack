@@ -104,17 +104,6 @@ export default function VideoPressPlayer( {
 		setIsVideoLoaded( false );
 	}, [ html ] );
 
-	useEffect( () => {
-		if ( ! sandboxWindow ) {
-			return;
-		}
-
-		sandboxWindow.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
-
-		return () =>
-			sandboxWindow?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler, sandboxWindow, html ] );
-
 	// Autoplay hoverting feature.
 	const sandboxIFrame = ref?.current?.querySelector( 'iframe' );
 
@@ -143,6 +132,28 @@ export default function VideoPressPlayer( {
 
 		dispatchPlayerAction( sandboxIFrame, 'videopress_action_pause' );
 	}, [ autoplayHovering, preview, sandboxIFrame ] );
+
+	const onVideoPressTimeUpdateHandler = useCallback(
+		( { detail } ) => {
+			const { currentTime } = detail;
+			if ( ! currentTime || currentTime < 5 ) {
+				return;
+			}
+
+			pauseVideo();
+		},
+		[ pauseVideo ]
+	);
+
+	useEffect( () => {
+		window.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+		window.addEventListener( 'onVideoPressTimeUpdate', onVideoPressTimeUpdateHandler );
+
+		return () => {
+			window.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+			window.removeEventListener( 'onVideoPressTimeUpdate', onVideoPressTimeUpdateHandler );
+		};
+	}, [ onVideoLoadingStateHandler, onVideoPressTimeUpdateHandler ] );
 
 	// Play/stop autoplay hovering handling.
 	useEffect( () => {
