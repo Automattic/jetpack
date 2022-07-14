@@ -36,7 +36,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_oembed_providers() {
-		$host = urlencode( home_url() );
+		$host = rawurlencode( home_url() );
 		// videopress.com/v is already registered in core.
 		// By explicitly declaring the provider here, we can speed things up by not relying on oEmbed discovery.
 		wp_oembed_add_provider( '#^https?://video.wordpress.com/v/.*#', 'https://public-api.wordpress.com/oembed/?for=' . $host, true );
