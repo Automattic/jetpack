@@ -79,7 +79,7 @@ export default function UpsellPage( { isLoading = false } ) {
 										onCtaClick={ sendToCart }
 										priceAfter={ priceAfter }
 										priceBefore={ priceBefore }
-										pricingCurrencyCode={ priceCurrencyCode }
+										currencyCode={ priceCurrencyCode }
 										title={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 									/>
 								</Col>

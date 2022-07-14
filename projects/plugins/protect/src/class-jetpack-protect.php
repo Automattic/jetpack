@@ -217,7 +217,7 @@ class Jetpack_Protect {
 		if ( $total > 0 ) {
 			$args = array(
 				'id'    => 'jetpack-protect',
-				'title' => '<span class="ab-icon noticon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
+				'title' => '<span class="ab-icon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
 				'href'  => admin_url( 'admin.php?page=jetpack-protect' ),
 				'meta'  => array(
 					// translators: %d is the number of vulnerabilities found.
