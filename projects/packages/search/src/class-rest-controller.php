@@ -21,6 +21,14 @@ use WP_REST_Server;
  */
 class REST_Controller {
 	/**
+	 * Namespace for the REST API.
+	 *
+	 * This is overriden with value `wpcom-orgin/jetpack/v4` for WPCOM.
+	 *
+	 * @var string
+	 */
+	public static $namespace = 'jetpack/v4';
+	/**
 	 * Whether it's run on WPCOM.
 	 *
 	 * @var bool
@@ -55,7 +63,7 @@ class REST_Controller {
 	 */
 	public function register_rest_routes() {
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/plan',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -64,7 +72,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/settings',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -73,7 +81,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/settings',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -82,7 +90,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -91,7 +99,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -100,7 +108,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/plan/activate',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -109,7 +117,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/plan/deactivate',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -118,7 +126,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/pricing',
 			array(
 				'methods'             => WP_REST_Server::READABLE,

@@ -843,7 +843,6 @@ class Helper {
 			$excluded_post_types = array();
 		}
 
-		$is_wpcom                  = defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
 		$is_private_site           = '-1' === get_option( 'blog_public' );
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
@@ -869,13 +868,13 @@ class Helper {
 			'siteId'                => self::get_wpcom_site_id(),
 			'postTypes'             => $post_type_labels,
 			'webpackPublicPath'     => plugins_url( '/build/instant-search/', __DIR__ ),
-			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
+			'isPhotonEnabled'       => ( static::is_wpcom() || $is_jetpack_photon_enabled ) && ! $is_private_site,
 
 			// config values related to private site support.
 			'apiRoot'               => esc_url_raw( rest_url() ),
 			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
 			'isPrivateSite'         => $is_private_site,
-			'isWpcom'               => $is_wpcom,
+			'isWpcom'               => static::is_wpcom(),
 
 			// widget info.
 			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
@@ -894,6 +893,13 @@ class Helper {
 		 * @param array $options Array of parameters used in Instant Search queries.
 		 */
 		return apply_filters( 'jetpack_instant_search_options', $options );
+	}
+
+	/**
+	 * Returns true if the site is a WordPress.com simple site, i.e. the code runs on WPCOM.
+	 */
+	public static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
 	}
 
 	/**
