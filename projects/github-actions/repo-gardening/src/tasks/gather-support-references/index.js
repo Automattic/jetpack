@@ -7,10 +7,10 @@ const getComments = require( '../../get-comments' );
  * Search for a previous comment from this task in our issue.
  *
  * @param {Array} issueComments - Array of all comments on that issue.
- * @returns {Promise<number>} Promise resolving to a number.
+ * @returns {Promise<Object>} Promise resolving to an object of information about our comment.
  */
 async function getListComment( issueComments ) {
-	let commentID = 0;
+	let commentInfo = {};
 
 	debug( `gather-support-references: Looking for a previous comment from this task in our issue.` );
 
@@ -19,11 +19,14 @@ async function getListComment( issueComments ) {
 			comment.user.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Support References**' )
 		) {
-			commentID = comment.id;
+			commentInfo = {
+				id: comment.id,
+				body: comment.body,
+			};
 		}
 	} );
 
-	return commentID;
+	return commentInfo;
 }
 
 /**
@@ -103,21 +106,13 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 	const existingComment = await getListComment( issueComments );
 
 	// If there is a comment already, update it.
-	if ( existingComment !== 0 ) {
+	if ( existingComment.id && existingComment.body ) {
 		debug(
-			`gather-support-references: update comment ID ${ existingComment } with our new list of references.`
+			`gather-support-references: update comment ID ${ existingComment.id } with our new list of references.`
 		);
 
-		const {
-			data: { body: existingCommentBody },
-		} = await octokit.rest.issues.getComment( {
-			owner: ownerLogin,
-			repo,
-			comment_id: existingComment,
-		} );
-
 		// First, build a list of all references and whether they are checked or not.
-		const listWithStatusMatch = existingCommentBody.matchAll(
+		const listWithStatusMatch = existingComment.body.matchAll(
 			/(?:-\s\[(?<checked>\s|x)\]\s)(?<ticketId>[0-9]*-(?:hc|zen))/gm
 		);
 		const statusMatches = [ ...listWithStatusMatch ];
@@ -156,7 +151,7 @@ ${ checkedList
 			owner: ownerLogin,
 			repo,
 			body: updatedComment,
-			comment_id: +existingComment,
+			comment_id: +existingComment.id,
 		} );
 	} else {
 		// If no comment was published before, publish one now.
