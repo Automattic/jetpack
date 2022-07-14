@@ -59,17 +59,29 @@ const rawScript = `
 				name: 'onVideoPressToggleFullscreen',
 				type: 'event',
 			},
+<<<<<<< HEAD
 			'vpBlockActionPlay': {
+=======
+			videopress_action_play: {
+>>>>>>> 06c938aaac (rename script actions)
 				name: 'vpBlockActionPlay',
 				type: 'action',
 				videoPressAction: 'videopress_action_play',
 			},
+<<<<<<< HEAD
 			'vpBlockActionPause': {
+=======
+			videopress_action_pause: {
+>>>>>>> 06c938aaac (rename script actions)
 				name: 'vpBlockActionPause',
 				type: 'action',
 				videoPressAction: 'videopress_action_pause',
 			},
+<<<<<<< HEAD
 			'vpBlockActionSetCurrentTime': {
+=======
+			videopress_action_set_currenttime: {
+>>>>>>> 06c938aaac (rename script actions)
 				name: 'vpBlockActionSetCurrentTime',
 				type: 'action',
 				videoPressAction: 'videopress_action_set_currenttime',

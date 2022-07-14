@@ -107,7 +107,7 @@ The bridge triggers the following custom events:
 
 #### vpBlockActionPause
 
-#### vpBlockActionPause
+#### vpBlockActionSetCurrentTime
 
 ### Actions
 
