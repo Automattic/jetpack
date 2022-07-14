@@ -48,6 +48,7 @@ class Options {
 	const OVERLAY_TRIGGER_IMMEDIATE = 'immediate';
 	const OVERLAY_TRIGGER_RESULTS   = 'results';
 	const OVERLAY_TRIGGER_SUBMIT    = 'submit';
+	const DEFAULT_OVERLAY_TRIGGER   = 'submit';
 
 	/**
 	 * Returns a boolean for whether instant search is enabled.
