@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useRef } from 'react';
+import { ThemeInstance, ThemeProviderProps } from './types';
 
 export const typography = {
 	// Headline
@@ -73,9 +74,9 @@ export const spacing = {
 	'--spacing-base': '8px',
 };
 
-const globalThemeInstances = {};
+const globalThemeInstances: Record< string, ThemeInstance > = {};
 
-const setup = ( root, id ) => {
+const setup = ( root: HTMLElement, id: string ) => {
 	const tokens = { ...typography, ...colors, ...borders, ...spacing };
 	for ( const key in tokens ) {
 		root.style.setProperty( key, tokens[ key ] );
@@ -95,14 +96,11 @@ const setup = ( root, id ) => {
 /**
  * ThemeProvider React component.
  *
- * @param {object} props           - Component properties.
- * @param {object} props.id        - An optional id to register and identify the provider instance.
- * @param {object} props.targetDom - Target DOM element to store theme styles. Optional.
- * @param {object} props.children  - Component children.
+ * @param {ThemeProviderProps} props           - Component properties.
  * @returns {React.ReactNode}        ThemeProvider component.
  */
-const ThemeProvider = ( { children = null, targetDom, id } ) => {
-	const themeWrapperRef = useRef();
+const ThemeProvider: React.FC< ThemeProviderProps > = ( { children = null, targetDom, id } ) => {
+	const themeWrapperRef = useRef< HTMLDivElement >();
 
 	// Check whether the theme provider instance is already registered.
 	const isAlreadyProvided = globalThemeInstances?.[ id ]?.provided;
