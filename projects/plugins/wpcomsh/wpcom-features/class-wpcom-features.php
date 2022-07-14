@@ -101,6 +101,7 @@ class WPCOM_Features {
 	private const BLOGGER_BUNDLE                              = 'blogger-bundle'; // 1010
 	private const ECOMMERCE_BUNDLE                            = 'ecommerce-bundle'; // 1011
 	private const VALUE_BUNDLE_MONTHLY                        = 'value_bundle_monthly'; // 1013
+	private const PRO_PLAN_MONTHLY                            = 'pro-plan-monthly'; // 1034
 	private const BUSINESS_BUNDLE_MONTHLY                     = 'business-bundle-monthly'; // 1018
 	private const PERSONAL_BUNDLE_MONTHLY                     = 'personal-bundle-monthly'; // 1019
 	private const ECOMMERCE_BUNDLE_MONTHLY                    = 'ecommerce-bundle-monthly'; // 1021
@@ -109,6 +110,7 @@ class WPCOM_Features {
 	private const PERSONAL_BUNDLE_2Y                          = 'personal-bundle-2y'; // 1029
 	private const BLOGGER_BUNDLE_2Y                           = 'blogger-bundle-2y'; // 1030
 	private const ECOMMERCE_BUNDLE_2Y                         = 'ecommerce-bundle-2y'; // 1031
+	private const PRO_PLAN_2Y                                 = 'pro-plan-2y'; // 1035
 	private const PRO_PLAN                                    = 'pro-plan'; // 1032
 	private const STARTER_PLAN                                = 'starter-plan'; // 1033
 	private const WP_P2_PLUS_MONTHLY                          = 'wp_p2_plus_monthly'; // 1040
@@ -166,7 +168,7 @@ class WPCOM_Features {
 	private const WPCOM_PERSONAL_PLANS      = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y );
 	private const WPCOM_STARTER_PLANS       = array( self::STARTER_PLAN );
 	private const WPCOM_PREMIUM_PLANS       = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y );
-	private const WPCOM_PRO_PLANS           = array( self::PRO_PLAN );
+	private const WPCOM_PRO_PLANS           = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
 	private const WPCOM_BUSINESS_PLANS      = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y );
 	private const WPCOM_ECOMMERCE_PLANS     = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y );
 	private const WPCOM_MARKETPLACE_PLANS   = array(
@@ -636,6 +638,7 @@ class WPCOM_Features {
 			self::VALUE_BUNDLE_2Y,
 			// Pro.
 			self::PRO_PLAN,
+			self::PRO_PLAN_2Y,
 			// Business (Excluding Monthly).
 			self::BUSINESS_BUNDLE,
 			self::BUSINESS_BUNDLE_2Y,
