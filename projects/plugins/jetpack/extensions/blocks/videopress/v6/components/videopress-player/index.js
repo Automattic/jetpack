@@ -10,6 +10,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import vpBlockBridge from '../../scripts/vp-block-bridge';
+import dispatchPlayerAction from '../../utils/dispatcher';
 
 // Global scripts array to be run in the Sandbox context.
 const globalScripts = [];
@@ -44,7 +45,7 @@ export default function VideoPressPlayer( {
 	preview,
 } ) {
 	const ref = useRef();
-	const { maxWidth, caption, videoRatio } = attributes;
+	const { maxWidth, caption, videoRatio, autoplayHovering } = attributes;
 
 	// Pick up iFrame and sandbox window references.
 	const iFrameDomReference = ref?.current?.querySelector( 'iframe' );
@@ -113,6 +114,51 @@ export default function VideoPressPlayer( {
 		return () =>
 			sandboxWindow?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
 	}, [ onVideoLoadingStateHandler, sandboxWindow, html ] );
+
+	// Autoplay hoverting feature.
+	const sandboxIFrame = ref?.current?.querySelector( 'iframe' );
+
+	/**
+	 * Helper function to play the video.
+	 */
+	const playbackVideo = useCallback( () => {
+		if ( ! preview || ! autoplayHovering ) {
+			return;
+		}
+
+		dispatchPlayerAction( sandboxIFrame, 'videopress_action_set_currenttime', {
+			currentTime: 0,
+		} );
+
+		dispatchPlayerAction( sandboxIFrame, 'videopress_action_play' );
+	}, [ autoplayHovering, preview, sandboxIFrame ] );
+
+	/**
+	 * Helper function to pause the video.
+	 */
+	const pauseVideo = useCallback( () => {
+		if ( ! preview || ! autoplayHovering ) {
+			return;
+		}
+
+		dispatchPlayerAction( sandboxIFrame, 'videopress_action_pause' );
+	}, [ autoplayHovering, preview, sandboxIFrame ] );
+
+	// Play/stop autoplay hovering handling.
+	useEffect( () => {
+		if ( ! ref?.current ) {
+			return;
+		}
+
+		const mainWrapper = ref.current;
+		mainWrapper.addEventListener( 'mouseenter', playbackVideo );
+		mainWrapper.addEventListener( 'mouseleave', pauseVideo );
+
+		return function () {
+			mainWrapper.removeEventListener( 'mouseenter', playbackVideo );
+			mainWrapper.removeEventListener( 'mouseleave', pauseVideo );
+		};
+	}, [ pauseVideo, playbackVideo, preview ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
