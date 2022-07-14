@@ -8,7 +8,7 @@ import { get } from 'lodash';
 import PaymentsIntroBlockPicker from './block-picker';
 import defaultVariations from './variations';
 
-export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
+export default function JetpackPaymentsIntroEdit( { name, clientId, className } ) {
 	const { blockType, hasInnerBlocks } = useSelect( select => {
 		const { getBlocks } = select( blockEditorStore );
 
@@ -40,7 +40,7 @@ export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
 				icon={ get( blockType, [ 'icon', 'src' ] ) }
 				label={ get( blockType, [ 'title' ] ) }
 				instructions={ __( "Please select which kind of payment you'd like to add.", 'jetpack' ) }
-				className="wp-payments-intro-wrapper"
+				className={ className }
 			>
 				<PaymentsIntroBlockPicker
 					label={ __( 'Payment Block list', 'jetpack' ) }

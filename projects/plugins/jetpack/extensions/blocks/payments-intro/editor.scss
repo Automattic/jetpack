@@ -1,6 +1,6 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.wp-payments-intro-wrapper {
+.wp-block-jetpack-payments-intro {
 	.components-placeholder__instructions {
 		// Defer to vertical margins applied by template picker options.
 		margin-bottom: 0;
@@ -14,7 +14,7 @@
 	}
 }
 
-.wp-payments-intro-variation-picker.wp-payments-intro-variation-picker {
+.wp-block-jetpack-payments-intro__variation-picker.wp-block-jetpack-payments-intro__variation-picker {
 	display: flex;
 	justify-content: flex-start;
 	flex-direction: row;
@@ -37,11 +37,11 @@
 		}
 	}
 
-	.wp-payments-intro-variation-picker__variation {
+	.wp-block-jetpack-payments-intro__variation-picker__variation {
 		padding: $grid-unit-10;
 	}
 
-	.wp-payments-intro-variation-picker__variation-label {
+	.wp-block-jetpack-payments-intro__variation-picker__variation-label {
 		font-family: $default-font;
 		font-size: 12px;
 		display: block;
@@ -49,7 +49,7 @@
 	}
 }
 
-.wp-payments-intro-variation-picker__variation {
+.wp-block-jetpack-payments-intro__variation-picker__variation {
 	width: 100%;
 
 	&.components-button.has-icon {
