@@ -81,21 +81,32 @@ function VPBlockEdit() {
 
 The bridge triggers the following custom events:
 
-#### onVideoPressProgress
-
-#### onVideoPressLoadingState
-
 #### onVideoPressPlaying
 
 #### onVideoPressPause
 
-#### onVideoPressPeeking
+#### onVideoPressSeeking
 
 #### onVideoPressResize
 
-#### onVideoPressVolumechange
+#### onVideoPressVolumeChange
 
 #### onVideoPressEnded
+
+#### onVideoPressTimeUpdate
+
+#### onVideoPressDurationChange
+
+#### onVideoPressProgress
+
+#### onVideoPressLoadingState
+
+### Actions
+
+#### vpBlockActionPlay
+
+#### vpBlockActionPause
+#### vpBlockActionPause
 
 ## Debug
 

@@ -15,28 +15,36 @@ const rawScript = `
 
 		// Allowed events emitted by the videopress API.
 		const videoPressEventsMap = {
-			'playing': {
+			'videopress_playing': {
 				name: 'onVideoPressPlaying',
 				type: 'event',
 			},
-			'pause': {
+			'videopress_pause': {
 				name: 'onVideoPressPause',
 				type: 'event',
 			},
-			'seeking': {
+			'videopress_seeking': {
 				name: 'onVideoPressSeeking',
 				type: 'event',
 			},
-			'resize': {
+			'videopress_resize': {
 				name: 'onVideoPressResize',
 				type: 'event',
 			},
-			'volumechange': {
+			'videopress_volumechange': {
 				name: 'onVideoPressVolumeChange',
 				type: 'event',
 			},
-			'ended': {
+			'videopress_ended': {
 				name: 'onVideoPressEnded',
+				type: 'event',
+			},
+			'videopress_timeupdate': {
+				name: 'onVideoPressTimeUpdate',
+				type: 'event',
+			},
+			'videopress_durationchange': {
+				name: 'onVideoPressDurationChange',
 				type: 'event',
 			},
 			'videopress_progress': {
@@ -47,7 +55,10 @@ const rawScript = `
 				name: 'onVideoPressLoadingState',
 				type: 'event',
 			},
-
+			videopress_toggle_fullscreen: {
+				name: 'onVideoPressToggleFullscreen',
+				type: 'event',
+			},
 			'vpblock_action_play': {
 				name: 'vpBlockActionPlay',
 				type: 'action',
@@ -70,6 +81,7 @@ const rawScript = `
 		window.addEventListener( 'message', ( ev ) => {
 			const { data } = ev;
 			const eventName = data.event;
+			console.log( 'eventName: ', eventName );
 			if ( ! allowedVideoPressEvents.includes( eventName ) ) {
 				return;
 			}
