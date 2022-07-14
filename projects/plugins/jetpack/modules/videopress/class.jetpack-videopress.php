@@ -2,6 +2,8 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\VideoPress\Options as VideoPress_Options;
+use Automattic\Jetpack\VideoPress\XMLRPC;
 
 /**
  * VideoPress in Jetpack
@@ -65,7 +67,7 @@ class Jetpack_VideoPress {
 		add_filter( 'wp_video_extensions', array( $this, 'add_videopress_extenstion' ) );
 
 		VideoPress_Scheduler::init();
-		VideoPress_XMLRPC::init();
+		XMLRPC::init();
 
 		if ( $this->is_videopress_enabled() ) {
 			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );

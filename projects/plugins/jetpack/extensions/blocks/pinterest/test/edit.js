@@ -2,7 +2,6 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PinterestEdit } from '../edit';
 import useTestPinterestEmbedUrl from '../hooks/use-test-pinterest-embed-url';
-import '@testing-library/jest-dom';
 
 jest.mock( '../hooks/use-test-pinterest-embed-url' );
 jest.mock( '@wordpress/components/build/sandbox', () => ( {

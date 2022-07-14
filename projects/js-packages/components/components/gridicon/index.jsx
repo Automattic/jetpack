@@ -34,49 +34,49 @@ class Gridicon extends Component {
 		return false;
 	}
 
-	getSVGTitle( icon ) {
-		// Enable overriding title with falsy/truthy values.
-		if ( 'title' in this.props ) {
-			return this.props.title ? <title>{ this.props.title }</title> : null;
+	getSVGDescription( icon ) {
+		// Enable overriding desc with falsy/truthy values.
+		if ( 'description' in this.props ) {
+			return this.props.description;
 		}
 
 		switch ( icon ) {
 			default:
-				return null;
+				return '';
 			case 'gridicons-audio':
-				return <title>{ __( 'Has audio.', 'jetpack' ) }</title>;
+				return __( 'Has audio.', 'jetpack' );
 			case 'gridicons-calendar':
-				return <title>{ __( 'Is an event.', 'jetpack' ) }</title>;
+				return __( 'Is an event.', 'jetpack' );
 			case 'gridicons-cart':
-				return <title>{ __( 'Is a product.', 'jetpack' ) }</title>;
+				return __( 'Is a product.', 'jetpack' );
 			case 'chevron-down':
-				return <title>{ __( 'Show filters', 'jetpack' ) }</title>;
+				return __( 'Show filters', 'jetpack' );
 			case 'gridicons-comment':
-				return <title>{ __( 'Matching comment.', 'jetpack' ) }</title>;
+				return __( 'Matching comment.', 'jetpack' );
 			case 'gridicons-cross':
-				return <title>{ __( 'Close.', 'jetpack' ) }</title>;
+				return __( 'Close.', 'jetpack' );
 			case 'gridicons-filter':
-				return <title>{ __( 'Toggle search filters.', 'jetpack' ) }</title>;
+				return __( 'Toggle search filters.', 'jetpack' );
 			case 'gridicons-folder':
-				return <title>{ __( 'Category', 'jetpack' ) }</title>;
+				return __( 'Category', 'jetpack' );
 			case 'gridicons-info':
 			case 'gridicons-info-outline':
-				return <title>{ __( 'Information.', 'jetpack' ) }</title>;
+				return __( 'Information.', 'jetpack' );
 			case 'gridicons-image-multiple':
-				return <title>{ __( 'Has multiple images.', 'jetpack' ) }</title>;
+				return __( 'Has multiple images.', 'jetpack' );
 			case 'gridicons-image':
-				return <title>{ __( 'Has an image.', 'jetpack' ) }</title>;
+				return __( 'Has an image.', 'jetpack' );
 			case 'gridicons-page':
-				return <title>{ __( 'Page', 'jetpack' ) }</title>;
+				return __( 'Page', 'jetpack' );
 			case 'gridicons-post':
-				return <title>{ __( 'Post', 'jetpack' ) }</title>;
+				return __( 'Post', 'jetpack' );
 			case 'gridicons-jetpack-search':
 			case 'gridicons-search':
-				return <title>{ __( 'Magnifying Glass', 'jetpack' ) }</title>;
+				return __( 'Magnifying Glass', 'jetpack' );
 			case 'gridicons-tag':
-				return <title>{ __( 'Tag', 'jetpack' ) }</title>;
+				return __( 'Tag', 'jetpack' );
 			case 'gridicons-video':
-				return <title>{ __( 'Has a video.', 'jetpack' ) }</title>;
+				return __( 'Has a video.', 'jetpack' );
 		}
 	}
 
@@ -236,6 +236,8 @@ class Gridicon extends Component {
 		}
 		iconClass = iconClass.join( ' ' );
 
+		const description = this.getSVGDescription( icon );
+
 		return (
 			<svg
 				className={ iconClass }
@@ -248,7 +250,7 @@ class Gridicon extends Component {
 				xmlns="http://www.w3.org/2000/svg"
 				aria-hidden={ this.props[ 'aria-hidden' ] }
 			>
-				{ this.getSVGTitle( icon ) }
+				{ description ? <desc>{ description }</desc> : null }
 				{ this.renderIcon( icon ) }
 			</svg>
 		);

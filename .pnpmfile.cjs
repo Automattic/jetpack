@@ -40,13 +40,6 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Project is supposedly not dead, but still isn't being updated.
-	// For our purposes at least it seems to work fine with jest-environment-jsdom 28.
-	// https://github.com/enzymejs/enzyme-matchers/issues/353
-	if ( pkg.name === 'jest-environment-enzyme' ) {
-		pkg.dependencies[ 'jest-environment-jsdom' ] = '^28';
-	}
-
 	// Missing dep or peer dep on @wordpress/element.
 	// https://github.com/WordPress/gutenberg/issues/41341
 	// https://github.com/WordPress/gutenberg/issues/41346
@@ -94,10 +87,37 @@ function fixDeps( pkg ) {
 		pkg.dependencies.trim = '^0.0.3';
 	}
 
-	// Cheerio 1.0.0-rc.11 breaks enzyme 3.11.0.
-	// No bug link, we're planning on dropping enzyme soonish anyway.
-	if ( pkg.name === 'enzyme' && pkg.dependencies.cheerio === '^1.0.0-rc.3' ) {
-		pkg.dependencies.cheerio = '^1.0.0-rc.3 <= 1.0.0-rc.10';
+	// @octokit/plugin-paginate-rest included a breaking peer dependency change in v2.21.2.
+	// https://github.com/actions/toolkit/issues/1131
+	if (
+		pkg.name === '@actions/github' &&
+		pkg.dependencies[ '@octokit/plugin-paginate-rest' ]?.startsWith( '^2.' ) &&
+		pkg.dependencies[ '@octokit/core' ]?.startsWith( '^3.' )
+	) {
+		// This should be safe, as both major updates were just dropping node <12 support.
+		pkg.dependencies[ '@octokit/plugin-paginate-rest' ] = '^3';
+		pkg.dependencies[ '@octokit/core' ] = '^4';
+	}
+
+	// Avoid annoying flip-flopping of sub-dep peer deps.
+	// https://github.com/localtunnel/localtunnel/issues/481
+	if ( pkg.name === 'localtunnel' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+	}
+
+	// Convert @testing-library/react's dep on @testing-library/dom to a peer.
+	// https://github.com/testing-library/react-testing-library/issues/906#issuecomment-1180767493
+	if (
+		( pkg.name === '@testing-library/react' || pkg.name === '@testing-library/preact' ) &&
+		pkg.dependencies[ '@testing-library/dom' ]
+	) {
+		pkg.peerDependencies ||= {};
+		pkg.peerDependencies[ '@testing-library/dom' ] = pkg.dependencies[ '@testing-library/dom' ];
+		delete pkg.dependencies[ '@testing-library/dom' ];
 	}
 
 	return pkg;

@@ -3,43 +3,65 @@
 .wp-block-jetpack-videopress {
 	position: relative;
 
-	&.is-placeholder-container {
-		background: $white;
-		color: $gray-900;
-		font-family: $default-font;
-		box-sizing: border-box;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: flex-start;
-		padding: 20px;
-		border: 1px solid $gray-900;
-		border-radius: 2px;
-		font-size: $default-font-size;
-		min-height: 200px;
+	.jetpack-videopress-player {
+		margin: 0;
 	}
-
 
 	&.is-updating-preview {
-		opacity: 0.5;
+		opacity: 0.5; // @todo: consider improve this state in the UI
 	}
 
-	.wp-block-jetpack-videopress__overlay {
+	.jetpack-videopress-player__overlay {
 		position: absolute;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
 		background-color: transparent;
-		z-index: 1;
+		z-index: 2;
 	}
 
-	&.videopress-player {
-		margin: 0;
+	.jetpack-videopress-player__wrapper {
+		iframe.components-sandbox {
+			position: relative;
+			z-index: 1;
+		}
+
+		.jetpack-videopress-player__loading {
+			object-fit: cover;			
+			position: absolute;
+			z-index: 0;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: 13px;
+			animation-name: fadeIn;
+			animation-duration: 0.5s;
+			animation-direction: alternate;
+			animation-iteration-count: infinite;
+		}
 	}
 }
 
-.jetpack-videopress-upload-error-message {
-	color: $alert-red;
-	width: 100%;
+.is-videopress-placeholder {
+	.components-notice {
+		margin-left: 0;
+		box-sizing: border-box;
+		width: 100%;
+		margin-bottom: 12px;
+		padding-right: 12px;
+	}
+
+	.components-placeholder__fieldset {
+		min-height: 82px;
+	}
+}
+
+@keyframes fadeIn {
+    from { opacity: 0.2; }
+    to   { opacity: 0.8; }
 }

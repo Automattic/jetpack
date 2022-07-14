@@ -11,6 +11,11 @@ export async function disableSync() {
 	return execWpCommand( 'jetpack sync disable' );
 }
 
+export async function resetSync() {
+	logger.sync( 'Resetting sync' );
+	return execWpCommand( 'jetpack sync reset' );
+}
+
 export async function getSyncStatus() {
 	logger.sync( 'Checking sync status' );
 	return execWpCommand( 'jetpack sync status' );

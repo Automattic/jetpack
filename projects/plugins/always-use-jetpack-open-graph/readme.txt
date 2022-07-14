@@ -29,11 +29,10 @@ This is great for when you want to use the awesome WP SEO by Yoast plugin or oth
 Jetpack's implementation of Open Graph and Twitter Card tags is the same as what's used on WordPress.com. There's a team of folks who are keeping watch on Facebook and Twitter changes, then improving the code. WP SEO and other plugins do a great job with SEO, so this plugin helps everyone play together nicer.
 
 == Changelog ==
+### 1.0.2 - 2022-07-06
+#### Added
+- Add plugin temporarily to the Jetpack monorepo for automated SVN/WPorg testing.
 
-= 1.0 =
-* Initial Release.
-
-== Upgrade Notice ==
-
-= 1.0 =
-First official release.
+#### Changed
+- Renaming master to trunk.
+- Updated package dependencies.

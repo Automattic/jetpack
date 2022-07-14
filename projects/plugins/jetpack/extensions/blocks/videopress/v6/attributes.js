@@ -2,6 +2,11 @@ export default {
 	autoplay: {
 		type: 'boolean',
 	},
+	caption: {
+		type: 'string',
+		source: 'html',
+		selector: 'figcaption',
+	},
 	controls: {
 		type: 'boolean',
 		default: true,
@@ -48,9 +53,18 @@ export default {
 	src: {
 		type: 'string',
 	},
-
 	cacheHtml: {
 		type: 'string',
 		default: '',
+	},
+	poster: {
+		type: 'string',
+	},
+	cacheThumbnail: {
+		type: 'string',
+		default: '',
+	},
+	videoRatio: {
+		type: 'number',
 	},
 };

@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { EventbriteEdit } from '../edit';
-import '@testing-library/jest-dom';
 
 describe( 'Eventbrite Edit', () => {
 	const defaultAttributes = {
