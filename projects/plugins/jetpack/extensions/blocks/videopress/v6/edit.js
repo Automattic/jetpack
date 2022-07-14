@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 
-import { useBlockProps } from '@wordpress/block-editor';
+import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
 import { Spinner, Placeholder, Button, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -24,11 +24,9 @@ import './editor.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
-const vpPlaceholderIcon = () => <span className="block-editor-block-icon">{ VideoPressIcon }</span>;
-
-export const UploadWrapper = ( { children, errorMessage, onNoticeRemove = () => {} } ) => (
+export const PlaceholderWrapper = ( { children, errorMessage, onNoticeRemove = () => {} } ) => (
 	<Placeholder
-		icon={ vpPlaceholderIcon }
+		icon={ <BlockIcon icon={ VideoPressIcon } /> }
 		label={ title }
 		instructions={ description }
 		className="videopress-uploader is-videopress-placeholder"
@@ -236,18 +234,18 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
 	) {
 		return (
-			<UploadWrapper>
+			<PlaceholderWrapper>
 				<Spinner />
 				{ __( 'Generating preview…', 'jetpack' ) }
 				<strong> { generatingPreviewCounter }</strong>
-			</UploadWrapper>
+			</PlaceholderWrapper>
 		);
 	}
 
 	// 5 - Generating video preview
 	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
 		return (
-			<UploadWrapper
+			<PlaceholderWrapper
 				errorMessage={ __( 'Impossible to get a video preview after ten attempts.', 'jetpack' ) }
 				onNoticeRemove={ invalidateResolution }
 			>
@@ -264,7 +262,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 						{ __( 'Cancel', 'jetpack' ) }
 					</Button>
 				</div>
-			</UploadWrapper>
+			</PlaceholderWrapper>
 		);
 	}
 
