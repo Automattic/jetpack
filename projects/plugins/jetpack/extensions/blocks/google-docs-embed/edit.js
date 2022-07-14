@@ -1,10 +1,7 @@
-/**
- * WordPress dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, SelectControl } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import Embed from './embed';
 import { GOOGLE_DOCUMENT, GOOGLE_SPREADSHEET, GOOGLE_SLIDE } from '.';
 

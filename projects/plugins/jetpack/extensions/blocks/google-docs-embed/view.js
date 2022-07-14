@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import './view.scss';
 import domReady from '@wordpress/dom-ready';
 

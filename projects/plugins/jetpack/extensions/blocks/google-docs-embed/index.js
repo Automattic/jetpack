@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import './editor.scss';
+import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
+import { googleDocIcon, googleSheetIcon, googleSlideIcon } from './icons';
 import save from './save'; // TODO: Replace
 import transforms from './transforms';
 
 // Icons.
-import { googleDocIcon, googleSheetIcon, googleSlideIcon } from './icons';
-import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'google-docs-embed';
 export const type = 'document';

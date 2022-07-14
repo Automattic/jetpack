@@ -1,14 +1,6 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
-import { _x } from '@wordpress/i18n';
-
 import { Button, Placeholder } from '@wordpress/components';
+import { _x } from '@wordpress/i18n';
+import classnames from 'classnames';
 
 const EmbedPlaceHolder = ( {
 	className,

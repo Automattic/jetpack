@@ -1,20 +1,13 @@
-/**
- * Internal dependencies
- */
-import Preview from './preview';
-import EmbedPlaceHolder from './embed-placeholder';
-
-/**
- * WordPress dependencies
- */
-import { __, _x, sprintf } from '@wordpress/i18n';
-import { compose } from '@wordpress/compose';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
 import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
-import { edit } from '@wordpress/icons';
 import { ToolbarGroup, ToolbarButton, withNotices } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
+import { compose } from '@wordpress/compose';
+import { useEffect, useRef, useState } from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
+import { edit } from '@wordpress/icons';
+import EmbedPlaceHolder from './embed-placeholder';
+import Preview from './preview';
 
 /**
  * Render children if there are any, otherwise show the default preview (iframe)
