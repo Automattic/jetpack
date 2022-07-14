@@ -272,9 +272,7 @@ jobs:
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
       - name: Wait for prior instances of the workflow to finish
-        uses: softprops/turnstyle@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/turnstile
 
       - name: Push changed projects
         uses: ./monorepo/projects/github-actions/push-to-mirrors

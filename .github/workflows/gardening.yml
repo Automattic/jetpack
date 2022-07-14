@@ -62,9 +62,7 @@ jobs:
           path: ./pr-checkout
 
       - name: Wait for prior instances of the workflow to finish
-        uses: softprops/turnstyle@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/turnstile
 
       - name: "Run the action (assign, manage milestones, for issues and PRs)"
         uses: ./projects/github-actions/repo-gardening
