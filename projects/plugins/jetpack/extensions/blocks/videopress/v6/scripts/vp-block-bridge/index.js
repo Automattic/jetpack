@@ -70,7 +70,7 @@ const rawScript = `
 				videoPressAction: 'videopress_action_pause',
 			},
 			'vpBlockActionSetCurrentTime': {
-				name: 'vpBlockActionPause',
+				name: 'vpBlockActionSetCurrentTime',
 				type: 'action',
 				videoPressAction: 'videopress_action_set_currenttime',
 			},
