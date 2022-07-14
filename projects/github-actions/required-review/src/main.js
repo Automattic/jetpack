@@ -58,12 +58,6 @@ async function main() {
 		const requirements = await getRequirements();
 		core.startGroup( `Loaded ${ requirements.length } review requirement(s)` );
 
-		const trueValue = [ 'true', 'True', 'TRUE' ]
-		let bFailStatus = false;
-		if (trueValue.includes(core.getInput( 'fail' ))) {
-			bFailStatus = true;
-		};
-
 		const reviewers = await require( './reviewers.js' )();
 		core.startGroup( `Found ${ reviewers.length } reviewer(s)` );
 		reviewers.forEach( r => core.info( r ) );
@@ -95,7 +89,7 @@ async function main() {
 			await reporter.status( reporter.STATE_SUCCESS, 'All required reviews have been provided!' );
 		} else {
 			await reporter.status(
-				bFailStatus ? reporter.STATE_FAILURE : reporter.STATE_PENDING,
+				core.getBooleanInput('fail') ? reporter.STATE_FAILURE : reporter.STATE_PENDING,
 				reviewers.length ? 'Awaiting more reviews...' : 'Awaiting reviews...'
 			);
 		}
