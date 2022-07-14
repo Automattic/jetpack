@@ -74,7 +74,7 @@ export default function VideoPressPlayer( {
 		setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
 
 		setTimeout( () => {
-			// HACK: recalculated in case the sidebar is opened.
+			// Recalculated in case the sidebar is opened.
 			setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
 		}, 0 );
 
