@@ -106,6 +106,7 @@ The bridge triggers the following custom events:
 #### vpBlockActionPlay
 
 #### vpBlockActionPause
+
 #### vpBlockActionPause
 
 ## Debug
