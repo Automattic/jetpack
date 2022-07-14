@@ -25,6 +25,7 @@ export default function save( { attributes } ) {
 		guid,
 		maxWidth,
 		poster,
+		autoplayHovering,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -47,6 +48,10 @@ export default function save( { attributes } ) {
 		poster,
 	} );
 
+	const features = {
+		autoplayHovering,
+	};
+
 	// Adjust block with based on custom maxWidth.
 	const style = {};
 	if ( maxWidth && maxWidth.length > 0 && '100%' !== maxWidth ) {
@@ -55,7 +60,7 @@ export default function save( { attributes } ) {
 	}
 
 	return (
-		<figure { ...blockProps } style={ style }>
+		<figure { ...blockProps } style={ style } data-features={ JSON.stringify( features ) }>
 			<div className="jetpack-videopress-player__wrapper">
 				{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
 			</div>
