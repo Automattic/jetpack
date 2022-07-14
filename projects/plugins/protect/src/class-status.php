@@ -301,12 +301,14 @@ class Status {
 	 */
 	private static function normalize_report_data( $report_data ) {
 		$installed_plugins    = Plugins_Installer::get_plugins();
-		$report_data->plugins = self::merge_installed_and_checked_lists( $installed_plugins, $report_data->plugins, array( 'type' => 'plugin' ) );
+		$last_report_plugins  = isset( $report_data->plugins ) ? $report_data->plugins : new stdClass();
+		$report_data->plugins = self::merge_installed_and_checked_lists( $installed_plugins, $last_report_plugins, array( 'type' => 'plugin' ) );
 
 		$installed_themes    = Sync_Functions::get_themes();
-		$report_data->themes = self::merge_installed_and_checked_lists( $installed_themes, $report_data->themes, array( 'type' => 'theme' ) );
+		$last_report_themes  = isset( $report_data->themes ) ? $report_data->themes : new stdClass();
+		$report_data->themes = self::merge_installed_and_checked_lists( $installed_themes, $last_report_themes, array( 'type' => 'theme' ) );
 
-		$report_data->core = self::normalize_core_information( $report_data->core );
+		$report_data->core = self::normalize_core_information( isset( $report_data->core ) ? $report_data->core : new stdClass() );
 
 		$all_items       = array_merge( $report_data->plugins, $report_data->themes, array( $report_data->core ) );
 		$unchecked_items = array_filter(
