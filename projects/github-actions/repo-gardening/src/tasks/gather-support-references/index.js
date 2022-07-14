@@ -44,16 +44,6 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 	const supportIds = [];
 	const referencesRegexP = /[0-9]*-(?:chat|hc|zen|zd)/gim;
 
-	debug( `gather-support-references: Getting references from comments.` );
-	issueComments.map( comment => {
-		if (
-			comment.user.login !== 'github-actions[bot]' ||
-			! comment.body.includes( '**Support References**' )
-		) {
-			ticketReferences.push( ...comment.body.matchAll( referencesRegexP ) );
-		}
-	} );
-
 	debug( `gather-support-references: Getting references from issue body.` );
 	const {
 		data: { body },
@@ -63,6 +53,16 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 		issue_number: +number,
 	} );
 	ticketReferences.push( ...body.matchAll( referencesRegexP ) );
+
+	debug( `gather-support-references: Getting references from comments.` );
+	issueComments.map( comment => {
+		if (
+			comment.user.login !== 'github-actions[bot]' ||
+			! comment.body.includes( '**Support References**' )
+		) {
+			ticketReferences.push( ...comment.body.matchAll( referencesRegexP ) );
+		}
+	} );
 
 	// Buid a first array with only the support IDs we've collected.
 	ticketReferences.map( reference => {
