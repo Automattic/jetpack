@@ -109,31 +109,20 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 		// First, build a list of all references and whether they are checked or not.
 		const listWithStatusMatch = existingComment.body.matchAll( /^-\s\[x\]\s(\S+)/gm );
 
-		// Build a new array with only checked ticket references.
-		const checkedList = [];
+		// Extract the checked ticket references.
+		const checkedRefs = new Set();
 		for ( const referenceStatus of listWithStatusMatch ) {
-			checkedList.push( referenceStatus[ 1 ] );
+			checkedRefs.add( referenceStatus[ 1 ] );
 		}
-
-		// Remove checked tickets from our existing list of issue references.
-		const uncheckedList = issueReferences.filter(
-			reference => ! checkedList.includes( reference )
-		);
 
 		// Build our comment body, with first the checked references, then the unchecked references.
 		const updatedComment = `**Support References**
-${ checkedList
+${ issueReferences
 	.map(
-		checkedTicket => `
-- [x] ${ checkedTicket }`
+		reference => `
+- [${ checkedRefs.has( reference ) ? 'x' : ' ' }] ${ reference }`
 	)
-	.join( '' ) }${ uncheckedList
-			.map(
-				uncheckedTicket => `
-- [ ] ${ uncheckedTicket }`
-			)
-			.join( '' ) }
-
+	.join( '' ) }
 `;
 
 		await octokit.rest.issues.updateComment( {
