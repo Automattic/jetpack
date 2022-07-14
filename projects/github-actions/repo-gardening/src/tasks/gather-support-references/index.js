@@ -85,6 +85,26 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 }
 
 /**
+ * Build a comment body with a to-do list of all support references on that issue.
+ *
+ * @param {Array} issueReferences - Array of support references.
+ * @param {Set}   checkedRefs     - Set of support references already checked.
+ * @returns {string} Comment body.
+ */
+function buildCommentBody( issueReferences, checkedRefs = new Set() ) {
+	const commentBody = `**Support References**
+${ issueReferences
+	.map(
+		reference => `
+- [${ checkedRefs.has( reference ) ? 'x' : ' ' }] ${ reference }`
+	)
+	.join( '' ) }
+`;
+
+	return commentBody;
+}
+
+/**
  * Creates or updates a comment on issue.
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
@@ -116,14 +136,7 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 		}
 
 		// Build our comment body, with first the checked references, then the unchecked references.
-		const updatedComment = `**Support References**
-${ issueReferences
-	.map(
-		reference => `
-- [${ checkedRefs.has( reference ) ? 'x' : ' ' }] ${ reference }`
-	)
-	.join( '' ) }
-`;
+		const updatedComment = buildCommentBody( issueReferences, checkedRefs );
 
 		await octokit.rest.issues.updateComment( {
 			owner: ownerLogin,
@@ -135,15 +148,8 @@ ${ issueReferences
 		// If no comment was published before, publish one now.
 		debug( `gather-support-references: Posting comment to issue #${ number }` );
 
-		const comment = `**Support References**
-${ issueReferences
-	.map(
-		reference => `
-- [ ] ${ reference }`
-	)
-	.join( '' ) }
+		const comment = buildCommentBody( issueReferences );
 
-`;
 		await octokit.rest.issues.createComment( {
 			owner: ownerLogin,
 			repo,
