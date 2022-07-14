@@ -23,8 +23,6 @@ class VideoPress_Shortcode {
 
 		add_filter( 'wp_video_shortcode_override', array( $this, 'video_shortcode_override' ), 10, 4 );
 
-		add_filter( 'oembed_fetch_url', array( $this, 'add_oembed_for_parameter' ) );
-
 		$this->add_video_embed_hander();
 	}
 
@@ -240,22 +238,6 @@ class VideoPress_Shortcode {
 		}
 
 		return '';
-	}
-
-	/**
-	 * Adds a `for` query parameter to the oembed provider request URL.
-	 *
-	 * @param String $oembed_provider URL of the oEmbed provider.
-	 * @return String $ehnanced_oembed_provider
-	 */
-	public function add_oembed_for_parameter( $oembed_provider ) {
-		$providers = array( 'videopress.com', 'v.wordpress.com' );
-		foreach ( $providers as $provider ) {
-			if ( false !== stripos( $oembed_provider, $provider ) ) {
-				return add_query_arg( 'for', wp_parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
-			}
-		}
-		return $oembed_provider;
 	}
 
 	/**
