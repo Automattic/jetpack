@@ -3,7 +3,7 @@
  */
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button } from '@wordpress/components';
+import { Button, withNotices, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
@@ -54,10 +54,8 @@ const UploadProgress = ( { progress, file } ) => {
 };
 
 const UploadError = ( { message, onRetry, onCancel } ) => {
-	const errorMessage = message ?? __( 'Failed to upload your video. Please try again.', 'jetpack' );
-
 	return (
-		<PlaceholderWrapper errorMessage={ errorMessage } onNoticeRemove={ onCancel }>
+		<PlaceholderWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
 			<div className="videopress-uploader__error-actions">
 				<Button variant="primary" onClick={ onRetry }>
 					{ __( 'Try again', 'jetpack' ) }
@@ -70,7 +68,7 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 	);
 };
 
-const VideoPressUploader = ( { attributes, setAttributes } ) => {
+const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperations } ) => {
 	/*
 	 * Storing the file to get it name and size for progress.
 	 */
@@ -191,8 +189,17 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
+		if ( media.videopress_guid ) {
+			const videoUrl = `https://videopress.com/v/${ media.videopress_guid[ 0 ] }`;
+			if ( getGuidFromVideoUrl( videoUrl ) ) {
+				return onSelectURL( videoUrl );
+			}
+		}
 		const fileUrl = media?.url;
 		if ( ! isBlobURL( fileUrl ) ) {
+			setUploadErrorDataState( {
+				data: { message: __( 'Please select a VideoPress video', 'jetpack' ) },
+			} );
 			return;
 		}
 
@@ -206,6 +213,35 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 		startUpload( file );
 	}
 
+	const getErrorMessage = () => {
+		if ( ! uploadErrorData ) {
+			return '';
+		}
+
+		let errorMessage =
+			uploadErrorData?.data?.message ||
+			__( 'Failed to upload your video. Please try again.', 'jetpack' );
+
+		// Let's give this error a better message.
+		if ( errorMessage === 'Invalid Mime' ) {
+			errorMessage = (
+				<>
+					{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
+					&nbsp;
+					<ExternalLink
+						href="https://wordpress.com/support/videopress/recommended-video-settings/"
+						target="_blank"
+						rel="noreferrer"
+					>
+						{ __( 'Check the recommended video settings.', 'jetpack' ) }
+					</ExternalLink>
+				</>
+			);
+		}
+
+		return errorMessage;
+	};
+
 	// Showing error if upload fails
 	if ( uploadErrorData ) {
 		const onRetry = () => {
@@ -218,13 +254,7 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 			setUploadErrorData( null );
 		};
 
-		return (
-			<UploadError
-				onRetry={ onRetry }
-				onCancel={ onCancel }
-				message={ uploadErrorData?.data?.message }
-			/>
-		);
+		return <UploadError onRetry={ onRetry } onCancel={ onCancel } message={ getErrorMessage() } />;
 	}
 
 	// Uploading file to backend
@@ -247,12 +277,13 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 			accept="video/*"
 			allowedTypes={ ALLOWED_MEDIA_TYPES }
 			value={ attributes }
+			notices={ noticeUI }
 			onError={ function ( error ) {
-				// eslint-disable-next-line no-console
-				console.error( 'Error: ', error );
+				noticeOperations.removeAllNotices();
+				noticeOperations.createErrorNotice( error );
 			} }
 		/>
 	);
 };
 
-export default VideoPressUploader;
+export default withNotices( VideoPressUploader );

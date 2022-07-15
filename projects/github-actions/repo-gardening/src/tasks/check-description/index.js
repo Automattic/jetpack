@@ -3,6 +3,7 @@ const path = require( 'path' );
 const moment = require( 'moment' );
 const debug = require( '../../debug' );
 const getAffectedChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
+const getComments = require( '../../get-comments' );
 const getFiles = require( '../../get-files' );
 const getLabels = require( '../../get-labels' );
 const getNextValidMilestone = require( '../../get-next-valid-milestone' );
@@ -173,20 +174,15 @@ async function getCheckComment( octokit, owner, repo, number ) {
 
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
-		owner,
-		repo,
-		issue_number: +number,
-	} ) ) {
-		response.data.map( comment => {
-			if (
-				comment.user.login === 'github-actions[bot]' &&
-				comment.body.includes( '**Thank you for your PR!**' )
-			) {
-				commentID = comment.id;
-			}
-		} );
-	}
+	const comments = await getComments( octokit, owner, repo, number );
+	comments.map( comment => {
+		if (
+			comment.user.login === 'github-actions[bot]' &&
+			comment.body.includes( '**Thank you for your PR!**' )
+		) {
+			commentID = comment.id;
+		}
+	} );
 
 	return commentID;
 }
