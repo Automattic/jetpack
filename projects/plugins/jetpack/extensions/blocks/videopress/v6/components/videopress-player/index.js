@@ -199,12 +199,7 @@ export default function VideoPressPlayer( {
 	return (
 		<>
 			<InspectorControls>
-				<AutoplayControl
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-					isSelected={ isSelected }
-					wrapperRef={ ref }
-				/>
+				<AutoplayControl attributes={ attributes } setAttributes={ setAttributes } />
 			</InspectorControls>
 			<figure className="jetpack-videopress-player">
 				<ResizableBox

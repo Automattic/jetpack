@@ -1,14 +1,18 @@
 /**
  * External dependencies
  */
-import { PanelBody, ToggleControl, RangeControl } from '@wordpress/components';
-import { useState, useEffect, useCallback } from '@wordpress/element';
+import { PanelBody, ToggleControl, RangeControl, SandBox } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
+import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { debounce } from 'lodash';
-import dispatchPlayerAction from '../../utils/dispatcher';
 /**
  * Internal dependencies
  */
+import { getVideoPressUrl } from '../../../url';
+import vpBlockBridge from '../../scripts/vp-block-bridge';
+import dispatchPlayerAction from '../../utils/dispatcher';
 import { renderControlLabelWithTooltip } from '../inspector-controls';
 
 const debouncedOnChange = debounce( ( domElement, currentTime ) => {
@@ -19,12 +23,35 @@ const debouncedOnChange = debounce( ( domElement, currentTime ) => {
 	dispatchPlayerAction( domElement, 'videopress_action_set_currenttime', {
 		currentTime,
 	} );
+
+	dispatchPlayerAction( domElement, 'videopress_action_play' );
+	setTimeout( () => dispatchPlayerAction( domElement, 'videopress_action_pause' ), 0 );
 }, 250 );
 
-export default function AutoplayControl( { attributes, setAttributes, wrapperRef } ) {
-	const { autoplay, autoplayHovering, autoplayHoveringStart } = attributes;
+export default function AutoplayControl( { attributes, setAttributes } ) {
+	const { autoplay, autoplayHovering, autoplayHoveringStart, guid } = attributes;
+
+	const wrapperRef = useRef();
 
 	const [ videoDuration, setVideoDuration ] = useState();
+
+	const videoPressUrl = getVideoPressUrl( guid, {
+		autoplay: false,
+		muted: true,
+		playsinline: false,
+	} );
+
+	// Get video preview status.
+	const { preview } = useSelect(
+		select => {
+			return {
+				preview: select( coreStore ).getEmbedPreview( videoPressUrl ) || false,
+				isRequestingEmbedPreview:
+					select( coreStore ).isRequestingEmbedPreview( videoPressUrl ) || false,
+			};
+		},
+		[ videoPressUrl ]
+	);
 
 	function onChangeAutoplayHoveringStartHandler( newTimeValue ) {
 		const iFrameRef = wrapperRef?.current?.querySelector( 'iframe' );
@@ -88,15 +115,18 @@ export default function AutoplayControl( { attributes, setAttributes, wrapperRef
 					/>
 
 					{ autoplayHovering && (
-						<RangeControl
-							label={ __( 'Time start position', 'jetpack' ) }
-							min={ 0 }
-							max={ videoDuration }
-							initialPosition={ 0 }
-							value={ autoplayHoveringStart }
-							onChange={ onChangeAutoplayHoveringStartHandler }
-							withInputField={ false }
-						/>
+						<div ref={ wrapperRef }>
+							<SandBox html={ preview?.html } scripts={ [ vpBlockBridge ] } />
+
+							<RangeControl
+								min={ 0 }
+								max={ videoDuration }
+								initialPosition={ 0 }
+								value={ autoplayHoveringStart }
+								onChange={ onChangeAutoplayHoveringStartHandler }
+								withInputField={ false }
+							/>
+						</div>
 					) }
 				</>
 			) }
