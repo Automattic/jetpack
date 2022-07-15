@@ -36,10 +36,10 @@ export default function save( { attributes } ) {
 	} );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: autoplayHovering ? false : autoplay,
 		controls,
 		loop,
-		muted,
+		muted: muted || autoplayHovering,
 		playsinline,
 		preload,
 		seekbarColor,
