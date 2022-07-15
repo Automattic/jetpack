@@ -26,6 +26,7 @@ export default function save( { attributes } ) {
 		maxWidth,
 		poster,
 		autoplayHovering,
+		autoplayHoveringStart,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -50,6 +51,7 @@ export default function save( { attributes } ) {
 
 	const features = {
 		autoplayHovering,
+		autoplayHoveringStart,
 	};
 
 	// Adjust block with based on custom maxWidth.
