@@ -3,8 +3,8 @@
  */
 import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl, Tooltip, SelectControl } from '@wordpress/components';
+import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
@@ -22,6 +22,8 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 		autoplayHovering,
 	} = attributes;
 
+	const [ , setVideoDuration ] = useState();
+
 	const renderControlLabelWithTooltip = ( label, tooltipText ) => {
 		return (
 			<Tooltip text={ tooltipText } position="top">
@@ -38,6 +40,22 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 		},
 		[ setAttributes ]
 	);
+
+	const onVideoPressDurationChangeHandler = useCallback( ( { detail } ) => {
+		if ( ! detail?.duration ) {
+			return;
+		}
+
+		setVideoDuration( detail.duration );
+	}, [] );
+
+	useEffect( () => {
+		window.addEventListener( 'onVideoPressDurationChange', onVideoPressDurationChangeHandler );
+
+		return () => {
+			window.removeEventListener( 'onVideoPressDurationChange', onVideoPressDurationChangeHandler );
+		};
+	}, [ onVideoPressDurationChangeHandler ] );
 
 	/* translators: Tooltip describing the "autoplay-hovering" option for the VideoPress player */
 	const autoplayHoveringHelp = __( 'Play automatically when hovering over it', 'jetpack' );
