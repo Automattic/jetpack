@@ -5,6 +5,10 @@ export default {
 	autoplayHovering: {
 		type: 'boolean',
 	},
+	autoplayHoveringStart: {
+		type: 'integer',
+		default: 0,
+	},
 	caption: {
 		type: 'string',
 		source: 'html',
