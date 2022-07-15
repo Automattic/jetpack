@@ -5,6 +5,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { VIDEO_AUTOPLAY_DURATION } from './constants';
 import dispatchPlayerAction from './utils/dispatcher';
 import './style.scss';
 
@@ -29,7 +30,7 @@ function initVideoPressBlocks( blockDOMReference ) {
 		return;
 	}
 
-	const { autoplayHovering } = features;
+	const { autoplayHovering, autoplayHoveringStart } = features;
 
 	// Autoplay hover feature.
 	const playerIFrame = blockDOMReference.querySelector( 'iframe' );
@@ -41,7 +42,7 @@ function initVideoPressBlocks( blockDOMReference ) {
 			if (
 				data?.event !== 'videopress_timeupdate' ||
 				! data?.currentTime ||
-				data.currentTime < 5 // @todo: make it customizable
+				data.currentTime < autoplayHoveringStart + VIDEO_AUTOPLAY_DURATION
 			) {
 				return;
 			}
@@ -52,7 +53,7 @@ function initVideoPressBlocks( blockDOMReference ) {
 		// Add the autoplay hover feature.
 		blockDOMReference.addEventListener( 'mouseenter', () => {
 			dispatchPlayerAction( playerIFrame, 'videopress_action_set_currenttime', {
-				currentTime: 0,
+				currentTime: autoplayHoveringStart,
 			} );
 			dispatchPlayerAction( playerIFrame, 'videopress_action_play' );
 		} );
