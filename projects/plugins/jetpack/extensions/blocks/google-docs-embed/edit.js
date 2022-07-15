@@ -98,10 +98,12 @@ const GsuiteBlockEdit = props => {
 					icon={ icon.src }
 					instructions={
 						<p>
-							Copy and paste your document link below.
+							{ __( 'Copy and paste your document link below.', 'jetpack' ) }
 							<br />
-							If your document is private, only readers logged into a Google account with shared
-							access to the document may view it.
+							{ __(
+								'If your document is private, only readers logged into a Google account with shared access to the document may view it.',
+								'jetpack'
+							) }
 						</p>
 					}
 					label={ title }

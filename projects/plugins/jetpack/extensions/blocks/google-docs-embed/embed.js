@@ -78,7 +78,7 @@ const Edit = props => {
 		icon = 'superhero-alt',
 		instructions = __( 'Paste a link to the content you want to display.', 'jetpack' ),
 		forceEditing = false,
-		mismatchErrorMessage = 'It does not look like an embeddable URL.',
+		mismatchErrorMessage = __( 'It does not look like an embeddable URL.', 'jetpack' ),
 		label,
 		mapUrl = url => url,
 		noticeOperations,
