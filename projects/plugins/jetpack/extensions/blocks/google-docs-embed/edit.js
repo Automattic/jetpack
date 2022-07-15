@@ -34,21 +34,20 @@ const GsuiteBlockEdit = props => {
 			title = GOOGLE_DOCUMENT.title;
 			patterns = GOOGLE_DOCUMENT.patterns;
 			type = GOOGLE_DOCUMENT.type;
-
 			break;
+
 		case 'google-sheets':
 			icon = GOOGLE_SPREADSHEET.icon;
 			title = GOOGLE_SPREADSHEET.title;
 			patterns = GOOGLE_SPREADSHEET.patterns;
 			type = GOOGLE_SPREADSHEET.type;
-
 			break;
+
 		case 'google-slides':
 			icon = GOOGLE_SLIDE.icon;
 			title = GOOGLE_SLIDE.title;
 			patterns = GOOGLE_SLIDE.patterns;
 			type = GOOGLE_SLIDE.type;
-
 			break;
 	}
 
