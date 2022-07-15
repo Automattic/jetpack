@@ -44,39 +44,7 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 
 	return (
 		<InspectorControls>
-			<PanelBody title={ __( 'Video Settings', 'jetpack' ) }>
-				<ToggleControl
-					label={ renderControlLabelWithTooltip(
-						__( 'Autoplay', 'jetpack' ),
-						/* translators: Tooltip describing the "autoplay" option for the VideoPress player */
-						__( 'Start playing the video as soon as the page loads', 'jetpack' )
-					) }
-					onChange={ handleAttributeChange( 'autoplay' ) }
-					checked={ autoplay }
-					help={
-						autoplay
-							? __(
-									'Note: Autoplaying videos may cause usability issues for some visitors.',
-									'jetpack'
-							  )
-							: null
-					}
-				/>
-
-				{ autoplay && (
-					<>
-						<ToggleControl
-							label={ renderControlLabelWithTooltip(
-								__( 'Autoplay when hovering', 'jetpack' ),
-								autoplayHoveringHelp
-							) }
-							onChange={ handleAttributeChange( 'autoplayHovering' ) }
-							checked={ autoplayHovering }
-							help={ autoplayHoveringHelp }
-						/>
-					</>
-				) }
-
+			<PanelBody title={ __( 'General Settings', 'jetpack' ) }>
 				<ToggleControl
 					label={ renderControlLabelWithTooltip(
 						__( 'Loop', 'jetpack' ),
@@ -134,6 +102,40 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 							: null
 					}
 				/>
+			</PanelBody>
+
+			<PanelBody title={ __( 'Autoplay Settings', 'jetpack' ) }>
+				<ToggleControl
+					label={ renderControlLabelWithTooltip(
+						__( 'Autoplay', 'jetpack' ),
+						/* translators: Tooltip describing the "autoplay" option for the VideoPress player */
+						__( 'Start playing the video as soon as the page loads', 'jetpack' )
+					) }
+					onChange={ handleAttributeChange( 'autoplay' ) }
+					checked={ autoplay }
+					help={
+						autoplay
+							? __(
+									'Note: Autoplaying videos may cause usability issues for some visitors.',
+									'jetpack'
+							  )
+							: null
+					}
+				/>
+
+				{ autoplay && (
+					<>
+						<ToggleControl
+							label={ renderControlLabelWithTooltip(
+								__( 'Autoplay when hovering', 'jetpack' ),
+								autoplayHoveringHelp
+							) }
+							onChange={ handleAttributeChange( 'autoplayHovering' ) }
+							checked={ autoplayHovering }
+							help={ autoplayHoveringHelp }
+						/>
+					</>
+				) }
 			</PanelBody>
 
 			<SeekbarColorSettings
