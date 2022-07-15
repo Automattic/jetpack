@@ -1,0 +1,2 @@
+export const VIDEO_AUTOPLAY_DURATION = 5;
+export const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;

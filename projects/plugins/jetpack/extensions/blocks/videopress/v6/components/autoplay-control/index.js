@@ -11,11 +11,10 @@ import { debounce } from 'lodash';
  * Internal dependencies
  */
 import { getVideoPressUrl } from '../../../url';
+import { VIDEO_AUTOPLAY_DURATION } from '../../constants';
 import vpBlockBridge from '../../scripts/vp-block-bridge';
 import dispatchPlayerAction from '../../utils/dispatcher';
 import { renderControlLabelWithTooltip } from '../inspector-controls';
-
-const AUTOPLAY_DURATION = 5;
 
 const debouncedOnChange = debounce( ( domElement, currentTime ) => {
 	if ( ! domElement ) {
@@ -66,7 +65,7 @@ export default function AutoplayControl( { attributes, setAttributes } ) {
 			return;
 		}
 
-		setVideoDuration( detail.duration - AUTOPLAY_DURATION );
+		setVideoDuration( detail.duration - VIDEO_AUTOPLAY_DURATION );
 	}, [] );
 
 	const onVideoPressLoadingStateHandler = useCallback( () => {

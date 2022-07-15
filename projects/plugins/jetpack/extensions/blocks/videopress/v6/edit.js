@@ -18,11 +18,9 @@ import VideoPressInspectorControls from './components/inspector-controls';
 import PosterImageBlockControl from './components/poster-image-block-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
+import { VIDEO_PREVIEW_ATTEMPTS_LIMIT } from './constants';
 import { description, title } from '.';
-
 import './editor.scss';
-
-const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
 export const PlaceholderWrapper = withNotices( function ( {
 	children,
