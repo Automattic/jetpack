@@ -3,19 +3,21 @@ import domReady from '@wordpress/dom-ready';
 
 const showError = () => {
 	const embeds = document.querySelectorAll( '.wp-block-jetpack-google-docs-embed' );
-
 	//if no embed block then bail
 	if ( ! embeds ) {
 		return;
 	}
 
+	const errorMsg = window.Jetpack_Google_Docs.error_msg;
+	if ( ! errorMsg ) {
+		return;
+	}
+	const privateErrorMsg = `<p class="wp-block-jetpack-google-docs-embed__error-msg">${ errorMsg }</p>`;
+
 	//for each embed block select the iframe within
 	embeds.forEach( embed => {
 		const embedIframe = embed.querySelector( 'iframe' );
 		const loader = embed.querySelector( '.loader' );
-
-		const privateErrorMsg =
-			'<p class="wp-block-jetpack-google-docs-embed__error-msg">This document is private. To view the document, login to a Google account that the document has been shared with and then refresh this page.</p>';
 
 		//if there isn't an iframe inside then bail
 		if ( ! embedIframe ) {
@@ -25,7 +27,9 @@ const showError = () => {
 		// Check if it's presentation block.
 		const embedUrlComponents = embedIframe
 			.getAttribute( 'src' )
-			.match( /^(http|https):\/\/(docs\.google.com)\/presentation\/d\/([A-Za-z0-9_-]+).*?$/i );
+			.match(
+				/^(http|https):\/\/(docs\.google.com)\/(spreadsheets|document|presentation)\/d\/([A-Za-z0-9_-]+).*?$/i
+			);
 
 		// If it's not the presentation URL, return early with necessary action.
 		if (

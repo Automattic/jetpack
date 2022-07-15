@@ -38,11 +38,18 @@ add_action( 'init', __NAMESPACE__ . '\register_blocks' );
  */
 function render_callback( $attributes ) {
 
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	wp_localize_script(
+		'jetpack-block-' . sanitize_title_with_dashes( FEATURE_NAME ),
+		'Jetpack_Google_Docs',
+		array(
+			'error_msg' => __( 'This document is private. To view the document, login to a Google account that the document has been shared with and then refresh this page.', 'jetpack' ),
+		)
+	);
+
 	$url          = empty( $attributes['url'] ) ? '' : map_gsuite_url( $attributes['url'] );
 	$align        = empty( $attributes['align'] ) ? '' : $attributes['align'];
 	$aspect_ratio = empty( $attributes['aspectRatio'] ) ? '' : $attributes['aspectRatio'];
-
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	switch ( $attributes['variation'] ) {
 		case 'google-docs':
