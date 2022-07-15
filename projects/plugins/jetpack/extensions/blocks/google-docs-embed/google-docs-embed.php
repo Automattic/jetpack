@@ -86,11 +86,17 @@ function render_callback( $attributes ) {
 			$type = empty( $type ) && false !== strpos( $url, '/presentation/d/' ) ? __( 'Google Slides', 'jetpack' ) : $type;
 
 			$iframe_markup = '';
-			$amp_markup    = sprintf(
-				'<p class="wp-block-jetpack-google-docs-embed__error-msg"><a target="_blank" rel="noopener noreferrer" href="%s">%s %s</a>.</p>',
-				esc_url( $url ),
-				esc_html__( 'Tap to open embedded document in', 'jetpack' ),
+
+			$amp_markup_message .= sprintf(
+				/* translators: Placeholder is a google product, eg. Google Docs, Google Sheets, or Google Slides. */
+				__( 'Tap to open embedded document in %s.', 'jetpack' ),
 				esc_html( $type )
+			);
+
+			$amp_markup = sprintf(
+				'<p class="wp-block-jetpack-google-docs-embed__error-msg"><a target="_blank" rel="noopener noreferrer" href="%s">%s</a></p>',
+				esc_url( $url ),
+				$amp_markup_message
 			);
 
 		} else {

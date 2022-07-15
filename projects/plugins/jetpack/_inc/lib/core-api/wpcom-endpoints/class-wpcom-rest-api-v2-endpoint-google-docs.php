@@ -52,7 +52,7 @@ class WPCOM_REST_API_V2_Endpoint_Google_Docs extends WP_REST_Controller {
 		$is_public_document = ! is_wp_error( $response_head ) && ! empty( $response_head['response']['code'] ) && 200 === absint( $response_head['response']['code'] );
 
 		if ( ! $is_public_document ) {
-			return new \WP_Error( 'Unauthorized', 'The document is not publicly accessible', array( 'status' => 401 ) );
+			return new \WP_Error( 'Unauthorized', esc_html__( 'The document is not publicly accessible', 'jetpack' ), array( 'status' => 401 ) );
 		}
 
 		return new \WP_REST_Response( '', 200 );
