@@ -1,44 +1,13 @@
-import {
-	InnerBlocks,
-	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
-	store as blockEditorStore,
-} from '@wordpress/block-editor';
+import { InnerBlocks, store as blockEditorStore } from '@wordpress/block-editor';
 import { cloneBlock, createBlock, getBlockType, registerBlockVariation } from '@wordpress/blocks';
-import { Button, Modal, Placeholder } from '@wordpress/components';
+import { Placeholder } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
 import PaymentsIntroBlockPicker from './block-picker';
+import PaymentsIntroPatternPicker from './pattern-picker';
 import defaultVariations from './variations';
-
-const JetpackPatternPicker = function ( { onBlockPatternSelect, patternFilter } ) {
-	const [ isPatternSelectionModalOpen, setIsPatternSelectionModalOpen ] = useState( false );
-
-	return (
-		<>
-			<Button
-				variant="primary"
-				onClick={ () => setIsPatternSelectionModalOpen( true ) }
-				className="wp-payments-intro-pattern-picker__opener"
-			>
-				{ __( 'Choose a pattern', 'jetpack' ) }
-			</Button>
-			{ isPatternSelectionModalOpen && (
-				<Modal
-					title={ __( 'Choose a pattern', 'jetpack' ) }
-					closeLabel={ __( 'Cancel', 'jetpack' ) }
-					onRequestClose={ () => setIsPatternSelectionModalOpen( false ) }
-				>
-					<BlockPatternSetup
-						onBlockPatternSelect={ onBlockPatternSelect }
-						filterPatternsFn={ patternFilter }
-					/>
-				</Modal>
-			) }
-		</>
-	);
-};
 
 export default function JetpackPaymentsIntroEdit( { name, clientId, className } ) {
 	const patternFilter = pattern => {
@@ -88,7 +57,7 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 			>
 				{ hasPatterns && (
 					<>
-						<JetpackPatternPicker
+						<PaymentsIntroPatternPicker
 							onBlockPatternSelect={ blocks => {
 								const clonedBlocks = blocks.map( block => cloneBlock( block ) );
 								replaceBlock( clientId, clonedBlocks );
