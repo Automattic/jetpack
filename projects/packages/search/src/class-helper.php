@@ -843,6 +843,7 @@ class Helper {
 			$excluded_post_types = array();
 		}
 
+		$is_wpcom                  = static::is_wpcom();
 		$is_private_site           = '-1' === get_option( 'blog_public' );
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
@@ -868,13 +869,13 @@ class Helper {
 			'siteId'                => self::get_wpcom_site_id(),
 			'postTypes'             => $post_type_labels,
 			'webpackPublicPath'     => plugins_url( '/build/instant-search/', __DIR__ ),
-			'isPhotonEnabled'       => ( static::is_wpcom() || $is_jetpack_photon_enabled ) && ! $is_private_site,
+			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
 
 			// config values related to private site support.
 			'apiRoot'               => esc_url_raw( rest_url() ),
 			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
 			'isPrivateSite'         => $is_private_site,
-			'isWpcom'               => static::is_wpcom(),
+			'isWpcom'               => $is_wpcom,
 
 			// widget info.
 			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
