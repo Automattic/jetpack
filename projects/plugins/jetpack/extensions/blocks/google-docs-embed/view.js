@@ -27,9 +27,7 @@ const showError = () => {
 		// Check if it's presentation block.
 		const embedUrlComponents = embedIframe
 			.getAttribute( 'src' )
-			.match(
-				/^(http|https):\/\/(docs\.google.com)\/(spreadsheets|document|presentation)\/d\/([A-Za-z0-9_-]+).*?$/i
-			);
+			.match( /^(http|https):\/\/(docs\.google.com)\/presentation\/d\/([A-Za-z0-9_-]+).*?$/i );
 
 		// If it's not the presentation URL, return early with necessary action.
 		if (
@@ -40,22 +38,33 @@ const showError = () => {
 		) {
 			loader.classList.remove( 'is-active' );
 
-			// Remove iframe and show an error msg
-			if ( Object.keys( embedIframe.contentWindow ).length === 0 ) {
-				embed.innerHTML = privateErrorMsg;
-			}
+			// Add on load event for the iframe to check it's visibility.
+			embedIframe.addEventListener( 'load', function () {
+				if ( Object.keys( this.contentWindow ).length === 0 ) {
+					// Remove iframe and show an error msg
+					embed.innerHTML = privateErrorMsg;
+				}
+			} );
 
 			return;
 		}
 
-		const embedUrl = `${ embedUrlComponents[ 1 ] }://${ embedUrlComponents[ 2 ] }/${ embedUrlComponents[ 3 ] }/d/${ embedUrlComponents[ 4 ] }/preview`;
+		const presentationId = embedUrlComponents[ 3 ];
+		const editUrl = `https://docs.google.com/presentation/d/${ presentationId }/edit`;
+		const actualEmbedUrl = `https://docs.google.com/presentation/d/${ presentationId }/embed`;
 
 		// Try enbedding Edit URL.
-		embedIframe.setAttribute( 'src', embedUrl );
+		embedIframe.setAttribute( 'src', editUrl );
 
 		// Add on load event for the iframe to check it's visibility.
 		embedIframe.addEventListener( 'load', function () {
-			loader.classList.remove( 'is-active' );
+			if (
+				actualEmbedUrl === embedIframe.getAttribute( 'src' ) ||
+				editUrl !== embedIframe.getAttribute( 'src' )
+			) {
+				loader.classList.remove( 'is-active' );
+				return;
+			}
 
 			// When a document is private and the reader doesn't have permission to view it,
 			// Google attempts to redirect to a login page on accounts.google.com, which fails.
@@ -64,8 +73,11 @@ const showError = () => {
 			if ( Object.keys( this.contentWindow ).length === 0 ) {
 				// Remove iframe and show an error msg
 				embed.innerHTML = privateErrorMsg;
+			} else {
+				embedIframe.setAttribute( 'src', actualEmbedUrl );
 			}
 		} );
+		return;
 	} );
 };
 
