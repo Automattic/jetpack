@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { InspectorControls } from '@wordpress/block-editor';
-import { Panel, PanelBody, ToggleControl, Tooltip, SelectControl } from '@wordpress/components';
+import { PanelBody, ToggleControl, Tooltip, SelectControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 /**
@@ -39,11 +39,8 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 		[ setAttributes ]
 	);
 
-	/* translators: Tooltip describing the "controls" option for the VideoPress player */
-	const autoplayHoveringHelp = __(
-		'The video will be automatically played when hovering over it. To avoid usability issues, initially the video will be muted.',
-		'jetpack'
-	);
+	/* translators: Tooltip describing the "autoplay-hovering" option for the VideoPress player */
+	const autoplayHoveringHelp = __( 'Play automatically when hovering over it', 'jetpack' );
 
 	return (
 		<InspectorControls>
@@ -65,6 +62,21 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 							: null
 					}
 				/>
+
+				{ autoplay && (
+					<>
+						<ToggleControl
+							label={ renderControlLabelWithTooltip(
+								__( 'Autoplay when hovering', 'jetpack' ),
+								autoplayHoveringHelp
+							) }
+							onChange={ handleAttributeChange( 'autoplayHovering' ) }
+							checked={ autoplayHovering }
+							help={ autoplayHoveringHelp }
+						/>
+					</>
+				) }
+
 				<ToggleControl
 					label={ renderControlLabelWithTooltip(
 						__( 'Loop', 'jetpack' ),
@@ -123,20 +135,6 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 					}
 				/>
 			</PanelBody>
-
-			<Panel>
-				<PanelBody title={ __( 'Interactive autoplay', 'jetpack' ) } initialOpen={ true }>
-					<ToggleControl
-						label={ renderControlLabelWithTooltip(
-							__( 'Autoplay when hovering', 'jetpack' ),
-							autoplayHoveringHelp
-						) }
-						onChange={ handleAttributeChange( 'autoplayHovering' ) }
-						checked={ autoplayHovering }
-						help={ autoplayHoveringHelp }
-					/>
-				</PanelBody>
-			</Panel>
 
 			<SeekbarColorSettings
 				{ ...{ attributes, setAttributes, useAverageColor } }
