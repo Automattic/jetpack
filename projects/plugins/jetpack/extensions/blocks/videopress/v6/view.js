@@ -36,6 +36,19 @@ function initVideoPressBlocks( blockDOMReference ) {
 	if ( autoplayHovering && playerIFrame ) {
 		debug( 'adding autoplay hover feature' );
 
+		window.addEventListener( 'message', event => {
+			const { data } = event;
+			if (
+				data?.event !== 'videopress_timeupdate' ||
+				! data?.currentTime ||
+				data.currentTime < 5 // @todo: make it customizable
+			) {
+				return;
+			}
+
+			dispatchPlayerAction( playerIFrame, 'videopress_action_pause' );
+		} );
+
 		// Add the autoplay hover feature.
 		blockDOMReference.addEventListener( 'mouseenter', () => {
 			dispatchPlayerAction( playerIFrame, 'videopress_action_set_currenttime', {

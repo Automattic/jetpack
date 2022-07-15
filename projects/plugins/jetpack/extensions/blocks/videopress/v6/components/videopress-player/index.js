@@ -135,6 +135,10 @@ export default function VideoPressPlayer( {
 
 	const onVideoPressTimeUpdateHandler = useCallback(
 		( { detail } ) => {
+			if ( ! autoplayHovering ) {
+				return;
+			}
+
 			const { currentTime } = detail;
 			if ( ! currentTime || currentTime < 5 ) {
 				return;
@@ -142,7 +146,7 @@ export default function VideoPressPlayer( {
 
 			pauseVideo();
 		},
-		[ pauseVideo ]
+		[ pauseVideo, autoplayHovering ]
 	);
 
 	useEffect( () => {

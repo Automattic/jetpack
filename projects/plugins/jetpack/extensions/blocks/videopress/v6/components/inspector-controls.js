@@ -41,7 +41,7 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 
 	/* translators: Tooltip describing the "controls" option for the VideoPress player */
 	const autoplayHoveringHelp = __(
-		'The video will be automatically played when hovering over it, and stopped when leaving.',
+		'The video will be automatically played when hovering over it. To avoid usability issues, initially the video will be muted.',
 		'jetpack'
 	);
 
