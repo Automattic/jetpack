@@ -33,7 +33,7 @@ const RenderPreview = ( {
 } ) => {
 	useEffect( () => {
 		if ( checkDocumentVisibility ) {
-			apiFetch( { path: `/gsuite/v1/checkDocumentVisibility?url=${ url }` } ).catch( () => {
+			apiFetch( { path: `/wpcom/v2/checkDocumentVisibility?url=${ url }` } ).catch( () => {
 				noticeOperations.removeAllNotices();
 				noticeOperations.createNotice( {
 					status: 'warning',
