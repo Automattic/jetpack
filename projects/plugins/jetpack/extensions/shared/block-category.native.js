@@ -1,10 +1,10 @@
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import { JetpackLogo, JetpackPoweredBadge } from './icons';
+import { JetpackLogo } from './icons';
 
 registerBlockCollection( 'jetpack', {
-	title: 'Jetpack',
-	icon: <JetpackPoweredBadge />,
+	title: 'Jetpack powered',
+	icon: <JetpackLogo />,
 } );
 
 setCategories( [
