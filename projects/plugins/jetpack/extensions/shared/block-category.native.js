@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { JetpackLogo } from './icons';
 
 registerBlockCollection( 'jetpack', {
-	title: 'Jetpack powered',
+	title: __( 'Jetpack powered', 'jetpack' ),
 	icon: <JetpackLogo />,
 } );
 
