@@ -52,6 +52,7 @@ export default function save( { attributes } ) {
 	const features = {
 		autoplayHovering,
 		autoplayHoveringStart,
+		guid,
 	};
 
 	// Adjust block with based on custom maxWidth.
