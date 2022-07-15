@@ -69,13 +69,16 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		poster,
 		align,
 		videoRatio,
+		autoplayHovering,
 	} = attributes;
+
+	const isVideoMuted = autoplayHovering || muted;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
 		controls,
 		loop,
-		muted,
+		muted: isVideoMuted,
 		playsinline,
 		preload,
 		seekbarColor,
