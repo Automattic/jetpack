@@ -240,7 +240,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
-[0.8.15]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.15...v0.8.15.1
+[0.8.15.1]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.15...v0.8.15.1
 [0.8.15]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.14...v0.8.15
 [0.8.14]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.13...v0.8.14
 [0.8.13]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.12...v0.8.13
