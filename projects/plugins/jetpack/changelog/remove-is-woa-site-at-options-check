@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: The `is_woa_site` function is now decoupled from the `at_options` option, but this is a WP.com change only
+
+
