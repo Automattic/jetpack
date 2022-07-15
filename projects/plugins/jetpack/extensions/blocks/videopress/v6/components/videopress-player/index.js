@@ -164,14 +164,14 @@ export default function VideoPressPlayer( {
 		}
 
 		const mainWrapper = ref.current;
-		mainWrapper.addEventListener( 'mouseenter', () => autoPlaybackVideo( true ) );
-		mainWrapper.addEventListener( 'mouseleave', () => autoPauseVideo( true ) );
+		mainWrapper.addEventListener( 'mouseenter', autoPlaybackVideo );
+		mainWrapper.addEventListener( 'mouseleave', autoPauseVideo );
 
 		return function () {
-			mainWrapper.removeEventListener( 'mouseenter', () => autoPlaybackVideo( true ) );
-			mainWrapper.removeEventListener( 'mouseleave', () => autoPauseVideo( true ) );
+			mainWrapper.removeEventListener( 'mouseenter', autoPlaybackVideo );
+			mainWrapper.removeEventListener( 'mouseleave', autoPauseVideo );
 		};
-	}, [ autoPauseVideo, autoPlaybackVideo, preview ] );
+	}, [ autoPauseVideo, autoPlaybackVideo ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
