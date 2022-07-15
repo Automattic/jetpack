@@ -47,9 +47,7 @@ export default function VideoPressPlayer( {
 	const ref = useRef();
 	const { maxWidth, caption, videoRatio, autoplayHovering } = attributes;
 
-	// Pick up iFrame and sandbox window references.
-	const iFrameDomReference = ref?.current?.querySelector( 'iframe' );
-	const sandboxWindow = iFrameDomReference?.contentWindow;
+	const isAutoplayHoveringEnabled = autoplayHovering && isSelected;
 
 	/*
 	 * Temporary height is used to set the height of the video
@@ -110,8 +108,8 @@ export default function VideoPressPlayer( {
 	/**
 	 * Helper function to play the video.
 	 */
-	const playbackVideo = useCallback( () => {
-		if ( ! preview || ! autoplayHovering ) {
+	const autoPlaybackVideo = useCallback( () => {
+		if ( ! preview || ! isAutoplayHoveringEnabled ) {
 			return;
 		}
 
@@ -120,22 +118,22 @@ export default function VideoPressPlayer( {
 		} );
 
 		dispatchPlayerAction( sandboxIFrame, 'videopress_action_play' );
-	}, [ autoplayHovering, preview, sandboxIFrame ] );
+	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame ] );
 
 	/**
 	 * Helper function to pause the video.
 	 */
-	const pauseVideo = useCallback( () => {
-		if ( ! preview || ! autoplayHovering ) {
+	const autoPauseVideo = useCallback( () => {
+		if ( ! preview || ! isAutoplayHoveringEnabled ) {
 			return;
 		}
 
 		dispatchPlayerAction( sandboxIFrame, 'videopress_action_pause' );
-	}, [ autoplayHovering, preview, sandboxIFrame ] );
+	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame ] );
 
 	const onVideoPressTimeUpdateHandler = useCallback(
 		( { detail } ) => {
-			if ( ! autoplayHovering ) {
+			if ( ! isAutoplayHoveringEnabled ) {
 				return;
 			}
 
@@ -144,9 +142,9 @@ export default function VideoPressPlayer( {
 				return;
 			}
 
-			pauseVideo();
+			autoPauseVideo();
 		},
-		[ pauseVideo, autoplayHovering ]
+		[ autoPauseVideo, isAutoplayHoveringEnabled ]
 	);
 
 	useEffect( () => {
@@ -166,14 +164,14 @@ export default function VideoPressPlayer( {
 		}
 
 		const mainWrapper = ref.current;
-		mainWrapper.addEventListener( 'mouseenter', playbackVideo );
-		mainWrapper.addEventListener( 'mouseleave', pauseVideo );
+		mainWrapper.addEventListener( 'mouseenter', () => autoPlaybackVideo( true ) );
+		mainWrapper.addEventListener( 'mouseleave', () => autoPauseVideo( true ) );
 
 		return function () {
-			mainWrapper.removeEventListener( 'mouseenter', playbackVideo );
-			mainWrapper.removeEventListener( 'mouseleave', pauseVideo );
+			mainWrapper.removeEventListener( 'mouseenter', () => autoPlaybackVideo( true ) );
+			mainWrapper.removeEventListener( 'mouseleave', () => autoPauseVideo( true ) );
 		};
-	}, [ pauseVideo, playbackVideo, preview ] );
+	}, [ autoPauseVideo, autoPlaybackVideo, preview ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
