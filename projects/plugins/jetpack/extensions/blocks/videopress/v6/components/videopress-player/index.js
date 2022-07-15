@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { RichText } from '@wordpress/block-editor';
+import { InspectorControls, RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -11,6 +11,7 @@ import debugFactory from 'debug';
  */
 import vpBlockBridge from '../../scripts/vp-block-bridge';
 import dispatchPlayerAction from '../../utils/dispatcher';
+import AutoplayControl from '../autoplay-control';
 
 // Global scripts array to be run in the Sandbox context.
 const globalScripts = [];
@@ -45,7 +46,7 @@ export default function VideoPressPlayer( {
 	preview,
 } ) {
 	const ref = useRef();
-	const { maxWidth, caption, videoRatio, autoplayHovering } = attributes;
+	const { maxWidth, caption, videoRatio, autoplayHovering, autoplayHoveringStart } = attributes;
 
 	const isAutoplayHoveringEnabled = autoplayHovering && isSelected;
 
@@ -114,11 +115,11 @@ export default function VideoPressPlayer( {
 		}
 
 		dispatchPlayerAction( sandboxIFrame, 'videopress_action_set_currenttime', {
-			currentTime: 0,
+			currentTime: autoplayHoveringStart,
 		} );
 
 		dispatchPlayerAction( sandboxIFrame, 'videopress_action_play' );
-	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame ] );
+	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame, autoplayHoveringStart ] );
 
 	/**
 	 * Helper function to pause the video.
@@ -138,13 +139,13 @@ export default function VideoPressPlayer( {
 			}
 
 			const { currentTime } = detail;
-			if ( ! currentTime || currentTime < 5 ) {
+			if ( ! currentTime || currentTime < autoplayHoveringStart + 5 ) {
 				return;
 			}
 
 			autoPauseVideo();
 		},
-		[ autoPauseVideo, isAutoplayHoveringEnabled ]
+		[ autoPauseVideo, isAutoplayHoveringEnabled, autoplayHoveringStart ]
 	);
 
 	useEffect( () => {
@@ -196,39 +197,49 @@ export default function VideoPressPlayer( {
 	}
 
 	return (
-		<figure className="jetpack-videopress-player">
-			<ResizableBox
-				enable={ {
-					top: false,
-					bottom: false,
-					left: true,
-					right: true,
-				} }
-				maxWidth="100%"
-				size={ { width: maxWidth } }
-				style={ { margin: 'auto' } }
-				onResizeStop={ onBlockResize }
-			>
-				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
-				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
-					<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
-					{ ! isVideoLoaded && (
-						<div className="jetpack-videopress-player__loading">
-							{ __( 'Loading…', 'jetpack' ) }
-						</div>
-					) }
-				</div>
-			</ResizableBox>
-
-			{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
-				<RichText
-					tagName="figcaption"
-					placeholder={ __( 'Write caption…', 'jetpack' ) }
-					value={ caption }
-					onChange={ value => setAttributes( { caption: value } ) }
-					inlineToolbar
+		<>
+			<InspectorControls>
+				<AutoplayControl
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					isSelected={ isSelected }
+					wrapperRef={ ref }
 				/>
-			) }
-		</figure>
+			</InspectorControls>
+			<figure className="jetpack-videopress-player">
+				<ResizableBox
+					enable={ {
+						top: false,
+						bottom: false,
+						left: true,
+						right: true,
+					} }
+					maxWidth="100%"
+					size={ { width: maxWidth } }
+					style={ { margin: 'auto' } }
+					onResizeStop={ onBlockResize }
+				>
+					{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
+					<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
+						<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
+						{ ! isVideoLoaded && (
+							<div className="jetpack-videopress-player__loading">
+								{ __( 'Loading…', 'jetpack' ) }
+							</div>
+						) }
+					</div>
+				</ResizableBox>
+
+				{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
+					<RichText
+						tagName="figcaption"
+						placeholder={ __( 'Write caption…', 'jetpack' ) }
+						value={ caption }
+						onChange={ value => setAttributes( { caption: value } ) }
+						inlineToolbar
+					/>
+				) }
+			</figure>
+		</>
 	);
 }

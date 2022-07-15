@@ -2,42 +2,24 @@
  * WordPress dependencies
  */
 import { InspectorControls } from '@wordpress/block-editor';
-import {
-	PanelBody,
-	ToggleControl,
-	Tooltip,
-	SelectControl,
-	RangeControl,
-} from '@wordpress/components';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { PanelBody, ToggleControl, Tooltip, SelectControl } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import SeekbarColorSettings from './seekbar-color-settings';
 
+export const renderControlLabelWithTooltip = ( label, tooltipText ) => {
+	return (
+		<Tooltip text={ tooltipText } position="top">
+			<span>{ label }</span>
+		</Tooltip>
+	);
+};
+
 export default function VideoPressInspectorControls( { attributes, setAttributes } ) {
-	const {
-		autoplay,
-		loop,
-		muted,
-		controls,
-		playsinline,
-		preload,
-		useAverageColor,
-		autoplayHovering,
-		autoplayHoveringStart,
-	} = attributes;
-
-	const [ videoDuration, setVideoDuration ] = useState();
-
-	const renderControlLabelWithTooltip = ( label, tooltipText ) => {
-		return (
-			<Tooltip text={ tooltipText } position="top">
-				<span>{ label }</span>
-			</Tooltip>
-		);
-	};
+	const { loop, muted, controls, playsinline, preload, useAverageColor } = attributes;
 
 	const handleAttributeChange = useCallback(
 		attributeName => {
@@ -47,25 +29,6 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 		},
 		[ setAttributes ]
 	);
-
-	const onVideoPressDurationChangeHandler = useCallback( ( { detail } ) => {
-		if ( ! detail?.duration ) {
-			return;
-		}
-
-		setVideoDuration( detail.duration );
-	}, [] );
-
-	useEffect( () => {
-		window.addEventListener( 'onVideoPressDurationChange', onVideoPressDurationChangeHandler );
-
-		return () => {
-			window.removeEventListener( 'onVideoPressDurationChange', onVideoPressDurationChangeHandler );
-		};
-	}, [ onVideoPressDurationChangeHandler ] );
-
-	/* translators: Tooltip describing the "autoplay-hovering" option for the VideoPress player */
-	const autoplayHoveringHelp = __( 'Play automatically when hovering over it', 'jetpack' );
 
 	return (
 		<InspectorControls>
@@ -127,52 +90,6 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 							: null
 					}
 				/>
-			</PanelBody>
-
-			<PanelBody title={ __( 'Autoplay Settings', 'jetpack' ) }>
-				<ToggleControl
-					label={ renderControlLabelWithTooltip(
-						__( 'Autoplay', 'jetpack' ),
-						/* translators: Tooltip describing the "autoplay" option for the VideoPress player */
-						__( 'Start playing the video as soon as the page loads', 'jetpack' )
-					) }
-					onChange={ handleAttributeChange( 'autoplay' ) }
-					checked={ autoplay }
-					help={
-						autoplay
-							? __(
-									'Note: Autoplaying videos may cause usability issues for some visitors.',
-									'jetpack'
-							  )
-							: null
-					}
-				/>
-
-				{ autoplay && (
-					<>
-						<ToggleControl
-							label={ renderControlLabelWithTooltip(
-								__( 'Autoplay when hovering', 'jetpack' ),
-								autoplayHoveringHelp
-							) }
-							onChange={ handleAttributeChange( 'autoplayHovering' ) }
-							checked={ autoplayHovering }
-							help={ autoplayHoveringHelp }
-						/>
-
-						{ autoplayHovering && (
-							<RangeControl
-								label={ __( 'Time start position', 'jetpack' ) }
-								min={ 0 }
-								max={ videoDuration }
-								initialPosition={ 0 }
-								value={ autoplayHoveringStart }
-								onChange={ handleAttributeChange( 'autoplayHoveringStart' ) }
-								withInputField={ false }
-							/>
-						) }
-					</>
-				) }
 			</PanelBody>
 
 			<SeekbarColorSettings
