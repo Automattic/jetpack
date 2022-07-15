@@ -15,6 +15,8 @@ import vpBlockBridge from '../../scripts/vp-block-bridge';
 import dispatchPlayerAction from '../../utils/dispatcher';
 import { renderControlLabelWithTooltip } from '../inspector-controls';
 
+const AUTOPLAY_DURATION = 5;
+
 const debouncedOnChange = debounce( ( domElement, currentTime ) => {
 	if ( ! domElement ) {
 		return;
@@ -64,16 +66,23 @@ export default function AutoplayControl( { attributes, setAttributes } ) {
 			return;
 		}
 
-		setVideoDuration( detail.duration );
+		setVideoDuration( detail.duration - AUTOPLAY_DURATION );
 	}, [] );
 
+	const onVideoPressLoadingStateHandler = useCallback( () => {
+		const iFrameRef = wrapperRef?.current?.querySelector( 'iframe' );
+		debouncedOnChange( iFrameRef, autoplayHoveringStart );
+	}, [ autoplayHoveringStart ] );
+
 	useEffect( () => {
+		window.addEventListener( 'onVideoPressLoadingState', onVideoPressLoadingStateHandler );
 		window.addEventListener( 'onVideoPressDurationChange', onVideoPressDurationChangeHandler );
 
 		return () => {
 			window.removeEventListener( 'onVideoPressDurationChange', onVideoPressDurationChangeHandler );
+			window.removeEventListener( 'onVideoPressLoadingState', onVideoPressLoadingStateHandler );
 		};
-	}, [ onVideoPressDurationChangeHandler ] );
+	}, [ onVideoPressDurationChangeHandler, onVideoPressLoadingStateHandler ] );
 
 	/* translators: Tooltip describing the "autoplay-hovering" option for the VideoPress player */
 	const autoplayHoveringHelp = __( 'Play automatically when hovering over it', 'jetpack' );
