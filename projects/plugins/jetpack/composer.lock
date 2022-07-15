@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2643c595f3464fd283f47a9ab35562a3",
+    "content-hash": "f028d504e85fb474d0dada252f332f7f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -566,16 +566,16 @@
         },
         {
             "name": "automattic/jetpack-connection-ui",
-            "version": "v2.4.11",
+            "version": "v2.4.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection-ui.git",
-                "reference": "c3435d3a98eaf5804df629438f2aa3e1231a5c44"
+                "reference": "52ff6a9c8681697f19e846fc4446936f790bec62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection-ui/zipball/c3435d3a98eaf5804df629438f2aa3e1231a5c44",
-                "reference": "c3435d3a98eaf5804df629438f2aa3e1231a5c44",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection-ui/zipball/52ff6a9c8681697f19e846fc4446936f790bec62",
+                "reference": "52ff6a9c8681697f19e846fc4446936f790bec62",
                 "shasum": ""
             },
             "require": {
@@ -611,9 +611,9 @@
             ],
             "description": "Jetpack Connection UI",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection-ui/tree/v2.4.11"
+                "source": "https://github.com/Automattic/jetpack-connection-ui/tree/v2.4.9.1"
             },
-            "time": "2022-07-12T14:01:54+00:00"
+            "time": "2022-07-15T20:55:06+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
@@ -796,16 +796,16 @@
         },
         {
             "name": "automattic/jetpack-identity-crisis",
-            "version": "v0.8.17",
+            "version": "v0.8.15.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-identity-crisis.git",
-                "reference": "4eb4cbf380bbacf68ef8b1b642225429bef3e4c1"
+                "reference": "c9c0bcf8b06c0824bcf2938b02149f1fceeddf2f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-identity-crisis/zipball/4eb4cbf380bbacf68ef8b1b642225429bef3e4c1",
-                "reference": "4eb4cbf380bbacf68ef8b1b642225429bef3e4c1",
+                "url": "https://api.github.com/repos/Automattic/jetpack-identity-crisis/zipball/c9c0bcf8b06c0824bcf2938b02149f1fceeddf2f",
+                "reference": "c9c0bcf8b06c0824bcf2938b02149f1fceeddf2f",
                 "shasum": ""
             },
             "require": {
@@ -846,9 +846,9 @@
             ],
             "description": "Identity Crisis.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-identity-crisis/tree/v0.8.17"
+                "source": "https://github.com/Automattic/jetpack-identity-crisis/tree/v0.8.15.1"
             },
-            "time": "2022-07-12T14:01:45+00:00"
+            "time": "2022-07-15T20:44:55+00:00"
         },
         {
             "name": "automattic/jetpack-jitm",
@@ -1054,16 +1054,16 @@
         },
         {
             "name": "automattic/jetpack-my-jetpack",
-            "version": "v1.7.4",
+            "version": "v1.7.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-my-jetpack.git",
-                "reference": "7cb6f85c42ce5eead4163f5e9ff91954960c1f59"
+                "reference": "d60ac9432bb6663b182bc1b96274286fe10767dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/7cb6f85c42ce5eead4163f5e9ff91954960c1f59",
-                "reference": "7cb6f85c42ce5eead4163f5e9ff91954960c1f59",
+                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/d60ac9432bb6663b182bc1b96274286fe10767dc",
+                "reference": "d60ac9432bb6663b182bc1b96274286fe10767dc",
                 "shasum": ""
             },
             "require": {
@@ -1107,9 +1107,9 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v1.7.4"
+                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v1.7.2.1"
             },
-            "time": "2022-07-12T14:01:52+00:00"
+            "time": "2022-07-15T20:51:56+00:00"
         },
         {
             "name": "automattic/jetpack-partner",
@@ -1401,16 +1401,16 @@
         },
         {
             "name": "automattic/jetpack-search",
-            "version": "v0.15.4",
+            "version": "v0.15.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-search.git",
-                "reference": "4a14f9014be76fd977a4fd968dbb0590737a6a4a"
+                "reference": "fe354c96e198dba47f7492d21a5920464ee7ac63"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/4a14f9014be76fd977a4fd968dbb0590737a6a4a",
-                "reference": "4a14f9014be76fd977a4fd968dbb0590737a6a4a",
+                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/fe354c96e198dba47f7492d21a5920464ee7ac63",
+                "reference": "fe354c96e198dba47f7492d21a5920464ee7ac63",
                 "shasum": ""
             },
             "require": {
@@ -1452,9 +1452,9 @@
             ],
             "description": "Tools to assist with enabling cloud search for Jetpack sites.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-search/tree/v0.15.4"
+                "source": "https://github.com/Automattic/jetpack-search/tree/v0.15.3.1"
             },
-            "time": "2022-07-06T12:33:00+00:00"
+            "time": "2022-07-15T20:57:32+00:00"
         },
         {
             "name": "automattic/jetpack-status",
@@ -1615,16 +1615,16 @@
         },
         {
             "name": "automattic/jetpack-wordads",
-            "version": "v0.2.9",
+            "version": "v0.2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-wordads.git",
-                "reference": "661e0f44d2944d4c90f08138cd76d9acae259a4b"
+                "reference": "9f2586f16af7c3c719d7c21563199596a5b0383a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-wordads/zipball/661e0f44d2944d4c90f08138cd76d9acae259a4b",
-                "reference": "661e0f44d2944d4c90f08138cd76d9acae259a4b",
+                "url": "https://api.github.com/repos/Automattic/jetpack-wordads/zipball/9f2586f16af7c3c719d7c21563199596a5b0383a",
+                "reference": "9f2586f16af7c3c719d7c21563199596a5b0383a",
                 "shasum": ""
             },
             "require": {
@@ -1664,9 +1664,9 @@
             ],
             "description": "Earn income by allowing Jetpack to display high quality ads.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-wordads/tree/v0.2.9"
+                "source": "https://github.com/Automattic/jetpack-wordads/tree/v0.2.7.1"
             },
-            "time": "2022-07-12T14:01:47+00:00"
+            "time": "2022-07-15T21:00:19+00:00"
         },
         {
             "name": "nojimage/twitter-text-php",
