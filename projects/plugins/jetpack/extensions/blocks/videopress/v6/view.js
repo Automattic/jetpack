@@ -40,14 +40,12 @@ function initVideoPressBlocks( blockDOMReference ) {
 		window.addEventListener( 'message', event => {
 			const { data } = event;
 			if (
-				data?.event !== 'videopress_timeupdate' ||
-				! data?.currentTime ||
-				data.currentTime < autoplayHoveringStart + VIDEO_AUTOPLAY_DURATION
+				data?.event === 'videopress_timeupdate' &&
+				data?.currentTime &&
+				data.currentTime > autoplayHoveringStart + VIDEO_AUTOPLAY_DURATION
 			) {
-				return;
+				dispatchPlayerAction( playerIFrame, 'videopress_action_pause' );
 			}
-
-			dispatchPlayerAction( playerIFrame, 'videopress_action_pause' );
 		} );
 
 		// Add the autoplay hover feature.
@@ -60,6 +58,9 @@ function initVideoPressBlocks( blockDOMReference ) {
 
 		blockDOMReference.addEventListener( 'mouseleave', () => {
 			dispatchPlayerAction( playerIFrame, 'videopress_action_pause' );
+			dispatchPlayerAction( playerIFrame, 'videopress_action_set_currenttime', {
+				currentTime: autoplayHoveringStart,
+			} );
 		} );
 	}
 }

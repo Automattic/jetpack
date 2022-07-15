@@ -130,7 +130,10 @@ export default function VideoPressPlayer( {
 		}
 
 		dispatchPlayerAction( sandboxIFrame, 'videopress_action_pause' );
-	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame ] );
+		dispatchPlayerAction( sandboxIFrame, 'videopress_action_set_currenttime', {
+			currentTime: autoplayHoveringStart,
+		} );
+	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame, autoplayHoveringStart ] );
 
 	const onVideoPressTimeUpdateHandler = useCallback(
 		( { detail } ) => {
