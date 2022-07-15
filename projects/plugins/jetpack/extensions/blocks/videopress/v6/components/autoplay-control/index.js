@@ -124,8 +124,11 @@ export default function AutoplayControl( { attributes, setAttributes } ) {
 					/>
 
 					{ autoplayHovering && (
-						<div ref={ wrapperRef }>
-							<SandBox html={ preview?.html } scripts={ [ vpBlockBridge ] } />
+						<>
+							<div className="components-autoplay-control" ref={ wrapperRef }>
+								<div className="jetpack-videopress-player__overlay" />
+								<SandBox html={ preview?.html } scripts={ [ vpBlockBridge ] } />
+							</div>
 
 							<RangeControl
 								min={ 0 }
@@ -135,7 +138,7 @@ export default function AutoplayControl( { attributes, setAttributes } ) {
 								onChange={ onChangeAutoplayHoveringStartHandler }
 								withInputField={ false }
 							/>
-						</div>
+						</>
 					) }
 				</>
 			) }
