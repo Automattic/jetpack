@@ -308,7 +308,7 @@ class Status {
 		$last_report_themes  = isset( $report_data->themes ) ? $report_data->themes : new \stdClass();
 		$report_data->themes = self::merge_installed_and_checked_lists( $installed_themes, $last_report_themes, array( 'type' => 'theme' ) );
 
-		$report_data->core = self::normalize_core_information( isset( $report_data->core ) ? $report_data->core : new \stdClass() );
+		$report_data->core = self::normalize_core_information( isset( $report_data->core ) ? $report_data->core : false );
 
 		$all_items       = array_merge( $report_data->plugins, $report_data->themes, array( $report_data->core ) );
 		$unchecked_items = array_filter(
