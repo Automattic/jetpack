@@ -174,7 +174,15 @@ const Admin = () => {
 		<Col lg={ 6 } md={ 4 }>
 			<ContextualUpgradeTrigger
 				description={ 'Was it easy to restore your site?' }
-				cta={ __( 'Please leave a review and help us spread the word!', 'jetpack-backup-pkg' ) }
+				cta={ createInterpolateElement(
+					__(
+						'<strong>Please leave a review and help us spread the word!</strong>',
+						'jetpack-backup-pkg'
+					),
+					{
+						strong: <strong></strong>,
+					}
+				) }
 				// eslint-disable-next-line react/jsx-no-bind
 				onClick={ sendToReview }
 			/>
