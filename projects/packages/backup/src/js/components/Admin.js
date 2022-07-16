@@ -13,10 +13,6 @@ import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import {
-	JETPACK_BACKUP_PRODUCTS,
-	JETPACK_PLANS_WITH_BACKUP,
-} from '../../../../../../projects/plugins/jetpack/_inc/client/lib/plans/constants';
 import useAnalytics from '../hooks/useAnalytics';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
@@ -35,6 +31,7 @@ const Admin = () => {
 	const [ price, setPrice ] = useState( 0 );
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
 	const [ restores, setRestores ] = useState( [] );
+	//eslint-disable-next-line no-unused-vars
 	const [ currentPurchases, setCurrentPurchases ] = useState( [] );
 	const { tracks } = useAnalytics();
 
@@ -102,7 +99,6 @@ const Admin = () => {
 			// Number of days we consider the restore recent
 			const maxDays = 15;
 			const daysDifference = ( new Date() - Date.parse( restores[ 0 ].when ) ) / 86400000;
-
 			if ( daysDifference < maxDays ) {
 				return true;
 			}
@@ -110,33 +106,16 @@ const Admin = () => {
 		return false;
 	};
 
-	const hasThreeMonthsSub = () => {
-		// TODO add logic for multiple purchases
-		// check if older purchases come first or last on sites with multiple purchases
-		for ( const purchase of currentPurchases ) {
-			const isBackupPlan =
-				JETPACK_BACKUP_PRODUCTS.includes( purchase.product_slug ) ||
-				JETPACK_PLANS_WITH_BACKUP.includes( purchase.product_slug );
-			const isActive = purchase.subscription_status === 'active';
-
-			if ( isBackupPlan && isActive ) {
-				const subscriptionTimeInDays =
-					( new Date() - Date.parse( purchase.subscribed_date ) ) / 86400000;
-				if ( subscriptionTimeInDays > 90 ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	};
-
-	const sendToCart = () => {
+	const sendToCart = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_plugin_upgrade_click', { site: domain } );
 		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
-	};
+	}, [ tracks, domain ] );
 
-	const sendToReview = () => {
+	const sendToReview = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_new_review_click' );
 		window.location.href = getRedirectUrl( 'jetpack-backup-new-review' );
-	};
+	}, [ tracks ] );
+
 	const trackLearnMoreClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_learn_more_click' );
 	}, [ tracks ] );
@@ -191,27 +170,17 @@ const Admin = () => {
 		);
 	};
 
-	const renderReviewMessage = () => {
-		let reviewMessage = '';
+	const ReviewMessage = () => (
+		<Col lg={ 6 } md={ 4 }>
+			<ContextualUpgradeTrigger
+				description={ 'Was it easy to restore your site?' }
+				cta={ __( 'Please leave a review and help us spread the word!', 'jetpack-backup-pkg' ) }
+				// eslint-disable-next-line react/jsx-no-bind
+				onClick={ sendToReview }
+			/>
+		</Col>
+	);
 
-		if ( hasRecentSuccesfulRestore() ) {
-			reviewMessage = __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' );
-		} else if ( hasThreeMonthsSub() ) {
-			reviewMessage = __( 'Placeholder message for time based trigger', 'jetpack-backup-pkg' );
-		} else {
-			return;
-		}
-		return (
-			<Col lg={ 6 } md={ 4 }>
-				<ContextualUpgradeTrigger
-					description={ reviewMessage }
-					cta={ __( 'Please leave a review and help us spread the word!', 'jetpack-backup-pkg' ) }
-					// eslint-disable-next-line react/jsx-no-bind
-					onClick={ sendToReview }
-				/>
-			</Col>
-		);
-	};
 	const renderLoadedState = () => {
 		if (
 			! connectionLoaded ||
@@ -325,7 +294,7 @@ const Admin = () => {
 						</p>
 					) }
 				</Col>
-				{ renderReviewMessage() }
+				{ hasRecentSuccesfulRestore() && <ReviewMessage /> }
 			</Container>
 		);
 	};
