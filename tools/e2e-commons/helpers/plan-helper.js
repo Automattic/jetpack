@@ -526,17 +526,15 @@ function getPlan( type ) {
 export async function syncPlanData( page ) {
 	let isSame = false;
 	let fePlan = null;
-	let bePlan = null;
+
+	const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
+	const bePlan = JSON.parse( planJson );
 
 	let i = 0;
 	do {
 		await page.reload( { waitFor: 'domcontentloaded' } );
-
 		// eslint-disable-next-line no-undef, camelcase
 		fePlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
-		bePlan = JSON.parse( planJson );
-
 		logger.debug( `PLANS: frontend: ${ fePlan }, backend: ${ bePlan.product_slug }` );
 		isSame = fePlan.trim() === bePlan.product_slug.trim();
 		i = i + 1;
