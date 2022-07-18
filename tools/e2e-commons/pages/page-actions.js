@@ -299,7 +299,13 @@ export default class PageActions {
 	 */
 	async isElementVisible( selector, timeout = this.timeout ) {
 		logger.action( `Checking if element '${ selector }' is visible` );
-		return await this.page.isVisible( selector, { timeout } );
+		try {
+			await this.page.locator( selector ).waitFor( { timeout } );
+			return true;
+		} catch ( e ) {
+			logger.warn( `Element '${ selector }' was not visible. Waited for ${ timeout }ms` );
+			return false;
+		}
 	}
 
 	/**
