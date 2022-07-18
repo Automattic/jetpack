@@ -2,34 +2,20 @@
  * External dependencies
  */
 import { RichText, useBlockProps } from '@wordpress/block-editor';
-import { store as coreStore } from '@wordpress/core-data';
-import { select } from '@wordpress/data';
 import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import { getVideoPressUrl } from '../url';
 
 export default function save( { attributes } ) {
 	const {
 		align,
-		autoplay,
 		caption,
-		loop,
-		muted,
-		controls,
-		playsinline,
-		preload,
-		useAverageColor,
-		seekbarColor,
-		seekbarLoadingColor,
-		seekbarPlayedColor,
-		guid,
 		maxWidth,
-		poster,
 		autoplayHovering,
 		autoplayHoveringStart,
 		videoRatio,
+		cacheHtml,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -38,29 +24,10 @@ export default function save( { attributes } ) {
 		} ),
 	} );
 
-	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay: autoplayHovering ? false : autoplay, // disable autoplay when hovering
-		controls,
-		loop,
-		muted: muted || autoplayHovering,
-		playsinline,
-		preload,
-		seekbarColor,
-		seekbarLoadingColor,
-		seekbarPlayedColor,
-		useAverageColor,
-		poster,
-	} );
-
-	const preview = select( coreStore ).getEmbedPreview( videoPressUrl ) || false;
-
 	const features = {
 		autoplayHovering,
 		autoplayHoveringStart,
-		guid,
 	};
-
-	const html = preview ? preview.html : null;
 
 	// Adjust block with based on custom maxWidth.
 	const style = {
@@ -81,7 +48,7 @@ export default function save( { attributes } ) {
 			{ ...blockProps }
 			style={ style }
 			data-features={ JSON.stringify( features ) }
-			data-html={ JSON.stringify( html ) }
+			data-html={ JSON.stringify( cacheHtml ) }
 		>
 			<iframe
 				className="videoplayer-sandbox"
