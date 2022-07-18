@@ -525,19 +525,19 @@ function getPlan( type ) {
 
 export async function syncPlanData( page ) {
 	let isSame = false;
-	let frPlan = null;
-	let bkPlan = null;
+	let fePlan = null;
+	let bePlan = null;
 
 	// todo set a limit here to avoid infinite loop in case plans are never the same?
 	do {
 		await page.reload( { waitFor: 'domcontentloaded' } );
 
 		// eslint-disable-next-line no-undef, camelcase
-		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		fePlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 		const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
-		bkPlan = JSON.parse( planJson );
+		bePlan = JSON.parse( planJson );
 
-		logger.debug( `PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
-		isSame = frPlan.trim() === bkPlan.product_slug.trim();
+		logger.debug( `PLANS: frontend: ${ fePlan }, backend: ${ bePlan.product_slug }` );
+		isSame = fePlan.trim() === bePlan.product_slug.trim();
 	} while ( ! isSame );
 }
