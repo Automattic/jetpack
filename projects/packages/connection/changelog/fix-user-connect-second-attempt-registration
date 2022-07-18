@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix site registration for the `connect_url_redirect` webhook.
+
+
