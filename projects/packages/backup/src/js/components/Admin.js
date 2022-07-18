@@ -128,7 +128,7 @@ const Admin = () => {
 		tracks.recordEvent( 'jetpack_backup_see_site_activity_click', { site: domain } );
 	}, [ tracks, domain ] );
 
-	const renderNoBackupCapabilities = () => {
+	const NoBackupCapabilities = () => {
 		const basicInfoText = __( '14 day money back guarantee.', 'jetpack-backup-pkg' );
 		const introductoryInfoText = __(
 			'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
@@ -189,7 +189,7 @@ const Admin = () => {
 		</Col>
 	);
 
-	const renderLoadedState = () => {
+	const LoadedState = () => {
 		if (
 			! connectionLoaded ||
 			! connectionStatus.isUserConnected ||
@@ -238,11 +238,11 @@ const Admin = () => {
 			);
 		}
 
-		return renderNoBackupCapabilities();
+		return <NoBackupCapabilities />;
 	};
 
 	// Renders additional segments under the jp-hero area condition on having a backup plan
-	const renderBackupSegments = () => {
+	const BackupSegments = () => {
 		return (
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col lg={ 6 } md={ 4 }>
@@ -307,11 +307,13 @@ const Admin = () => {
 		);
 	};
 
-	const renderContent = () => {
+	const Content = () => {
 		return (
 			<div className="content">
-				<AdminSectionHero>{ renderLoadedState() }</AdminSectionHero>
-				<AdminSection>{ isFullyConnected() && renderBackupSegments() }</AdminSection>
+				<AdminSectionHero>
+					<LoadedState />
+				</AdminSectionHero>
+				<AdminSection>{ isFullyConnected() && <BackupSegments /> }</AdminSection>
 			</div>
 		);
 	};
@@ -324,7 +326,7 @@ const Admin = () => {
 			a8cLogoHref="https://www.jetpack.com"
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
-				{ renderContent() }
+				<Content />
 			</div>
 		</AdminPage>
 	);
