@@ -195,17 +195,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					}
 				}
 
-				if ( isset( $json_params['title'] ) ) {
-					$meta['videopress']['title'] = $json_params['title'];
-					wp_update_post(
-						array(
-							'ID'         => $post_id,
-							'post_title' => $json_params['title'],
-						)
-					);
-					$should_update_meta = true;
-				}
-
 				if ( $should_update_meta ) {
 					wp_update_attachment_metadata( $post_id, $meta );
 				}
