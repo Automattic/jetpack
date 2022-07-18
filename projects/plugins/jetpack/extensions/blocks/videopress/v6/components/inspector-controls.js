@@ -5,6 +5,7 @@ import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl, Tooltip, SelectControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import AutoplayControl from './autoplay-control';
 /**
  * Internal dependencies
  */
@@ -32,6 +33,7 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 
 	return (
 		<InspectorControls>
+			<AutoplayControl attributes={ attributes } setAttributes={ setAttributes } />
 			<PanelBody title={ __( 'General Settings', 'jetpack' ) }>
 				<ToggleControl
 					label={ renderControlLabelWithTooltip(

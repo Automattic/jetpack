@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { InspectorControls, RichText } from '@wordpress/block-editor';
+import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -11,7 +11,6 @@ import debugFactory from 'debug';
  */
 import vpBlockBridge from '../../scripts/vp-block-bridge';
 import dispatchPlayerAction from '../../utils/dispatcher';
-import AutoplayControl from '../autoplay-control';
 
 // Global scripts array to be run in the Sandbox context.
 const globalScripts = [];
@@ -114,12 +113,8 @@ export default function VideoPressPlayer( {
 			return;
 		}
 
-		dispatchPlayerAction( sandboxIFrame, 'videopress_action_set_currenttime', {
-			currentTime: autoplayHoveringStart,
-		} );
-
-		dispatchPlayerAction( sandboxIFrame, 'videopress_action_play' );
-	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame, autoplayHoveringStart ] );
+		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionPlay' );
+	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame ] );
 
 	/**
 	 * Helper function to pause the video.
@@ -129,8 +124,8 @@ export default function VideoPressPlayer( {
 			return;
 		}
 
-		dispatchPlayerAction( sandboxIFrame, 'videopress_action_pause' );
-		dispatchPlayerAction( sandboxIFrame, 'videopress_action_set_currenttime', {
+		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionPause' );
+		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionSetCurrentTime', {
 			currentTime: autoplayHoveringStart,
 		} );
 	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame, autoplayHoveringStart ] );
@@ -200,44 +195,39 @@ export default function VideoPressPlayer( {
 	}
 
 	return (
-		<>
-			<InspectorControls>
-				<AutoplayControl attributes={ attributes } setAttributes={ setAttributes } />
-			</InspectorControls>
-			<figure className="jetpack-videopress-player">
-				<ResizableBox
-					enable={ {
-						top: false,
-						bottom: false,
-						left: true,
-						right: true,
-					} }
-					maxWidth="100%"
-					size={ { width: maxWidth } }
-					style={ { margin: 'auto' } }
-					onResizeStop={ onBlockResize }
-				>
-					{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
-					<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
-						<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
-						{ ! isVideoLoaded && (
-							<div className="jetpack-videopress-player__loading">
-								{ __( 'Loading…', 'jetpack' ) }
-							</div>
-						) }
-					</div>
-				</ResizableBox>
+		<figure className="jetpack-videopress-player">
+			<ResizableBox
+				enable={ {
+					top: false,
+					bottom: false,
+					left: true,
+					right: true,
+				} }
+				maxWidth="100%"
+				size={ { width: maxWidth } }
+				style={ { margin: 'auto' } }
+				onResizeStop={ onBlockResize }
+			>
+				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
+				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
+					<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
+					{ ! isVideoLoaded && (
+						<div className="jetpack-videopress-player__loading">
+							{ __( 'Loading…', 'jetpack' ) }
+						</div>
+					) }
+				</div>
+			</ResizableBox>
 
-				{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
-					<RichText
-						tagName="figcaption"
-						placeholder={ __( 'Write caption…', 'jetpack' ) }
-						value={ caption }
-						onChange={ value => setAttributes( { caption: value } ) }
-						inlineToolbar
-					/>
-				) }
-			</figure>
-		</>
+			{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
+				<RichText
+					tagName="figcaption"
+					placeholder={ __( 'Write caption…', 'jetpack' ) }
+					value={ caption }
+					onChange={ value => setAttributes( { caption: value } ) }
+					inlineToolbar
+				/>
+			) }
+		</figure>
 	);
 }

@@ -108,38 +108,32 @@ export default function AutoplayControl( { attributes, setAttributes } ) {
 				}
 			/>
 
+			<div className="components-autoplay-control" ref={ wrapperRef }>
+				<div className="jetpack-videopress-player__overlay" />
+				<SandBox html={ preview?.html } scripts={ [ vpBlockBridge ] } />
+			</div>
+
+			<RangeControl
+				min={ 0 }
+				max={ videoDuration }
+				initialPosition={ 0 }
+				value={ autoplayHoveringStart }
+				onChange={ onChangeAutoplayHoveringStartHandler }
+				withInputField={ false }
+			/>
+
 			{ autoplay && (
-				<>
-					<ToggleControl
-						label={ renderControlLabelWithTooltip(
-							__( 'Autoplay when hovering', 'jetpack' ),
-							autoplayHoveringHelp
-						) }
-						onChange={ newValue => {
-							setAttributes( { autoplayHovering: newValue } );
-						} }
-						checked={ autoplayHovering }
-						help={ autoplayHoveringHelp }
-					/>
-
-					{ autoplayHovering && (
-						<>
-							<div className="components-autoplay-control" ref={ wrapperRef }>
-								<div className="jetpack-videopress-player__overlay" />
-								<SandBox html={ preview?.html } scripts={ [ vpBlockBridge ] } />
-							</div>
-
-							<RangeControl
-								min={ 0 }
-								max={ videoDuration }
-								initialPosition={ 0 }
-								value={ autoplayHoveringStart }
-								onChange={ onChangeAutoplayHoveringStartHandler }
-								withInputField={ false }
-							/>
-						</>
+				<ToggleControl
+					label={ renderControlLabelWithTooltip(
+						__( 'Autoplay when hovering', 'jetpack' ),
+						autoplayHoveringHelp
 					) }
-				</>
+					onChange={ newValue => {
+						setAttributes( { autoplayHovering: newValue } );
+					} }
+					checked={ autoplayHovering }
+					help={ autoplayHoveringHelp }
+				/>
 			) }
 		</PanelBody>
 	);
