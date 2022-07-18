@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WordPress.com REST API: Allow the endpoint '/sites/%s/themes/mine' to receive the 'dont_change_homepage' argument as part of the POST body.
