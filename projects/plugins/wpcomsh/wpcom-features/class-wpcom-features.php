@@ -163,6 +163,10 @@ class WPCOM_Features {
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
 
+	// Marketplace added features
+	private const AUTOMATEWOO_REFERRALS_MONTHLY = 'automatewoo_referrals_monthly'; // 2406
+	private const AUTOMATEWOO_REFERRALS_YEARLY  = 'automatewoo_referrals_yearly'; // 2405
+
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS       = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
 	private const WPCOM_PERSONAL_PLANS      = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y );
@@ -172,6 +176,8 @@ class WPCOM_Features {
 	private const WPCOM_BUSINESS_PLANS      = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y );
 	private const WPCOM_ECOMMERCE_PLANS     = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y );
 	private const WPCOM_MARKETPLACE_PLANS   = array(
+		self::AUTOMATEWOO_REFERRALS_MONTHLY,
+		self::AUTOMATEWOO_REFERRALS_YEARLY,
 		self::YOAST_PREMIUM,
 		self::WOOCOMMERCE_SHIPPING_UPS,
 		self::WOOCOMMERCE_SUBSCRIPTIONS,
