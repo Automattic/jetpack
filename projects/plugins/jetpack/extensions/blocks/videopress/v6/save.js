@@ -37,10 +37,14 @@ export default function save( { attributes } ) {
 		margin: 0,
 	};
 
-	const w = parseInt( maxWidth.replace( /[a-z|A-Z]./, '' ) );
-	if ( maxWidth && maxWidth.length > 0 && '100%' !== maxWidth ) {
+	let w = parseInt( maxWidth.replace( /[a-z|A-Z]./, '' ) );
+	const hasCustomSize = maxWidth && maxWidth.length > 0 && '100%' !== maxWidth;
+	if ( hasCustomSize ) {
 		style.maxWidth = maxWidth;
 		style.margin = 'auto';
+	} else {
+		const iFrameWidth = cacheHtml.match( /width=['|"](.*?)['|"]/i );
+		w = iFrameWidth ? parseInt( iFrameWidth[ 1 ] ) : w;
 	}
 
 	return (
