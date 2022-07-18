@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added default modules to the list of modules to be activated in case of a preexisetting.

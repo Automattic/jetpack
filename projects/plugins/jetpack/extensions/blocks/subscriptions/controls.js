@@ -1,3 +1,4 @@
+import { numberFormat } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
@@ -63,7 +64,7 @@ export default function SubscriptionControls( {
 								subscriberCount,
 								'jetpack'
 							),
-							subscriberCount
+							numberFormat( subscriberCount )
 						),
 						{ span: <span style={ { textDecoration: 'underline' } } /> }
 					) }
