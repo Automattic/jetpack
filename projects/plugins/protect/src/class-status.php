@@ -392,7 +392,7 @@ class Status {
 		global $wp_version;
 
 		$core = new \stdClass();
-		if ( $core_check && $core_check->version === $wp_version ) {
+		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
 			$core       = $core_check;
 			$core->name = 'WordPress';
 			$core->type = 'core';
