@@ -31,7 +31,7 @@ const Admin = () => {
 	const [ price, setPrice ] = useState( 0 );
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
 	const [ restores, setRestores ] = useState( [] );
-	//eslint-disable-next-line no-unused-vars
+	// eslint-disable-next-line no-unused-vars
 	const [ currentPurchases, setCurrentPurchases ] = useState( [] );
 	const { tracks } = useAnalytics();
 
