@@ -5,7 +5,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PublicizeTwitterOptions } from '../options';
-import '@testing-library/jest-dom';
 
 // Override data handlers, so we can control data changes.
 jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );

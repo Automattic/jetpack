@@ -56,8 +56,47 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Gather extends WP_REST_Controller {
 				'private_site_security_settings' => array(
 					'allow_blog_token_access' => true,
 				),
-				'permission_callback'            => '__return_true',
+				'permission_callback'            => array( $this, 'tweetstorm_permissions_check' ),
 			)
+		);
+	}
+
+	/**
+	 * Checks if a given request is allowed to gather tweets.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return true|WP_Error True if the request has access to gather tweets from a thread, WP_Error object otherwise.
+	 */
+	public function tweetstorm_permissions_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$blog_id = get_current_blog_id();
+
+		/*
+		 * User hitting the endpoint hosted on their Jetpack site, from their Jetpack site,
+		 * or hitting the endpoint hosted on WPCOM, from their WPCOM site.
+		 */
+		if ( current_user_can_for_blog( $blog_id, 'edit_posts' ) ) {
+			return true;
+		}
+
+		// Jetpack hitting the endpoint hosted on WPCOM, from a Jetpack site with a blog token.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( is_jetpack_site( $blog_id ) ) {
+				if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Jetpack_Auth' ) ) {
+					require_once __DIR__ . '/jetpack-auth.php';
+				}
+
+				$jp_auth_endpoint = new WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
+				if ( true === $jp_auth_endpoint->is_jetpack_authorized_for_site() ) {
+					return true;
+				}
+			}
+		}
+
+		return new WP_Error(
+			'rest_forbidden',
+			__( 'Sorry, you are not allowed to gather tweets on this site.', 'jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
 		);
 	}
 

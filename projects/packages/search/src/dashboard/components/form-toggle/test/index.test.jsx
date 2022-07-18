@@ -3,7 +3,6 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import CompactFormToggle from 'components/form-toggle/compact';
 import React from 'react';
 

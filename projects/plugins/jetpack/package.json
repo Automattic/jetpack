@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "11.2.0-a.0",
+	"version": "11.2.0-a.4",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -93,7 +93,6 @@
 		"photon": "4.0.0",
 		"postcss-custom-properties": "12.1.7",
 		"prop-types": "15.7.2",
-		"query-string": "7.0.0",
 		"react-redux": "7.2.8",
 		"react-router-dom": "5.2.0",
 		"redux": "4.0.5",
@@ -121,12 +120,11 @@
 		"@babel/plugin-transform-runtime": "7.18.6",
 		"@babel/preset-env": "7.18.6",
 		"@babel/runtime": "7.18.6",
-		"@testing-library/dom": "8.13.0",
-		"@testing-library/jest-dom": "5.14.1",
+		"@testing-library/dom": "8.16.0",
 		"@testing-library/react": "12.1.5",
-		"@testing-library/react-hooks": "8.0.0",
-		"@testing-library/user-event": "14.1.1",
-		"@types/react": "17.0.45",
+		"@testing-library/react-hooks": "8.0.1",
+		"@testing-library/user-event": "14.2.1",
+		"@types/react": "17.0.47",
 		"@wordpress/api-fetch": "6.9.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "3.2.0",
 		"@wordpress/blob": "3.12.0",
@@ -153,7 +151,7 @@
 		"react-test-renderer": "17.0.2",
 		"regenerator-runtime": "0.13.9",
 		"sass-loader": "12.4.0",
-		"typescript": "4.7.2"
+		"typescript": "4.7.4"
 	},
 	"optionalDependencies": {
 		"react": "17.0.2",
@@ -161,7 +159,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

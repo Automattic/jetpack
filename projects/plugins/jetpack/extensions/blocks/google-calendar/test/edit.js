@@ -2,7 +2,6 @@ import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GoogleCalendarEdit } from '../edit';
-import '@testing-library/jest-dom';
 
 jest.mock( '@wordpress/components/build/sandbox', () => ( {
 	__esModule: true,

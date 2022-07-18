@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import jQuery from 'jquery';
 
 // Normally supplied as a global by WordPress.

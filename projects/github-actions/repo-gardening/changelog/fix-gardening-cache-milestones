@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Only hit the milestones endpoint once per run.

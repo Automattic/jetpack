@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Declare cross-project build dependencies to ensure that the storybook is rebuilt when those are changed.
