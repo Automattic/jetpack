@@ -18,6 +18,11 @@ inputs:
     description: Status context for the status check.
     required: false
     default: Required review
+  fail:
+    description: Fail the status check if a review is required.
+    required: false
+    type: boolean
+    default: false
   token:
     description: >
       GitHub Access Token. The user associated with this token will show up
