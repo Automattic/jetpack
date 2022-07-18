@@ -67,13 +67,14 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		poster,
 		align,
 		videoRatio,
+		autoplayHovering,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: autoplayHovering ? false : autoplay, // disable autoplay when hovering
 		controls,
 		loop,
-		muted,
+		muted: muted || autoplayHovering, // mute when autoplay is enabled, too
 		playsinline,
 		preload,
 		seekbarColor,
