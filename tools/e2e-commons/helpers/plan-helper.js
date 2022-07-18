@@ -528,7 +528,7 @@ export async function syncPlanData( page ) {
 	let fePlan = null;
 	let bePlan = null;
 
-	// todo set a limit here to avoid infinite loop in case plans are never the same?
+	let i = 0;
 	do {
 		await page.reload( { waitFor: 'domcontentloaded' } );
 
@@ -539,5 +539,6 @@ export async function syncPlanData( page ) {
 
 		logger.debug( `PLANS: frontend: ${ fePlan }, backend: ${ bePlan.product_slug }` );
 		isSame = fePlan.trim() === bePlan.product_slug.trim();
-	} while ( ! isSame );
+		i = i + 1;
+	} while ( ! isSame && i < 5 );
 }
