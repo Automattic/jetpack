@@ -31,8 +31,8 @@ const Admin = () => {
 	const [ price, setPrice ] = useState( 0 );
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
 	const [ restores, setRestores ] = useState( [] );
-	// eslint-disable-next-line no-unused-vars
-	const [ currentPurchases, setCurrentPurchases ] = useState( [] );
+	// To be used on next iteration of review requests
+	const [ , setCurrentPurchases ] = useState( [] );
 	const { tracks } = useAnalytics();
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
