@@ -1,5 +1,5 @@
-const debug = require( '../../debug' );
-const getComments = require( '../../get-comments' );
+const debug = require( '../../utils/debug' );
+const getComments = require( '../../utils/get-comments' );
 
 /* global GitHub, WebhookPayloadIssue */
 
