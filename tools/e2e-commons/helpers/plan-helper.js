@@ -538,5 +538,5 @@ export async function syncPlanData( page ) {
 		logger.debug( `PLANS: frontend: ${ fePlan }, backend: ${ bePlan.product_slug }` );
 		isSame = fePlan.trim() === bePlan.product_slug.trim();
 		i = i + 1;
-	} while ( ! isSame || i < 5 );
+	} while ( ! isSame && i < 5 );
 }
