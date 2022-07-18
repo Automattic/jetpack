@@ -1193,7 +1193,7 @@ if ( ( new Host() )->is_woa_site() ) {
 	 * This feature is false as default,
 	 * so let's enable it through this filter.
 	 *
-	 * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
+	 * More doc: https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#upgrades-for-blocks
 	 */
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 

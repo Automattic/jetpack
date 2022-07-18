@@ -1,15 +1,9 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
-
+import userEvent from '@testing-library/user-event';
 import ErrorNotice from '../components/error-notice';
 
 jest.mock( '@wordpress/blocks', () => ( {
-	createBlock: ( blockName, contentObj ) => ( { blockName, contentObj  } ),
+	createBlock: ( blockName, contentObj ) => ( { blockName, contentObj } ),
 } ) );
 
 describe( 'ErrorNotice', () => {
@@ -17,7 +11,7 @@ describe( 'ErrorNotice', () => {
 
 	const defaultProps = {
 		onClick,
-		fallbackUrl: 'https://rain.drops/keep/falling'
+		fallbackUrl: 'https://rain.drops/keep/falling',
 	};
 
 	beforeEach( () => {
@@ -31,7 +25,7 @@ describe( 'ErrorNotice', () => {
 		expect( onClick ).toHaveBeenCalledWith( {
 			blockName: 'core/paragraph',
 			contentObj: {
-				content: `<a href="${ defaultProps.fallbackUrl }">${ defaultProps.fallbackUrl }</a>`
+				content: `<a href="${ defaultProps.fallbackUrl }">${ defaultProps.fallbackUrl }</a>`,
 			},
 		} );
 	} );

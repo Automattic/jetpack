@@ -1,22 +1,15 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event'
 import { fireEvent, render, screen } from '@testing-library/react';
-import { SandBox } from '@wordpress/components';
-
+import userEvent from '@testing-library/user-event';
 import { PinterestEdit } from '../edit';
 import useTestPinterestEmbedUrl from '../hooks/use-test-pinterest-embed-url';
 
-jest.mock('../hooks/use-test-pinterest-embed-url' );
+jest.mock( '../hooks/use-test-pinterest-embed-url' );
 jest.mock( '@wordpress/components/build/sandbox', () => ( {
 	__esModule: true,
-	default: ( props ) => <iframe { ...props } />,
+	default: props => <iframe title="Some name" { ...props } />,
 } ) );
 
-describe( '', () => {
+describe( 'Pinterest block', () => {
 	const defaultAttributes = {
 		url: '',
 	};
@@ -33,7 +26,7 @@ describe( '', () => {
 			removeAllNotices,
 			createErrorNotice,
 		},
-		noticeUI: [ <p key="ahoy">ahoy!</p>],
+		noticeUI: [ <p key="ahoy">ahoy!</p> ],
 		setAttributes,
 		onReplace,
 	};
@@ -68,7 +61,7 @@ describe( '', () => {
 				pinterestUrl: '',
 				testUrl,
 				hasTestUrlError: false,
-			}
+			};
 		} );
 		render( <PinterestEdit { ...defaultProps } /> );
 		expect( screen.getByText( 'Embedding…' ) ).toBeInTheDocument();
@@ -77,8 +70,12 @@ describe( '', () => {
 	test( 'fires off a call to test the url', async () => {
 		const user = userEvent.setup();
 		const { container } = render( <PinterestEdit { ...defaultProps } /> );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		const form = container.querySelector( 'form' );
-		await user.type( screen.getByLabelText( 'Pinterest URL' ), 'https://www.pinterest.com.au/jeanette1952/decor-enamelwarecloisonn%C3%A9glassware/' );
+		await user.type(
+			screen.getByLabelText( 'Pinterest URL' ),
+			'https://www.pinterest.com.au/jeanette1952/decor-enamelwarecloisonn%C3%A9glassware/'
+		);
 		fireEvent.submit( form );
 		expect( testUrl ).toHaveBeenCalled();
 	} );
@@ -91,8 +88,8 @@ describe( '', () => {
 			},
 		};
 		const { container } = render( <PinterestEdit { ...newProps } /> );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		const wrapperElement = container.querySelector( `.${ defaultProps.className }` );
 		expect( wrapperElement ).toBeInTheDocument();
 	} );
 } );
-

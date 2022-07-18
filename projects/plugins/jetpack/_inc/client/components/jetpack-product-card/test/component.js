@@ -1,11 +1,10 @@
-import * as React from 'react';
-import { expect } from 'chai';
 import { getCurrencyObject } from '@automattic/format-currency';
-
-import JetpackProductCard from '../index';
+import { jest } from '@jest/globals';
+import userEvent from '@testing-library/user-event';
 import analytics from 'lib/analytics';
-import { fireEvent, render, screen, getNodeText } from 'test/test-utils';
-import sinon from "sinon";
+import * as React from 'react';
+import { render, screen } from 'test/test-utils';
+import JetpackProductCard from '../index';
 
 describe( 'Jetpack Product Card', () => {
 	const mockAttributes = {
@@ -17,58 +16,57 @@ describe( 'Jetpack Product Card', () => {
 		checkoutUrl: '#some-url',
 		currencyCode: 'USD',
 		billingDescription: 'Monthly, paid yearly',
-		features: [
-			'Feature One',
-			'Feature Two',
-			'Feature Three',
-		],
+		features: [ 'Feature One', 'Feature Two', 'Feature Three' ],
 	};
 
 	it( 'show introduction text', () => {
 		render( <JetpackProductCard { ...mockAttributes } /> );
 
-		expect( screen.getByRole( 'heading', { name: mockAttributes.title } ) ).to.exist;
-		expect( screen.getAllByText( mockAttributes.description ) ).to.exist;
+		expect( screen.getByRole( 'heading', { name: mockAttributes.title } ) ).toBeInTheDocument();
+		expect( screen.getByText( mockAttributes.description ) ).toBeInTheDocument();
 
-		mockAttributes.features.map( ( feature ) => {
-			expect( screen.getAllByText( feature ) ).to.exist;
+		mockAttributes.features.map( feature => {
+			expect( screen.getByText( feature ) ).toBeInTheDocument();
 		} );
 	} );
 
 	it( 'price is shown', () => {
-		const { container } = render( <JetpackProductCard { ...mockAttributes } /> );
-		
+		render( <JetpackProductCard { ...mockAttributes } /> );
+
 		const priceObject = getCurrencyObject( mockAttributes.price, mockAttributes.currencyCode );
 
-		expect( container.getAllByText( priceObject.symbol ) ).to.exist;
-		expect( container.getAllByText( priceObject.integer ) ).to.exist;
-		expect( container.getAllByText( priceObject.fraction ) ).to.exist;
-		expect( container.getAllByText( mockAttributes.billingDescription ) ).to.exist;
+		expect( screen.getByText( priceObject.symbol ) ).toBeInTheDocument();
+		expect( screen.getByText( priceObject.integer ) ).toBeInTheDocument();
+		expect( screen.getByText( priceObject.fraction ) ).toBeInTheDocument();
+		expect( screen.getByText( mockAttributes.billingDescription ) ).toBeInTheDocument();
 	} );
 
 	it( 'discounted price is shown', () => {
 		const discountedPrice = mockAttributes.price / 2;
-		const { container } = render( <JetpackProductCard { ...mockAttributes } discountedPrice={ discountedPrice }/> );
+		render( <JetpackProductCard { ...mockAttributes } discountedPrice={ discountedPrice } /> );
 
 		// Show original price.
-		const originalPriceObject = getCurrencyObject( mockAttributes.price, mockAttributes.currencyCode );
+		const originalPriceObject = getCurrencyObject(
+			mockAttributes.price,
+			mockAttributes.currencyCode
+		);
 
-		expect( container.getAllByText( originalPriceObject.symbol ) ).to.exist;
-		expect( container.getAllByText( originalPriceObject.integer ) ).to.exist;
-		expect( container.getAllByText( originalPriceObject.fraction ) ).to.exist;
-		
+		expect( screen.getAllByText( originalPriceObject.symbol ).length ).toBeGreaterThan( 0 );
+		expect( screen.getByText( originalPriceObject.integer ) ).toBeInTheDocument();
+		expect( screen.getAllByText( originalPriceObject.fraction ).length ).toBeGreaterThan( 0 );
+
 		// Show discounted price.
 		const discountedPriceObject = getCurrencyObject( discountedPrice, mockAttributes.currencyCode );
 
-		expect( container.getAllByText( discountedPriceObject.symbol ) ).to.exist;
-		expect( container.getAllByText( discountedPriceObject.integer ) ).to.exist;
-		expect( container.getAllByText( discountedPriceObject.fraction ) ).to.exist;
+		expect( screen.getAllByText( discountedPriceObject.symbol ).length ).toBeGreaterThan( 0 );
+		expect( screen.getByText( discountedPriceObject.integer ) ).toBeInTheDocument();
+		expect( screen.getAllByText( discountedPriceObject.fraction ).length ).toBeGreaterThan( 0 );
 	} );
 
 	it( 'cta is shown', () => {
 		const ctaText = 'Buy this upgrade!';
-		render( <JetpackProductCard { ...mockAttributes } callToAction={ ctaText }/> );
-		expect( screen.getAllByText( ctaText ) ).to.exist;
+		render( <JetpackProductCard { ...mockAttributes } callToAction={ ctaText } /> );
+		expect( screen.getByText( ctaText ) ).toBeInTheDocument();
 	} );
 
 	it( 'features list hidden with empty array', () => {
@@ -78,45 +76,45 @@ describe( 'Jetpack Product Card', () => {
 		};
 
 		const { container } = render( <JetpackProductCard { ...mockAttributesWithoutFeatures } /> );
-		expect( container.querySelector( '.jp-product-card__features' ) ).to.not.exist;
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelector( '.jp-product-card__features' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'track event - jetpack_product_card_view', () => {
-		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
+		const recordEventStub = jest
+			.spyOn( analytics.tracks, 'recordEvent' )
+			.mockImplementation( () => {} );
 
-		render( <JetpackProductCard { ...mockAttributes }/> );
+		render( <JetpackProductCard { ...mockAttributes } /> );
 
-		expect(
-			recordEventStub.withArgs(
-				'jetpack_product_card_view',
-				{ type: mockAttributes.productSlug },
-			).callCount
-		).to.be.equal( 1 );
+		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_product_card_view', {
+			type: mockAttributes.productSlug,
+		} );
 
-		recordEventStub.restore();
+		recordEventStub.mockRestore();
 	} );
 
-	it( 'track event - jetpack_product_card_checkout_click', () => {
-		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
+	it( 'track event - jetpack_product_card_checkout_click', async () => {
+		const user = userEvent.setup();
 
-		render( <JetpackProductCard { ...mockAttributes }/> );
+		const recordEventStub = jest
+			.spyOn( analytics.tracks, 'recordEvent' )
+			.mockImplementation( () => {} );
+
+		render( <JetpackProductCard { ...mockAttributes } /> );
 
 		const checkoutButton = screen.getByRole( 'link', { name: mockAttributes.checkoutText } );
-		expect( checkoutButton ).to.exist;
+		expect( checkoutButton ).toBeInTheDocument();
 
 		// JSDom will complain about the page being redirect to wordpress.com/checkout/...
 		// so we replace the href attribute of the HTML Element to something irrelevant.
-		fireEvent.click( checkoutButton );
+		await user.click( checkoutButton );
 
 		// Verify that tracking is working.
-		expect(
-			recordEventStub.withArgs(
-				'jetpack_product_card_checkout_click',
-				{ type: mockAttributes.productSlug },
-			).callCount
-		).to.be.equal( 1 );
+		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_product_card_checkout_click', {
+			type: mockAttributes.productSlug,
+		} );
 
-		recordEventStub.restore();
+		recordEventStub.mockRestore();
 	} );
-
 } );

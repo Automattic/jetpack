@@ -1,6 +1,9 @@
+import { numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
+
+import './record-count.scss';
 
 /**
  * Returns record count component showing current records indexed and max records available for tier.
@@ -14,13 +17,12 @@ export function RecordCount( props ) {
 	}
 
 	const recordCount =
-		typeof props.recordCount === 'number' ? props.recordCount?.toLocaleString() : props.recordCount;
+		typeof props.recordCount === 'number' ? numberFormat( props.recordCount ) : props.recordCount;
 
 	const recordLimit =
 		typeof props.tierMaximumRecords === 'number'
-			? props.tierMaximumRecords?.toLocaleString()
+			? numberFormat( props.tierMaximumRecords )
 			: props.tierMaximumRecords;
-
 	let message;
 
 	if ( recordLimit ) {

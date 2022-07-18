@@ -239,8 +239,9 @@ export async function generateProject(
 ) {
 	const type = pluralize( answers.type );
 	const project = type + '/' + answers.name;
-	const projDir = fileURLToPath(
-		new URL( `../../../projects/${ type }/${ answers.name }`, import.meta.url )
+	const projDir = path.join(
+		fileURLToPath( new URL( './', import.meta.url ) ),
+		`../../../projects/${ type }/${ answers.name }`
 	);
 
 	if ( 'plugin' === answers.type && 'starter' === answers.pluginTemplate ) {
@@ -248,6 +249,7 @@ export async function generateProject(
 	}
 
 	createSkeleton( type, projDir, answers.name );
+	await searchReplaceInFolder( projDir, 'package-name', normalizeSlug( answers.name ) );
 
 	// Generate the composer.json file
 	const composerJson = readComposerJson( project );
@@ -439,21 +441,20 @@ function createPackageJson( packageJson, answers ) {
 			'./action-types': './src/state/action-types',
 		};
 		packageJson.scripts = {
-			test:
-				"NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'",
+			test: 'jest tests',
+			'test-coverage':
+				'jest tests --coverage --collectCoverageFrom=\'src/**/*.js\' --coverageDirectory="$COVERAGE_DIR" --coverageReporters=clover',
 		};
-		packageJson.devDependencies = { 'jetpack-js-test-runner': 'workspace:*' };
 
-		// Since `createComposerJson()` adds a use of `nyc`, we need to depend on it here too.
-		// Look for which version is currently in use.
+		// Extract the version of jest currently in use for the dependency.
 		const yamlFile = yaml.load(
 			fs.readFileSync( new URL( '../../../pnpm-lock.yaml', import.meta.url ), 'utf8' )
 		);
-		const nycVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
-			const ver = cur.match( /^\/nyc\/([^_]+)/ )?.[ 1 ];
+		const jestVersion = Object.keys( yamlFile.packages ).reduce( ( value, cur ) => {
+			const ver = cur.match( /^\/jest\/([^_]+)/ )?.[ 1 ];
 			return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
 		}, null );
-		packageJson.devDependencies.nyc = nycVersion || '*';
+		packageJson.devDependencies.jest = jestVersion || '*';
 	}
 }
 
@@ -507,8 +508,9 @@ async function createComposerJson( composerJson, answers ) {
 		case 'package':
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
-			composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
 			composerJson.extra.textdomain = name;
+			composerJson.type = 'jetpack-library';
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};
@@ -518,7 +520,7 @@ async function createComposerJson( composerJson, answers ) {
 		case 'js-package':
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpm nyc --report-dir="$COVERAGE_DIR" pnpm run test' ],
+				'test-coverage': [ 'pnpm run test-coverage' ],
 			};
 	}
 }

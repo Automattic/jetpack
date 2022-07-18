@@ -1,10 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
-
 import MapControls from '../controls';
 
 const API_STATE_SUCCESS = 2;

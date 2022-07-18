@@ -1,6 +1,6 @@
+import { RecordMeterBar } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { useState } from 'react';
-import { BarChart } from './bar-chart';
+import React from 'react';
 import getRecordInfo from './lib/record-info';
 import { NoticeBox } from './notice-box';
 import { RecordCount } from './record-count';
@@ -13,6 +13,7 @@ import './style.scss';
  * @param {object} props - Props
  * @param {number} props.postCount - Post count number of posts in total
  * @param {object} props.postTypeBreakdown - Post type breakdown (post type => number of posts)
+ * @param {object} props.postTypes - Post types  (post type label => post type slug)
  * @param {number} props.tierMaximumRecords - Max number of records allowed in user's current tier
  * @param {string} props.lastIndexedDate - The date on which the site was last indexed in ISO 8601 format
  * @returns {React.Component} RecordMeter React component
@@ -22,12 +23,9 @@ export default function RecordMeter( {
 	postTypeBreakdown,
 	tierMaximumRecords,
 	lastIndexedDate,
+	postTypes,
 } ) {
-	// TODO: use setRecordInfo var
-	// eslint-disable-next-line no-unused-vars
-	const [ recordInfo, setRecordInfo ] = useState(
-		getRecordInfo( postCount, postTypeBreakdown, tierMaximumRecords, lastIndexedDate )
-	);
+	const recordInfo = getRecordInfo( postCount, postTypeBreakdown, lastIndexedDate, postTypes );
 
 	return (
 		<div className="jp-search-record-meter jp-search-dashboard-wrap" data-testid="record-meter">
@@ -48,10 +46,10 @@ export default function RecordMeter( {
 							recordCount={ recordInfo.recordCount }
 							tierMaximumRecords={ tierMaximumRecords }
 						/>
-						<BarChart
-							data={ recordInfo.data }
-							isValid={ recordInfo.isValid }
-							postTypeBreakdown={ postTypeBreakdown }
+						<RecordMeterBar
+							items={ recordInfo.data }
+							showLegendLabelBeforeCount={ true }
+							totalCount={ tierMaximumRecords }
 						/>
 						<NoticeBox
 							recordCount={ recordInfo.recordCount }

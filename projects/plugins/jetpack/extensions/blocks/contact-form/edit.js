@@ -375,6 +375,12 @@ export default compose( [
 		const postTitle = getEditedPostAttribute( 'title' );
 		const canUserInstallPlugins = canUser( 'create', 'plugins' );
 
+		const submitButton = innerBlocks.find( block => block.name === 'jetpack/button' );
+		if ( submitButton && ! submitButton.attributes.lock ) {
+			const lock = { move: false, remove: true };
+			submitButton.attributes.lock = lock;
+		}
+
 		return {
 			blockType: getBlockType && getBlockType( props.name ),
 			canUserInstallPlugins,

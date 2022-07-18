@@ -1,40 +1,33 @@
+import { jest } from '@jest/globals';
 import React from 'react';
-import { expect } from 'chai';
-import { mount } from 'enzyme';
-import { spy } from 'sinon';
-
+import { render } from 'test/test-utils';
 import { Tracker } from '../index';
 
 describe( 'Tracker component', () => {
-	let tracker,
-		analytics,
-		theSpy;
+	const theSpy = jest.fn();
+	const analytics = {
+		tracks: {
+			recordEvent: theSpy,
+		},
+	};
 
-	before( () => {
-		theSpy = spy();
-		analytics = {
-			tracks: {
-				recordEvent: theSpy
-			}
-		};
-		tracker = mount( <Tracker analytics={ analytics } /> );
+	beforeEach( () => {
+		theSpy.mockClear();
 	} );
 
 	describe( 'when nothing happens', () => {
 		it( 'does not record anything', () => {
-			expect( theSpy.called ).to.be.false;
+			render( <Tracker analytics={ analytics } /> );
+			expect( theSpy ).not.toHaveBeenCalled();
 		} );
 	} );
 
 	describe( 'when a new search term appears', () => {
-		before( () => {
-			tracker.setProps( { searchTerm: 'new term' } );
-		} );
-
 		it( 'records a jetpack_wpa_search_term event', () => {
-			expect( theSpy.calledOnce ).to.be.true;
-			expect( theSpy.args[ 0 ][ 0 ] ).to.equal( 'jetpack_wpa_search_term' );
-			expect( theSpy.args[ 0 ][ 1 ] ).to.eql( { term: 'new term' } );
+			const { rerender } = render( <Tracker analytics={ analytics } /> );
+			rerender( <Tracker analytics={ analytics } searchTerm="new term" /> );
+			expect( theSpy ).toHaveBeenCalledTimes( 1 );
+			expect( theSpy ).toHaveBeenCalledWith( 'jetpack_wpa_search_term', { term: 'new term' } );
 		} );
 	} );
 } );

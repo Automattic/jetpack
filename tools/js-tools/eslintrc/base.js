@@ -29,7 +29,6 @@ module.exports = {
 	env: {
 		browser: true,
 		es6: true,
-		mocha: true,
 		node: true,
 		jquery: true,
 		jest: true,
@@ -42,6 +41,21 @@ module.exports = {
 		requireConfigFile: false,
 	},
 	settings: {},
+	overrides: [
+		{
+			files: [ '*.ts', '*.tsx' ],
+			extends: './typescript',
+		},
+		{
+			files: [
+				// Note: Keep the patterns here in sync with tools/js-tools/jest/config.base.js.
+				'**/__tests__/**/*.[jt]s?(x)',
+				'**/?(*.)+(spec|test).[jt]s?(x)',
+				'**/test/*.[jt]s?(x)',
+			],
+			extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
+		},
+	],
 	plugins: [ 'import', 'prettier', 'jsx-a11y', 'lodash', 'jsdoc', '@typescript-eslint' ],
 	rules: {
 		// REST API objects include underscores
@@ -73,8 +87,6 @@ module.exports = {
 		'no-shadow': 2,
 		'no-spaced-func': 2,
 		'no-trailing-spaces': 2,
-		// Allows Chai `expect` expressions
-		'no-unused-expressions': 0,
 		'no-var': 2,
 		'object-curly-spacing': [ 2, 'always' ],
 		'operator-linebreak': [

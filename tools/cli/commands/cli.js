@@ -11,12 +11,20 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
  * Show us the status of the cli, such as the currenet linked directory.
  */
 function cliStatus() {
-	console.log(
-		chalkJetpackGreen(
-			'Jetpack CLI is currently linked to ' +
-				fileURLToPath( new URL( `../../../`, import.meta.url ) )
-		)
-	);
+	if ( process.env.JETPACK_CLI_DID_REEXEC ) {
+		console.log(
+			chalkJetpackGreen(
+				'Jetpack CLI is apparently linked to ' + process.env.JETPACK_CLI_DID_REEXEC
+			)
+		);
+	} else {
+		console.log(
+			chalkJetpackGreen(
+				'Jetpack CLI is currently linked to ' +
+					fileURLToPath( new URL( `../../../`, import.meta.url ) )
+			)
+		);
+	}
 	console.log( 'To change the linked directory of the CLI, run `pnpm jetpack cli link` ' );
 }
 /**

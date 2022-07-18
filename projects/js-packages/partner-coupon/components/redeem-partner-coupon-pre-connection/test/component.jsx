@@ -1,15 +1,14 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
+import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
-import { expect } from 'chai';
 import * as React from 'react';
-import sinon from 'sinon';
 import RedeemPartnerCouponPreConnection from '../';
 
-const { location } = window;
 const partnerCoupon = {
 	coupon_code: 'TEST_TST_1234',
 	preset: 'TST',
@@ -37,67 +36,52 @@ const requiredProps = {
 
 let locationAssignSpy;
 let recordEventStub;
-let storeSelect;
 let stubGetConnectionStatus;
 
 describe( 'RedeemPartnerCouponPreConnection', () => {
-	before( () => {
+	const setupSpies = () => {
+		let storeSelect;
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 
-		locationAssignSpy = sinon.spy();
-		recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
-		stubGetConnectionStatus = sinon.stub( storeSelect, 'getConnectionStatus' );
-	} );
-
-	beforeEach( () => {
-		// Spy on location.assign, so we don't get breaking errors when
-		// we trigger click events on buttons/links.
-		delete window.location;
-		window.location = { assign: locationAssignSpy };
-
-		stubGetConnectionStatus.returns( {} );
-	} );
-
-	afterEach( () => {
-		window.location = location;
-		locationAssignSpy.resetHistory();
-
-		recordEventStub.reset();
-		stubGetConnectionStatus.reset();
-	} );
-
-	after( () => {
-		recordEventStub.restore();
-		stubGetConnectionStatus.restore();
-	} );
+		locationAssignSpy = jest.spyOn( window.location, 'assign' ).mockReset();
+		recordEventStub = jest.spyOn( analytics.tracks, 'recordEvent' ).mockReset();
+		stubGetConnectionStatus = jest
+			.spyOn( storeSelect, 'getConnectionStatus' )
+			.mockReset()
+			.mockReturnValue( {} );
+	};
 
 	it( 'shows partner', () => {
+		setupSpies();
 		render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
 
-		expect( screen.getAllByText( 'Welcome to Jetpack Company name traveler!' ) ).to.exist;
+		expect( screen.getByText( 'Welcome to Jetpack Company name traveler!' ) ).toBeInTheDocument();
 	} );
 
 	it( 'redeem description includes the product name', () => {
+		setupSpies();
 		render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
 
 		expect(
-			screen.getAllByText(
+			screen.getByText(
 				'Redeem your coupon and get started with Awesome Product for free the first year!'
 			)
-		).to.exist;
+		).toBeInTheDocument();
 	} );
 
 	it( 'shows product features', () => {
+		setupSpies();
 		render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
 
 		// eslint-disable-next-line no-unused-vars
 		for ( const [ key, feature ] of Object.entries( partnerCoupon.product.features ) ) {
-			expect( screen.getAllByText( feature ) ).to.exist;
+			expect( screen.getByText( feature ) ).toBeInTheDocument();
 		}
 	} );
 
 	it( 'shows the set up and redeem button for unconnected sites', () => {
-		stubGetConnectionStatus.returns( { isRegistered: false, isUserConnected: false } );
+		setupSpies();
+		stubGetConnectionStatus.mockReturnValue( { isRegistered: false, isUserConnected: false } );
 
 		const props = {
 			...requiredProps,
@@ -106,39 +90,39 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 			},
 		};
 
-		const { container } = render( <RedeemPartnerCouponPreConnection { ...props } /> );
+		render( <RedeemPartnerCouponPreConnection { ...props } /> );
 
 		expect(
 			screen.getByRole( 'button', {
 				name: 'Set up & redeem Awesome Product',
 			} )
-		).to.exist;
+		).toBeInTheDocument();
 
-		// We use querySelector because using typical screen.* selectors will give an
-		// error if the component doesn't exist; and we specifically want to ensure
-		// it doesn't exist while displaying the "Set up button".
-		expect( container.querySelector( 'button[aria-label="Redeem Awesome Product"]' ) ).to.not.exist;
+		expect(
+			screen.queryByRole( 'button', { name: 'Redeem Awesome Product' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the set up and redeem button for registered sites', () => {
-		stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: false } );
+		setupSpies();
+		stubGetConnectionStatus.mockReturnValue( { isRegistered: true, isUserConnected: false } );
 
-		const { container } = render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
+		render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
 
 		expect(
 			screen.getByRole( 'button', {
 				name: 'Set up & redeem Awesome Product',
 			} )
-		).to.exist;
+		).toBeInTheDocument();
 
-		// We use querySelector because using typical screen.* selectors will give an
-		// error if the component doesn't exist; and we specifically want to ensure
-		// it doesn't exist while displaying the "Set up button".
-		expect( container.querySelector( 'button[aria-label="Redeem Awesome Product"]' ) ).to.not.exist;
+		expect(
+			screen.queryByRole( 'button', { name: 'Redeem Awesome Product' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'shows redeem button for user connected sites', () => {
-		stubGetConnectionStatus.returns( { isRegistered: true, isUserConnected: true } );
+		setupSpies();
+		stubGetConnectionStatus.mockReturnValue( { isRegistered: true, isUserConnected: true } );
 
 		const props = {
 			...requiredProps,
@@ -147,22 +131,22 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 			},
 		};
 
-		const { container } = render( <RedeemPartnerCouponPreConnection { ...props } /> );
+		render( <RedeemPartnerCouponPreConnection { ...props } /> );
 
 		expect(
 			screen.getByRole( 'button', {
 				name: 'Redeem Awesome Product',
 			} )
-		).to.exist;
+		).toBeInTheDocument();
 
-		// We use querySelector because using typical screen.* selectors will give an
-		// error if the component doesn't exist; and we specifically want to ensure
-		// it doesn't exist while displaying the "Redeem button".
-		expect( container.querySelector( 'button[aria-label="Set up & redeem Awesome Product"]' ) ).to
-			.not.exist;
+		expect(
+			screen.queryByRole( 'button', { name: 'Set up & redeem Awesome Product' } )
+		).not.toBeInTheDocument();
 	} );
 
-	it( 'redeem button redirects with all expected parameters', () => {
+	it( 'redeem button redirects with all expected parameters', async () => {
+		setupSpies();
+		const user = userEvent.setup();
 		const props = {
 			...requiredProps,
 			connectionStatus: {
@@ -176,25 +160,23 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		const redeemButton = screen.getByRole( 'button', {
 			name: 'Redeem Awesome Product',
 		} );
-		expect( redeemButton ).to.exist;
-		fireEvent.click( redeemButton );
+		expect( redeemButton ).toBeInTheDocument();
+		await user.click( redeemButton );
 
 		// Make sure we only redirect once, and it's with the same value as getRedirectUrl.
-		expect( locationAssignSpy.calledOnce );
-		expect(
-			locationAssignSpy.withArgs(
-				sinon.match.same(
-					getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
-						path: 'awesome-product',
-						site: 'example.com',
-						query: 'coupon=TEST_TST_1234',
-					} )
-				)
-			).calledOnce
+		expect( locationAssignSpy ).toHaveBeenCalledTimes( 1 );
+		expect( locationAssignSpy ).toHaveBeenCalledWith(
+			getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
+				path: 'awesome-product',
+				site: 'example.com',
+				query: 'coupon=TEST_TST_1234',
+			} )
 		);
 	} );
 
-	it( 'redeem button redirects after tracking event', () => {
+	it( 'redeem button redirects after tracking event', async () => {
+		setupSpies();
+		const user = userEvent.setup();
 		const props = {
 			...requiredProps,
 			connectionStatus: {
@@ -208,31 +190,33 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		const redeemButton = screen.getByRole( 'button', {
 			name: 'Redeem Awesome Product',
 		} );
-		expect( redeemButton ).to.exist;
-		fireEvent.click( redeemButton );
-		expect( locationAssignSpy.calledOnce );
+		expect( redeemButton ).toBeInTheDocument();
+		await user.click( redeemButton );
+		expect( locationAssignSpy ).toHaveBeenCalledTimes( 1 );
 
 		// Make sure we trigger tracking event before redirecting.
-		expect( locationAssignSpy.calledAfter( recordEventStub ) );
+		expect( locationAssignSpy ).toHaveBeenCalledAfter( recordEventStub );
 	} );
 
 	it( 'is triggering jetpack_partner_coupon_redeem_view tracking event', () => {
-		expect( recordEventStub.callCount ).to.be.equal( 0 );
+		setupSpies();
+		expect( recordEventStub ).not.toHaveBeenCalled();
 
 		render( <RedeemPartnerCouponPreConnection { ...requiredProps } /> );
 
-		expect(
-			recordEventStub.withArgs( 'jetpack_partner_coupon_redeem_view', {
-				coupon: 'TEST_TST_1234',
-				partner: 'TEST',
-				preset: 'TST',
-				connected: 'yes',
-			} ).callCount
-		).to.be.equal( 1 );
+		expect( recordEventStub ).toHaveBeenCalledTimes( 1 );
+		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_partner_coupon_redeem_view', {
+			coupon: 'TEST_TST_1234',
+			partner: 'TEST',
+			preset: 'TST',
+			connected: 'yes',
+		} );
 	} );
 
-	it( 'is triggering jetpack_partner_coupon_redeem_click tracking event', () => {
-		expect( recordEventStub.callCount ).to.be.equal( 0 );
+	it( 'is triggering jetpack_partner_coupon_redeem_click tracking event', async () => {
+		setupSpies();
+		const user = userEvent.setup();
+		expect( recordEventStub ).not.toHaveBeenCalled();
 
 		const props = {
 			...requiredProps,
@@ -247,16 +231,15 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		const redeemButton = screen.getByRole( 'button', {
 			name: 'Redeem Awesome Product',
 		} );
-		expect( redeemButton ).to.exist;
-		fireEvent.click( redeemButton );
+		expect( redeemButton ).toBeInTheDocument();
+		await user.click( redeemButton );
 
-		expect(
-			recordEventStub.withArgs( 'jetpack_partner_coupon_redeem_click', {
-				coupon: 'TEST_TST_1234',
-				partner: 'TEST',
-				preset: 'TST',
-				connected: 'yes',
-			} ).callCount
-		).to.be.equal( 1 );
+		expect( recordEventStub ).toHaveBeenCalledTimes( 2 );
+		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_partner_coupon_redeem_click', {
+			coupon: 'TEST_TST_1234',
+			partner: 'TEST',
+			preset: 'TST',
+			connected: 'yes',
+		} );
 	} );
 } );

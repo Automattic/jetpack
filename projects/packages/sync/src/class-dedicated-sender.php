@@ -32,6 +32,25 @@ class Dedicated_Sender {
 	const DEDICATED_SYNC_VALIDATION_STRING = 'DEDICATED SYNC OK';
 
 	/**
+	 * Option name to use to keep the current request lock.
+	 *
+	 * The option format is `microtime(true)`.
+	 */
+	const DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME = 'jetpack_sync_dedicated_spawn_lock';
+
+	/**
+	 * What's the timeout for the request lock in seconds.
+	 *
+	 * 5 seconds as default value seems sane, but we might want to adjust that in the future.
+	 */
+	const DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT = 5;
+
+	/**
+	 * The query parameter name to use when passing the current lock id.
+	 */
+	const DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME = 'request_lock_id';
+
+	/**
 	 * Filter a URL to check if Dedicated Sync is enabled.
 	 * We need to remove slashes and then run it through `urldecode` as sometimes the
 	 * URL is in an encoded form, depending on server configuration.
@@ -121,8 +140,19 @@ class Dedicated_Sender {
 			return new WP_Error( 'sync_throttled_' . $queue->id );
 		}
 
-		$url  = rest_url( 'jetpack/v4/sync/spawn-sync' );
-		$url  = add_query_arg( 'time', time(), $url ); // Enforce Cache busting.
+		/**
+		 * Try to acquire a request lock, so we don't spawn multiple requests at the same time.
+		 * This should prevent cases where sites might have limits on the amount of simultaneous requests.
+		 */
+		$request_lock = self::try_lock_spawn_request();
+		if ( ! $request_lock ) {
+			return new WP_Error( 'dedicated_request_lock', 'Unable to acquire request lock' );
+		}
+
+		$url = rest_url( 'jetpack/v4/sync/spawn-sync' );
+		$url = add_query_arg( 'time', time(), $url ); // Enforce Cache busting.
+		$url = add_query_arg( self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME, $request_lock, $url );
+
 		$args = array(
 			'cookies'   => $_COOKIE,
 			'blocking'  => false,
@@ -137,6 +167,87 @@ class Dedicated_Sender {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Attempt to acquire a request lock.
+	 *
+	 * To avoid spawning multiple requests at the same time, we need to have a quick lock that will
+	 * allow only a single request to continue if we try to spawn multiple at the same time.
+	 *
+	 * @return false|mixed|string
+	 */
+	public static function try_lock_spawn_request() {
+		$current_microtime = (string) microtime( true );
+
+		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
+
+		if ( ! empty( $current_lock_value ) ) {
+			// Check if time has passed to overwrite the lock - min 5s?
+			if ( is_numeric( $current_lock_value ) && ( ( $current_microtime - $current_lock_value ) < self::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT ) ) {
+				// Still in previous lock, quit
+				return false;
+			}
+
+			// If the value is not numeric (float/current time), we want to just overwrite it and continue.
+		}
+
+		// Update. We don't want it to autoload, as we want to fetch it right before the checks.
+		\Jetpack_Options::update_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, $current_microtime, false );
+		// Give some time for the update to happen
+		usleep( wp_rand( 1000, 3000 ) );
+
+		$updated_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
+
+		if ( $updated_value === $current_microtime ) {
+			return $current_microtime;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Attempt to release the request lock.
+	 *
+	 * @param string $lock_id The request lock that's currently being held.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function try_release_lock_spawn_request( $lock_id = '' ) {
+		// Try to get the lock_id from the current request if it's not supplied.
+		if ( empty( $lock_id ) ) {
+			$lock_id = self::get_request_lock_id_from_request();
+		}
+
+		// If it's still not a valid lock_id, throw an error and let the lock process figure it out.
+		if ( empty( $lock_id ) || ! is_numeric( $lock_id ) ) {
+			return new WP_Error( 'dedicated_request_lock_invalid', 'Invalid lock_id supplied for unlock' );
+		}
+
+		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
+
+		// If this is the flow that has the lock, let's release it so we can spawn other requests afterwards
+		if ( (string) $lock_id === $current_lock_value ) {
+			\Jetpack_Options::delete_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Try to get the request lock id from the current request.
+	 *
+	 * @return array|string|string[]|null
+	 */
+	public static function get_request_lock_id_from_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] ) || ! is_numeric( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] ) ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		return wp_unslash( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] );
 	}
 
 	/**

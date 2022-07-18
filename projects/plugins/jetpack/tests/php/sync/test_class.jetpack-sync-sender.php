@@ -372,7 +372,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
-		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 9 );
+		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 8 );
 	}
 
 	public function test_default_value_for_max_execution_time() {
@@ -783,7 +783,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 				'code' => 200,
 			),
 			'status_code' => 200,
-			'body'        => 'OK',
+			'body'        => Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING,
 		);
 	}
 }

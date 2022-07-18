@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.1 - 2022-07-07
+### Added
+- Added two new FAQ entries
+- Protect: record even just after the site is registered
+
+### Changed
+- Moved normalization of the Protect status report data to the server side.
+- Renamed `master` references to `trunk`
+- Reorder JS imports for `import/order` eslint rule.
+
+### Fixed
+- Fixed bug that would not display Core vulnerabilities.
+- Removed legacy code and documentation and adds new docs for the debug helper plugin.
+- Fixed recommendation for plugins that don't have a fix yet
+- Protect: Fix visual issue of the Interstitial page
+
 ## 1.0.0 - 2022-05-31
 ### Added
 - Add additional tracking events

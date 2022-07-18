@@ -136,7 +136,7 @@ class Nova_Restaurant {
 	 *
 	 * @return bool
 	 */
-	private function site_supports_nova() {
+	public function site_supports_nova() {
 		// If we're on WordPress.com, and it has the menu site vertical.
 		if ( function_exists( 'site_vertical' ) && 'nova_menu' === site_vertical() ) {
 			return true;
@@ -166,7 +166,7 @@ class Nova_Restaurant {
 	/**
 	 * Register Taxonomies and Post Type
 	 */
-	private function register_taxonomies() {
+	public function register_taxonomies() {
 		if ( ! taxonomy_exists( self::MENU_ITEM_LABEL_TAX ) ) {
 			register_taxonomy(
 				self::MENU_ITEM_LABEL_TAX,
@@ -251,7 +251,7 @@ class Nova_Restaurant {
 	/**
 	 * Register our Post Type.
 	 */
-	private function register_post_types() {
+	public function register_post_types() {
 		if ( post_type_exists( self::MENU_ITEM_POST_TYPE ) ) {
 			return;
 		}
@@ -460,7 +460,7 @@ class Nova_Restaurant {
 	 *
 	 * @return bool
 	 */
-	private function is_menu_item_query( $query ) {
+	public function is_menu_item_query( $query ) {
 		if (
 			( isset( $query->query_vars['taxonomy'] ) && self::MENU_TAX === $query->query_vars['taxonomy'] )
 		||
@@ -655,7 +655,7 @@ class Nova_Restaurant {
 	 *
 	 * @return void
 	 */
-	private function setup_menu_item_columns() {
+	public function setup_menu_item_columns() {
 		add_filter( sprintf( 'manage_edit-%s_sortable_columns', self::MENU_ITEM_POST_TYPE ), array( $this, 'no_title_sorting' ) );
 		add_filter( sprintf( 'manage_%s_posts_columns', self::MENU_ITEM_POST_TYPE ), array( $this, 'menu_item_columns' ) );
 
@@ -746,7 +746,7 @@ class Nova_Restaurant {
 	 *
 	 * @return bool|WP_Term
 	 */
-	private function get_menu_by_post_id( $post_id = null ) {
+	public function get_menu_by_post_id( $post_id = null ) {
 		if ( ! $post_id ) {
 			return false;
 		}
@@ -763,7 +763,7 @@ class Nova_Restaurant {
 	/**
 	 * Fires on a menu edit page. We might have drag-n-drop reordered
 	 */
-	private function maybe_reorder_menu_items() {
+	public function maybe_reorder_menu_items() {
 		// make sure we clicked our button.
 		if (
 			empty( $_REQUEST['menu_reorder_submit'] )
@@ -833,7 +833,7 @@ class Nova_Restaurant {
 	 *
 	 * @return void
 	 */
-	private function edit_menu_items_page_load() {
+	public function edit_menu_items_page_load() {
 		if ( isset( $_GET['action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- we process the form and check nonces in handle_menu_item_actions.
 			$this->handle_menu_item_actions();
 		}
@@ -869,7 +869,7 @@ class Nova_Restaurant {
 	 *
 	 * @return void
 	 */
-	private function handle_menu_item_actions() {
+	public function handle_menu_item_actions() {
 		if ( isset( $_GET['action'] ) ) {
 			$action = (string) wp_unslash( $_GET['action'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- we check for nonces below, and check against specific strings in switch statement.
 		} else {
@@ -1156,7 +1156,7 @@ class Nova_Restaurant {
 	 *
 	 * @return void
 	 */
-	private function process_form_request() {
+	public function process_form_request() {
 		if ( ! isset( $_POST['nova_title'] ) || ! is_array( $_POST['nova_title'] ) ) {
 			return;
 		}
@@ -1382,7 +1382,7 @@ class Nova_Restaurant {
 	 *
 	 * @return array
 	 */
-	private function get_menus( $args = array() ) {
+	public function get_menus( $args = array() ) {
 		$args = wp_parse_args(
 			$args,
 			array(
@@ -1424,7 +1424,7 @@ class Nova_Restaurant {
 	 *
 	 * @return bool|WP_Term|WP_Error|null
 	 */
-	private function get_menu_item_menu_leaf( $post_id ) {
+	public function get_menu_item_menu_leaf( $post_id ) {
 		// Get first menu taxonomy "leaf".
 		$term_ids = wp_get_object_terms( $post_id, self::MENU_TAX, array( 'fields' => 'ids' ) );
 
@@ -1450,7 +1450,7 @@ class Nova_Restaurant {
 	 *
 	 * @return void
 	 */
-	private function list_labels( $post_id = 0 ) {
+	public function list_labels( $post_id = 0 ) {
 		$post = get_post( $post_id );
 		echo get_the_term_list( $post->ID, self::MENU_ITEM_LABEL_TAX, '', _x( ', ', 'Nova label separator', 'jetpack' ), '' );
 	}
@@ -1462,7 +1462,7 @@ class Nova_Restaurant {
 	 *
 	 * @return void
 	 */
-	private function list_admin_labels( $post_id = 0 ) {
+	public function list_admin_labels( $post_id = 0 ) {
 		$post   = get_post( $post_id );
 		$labels = get_the_terms( $post->ID, self::MENU_ITEM_LABEL_TAX );
 		if ( ! empty( $labels ) ) {
@@ -1500,7 +1500,7 @@ class Nova_Restaurant {
 	 *
 	 * @return int|bool
 	 */
-	private function set_price( $post_id = 0, $price = '' ) {
+	public function set_price( $post_id = 0, $price = '' ) {
 		return update_post_meta( $post_id, 'nova_price', $price );
 	}
 
@@ -1511,7 +1511,7 @@ class Nova_Restaurant {
 	 *
 	 * @return bool|string
 	 */
-	private function get_price( $post_id = 0 ) {
+	public function get_price( $post_id = 0 ) {
 		return get_post_meta( $post_id, 'nova_price', true );
 	}
 
@@ -1522,7 +1522,7 @@ class Nova_Restaurant {
 	 *
 	 * @return void
 	 */
-	private function display_price( $post_id = 0 ) {
+	public function display_price( $post_id = 0 ) {
 		echo esc_html( $this->get_price( $post_id ) );
 	}
 
@@ -1536,7 +1536,7 @@ class Nova_Restaurant {
 	 *
 	 * @return array
 	 */
-	private function get_menu_item_loop_markup( $field = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get_menu_item_loop_markup( $field = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return $this->menu_item_loop_markup;
 	}
 
@@ -1627,7 +1627,7 @@ class Nova_Restaurant {
 	 *
 	 * @return void
 	 */
-	private function menu_item_loop_header() {
+	public function menu_item_loop_header() {
 		$this->menu_item_loop_open_element( 'menu_header' );
 			$this->menu_item_loop_open_element( 'menu_title' );
 				echo esc_html( $this->menu_item_loop_current_term->name ); // @todo tax filter
@@ -1647,7 +1647,7 @@ class Nova_Restaurant {
 	 *
 	 * @return void
 	 */
-	private function menu_item_loop_open_element( $field ) {
+	public function menu_item_loop_open_element( $field ) {
 		$markup = $this->get_menu_item_loop_markup();
 		/**
 		 * Filter a menu item's element opening tag.
@@ -1677,7 +1677,7 @@ class Nova_Restaurant {
 	 *
 	 * @return void
 	 */
-	private function menu_item_loop_close_element( $field ) {
+	public function menu_item_loop_close_element( $field ) {
 		$markup = $this->get_menu_item_loop_markup();
 		/**
 		 * Filter a menu item's element closing tag.
@@ -1707,7 +1707,7 @@ class Nova_Restaurant {
 	 *
 	 * @return string HTML class attribute with leading whitespace.
 	 */
-	private function menu_item_loop_class( $class ) {
+	public function menu_item_loop_class( $class ) {
 		if ( ! $class ) {
 			return '';
 		}

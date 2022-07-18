@@ -823,13 +823,17 @@ class Jetpack {
 		foreach (
 			array(
 				'jitm',
-				'publicize',
 				'sync',
 				'waf',
 			)
 			as $feature
 		) {
 			$config->ensure( $feature );
+		}
+
+		$modules = new Automattic\Jetpack\Modules();
+		if ( $modules->is_active( 'publicize' ) ) {
+			$config->ensure( 'publicize' );
 		}
 
 		$config->ensure(
@@ -999,6 +1003,7 @@ class Jetpack {
 	 */
 	public function point_edit_comment_links_to_calypso( $url ) {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
+		$query_args = null;
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
 
 		return Redirect::get_url(
@@ -2922,8 +2927,26 @@ p {
 		if ( $active_modules ) {
 			self::delete_active_modules();
 
-			// If there was previously activated modules (a reconnection), re-activate them all including those that require a user, and do not re-activate those that have been deactivated.
-			self::activate_default_modules( 999, 1, $active_modules, false );
+			/**
+			 * Previously active modules could mean two things. First, it could mean
+			 * that Jetpack was previously active on the site. In this case we would like
+			 * to only activate the modules that were set to active.
+			 * Another case could be that the module option was set by a standalone
+			 * plugin. In that case the `active_modules_initalized` option will not
+			 * be set, so we need to enable default Jetpack modules as well.
+			 */
+			if ( ! Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
+				$default_modules = self::get_default_modules();
+				$active_modules  = array_merge( $active_modules, $default_modules );
+				Jetpack_Options::update_option( 'active_modules_initialized', true );
+			}
+
+			self::activate_default_modules(
+				999, // This version trick basically excludes every default module.
+				1,
+				$active_modules,
+				false
+			);
 		} else {
 			// Check for a user connection.
 			if ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) {
@@ -3806,7 +3829,7 @@ p {
 	public function login_init() {
 		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( ! empty( $_GET[ self::$jetpack_redirect_login ] ) ) {
-			add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
+			add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 			wp_safe_redirect(
 				add_query_arg(
 					array(
@@ -3865,36 +3888,6 @@ p {
 		if ( ! empty( $_GET['jetpack_restate'] ) ) {
 			// Should only be used in intermediate redirects to preserve state across redirects.
 			self::restate();
-		}
-
-		if ( isset( $_GET['connect_url_redirect'] ) ) {
-			// @todo: Add validation against a known allowed list.
-			$from = ! empty( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : 'iframe'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
-			// User clicked in the iframe to link their accounts.
-			if ( ! self::connection()->is_user_connected() ) {
-				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? wp_unslash( $_GET['redirect_after_auth'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, sanitization happens in build_connect_url()
-
-				add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
-				$connect_url = $this->build_connect_url( true, $redirect, $from );
-				remove_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_environments' ) );
-
-				if ( isset( $_GET['notes_iframe'] ) ) {
-					$connect_url .= '&notes_iframe';
-				}
-				wp_safe_redirect( $connect_url );
-				exit;
-			} else {
-				if ( ! isset( $_GET['calypso_env'] ) ) {
-					self::state( 'message', 'already_authorized' );
-					wp_safe_redirect( self::admin_url() );
-					exit;
-				} else {
-					$connect_url  = $this->build_connect_url( true, false, $from );
-					$connect_url .= '&already_authorized=true';
-					wp_safe_redirect( $connect_url );
-					exit;
-				}
-			}
 		}
 
 		if ( isset( $_GET['action'] ) ) {
@@ -5328,13 +5321,11 @@ endif;
 	 * To be used with a filter of allowed domains for a redirect.
 	 *
 	 * @param array $domains Allowed WP.com Environments.
+	 *
+	 * @deprecated since 11.1
 	 */
 	public function allow_wpcom_environments( $domains ) {
-		$domains[] = 'wordpress.com';
-		$domains[] = 'wpcalypso.wordpress.com';
-		$domains[] = 'horizon.wordpress.com';
-		$domains[] = 'calypso.localhost';
-		return $domains;
+		return Host::allow_wpcom_environments( $domains );
 	}
 
 	/**

@@ -1,12 +1,11 @@
-import * as React from 'react';
-import { expect } from 'chai';
-import sinon from 'sinon';
-
-import { ProductSuggestion } from '../index';
-import { buildInitialState } from '../../product-suggestions/test/fixtures';
+import { jest } from '@jest/globals';
+import userEvent from '@testing-library/user-event';
 import analytics from 'lib/analytics';
+import * as React from 'react';
 import * as recommendationsActions from 'state/recommendations/actions';
-import { fireEvent, render, screen } from 'test/test-utils';
+import { render, screen } from 'test/test-utils';
+import { buildInitialState } from '../../product-suggestions/test/fixtures';
+import { ProductSuggestion } from '../index';
 
 describe( 'Recommendations – Product Suggestion Item', () => {
 	const DUMMY_ACTION = { type: 'dummy' };
@@ -15,18 +14,18 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 	const productSuggestion = initialState.jetpack.recommendations.productSuggestions[ 0 ];
 	let updateRecommendationsStepStub, addSelectedRecommendationStub;
 
-	before( function () {
-		updateRecommendationsStepStub = sinon
-			.stub( recommendationsActions, 'updateRecommendationsStep' )
-			.returns( DUMMY_ACTION );
-		addSelectedRecommendationStub = sinon
-			.stub( recommendationsActions, 'addSelectedRecommendation' )
-			.returns( DUMMY_ACTION );
+	beforeAll( () => {
+		updateRecommendationsStepStub = jest
+			.spyOn( recommendationsActions, 'updateRecommendationsStep' )
+			.mockReturnValue( DUMMY_ACTION );
+		addSelectedRecommendationStub = jest
+			.spyOn( recommendationsActions, 'addSelectedRecommendation' )
+			.mockReturnValue( DUMMY_ACTION );
 	} );
 
-	after( function () {
-		updateRecommendationsStepStub.restore();
-		addSelectedRecommendationStub.restore();
+	afterAll( () => {
+		updateRecommendationsStepStub.mockRestore();
+		addSelectedRecommendationStub.mockRestore();
 	} );
 
 	it( 'shows the Product Suggestion components', () => {
@@ -34,13 +33,17 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 			initialState: buildInitialState(),
 		} );
 
-		expect( screen.getAllByText( productSuggestion.title ) ).to.be.not.null;
-		expect( screen.getAllByText( productSuggestion.description ) ).to.be.not.null;
-		expect( screen.getAllByText( 'Get ' + productSuggestion.title ) ).to.be.not.null;
+		expect( screen.getByText( productSuggestion.title ) ).toBeInTheDocument();
+		expect( screen.getByText( productSuggestion.description ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Get ' + productSuggestion.title ) ).toBeInTheDocument();
 	} );
 
-	it( 'track and save data when going to checkout', () => {
-		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
+	it( 'track and save data when going to checkout', async () => {
+		const user = userEvent.setup();
+
+		const recordEventStub = jest
+			.spyOn( analytics.tracks, 'recordEvent' )
+			.mockImplementation( () => {} );
 
 		render( <ProductSuggestion product={ productSuggestion } />, {
 			initialState: buildInitialState(),
@@ -49,25 +52,26 @@ describe( 'Recommendations – Product Suggestion Item', () => {
 		const checkoutButton = screen.getByRole( 'link', {
 			name: 'Get ' + productSuggestion.title,
 		} );
-		expect( checkoutButton ).to.be.not.null;
+		expect( checkoutButton ).toBeInTheDocument();
 
-		expect( addSelectedRecommendationStub.callCount ).to.be.equal( 0 );
+		expect( addSelectedRecommendationStub ).not.toHaveBeenCalled();
 
 		// JSDom will complain about the page being redirect to wordpress.com/checkout/...
 		// so we replace the href attribute of the HTML Element to something irrelevant.
 		checkoutButton.href = '#test';
-		fireEvent.click( checkoutButton );
+		await user.click( checkoutButton );
 
 		// Verify that tracking is working.
-		expect(
-			recordEventStub.withArgs( 'jetpack_recommendations_product_suggestion_click', {
+		expect( recordEventStub ).toHaveBeenCalledWith(
+			'jetpack_recommendations_product_suggestion_click',
+			{
 				product_slug: productSuggestion.slug,
-				discount: false
-			} ).callCount
-		).to.be.equal( 1 );
+				discount: false,
+			}
+		);
 
-		expect( addSelectedRecommendationStub.callCount ).to.be.equal( 1 );
+		expect( addSelectedRecommendationStub ).toHaveBeenCalledTimes( 1 );
 
-		recordEventStub.restore();
+		recordEventStub.mockRestore();
 	} );
 } );
