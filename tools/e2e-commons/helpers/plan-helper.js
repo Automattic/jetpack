@@ -537,10 +537,7 @@ export async function syncPlanData( page ) {
 		const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
 		bkPlan = JSON.parse( planJson );
 
-		logger.info( `PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
+		logger.debug( `PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
 	} while ( ! isSame );
-
-	// eslint-disable-next-line playwright/no-wait-for-timeout
-	await page.waitForTimeout( 1000 );
 }
