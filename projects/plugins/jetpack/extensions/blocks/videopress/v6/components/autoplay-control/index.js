@@ -4,11 +4,15 @@
 import { PanelBody, ToggleControl, RangeControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { debounce } from 'lodash';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import { VIDEO_AUTOPLAY_DURATION } from '../../constants';
 import { renderControlLabelWithTooltip } from '../inspector-controls';
+
+const debouncedOnChange = debounce( fn => fn(), 250 );
 
 export default function AutoplayControl( { attributes, setAttributes, videoDuration } ) {
 	const { autoplay, autoplayHovering, autoplayHoveringStart } = attributes;
@@ -16,6 +20,14 @@ export default function AutoplayControl( { attributes, setAttributes, videoDurat
 
 	/* translators: Tooltip describing the "autoplay-hovering" option for the VideoPress player */
 	const autoplayHoveringHelp = __( 'Play automatically when hovering over it', 'jetpack' );
+
+	const onStartingTimeChange = useCallback(
+		newTime => {
+			setStartingTime( newTime );
+			debouncedOnChange( () => setAttributes( { autoplayHoveringStart: newTime } ) );
+		},
+		[ setAttributes ]
+	);
 
 	return (
 		<PanelBody title={ __( 'Autoplay Settings', 'jetpack' ) }>
@@ -44,7 +56,7 @@ export default function AutoplayControl( { attributes, setAttributes, videoDurat
 				max={ videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : startingTime }
 				initialPosition={ 0 }
 				value={ startingTime }
-				onChange={ setStartingTime }
+				onChange={ onStartingTimeChange }
 				withInputField={ false }
 			/>
 
