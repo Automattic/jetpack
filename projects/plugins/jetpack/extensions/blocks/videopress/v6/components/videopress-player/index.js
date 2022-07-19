@@ -61,6 +61,7 @@ export default function VideoPressPlayer( {
 	 */
 	const [ temporaryHeight, setTemporaryHeight ] = useState();
 	const [ isVideoLoaded, setIsVideoLoaded ] = useState( false );
+	const [ autoPlayingFinished, setAutoPlayingFinished ] = useState( false );
 	useEffect( () => {
 		if ( ! ref?.current ) {
 			return;
@@ -112,6 +113,7 @@ export default function VideoPressPlayer( {
 		}
 
 		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionPlay' );
+		setAutoPlayingFinished( false );
 	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame ] );
 
 	/**
@@ -123,7 +125,20 @@ export default function VideoPressPlayer( {
 		}
 
 		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionPause' );
-	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame ] );
+
+		if ( autoPlayingFinished ) {
+			// set current time at the begining of the autoplay starting.
+			dispatchPlayerAction( sandboxIFrame, 'vpBlockActionSetCurrentTime', {
+				currentTime: autoplayHoveringStart,
+			} );
+		}
+	}, [
+		autoPlayingFinished,
+		autoplayHoveringStart,
+		isAutoplayHoveringEnabled,
+		preview,
+		sandboxIFrame,
+	] );
 
 	const onVideoLoadingStateHandler = useCallback(
 		( { detail } ) => {
@@ -155,13 +170,10 @@ export default function VideoPressPlayer( {
 				return;
 			}
 
-			autoPauseVideo();
-			// set current time at the begining of the autoplay starting.
-			dispatchPlayerAction( sandboxIFrame, 'vpBlockActionSetCurrentTime', {
-				currentTime: autoplayHoveringStart,
-			} );
+			dispatchPlayerAction( sandboxIFrame, 'vpBlockActionPause' );
+			setAutoPlayingFinished( true );
 		},
-		[ isAutoplayHoveringEnabled, autoplayHoveringStart, autoPauseVideo, sandboxIFrame ]
+		[ isAutoplayHoveringEnabled, autoplayHoveringStart, sandboxIFrame ]
 	);
 
 	// Listen and trigger onDurationChange
