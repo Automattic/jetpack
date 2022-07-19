@@ -84,6 +84,8 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		poster,
 	} );
 
+	const [ videoDuration, setVideoDuration ] = useState();
+
 	// Get video preview status.
 	const { preview, isRequestingEmbedPreview } = useSelect(
 		select => {
@@ -261,12 +263,18 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	// X - Show VideoPress player. @todo: finish
 	return (
 		<div { ...blockProps }>
-			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+			<VideoPressInspectorControls
+				videoDuration={ videoDuration }
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+			/>
+
 			<PosterImageBlockControl
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				clientId={ clientId }
 			/>
+
 			<VideoPressPlayer
 				html={ html }
 				isUpdatingPreview={ ! previewHtml }
@@ -276,6 +284,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 				isSelected={ isSelected }
 				className="wp-block-jetpack-videopress"
 				preview={ preview }
+				onDurationChange={ setVideoDuration }
 			/>
 		</div>
 	);

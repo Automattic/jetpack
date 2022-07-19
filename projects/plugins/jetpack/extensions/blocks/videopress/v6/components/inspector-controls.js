@@ -19,7 +19,11 @@ export const renderControlLabelWithTooltip = ( label, tooltipText ) => {
 	);
 };
 
-export default function VideoPressInspectorControls( { attributes, setAttributes } ) {
+export default function VideoPressInspectorControls( {
+	attributes,
+	setAttributes,
+	videoDuration,
+} ) {
 	const { loop, muted, controls, playsinline, preload, useAverageColor } = attributes;
 
 	const handleAttributeChange = useCallback(
@@ -33,7 +37,11 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 
 	return (
 		<InspectorControls>
-			<AutoplayControl attributes={ attributes } setAttributes={ setAttributes } />
+			<AutoplayControl
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				videoDuration={ videoDuration }
+			/>
 			<PanelBody title={ __( 'General Settings', 'jetpack' ) }>
 				<ToggleControl
 					label={ renderControlLabelWithTooltip(
