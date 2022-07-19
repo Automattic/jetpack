@@ -1,5 +1,5 @@
-const debug = require( '../../debug' );
-const getComments = require( '../../get-comments' );
+const debug = require( '../../utils/debug' );
+const getComments = require( '../../utils/get-comments' );
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -41,7 +41,7 @@ async function getListComment( issueComments ) {
  */
 async function getIssueReferences( octokit, owner, repo, number, issueComments ) {
 	const ticketReferences = [];
-	const referencesRegexP = /[0-9]*-(?:chat|hc|zen|zd)/gim;
+	const referencesRegexP = /[0-9]*-(?:zen|zd)/gim;
 
 	debug( `gather-support-references: Getting references from issue body.` );
 	const {
@@ -68,13 +68,11 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 	ticketReferences.map( reference => {
 		const supportId = reference[ 0 ];
 
-		// xxx-zen and xxx-hc are the preferred formats for tickets and chats.
-		// xxx-zd and xxx-chat, as well as uppercase versions, are considered as alternate versions.
-		const wrongId = supportId.match( /([0-9]*)-(zd|chat)/i );
+		// xxx-zen is the preferred format for tickets.
+		// xxx-zd, as well as its uppercase version, is considered an alternate version.
+		const wrongId = supportId.match( /([0-9]*)-zd/i );
 		if ( wrongId ) {
-			const correctedId = `${ wrongId[ 1 ] }-${
-				wrongId[ 2 ].toLowerCase() === 'zd' ? 'zen' : 'hc'
-			}`;
+			const correctedId = `${ wrongId[ 1 ] }-zen`;
 			correctedSupportIds.add( correctedId );
 		} else {
 			correctedSupportIds.add( supportId.toLowerCase() );
@@ -93,6 +91,9 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
  */
 function buildCommentBody( issueReferences, checkedRefs = new Set() ) {
 	const commentBody = `**Support References**
+
+*This comment is automatically generated. Please do not edit it.*
+
 ${ issueReferences
 	.map(
 		reference => `

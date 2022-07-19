@@ -84,6 +84,7 @@ const RecommendationsComponent = props => {
 
 	return (
 		<>
+			<h1 className="screen-reader-text">{ __( 'Jetpack Recommendations', 'jetpack' ) }</h1>
 			<QueryRecommendationsData />
 			<QueryRecommendationsProductSuggestions />
 			<QueryRecommendationsUpsell />
