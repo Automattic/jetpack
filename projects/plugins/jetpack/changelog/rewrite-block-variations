@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Rewrite to drop dependency on experimental BlockVariationPicker from Gutenberg
