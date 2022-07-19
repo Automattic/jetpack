@@ -1,4 +1,3 @@
-import { ThemeProvider } from '@automattic/jetpack-components';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import AdminPage from './components/admin-page';
@@ -18,12 +17,7 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render(
-		<ThemeProvider>
-			<AdminPage />
-		</ThemeProvider>,
-		container
-	);
+	ReactDOM.render( <AdminPage />, container );
 }
 
 render();

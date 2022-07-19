@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -32,27 +33,29 @@ const AdminPage = props => {
 	} );
 
 	return (
-		<div className={ rootClassName }>
-			{ showHeader && (
-				<Container horizontalSpacing={ 5 }>
-					<Col>{ header ? header : <JetpackLogo /> }</Col>
+		<ThemeProvider>
+			<div className={ rootClassName }>
+				{ showHeader && (
+					<Container horizontalSpacing={ 5 }>
+						<Col>{ header ? header : <JetpackLogo /> }</Col>
+					</Container>
+				) }
+				<Container fluid horizontalSpacing={ 0 }>
+					<Col>{ children }</Col>
 				</Container>
-			) }
-			<Container fluid horizontalSpacing={ 0 }>
-				<Col>{ children }</Col>
-			</Container>
-			{ showFooter && (
-				<Container horizontalSpacing={ 5 }>
-					<Col>
-						<JetpackFooter
-							moduleName={ moduleName }
-							a8cLogoHref={ a8cLogoHref }
-							moduleNameHref={ moduleNameHref }
-						/>
-					</Col>
-				</Container>
-			) }
-		</div>
+				{ showFooter && (
+					<Container horizontalSpacing={ 5 }>
+						<Col>
+							<JetpackFooter
+								moduleName={ moduleName }
+								a8cLogoHref={ a8cLogoHref }
+								moduleNameHref={ moduleNameHref }
+							/>
+						</Col>
+					</Container>
+				) }
+			</div>
+		</ThemeProvider>
 	);
 };
 
