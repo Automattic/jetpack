@@ -164,6 +164,11 @@ class VideoPress_Edit_Attachment {
 		unset( $fields['url'] );
 		unset( $fields['post_content'] );
 
+		// If a video isn't attached to any specific post, manually add a post ID.
+		if ( ! isset( $info->post_id ) ) {
+			$info->post_id = 0;
+		}
+
 		if ( isset( $file_statuses['ogg'] ) && 'done' === $file_statuses['ogg'] ) {
 			$v_name     = preg_replace( '/\.\w+/', '', basename( $info->path ) );
 			$video_name = $v_name . '_fmt1.ogv';
