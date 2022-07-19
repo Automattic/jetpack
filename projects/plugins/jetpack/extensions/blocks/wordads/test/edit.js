@@ -1,17 +1,10 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
 import { render } from '@testing-library/react';
-
-import WordAdsEdit from '../edit';
 import { AD_FORMATS, DEFAULT_FORMAT } from '../constants';
-
-import rectangleExample from '../example_300x250.png';
-import leaderboardExample from '../example_728x90.png';
-import mobileLeaderboardExample from '../example_320x50.png';
+import WordAdsEdit from '../edit';
 import wideSkyscraperExample from '../example_160x600.png';
+import rectangleExample from '../example_300x250.png';
+import mobileLeaderboardExample from '../example_320x50.png';
+import leaderboardExample from '../example_728x90.png';
 
 describe( 'WordAdsEdit', () => {
 	const defaultAttributes = { format: DEFAULT_FORMAT };
@@ -19,18 +12,20 @@ describe( 'WordAdsEdit', () => {
 
 	const getFormat = format => AD_FORMATS.find( ( { tag } ) => tag === format );
 
-	const renderWordAdsEdit = ( props ) => {
+	const renderWordAdsEdit = props => {
 		const { container } = render( <WordAdsEdit { ...props } /> );
 
+		// eslint-disable-next-line testing-library/no-node-access
 		return container.firstChild.firstChild;
 	};
 
 	// Renders the component, extracting the inner placeholder element and finding
 	// selected format object styles are created from.
-	const renderFormatted = ( format ) => {
+	const renderFormatted = format => {
+		// eslint-disable-next-line testing-library/render-result-naming-convention -- False positive.
 		const placeholder = renderWordAdsEdit( {
 			...defaultProps,
-			attributes: { format }
+			attributes: { format },
 		} );
 		const selectedFormat = getFormat( format );
 
@@ -40,11 +35,14 @@ describe( 'WordAdsEdit', () => {
 	test( 'renders wrapper with correct css class', () => {
 		const { container } = render( <WordAdsEdit { ...defaultProps } /> );
 
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild ).toHaveClass( 'wp-block-jetpack-wordads' );
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild ).toHaveClass( `jetpack-wordads-${ defaultAttributes.format }` );
 	} );
 
 	test( 'renders ad placeholder with correct css class and styles', () => {
+		// eslint-disable-next-line testing-library/render-result-naming-convention -- False positive.
 		const placeholder = renderWordAdsEdit( defaultProps );
 		const selectedFormat = getFormat( defaultAttributes.format );
 

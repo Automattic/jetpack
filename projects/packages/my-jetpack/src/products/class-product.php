@@ -112,6 +112,7 @@ abstract class Product {
 		}
 		return array(
 			'slug'                     => static::$slug,
+			'plugin_slug'              => static::$plugin_slug,
 			'name'                     => static::get_name(),
 			'title'                    => static::get_title(),
 			'description'              => static::get_description(),

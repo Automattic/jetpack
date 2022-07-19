@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Consume Videopress package. Migrate VideoPress XMLRPC class

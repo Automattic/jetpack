@@ -277,6 +277,16 @@ class Jetpack_Podcast_Helper {
 		// Add action: detect the podcast feed from the provided feed URL.
 		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
 
+		/**
+		 * Allow callers to set up any desired hooks when we fetch the content for a podcast.
+		 * The `jetpack_podcast_post_fetch` action can be used to perform cleanup.
+		 *
+		 * @param string $podcast_url URL for the podcast's RSS feed.
+		 *
+		 * @since 11.2
+		 */
+		do_action( 'jetpack_podcast_pre_fetch', $this->feed );
+
 		// Fetch the feed.
 		$rss = fetch_feed( $this->feed );
 
@@ -285,6 +295,20 @@ class Jetpack_Podcast_Helper {
 		if ( true === $force_refresh ) {
 			remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
 		}
+
+		/**
+		 * Allow callers to identify when we have completed fetching a specified podcast feed.
+		 * This makes it possible to clean up any actions or filters that were set up using the
+		 * `jetpack_podcast_pre_fetch` action.
+		 *
+		 * Note that this action runs after other hooks added by Jetpack have been removed.
+		 *
+		 * @param string             $podcast_url URL for the podcast's RSS feed.
+		 * @param SimplePie|WP_Error $rss Either the SimplePie RSS object or an error.
+		 *
+		 * @since 11.2
+		 */
+		do_action( 'jetpack_podcast_post_fetch', $this->feed, $rss );
 
 		if ( is_wp_error( $rss ) ) {
 			return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );

@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Modules\Search as Search_Sync_Module;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -300,7 +301,7 @@ class Search_Widget extends \WP_Widget {
 		}
 
 		if ( Options::is_instant_enabled() ) {
-			if ( array_key_exists( 'id', $args ) && 'jetpack-instant-search-sidebar' === $args['id'] ) {
+			if ( array_key_exists( 'id', $args ) && Instant_Search::INSTANT_SEARCH_SIDEBAR === $args['id'] ) {
 				$this->widget_empty_instant( $args, $instance );
 			} else {
 				$this->widget_instant( $args, $instance );
@@ -964,7 +965,7 @@ class Search_Widget extends \WP_Widget {
 						$seen_taxonomy_labels = array();
 					?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat taxonomy-select">
-						<?php foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $taxonomy ) : ?>
+						<?php foreach ( $this->get_allowed_taxonomies_for_widget_filters() as $taxonomy ) : ?>
 							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php $this->render_widget_option_selected( 'taxonomy', $args['taxonomy'], $taxonomy->name, $is_template ); ?>>
 								<?php
 									$label = in_array( $taxonomy->label, $seen_taxonomy_labels, true )
@@ -1053,4 +1054,32 @@ class Search_Widget extends \WP_Widget {
 		</div>
 		<?php
 	}
+
+	/**
+	 * Returns the taxonomies for search widget taxonomy dropdown.
+	 */
+	protected function get_allowed_taxonomies_for_widget_filters() {
+		return array_filter(
+			get_taxonomies( array( 'public' => true ), 'objects' ),
+			function ( $taxonomy ) {
+				return in_array(
+					$taxonomy->name,
+					/**
+					 * Filters the taxonomies that shows in filter drop downs of the search widget.
+					 *
+					 * @since  0.16.0
+					 *
+					 * @param array $taxonomies_to_show List of taxonomies that shown for search widget.
+					 */
+					apply_filters(
+						'jetpack_search_allowed_taxonomies_for_widget_filters',
+						array_merge( array( 'category', 'post_tag' ), Search_Sync_Module::get_all_taxonomies() )
+					),
+					true
+				);
+			}
+		);
+
+	}
+
 }

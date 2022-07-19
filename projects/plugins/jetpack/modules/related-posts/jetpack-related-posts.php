@@ -201,7 +201,7 @@ class Jetpack_RelatedPosts {
 			$this->action_frontend_init_ajax( $excludes );
 		} else {
 			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- checking if fields are set to setup tracking, nothing is changing on the site.
-				$this->previous_post_id = (int) $_GET['relatedposts_origin']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- fetching a previous post ID for tracking, nothing is changing on the site. 
+				$this->previous_post_id = (int) $_GET['relatedposts_origin']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- fetching a previous post ID for tracking, nothing is changing on the site.
 				$this->log_click( $this->previous_post_id, get_the_ID(), sanitize_text_field( wp_unslash( $_GET['relatedposts_position'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- logging the click for tracking, nothing is changing on the site.
 			}
 
@@ -275,6 +275,7 @@ class Jetpack_RelatedPosts {
 			'postsToShow'       => isset( $rp_settings['size'] ) ? $rp_settings['size'] : 3,
 			/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
 			'headline'          => apply_filters( 'jetpack_relatedposts_filter_headline', $this->get_headline() ),
+			'isServerRendered'  => true,
 		);
 
 		return $this->render_block( $block_rp_settings );
@@ -479,7 +480,11 @@ EOT;
 			$rows_markup .= $this->render_block_row( $lower_row_posts, $block_attributes );
 		}
 
-		$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
+		if ( empty( $attributes['isServerRendered'] ) ) {
+			// The get_server_rendered_html() path won't register a block,
+			// so only apply block supports when not server rendered.
+			$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
+		}
 
 		$display_markup = sprintf(
 			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s</nav>',

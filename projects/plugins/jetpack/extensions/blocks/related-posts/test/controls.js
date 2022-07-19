@@ -1,14 +1,6 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render, screen, fireEvent } from '@testing-library/react';
-
-import {
-	RelatedPostsInspectorControls, RelatedPostsBlockControls
-} from '../controls';
+import { RelatedPostsInspectorControls, RelatedPostsBlockControls } from '../controls';
 
 describe( 'RelatedPostsControls', () => {
 	const defaultAttributes = {
@@ -78,11 +70,11 @@ describe( 'RelatedPostsControls', () => {
 			expect( screen.getByText( 'Number of posts' ) ).toBeInTheDocument();
 		} );
 
-		test( 'sets postsToShow attribute', () => {
+		test( 'sets postsToShow attribute', async () => {
+			const user = userEvent.setup();
 			render( <RelatedPostsInspectorControls { ...defaultProps } /> );
 			const input = screen.getAllByLabelText( 'Number of posts' )[ 1 ];
-			input.focus();
-			fireEvent.change( input, { target: { value: '3' } } );
+			await user.type( input, '3' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { postsToShow: 3 } );
 		} );
