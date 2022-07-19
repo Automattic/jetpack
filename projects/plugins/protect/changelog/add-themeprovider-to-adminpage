@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Add ThemeProvider to AdminPage component and remove it from AdminPage render.
