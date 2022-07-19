@@ -2,8 +2,8 @@
  * WordPress dependencies
  */
 
-import { useBlockProps } from '@wordpress/block-editor';
-import { Spinner, Placeholder, Button, Notice } from '@wordpress/components';
+import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
+import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
@@ -24,25 +24,33 @@ import './editor.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
-const vpPlaceholderIcon = () => <span className="block-editor-block-icon">{ VideoPressIcon }</span>;
-
-export const UploadWrapper = ( { children, errorMessage, onNoticeRemove = () => {} } ) => (
-	<Placeholder
-		icon={ vpPlaceholderIcon }
-		label={ title }
-		instructions={ description }
-		className="videopress-uploader is-videopress-placeholder"
-		notices={
-			errorMessage && (
-				<Notice isError status="error" onRemove={ onNoticeRemove }>
-					{ errorMessage }
-				</Notice>
-			)
+export const PlaceholderWrapper = withNotices( function ( {
+	children,
+	errorMessage,
+	noticeUI,
+	noticeOperations,
+} ) {
+	useEffect( () => {
+		if ( ! errorMessage ) {
+			return;
 		}
-	>
-		{ children }
-	</Placeholder>
-);
+
+		noticeOperations.removeAllNotices();
+		noticeOperations.createErrorNotice( errorMessage );
+	}, [ errorMessage, noticeOperations ] );
+
+	return (
+		<Placeholder
+			icon={ <BlockIcon icon={ VideoPressIcon } /> }
+			label={ title }
+			instructions={ description }
+			className="videopress-uploader is-videopress-placeholder"
+			notices={ noticeUI }
+		>
+			{ children }
+		</Placeholder>
+	);
+} );
 
 export default function VideoPressEdit( { attributes, setAttributes, isSelected, clientId } ) {
 	const {
@@ -61,7 +69,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		cacheHtml,
 		poster,
 		align,
-		cacheThumbnail,
 		videoRatio,
 	} = attributes;
 
@@ -92,13 +99,9 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	);
 
 	// Pick video properties from preview.
-	const {
-		html: previewHtml,
-		scripts,
-		thumbnail_url: previewThumbnail,
-		width: previewWidth,
-		height: previewHeight,
-	} = preview ? preview : { html: null, scripts: [] };
+	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview
+		? preview
+		: { html: null, scripts: [] };
 
 	/*
 	 * Store the preview markup and video thumbnail image
@@ -112,19 +115,14 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	 * until the fetching preview process finishes.
 	 */
 	useEffect( () => {
-		if ( previewHtml && previewHtml !== cacheHtml ) {
-			// Update html cache when the preview changes.
-			setAttributes( { cacheHtml: previewHtml } );
+		if ( ! previewHtml || previewHtml === cacheHtml ) {
+			return;
 		}
 
-		if ( previewThumbnail && previewThumbnail !== cacheThumbnail ) {
-			// Update thumbnail cache when the preview changes.
-			setAttributes( { cacheThumbnail: previewThumbnail } );
-		}
-	}, [ previewHtml, cacheHtml, setAttributes, previewThumbnail, cacheThumbnail ] );
+		setAttributes( { cacheHtml: previewHtml } );
+	}, [ previewHtml, cacheHtml, setAttributes ] );
 
 	const html = previewHtml || cacheHtml;
-	const videoThumbnail = previewThumbnail || cacheThumbnail;
 
 	// Store the video ratio to define the initial height of the video.
 	useEffect( () => {
@@ -236,18 +234,18 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
 	) {
 		return (
-			<UploadWrapper>
+			<PlaceholderWrapper>
 				<Spinner />
 				{ __( 'Generating preview…', 'jetpack' ) }
 				<strong> { generatingPreviewCounter }</strong>
-			</UploadWrapper>
+			</PlaceholderWrapper>
 		);
 	}
 
 	// 5 - Generating video preview
 	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
 		return (
-			<UploadWrapper
+			<PlaceholderWrapper
 				errorMessage={ __( 'Impossible to get a video preview after ten attempts.', 'jetpack' ) }
 				onNoticeRemove={ invalidateResolution }
 			>
@@ -264,7 +262,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 						{ __( 'Cancel', 'jetpack' ) }
 					</Button>
 				</div>
-			</UploadWrapper>
+			</PlaceholderWrapper>
 		);
 	}
 
@@ -279,7 +277,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 			/>
 			<VideoPressPlayer
 				html={ html }
-				thumbnail={ videoThumbnail }
 				isUpdatingPreview={ ! previewHtml }
 				scripts={ scripts }
 				attributes={ attributes }
