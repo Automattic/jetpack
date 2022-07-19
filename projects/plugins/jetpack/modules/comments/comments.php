@@ -311,7 +311,12 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
 		}
 
-		$blog_token        = ( new Tokens() )->get_access_token();
+		$blog_token = ( new Tokens() )->get_access_token();
+		// If we have no token, bail.
+		if ( ! $blog_token || is_wp_error( $blog_token ) ) {
+			return;
+		}
+
 		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
 		// Prophylactic check: anything else should never happen.
 		if ( $token_key && $token_key !== $blog_token->secret ) {
