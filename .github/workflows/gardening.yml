@@ -1,7 +1,7 @@
 name: Gardening
 on:
   pull_request_target: # When a PR is opened, edited, updated, closed, or a label is added.
-    types: [opened, reopened, synchronize, edited, labeled, closed]
+    types: [opened, reopened, synchronize, edited, labeled, closed, converted_to_draft]
   issues: # For auto-triage of issues.
     types: [opened, reopened, edited]
   issue_comment: # To gather support references in issue comments.
