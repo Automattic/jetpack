@@ -186,7 +186,7 @@ class VideoPress_Edit_Attachment {
 
 		$fields['post_excerpt']['label'] = _x( 'Description', 'A header for the short description display', 'jetpack' );
 		$fields['post_excerpt']['input'] = 'textarea';
-		$fields['post_excerpt']['value'] = $info->description;
+		$fields['post_excerpt']['value'] = ! empty( $info->description ) ? $info->descrption : '';
 
 		$fields['is_videopress_attachment'] = array(
 			'input' => 'hidden',
@@ -310,7 +310,7 @@ HTML;
 			"attachments-{$info->post_id}-displayembed",
 			"attachments[{$info->post_id}][display_embed]",
 			__( 'Display share menu and allow viewers to copy a link or embed this video', 'jetpack' ),
-			$info->display_embed
+			isset( $info->display_embed ) ? $info->display_embed : 0
 		);
 	}
 
@@ -375,7 +375,8 @@ HTML;
 			'R-17'  => 'R',
 		);
 
-		$displayed_rating = $info->rating;
+		$displayed_rating = isset( $info->rating ) ? $info->rating : 'G';
+
 		// X-18 was previously supported but is now removed to better comply with our TOS.
 		if ( 'X-18' === $displayed_rating ) {
 			$displayed_rating = 'R-17';
