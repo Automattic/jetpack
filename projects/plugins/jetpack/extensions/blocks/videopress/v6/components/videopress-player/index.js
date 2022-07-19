@@ -130,6 +130,7 @@ export default function VideoPressPlayer( {
 		} );
 	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame, autoplayHoveringStart ] );
 
+	// Pause the video when it's playing because of the autoplay hoverting.
 	const onVideoPressTimeUpdateHandler = useCallback(
 		( { detail } ) => {
 			if ( ! isAutoplayHoveringEnabled ) {
@@ -147,14 +148,30 @@ export default function VideoPressPlayer( {
 	);
 
 	useEffect( () => {
-		window.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
-		window.addEventListener( 'onVideoPressTimeUpdate', onVideoPressTimeUpdateHandler );
+		if ( ! sandboxIFrame?.contentWindow ) {
+			return;
+		}
+
+		sandboxIFrame?.contentWindow.addEventListener(
+			'onVideoPressLoadingState',
+			onVideoLoadingStateHandler
+		);
+		sandboxIFrame?.contentWindow.addEventListener(
+			'onVideoPressTimeUpdate',
+			onVideoPressTimeUpdateHandler
+		);
 
 		return () => {
-			window.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
-			window.removeEventListener( 'onVideoPressTimeUpdate', onVideoPressTimeUpdateHandler );
+			sandboxIFrame?.contentWindow.removeEventListener(
+				'onVideoPressLoadingState',
+				onVideoLoadingStateHandler
+			);
+			sandboxIFrame?.contentWindow.removeEventListener(
+				'onVideoPressTimeUpdate',
+				onVideoPressTimeUpdateHandler
+			);
 		};
-	}, [ onVideoLoadingStateHandler, onVideoPressTimeUpdateHandler ] );
+	}, [ sandboxIFrame, onVideoLoadingStateHandler, onVideoPressTimeUpdateHandler ] );
 
 	// Play/stop autoplay hovering handling.
 	useEffect( () => {
