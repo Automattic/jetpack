@@ -246,7 +246,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Enhancements
 - Blocks: enable Jetpack block collection for the native editor block inserter (on self hosted Jetpack sites).
 - Connection: make sure pre-existing settings are respected on plugin activation.
-- VideoPress: add UX improvements including fallback thumbnail replaced by loading element, and better error messaging (in Beta only). [#25088, #25064]
+- VideoPress: add UX improvements including fallback thumbnail replaced by loading element, and better error messaging (in Beta only).
 
 #### Improved compatibility
 - Admin UI: add h1 page headings for better screen reader navigation.
