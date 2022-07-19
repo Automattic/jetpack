@@ -3949,6 +3949,7 @@ p {
 						$url = add_query_arg( 'auth_approved', 'true', $url );
 					}
 
+					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $url );
 					exit;
 				case 'activate':
