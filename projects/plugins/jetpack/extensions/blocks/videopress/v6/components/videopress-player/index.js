@@ -44,6 +44,7 @@ export default function VideoPressPlayer( {
 	setAttributes,
 	scripts = [],
 	preview,
+	onDurationChange,
 } ) {
 	const ref = useRef();
 	const { maxWidth, caption, videoRatio, autoplayHovering, autoplayHoveringStart } = attributes;
@@ -163,6 +164,17 @@ export default function VideoPressPlayer( {
 		[ isAutoplayHoveringEnabled, autoplayHoveringStart, autoPauseVideo, sandboxIFrame ]
 	);
 
+	const onVideoPressDurationChangeHandler = useCallback(
+		( { detail } ) => {
+			if ( ! detail?.duration ) {
+				return;
+			}
+
+			onDurationChange( detail.duration );
+		},
+		[ onDurationChange ]
+	);
+
 	useEffect( () => {
 		if ( ! sandboxIFrame?.contentWindow ) {
 			return;
@@ -171,12 +183,25 @@ export default function VideoPressPlayer( {
 
 		iFrameWindow.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
 		iFrameWindow.addEventListener( 'onVideoPressTimeUpdate', onVideoPressTimeUpdateHandler );
+		iFrameWindow.addEventListener(
+			'onVideoPressDurationChange',
+			onVideoPressDurationChangeHandler
+		);
 
 		return () => {
 			iFrameWindow?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
 			iFrameWindow?.removeEventListener( 'onVideoPressTimeUpdate', onVideoPressTimeUpdateHandler );
+			iFrameWindow?.removeEventListener(
+				'onVideoPressDurationChange',
+				onVideoPressDurationChangeHandler
+			);
 		};
-	}, [ sandboxIFrame, onVideoLoadingStateHandler, onVideoPressTimeUpdateHandler ] );
+	}, [
+		sandboxIFrame,
+		onVideoLoadingStateHandler,
+		onVideoPressTimeUpdateHandler,
+		onVideoPressDurationChangeHandler,
+	] );
 
 	// Play/stop autoplay hovering handling.
 	useEffect( () => {
