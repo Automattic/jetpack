@@ -3,8 +3,9 @@ import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { getDate, date, dateI18n } from '@wordpress/date';
-import { createInterpolateElement, useState, useEffect } from '@wordpress/element';
+import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import useAnalytics from '../hooks/useAnalytics';
 import { STORE_ID } from '../store';
 import StatBlock from './StatBlock';
 import './backups-style.scss';
@@ -20,6 +21,8 @@ import UploadsIcon from './icons/uploads.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
+	const { tracks } = useAnalytics();
+
 	// State information
 	const [ progress, setProgress ] = useState( 0 );
 	const [ trackProgress, setTrackProgress ] = useState( 0 );
@@ -110,6 +113,14 @@ const Backups = () => {
 		);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ trackProgress ] );
+
+	const trackSeeBackupsCtaClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_see_backups_cta_click', { site: domain } );
+	}, [ tracks, domain ] );
+
+	const trackRecentRestorePointClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_view_recent_restore_points_click', { site: domain } );
+	}, [ tracks, domain ] );
 
 	const renderInProgressBackup = ( showProgressBar = true ) => {
 		return (
@@ -224,6 +235,7 @@ const Backups = () => {
 									<a
 										className="button is-full-width"
 										href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+										onClick={ trackSeeBackupsCtaClick }
 										target="_blank"
 										rel="noreferrer"
 									/>
@@ -233,6 +245,7 @@ const Backups = () => {
 									<ExternalLink
 										className="backup__restore-point-link"
 										href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
+										onClick={ trackRecentRestorePointClick }
 									/>
 								),
 							}

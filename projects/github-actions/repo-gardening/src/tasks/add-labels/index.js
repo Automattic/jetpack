@@ -1,5 +1,5 @@
-const debug = require( '../../debug' );
-const getFiles = require( '../../get-files' );
+const debug = require( '../../utils/debug' );
+const getFiles = require( '../../utils/get-files' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 

@@ -1,5 +1,5 @@
-const debug = require( '../../debug' );
-const getLabels = require( '../../get-labels' );
+const debug = require( '../../utils/debug' );
+const getLabels = require( '../../utils/get-labels' );
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -19,21 +19,43 @@ async function hasPriorityLabels( octokit, owner, repo, number ) {
 }
 
 /**
- * Find specific plugin impacted by issue, based off issue contents.
+ * Find list of plugins impacted by issue, based off issue contents.
  *
  * @param {string} body - The issue content.
- * @returns {string} Plugin concerned by issue.
+ * @returns {Array} Plugins concerned by issue.
  */
-function findPlugin( body ) {
-	const regex = /###\sImpacted\splugin\n\n(\w*)\n/gm;
+function findPlugins( body ) {
+	const regex = /###\sImpacted\splugin\n\n([a-zA-Z ,]*)\n\n/gm;
 
-	let match;
-	while ( ( match = regex.exec( body ) ) ) {
-		const [ , plugin ] = match;
-		return plugin;
+	const match = regex.exec( body );
+	if ( match ) {
+		const [ , plugins ] = match;
+		return plugins.split( ', ' ).filter( v => v.trim() !== '' );
 	}
 
-	return null;
+	debug( `triage-new-issues: No plugin indicators found.` );
+	return [];
+}
+
+/**
+ * Find platform info, based off issue contents.
+ *
+ * @param {string} body - The issue content.
+ * @returns {Array} Platforms impacted by issue.
+ */
+function findPlatforms( body ) {
+	const regex = /###\sPlatform\s\(Simple,\sAtomic,\sor\sboth\?\)\n\n([a-zA-Z ,-]*)\n\n/gm;
+
+	const match = regex.exec( body );
+	if ( match ) {
+		const [ , platforms ] = match;
+		return platforms
+			.split( ', ' )
+			.filter( platform => platform !== 'Self-hosted' && platform.trim() !== '' );
+	}
+
+	debug( `triage-new-issues: no platform indicators found.` );
+	return [];
 }
 
 /**
@@ -82,16 +104,33 @@ async function triageNewIssues( payload, octokit ) {
 	const { owner, name } = repository;
 	const ownerLogin = owner.login;
 
-	// Find impacted plugin.
-	const impactedPlugin = findPlugin( body );
-	if ( null !== impactedPlugin ) {
-		debug( `triage-new-issues: Adding plugin label to issue #${ number }` );
+	// Find impacted plugins.
+	const impactedPlugins = findPlugins( body );
+	if ( impactedPlugins.length > 0 ) {
+		debug( `triage-new-issues: Adding plugin labels to issue #${ number }` );
+
+		const pluginLabels = impactedPlugins.map( plugin => `[Plugin] ${ plugin }` );
 
 		await octokit.rest.issues.addLabels( {
 			owner: ownerLogin,
 			repo: name,
 			issue_number: number,
-			labels: [ `[Plugin] ${ impactedPlugin }` ],
+			labels: pluginLabels,
+		} );
+	}
+
+	// Find platform info.
+	const impactedPlatforms = findPlatforms( body );
+	if ( impactedPlatforms.length > 0 ) {
+		debug( `triage-new-issues: Adding platform labels to issue #${ number }` );
+
+		const platformLabels = impactedPlatforms.map( platform => `[Platform] ${ platform }` );
+
+		await octokit.rest.issues.addLabels( {
+			owner: ownerLogin,
+			repo: name,
+			issue_number: number,
+			labels: platformLabels,
 		} );
 	}
 

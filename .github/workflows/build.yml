@@ -209,6 +209,9 @@ jobs:
             # Don't use plugin-version.sh here, updating JETPACK__VERSION would clutter stats.
             sed -i -e 's/Version: .*$/Version: '"$CURRENT_VERSION"'/' "work/${SLUG}-dev"/*.php
 
+            # Remove .github directory.
+            rm -rf "work/${SLUG}-dev/.github"
+
             # Zip the plugin
             ( cd work && zip -9 -r "../zips/${SLUG}-dev.zip" "${SLUG}-dev" )
 
