@@ -27,24 +27,22 @@ export default function save( { attributes } ) {
 	const features = {
 		autoplayHovering,
 		autoplayHoveringStart,
+		videoRatio,
 	};
 
 	// Adjust block with based on custom maxWidth.
 	const style = {
 		width: '100%',
+		height: 'auto',
 		overflow: 'hidden',
 		border: 0,
 		margin: 0,
 	};
 
-	let w = parseInt( maxWidth.replace( /[a-z|A-Z]./, '' ) );
 	const hasCustomSize = maxWidth && maxWidth.length > 0 && '100%' !== maxWidth;
 	if ( hasCustomSize ) {
 		style.maxWidth = maxWidth;
 		style.margin = 'auto';
-	} else {
-		const iFrameWidth = cacheHtml.match( /width=['|"](.*?)['|"]/i );
-		w = iFrameWidth ? parseInt( iFrameWidth[ 1 ] ) : w;
 	}
 
 	return (
@@ -59,7 +57,7 @@ export default function save( { attributes } ) {
 				sandbox="allow-scripts allow-same-origin allow-presentation"
 				title={ caption }
 				width={ style.width }
-				height={ ( w * videoRatio ) / 100 }
+				height={ style.height }
 				frameBorder="0"
 				allowFullScreen
 			/>

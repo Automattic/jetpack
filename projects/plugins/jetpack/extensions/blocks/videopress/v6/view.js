@@ -17,10 +17,21 @@ window.debugBridgeInstance = debugFactory( 'jetpack:vp-block:bridge' );
 
 const BLOCK_CLASSNAME = 'wp-block-jetpack-videopress';
 
+function debounce( fn, delay = 100 ) {
+	let timer;
+	return function ( event ) {
+		if ( timer ) {
+			clearTimeout( timer );
+		}
+		timer = setTimeout( fn, delay, event );
+	};
+}
+
 function isFrameAccessible( iFrameDomRef ) {
 	try {
 		return !! iFrameDomRef.contentDocument.body;
 	} catch ( e ) {
+		debug( 'Error accessing iframe: ', e );
 		return false;
 	}
 }
@@ -29,17 +40,23 @@ function tryToGetFeatures( domElement ) {
 	try {
 		return JSON.parse( domElement.dataset.features );
 	} catch ( e ) {
-		return debug( 'Error parsing json: ', e );
+		return debug( 'Error parsing features json: ', e );
 	}
 }
 
 function tryToGetHTML( domElement ) {
 	try {
-		return JSON.parse( domElement.dataset.html );
+		const html = JSON.parse( domElement.dataset.html );
+		domElement.removeAttribute( 'data-html' );
+		return html;
 	} catch ( e ) {
-		debug( 'error parsing json: ', e );
+		debug( 'error parsing html json: ', e );
 		return;
 	}
+}
+
+function setPlayerheight( wrapperElement, iFrame, ratio ) {
+	iFrame.setAttribute( 'height', ( wrapperElement.offsetWidth * ratio ) / 100 );
 }
 
 function initVideoPressBlocks( blockDOMReference, clientId ) {
@@ -52,22 +69,26 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 
 	const html = tryToGetHTML( blockDOMReference );
 	if ( ! html ) {
-		return debug( 'ERROR No html provided' );
+		return;
 	}
 
 	const playerIFrame = blockDOMReference.querySelector( 'iframe' );
 	if ( ! isFrameAccessible( playerIFrame ) ) {
-		return debug( 'iframe is not accessible' );
+		return;
 	}
 
 	const { contentDocument, ownerDocument, contentWindow } = playerIFrame;
+	const { autoplayHovering, autoplayHoveringStart, videoRatio } = features;
+
+	setPlayerheight( blockDOMReference, playerIFrame, videoRatio );
+
 	const __html = '<div class="videopress-player-container">' + html + '</div>';
 
 	const htmlDoc = `
 		<html lang=${ ownerDocument.documentElement.lang }>
 			<head>
 				<title>${ ownerDocument.documentElement.title }</title>
-				<style>body { margin: 0 padding: 0; border: 0; overflow: hidden;}</style>
+				<style>body { margin: 0; padding: 0; border: 0; overflow: hidden; }</style>
 			</head>
 			<body>
 				${ __html }
@@ -81,6 +102,14 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 	contentDocument.open();
 	contentDocument.write( '<!DOCTYPE html>' + htmlDoc );
 	contentDocument.close();
+
+	// Set the iframe height when resizing the window.
+	contentWindow.addEventListener(
+		'resize',
+		debounce( function () {
+			setPlayerheight( blockDOMReference, playerIFrame, videoRatio );
+		} )
+	);
 
 	// Hack to set current time on the video.
 	function positionatePlayer() {
@@ -107,10 +136,9 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 	}
 	// End of hack.
 
-	const { autoplayHovering, autoplayHoveringStart } = features;
 	blockDOMReference.setAttribute( 'data-jetpack-block-initialized', true );
 
-	// Autoplay hover feature.
+	// Autoplay hovering feature.
 	if ( autoplayHovering && playerIFrame ) {
 		debug( 'adding autoplay hovering feature' );
 
