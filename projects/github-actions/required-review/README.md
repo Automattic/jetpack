@@ -61,6 +61,10 @@ This action is intended to be triggered by the `pull_request_review` event.
     # PR's checks list.
     status: Required review
 
+    # By default, 'review required' statuses will be set to pending. Set
+    # this to instead fail the status checks instead of leaving them pending.
+    fail: true
+
     # GitHub Access Token. The user associated with this token will show up
     # as the "creator" of the status check, and must have access to read
     # pull request data, create status checks (`repo:status`), and to read

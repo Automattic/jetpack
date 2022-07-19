@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.8 - 2022-07-19
+### Changed
+- Updated package dependencies. [#24710]
+
+### Fixed
+- Gridicon: Change title to desc [#25081]
+
 ## 0.16.7 - 2022-07-12
 ### Changed
 - JS Components: Converted ProductPrice component to TypeScript [#24931]

@@ -207,6 +207,17 @@ class Jetpack_Backup {
 			)
 		);
 
+		// Get site rewind data.
+		register_rest_route(
+			'jetpack/v4',
+			'/restores',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_recent_restores',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+
 		// Get information on site products.
 		// Backup plugin version of /site/purchases from JP plugin.
 		// Revert once this route and MyPlan component are extracted to a common package.
@@ -304,6 +315,33 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Get information about recent restores
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array An array of recent restores
+	 */
+	public static function get_recent_restores() {
+		$blog_id  = \Jetpack_Options::get_option( 'id' );
+		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+			'/sites/' . $blog_id . '/rewind/restores',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== $response['response']['code'] ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+	}
+
+	/**
 	 * Gets information about the currently promoted backup product.
 	 *
 	 * @return string|WP_Error A JSON object of the current backup product being promoted if the request was successful, or a WP_Error otherwise.
@@ -371,7 +409,7 @@ class Jetpack_Backup {
 			array(
 				'code'    => 'success',
 				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack-backup-pkg' ),
-				'data'    => wp_remote_retrieve_body( $response ),
+				'data'    => $results,
 			)
 		);
 	}
