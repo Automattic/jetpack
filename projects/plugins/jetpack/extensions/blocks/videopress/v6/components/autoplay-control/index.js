@@ -49,6 +49,11 @@ export default function AutoplayControl( { attributes, setAttributes, videoDurat
 			/>
 
 			<RangeControl
+				label={ renderControlLabelWithTooltip(
+					__( 'Starting time', 'jetpack' ),
+					/* translators: Tooltip describing the "starting time" option for the VideoPress player */
+					__( 'The time at which the video will start playing', 'jetpack' )
+				) }
 				min={ 0 }
 				max={ videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : startingTime }
 				initialPosition={ 0 }
