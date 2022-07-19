@@ -9,6 +9,7 @@ import { VIDEO_AUTOPLAY_DURATION } from './constants';
 import { rawBridgeScript } from './scripts/vp-block-bridge';
 import dispatchPlayerAction from './utils/dispatcher';
 import './style.scss';
+import { setInitialTimeHelper } from './utils/player';
 
 const debug = debugFactory( 'jetpack:vpblock' );
 
@@ -111,31 +112,6 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 		} )
 	);
 
-	// Hack to set current time on the video.
-	function positionatePlayer() {
-		dispatchPlayerAction( playerIFrame, 'vpBlockActionSetCurrentTime', {
-			currentTime: autoplayHoveringStart,
-		} );
-		dispatchPlayerAction( playerIFrame, 'vpBlockActionPause' );
-		setTimeout( () => {
-			// Auto clean up the listener.
-			contentWindow.removeEventListener( 'onVideoPressPlaying', positionatePlayer );
-		}, 0 );
-	}
-
-	function setInitialTime() {
-		contentWindow.addEventListener( 'onVideoPressPlaying', positionatePlayer );
-
-		// Hack: Play video to be able to set the current time.
-		dispatchPlayerAction( playerIFrame, 'vpBlockActionPlay' );
-
-		setTimeout( () => {
-			// Once the video current time is set, clean up the listener.
-			contentWindow.removeEventListener( 'onVideoPressLoadingState', setInitialTime );
-		}, 0 );
-	}
-	// End of hack.
-
 	blockDOMReference.setAttribute( 'data-jetpack-block-initialized', true );
 
 	// Autoplay hovering feature.
@@ -143,7 +119,11 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 		debug( 'adding autoplay hovering feature' );
 
 		// When video is ready, set initial time position.
-		contentWindow.addEventListener( 'onVideoPressLoadingState', setInitialTime );
+		contentWindow.addEventListener( 'onVideoPressLoadingState', () =>
+			setInitialTimeHelper( playerIFrame, autoplayHoveringStart, function () {
+				contentWindow.removeEventListener( 'onVideoPressLoadingState', setInitialTimeHelper );
+			} )
+		);
 
 		// Stop autoplay hovering after VIDEO_AUTOPLAY_DURATION seconds.
 		contentWindow.addEventListener( 'onVideoPressTimeUpdate', event => {
