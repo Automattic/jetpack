@@ -25,7 +25,10 @@ const PosterImageWrapper = props => {
 	return (
 		<div className="resumable-upload__editor-thumb-placeholder">
 			{ videoPosterImageUrl ? (
-				<img src={ videoPosterImageUrl } alt="Poster" />
+				<>
+					<img src={ videoPosterImageUrl } alt="Poster" />
+					<Icon className="uploading-editor__play-icon" icon={ PlayIcon } />
+				</>
 			) : (
 				<span>No Poster Selected</span>
 			) }
@@ -148,7 +151,9 @@ export const UploadingEditor = props => {
 												style={ posterSelectedStyle }
 											/>
 										</div>
-										<Icon className="uploading-editor__play-icon" icon={ PlayIcon } />
+										{ ! videoPosterImageData && (
+											<Icon className="uploading-editor__play-icon" icon={ PlayIcon } />
+										) }
 									</div>
 									<span style={ posterSelectedStyle }>
 										<RangeControl

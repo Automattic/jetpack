@@ -44,6 +44,11 @@
 	transition: opacity 0.3s ease-out; 
 }
 
+.resumable-upload__editor-thumb-placeholder .uploading-editor__play-icon {
+	// Magic math to fix centering of play icon: 65px + 26px height of UI buttons
+	margin-top: -91px;
+}
+
 .uploading-editor__scrubber-help {
 	color: $gray-700;
 }
