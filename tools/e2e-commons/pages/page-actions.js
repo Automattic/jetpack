@@ -295,12 +295,12 @@ export default class PageActions {
 	 *
 	 * @param {string} selector
 	 * @param {number} timeout
-	 * @return {Promise<boolean>} true if element is visible, false otherwise
+	 * @return {Promise<boolean>} true if at least one element with the given selector is visible, false otherwise
 	 */
 	async isElementVisible( selector, timeout = this.timeout ) {
 		logger.action( `Checking if element '${ selector }' is visible` );
 		try {
-			await this.page.locator( selector ).waitFor( { timeout } );
+			await this.page.locator( selector ).first().waitFor( { timeout } );
 			return true;
 		} catch ( e ) {
 			logger.warn( `Element '${ selector }' was not visible. Waited for ${ timeout }ms` );
