@@ -117,6 +117,7 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 	// Autoplay hovering feature.
 	if ( autoplayHovering && playerIFrame ) {
 		debug( 'adding autoplay hovering feature' );
+		let autoPlayingFinished = false;
 
 		// When video is ready, set initial time position.
 		contentWindow.addEventListener( 'onVideoPressLoadingState', () =>
@@ -132,19 +133,22 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 				return;
 			}
 
+			autoPlayingFinished = true;
 			dispatchPlayerAction( playerIFrame, 'vpBlockActionPause' );
 		} );
 
 		blockDOMReference.addEventListener( 'mouseenter', () => {
+			autoPlayingFinished = false;
 			dispatchPlayerAction( playerIFrame, 'vpBlockActionPlay' );
 		} );
 
 		blockDOMReference.addEventListener( 'mouseleave', () => {
-			dispatchPlayerAction( playerIFrame, 'vpBlockActionSetCurrentTime', {
-				currentTime: autoplayHoveringStart,
-			} );
-
 			dispatchPlayerAction( playerIFrame, 'vpBlockActionPause' );
+			if ( autoPlayingFinished ) {
+				dispatchPlayerAction( playerIFrame, 'vpBlockActionSetCurrentTime', {
+					currentTime: autoplayHoveringStart,
+				} );
+			}
 		} );
 	}
 }
