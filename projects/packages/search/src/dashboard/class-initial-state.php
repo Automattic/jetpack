@@ -99,6 +99,7 @@ class Initial_State {
 		if ( ! Helper::is_wpcom() ) {
 			return esc_url_raw( rest_url() );
 		}
+		// First party API prefix for WPCOM.
 		return esc_url_raw( site_url( '/wp-json/wpcom-origin/' ) );
 	}
 
