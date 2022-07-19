@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Adding hidden h1 dashboard headings for screenreaders

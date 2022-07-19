@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 use Automattic\Jetpack\VideoPress\Options as VideoPress_Options;
 use Automattic\Jetpack\VideoPress\XMLRPC;
 
@@ -44,6 +45,7 @@ class Jetpack_VideoPress {
 	private function __construct() {
 		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
+		VideoPress_Initializer::init();
 	}
 
 	/**

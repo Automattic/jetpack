@@ -641,7 +641,7 @@ function stats_reports_page( $main_chart_only = false ) {
 
 	<div id="jp-stats-wrap">
 		<div class="wrap">
-			<h2><?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
+			<h1><?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
 			<?php
 			if ( current_user_can( 'jetpack_manage_modules' ) ) :
 				$i18n_headers = jetpack_get_module_i18n( 'stats' );

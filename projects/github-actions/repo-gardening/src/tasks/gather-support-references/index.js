@@ -91,6 +91,9 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
  */
 function buildCommentBody( issueReferences, checkedRefs = new Set() ) {
 	const commentBody = `**Support References**
+
+*This comment is automatically generated. Please do not edit it.*
+
 ${ issueReferences
 	.map(
 		reference => `
