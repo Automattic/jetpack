@@ -21,12 +21,12 @@ const debouncedOnChange = debounce( ( domElement, currentTime ) => {
 		return;
 	}
 
-	dispatchPlayerAction( domElement, 'videopress_action_set_currenttime', {
+	dispatchPlayerAction( domElement, 'vpBlockActionSetCurrentTime', {
 		currentTime,
 	} );
 
-	dispatchPlayerAction( domElement, 'videopress_action_play' );
-	setTimeout( () => dispatchPlayerAction( domElement, 'videopress_action_pause' ), 0 );
+	dispatchPlayerAction( domElement, 'vpBlockActionPlay' );
+	setTimeout( () => dispatchPlayerAction( domElement, 'vpBlockActionPause' ), 0 );
 }, 250 );
 
 export default function AutoplayControl( { attributes, setAttributes } ) {
