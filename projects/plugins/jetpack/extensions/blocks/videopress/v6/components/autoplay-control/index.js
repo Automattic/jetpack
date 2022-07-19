@@ -18,9 +18,6 @@ export default function AutoplayControl( { attributes, setAttributes, videoDurat
 	const { autoplay, autoplayHovering, autoplayHoveringStart } = attributes;
 	const [ startingTime, setStartingTime ] = useState( autoplayHoveringStart );
 
-	/* translators: Tooltip describing the "autoplay-hovering" option for the VideoPress player */
-	const autoplayHoveringHelp = __( 'Play automatically when hovering over it', 'jetpack' );
-
 	const onStartingTimeChange = useCallback(
 		newTime => {
 			setStartingTime( newTime );
@@ -64,13 +61,14 @@ export default function AutoplayControl( { attributes, setAttributes, videoDurat
 				<ToggleControl
 					label={ renderControlLabelWithTooltip(
 						__( 'Autoplay when hovering', 'jetpack' ),
-						autoplayHoveringHelp
+						/* translators: Tooltip describing the "autoplay-hovering" option for the VideoPress player */
+						__( 'Play automatically when hovering over it', 'jetpack' )
 					) }
 					onChange={ newValue => {
 						setAttributes( { autoplayHovering: newValue } );
 					} }
 					checked={ autoplayHovering }
-					help={ autoplayHoveringHelp }
+					help={ __( 'Play automatically when hovering over it', 'jetpack' ) }
 				/>
 			) }
 		</PanelBody>
