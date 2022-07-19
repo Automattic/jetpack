@@ -164,6 +164,7 @@ export default function VideoPressPlayer( {
 		[ isAutoplayHoveringEnabled, autoplayHoveringStart, autoPauseVideo, sandboxIFrame ]
 	);
 
+	// Listen and trigger onDurationChange
 	const onVideoPressDurationChangeHandler = useCallback(
 		( { detail } ) => {
 			if ( ! detail?.duration ) {
@@ -174,6 +175,15 @@ export default function VideoPressPlayer( {
 		},
 		[ onDurationChange ]
 	);
+
+	useEffect( () => {
+		if ( ! sandboxIFrame ) {
+			return;
+		}
+		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionSetCurrentTime', {
+			currentTime: autoplayHoveringStart,
+		} );
+	}, [ autoplayHoveringStart, sandboxIFrame ] );
 
 	useEffect( () => {
 		if ( ! sandboxIFrame?.contentWindow ) {
