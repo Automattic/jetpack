@@ -1,14 +1,14 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 const moment = require( 'moment' );
-const debug = require( '../../debug' );
-const getAffectedChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
-const getComments = require( '../../get-comments' );
-const getFiles = require( '../../get-files' );
-const getLabels = require( '../../get-labels' );
-const getNextValidMilestone = require( '../../get-next-valid-milestone' );
-const getPluginNames = require( '../../get-plugin-names' );
-const getPrWorkspace = require( '../../get-pr-workspace' );
+const debug = require( '../../utils/debug' );
+const getAffectedChangeloggerProjects = require( '../../utils/get-affected-changelogger-projects' );
+const getComments = require( '../../utils/get-comments' );
+const getFiles = require( '../../utils/get-files' );
+const getLabels = require( '../../utils/get-labels' );
+const getNextValidMilestone = require( '../../utils/get-next-valid-milestone' );
+const getPluginNames = require( '../../utils/get-plugin-names' );
+const getPrWorkspace = require( '../../utils/get-pr-workspace' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 

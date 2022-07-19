@@ -2,6 +2,38 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.2-a.5 - 2022-07-19
+### Enhancements
+- Added default modules to the list of modules to be activated in case of a preexisetting. [#24980]
+- Enable Jetpack block collection for the native editor block inserter. [#25092]
+- Jetpack: handle Loading state listeging vp events [#25096]
+- Jetpack: iterate over VPBlock UI errors [#25064]
+- Jetpack: replace fallback thumbail by a Loading element [#25088]
+- Jetpack: show Mediaplceholder errors in the VPBlock [#25069]
+- Jetpack: use BlockIcon in Placeholder cmp - vpblock [#25062]
+- Jetpack: VPBlock. Clean obsolte attr. Janitorial. [#25095]
+
+### Improved compatibility
+- Adding hidden h1 dashboard headings for screenreaders [#24930]
+- Consume Videopress package. Migrate VideoPress XMLRPC class [#24997]
+- Custom Post Types: change Nova functions to public to re-allow hooking. [#25084]
+- move VideoPress options to its package [#25047]
+
+### Bug fixes
+- Form block: Fix Checkbox Group color [#24932]
+- Masterbar: Store the base path for preferred screen i.e remove query params to prevent the same page being stored twice as page.php and page.php?query_params [#25074]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- E2E tests: remove the search package build step [#25080]
+- Init 11.2-a.4 [#25072]
+- Jetpack 11.2-a.3 changelog editorial [#25073]
+- Rewrite to drop dependency on experimental BlockVariationPicker from Gutenberg [#24909]
+- Updated package dependencies. [#24710]
+- Updated package dependencies. [#24836]
+- Updated package dependencies. [#24998]
+- Updated package dependencies. [#25086]
+- WordPress.com REST API: Allow the endpoint '/sites/%s/themes/mine' to receive the 'dont_change_homepage' argument as part of the POST body. [#25070]
+
 ## 11.2-a.3 - 2022-07-12
 ### Enhancements
 - Podcast Player: add new actions to make it possible for users to set up code that runs for podcast fetches. [#25046]
@@ -21,7 +53,6 @@
 - Use JS built-in `URLSearchParams` instead of `query-string` package. [#24994]
 - VideoPress: under the hood improvements such as adding new components. [#24974, #25058]
 - VideoPress: add videopress package as dependency. [#25045]
-
 
 ## 11.2-a.1 - 2022-07-06
 ### Enhancements

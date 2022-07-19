@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Masterbar: Store the base path for preferred screen i.e remove query params to prevent the same page being stored twice as page.php and page.php?query_params
