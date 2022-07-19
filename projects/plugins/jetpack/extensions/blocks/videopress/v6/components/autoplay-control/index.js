@@ -48,33 +48,35 @@ export default function AutoplayControl( { attributes, setAttributes, videoDurat
 				}
 			/>
 
-			<RangeControl
-				label={ renderControlLabelWithTooltip(
-					__( 'Starting time', 'jetpack' ),
-					/* translators: Tooltip describing the "starting time" option for the VideoPress player */
-					__( 'The time at which the video will start playing', 'jetpack' )
-				) }
-				min={ 0 }
-				max={ videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : startingTime }
-				initialPosition={ 0 }
-				value={ startingTime }
-				onChange={ onStartingTimeChange }
-				withInputField={ false }
-			/>
-
 			{ autoplay && (
-				<ToggleControl
-					label={ renderControlLabelWithTooltip(
-						__( 'Autoplay when hovering', 'jetpack' ),
-						/* translators: Tooltip describing the "autoplay-hovering" option for the VideoPress player */
-						__( 'Play automatically when hovering over it', 'jetpack' )
-					) }
-					onChange={ newValue => {
-						setAttributes( { autoplayHovering: newValue } );
-					} }
-					checked={ autoplayHovering }
-					help={ __( 'Play automatically when hovering over it', 'jetpack' ) }
-				/>
+				<>
+					<RangeControl
+						label={ renderControlLabelWithTooltip(
+							__( 'Starting time', 'jetpack' ),
+							/* translators: Tooltip describing the "starting time" option for the VideoPress player */
+							__( 'The time at which the video will start playing', 'jetpack' )
+						) }
+						min={ 0 }
+						max={ videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : startingTime }
+						initialPosition={ 0 }
+						value={ startingTime }
+						onChange={ onStartingTimeChange }
+						withInputField={ false }
+					/>
+
+					<ToggleControl
+						label={ renderControlLabelWithTooltip(
+							__( 'Autoplay when hovering', 'jetpack' ),
+							/* translators: Tooltip describing the "autoplay-hovering" option for the VideoPress player */
+							__( 'Play automatically when hovering over it', 'jetpack' )
+						) }
+						onChange={ newValue => {
+							setAttributes( { autoplayHovering: newValue } );
+						} }
+						checked={ autoplayHovering }
+						help={ __( 'Play automatically when hovering over it', 'jetpack' ) }
+					/>
+				</>
 			) }
 		</PanelBody>
 	);
