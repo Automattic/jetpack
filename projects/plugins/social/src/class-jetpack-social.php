@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Social\Settings;
 use Automattic\Jetpack\Status;
 
 /**
@@ -147,19 +148,20 @@ class Jetpack_Social {
 
 		$shares_count = $publicize->get_publicize_shares_count( Jetpack_Options::get_option( 'id' ) );
 		return array(
-			'siteData'        => array(
+			'siteData'           => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			),
-			'jetpackSettings' => array(
+			'jetpackSettings'    => array(
 				'publicize_active' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
 			),
-			'connectionData'  => array(
+			'connectionData'     => array(
 				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 			),
-			'sharesCount'     => ! is_wp_error( $shares_count ) ? $shares_count : null,
+			'sharesCount'        => ! is_wp_error( $shares_count ) ? $shares_count : null,
+			'displaySharesMeter' => Settings::should_display_shares_meter(),
 		);
 	}
 
