@@ -37,6 +37,42 @@ window.videoPressUploadPoster = function ( guid, data ) {
 	} );
 };
 
+window.videoPressGetPoster = function ( guid ) {
+	const getPosterRequest = ( resolve, reject, jwt = null ) => {
+		let url = 'https://public-api.wordpress.com/rest/v1.1/videos/' + guid + '/poster';
+		if ( jwt && jwt.length ) {
+			url += '?metadata_token=' + jwt;
+		}
+
+		wp.apiFetch( {
+			url: url,
+			method: 'GET',
+			credentials: 'omit',
+		} )
+			.then( function ( res ) {
+				resolve( res );
+			} )
+			.catch( function ( error ) {
+				reject( error );
+			} );
+	};
+
+	return new Promise( function ( resolve, reject ) {
+		wp.ajax
+			.post( 'videopress-get-playback-jwt', {
+				async: true,
+				guid: guid,
+			} )
+			.done( function ( response ) {
+				getPosterRequest( resolve, reject, response.jwt );
+			} )
+			.fail( () => {
+				// Also try on ajax failure if the video doesn't need a jwt anyway
+				getPosterRequest( resolve, reject );
+			} );
+	} );
+};
+
 window.videoPressUploadTrack = function ( guid, kind, srcLang, label, vttFile ) {
 	// eslint-disable-next-line no-undef
 	return new Promise( function ( resolve, reject ) {

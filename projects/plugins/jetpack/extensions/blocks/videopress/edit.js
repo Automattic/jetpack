@@ -767,9 +767,44 @@ const VideoPressEdit = CoreVideoEdit =>
 				} );
 			};
 
+			const updatePosterFromApiResult = result => {
+				if ( result.generating ) {
+					startPollingForPosterImage();
+				} else {
+					updatePosterImage( result.poster );
+				}
+			};
+
+			const getPosterImage = () => {
+				if ( shouldUseJetpackVideoFetch() ) {
+					return window.videoPressGetPoster( guid );
+				}
+
+				return apiFetch( {
+					path: `/videos/${ guid }/poster`,
+					apiNamespace: 'rest/v1.1',
+					global: true,
+					method: 'GET',
+				} );
+			};
+
+			const startPollingForPosterImage = () => {
+				setTimeout( () => {
+					getPosterImage().then( result => updatePosterFromApiResult( result ) );
+				}, 2000 );
+			};
+
+			const updatePosterImage = newPosterImage => {
+				if ( newPosterImage ) {
+					setAttributes( { poster: newPosterImage } );
+				}
+			};
+
 			const __sendUpdatePoster = data => {
 				if ( shouldUseJetpackVideoFetch() ) {
-					return window.videoPressUploadPoster( guid, data );
+					return window
+						.videoPressUploadPoster( guid, data )
+						.then( result => updatePosterFromApiResult( result ) );
 				}
 
 				apiFetch( {
