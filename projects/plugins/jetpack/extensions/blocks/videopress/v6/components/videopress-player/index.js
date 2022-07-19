@@ -90,20 +90,6 @@ export default function VideoPressPlayer( {
 		setIsVideoLoaded( false );
 	}, [ ref, videoRatio, preview ] );
 
-	const onVideoLoadingStateHandler = useCallback(
-		( { detail } ) => {
-			setIsVideoLoaded( detail?.state === 'loaded' );
-
-			setInitialTimeHelper( sandboxIFrame, autoplayHoveringStart, function () {
-				sandboxIFrame?.contentWindow.removeEventListener(
-					'onVideoPressLoadingState',
-					setInitialTimeHelper
-				);
-			} );
-		},
-		[ autoplayHoveringStart, sandboxIFrame ]
-	);
-
 	// set video is loaded as False, when html is not available.
 	useEffect( () => {
 		if ( html ) {
@@ -138,7 +124,25 @@ export default function VideoPressPlayer( {
 		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionPause' );
 	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame ] );
 
-	// Pause the video when it's playing because of the autoplay hoverting.
+	const onVideoLoadingStateHandler = useCallback(
+		( { detail } ) => {
+			setIsVideoLoaded( detail?.state === 'loaded' );
+
+			setInitialTimeHelper( sandboxIFrame, autoplayHoveringStart, function () {
+				sandboxIFrame?.contentWindow.removeEventListener(
+					'onVideoPressLoadingState',
+					setInitialTimeHelper
+				);
+			} );
+		},
+		[ autoplayHoveringStart, sandboxIFrame ]
+	);
+
+	/*
+	 * Pause the video when it's playing
+	 * because of the autoplay hovering
+	 * and the time is over.
+	 */
 	const onVideoPressTimeUpdateHandler = useCallback(
 		( { detail } ) => {
 			if ( ! isAutoplayHoveringEnabled ) {
@@ -151,8 +155,12 @@ export default function VideoPressPlayer( {
 			}
 
 			autoPauseVideo();
+			// set current time at the begining of the autoplay starting.
+			dispatchPlayerAction( sandboxIFrame, 'vpBlockActionSetCurrentTime', {
+				currentTime: autoplayHoveringStart,
+			} );
 		},
-		[ autoPauseVideo, isAutoplayHoveringEnabled, autoplayHoveringStart ]
+		[ isAutoplayHoveringEnabled, autoplayHoveringStart, autoPauseVideo, sandboxIFrame ]
 	);
 
 	useEffect( () => {
