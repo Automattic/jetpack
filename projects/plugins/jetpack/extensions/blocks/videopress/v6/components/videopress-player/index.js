@@ -11,6 +11,7 @@ import debugFactory from 'debug';
  */
 import vpBlockBridge from '../../scripts/vp-block-bridge';
 import dispatchPlayerAction from '../../utils/dispatcher';
+import { setInitialTimeHelper } from '../../utils/player';
 
 // Global scripts array to be run in the Sandbox context.
 const globalScripts = [];
@@ -89,9 +90,19 @@ export default function VideoPressPlayer( {
 		setIsVideoLoaded( false );
 	}, [ ref, videoRatio, preview ] );
 
-	const onVideoLoadingStateHandler = useCallback( ( { detail } ) => {
-		setIsVideoLoaded( detail?.state === 'loaded' );
-	}, [] );
+	const onVideoLoadingStateHandler = useCallback(
+		( { detail } ) => {
+			setIsVideoLoaded( detail?.state === 'loaded' );
+
+			setInitialTimeHelper( sandboxIFrame, autoplayHoveringStart, function () {
+				sandboxIFrame?.contentWindow.removeEventListener(
+					'onVideoPressLoadingState',
+					setInitialTimeHelper
+				);
+			} );
+		},
+		[ autoplayHoveringStart, sandboxIFrame ]
+	);
 
 	// set video is loaded as False, when html is not available.
 	useEffect( () => {
