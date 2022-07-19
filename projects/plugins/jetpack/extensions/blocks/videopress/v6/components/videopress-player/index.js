@@ -125,10 +125,7 @@ export default function VideoPressPlayer( {
 		}
 
 		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionPause' );
-		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionSetCurrentTime', {
-			currentTime: autoplayHoveringStart,
-		} );
-	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame, autoplayHoveringStart ] );
+	}, [ isAutoplayHoveringEnabled, preview, sandboxIFrame ] );
 
 	// Pause the video when it's playing because of the autoplay hoverting.
 	const onVideoPressTimeUpdateHandler = useCallback(
@@ -151,25 +148,14 @@ export default function VideoPressPlayer( {
 		if ( ! sandboxIFrame?.contentWindow ) {
 			return;
 		}
+		const iFrameWindow = sandboxIFrame.contentWindow;
 
-		sandboxIFrame?.contentWindow.addEventListener(
-			'onVideoPressLoadingState',
-			onVideoLoadingStateHandler
-		);
-		sandboxIFrame?.contentWindow.addEventListener(
-			'onVideoPressTimeUpdate',
-			onVideoPressTimeUpdateHandler
-		);
+		iFrameWindow.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+		iFrameWindow.addEventListener( 'onVideoPressTimeUpdate', onVideoPressTimeUpdateHandler );
 
 		return () => {
-			sandboxIFrame?.contentWindow.removeEventListener(
-				'onVideoPressLoadingState',
-				onVideoLoadingStateHandler
-			);
-			sandboxIFrame?.contentWindow.removeEventListener(
-				'onVideoPressTimeUpdate',
-				onVideoPressTimeUpdateHandler
-			);
+			iFrameWindow?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+			iFrameWindow?.removeEventListener( 'onVideoPressTimeUpdate', onVideoPressTimeUpdateHandler );
 		};
 	}, [ sandboxIFrame, onVideoLoadingStateHandler, onVideoPressTimeUpdateHandler ] );
 
