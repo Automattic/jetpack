@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Added functionality to fetch settings from WPCOM
+Use new class in Publicize package to fetch data
