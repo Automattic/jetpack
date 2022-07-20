@@ -2,34 +2,28 @@ import {
 	Container,
 	Col,
 	H3,
-	Text,
+	Button,
 	SocialIcon,
 	getUserLocale,
 } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Icon, edit, lifesaver } from '@wordpress/icons';
 import { STORE_ID } from '../../store';
 import ShareCounter from '../share-counter';
 import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
 
-const Actions = ( { actions } ) => (
-	<div className={ styles.actions }>
-		{ actions.map( ( { link, label, icon } ) => (
-			<Text key={ label }>
-				<a href={ link } className={ styles.action }>
-					{ icon && <Icon icon={ icon } size={ 16 } /> }
-					{ label }
-				</a>
-			</Text>
-		) ) }
-	</div>
-);
-
 const Header = () => {
-	const sharesCount = useSelect(
-		select => select( STORE_ID ).getSharesCount()?.results?.total ?? null
+	const { hasConnections, isModuleEnabled, connectionsAdminUrl, sharesCount } = useSelect(
+		select => {
+			const store = select( STORE_ID );
+			return {
+				hasConnections: store.hasConnections(),
+				isModuleEnabled: store.isModuleEnabled(),
+				connectionsAdminUrl: store.getConnectionsAdminUrl(),
+				sharesCount: select( STORE_ID ).getSharesCount()?.results?.total ?? null,
+			};
+		}
 	);
 
 	const isShareLimitEnabled = true;
@@ -39,28 +33,24 @@ const Header = () => {
 		compactDisplay: 'short',
 	} );
 
-	const actions = [
-		{
-			link: '/wp-admin/post-new.php',
-			label: __( 'Write a post', 'jetpack-social' ),
-			icon: edit,
-		},
-		{
-			link: 'https://jetpack.com/support/',
-			label: __( 'Need help?', 'jetpack-social' ),
-			icon: lifesaver,
-		},
-	];
-
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 7 } className={ styles.container }>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
 				<H3 mt={ 2 }>{ __( 'Post everywhere at any time', 'jetpack-social' ) }</H3>
-				<Actions actions={ actions } />
+				<div className={ styles.actions }>
+					{ isModuleEnabled && ! hasConnections && (
+						<Button href={ connectionsAdminUrl } isExternalLink={ true }>
+							{ __( 'Connect accounts', 'jetpack-social' ) }
+						</Button>
+					) }
+					<Button href={ '/wp-admin/post-new.php' } variant="secondary">
+						{ __( 'Write a post', 'jetpack-social' ) }
+					</Button>
+				</div>
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
 				{ isShareLimitEnabled ? (
-					<ShareCounter value={ 18 } max={ 30 } />
+					<ShareCounter value={ sharesCount } max={ 30 } />
 				) : (
 					<StatCards
 						stats={ [
