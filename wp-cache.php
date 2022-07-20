@@ -802,7 +802,7 @@ function toggleLayer( whichLayer ) {
 // -->
 //Clicking header opens fieldset options
 jQuery(document).ready(function(){
-	jQuery("fieldset h4").css("cursor","pointer").click(function(){
+	jQuery("fieldset h4").css("cursor","pointer").on("click",function(){
 		jQuery(this).parent("fieldset").find("p,form,ul,blockquote").toggle("slow");
 	});
 });
@@ -1737,7 +1737,7 @@ function wp_cache_index_notice() {
 		<script  type='text/javascript'>
 		<!--
 			jQuery(document).ready(function(){
-				jQuery('#wpsc-dismiss').click(function() {
+				jQuery('#wpsc-dismiss').on("click",function() {
 						jQuery.ajax({
 							type: "post",url: "admin-ajax.php",data: { action: 'wpsc-index-dismiss', _ajax_nonce: '<?php echo wp_create_nonce( 'wpsc-index-dismiss' ); ?>' },
 							beforeSend: function() {jQuery("#wpsc-index-warning").fadeOut('slow');},
