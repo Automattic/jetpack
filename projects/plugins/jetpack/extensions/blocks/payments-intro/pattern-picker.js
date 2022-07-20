@@ -19,6 +19,7 @@ export default function PaymentsIntroPatternPicker( { onBlockPatternSelect, patt
 			</Button>
 			{ isPatternSelectionModalOpen && (
 				<Modal
+					className="wp-block-jetpack-payments-intro__pattern-picker__selection-modal"
 					title={ __( 'Choose a pattern', 'jetpack' ) }
 					closeLabel={ __( 'Cancel', 'jetpack' ) }
 					onRequestClose={ () => setIsPatternSelectionModalOpen( false ) }
