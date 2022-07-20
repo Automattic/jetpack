@@ -10,6 +10,7 @@ import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, edit, lifesaver } from '@wordpress/icons';
 import { STORE_ID } from '../../store';
+import ShareCounter from '../share-counter';
 import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
 
@@ -30,6 +31,8 @@ const Header = () => {
 	const sharesCount = useSelect(
 		select => select( STORE_ID ).getSharesCount()?.results?.total ?? null
 	);
+
+	const isShareLimitEnabled = true;
 
 	const formatter = Intl.NumberFormat( getUserLocale(), {
 		notation: 'compact',
@@ -56,16 +59,20 @@ const Header = () => {
 				<Actions actions={ actions } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
-				<StatCards
-					stats={ [
-						{
-							icon: <SocialIcon />,
-							label: __( 'Total shares this month', 'jetpack-social' ),
-							loading: null === sharesCount,
-							value: formatter.format( sharesCount ),
-						},
-					] }
-				/>
+				{ isShareLimitEnabled ? (
+					<ShareCounter value={ 18 } max={ 30 } />
+				) : (
+					<StatCards
+						stats={ [
+							{
+								icon: <SocialIcon />,
+								label: __( 'Total shares this month', 'jetpack-social' ),
+								loading: null === sharesCount,
+								value: formatter.format( sharesCount ),
+							},
+						] }
+					/>
+				) }
 			</Col>
 		</Container>
 	);
