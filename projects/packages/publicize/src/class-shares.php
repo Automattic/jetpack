@@ -1,11 +1,11 @@
 <?php
 /**
- * Class to handle fetching the settings of Jetpack Social
+ * Class to handle all shares-related functionality.
  *
- * @package automattic/jetpack-social-plugin
+ * @package automattic/jetpack-publicize
  */
 
-namespace Automattic\Jetpack\Social;
+namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -13,9 +13,9 @@ use Jetpack_Options;
 use WP_Error;
 
 /**
- * Class that handles fetching the settings from the WPCOM servers
+ * Class to handle all shares-related functionality.
  */
-class Settings {
+class Shares {
 	/**
 	 * WPCOM endpoint
 	 *
@@ -24,18 +24,18 @@ class Settings {
 	const REST_API_BASE = '/sites/%d/jetpack-social';
 
 	/**
-	 * Memoization for the current settings
+	 * Memoization for the current WPCOM data.
 	 *
 	 * @var null|array
 	 */
-	public static $settings = null;
+	public $data = null;
 
 	/**
 	 * Gets the WPCOM API endpoint
 	 *
 	 * @return WP_Error|string
 	 */
-	public static function get_api_url() {
+	public function get_api_url() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$is_connected = ( new Connection_Manager() )->is_connected();
 
@@ -47,22 +47,19 @@ class Settings {
 	}
 
 	/**
-	 * Fetch settings
+	 * Fetch data from WPCOM
 	 *
 	 * @return WP_Error|array
 	 */
-	public static function get_settings() {
-		if ( self::$settings !== null ) {
-			return self::$settings;
-		}
+	private function get_data_from_wpcom() {
+		$api_url = $this->get_api_url();
 
-		$api_url = self::get_api_url();
 		if ( is_wp_error( $api_url ) ) {
 			return $api_url;
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
-			self::get_api_url(),
+			$this->get_api_url(),
 			'2',
 			array( 'method' => 'GET' ),
 			null,
@@ -72,25 +69,38 @@ class Settings {
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
-			return new WP_Error( 'failed_fetching_status', 'Failed to fetch Jetpack Social settings data from server', array( 'status' => $response_code ) );
+			return new WP_Error( 'failed_fetching_status', 'Failed to fetch Jetpack Social data from server', array( 'status' => $response_code ) );
 		}
 
-		self::$settings = json_decode( wp_remote_retrieve_body( $response ) );
-		return self::$settings;
+		$this->data = json_decode( wp_remote_retrieve_body( $response ) );
+		return $this->data;
 	}
 
 	/**
-	 * Checks if we should display the shares meter
+	 * Get data, either cached or from WPCOM.
+	 *
+	 * @return WP_Error|array
+	 */
+	public function get_data() {
+		if ( $this->data !== null ) {
+			return $this->data;
+		}
+
+		return $this->get_data_from_wpcom();
+	}
+
+	/**
+	 * Checks if the share limit is enabled.
 	 *
 	 * @return bool
 	 */
-	public static function should_display_shares_meter() {
-		$settings = self::get_settings();
+	public function is_share_limit_enabled() {
+		$data = $this->get_data();
 
-		if ( is_wp_error( $settings ) ) {
+		if ( is_wp_error( $data ) ) {
 			return false;
 		}
 
-		return (bool) $settings->display_shares_meter;
+		return (bool) $data->is_share_limit_enabled;
 	}
 }
