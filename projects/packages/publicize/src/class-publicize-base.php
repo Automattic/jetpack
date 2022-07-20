@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -1440,6 +1441,27 @@ abstract class Publicize_Base {
 		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
 		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
 		return Redirect::get_url( $source, array( 'site' => ( new Status() )->get_site_suffix() ) );
+	}
+
+	/**
+	 * Call the wpcom rest api to get the publicize shares count.
+	 *
+	 * @param string $blog_id The blog_id.
+	 * @return array
+	 */
+	public function get_publicize_shares_count( $blog_id ) {
+		$response        = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d/shares-count', absint( $blog_id ) ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+		$rest_controller = new REST_Controller();
+		return $rest_controller->make_proper_response( $response );
 	}
 }
 
