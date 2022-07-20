@@ -33,14 +33,6 @@
 	}
 }
 
-.illustration {
-	display: none;
-
-	@media ( min-width: 600px ) {
-		display: block;
-	}
-}
-
 .column {
 	> * + * {
 		margin-top: calc( var( --spacing-base ) * 3 );
