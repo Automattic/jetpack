@@ -983,7 +983,7 @@ importers:
       babel-jest: 28.1.0
       classnames: 2.3.1
       concurrently: 6.4.0
-      core-js: 3.22.4
+      core-js: 3.23.5
       fast-json-stable-stringify: 2.1.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
@@ -1057,7 +1057,7 @@ importers:
       autoprefixer: 10.4.2_postcss@8.4.14
       babel-jest: 28.1.0_@babel+core@7.18.6
       concurrently: 6.4.0
-      core-js: 3.22.4
+      core-js: 3.23.5
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       postcss: 8.4.14
@@ -1105,7 +1105,7 @@ importers:
       chart.js: 3.7.1
       classnames: 2.3.1
       concurrently: 6.4.0
-      core-js: 3.22.4
+      core-js: 3.23.5
       fast-json-stable-stringify: 2.1.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
@@ -1176,7 +1176,7 @@ importers:
       '@wordpress/dependency-extraction-webpack-plugin': 3.6.0_webpack@5.72.1
       babel-jest: 28.1.0_@babel+core@7.18.6
       concurrently: 6.4.0
-      core-js: 3.22.4
+      core-js: 3.23.5
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       postcss: 8.4.14
@@ -9929,14 +9929,13 @@ packages:
     requiresBuild: true
     dev: true
 
-  /core-js/3.22.4:
-    resolution: {integrity: sha512-1uLykR+iOfYja+6Jn/57743gc9n73EWiOnSJJ4ba3B4fOEYDBv25MagmEZBxTp5cWq4b/KPx/l77zgsp28ju4w==}
-    deprecated: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
+  /core-js/3.23.4:
+    resolution: {integrity: sha512-vjsKqRc1RyAJC3Ye2kYqgfdThb3zYnx9CrqoCcjMOENMtQPC7ZViBvlDxwYU/2z2NI/IPuiXw5mT4hWhddqjzQ==}
     requiresBuild: true
     dev: true
 
-  /core-js/3.23.4:
-    resolution: {integrity: sha512-vjsKqRc1RyAJC3Ye2kYqgfdThb3zYnx9CrqoCcjMOENMtQPC7ZViBvlDxwYU/2z2NI/IPuiXw5mT4hWhddqjzQ==}
+  /core-js/3.23.5:
+    resolution: {integrity: sha512-7Vh11tujtAZy82da4duVreQysIoO2EvVrur7y6IzZkH1IHPSekuDi8Vuw1+YKjkbfWLRD7Nc9ICQ/sIUDutcyg==}
     requiresBuild: true
     dev: true
 
