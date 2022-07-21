@@ -94,13 +94,8 @@ async function activateModule( page, module ) {
 	const modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
 
 	if ( ! modulesList.includes( module ) ) {
-		throw new Error( `${ module } failed to activate` );
+		throw new Error( `Failed to activate module ${ module }!` );
 	}
-
-	// todo we shouldn't have page references in here. these methods could be called without a browser being opened
-	// eslint-disable-next-line playwright/no-wait-for-timeout
-	await page.waitForTimeout( 1000 );
-	await page.reload( { waitUntil: 'domcontentloaded' } );
 
 	return true;
 }
