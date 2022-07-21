@@ -32,7 +32,8 @@ const Admin = () => {
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
 	const [ restores, setRestores ] = useState( [] );
 	// To be used on next iteration of review requests
-	const [ , setCurrentPurchases ] = useState( [] );
+	// eslint-disable-next-line no-unused-vars
+	const [ currentPurchases, setCurrentPurchases ] = useState( [] );
 	const { tracks } = useAnalytics();
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
@@ -54,7 +55,7 @@ const Admin = () => {
 				setRestores( res );
 			},
 			() => {
-				setRestores( 'Failed to fetch restores' );
+				setRestores( [] );
 			}
 		);
 		apiFetch( { path: '/jetpack/v4/site/current-purchases' } ).then(
@@ -62,7 +63,7 @@ const Admin = () => {
 				setCurrentPurchases( res.data );
 			},
 			() => {
-				setCurrentPurchases( 'Failed to fetch current purchases' );
+				setCurrentPurchases( [] );
 			}
 		);
 		apiFetch( { path: '/jetpack/v4/backup-capabilities' } ).then(
