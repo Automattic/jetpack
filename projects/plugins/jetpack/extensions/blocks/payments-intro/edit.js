@@ -40,11 +40,9 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 
 	const displayVariations = usableVariations.length && registerBlockVariation;
 
-	let instructions;
+	let instructions = __( "Please select which kind of payment you'd like to add.", 'jetpack' );
 	if ( hasPatterns ) {
 		instructions = __( 'Start by choosing one of our suggested layout patterns.', 'jetpack' );
-	} else {
-		instructions = __( "Please select which kind of payment you'd like to add.", 'jetpack' );
 	}
 
 	if ( ! hasInnerBlocks && displayVariations ) {
