@@ -432,9 +432,9 @@ class Jetpack_Likes {
 			return $content;
 		}
 
-		// Ensure we don't display like button on excerpts unless we are on search, archive or home page.
-		if ( ! is_search() && ! is_home() && ! is_archive() &&
-			in_array( 'the_excerpt', (array) $wp_current_filter, true ) ) {
+		// Ensure we don't display like button on post excerpts that are hooked inside the post content
+		if ( in_array( 'the_excerpt', (array) $wp_current_filter, true ) &&
+			in_array( 'the_content', (array) $wp_current_filter, true ) ) {
 			return $content;
 		}
 
