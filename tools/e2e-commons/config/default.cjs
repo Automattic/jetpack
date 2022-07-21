@@ -43,7 +43,7 @@ const config = {
 	],
 	repository: {
 		url: 'https://github.com/Automattic/jetpack',
-		mainBranch: 'master',
+		mainBranch: 'trunk',
 	},
 	blocks: {
 		pinterest: {

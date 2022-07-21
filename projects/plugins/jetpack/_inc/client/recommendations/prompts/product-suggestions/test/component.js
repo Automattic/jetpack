@@ -2,7 +2,6 @@ import * as React from 'react';
 import { render, screen } from 'test/test-utils';
 import { ProductSuggestions } from '../index';
 import { buildInitialState } from './fixtures';
-import '@testing-library/jest-dom/extend-expect';
 
 describe( 'Recommendations – Product Suggestions', () => {
 	it( 'shows the Product Suggestions component', () => {

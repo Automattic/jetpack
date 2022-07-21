@@ -7,6 +7,8 @@ const siteDataSelectors = {
 	getBlogId: state => state.siteData?.blogId ?? 0,
 	getVersion: state => state.siteData?.version ?? 'development',
 	getCalypsoSlug: state => state.siteData?.calypsoSlug,
+	getPostTypes: state => state.siteData?.postTypes,
+	isWpcom: state => state.siteData?.isWpcom ?? false,
 };
 
 export default siteDataSelectors;

@@ -1003,6 +1003,7 @@ class Jetpack {
 	 */
 	public function point_edit_comment_links_to_calypso( $url ) {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
+		$query_args = null;
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
 
 		return Redirect::get_url(
@@ -2926,8 +2927,26 @@ p {
 		if ( $active_modules ) {
 			self::delete_active_modules();
 
-			// If there was previously activated modules (a reconnection), re-activate them all including those that require a user, and do not re-activate those that have been deactivated.
-			self::activate_default_modules( 999, 1, $active_modules, false );
+			/**
+			 * Previously active modules could mean two things. First, it could mean
+			 * that Jetpack was previously active on the site. In this case we would like
+			 * to only activate the modules that were set to active.
+			 * Another case could be that the module option was set by a standalone
+			 * plugin. In that case the `active_modules_initalized` option will not
+			 * be set, so we need to enable default Jetpack modules as well.
+			 */
+			if ( ! Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
+				$default_modules = self::get_default_modules();
+				$active_modules  = array_merge( $active_modules, $default_modules );
+				Jetpack_Options::update_option( 'active_modules_initialized', true );
+			}
+
+			self::activate_default_modules(
+				999, // This version trick basically excludes every default module.
+				1,
+				$active_modules,
+				false
+			);
 		} else {
 			// Check for a user connection.
 			if ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) {

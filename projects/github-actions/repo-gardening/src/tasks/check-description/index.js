@@ -1,13 +1,14 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 const moment = require( 'moment' );
-const debug = require( '../../debug' );
-const getAffectedChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
-const getFiles = require( '../../get-files' );
-const getLabels = require( '../../get-labels' );
-const getNextValidMilestone = require( '../../get-next-valid-milestone' );
-const getPluginNames = require( '../../get-plugin-names' );
-const getPrWorkspace = require( '../../get-pr-workspace' );
+const debug = require( '../../utils/debug' );
+const getAffectedChangeloggerProjects = require( '../../utils/get-affected-changelogger-projects' );
+const getComments = require( '../../utils/get-comments' );
+const getFiles = require( '../../utils/get-files' );
+const getLabels = require( '../../utils/get-labels' );
+const getNextValidMilestone = require( '../../utils/get-next-valid-milestone' );
+const getPluginNames = require( '../../utils/get-plugin-names' );
+const getPrWorkspace = require( '../../utils/get-pr-workspace' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -173,20 +174,15 @@ async function getCheckComment( octokit, owner, repo, number ) {
 
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
-		owner,
-		repo,
-		issue_number: +number,
-	} ) ) {
-		response.data.map( comment => {
-			if (
-				comment.user.login === 'github-actions[bot]' &&
-				comment.body.includes( '**Thank you for your PR!**' )
-			) {
-				commentID = comment.id;
-			}
-		} );
-	}
+	const comments = await getComments( octokit, owner, repo, number );
+	comments.map( comment => {
+		if (
+			comment.user.login === 'github-actions[bot]' &&
+			comment.body.includes( '**Thank you for your PR!**' )
+		) {
+			commentID = comment.id;
+		}
+	} );
 
 	return commentID;
 }
@@ -368,8 +364,8 @@ My PR adds *x* and *y*.
 			'`, `'
 		) }\`
 
-Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
-Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md)
+Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
+Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/trunk/docs/writing-a-good-changelog-entry.md)
 `,
 	};
 
@@ -488,7 +484,7 @@ async function checkDescription( payload, octokit ) {
 	// We'll add any remarks we may have about the PR to that comment body.
 	let comment = `**Thank you for your PR!**
 
-When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
+When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/trunk/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
 
 	comment += renderStatusChecks( statusChecks );
 	comment += `

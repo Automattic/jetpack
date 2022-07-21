@@ -1,5 +1,4 @@
-import { render } from '@testing-library/react';
-import { expect } from 'chai';
+import { render, screen } from '@testing-library/react';
 import JetpackLogo from '../index';
 
 describe( 'JetpackLogo', () => {
@@ -8,18 +7,10 @@ describe( 'JetpackLogo', () => {
 	};
 
 	describe( 'Render the JetpackLogo component', () => {
-		it( 'component exists', () => {
-			const { container } = render( <JetpackLogo { ...testProps } /> );
-
-			expect( container.firstElementChild ).to.be.an.instanceof( SVGSVGElement );
-		} );
-
 		it( 'validate the class name', () => {
-			const { container } = render( <JetpackLogo { ...testProps } /> );
+			render( <JetpackLogo { ...testProps } /> );
 
-			expect( container.firstElementChild.getAttribute( 'class' ) ).to.include(
-				testProps.className
-			);
+			expect( screen.getByLabelText( 'Jetpack Logo' ) ).toHaveClass( testProps.className );
 		} );
 	} );
 } );

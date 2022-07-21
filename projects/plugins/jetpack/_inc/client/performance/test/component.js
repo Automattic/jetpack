@@ -2,7 +2,6 @@ import * as React from 'react';
 import { render, screen } from 'test/test-utils';
 import Search from '../search';
 import { buildInitialState } from './fixtures';
-import '@testing-library/jest-dom/extend-expect';
 
 describe( 'Performance tab', () => {
 	it( 'shows Jetpack Search Widget button if theme supports it', () => {

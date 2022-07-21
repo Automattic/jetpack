@@ -2,6 +2,127 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.2-a.5 - 2022-07-19
+### Enhancements
+- Blocks: enable Jetpack block collection for the native editor block inserter (on self hosted Jetpack sites). [#25092]
+- Connection: make sure pre-existing settings are respected on plugin activation. [#24980]
+- VideoPress: add UX improvements including fallback thumbnail replaced by loading element, and better error messaging (in Beta only). [#25088, #25064]
+
+### Improved compatibility
+- Admin UI: add h1 page headings for better screen reader navigation. [#24930]
+- Custom Post Types: change Nova functions to public to re-allow hooking. [#25084]
+
+### Bug fixes
+- Form block: fix Checkbox Group option color. [#24932]
+- Masterbar: fix All Posts dashboard redirect issue when switching between classic and default editor views. [#25074]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- E2E tests: remove the search package build step. [#25080]
+- Rewrite to drop dependency on experimental BlockVariationPicker from Gutenberg. [#24909]
+- Updated package dependencies. [#24710, #24836, #24998, #25086]
+- VideoPress: under the hood improvements including using core components, migrating features to the VideoPress package, removing unused attributes and better handling of the block loading state. [#25095, #25062, #25069, #25096, #24997, #25047]
+- WordPress.com REST API: allow an extra endpoint to a themed WordPress.com endpoint. [#25070]
+
+## 11.2-a.3 - 2022-07-12
+### Enhancements
+- Podcast Player: add new actions to make it possible for users to set up code that runs for podcast fetches. [#25046]
+- VideoPress Block: add enhancements such as an upload progress bar, improved UX, and limited preview attempts (available in Beta only). [#24953, #24891, #24963, #24897]
+
+### Bug fixes
+- Form block: preserve line breaks in form submissions. [#25040]
+- Gathering Twitter Threads: ensure that only contributors can access the endpoint to unroll threads. [#25005]
+- Stats: fix dashboard widget form name to allow form choices to be saved. [#25039]
+- Subscriptions: format the number of subscribers displayed in the block editor's controls. [#25063]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- E2E tests: fixed pretest cleanup script not running. [#25051]
+- Editor: Only add `x-wp-api-fetch-from-editor` header on non-CORS requests. [#25052]
+- Rename hasActiveSiteFeature -> siteHasFeature. [#25044]
+- Updated package dependencies. [#24823, #25048, #25055]
+- Use JS built-in `URLSearchParams` instead of `query-string` package. [#24994]
+- VideoPress: under the hood improvements such as adding new components. [#24974, #25058]
+- VideoPress: add videopress package as dependency. [#25045]
+
+## 11.2-a.1 - 2022-07-06
+### Enhancements
+- Contact Form Block: add a lock to the contact form submit button. [#24838]
+- VideoPress: add an overlay to VideoPress Block to improve the UX when selecting the video player. [#24899]
+- VideoPress: allow caption style attribute to be edited and applied. [#24902]
+- VideoPress: improve VideoPress block preview behavior. [#24890] [#24869]
+- VideoPress: improve VideoPress block layout markup and styles. [#24939]
+- VideoPress: add upload error message. [#24894]
+
+### Bug fixes
+- Contact Form Block: prevent error notice when processing submission from 404 page. [#24870]
+- Product Descriptions: fix search price on Search Product Description by accounting for sale coupons and ensuring the correct JP Search tier is shown. [#24901]
+- Related Posts: avoid PHP warnings when visiting AMP post views. [#24938]
+- Slideshow Block: override container display to prevent a gap between slideshow and contents. [#24961]
+- Stats: allow custom user role stats settings to be properly recognized and saved. [#24887]
+- VideoPress: fix bug when getting the video preview of the VideoPress block. [#24936]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin dashboard: update text and add link to the Backup aag card. [#24919]
+- At-a-glance: replace obsolete `javascript:void(0)` hrefs. [#24915]
+- E2E tests: improvements to E2E and dedicated sync tests. [#24934] [#24882]
+- E2E tests: regroup specs. [#24889]
+- Publicize: synced changes made to Publicize package files. [#24941] [#24943]
+- Tests: fix incorrect React prop type in select-dropdown/item. [#24915]
+- Updated package dependencies. [#24923]
+- VideoPress: under the hood improvements including moving to a VideoPressPlayer component, uploading progress handler function and saving custom sizes  [#24883] [#24858] [#24893]
+- VideoPress: save video player attributes of the VideoPress block. [#24888]
+- VideoPress: add VideoPressUploader component. [#24920]
+- VideoPress: include private videos URL in VideoPress block (v6) GUID parse. [#24918]
+- WordPress.com tests: mark AMP-related tests as skipped when running in WP.com. [#24855]
+
+## [11.1] - 2022-07-05
+### Enhancements
+- Dashboard: add "Getting started with Jetpack Backup" video to Assistant and "At a glance" dashboard. [#24774]
+- VideoPress: introduce VideoPress block currently in beta status. [#24821, #24844, #24848]
+
+### Improved compatibility
+- Connection: update connection banner to use updated Emerald styling. [#24501]
+- VideoPress: update non-iframe player to latest version for sites using the `jetpack_videopress_player_use_iframe` filter. [#24846]
+
+### Bug fixes
+- CLI: avoid PHP notice when running connection tests. [#24802]
+- Contact Form: ensure the forms are always properly displayed. [#24857]
+- Dashboard: fix the link to Anti-spam stats. [#24880]
+- Form Block: radio, select, and multiple checkbox fields can now have option with a value of '0'. [#24926]
+- Payments Block: only add PayPal email meta to Payment posts. [#24806]
+- Payments Block: remove hardcoded recurring-payments button color. [#24801]
+- Subscribe Block: fix double-quote breaking the Subscribe block button. [#24763]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add integration tests for Sync checksums. [#24772]
+- E2E tests: improve sync tests. [#24798]
+- E2E tests: retry failing tests. [#24809]
+- Minor phpcs fixes to bring things in sync with dotcom. [#24608]
+- Remove autounit annotation. [#24845]
+- Updated package dependencies. [#24794, #24827, #24831]
+- WordPress.com REST API: add new action allowing you to trigger an action right before we switch themes via the API. [#24818]
+- WordPress.com REST API: add new AMP deprecation field to the site settings. [#24814]
+
+## 11.1-a.5 - 2022-06-21
+### Enhancements
+- VideoPress: enable blocks with VideoPress markdown to be previewed within the mobile app. [#24548]
+
+### Bug fixes
+- Contact Form Block: display expected success message when used in FSE header or footer. [#24727]
+- Photon: do not return Photonized URLs to the block editor in WordPress 6.0. [#24769]
+- Search: avoid broken images in search results by preferring the _jetpack_featured_media_url postmeta over the GUID. [#24718]
+- SEO Tools: allow WooCommerce to use custom SEO description for the shop page. [#24726]
+- Sharing: avoid fatal errors when email sharing process is called  without clicking on the button. [#24776]
+- VideoPress: fix embeds in classic editor when theme has no $content_width set. [#24756]
+- VideoPress Block: fix Cancel button on block and provide better error message when video format is not supported. [#24757]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- E2E tests: bump @playwright/test and allure-playwright versions. [#24749]
+- Fix a React warning in contact-info/address block. [#24700]
+- Fix inconsistent Sync Delays test. [#24746]
+- Renaming master to trunk. [#24661]
+- Updated package dependencies.
+- WPcom: make required plan for memberships conditional. [#24741]
+
 ## 11.1-a.3 - 2022-06-14
 ### Bug fixes
 - Connection: move the connection_url_redirect action handling to the connection package. [#24529]
@@ -6707,6 +6828,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.1]: https://wp.me/p1moTy-Juo
 [11.0]: https://wp.me/p1moTy-IbF
 [10.9]: https://wp.me/p1moTy-EHd
 [10.8]: https://wp.me/p1moTy-CTQ

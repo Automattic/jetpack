@@ -1,9 +1,9 @@
 name: PR is up-to-date
 on:
   pull_request_target:
-    branches: [ master ]
+    branches: [ trunk ]
   push:
-    branches: [ master ]
+    branches: [ trunk ]
     tags:
       - pr-update-to
       - pr-update-to-projects/**
@@ -14,11 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2021-03-23: The run on push to the tag might take a minute or two.
     steps:
-      - name: Checkout master
+      - name: Checkout trunk
         uses: actions/checkout@v3
         with:
-          ref: master
-          # The "Check whether the tag needs updating for master commit" needs the previous commit for diffing.
+          ref: trunk
+          # The "Check whether the tag needs updating for trunk commit" needs the previous commit for diffing.
           fetch-depth: 2
           token: ${{ secrets.API_TOKEN_GITHUB }}
 
@@ -31,7 +31,7 @@ jobs:
 
       - name: Determine tags for PR or tag and paths for tag push
         id: determine
-        if: github.event_name != 'push' || github.ref != 'refs/heads/master'
+        if: github.event_name != 'push' || github.ref != 'refs/heads/trunk'
         env:
           REF: ${{ github.event.pull_request.head.sha }}
         run: |
@@ -44,7 +44,7 @@ jobs:
               PATHS="${TAG#pr-update-to-}"
             fi
           else
-            TMP="$(git -c core.quotepath=off diff --name-only "origin/master...${REF}" projects/*/*/ | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!pr-update-to-\1!p' | sort -u)"
+            TMP="$(git -c core.quotepath=off diff --name-only "origin/trunk...${REF}" projects/*/*/ | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!pr-update-to-\1!p' | sort -u)"
             mapfile -t TAGS <<<"$TMP"
             TAGS+=( pr-update-to )
           fi
@@ -53,7 +53,7 @@ jobs:
           echo "::set-output name=push-paths::$PATHS"
 
       - name: Check PR or tag push
-        if: github.event_name != 'push' || github.ref != 'refs/heads/master'
+        if: github.event_name != 'push' || github.ref != 'refs/heads/trunk'
         uses: ./projects/github-actions/pr-is-up-to-date
         with:
           tags: ${{ steps.determine.outputs.pr-tags }}
@@ -63,11 +63,9 @@ jobs:
           status: PR is up to date
 
       - name: Wait for prior instances of the workflow to finish
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: softprops/turnstyle@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.event_name == 'push' && github.ref == 'refs/heads/trunk'
+        uses: ./.github/actions/turnstile
 
-      - name: Check whether the tag needs updating for master commit
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      - name: Check whether the tag needs updating for trunk commit
+        if: github.event_name == 'push' && github.ref == 'refs/heads/trunk'
         run: .github/files/pr-update-to.sh

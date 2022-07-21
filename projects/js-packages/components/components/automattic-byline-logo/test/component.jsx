@@ -1,7 +1,5 @@
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 import React from 'react';
-import ShallowRenderer from 'react-test-renderer/shallow';
 import AutomatticBylineLogo from '../index';
 
 describe( 'AutomatticBylineLogo', () => {
@@ -10,17 +8,11 @@ describe( 'AutomatticBylineLogo', () => {
 	};
 
 	describe( 'Render the AutomatticBylineLogo component', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <AutomatticBylineLogo { ...testProps } /> );
-
-		const wrapper = shallow( renderer.getRenderOutput() );
-
-		it( 'component exists', () => {
-			expect( wrapper.find( 'AutomatticBylineLogo' ) ).to.exist;
-		} );
+		const { container } = render( <AutomatticBylineLogo { ...testProps } /> );
 
 		it( 'validate the class name', () => {
-			expect( wrapper.hasClass( 'sample-classname' ) ).to.equal( true );
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( container.firstChild ).toHaveClass( 'sample-classname' );
 		} );
 	} );
 } );

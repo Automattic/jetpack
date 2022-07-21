@@ -1,5 +1,5 @@
-const debug = require( '../../debug' );
-const getFiles = require( '../../get-files' );
+const debug = require( '../../utils/debug' );
+const getFiles = require( '../../utils/get-files' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -86,9 +86,10 @@ function cleanName( name ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
+ * @param {boolean} isDraft  - Whether the pull request is a draft.
  * @returns {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
-async function getLabelsToAdd( octokit, owner, repo, number ) {
+async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 	const keywords = new Set();
 
 	// Get next valid milestone.
@@ -223,6 +224,11 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		if ( e2e ) {
 			keywords.add( 'E2E Tests' );
 		}
+
+		// Add '[Status] In Progress' for draft PRs
+		if ( isDraft ) {
+			keywords.add( '[Status] In Progress' );
+		}
 	} );
 
 	return [ ...keywords ];
@@ -235,11 +241,12 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function addLabels( payload, octokit ) {
-	const { number, repository } = payload;
+	const { number, repository, pull_request } = payload;
 	const { owner, name } = repository;
 
 	// Get labels to add to the PR.
-	const labels = await getLabelsToAdd( octokit, owner.login, name, number );
+	const isDraft = !! ( pull_request && pull_request.draft );
+	const labels = await getLabelsToAdd( octokit, owner.login, name, number, isDraft );
 
 	if ( ! labels.length ) {
 		debug( 'add-labels: Could not find labels to add to that PR. Aborting' );

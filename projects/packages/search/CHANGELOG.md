@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.1] - 2022-07-19
+### Changed
+- Updated package dependencies. [#25086]
+
+### Fixed
+- Customberg: re-add collapsing wp-admin sidebar to prevent menu overlap issue [#25060]
+- Fixed the currency code missing issue for the upsell page [#25068]
+
+## [0.16.0] - 2022-07-12
+### Added
+- Hide unsupported taxonomies from widget settings [#24823]
+
+### Changed
+- Updated package dependencies. [#25055]
+
+### Fixed
+- Fix irrelevant widgets in overlay sidebar [#24824]
+- Hide 'Media' from 'Excluded Post Types' because we don't index them [#24822]
+- Record Meter: rely less on last_indexed_date from API [#24967]
+- Use consistent number formatting in Record Meter [#25003]
+
+## [0.15.4] - 2022-07-06
+### Added
+- Record Meter: adds labels to custom post type breakdown [#24876]
+
+### Changed
+- Updated package dependencies. [#24923]
+
+### Removed
+- Record Meter: Remove dismissable functionality and design from notice boxes [#24922]
+
+### Fixed
+- Reset letter spacing for header tags [#24954]
+- Restores support for multiple post types in the Jetpack Search Widget. [#24868]
+
+## [0.15.3] - 2022-06-28
+### Changed
+- Record meter: format the numbers used in notice. [#24810]
+- Record Meter: updated notice box content when site is not indexed [#24785]
+- Search: use centralized search pricing API [#24795]
+- Updated package dependencies. [#24826]
+
+### Fixed
+- Added My Jetpack package as dependency [#24826]
+
+## [0.15.2] - 2022-06-21
+### Changed
+- Record Meter: Separated component styles [#24732]
+- Renaming master to trunk. [#24661]
+
 ## [0.15.1] - 2022-06-14
 ### Changed
 - Search record meter: pass sorted records to RecordMeterBar component [#24731]
@@ -326,6 +376,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.16.1]: https://github.com/Automattic/jetpack-search/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/Automattic/jetpack-search/compare/v0.15.4...v0.16.0
+[0.15.4]: https://github.com/Automattic/jetpack-search/compare/v0.15.3...v0.15.4
+[0.15.3]: https://github.com/Automattic/jetpack-search/compare/v0.15.2...v0.15.3
+[0.15.2]: https://github.com/Automattic/jetpack-search/compare/v0.15.1...v0.15.2
 [0.15.1]: https://github.com/Automattic/jetpack-search/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/Automattic/jetpack-search/compare/v0.14.2...v0.15.0
 [0.14.2]: https://github.com/Automattic/jetpack-search/compare/v0.14.1...v0.14.2

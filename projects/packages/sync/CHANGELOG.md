@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.36.1] - 2022-07-06
+### Added
+- Add new WordPress core `block-templates` theme feature to `Defaults::$default_theme_support_whitelist` [#24960]
+
+## [1.36.0] - 2022-06-28
+### Added
+- Posts: added a Sync call to make sure post content is up to date before publishing. [#24827]
+
+### Changed
+- Minimum Sync Config: Update required modules and options [#24831]
+
+### Fixed
+- Sync Table Checksums:  Table checksum should be enabled depending on corresponding Sync modulee [#24772]
+
+## [1.35.2] - 2022-06-21
+### Changed
+- Renaming master to trunk. [#24661]
+
 ## [1.35.1] - 2022-06-14
 ### Added
 - Add a request lock to prevent multiple requests being spawned at once [#24734]
@@ -666,6 +684,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.36.1]: https://github.com/Automattic/jetpack-sync/compare/v1.36.0...v1.36.1
+[1.36.0]: https://github.com/Automattic/jetpack-sync/compare/v1.35.2...v1.36.0
+[1.35.2]: https://github.com/Automattic/jetpack-sync/compare/v1.35.1...v1.35.2
 [1.35.1]: https://github.com/Automattic/jetpack-sync/compare/v1.35.0...v1.35.1
 [1.35.0]: https://github.com/Automattic/jetpack-sync/compare/v1.34.0...v1.35.0
 [1.34.0]: https://github.com/Automattic/jetpack-sync/compare/v1.33.1...v1.34.0
