@@ -4048,6 +4048,7 @@ p {
 							$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 						}
 
+						add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 						wp_safe_redirect( $url );
 						exit;
 					}
