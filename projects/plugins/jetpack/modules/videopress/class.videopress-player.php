@@ -341,7 +341,7 @@ class VideoPress_Player {
 		$html .= '>';
 		if (
 			( ! isset( $this->options['freedom'] ) || $this->options['freedom'] === false )
-			&& isset( $this->video->videos, $this->video->videos->mp4 )
+			&& isset( $this->video->videos->mp4 )
 		) {
 			$mp4 = $this->video->videos->mp4->url;
 			if ( ! empty( $mp4 ) ) {
