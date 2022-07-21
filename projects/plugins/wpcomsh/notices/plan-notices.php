@@ -31,7 +31,7 @@ function wpcomsh_plan_notices() {
 	$atomic_supported_purchases = array_filter(
 		$purchases,
 		function( $purchase ) {
-			return wpcom_product_has_feature( $purchase->product_slug, WPCOM_Features::ATOMIC );
+			return wpcom_purchase_has_feature( $purchase, WPCOM_Features::ATOMIC );
 		}
 	);
 

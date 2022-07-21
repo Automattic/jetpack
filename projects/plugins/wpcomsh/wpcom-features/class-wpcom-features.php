@@ -34,64 +34,6 @@ class WPCOM_Features {
 	private const WPCOM_SEARCH                                = 'wpcom_search'; // 800
 	private const WPCOM_SEARCH_MONTHLY                        = 'wpcom_search_monthly'; // 801
 	private const YOAST_PREMIUM                               = 'yoast_premium'; // 900
-	private const WOOCOMMERCE_SHIPPING_UPS                    = 'woocommerce-shipping-ups'; // 901
-	private const WOOCOMMERCE_SUBSCRIPTIONS                   = 'woocommerce_subscriptions_yearly'; // 902
-	private const WOOCOMMERCE_SUBSCRIPTIONS_MONTHLY           = 'woocommerce_subscriptions_monthly'; // 903
-	private const WOOCOMMERCE_BOOKINGS                        = 'woocommerce_bookings_yearly'; // 904
-	private const WOOCOMMERCE_BOOKINGS_MONTHLY                = 'woocommerce_bookings_monthly'; // 905
-	private const WOOCOMMERCE_TABLE_RATE_SHIPPING             = 'woocommerce_table_rate_shipping_yearly'; // 906
-	private const WOOCOMMERCE_TABLE_RATE_SHIPPING_MONTHLY     = 'woocommerce_table_rate_shipping_monthly'; // 907
-	private const AUTOMATEWOO                                 = 'automatewoo_yearly'; // 908
-	private const AUTOMATEWOO_MONTHLY                         = 'automatewoo_monthly'; // 909
-	private const WOOCOMMERCE_SHIPMENT_TRACKING               = 'woocommerce_shipment_tracking_yearly'; // 910
-	private const WOOCOMMERCE_SHIPMENT_TRACKING_MONTHLY       = 'woocommerce_shipment_tracking_monthly'; // 911
-	private const WOOCOMMERCE_XERO                            = 'woocommerce_xero_yearly'; // 912
-	private const WOOCOMMERCE_XERO_MONTHLY                    = 'woocommerce_xero_monthly'; // 913
-	private const WORDPRESS_SEO_PREMIUM                       = 'wordpress_seo_premium_yearly'; // 914
-	private const WORDPRESS_SEO_PREMIUM_MONTHLY               = 'wordpress_seo_premium_monthly'; // 915
-	private const WOOCOMMERCE_POINTS_AND_REWARDS              = 'woocommerce_points_and_rewards_yearly'; // 916
-	private const WOOCOMMERCE_POINTS_AND_REWARDS_MONTHLY      = 'woocommerce_points_and_rewards_monthly'; // 917
-	private const WOOCOMMERCE_DEPOSITS                        = 'woocommerce_deposits_yearly'; // 918
-	private const WOOCOMMERCE_DEPOSITS_MONTHLY                = 'woocommerce_deposits_monthly'; // 919
-	private const WOOCOMMERCE_ONE_PAGE_CHECKOUT               = 'woocommerce_one_page_checkout_yearly'; // 920
-	private const WOOCOMMERCE_ONE_PAGE_CHECKOUT_MONTHLY       = 'woocommerce_one_page_checkout_monthly'; // 921
-	private const WOOTHEMES_SENSEI                            = 'woothemes_sensei_yearly'; // 924
-	private const WOOTHEMES_SENSEI_MONTHLY                    = 'woothemes_sensei_monthly'; // 925
-	private const WOOCOMMERCE_SHIPPING_FEDEX_YEARLY           = 'woocommerce_shipping_fedex_yearly'; // 926
-	private const WOOCOMMERCE_SHIPPING_FEDEX_MONTHLY          = 'woocommerce_shipping_fedex_monthly'; // 927
-	private const WOOCOMMERCE_PRE_ORDERS_YEARLY               = 'woocommerce_pre_orders_yearly'; // 928
-	private const WOOCOMMERCE_PRE_ORDERS_MONTHLY              = 'woocommerce_pre_orders_monthly'; // 929
-	private const WOOCOMMERCE_SHIPPING_UPS_MONTHLY            = 'woocommerce_shipping_ups_monthly'; // 930
-	private const WOOCOMMERCE_MIN_MAX_QUANTITIES_YEARLY       = 'woocommerce_min_max_quantities_yearly'; // 931
-	private const WOOCOMMERCE_MIN_MAX_QUANTITIES_MONTHLY      = 'woocommerce_min_max_quantities_monthly'; // 932
-	private const WOOCOMMERCE_PRODUCT_VENDORS_YEARLY          = 'woocommerce_product_vendors_yearly'; // 933
-	private const WOOCOMMERCE_PRODUCT_VENDORS_MONTHLY         = 'woocommerce_product_vendors_monthly'; // 934
-	private const WOOCOMMERCE_SHIPPING_USPS_YEARLY            = 'woocommerce_shipping_usps_yearly'; // 935
-	private const WOOCOMMERCE_SHIPPING_USPS_MONTHLY           = 'woocommerce_shipping_usps_monthly'; // 936
-	private const WOOCOMMERCE_SHIPPING_CANADA_POST_YEARLY     = 'woocommerce-shipping-canada-post-yearly'; // 937
-	private const WOOCOMMERCE_SHIPPING_CANADA_POST_MONTHLY    = 'woocommerce_shipping_canada_post_monthly'; // 938
-	private const WOOCOMMERCE_PRODUCT_ADDONS_YEARLY           = 'woocommerce_product_addons_yearly'; // 939
-	private const WOOCOMMERCE_PRODUCT_ADDONS_MONTHLY          = 'woocommerce_product_addons_monthly'; // 940
-	private const WOOCOMMERCE_ROYALMAIL_YEARLY                = 'woocommerce_shipping_royalmail_yearly'; // 941
-	private const WOOCOMMERCE_ROYALMAIL_MONTHLY               = 'woocommerce_shipping_royalmail_monthly'; // 942
-	private const WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_YEARLY  = 'woocommerce_shipping_australia_post_yearly'; // 943
-	private const WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_MONTHLY = 'woocommerce_shipping_australia_post_monthly'; // 944
-	private const WOOCOMMERCE_PRODUCT_BUNDLES_YEARLY          = 'woocommerce_product_bundles_yearly'; // 945
-	private const WOOCOMMERCE_PRODUCT_BUNDLES_MONTHLY         = 'woocommerce_product_bundles_monthly'; // 946
-	private const WOO_CONDITIONAL_SHIPPING_PAYMENTS_YEARLY    = 'woo_conditional_shippingpayments_yearly'; // 947
-	private const WOO_CONDITIONAL_SHIPPING_PAYMENTS_MONTHLY   = 'woo_conditional_shippingpayments_monthly'; // 948
-	private const WOOCOMMERCE_COMPOSITE_PRODUCTS_YEARLY       = 'woocommerce_composite_products_yearly'; // 949
-	private const WOOCOMMERCE_COMPOSITE_PRODUCTS_MONTHLY      = 'woocommerce_composite_products_monthly'; // 950
-	private const WOOCOMMERCE_GIFT_CARDS_YEARLY               = 'woocommerce_gift_cards_yearly'; // 951
-	private const WOOCOMMERCE_GIFT_CARDS_MONTHLY              = 'woocommerce_gift_cards_monthly'; // 952
-	private const WOOCOMMERCE_PRODUCT_FILTERS_YEARLY          = 'woocommerce_product_filters_yearly'; // 953
-	private const WOOCOMMERCE_PRODUCT_FILTERS_MONTHLY         = 'woocommerce_product_filters_monthly'; // 954
-	private const WOOCOMMERCE_PRODUCT_CSV_IMPORT_YEARLY       = 'wc_product_csv_import_suite_yearly'; // 957
-	private const WOOCOMMERCE_PRODUCT_CSV_IMPORT_MONTHLY      = 'wc_product_csv_import_suite_monthly'; // 958
-	private const WOOCOMMERCE_VARIATION_IMAGES_YEARLY         = 'wc_additional_variation_images_yearly'; // 711
-	private const WOOCOMMERCE_VARIATION_IMAGES_MONTHLY        = 'wc_additional_variation_images_monthly'; // 2402
-	private const WOOCOMMERCE_SHIPPING_PER_PRODUCT_YEARLY     = 'woocommerce_shipping_per_product_yearly'; // 2403
-	private const WOOCOMMERCE_SHIPPING_PER_PRODUCT_MONTHLY    = 'woocommerce_shipping_per_product_monthly'; // 2404
 	private const VALUE_BUNDLE                                = 'value_bundle'; // 1003
 	private const BUNDLE_PRO                                  = 'bundle_pro'; // 1004
 	private const BUNDLE_SUPER                                = 'bundle_super'; // 1005
@@ -163,12 +105,6 @@ class WPCOM_Features {
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
 
-	// Marketplace added features
-	private const WC_LL_PRDCTS_FR_SBSCRPTNS_MNTHLY         = 'wc_ll_prdcts_fr_sbscrptns_mnthly'; // 2408
-	private const WC_ALL_PRODUCTS_FOR_SUBSCRIPTIONS_YEARLY = 'wc_all_products_for_subscriptions_yearly'; // 2407
-	private const AUTOMATEWOO_REFERRALS_MONTHLY            = 'automatewoo_referrals_monthly'; // 2406
-	private const AUTOMATEWOO_REFERRALS_YEARLY             = 'automatewoo_referrals_yearly'; // 2405
-
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS       = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
 	private const WPCOM_PERSONAL_PLANS      = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y );
@@ -177,71 +113,6 @@ class WPCOM_Features {
 	private const WPCOM_PRO_PLANS           = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
 	private const WPCOM_BUSINESS_PLANS      = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y );
 	private const WPCOM_ECOMMERCE_PLANS     = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y );
-	private const WPCOM_MARKETPLACE_PLANS   = array(
-		self::WC_LL_PRDCTS_FR_SBSCRPTNS_MNTHLY,
-		self::WC_ALL_PRODUCTS_FOR_SUBSCRIPTIONS_YEARLY,
-		self::AUTOMATEWOO_REFERRALS_MONTHLY,
-		self::AUTOMATEWOO_REFERRALS_YEARLY,
-		self::YOAST_PREMIUM,
-		self::WOOCOMMERCE_SHIPPING_UPS,
-		self::WOOCOMMERCE_SUBSCRIPTIONS,
-		self::WOOCOMMERCE_SUBSCRIPTIONS_MONTHLY,
-		self::WOOCOMMERCE_BOOKINGS,
-		self::WOOCOMMERCE_BOOKINGS_MONTHLY,
-		self::WOOCOMMERCE_TABLE_RATE_SHIPPING,
-		self::WOOCOMMERCE_TABLE_RATE_SHIPPING_MONTHLY,
-		self::AUTOMATEWOO,
-		self::AUTOMATEWOO_MONTHLY,
-		self::WOOCOMMERCE_SHIPMENT_TRACKING,
-		self::WOOCOMMERCE_SHIPMENT_TRACKING_MONTHLY,
-		self::WOOCOMMERCE_XERO,
-		self::WOOCOMMERCE_XERO_MONTHLY,
-		self::WORDPRESS_SEO_PREMIUM,
-		self::WORDPRESS_SEO_PREMIUM_MONTHLY,
-		self::WOOCOMMERCE_POINTS_AND_REWARDS,
-		self::WOOCOMMERCE_POINTS_AND_REWARDS_MONTHLY,
-		self::WOOCOMMERCE_DEPOSITS,
-		self::WOOCOMMERCE_DEPOSITS_MONTHLY,
-		self::WOOCOMMERCE_ONE_PAGE_CHECKOUT,
-		self::WOOCOMMERCE_ONE_PAGE_CHECKOUT_MONTHLY,
-		self::WOOTHEMES_SENSEI,
-		self::WOOTHEMES_SENSEI_MONTHLY,
-		self::WOOCOMMERCE_SHIPPING_FEDEX_YEARLY,
-		self::WOOCOMMERCE_SHIPPING_FEDEX_MONTHLY,
-		self::WOOCOMMERCE_PRE_ORDERS_YEARLY,
-		self::WOOCOMMERCE_PRE_ORDERS_MONTHLY,
-		self::WOOCOMMERCE_SHIPPING_UPS_MONTHLY,
-		self::WOOCOMMERCE_MIN_MAX_QUANTITIES_YEARLY,
-		self::WOOCOMMERCE_MIN_MAX_QUANTITIES_MONTHLY,
-		self::WOOCOMMERCE_PRODUCT_VENDORS_YEARLY,
-		self::WOOCOMMERCE_PRODUCT_VENDORS_MONTHLY,
-		self::WOOCOMMERCE_SHIPPING_USPS_YEARLY,
-		self::WOOCOMMERCE_SHIPPING_USPS_MONTHLY,
-		self::WOOCOMMERCE_SHIPPING_CANADA_POST_YEARLY,
-		self::WOOCOMMERCE_SHIPPING_CANADA_POST_MONTHLY,
-		self::WOOCOMMERCE_PRODUCT_ADDONS_YEARLY,
-		self::WOOCOMMERCE_PRODUCT_ADDONS_MONTHLY,
-		self::WOOCOMMERCE_ROYALMAIL_YEARLY,
-		self::WOOCOMMERCE_ROYALMAIL_MONTHLY,
-		self::WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_YEARLY,
-		self::WOOCOMMERCE_SHIPPING_AUSTRALIA_POST_MONTHLY,
-		self::WOOCOMMERCE_PRODUCT_BUNDLES_YEARLY,
-		self::WOOCOMMERCE_PRODUCT_BUNDLES_MONTHLY,
-		self::WOO_CONDITIONAL_SHIPPING_PAYMENTS_YEARLY,
-		self::WOO_CONDITIONAL_SHIPPING_PAYMENTS_MONTHLY,
-		self::WOOCOMMERCE_COMPOSITE_PRODUCTS_YEARLY,
-		self::WOOCOMMERCE_COMPOSITE_PRODUCTS_MONTHLY,
-		self::WOOCOMMERCE_GIFT_CARDS_YEARLY,
-		self::WOOCOMMERCE_GIFT_CARDS_MONTHLY,
-		self::WOOCOMMERCE_PRODUCT_FILTERS_YEARLY,
-		self::WOOCOMMERCE_PRODUCT_FILTERS_MONTHLY,
-		self::WOOCOMMERCE_PRODUCT_CSV_IMPORT_YEARLY,
-		self::WOOCOMMERCE_PRODUCT_CSV_IMPORT_MONTHLY,
-		self::WOOCOMMERCE_VARIATION_IMAGES_YEARLY,
-		self::WOOCOMMERCE_VARIATION_IMAGES_MONTHLY,
-		self::WOOCOMMERCE_SHIPPING_PER_PRODUCT_YEARLY,
-		self::WOOCOMMERCE_SHIPPING_PER_PRODUCT_MONTHLY,
-	);
 	private const GOOGLE_WORKSPACE_PRODUCTS = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
 	private const GSUITE_PRODUCTS           = array( self::GAPPS, self::GAPPS_UNLIMITED );
 	private const WPCOM_TITAN_MAIL_PRODUCTS = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
@@ -450,7 +321,7 @@ class WPCOM_Features {
 		self::ATOMIC                        => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_MARKETPLACE_PLANS,
+			array( 'product_type' => array( 'marketplace_plugin' ) ),
 		),
 		// BACKUPS - Site has *any* kind of backups.
 		self::BACKUPS                       => array(
@@ -1085,6 +956,13 @@ class WPCOM_Features {
 	public static function purchase_in_products_map( $purchase, $products_map ) {
 		// Loop through the first level of the $products_map array to identify potential legacy feature date ranges.
 		foreach ( $products_map as $product_definition ) {
+			if ( ! empty( $product_definition['product_type'] ) ) {
+				if ( in_array( $purchase->product_type, $product_definition['product_type'], true ) ) {
+					return true;
+				}
+				continue;
+			}
+
 			$purchase_eligible_by_date = false;
 
 			// If 'before' & 'after' are empty, this is not a legacy feature.

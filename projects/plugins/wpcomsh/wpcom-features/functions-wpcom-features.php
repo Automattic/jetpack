@@ -78,48 +78,25 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 		$purchases = (array) json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
 
 	} else {
-		global $wpdb;
-
 		// Allow overriding the blog ID for feature checks.
-		$blog_id = apply_filters( 'wpcom_site_has_feature_blog_id', $blog_id );
+		$blog_id               = apply_filters( 'wpcom_site_has_feature_blog_id', $blog_id );
+		$unformatted_purchases = \A8C\Billingdaddy\Container::get_purchases_api()->get_purchases_for_site( (int) $blog_id );
+		$product_cache         = Store_Product_List::get_from_cache();
+		$purchases             = array();
 
-		// 'site_purchases' belong to $global_groups in ./wp-content/object-cache.php
-		$wp_cache_group = 'site_purchases';
-		$wp_cache_found = false;
-
-		// The DB table is included in $wp_cache_key to avoid cache pollution between the production and test store.
-		$wp_cache_key = "$blog_id-{$wpdb->store_subscriptions}";
-
-		// Check wp_cache_get for $purchases. If none exist $wp_cache_found will return false.
-		$purchases = wp_cache_get( $wp_cache_key, $wp_cache_group, false, $wp_cache_found );
-
-		if ( false === $wp_cache_found ) {
-			// For optimal performance, get $purchases with a direct SQL query.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$purchases = $wpdb->get_results(
-				$wpdb->prepare(
-					"
-					SELECT sp.product_slug, sp.product_id, sp.product_type, ss.subscribed_date, ss.expiry as 'expiry_date'
-					FROM `$wpdb->store_subscriptions` AS ss
-					LEFT JOIN `$wpdb->store_products` AS sp ON ss.product_id = sp.product_id
-					WHERE ss.blog_id=%d AND ss.active=1
-					",
-					$blog_id
-				)
-			);
-
-			// Format the dates to match WPCOMSH data.
-			foreach ( $purchases as $purchase ) {
-				$purchase->subscribed_date = wpcom_datetime_to_iso8601( $purchase->subscribed_date );
-				$purchase->expiry_date     = wpcom_datetime_to_iso8601( $purchase->expiry_date );
+		foreach ( $unformatted_purchases as $unformatted_purchase ) {
+			if ( empty( $product_cache[ $unformatted_purchase->product_id ] ) ) {
+				// Skip the record if the product data is not in the cache.
+				continue;
 			}
-
-			/*
-			 * Cache the $purchases for 3 hours. Otherwise, the cache is invalidated when a purchase is made, using:
-			 * add_action( 'subscription_changed', 'clear_wp_cache_site_purchases', 10, 1 );
-			 * Found in ./wp-content/mu-plugins/wpcom-features.php
-			 */
-			wp_cache_set( $wp_cache_key, $purchases, $wp_cache_group, 60 * 60 * 3 );
+			$product_data = $product_cache[ $unformatted_purchase->product_id ];
+			$purchases[]  = (object) array(
+				'product_slug'    => $product_data['product_slug'],
+				'product_id'      => (string) $unformatted_purchase->product_id,
+				'product_type'    => $product_data['product_type'],
+				'subscribed_date' => wpcom_datetime_to_iso8601( $unformatted_purchase->subscribed_date ),
+				'expiry_date'     => wpcom_datetime_to_iso8601( $unformatted_purchase->expiry ),
+			);
 		}
 	}
 
@@ -164,17 +141,21 @@ function wpcom_datetime_to_iso8601( $date, $default = 'now' ) {
  * @return bool
  */
 function wpcom_product_has_feature( $product, $feature ) {
-	if ( ! is_numeric( $product ) && ! is_string( $product ) && ! ( $product instanceof Store_Product ) ) {
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		_doing_it_wrong(
 			__FUNCTION__,
-			'The $purchase parameter should be of type string|int|Store_Product.',
+			'Support for this function is only in available in contexts where the store products database is available.',
 			false // No version.
 		);
 		return false;
 	}
-	$product = _normalize_product( $product );
 
-	return WPCOM_Features::has_feature( $feature, array( $product ) );
+	$purchase = _convert_product_to_purchase( $product );
+	if ( ! $purchase ) {
+		return false;
+	}
+
+	return wpcom_purchase_has_feature( $purchase, $feature );
 }
 
 /**
@@ -185,38 +166,32 @@ function wpcom_product_has_feature( $product, $feature ) {
  *
  * Do not pass a Store_Product to this function. For that case, use wpcom_product_has_feature().
  *
- * @param Store_Subscription $purchase A Store_Subscription object.
- * @param string             $feature The name of the feature to check.
+ * @param Store_Subscription|object $purchase A Store_Subscription object or purchase serialized object.
+ * @param string                    $feature The name of the feature to check.
  *
  * @return bool
  */
 function wpcom_purchase_has_feature( $purchase, $feature ) {
-	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-		_doing_it_wrong(
-			__FUNCTION__,
-			'Support for this function is only in available in contexts where the store products database is available.',
-			false // No version.
+	if ( $purchase instanceof Store_Subscription ) {
+		/**
+		 * We retrieve the product_slug and product_type directly from the Store_Product_List
+		 * cache instead of relying on the internals of Store_Subscription to retrieve it.
+		 *
+		 * The issue is that simply "->product_slug" or "->product_type" can call a custom __get(),
+		 * which can issue SQL queries that take > 10ms for information is not needed. This assignment
+		 * grabs the value directly from the cached store_products data avoiding any unnecessary queries.
+		 */
+		$product = Store_Product_List::get_from_cache()[ $purchase->product_id ];
+
+		$purchase = (object) array(
+			'product_slug'    => $product['product_slug'],
+			'product_id'      => (string) $purchase->product_id,
+			'product_type'    => $product['product_type'],
+			'subscribed_date' => wpcom_datetime_to_iso8601( $purchase->subscribed_date ),
+			'expiry_date'     => wpcom_datetime_to_iso8601( $purchase->expiry ),
 		);
-		return false;
 	}
-	if ( ! ( $purchase instanceof Store_Subscription ) ) {
-		_doing_it_wrong(
-			__FUNCTION__,
-			'The $purchase parameter should be of type Store_Subscription.',
-			false // No version.
-		);
-		return false;
-	}
-	/**
-	 * We retrieve the product_slug directly from the Store_Product_List cache
-	 * instead of relying on the internals of Store_Subscription to retrieve it.
-	 *
-	 * The issue is that simply "->product_slug" can call a custom __get(),
-	 * which can issue SQL queries that take > 10ms for information is not needed.
-	 * This assignment grabs the value directly from the cached store_products data
-	 * avoiding any unnecessary queries.
-	 */
-	$purchase->product_slug = Store_Product_List::get_from_cache()[ $purchase->product_id ]['product_slug'];
+
 	return WPCOM_Features::has_feature( $feature, array( $purchase ) );
 }
 
@@ -228,20 +203,23 @@ function wpcom_purchase_has_feature( $purchase, $feature ) {
  * @return string[]
  */
 function wpcom_get_product_features( $product ) {
-	if ( ! is_numeric( $product ) && ! is_string( $product ) && ! ( $product instanceof Store_Product ) ) {
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		_doing_it_wrong(
 			__FUNCTION__,
-			'The $purchase parameter should be of type string|int|Store_Product.',
+			'Support for this function is only in available in contexts where the store products database is available.',
 			false // No version.
 		);
 		return array();
 	}
 
-	$product = _normalize_product( $product );
+	$purchase = _convert_product_to_purchase( $product );
+	if ( ! $purchase ) {
+		return array();
+	}
 
 	$cache_group = 'site_purchases';
 	$cache_found = false;
-	$cache_key   = $product->product_slug . filemtime( __DIR__ . '/class-wpcom-features.php' );
+	$cache_key   = $purchase->product_slug . filemtime( __DIR__ . '/class-wpcom-features.php' );
 
 	$features = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
 
@@ -249,7 +227,7 @@ function wpcom_get_product_features( $product ) {
 		$features = array();
 
 		foreach ( WPCOM_Features::get_feature_slugs() as $feature ) {
-			if ( wpcom_product_has_feature( $product, $feature ) ) {
+			if ( wpcom_purchase_has_feature( $purchase, $feature ) ) {
 				$features[] = $feature;
 			}
 		}
@@ -261,37 +239,42 @@ function wpcom_get_product_features( $product ) {
 }
 
 /**
- * Normalizes Product input to always return an object with a product_slug property.
+ * Converts a store product to a purchase object compatible with `WPCOM_Features::has_feature`.
  *
  * @param string|int|Store_Product $product A Store_Product object, a product slug, or ID.
  *
- * @return false|object|Store_Product
+ * @return null|object
  */
-function _normalize_product( $product ) {
-	if ( $product instanceof Store_Product ) {
-		return $product;
+function _convert_product_to_purchase( $product ) {
+	if ( ! is_numeric( $product ) && ! is_string( $product ) && ! ( $product instanceof Store_Product ) ) {
+		_doing_it_wrong(
+			__FUNCTION__,
+			'The $purchase parameter should be of type string|int|Store_Product.',
+			false // No version.
+		);
+		return null;
+	}
+
+	if ( is_string( $product ) && ! is_numeric( $product ) ) {
+		require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/class.wpcom-billingdaddy.php';
+		$product = WPCOM_Billingdaddy::store_product_slug_to_product_id( $product );
 	}
 
 	if ( is_numeric( $product ) ) {
-		if ( ! function_exists( 'get_store_product' ) ) {
-			_doing_it_wrong(
-				__FUNCTION__,
-				'Support for product IDs is only available in contexts where WP.com store functions are defined.',
-				false // No version.
-			);
-
-			return false;
+		$product_cache = Store_Product_List::get_from_cache();
+		if ( ! array_key_exists( $product, $product_cache ) ) {
+			return null;
 		}
-
-		return get_store_product( $product );
+		$product = (object) $product_cache[ $product ];
 	}
 
-	if ( is_string( $product ) ) {
-		// has_feature expects an object with a product_slug.
-		return (object) array( 'product_slug' => $product );
-	}
-
-	return false;
+	return (object) array(
+		'product_slug'    => $product->product_slug,
+		'product_id'      => (string) $product->product_id,
+		'product_type'    => $product->product_type,
+		'subscribed_date' => null,
+		'expiry_date'     => null,
+	);
 }
 
 /**
