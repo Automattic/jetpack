@@ -375,7 +375,7 @@ HTML;
 			'R-17'  => 'R',
 		);
 
-		$displayed_rating = isset( $info->rating ) ? $info->rating : 'G';
+		$displayed_rating = isset( $info->rating ) ? $info->rating : null;
 
 		// X-18 was previously supported but is now removed to better comply with our TOS.
 		if ( 'X-18' === $displayed_rating ) {
