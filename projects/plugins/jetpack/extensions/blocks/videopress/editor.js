@@ -292,8 +292,6 @@ const addVideoPressSupport = ( settings, name ) => {
 
 		const oldVideoEmbedRegex = /https?:\/\/v\.wordpress\.com\/([a-zA-Z\d]{8})(.+)?/i;
 
-		const transformsTo = [];
-
 		return {
 			...settings,
 			attributes: attributesDefinition,
@@ -351,7 +349,6 @@ const addVideoPressSupport = ( settings, name ) => {
 						},
 					},
 				],
-				to: transformsTo,
 			},
 
 			supports: {
