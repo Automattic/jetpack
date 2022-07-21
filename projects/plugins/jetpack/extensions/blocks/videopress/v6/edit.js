@@ -64,7 +64,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		seekbarColor,
 		seekbarLoadingColor,
 		seekbarPlayedColor,
-		src,
 		guid,
 		cacheHtml,
 		poster,
@@ -223,7 +222,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	 *     - no in-progress uploading file to the backend
 	 *     - no file recently uploaded to the backend
 	 */
-	if ( ! src || ( ! isRequestingEmbedPreview && ! videoPressUrl ) ) {
+	if ( ! isRequestingEmbedPreview && ! videoPressUrl ) {
 		return <VideoPressUploader setAttributes={ setAttributes } attributes={ attributes } />;
 	}
 
