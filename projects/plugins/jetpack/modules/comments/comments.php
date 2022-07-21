@@ -558,7 +558,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		$blog_token = ( new Tokens() )->get_access_token( false, $post_array['token_key'] );
-		if ( ! $blog_token ) {
+		if ( ! $blog_token || is_wp_error( $blog_token ) ) {
 			wp_die( esc_html__( 'Unknown security token.', 'jetpack' ), 400 );
 		}
 		$check = self::sign_remote_comment_parameters( $post_array, $blog_token->secret );
