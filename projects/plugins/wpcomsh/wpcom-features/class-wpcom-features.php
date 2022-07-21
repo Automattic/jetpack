@@ -164,8 +164,10 @@ class WPCOM_Features {
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
 
 	// Marketplace added features
-	private const AUTOMATEWOO_REFERRALS_MONTHLY = 'automatewoo_referrals_monthly'; // 2406
-	private const AUTOMATEWOO_REFERRALS_YEARLY  = 'automatewoo_referrals_yearly'; // 2405
+	private const WC_LL_PRDCTS_FR_SBSCRPTNS_MNTHLY         = 'wc_ll_prdcts_fr_sbscrptns_mnthly'; // 2408
+	private const WC_ALL_PRODUCTS_FOR_SUBSCRIPTIONS_YEARLY = 'wc_all_products_for_subscriptions_yearly'; // 2407
+	private const AUTOMATEWOO_REFERRALS_MONTHLY            = 'automatewoo_referrals_monthly'; // 2406
+	private const AUTOMATEWOO_REFERRALS_YEARLY             = 'automatewoo_referrals_yearly'; // 2405
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS       = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -176,6 +178,8 @@ class WPCOM_Features {
 	private const WPCOM_BUSINESS_PLANS      = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y );
 	private const WPCOM_ECOMMERCE_PLANS     = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y );
 	private const WPCOM_MARKETPLACE_PLANS   = array(
+		self::WC_LL_PRDCTS_FR_SBSCRPTNS_MNTHLY,
+		self::WC_ALL_PRODUCTS_FOR_SUBSCRIPTIONS_YEARLY,
 		self::AUTOMATEWOO_REFERRALS_MONTHLY,
 		self::AUTOMATEWOO_REFERRALS_YEARLY,
 		self::YOAST_PREMIUM,
