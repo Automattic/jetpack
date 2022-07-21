@@ -14,19 +14,22 @@ import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
 
 const Header = () => {
-	const { hasConnections, isModuleEnabled, connectionsAdminUrl, sharesCount } = useSelect(
-		select => {
-			const store = select( STORE_ID );
-			return {
-				hasConnections: store.hasConnections(),
-				isModuleEnabled: store.isModuleEnabled(),
-				connectionsAdminUrl: store.getConnectionsAdminUrl(),
-				sharesCount: select( STORE_ID ).getSharesCount()?.results?.total ?? null,
-			};
-		}
-	);
-
-	const isShareLimitEnabled = true;
+	const {
+		hasConnections,
+		isModuleEnabled,
+		connectionsAdminUrl,
+		sharesCount,
+		isShareLimitEnabled,
+	} = useSelect( select => {
+		const store = select( STORE_ID );
+		return {
+			hasConnections: store.hasConnections(),
+			isModuleEnabled: store.isModuleEnabled(),
+			connectionsAdminUrl: store.getConnectionsAdminUrl(),
+			sharesCount: select( STORE_ID ).getSharesCount(),
+			isShareLimitEnabled: select( STORE_ID ).isShareLimitEnabled(),
+		};
+	} );
 
 	const formatter = Intl.NumberFormat( getUserLocale(), {
 		notation: 'compact',
