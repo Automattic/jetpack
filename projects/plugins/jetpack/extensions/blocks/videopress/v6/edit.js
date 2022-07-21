@@ -216,17 +216,11 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		} ),
 	} );
 
-	/*
-	 * 1 - Initial block state. Show VideoPressUploader when:
-	 *     - no src attribute,
-	 *     - no in-progress uploading file to the backend
-	 *     - no file recently uploaded to the backend
-	 */
 	if ( ! isRequestingEmbedPreview && ! videoPressUrl ) {
 		return <VideoPressUploader setAttributes={ setAttributes } attributes={ attributes } />;
 	}
 
-	// 4 - Generating video preview
+	// Generating video preview.
 	if (
 		( isRequestingEmbedPreview || ! preview ) &&
 		generatingPreviewCounter > 0 &&
@@ -241,7 +235,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		);
 	}
 
-	// 5 - Generating video preview
+	// 5 - Generating video preview failed.
 	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
 		return (
 			<PlaceholderWrapper
