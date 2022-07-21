@@ -10,9 +10,7 @@ import PaymentsIntroPatternPicker from './pattern-picker';
 import defaultVariations from './variations';
 
 export default function JetpackPaymentsIntroEdit( { name, clientId, className } ) {
-	const patternFilter = pattern => {
-		return pattern.categories.includes( 'earn' );
-	};
+	const patternFilter = pattern => pattern.categories.includes( 'earn' );
 
 	const { blockType, hasInnerBlocks, hasPatterns } = useSelect( select => {
 		const { getBlocks, __experimentalGetAllowedPatterns } = select( blockEditorStore );
@@ -42,9 +40,11 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 
 	const displayVariations = usableVariations.length && registerBlockVariation;
 
-	let instructions = __( "Please select which kind of payment you'd like to add", 'jetpack' );
+	let instructions;
 	if ( hasPatterns ) {
-		instructions = __( 'Start by choosing one of our suggested layout patterns', 'jetpack' );
+		instructions = __( 'Start by choosing one of our suggested layout patterns.', 'jetpack' );
+	} else {
+		instructions = __( "Please select which kind of payment you'd like to add.", 'jetpack' );
 	}
 
 	if ( ! hasInnerBlocks && displayVariations ) {
@@ -58,13 +58,10 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 				{ hasPatterns && (
 					<>
 						<PaymentsIntroPatternPicker
-							onBlockPatternSelect={ blocks => {
-								const clonedBlocks = blocks.map( block => cloneBlock( block ) );
-								replaceBlock( clientId, clonedBlocks );
-							} }
+							onBlockPatternSelect={ blocks => replaceBlock( clientId, blocks.map( cloneBlock ) ) }
 							patternFilter={ patternFilter }
 						/>
-						<p>{ __( 'Or use one of our blocks to create your own', 'jetpack' ) }</p>
+						<p>{ __( 'Or use one of our blocks to create your own.', 'jetpack' ) }</p>
 					</>
 				) }
 				<PaymentsIntroBlockPicker

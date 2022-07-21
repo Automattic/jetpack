@@ -6,10 +6,19 @@
 		// fieldset are the choose pattern button and the block options, oriented
 		// vertically.
 		flex-direction: column;
+
+		>p {
+			margin-bottom: 0;
+		}
 	}
-	p {
+	.components-placeholder__instructions {
 		margin-bottom: 0;
 	}
+}
+
+.wp-payments-intro-pattern-picker__opener {
+	width: min-content;
+	margin-top: $grid-unit-20;
 }
 
 .wp-block-jetpack-payments-intro__pattern-picker-selection-content .block-editor-block-patterns-list {
@@ -119,8 +128,4 @@
 	&:last-child {
 		margin-right: 0;
 	}
-}
-
-.wp-payments-intro-pattern-picker__opener {
-	width:min-content;
 }
