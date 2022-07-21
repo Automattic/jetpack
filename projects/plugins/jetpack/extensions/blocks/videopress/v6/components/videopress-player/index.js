@@ -94,6 +94,15 @@ export default function VideoPressPlayer( {
 		setIsVideoLoaded( detail?.state === 'loaded' );
 	}, [] );
 
+	// set video is loaded as False, when html is not available.
+	useEffect( () => {
+		if ( html ) {
+			return;
+		}
+
+		setIsVideoLoaded( false );
+	}, [ html ] );
+
 	useEffect( () => {
 		if ( ! sandboxWindow ) {
 			return;
@@ -103,7 +112,7 @@ export default function VideoPressPlayer( {
 
 		return () =>
 			sandboxWindow?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler, sandboxWindow ] );
+	}, [ onVideoLoadingStateHandler, sandboxWindow, html ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
