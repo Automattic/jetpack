@@ -9,7 +9,7 @@
  * Class Jetpack_Podcast_Helper
  */
 class Jetpack_Podcast_Helper {
-	const MIN_PODCAST_CACHE_TIMEOUT = 30 * MINUTE_IN_SECONDS;
+	const MIN_PODCAST_CACHE_TIMEOUT = 10 * MINUTE_IN_SECONDS;
 
 	/**
 	 * The RSS feed of the podcast.
@@ -20,12 +20,18 @@ class Jetpack_Podcast_Helper {
 
 	/**
 	 * The number of seconds to cache the podcast feed data.
-	 * This should be specified using the `jetpack_podcast_feed_cache_timeout` filter,
-	 * and must be greater than {@see self::MIN_PODCAST_CACHE_TIMEOUT}.
+	 * This value defaults to 12 hours, which is the default for RSS feeds in WordPress.
+	 * The value can be overridden specifically for podcasts using the
+	 * `jetpack_podcast_feed_cache_timeout` filter, in which case the value
+	 * must be greater than {@see self::MIN_PODCAST_CACHE_TIMEOUT}, or the value
+	 * for all RSS feeds can be modified using the `wp_feed_cache_transient_lifetime`
+	 * filter from WordPress core.
+	 *
+	 * @see WP_Feed_Cache_Transient
 	 *
 	 * @var int|null
 	 */
-	protected $cache_timeout = null;
+	protected $cache_timeout = 12 * HOUR_IN_SECONDS;
 
 	/**
 	 * Initialize class.
@@ -40,14 +46,17 @@ class Jetpack_Podcast_Helper {
 		 *
 		 * @since $$next-version$$
 		 *
+		 * @param int|null $cache_timeout The number of seconds to cache the podcast data. Default value is 12 hours in seconds.
 		 * @param string   $podcast_url   The URL of the podcast feed.
-		 * @param int|null $cache_timeout The number of seconds to cache the podcast data. Default value is null.
 		 */
-		$podcast_cache_timeout = apply_filters( 'jetpack_podcast_feed_cache_timeout', $this->feed, null );
+		$podcast_cache_timeout = apply_filters( 'jetpack_podcast_feed_cache_timeout', $this->cache_timeout, $this->feed );
 
-		if ( $podcast_cache_timeout !== null && is_int( $podcast_cache_timeout ) ) {
-			// Enforce our minimum cache timeout.
-			$this->cache_timeout = max( $podcast_cache_timeout, self::MIN_PODCAST_CACHE_TIMEOUT );
+		// Make sure we force $this->cache_timeout to be int|null.
+		// Also ensure we enforce our minimum cache timeout.
+		if ( is_int( $$podcast_cache_timeout ) ) {
+			$this->cache_timeout = max( (int) $podcast_cache_timeout, self::MIN_PODCAST_CACHE_TIMEOUT );
+		} else {
+			$this->cache_timeout = null;
 		}
 	}
 
