@@ -3,7 +3,7 @@ import ProductOffer from '..';
 import { IconsCard } from '../icons-card';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-const meta: ComponentMeta< typeof ProductOffer > = {
+export default {
 	title: 'JS Packages/Components/Product Offer',
 	component: ProductOffer,
 	decorators: [ withMock ],
@@ -11,9 +11,7 @@ const meta: ComponentMeta< typeof ProductOffer > = {
 		actions: { argTypesRegex: '^on.*' },
 		layout: 'centered',
 	},
-};
-
-export default meta;
+} as ComponentMeta< typeof ProductOffer >;
 
 const Template: ComponentStory< typeof ProductOffer > = args => <ProductOffer { ...args } />;
 
