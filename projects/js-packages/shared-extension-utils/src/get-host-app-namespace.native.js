@@ -7,7 +7,7 @@ import { select } from '@wordpress/data';
 /**
  * Retrieves host app's namespace e.g. "WordPress" or "Jetpack".
  *
- * @returns {string} hostAppNames The host app's namespace.
+ * @returns {string} hostAppNamespace The host app's namespace.
  */
 export default function getHostAppNamespace() {
 	return select( blockEditorStore ).getSettings().hostAppNamespace;
