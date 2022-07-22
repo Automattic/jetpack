@@ -41,11 +41,10 @@ function getContrast( hexcolor ) {
 	// Check contrast
 	return yiq >= 128 ? 'black' : 'white';
 }
-const meta: ComponentMeta< typeof ThemeProvider > = {
+export default {
 	title: 'JS Packages/Components/Theme Provider',
-};
+} as ComponentMeta< typeof ThemeProvider >;
 
-export default meta;
 const noop = () => {
 	//
 };
