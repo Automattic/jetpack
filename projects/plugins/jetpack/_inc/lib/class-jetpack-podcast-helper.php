@@ -41,9 +41,8 @@ class Jetpack_Podcast_Helper {
 
 		/**
 		 * Filter the number of seconds to cache a specific podcast URL for. The returned value will be ignored if it is null or not a valid integer.
-		 * Note that we will only use this value if it is less than the RSS feed cache timeout returned from the `wp_feed_cache_transient_lifetime`
-		 * filter in WordPress core. Also note that this timeout will only work if the site is using the default `WP_Feed_Cache_Transient`
-		 * cache implementation for RSS feeds, or their cache implementation relies on the `wp_feed_cache_transient_lifetime` filter.
+		 * Note that this timeout will only work if the site is using the default `WP_Feed_Cache_Transient` cache implementation for RSS feeds,
+		 * or their cache implementation relies on the `wp_feed_cache_transient_lifetime` filter.
 		 *
 		 * @since $$next-version$$
 		 * @see https://developer.wordpress.org/reference/hooks/wp_feed_cache_transient_lifetime/
@@ -380,8 +379,7 @@ class Jetpack_Podcast_Helper {
 	 */
 	public function filter_podcast_cache_timeout( $cache_timeout_in_seconds ) {
 		if ( $this->cache_timeout !== null ) {
-			// If the cache timeout has already been reduced, return the smaller value of the two.
-			return min( $cache_timeout_in_seconds, $this->cache_timeout );
+			return $this->cache_timeout;
 		}
 
 		return $cache_timeout_in_seconds;
