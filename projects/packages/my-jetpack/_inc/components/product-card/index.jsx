@@ -34,12 +34,12 @@ const ActionButton = ( {
 } ) => {
 	if ( ! admin ) {
 		return (
-			<span className={ styles[ 'action-link-button' ] }>
+			<Button { ...buttonState } size="small" weight="regular">
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
 				}
-			</span>
+			</Button>
 		);
 	}
 
@@ -52,12 +52,12 @@ const ActionButton = ( {
 	switch ( status ) {
 		case PRODUCT_STATUSES.ABSENT:
 			return (
-				<span className={ styles[ 'action-link-button' ] }>
+				<Button { ...buttonState } size="small" weight="regular">
 					{
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
 					}
-				</span>
+				</Button>
 			);
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 			return (
