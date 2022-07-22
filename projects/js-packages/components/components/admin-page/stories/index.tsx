@@ -5,12 +5,10 @@ import AdminPage from '../index';
 import styles from './style.module.scss';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-const meta: ComponentMeta< typeof AdminPage > = {
+export default {
 	title: 'JS Packages/Components/Admin Page',
 	component: AdminPage,
-};
-
-export default meta;
+} as ComponentMeta< typeof AdminPage >;
 
 // Export additional stories using pre-defined values
 const Template: ComponentStory< typeof AdminPage > = args => <AdminPage { ...args } />;
