@@ -144,6 +144,7 @@ class Admin_Menu extends Base_Admin_Menu {
 				$site_upgrades = sprintf(
 					$site_upgrades,
 					__( 'Upgrades', 'jetpack' ),
+					// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 					__( $plan ),
 				);
 			} else {
