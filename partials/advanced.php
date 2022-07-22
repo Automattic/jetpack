@@ -206,13 +206,13 @@ if ( $wp_cache_preload_on )
 
 echo "<script type='text/javascript'>";
 echo "jQuery(function () {
-	jQuery('#cache_interval_time').click(function () {
+	jQuery('#cache_interval_time').on('click',function () {
 		jQuery('#schedule_interval').attr('checked', true);
 	});
-	jQuery('#cache_scheduled_time').click(function () {
+	jQuery('#cache_scheduled_time').on('click',function () {
 		jQuery('#schedule_time').attr('checked', true);
 	});
-	jQuery('#cache_scheduled_select').click(function () {
+	jQuery('#cache_scheduled_select').on('click',function () {
 		jQuery('#schedule_time').attr('checked', true);
 	});
 	});";

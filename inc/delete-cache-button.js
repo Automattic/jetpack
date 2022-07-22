@@ -1,6 +1,6 @@
 (function ($) {
 	$(document).ready(function () {
-		$('#wp-admin-bar-delete-cache').click(function () {
+		$('#wp-admin-bar-delete-cache').on("click",function () {
 			$('#wp-admin-bar-delete-cache').fadeOut('slow');
 			$.ajax({
 				type: "post",
