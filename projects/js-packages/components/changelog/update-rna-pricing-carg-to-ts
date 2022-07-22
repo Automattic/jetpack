@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Converted PricingCard component to TypeScript

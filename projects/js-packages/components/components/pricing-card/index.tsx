@@ -1,8 +1,9 @@
 import { getCurrencyObject } from '@automattic/format-currency';
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
-import React from 'react';
+import { PricingCardProps } from './types';
+import type { CurrencyObject } from '@automattic/format-currency/src/types';
+import type React from 'react';
 
 import './style.scss';
 
@@ -11,22 +12,26 @@ import './style.scss';
  * Needed as `getCurrencyObject` will always return the decimal part populated even if it
  * doesn't exist.
  *
- * @param {object} currencyObject -- A currency object returned from `getCurrencyObject`.
+ * @param {CurrencyObject} currencyObject -- A currency object returned from `getCurrencyObject`.
  * @returns {boolean} Whether or not to display the price decimal part.
  */
-const showPriceDecimals = currencyObject => {
+const showPriceDecimals = ( currencyObject: CurrencyObject ): boolean => {
 	return currencyObject.fraction.indexOf( '00' ) === -1;
 };
 
 /**
  * The Pricing card component.
  *
- * @param {object} props -- The properties.
- * @returns {React.Component} The `PricingCard` component.
+ * @param {PricingCardProps} props -- The component props.
+ * @returns {React.ReactNode} The rendered component.
  */
-const PricingCard = props => {
-	const currencyObjectBefore = getCurrencyObject( props.priceBefore, props.currencyCode );
-	const currencyObjectAfter = getCurrencyObject( props.priceAfter, props.currencyCode );
+const PricingCard: React.FC< PricingCardProps > = ( {
+	currencyCode = 'USD',
+	priceDetails = __( '/month, paid yearly', 'jetpack' ),
+	...props
+} ) => {
+	const currencyObjectBefore = getCurrencyObject( props.priceBefore, currencyCode );
+	const currencyObjectAfter = getCurrencyObject( props.priceAfter, currencyCode );
 
 	return (
 		<div className="jp-components__pricing-card">
@@ -74,7 +79,7 @@ const PricingCard = props => {
 						</span>
 					) }
 				</div>
-				<span className="jp-components__pricing-card__price-details">{ props.priceDetails }</span>
+				<span className="jp-components__pricing-card__price-details">{ priceDetails }</span>
 			</div>
 
 			{ props.children && (
@@ -98,32 +103,6 @@ const PricingCard = props => {
 			) }
 		</div>
 	);
-};
-
-PricingCard.propTypes = {
-	/** The Title. */
-	title: PropTypes.string.isRequired,
-	/** The Icon. */
-	icon: PropTypes.string,
-	/** Price before discount. */
-	priceBefore: PropTypes.number.isRequired,
-	/** Price after discount. */
-	priceAfter: PropTypes.number.isRequired,
-	/** Price details. */
-	priceDetails: PropTypes.string,
-	/** The Currency code, eg 'USD'. */
-	currencyCode: PropTypes.string,
-	/** The CTA copy. */
-	ctaText: PropTypes.string,
-	/** The CTA callback to be called on click. */
-	onCtaClick: PropTypes.func,
-	/** Optional informative text. */
-	infoText: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ),
-};
-
-PricingCard.defaultProps = {
-	currencyCode: 'USD',
-	priceDetails: __( '/month, paid yearly', 'jetpack' ),
 };
 
 export default PricingCard;
