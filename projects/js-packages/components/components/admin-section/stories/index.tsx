@@ -5,10 +5,9 @@ import AdminSection from '../basic';
 import AdminSectionHero from '../hero';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-const meta: ComponentMeta< typeof AdminSection > = {
+export default {
 	title: 'JS Packages/Components/Admin Sections',
-};
-export default meta;
+} as ComponentMeta< typeof AdminSection >;
 
 // Export additional stories using pre-defined values
 const Template: ComponentStory< typeof AdminSection > = () => (
