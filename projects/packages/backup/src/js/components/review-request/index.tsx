@@ -1,6 +1,5 @@
 import { Text } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
-import { Icon, arrowRight } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './style.module.scss';
@@ -35,16 +34,19 @@ const ReviewRequest: React.FC< ReviewRequestBaseProps > = ( { description, cta, 
 	}
 	return (
 		<>
-			<button className={ styles.rr } onClick={ onClick } role="link">
+			<button
+				className={ `${ styles.rr } ${ styles.emojisPseudo }` }
+				onClick={ onClick }
+				role="link"
+			>
 				<div>
 					<Text>{ description }</Text>
 					<Text className={ styles.cta }>{ cta }</Text>
 				</div>
-				<Icon icon={ arrowRight } className={ styles.icon } size={ 30 } />
 			</button>
 			{ /* eslint-disable-next-line react/jsx-no-bind */ }
 			<a role="button" href="#" onClick={ dismissMessage } className={ styles.dismiss }>
-				{ __( 'Dismiss', 'jetpack-backup-pkg' ) }
+				{ __( 'Maybe later', 'jetpack-backup-pkg' ) }
 			</a>
 		</>
 	);
