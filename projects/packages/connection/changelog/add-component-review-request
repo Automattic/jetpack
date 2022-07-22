@@ -1,4 +1,5 @@
-Significance: minor
+Significance: patch
 Type: added
+Comment: Insignificant change. Adding a Jetpack Option
 
-Add review-request component
+
