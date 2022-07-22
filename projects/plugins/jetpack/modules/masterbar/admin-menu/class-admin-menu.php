@@ -144,7 +144,7 @@ class Admin_Menu extends Base_Admin_Menu {
 				$site_upgrades = sprintf(
 					$site_upgrades,
 					__( 'Upgrades', 'jetpack' ),
-					$plan
+					__( $plan ),
 				);
 			} else {
 				$site_upgrades = __( 'Upgrades', 'jetpack' );
