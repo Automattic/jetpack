@@ -229,7 +229,7 @@ button.jetpack-instant-search__overlay-close {
 	background-color: transparent !important;
 
 	&:focus {
-		outline: 1px dotted;
+		outline: -webkit-focus-ring-color auto 1px;
 	}
 
 	svg.gridicon {
