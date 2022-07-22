@@ -523,6 +523,8 @@ if ( class_exists( 'Checksum_Plugin_Command' ) ) {
  * : Indicates that the symlinked plugin should be activated
  */
 function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
+	WP_CLI::warning( 'This command is deprecated. Please use the `wpcomsh plugin use-managed` command instead.' );
+
 	$plugin_to_symlink = $args[0];
 
 	if ( 'wpcomsh' === $plugin_to_symlink ) {
@@ -612,6 +614,8 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
  * : Indicates that the symlinked theme should be activated
  */
 function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
+	WP_CLI::warning( 'This command is deprecated. Please use the `wpcomsh theme use-managed` command instead.' );
+
 	$theme_to_symlink = $args[0];
 
 	$themes_dir = get_theme_root();
@@ -719,3 +723,28 @@ WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
 WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
 WP_CLI::add_command( 'theme symlink', 'wpcomsh_cli_theme_symlink' );
+
+add_action(
+	'plugins_loaded',
+	function () {
+		if ( class_exists( 'Atomic_Platform_Managed_Software_Commands' ) ) {
+			WP_CLI::add_command(
+				'wpcomsh plugin use-managed',
+				array( 'Atomic_Platform_Managed_Software_Commands', 'use_managed_plugin' )
+			);
+			WP_CLI::add_command(
+				'wpcomsh plugin use-unmanaged',
+				array( 'Atomic_Platform_Managed_Software_Commands', 'use_unmanaged_plugin' )
+			);
+			WP_CLI::add_command(
+				'wpcomsh theme use-managed',
+				array( 'Atomic_Platform_Managed_Software_Commands', 'use_managed_theme' )
+			);
+			WP_CLI::add_command(
+				'wpcomsh theme use-unmanaged',
+				array( 'Atomic_Platform_Managed_Software_Commands', 'use_unmanaged_theme' )
+			);
+		}
+	}
+);
+
