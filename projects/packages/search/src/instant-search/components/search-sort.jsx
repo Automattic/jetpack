@@ -62,6 +62,7 @@ export default class SearchSort extends Component {
 				{ [ ...sortOptions.entries() ].map( ( [ sortKey, label ] ) => (
 					<>
 						<button
+							aria-current={ this.props.value === sortKey ? 'true' : 'false' }
 							className={ `jetpack-instant-search__search-sort-option ${
 								this.props.value === sortKey ? 'is-selected' : ''
 							}` }
