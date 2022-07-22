@@ -1364,7 +1364,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "4512affdc11dc64e1911a81dbdde1d842d38e41d"
+                "reference": "9626b5de811b426fa7e2b6c9d123217da16f95fc"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.41"
@@ -1377,6 +1377,11 @@
             },
             "type": "library",
             "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-plans",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
+                },
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
                 }
