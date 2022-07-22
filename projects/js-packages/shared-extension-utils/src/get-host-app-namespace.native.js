@@ -2,8 +2,13 @@
  * WordPress dependencies
  */
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { select, useSelect } from '@wordpress/data';
+import { select } from '@wordpress/data';
 
+/**
+ * Retrieves host app's namespace e.g. "WordPress" or "Jetpack".
+ *
+ * @returns {string} hostAppNames The host app's namespace.
+ */
 export default function getHostAppNamespace() {
 	return select( blockEditorStore ).getSettings().hostAppNamespace;
 }

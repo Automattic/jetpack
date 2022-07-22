@@ -1,7 +1,7 @@
+import { getHostAppNamespace } from '@automattic/jetpack-shared-extension-utils';
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo } from './icons';
-import { getHostAppNamespace } from '@automattic/jetpack-shared-extension-utils';
 
 const hostApp = getHostAppNamespace();
 if ( hostApp === 'WordPress' ) {
