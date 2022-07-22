@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-storybook",
-	"version": "0.2.0",
+	"version": "0.2.1-alpha",
 	"description": "Jetpack components storybook",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/storybook/#readme",
 	"bugs": {
@@ -62,13 +62,12 @@
 		"storybook-addon-turbo-build": "1.0.1",
 		"style-loader": "2.0.0",
 		"ts-dedent": "2.2.0",
-		"typescript": "4.7.2",
+		"typescript": "4.7.4",
 		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

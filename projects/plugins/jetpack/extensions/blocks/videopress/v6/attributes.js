@@ -57,9 +57,8 @@ export default {
 		type: 'string',
 		default: '',
 	},
-	cacheThumbnail: {
+	poster: {
 		type: 'string',
-		default: '',
 	},
 	videoRatio: {
 		type: 'number',

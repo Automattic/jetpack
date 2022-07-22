@@ -1,6 +1,6 @@
 {
 	"name": "repo-gardening",
-	"version": "3.0.1-alpha",
+	"version": "3.1.0-alpha",
 	"description": "Manage Pull Requests and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...)",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -28,7 +28,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

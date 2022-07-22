@@ -47,6 +47,15 @@ class Dashboard {
 	protected $module_control;
 
 	/**
+	 * Priority for the dashboard menu
+	 * For Jetpack sites: Jetpack uses 998 and 'Admin_Menu' uses 1000, so we need to use 999.
+	 * For simple site: the value is overriden in a child class with value 100000 to wait for all menus to be registered.
+	 *
+	 * @var int
+	 */
+	protected $search_menu_priority = 999;
+
+	/**
 	 * Contructor
 	 *
 	 * @param Automattic\Jetpack\Search\Plan           $plan - Plan instance.
@@ -74,7 +83,7 @@ class Dashboard {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
 			// Jetpack uses 998 and 'Admin_Menu' uses 1000.
-			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), 999 );
+			add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->search_menu_priority );
 			// Check if the site plan changed and deactivate module accordingly.
 			add_action( 'current_screen', array( $this, 'check_plan_deactivate_search_module' ) );
 		}
@@ -148,7 +157,7 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		if ( ! ( new Status() )->is_offline_mode() && $this->connection_manager->is_connected() ) {
+		if ( $this->should_enqueue_tracking_script() ) {
 			// Required for Analytics.
 			Tracking::register_tracks_functions_scripts( true );
 		}
@@ -178,6 +187,13 @@ class Dashboard {
 			Connection_Initial_State::render(),
 			'before'
 		);
+	}
+
+	/**
+	 * Check if we should enqueue the tracking script.
+	 */
+	protected function should_enqueue_tracking_script() {
+		return ! ( new Status() )->is_offline_mode() && $this->connection_manager->is_connected();
 	}
 
 	/**

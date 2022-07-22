@@ -10,7 +10,7 @@ import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'st
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
-import { hasActiveSiteFeature } from 'state/site';
+import { siteHasFeature } from 'state/site';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
 import Antispam from './antispam';
 import BackupsScan from './backups-scan';
@@ -90,6 +90,7 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
+				<h1 className="screen-reader-text">{ __( 'Jetpack Security Settings', 'jetpack' ) }</h1>
 				<Card
 					title={
 						isSearchTerm
@@ -120,8 +121,7 @@ export class Security extends Component {
 
 export default connect( state => {
 	return {
-		backupsOnly:
-			hasActiveSiteFeature( state, 'backups' ) && ! hasActiveSiteFeature( state, 'scan' ),
+		backupsOnly: siteHasFeature( state, 'backups' ) && ! siteHasFeature( state, 'scan' ),
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
 		isOfflineMode: isOfflineMode( state ),

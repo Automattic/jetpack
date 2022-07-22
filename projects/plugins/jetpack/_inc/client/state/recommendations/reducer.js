@@ -37,7 +37,7 @@ import {
 	getSitePlan,
 	hasActiveProductPurchase,
 	hasActiveSecurityPurchase,
-	hasActiveSiteFeature,
+	siteHasFeature,
 	hasActiveAntiSpamPurchase,
 	hasSecurityComparableLegacyPlan,
 } from 'state/site';
@@ -350,8 +350,8 @@ export const getProductSlugForStep = ( state, step ) => {
 			break;
 		case 'videopress':
 			if (
-				! hasActiveSiteFeature( state, 'videopress-1tb-storage' ) &&
-				! hasActiveSiteFeature( state, 'videopress-unlimited-storage' )
+				! siteHasFeature( state, 'videopress-1tb-storage' ) &&
+				! siteHasFeature( state, 'videopress-unlimited-storage' )
 			) {
 				return PLAN_JETPACK_VIDEOPRESS;
 			}
@@ -538,7 +538,7 @@ export const getSidebarCardSlug = state => {
 		return 'upsell';
 	}
 
-	if ( 'awaiting_credentials' === rewindState && ! hasActiveSiteFeature( state, 'scan' ) ) {
+	if ( 'awaiting_credentials' === rewindState && ! siteHasFeature( state, 'scan' ) ) {
 		return 'one-click-restores';
 	}
 

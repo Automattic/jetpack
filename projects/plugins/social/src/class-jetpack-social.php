@@ -145,6 +145,7 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
+		$shares_count = $publicize->get_publicize_shares_count( Jetpack_Options::get_option( 'id' ) );
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
@@ -158,6 +159,7 @@ class Jetpack_Social {
 				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 			),
+			'sharesCount'     => ! is_wp_error( $shares_count ) ? $shares_count : null,
 		);
 	}
 

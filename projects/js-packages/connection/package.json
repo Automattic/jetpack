@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.18.8",
+	"version": "0.18.10-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -22,10 +22,10 @@
 		"@babel/core": "7.18.6",
 		"@babel/preset-react": "7.18.6",
 		"@storybook/addon-actions": "6.5.9",
-		"@testing-library/dom": "8.13.0",
+		"@testing-library/dom": "8.16.0",
 		"@testing-library/react": "12.1.5",
-		"@testing-library/react-hooks": "8.0.0",
-		"@testing-library/user-event": "14.1.1",
+		"@testing-library/react-hooks": "8.0.1",
+		"@testing-library/user-event": "14.2.1",
 		"jest": "28.1.0",
 		"jest-environment-jsdom": "28.1.0",
 		"react": "17.0.2",
@@ -51,7 +51,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

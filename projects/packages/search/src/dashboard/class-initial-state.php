@@ -58,7 +58,7 @@ class Initial_State {
 	public function get_initial_state() {
 		return array(
 			'siteData'        => array(
-				'WP_API_root'       => esc_url_raw( rest_url() ),
+				'WP_API_root'       => $this->get_wp_api_root(),
 				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'purchaseToken'     => $this->get_purchase_token(),
@@ -73,6 +73,7 @@ class Initial_State {
 				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
 				'postTypes'         => $this->get_post_types_with_labels(),
+				'isWpcom'           => Helper::is_wpcom(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
@@ -87,6 +88,19 @@ class Initial_State {
 				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
 			),
 		);
+	}
+
+	/**
+	 * Get API root.
+	 *
+	 * It return first party API root for WPCOM simple sites.
+	 */
+	protected function get_wp_api_root() {
+		if ( ! Helper::is_wpcom() ) {
+			return esc_url_raw( rest_url() );
+		}
+		// First party API prefix for WPCOM.
+		return esc_url_raw( site_url( '/wp-json/wpcom-origin/' ) );
 	}
 
 	/**

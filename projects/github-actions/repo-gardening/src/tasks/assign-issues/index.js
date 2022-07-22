@@ -1,4 +1,4 @@
-const debug = require( '../../debug' );
+const debug = require( '../../utils/debug' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
