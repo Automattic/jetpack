@@ -1836,7 +1836,7 @@ importers:
       sort-package-json: 1.50.0
       svelte: 3.49.0
       typescript: 4.7.4
-      yaml: 1.10.2
+      yaml: 2.1.1
     devDependencies:
       '@automattic/eslint-changed': link:../../projects/js-packages/eslint-changed
       '@automattic/eslint-config-target-es': link:../../projects/js-packages/eslint-config-target-es
@@ -1884,7 +1884,7 @@ importers:
       sort-package-json: 1.50.0
       svelte: 3.49.0
       typescript: 4.7.4
-      yaml: 1.10.2
+      yaml: 2.1.1
 
 packages:
 
@@ -20049,6 +20049,11 @@ packages:
   /yaml/1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
+
+  /yaml/2.1.1:
+    resolution: {integrity: sha512-o96x3OPo8GjWeSLF+wOAbrPfhFOGY0W00GNaxCDv+9hkcDJEnev1yh8S7pgHF0ik6zc8sQLuL8hjHjJULZp8bw==}
+    engines: {node: '>= 14'}
+    dev: true
 
   /yamljs/0.3.0:
     resolution: {integrity: sha512-C/FsVVhht4iPQYXOInoxUM/1ELSf9EsgKH34FofQOp6hwCPrW4vG4w5++TED3xRUo8gD7l0P1J1dLlDYzODsTQ==}
