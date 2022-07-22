@@ -30,6 +30,7 @@ async function hasHighPriorityLabel( octokit, owner, repo, number ) {
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasManySupportReferences( issueComments ) {
+	let isWidelySpreadIssue = false;
 	issueComments.map( comment => {
 		if (
 			comment.user.login === 'github-actions[bot]' &&
@@ -38,12 +39,12 @@ async function hasManySupportReferences( issueComments ) {
 			// Count the number of to-do items in the comment.
 			const countReferences = comment.body.split( '- [ ] ' ).length - 1;
 			if ( countReferences > 10 ) {
-				return true;
+				isWidelySpreadIssue = true;
 			}
 		}
 	} );
 
-	return false;
+	return isWidelySpreadIssue;
 }
 
 /**
