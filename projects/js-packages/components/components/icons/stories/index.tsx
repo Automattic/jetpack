@@ -2,13 +2,11 @@ import * as allIcons from '../index';
 import styles from './style.module.scss';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-const meta: ComponentMeta< typeof allIcons > = {
+export default {
 	title: 'JS Packages/Components/Icons',
 	component: allIcons,
 	parameters: {},
-};
-
-export default meta;
+} as ComponentMeta< typeof allIcons >;
 
 const sizes = [
 	{
