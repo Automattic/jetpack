@@ -20,6 +20,10 @@ inputs:
     description: "Slack channel ID where messages for the Editorial team will be sent"
     required: false
     default: ""
+  slack_he_triage_channel:
+    description: "Slack channel ID where messages for the HE Triage team will be sent"
+    required: false
+    default: ""
   slack_team_channel:
     description: "Slack channel ID where general notifications should be sent"
     required: false

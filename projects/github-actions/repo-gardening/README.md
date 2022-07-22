@@ -17,6 +17,7 @@ Here is the current list of tasks handled by this action:
 - Flag OSS (`flagOss`): flags entries by external contributors, adds an "OSS Citizen" label to the PR, and sends a Slack message.
 - Triage New Issues (`triageNewIssues`): Adds labels to new issues based on issue content.
 - Gather support references (`gatherSupportReferences`): Adds a new comment with a list of all support references on the issue.
+- Reply to customers Reminder ( `replyToCustomersReminder` ): sends a Slack message about closed issues to remind Automatticians to update customers.
 
 Some of the tasks are may not satisfy your needs. If that's the case, you can use the `tasks` option to limit the action to the list of tasks you need in your repo. See the example below to find out more.
 
@@ -76,6 +77,7 @@ The action relies on the following parameters.
 - (Optional) `slack_design_channel` is the Slack public channel ID where messages for the design team will be posted. Again, the value should be stored in a secret.
 - (Optional) `slack_editorial_channel` is the Slack public channel ID where messages for the Editorial team will be posted. Again, the value should be stored in a secret.
 - (Optional) `slack_team_channel` is the Slack public channel ID where general notifications about your repo should be posted. Again, the value should be stored in a secret.
+- (Optional) `slack_he_triage_channel` is the Slack public channel ID where messages for the HE Triage team will be posted. The value should be stored in a secret.
 
 To create a bot and get your `SLACK_TOKEN`, follow [the general instructions here](https://slack.com/intl/en-hu/help/articles/115005265703-Create-a-bot-for-your-workspace):
 
