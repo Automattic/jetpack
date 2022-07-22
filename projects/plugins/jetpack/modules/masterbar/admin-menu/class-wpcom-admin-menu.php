@@ -52,6 +52,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		$this->add_woocommerce_installation_menu( $this->get_current_plan() );
+		$this->hide_search_menu_for_calypso();
 
 		ksort( $GLOBALS['menu'] );
 	}
