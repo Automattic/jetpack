@@ -1,12 +1,10 @@
 import Gridicon from '../index';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-const meta: ComponentMeta< typeof Gridicon > = {
+export default {
 	title: 'JS Packages/Components/Gridicon',
 	component: Gridicon,
-};
-
-export default meta;
+} as ComponentMeta< typeof Gridicon >;
 
 // Export additional stories using pre-defined values
 const Template: ComponentStory< typeof Gridicon > = args => <Gridicon { ...args } />;
