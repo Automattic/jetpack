@@ -3,6 +3,13 @@
 	margin-bottom: 0;
 }
 
+.jp-agencies-card__dismiss {
+	position: absolute;
+	content: '';
+	top: 1rem;
+	right: 1rem;
+}
+
 .jp-agencies-card__description {
 	font-size: $font-body-small;
 	line-height: 1.65;
