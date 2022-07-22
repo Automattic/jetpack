@@ -325,7 +325,7 @@ class Jetpack_Recommendations {
 
 		$conditional_recommendations = Jetpack_Options::get_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, array() );
 		if ( ! in_array( $recommendation_name, $conditional_recommendations, true ) ) {
-			array_push( $conditional_recommendations, $recommendation_name );
+			$conditional_recommendations[] = $recommendation_name;
 			Jetpack_Options::update_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, $conditional_recommendations );
 		}
 	}
