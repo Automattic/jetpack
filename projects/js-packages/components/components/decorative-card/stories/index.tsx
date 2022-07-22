@@ -1,12 +1,10 @@
 import DecorativeCard from '../index';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-const meta: ComponentMeta< typeof DecorativeCard > = {
+export default {
 	title: 'JS Packages/Components/Decorative Card',
 	component: DecorativeCard,
-};
-
-export default meta;
+} as ComponentMeta< typeof DecorativeCard >;
 
 // Export additional stories using pre-defined values
 const Template: ComponentStory< typeof DecorativeCard > = args => <DecorativeCard { ...args } />;
