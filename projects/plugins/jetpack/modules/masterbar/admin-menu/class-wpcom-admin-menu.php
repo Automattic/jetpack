@@ -43,7 +43,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$this->add_my_home_menu();
 		$this->add_inbox_menu();
-		$this->hide_search_menu_for_calypso();
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
