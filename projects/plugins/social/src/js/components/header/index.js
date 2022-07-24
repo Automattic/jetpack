@@ -52,7 +52,7 @@ const Header = () => {
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 7 } className={ styles.container }>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
-				<H3 mt={ 2 }>{ __( 'Post everywhere at any time', 'jetpack-social' ) }</H3>
+				<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-social' ) }</H3>
 				<Actions actions={ actions } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>

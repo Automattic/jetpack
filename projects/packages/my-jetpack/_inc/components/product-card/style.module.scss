@@ -49,13 +49,6 @@
 	flex-grow: 1;
 }
 
-.button {
-	font-size: var(--font-body-extra-small);
-	border-radius: var(--jp-border-radius);
-	height: var(--actions-size);
-	line-height: var(--actions-size);
-}
-
 .actions {
 	display: flex;
 	align-items: center;
