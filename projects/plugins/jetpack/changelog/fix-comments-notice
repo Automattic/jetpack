@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Comments: avoid PHP Notice when using Jetpack's Comment form feature owhen your site is no longer properly connected to WordPress.com.
