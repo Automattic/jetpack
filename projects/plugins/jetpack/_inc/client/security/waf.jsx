@@ -1,38 +1,31 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import FoldableCard from 'components/foldable-card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel } from 'components/forms';
-import {
-	getJetpackProductUpsellByFeature,
-	FEATURE_SECURITY_SCANNING_JETPACK,
-} from 'lib/plans/constants';
-import FoldableCard from 'components/foldable-card';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import {
+	getJetpackProductUpsellByFeature,
+	FEATURE_SECURITY_SCANNING_JETPACK,
+} from 'lib/plans/constants';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { getSitePlan } from 'state/site';
+import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import Textarea from '../components/textarea';
-import { createInterpolateElement } from '@wordpress/element';
-import { getProductDescriptionUrl } from 'product-descriptions/utils';
-import { getSitePlan } from 'state/site';
 import {
 	getWafBootstrapPath,
 	getWafHasRulesAccess,
 	isFetchingWafSettings,
 } from '../state/waf/reducer';
-import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
-import { ExternalLink } from '@wordpress/components';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 
 export const Waf = class extends Component {
 	/**
@@ -88,9 +81,14 @@ export const Waf = class extends Component {
 		const moduleHeader = (
 			<div className="waf__header">
 				<span>{ _x( 'Firewall', 'Settings header', 'jetpack' ) }</span>
-				<span className="waf__header__badge">
+				<a
+					href={ getRedirectUrl( 'jetpack-support-waf' ) }
+					target="_blank"
+					rel="noopener noreferrer"
+					className="waf__header__badge"
+				>
 					{ _x( 'Beta', 'Settings header badge', 'jetpack' ) }
-				</span>
+				</a>
 			</div>
 		);
 
@@ -236,7 +234,21 @@ export const Waf = class extends Component {
 		const upgradeBanner = (
 			<JetpackBanner
 				callToAction={ __( 'Upgrade', 'jetpack' ) }
-				title={ __( 'Upgrade your protection for latest rules access', 'jetpack' ) }
+				title={
+					<>
+						{ __( 'Your site is not receiving the latest updates to Firewall rules', 'jetpack' ) }
+						<InfoPopover
+							position="right"
+							screenReaderText={ __( 'Learn more', 'jetpack' ) }
+							className="waf__settings__upgrade-popover"
+						>
+							{ __(
+								'Upgrade your protection to keep your site secure from the latest malicious requests with up-to-date firewall rules.',
+								'jetpack'
+							) }
+						</InfoPopover>
+					</>
+				}
 				eventFeature="scan"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 				feature="jetpack_scan"
@@ -255,7 +267,14 @@ export const Waf = class extends Component {
 				] ) }
 			>
 				<QueryWafSettings />
-				<SettingsGroup disableInOfflineMode module={ this.props.getModule( 'waf' ) }>
+				<SettingsGroup
+					disableInOfflineMode
+					module={ this.props.getModule( 'waf' ) }
+					support={ {
+						text: this.props.getModule( 'waf' ).long_description,
+						link: this.props.getModule( 'waf' ).learn_more_button,
+					} }
+				>
 					<ModuleToggle
 						slug="waf"
 						disabled={ unavailableInOfflineMode }

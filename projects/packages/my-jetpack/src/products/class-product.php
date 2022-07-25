@@ -112,6 +112,7 @@ abstract class Product {
 		}
 		return array(
 			'slug'                     => static::$slug,
+			'plugin_slug'              => static::$plugin_slug,
 			'name'                     => static::get_name(),
 			'title'                    => static::get_title(),
 			'description'              => static::get_description(),
@@ -272,7 +273,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return static::is_plugin_active();
+		return static::is_plugin_active() && static::has_required_plan();
 	}
 
 	/**

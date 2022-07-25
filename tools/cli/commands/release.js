@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import chalk from 'chalk';
 import child_process from 'child_process';
+import chalk from 'chalk';
 import inquirer from 'inquirer';
-
-/**
- * Internal dependencies
- */
+import { readComposerJson } from '../helpers/json.js';
+import { allProjects } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
-import { allProjects } from '../helpers/projectHelpers.js';
-import { readComposerJson } from '../helpers/json.js';
 
 /**
  * Command definition for the release subcommand.
@@ -143,7 +136,7 @@ export async function scriptRouter( argv ) {
 				argv.scriptArgs.unshift( '-b' );
 			}
 			argv.addPrNum && argv.scriptArgs.unshift( '-p' );
-			argv.next = `Finished! Next: \n	- Create a new branch off master, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
+			argv.next = `Finished! Next: \n	- Create a new branch off trunk, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
 			argv.script = `tools/plugin-changelog-to-readme.sh`;
@@ -152,7 +145,7 @@ export async function scriptRouter( argv ) {
 				  - If this is a beta, ensure the stable tag in readme.txt is latest stable.
 				  - Create a PR and have your changes reviewed and merged.
 				  - Wait and make sure changes are propagated to mirror repos for each updated package.
-				  - After propagation, if you need to create a release branch, stand on master and then run:
+				  - After propagation, if you need to create a release branch, stand on trunk and then run:
 				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'release-branch':

@@ -1,8 +1,4 @@
-/**
- * External dependencies
- */
 import debugFactory from 'debug';
-import { assign } from 'lodash';
 
 const debug = debugFactory( 'dops:analytics' );
 let _superProps, _user;
@@ -97,7 +93,7 @@ const analytics = {
 	 * @param {object} props - Super props to add.
 	 */
 	assignSuperProps: function ( props ) {
-		_superProps = assign( _superProps, props );
+		_superProps = Object.assign( _superProps || {}, props );
 	},
 
 	mc: {
@@ -152,7 +148,7 @@ const analytics = {
 
 			if ( _superProps ) {
 				debug( '- Super Props: %o', _superProps );
-				eventProperties = assign( eventProperties, _superProps );
+				eventProperties = Object.assign( eventProperties, _superProps );
 			}
 			debug(
 				'Record event "%s" called with props %s',

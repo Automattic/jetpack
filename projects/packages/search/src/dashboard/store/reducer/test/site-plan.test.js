@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { setSearchPlanInfo } from '../../actions/site-plan';
 import reducer from '../site-plan';
 

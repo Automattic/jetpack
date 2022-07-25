@@ -1,31 +1,24 @@
-/**
- * External dependencies
- */
+import { __ } from '@wordpress/i18n';
+import Card from 'components/card';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import QuerySite from 'components/data/query-site';
+import { get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Card from 'components/card';
-import { getModule } from 'state/modules';
-import { getSettings } from 'state/settings';
-import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getVaultPressData } from 'state/at-a-glance';
+import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
+import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
+import { getSettings } from 'state/settings';
+import { siteHasFeature } from 'state/site';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
-import QuerySite from 'components/data/query-site';
-import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
-import { hasActiveSiteFeature } from 'state/site';
-import BackupsScan from './backups-scan';
 import Antispam from './antispam';
+import BackupsScan from './backups-scan';
 import { JetpackBackup } from './jetpack-backup';
 import { Monitor } from './monitor';
-import Waf from './waf';
 import { Protect } from './protect';
 import { SSO } from './sso';
+import Waf from './waf';
 
 export class Security extends Component {
 	static displayName = 'SecuritySettings';
@@ -97,6 +90,7 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
+				<h1 className="screen-reader-text">{ __( 'Jetpack Security Settings', 'jetpack' ) }</h1>
 				<Card
 					title={
 						isSearchTerm
@@ -127,8 +121,7 @@ export class Security extends Component {
 
 export default connect( state => {
 	return {
-		backupsOnly:
-			hasActiveSiteFeature( state, 'backups' ) && ! hasActiveSiteFeature( state, 'scan' ),
+		backupsOnly: siteHasFeature( state, 'backups' ) && ! siteHasFeature( state, 'scan' ),
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
 		isOfflineMode: isOfflineMode( state ),

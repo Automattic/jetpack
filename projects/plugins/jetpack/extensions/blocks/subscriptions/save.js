@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import { RawHTML } from '@wordpress/element';
 import {
 	getColorClassName,
-	__experimentalGetGradientClass as getGradientClass,
+	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	getFontSizeClass,
 } from '@wordpress/block-editor';
+import { RawHTML } from '@wordpress/element';
 import classnames from 'classnames';
 import { reduce } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import defaultAttributes from './attributes';
 import {
 	DEFAULT_BORDER_RADIUS_VALUE,
@@ -21,6 +14,7 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import { encodeValueForShortcodeAttribute } from './utils';
 
 export default function Save( { className, attributes } ) {
 	const {
@@ -141,7 +135,10 @@ export default function Save( { className, attributes } ) {
 			if ( undefined === value ) {
 				return stringifiedAttributes;
 			}
-			return stringifiedAttributes + ` ${ key }="${ value }"`;
+			return (
+				stringifiedAttributes +
+				` ${ key }="${ encodeValueForShortcodeAttribute( value.toString() ) }"`
+			);
 		},
 		''
 	);

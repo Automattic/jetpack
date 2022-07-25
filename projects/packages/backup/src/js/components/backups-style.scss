@@ -1,6 +1,12 @@
 @import '@automattic/jetpack-base-styles/style';
 @import 'masthead/calypso-mixins';
 
+@include for-tablet-up {
+	.lg-col-span-0 {
+		display: none;
+	}
+}
+
 .backup__card {
 	padding: 24px;
 	background: var( --jp-white );
@@ -55,7 +61,7 @@
 .backup__latest {
 	display: flex;
 	align-items: center;
-	margin-bottom: 8px;
+	margin-bottom: 32px;
 
 	svg,
 	img {
@@ -72,6 +78,13 @@
 	+ h1 {
 		white-space: nowrap;
 	}
+}
+
+.backup__restore-point-link {
+	font-size: 14px;
+	line-height: 22px;
+	display: inline-block;
+	margin-top: 16px;
 }
 
 .backup__animation {
@@ -108,6 +121,10 @@
 .backup__animation-el-3 {
 	bottom: -32px;
 	animation-name: animation-el-3;
+}
+
+.backup__warning-color {
+	filter: brightness(0) saturate(100%) invert(94%) sepia(96%) saturate(7500%) hue-rotate(329deg) brightness(98%) contrast(92%)
 }
 
 @keyframes animation-el-1 {

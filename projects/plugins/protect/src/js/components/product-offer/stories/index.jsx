@@ -1,15 +1,8 @@
 /* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
-import ConnectedProductOffer from '../index.jsx';
 import { initStore } from '../../../state/store';
 import { jetpackProtectInitialState } from '../../interstitial/stories/mock.js';
+import ConnectedProductOffer from '../index.jsx';
 
 window.jetpackProtectInitialState = jetpackProtectInitialState;
 initStore();
@@ -25,9 +18,6 @@ export default {
 		isCard: {
 			control: { type: 'boolean' },
 		},
-		showError: {
-			control: { type: 'boolean' },
-		},
 	},
 };
 
@@ -38,6 +28,5 @@ const DefaultDefaultProductOffer = args => {
 export const Default = DefaultDefaultProductOffer.bind( {} );
 Default.args = {
 	isCard: false,
-	showError: false,
 	onAdd: () => {},
 };

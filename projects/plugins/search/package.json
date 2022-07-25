@@ -13,19 +13,14 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack-search --glob-pattern='!(node_modules|tests|tools|vendor){*.php,**/*.php}'",
 		"build": "echo Success.",
 		"build-js": "echo  Success.",
 		"build-production": "echo  Success.",
 		"build-production-js": "echo  Success.",
 		"clean": "true"
 	},
-	"devDependencies": {
-		"node-wp-i18n": "1.2.6"
-	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

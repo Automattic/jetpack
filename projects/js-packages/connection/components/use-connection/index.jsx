@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import { useEffect } from 'react';
-import { useSelect, useDispatch } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
-
-/**
- * Internal dependencies
- */
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useEffect } from 'react';
 import { STORE_ID } from '../../state/store';
 
 const initialState = window?.JP_CONNECTION_INITIAL_STATE ? window.JP_CONNECTION_INITIAL_STATE : {};
@@ -40,29 +33,44 @@ export default ( {
 		...select( STORE_ID ).getConnectionStatus(),
 	} ) );
 
+	/**
+	 * User register process handler.
+	 *
+	 * @returns {Promise} - Promise which resolves when the product status is activated.
+	 */
 	const handleConnectUser = () => {
 		if ( ! skipUserConnection ) {
-			connectUser( { from, redirectUri } );
+			return connectUser( { from, redirectUri } );
 		} else if ( redirectUri ) {
 			window.location = redirectUri;
+			return Promise.resolve( redirectUri );
 		}
+
+		return Promise.resolve();
 	};
 
 	/**
-	 * Initialize the site registration process.
+	 * Site register process handler.
+	 *
+	 * It handles the process to register the site,
+	 * considering also the user registration status.
+	 * When they are registered, it will try to only register the site.
+	 * Otherwise, will try to register the user right after
+	 * the site was successfully registered.
 	 *
 	 * @param {Event} [e] - Event that dispatched handleRegisterSite
+	 * @returns {Promise}   Promise when running the registration process. Otherwise, nothing.
 	 */
 	const handleRegisterSite = e => {
 		e && e.preventDefault();
 
 		if ( isRegistered ) {
-			handleConnectUser();
-		} else {
-			registerSite( { registrationNonce, redirectUri } ).then( () => {
-				handleConnectUser();
-			} );
+			return handleConnectUser();
 		}
+
+		return registerSite( { registrationNonce, redirectUri } ).then( () => {
+			return handleConnectUser();
+		} );
 	};
 
 	/**

@@ -346,6 +346,22 @@ class Actions {
 			}
 		}
 
+		// Sync locks.
+		$debug['debug_details']['dedicated_sync_enabled'] = Settings::is_dedicated_sync_enabled();
+
+		$queue      = self::$sender->get_sync_queue();
+		$full_queue = self::$sender->get_full_sync_queue();
+
+		$debug['debug_details']['sync_locks'] = array(
+			'retry_time_sync'             => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
+			'retry_time_full_sync'        => get_option( self::RETRY_AFTER_PREFIX . 'full_sync' ),
+			'next_sync_time_sync'         => self::$sender->get_next_sync_time( 'sync' ),
+			'next_sync_time_full_sync'    => self::$sender->get_next_sync_time( 'full_sync' ),
+			'queue_locked_sync'           => $queue->is_locked(),
+			'queue_locked_full_sync'      => $full_queue->is_locked(),
+			'dedicated_sync_request_lock' => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+		);
+
 		// Sync Logs.
 		$debug['debug_details']['last_succesful_sync'] = get_option( self::LAST_SUCCESS_PREFIX . 'sync', '' );
 		$debug['debug_details']['sync_error_log']      = get_option( self::ERROR_LOG_PREFIX . 'sync', '' );
@@ -413,14 +429,16 @@ class Actions {
 	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null, $buffer_id = null ) {
 
 		$query_args = array(
-			'sync'       => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
-			'codec'      => $codec_name,
-			'timestamp'  => $sent_timestamp,
-			'queue'      => $queue_id,
-			'cd'         => sprintf( '%.4f', $checkout_duration ),
-			'pd'         => sprintf( '%.4f', $preprocess_duration ),
-			'queue_size' => $queue_size,
-			'buffer_id'  => $buffer_id,
+			'sync'           => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
+			'codec'          => $codec_name,
+			'timestamp'      => $sent_timestamp,
+			'queue'          => $queue_id,
+			'cd'             => sprintf( '%.4f', $checkout_duration ),
+			'pd'             => sprintf( '%.4f', $preprocess_duration ),
+			'queue_size'     => $queue_size,
+			'buffer_id'      => $buffer_id,
+			// TODO this will be extended in the future. Might be good to extract in a separate method to support future entries too.
+			'sync_flow_type' => Settings::is_dedicated_sync_enabled() ? 'dedicated' : 'default',
 		);
 
 		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 20;

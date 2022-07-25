@@ -1,37 +1,26 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { forEach, get, isEmpty } from 'lodash';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
+import { imagePath } from 'constants/urls';
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
 import Chart from 'components/chart';
 import DashSectionHeader from 'components/dash-section-header';
-import DashStatsBottom from './dash-stats-bottom';
-import { emptyStatsCardDismissed } from 'state/settings';
-import { getInitialStateStatsData, getDateFormat } from 'state/initial-state';
-import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
-import { imagePath } from 'constants/urls';
-import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
-import { isModuleAvailable, getModuleOverride } from 'state/modules';
-import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import QueryStatsData from 'components/data/query-stats-data';
+import ModuleOverriddenBanner from 'components/module-overridden-banner';
+import analytics from 'lib/analytics';
+import { forEach, get, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
+import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
+import { getInitialStateStatsData, getDateFormat } from 'state/initial-state';
+import { isModuleAvailable, getModuleOverride } from 'state/modules';
+import { emptyStatsCardDismissed } from 'state/settings';
+import DashStatsBottom from './dash-stats-bottom';
 
 export class DashStats extends Component {
 	static propTypes = {
@@ -187,7 +176,10 @@ export class DashStats extends Component {
 		);
 	}
 
-	activateStats = () => this.props.updateOptions( { stats: true } );
+	activateStats = e => {
+		this.props.updateOptions( { stats: true } );
+		e.preventDefault();
+	};
 
 	renderStatsArea() {
 		if ( this.props.getOptionValue( 'stats' ) ) {
@@ -251,7 +243,7 @@ export class DashStats extends Component {
 									'jetpack'
 								),
 								{
-									a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
+									a: <a href="#" onClick={ this.activateStats } />,
 									a1: (
 										<a
 											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
@@ -279,9 +271,18 @@ export class DashStats extends Component {
 		this.props.fetchStatsData( timeFrame );
 	}
 
-	switchToDay = () => this.switchTo( 'day' );
-	switchToWeek = () => this.switchTo( 'week' );
-	switchToMonth = () => this.switchTo( 'month' );
+	switchToDay = e => {
+		this.switchTo( 'day' );
+		e.preventDefault();
+	};
+	switchToWeek = e => {
+		this.switchTo( 'week' );
+		e.preventDefault();
+	};
+	switchToMonth = e => {
+		this.switchTo( 'month' );
+		e.preventDefault();
+	};
 
 	maybeShowStatsTabs() {
 		const statsChart = this.statsChart( this.props.activeTab );
@@ -300,7 +301,7 @@ export class DashStats extends Component {
 					<li className="jp-at-a-glance__stats-view">
 						<a
 							tabIndex="0"
-							href="javascript:void(0)"
+							href="#"
 							onClick={ this.switchToDay }
 							className={ this.getClass( 'day' ) }
 						>
@@ -310,7 +311,7 @@ export class DashStats extends Component {
 					<li className="jp-at-a-glance__stats-view">
 						<a
 							tabIndex="0"
-							href="javascript:void(0)"
+							href="#"
 							onClick={ this.switchToWeek }
 							className={ this.getClass( 'week' ) }
 						>
@@ -320,7 +321,7 @@ export class DashStats extends Component {
 					<li className="jp-at-a-glance__stats-view">
 						<a
 							tabIndex="0"
-							href="javascript:void(0)"
+							href="#"
 							onClick={ this.switchToMonth }
 							className={ this.getClass( 'month' ) }
 						>

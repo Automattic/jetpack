@@ -1,17 +1,13 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
-	import Connection from './pages/connection/Connection.svelte';
-	import Settings from './pages/settings/Settings.svelte';
 	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
+	import Connection from './pages/connection/Connection.svelte';
 	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
+	import Settings from './pages/settings/Settings.svelte';
 	import Footer from './sections/Footer.svelte';
 	import Header from './sections/Header.svelte';
-	import { connection } from './stores/connection';
 	import config from './stores/config';
+	import { connection } from './stores/connection';
 	import { Router, Route } from './utils/router';
-
 	import routerHistory from './utils/router-history';
 </script>
 
@@ -24,7 +20,7 @@
 				<Header />
 			</div>
 
-			{#if $connection.connected || ! config.site.online}
+			{#if $connection.connected || ! $config.site.online}
 				<Settings />
 			{:else}
 				<Connection />

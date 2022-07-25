@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Sync: Add 'active_modules' to default whitelisted callables.

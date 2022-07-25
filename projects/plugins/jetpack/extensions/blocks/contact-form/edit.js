@@ -1,22 +1,12 @@
-/**
- * External dependencies
- */
-import { get, map } from 'lodash';
-import classnames from 'classnames';
-import emailValidator from 'email-validator';
-import { __, sprintf } from '@wordpress/i18n';
-import { useEffect, useState, Fragment } from '@wordpress/element';
-import { compose, withInstanceId } from '@wordpress/compose';
-import { createBlock, registerBlockVariation } from '@wordpress/blocks';
-import { withDispatch, withSelect } from '@wordpress/data';
-import { DOWN } from '@wordpress/keycodes';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
 	InspectorControls,
 	URLInput,
-	__experimentalBlockVariationPicker as BlockVariationPicker,
+	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	BlockControls,
 } from '@wordpress/block-editor';
+import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
 	BaseControl,
 	PanelBody,
@@ -29,15 +19,18 @@ import {
 	Dropdown,
 	Icon,
 } from '@wordpress/components';
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
+import { compose, withInstanceId } from '@wordpress/compose';
+import { withDispatch, withSelect } from '@wordpress/data';
+import { useEffect, useState, Fragment } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { DOWN } from '@wordpress/keycodes';
+import classnames from 'classnames';
+import emailValidator from 'email-validator';
+import { get, map } from 'lodash';
 import HelpMessage from '../../shared/help-message';
-import defaultVariations from './variations';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
+import defaultVariations from './variations';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
@@ -381,6 +374,12 @@ export default compose( [
 		const authorEmail = authorId && getUser( authorId ) && getUser( authorId ).email;
 		const postTitle = getEditedPostAttribute( 'title' );
 		const canUserInstallPlugins = canUser( 'create', 'plugins' );
+
+		const submitButton = innerBlocks.find( block => block.name === 'jetpack/button' );
+		if ( submitButton && ! submitButton.attributes.lock ) {
+			const lock = { move: false, remove: true };
+			submitButton.attributes.lock = lock;
+		}
 
 		return {
 			blockType: getBlockType && getBlockType( props.name ),

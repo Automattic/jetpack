@@ -5,8 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=5.6",
-		"symfony/console": "^3.4 || ^5.2",
-		"symfony/process": "^3.4 || ^5.2",
+		"symfony/console": "^3.4 || ^5.2 || ^6.0",
+		"symfony/process": "^3.4 || ^5.2 || ^6.0",
 		"wikimedia/at-ease": "^1.2 || ^2.0"
 	},
 	"require-dev": {
@@ -55,7 +55,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-master": "3.1.x-dev"
+			"dev-trunk": "3.2.x-dev"
 		},
 		"mirror-repo": "Automattic/jetpack-changelogger",
 		"version-constants": {

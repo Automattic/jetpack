@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import reducer, { DEFAULT_STATE } from '../reducer';
 
 describe( 'reducer', () => {

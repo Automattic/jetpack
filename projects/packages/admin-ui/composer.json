@@ -6,7 +6,7 @@
 	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.1",
+		"automattic/jetpack-changelogger": "^3.2",
 		"automattic/wordbless": "dev-master"
 	},
 	"autoload": {
@@ -45,7 +45,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.2.x-dev"
+			"dev-trunk": "0.2.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-admin-menu.php"

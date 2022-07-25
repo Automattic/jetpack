@@ -1,27 +1,22 @@
-/**
- * External dependencies
- */
-import { omit, uniq, pick } from 'lodash';
-import { format } from 'util';
 import fs from 'fs';
 import path from 'path';
-import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * WordPress dependencies
- */
-import { parse, serialize, registerBlockType, setCategories } from '@wordpress/blocks';
+import { format } from 'util';
 import { parse as grammarParse } from '@wordpress/block-serialization-default-parser';
-
-/* eslint-disable no-console */
-console.warn = jest.fn();
-console.error = jest.fn();
-console.info = jest.fn();
-/* eslint-enable no-console */
+import { parse, serialize, registerBlockType, setCategories } from '@wordpress/blocks';
+import { __, sprintf } from '@wordpress/i18n';
+import { omit, uniq } from 'lodash';
 
 let FIXTURES_DIR;
 
 /* eslint-disable jest/no-export */
+
+/**
+ * Run block fixture tests.
+ *
+ * @param {string} blockName - Block name.
+ * @param {Array} blocks - Blocks.
+ * @param {string} fixturesPath - Fixtures path.
+ */
 export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) {
 	registerBlocks( blocks );
 	setFixturesDir( fixturesPath );
@@ -81,21 +76,31 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 					);
 				}
 
+				// @wordpress/blocks may call these. Noop them to avoid unnecessary output.
+				jest.spyOn( console, 'groupCollapsed' ).mockReset();
+				jest.spyOn( console, 'groupEnd' ).mockReset();
+
 				const blocksActual = parse( htmlFixtureContent );
+
+				// eslint-disable-next-line no-console
+				console.groupCollapsed.mockRestore();
+				// eslint-disable-next-line no-console
+				console.groupEnd.mockRestore();
+
+				// @wordpress/blocks needlessly calls console.info. Ignore that.
+				// eslint-disable-next-line no-console
+				console.info.mockClear();
 
 				// Block validation may log errors during deprecation migration,
 				// unless explicitly handled from a valid block via isEligible.
 				// Match on basename for deprecated blocks fixtures to allow.
 				const isDeprecated = /__deprecated([-_]|$)/.test( basename );
 				if ( isDeprecated ) {
-					/* eslint-disable no-console */
-					console.warn.mockReset();
-					console.error.mockReset();
-					console.info.mockReset();
-					/* eslint-enable no-console */
+					// eslint-disable-next-line no-console
+					console.warn.mockClear();
+					// eslint-disable-next-line no-console
+					console.error.mockClear();
 				}
-
-
 
 				const validationIssues = gatherValidationIssues( blocksActual );
 				const blocksActualNormalized = normalizeParsedBlocks( blocksActual );
@@ -120,7 +125,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				if ( blocksExpected?.length ) {
 					blocksExpected.forEach( ( block, index ) => {
 						// we need to look up validation messages here as they may be useful
-						return checkParseValid( block, basename, validationIssues[index] );
+						return checkParseValid( block, basename, validationIssues[ index ] );
 					} );
 				}
 
@@ -183,7 +188,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 					}
 				} );
 				try {
-					expect( errors.length ).toEqual( 0 );
+					expect( errors ).toHaveLength( 0 );
 				} catch ( error ) {
 					throw new Error( 'Problem(s) with fixture files:\n\n' + errors.join( '\n' ) );
 				}
@@ -194,31 +199,60 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 
 /**
  * Convert a nested object representing blocks into just the validation messages.
+ *
+ * @param {Array} blocks - Blocks.
+ * @returns {Array} Validation issues object.
  */
 function gatherValidationIssues( blocks ) {
 	return blocks.map( block => {
 		const innerBlocks = block.innerBlocks ? gatherValidationIssues( block.innerBlocks ) : [];
-		const validationIssues = block.validationIssues ? block.validationIssues.map( issue => sprintf( __( issue.args[0] ), ...issue.args.slice(1) ) ) : [];
+		const validationIssues = block.validationIssues
+			? block.validationIssues.map( issue =>
+					sprintf(
+						// eslint-disable-next-line @wordpress/i18n-no-variables
+						__( issue.args[ 0 ], 'jetpack' ),
+						...issue.args.slice( 1 )
+					)
+			  )
+			: [];
 		return {
 			name: block.name || 'unknown',
 			validationIssues,
-			innerBlocks
-		}
+			innerBlocks,
+		};
 	} );
 }
 
-/* eslint-disable jest/no-export */
-
+/**
+ * Check for valid parse.
+ *
+ * @param {object} block - Block.
+ * @param {string} fixtureName - Fixture name.
+ * @param {object|null} validationIssues - Issues object.
+ * @throws {Error} If the parse was invalid.
+ */
 function checkParseValid( block, fixtureName, validationIssues = null ) {
 	if ( ! block.isValid ) {
+		// eslint-disable-next-line testing-library/render-result-naming-convention -- False positive.
 		const validationIssuesString = renderValidationIssuesString( validationIssues );
-		throw new Error( `Fixture ${ fixtureName } is invalid` + ( validationIssuesString ? `: ${validationIssuesString}` : '' ) );
+		throw new Error(
+			`Fixture ${ fixtureName } is invalid` +
+				( validationIssuesString ? `: ${ validationIssuesString }` : '' )
+		);
 	}
 	if ( block.innerBlocks.length > 0 ) {
-		block.innerBlocks.forEach( ( block, index ) => checkParseValid( block, fixtureName, validationIssues.innerBlocks[index] ) );
+		block.innerBlocks.forEach( ( innerBlock, index ) =>
+			checkParseValid( innerBlock, fixtureName, validationIssues.innerBlocks[ index ] )
+		);
 	}
 }
 
+/**
+ * Render validation issues string.
+ *
+ * @param {object} issues - Issues object.
+ * @returns {string} Rendered string.
+ */
 function renderValidationIssuesString( issues ) {
 	if ( ! issues ) {
 		return null;
@@ -226,16 +260,21 @@ function renderValidationIssuesString( issues ) {
 
 	let validationIssuesString = '';
 	if ( issues.validationIssues.length > 0 ) {
-		validationIssuesString += issues.name + "\n    " + issues.validationIssues.join("\n\n    ");
+		validationIssuesString += issues.name + '\n    ' + issues.validationIssues.join( '\n\n    ' );
 	}
 
 	if ( issues.innerBlocks.length > 0 ) {
-		validationIssuesString += issues.innerBlocks.map( renderValidationIssuesString ).join("\n\n");
+		validationIssuesString += issues.innerBlocks.map( renderValidationIssuesString ).join( '\n\n' );
 	}
 
 	return validationIssuesString;
 }
 
+/**
+ * Register blocks.
+ *
+ * @param {Array} blocks - Blocks.
+ */
 export function registerBlocks( blocks ) {
 	// Need to add a valid category or block registration fails
 	setCategories( [
@@ -249,6 +288,12 @@ export function registerBlocks( blocks ) {
 	} );
 }
 
+/**
+ * Normalize parsed blocks.
+ *
+ * @param {Array} blocks - Blocks.
+ * @returns {Array} Normalized blocks.
+ */
 function normalizeParsedBlocks( blocks ) {
 	return blocks.map( ( block, index ) => {
 		// Clone and remove React-instance-specific stuff; also, attribute
@@ -266,6 +311,13 @@ function normalizeParsedBlocks( blocks ) {
 	} );
 }
 
+/**
+ * Read fixture file.
+ *
+ * @param {string} fixturesDir - Fixtures directory.
+ * @param {string} filename - Filename.
+ * @returns {string|null} Content.
+ */
 function readFixtureFile( fixturesDir, filename ) {
 	try {
 		return fs.readFileSync( path.join( fixturesDir, filename ), 'utf8' );
@@ -274,17 +326,40 @@ function readFixtureFile( fixturesDir, filename ) {
 	}
 }
 
+/**
+ * Write fixture file.
+ *
+ * @param {string} fixturesDir - Fixtures directory.
+ * @param {string} filename - Filename.
+ * @param {string} content - Content.
+ */
 function writeFixtureFile( fixturesDir, filename, content ) {
 	fs.writeFileSync( path.join( fixturesDir, filename ), content );
 }
 
+/**
+ * Set fixtures dir.
+ *
+ * @param {string} fixturePath - Path.
+ */
 function setFixturesDir( fixturePath ) {
 	FIXTURES_DIR = path.join( fixturePath, 'fixtures' );
 }
+/**
+ * Block name to fixture basename.
+ *
+ * @param {string} blockName - Block name.
+ * @returns {string} Fixture base name.
+ */
 function blockNameToFixtureBasename( blockName ) {
 	return blockName.replace( /\//g, '__' );
 }
 
+/**
+ * Get available block fixtures basenames.
+ *
+ * @returns {string[]} Names.
+ */
 function getAvailableBlockFixturesBasenames() {
 	// We expect 4 different types of files for each fixture:
 	//  - fixture.html            : original content
@@ -300,6 +375,12 @@ function getAvailableBlockFixturesBasenames() {
 	);
 }
 
+/**
+ * Get block fixture HTML
+ *
+ * @param {string} basename - Filename base.
+ * @returns {object} Fixture data.
+ */
 function getBlockFixtureHTML( basename ) {
 	const filename = `${ basename }.html`;
 	const fileContents = readFixtureFile( FIXTURES_DIR, filename );
@@ -309,6 +390,12 @@ function getBlockFixtureHTML( basename ) {
 	};
 }
 
+/**
+ * Get block fixture JSON.
+ *
+ * @param {string} basename - Filename base.
+ * @returns {object} Fixture data.
+ */
 function getBlockFixtureJSON( basename ) {
 	const filename = `${ basename }.json`;
 	return {
@@ -317,6 +404,12 @@ function getBlockFixtureJSON( basename ) {
 	};
 }
 
+/**
+ * Get block fixture parsed JSON
+ *
+ * @param {string} basename - Filename base.
+ * @returns {object} Fixture data.
+ */
 function getBlockFixtureParsedJSON( basename ) {
 	const filename = `${ basename }.parsed.json`;
 	return {
@@ -325,6 +418,12 @@ function getBlockFixtureParsedJSON( basename ) {
 	};
 }
 
+/**
+ * Get block fixture serialized HTML
+ *
+ * @param {string} basename - Filename base.
+ * @returns {object} Fixture data.
+ */
 function getBlockFixtureSerializedHTML( basename ) {
 	const filename = `${ basename }.serialized.html`;
 	return {
@@ -333,14 +432,32 @@ function getBlockFixtureSerializedHTML( basename ) {
 	};
 }
 
+/**
+ * Write block fixture JSON
+ *
+ * @param {string} basename - Filename base.
+ * @param {string} fixture - Data to write.
+ */
 function writeBlockFixtureJSON( basename, fixture ) {
 	writeFixtureFile( FIXTURES_DIR, `${ basename }.json`, fixture );
 }
 
+/**
+ * Write block fixture parsed JSON
+ *
+ * @param {string} basename - Filename base.
+ * @param {string} fixture - Data to write.
+ */
 function writeBlockFixtureParsedJSON( basename, fixture ) {
 	writeFixtureFile( FIXTURES_DIR, `${ basename }.parsed.json`, fixture );
 }
 
+/**
+ * Write block fixture serialized HTML
+ *
+ * @param {string} basename - Filename base.
+ * @param {string} fixture - Data to write.
+ */
 function writeBlockFixtureSerializedHTML( basename, fixture ) {
 	writeFixtureFile( FIXTURES_DIR, `${ basename }.serialized.html`, fixture );
 }

@@ -1,22 +1,9 @@
-/**
- * External dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isEmpty } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
-import SummaryUpsell from './upsell';
-import { FeatureSummary } from '../feature-summary';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
-import { OneClickRestores } from '../sidebar/one-click-restores';
-import { Security } from '../sidebar/security';
-import { MobileApp } from '../sidebar/mobile-app';
-import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
 import { getSiteTitle } from 'state/initial-state';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
@@ -30,12 +17,14 @@ import {
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
 import { getPluginsData } from 'state/site/plugins';
-
-/**
- * Style dependencies
- */
+import { FeatureSummary } from '../feature-summary';
 import './style.scss';
 import { ResourceSummary } from '../feature-summary/resource';
+import { MobileApp } from '../sidebar/mobile-app';
+import { OneClickRestores } from '../sidebar/one-click-restores';
+import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
+import { Security } from '../sidebar/security';
+import SummaryUpsell from './upsell';
 
 const SummaryComponent = props => {
 	const {

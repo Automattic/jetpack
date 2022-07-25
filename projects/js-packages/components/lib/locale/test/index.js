@@ -1,11 +1,3 @@
-/**
- * External dependencies
- */
-import { expect } from 'chai';
-
-/**
- * Internal dependencies
- */
 import { cleanLocale } from '../';
 
 describe( 'cleanLocale', () => {
@@ -23,9 +15,7 @@ describe( 'cleanLocale', () => {
 		[ 'en_alotofchars', 'en' ], // region or variant tags should not be more than 8 chars.
 	];
 
-	testLocales.forEach( function ( testLocale ) {
-		it( `${ testLocale[ 0 ] } is cleaned into ${ testLocale[ 1 ] }`, function () {
-			expect( cleanLocale( testLocale[ 0 ] ) ).to.be.equal( testLocale[ 1 ] );
-		} );
+	it.each( testLocales )( '%s is cleaned into %s', ( from, to ) => {
+		expect( cleanLocale( from ) ).toBe( to );
 	} );
 } );

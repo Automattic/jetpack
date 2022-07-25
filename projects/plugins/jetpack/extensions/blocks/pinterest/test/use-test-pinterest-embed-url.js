@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
 import { renderHook, act } from '@testing-library/react-hooks';
-
-/**
- * Internal dependencies
- */
-import useTestPinterestEmbedUrl from '../hooks/use-test-pinterest-embed-url';
-import testEmbedUrl from '../../../shared/test-embed-url';
 import { PINTEREST_EXAMPLE_URL } from '../';
+import testEmbedUrl from '../../../shared/test-embed-url';
+import useTestPinterestEmbedUrl from '../hooks/use-test-pinterest-embed-url';
 
 jest.mock( '../../../shared/test-embed-url', () => ( {
 	__esModule: true,
-	default: jest.fn().mockImplementation( ( url, setIsResolvingUrl = () => {} ) => {
+	default: jest.fn( url => {
 		return new Promise( ( resolve, reject ) => {
 			url === 'https://www.hello.com/is/it/me' ? reject() : resolve( url );
 		} );
@@ -25,9 +18,7 @@ describe( 'useTestPinterestEmbedUrl', () => {
 	} );
 	test( 'should return resolved url for valid urls', async () => {
 		const validUrl = 'https://www.pinterest.com.au/thebestpinterestuser';
-		const { result } = renderHook(() =>
-			useTestPinterestEmbedUrl()
-		);
+		const { result } = renderHook( () => useTestPinterestEmbedUrl() );
 
 		await act( async () => {
 			result.current.testUrl( validUrl );
@@ -41,9 +32,7 @@ describe( 'useTestPinterestEmbedUrl', () => {
 
 	test( 'should return provided url for invalid urls', async () => {
 		const invalidUrl = 'https://www.hello.com/is/it/me';
-		const { result } = renderHook(() =>
-			useTestPinterestEmbedUrl()
-		);
+		const { result } = renderHook( () => useTestPinterestEmbedUrl() );
 
 		await act( async () => {
 			result.current.testUrl( invalidUrl );
@@ -57,9 +46,7 @@ describe( 'useTestPinterestEmbedUrl', () => {
 
 	test( 'should not call testEmbed url if the url is falsy', async () => {
 		const invalidUrl = '';
-		const { result } = renderHook(() =>
-			useTestPinterestEmbedUrl()
-		);
+		const { result } = renderHook( () => useTestPinterestEmbedUrl() );
 
 		await act( async () => {
 			result.current.testUrl( invalidUrl );
@@ -69,10 +56,7 @@ describe( 'useTestPinterestEmbedUrl', () => {
 	} );
 
 	test( 'should not call testEmbed url if the url is the example url', async () => {
-		const invalidUrl = '';
-		const { result } = renderHook(() =>
-			useTestPinterestEmbedUrl()
-		);
+		const { result } = renderHook( () => useTestPinterestEmbedUrl() );
 
 		await act( async () => {
 			result.current.testUrl( PINTEREST_EXAMPLE_URL );

@@ -1,12 +1,6 @@
-/**
- * WordPress dependencies
- */
 import { registerStore } from '@wordpress/data';
-/**
- * Internal dependencies
- */
-import storeDefinition from '../store-definition';
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from '../constants';
+import storeDefinition from '../store-definition';
 
 const { actions } = storeDefinition;
 const STORE_ID = 'jetpack/media-source';
@@ -113,8 +107,6 @@ describe( 'save', () => {
 
 		// Create sources
 		store.dispatch( actions.registerMediaSource( 100, {} ) );
-		const stateAfterOneAction = store.getState();
-		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
 
 		let got = store.getState();
 		let want = {

@@ -1,13 +1,4 @@
 [
-	"projects/plugins/jetpack/class.jetpack.php",
-	"projects/plugins/jetpack/modules/contact-form.php",
-	"projects/plugins/jetpack/modules/contact-form/admin.php",
-	"projects/plugins/jetpack/modules/contact-form/class-grunion-contact-form-endpoint.php",
-	"projects/plugins/jetpack/modules/contact-form/grunion-contact-form.php",
-	"projects/plugins/jetpack/modules/contact-form/grunion-editor-view.php",
-	"projects/plugins/jetpack/modules/contact-form/grunion-form-view.php",
-	"projects/plugins/jetpack/modules/likes/jetpack-likes-master-iframe.php",
-	"projects/plugins/jetpack/modules/likes/jetpack-likes-settings.php",
 	"projects/plugins/vaultpress/class.vaultpress-database.php",
 	"projects/plugins/vaultpress/class.vaultpress-filesystem.php",
 	"projects/plugins/vaultpress/class.vaultpress-hotfixes.php",

@@ -1,17 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { get, includes } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Button from 'components/button';
+import JetpackBanner from 'components/jetpack-banner';
+import ModuleOverridenBanner from 'components/module-overridden-banner';
+import SectionHeader from 'components/section-header';
+import analytics from 'lib/analytics';
 import {
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SITE_BACKUPS_JETPACK,
@@ -22,7 +14,13 @@ import {
 	FEATURE_SEARCH_JETPACK,
 	getJetpackProductUpsellByFeature,
 } from 'lib/plans/constants';
+import { get, includes } from 'lodash';
+import ProStatus from 'pro-status';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
@@ -34,13 +32,8 @@ import {
 	isMultisite,
 	userCanManageModules,
 } from 'state/initial-state';
-import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
-import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
-import SectionHeader from 'components/section-header';
-import ProStatus from 'pro-status';
-import JetpackBanner from 'components/jetpack-banner';
-import ModuleOverridenBanner from 'components/module-overridden-banner';
 import { getModuleOverride, getModule } from 'state/modules';
+import { siteHasFeature, isFetchingSiteData } from 'state/site';
 
 export const SettingsCard = props => {
 	const trackBannerClick = feature => {
@@ -441,13 +434,13 @@ export default connect(
 			multisite: isMultisite( state ),
 			inOfflineMode: isOfflineMode( state ),
 			hasConnectedOwner: hasConnectedOwnerSelector( state ),
-			hasAntispam: hasActiveSiteFeature( state, 'antispam' ),
-			hasBackups: hasActiveSiteFeature( state, 'backups' ),
-			hasGoogleAnalytics: hasActiveSiteFeature( state, 'google-analytics' ),
-			hasInstantSearch: hasActiveSiteFeature( state, 'instant-search' ),
-			hasScan: hasActiveSiteFeature( state, 'scan' ),
-			hasVideoPress: hasActiveSiteFeature( state, 'videopress' ),
-			hasWordAds: hasActiveSiteFeature( state, 'wordads' ),
+			hasAntispam: siteHasFeature( state, 'antispam' ),
+			hasBackups: siteHasFeature( state, 'backups' ),
+			hasGoogleAnalytics: siteHasFeature( state, 'google-analytics' ),
+			hasInstantSearch: siteHasFeature( state, 'instant-search' ),
+			hasScan: siteHasFeature( state, 'scan' ),
+			hasVideoPress: siteHasFeature( state, 'videopress' ),
+			hasWordAds: siteHasFeature( state, 'wordads' ),
 		};
 	},
 	dispatch => ( {

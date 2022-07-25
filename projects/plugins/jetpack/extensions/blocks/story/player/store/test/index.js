@@ -1,24 +1,17 @@
-/**
- * WordPress dependencies
- */
 import { registerStore } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { defaultPlayerState, defaultPlayerSettings, defaultCurrentSlideState } from '../constants';
 import * as actions from '../actions';
-import * as selectors from '../selectors';
+import { defaultPlayerState, defaultPlayerSettings, defaultCurrentSlideState } from '../constants';
 import reducer from '../reducer';
-import {setCurrentSlideEnded} from "../actions";
+import * as selectors from '../selectors';
 
 const STORE_ID = 'jetpack/story/player';
 
-const setup = () => registerStore( STORE_ID, {
-	actions,
-	reducer,
-	selectors,
-} );
+const setup = () =>
+	registerStore( STORE_ID, {
+		actions,
+		reducer,
+		selectors,
+	} );
 
 describe( 'player', () => {
 	test( 'Initial State', () => {
@@ -64,7 +57,7 @@ describe( 'player', () => {
 				},
 				previousSlide: {
 					...defaultCurrentSlideState,
-				}
+				},
 			},
 		};
 		expect( got2 ).toEqual( want2 );
@@ -86,7 +79,6 @@ describe( 'player', () => {
 		expect( got3 ).toEqual( want3 );
 		store.dispatch( actions.setCurrentSlideEnded( playerId ) );
 		store.dispatch( actions.showSlide( playerId, 1 ) );
-		const got4 = store.getState();
 		const want4 = {
 			[ playerId ]: {
 				...want3[ playerId ],
@@ -95,7 +87,7 @@ describe( 'player', () => {
 				},
 				previousSlide: {
 					...want3[ playerId ].currentSlide,
-				}
+				},
 			},
 		};
 		store.dispatch( actions.slideReady( playerId, mediaElement, 5 ) );

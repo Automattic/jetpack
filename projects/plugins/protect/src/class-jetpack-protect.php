@@ -137,6 +137,8 @@ class Jetpack_Protect {
 			)
 		);
 		Assets::enqueue_script( 'jetpack-protect' );
+		// Required for Analytics.
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-protect', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-protect', $this->render_initial_state(), 'before' );
@@ -215,7 +217,7 @@ class Jetpack_Protect {
 		if ( $total > 0 ) {
 			$args = array(
 				'id'    => 'jetpack-protect',
-				'title' => '<span class="ab-icon noticon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
+				'title' => '<span class="ab-icon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
 				'href'  => admin_url( 'admin.php?page=jetpack-protect' ),
 				'meta'  => array(
 					// translators: %d is the number of vulnerabilities found.

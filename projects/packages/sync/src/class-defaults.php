@@ -733,6 +733,7 @@ class Defaults {
 		'switch_like_status',
 		'videopress_guid',
 		'vimeo_poster_image',
+		'_jetpack_blogging_prompt_key',
 	);
 
 	/**
@@ -796,6 +797,7 @@ class Defaults {
 	public static $default_theme_support_whitelist = array(
 		'align-wide',
 		'automatic-feed-links',
+		'block-templates',
 		'custom-background',
 		'custom-header',
 		'custom-logo',

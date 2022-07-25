@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack: VPBlock: emit events to window where bridge runs

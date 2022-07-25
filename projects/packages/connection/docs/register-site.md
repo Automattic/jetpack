@@ -10,7 +10,7 @@ First, let's make sure that the `automattic/jetpack-connection` package is set u
 
 At minimum you need three things. One is the `automattic/jetpack-autoloader` package, which will ensure that you're not colliding with any other plugins on the site that may be including the same packages. Two, of course, is the `automattic/jetpack-connection` package. Third is our `automattic/jetpack-config` package that will be your tool for initializing the packages.
 
-We recommend that you always use the latest published versions of our packages, but you can also run our latest master branch builds:
+We recommend that you always use the latest published versions of our packages, but you can also run our latest trunk branch builds:
 ```
 {
     "name": "you/your-awesome-plugin",
@@ -25,9 +25,9 @@ We recommend that you always use the latest published versions of our packages, 
     ],
     "minimum-stability": "dev",
     "require": {
-        "automattic/jetpack-autoloader": "dev-master",
-        "automattic/jetpack-config": "dev-master",
-        "automattic/jetpack-connection": "dev-master"
+        "automattic/jetpack-autoloader": "dev-trunk",
+        "automattic/jetpack-config": "dev-trunk",
+        "automattic/jetpack-connection": "dev-trunk"
     }
 }
 ```

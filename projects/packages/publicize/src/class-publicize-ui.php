@@ -30,8 +30,9 @@ class Publicize_UI {
 	 */
 	public function __construct() {
 		global $publicize;
-
-		$publicize       = new Publicize();
+		if ( ! is_object( $publicize ) ) {
+			$publicize = new Publicize();
+		}
 		$this->publicize = $publicize;
 
 		add_action( 'init', array( $this, 'init' ) );
@@ -560,7 +561,7 @@ jQuery( function($) {
 				$publicize_form = $this->get_metabox_form_disconnected( $available_services );
 				?>
 				<strong><?php esc_html_e( 'Not Connected', 'jetpack-publicize-pkg' ); ?></strong>
-				<a href="#" id="publicize-disconnected-form-show"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a><br />
+				<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
 				<?php
 
 			endif;
@@ -570,9 +571,8 @@ jQuery( function($) {
 			/**
 			 * Filter the Publicize details form.
 			 *
-			 * @module publicize
-			 *
-			 * @since 2.0.0
+			 * @since 0.1.0
+			 * @since-jetpack 2.0.0
 			 *
 			 * @param string $publicize_form Publicize Details form appearing above Publish button in the editor.
 			 */
@@ -585,7 +585,8 @@ jQuery( function($) {
 	/**
 	 * Generates HTML content for connections form.
 	 *
-	 * @since 6.7
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 *
 	 * @global WP_Post $post The current post instance being published.
 	 *

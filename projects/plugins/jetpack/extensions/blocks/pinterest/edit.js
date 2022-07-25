@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
+import { BlockControls } from '@wordpress/block-editor';
 import { SandBox, withNotices } from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
-import { BlockControls } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
-import { pinType } from './utils';
-import { PinterestBlockControls } from './controls';
-import LoadingContainer from './components/loading-container';
 import EditUrlForm from './components/edit-url-form';
 import ErrorNotice from './components/error-notice';
+import LoadingContainer from './components/loading-container';
+import { PinterestBlockControls } from './controls';
 import useTestPinterestEmbedUrl from './hooks/use-test-pinterest-embed-url';
+import { pinType } from './utils';
 
 export function PinterestEdit( {
 	attributes,

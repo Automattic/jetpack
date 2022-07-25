@@ -3,13 +3,13 @@ name: Tests
 on:
   pull_request:
   push:
-    branches: [ 'master', '*/branch-*' ]
+    branches: [ 'trunk', '*/branch-*' ]
 concurrency:
   group: tests-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
   create-matrix:
@@ -169,6 +169,7 @@ jobs:
       - name: Process coverage results
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         if: matrix.script == 'test-coverage'
         run: .github/files/process-coverage.sh
 
