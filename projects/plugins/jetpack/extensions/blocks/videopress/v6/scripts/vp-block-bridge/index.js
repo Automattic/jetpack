@@ -59,17 +59,17 @@ const rawScript = `
 				name: 'onVideoPressToggleFullscreen',
 				type: 'event',
 			},
-			'vpblock_action_play': {
+			'vpBlockActionPlay': {
 				name: 'vpBlockActionPlay',
 				type: 'action',
 				videoPressAction: 'videopress_action_play',
 			},
-			'vpblock_action_pause': {
+			'vpBlockActionPause': {
 				name: 'vpBlockActionPause',
 				type: 'action',
 				videoPressAction: 'videopress_action_pause',
 			},
-			'vpblock_action_set_currenttime': {
+			'vpBlockActionSetCurrentTime': {
 				name: 'vpBlockActionPause',
 				type: 'action',
 				videoPressAction: 'videopress_action_set_currenttime',
@@ -110,7 +110,14 @@ const rawScript = `
 
 				debug( '🌉 %o [%s] ➜ %o', originalEventName, guid, vpEventName );
 
-				window.parent.dispatchEvent( videoPressBlockEvent );
+				// Dispatch custom event in iFrame window...
+				window.dispatchEvent( videoPressBlockEvent );
+
+				// ...and also dipatch to the parent window,
+				// in case it exists.
+				if ( window?.parent && window.parent !== window ) {
+					window.parent.dispatchEvent( videoPressBlockEvent );
+				}
 			}
 
 			if ( vpEventType === 'action' ) {

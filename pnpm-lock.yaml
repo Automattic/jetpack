@@ -102,6 +102,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6
+      '@jest/globals': 28.1.0
       '@storybook/addon-actions': 6.5.9
       '@storybook/react': 6.5.9
       '@testing-library/dom': 8.16.0
@@ -147,6 +148,7 @@ importers:
       '@automattic/jetpack-base-styles': link:../base-styles
       '@babel/core': 7.18.6
       '@babel/preset-react': 7.18.6_@babel+core@7.18.6
+      '@jest/globals': 28.1.0
       '@storybook/addon-actions': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/react': 6.5.9_eo45cog3exoclj4oxu4iuskgrm
       '@testing-library/dom': 8.16.0
@@ -983,7 +985,7 @@ importers:
       babel-jest: 28.1.0
       classnames: 2.3.1
       concurrently: 6.4.0
-      core-js: 3.22.4
+      core-js: 3.23.5
       fast-json-stable-stringify: 2.1.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
@@ -1057,7 +1059,7 @@ importers:
       autoprefixer: 10.4.2_postcss@8.4.14
       babel-jest: 28.1.0_@babel+core@7.18.6
       concurrently: 6.4.0
-      core-js: 3.22.4
+      core-js: 3.23.5
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       postcss: 8.4.14
@@ -1105,7 +1107,7 @@ importers:
       chart.js: 3.7.1
       classnames: 2.3.1
       concurrently: 6.4.0
-      core-js: 3.22.4
+      core-js: 3.23.5
       fast-json-stable-stringify: 2.1.0
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
@@ -1176,7 +1178,7 @@ importers:
       '@wordpress/dependency-extraction-webpack-plugin': 3.6.0_webpack@5.72.1
       babel-jest: 28.1.0_@babel+core@7.18.6
       concurrently: 6.4.0
-      core-js: 3.22.4
+      core-js: 3.23.5
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       postcss: 8.4.14
@@ -1222,7 +1224,7 @@ importers:
       rollup-plugin-svelte-svg: 0.2.3
       rollup-plugin-terser: 7.0.2
       sass: 1.43.3
-      svelte: 3.42.4
+      svelte: 3.49.0
       svelte-navigator: 3.1.5
       svelte-preprocess: 4.9.2
       tslib: 2.3.1
@@ -1234,7 +1236,7 @@ importers:
       history: 5.3.0
       jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f
       prettier: 2.6.2
-      svelte-navigator: 3.1.5_7jj4gkxb4gwdrag45xr5l5ta6q
+      svelte-navigator: 3.1.5_uslzfc62di2n2otc2tvfklnwji
     devDependencies:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@babel/core': 7.18.6
@@ -1250,7 +1252,7 @@ importers:
       '@wordpress/i18n': 4.12.0
       concurrently: 6.0.2
       postcss: 8.4.14
-      prettier-plugin-svelte: 2.4.0_fuedmszajsym7dlthslllndkpq
+      prettier-plugin-svelte: 2.4.0_3cyj5wbackxvw67rnaarcmbw7y
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       rollup: 2.56.3
@@ -1258,12 +1260,12 @@ importers:
       rollup-plugin-css-only: 3.1.0_rollup@2.56.3
       rollup-plugin-node-globals: 1.4.0
       rollup-plugin-postcss: 4.0.2_postcss@8.4.14
-      rollup-plugin-svelte: 7.1.0_chdltcmy7fpsrryurdvxr7cww4
-      rollup-plugin-svelte-svg: 0.2.3_svelte@3.42.4
+      rollup-plugin-svelte: 7.1.0_ug4c3w2vt5ztpkxm7ls5xl7hyy
+      rollup-plugin-svelte-svg: 0.2.3_svelte@3.49.0
       rollup-plugin-terser: 7.0.2_rollup@2.56.3
       sass: 1.43.3
-      svelte: 3.42.4
-      svelte-preprocess: 4.9.2_rl7nfovjc2hkof2ykypip3zw2i
+      svelte: 3.49.0
+      svelte-preprocess: 4.9.2_jwar5xvg3ed7ox4zxszwufzt2u
       tslib: 2.3.1
       typescript: 4.7.4
 
@@ -1832,9 +1834,9 @@ importers:
       prettier-plugin-svelte: 2.4.0
       semver: 7.3.5
       sort-package-json: 1.50.0
-      svelte: 3.42.4
+      svelte: 3.49.0
       typescript: 4.7.4
-      yaml: 1.10.2
+      yaml: 2.1.1
     devDependencies:
       '@automattic/eslint-changed': link:../../projects/js-packages/eslint-changed
       '@automattic/eslint-config-target-es': link:../../projects/js-packages/eslint-config-target-es
@@ -1867,7 +1869,7 @@ importers:
       eslint-plugin-prettier: 4.0.0_diieqcfldcelpbk6mpys5een2y
       eslint-plugin-react: 7.30.0_eslint@8.17.0
       eslint-plugin-react-hooks: 4.5.0_eslint@8.17.0
-      eslint-plugin-svelte3: 3.4.1_rxeuszztuf3l2ydjwz6zgnih74
+      eslint-plugin-svelte3: 3.4.1_rqxflnguml2nrgsyete7wqueb4
       eslint-plugin-testing-library: 5.5.1_n4lrrl552kqf5nk4rgej5xdcha
       eslint-plugin-wpcalypso: 6.0.0_h3lidpdp4su4vyjwp3kedxxcwu
       glob: 7.1.6
@@ -1877,12 +1879,12 @@ importers:
       libsodium-wrappers: 0.7.10
       parse-diff: 0.8.1
       prettier: /wp-prettier/2.2.1-beta-1
-      prettier-plugin-svelte: 2.4.0_djujnspjrgyhtfxw7nacentjsa
+      prettier-plugin-svelte: 2.4.0_d5pgk2jhi5g6273v2bhcf7ct7a
       semver: 7.3.5
       sort-package-json: 1.50.0
-      svelte: 3.42.4
+      svelte: 3.49.0
       typescript: 4.7.4
-      yaml: 1.10.2
+      yaml: 2.1.1
 
 packages:
 
@@ -3853,6 +3855,17 @@ packages:
       jest-util: 28.1.1
     dev: true
 
+  /@jest/globals/28.1.0:
+    resolution: {integrity: sha512-3m7sTg52OTQR6dPhsEQSxAvU+LOBbMivZBwOvKEZ+Rb+GyxVnXi9HKgOTYkx/S99T8yvh17U4tNNJPIEQmtwYw==}
+    engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
+    dependencies:
+      '@jest/environment': 28.1.2
+      '@jest/expect': 28.1.2
+      '@jest/types': 28.1.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /@jest/globals/28.1.2:
     resolution: {integrity: sha512-cz0lkJVDOtDaYhvT3Fv2U1B6FtBnV+OpEyJCzTHM1fdoTsU4QNLAt/H4RkiwEUU+dL4g/MFsoTuHeT2pvbo4Hg==}
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
@@ -4757,7 +4770,7 @@ packages:
       '@storybook/csf': 0.0.2--canary.4566f4d.1
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       axe-core: 4.4.2
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
       lodash: 4.17.21
       react: 17.0.2
@@ -4786,7 +4799,7 @@ packages:
       '@storybook/core-events': 6.5.9
       '@storybook/csf': 0.0.2--canary.4566f4d.1
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      core-js: 3.23.4
+      core-js: 3.23.5
       fast-deep-equal: 3.1.3
       global: 4.4.0
       lodash: 4.17.21
@@ -4820,7 +4833,7 @@ packages:
       '@storybook/core-events': 6.5.9
       '@storybook/csf': 0.0.2--canary.4566f4d.1
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
       memoizerific: 1.11.3
       react: 17.0.2
@@ -4850,7 +4863,7 @@ packages:
       '@storybook/node-logger': 6.5.9
       '@storybook/store': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      core-js: 3.23.4
+      core-js: 3.23.5
       lodash: 4.17.21
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -4899,7 +4912,7 @@ packages:
       '@storybook/store': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       babel-loader: 8.2.5_asrrglqazygxr56oqkwuellecm
-      core-js: 3.23.4
+      core-js: 3.23.5
       fast-deep-equal: 3.1.3
       global: 4.4.0
       lodash: 4.17.21
@@ -4994,7 +5007,7 @@ packages:
       '@storybook/builder-webpack5': 6.5.9_jwgm46t5xdvromoncpcpyjq23e
       '@storybook/core-common': 6.5.9_jwgm46t5xdvromoncpcpyjq23e
       '@storybook/node-logger': 6.5.9
-      core-js: 3.23.4
+      core-js: 3.23.5
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       regenerator-runtime: 0.13.9
@@ -5029,7 +5042,7 @@ packages:
       '@storybook/components': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/core-events': 6.5.9
       '@storybook/csf': 0.0.2--canary.4566f4d.1
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -5052,7 +5065,7 @@ packages:
       '@storybook/components': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/core-events': 6.5.9
       '@storybook/csf': 0.0.2--canary.4566f4d.1
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -5078,7 +5091,7 @@ packages:
       '@storybook/router': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/source-loader': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      core-js: 3.23.4
+      core-js: 3.23.5
       estraverse: 5.3.0
       loader-utils: 2.0.2
       prop-types: 15.8.1
@@ -5104,7 +5117,7 @@ packages:
       '@storybook/client-logger': 6.5.9
       '@storybook/components': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      core-js: 3.23.4
+      core-js: 3.23.5
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       regenerator-runtime: 0.13.9
@@ -5127,7 +5140,7 @@ packages:
       '@storybook/components': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/core-events': 6.5.9
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
       memoizerific: 1.11.3
       prop-types: 15.8.1
@@ -5150,7 +5163,7 @@ packages:
       '@storybook/router': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@types/webpack-env': 1.17.0
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -5170,7 +5183,7 @@ packages:
       '@storybook/router': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/semver': 7.3.2
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      core-js: 3.23.4
+      core-js: 3.23.5
       fast-deep-equal: 3.1.3
       global: 4.4.0
       lodash: 4.17.21
@@ -5215,7 +5228,7 @@ packages:
       babel-plugin-named-exports-order: 0.0.2
       browser-assert: 1.2.1
       case-sensitive-paths-webpack-plugin: 2.4.0
-      core-js: 3.23.4
+      core-js: 3.23.5
       css-loader: 5.2.7_webpack@5.72.1
       fork-ts-checker-webpack-plugin: 6.5.2_kunlnxgowht5psymbomb4rk6be
       glob: 7.2.3
@@ -5251,7 +5264,7 @@ packages:
       '@storybook/channels': 6.5.9
       '@storybook/client-logger': 6.5.9
       '@storybook/core-events': 6.5.9
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
       qs: 6.11.0
       telejson: 6.0.8
@@ -5262,7 +5275,7 @@ packages:
     dependencies:
       '@storybook/channels': 6.5.9
       '@storybook/client-logger': 6.5.9
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
       telejson: 6.0.8
     dev: true
@@ -5270,7 +5283,7 @@ packages:
   /@storybook/channels/6.5.9:
     resolution: {integrity: sha512-FvGA35nV38UPXWOl9ERapFTJaxwSTamQ339s2Ev7E9riyRG+GRkgTWzf5kECJgS1PAYKd/7m/RqKJT9BVv6A5g==}
     dependencies:
-      core-js: 3.23.4
+      core-js: 3.23.5
       ts-dedent: 2.2.0
       util-deprecate: 1.0.2
     dev: true
@@ -5290,7 +5303,7 @@ packages:
       '@storybook/store': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@types/qs': 6.9.7
       '@types/webpack-env': 1.17.0
-      core-js: 3.23.4
+      core-js: 3.23.5
       fast-deep-equal: 3.1.3
       global: 4.4.0
       lodash: 4.17.21
@@ -5308,7 +5321,7 @@ packages:
   /@storybook/client-logger/6.5.9:
     resolution: {integrity: sha512-DOHL6p0uiDd3gV/Sb2FR+Vh6OiPrrf8BrA06uvXWsMRIIvEEvnparxv9EvPg7FlmUX0T3nq7d3juwjx4F8Wbcg==}
     dependencies:
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
     dev: true
 
@@ -5322,7 +5335,7 @@ packages:
       '@storybook/csf': 0.0.2--canary.4566f4d.1
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@types/react-syntax-highlighter': 11.0.5
-      core-js: 3.23.4
+      core-js: 3.23.5
       memoizerific: 1.11.3
       qs: 6.11.0
       react: 17.0.2
@@ -5355,7 +5368,7 @@ packages:
       '@storybook/ui': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       airbnb-js-shims: 2.2.1
       ansi-to-html: 0.6.15
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
       lodash: 4.17.21
       qs: 6.11.0
@@ -5409,7 +5422,7 @@ packages:
       babel-plugin-macros: 3.1.0
       babel-plugin-polyfill-corejs3: 0.1.7_@babel+core@7.18.6
       chalk: 4.1.2
-      core-js: 3.23.4
+      core-js: 3.23.5
       express: 4.18.1
       file-system-cache: 1.1.0
       find-up: 5.0.0
@@ -5445,7 +5458,7 @@ packages:
   /@storybook/core-events/6.5.9:
     resolution: {integrity: sha512-tXt7a3ZvJOCeEKpNa/B5rQM5VI7UJLlOh3IHOImWn4HqoBRrZvbourmac+PRZAtXpos0h3c6554Hjapj/Sny5Q==}
     dependencies:
-      core-js: 3.23.4
+      core-js: 3.23.5
     dev: true
 
   /@storybook/core-server/6.5.9_b6wer52eq2mygdtlsjfqh5gph4:
@@ -5488,7 +5501,7 @@ packages:
       cli-table3: 0.6.2
       commander: 6.2.1
       compression: 1.7.4
-      core-js: 3.23.4
+      core-js: 3.23.5
       cpy: 8.1.2
       detect-port: 1.3.0
       express: 4.18.1
@@ -5566,7 +5579,7 @@ packages:
       cli-table3: 0.6.2
       commander: 6.2.1
       compression: 1.7.4
-      core-js: 3.23.4
+      core-js: 3.23.5
       cpy: 8.1.2
       detect-port: 1.3.0
       express: 4.18.1
@@ -5699,7 +5712,7 @@ packages:
       '@babel/types': 7.18.8
       '@storybook/csf': 0.0.2--canary.4566f4d.1
       '@storybook/mdx1-csf': 0.0.1_@babel+core@7.18.6
-      core-js: 3.23.4
+      core-js: 3.23.5
       fs-extra: 9.1.0
       global: 4.4.0
       regenerator-runtime: 0.13.9
@@ -5726,7 +5739,7 @@ packages:
       '@babel/core': 7.18.6
       '@storybook/csf': 0.0.2--canary.4566f4d.1
       '@storybook/store': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      core-js: 3.23.4
+      core-js: 3.23.5
       doctrine: 3.0.0
       lodash: 4.17.21
       regenerator-runtime: 0.13.9
@@ -5759,7 +5772,7 @@ packages:
       babel-loader: 8.2.5_asrrglqazygxr56oqkwuellecm
       case-sensitive-paths-webpack-plugin: 2.4.0
       chalk: 4.1.2
-      core-js: 3.23.4
+      core-js: 3.23.5
       css-loader: 5.2.7_webpack@5.72.1
       express: 4.18.1
       find-up: 5.0.0
@@ -5816,7 +5829,7 @@ packages:
     dependencies:
       '@types/npmlog': 4.1.4
       chalk: 4.1.2
-      core-js: 3.23.4
+      core-js: 3.23.5
       npmlog: 5.0.1
       pretty-hrtime: 1.0.3
     dev: true
@@ -5824,7 +5837,7 @@ packages:
   /@storybook/postinstall/6.5.9:
     resolution: {integrity: sha512-KQBupK+FMRrtSt8IL0MzCZ/w9qbd25Yxxp/+ajfWgZTRgsWgVFOqcDyMhS16eNbBp5qKIBCBDXfEF+/mK8HwQQ==}
     dependencies:
-      core-js: 3.23.4
+      core-js: 3.23.5
     dev: true
 
   /@storybook/preview-web/6.5.9_sfoxds7t5ydpegc3knd667wn6m:
@@ -5840,7 +5853,7 @@ packages:
       '@storybook/csf': 0.0.2--canary.4566f4d.1
       '@storybook/store': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       ansi-to-html: 0.6.15
-      core-js: 3.23.4
+      core-js: 3.23.5
       global: 4.4.0
       lodash: 4.17.21
       qs: 6.11.0
@@ -5922,7 +5935,7 @@ packages:
       acorn-walk: 7.2.0
       babel-plugin-add-react-displayname: 0.0.5
       babel-plugin-react-docgen: 4.2.1
-      core-js: 3.23.4
+      core-js: 3.23.5
       escodegen: 2.0.0
       fs-extra: 9.1.0
       global: 4.4.0
@@ -6012,7 +6025,7 @@ packages:
       acorn-walk: 7.2.0
       babel-plugin-add-react-displayname: 0.0.5
       babel-plugin-react-docgen: 4.2.1
-      core-js: 3.23.4
+      core-js: 3.23.5
       escodegen: 2.0.0
       fs-extra: 9.1.0
       global: 4.4.0
@@ -6057,7 +6070,7 @@ packages:
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       '@storybook/client-logger': 6.5.9
-      core-js: 3.23.4
+      core-js: 3.23.5
       memoizerific: 1.11.3
       qs: 6.11.0
       react: 17.0.2
@@ -6070,7 +6083,7 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      core-js: 3.23.4
+      core-js: 3.23.5
       find-up: 4.1.0
     dev: true
 
@@ -6083,7 +6096,7 @@ packages:
       '@storybook/addons': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/client-logger': 6.5.9
       '@storybook/csf': 0.0.2--canary.4566f4d.1
-      core-js: 3.23.4
+      core-js: 3.23.5
       estraverse: 5.3.0
       global: 4.4.0
       loader-utils: 2.0.2
@@ -6104,7 +6117,7 @@ packages:
       '@storybook/client-logger': 6.5.9
       '@storybook/core-events': 6.5.9
       '@storybook/csf': 0.0.2--canary.4566f4d.1
-      core-js: 3.23.4
+      core-js: 3.23.5
       fast-deep-equal: 3.1.3
       global: 4.4.0
       lodash: 4.17.21
@@ -6125,7 +6138,7 @@ packages:
       '@storybook/client-logger': 6.5.9
       '@storybook/core-common': 6.5.9_jwgm46t5xdvromoncpcpyjq23e
       chalk: 4.1.2
-      core-js: 3.23.4
+      core-js: 3.23.5
       detect-package-manager: 2.0.1
       fetch-retry: 5.0.3
       fs-extra: 9.1.0
@@ -6173,7 +6186,7 @@ packages:
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       '@storybook/client-logger': 6.5.9
-      core-js: 3.23.4
+      core-js: 3.23.5
       memoizerific: 1.11.3
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -6195,7 +6208,7 @@ packages:
       '@storybook/router': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
       '@storybook/semver': 7.3.2
       '@storybook/theming': 6.5.9_sfoxds7t5ydpegc3knd667wn6m
-      core-js: 3.23.4
+      core-js: 3.23.5
       memoizerific: 1.11.3
       qs: 6.11.0
       react: 17.0.2
@@ -7122,7 +7135,7 @@ packages:
       '@wordpress/element': 4.10.0
       '@wordpress/warning': 2.12.0
       browserslist: 4.21.1
-      core-js: 3.23.4
+      core-js: 3.23.5
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -9929,14 +9942,8 @@ packages:
     requiresBuild: true
     dev: true
 
-  /core-js/3.22.4:
-    resolution: {integrity: sha512-1uLykR+iOfYja+6Jn/57743gc9n73EWiOnSJJ4ba3B4fOEYDBv25MagmEZBxTp5cWq4b/KPx/l77zgsp28ju4w==}
-    deprecated: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
-    requiresBuild: true
-    dev: true
-
-  /core-js/3.23.4:
-    resolution: {integrity: sha512-vjsKqRc1RyAJC3Ye2kYqgfdThb3zYnx9CrqoCcjMOENMtQPC7ZViBvlDxwYU/2z2NI/IPuiXw5mT4hWhddqjzQ==}
+  /core-js/3.23.5:
+    resolution: {integrity: sha512-7Vh11tujtAZy82da4duVreQysIoO2EvVrur7y6IzZkH1IHPSekuDi8Vuw1+YKjkbfWLRD7Nc9ICQ/sIUDutcyg==}
     requiresBuild: true
     dev: true
 
@@ -11378,7 +11385,7 @@ packages:
       string.prototype.matchall: 4.0.7
     dev: true
 
-  /eslint-plugin-svelte3/3.4.1_rxeuszztuf3l2ydjwz6zgnih74:
+  /eslint-plugin-svelte3/3.4.1_rqxflnguml2nrgsyete7wqueb4:
     resolution: {integrity: sha512-7p59WG8qV8L6wLdl4d/c3mdjkgVglQCdv5XOTk/iNPBKXuuV+Q0eFP5Wa6iJd/G2M1qR3BkLPEzaANOqKAZczw==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -11386,7 +11393,7 @@ packages:
       svelte: ^3.2.0
     dependencies:
       eslint: 8.17.0
-      svelte: 3.42.4
+      svelte: 3.49.0
     dev: true
 
   /eslint-plugin-testing-library/5.5.1_n4lrrl552kqf5nk4rgej5xdcha:
@@ -11932,7 +11939,7 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       '@babel/runtime': 7.18.6
-      core-js: 3.23.4
+      core-js: 3.23.5
       debug: 4.3.4
       glob-to-regexp: 0.4.1
       is-subset: 0.1.1
@@ -14386,7 +14393,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.18.6
       app-root-dir: 1.0.2
-      core-js: 3.23.4
+      core-js: 3.23.5
       dotenv: 8.6.0
       dotenv-expand: 5.1.0
     dev: true
@@ -16438,24 +16445,24 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
-  /prettier-plugin-svelte/2.4.0_djujnspjrgyhtfxw7nacentjsa:
-    resolution: {integrity: sha512-JwJ9bOz4XHLQtiLnX4mTSSDUdhu12WH8sTwy/XTDCSyPlah6IcV7NWeYBZscPEcceu2YnW8Y9sJCP40Z2UH9GA==}
-    peerDependencies:
-      prettier: ^1.16.4 || ^2.0.0
-      svelte: ^3.2.0
-    dependencies:
-      prettier: /wp-prettier/2.2.1-beta-1
-      svelte: 3.42.4
-    dev: true
-
-  /prettier-plugin-svelte/2.4.0_fuedmszajsym7dlthslllndkpq:
+  /prettier-plugin-svelte/2.4.0_3cyj5wbackxvw67rnaarcmbw7y:
     resolution: {integrity: sha512-JwJ9bOz4XHLQtiLnX4mTSSDUdhu12WH8sTwy/XTDCSyPlah6IcV7NWeYBZscPEcceu2YnW8Y9sJCP40Z2UH9GA==}
     peerDependencies:
       prettier: ^1.16.4 || ^2.0.0
       svelte: ^3.2.0
     dependencies:
       prettier: 2.6.2
-      svelte: 3.42.4
+      svelte: 3.49.0
+    dev: true
+
+  /prettier-plugin-svelte/2.4.0_d5pgk2jhi5g6273v2bhcf7ct7a:
+    resolution: {integrity: sha512-JwJ9bOz4XHLQtiLnX4mTSSDUdhu12WH8sTwy/XTDCSyPlah6IcV7NWeYBZscPEcceu2YnW8Y9sJCP40Z2UH9GA==}
+    peerDependencies:
+      prettier: ^1.16.4 || ^2.0.0
+      svelte: ^3.2.0
+    dependencies:
+      prettier: /wp-prettier/2.2.1-beta-1
+      svelte: 3.49.0
     dev: true
 
   /prettier/2.3.0:
@@ -17709,16 +17716,16 @@ packages:
       - ts-node
     dev: true
 
-  /rollup-plugin-svelte-svg/0.2.3_svelte@3.42.4:
+  /rollup-plugin-svelte-svg/0.2.3_svelte@3.49.0:
     resolution: {integrity: sha512-WH2KqihgVbcJT/PrjiJ/ipctrGueRdOLaaEuAIbXYqfsEzNb9krOVLyc5TL7to3cEKL6DiAa8IEe7IL1oqVolg==}
     peerDependencies:
       svelte: ^3.16.7
     dependencies:
       rollup-pluginutils: 1.5.2
-      svelte: 3.42.4
+      svelte: 3.49.0
     dev: true
 
-  /rollup-plugin-svelte/7.1.0_chdltcmy7fpsrryurdvxr7cww4:
+  /rollup-plugin-svelte/7.1.0_ug4c3w2vt5ztpkxm7ls5xl7hyy:
     resolution: {integrity: sha512-vopCUq3G+25sKjwF5VilIbiY6KCuMNHP1PFvx2Vr3REBNMDllKHFZN2B9jwwC+MqNc3UPKkjXnceLPEjTjXGXg==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -17728,7 +17735,7 @@ packages:
       require-relative: 0.8.7
       rollup: 2.56.3
       rollup-pluginutils: 2.8.2
-      svelte: 3.42.4
+      svelte: 3.49.0
     dev: true
 
   /rollup-plugin-terser/7.0.2_rollup@2.56.3:
@@ -18730,18 +18737,18 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /svelte-navigator/3.1.5_7jj4gkxb4gwdrag45xr5l5ta6q:
+  /svelte-navigator/3.1.5_uslzfc62di2n2otc2tvfklnwji:
     resolution: {integrity: sha512-CGTaexasSLpUaTSN2AlYqii0JeisIgg7uZbm8XCLKlpM9Qv3IltlJ7Nvh90Xw9ND97KqtGOjNJ3LNwMN1ABV0w==}
     peerDependencies:
       svelte: 3.x
     dependencies:
-      svelte: 3.42.4
-      svelte2tsx: 0.1.193_7jj4gkxb4gwdrag45xr5l5ta6q
+      svelte: 3.49.0
+      svelte2tsx: 0.1.193_uslzfc62di2n2otc2tvfklnwji
     transitivePeerDependencies:
       - typescript
     dev: false
 
-  /svelte-preprocess/4.9.2_rl7nfovjc2hkof2ykypip3zw2i:
+  /svelte-preprocess/4.9.2_jwar5xvg3ed7ox4zxszwufzt2u:
     resolution: {integrity: sha512-Eu/09bEpcBD8a9pGxcILEAZssXifnWoi5ad5GgUAgoT4alblNikOIpKrWDFkepMqjgioXciWbIZOROoTX3ZLdA==}
     engines: {node: '>= 9.11.2'}
     requiresBuild: true
@@ -18791,15 +18798,15 @@ packages:
       sass: 1.43.3
       sorcery: 0.10.0
       strip-indent: 3.0.0
-      svelte: 3.42.4
+      svelte: 3.49.0
       typescript: 4.7.4
     dev: true
 
-  /svelte/3.42.4:
-    resolution: {integrity: sha512-DqC0AmDdBrrbIA+Kzl3yhBb6qCn4vZOAfxye2pTnIpinLegyagC5sLI8Pe9GPlXu9VpHBXIwpDDedpMfu++epA==}
+  /svelte/3.49.0:
+    resolution: {integrity: sha512-+lmjic1pApJWDfPCpUUTc1m8azDqYCG1JN9YEngrx/hUyIcFJo6VZhj0A1Ai0wqoHcEIuQy+e9tk+4uDgdtsFA==}
     engines: {node: '>= 8'}
 
-  /svelte2tsx/0.1.193_7jj4gkxb4gwdrag45xr5l5ta6q:
+  /svelte2tsx/0.1.193_uslzfc62di2n2otc2tvfklnwji:
     resolution: {integrity: sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==}
     peerDependencies:
       svelte: ^3.24
@@ -18807,7 +18814,7 @@ packages:
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
-      svelte: 3.42.4
+      svelte: 3.49.0
       typescript: 4.7.4
     dev: false
 
@@ -20042,6 +20049,11 @@ packages:
   /yaml/1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
+
+  /yaml/2.1.1:
+    resolution: {integrity: sha512-o96x3OPo8GjWeSLF+wOAbrPfhFOGY0W00GNaxCDv+9hkcDJEnev1yh8S7pgHF0ik6zc8sQLuL8hjHjJULZp8bw==}
+    engines: {node: '>= 14'}
+    dev: true
 
   /yamljs/0.3.0:
     resolution: {integrity: sha512-C/FsVVhht4iPQYXOInoxUM/1ELSf9EsgKH34FofQOp6hwCPrW4vG4w5++TED3xRUo8gD7l0P1J1dLlDYzODsTQ==}

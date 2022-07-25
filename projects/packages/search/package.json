@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-search",
-	"version": "0.16.1-alpha",
+	"version": "0.16.2-alpha",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",
 	"directories": {
@@ -85,7 +85,7 @@
 		"autoprefixer": "10.4.2",
 		"babel-jest": "28.1.0",
 		"concurrently": "6.4.0",
-		"core-js": "3.22.4",
+		"core-js": "3.23.5",
 		"jest": "28.1.0",
 		"jest-environment-jsdom": "28.1.0",
 		"postcss": "8.4.14",

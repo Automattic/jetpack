@@ -54,9 +54,9 @@
 		"prettier-plugin-svelte": "2.4.0",
 		"semver": "7.3.5",
 		"sort-package-json": "1.50.0",
-		"svelte": "3.42.4",
+		"svelte": "3.49.0",
 		"typescript": "4.7.4",
-		"yaml": "1.10.2"
+		"yaml": "2.1.1"
 	},
 	"engines": {
 		"node": "^16.13.2",

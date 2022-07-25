@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Add last_updated API field to the sites endpoint

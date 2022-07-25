@@ -46,6 +46,10 @@ export default function VideoPressPlayer( {
 	const ref = useRef();
 	const { maxWidth, caption, videoRatio } = attributes;
 
+	// Pick up iFrame and sandbox window references.
+	const iFrameDomReference = ref?.current?.querySelector( 'iframe' );
+	const sandboxWindow = iFrameDomReference?.contentWindow;
+
 	/*
 	 * Temporary height is used to set the height of the video
 	 * as soon as the block is rendered into the canvas,
@@ -90,11 +94,25 @@ export default function VideoPressPlayer( {
 		setIsVideoLoaded( detail?.state === 'loaded' );
 	}, [] );
 
+	// set video is loaded as False, when html is not available.
 	useEffect( () => {
-		window.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+		if ( html ) {
+			return;
+		}
+
+		setIsVideoLoaded( false );
+	}, [ html ] );
+
+	useEffect( () => {
+		if ( ! sandboxWindow ) {
+			return;
+		}
+
+		sandboxWindow.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+
 		return () =>
-			window.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler ] );
+			sandboxWindow?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+	}, [ onVideoLoadingStateHandler, sandboxWindow, html ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
