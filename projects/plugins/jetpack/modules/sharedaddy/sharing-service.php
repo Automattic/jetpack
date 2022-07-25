@@ -947,6 +947,12 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
+	// Ensure we don't display sharing buttons on post excerpts that are hooked inside the post content
+	if ( in_array( 'the_excerpt', (array) $wp_current_filter, true ) &&
+		in_array( 'the_content', (array) $wp_current_filter, true ) ) {
+		return $text;
+	}
+
 	// Don't allow flair to be added to the_content more than once (prevent infinite loops).
 	$done = false;
 	foreach ( $wp_current_filter as $filter ) {

@@ -50,7 +50,7 @@ jobs:
     token: ${{ github.token }}
 ```
 
-If you want to limit the maximum amount of time spent waiting, use GitHub's [timeout-minutes](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes) on the step. If you want to continue if the timeout expires, use GitHub's [contniue-on-error](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepscontinue-on-error) on the step.
+If you want to limit the maximum amount of time spent waiting, use GitHub's [timeout-minutes](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes) on the step. If you want to continue if the timeout expires, use GitHub's [continue-on-error](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepscontinue-on-error) on the step.
 
 ## How?
 

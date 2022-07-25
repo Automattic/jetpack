@@ -10,16 +10,12 @@ import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 test.describe( 'Connection', () => {
 	test.beforeEach( async ( { page } ) => {
 		await prerequisitesBuilder( page )
+			.withCleanEnv()
 			.withLoggedIn( true )
 			.withWpComLoggedIn( true )
-			.withConnection( false )
 			.build();
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectJetpack();
-	} );
-
-	test.afterEach( async ( { page } ) => {
-		await prerequisitesBuilder( page ).withCleanEnv().build();
 	} );
 
 	test( 'Site only', async ( { page } ) => {
