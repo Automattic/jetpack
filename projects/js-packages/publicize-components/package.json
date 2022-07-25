@@ -19,7 +19,7 @@
 		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.16",
+		"@automattic/jetpack-components": "workspace:* || ^0.17",
 		"@automattic/jetpack-shared-extension-utils": "workspace:* || ^0.4",
 		"@wordpress/annotations": "2.12.0",
 		"@wordpress/components": "19.14.0",
