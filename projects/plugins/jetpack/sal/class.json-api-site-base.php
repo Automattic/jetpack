@@ -806,6 +806,22 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Returns a date/time string with the date the site was last updated, or a default date/time string otherwise.
+	 *
+	 * @return string
+	 **/
+	public function get_last_update_date() {
+		if ( function_exists( 'get_blog_details' ) ) {
+			$blog_details = get_blog_details();
+			if ( ! empty( $blog_details->last_updated ) ) {
+				return WPCOM_JSON_API_Date::format_date( $blog_details->last_updated );
+			}
+		}
+
+		return '0000-00-00T00:00:00+00:00';
+	}
+
+	/**
 	 * Returns an array including the current users relevant capabilities.
 	 *
 	 * @return array

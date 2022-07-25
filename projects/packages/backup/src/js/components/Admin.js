@@ -3,6 +3,7 @@ import {
 	AdminSection,
 	AdminSectionHero,
 	Container,
+	ContextualUpgradeTrigger,
 	Col,
 	getRedirectUrl,
 	PricingCard,
@@ -29,6 +30,9 @@ const Admin = () => {
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
 	const [ price, setPrice ] = useState( 0 );
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
+	const [ restores, setRestores ] = useState( [] );
+	// To be used on next iteration of review requests
+	const [ , setCurrentPurchases ] = useState( [] );
 	const { tracks } = useAnalytics();
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
@@ -45,6 +49,22 @@ const Admin = () => {
 	}, [ connectionStatus ] );
 
 	useEffect( () => {
+		apiFetch( { path: '/jetpack/v4/restores' } ).then(
+			res => {
+				setRestores( res );
+			},
+			() => {
+				setRestores( 'Failed to fetch restores' );
+			}
+		);
+		apiFetch( { path: '/jetpack/v4/site/current-purchases' } ).then(
+			res => {
+				setCurrentPurchases( res.data );
+			},
+			() => {
+				setCurrentPurchases( 'Failed to fetch current purchases' );
+			}
+		);
 		apiFetch( { path: '/jetpack/v4/backup-capabilities' } ).then(
 			res => {
 				setCapabilities( res.capabilities );
@@ -73,9 +93,28 @@ const Admin = () => {
 		return capabilities.includes( 'backup' );
 	};
 
-	const sendToCart = () => {
-		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
+	// Check if the site has a successful restore not older than 15 days
+	const hasRecentSuccesfulRestore = () => {
+		if ( restores[ 0 ] && restores[ 0 ].status === 'finished' ) {
+			// Number of days we consider the restore recent
+			const maxDays = 15;
+			const daysDifference = ( new Date() - Date.parse( restores[ 0 ].when ) ) / 86400000;
+			if ( daysDifference < maxDays ) {
+				return true;
+			}
+		}
+		return false;
 	};
+
+	const sendToCart = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_plugin_upgrade_click', { site: domain } );
+		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
+	}, [ tracks, domain ] );
+
+	const sendToReview = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_new_review_click' );
+		window.location.href = getRedirectUrl( 'jetpack-backup-new-review' );
+	}, [ tracks ] );
 
 	const trackLearnMoreClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_learn_more_click' );
@@ -89,7 +128,7 @@ const Admin = () => {
 		tracks.recordEvent( 'jetpack_backup_see_site_activity_click', { site: domain } );
 	}, [ tracks, domain ] );
 
-	const renderNoBackupCapabilities = () => {
+	const NoBackupCapabilities = () => {
 		const basicInfoText = __( '14 day money back guarantee.', 'jetpack-backup-pkg' );
 		const introductoryInfoText = __(
 			'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
@@ -131,7 +170,26 @@ const Admin = () => {
 		);
 	};
 
-	const renderLoadedState = () => {
+	const ReviewMessage = () => (
+		<Col lg={ 6 } md={ 4 }>
+			<ContextualUpgradeTrigger
+				description={ 'Was it easy to restore your site?' }
+				cta={ createInterpolateElement(
+					__(
+						'<strong>Please leave a review and help us spread the word!</strong>',
+						'jetpack-backup-pkg'
+					),
+					{
+						strong: <strong></strong>,
+					}
+				) }
+				// eslint-disable-next-line react/jsx-no-bind
+				onClick={ sendToReview }
+			/>
+		</Col>
+	);
+
+	const LoadedState = () => {
 		if (
 			! connectionLoaded ||
 			! connectionStatus.isUserConnected ||
@@ -180,11 +238,11 @@ const Admin = () => {
 			);
 		}
 
-		return renderNoBackupCapabilities();
+		return <NoBackupCapabilities />;
 	};
 
 	// Renders additional segments under the jp-hero area condition on having a backup plan
-	const renderBackupSegments = () => {
+	const BackupSegments = () => {
 		return (
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col lg={ 6 } md={ 4 }>
@@ -244,15 +302,18 @@ const Admin = () => {
 						</p>
 					) }
 				</Col>
+				{ hasRecentSuccesfulRestore() && <ReviewMessage /> }
 			</Container>
 		);
 	};
 
-	const renderContent = () => {
+	const Content = () => {
 		return (
 			<div className="content">
-				<AdminSectionHero>{ renderLoadedState() }</AdminSectionHero>
-				<AdminSection>{ isFullyConnected() && renderBackupSegments() }</AdminSection>
+				<AdminSectionHero>
+					<LoadedState />
+				</AdminSectionHero>
+				<AdminSection>{ isFullyConnected() && <BackupSegments /> }</AdminSection>
 			</div>
 		);
 	};
@@ -265,7 +326,7 @@ const Admin = () => {
 			a8cLogoHref="https://www.jetpack.com"
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
-				{ renderContent() }
+				<Content />
 			</div>
 		</AdminPage>
 	);
