@@ -21,6 +21,14 @@ use WP_REST_Server;
  */
 class REST_Controller {
 	/**
+	 * Namespace for the REST API.
+	 *
+	 * This is overriden with value `wpcom-orgin/jetpack/v4` for WPCOM.
+	 *
+	 * @var string
+	 */
+	public static $namespace = 'jetpack/v4';
+	/**
 	 * Whether it's run on WPCOM.
 	 *
 	 * @var bool
@@ -54,8 +62,20 @@ class REST_Controller {
 	 * @static
 	 */
 	public function register_rest_routes() {
+		$this->register_common_rest_routes();
+		if ( ! Helper::is_wpcom() ) {
+			$this->register_jetpack_only_rest_routes();
+		} else {
+			$this->register_wpcom_only_rest_routes();
+		}
+	}
+
+	/**
+	 * Routes both existing in Jetpack and WPCOM simple sites.
+	 */
+	protected function register_common_rest_routes() {
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/plan',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -64,7 +84,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/settings',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -73,7 +93,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/settings',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -82,7 +102,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -91,16 +111,22 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
-			'/search',
+			static::$namespace,
+			'/search/pricing',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_search_results' ),
+				'callback'            => array( $this, 'product_pricing' ),
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
+	}
+
+	/**
+	 * Routes only existing in Jetpack.
+	 */
+	protected function register_jetpack_only_rest_routes() {
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/plan/activate',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -109,7 +135,7 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
+			static::$namespace,
 			'/search/plan/deactivate',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -118,14 +144,23 @@ class REST_Controller {
 			)
 		);
 		register_rest_route(
-			'jetpack/v4',
-			'/search/pricing',
+			static::$namespace,
+			'/search',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'product_pricing' ),
+				'callback'            => array( $this, 'get_search_results' ),
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
+	}
+
+	/**
+	 * Routes only existing in WPCOM.
+	 *
+	 * We currently don't have any.
+	 */
+	protected function register_wpcom_only_rest_routes() {
+		return true;
 	}
 
 	/**
