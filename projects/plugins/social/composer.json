@@ -18,7 +18,7 @@
 		"automattic/jetpack-status": "1.14.x-dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1",
+		"automattic/jetpack-changelogger": "^3.2",
 		"automattic/wordbless": "0.3.1",
 		"yoast/phpunit-polyfills": "1.0.3",
 		"brain/monkey": "2.6.1"
