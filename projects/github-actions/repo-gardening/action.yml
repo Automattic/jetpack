@@ -8,6 +8,10 @@ inputs:
     description: "GitHub access token"
     required: true
     default: ${{ github.token }}
+  reply_to_customers_threshold:
+    description: "Minimum of support references needed to trigger a reminder to batch-reply to customers. Default to 10."
+    required: false
+    default: "10"
   slack_token:
     description: "Slack Bot access token"
     required: false

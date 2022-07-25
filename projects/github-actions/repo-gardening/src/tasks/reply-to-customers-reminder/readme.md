@@ -8,7 +8,7 @@ The Slack message is sent in the following conditions:
 
 - When the issue is closed.
 - The issue must have one of the following labels: `[Pri] High` , `[Pri] BLOCKER`.
-- The issue must have > 10 gathered support references.
+- The issue must have at least a certain number of gathered support references. That number can be customized via the `reply_to_customers_threshold` parameter, and defaults to 10.
 
 This task relies on 2 extra parameters, passed to the action: `slack_token` and `slack_he_triage_channel`.
 

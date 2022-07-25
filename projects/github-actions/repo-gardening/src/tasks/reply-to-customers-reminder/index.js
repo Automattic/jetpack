@@ -23,13 +23,16 @@ async function hasHighPriorityLabel( octokit, owner, repo, number ) {
 
 /**
  * Check if the issue has a comment with a list of support references,
- * and more than 10 support references listed there.
+ * and at least x support references listed there.
+ * (x is specified with reply_to_customers_threshold input, default to 10).
  * We only count the number of unanswered support references, since they're the ones we'll need to contact.
  *
  * @param {Array} issueComments - Array of all comments on that issue.
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasManySupportReferences( issueComments ) {
+	const referencesThreshhold = getInput( 'reply_to_customers_threshold' );
+
 	let isWidelySpreadIssue = false;
 	issueComments.map( comment => {
 		if (
@@ -38,7 +41,7 @@ async function hasManySupportReferences( issueComments ) {
 		) {
 			// Count the number of to-do items in the comment.
 			const countReferences = comment.body.split( '- [ ] ' ).length - 1;
-			if ( countReferences > 10 ) {
+			if ( countReferences >= parseInt( referencesThreshhold ) ) {
 				isWidelySpreadIssue = true;
 			}
 		}
@@ -145,12 +148,13 @@ async function replyToCustomersReminder( payload, octokit ) {
 	}
 
 	// Check if the issue has a comment with a list of support references,
-	// and more than 10 support references listed there.
+	// and more than a certain number of support references listed there
+	// (amount specified with reply_to_customers_threshold input).
 	const issueComments = await getComments( octokit, ownerLogin, repo, number );
 	const isWidelySpreadIssue = await hasManySupportReferences( issueComments );
 	if ( ! isWidelySpreadIssue ) {
 		debug(
-			`reply-to-customers-reminder: #${ number } has fewer than 10 support references. Aborting.`
+			`reply-to-customers-reminder: #${ number } does not have enough support references to trigger an alert. Aborting.`
 		);
 		return;
 	}
