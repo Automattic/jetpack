@@ -165,7 +165,7 @@ ${
 	full_name.match( /^Automattic\/(jetpack|zero-bs-crm|themes)$/i )
 		? `
 
-**Note**: Before you send follow-up replies, you'll want to make sure the fix has been deployed to all customers. Check the Pull Request that closed the issue to see when the fix will be deployed to customers.`
+Before you send follow-up replies, you'll want to make sure the fix has been deployed to all customers. Check the Pull Request that closed the issue to see when the fix will be deployed to customers.`
 		: ''
 }`;
 
