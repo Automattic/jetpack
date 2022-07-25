@@ -76,7 +76,8 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 
 	&:focus {
-		outline: auto 1px -webkit-focus-ring-color !important; /* this won't work without !important */
+		outline: 1px auto Highlight;
+		outline: 1px auto -webkit-focus-ring-color !important; /* this won't work without !important */
 	}
 }
 
