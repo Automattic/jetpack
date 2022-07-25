@@ -43,6 +43,12 @@ const JetpackProductCard = props => {
 		} );
 	}, [ productSlug ] );
 
+	const onDisclaimerClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_product_card_disclaimer_click', {
+			type: productSlug,
+		} );
+	}, [ productSlug ] );
+
 	const classes = classNames( {
 		'jp-product-card': true,
 		'jp-product-card--has-media': hasMedia,
@@ -96,7 +102,12 @@ const JetpackProductCard = props => {
 				{ disclaimer && (
 					<p className="jp-product-card__disclaimer">
 						{ `${ disclaimer.text } ` }
-						<a href={ disclaimer.url } target="_blank" rel="noreferrer">
+						<a
+							onClick={ onDisclaimerClick }
+							href={ disclaimer.url }
+							target="_blank"
+							rel="noreferrer"
+						>
 							{ disclaimer.link_text }
 						</a>
 					</p>
