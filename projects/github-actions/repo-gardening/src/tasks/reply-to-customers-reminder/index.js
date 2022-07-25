@@ -59,8 +59,18 @@ async function hasManySupportReferences( issueComments ) {
  * @returns {Object} Object containing the slack message and its formatting.
  */
 function formatSlackMessage( payload, channel, message ) {
-	const { issue } = payload;
+	const { issue, repository } = payload;
 	const { html_url, title } = issue;
+
+	let dris = '@bug_herders';
+	switch ( repository.full_name ) {
+		case 'Automattic/jetpack':
+			dris = '@jpop-da';
+			break;
+		case 'Automattic/zero-bs-crm':
+			dris = '@heysatellite';
+			break;
+	}
 
 	return {
 		channel,
@@ -79,7 +89,7 @@ function formatSlackMessage( payload, channel, message ) {
 				type: 'section',
 				text: {
 					type: 'mrkdwn',
-					text: 'cc @bug_herders',
+					text: `cc ${ dris }`,
 				},
 			},
 			{
