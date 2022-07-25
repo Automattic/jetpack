@@ -76,10 +76,7 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 
 	&:focus {
-		box-shadow: 0 0 1px 3px rgba( 59, 153, 252, 0.7 );
-		box-shadow: 0 0 0 3px activeborder; /* for Chrome */
-		box-shadow: 0 0 0 3px -moz-mac-focusring; /* for Firefox */
-		outline: auto 0 -webkit-focus-ring-color; /* Webkit, Safari */
+		outline: auto 1px -webkit-focus-ring-color !important; /* this won't work without !important */
 	}
 }
 
