@@ -119,7 +119,7 @@ function formatSlackMessage( payload, channel, message ) {
 async function replyToCustomersReminder( payload, octokit ) {
 	const { issue, repository } = payload;
 	const { number } = issue;
-	const { owner, name: repo } = repository;
+	const { full_name, owner, name: repo } = repository;
 	const ownerLogin = owner.login;
 
 	const slackToken = getInput( 'slack_token' );
@@ -160,8 +160,15 @@ async function replyToCustomersReminder( payload, octokit ) {
 	}
 
 	debug( `reply-to-customers-reminder: Sending in Slack message about #${ number }.` );
-	const message =
-		'This high priority issue was recently closed. It is now time to send follow-up replies to all impacted customers.';
+	const message = `This high priority issue was recently closed. It is now time to send follow-up replies to all impacted customers.
+${
+	full_name.match( /^Automattic\/(jetpack|zero-bs-crm|themes)$/i )
+		? `
+
+**Note**: Before you send follow-up replies, you'll want to make sure the fix has been deployed to all customers. Check the Pull Request that closed the issue to see when the fix will be deployed to customers.`
+		: ''
+}`;
+
 	const slackMessageFormat = formatSlackMessage( payload, channel, message );
 	await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 }
