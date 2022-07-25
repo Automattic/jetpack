@@ -18,10 +18,10 @@ const preview = useSelect(
 const { html } = preview;
 ```
 
-Once the code gets, it's rendered via creating a Sandbox instance where the code to process is defined via the HTML property mentioned above:
+Once the code gets, it's rendered via creating a Sandbox instance where the code to process is defined via the `html` property mentioned above:
 
 ```jsx
-<Sandbox html={ videoPlayerHtml } />
+<Sandbox html={ html } />
 ```
 
 The most relevant thing to raise up here is the fact the video player is rendered into two nested iFrames levels. The <Sandbox /> component does one, and the other is provided by the VideoPress player API.
@@ -48,7 +48,7 @@ Funnily, it happens in the our scenario of the block editor: It renders the raw 
 </div>
 ```
 
-### Solution
+### The Bridge
 
 This bridge script listens and re-emits the events, communicating the VideoPress player with the VideoPress Block. It's sent to the child iFrame through the `scripts` property of the Sandbox component, which takes over to run it in that context.
 
@@ -108,6 +108,23 @@ The bridge triggers the following custom events:
 #### vpBlockActionPause
 
 #### vpBlockActionPause
+
+### Actions
+
+```es6
+// Pause the video after ten seconds.
+setTimeout( () => {
+	iFrameDom?.contentWindow?.postMessage( {
+		event: 'vpBlockActionPause',
+	} );
+}, 10000 );
+```
+
+#### vpBlockActionPlay
+
+#### vpBlockActionPause
+
+#### vpBlockActionSetCurrentTim
 
 ## Debug
 

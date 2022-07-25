@@ -1,5 +1,4 @@
-import { Text } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
+import { Text, Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -62,25 +61,37 @@ const ActionButton = ( {
 			);
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 			return (
-				<Button { ...buttonState } onClick={ onAdd }>
+				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
 					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
 			return (
-				<Button { ...buttonState } variant="secondary" onClick={ onManage }>
+				<Button
+					{ ...buttonState }
+					size="small"
+					weight="regular"
+					variant="secondary"
+					onClick={ onManage }
+				>
 					{ __( 'Manage', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.ERROR:
 			return (
-				<Button { ...buttonState } onClick={ onFixConnection }>
+				<Button { ...buttonState } size="small" weight="regular" onClick={ onFixConnection }>
 					{ __( 'Fix connection', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.INACTIVE:
 			return (
-				<Button { ...buttonState } variant="secondary" onClick={ onActivate }>
+				<Button
+					{ ...buttonState }
+					size="small"
+					weight="regular"
+					variant="secondary"
+					onClick={ onActivate }
+				>
 					{ __( 'Activate', 'jetpack-my-jetpack' ) }
 				</Button>
 			);

@@ -55,7 +55,7 @@ const SearchBox = props => {
 						/>
 					) }
 
-					<button className="screen-reader-text assistive-text">
+					<button className="screen-reader-text assistive-text" tabIndex="-1">
 						{ __( 'Search', 'jetpack-search-pkg' ) }
 					</button>
 				</label>

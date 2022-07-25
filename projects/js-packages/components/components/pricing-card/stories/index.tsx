@@ -1,7 +1,6 @@
-/* eslint-disable react/react-in-jsx-scope */
 import { action } from '@storybook/addon-actions';
-import React from 'react';
-import PricingCard from '../index.jsx';
+import PricingCard from '../index';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Pricing Card',
@@ -10,10 +9,10 @@ export default {
 	argTypes: {
 		onCtaClick: { action: 'clicked' },
 	},
-};
+} as ComponentMeta< typeof PricingCard >;
 
 // Export additional stories using pre-defined values
-const Template = args => <PricingCard { ...args } />;
+const Template: ComponentStory< typeof PricingCard > = args => <PricingCard { ...args } />;
 
 const DefaultArgs = {
 	title: 'Jetpack Backup',

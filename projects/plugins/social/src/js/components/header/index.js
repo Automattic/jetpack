@@ -3,7 +3,6 @@ import {
 	Col,
 	H3,
 	Text,
-	Spinner,
 	SocialIcon,
 	getUserLocale,
 } from '@automattic/jetpack-components';
@@ -11,6 +10,7 @@ import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, edit, lifesaver } from '@wordpress/icons';
 import { STORE_ID } from '../../store';
+import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
 
 const Actions = ( { actions } ) => (
@@ -25,14 +25,17 @@ const Actions = ( { actions } ) => (
 		) ) }
 	</div>
 );
+
 const Header = () => {
 	const sharesCount = useSelect(
 		select => select( STORE_ID ).getSharesCount()?.results?.total ?? null
 	);
+
 	const formatter = Intl.NumberFormat( getUserLocale(), {
 		notation: 'compact',
 		compactDisplay: 'short',
 	} );
+
 	const actions = [
 		{
 			link: '/wp-admin/post-new.php',
@@ -45,27 +48,25 @@ const Header = () => {
 			icon: lifesaver,
 		},
 	];
+
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 7 } className={ styles.container }>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
-				<H3 mt={ 2 }>{ __( 'Post everywhere at any time', 'jetpack-social' ) }</H3>
+				<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-social' ) }</H3>
 				<Actions actions={ actions } />
 			</Col>
-			<div className={ styles.sharesCard }>
-				<div className={ styles.socialIcon }>
-					<SocialIcon />
-				</div>
-				<div className={ styles.sharesCardHeading }>
-					{ __( 'Total shares this month', 'jetpack-social' ) }
-				</div>
-				<div className={ styles.sharesCount }>
-					{ null !== sharesCount ? (
-						formatter.format( sharesCount )
-					) : (
-						<Spinner color="#000" size={ 24 } />
-					) }
-				</div>
-			</div>
+			<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
+				<StatCards
+					stats={ [
+						{
+							icon: <SocialIcon />,
+							label: __( 'Total shares this month', 'jetpack-social' ),
+							loading: null === sharesCount,
+							value: formatter.format( sharesCount ),
+						},
+					] }
+				/>
+			</Col>
 		</Container>
 	);
 };

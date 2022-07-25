@@ -12,7 +12,7 @@
 		"automattic/jetpack-status": "^1.14"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1",
+		"automattic/jetpack-changelogger": "^3.2",
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/wordbless": "@dev"
 	},
