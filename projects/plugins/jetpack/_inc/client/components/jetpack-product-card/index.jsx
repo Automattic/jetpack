@@ -16,6 +16,7 @@ const JetpackProductCard = props => {
 		productSlug,
 		description,
 		features,
+		disclaimer,
 		currencyCode,
 		price,
 		discountedPrice,
@@ -91,6 +92,15 @@ const JetpackProductCard = props => {
 				<Button className={ buttonClasses } href={ checkoutUrl } onClick={ onClick }>
 					{ checkoutText }
 				</Button>
+
+				{ disclaimer && (
+					<p className="jp-product-card__disclaimer">
+						{ `${ disclaimer.text } ` }
+						<a href={ disclaimer.url } target="_blank" rel="noreferrer">
+							{ disclaimer.link_text }
+						</a>
+					</p>
+				) }
 			</div>
 
 			{ hasMedia && (
@@ -119,6 +129,7 @@ JetpackProductCard.propTypes = {
 	productSlug: PropTypes.string.isRequired,
 	description: PropTypes.string,
 	features: PropTypes.array,
+	disclaimer: PropTypes.object,
 	icon: PropTypes.element,
 	callToAction: PropTypes.string,
 	priority: PropTypes.string,
