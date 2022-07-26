@@ -63,7 +63,7 @@ function render_callback( $attributes ) {
 			break;
 	}
 
-	if ( '' === $attributes['url'] ) {
+	if ( empty( $attributes['url'] ) ) {
 		return '';
 	}
 
