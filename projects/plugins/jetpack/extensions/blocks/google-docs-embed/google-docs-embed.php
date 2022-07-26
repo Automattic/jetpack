@@ -89,7 +89,7 @@ function render_callback( $attributes ) {
 
 			$iframe_markup = '';
 
-			$amp_markup_message .= sprintf(
+			$amp_markup_message = sprintf(
 				/* translators: Placeholder is a google product, eg. Google Docs, Google Sheets, or Google Slides. */
 				__( 'Tap to open embedded document in %s.', 'jetpack' ),
 				esc_html( $type )
