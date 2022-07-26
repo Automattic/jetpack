@@ -733,12 +733,8 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		$allowed_pages       = array( 'admin.php', 'themes.php' );
-		$is_site_editor_page = in_array( $pagenow, $allowed_pages, true ) &&
-			isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-		// WP 5.9 puts the site editor in `site-editor.php` when Gutenberg is not active.
-		if ( 'site-editor.php' !== $pagenow && ! $is_site_editor_page ) {
+		$is_site_editor_page = 'site-editor.php' === $pagenow;
+		if ( ! $is_site_editor_page ) {
 			return;
 		}
 

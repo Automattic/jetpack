@@ -82,8 +82,9 @@ class Jetpack_Notifications {
 
 		// Do not show notifications in the Site Editor, which is always in fullscreen mode.
 		global $pagenow;
-		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page'] ) {
+
+		$is_site_editor_page = 'site-editor.php' === $pagenow;
+		if ( $is_site_editor_page ) {
 			return;
 		}
 
