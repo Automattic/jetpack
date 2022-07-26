@@ -241,7 +241,32 @@ class Jetpack_Backup {
 					'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 				)
 			);
+
+		// Get and set value of dismissed_backup_review_request option
+		register_rest_route(
+			'jetpack/v4',
+			'/site/dismissed-review-request',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_dismissed_backup_review_request',
+					'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+				),
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::set_dismissed_backup_review_request',
+					'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+					'args'                => array(
+						'dismissed_value' => array(
+							'required' => true,
+							'type'     => 'boolean',
+						),
+					),
+				),
+			)
+		);
 	}
+
 	/**
 	 * The backup calls should only occur from a signed in admin user
 	 *
@@ -367,18 +392,6 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Removes plugin from the connection manager
-	 * If it's the last plugin using the connection, the site will be disconnected.
-	 *
-	 * @access public
-	 * @static
-	 */
-	public static function plugin_deactivation() {
-		$manager = new Connection_Manager( 'jetpack-backup' );
-		$manager->remove_connection();
-	}
-
-	/**
 	 * Returns the result of `/sites/%d/purchases` endpoint call.
 	 *
 	 * @return array of site purchases.
@@ -413,4 +426,43 @@ class Jetpack_Backup {
 			)
 		);
 	}
+
+	/**
+	 * Returns the value of the dismissed_backup_review_request Jetack option.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool option value.
+	 */
+	public static function get_dismissed_backup_review_request() {
+		return rest_ensure_response(
+			\Jetpack_Options::get_option( 'dismissed_backup_review_request' )
+		);
+	}
+
+	/**
+	 * Set value of the dismissed_backup_review_request Jetack option.
+	 *
+	 * @access public
+	 * @static
+	 * @param bool $request used ot update value of the option.
+	 * @return void
+	 */
+	public static function set_dismissed_backup_review_request( $request ) {
+		\Jetpack_Options::update_option( 'dismissed_backup_review_request', $request['dismissed_value'] );
+	}
+
+	/**
+	 * Removes plugin from the connection manager
+	 * If it's the last plugin using the connection, the site will be disconnected.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function plugin_deactivation() {
+		$manager = new Connection_Manager( 'jetpack-backup' );
+		$manager->remove_connection();
+	}
+
 }
