@@ -14,6 +14,7 @@ import './style.scss';
 
 export const name = 'videopress-block';
 export const namespace = 'jetpack';
+export const blockType = `${ namespace }/${ name }`;
 
 export const title = __( 'VideoPress', 'jetpack' );
 export const description = __(
