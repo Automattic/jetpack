@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  */
 import attributes from './attributes';
 import { VideoPressIcon as icon } from './components/icons';
+import deprecatedV0 from './deprecated/v0';
 import edit from './edit';
 import save from './save';
 import './style.scss';
@@ -49,4 +50,5 @@ export const settings = {
 			},
 		],
 	},
+	deprecated: [ deprecatedV0 ],
 };
