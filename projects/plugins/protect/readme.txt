@@ -109,19 +109,11 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-### 1.0.1 - 2022-07-07
-#### Added
-- Added new two FAQ entries
-- Protect: record even just after the site is registered
-
+### 1.0.2 - 2022-07-22
 #### Changed
-- Moved normalization of the Protect status report data to the server side.
-- Renamed `master` references to `trunk`
-- Reorder JS imports for `import/order` eslint rule.
+- Updated package dependencies.
 
 #### Fixed
-- Fixed bug that would not display Core vulnerabilities.
-- Removed legacy code and documentation and added new docs on the debug helper plugin.
-- Fixed recommendation for plugins that don't have a fix yet
-- Protect: Fix visual issue of the Interstitial page
+- Fix protect admin toolbar icon display when Jetpack enabled and connected
+- Minor bug fix - added isset() checks for report data properties
 
