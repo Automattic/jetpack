@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Media Extractor: Add option to output host and host_reversed fields from extracted media
