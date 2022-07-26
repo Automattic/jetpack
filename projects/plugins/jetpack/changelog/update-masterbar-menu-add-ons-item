@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites.
