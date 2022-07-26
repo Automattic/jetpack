@@ -396,7 +396,26 @@ addFilter( 'blocks.registerBlockType', 'jetpack/videopress', addVideoPressSuppor
 // Register VideoPress block.
 registerJetpackBlock( videoPressBlockName, videoPressBlockSettings );
 
-function cleanBlockClassNameForVideoPressBlock( className, blockType ) {
+/**
+Cleans the default CSS class (wp-block-jetpack-videopress-block) of the VideoPress block. Something that is not possible to handle at the deprecated API level.
+Thus, and keep in mind, we can't rely on this CSS class anymore to apply the block styles.
+Let's keep using the original `wp-block-jetpack-videopress` classname.
+ *
+ * @param {string} className - block className
+ * @param {string} blockType - block type
+ * @returns {string} the Block className when it is not the VPBlock. Otherwise, returns an empty string.
+ */
+function tweakVPBlockClassName( className, blockType ) {
+	const { available: isVideoPressBlockAvailable } = getJetpackExtensionAvailability(
+		'videopress-block'
+	);
+
+	// Clean CSS classes when the extension is available...
+	if ( ! isVideoPressBlockAvailable ) {
+		return className;
+	}
+
+	// ... and it's the VideoPress block.
 	if ( blockType !== videoPressBlockType ) {
 		return className;
 	}
@@ -404,13 +423,35 @@ function cleanBlockClassNameForVideoPressBlock( className, blockType ) {
 	return '';
 }
 
+/**
+ * Convert the core/video block into the new VideoPress block.
+ * This function should be bound to the
+ * `blocks.convertLegacyBlockNameAndAttributes` hook.
+ * By calling this function, the extended core/video block,
+ * AKA the first vesion of the VideoPress block,
+ * will be converted to the new VideoPress block.
+ *
+ * @param {Array}  hook     - function array parameters.
+ * @param {string} hook."0" - Block type
+ * @param {string} hook."1" - Block attributes
+ * @returns {Array} the hook function array parameters.
+ */
 function convertVideoPressBlockToCoreBlock( [ blockType, blockAttributes ] ) {
-	// Transform onlye core/video blocks to jetpack/videopress-block...
+	const { available: isVideoPressBlockAvailable } = getJetpackExtensionAvailability(
+		'videopress-block'
+	);
+
+	// Convert block only when extension is available...
+	if ( ! isVideoPressBlockAvailable ) {
+		return [ blockType, blockAttributes ];
+	}
+
+	// but also, only the core/video block...
 	if ( blockType !== 'core/video' ) {
 		return [ blockType, blockAttributes ];
 	}
 
-	// ... as long as the block has define the `guid` attribute.
+	// ... as long as the block has define the `guid` attribute (VideoPress)
 	const { guid } = blockAttributes;
 	if ( ! guid ) {
 		return [ blockType, blockAttributes ];
@@ -423,12 +464,11 @@ addFilter(
 	'blocks.convertLegacyBlockNameAndAttributes',
 	'jetpack/convert-core-video-block-to-videopress',
 	convertVideoPressBlockToCoreBlock,
-	10
+	0
 );
 
 addFilter(
 	'blocks.getBlockDefaultClassName',
 	'jetpack/clean-default-block-classname',
-	cleanBlockClassNameForVideoPressBlock,
-	20
+	tweakVPBlockClassName
 );
