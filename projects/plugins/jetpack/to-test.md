@@ -27,10 +27,10 @@ There have been a couple of improvements to the Slideshow block (preventing a ga
 Several improvements have been made to either the Form block or form submissions, so testing this out will help to make sure there are no additional bugs here. One fix is related to checkbox group option color [[#24932](https://github.com/Automattic/jetpack/pull/24932)], another related to preventing removal of the submit button [[#24838](https://github.com/Automattic/jetpack/pull/24838)]. Note that these can't be tested on WoA sites (Pressable is fine), aside from testing line breaks in form submissions [[#25040](https://github.com/Automattic/jetpack/pull/25040)] - only if your WoA test site has a form on it to test with in that case.
 
 - On a Jetpack connected site, create a new post and add a Form block.
-- Add a Checkbox group within the Form block (to do this, you can click on any of the form fields, then click on the toolbar additional options, and 'Insert After' ( or 'Insert Before'), then add a heckbox group with several items added).
+- Add a Checkbox Group within the Form block (to do this, you can click on any of the form fields, then click on the toolbar additional options, and 'Insert After' ( or 'Insert Before'), then add a Checkbox Group with several items added).
 - Change the text color in the Form block settings (to do this, you need to make sure the parent Form block is selected, instead of any of the form fields, then select Color -> Text from the sidebar).
 - Review the text color of the items in the Checkbox Group - the color set in the previous step should be applied correctly.
-- To test that the form block submit button cannot be removed, select the Button block witin the Form block and verify that the option to remove the block is not present (under the additional options in the toolbar - normally this would be the last item in the dropdown menu).
+- To test that the form block submit button cannot be removed, select the Button block within the Form block and verify that the option to remove the block is not present (under the additional options in the toolbar - normally this would be the last item in the dropdown menu).
 - If you had existing form blocks on your test site, verify that these changes have also applied to the relevant contact button blocks too.
 - Additionally, if you do have a form on your test site, verify that a submission including multiple line breaks respects those line breaks or new lines (you can check the 'Feedback' menu item in your wp-admin dashboard to view any submissions)
 
