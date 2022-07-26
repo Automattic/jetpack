@@ -206,7 +206,7 @@ export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
 
 export function scoreChangeModal( scores: SpeedScoresSet ) {
 	const changePercentage = getScoreMovementPercentage( scores );
-	if ( changePercentage > 0 ) {
+	if ( changePercentage > 5 ) {
 		return {
 			id: 'score-increase',
 			title: __( 'Your site got faster', 'jetpack-boost' ),
