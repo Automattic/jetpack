@@ -1,3 +1,4 @@
+import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const Preview = props => {
@@ -19,9 +20,9 @@ const Preview = props => {
 						{ __( 'This Google Document is private.', 'jetpack' ) }
 						<br />
 						<br />
-						<a href={ url } target="_blank" rel="noreferrer">
+						<ExternalLink href={ url }>
 							{ __( 'Click here to open this document.', 'jetpack' ) }
-						</a>
+						</ExternalLink>
 					</p>
 				</div>
 			) : (
@@ -29,7 +30,7 @@ const Preview = props => {
 					<iframe
 						src={ url }
 						allowFullScreen={ allowFullScreen }
-						title={ title } /* TODO: figure out something more accessible */
+						title={ title }
 						height="450"
 					></iframe>
 				</div>
