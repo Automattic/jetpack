@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Native block inserter: Only display blocks under a Jetpack heading if the host app is WordPress

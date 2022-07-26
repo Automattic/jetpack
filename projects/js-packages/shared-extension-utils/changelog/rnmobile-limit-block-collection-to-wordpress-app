@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a new utility function for native use. The function returns the namespace of the host app e.g. Jetpack or WordPress.
