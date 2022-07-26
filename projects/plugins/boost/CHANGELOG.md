@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2022-06-29
+### Fixed
+- General: Fix caching of purchased plan features to reduce calls to wpcom api
+
+## [1.5.0] - 2022-06-27
+### Added
+- Cloud CSS: Added support for generating Critical CSS in the cloud.
+- Critical CSS: Added an explanation for Console output during Critical CSS Generation.
+- General: Added an option to purchase a premium Jetpack Boost plan.
+- General: Added option to contact premium support for paid users.
+- Speed Scores: Added prompt for reaching out to support when the speed score decreases.
+
+### Changed
+- General: Remove soft disconnect.
+- General: Remove use of `pnpx` in preparation for pnpm 7.0.
+- General: Renamed hook `handle_theme_change` to `handle_environment_change`
+- General: Updated external links to use Jetpack Redirects.
+
+### Fixed
+- General: Clean up use of FILTER_SANITIZE_STRING as it is deprecated in PHP 8.1
+- Stability: Fix broken SQL query on uninstall.
+
 ## [1.4.2] - 2022-04-11
 ### Fixed
 - Fixed critical CSS generation failure while using a CDN to serve CSS
@@ -138,5 +160,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.1-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.3.0-beta...v1.3.1-beta
 [1.3.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.2.0...v1.3.0-beta
 [1.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.1.0...v1.2.0-beta
+[1.4.3-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.2...v1.4.3-beta
+[1.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.1...v1.5.0
 [1.4.2]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.0...v1.4.1

@@ -1,5 +1,6 @@
-const debug = require( '../../debug' );
-const getAssociatedPullRequest = require( '../../get-associated-pull-request' );
+const debug = require( '../../utils/debug' );
+const getAssociatedPullRequest = require( '../../utils/get-associated-pull-request' );
+const getComments = require( '../../utils/get-comments' );
 
 /* global GitHub, WebhookPayloadPush */
 
@@ -18,20 +19,15 @@ async function getMatticBotComment( octokit, owner, repo, number ) {
 
 	debug( `wpcom-commit-reminder: Looking for a comment from Matticbot on this PR.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
-		owner: owner.login,
-		repo,
-		issue_number: +number,
-	} ) ) {
-		response.data.map( comment => {
-			if (
-				comment.user.login === 'matticbot' &&
-				comment.body.includes( 'This PR has changes that must be merged to WordPress.com' )
-			) {
-				commentBody = comment.body;
-			}
-		} );
-	}
+	const comments = await getComments( octokit, owner.login, repo, number );
+	comments.map( comment => {
+		if (
+			comment.user.login === 'matticbot' &&
+			comment.body.includes( 'This PR has changes that must be merged to WordPress.com' )
+		) {
+			commentBody = comment.body;
+		}
+	} );
 
 	return commentBody;
 }
@@ -48,20 +44,15 @@ async function getMatticBotComment( octokit, owner, repo, number ) {
 async function hasReminderComment( octokit, owner, repo, number ) {
 	debug( `wpcom-commit-reminder: Looking for a previous comment from this task in our PR.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
-		owner: owner.login,
-		repo,
-		issue_number: +number,
-	} ) ) {
-		response.data.map( comment => {
-			if (
-				comment.user.login === 'github-actions[bot]' &&
-				comment.body.includes( 'Great news! One last step' )
-			) {
-				return true;
-			}
-		} );
-	}
+	const comments = await getComments( octokit, owner.login, repo, number );
+	comments.map( comment => {
+		if (
+			comment.user.login === 'github-actions[bot]' &&
+			comment.body.includes( 'Great news! One last step' )
+		) {
+			return true;
+		}
+	} );
 
 	return false;
 }
@@ -101,7 +92,7 @@ async function wpcomCommitReminder( payload, octokit ) {
 	// Build our comment body.
 	const comment = `
 Great news! One last step: head over to your WordPress.com diff, ${ diffId[ 0 ] }, and deploy it.
-Once you've done so, come back to this PR and add a comment with your changeset ID.
+Once you've done so, come back to this PR and add a comment with your SVN changeset ID (e.g. \`r12345-wpcom\`).
 
 **Thank you!**
 	`;

@@ -135,8 +135,11 @@ class Jetpack_Lazy_Images {
 	 * @return void
 	 */
 	public function setup_filters() {
-		// Do not lazy-load images in RSS feeds.
-		if ( is_feed() ) {
+		// Do not lazy-load images in RSS feeds or embeds.
+		if (
+			is_feed()
+			|| is_embed()
+		) {
 			return;
 		}
 
@@ -285,7 +288,7 @@ class Jetpack_Lazy_Images {
 		unset( $old_attributes['loading'] );
 
 		// If we've already processed the image don't process it again.
-		if ( isset( $old_attributes['data-lazy-src'] ) ) {
+		if ( self::has_image_been_processed( $old_attributes ) ) {
 			return sprintf( '<img %1$s>', self::build_attributes_string( $old_attributes ) );
 		}
 
@@ -307,6 +310,10 @@ class Jetpack_Lazy_Images {
 	 * @return array The updated image attributes array with lazy load attributes.
 	 */
 	public static function process_image_attributes( $attributes ) {
+		if ( self::has_image_been_processed( $attributes ) ) {
+			return $attributes;
+		}
+
 		if ( empty( $attributes['src'] ) ) {
 			return $attributes;
 		}
@@ -529,7 +536,7 @@ class Jetpack_Lazy_Images {
 	 *
 	 * See: https://github.com/Automattic/jetpack/issues/23553
 	 *
-	 * @since $$next-version$$
+	 * @since 2.1.18
 	 *
 	 * @param string|bool $value  The value to use for the loading attribute.
 	 * @param string      $image  The markup for the image.
@@ -542,5 +549,39 @@ class Jetpack_Lazy_Images {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Helper method for determining if image has been processed before or not.
+	 *
+	 * @since 2.1.19
+	 *
+	 * @param array $attributes The image attributes.
+	 *
+	 * @return boolean True if image has been processed before, false otherwise.
+	 */
+	public static function has_image_been_processed( $attributes ) {
+		$non_empty_attributes = array(
+			'data-lazy-src',
+			'data-lazy-srcset',
+			'data-lazy-sizes',
+		);
+
+		foreach ( $non_empty_attributes as $attribute ) {
+			if ( ! empty( $attributes[ $attribute ] ) ) {
+				return true;
+			}
+		}
+
+		if ( isset( $attributes['class'] ) && false !== strpos( $attributes['class'], 'jetpack-lazy-image' ) ) {
+			return true;
+		}
+
+		// If placeholder image is set, then we've already processed the image.
+		if ( isset( $attributes['srcset'] ) && self::get_placeholder_image() === $attributes['srcset'] ) {
+			return true;
+		}
+
+		return false;
 	}
 }

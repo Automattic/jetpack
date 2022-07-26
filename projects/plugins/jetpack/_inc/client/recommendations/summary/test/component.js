@@ -4,7 +4,6 @@ import * as recommendationsActions from 'state/recommendations/actions';
 import { render, screen, within } from 'test/test-utils';
 import { Summary as SummaryFeature } from '../index';
 import { buildInitialState } from './fixtures';
-import '@testing-library/jest-dom/extend-expect';
 
 describe( 'Recommendations – Summary', () => {
 	let updateRecommendationsStepStub;

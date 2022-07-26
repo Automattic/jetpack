@@ -26,6 +26,7 @@ export const updateJetpackSettings = settings => {
 		settings,
 	};
 };
+
 export default {
 	[ FETCH_JETPACK_SETTINGS ]: function () {
 		return apiFetch( { path: '/jetpack/v4/social/settings' } );

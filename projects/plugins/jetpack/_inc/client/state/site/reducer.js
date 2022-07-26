@@ -330,7 +330,7 @@ export function getActiveFeatures( state ) {
  * @param  {string}  featureId - The feature to check.
  * @returns {boolean} True if the feature is active. Otherwise, False.
  */
-export function hasActiveSiteFeature( state, featureId ) {
+export function siteHasFeature( state, featureId ) {
 	const siteFeatures = getActiveFeatures( state );
 
 	return siteFeatures && siteFeatures.indexOf( featureId ) >= 0;

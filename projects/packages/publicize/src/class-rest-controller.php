@@ -50,6 +50,16 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/publicize/shares-count',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_publicize_shares_count' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -83,11 +93,22 @@ class REST_Controller {
 	}
 
 	/**
+	 * Gets the publicize shares count for the site.
+	 *
+	 * GET `jetpack/v4/publicize/shares-count`
+	 */
+	public function get_publicize_shares_count() {
+		global $publicize;
+		$response = $publicize->get_publicize_shares_count( $this->get_blog_id() );
+		return rest_ensure_response( $response );
+	}
+
+	/**
 	 * Forward remote response to client with error handling.
 	 *
 	 * @param array|WP_Error $response - Response from WPCOM.
 	 */
-	protected function make_proper_response( $response ) {
+	public function make_proper_response( $response ) {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}

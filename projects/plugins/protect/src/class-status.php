@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Jetpack_Options;
 use WP_Error;
 
@@ -81,7 +83,10 @@ class Status {
 				'error_code'    => $status->get_error_code(),
 				'error_message' => $status->get_error_message(),
 			);
+		} else {
+			$status = self::normalize_report_data( $status );
 		}
+
 		self::$status = $status;
 		return $status;
 	}
@@ -208,12 +213,6 @@ class Status {
 
 		$api_url = sprintf( self::REST_API_BASE, $blog_id );
 
-		if ( defined( 'JETPACK_PROTECT_DEV__API_RESPONSE_TYPE' ) && is_string( JETPACK_PROTECT_DEV__API_RESPONSE_TYPE ) ) {
-			$api_url = add_query_arg( array( 'response_type' => JETPACK_PROTECT_DEV__API_RESPONSE_TYPE ), $api_url );
-		}
-		if ( defined( 'JETPACK_PROTECT_DEV__API_CORE_VULS' ) && is_int( JETPACK_PROTECT_DEV__API_CORE_VULS ) ) {
-			$api_url = add_query_arg( array( 'core_vuls' => JETPACK_PROTECT_DEV__API_CORE_VULS ), $api_url );
-		}
 		return $api_url;
 	}
 
@@ -292,6 +291,119 @@ class Status {
 	public static function delete_option() {
 		delete_option( self::OPTION_NAME );
 		delete_option( self::OPTION_TIMESTAMP_NAME );
+	}
+
+	/**
+	 * Prepare the report data for the UI
+	 *
+	 * @param string $report_data The report status report response.
+	 * @return object The normalized report data.
+	 */
+	private static function normalize_report_data( $report_data ) {
+		$installed_plugins    = Plugins_Installer::get_plugins();
+		$last_report_plugins  = isset( $report_data->plugins ) ? $report_data->plugins : new \stdClass();
+		$report_data->plugins = self::merge_installed_and_checked_lists( $installed_plugins, $last_report_plugins, array( 'type' => 'plugin' ) );
+
+		$installed_themes    = Sync_Functions::get_themes();
+		$last_report_themes  = isset( $report_data->themes ) ? $report_data->themes : new \stdClass();
+		$report_data->themes = self::merge_installed_and_checked_lists( $installed_themes, $last_report_themes, array( 'type' => 'theme' ) );
+
+		$report_data->core = self::normalize_core_information( isset( $report_data->core ) ? $report_data->core : new \stdClass() );
+
+		$all_items       = array_merge( $report_data->plugins, $report_data->themes, array( $report_data->core ) );
+		$unchecked_items = array_filter(
+			$all_items,
+			function ( $item ) {
+				return ! isset( $item->checked ) || ! $item->checked;
+			}
+		);
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$report_data->hasUncheckedItems = ! empty( $unchecked_items );
+
+		return $report_data;
+	}
+
+	/**
+	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
+	 *
+	 * @param array $installed The list of installed extensions, where each attribute key is the extension slug.
+	 * @param array $checked   The list of checked extensions.
+	 * @param array $append    Additional data to append to each result in the list.
+	 * @return array Normalized list of extensions.
+	 */
+	private static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
+		$new_list = array();
+		foreach ( $installed as $slug => $item ) {
+			if ( isset( $checked->{ $slug } ) && $checked->{ $slug }->version === $installed[ $slug ]['Version'] ) {
+				$new_list[] = (object) array_merge(
+					array(
+						'name'            => $installed[ $slug ]['Name'],
+						'version'         => $checked->{ $slug }->version,
+						'slug'            => $slug,
+						'vulnerabilities' => $checked->{ $slug }->vulnerabilities,
+						'checked'         => true,
+					),
+					$append
+				);
+			} else {
+				$new_list[] = (object) array_merge(
+					array(
+						'name'            => $installed[ $slug ]['Name'],
+						'version'         => $installed[ $slug ]['Version'],
+						'slug'            => $slug,
+						'vulnerabilities' => array(),
+						'checked'         => false,
+					),
+					$append
+				);
+			}
+		}
+		usort(
+			$new_list,
+			function ( $a, $b ) {
+				// sort primarily based on the presence of vulnerabilities
+				if ( ! empty( $a->vulnerabilities ) && empty( $b->vulnerabilities ) ) {
+					return -1;
+				}
+				if ( empty( $a->vulnerabilities ) && ! empty( $b->vulnerabilities ) ) {
+					return 1;
+				}
+				// sort secondarily on whether the item has been checked
+				if ( $a->checked && ! $b->checked ) {
+					return 1;
+				}
+				if ( ! $a->checked && $b->checked ) {
+					return -1;
+				}
+
+				return 0;
+			}
+		);
+		return $new_list;
+	}
+
+	/**
+	 * Check if the WordPress version that was checked matches the current installed version.
+	 *
+	 * @param object $core_check The object returned by Protect wpcom endpoint.
+	 * @return object The object representing the current status of core checks.
+	 */
+	private static function normalize_core_information( $core_check ) {
+		global $wp_version;
+
+		$core = new \stdClass();
+		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
+			$core       = $core_check;
+			$core->name = 'WordPress';
+			$core->type = 'core';
+		} else {
+			$core->version         = $wp_version;
+			$core->vulnerabilities = array();
+			$core->checked         = false;
+			$core->name            = 'WordPress';
+			$core->type            = 'core';
+		}
+		return $core;
 	}
 
 }

@@ -1,5 +1,4 @@
 import { render, queryByAttribute } from '@testing-library/react';
-import React from 'react';
 import RecordMeterBar, { RecordMeterBarProps } from '../index';
 
 const getRecordBarItems = ( container: HTMLElement ) => {
