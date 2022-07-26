@@ -50,7 +50,7 @@ jobs:
      - name: Setup Node
        uses: actions/setup-node@v3
         with:
-          node-version: lts
+          node-version: lts/*
 
      - name: Wait for prior instances of the workflow to finish
        uses: softprops/turnstyle@v1
