@@ -48,7 +48,6 @@ function render_callback( $attributes ) {
 	);
 
 	$url          = empty( $attributes['url'] ) ? '' : map_gsuite_url( $attributes['url'] );
-	$align        = empty( $attributes['align'] ) ? '' : $attributes['align'];
 	$aspect_ratio = empty( $attributes['aspectRatio'] ) ? '' : $attributes['aspectRatio'];
 
 	switch ( $attributes['variation'] ) {
@@ -63,10 +62,6 @@ function render_callback( $attributes ) {
 			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:presentation)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
 			break;
 	}
-
-	// The class name that affects alignment is called alignwide, alignfull, etc
-	$align        = $align ? " align$align" : '';
-	$aspect_ratio = $aspect_ratio ? " $aspect_ratio" : '';
 
 	if ( '' === $attributes['url'] ) {
 		return '';
@@ -111,7 +106,7 @@ function render_callback( $attributes ) {
 		}
 	}
 
-	$block_classes = Blocks::classes( FEATURE_NAME, $attributes );
+	$block_classes = Blocks::classes( FEATURE_NAME, $attributes, array( $aspect_ratio ) );
 
 	$html =
 		'<figure class="' . esc_attr( $block_classes ) . '">' .
