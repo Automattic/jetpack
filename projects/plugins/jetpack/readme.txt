@@ -242,19 +242,48 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.2-a.5 - 2022-07-19
+### 11.2-beta - 2022-07-26
 #### Enhancements
 - Blocks: enable Jetpack block collection for the native editor block inserter (on self hosted Jetpack sites).
 - Connection: make sure pre-existing settings are respected on plugin activation.
-- VideoPress: add UX improvements including fallback thumbnail replaced by loading element, and better error messaging (in Beta only).
+- Contact Form Block: add a lock to the contact form submit button.
+- Jetpack: VPBlock: emit events to window where bridge runs
+- Native block inserter: Only display blocks under a Jetpack heading if the host app is WordPress
+- Podcast Player: add new actions to make it possible for users to set up code that runs for podcast fetches.
+- VideoPress: add an overlay to VideoPress Block to improve the UX when selecting the video player.
+- VideoPress: add upload error message.
+- VideoPress: add UX improvements including fallback thumbnail replaced by loading element, and better error messaging (in Beta only). [#25088, #25064]
+- VideoPress: allow caption style attribute to be edited and applied.
+- VideoPress: improve VideoPress block layout markup and styles.
+- VideoPress: improve VideoPress block preview behavior. [#24890]
+- VideoPress Block (beta): add block transforms for the VideoPress block.
+- VideoPress Block: add enhancements such as an upload progress bar, improved UX, and limited preview attempts (available in Beta only). [#24953, #24891, #24963, #24897]
 
 #### Improved compatibility
 - Admin UI: add h1 page headings for better screen reader navigation.
 - Custom Post Types: change Nova functions to public to re-allow hooking.
+- Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites.
 
 #### Bug fixes
+- Admin menu: display the translations for the plan name
+- Comments: avoid PHP Notice when using Jetpack's Comment form feature owhen your site is no longer properly connected to WordPress.com.
+- Contact Form Block: prevent error notice when processing submission from 404 page.
+- Ensure that sharing buttons are not displayed for excerpts
+- Fix Jetpack redirect after registration
+- Fix support for allowed HTML tags in Subscribe block submit button
 - Form block: fix Checkbox Group option color.
+- Form block: preserve line breaks in form submissions.
+- Gathering Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.
 - Masterbar: fix All Posts dashboard redirect issue when switching between classic and default editor views.
+- Product Descriptions: fix search price on Search Product Description by accounting for sale coupons and ensuring the correct JP Search tier is shown.
+- Related Posts: avoid PHP warnings when visiting AMP post views.
+- Slideshow Block: Adds a bit of CSS to support align wide and align full
+- Slideshow Block: override container display to prevent a gap between slideshow and contents.
+- Stats: allow custom user role stats settings to be properly recognized and saved.
+- Stats: fix dashboard widget form name to allow form choices to be saved.
+- Subscriptions: format the number of subscribers displayed in the block editor's controls.
+- VideoPress: avoid PHP notices when inserting videos that miss some metadata.
+- VideoPress: fix bug when getting the video preview of the VideoPress block.
 
 --------
 

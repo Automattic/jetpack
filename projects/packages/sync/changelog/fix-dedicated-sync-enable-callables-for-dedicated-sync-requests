@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dedicated Sync: Enable sending of callables outside of admin context, since Dedicated Sync requests always work outside of admin scope.
