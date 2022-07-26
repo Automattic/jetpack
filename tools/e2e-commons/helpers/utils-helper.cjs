@@ -43,6 +43,7 @@ function execSyncShellCommand( cmd ) {
 
 async function resetWordpressInstall() {
 	const cmd = 'pnpm e2e-env reset';
+	await cancelPartnerPlan();
 	execSyncShellCommand( cmd );
 }
 
@@ -80,6 +81,13 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'w
 	return true;
 }
 
+async function cancelPartnerPlan() {
+	logger.step( `Cancelling partner plan` );
+	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
+	const cmd = `sh /usr/local/src/jetpack-monorepo/tools/partner-cancel.sh -- --partner_id=${ clientID } --partner_secret=${ clientSecret } --allow-root`;
+	await execContainerShellCommand( cmd );
+}
+
 /**
  * Runs wp cli command to activate jetpack module, also checks if the module is available in the list of active modules.
  *
@@ -94,13 +102,8 @@ async function activateModule( page, module ) {
 	const modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
 
 	if ( ! modulesList.includes( module ) ) {
-		throw new Error( `${ module } failed to activate` );
+		throw new Error( `Failed to activate module ${ module }!` );
 	}
-
-	// todo we shouldn't have page references in here. these methods could be called without a browser being opened
-	// eslint-disable-next-line playwright/no-wait-for-timeout
-	await page.waitForTimeout( 1000 );
-	await page.reload( { waitUntil: 'domcontentloaded' } );
 
 	return true;
 }
