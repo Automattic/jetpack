@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Fix subscriber count incorrect position when padding is enabled.
+Subscriptions Block: fix subscriber count display when padding dimension is added.
