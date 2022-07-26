@@ -3,7 +3,6 @@ import {
 	AdminSection,
 	AdminSectionHero,
 	Container,
-	ContextualUpgradeTrigger,
 	Col,
 	getRedirectUrl,
 	PricingCard,
@@ -17,6 +16,7 @@ import useAnalytics from '../hooks/useAnalytics';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
 import Backups from './Backups';
+import ReviewRequest from './review-request';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
 
@@ -172,7 +172,7 @@ const Admin = () => {
 
 	const ReviewMessage = () => (
 		<Col lg={ 6 } md={ 4 }>
-			<ContextualUpgradeTrigger
+			<ReviewRequest
 				description={ 'Was it easy to restore your site?' }
 				cta={ createInterpolateElement(
 					__(
