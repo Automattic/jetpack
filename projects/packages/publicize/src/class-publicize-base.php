@@ -1444,14 +1444,14 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Call the wpcom rest api to get the publicize shares count.
+	 * Call the WPCOM REST API to get the Publicize shares info.
 	 *
 	 * @param string $blog_id The blog_id.
 	 * @return array
 	 */
-	public function get_publicize_shares_count( $blog_id ) {
+	public function get_publicize_shares_info( $blog_id ) {
 		$response        = Client::wpcom_json_api_request_as_blog(
-			sprintf( 'sites/%d/shares-count', absint( $blog_id ) ),
+			sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
 			'2',
 			array(
 				'headers' => array( 'content-type' => 'application/json' ),
