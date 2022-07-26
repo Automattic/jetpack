@@ -13,7 +13,7 @@
 - Connection: fix Jetpack redirect after registration. [#25135]
 - Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites. [#25085]
 - Sharing: ensure that sharing buttons are not displayed for excerpts. [#24896]
-- Slideshow Block: add a bit of CSS to support align wide and align full. [#25107]
+- Slideshow Block: support wide and full alignment options. [#25107]
 - Subscribe block: fix support for allowed HTML tags in submit button. [#25114]
 - VideoPress: avoid PHP notices when inserting videos that miss some metadata. [#25129]
 
