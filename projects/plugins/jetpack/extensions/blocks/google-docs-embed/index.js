@@ -103,6 +103,7 @@ export const settings = {
 			description: GOOGLE_DOCUMENT.description,
 			icon: GOOGLE_DOCUMENT.icon,
 			attributes: { variation: 'google-docs' },
+			isActive: [ 'variation' ],
 		},
 		{
 			name: GOOGLE_SPREADSHEET.name,
@@ -111,6 +112,7 @@ export const settings = {
 			description: GOOGLE_SPREADSHEET.description,
 			icon: GOOGLE_SPREADSHEET.icon,
 			attributes: { variation: 'google-sheets' },
+			isActive: [ 'variation' ],
 		},
 		{
 			name: GOOGLE_SLIDE.name,
@@ -119,6 +121,7 @@ export const settings = {
 			description: GOOGLE_SLIDE.description,
 			icon: GOOGLE_SLIDE.icon,
 			attributes: { variation: 'google-slides' },
+			isActive: [ 'variation' ],
 		},
 	],
 	edit,
