@@ -31,6 +31,10 @@ import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 
 import './editor.scss';
 
+const { available: isVideoPressBlockExtensionAvailable } = getJetpackExtensionAvailability(
+	'videopress-block'
+);
+
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
 		const { name } = useBlockEditContext();
@@ -406,12 +410,8 @@ Let's keep using the original `wp-block-jetpack-videopress` classname.
  * @returns {string} the Block className when it is not the VPBlock. Otherwise, returns an empty string.
  */
 function tweakVPBlockClassName( className, blockType ) {
-	const { available: isVideoPressBlockAvailable } = getJetpackExtensionAvailability(
-		'videopress-block'
-	);
-
 	// Clean CSS classes when the extension is available...
-	if ( ! isVideoPressBlockAvailable ) {
+	if ( ! isVideoPressBlockExtensionAvailable ) {
 		return className;
 	}
 
@@ -437,12 +437,8 @@ function tweakVPBlockClassName( className, blockType ) {
  * @returns {Array} the hook function array parameters.
  */
 function convertVideoPressBlockToCoreBlock( [ blockType, blockAttributes ] ) {
-	const { available: isVideoPressBlockAvailable } = getJetpackExtensionAvailability(
-		'videopress-block'
-	);
-
 	// Convert block only when extension is available...
-	if ( ! isVideoPressBlockAvailable ) {
+	if ( ! isVideoPressBlockExtensionAvailable ) {
 		return [ blockType, blockAttributes ];
 	}
 
