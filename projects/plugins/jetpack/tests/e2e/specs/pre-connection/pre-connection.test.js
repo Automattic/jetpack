@@ -50,6 +50,6 @@ test.describe( 'Jetpack pre-connection', () => {
 		expect(
 			await jetpackPage.isConnectScreenVisible(),
 			'Connect screen should be visible'
-		).toBeFalsy();
+		).toBeTruthy();
 	} );
 } );
