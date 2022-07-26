@@ -123,5 +123,5 @@ export const settings = {
 	],
 	edit,
 	save,
-	transforms: transforms( name ),
+	transforms: transforms( `jetpack/${ name }` ),
 };
