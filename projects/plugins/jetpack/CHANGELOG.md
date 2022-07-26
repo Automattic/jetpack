@@ -4,38 +4,32 @@
 
 ## 11.2-beta - 2022-07-26
 ### Enhancements
-- Jetpack: VPBlock: emit events to window where bridge runs [#25148]
-- Native block inserter: Only display blocks under a Jetpack heading if the host app is WordPress [#25155]
+- Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress. [#25155]
 - VideoPress Block (beta): add block transforms for the VideoPress block. [#25154]
 
-### Improved compatibility
-- Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites. [#25085]
-
 ### Bug fixes
-- Admin menu: display the translations for the plan name [#25169]
-- Comments: avoid PHP Notice when using Jetpack's Comment form feature owhen your site is no longer properly connected to WordPress.com. [#25127]
-- Ensure that sharing buttons are not displayed for excerpts [#24896]
-- Fix Jetpack redirect after registration [#25135]
-- Fix support for allowed HTML tags in Subscribe block submit button [#25114]
-- Slideshow Block: Adds a bit of CSS to support align wide and align full [#25107]
+- Admin menu: display the translations for the plan name. [#25169]
+- Comments: avoid PHP Notice when using Jetpack's Comment form feature when your site is no longer properly connected to WordPress.com. [#25127]
+- Connection: fix Jetpack redirect after registration. [#25135]
+- Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites. [#25085]
+- Sharing: ensure that sharing buttons are not displayed for excerpts. [#24896]
+- Slideshow Block: add a bit of CSS to support align wide and align full. [#25107]
+- Subscribe block: fix support for allowed HTML tags in submit button. [#25114]
 - VideoPress: avoid PHP notices when inserting videos that miss some metadata. [#25129]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add last_updated API field to the sites endpoint [#25116]
-- Cleanup old videopress player code (D75134-code) [#23384]
-- E2E tests: cancel partner plan when resetting test environment [#25264]
-- Init 11.2-a.6 cycle [#25126]
-- Jetpack 11.2-a.5 changelog editorial [#25128]
-- Publicize: Remove folder from modules [#25049]
-- Search: remove Calypso search page link in admin menu for simple sites [#25149]
-- Update analytics [#25257]
+- Add last_updated API field to the sites endpoint. [#25116]
+- Cleanup old videopress player code (D75134-code). [#23384]
+- E2E tests: cancel partner plan when resetting test environment. [#25264]
+- Init 11.2-a.6 cycle. [#25126]
+- Jetpack 11.2-a.5 changelog editorial. [#25128]
+- Publicize: Remove folder from modules. [#25049]
+- Search: remove Calypso search page link in admin menu for simple sites. [#25149]
+- Update analytics. [#25257]
 - Updated package dependencies. [#24929]
-- Updated package dependencies. [#25140]
-- Updated package dependencies. [#25147]
-- Updated package dependencies. [#25155]
-- Updated package dependencies. [#25158]
 - Updating composer.lock. [#25142]
-- WordPress.com REST API: Remove default for 'dont_change_homepage' in the '/sites/%s/themes/mine' endpoint. [#25141]
+- VideoPress block (beta): under the hood improvements such as emit events to window where bridge runs. [#25148]
+- WordPress.com REST API: remove default for 'dont_change_homepage' in the '/sites/%s/themes/mine' endpoint. [#25141]
 
 ## 11.2-a.5 - 2022-07-19
 ### Enhancements
