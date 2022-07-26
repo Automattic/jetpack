@@ -1,7 +1,5 @@
 import { render } from '@testing-library/react';
-import React from 'react';
 import Spinner from '../index';
-import '@testing-library/jest-dom';
 
 describe( 'Spinner', () => {
 	const testProps = {

@@ -2,12 +2,21 @@ export default {
 	autoplay: {
 		type: 'boolean',
 	},
+	caption: {
+		type: 'string',
+		source: 'html',
+		selector: 'figcaption',
+	},
 	controls: {
 		type: 'boolean',
 		default: true,
 	},
 	loop: {
 		type: 'boolean',
+	},
+	maxWidth: {
+		type: 'string',
+		default: '100%',
 	},
 	muted: {
 		type: 'boolean',
@@ -44,9 +53,14 @@ export default {
 	src: {
 		type: 'string',
 	},
-
 	cacheHtml: {
 		type: 'string',
 		default: '',
+	},
+	poster: {
+		type: 'string',
+	},
+	videoRatio: {
+		type: 'number',
 	},
 };

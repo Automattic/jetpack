@@ -10,7 +10,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Tracking;
 
 /**
  * Contains utilities related to the Jetpack Recommendations.
@@ -326,10 +325,8 @@ class Jetpack_Recommendations {
 
 		$conditional_recommendations = Jetpack_Options::get_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, array() );
 		if ( ! in_array( $recommendation_name, $conditional_recommendations, true ) ) {
-			array_push( $conditional_recommendations, $recommendation_name );
+			$conditional_recommendations[] = $recommendation_name;
 			Jetpack_Options::update_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, $conditional_recommendations );
-			$tracking = new Tracking();
-			$tracking->record_user_event( 'recommendations_conditional_recommendation_enabled', array( 'feature' => $recommendation_name ) );
 		}
 	}
 

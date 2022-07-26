@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Instant Search: prevent hidden submit button appearing on focus

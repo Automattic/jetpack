@@ -11,13 +11,14 @@ module.exports = {
 			require.resolve( 'babel-jest' ),
 			{
 				presets: [
-					require.resolve( '@babel/preset-react' ),
+					[ require.resolve( '@babel/preset-react' ), { runtime: 'automatic' } ],
 					require.resolve( '@babel/preset-typescript' ),
 				],
 			},
 		],
 	},
 	testMatch: [
+		// Note: Keep the patterns here in sync with tools/js-tools/eslintrc/base.js.
 		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',
 		'<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
 		'<rootDir>/**/test/*.[jt]s?(x)',
@@ -29,5 +30,6 @@ module.exports = {
 	testPathIgnorePatterns: [ '/node_modules/', '<rootDir>/vendor/', '<rootDir>/jetpack_vendor/' ],
 	setupFiles: [ path.join( __dirname, 'setup-globals.js' ) ],
 	setupFilesAfterEnv: [ path.join( __dirname, 'setup-after-env.js' ) ],
+	extensionsToTreatAsEsm: [ '.jsx', '.ts', '.tsx' ],
 	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
 };

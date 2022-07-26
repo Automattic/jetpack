@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Jetpack Sync: Add Sync lock related info in Sync debug details.

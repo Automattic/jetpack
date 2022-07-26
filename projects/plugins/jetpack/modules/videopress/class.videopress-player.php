@@ -339,7 +339,10 @@ class VideoPress_Player {
 			$html .= ' lang="' . esc_attr( $this->video->language ) . '"';
 		}
 		$html .= '>';
-		if ( ! isset( $this->options['freedom'] ) || $this->options['freedom'] === false ) {
+		if (
+			( ! isset( $this->options['freedom'] ) || $this->options['freedom'] === false )
+			&& isset( $this->video->videos->mp4 )
+		) {
 			$mp4 = $this->video->videos->mp4->url;
 			if ( ! empty( $mp4 ) ) {
 				$html .= '<source src="' . esc_url( $mp4 ) . '" type="video/mp4; codecs=&quot;' . esc_attr( $this->video->videos->mp4->codecs ) . '&quot;" />';

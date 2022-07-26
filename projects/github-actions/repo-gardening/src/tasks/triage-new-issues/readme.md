@@ -4,6 +4,7 @@ Add labels to newly opened issues to help triage the issue:
 
 1. Add a `[Plugin]` label if a specific label is impacted by the issue.
 2. Add a `[Pri]` label if we can determine the severity of the issue from the issue contents.
+3. Add a `[Platform]` label if the issue is specific to a platform.
 
 This is best used in combination with GitHub [issue forms](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository#creating-issue-forms).
 

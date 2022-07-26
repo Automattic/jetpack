@@ -1,7 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 import ActionButton from '../index';
-import '@testing-library/jest-dom';
 
 describe( 'ActionButton', () => {
 	const testProps = {

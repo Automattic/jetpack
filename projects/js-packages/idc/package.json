@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-idc",
-	"version": "0.10.15",
+	"version": "0.10.18-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -8,19 +8,19 @@
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-api": "workspace:* || ^0.13",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@automattic/jetpack-components": "workspace:* || ^0.16",
-		"@wordpress/base-styles": "4.5.0",
-		"@wordpress/components": "19.12.0",
-		"@wordpress/compose": "5.8.0",
-		"@wordpress/data": "6.10.0",
-		"@wordpress/element": "4.8.0",
-		"@wordpress/i18n": "4.10.0",
-		"@wordpress/url": "3.11.0",
+		"@automattic/jetpack-components": "workspace:* || ^0.17",
+		"@wordpress/base-styles": "4.6.0",
+		"@wordpress/components": "19.14.0",
+		"@wordpress/compose": "5.10.0",
+		"@wordpress/data": "6.12.0",
+		"@wordpress/element": "4.10.0",
+		"@wordpress/i18n": "4.12.0",
+		"@wordpress/url": "3.13.0",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
-		"@babel/core": "7.18.5",
-		"@babel/preset-react": "7.17.12",
+		"@babel/core": "7.18.6",
+		"@babel/preset-react": "7.18.6",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-test-renderer": "17.0.2"
@@ -40,7 +40,6 @@
 	"scripts": {},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

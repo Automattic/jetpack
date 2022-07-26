@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -446,7 +447,8 @@ abstract class Publicize_Base {
 				return false;
 			}
 
-			$profile_url_query = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
+			$profile_url_query      = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
+			$profile_url_query_args = null;
 			wp_parse_str( $profile_url_query, $profile_url_query_args );
 
 			$id = null;
@@ -1439,6 +1441,27 @@ abstract class Publicize_Base {
 		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
 		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
 		return Redirect::get_url( $source, array( 'site' => ( new Status() )->get_site_suffix() ) );
+	}
+
+	/**
+	 * Call the WPCOM REST API to get the Publicize shares info.
+	 *
+	 * @param string $blog_id The blog_id.
+	 * @return array
+	 */
+	public function get_publicize_shares_info( $blog_id ) {
+		$response        = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+		$rest_controller = new REST_Controller();
+		return $rest_controller->make_proper_response( $response );
 	}
 }
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Fetch share counter on the server side in Jetpack Social. To facilitate this, the call to wpcom has been moved into the Publicize_Base class.

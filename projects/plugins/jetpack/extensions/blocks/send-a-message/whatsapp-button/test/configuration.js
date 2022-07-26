@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import WhatsAppButtonConfiguration from '../configuration';
-import '@testing-library/jest-dom';
 
 const defaultAttributes = {
 	countryCode: 'us',
