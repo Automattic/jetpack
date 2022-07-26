@@ -36,7 +36,7 @@ const ToggleSection = () => {
 				{ connectionsAdminUrl && (
 					<Button
 						className={ styles.button }
-						variant="primary"
+						variant="secondary"
 						isExternalLink={ true }
 						href={ connectionsAdminUrl }
 						disabled={ isUpdating || ! isModuleEnabled }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: changed link used in ProductCard component to a button when the plugin is absent
