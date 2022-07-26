@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack: convert extended core/video block to the new VPBlock

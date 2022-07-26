@@ -32,7 +32,7 @@ import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './editor.scss';
 
 const { available: isVideoPressBlockExtensionAvailable } = getJetpackExtensionAvailability(
-	'videopress-block'
+	videoPressBlockName
 );
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
