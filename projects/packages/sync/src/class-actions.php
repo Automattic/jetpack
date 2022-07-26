@@ -102,10 +102,12 @@ class Actions {
 		}
 
 		// If dedicated Sync is enabled and this is a dedicated Sync request, no need to
-		// initialize Sync for cron jobs, set up listeners or set up a shut-down action
-		// for sending actions to WordPress.com.
+		// initialize Sync for cron jobs or set up a shut-down action for sending actions to WordPress.com.
 		// We only need to set up an init action for sending actions to WordPress.com and exit early.
+		// Note: We also need to initialize the listener so that callable and constant changes, eg actions that
+		// rely on 'jetpack_sync_before_send_queue_sync' are picked up and added to the queue if needed.
 		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
+			self::initialize_listener();
 			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
 			return;
 		}
