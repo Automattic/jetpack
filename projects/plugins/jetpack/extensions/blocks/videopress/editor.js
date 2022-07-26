@@ -22,7 +22,11 @@ import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
-import { name as videoPressBlockName, settings as videoPressBlockSettings } from './v6';
+import {
+	name as videoPressBlockName,
+	blockType as videoPressBlockType,
+	settings as videoPressBlockSettings,
+} from './v6';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 
 import './editor.scss';
@@ -266,6 +270,9 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 			src: {
 				type: 'string',
+				source: 'attribute',
+				selector: 'video',
+				attribute: 'src',
 			},
 			useAverageColor: {
 				type: 'boolean',
@@ -388,3 +395,40 @@ addFilter( 'blocks.registerBlockType', 'jetpack/videopress', addVideoPressSuppor
 
 // Register VideoPress block.
 registerJetpackBlock( videoPressBlockName, videoPressBlockSettings );
+
+function cleanBlockClassNameForVideoPressBlock( className, blockType ) {
+	if ( blockType !== videoPressBlockType ) {
+		return className;
+	}
+
+	return '';
+}
+
+function convertVideoPressBlockToCoreBlock( [ blockType, blockAttributes ] ) {
+	// Transform onlye core/video blocks to jetpack/videopress-block...
+	if ( blockType !== 'core/video' ) {
+		return [ blockType, blockAttributes ];
+	}
+
+	// ... as long as the block has define the `guid` attribute.
+	const { guid } = blockAttributes;
+	if ( ! guid ) {
+		return [ blockType, blockAttributes ];
+	}
+
+	return [ videoPressBlockType, blockAttributes ];
+}
+
+addFilter(
+	'blocks.convertLegacyBlockNameAndAttributes',
+	'jetpack/convert-core-video-block-to-videopress',
+	convertVideoPressBlockToCoreBlock,
+	10
+);
+
+addFilter(
+	'blocks.getBlockDefaultClassName',
+	'jetpack/clean-default-block-classname',
+	cleanBlockClassNameForVideoPressBlock,
+	20
+);
