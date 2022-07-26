@@ -20,7 +20,7 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:* || ^0.17",
-		"@automattic/jetpack-shared-extension-utils": "workspace:* || ^0.4",
+		"@automattic/jetpack-shared-extension-utils": "workspace:* || ^0.5",
 		"@wordpress/annotations": "2.12.0",
 		"@wordpress/components": "19.14.0",
 		"@wordpress/compose": "5.10.0",
