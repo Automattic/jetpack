@@ -24,7 +24,7 @@ There have been a couple of improvements to the Slideshow block (preventing a ga
 
 ### Form Block
 
-Several improvements have been made to either the Form block or form submissions, so testing this out will help to make sure there are no additional bugs here. One fix is related to checkbox group option color [[#24932](https://github.com/Automattic/jetpack/pull/24932)], another related to preventing removal of the submit button [[#24838](https://github.com/Automattic/jetpack/pull/24838)]. Note that these can't be tested on Atomic sites (Pressable is fine), aside from testing line breaks in form submissions [[#25040](https://github.com/Automattic/jetpack/pull/25040)] - only if your Atomic test site has a form on it to test with in that case.
+Several improvements have been made to either the Form block or form submissions, so testing this out will help to make sure there are no additional bugs here. One fix is related to checkbox group option color [[#24932](https://github.com/Automattic/jetpack/pull/24932)], another related to preventing removal of the submit button [[#24838](https://github.com/Automattic/jetpack/pull/24838)]. Note that these can't be tested on WoA sites (Pressable is fine), aside from testing line breaks in form submissions [[#25040](https://github.com/Automattic/jetpack/pull/25040)] - only if your WoA test site has a form on it to test with in that case.
 
 - On a Jetpack connected site, create a new post and add a Form block.
 - Add a Checkbox group within the Form block (to do this, you can click on any of the form fields, then click on the toolbar additional options, and 'Insert After' ( or 'Insert Before'), then add a heckbox group with several items added).
