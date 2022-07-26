@@ -3949,6 +3949,7 @@ p {
 						$url = add_query_arg( 'auth_approved', 'true', $url );
 					}
 
+					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $url );
 					exit;
 				case 'activate':
@@ -3997,6 +3998,8 @@ p {
 					check_admin_referer( 'jetpack-reconnect' );
 					self::log( 'reconnect' );
 					self::disconnect();
+
+					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $this->build_connect_url( true, false, 'reconnect' ) );
 					exit;
 				case 'deactivate':
@@ -4045,6 +4048,7 @@ p {
 							$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 						}
 
+						add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 						wp_safe_redirect( $url );
 						exit;
 					}
