@@ -5,7 +5,6 @@
 ## 0.18.10 - 2022-07-26
 ### Changed
 - Updated package dependencies. [#25147]
-- Updated package dependencies. [#25158]
 
 ## 0.18.9 - 2022-07-12
 ### Changed
