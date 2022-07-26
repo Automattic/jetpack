@@ -24,7 +24,7 @@ class WPCOM_REST_API_V2_Endpoint_Google_Docs extends WP_REST_Controller {
 	public function register_routes() {
 		register_rest_route(
 			'wpcom/v2',
-			'/checkDocumentVisibility',
+			'/checkGoogleDocVisibility',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,

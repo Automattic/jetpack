@@ -29,11 +29,11 @@ const RenderPreview = ( {
 	toggleInteractive,
 	noticeUI = null,
 	noticeOperations = {},
-	checkDocumentVisibility = false,
+	checkGoogleDocVisibility = false,
 } ) => {
 	useEffect( () => {
-		if ( checkDocumentVisibility ) {
-			apiFetch( { path: `/wpcom/v2/checkDocumentVisibility?url=${ url }` } ).catch( () => {
+		if ( checkGoogleDocVisibility ) {
+			apiFetch( { path: `/wpcom/v2/checkGoogleDocVisibility?url=${ url }` } ).catch( () => {
 				noticeOperations.removeAllNotices();
 				noticeOperations.createNotice( {
 					status: 'warning',
@@ -44,7 +44,7 @@ const RenderPreview = ( {
 				} );
 			} );
 		}
-	}, [ url, checkDocumentVisibility, noticeOperations ] );
+	}, [ url, checkGoogleDocVisibility, noticeOperations ] );
 
 	if ( children ) {
 		return children;
@@ -87,7 +87,7 @@ const Edit = props => {
 		placeholder = __( 'Enter URL to embed here…', 'jetpack' ),
 		children,
 		onSubmitUrl = () => {},
-		checkDocumentVisibility = false,
+		checkGoogleDocVisibility = false,
 	} = props;
 
 	const { url: attributesUrl } = attributes;
@@ -175,7 +175,7 @@ const Edit = props => {
 					toggleInteractive={ toggleInteractive }
 					noticeUI={ noticeUI }
 					noticeOperations={ noticeOperations }
-					checkDocumentVisibility={ checkDocumentVisibility }
+					checkGoogleDocVisibility={ checkGoogleDocVisibility }
 				/>
 			) }
 		</div>

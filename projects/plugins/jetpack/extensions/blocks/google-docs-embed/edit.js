@@ -113,7 +113,7 @@ const GsuiteBlockEdit = props => {
 						'The document couldn’t be embedded. To embed a document, use the link in your browser address bar when editing the document.',
 						'jetpack'
 					) }
-					checkDocumentVisibility={ true }
+					checkGoogleDocVisibility={ true }
 					{ ...props }
 				/>
 			</Fragment>
