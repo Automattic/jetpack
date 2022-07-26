@@ -6,11 +6,20 @@
  * @package automattic/jetpack
  */
 
-/**
- * Class with methods to extract metadata from a post/page about videos, images, links, mentions embedded
- * in or attached to the post/page.
+/*
+ * WARNING: This file is distributed verbatim in Jetpack.
+ * There should be nothing WordPress.com specific in this file.
  *
- * @todo Additionally, have some filters on number of items in each field
+ * @hide-in-jetpack
+ */
+
+/**
+ * WARNING: new extracted fields may be automatically added to the Elasticsearch index. Please coordinate with
+ *   wp-content/plugins/elasticsearch/class.es-wp-field-builder.php extract_media()
+ *
+ * For additions, add tests to bin/tests/elasticsearch/MediaMetaExtractorTest.php
+ *
+ * @hide-in-jetpack
  */
 class Jetpack_Media_Meta_Extractor {
 
@@ -48,10 +57,12 @@ class Jetpack_Media_Meta_Extractor {
 	 * @param int     $post_id The ID of the post.
 	 * @param int     $what_to_extract A mask of things to extract, e.g. Jetpack_Media_Meta_Extractor::IMAGES | Jetpack_Media_Meta_Extractor::MENTIONS.
 	 * @param boolean $extract_alt_text Should alt_text be extracted, defaults to false.
+	 * @param boolean $include_protocol_in_url Should the url include the http protocol.
+	 * @param boolean $include_host_fields Should extracted links include the host and host_reversed fields.
 	 *
 	 * @return array|WP_Error a structure containing metadata about the embedded things, or empty array if nothing found, or WP_Error on error.
 	 */
-	public static function extract( $blog_id, $post_id, $what_to_extract = self::ALL, $extract_alt_text = false ) {
+	public static function extract( $blog_id, $post_id, $what_to_extract = self::ALL, $extract_alt_text = false, $include_protocol_in_url = true, $include_host_fields = false ) {
 
 		// multisite?
 		if ( function_exists( 'switch_to_blog' ) ) {
@@ -77,7 +88,7 @@ class Jetpack_Media_Meta_Extractor {
 
 		// Get images first, we need the full post for that.
 		if ( self::IMAGES & $what_to_extract ) {
-			$extracted = self::get_image_fields( $post, array(), $extract_alt_text );
+			$extracted = self::get_image_fields( $post, array(), $extract_alt_text, $include_protocol_in_url, $include_host_fields );
 
 			// Turn off images so we can safely call extract_from_content() below.
 			$what_to_extract = $what_to_extract - self::IMAGES;
@@ -242,64 +253,10 @@ class Jetpack_Media_Meta_Extractor {
 			if ( preg_match_all( '#(?:^|\s|"|\')(https?://([^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/))))#', $content, $matches ) ) {
 
 				foreach ( $matches[1] as $link_raw ) {
-					$url = wp_parse_url( $link_raw );
-
-					// Data URI links.
-					if ( ! isset( $url['scheme'] ) || 'data' === $url['scheme'] ) {
-						continue;
+					$analyzed = self::analyze_url( $link_raw, $extracted, false, true );
+					if ( false !== $analyzed ) {
+						$links[] = $analyzed;
 					}
-
-					// Reject invalid URLs.
-					if ( ! isset( $url['host'] ) ) {
-						continue;
-					}
-
-					// Remove large (and likely invalid) links.
-					if ( 4096 < strlen( $link_raw ) ) {
-						continue;
-					}
-
-					// Build a simple form of the URL so we can compare it to ones we found in IMAGES or SHORTCODES and exclude those.
-					$simple_url = $url['scheme'] . '://' . $url['host'] . ( ! empty( $url['path'] ) ? $url['path'] : '' );
-					if ( isset( $extracted['image']['url'] ) ) {
-						if ( in_array( $simple_url, (array) $extracted['image']['url'], true ) ) {
-							continue;
-						}
-					}
-
-					list( $proto, $link_all_but_proto ) = explode( '://', $link_raw ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
-					// Build a reversed hostname.
-					$host_parts    = array_reverse( explode( '.', $url['host'] ) );
-					$host_reversed = '';
-					foreach ( $host_parts as $part ) {
-						$host_reversed .= ( ! empty( $host_reversed ) ? '.' : '' ) . $part;
-					}
-
-					$link_analyzed = '';
-					if ( ! empty( $url['path'] ) ) {
-						// The whole path (no query args or fragments).
-						$path           = substr( $url['path'], 1 ); // strip the leading '/'.
-						$link_analyzed .= ( ! empty( $link_analyzed ) ? ' ' : '' ) . $path;
-
-						// The path split by /.
-						$path_split = explode( '/', $path );
-						if ( count( $path_split ) > 1 ) {
-							$link_analyzed .= ' ' . implode( ' ', $path_split );
-						}
-
-						// The fragment.
-						if ( ! empty( $url['fragment'] ) ) {
-							$link_analyzed .= ( ! empty( $link_analyzed ) ? ' ' : '' ) . $url['fragment'];
-						}
-					}
-
-					// @todo Check unique before adding
-					$links[] = array(
-						'url'           => $link_all_but_proto,
-						'host_reversed' => $host_reversed,
-						'host'          => $url['host'],
-					);
 				}
 			}
 
@@ -332,7 +289,6 @@ class Jetpack_Media_Meta_Extractor {
 				$embeds = array();
 
 				foreach ( $matches[1] as $link_raw ) {
-					$url = wp_parse_url( $link_raw );
 
 					list( $proto, $link_all_but_proto ) = explode( '://', $link_raw ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
@@ -379,10 +335,12 @@ class Jetpack_Media_Meta_Extractor {
 	 * @param WP_Post $post A post object.
 	 * @param array   $args Optional args, see defaults list for details.
 	 * @param boolean $extract_alt_text Should alt_text be extracted, defaults to false.
+	 * @param boolean $include_protocol_in_url Should the url include the http protocol.
+	 * @param boolean $include_host_fields Should extracted links include the host and host_reversed fields.
 	 *
 	 * @return array Returns an array of all images meeting the specified criteria in $args.
 	 */
-	private static function get_image_fields( $post, $args = array(), $extract_alt_text = false ) {
+	private static function get_image_fields( $post, $args = array(), $extract_alt_text = false, $include_protocol_in_url = true, $include_host_fields = false ) {
 
 		if ( ! $post instanceof WP_Post ) {
 			return array();
@@ -433,7 +391,7 @@ class Jetpack_Media_Meta_Extractor {
 		// @todo Can we check width/height of these efficiently?  Could maybe use query args at least, before we strip them out
 		$image_list = self::get_images_from_html( $post->post_content, $image_list, $extract_alt_text );
 
-		return self::build_image_struct( $image_list, $image_booleans );
+		return self::build_image_struct( $image_list, $image_booleans, $include_protocol_in_url, $include_host_fields );
 	}
 
 	/**
@@ -478,20 +436,38 @@ class Jetpack_Media_Meta_Extractor {
 	/**
 	 * Produces a set structure for extracted media items.
 	 *
-	 * @param array $image_list Array of images.
-	 * @param array $image_booleans Image booleans.
+	 * @param array   $image_list Array of images.
+	 * @param array   $image_booleans Image booleans.
+	 * @param boolean $include_protocol_in_url Should the url include the http protocol.
+	 * @param boolean $include_host_fields Should extracted links include the host and host_reversed fields.
 	 *
 	 * @return array|array[]
 	 */
-	public static function build_image_struct( $image_list, $image_booleans ) {
+	public static function build_image_struct( $image_list, $image_booleans, $include_protocol_in_url = true, $include_host_fields = false ) {
 		if ( ! empty( $image_list ) ) {
 			$retval     = array( 'image' => array() );
 			$image_list = array_unique( $image_list, SORT_REGULAR );
 			foreach ( $image_list as $img ) {
 				if ( is_string( $img ) ) {
-					$retval['image'][] = array( 'url' => $img );
+					if ( true === $include_host_fields ) {
+						$analyzed = self::analyze_url( $img, array(), $include_protocol_in_url, $include_host_fields );
+						if ( false === $analyzed ) {
+							continue;
+						}
+						$retval['image'][] = $analyzed;
+					} else {
+						$retval['image'][] = array( 'url' => $img );
+					}
 				} else {
-					$retval['image'][] = $img;
+					if ( true === $include_host_fields ) {
+						$analyzed = self::analyze_url( $img['url'], array(), $include_protocol_in_url, $include_host_fields );
+						if ( false === $analyzed ) {
+							continue;
+						}
+						$retval['image'][] = array_merge( $img, $analyzed );
+					} else {
+						$retval['image'][] = $img;
+					}
 				}
 			}
 			$image_booleans['image'] = count( $retval['image'] );
@@ -569,5 +545,87 @@ class Jetpack_Media_Meta_Extractor {
 		// completely strip shortcodes and any content they enclose.
 		$clean_content = strip_shortcodes( $clean_content );
 		return $clean_content;
+	}
+
+	/**
+	 * Analyzes a url into its constituent parts, and returns the url without
+	 * protocol, the hostname, and the reversed hostname, useful for prefix
+	 * searches.
+	 *
+	 * @param string  $raw_url A url.
+	 * @param array   $extracted other extracted information.
+	 * @param boolean $include_protocol_in_url Should the url include the http protocol.
+	 * @param boolean $include_host_fields Should extracted links include the host and host_reversed fields.
+	 *
+	 * @return array|false $link_struct with host, host_reversed, and url. False if should not be included
+	 */
+	private static function analyze_url( $raw_url, $extracted, $include_protocol_in_url = true, $include_host_fields = false ) {
+		$url = wp_parse_url( $raw_url );
+
+		// Data URI links.
+		if ( ! isset( $url['scheme'] ) || 'data' === $url['scheme'] ) {
+			return false;
+		}
+
+		// Reject invalid URLs.
+		if ( ! isset( $url['host'] ) ) {
+			return false;
+		}
+
+		// Remove large (and likely invalid) links.
+		if ( 4096 < strlen( $raw_url ) ) {
+			return false;
+		}
+
+		// Build a simple form of the URL so we can compare it to ones we found in IMAGES or SHORTCODES and exclude those.
+		$simple_url = $url['scheme'] . '://' . $url['host'] . ( ! empty( $url['path'] ) ? $url['path'] : '' );
+		if ( isset( $extracted['image']['url'] ) ) {
+			if ( in_array( $simple_url, (array) $extracted['image']['url'], true ) ) {
+				return false;
+			}
+		}
+
+		list( $proto, $link_all_but_proto ) = explode( '://', $raw_url ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		// Build a reversed hostname.
+		$host_parts    = array_reverse( explode( '.', $url['host'] ) );
+		$host_reversed = '';
+		foreach ( $host_parts as $part ) {
+			$host_reversed .= ( ! empty( $host_reversed ) ? '.' : '' ) . $part;
+		}
+
+		$link_analyzed = '';
+		if ( ! empty( $url['path'] ) ) {
+			// The whole path (no query args or fragments).
+			$path           = substr( $url['path'], 1 ); // strip the leading '/'.
+			$link_analyzed .= ( ! empty( $link_analyzed ) ? ' ' : '' ) . $path;
+
+			// The path split by /.
+			$path_split = explode( '/', $path );
+			if ( count( $path_split ) > 1 ) {
+				$link_analyzed .= ' ' . implode( ' ', $path_split );
+			}
+
+			// The fragment.
+			if ( ! empty( $url['fragment'] ) ) {
+				$link_analyzed .= ( ! empty( $link_analyzed ) ? ' ' : '' ) . $url['fragment'];
+			}
+		}
+
+		if ( true === $include_protocol_in_url ) {
+			$final_url = $proto . '://' . $link_all_but_proto;
+		} else {
+			$final_url = $link_all_but_proto;
+		}
+
+		$output = array(
+			'url' => $final_url,
+		);
+
+		if ( true === $include_host_fields ) {
+			$output['host_reversed'] = $host_reversed;
+			$output['host']          = $url['host'];
+		}
+		return $output;
 	}
 }
