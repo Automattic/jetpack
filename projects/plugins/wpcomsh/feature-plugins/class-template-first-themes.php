@@ -43,8 +43,7 @@ class Template_First_Themes {
 	 * Adds hooks.
 	 */
 	public function register_hooks() {
-		add_action( 'switch_theme', array( this, 'update_homepage_template' ), 10, 3 );
-		add_action( 'disable_tft_theme_switch_processing', array( $this, 'disable_theme_switch_processing' ) );
+		add_action( 'switch_theme', array( $this, 'update_homepage_template' ), 10, 3 );
 	}
 
 	/**
@@ -235,14 +234,6 @@ class Template_First_Themes {
 
 		// Update menu items.
 		$this->update_menus( $old_front_page_id, $front_page_id );
-	}
-
-	/**
-	 * The user has asked to keep their homepage the way it is so disable
-	 * the `switch_theme` hook.
-	 */
-	public function disable_theme_switch_processing() {
-		remove_action( 'switch_theme', array( $this, 'update_homepage_template' ) );
 	}
 
 	/**

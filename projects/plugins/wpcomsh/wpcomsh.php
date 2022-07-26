@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.9.56
+ * Version: 2.9.57
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.9.56' );
+define( 'WPCOMSH_VERSION', '2.9.57' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -121,6 +121,11 @@ require_once __DIR__ . '/jetpack-token-migration-cleanup/class-wpcomsh-token-mig
 
 // Enable MailPoet subscriber stats reports
 require_once __DIR__ . '/mailpoet/class-wpcomsh-mailpoet-subscribers-stats-report.php';
+
+// Require class necessary for home page replacement after theme switch.
+require_once __DIR__ . '/feature-plugins/autoload-homepage-replacement.php';
+add_action( 'jetpack_pre_switch_theme', 'wpcomsh_replace_homepage_on_theme_switch', 10, 2 );
+Template_First_Themes::get_instance();
 
 const WPCOM_CORE_ATOMIC_PLUGINS = array(
 	'jetpack/jetpack.php',
