@@ -147,10 +147,6 @@ export default function DashboardPage( { isLoading = false } ) {
 		);
 	};
 
-	const isRecordMeterEnabled = useSelect( select =>
-		select( STORE_ID ).isFeatureEnabled( 'record-meter' )
-	);
-
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
@@ -158,15 +154,13 @@ export default function DashboardPage( { isLoading = false } ) {
 				<div className="jp-search-dashboard-page">
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
-					{ isRecordMeterEnabled && (
-						<RecordMeter
-							postCount={ postCount }
-							postTypeBreakdown={ postTypeBreakdown }
-							tierMaximumRecords={ tierMaximumRecords }
-							lastIndexedDate={ lastIndexedDate }
-							postTypes={ postTypes }
-						/>
-					) }
+					<RecordMeter
+						postCount={ postCount }
+						postTypeBreakdown={ postTypeBreakdown }
+						tierMaximumRecords={ tierMaximumRecords }
+						lastIndexedDate={ lastIndexedDate }
+						postTypes={ postTypes }
+					/>
 					{ renderModuleControl() }
 					{ renderFooter() }
 					<NoticesList

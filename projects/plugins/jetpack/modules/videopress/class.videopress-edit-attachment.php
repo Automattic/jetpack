@@ -164,6 +164,11 @@ class VideoPress_Edit_Attachment {
 		unset( $fields['url'] );
 		unset( $fields['post_content'] );
 
+		// If a video isn't attached to any specific post, manually add a post ID.
+		if ( ! isset( $info->post_id ) ) {
+			$info->post_id = 0;
+		}
+
 		if ( isset( $file_statuses['ogg'] ) && 'done' === $file_statuses['ogg'] ) {
 			$v_name     = preg_replace( '/\.\w+/', '', basename( $info->path ) );
 			$video_name = $v_name . '_fmt1.ogv';
@@ -181,7 +186,7 @@ class VideoPress_Edit_Attachment {
 
 		$fields['post_excerpt']['label'] = _x( 'Description', 'A header for the short description display', 'jetpack' );
 		$fields['post_excerpt']['input'] = 'textarea';
-		$fields['post_excerpt']['value'] = $info->description;
+		$fields['post_excerpt']['value'] = ! empty( $info->description ) ? $info->descrption : '';
 
 		$fields['is_videopress_attachment'] = array(
 			'input' => 'hidden',
@@ -305,7 +310,7 @@ HTML;
 			"attachments-{$info->post_id}-displayembed",
 			"attachments[{$info->post_id}][display_embed]",
 			__( 'Display share menu and allow viewers to copy a link or embed this video', 'jetpack' ),
-			$info->display_embed
+			isset( $info->display_embed ) ? $info->display_embed : 0
 		);
 	}
 
@@ -370,7 +375,8 @@ HTML;
 			'R-17'  => 'R',
 		);
 
-		$displayed_rating = $info->rating;
+		$displayed_rating = isset( $info->rating ) ? $info->rating : null;
+
 		// X-18 was previously supported but is now removed to better comply with our TOS.
 		if ( 'X-18' === $displayed_rating ) {
 			$displayed_rating = 'R-17';
