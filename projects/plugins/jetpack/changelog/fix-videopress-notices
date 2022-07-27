@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: avoid PHP notices when inserting videos that miss some metadata.

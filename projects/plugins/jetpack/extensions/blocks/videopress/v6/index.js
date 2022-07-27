@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -12,6 +13,8 @@ import save from './save';
 import './style.scss';
 
 export const name = 'videopress-block';
+export const namespace = 'jetpack';
+
 export const title = __( 'VideoPress', 'jetpack' );
 export const description = __(
 	'Embed a video from your media library or upload a new one with VideoPress.',
@@ -28,5 +31,21 @@ export const settings = {
 	attributes,
 	supports: {
 		align: true,
+	},
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/video' ],
+				transform: attrs => createBlock( 'jetpack/videopress-block', attrs ),
+			},
+		],
+		to: [
+			{
+				type: 'block',
+				blocks: [ 'core/video' ],
+				transform: attrs => createBlock( 'core/video', attrs ),
+			},
+		],
 	},
 };

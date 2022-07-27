@@ -113,8 +113,10 @@ describe( 'SubscriptionEdit', () => {
 
 	test( 'displays subscriber total after update', async () => {
 		const { container, rerender } = render( <SubscriptionEdit { ...defaultProps } /> );
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.querySelector( 'p' ) ).not.toBeInTheDocument();
+		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			container.querySelector( '.wp-block-jetpack-subscriptions__subscount' )
+		).not.toBeInTheDocument();
 		expect(
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelector( '.wp-block-jetpack-subscriptions__show-subs' )
@@ -133,7 +135,9 @@ describe( 'SubscriptionEdit', () => {
 			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelector( '.wp-block-jetpack-subscriptions__show-subs' )
 		).toBeInTheDocument();
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.querySelector( 'p' ) ).toBeInTheDocument();
+		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			container.querySelector( '.wp-block-jetpack-subscriptions__subscount' )
+		).toBeInTheDocument();
 	} );
 } );
