@@ -65,7 +65,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 				) }
 			</Flex>
 
-			{ hoverEffect && (
+			{ hoverEffect && timeControlMode === 'draggable' && (
 				<RangeControl
 					label={ renderControlLabelWithTooltip(
 						__( 'Playback start time', 'jetpack' ),
