@@ -2,10 +2,7 @@ export default {
 	autoplay: {
 		type: 'boolean',
 	},
-	autoplayHovering: {
-		type: 'boolean',
-	},
-	autoplayPlaybackStart: {
+	autoplayPlaybackAt: {
 		type: 'integer',
 		default: 0,
 	},
@@ -17,6 +14,12 @@ export default {
 	controls: {
 		type: 'boolean',
 		default: true,
+	},
+	hoverEffect: {
+		type: 'boolean',
+	},
+	hoverEffectPlaybackAt: {
+		type: 'boolean',
 	},
 	loop: {
 		type: 'boolean',

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ToggleControl, RangeControl } from '@wordpress/components';
+import { ToggleControl, RangeControl, PanelBody } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { debounce } from 'lodash';
@@ -14,41 +14,33 @@ import { renderControlLabelWithTooltip } from '../inspector-controls';
 
 const debouncedOnChange = debounce( fn => fn(), 250 );
 
-export default function AutoplayControl( { attributes, setAttributes, videoDuration } ) {
-	const { autoplay, autoplayPlaybackAt } = attributes;
-	const [ startingTime, setStartingTime ] = useState( autoplayPlaybackAt );
+export default function HoverEffectControl( { attributes, setAttributes, videoDuration } ) {
+	const { hoverEffect, hoverEffectPlaybackAt } = attributes;
+	const [ hoverEffectStartingTime, setStartingTime ] = useState( hoverEffectPlaybackAt );
 
 	const onStartingTimeChange = useCallback(
 		newTime => {
 			setStartingTime( newTime );
-			debouncedOnChange( () => setAttributes( { autoplayPlaybackAt: newTime } ) );
+			debouncedOnChange( () => setAttributes( { hoverEffectPlaybackAt: newTime } ) );
 		},
 		[ setAttributes ]
 	);
 
 	return (
-		<>
+		<PanelBody title={ __( 'Hover Effect Settings', 'jetpack' ) }>
 			<ToggleControl
 				label={ renderControlLabelWithTooltip(
-					__( 'Autoplay', 'jetpack' ),
-					/* translators: Tooltip describing the "autoplay" option for the VideoPress player */
-					__( 'Start playing the video as soon as the page loads', 'jetpack' )
+					__( 'Enable Hover Effect', 'jetpack' ),
+					/* translators: Tooltip describing the "hover effect" option for the VideoPress player */
+					__( 'Start playing the video when hovering over it', 'jetpack' )
 				) }
 				onChange={ newValue => {
-					setAttributes( { autoplay: newValue } );
+					setAttributes( { hoverEffect: newValue } );
 				} }
-				checked={ autoplay }
-				help={
-					autoplay
-						? __(
-								'Note: Autoplaying videos may cause usability issues for some visitors.',
-								'jetpack'
-						  )
-						: null
-				}
+				checked={ hoverEffect }
 			/>
 
-			{ autoplay && (
+			{ hoverEffect && (
 				<RangeControl
 					label={ renderControlLabelWithTooltip(
 						__( 'Playback start time', 'jetpack' ),
@@ -56,13 +48,13 @@ export default function AutoplayControl( { attributes, setAttributes, videoDurat
 						__( 'The time at which the video will start playing', 'jetpack' )
 					) }
 					min={ 0 }
-					max={ videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : startingTime }
+					max={ videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : hoverEffectStartingTime }
 					initialPosition={ 0 }
-					value={ startingTime }
+					value={ hoverEffectStartingTime }
 					onChange={ onStartingTimeChange }
 					withInputField={ false }
 				/>
 			) }
-		</>
+		</PanelBody>
 	);
 }

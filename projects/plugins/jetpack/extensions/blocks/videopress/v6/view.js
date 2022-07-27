@@ -79,7 +79,7 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 	}
 
 	const { contentDocument, ownerDocument, contentWindow } = playerIFrame;
-	const { autoplayHovering, autoplayPlaybackStart, videoRatio } = features;
+	const { hoverEffect, autoplayPlaybackAt, videoRatio } = features;
 
 	setPlayerheight( blockDOMReference, playerIFrame, videoRatio );
 
@@ -115,13 +115,13 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 	blockDOMReference.setAttribute( 'data-jetpack-block-initialized', true );
 
 	// Autoplay hovering feature.
-	if ( autoplayHovering && playerIFrame ) {
+	if ( hoverEffect && playerIFrame ) {
 		debug( 'adding autoplay hovering feature' );
 		let autoPlayingFinished = false;
 
 		// When video is ready, set initial time position.
 		contentWindow.addEventListener( 'onVideoPressLoadingState', () =>
-			setInitialTimeHelper( playerIFrame, autoplayPlaybackStart, function () {
+			setInitialTimeHelper( playerIFrame, autoplayPlaybackAt, function () {
 				contentWindow.removeEventListener( 'onVideoPressLoadingState', setInitialTimeHelper );
 			} )
 		);
@@ -129,7 +129,7 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 		// Stop autoplay hovering after VIDEO_AUTOPLAY_DURATION seconds.
 		contentWindow.addEventListener( 'onVideoPressTimeUpdate', event => {
 			const { currentTime } = event.detail;
-			if ( currentTime <= autoplayPlaybackStart + VIDEO_AUTOPLAY_DURATION ) {
+			if ( currentTime <= autoplayPlaybackAt + VIDEO_AUTOPLAY_DURATION ) {
 				return;
 			}
 
@@ -146,7 +146,7 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 			dispatchPlayerAction( playerIFrame, 'vpBlockActionPause' );
 			if ( autoPlayingFinished ) {
 				dispatchPlayerAction( playerIFrame, 'vpBlockActionSetCurrentTime', {
-					currentTime: autoplayPlaybackStart,
+					currentTime: autoplayPlaybackAt,
 				} );
 			}
 		} );

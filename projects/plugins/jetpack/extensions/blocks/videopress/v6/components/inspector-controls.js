@@ -6,6 +6,7 @@ import { PanelBody, ToggleControl, Tooltip, SelectControl } from '@wordpress/com
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import AutoplayControl from './autoplay-control';
+import HoverEffectControl from './hover-effect-control';
 /**
  * Internal dependencies
  */
@@ -102,6 +103,12 @@ export default function VideoPressInspectorControls( {
 					}
 				/>
 			</PanelBody>
+
+			<HoverEffectControl
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				videoDuration={ videoDuration }
+			/>
 
 			<SeekbarColorSettings
 				{ ...{ attributes, setAttributes, useAverageColor } }

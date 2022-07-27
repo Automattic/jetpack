@@ -47,9 +47,16 @@ export default function VideoPressPlayer( {
 	onDurationChange,
 } ) {
 	const ref = useRef();
-	const { maxWidth, caption, videoRatio, autoplayHovering, autoplayPlaybackStart } = attributes;
+	const {
+		maxWidth,
+		caption,
+		videoRatio,
+		autoplayPlaybackAt,
+		hoverEffect,
+		hoverEffectPlaybackAt,
+	} = attributes;
 
-	const isAutoplayHoveringEnabled = autoplayHovering && isSelected;
+	const isAutoplayHoveringEnabled = hoverEffect && isSelected;
 
 	/*
 	 * Temporary height is used to set the height of the video
@@ -129,12 +136,12 @@ export default function VideoPressPlayer( {
 		if ( autoPlayingFinished ) {
 			// set current time at the begining of the autoplay starting.
 			dispatchPlayerAction( sandboxIFrame, 'vpBlockActionSetCurrentTime', {
-				currentTime: autoplayPlaybackStart,
+				currentTime: hoverEffectPlaybackAt,
 			} );
 		}
 	}, [
 		autoPlayingFinished,
-		autoplayPlaybackStart,
+		hoverEffectPlaybackAt,
 		isAutoplayHoveringEnabled,
 		preview,
 		sandboxIFrame,
@@ -144,14 +151,14 @@ export default function VideoPressPlayer( {
 		( { detail } ) => {
 			setIsVideoLoaded( detail?.state === 'loaded' );
 
-			setInitialTimeHelper( sandboxIFrame, autoplayPlaybackStart, function () {
+			setInitialTimeHelper( sandboxIFrame, hoverEffectPlaybackAt, function () {
 				sandboxIFrame?.contentWindow.removeEventListener(
 					'onVideoPressLoadingState',
 					setInitialTimeHelper
 				);
 			} );
 		},
-		[ autoplayPlaybackStart, sandboxIFrame ]
+		[ hoverEffectPlaybackAt, sandboxIFrame ]
 	);
 
 	/*
@@ -166,14 +173,14 @@ export default function VideoPressPlayer( {
 			}
 
 			const { currentTime } = detail;
-			if ( ! currentTime || currentTime < autoplayPlaybackStart + 5 ) {
+			if ( ! currentTime || currentTime < hoverEffectPlaybackAt + 5 ) {
 				return;
 			}
 
 			dispatchPlayerAction( sandboxIFrame, 'vpBlockActionPause' );
 			setAutoPlayingFinished( true );
 		},
-		[ isAutoplayHoveringEnabled, autoplayPlaybackStart, sandboxIFrame ]
+		[ isAutoplayHoveringEnabled, hoverEffectPlaybackAt, sandboxIFrame ]
 	);
 
 	// Listen and trigger onDurationChange
@@ -193,9 +200,9 @@ export default function VideoPressPlayer( {
 			return;
 		}
 		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionSetCurrentTime', {
-			currentTime: autoplayPlaybackStart,
+			currentTime: hoverEffectPlaybackAt,
 		} );
-	}, [ autoplayPlaybackStart, sandboxIFrame ] );
+	}, [ hoverEffectPlaybackAt, sandboxIFrame ] );
 
 	useEffect( () => {
 		if ( ! sandboxIFrame?.contentWindow ) {
