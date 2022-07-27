@@ -91,12 +91,9 @@ The easiest way is to use the Custom Message option in the publishing options bo
 == Changelog ==
 ### 1.2.0-beta - 2022-07-27
 ### Added
-- Added shares meter to Jetpack Social admin page.
-- Updated package dependencies.
-- Added the posts box to the Jetpack Social admin page
-- Fetch share counter on the server side in Jetpack Social. To facilitate this, the call to wpcom has been moved into the Publicize_Base class.
-- Updated publicize package version.
+- Dashboard: add stats about the number of shares.
+- Dashboard: add stats about the number of posts published.
 
 ### Changed
-- Rework the admin page to use new components
-- Updated the tagline on the admin page.
+- Dashboard: improve performance when fetching data.
+- Dashboard: update wording.
