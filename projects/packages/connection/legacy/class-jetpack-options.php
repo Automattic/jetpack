@@ -126,6 +126,7 @@ class Jetpack_Options {
 			'has_seen_wc_connection_modal',        // (bool) Whether the site has displayed the WooCommerce Connection modal
 			'partner_coupon',                      // (string) A Jetpack partner issued coupon to promote a sale together with Jetpack.
 			'partner_coupon_added',                // (string) A date for when `partner_coupon` was added, so we can auto-purge after a certain time interval.
+			'dismissed_backup_review_request',            // (bool) Determines if the plugin review request is dismissed.
 		);
 	}
 

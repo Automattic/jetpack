@@ -364,7 +364,7 @@ class Tokens {
 	 * @param string|false $token_key If provided, check that the token matches the provided input.
 	 * @param bool|true    $suppress_errors If true, return a falsy value when the token isn't found; When false, return a descriptive WP_Error when the token isn't found.
 	 *
-	 * @return object|false
+	 * @return object|false|WP_Error
 	 */
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
 		if ( $this->is_locked() ) {

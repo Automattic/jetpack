@@ -242,16 +242,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.2-a.3 - 2022-07-12
+### 11.2-beta - 2022-07-26
 #### Enhancements
-- Podcast Player: add new actions to make it possible for users to set up code that runs for podcast fetches.
-- VideoPress Block: add enhancements such as an upload progress bar, improved UX, and limited preview attempts (available in Beta only).
+- Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress.
+- VideoPress Block (beta): add block transforms for the VideoPress block.
 
 #### Bug fixes
-- Form block: preserve line breaks in form submissions.
-- Gathering Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.
-- Stats: fix dashboard widget form name to allow form choices to be saved.
-- Subscriptions: format the number of subscribers displayed in the block editor's controls.
+- Admin menu: display the translations for the plan name.
+- Comments: avoid PHP Notice when using Jetpack's Comment form feature when your site is no longer properly connected to WordPress.com.
+- Connection: fix Jetpack redirect after registration.
+- Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites.
+- Sharing: ensure that sharing buttons are not displayed for excerpts.
+- Slideshow Block: add a bit of CSS to support align wide and align full.
+- Subscribe block: fix support for allowed HTML tags in submit button.
+- VideoPress: avoid PHP notices when inserting videos that miss some metadata.
 
 --------
 
