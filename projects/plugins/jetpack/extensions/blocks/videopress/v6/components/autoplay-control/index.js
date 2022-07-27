@@ -15,7 +15,7 @@ import { renderControlLabelWithTooltip } from '../inspector-controls';
 const debouncedOnChange = debounce( fn => fn(), 250 );
 
 export default function AutoplayControl( { attributes, setAttributes, videoDuration } ) {
-	const { autoplay, autoplayHovering, autoplayHoveringStart } = attributes;
+	const { autoplay, autoplayHoveringStart } = attributes;
 	const [ startingTime, setStartingTime ] = useState( autoplayHoveringStart );
 
 	const onStartingTimeChange = useCallback(
@@ -49,34 +49,19 @@ export default function AutoplayControl( { attributes, setAttributes, videoDurat
 			/>
 
 			{ autoplay && (
-				<>
-					<RangeControl
-						label={ renderControlLabelWithTooltip(
-							__( 'Starting time', 'jetpack' ),
-							/* translators: Tooltip describing the "starting time" option for the VideoPress player */
-							__( 'The time at which the video will start playing', 'jetpack' )
-						) }
-						min={ 0 }
-						max={ videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : startingTime }
-						initialPosition={ 0 }
-						value={ startingTime }
-						onChange={ onStartingTimeChange }
-						withInputField={ false }
-					/>
-
-					<ToggleControl
-						label={ renderControlLabelWithTooltip(
-							__( 'Autoplay when hovering', 'jetpack' ),
-							/* translators: Tooltip describing the "autoplay-hovering" option for the VideoPress player */
-							__( 'Play automatically when hovering over it', 'jetpack' )
-						) }
-						onChange={ newValue => {
-							setAttributes( { autoplayHovering: newValue } );
-						} }
-						checked={ autoplayHovering }
-						help={ __( 'Play automatically when hovering over it', 'jetpack' ) }
-					/>
-				</>
+				<RangeControl
+					label={ renderControlLabelWithTooltip(
+						__( 'Starting time', 'jetpack' ),
+						/* translators: Tooltip describing the "starting time" option for the VideoPress player */
+						__( 'The time at which the video will start playing', 'jetpack' )
+					) }
+					min={ 0 }
+					max={ videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : startingTime }
+					initialPosition={ 0 }
+					value={ startingTime }
+					onChange={ onStartingTimeChange }
+					withInputField={ false }
+				/>
 			) }
 		</PanelBody>
 	);
