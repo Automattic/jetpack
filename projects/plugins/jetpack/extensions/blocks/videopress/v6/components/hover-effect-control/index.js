@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { ToggleControl, RangeControl } from '@wordpress/components';
+import { ToggleControl, RangeControl, Flex, FlexItem, Button } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { settings } from '@wordpress/icons';
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
 /**
@@ -17,6 +18,7 @@ const debouncedOnChange = debounce( fn => fn(), 250 );
 export default function HoverEffectControl( { attributes, setAttributes, videoDuration } ) {
 	const { hoverEffect, hoverEffectPlaybackAt } = attributes;
 	const [ hoverEffectStartingTime, setStartingTime ] = useState( hoverEffectPlaybackAt );
+	const [ timeControlMode, setTimeControlMode ] = useState( 'draggable' );
 
 	const onStartingTimeChange = useCallback(
 		newTime => {
@@ -28,17 +30,38 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 
 	return (
 		<fieldset>
-			<ToggleControl
-				label={ renderControlLabelWithTooltip(
-					__( 'Enable Hover Effect', 'jetpack' ),
-					/* translators: Tooltip describing the "hover effect" option for the VideoPress player */
-					__( 'Start playing the video when hovering over it', 'jetpack' )
+			<Flex justify="space-between">
+				<FlexItem>
+					<ToggleControl
+						label={ renderControlLabelWithTooltip(
+							__( 'Enable Hover Effect', 'jetpack' ),
+							/* translators: Tooltip describing the "hover effect" option for the VideoPress player */
+							__( 'Start playing the video when hovering over it', 'jetpack' )
+						) }
+						onChange={ newValue => {
+							setAttributes( { hoverEffect: newValue } );
+						} }
+						checked={ hoverEffect }
+					/>
+				</FlexItem>
+				{ hoverEffect && (
+					<FlexItem>
+						<Button
+							label={
+								timeControlMode === 'inputs'
+									? __( 'Use inputs preset', 'jetpack' )
+									: __( 'Use draggables preset', 'jetpack' )
+							}
+							icon={ settings }
+							onClick={ () => {
+								setTimeControlMode( timeControlMode === 'draggable' ? 'inputs' : 'draggable' );
+							} }
+							isPressed={ timeControlMode === 'draggable' }
+							isSmall
+						/>
+					</FlexItem>
 				) }
-				onChange={ newValue => {
-					setAttributes( { hoverEffect: newValue } );
-				} }
-				checked={ hoverEffect }
-			/>
+			</Flex>
 
 			{ hoverEffect && (
 				<RangeControl
