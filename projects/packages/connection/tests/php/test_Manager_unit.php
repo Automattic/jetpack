@@ -75,33 +75,38 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * Test the `is_active` functionality when connected.
+	 * Test the `has_connected_owner` functionality when connected.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_active
+	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
 	 */
-	public function test_is_active_when_connected() {
-		$access_token = (object) array(
-			'secret'           => 'abcd1234',
-			'external_user_id' => 1,
+	public function test_has_connected_owner_when_connected() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
 		);
-		$this->tokens->expects( $this->once() )
-			->method( 'get_access_token' )
-			->will( $this->returnValue( $access_token ) );
 
-		$this->assertTrue( $this->manager->is_active() );
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $admin_id );
+
+		$this->assertTrue( $this->manager->has_connected_owner() );
 	}
 
 	/**
-	 * Test the `is_active` functionality when not connected.
+	 * Test the `has_connected_owner` functionality when not connected.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_active
+	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
 	 */
-	public function test_is_active_when_not_connected() {
-		$this->tokens->expects( $this->once() )
-			->method( 'get_access_token' )
-			->will( $this->returnValue( false ) );
+	public function test_has_connected_owner_when_not_connected() {
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( false );
 
-		$this->assertFalse( $this->manager->is_active() );
+		$this->assertFalse( $this->manager->has_connected_owner() );
 	}
 
 	/**

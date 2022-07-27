@@ -1569,7 +1569,7 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function is_active() {
-		return self::connection()->is_active();
+		return self::connection()->has_connected_owner();
 	}
 
 	/**
