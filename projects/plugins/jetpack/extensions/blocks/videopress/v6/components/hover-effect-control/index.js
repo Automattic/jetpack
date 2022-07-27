@@ -12,6 +12,7 @@ import { useCallback } from 'react';
  */
 import { VIDEO_AUTOPLAY_DURATION } from '../../constants';
 import { renderControlLabelWithTooltip } from '../inspector-controls';
+import './style.scss';
 
 const debouncedOnChange = debounce( fn => fn(), 250 );
 
@@ -30,7 +31,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 
 	return (
 		<fieldset>
-			<Flex justify="space-between">
+			<Flex justify="space-between" className="components-time-control__header">
 				<FlexItem>
 					<ToggleControl
 						label={ renderControlLabelWithTooltip(
@@ -47,6 +48,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 				{ hoverEffect && (
 					<FlexItem>
 						<Button
+							className="components-button is-small has-icon"
 							label={
 								timeControlMode === 'inputs'
 									? __( 'Use inputs preset', 'jetpack' )
