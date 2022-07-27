@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ToggleControl, RangeControl, PanelBody } from '@wordpress/components';
+import { ToggleControl, RangeControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { debounce } from 'lodash';
@@ -27,7 +27,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 	);
 
 	return (
-		<PanelBody title={ __( 'Hover Effect Settings', 'jetpack' ) }>
+		<fieldset>
 			<ToggleControl
 				label={ renderControlLabelWithTooltip(
 					__( 'Enable Hover Effect', 'jetpack' ),
@@ -55,6 +55,6 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 					withInputField={ false }
 				/>
 			) }
-		</PanelBody>
+		</fieldset>
 	);
 }

@@ -104,11 +104,13 @@ export default function VideoPressInspectorControls( {
 				/>
 			</PanelBody>
 
-			<HoverEffectControl
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				videoDuration={ videoDuration }
-			/>
+			<PanelBody title={ __( 'Hover Effect Settings', 'jetpack' ) }>
+				<HoverEffectControl
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					videoDuration={ videoDuration }
+				/>
+			</PanelBody>
 
 			<SeekbarColorSettings
 				{ ...{ attributes, setAttributes, useAverageColor } }
