@@ -37,7 +37,7 @@ function IconsStory() {
 					<div className={ styles[ 'icons-container' ] }>
 						{ Object.keys( allIcons ).map( key => {
 							const Icon = allIcons[ key ];
-							if ( ! Icon.displayName ) {
+							if ( ! Icon.displayName || 'getIconBySlug' === Icon.displayName ) {
 								return null;
 							}
 
