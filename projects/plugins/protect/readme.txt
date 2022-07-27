@@ -109,7 +109,7 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-### 1.0.2 - 2022-07-22
+### 1.0.2 - 2022-07-27
 #### Fixed
 - Admin toolbar: ensure the toolbar icon is properly displayed, even when the Jetpack plugin is enabled and connected.
 - General: avoid PHP notices when fetching reports about your site.
