@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Adds support for the Post List package in Jetpack, which was previously only supported on WordPress.com
