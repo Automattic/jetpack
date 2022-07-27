@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
 import Alert from '../alert';
 import Button from '../button/index';
-import { getIconBySlug, CheckmarkIcon } from '../icons/index.jsx';
+import { getIconBySlug, CheckmarkIcon } from '../icons/index';
 import ProductPrice from '../product-price/index';
 import Text, { H3, Title } from '../text/index';
 import styles from './style.module.scss';

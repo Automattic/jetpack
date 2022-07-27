@@ -1,11 +1,12 @@
-import * as allIcons from '../index.jsx';
+import * as allIcons from '../index';
 import styles from './style.module.scss';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Icons',
 	component: allIcons,
 	parameters: {},
-};
+} as ComponentMeta< typeof allIcons >;
 
 const sizes = [
 	{
@@ -36,7 +37,7 @@ function IconsStory() {
 					<div className={ styles[ 'icons-container' ] }>
 						{ Object.keys( allIcons ).map( key => {
 							const Icon = allIcons[ key ];
-							if ( ! Icon.displayName ) {
+							if ( ! Icon.displayName || 'getIconBySlug' === Icon.displayName ) {
 								return null;
 							}
 
@@ -57,7 +58,7 @@ function IconsStory() {
 	);
 }
 
-const Template = args => <IconsStory { ...args } />;
+const Template: ComponentStory< typeof allIcons > = args => <IconsStory { ...args } />;
 
 const DefaultArgs = {};
 export const Default = Template.bind( {} );
