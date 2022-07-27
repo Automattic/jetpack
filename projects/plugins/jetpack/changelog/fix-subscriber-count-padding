@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions Block: fix subscriber count display when padding dimension is added.
