@@ -58,8 +58,8 @@ export const CalendlyInspectorControls = props => {
 			</PanelBody>
 			{ url && (
 				<Notice className={ `${ defaultClassName }-color-notice` } isDismissible={ false }>
-					<ExternalLink href="https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-">
-						{ __( 'Follow these instructions to change the colors in this block.', 'jetpack' ) }
+					<ExternalLink href="https://help.calendly.com/hc/en-us/articles/223147027-Embed-options-overview">
+						{ __( 'Explore more customization options from Calendly.', 'jetpack' ) }
 					</ExternalLink>
 				</Notice>
 			) }
