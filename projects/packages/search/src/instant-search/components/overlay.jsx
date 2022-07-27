@@ -14,6 +14,22 @@ const Overlay = props => {
 			}
 		};
 
+		const handleTabEvent = event => {
+			if ( event.key === 'Tab' ) {
+				// Looking up the searchInput assumes knowledge of another component.
+				const tabAnchor = document.getElementById( 'jetpack-instant-search__overlay-tab-anchor' );
+				const searchInput = document.getElementById( 'jetpack-instant-search__box-input-1' );
+				if ( event.shiftKey === true && event.target === searchInput ) {
+					event.preventDefault();
+					tabAnchor.focus();
+				}
+				if ( event.shiftKey === false && event.target === tabAnchor ) {
+					event.preventDefault();
+					searchInput.focus();
+				}
+			}
+		};
+
 		const closeWithOutsideClick = event => {
 			const resultsContainer = document.getElementsByClassName(
 				'jetpack-instant-search__search-results'
@@ -27,20 +43,29 @@ const Overlay = props => {
 			}
 		};
 
-		window.addEventListener( 'keydown', closeWithEscape );
+		const addEventListeners = () => {
+			window.addEventListener( 'click', closeWithOutsideClick );
+			window.addEventListener( 'keydown', closeWithEscape );
+			window.addEventListener( 'keydown', handleTabEvent );
+		};
+
+		const removeEventListeners = () => {
+			window.removeEventListener( 'click', closeWithOutsideClick );
+			window.removeEventListener( 'keydown', closeWithEscape );
+			window.removeEventListener( 'keydown', handleTabEvent );
+		};
 
 		// Ensures that the click closed handler only fires when the overlay is active.
 		// This ensures it doesn't erroneously intercept filter links or overlay spawner buttons.
 		if ( isVisible ) {
-			window.addEventListener( 'click', closeWithOutsideClick );
+			addEventListeners();
 		} else {
-			window.removeEventListener( 'click', closeWithOutsideClick );
+			removeEventListeners();
 		}
 
 		return () => {
 			// Cleanup on component dismount
-			window.removeEventListener( 'keydown', closeWithEscape );
-			window.removeEventListener( 'click', closeWithOutsideClick );
+			removeEventListeners();
 		};
 	}, [ closeOverlay, isVisible ] );
 
@@ -61,6 +86,13 @@ const Overlay = props => {
 				{ __( 'Search results', 'jetpack-search-pkg' ) }
 			</h1>
 			{ children }
+			<button
+				id="jetpack-instant-search__overlay-tab-anchor"
+				className="screen-reader-text assistive-text"
+				onClick={ closeOverlay }
+			>
+				Close Search
+			</button>
 		</div>
 	);
 };
