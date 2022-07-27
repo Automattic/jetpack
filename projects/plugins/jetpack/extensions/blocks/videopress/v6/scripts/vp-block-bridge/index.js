@@ -59,41 +59,17 @@ export const rawBridgeScript = `
 				name: 'onVideoPressToggleFullscreen',
 				type: 'event',
 			},
-<<<<<<< HEAD
-<<<<<<< HEAD
-			'vpBlockActionPlay': {
-=======
-			videopress_action_play: {
->>>>>>> 06c938aaac (rename script actions)
-=======
 			vpBlockActionPlay: {
->>>>>>> 29658df217 (rename actions using vp notation)
 				name: 'vpBlockActionPlay',
 				type: 'action',
 				videoPressAction: 'videopress_action_play',
 			},
-<<<<<<< HEAD
-<<<<<<< HEAD
-			'vpBlockActionPause': {
-=======
-			videopress_action_pause: {
->>>>>>> 06c938aaac (rename script actions)
-=======
 			vpBlockActionPause: {
->>>>>>> 29658df217 (rename actions using vp notation)
 				name: 'vpBlockActionPause',
 				type: 'action',
 				videoPressAction: 'videopress_action_pause',
 			},
-<<<<<<< HEAD
-<<<<<<< HEAD
-			'vpBlockActionSetCurrentTime': {
-=======
-			videopress_action_set_currenttime: {
->>>>>>> 06c938aaac (rename script actions)
-=======
 			vpBlockActionSetCurrentTime: {
->>>>>>> 29658df217 (rename actions using vp notation)
 				name: 'vpBlockActionSetCurrentTime',
 				type: 'action',
 				videoPressAction: 'videopress_action_set_currenttime',
