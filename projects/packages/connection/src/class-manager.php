@@ -1846,7 +1846,7 @@ class Manager {
 				'scope'                 => $signed_role,
 				'user_email'            => $user->user_email,
 				'user_login'            => $user->user_login,
-				'is_active'             => $this->is_active(), // TODO Deprecate this.
+				'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
 				'jp_version'            => Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'             => $auth_type,
 				'secret'                => $secrets['secret_1'],
