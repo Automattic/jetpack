@@ -313,7 +313,7 @@ class Jetpack_Podcast_Helper {
 		$cache_timeout_filter_added = false;
 		if ( $this->cache_timeout !== null ) {
 			// If we have a custom cache timeout, apply the custom timeout value.
-			add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ) );
+			add_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ), 20 );
 			$cache_timeout_filter_added = true;
 		}
 
@@ -338,7 +338,7 @@ class Jetpack_Podcast_Helper {
 
 		if ( $cache_timeout_filter_added ) {
 			// Remove the cache timeout filter we added.
-			remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ) );
+			remove_filter( 'wp_feed_cache_transient_lifetime', array( $this, 'filter_podcast_cache_timeout' ), 20 );
 		}
 
 		/**
