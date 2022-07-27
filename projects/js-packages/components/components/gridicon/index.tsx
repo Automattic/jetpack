@@ -6,11 +6,12 @@ It has been modified to work with Preact, and only includes the icons that we ne
 !!! */
 
 import { __ } from '@wordpress/i18n';
-import React, { Component } from 'react';
-
+import classNames from 'classnames';
+import { Component } from 'react';
 import './style.scss';
+import { GridiconProps } from './types';
 
-class Gridicon extends Component {
+class Gridicon extends Component< GridiconProps > {
 	static defaultProps = {
 		'aria-hidden': 'false',
 		focusable: 'true',
@@ -226,16 +227,11 @@ class Gridicon extends Component {
 		const width = this.props.width || size;
 		const style = this.props.style || { height, width };
 
-		const icon = 'gridicons-' + this.props.icon,
-			needsOffset = this.needsOffset( icon, size );
+		const icon = 'gridicons-' + this.props.icon;
 
-		let iconClass = [ 'gridicon', icon, className ];
-
-		if ( needsOffset ) {
-			iconClass.push( 'needs-offset' );
-		}
-		iconClass = iconClass.join( ' ' );
-
+		const iconClass = classNames( 'gridicon', icon, className, {
+			'needs-offset': this.needsOffset( icon, size ),
+		} );
 		const description = this.getSVGDescription( icon );
 
 		return (
