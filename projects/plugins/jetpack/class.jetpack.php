@@ -245,6 +245,10 @@ class Jetpack {
 			'The SEO Framework'              => 'autodescription/autodescription.php',
 			'Rank Math'                      => 'seo-by-rank-math/rank-math.php',
 			'Slim SEO'                       => 'slim-seo/slim-seo.php',
+			'SEOKEY'                         => 'seo-key/seo-key.php',
+			'SEOKEY Pro'                     => 'seo-key-pro/seo-key.php',
+			'SEOPress'                       => 'wp-seopress/seopress.php',
+			'SEOPress Pro'                   => 'wp-seopress-pro/seopress-pro.php',
 		),
 		'verification-tools' => array(
 			'WordPress SEO by Yoast'         => 'wordpress-seo/wp-seo.php',
@@ -3949,6 +3953,7 @@ p {
 						$url = add_query_arg( 'auth_approved', 'true', $url );
 					}
 
+					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $url );
 					exit;
 				case 'activate':
@@ -3997,6 +4002,8 @@ p {
 					check_admin_referer( 'jetpack-reconnect' );
 					self::log( 'reconnect' );
 					self::disconnect();
+
+					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $this->build_connect_url( true, false, 'reconnect' ) );
 					exit;
 				case 'deactivate':
@@ -4045,6 +4052,7 @@ p {
 							$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 						}
 
+						add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 						wp_safe_redirect( $url );
 						exit;
 					}

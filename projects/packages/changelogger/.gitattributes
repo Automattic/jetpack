@@ -6,8 +6,9 @@ phpunit.xml.dist export-ignore
 tests/           export-ignore
 
 # Files not needed in the production build.
-.phpcs.dir.xml   production-exclude
-/changelog/**    production-exclude
+.phpcs.dir.xml                    production-exclude
+.phpcs.dir.phpcompatibility.xml   production-exclude
+/changelog/**                     production-exclude
 
 # This file intentionally has CRLF newlines.
 tests/php/tests/lib/fixtures/KeepAChangelogParserTest.tabs-and-newlines.md binary
