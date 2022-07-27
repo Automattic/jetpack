@@ -89,17 +89,9 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.1.0-beta - 2022-06-29
-#### Changed
-- Renaming master to trunk.
-- Renaming `master` references to `trunk`
-- Reorder JS imports for `import/order` eslint rule.
-- Updated package dependencies.
-- Updated the design of the admin page to include share counters.
-
 ### 1.2.0-beta - 2022-07-27
 ### Added
-- Added shares meter to Jetpack Social admin page. 
+- Added shares meter to Jetpack Social admin page.
 - Updated package dependencies.
 - Added the posts box to the Jetpack Social admin page
 - Fetch share counter on the server side in Jetpack Social. To facilitate this, the call to wpcom has been moved into the Publicize_Base class.
