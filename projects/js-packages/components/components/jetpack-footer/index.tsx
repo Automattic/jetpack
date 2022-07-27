@@ -1,10 +1,10 @@
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
+import React from 'react';
 import AutomatticBylineLogo from '../automattic-byline-logo';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo';
 import type { JetpackFooterProps } from './types';
-import type React from 'react';
 
 /**
  * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
