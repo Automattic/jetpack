@@ -114,6 +114,6 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 - Updated package dependencies.
 
 #### Fixed
-- Fix protect admin toolbar icon display when Jetpack enabled and connected
-- Minor bug fix - added isset() checks for report data properties
+- Admin toolbar: ensure the toolbar icon is properly displayed, even when the Jetpack plugin is enabled and connected.
+- General: avoid PHP notices when fetching reports about your site.
 
