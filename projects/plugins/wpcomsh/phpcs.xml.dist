@@ -34,5 +34,7 @@
 		<exclude name="WordPress.PHP.YodaConditions"/>
 	</rule>
 
-	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed" />
+	</rule>
 </ruleset>
