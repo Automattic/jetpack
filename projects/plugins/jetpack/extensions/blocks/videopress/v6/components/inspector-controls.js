@@ -37,12 +37,13 @@ export default function VideoPressInspectorControls( {
 
 	return (
 		<InspectorControls>
-			<AutoplayControl
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				videoDuration={ videoDuration }
-			/>
 			<PanelBody title={ __( 'General Settings', 'jetpack' ) }>
+				<AutoplayControl
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					videoDuration={ videoDuration }
+				/>
+
 				<ToggleControl
 					label={ renderControlLabelWithTooltip(
 						__( 'Loop', 'jetpack' ),

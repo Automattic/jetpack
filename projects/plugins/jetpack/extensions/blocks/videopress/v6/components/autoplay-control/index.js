@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { PanelBody, ToggleControl, RangeControl } from '@wordpress/components';
+import { ToggleControl, RangeControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { debounce } from 'lodash';
@@ -27,7 +27,7 @@ export default function AutoplayControl( { attributes, setAttributes, videoDurat
 	);
 
 	return (
-		<PanelBody title={ __( 'Autoplay Settings', 'jetpack' ) }>
+		<>
 			<ToggleControl
 				label={ renderControlLabelWithTooltip(
 					__( 'Autoplay', 'jetpack' ),
@@ -63,6 +63,6 @@ export default function AutoplayControl( { attributes, setAttributes, videoDurat
 					withInputField={ false }
 				/>
 			) }
-		</PanelBody>
+		</>
 	);
 }
