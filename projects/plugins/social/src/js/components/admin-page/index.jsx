@@ -8,7 +8,7 @@ import {
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import ConnectionScreen from './../connection-screen';
+import PricingTable from '../pricing-table';
 import Header from './../header';
 import InfoSection from './../info-section';
 import Logo from './../logo';
@@ -21,16 +21,10 @@ const Admin = () => {
 
 	if ( showConnectionCard ) {
 		return (
-			<AdminPage
-				moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) }
-				showHeader={ false }
-				showBackground={ false }
-			>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col>
-						<ConnectionScreen />
-					</Col>
-				</Container>
+			<AdminPage moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) } header={ <Logo /> }>
+				<AdminSectionHero>
+					<PricingTable />
+				</AdminSectionHero>
 			</AdminPage>
 		);
 	}
