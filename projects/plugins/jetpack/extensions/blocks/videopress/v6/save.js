@@ -13,7 +13,7 @@ export default function save( { attributes } ) {
 		caption,
 		maxWidth,
 		autoplayHovering,
-		autoplayHoveringStart,
+		autoplayPlaybackStart,
 		videoRatio,
 		cacheHtml,
 	} = attributes;
@@ -26,7 +26,7 @@ export default function save( { attributes } ) {
 
 	const features = {
 		autoplayHovering,
-		autoplayHoveringStart,
+		autoplayPlaybackStart,
 		videoRatio,
 	};
 

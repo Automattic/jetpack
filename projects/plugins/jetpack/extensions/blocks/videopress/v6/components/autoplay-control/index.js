@@ -15,13 +15,13 @@ import { renderControlLabelWithTooltip } from '../inspector-controls';
 const debouncedOnChange = debounce( fn => fn(), 250 );
 
 export default function AutoplayControl( { attributes, setAttributes, videoDuration } ) {
-	const { autoplay, autoplayHoveringStart } = attributes;
-	const [ startingTime, setStartingTime ] = useState( autoplayHoveringStart );
+	const { autoplay, autoplayPlaybackStart } = attributes;
+	const [ startingTime, setStartingTime ] = useState( autoplayPlaybackStart );
 
 	const onStartingTimeChange = useCallback(
 		newTime => {
 			setStartingTime( newTime );
-			debouncedOnChange( () => setAttributes( { autoplayHoveringStart: newTime } ) );
+			debouncedOnChange( () => setAttributes( { autoplayPlaybackStart: newTime } ) );
 		},
 		[ setAttributes ]
 	);

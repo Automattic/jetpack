@@ -5,7 +5,7 @@ export default {
 	autoplayHovering: {
 		type: 'boolean',
 	},
-	autoplayHoveringStart: {
+	autoplayPlaybackStart: {
 		type: 'integer',
 		default: 0,
 	},

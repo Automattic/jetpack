@@ -79,7 +79,7 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 	}
 
 	const { contentDocument, ownerDocument, contentWindow } = playerIFrame;
-	const { autoplayHovering, autoplayHoveringStart, videoRatio } = features;
+	const { autoplayHovering, autoplayPlaybackStart, videoRatio } = features;
 
 	setPlayerheight( blockDOMReference, playerIFrame, videoRatio );
 
@@ -121,7 +121,7 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 
 		// When video is ready, set initial time position.
 		contentWindow.addEventListener( 'onVideoPressLoadingState', () =>
-			setInitialTimeHelper( playerIFrame, autoplayHoveringStart, function () {
+			setInitialTimeHelper( playerIFrame, autoplayPlaybackStart, function () {
 				contentWindow.removeEventListener( 'onVideoPressLoadingState', setInitialTimeHelper );
 			} )
 		);
@@ -129,7 +129,7 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 		// Stop autoplay hovering after VIDEO_AUTOPLAY_DURATION seconds.
 		contentWindow.addEventListener( 'onVideoPressTimeUpdate', event => {
 			const { currentTime } = event.detail;
-			if ( currentTime <= autoplayHoveringStart + VIDEO_AUTOPLAY_DURATION ) {
+			if ( currentTime <= autoplayPlaybackStart + VIDEO_AUTOPLAY_DURATION ) {
 				return;
 			}
 
@@ -146,7 +146,7 @@ function initVideoPressBlocks( blockDOMReference, clientId ) {
 			dispatchPlayerAction( playerIFrame, 'vpBlockActionPause' );
 			if ( autoPlayingFinished ) {
 				dispatchPlayerAction( playerIFrame, 'vpBlockActionSetCurrentTime', {
-					currentTime: autoplayHoveringStart,
+					currentTime: autoplayPlaybackStart,
 				} );
 			}
 		} );

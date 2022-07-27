@@ -47,7 +47,7 @@ export default function VideoPressPlayer( {
 	onDurationChange,
 } ) {
 	const ref = useRef();
-	const { maxWidth, caption, videoRatio, autoplayHovering, autoplayHoveringStart } = attributes;
+	const { maxWidth, caption, videoRatio, autoplayHovering, autoplayPlaybackStart } = attributes;
 
 	const isAutoplayHoveringEnabled = autoplayHovering && isSelected;
 
@@ -129,12 +129,12 @@ export default function VideoPressPlayer( {
 		if ( autoPlayingFinished ) {
 			// set current time at the begining of the autoplay starting.
 			dispatchPlayerAction( sandboxIFrame, 'vpBlockActionSetCurrentTime', {
-				currentTime: autoplayHoveringStart,
+				currentTime: autoplayPlaybackStart,
 			} );
 		}
 	}, [
 		autoPlayingFinished,
-		autoplayHoveringStart,
+		autoplayPlaybackStart,
 		isAutoplayHoveringEnabled,
 		preview,
 		sandboxIFrame,
@@ -144,14 +144,14 @@ export default function VideoPressPlayer( {
 		( { detail } ) => {
 			setIsVideoLoaded( detail?.state === 'loaded' );
 
-			setInitialTimeHelper( sandboxIFrame, autoplayHoveringStart, function () {
+			setInitialTimeHelper( sandboxIFrame, autoplayPlaybackStart, function () {
 				sandboxIFrame?.contentWindow.removeEventListener(
 					'onVideoPressLoadingState',
 					setInitialTimeHelper
 				);
 			} );
 		},
-		[ autoplayHoveringStart, sandboxIFrame ]
+		[ autoplayPlaybackStart, sandboxIFrame ]
 	);
 
 	/*
@@ -166,14 +166,14 @@ export default function VideoPressPlayer( {
 			}
 
 			const { currentTime } = detail;
-			if ( ! currentTime || currentTime < autoplayHoveringStart + 5 ) {
+			if ( ! currentTime || currentTime < autoplayPlaybackStart + 5 ) {
 				return;
 			}
 
 			dispatchPlayerAction( sandboxIFrame, 'vpBlockActionPause' );
 			setAutoPlayingFinished( true );
 		},
-		[ isAutoplayHoveringEnabled, autoplayHoveringStart, sandboxIFrame ]
+		[ isAutoplayHoveringEnabled, autoplayPlaybackStart, sandboxIFrame ]
 	);
 
 	// Listen and trigger onDurationChange
@@ -193,9 +193,9 @@ export default function VideoPressPlayer( {
 			return;
 		}
 		dispatchPlayerAction( sandboxIFrame, 'vpBlockActionSetCurrentTime', {
-			currentTime: autoplayHoveringStart,
+			currentTime: autoplayPlaybackStart,
 		} );
-	}, [ autoplayHoveringStart, sandboxIFrame ] );
+	}, [ autoplayPlaybackStart, sandboxIFrame ] );
 
 	useEffect( () => {
 		if ( ! sandboxIFrame?.contentWindow ) {
