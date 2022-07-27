@@ -52,10 +52,8 @@ class Jetpack_Podcast_Helper {
 		 */
 		$podcast_cache_timeout = apply_filters( 'jetpack_podcast_feed_cache_timeout', $this->cache_timeout, $this->feed );
 
-		// Make sure we force $this->cache_timeout to be int|null.
-		if ( $podcast_cache_timeout === null || ! is_int( $podcast_cache_timeout ) ) {
-			$this->cache_timeout = null;
-		} else {
+		// Make sure we force new values for $this->cache_timeout to be integers.
+		if ( is_int( $podcast_cache_timeout ) ) {
 			$this->cache_timeout = (int) $podcast_cache_timeout;
 		}
 	}
