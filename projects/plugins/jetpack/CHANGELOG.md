@@ -2,6 +2,56 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.2-beta - 2022-07-26
+### Enhancements
+- Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress. [#25155]
+- VideoPress Block (beta): add block transforms for the VideoPress block. [#25154]
+
+### Bug fixes
+- Admin menu: display the translations for the plan name. [#25169]
+- Comments: avoid PHP Notice when using Jetpack's Comment form feature when your site is no longer properly connected to WordPress.com. [#25127]
+- Connection: fix Jetpack redirect after registration. [#25135]
+- Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites. [#25085]
+- Sharing: ensure that sharing buttons are not displayed for excerpts. [#24896]
+- Slideshow Block: support wide and full alignment options. [#25107]
+- Subscribe block: fix support for allowed HTML tags in submit button. [#25114]
+- VideoPress: avoid PHP notices when inserting videos that miss some metadata. [#25129]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add last_updated API field to the sites endpoint. [#25116]
+- Cleanup old videopress player code (D75134-code). [#23384]
+- E2E tests: cancel partner plan when resetting test environment. [#25264]
+- Init 11.2-a.6 cycle. [#25126]
+- Jetpack 11.2-a.5 changelog editorial. [#25128]
+- Publicize: Remove folder from modules. [#25049]
+- Search: remove Calypso search page link in admin menu for simple sites. [#25149]
+- Update analytics. [#25257]
+- Updated package dependencies. [#24929]
+- Updating composer.lock. [#25142]
+- VideoPress block (beta): under the hood improvements such as emit events to window where bridge runs. [#25148]
+- WordPress.com REST API: remove default for 'dont_change_homepage' in the '/sites/%s/themes/mine' endpoint. [#25141]
+
+## 11.2-a.5 - 2022-07-19
+### Enhancements
+- Blocks: enable Jetpack block collection for the native editor block inserter (on self hosted Jetpack sites). [#25092]
+- Connection: make sure pre-existing settings are respected on plugin activation. [#24980]
+- VideoPress: add UX improvements including fallback thumbnail replaced by loading element, and better error messaging (in Beta only). [#25088, #25064]
+
+### Improved compatibility
+- Admin UI: add h1 page headings for better screen reader navigation. [#24930]
+- Custom Post Types: change Nova functions to public to re-allow hooking. [#25084]
+
+### Bug fixes
+- Form block: fix Checkbox Group option color. [#24932]
+- Masterbar: fix All Posts dashboard redirect issue when switching between classic and default editor views. [#25074]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- E2E tests: remove the search package build step. [#25080]
+- Rewrite to drop dependency on experimental BlockVariationPicker from Gutenberg. [#24909]
+- Updated package dependencies. [#24710, #24836, #24998, #25086]
+- VideoPress: under the hood improvements including using core components, migrating features to the VideoPress package, removing unused attributes and better handling of the block loading state. [#25095, #25062, #25069, #25096, #24997, #25047]
+- WordPress.com REST API: allow an extra endpoint to a themed WordPress.com endpoint. [#25070]
+
 ## 11.2-a.3 - 2022-07-12
 ### Enhancements
 - Podcast Player: add new actions to make it possible for users to set up code that runs for podcast fetches. [#25046]
@@ -21,7 +71,6 @@
 - Use JS built-in `URLSearchParams` instead of `query-string` package. [#24994]
 - VideoPress: under the hood improvements such as adding new components. [#24974, #25058]
 - VideoPress: add videopress package as dependency. [#25045]
-
 
 ## 11.2-a.1 - 2022-07-06
 ### Enhancements

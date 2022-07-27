@@ -843,7 +843,7 @@ class Helper {
 			$excluded_post_types = array();
 		}
 
-		$is_wpcom                  = defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
+		$is_wpcom                  = static::is_wpcom();
 		$is_private_site           = '-1' === get_option( 'blog_public' );
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
@@ -894,6 +894,13 @@ class Helper {
 		 * @param array $options Array of parameters used in Instant Search queries.
 		 */
 		return apply_filters( 'jetpack_instant_search_options', $options );
+	}
+
+	/**
+	 * Returns true if the site is a WordPress.com simple site, i.e. the code runs on WPCOM.
+	 */
+	public static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
 	}
 
 	/**

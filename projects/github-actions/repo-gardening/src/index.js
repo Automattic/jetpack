@@ -1,8 +1,5 @@
 const { setFailed, getInput } = require( '@actions/core' );
 const { context, getOctokit } = require( '@actions/github' );
-const debug = require( './debug' );
-const ifNotClosed = require( './if-not-closed' );
-const ifNotFork = require( './if-not-fork' );
 const addLabels = require( './tasks/add-labels' );
 const addMilestone = require( './tasks/add-milestone' );
 const assignIssues = require( './tasks/assign-issues' );
@@ -12,8 +9,12 @@ const flagOss = require( './tasks/flag-oss' );
 const gatherSupportReferences = require( './tasks/gather-support-references' );
 const notifyDesign = require( './tasks/notify-design' );
 const notifyEditorial = require( './tasks/notify-editorial' );
+const replyToCustomersReminder = require( './tasks/reply-to-customers-reminder' );
 const triageNewIssues = require( './tasks/triage-new-issues' );
 const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
+const debug = require( './utils/debug' );
+const ifNotClosed = require( './utils/if-not-closed' );
+const ifNotFork = require( './utils/if-not-fork' );
 
 const automations = [
 	{
@@ -74,6 +75,11 @@ const automations = [
 		event: 'issue_comment',
 		action: [ 'created' ],
 		task: gatherSupportReferences,
+	},
+	{
+		event: 'issues',
+		action: [ 'closed' ],
+		task: replyToCustomersReminder,
 	},
 ];
 
