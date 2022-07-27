@@ -107,5 +107,4 @@ The easiest way is to use the Custom Message option in the publishing options bo
 
 ### Changed
 - Rework the admin page to use new components
-- Start the 1.2.0 release cycle
 - Updated the tagline on the admin page.
