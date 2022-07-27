@@ -40,7 +40,7 @@ function grunion_contact_form_require_endpoint() {
  */
 function grunion_contact_form_set_block_template_attribute( $template ) {
 	global $_wp_current_template_content;
-	if ( ABSPATH . WPINC . '/template-canvas.php' === $template ) {
+	if ( 'template-canvas.php' === basename( $template ) ) {
 		Grunion_Contact_Form::style_on();
 		$_wp_current_template_content = grunion_contact_form_apply_block_attribute(
 			$_wp_current_template_content,
