@@ -1,11 +1,11 @@
 import { ProductPriceProps } from '../product-price/types';
-import type { IconSlug } from '../icons';
+import type { JetpackIconSlug } from '../icons';
 
 export type ProductOfferProps = {
 	/**
 	 * Product slug.
 	 */
-	slug?: string;
+	slug?: JetpackIconSlug;
 
 	/**
 	 * Product name.
@@ -15,7 +15,7 @@ export type ProductOfferProps = {
 	/**
 	 * Custom Icon slug.
 	 */
-	icon?: IconSlug;
+	icon?: JetpackIconSlug;
 
 	/**
 	 * Product title.
@@ -50,7 +50,7 @@ export type ProductOfferProps = {
 	/**
 	 * List of supported products (for bundles).
 	 */
-	supportedProducts?: Array< string >;
+	supportedProducts?: Array< JetpackIconSlug >;
 
 	/**
 	 * Product Pricing object.
@@ -109,12 +109,12 @@ export type IconsCardProps = {
 	/**
 	 * Custom icon slug.
 	 */
-	icon: IconSlug;
+	icon: JetpackIconSlug;
 
 	/**
 	 * List of supported products.
 	 */
-	products: Array< IconSlug >;
+	products: Array< JetpackIconSlug >;
 
 	/**
 	 * Icon size.
