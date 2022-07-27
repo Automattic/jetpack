@@ -4,7 +4,7 @@ Tags: social-media, publicize, social-media-manager, social-networking, social m
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,3 +97,15 @@ The easiest way is to use the Custom Message option in the publishing options bo
 - Updated package dependencies.
 - Updated the design of the admin page to include share counters.
 
+### 1.2.0-beta - 2022-07-27
+### Added
+- Added shares meter to Jetpack Social admin page. 
+- Updated package dependencies.
+- Added the posts box to the Jetpack Social admin page
+- Fetch share counter on the server side in Jetpack Social. To facilitate this, the call to wpcom has been moved into the Publicize_Base class.
+- Updated publicize package version.
+
+### Changed
+- Rework the admin page to use new components
+- Start the 1.2.0 release cycle
+- Updated the tagline on the admin page.
