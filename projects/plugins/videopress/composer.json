@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-videopress",
+	"name": "automattic/jetpack-videopress-plugin",
 	"description": "High quality, ad-free video.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
@@ -57,7 +57,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-videopress",
+		"mirror-repo": "Automattic/jetpack-videopress-plugin",
 		"release-branch-prefix": "videopress",
 		"beta-plugin-slug": "jetpack-videopress",
 		"wp-plugin-slug": "jetpack-videopress"

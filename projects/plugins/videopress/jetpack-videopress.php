@@ -10,7 +10,7 @@
  * License: GPLv2 or later
  * Text Domain: jetpack-videopress
  *
- * @package automattic/jetpack-videopress
+ * @package automattic/jetpack-videopress-plugin
  */
 
 /*

@@ -2,7 +2,7 @@
 /**
  * Primary class file for the Jetpack Videopress plugin.
  *
- * @package automattic/jetpack-videopress-plugin
+ * @package automattic/jetpack-videopress-plugin-plugin
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
