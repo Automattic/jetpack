@@ -23,6 +23,7 @@ import { renderControlLabelWithTooltip } from '../inspector-controls';
 import './style.scss';
 
 const debouncedOnChange = debounce( fn => fn(), 250 );
+const debouncedOnChange25 = debounce( fn => fn(), 25 );
 
 export default function HoverEffectControl( { attributes, setAttributes, videoDuration } ) {
 	const { hoverEffect, hoverEffectPlaybackAt } = attributes;
@@ -64,7 +65,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 				newHundredths / 100;
 
 			setStartingTime( newTime );
-			debouncedOnChange( () => setAttributes( { hoverEffectPlaybackAt: newTime } ) );
+			debouncedOnChange25( () => setAttributes( { hoverEffectPlaybackAt: newTime } ) );
 		},
 		[
 			hoverEffectPlaybackAtHours,
