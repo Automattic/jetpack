@@ -85,12 +85,17 @@ input.jetpack-instant-search__box-input.search-field {
 	outline-style: none;
 	border: none;
 	box-shadow: none;
+	padding: 0px 10px;
 
 	&:hover,
 	&:focus {
 		border: none;
 		box-shadow: none;
-		outline-style: none;
+	}
+
+	&:focus {
+		outline: 1px auto Highlight;
+		outline: 1px auto -webkit-focus-ring-color !important; /* this won't work without !important */
 	}
 
 	&::-webkit-search-results-button,
