@@ -39,10 +39,19 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
+      - name: Pnpm install
+        run: pnpm install
+
+      - name: Detect changed projects
+        id: changed
+        run: |
+          CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
+          echo "::set-output name=projects::${CHANGED}"
+
       - name: Post reminder to test on WordPress.com
         id: set-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && contains( steps.changed.outputs.projects, 'plugins/jetpack' ) }}
         with:
           result-encoding: string
           script: |
@@ -53,15 +62,6 @@ jobs:
               body: 'The PR will need to be tested on WordPress.com. This comment will be updated with testing instructions as soon the build is complete.',
             });
             return id;
-
-      - name: Pnpm install
-        run: pnpm install
-
-      - name: Detect changed projects
-        id: changed
-        run: |
-          CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
-          echo "::set-output name=projects::${CHANGED}"
 
       - name: Build changed projects
         id: build
