@@ -12,20 +12,21 @@ import {
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { settings, info } from '@wordpress/icons';
+import { settings } from '@wordpress/icons';
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import { VIDEO_AUTOPLAY_DURATION } from '../../constants';
+import { convertSecondsToTimeCode } from '../../utils/time';
 import { renderControlLabelWithTooltip } from '../inspector-controls';
 import './style.scss';
 
 const debouncedOnChange = debounce( fn => fn(), 250 );
 const debouncedOnChange25 = debounce( fn => fn(), 25 );
 
-export default function HoverEffectControl( { attributes, setAttributes, videoDuration = 220 } ) {
+export default function HoverEffectControl( { attributes, setAttributes, videoDuration = 100 } ) {
 	const { hoverEffect, hoverEffectPlaybackAt } = attributes;
 
 	const [ hoverEffectStartingTime, setStartingTime ] = useState( hoverEffectPlaybackAt );
@@ -46,7 +47,6 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 		: Math.floor( ( hoverEffectStartingTime * 100 ) % 100 );
 
 	const [ timeControlMode, setTimeControlMode ] = useState( 'draggable' );
-	const [ showInfoPane, setShowInfoPane ] = useState( false );
 
 	const onStartingTimeChange = useCallback(
 		newTimeInteger => {
@@ -93,36 +93,29 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 					/>
 				</FlexItem>
 				{ hoverEffect && (
-					<>
-						<FlexItem>
-							<Button
-								className="components-button is-small has-icon"
-								label={ __( 'Show info pane', 'jetpack' ) }
-								icon={ info }
-								onClick={ () => setShowInfoPane( ! showInfoPane ) }
-								isPressed={ showInfoPane }
-								isSmall
-							/>
-						</FlexItem>
-
-						<FlexItem>
-							<Button
-								className="components-button is-small has-icon"
-								label={
-									timeControlMode === 'inputs'
-										? __( 'Use inputs preset', 'jetpack' )
-										: __( 'Use draggables preset', 'jetpack' )
-								}
-								icon={ settings }
-								onClick={ () => {
-									setTimeControlMode( timeControlMode === 'draggable' ? 'inputs' : 'draggable' );
-								} }
-								isPressed={ timeControlMode === 'inputs' }
-								isSmall
-							/>
-						</FlexItem>
-					</>
+					<FlexItem>
+						<Button
+							className="components-button is-small has-icon"
+							label={
+								timeControlMode === 'inputs'
+									? __( 'Use inputs preset', 'jetpack' )
+									: __( 'Use draggables preset', 'jetpack' )
+							}
+							icon={ settings }
+							onClick={ () => {
+								setTimeControlMode( timeControlMode === 'draggable' ? 'inputs' : 'draggable' );
+							} }
+							isPressed={ timeControlMode === 'inputs' }
+							isSmall
+						/>
+					</FlexItem>
 				) }
+			</Flex>
+
+			<Flex justify="center" className="components-time-control__info-pane">
+				<FlexItem>{ convertSecondsToTimeCode( hoverEffectStartingTime ) }</FlexItem>
+				<FlexItem>/</FlexItem>
+				<FlexItem>{ convertSecondsToTimeCode( videoDuration ) }</FlexItem>
 			</Flex>
 
 			{ typeof videoDuration !== 'undefined' && hoverEffect && timeControlMode === 'inputs' && (
