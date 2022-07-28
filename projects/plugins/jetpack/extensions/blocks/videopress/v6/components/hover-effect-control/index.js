@@ -81,7 +81,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 				<FlexItem>
 					<ToggleControl
 						label={ renderControlLabelWithTooltip(
-							__( 'Enable Hover Effect', 'jetpack' ),
+							__( 'Hover Effect', 'jetpack' ),
 							/* translators: Tooltip describing the "hover effect" option for the VideoPress player */
 							__( 'Start playing the video when hovering over it', 'jetpack' )
 						) }
