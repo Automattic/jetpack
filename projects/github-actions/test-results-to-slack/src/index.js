@@ -32,7 +32,7 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 
 	await slackClient.chat.postMessage( {
 		text: `Received event = '${ context.eventName }', action = '${ context.payload.action }'`,
-		slackChannel,
+		channel: slackChannel,
 		username: 'Tests reporter',
 		icon_emoji: ':jetpack:',
 	} );
