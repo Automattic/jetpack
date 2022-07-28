@@ -25,7 +25,7 @@ import './style.scss';
 const debouncedOnChange = debounce( fn => fn(), 250 );
 const debouncedOnChange25 = debounce( fn => fn(), 25 );
 
-export default function HoverEffectControl( { attributes, setAttributes, videoDuration } ) {
+export default function HoverEffectControl( { attributes, setAttributes, videoDuration = 200 } ) {
 	const { hoverEffect, hoverEffectPlaybackAt } = attributes;
 
 	const [ hoverEffectStartingTime, setStartingTime ] = useState( hoverEffectPlaybackAt );
@@ -162,6 +162,17 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 							disabled={ isNaN( hoverEffectPlaybackAt ) }
 						/>
 					</FlexItem>
+
+					<FlexItem>
+						<TextControl
+							type="number"
+							min={ 0 }
+							max={ 99 }
+							value={ hoverEffectPlaybackAtHundredths }
+							onChange={ onStartingTimeHundredthsChange }
+							disabled={ isNaN( hoverEffectPlaybackAt ) }
+						/>
+					</FlexItem>
 				</Flex>
 			) }
 
@@ -180,7 +191,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 								withInputField={ false }
 								marks={
 									videoDuration &&
-									[ ...Array( ( videoDuration / 60 ) | 0 ).keys() ].map( i => {
+									[ ...Array( ( ( videoDuration / 60 ) | 0 ) + 1 ).keys() ].map( i => {
 										return {
 											value: i * 60,
 											label: `${ i }m`,
