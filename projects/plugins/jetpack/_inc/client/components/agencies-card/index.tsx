@@ -91,14 +91,12 @@ const AgenciesCard: FC< Props > = ( {
 };
 
 export default connect(
-	state => {
-		return {
-			isFetchingData: isFetchingSiteData( state ),
-			isUserLinked: isCurrentUserLinked( state ),
-			isOwner: isConnectionOwner( state ),
-			isDismissed: agenciesLearnMoreDismissed( state ),
-		};
-	},
+	state => ( {
+		isFetchingData: isFetchingSiteData( state ),
+		isUserLinked: isCurrentUserLinked( state ),
+		isOwner: isConnectionOwner( state ),
+		isDismissed: agenciesLearnMoreDismissed( state ),
+	} ),
 	dispatch => ( {
 		dismiss: () =>
 			dispatch(
@@ -106,8 +104,6 @@ export default connect(
 					dismiss_dash_agencies_learn_more: true,
 				} )
 			),
-		connectUser: () => {
-			return dispatch( connectUser() );
-		},
+		connectUser: () => dispatch( connectUser() ),
 	} )
 )( AgenciesCard );
