@@ -26,7 +26,7 @@ export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePri
 			</Text>
 			{ integer }
 			{ showPriceFraction && (
-				<Text component="sup" variant="title-medium">
+				<Text component="sup" variant="title-medium" data-testid="PriceFraction">
 					{ fraction }
 				</Text>
 			) }
