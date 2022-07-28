@@ -1,7 +1,15 @@
 /**
  * External dependencies
  */
-import { ToggleControl, RangeControl, Flex, FlexItem, Button } from '@wordpress/components';
+import {
+	ToggleControl,
+	RangeControl,
+	Flex,
+	FlexItem,
+	FlexBlock,
+	Button,
+	TextControl,
+} from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { settings } from '@wordpress/icons';
@@ -28,6 +36,18 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 		},
 		[ setAttributes ]
 	);
+
+	const hoverEffectPlaybackAtSeconds = isNaN( hoverEffectStartingTime )
+		? 0
+		: hoverEffectStartingTime % 60;
+
+	const hoverEffectPlaybackAtMinutes = isNaN( hoverEffectStartingTime )
+		? 0
+		: Math.floor( hoverEffectStartingTime / 60 );
+
+	const hoverEffectPlaybackAtHours = isNaN( hoverEffectStartingTime )
+		? 0
+		: Math.floor( hoverEffectStartingTime / 3600 );
 
 	return (
 		<fieldset>
@@ -58,27 +78,82 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 							onClick={ () => {
 								setTimeControlMode( timeControlMode === 'draggable' ? 'inputs' : 'draggable' );
 							} }
-							isPressed={ timeControlMode === 'draggable' }
+							isPressed={ timeControlMode === 'inputs' }
 							isSmall
 						/>
 					</FlexItem>
 				) }
 			</Flex>
 
-			{ hoverEffect && timeControlMode === 'draggable' && (
-				<RangeControl
-					label={ renderControlLabelWithTooltip(
-						__( 'Playback start time', 'jetpack' ),
-						/* translators: Tooltip describing the "starting time" option for the VideoPress player */
-						__( 'The time at which the video will start playing', 'jetpack' )
-					) }
-					min={ 0 }
-					max={ videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : hoverEffectStartingTime }
-					initialPosition={ 0 }
-					value={ hoverEffectStartingTime }
-					onChange={ onStartingTimeChange }
-					withInputField={ false }
-				/>
+			{ hoverEffect && timeControlMode === 'inputs' && (
+				<Flex justify="space-between" className="components-time-control__body">
+					<FlexItem>
+						<TextControl
+							type="number"
+							min={ 0 }
+							max={ 99 }
+							value={ hoverEffectPlaybackAtHours }
+							onChange={ nextHours => {
+								onStartingTimeChange(
+									parseInt( nextHours ) * 3600 +
+										hoverEffectPlaybackAtMinutes * 60 +
+										hoverEffectPlaybackAtSeconds
+								);
+							} }
+						/>
+					</FlexItem>
+
+					<FlexItem>
+						<TextControl
+							type="number"
+							min={ 0 }
+							max={ 59 }
+							value={ hoverEffectPlaybackAtMinutes }
+							onChange={ nextMinutes => {
+								onStartingTimeChange(
+									hoverEffectPlaybackAtHours * 3600 +
+										parseInt( nextMinutes ) * 60 +
+										hoverEffectPlaybackAtSeconds
+								);
+							} }
+							disabled={ isNaN( hoverEffectPlaybackAt ) }
+						/>
+					</FlexItem>
+
+					<FlexItem>
+						<TextControl
+							type="number"
+							min={ 0 }
+							max={ 59 }
+							value={ hoverEffectPlaybackAtSeconds }
+							onChange={ nextSeconds => {
+								onStartingTimeChange(
+									hoverEffectPlaybackAtHours * 3600 +
+										hoverEffectPlaybackAtMinutes * 60 +
+										parseInt( nextSeconds )
+								);
+							} }
+							disabled={ isNaN( hoverEffectPlaybackAt ) }
+						/>
+					</FlexItem>
+				</Flex>
+			) }
+
+			{ hoverEffect && (
+				<Flex justify="space-between" className="components-time-control__body">
+					<FlexBlock>
+						<RangeControl
+							min={ 0 }
+							max={
+								videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : hoverEffectStartingTime
+							}
+							initialPosition={ 0 }
+							value={ hoverEffectStartingTime }
+							onChange={ onStartingTimeChange }
+							withInputField={ false }
+						/>
+					</FlexBlock>
+				</Flex>
 			) }
 		</fieldset>
 	);

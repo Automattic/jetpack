@@ -3,7 +3,7 @@ export default {
 		type: 'boolean',
 	},
 	autoplayPlaybackAt: {
-		type: 'integer',
+		type: 'number',
 		default: 0,
 	},
 	caption: {
@@ -19,7 +19,8 @@ export default {
 		type: 'boolean',
 	},
 	hoverEffectPlaybackAt: {
-		type: 'boolean',
+		type: 'number',
+		default: 0,
 	},
 	loop: {
 		type: 'boolean',
