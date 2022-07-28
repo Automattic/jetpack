@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Jetpack
+ * Plugin Name: Jetpack and a change
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
