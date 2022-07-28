@@ -142,16 +142,20 @@ class Config {
 	/**
 	 * Get the which modals have been displayed.
 	 *
-	 * This now holds an array of modal IDs since we are keeping the option name
-	 * It'll be overwritten once
+	 * This now holds an array of modal IDs since we are keeping the option name the same
+	 * earlier versions of Boost would set this to false.
 	 *
 	 * @return bool
 	 */
 	public function get_dismissed_modals() {
-		$score_prompts = \get_option( self::SHOW_SCORE_PROMPT_OPTION );
-		// if the value is false - "rate boost" was dismissed, so return the
+		// get the option. This will be false, or an empty array
+		$score_prompts = \get_option( self::SHOW_SCORE_PROMPT_OPTION, array() );
+		// if the value is false - "rate boost" was dismissed so the score-increase modal should not show.
 		if ( $score_prompts === false ) {
 			$score_prompts = array( 'score-increase' );
+			// if an empty array then no score prompts have been dismissed yet.
+		} elseif ( $score_prompts === array( '' ) ) {
+			$score_prompts = array();
 		}
 		return $score_prompts;
 	}
