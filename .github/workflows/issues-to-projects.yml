@@ -24,7 +24,7 @@ jobs:
   assign_boost_issues:
     name: Assign Boost issues to Boost board.
     runs-on: ubuntu-latest
-    if: github.event_name == 'issues' && (github.event.action == 'opened' || github.event.action == 'edited' || github.event.action == 'reopened' || github.event.action == 'labeled' )
+    if: github.event_name == 'issues'
     steps:
       # Jetpack Boost: Push to Boost Maintenance Board if labelled "[Plugin] Boost"
       - uses: leonsteinhaeuser/project-beta-automations@v1.2.1
