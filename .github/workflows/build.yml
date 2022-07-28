@@ -39,6 +39,21 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
+      - name: Post reminder to test on WordPress.com
+        id: set-reminder-comment
+        uses: actions/github-script@v6
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          result-encoding: string
+          script: |
+            const { data: { id } } = await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'The PR will need to be tested on WordPress.com. This comment will be updated with testing instructions as soon the build is complete.',
+            });
+            return id;
+
       - name: Pnpm install
         run: pnpm install
 
@@ -95,6 +110,23 @@ jobs:
           path: build.tar.xz
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
+
+      - name: Update reminder with testing instructions
+        id: update-reminder-comment
+        uses: actions/github-script@v6
+        if: ${{ github.event_name == 'pull_request' && steps.set-reminder-comment.outputs.result != null }}
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+        with:
+          script: |
+            const { BRANCH_NAME } = process.env;
+            const commentBody = `You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started.`;
+            await github.rest.issues.updateComment( {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody,
+              comment_id: ${{steps.set-reminder-comment.outputs.result}},
+            } );
 
   upgrade_test:
     name: Test plugin upgrades
