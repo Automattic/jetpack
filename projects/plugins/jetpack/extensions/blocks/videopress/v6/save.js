@@ -9,10 +9,12 @@ import classnames from 'classnames';
 
 export default function save( { attributes } ) {
 	const {
+		autoplay,
 		align,
 		caption,
 		maxWidth,
 		hoverEffect,
+		hoverEffectPlaybackAt,
 		autoplayPlaybackAt,
 		videoRatio,
 		cacheHtml,
@@ -25,8 +27,10 @@ export default function save( { attributes } ) {
 	} );
 
 	const features = {
-		hoverEffect,
+		autoplay,
 		autoplayPlaybackAt,
+		hoverEffect,
+		hoverEffectPlaybackAt,
 		videoRatio,
 	};
 
