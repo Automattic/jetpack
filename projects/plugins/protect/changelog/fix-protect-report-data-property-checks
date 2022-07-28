@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Minor bug fix - added isset() checks for report data properties

@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.17.0 - 2022-07-26
+### Added
+- Added missing color to ThemeProvider [#25147]
+
+### Changed
+- Converted PricingCard component to TypeScript [#24906]
+- Updated package dependencies. [#25158]
+
 ## 0.16.8 - 2022-07-19
 ### Changed
 - Updated package dependencies. [#24710]

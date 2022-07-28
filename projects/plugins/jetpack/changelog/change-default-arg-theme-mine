@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-WordPress.com REST API: Remove default for 'dont_change_homepage' in the '/sites/%s/themes/mine' endpoint.
