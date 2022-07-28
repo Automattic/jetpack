@@ -123,8 +123,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 								onStartingTimeChange(
 									parseInt( nextHours ) * 3600 +
 										hoverEffectPlaybackAtMinutes * 60 +
-										hoverEffectPlaybackAtSeconds +
-										hoverEffectPlaybackAtHundredths
+										hoverEffectPlaybackAtSeconds
 								);
 							} }
 						/>
@@ -140,8 +139,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 								onStartingTimeChange(
 									hoverEffectPlaybackAtHours * 3600 +
 										parseInt( nextMinutes ) * 60 +
-										hoverEffectPlaybackAtSeconds +
-										hoverEffectPlaybackAtHundredths
+										hoverEffectPlaybackAtSeconds
 								);
 							} }
 							disabled={ isNaN( hoverEffectPlaybackAt ) }
@@ -158,8 +156,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 								onStartingTimeChange(
 									hoverEffectPlaybackAtHours * 3600 +
 										hoverEffectPlaybackAtMinutes * 60 +
-										parseInt( nextSeconds ) +
-										hoverEffectPlaybackAtHundredths
+										parseInt( nextSeconds )
 								);
 							} }
 							disabled={ isNaN( hoverEffectPlaybackAt ) }
