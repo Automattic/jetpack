@@ -48,7 +48,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 
 	const onStartingTimeChange = useCallback(
 		newTimeInteger => {
-			const newTime = newTimeInteger + hoverEffectPlaybackAtHundredths;
+			const newTime = newTimeInteger + hoverEffectPlaybackAtHundredths / 100;
 			setStartingTime( newTime );
 			debouncedOnChange( () => setAttributes( { hoverEffectPlaybackAt: newTime } ) );
 		},
@@ -75,7 +75,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 	);
 
 	return (
-		<fieldset>
+		<fieldset className="components-time-control">
 			<Flex justify="space-between" className="components-time-control__header">
 				<FlexItem>
 					<ToggleControl
@@ -177,7 +177,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 									videoDuration ? videoDuration - VIDEO_AUTOPLAY_DURATION : hoverEffectStartingTime
 								}
 								initialPosition={ 0 }
-								value={ hoverEffectStartingTime }
+								value={ hoverEffectStartingTime | 0 }
 								onChange={ onStartingTimeChange }
 								withInputField={ false }
 								marks={
