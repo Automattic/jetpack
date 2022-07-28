@@ -1,12 +1,16 @@
-.components-time-control__header .components-button.is-small.has-icon:not(.has-text) {
+.components-time-control .components-button.is-small.has-icon:not(.has-text) {
     min-width: 24px;
     padding: 0;
 }
 
-.components-time-control__body .components-input-control__suffix {
+.components-time-control .components-input-control__suffix {
 	margin: 1px 3px 1px 1px;
 	padding: 1px 2px;
 	font-size: 8px;
 	letter-spacing: -0.5px;
 	text-transform: uppercase;
+}
+
+.components-time-control .components-range-control__marks {
+	margin-top: 13px;
 }
