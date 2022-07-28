@@ -38,7 +38,7 @@
 
 	border-left: 3px solid var( --jp-green-40 );
 
-	@include breakpoint ( "<660px" ) {
+	@include breakpoint( "<660px" ) {
 		.jp-agencies-card__description:first-of-type {
 			margin-bottom: rem( 16px );
 		}
@@ -49,6 +49,10 @@
 	font-weight: 400;
 	font-size: $font-title-small;
 	margin: 0;
+
+	@include breakpoint( "<660px" ) {
+		margin: 1.5rem 0 0 0;
+	}
 }
 
 .jp-agencies-card__contact {
