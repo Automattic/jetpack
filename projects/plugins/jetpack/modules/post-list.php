@@ -4,7 +4,7 @@
  * Module Description: Enhance the classic view of the Admin section of your WordPress site.
  * Sort Order: 31
  * Recommendation Order: 12
- * First Introduced: $$next-version$$
+ * First Introduced: 11.3
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Admin

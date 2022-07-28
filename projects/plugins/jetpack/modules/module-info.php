@@ -724,6 +724,25 @@ function jetpack_custom_jetpack_manage() {
 add_action( 'jetpack_module_more_info_manage', 'jetpack_custom_jetpack_manage' );
 
 /**
+ * Post list info.
+ */
+function jetpack_post_list_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-support-post-list' ) );
+}
+add_action( 'jetpack_learn_more_button_manage', 'jetpack_manage_more_link' );
+
+/**
+ * Post List description.
+ */
+function jetpack_post_list_info() {
+	esc_html_e(
+		'Enhance the classic view of the Admin section of your WordPress site.',
+		'jetpack'
+	);
+}
+add_action( 'jetpack_module_more_info_post_list', 'jetpack_post_list_info' );
+
+/**
  * Sitemaps support link.
  */
 function jetpack_sitemaps_more_link() {
