@@ -148,7 +148,7 @@ class Config {
 	 * @return bool
 	 */
 	public function get_dismissed_modals() {
-		$score_prompts = \get_option( self::SHOW_SCORE_PROMPT_OPTION, array( '' ) );
+		$score_prompts = \get_option( self::SHOW_SCORE_PROMPT_OPTION, array() );
 		// if the value is false - "rate boost" was dismissed, so return the
 		if ( $score_prompts == false ) {
 			$score_prompts = array( 'score-increase' );
