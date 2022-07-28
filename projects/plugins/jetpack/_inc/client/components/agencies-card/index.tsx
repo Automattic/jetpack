@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -13,6 +13,7 @@ interface Props {
 	isDismissed: boolean;
 	dismiss: () => void;
 	path: string;
+	discountPercentage: number;
 	isUserLinked: boolean;
 	isOwner: boolean;
 	isFetchingData: boolean;
@@ -23,6 +24,7 @@ const AgenciesCard: FC< Props > = ( {
 	isDismissed,
 	dismiss,
 	path,
+	discountPercentage,
 	isUserLinked,
 	isOwner,
 	isFetchingData,
@@ -65,14 +67,14 @@ const AgenciesCard: FC< Props > = ( {
 						{ __( "Manage your clients' sites with ease", 'jetpack' ) }
 					</h3>
 					<p className="jp-agencies-card__description">
-						{
-							/* Disabling translator comments eslint error because eslint is incorrectly assuming the % sign is a placeholder */
-							/* eslint-disable-next-line @wordpress/i18n-translator-comments */
+						{ sprintf(
+							/* translators: %s is the percentage discount the users get in the agencies portal */
 							__(
-								'Monitor site and product activity, manage licenses, and get a 25% discount in our agency portal.',
+								`Monitor site and product activity, manage licenses, and get a %s discount in our agency portal.`,
 								'jetpack'
-							)
-						}
+							),
+							`${ discountPercentage }%`
+						) }
 					</p>
 					<p className="jp-agencies-card__description">
 						<Button

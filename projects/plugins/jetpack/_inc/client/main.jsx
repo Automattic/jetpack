@@ -716,7 +716,7 @@ class Main extends React.Component {
 					/>
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowAgenciesCard() && (
-						<AgenciesCard path={ this.props.location.pathname } />
+						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 25 } />
 					) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
