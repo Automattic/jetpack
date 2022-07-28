@@ -68,6 +68,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		align,
 		videoRatio,
 		autoplayHovering,
+		hoverEffect,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -82,6 +83,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		seekbarPlayedColor,
 		useAverageColor,
 		poster,
+		cleanPlayerMode: !! hoverEffect,
 	} );
 
 	const [ videoDuration, setVideoDuration ] = useState();
