@@ -25,7 +25,7 @@ import './style.scss';
 const debouncedOnChange = debounce( fn => fn(), 250 );
 const debouncedOnChange25 = debounce( fn => fn(), 25 );
 
-export default function HoverEffectControl( { attributes, setAttributes, videoDuration = 200 } ) {
+export default function HoverEffectControl( { attributes, setAttributes, videoDuration = 220 } ) {
 	const { hoverEffect, hoverEffectPlaybackAt } = attributes;
 
 	const [ hoverEffectStartingTime, setStartingTime ] = useState( hoverEffectPlaybackAt );
@@ -113,7 +113,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 
 			{ typeof videoDuration !== 'undefined' && hoverEffect && timeControlMode === 'inputs' && (
 				<Flex justify="space-between" className="components-time-control__body">
-					<FlexItem>
+					<FlexItem className="components-time-control__hh_control">
 						<TextControl
 							type="number"
 							min={ 0 }
@@ -129,7 +129,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 						/>
 					</FlexItem>
 
-					<FlexItem>
+					<FlexItem className="components-time-control__mm_control">
 						<TextControl
 							type="number"
 							min={ 0 }
@@ -146,7 +146,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 						/>
 					</FlexItem>
 
-					<FlexItem>
+					<FlexItem className="components-time-control__ss_control">
 						<TextControl
 							type="number"
 							min={ 0 }
@@ -163,7 +163,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 						/>
 					</FlexItem>
 
-					<FlexItem>
+					<FlexItem className="components-time-control__hundredths_control">
 						<TextControl
 							type="number"
 							min={ 0 }

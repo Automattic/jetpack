@@ -14,3 +14,16 @@
 .components-time-control .components-range-control__marks {
 	margin-top: 13px;
 }
+
+.components-time-control__ss_control,
+.components-time-control__mm_control,
+.components-time-control__hh_control {
+	flex-grow: 1;
+}
+
+.components-time-control__hundredths_control {
+	flex-grow: 1;
+	.components-base-control {
+		padding-left: 8px;
+	}
+}
