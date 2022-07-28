@@ -50,6 +50,17 @@ importers:
     devDependencies:
       '@vercel/ncc': 0.28.5
 
+  projects/github-actions/test-results-to-slack:
+    specifiers:
+      '@actions/core': 1.6.0
+      '@actions/github': 5.0.1
+      '@vercel/ncc': 0.28.5
+    dependencies:
+      '@actions/core': 1.6.0
+      '@actions/github': 5.0.1
+    devDependencies:
+      '@vercel/ncc': 0.28.5
+
   projects/js-packages/analytics:
     specifiers:
       debug: 4.3.3
