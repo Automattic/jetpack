@@ -16,12 +16,12 @@ class Config {
 	/**
 	 * Nonce action for setting the statuses of rating and score prompts.
 	 */
-	const SET_SHOW_SCORE_PROMPT_NONCE  = 'set_show_score_prompt';
+	const SET_SHOW_SCORE_PROMPT_NONCE = 'set_show_score_prompt';
 
 	/**
 	 * Name of option to store status of show/hide rating and score prompts
 	 */
-	const SHOW_SCORE_PROMPT_OPTION  = 'jb_show_score_prompt';
+	const SHOW_SCORE_PROMPT_OPTION = 'jb_show_score_prompt';
 
 	public function init() {
 		add_action( 'wp_ajax_set_show_score_prompt', array( $this, 'handle_set_show_score_prompt' ) );
@@ -32,24 +32,24 @@ class Config {
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		$constants = array(
-			'version'             => JETPACK_BOOST_VERSION,
-			'api'                 => array(
+			'version'               => JETPACK_BOOST_VERSION,
+			'api'                   => array(
 				'namespace' => JETPACK_BOOST_REST_NAMESPACE,
 				'prefix'    => JETPACK_BOOST_REST_PREFIX,
 			),
-			'optimizations'       => $optimizations,
-			'locale'              => get_locale(),
-			'site'                => array(
+			'optimizations'         => $optimizations,
+			'locale'                => get_locale(),
+			'site'                  => array(
 				'domain'    => ( new Status() )->get_site_suffix(),
 				'url'       => get_home_url(),
 				'online'    => ! ( new Status() )->is_offline_mode(),
 				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			),
-			'shownAdminNoticeIds' => $this->get_shown_admin_notice_ids(),
-			'preferences'         => array(
-				'prioritySupport'  => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
+			'shownAdminNoticeIds'   => $this->get_shown_admin_notice_ids(),
+			'preferences'           => array(
+				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
-			'showScorePromptNonce' => wp_create_nonce( self::SET_SHOW_SCORE_PROMPT_NONCE ),
+			'showScorePromptNonce'  => wp_create_nonce( self::SET_SHOW_SCORE_PROMPT_NONCE ),
 			'dismissedScorePrompts' => $this->get_dismissed_modals(),
 
 			/**
@@ -58,7 +58,7 @@ class Config {
 			 *
 			 * Nonces are automatically generated when registering routes.
 			 */
-			'nonces'              => Nonce::get_generated_nonces(),
+			'nonces'                => Nonce::get_generated_nonces(),
 		);
 
 		// Give each module an opportunity to define extra constants.
@@ -148,7 +148,7 @@ class Config {
 	 * @return bool
 	 */
 	public function get_dismissed_modals() {
-		$score_prompts = \get_option( self::SHOW_SCORE_PROMPT_OPTION, array('') );
+		$score_prompts = \get_option( self::SHOW_SCORE_PROMPT_OPTION, array( '' ) );
 		// if the value is false - "rate boost" was dismissed, so return the
 		if ( $score_prompts == false ) {
 			$score_prompts = array( 'score-increase' );
