@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Search Config Page: fix overlapping Admin menu issue (Calypso: #64369)
