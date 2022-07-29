@@ -14,6 +14,9 @@
 	letter-spacing: -0.5px;
 	text-transform: uppercase;
 }
+.components-base-control .components-range-control__wrapper {
+	margin-bottom: 0;
+}
 
 .components-time-control .components-range-control__marks {
 	margin-top: 13px;
@@ -34,4 +37,10 @@
 
 .components-time-control__info-pane {
 	margin-bottom: 8px;
+	height: 32px;
+	font-size: 14px;
+}
+
+.components-time-control__block-decimal {
+	color: #666;
 }

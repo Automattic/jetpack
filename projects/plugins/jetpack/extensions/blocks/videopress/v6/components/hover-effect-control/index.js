@@ -9,6 +9,7 @@ import {
 	FlexBlock,
 	Button,
 	TextControl,
+	Icon,
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -20,6 +21,7 @@ import { useCallback } from 'react';
  */
 import { VIDEO_AUTOPLAY_DURATION } from '../../constants';
 import { convertSecondsToTimeCode } from '../../utils/time';
+import { Clock } from '../icons';
 import { renderControlLabelWithTooltip } from '../inspector-controls';
 import './style.scss';
 
@@ -113,9 +115,24 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 			</Flex>
 
 			<Flex justify="center" className="components-time-control__info-pane">
-				<FlexItem>{ convertSecondsToTimeCode( hoverEffectStartingTime ) }</FlexItem>
+				<Icon icon={ Clock } />
+				<FlexItem>
+					<span className="components-time-control__block-hhmmss">
+						{ convertSecondsToTimeCode( hoverEffectStartingTime ).hhmmss }
+					</span>
+					<span className="components-time-control__block-decimal">
+						.{ convertSecondsToTimeCode( hoverEffectStartingTime ).decimal }
+					</span>
+				</FlexItem>
 				<FlexItem>/</FlexItem>
-				<FlexItem>{ convertSecondsToTimeCode( videoDuration ) }</FlexItem>
+				<FlexItem>
+					<span className="components-time-control__block-hhmmss">
+						{ convertSecondsToTimeCode( videoDuration ).hhmmss }
+					</span>
+					<span className="components-time-control__block-decimal">
+						.{ convertSecondsToTimeCode( videoDuration ).decimal }
+					</span>
+				</FlexItem>
 			</Flex>
 
 			{ typeof videoDuration !== 'undefined' && hoverEffect && timeControlMode === 'inputs' && (

@@ -104,7 +104,7 @@ export default function VideoPressInspectorControls( {
 				/>
 			</PanelBody>
 
-			<PanelBody title={ __( 'Hover Effect Settings', 'jetpack' ) }>
+			<PanelBody title={ __( 'Effect Settings', 'jetpack' ) }>
 				<HoverEffectControl
 					attributes={ attributes }
 					setAttributes={ setAttributes }
