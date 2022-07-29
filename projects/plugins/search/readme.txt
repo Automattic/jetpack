@@ -111,7 +111,7 @@ You can purchase a Search subscription directly through this plugin or via the [
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.0.1-beta - 2022-07-29
+### 1.1.0-beta - 2022-07-29
 #### Changed
 - E2E tests: bump @playwright/test and allure-playwright versions
 - Renaming master to trunk.
