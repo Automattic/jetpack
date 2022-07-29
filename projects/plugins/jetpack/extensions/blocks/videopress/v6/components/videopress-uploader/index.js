@@ -74,6 +74,8 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	 */
 	const [ uploadFile, setFile ] = useState( null );
 
+	const [ isLoading, setIsLoading ] = useState( false );
+
 	/*
 	 * Tracking state when uploading the video file.
 	 * uploadingProgress is an array with two items:
@@ -182,6 +184,36 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 		videoPressUploader( file );
 	};
 
+	const startUploadFromLibrary = attachmentId => {
+		const route = `https://leogermani.jurassic.tube/wp-json/videopress/v1/upload/${ attachmentId }`;
+		fetch( route, { method: 'POST' } )
+			.then( result => result.json() )
+			.then( result => {
+				if ( 'uploading' === result.status ) {
+					setUploadingProgress( result.bytes_uploaded, result.file_size );
+					startUploadFromLibrary( attachmentId );
+					return;
+				} else if ( 'complete' === result.status ) {
+					const guid = result.uploaded_details.guid;
+					const videoUrl = `https://videopress.com/v/${ guid }`;
+					if ( getGuidFromVideoUrl( videoUrl ) ) {
+						return onSelectURL( videoUrl );
+					}
+				} else if ( 'error' === result.status ) {
+					setUploadErrorDataState( {
+						data: { message: result.error },
+					} );
+					return;
+				} else {
+					setUploadErrorDataState( {
+						// Should never happen.
+						data: { message: __( 'Unexpected error uploading video.', 'jetpack' ) },
+					} );
+					return;
+				}
+			} );
+	};
+
 	/**
 	 * Uploading file handler.
 	 *
@@ -189,28 +221,59 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
+		const fileUrl = media?.url;
 		if ( media.videopress_guid ) {
 			const videoUrl = `https://videopress.com/v/${ media.videopress_guid[ 0 ] }`;
 			if ( getGuidFromVideoUrl( videoUrl ) ) {
 				return onSelectURL( videoUrl );
 			}
-		}
-		const fileUrl = media?.url;
-		if ( ! isBlobURL( fileUrl ) ) {
+		} else if ( media.id ) {
+			setIsLoading( true );
+			const route = `https://leogermani.jurassic.tube/wp-json/videopress/v1/upload/${ media.id }`;
+			fetch( route )
+				.then( result => result.json() )
+				.then( result => {
+					if ( 'new' === result.status || 'resume' === result.status ) {
+						setFile( {
+							size: result.file_size,
+							name: result.file_name,
+						} );
+						setUploadingProgress( result.bytes_uploaded, result.file_size );
+						setIsLoading( false );
+						startUploadFromLibrary( media.id );
+						return;
+					} else if ( 'uploaded' === result.status ) {
+						const videoUrl = `https://videopress.com/v/${ result.uploaded_video_guid }`;
+						setIsLoading( false );
+						return onSelectURL( videoUrl );
+					}
+					setUploadErrorDataState( {
+						data: { message: __( 'Error selecting video. Please try again.', 'jetpack' ) },
+					} );
+					return;
+				} );
+		} else if ( fileUrl ) {
+			if ( ! isBlobURL( fileUrl ) ) {
+				setUploadErrorDataState( {
+					data: { message: __( 'Please select a VideoPress video', 'jetpack' ) },
+				} );
+				return;
+			}
+
+			const file = getBlobByURL( fileUrl );
+			const isResumableUploading = null !== file && file instanceof File;
+
+			if ( ! isResumableUploading ) {
+				return;
+			}
+
+			startUpload( file );
+		} else {
+			// Should never happen.
 			setUploadErrorDataState( {
-				data: { message: __( 'Please select a VideoPress video', 'jetpack' ) },
+				data: { message: __( 'Error selecting the video', 'jetpack' ) },
 			} );
-			return;
 		}
-
-		const file = getBlobByURL( fileUrl );
-		const isResumableUploading = null !== file && file instanceof File;
-
-		if ( ! isResumableUploading ) {
-			return;
-		}
-
-		startUpload( file );
 	}
 
 	const getErrorMessage = () => {
@@ -241,6 +304,10 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 
 		return errorMessage;
 	};
+
+	if ( isLoading ) {
+		return <span>Loading...</span>;
+	}
 
 	// Showing error if upload fails
 	if ( uploadErrorData ) {
