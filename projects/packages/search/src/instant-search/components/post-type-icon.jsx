@@ -57,7 +57,13 @@ const PostTypeIcon = ( { postType, shortcodeTypes, iconSize = 18 } ) => {
 			);
 		default:
 			if ( hasGallery ) {
-				return <Gridicon icon="image-multiple" size={ iconSize } />;
+				return (
+					<Gridicon
+						icon="image-multiple"
+						size={ iconSize }
+						description={ __( 'Image icon', 'jetpack-search-pkg' ) }
+					/>
+				);
 			}
 	}
 
