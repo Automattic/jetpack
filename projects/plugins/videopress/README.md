@@ -1,8 +1,8 @@
-# Jetpack Videopress
+# Jetpack VideoPress
 
-Jetpack Videopress plugin
+Jetpack VideoPress plugin
 
-## How to install Jetpack Videopress
+## How to install Jetpack VideoPress
 
 ### Installation From Git Repo
 
@@ -16,5 +16,5 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-Jetpack Videopress is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+Jetpack VideoPress is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 

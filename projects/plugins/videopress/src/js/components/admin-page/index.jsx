@@ -19,7 +19,7 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
-		<AdminPage moduleName={ __( 'Jetpack Videopress', 'jetpack-videopress' ) }>
+		<AdminPage moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress' ) }>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -42,10 +42,10 @@ const Admin = () => {
 						<Col lg={ 1 } md={ 1 } sm={ 0 } />
 						<Col sm={ 4 } md={ 5 } lg={ 5 }>
 							<PricingCard
-								title={ __( 'Jetpack Videopress', 'jetpack-videopress' ) }
+								title={ __( 'Jetpack VideoPress', 'jetpack-videopress' ) }
 								priceBefore={ 9 }
 								priceAfter={ 4.5 }
-								ctaText={ __( 'Get Jetpack Videopress', 'jetpack-videopress' ) }
+								ctaText={ __( 'Get Jetpack VideoPress', 'jetpack-videopress' ) }
 								infoText={ __(
 									'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
 									'jetpack-videopress'
@@ -65,10 +65,10 @@ const ConnectionSection = () => {
 	const { apiNonce, apiRoot, registrationNonce } = window.jetpackVideopressInitialState;
 	return (
 		<ConnectScreenRequiredPlan
-			buttonLabel={ __( 'Get Jetpack Videopress', 'jetpack-videopress' ) }
+			buttonLabel={ __( 'Get Jetpack VideoPress', 'jetpack-videopress' ) }
 			priceAfter={ 4.5 }
 			priceBefore={ 9 }
-			pricingTitle={ __( 'Jetpack Videopress', 'jetpack-videopress' ) }
+			pricingTitle={ __( 'Jetpack VideoPress', 'jetpack-videopress' ) }
 			title={ __( 'High quality, ad-free video.', 'jetpack-videopress' ) }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }

@@ -5,7 +5,7 @@
 	"description": "High quality, ad-free video.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Videopress"
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] VideoPress"
 	},
 	"repository": {
 		"type": "git",

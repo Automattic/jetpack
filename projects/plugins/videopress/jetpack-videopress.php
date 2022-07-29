@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Plugin Name: Jetpack Videopress
+ * Plugin Name: Jetpack VideoPress
  * Plugin URI: https://wordpress.org/plugins/jetpack-videopress
  * Description: High quality, ad-free video.
  * Version: 0.1.1-alpha
@@ -37,7 +37,7 @@ define( 'JETPACK_VIDEOPRESS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_VIDEOPRESS_ROOT_FILE', __FILE__ );
 define( 'JETPACK_VIDEOPRESS_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_VIDEOPRESS_SLUG', 'jetpack-videopress' );
-define( 'JETPACK_VIDEOPRESS_NAME', 'Jetpack Videopress' );
+define( 'JETPACK_VIDEOPRESS_NAME', 'Jetpack VideoPress' );
 define( 'JETPACK_VIDEOPRESS_URI', 'https://jetpack.com/jetpack-videopress' );
 define( 'JETPACK_VIDEOPRESS_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
@@ -51,7 +51,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 } else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for Jetpack Videopress plugin', 'jetpack-videopress' )
+			__( 'Error loading autoloader file for Jetpack VideoPress plugin', 'jetpack-videopress' )
 		);
 	}
 
@@ -65,7 +65,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Videopress is incomplete. If you installed Jetpack Videopress from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Videopress must have Composer dependencies installed and built via the build command.', 'jetpack-videopress' ),
+						__( 'Your installation of Jetpack VideoPress is incomplete. If you installed Jetpack VideoPress from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack VideoPress must have Composer dependencies installed and built via the build command.', 'jetpack-videopress' ),
 						array(
 							'a' => array(
 								'href'   => array(),

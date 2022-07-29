@@ -1,6 +1,6 @@
 <?php
 /**
- * Primary class file for the Jetpack Videopress plugin.
+ * Primary class file for the Jetpack VideoPress plugin.
  *
  * @package automattic/jetpack-videopress-plugin-plugin
  */
@@ -30,8 +30,8 @@ class Jetpack_Videopress {
 		Connection_Rest_Authentication::init();
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Videopress', 'jetpack-videopress' ),
-			_x( 'Videopress', 'The Jetpack Videopress product name, without the Jetpack prefix', 'jetpack-videopress' ),
+			__( 'Jetpack VideoPress', 'jetpack-videopress' ),
+			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress' ),
 			'manage_options',
 			'jetpack-videopress',
 			array( $this, 'plugin_settings_page' ),
