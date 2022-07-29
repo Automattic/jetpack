@@ -20,6 +20,7 @@ class Initializer {
 	public static function init() {
 		if ( ! did_action( 'videopress_init' ) ) {
 			self::register_oembed_providers();
+			Uploader_Rest_Endpoints::init();
 		}
 
 		/**
