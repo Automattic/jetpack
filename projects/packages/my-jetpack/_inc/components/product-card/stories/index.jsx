@@ -42,3 +42,9 @@ const DefaultArgs = {
 
 export const Default = Template.bind( {} );
 Default.args = DefaultArgs;
+
+export const Absent = Template.bind( {} );
+Absent.args = {
+	...DefaultArgs,
+	status: PRODUCT_STATUSES.ABSENT,
+};

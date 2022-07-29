@@ -24,11 +24,6 @@ class Helper {
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
 
 	/**
-	 * The post types to hide from 'Excluded post types'.
-	 */
-	const POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST = array( 'attachment' );
-
-	/**
 	 * Create a URL for the current search that doesn't include the "paged" parameter.
 	 *
 	 * @since 5.8.0
@@ -814,13 +809,6 @@ class Helper {
 				'name'          => $obj->labels->name,
 			);
 		}
-		$post_type_labels = array_filter(
-			$post_type_labels,
-			function ( $key ) {
-				return ! in_array( $key, self::POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST, true );
-			},
-			ARRAY_FILTER_USE_KEY
-		);
 
 		$prefix         = Options::OPTION_PREFIX;
 		$posts_per_page = (int) get_option( 'posts_per_page' );
@@ -843,7 +831,7 @@ class Helper {
 			$excluded_post_types = array();
 		}
 
-		$is_wpcom                  = defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
+		$is_wpcom                  = static::is_wpcom();
 		$is_private_site           = '-1' === get_option( 'blog_public' );
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
@@ -894,6 +882,13 @@ class Helper {
 		 * @param array $options Array of parameters used in Instant Search queries.
 		 */
 		return apply_filters( 'jetpack_instant_search_options', $options );
+	}
+
+	/**
+	 * Returns true if the site is a WordPress.com simple site, i.e. the code runs on WPCOM.
+	 */
+	public static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
 	}
 
 	/**
