@@ -111,9 +111,17 @@ You can purchase a Search subscription directly through this plugin or via the [
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.0.0 - 2022-05-30
-#### Added
-- Initial release.
+### 1.1.0-beta - 2022-07-29
+#### Changed
+- E2E tests: bump @playwright/test and allure-playwright versions
+- Renaming master to trunk.
+- Renaming `master` references to `trunk`
+- Updated package dependencies.
+
+#### Fixed
+- E2E tests: fixed pretest cleanup script not running
+- Search: update plugin README
+
 == Testimonials ==
 
 “I like having a search experience that is sortable, filterable, and feels like it's integrated natively into the site. Jetpack Search does all of this, but most importantly, it returns great results without heavy configuration.” - Chris Coyier, Web Design Expert (codepen.io / ShopTalk Show)

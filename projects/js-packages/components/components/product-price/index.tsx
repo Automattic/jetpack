@@ -18,18 +18,31 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	showNotOffPrice = true,
 	leyend = __( '/month, paid yearly', 'jetpack' ),
 	isNotConvenientPrice = false,
+	hidePriceFraction = false,
 } ) => {
-	if ( ! ( price || offPrice ) || ! currency ) {
+	if ( ( price == null && offPrice == null ) || ! currency ) {
 		return null;
 	}
 
-	showNotOffPrice = showNotOffPrice && Boolean( offPrice );
+	showNotOffPrice = showNotOffPrice && offPrice != null;
 
 	return (
 		<>
 			<div className={ styles.container }>
-				{ showNotOffPrice && <Price value={ price } currency={ currency } isOff={ false } /> }
-				<Price value={ offPrice || price } currency={ currency } isOff={ ! isNotConvenientPrice } />
+				{ showNotOffPrice && (
+					<Price
+						value={ price }
+						currency={ currency }
+						isOff={ false }
+						hidePriceFraction={ hidePriceFraction }
+					/>
+				) }
+				<Price
+					value={ offPrice ?? price }
+					currency={ currency }
+					isOff={ ! isNotConvenientPrice }
+					hidePriceFraction={ hidePriceFraction }
+				/>
 			</div>
 			{ leyend && <Text className={ styles.leyend }>{ leyend }</Text> }
 		</>
