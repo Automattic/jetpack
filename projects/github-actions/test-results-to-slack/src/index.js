@@ -33,8 +33,33 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 		return;
 	}
 
+	const isFailure = await isWorkflowFailed( ghToken );
+
+	const status = isFailure ? 'failed' : 'passed';
+	let event = context.sha;
+
+	if ( context.eventName === 'pull_request' ) {
+		const { pr } = context.payload.pull_request;
+		event = `PR ${ pr.title } (${ pr.number })`;
+	}
+
+	if ( context.eventName === 'push' ) {
+		event = `commit id ${ context.sha } on branch ${ context.ref.substring( 11 ) }`;
+	}
+
+	const text = `Tests ${ status } for ${ event }`;
+
+	await sendSlackMessage( token, text, [], channel, username, icon_emoji );
+} )();
+
+/**
+ * Decides if the current workflow failed
+ *
+ * @param {string} token - GitHub token
+ */
+async function isWorkflowFailed( token ) {
 	// eslint-disable-next-line new-cap
-	const octokit = new getOctokit( ghToken );
+	const octokit = new getOctokit( token );
 
 	// Get the list of jobs for the current workflow run
 	const response = await octokit.rest.actions.listJobsForWorkflowRun( {
@@ -51,17 +76,29 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 	];
 
 	// Decide if any we'll treat this run as failed
-	const isFailure = !! conclusions.some( conclusion => conclusion !== 'success' );
+	return !! conclusions.some( conclusion => conclusion !== 'success' );
+}
 
+/**
+ * Sends a Slack message
+ *
+ * @param {string} token - slack token
+ * @param {string} text - message text
+ * @param {string} blocks - message blocks
+ * @param {string} channel - slack channel
+ * @param {string} username - slack bot username
+ * @param {string} icon_emoji - icon emoji
+ */
+async function sendSlackMessage( token, text, blocks, channel, username, icon_emoji ) {
 	const client = new WebClient( token, {
 		retryConfig: retryPolicies.rapidRetryPolicy,
 		logLevel: LogLevel.ERROR,
 	} );
 
 	await client.chat.postMessage( {
-		text: `Received event: '${ context.eventName }', action: '${ context.payload.action }', conclusions: ${ conclusions }, failure: ${ isFailure }`,
+		text,
 		channel,
 		username,
 		icon_emoji,
 	} );
-} )();
+}
