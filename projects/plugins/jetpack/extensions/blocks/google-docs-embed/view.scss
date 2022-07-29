@@ -1,7 +1,7 @@
 /**
  * Shared Editor and Front End styles for Google Docs
  */
-@import "~@wordpress/base-styles/_breakpoints";
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 /* style the error message */
 .wp-block-jetpack-google-docs-embed {
