@@ -729,7 +729,7 @@ add_action( 'jetpack_module_more_info_manage', 'jetpack_custom_jetpack_manage' )
 function jetpack_post_list_link() {
 	echo esc_url( Redirect::get_url( 'jetpack-support-post-list' ) );
 }
-add_action( 'jetpack_learn_more_button_manage', 'jetpack_manage_more_link' );
+add_action( 'jetpack_learn_more_button_post-list', 'jetpack_post_list_link' );
 
 /**
  * Post List description.
