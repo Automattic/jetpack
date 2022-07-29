@@ -39,8 +39,8 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 	let event = context.sha;
 
 	if ( context.eventName === 'pull_request' ) {
-		const { pr } = context.payload.pull_request;
-		event = `PR ${ pr.title } (${ pr.number })`;
+		const { pull_request } = context.payload.pull_request;
+		event = `PR ${ pull_request.title } (${ pull_request.number })`;
 	}
 
 	if ( context.eventName === 'push' ) {
