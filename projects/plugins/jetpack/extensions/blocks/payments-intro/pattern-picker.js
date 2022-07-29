@@ -8,6 +8,9 @@ import { __ } from '@wordpress/i18n';
 export default function PaymentsIntroPatternPicker( { onBlockPatternSelect, patternFilter } ) {
 	const [ isPatternSelectionModalOpen, setIsPatternSelectionModalOpen ] = useState( false );
 
+	if ( ! BlockPatternSetup ) {
+		return null;
+	}
 	return (
 		<>
 			<Button
