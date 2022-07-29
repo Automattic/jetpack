@@ -25,22 +25,24 @@
 .components-time-control__ss_control,
 .components-time-control__mm_control,
 .components-time-control__hh_control {
+	font-size: 12px;
+	color: rgb(108, 119, 129);
 	flex-grow: 1;
 }
 
 .components-time-control__hundredths_control {
 	flex-grow: 1;
-	.components-base-control {
-		padding-left: 8px;
-	}
+	font-size: 12px;
+	color: rgb(108, 119, 129);
+	padding-left: 8px;
 }
 
 .components-time-control__info-pane {
 	margin-bottom: 8px;
 	height: 32px;
-	font-size: 14px;
+	font-size: 16px;
 }
 
 .components-time-control__block-decimal {
-	color: #666;
+	color: rgb(108, 119, 129)
 }

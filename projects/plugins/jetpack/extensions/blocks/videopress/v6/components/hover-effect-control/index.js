@@ -48,7 +48,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 		? 0
 		: Math.floor( ( hoverEffectStartingTime * 100 ) % 100 );
 
-	const [ timeControlMode, setTimeControlMode ] = useState( 'draggable' );
+	const [ showInputControls, setShowInputControls ] = useState( false );
 
 	const onStartingTimeChange = useCallback(
 		newTimeInteger => {
@@ -98,16 +98,12 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 					<FlexItem>
 						<Button
 							className="components-button is-small has-icon"
-							label={
-								timeControlMode === 'inputs'
-									? __( 'Use inputs preset', 'jetpack' )
-									: __( 'Use draggables preset', 'jetpack' )
-							}
+							label={ __( 'Show input controls', 'jetpack' ) }
 							icon={ settings }
 							onClick={ () => {
-								setTimeControlMode( timeControlMode === 'draggable' ? 'inputs' : 'draggable' );
+								setShowInputControls( ! showInputControls );
 							} }
-							isPressed={ timeControlMode === 'inputs' }
+							isPressed={ showInputControls }
 							isSmall
 						/>
 					</FlexItem>
@@ -115,7 +111,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 			</Flex>
 
 			{ hoverEffect && (
-				<Flex justify="center" className="components-time-control__info-pane">
+				<Flex justify="left" className="components-time-control__info-pane">
 					<Icon icon={ Clock } />
 					<FlexItem>
 						<span className="components-time-control__block-hhmmss">
@@ -137,9 +133,10 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 				</Flex>
 			) }
 
-			{ typeof videoDuration !== 'undefined' && hoverEffect && timeControlMode === 'inputs' && (
+			{ typeof videoDuration !== 'undefined' && hoverEffect && showInputControls && (
 				<Flex justify="space-between" className="components-time-control__body">
 					<FlexItem className="components-time-control__hh_control">
+						<div>{ __( 'HH', 'jetpack' ) }</div>
 						<TextControl
 							type="number"
 							min={ 0 }
@@ -156,6 +153,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 					</FlexItem>
 
 					<FlexItem className="components-time-control__mm_control">
+						<div>{ __( 'MM', 'jetpack' ) }</div>
 						<TextControl
 							type="number"
 							min={ 0 }
@@ -173,6 +171,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 					</FlexItem>
 
 					<FlexItem className="components-time-control__ss_control">
+						<div>{ __( 'SS', 'jetpack' ) }</div>
 						<TextControl
 							type="number"
 							min={ 0 }
@@ -190,6 +189,7 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 					</FlexItem>
 
 					<FlexItem className="components-time-control__hundredths_control">
+						<div>{ __( '1/100', 'jetpack' ) }</div>
 						<TextControl
 							type="number"
 							min={ 0 }
