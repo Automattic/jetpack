@@ -1832,7 +1832,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "5eb4002752f478cccf1364a59e0974698c20d557"
+                "reference": "87b56f0f5004698dcf87100ce4913801482a6a95"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.41",
@@ -1852,7 +1852,7 @@
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
                 },
-                "textdomain": "jetpack-videopress"
+                "textdomain": "jetpack-videopress-pkg"
             },
             "autoload": {
                 "classmap": [
