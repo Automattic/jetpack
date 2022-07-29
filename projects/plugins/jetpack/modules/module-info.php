@@ -736,7 +736,7 @@ add_action( 'jetpack_learn_more_button_post-list', 'jetpack_post_list_link' );
  */
 function jetpack_post_list_info() {
 	esc_html_e(
-		'Display extra information alongside each post in your dashboard's Posts screen.',
+		'Display extra information alongside each post in your dashboard’s Posts screen.',
 		'jetpack'
 	);
 }
