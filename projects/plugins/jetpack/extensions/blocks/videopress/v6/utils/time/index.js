@@ -6,7 +6,11 @@ export function convertSecondsToTimeCode( seconds ) {
 		};
 	}
 
-	const hhmmss = new Date( seconds * 1000 ).toISOString().substr( 11, 8 );
+	const hhmmss =
+		Math.trunc( seconds / 3600 ) > 0
+			? new Date( seconds * 1000 ).toISOString().substr( 11, 8 )
+			: new Date( seconds * 1000 ).toISOString().substr( 14, 5 );
+
 	const decimal = seconds % 1 > 0 ? ( 0 + String( seconds ).split( '.' )[ 1 ] ).slice( -2 ) : '00';
 
 	return { hhmmss, decimal };

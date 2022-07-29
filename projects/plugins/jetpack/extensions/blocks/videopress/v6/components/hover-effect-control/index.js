@@ -114,26 +114,28 @@ export default function HoverEffectControl( { attributes, setAttributes, videoDu
 				) }
 			</Flex>
 
-			<Flex justify="center" className="components-time-control__info-pane">
-				<Icon icon={ Clock } />
-				<FlexItem>
-					<span className="components-time-control__block-hhmmss">
-						{ convertSecondsToTimeCode( hoverEffectStartingTime ).hhmmss }
-					</span>
-					<span className="components-time-control__block-decimal">
-						.{ convertSecondsToTimeCode( hoverEffectStartingTime ).decimal }
-					</span>
-				</FlexItem>
-				<FlexItem>/</FlexItem>
-				<FlexItem>
-					<span className="components-time-control__block-hhmmss">
-						{ convertSecondsToTimeCode( videoDuration ).hhmmss }
-					</span>
-					<span className="components-time-control__block-decimal">
-						.{ convertSecondsToTimeCode( videoDuration ).decimal }
-					</span>
-				</FlexItem>
-			</Flex>
+			{ hoverEffect && (
+				<Flex justify="center" className="components-time-control__info-pane">
+					<Icon icon={ Clock } />
+					<FlexItem>
+						<span className="components-time-control__block-hhmmss">
+							{ convertSecondsToTimeCode( hoverEffectStartingTime ).hhmmss }
+						</span>
+						<span className="components-time-control__block-decimal">
+							.{ convertSecondsToTimeCode( hoverEffectStartingTime ).decimal }
+						</span>
+					</FlexItem>
+					<FlexItem>/</FlexItem>
+					<FlexItem>
+						<span className="components-time-control__block-hhmmss">
+							{ convertSecondsToTimeCode( videoDuration ).hhmmss }
+						</span>
+						<span className="components-time-control__block-decimal">
+							.{ convertSecondsToTimeCode( videoDuration ).decimal }
+						</span>
+					</FlexItem>
+				</Flex>
+			) }
 
 			{ typeof videoDuration !== 'undefined' && hoverEffect && timeControlMode === 'inputs' && (
 				<Flex justify="space-between" className="components-time-control__body">
