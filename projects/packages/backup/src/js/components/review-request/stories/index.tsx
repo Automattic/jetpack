@@ -13,4 +13,6 @@ Default.args = {
 	cta: 'Text action line, asking for a review',
 	onClick: action( 'onClick' ),
 	requestReason: 'What triggered the review request (i.e. restore)',
+	dismissedReview: false,
+	onClick: action( 'dismissMessage' ),
 };

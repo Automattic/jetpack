@@ -1,6 +1,4 @@
 import { Text } from '@automattic/jetpack-components';
-import apiFetch from '@wordpress/api-fetch';
-import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './style.module.scss';
 import { ReviewRequestBaseProps } from './types';
@@ -11,40 +9,9 @@ const ReviewRequest: React.FC< ReviewRequestBaseProps > = ( {
 	onClick,
 	requestReason,
 	reviewText,
+	dismissedReview,
+	dismissMessage,
 } ) => {
-	const [ dismissedReview, setDismissedReview ] = useState( true );
-
-	// Fetch the dismiss status from Jetpack Options
-	useEffect( () => {
-		apiFetch( {
-			path: '/jetpack/v4/site/dismissed-review-request',
-			method: 'POST',
-			data: {
-				option_name: requestReason,
-				should_dismiss: false,
-			},
-		} ).then(
-			res => {
-				setDismissedReview( res );
-			},
-			() => {
-				setDismissedReview( true );
-			}
-		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
-
-	const dismissMessage = () => {
-		apiFetch( {
-			path: '/jetpack/v4/site/dismissed-review-request',
-			method: 'POST',
-			data: {
-				option_name: requestReason,
-				should_dismiss: true,
-			},
-		} ).then( setDismissedReview( true ) );
-	};
-
 	if ( dismissedReview || requestReason === '' ) {
 		return <></>;
 	}
