@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Post List
- * Module Description: Enhance the classic view of the Admin section of your WordPress site.
+ * Module Description: Display extra information alongside each post in your dashboard's Posts screen.
  * Sort Order: 31
  * Recommendation Order: 12
  * First Introduced: 11.3
