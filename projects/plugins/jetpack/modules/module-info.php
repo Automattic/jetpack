@@ -740,7 +740,7 @@ function jetpack_post_list_info() {
 		'jetpack'
 	);
 }
-add_action( 'jetpack_module_more_info_post_list', 'jetpack_post_list_info' );
+add_action( 'jetpack_module_more_info_post-list', 'jetpack_post_list_info' );
 
 /**
  * Sitemaps support link.
