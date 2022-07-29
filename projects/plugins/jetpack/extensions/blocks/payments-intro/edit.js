@@ -18,7 +18,7 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 		return {
 			blockType: getBlockType( name ),
 			hasInnerBlocks: getBlocks( clientId )?.length > 0,
-			hasPatterns: __experimentalGetAllowedPatterns().filter( patternFilter ).length > 0,
+			hasPatterns: __experimentalGetAllowedPatterns?.().filter( patternFilter ).length > 0,
 		};
 	} );
 
