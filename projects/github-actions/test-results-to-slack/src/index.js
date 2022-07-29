@@ -44,7 +44,7 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 	}
 
 	if ( context.eventName === 'push' ) {
-		event = `commit id ${ context.sha } on branch ${ context.ref.substring( 11 ) }`;
+		event = `commit id \`${ context.sha }\` on branch \`${ context.ref.substring( 11 ) }\``;
 	}
 
 	const text = `Tests ${ status } for ${ event }`;
