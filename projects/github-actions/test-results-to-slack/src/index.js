@@ -21,16 +21,27 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 		return;
 	}
 
+	const username = getInput( 'slack_username' );
+	if ( ! username ) {
+		setFailed( 'Input `slack_username` is required' );
+		return;
+	}
+
+	const icon_emoji = getInput( 'slack_icon_emoji' );
+	if ( ! icon_emoji ) {
+		setFailed( 'Input `slack_icon_emoji` is required' );
+		return;
+	}
+
 	// eslint-disable-next-line new-cap
 	const octokit = new getOctokit( ghToken );
 
+	// Get the list of jobs for the current workflow run
 	const response = await octokit.rest.actions.listJobsForWorkflowRun( {
 		owner: context.payload.repository.owner.login,
 		repo: context.payload.repository.name,
 		run_id: context.runId,
 	} );
-
-	process.stdout.write( JSON.stringify( response ) );
 
 	// Get unique list of conclusions of completed jobs
 	const conclusions = [
@@ -50,7 +61,7 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 	await client.chat.postMessage( {
 		text: `Received event: '${ context.eventName }', action: '${ context.payload.action }', conclusions: ${ conclusions }, failure: ${ isFailure }`,
 		channel,
-		username: 'Tests reporter',
-		icon_emoji: ':bot:',
+		username,
+		icon_emoji,
 	} );
 } )();

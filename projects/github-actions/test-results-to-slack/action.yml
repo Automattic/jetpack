@@ -16,6 +16,14 @@ inputs:
     description: "Slack channel ID where to send messages"
     required: true
     default: ""
+  slack_username:
+    description: "Custom username to be used for messages"
+    required: true
+    default: "Test reporter"
+  slack_icon_emoji:
+    description: "Emoji to use as the icon for this message."
+    required: true
+    default: ":bot:"
 runs:
   using: node16
   main: "dist/index.js"
