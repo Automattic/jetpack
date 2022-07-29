@@ -226,6 +226,9 @@ class Jetpack_Social {
 	 */
 	public static function plugin_activation() {
 		add_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION, true );
+
+		global $publicize;
+		$publicize->calculate_scheduled_shares( Jetpack_Options::get_option( 'id' ) );
 	}
 
 	/**
