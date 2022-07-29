@@ -11,11 +11,11 @@
 		"automattic/jetpack-config": "1.9.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
 		"automattic/jetpack-my-jetpack": "1.8.x-dev",
-		"automattic/jetpack-sync": "1.36.x-dev"
+		"automattic/jetpack-sync": "1.37.x-dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.1",
+		"automattic/jetpack-changelogger": "^3.2",
 		"automattic/wordbless": "0.3.1"
 	},
 	"autoload": {

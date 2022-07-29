@@ -54,6 +54,8 @@
 	padding: 0 2px 0 2px;
 	color: $color-text-lighter;
 	text-decoration: none;
+	border: 0px;
+	background-color: inherit;
 
 	&::after {
 		content: '·';
