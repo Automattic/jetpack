@@ -178,7 +178,7 @@ class Uploader {
 	 * @return boolean
 	 */
 	public function is_uploaded() {
-		return false !== get_post_meta( $this->attachment_id, self::UPLOADED_KEY, true );
+		return ! empty( $this->get_uploaded_attachment_id() );
 	}
 
 	/**
@@ -232,6 +232,8 @@ class Uploader {
 				return array(
 					'status'           => 'complete',
 					'bytes_uploaded'   => $bytes_uploaded,
+					'file_size'        => $this->get_file_size(),
+					'file_name'        => $this->get_file_name(),
 					'upload_key'       => $this->get_key(),
 					'uploaded_details' => $this->get_client()->get_uploaded_video_details(),
 				);
@@ -240,12 +242,16 @@ class Uploader {
 			return array(
 				'status'         => 'uploading',
 				'bytes_uploaded' => $bytes_uploaded,
+				'file_size'      => $this->get_file_size(),
+				'file_name'      => $this->get_file_name(),
 				'upload_key'     => $this->get_key(),
 			);
 		} catch ( Upload_Exception | ConnectionException | FileException | TusException $e ) { // phpcs:ignore PHPCompatibility.ControlStructures.NewMultiCatch.Found
 			return array(
 				'status'         => 'error',
 				'bytes_uploaded' => -1,
+				'file_size'      => $this->get_file_size(),
+				'file_name'      => $this->get_file_name(),
 				'upload_key'     => $this->get_key(),
 				'error'          => $e->getMessage(),
 			);
@@ -261,9 +267,10 @@ class Uploader {
 
 		if ( $this->is_uploaded() ) {
 			return array(
-				'status'           => 'uploaded',
-				'upload_key'       => $this->get_key(),
-				'uploaded_post_id' => $this->get_uploaded_attachment_id(),
+				'status'              => 'uploaded',
+				'upload_key'          => $this->get_key(),
+				'uploaded_post_id'    => $this->get_uploaded_attachment_id(),
+				'uploaded_video_guid' => get_post_meta( $this->get_uploaded_attachment_id(), 'videopress_guid', true ),
 			);
 		}
 
@@ -275,18 +282,24 @@ class Uploader {
 			return array(
 				'status'         => $status,
 				'bytes_uploaded' => $offset,
+				'file_size'      => $this->get_file_size(),
+				'file_name'      => $this->get_file_name(),
 				'upload_key'     => $this->get_key(),
 			);
 		} catch ( Upload_Exception | ConnectException $e ) { // phpcs:ignore PHPCompatibility.ControlStructures.NewMultiCatch.Found
 			return array(
 				'status'         => 'error',
 				'bytes_uploaded' => -1,
+				'file_size'      => $this->get_file_size(),
+				'file_name'      => $this->get_file_name(),
 			);
 		} catch ( FileException $e ) {
 			return array(
 				'status'         => 'resume',
 				'bytes_uploaded' => 0,
-				'upload_key'     => '',
+				'file_size'      => $this->get_file_size(),
+				'file_name'      => $this->get_file_name(),
+				'upload_key'     => $this->get_key(),
 			);
 		}
 	}
