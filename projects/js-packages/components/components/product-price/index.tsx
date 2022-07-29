@@ -20,11 +20,11 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	isNotConvenientPrice = false,
 	hidePriceFraction = false,
 } ) => {
-	if ( ! ( price || offPrice ) || ! currency ) {
+	if ( ( price == null && offPrice == null ) || ! currency ) {
 		return null;
 	}
 
-	showNotOffPrice = showNotOffPrice && Boolean( offPrice );
+	showNotOffPrice = showNotOffPrice && offPrice != null;
 
 	return (
 		<>
@@ -38,7 +38,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 					/>
 				) }
 				<Price
-					value={ offPrice || price }
+					value={ offPrice ?? price }
 					currency={ currency }
 					isOff={ ! isNotConvenientPrice }
 					hidePriceFraction={ hidePriceFraction }
