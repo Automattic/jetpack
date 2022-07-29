@@ -32,7 +32,15 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 
 	process.stdout.write( JSON.stringify( response ) );
 
-	const conclusions = [ ...new Set( response.data.jobs.map( job => job.conclusion ) ) ];
+	// Get unique list of conclusions of completed jobs
+	const conclusions = [
+		...new Set(
+			response.data.jobs.filter( job => job.status === 'completed' ).map( job => job.conclusion )
+		),
+	];
+
+	// Decide if any we'll treat this run as failed
+	const isFailure = !! conclusions.some( conclusion => conclusion !== 'success' );
 
 	const client = new WebClient( token, {
 		retryConfig: retryPolicies.rapidRetryPolicy,
@@ -40,7 +48,7 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 	} );
 
 	await client.chat.postMessage( {
-		text: `Received event: '${ context.eventName }', action: '${ context.payload.action }', conclusions: ${ conclusions }`,
+		text: `Received event: '${ context.eventName }', action: '${ context.payload.action }', conclusions: ${ conclusions }, failure: ${ isFailure }`,
 		channel,
 		username: 'Tests reporter',
 		icon_emoji: ':bot:',
