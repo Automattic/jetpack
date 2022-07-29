@@ -420,7 +420,7 @@ class Jetpack_Backup {
 	 * @access public
 	 * @static
 	 * @param array $request arguments should_dismiss and option_name.
-	 * @return bool| value of option if value is requested, value updated or not if value updated.
+	 * @return bool value of option if value is requested | updated or not if value is updated.
 	 */
 	public static function manage_dismissed_backup_review_request( $request ) {
 
