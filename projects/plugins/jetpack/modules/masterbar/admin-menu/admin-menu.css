@@ -30,14 +30,14 @@
  * Fixes Gutenberg in not fullscreen mode.
  */
  @media (min-width: 783px) {
-	.interface-interface-skeleton,
+	 body:not(.folded) #jp-search-configure .interface-interface-skeleton,
+	 .interface-interface-skeleton,
 	.edit-post-layout .components-editor-notices__snackbar {
 		left: 272px;
 	}
 }
 
 @media (min-width: 961px) {
-	.auto-fold  #jp-search-configure .interface-interface-skeleton,
 	.auto-fold .interface-interface-skeleton,
 	.auto-fold .edit-post-layout .components-editor-notices__snackbar,
 	.jp-dialogue-modern-full__container {
