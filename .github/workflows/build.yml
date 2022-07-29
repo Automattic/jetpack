@@ -72,14 +72,9 @@ jobs:
               number: context.issue.number,
             };
             const comments = await github.graphql(query, variables);
-            let hasComment = false;
-            comments.repository.pullRequest.comments.nodes.map( comment => {
-              if ( comment.body.includes( '<!-- wpcom-reminder-comment -->' ) ) {
-                hasComment = true;
-              }
-            } );
-
-            return hasComment;
+            return comments.repository.pullRequest.comments.nodes.some(
+              comment => comment.body.includes( '<!-- wpcom-reminder-comment -->' )
+            );
 
       - name: Post reminder to test on WordPress.com
         id: set-reminder-comment
