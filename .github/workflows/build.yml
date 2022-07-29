@@ -60,7 +60,8 @@ jobs:
                 pullRequest(number:$number) {
                   comments(first: 100) {
                     nodes {
-                      body
+                      body,
+                      databaseId
                     }
                   }
                 }
@@ -72,14 +73,38 @@ jobs:
               number: context.issue.number,
             };
             const comments = await github.graphql(query, variables);
-            return comments.repository.pullRequest.comments.nodes.some(
-              comment => comment.body.includes( '<!-- wpcom-reminder-comment -->' )
+            return comments.repository.pullRequest.comments.nodes
+              .filter(
+                comment => comment.body.includes( '<!-- wpcom-reminder-comment -->' )
+              )
+              .map(comment => comment.databaseId)
+              .join();
+
+      - name: Delete testing reminder comment if the PR no longer touches Jetpack
+        id: delete-test-reminder-comment
+        uses: actions/github-script@v6
+        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != '' && ! contains( steps.changed.outputs.projects, 'plugins/jetpack' ) }}
+        env:
+          COMMENT_DB_ID: ${{ steps.check-test-reminder-comment.outputs.result }}
+        with:
+          script: |
+            const { COMMENT_DB_ID } = process.env;
+            await Promise.all(
+              COMMENT_DB_ID
+              .split(',')
+              .map( async (comment_id) => {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id
+                });
+              })
             );
 
       - name: Post reminder to test on WordPress.com
         id: set-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != 'true' && contains( steps.changed.outputs.projects, 'plugins/jetpack' ) }}
+        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result == '' && contains( steps.changed.outputs.projects, 'plugins/jetpack' ) }}
         with:
           result-encoding: string
           script: |
