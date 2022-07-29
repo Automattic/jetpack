@@ -2315,7 +2315,7 @@ class Manager {
 	 * @return array|WP_Error
 	 */
 	public function get_connected_plugins() {
-		$maybe_plugins = Plugin_Storage::get_all( true );
+		$maybe_plugins = Plugin_Storage::get_all();
 
 		if ( $maybe_plugins instanceof WP_Error ) {
 			return $maybe_plugins;
@@ -2351,14 +2351,12 @@ class Manager {
 	 * Whether the plugin is allowed to use the connection, or it's been disconnected by user.
 	 * If no plugin slug was passed into the constructor, always returns true.
 	 *
+	 * @deprecated $$next-version$$ This method no longer has a purpose after the removal of the soft disconnect feature.
+	 *
 	 * @return bool
 	 */
 	public function is_plugin_enabled() {
-		if ( ! $this->plugin ) {
-			return true;
-		}
-
-		return $this->plugin->is_enabled();
+		return true;
 	}
 
 	/**
