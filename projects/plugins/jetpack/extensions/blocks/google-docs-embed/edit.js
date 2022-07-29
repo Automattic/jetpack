@@ -1,6 +1,6 @@
 import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, SelectControl } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { Fragment, useEffect } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Embed from './embed';
 import { GOOGLE_DOCUMENT, GOOGLE_SPREADSHEET, GOOGLE_SLIDE } from '.';
@@ -20,6 +20,7 @@ const GsuiteBlockEdit = props => {
 	const {
 		attributes: { aspectRatio },
 		attributes: { variation },
+		attributes: { url },
 		setAttributes,
 	} = props;
 
@@ -27,6 +28,34 @@ const GsuiteBlockEdit = props => {
 	let title = '';
 	let patterns = [];
 	let type = '';
+
+	useEffect( () => {
+		/**
+		 * Parse the URL to detect the variation type.
+		 *
+		 * @returns {string} The variation.
+		 */
+		const detectVariation = () => {
+			const matches = url.match( '^(http|https)://(docs.google.com)/(.*)/d/' );
+
+			switch ( matches[ 3 ] ) {
+				case 'document':
+					return 'google-docs';
+
+				case 'spreadsheets':
+					return 'google-sheets';
+
+				case 'presentation':
+					return 'google-slides';
+			}
+
+			return '';
+		};
+
+		if ( ! variation ) {
+			setAttributes( { variation: detectVariation() } );
+		}
+	}, [ variation, url, setAttributes ] );
 
 	switch ( variation ) {
 		case 'google-docs':
@@ -54,10 +83,9 @@ const GsuiteBlockEdit = props => {
 	/**
 	 * Convert GSuite URL to a preview URL.
 	 *
-	 * @param {string} url - The URL of the published Document/Spreadsheet/Presentation.
 	 * @returns {string} The URL pattern.
 	 */
-	const mapGSuiteURL = url => {
+	const mapGSuiteURL = () => {
 		/**
 		 * If the block is not the expected one, return the
 		 * original URL as is.
