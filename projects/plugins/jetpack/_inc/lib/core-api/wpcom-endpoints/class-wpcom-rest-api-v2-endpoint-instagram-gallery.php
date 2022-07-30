@@ -71,7 +71,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 						'type'              => 'integer',
 						'required'          => true,
 						'minimum'           => 1,
-						'validate_callback' => function( $param ) {
+						'validate_callback' => function ( $param ) {
 							return is_numeric( $param ) && (int) $param > 0;
 						},
 					),
@@ -80,7 +80,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 						'type'              => 'integer',
 						'required'          => true,
 						'minimum'           => 1,
-						'validate_callback' => function( $param ) {
+						'validate_callback' => function ( $param ) {
 							return is_numeric( $param ) && (int) $param > 0;
 						},
 					),
