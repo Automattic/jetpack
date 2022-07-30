@@ -740,9 +740,8 @@ class Jetpack_Gutenberg {
 		// For Gutenberg > 13.7, the core `site-editor.php` route is used instead
 		$is_site_editor_page = 'site-editor.php' === $pagenow;
 
-		$should_add_iframed_editor_styles = $is_site_editor_page || $is_old_site_editor_page;
-
-		if ( ! $should_add_iframed_editor_styles ) {
+		$should_skip_adding_styles = ! $is_site_editor_page && ! $is_old_site_editor_page;
+		if ( $should_skip_adding_styles ) {
 			return;
 		}
 
