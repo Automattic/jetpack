@@ -225,9 +225,8 @@ const ReviewMessage = connectionLoaded => {
 		return false;
 	};
 
-	const sendToReview = useCallback( () => {
+	const trackSendToReview = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_new_review_click' );
-		window.location.href = getRedirectUrl( 'jetpack-backup-new-review' );
 	}, [ tracks ] );
 
 	if ( hasRecentSuccesfulRestore() ) {
@@ -260,7 +259,8 @@ const ReviewMessage = connectionLoaded => {
 					}
 				) }
 				// eslint-disable-next-line react/jsx-no-bind
-				onClick={ sendToReview }
+				href={ getRedirectUrl( 'jetpack-backup-new-review' ) }
+				onClick={ trackSendToReview }
 				requestReason={ requestReason }
 				reviewText={ reviewText }
 				dismissedReview={ dismissedReview }

@@ -24,6 +24,14 @@ Text action line, recommending the next tier
 - Default: `""`
 - Required: `true`
 
+### href
+
+Link to the review page
+
+- Type: `link`
+- Default: `""`
+- Required: `true`
+
 ### onClick
 
 Callback that will be called when the user click/tap into the ReviewRequest
