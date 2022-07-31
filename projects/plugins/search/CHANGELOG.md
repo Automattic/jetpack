@@ -7,23 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0-beta] - 2022-07-29
 ### Added
-- New Record Meter feature to show the breakdown of records in your search index.
+- Dashboard: new Record Meter feature to show the breakdown of records in your search index.
 
 ### Fixed
-- Don't open modal if only sort parameter is set.
-- Avoid search query on component mount.
-- Fix fill color for gridicons in dark mode in Customberg.
-- Fix pricing issue before site is connected to Jetpack.
-- Restore support for filtering by multiple post types with post_type=.
-- Fix header letter spacing in modal.
-- Fix irrelevant widgets added to sidebar during auto config.
-- Hide unsupported taxonomies from Search widget.
-- Re-enable auto-collapsing sidebar in Customberg.
-- Fix currency code in upsell page.
-- Prevent hidden submit button appearing on focus.
-- Minor CSS changes for Hello Dolly compatibility.
-- Fix keyboard handling on search options.
-- Consistent design for focus states in Search overlay.
+- Instant Search: don't open modal if only sort parameter is set.
+- Instant Search: avoid search query on component mount.
+- Customization: Fix fill color for gridicons in dark mode.
+- Dashboard: fix pricing issue before site is connected to Jetpack.
+- Instant Search: restore support for filtering by multiple post types with post_type=.
+- Instant Search: fix header letter spacing in modal.
+- Instant Search: fix irrelevant widgets added to sidebar during auto config.
+- Customization: hide unsupported taxonomies from Search widget.
+- Customization: re-enable auto-collapsing sidebar in Customberg.
+- Dashboard: fix currency code in upsell page.
+- Instant Search: prevent hidden submit button appearing on focus.
+- Dashboard: minor CSS changes for Hello Dolly compatibility.
+- Instant Search: fix keyboard handling on search options.
+- Instant Search: consistent design for focus states in Search overlay.
 
 ## 1.0.0 - 2022-05-30
 ### Added

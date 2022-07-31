@@ -112,15 +112,11 @@ You can purchase a Search subscription directly through this plugin or via the [
 
 == Changelog ==
 ### 1.1.0-beta - 2022-07-29
-#### Changed
-- E2E tests: bump @playwright/test and allure-playwright versions
-- Renaming master to trunk.
-- Renaming `master` references to `trunk`
-- Updated package dependencies.
+#### Added
+Dashboard: new Record Meter feature to show the breakdown of records in your search index.
 
 #### Fixed
-- E2E tests: fixed pretest cleanup script not running
-- Search: update plugin README
+Various bug fixes and improvements. See CHANGELOG.md for full details.
 
 == Testimonials ==
 
