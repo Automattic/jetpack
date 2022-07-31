@@ -29,4 +29,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
-[1.1.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/search/branch-1.0.0...search/branch-1.1.0
+[1.1.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.0.0...1.1.0-beta
