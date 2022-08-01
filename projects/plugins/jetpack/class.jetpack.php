@@ -6726,7 +6726,7 @@ endif;
 			'disclaimer'        => array(
 				'text'      => __( '* Subject to your usage and storage limit.', 'jetpack' ),
 				'link_text' => __( 'Learn more', 'jetpack' ),
-				'url'       => 'https://cloud.jetpack.com/pricing#backup-storage-limits-faq',
+				'url'       => Redirect::get_url( 'jetpack-faq-backup-disclaimer' ),
 			),
 		);
 
