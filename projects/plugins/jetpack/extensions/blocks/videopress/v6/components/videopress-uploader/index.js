@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button, withNotices, ExternalLink } from '@wordpress/components';
+import { Button, withNotices, ExternalLink, Placeholder } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
+import { useEffect } from 'react';
 import { PlaceholderWrapper } from '../../edit.js';
 /**
  * Internal dependencies
@@ -68,13 +70,118 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 	);
 };
 
+const LocalVideoHandler = ( {
+	attachmentId,
+	onSelectURL,
+	startUploadFromLibrary,
+	setUploadingProgress,
+	transformToCoreVideo,
+	setFile,
+	setUploadErrorDataState,
+	setIsHandlingLocalVideo,
+} ) => {
+	const [ isLoading, setIsLoading ] = useState( false );
+	const [ isUploaded, setIsUploaded ] = useState( false );
+	const [ isSupported, setIsSupported ] = useState( true );
+	const [ apiResponse, setApiResponse ] = useState( {} );
+
+	useEffect( () => {
+		setIsLoading( true );
+		const path = `videopress/v1/upload/${ attachmentId }`;
+		apiFetch( { path } )
+			.then( result => {
+				setApiResponse( result );
+				setIsLoading( false );
+				setIsSupported( true );
+				if ( 'new' === result.status || 'resume' === result.status ) {
+					setIsUploaded( false );
+				} else if ( 'uploaded' === result.status ) {
+					setIsUploaded( true );
+				} else {
+					setUploadErrorDataState( {
+						data: { message: __( 'Error selecting video. Please try again.', 'jetpack' ) },
+					} );
+					setIsHandlingLocalVideo( false );
+					return;
+				}
+			} )
+			.catch( error => {
+				setIsLoading( false );
+				if ( 'not_supported' === error.code ) {
+					setIsSupported( false );
+				} else {
+					setUploadErrorDataState( {
+						data: { message: error.message },
+					} );
+					setIsHandlingLocalVideo( false );
+					return;
+				}
+			} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ attachmentId ] );
+
+	const onUseVideoPress = () => {
+		if ( 'uploaded' === apiResponse.status ) {
+			const videoUrl = `https://videopress.com/v/${ apiResponse.uploaded_video_guid }`;
+			setIsHandlingLocalVideo( false );
+			return onSelectURL( videoUrl );
+		}
+		setFile( {
+			size: apiResponse.file_size,
+			name: apiResponse.file_name,
+		} );
+		setUploadingProgress( apiResponse.bytes_uploaded, apiResponse.file_size );
+		startUploadFromLibrary( attachmentId );
+		setIsHandlingLocalVideo( false );
+	};
+
+	if ( isLoading ) {
+		return <span>Loading...</span>;
+	}
+
+	return (
+		<Placeholder
+			icon={ <BlockIcon icon={ VideoPressIcon } /> }
+			label="VideoPress"
+			instructions={
+				isUploaded
+					? __(
+							'This video is hosted locally on your site but it was uploaded to VideoPress before, what do you want to do?',
+							'jetpack'
+					  )
+					: __( 'This video is hosted locally on your site, what do you want to do?', 'jetpack' )
+			}
+			className="videopress-uploader is-videopress-placeholder"
+		>
+			<div>
+				<Button variant="primary" onClick={ onUseVideoPress } disabled={ ! isSupported }>
+					{ isUploaded
+						? __( 'Use VideoPress version', 'jetpack' )
+						: __( 'Upload it to VideoPress', 'jetpack' ) }
+				</Button>
+				<Button variant="secondary" onClick={ transformToCoreVideo }>
+					{ __( 'Embed the local video', 'jetpack' ) }
+				</Button>
+				<Button
+					variant="secondary"
+					onClick={ () => {
+						setIsHandlingLocalVideo( false );
+					} }
+				>
+					{ __( 'Cancel', 'jetpack' ) }
+				</Button>
+			</div>
+		</Placeholder>
+	);
+};
+
 const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperations } ) => {
 	/*
 	 * Storing the file to get it name and size for progress.
 	 */
 	const [ uploadFile, setFile ] = useState( null );
 
-	const [ isLoading, setIsLoading ] = useState( false );
+	const [ isHandlingLocalVideo, setIsHandlingLocalVideo ] = useState( false );
 
 	/*
 	 * Tracking state when uploading the video file.
@@ -185,33 +292,36 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	};
 
 	const startUploadFromLibrary = attachmentId => {
-		const route = `https://leogermani.jurassic.tube/wp-json/videopress/v1/upload/${ attachmentId }`;
-		fetch( route, { method: 'POST' } )
-			.then( result => result.json() )
-			.then( result => {
-				if ( 'uploading' === result.status ) {
-					setUploadingProgress( result.bytes_uploaded, result.file_size );
-					startUploadFromLibrary( attachmentId );
-					return;
-				} else if ( 'complete' === result.status ) {
-					const guid = result.uploaded_details.guid;
-					const videoUrl = `https://videopress.com/v/${ guid }`;
-					if ( getGuidFromVideoUrl( videoUrl ) ) {
-						return onSelectURL( videoUrl );
-					}
-				} else if ( 'error' === result.status ) {
-					setUploadErrorDataState( {
-						data: { message: result.error },
-					} );
-					return;
-				} else {
-					setUploadErrorDataState( {
-						// Should never happen.
-						data: { message: __( 'Unexpected error uploading video.', 'jetpack' ) },
-					} );
-					return;
+		const path = `videopress/v1/upload/${ attachmentId }`;
+		apiFetch( { path, method: 'POST' } ).then( result => {
+			if ( 'uploading' === result.status ) {
+				setUploadingProgress( result.bytes_uploaded, result.file_size );
+				startUploadFromLibrary( attachmentId );
+				return;
+			} else if ( 'complete' === result.status ) {
+				const guid = result.uploaded_details.guid;
+				const videoUrl = `https://videopress.com/v/${ guid }`;
+				if ( getGuidFromVideoUrl( videoUrl ) ) {
+					return onSelectURL( videoUrl );
 				}
-			} );
+			} else if ( 'error' === result.status ) {
+				setUploadErrorDataState( {
+					data: { message: result.error },
+				} );
+				return;
+			} else {
+				setUploadErrorDataState( {
+					// Should never happen.
+					data: { message: __( 'Unexpected error uploading video.', 'jetpack' ) },
+				} );
+				return;
+			}
+		} );
+	};
+
+	const transformToCoreVideo = () => {
+		// TODO: Implement it.
+		alert( 'Not implemented' );
 	};
 
 	/**
@@ -228,30 +338,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 				return onSelectURL( videoUrl );
 			}
 		} else if ( media.id ) {
-			setIsLoading( true );
-			const route = `https://leogermani.jurassic.tube/wp-json/videopress/v1/upload/${ media.id }`;
-			fetch( route )
-				.then( result => result.json() )
-				.then( result => {
-					if ( 'new' === result.status || 'resume' === result.status ) {
-						setFile( {
-							size: result.file_size,
-							name: result.file_name,
-						} );
-						setUploadingProgress( result.bytes_uploaded, result.file_size );
-						setIsLoading( false );
-						startUploadFromLibrary( media.id );
-						return;
-					} else if ( 'uploaded' === result.status ) {
-						const videoUrl = `https://videopress.com/v/${ result.uploaded_video_guid }`;
-						setIsLoading( false );
-						return onSelectURL( videoUrl );
-					}
-					setUploadErrorDataState( {
-						data: { message: __( 'Error selecting video. Please try again.', 'jetpack' ) },
-					} );
-					return;
-				} );
+			setIsHandlingLocalVideo( media.id );
 		} else if ( fileUrl ) {
 			if ( ! isBlobURL( fileUrl ) ) {
 				setUploadErrorDataState( {
@@ -305,8 +392,19 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 		return errorMessage;
 	};
 
-	if ( isLoading ) {
-		return <span>Loading...</span>;
+	if ( isHandlingLocalVideo ) {
+		return (
+			<LocalVideoHandler
+				attachmentId={ isHandlingLocalVideo }
+				onSelectURL={ onSelectURL }
+				startUploadFromLibrary={ startUploadFromLibrary }
+				setUploadingProgress={ setUploadingProgress }
+				transformToCoreVideo={ transformToCoreVideo }
+				setFile={ setFile }
+				setUploadErrorDataState={ setUploadErrorDataState }
+				setIsHandlingLocalVideo={ setIsHandlingLocalVideo }
+			/>
+		);
 	}
 
 	// Showing error if upload fails
