@@ -49,7 +49,7 @@ const UploadProgress = ( { progress, file, paused, onPauseOrResume } ) => {
 					<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
 					{ roundedProgress < 100 && (
 						<Button variant="link" onClick={ onPauseOrResume }>
-							{ paused ? 'Resume' : 'Pause' }
+							{ paused ? __( 'Resume', 'jetpack' ) : __( 'Pause', 'jetpack' ) }
 						</Button>
 					) }
 				</div>
