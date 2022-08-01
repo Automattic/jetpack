@@ -22,6 +22,7 @@ import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
+import './v6/editor';
 
 import './editor.scss';
 
