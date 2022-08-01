@@ -32,7 +32,7 @@ class Uploader {
 	 *
 	 * @var int
 	 */
-	const CHUNK_SIZE = 1000000;
+	const CHUNK_SIZE = 5000000;
 
 	/**
 	 * The Tus Client instance
@@ -54,7 +54,24 @@ class Uploader {
 	 * @return boolean
 	 */
 	public static function is_supported() {
-		return version_compare( phpversion(), '7', '>=' );
+		return version_compare( phpversion(), '7.2.5', '>=' );
+	}
+
+	/**
+	 * Checks whether this feature is supported by the server
+	 *
+	 * @param int $attachment_id The ID of the video attachment we want to upload to VideoPress.
+	 * @return boolean
+	 */
+	public static function is_valid_attachment_id( $attachment_id ) {
+		$file_path = get_attached_file( $attachment_id );
+		if ( ! $file_path || ! is_readable( $file_path ) ) {
+			return false;
+		}
+		if ( 0 !== strpos( get_post_mime_type( $attachment_id ), 'video/' ) ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -65,7 +82,7 @@ class Uploader {
 	 */
 	public function __construct( $attachment_id ) {
 		if ( ! $this->is_supported() ) {
-			throw new Upload_Exception( __( 'VideoPress uploader requires PHP 7 or higher', 'jetpack-videopress' ) );
+			throw new Upload_Exception( __( 'VideoPress uploader requires PHP 7 or higher', 'jetpack-videopress' ), 'not_supported' );
 		}
 		$this->attachment_id = $attachment_id;
 		if ( ! $this->get_file_path() ) {
