@@ -98,7 +98,7 @@ class WPCOM_Block_Theme_Footer_Credits {
 		}
 
 		// If we're not using the site editor-capable theme, don't show.
-		if ( ! $this->is_fse_theme() ) {
+		if ( ! $this->is_block_theme() ) {
 			return false;
 		}
 
@@ -119,21 +119,12 @@ class WPCOM_Block_Theme_Footer_Credits {
 	}
 
 	/**
-	 * Determine if the site is running an FSE theme.
+	 * Determine if the current theme is a block theme.
 	 *
-	 * @return bool True if the theme is a FSE/Site Editor theme
+	 * @return bool True if the theme is a block theme. False otherwise.
 	 */
-	private function is_fse_theme() {
-		/*
-		 * The gutenberg_is_fse_theme method exists in Gutenberg core
-		 * https://github.com/WordPress/gutenberg/blob/da8555d258edbe676fa079fb51252f918ae032e1/lib/full-site-editing/full-site-editing.php#L13
-		 * so we need to load after the theme is load to ensure it's available.
-		 */
-		if ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) {
-			return true;
-		}
-
-		return false;
+	public function is_block_theme() {
+		return function_exists( 'wp_is_block_theme' ) && wp_is_block_theme();
 	}
 
 	/**
