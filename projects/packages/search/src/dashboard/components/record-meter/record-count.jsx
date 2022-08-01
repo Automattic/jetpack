@@ -5,7 +5,7 @@ import React from 'react';
 
 import './record-count.scss';
 
-const DOCS_URL = 'http://example.com';
+const DOCS_URL = 'https://jetpack.com/support/search/jetpack-search-record-meter/';
 
 /**
  * Returns record count component showing current records indexed and max records available for tier.
