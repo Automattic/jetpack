@@ -2,7 +2,7 @@ import { CURRENCIES } from '@automattic/format-currency';
 import ProductPrice from '../';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-const meta: ComponentMeta< typeof ProductPrice > = {
+export default {
 	title: 'JS Packages/Components/Product Price',
 	component: ProductPrice,
 	argTypes: {
@@ -10,9 +10,7 @@ const meta: ComponentMeta< typeof ProductPrice > = {
 			control: { type: 'select', options: Object.keys( CURRENCIES ) },
 		},
 	},
-};
-
-export default meta;
+} as ComponentMeta< typeof ProductPrice >;
 
 // Export additional stories using pre-defined values
 const Template: ComponentStory< typeof ProductPrice > = args => <ProductPrice { ...args } />;
@@ -23,6 +21,7 @@ const DefaultArgs = {
 	offPrice: 12.42,
 	showNotOffPrice: true,
 	isNotConvenientPrice: false,
+	hidePriceFraction: false,
 };
 
 // Export Default story

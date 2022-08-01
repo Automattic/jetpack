@@ -425,9 +425,16 @@ class Jetpack_Likes {
 	 * @param string $content - content of the page.
 	 */
 	public function post_likes( $content ) {
+		global $wp_current_filter;
 		$post_id = get_the_ID();
 
 		if ( ! is_numeric( $post_id ) || ! $this->settings->is_likes_visible() ) {
+			return $content;
+		}
+
+		// Ensure we don't display like button on post excerpts that are hooked inside the post content
+		if ( in_array( 'the_excerpt', (array) $wp_current_filter, true ) &&
+			in_array( 'the_content', (array) $wp_current_filter, true ) ) {
 			return $content;
 		}
 

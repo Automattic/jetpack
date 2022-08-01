@@ -2,6 +2,9 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
+use Automattic\Jetpack\VideoPress\Options as VideoPress_Options;
+use Automattic\Jetpack\VideoPress\XMLRPC;
 
 /**
  * VideoPress in Jetpack
@@ -42,6 +45,7 @@ class Jetpack_VideoPress {
 	private function __construct() {
 		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
+		VideoPress_Initializer::init();
 	}
 
 	/**
@@ -65,7 +69,7 @@ class Jetpack_VideoPress {
 		add_filter( 'wp_video_extensions', array( $this, 'add_videopress_extenstion' ) );
 
 		VideoPress_Scheduler::init();
-		VideoPress_XMLRPC::init();
+		XMLRPC::init();
 
 		if ( $this->is_videopress_enabled() ) {
 			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );

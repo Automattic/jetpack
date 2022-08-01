@@ -37,7 +37,9 @@ class Module_Control {
 		$this->plan = $plan === null ? new Plan() : $plan;
 		if ( ! did_action( 'jetpack_search_module_control_initialized' ) ) {
 			add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'search_filter_available_modules' ), 10, 1 );
-
+			if ( Helper::is_wpcom() ) {
+				add_filter( 'jetpack_active_modules', array( $this, 'search_filter_available_modules' ), 10, 2 );
+			}
 			/**
 			 * Fires when the Automattic\Jetpack\Search\Module_Control is initialized for the first time.
 			 */

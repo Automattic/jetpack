@@ -8,6 +8,7 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
+import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
@@ -146,13 +147,25 @@ const ProtectAdminPage = () => {
 					<SeventyFiveLayout
 						main={
 							<div className={ styles[ 'main-content' ] }>
-								<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
-								<Text>
-									{ __(
-										'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a minute or two.',
-										'jetpack-protect'
-									) }
-								</Text>
+								<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
+									<Col>
+										<Spinner
+											style={ {
+												color: 'black',
+											} }
+										/>
+										<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
+									</Col>
+									<Col>
+										<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
+										<Text>
+											{ __(
+												'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a minute or two.',
+												'jetpack-protect'
+											) }
+										</Text>
+									</Col>
+								</Container>
 							</div>
 						}
 						secondary={

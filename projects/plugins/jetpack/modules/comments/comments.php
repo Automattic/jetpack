@@ -184,6 +184,24 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( set_url_scheme( $this->photon_avatar( $foreign_avatar, $size ), 'https' ) ) . '\\1', $avatar );
 	}
 
+	/**
+	 * Get the site's blog token.
+	 * This can be used to bypass Comments entirely if Jetpack is not properly connected.
+	 *
+	 * @since 11.2
+	 *
+	 * @return bool|object False if not properly connected. Object with the blog token if connected.
+	 */
+	private function get_blog_token() {
+		$blog_token = ( new Tokens() )->get_access_token();
+		// If we have no token, bail.
+		if ( ! $blog_token || is_wp_error( $blog_token ) ) {
+			return false;
+		}
+
+		return $blog_token;
+	}
+
 	/** Output Methods ********************************************************/
 
 	/**
@@ -208,6 +226,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			return;
 		}
 
+		// If the Jetpack connection is not healthy, bail.
+		if ( ! $this->get_blog_token() ) {
+			return;
+		}
+
 		// Add some JS to the footer.
 		add_action( 'wp_footer', array( $this, 'watch_comment_parent' ), 100 );
 
@@ -223,6 +246,12 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function comment_form_after() {
 		/** This filter is documented in modules/comments/comments.php */
 		if ( ! apply_filters( 'jetpack_comment_form_enabled_for_' . get_post_type(), true ) ) {
+			return;
+		}
+
+		$blog_token = $this->get_blog_token();
+		// If the Jetpack connection is not healthy, bail.
+		if ( ! $blog_token ) {
 			return;
 		}
 
@@ -311,7 +340,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
 		}
 
-		$blog_token        = ( new Tokens() )->get_access_token();
 		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
 		// Prophylactic check: anything else should never happen.
 		if ( $token_key && $token_key !== $blog_token->secret ) {
@@ -553,7 +581,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		$blog_token = ( new Tokens() )->get_access_token( false, $post_array['token_key'] );
-		if ( ! $blog_token ) {
+		if ( ! $blog_token || is_wp_error( $blog_token ) ) {
 			wp_die( esc_html__( 'Unknown security token.', 'jetpack' ), 400 );
 		}
 		$check = self::sign_remote_comment_parameters( $post_array, $blog_token->secret );

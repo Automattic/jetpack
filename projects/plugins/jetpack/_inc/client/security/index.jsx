@@ -90,6 +90,7 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
+				<h1 className="screen-reader-text">{ __( 'Jetpack Security Settings', 'jetpack' ) }</h1>
 				<Card
 					title={
 						isSearchTerm

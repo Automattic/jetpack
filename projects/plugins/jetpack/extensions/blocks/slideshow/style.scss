@@ -70,6 +70,13 @@
 		}
 	}
 
+	&.alignwide .wp-block-jetpack-slideshow_image,
+	&.alignfull .wp-block-jetpack-slideshow_image {
+		width: 100vw;
+		max-width: unset;
+		object-fit: cover;
+	}
+
 	// When the slideshow transition is set to "fade", hide all slides that are not active.
 	.swiper-container-fade .wp-block-jetpack-slideshow_slide:not(.swiper-slide-active) {
 		opacity: 0 !important;
