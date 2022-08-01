@@ -942,6 +942,11 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
+	// Prevent from rendering sharing buttons in block which is fetched from REST endpoint by editor
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+		return $text;
+	}
+
 	// Don't output flair on excerpts.
 	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter, true ) ) {
 		return $text;
