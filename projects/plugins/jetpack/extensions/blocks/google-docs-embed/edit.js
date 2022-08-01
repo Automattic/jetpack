@@ -36,7 +36,8 @@ const GsuiteBlockEdit = props => {
 		 * @returns {string} The variation.
 		 */
 		const detectVariation = () => {
-			const matches = url.match( '^(http|https)://(docs.google.com)/(.*)/d/' );
+			const regex = /^(http|https):\/\/(docs\.google\.com)\/(.*)\/d\//;
+			const matches = url.match( regex );
 
 			switch ( matches[ 3 ] ) {
 				case 'document':
