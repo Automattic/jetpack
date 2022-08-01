@@ -490,9 +490,7 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::INSTALL_PURCHASED_PLUGINS     => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			self::WPCOM_PRO_PLANS,
-			self::WPCOM_STARTER_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::INSTALL_THEMES                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
