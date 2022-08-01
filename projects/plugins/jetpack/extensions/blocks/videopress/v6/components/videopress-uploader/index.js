@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Button, withNotices, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
+import { useRef } from 'react';
 import { PlaceholderWrapper } from '../../edit.js';
 /**
  * Internal dependencies
@@ -19,7 +19,7 @@ import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-const UploadProgress = ( { progress, file } ) => {
+const UploadProgress = ( { progress, file, paused, onPauseOrResume } ) => {
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
 
@@ -47,6 +47,11 @@ const UploadProgress = ( { progress, file } ) => {
 				</div>
 				<div className="videopress-uploader-progress__actions">
 					<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
+					{ roundedProgress < 100 && (
+						<Button variant="link" onClick={ onPauseOrResume }>
+							{ paused ? 'Resume' : 'Pause' }
+						</Button>
+					) }
 				</div>
 			</div>
 		</PlaceholderWrapper>
@@ -69,6 +74,9 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 };
 
 const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperations } ) => {
+	const [ uploadPaused, setUploadPaused ] = useState( false );
+	const tusUploader = useRef( null );
+
 	/*
 	 * Storing the file to get it name and size for progress.
 	 */
@@ -179,7 +187,17 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 		setUploadingProgress( 0, file.size );
 
 		// Upload file to VideoPress infrastructure.
-		videoPressUploader( file );
+		tusUploader.current = videoPressUploader( file );
+	};
+
+	const pauseOrResumeUpload = () => {
+		const uploader = tusUploader?.current;
+
+		if ( uploader ) {
+			const uploaderCall = uploadPaused ? 'start' : 'abort';
+			uploader[ uploaderCall ]();
+			setUploadPaused( ! uploadPaused );
+		}
 	};
 
 	/**
@@ -189,28 +207,32 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
+		const isFileUploading = null !== media && media instanceof FileList;
+
+		// Handle upload by selecting a File
+		if ( isFileUploading ) {
+			const file = media[ 0 ];
+			startUpload( file );
+			return;
+		}
+
+		// Handle selection of Media Library VideoPress attachment
 		if ( media.videopress_guid ) {
-			const videoUrl = `https://videopress.com/v/${ media.videopress_guid[ 0 ] }`;
+			const videoGuid = media.videopress_guid[ 0 ];
+			const videoUrl = `https://videopress.com/v/${ videoGuid }`;
 			if ( getGuidFromVideoUrl( videoUrl ) ) {
 				return onSelectURL( videoUrl );
 			}
 		}
-		const fileUrl = media?.url;
-		if ( ! isBlobURL( fileUrl ) ) {
-			setUploadErrorDataState( {
-				data: { message: __( 'Please select a VideoPress video', 'jetpack' ) },
-			} );
-			return;
-		}
 
-		const file = getBlobByURL( fileUrl );
-		const isResumableUploading = null !== file && file instanceof File;
-
-		if ( ! isResumableUploading ) {
-			return;
-		}
-
-		startUpload( file );
+		setUploadErrorDataState( {
+			data: {
+				message: __(
+					'Please select a VideoPress video from Library or upload a new one',
+					'jetpack'
+				),
+			},
+		} );
 	}
 
 	const getErrorMessage = () => {
@@ -260,12 +282,20 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	// Uploading file to backend
 	if ( isUploadingFile || fileHasBeenUploaded ) {
 		const progress = ( uploadingProgress[ 0 ] / uploadingProgress[ 1 ] ) * 100;
-		return <UploadProgress file={ uploadFile } progress={ progress } />;
+		return (
+			<UploadProgress
+				file={ uploadFile }
+				progress={ progress }
+				paused={ uploadPaused }
+				onPauseOrResume={ pauseOrResumeUpload }
+			/>
+		);
 	}
 
 	// Default view to select file to upload
 	return (
 		<MediaPlaceholder
+			handleUpload={ false }
 			className="is-videopress-placeholder"
 			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			labels={ {
