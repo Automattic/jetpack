@@ -90,7 +90,8 @@ class Jetpack_Search_Plugin {
 			}
 		}
 
-		if ( JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH === $plugin ) {
+		// Redirect to the Search Dashboard only when Jetpack plugin is not activated.
+		if ( JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH === $plugin && ! class_exists( 'Jetpack' ) ) {
 			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-search' ) ) );
 			exit;
 		}
