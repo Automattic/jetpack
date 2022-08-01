@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+JS Components: Add function to format numbers in a short format specific to locale
