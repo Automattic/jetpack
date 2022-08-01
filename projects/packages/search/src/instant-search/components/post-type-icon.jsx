@@ -52,7 +52,7 @@ const PostTypeIcon = ( { postType, shortcodeTypes, iconSize = 18 } ) => {
 				<Gridicon
 					icon="pages"
 					size={ iconSize }
-					description={ __( 'Page icon', 'jetpack-search-pkg' ) }
+					description={ __( 'Page', 'jetpack-search-pkg' ) }
 				/>
 			);
 		default:
