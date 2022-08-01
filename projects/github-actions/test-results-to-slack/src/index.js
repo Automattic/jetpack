@@ -40,11 +40,13 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 
 	if ( context.eventName === 'pull_request' ) {
 		const { pull_request } = context.payload;
-		event = `PR ${ pull_request.title } (${ pull_request.number })`;
+		event = `PR ${ pull_request.number }: \`[${ pull_request.title }](${ pull_request.html_url })\``;
 	}
 
 	if ( context.eventName === 'push' ) {
-		event = `commit id \`${ context.sha }\` on branch \`${ context.ref.substring( 11 ) }\``;
+		event = `commit id \`[${ context.sha }](${
+			context.payload.head_commit.url
+		})\` on branch \`${ context.ref.substring( 11 ) }\``;
 	}
 
 	const text = `Tests ${ status } for ${ event }`;
