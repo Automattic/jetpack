@@ -9,7 +9,10 @@ export default {
 const Template: ComponentStory< typeof JetpackFooter > = args => <JetpackFooter { ...args } />;
 
 const DefaultArgs = {
-	moduleName: 'The Module Name',
+	a8cLogoHref: 'https://automattic.com',
+	moduleName: 'Jetpack',
+	className: '',
+	moduleNameHref: 'https://jetpack.com',
 };
 
 export const _default = Template.bind( {} );
