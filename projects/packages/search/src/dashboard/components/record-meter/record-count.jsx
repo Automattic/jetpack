@@ -60,7 +60,11 @@ export function RecordCount( props ) {
 			<p className="jp-search-record-count__message">
 				{ message }
 				{ DOCS_URL && (
-					<a href={ DOCS_URL } className="jp-search-record-count__info">
+					<a
+						href={ DOCS_URL }
+						className="jp-search-record-count__info"
+						title={ __( 'More info', 'jetpack-search-pkg' ) }
+					>
 						<Gridicon
 							className="jp-search-record-count__info-icon"
 							icon={ 'info-outline' }
