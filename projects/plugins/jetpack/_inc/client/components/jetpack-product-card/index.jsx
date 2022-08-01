@@ -1,4 +1,5 @@
 import { ProductPrice } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
@@ -102,14 +103,14 @@ const JetpackProductCard = props => {
 				{ disclaimer && (
 					<p className="jp-product-card__disclaimer">
 						{ `${ disclaimer.text } ` }
-						<a
+						<ExternalLink
 							onClick={ onDisclaimerClick }
 							href={ disclaimer.url }
 							target="_blank"
-							rel="noreferrer"
+							rel="noopener noreferrer"
 						>
 							{ disclaimer.link_text }
-						</a>
+						</ExternalLink>
 					</p>
 				) }
 			</div>
