@@ -8,6 +8,12 @@ import type { ComponentStory, ComponentMeta } from '@storybook/react';
 export default {
 	title: 'JS Packages/Components/Admin Page',
 	component: AdminPage,
+	argTypes: {
+		moduleName: { control: 'text', defaultValue: 'Jetpack' },
+		showHeader: { control: 'boolean', defaultValue: true },
+		showFooter: { control: 'boolean', defaultValue: true },
+		showBackground: { control: 'boolean', defaultValue: true },
+	},
 } as ComponentMeta< typeof AdminPage >;
 
 // Export additional stories using pre-defined values
