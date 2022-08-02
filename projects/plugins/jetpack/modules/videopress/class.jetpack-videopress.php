@@ -22,7 +22,7 @@ class Jetpack_VideoPress {
 	 *
 	 * @var string
 	 */
-	const VERSION = '6';
+	const VERSION = '7';
 
 	/**
 	 * Singleton
@@ -86,7 +86,7 @@ class Jetpack_VideoPress {
 		$post_id = isset( $post->ID ) ? absint( $post->ID ) : 0;
 
 		$bridge_url = Assets::get_file_url_for_environment(
-			'modules/videopress/js/videopress-token-bridge.js',
+			'_inc/build/videopress/js/videopress-token-bridge.min.js',
 			'modules/videopress/js/videopress-token-bridge.js'
 		);
 
