@@ -1,6 +1,7 @@
 const { setFailed, getInput } = require( '@actions/core' );
 const { context, getOctokit } = require( '@actions/github' );
 const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
+let client;
 
 ( async function main() {
 	const ghToken = getInput( 'github_token' );
@@ -33,6 +34,11 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 		return;
 	}
 
+	client = new WebClient( token, {
+		retryConfig: retryPolicies.rapidRetryPolicy,
+		logLevel: LogLevel.ERROR,
+	} );
+
 	const isFailure = await isWorkflowFailed( ghToken );
 
 	const status = isFailure ? 'failed' : 'passed';
@@ -51,7 +57,7 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 
 	const text = `Tests ${ status } for ${ event }`;
 
-	await sendSlackMessage( token, text, [], channel, username, icon_emoji );
+	await sendSlackMessage( text, [], channel, username, icon_emoji );
 } )();
 
 /**
@@ -84,19 +90,13 @@ async function isWorkflowFailed( token ) {
 /**
  * Sends a Slack message
  *
- * @param {string} token - slack token
  * @param {string} text - message text
  * @param {string} blocks - message blocks
- * @param {string} channel - slack channel
- * @param {string} username - slack bot username
+ * @param {string} channel - Slack channel
+ * @param {string} username - Slack bot username
  * @param {string} icon_emoji - icon emoji
  */
-async function sendSlackMessage( token, text, blocks, channel, username, icon_emoji ) {
-	const client = new WebClient( token, {
-		retryConfig: retryPolicies.rapidRetryPolicy,
-		logLevel: LogLevel.ERROR,
-	} );
-
+async function sendSlackMessage( text, blocks, channel, username, icon_emoji ) {
 	await client.chat.postMessage( {
 		text,
 		channel,
@@ -104,4 +104,24 @@ async function sendSlackMessage( token, text, blocks, channel, username, icon_em
 		icon_emoji,
 		unfurl_links: false,
 	} );
+}
+
+/**
+ * Finds and returns a Slack message based on a substring of the message text
+ *
+ * @param {string} channelId - the Slack channel id where to search for the message
+ * @param {string} identifier - a substring of the expected message.text property
+ */
+// eslint-disable-next-line no-unused-vars
+async function getMessage( channelId, identifier ) {
+	// Get the messages in the channel. It only returns parent messages in case of threads.
+	// If the message has a `thread_ts` defined we have a thread
+	// If `thread_ts === ts` we have a parent message
+	const result = await client.conversations.history( {
+		channel: channelId,
+		limit: 200,
+	} );
+
+	const matchingMessages = result.messages.filter( m => m.text.includes( identifier ) );
+	return matchingMessages ? matchingMessages[ 0 ] : null;
 }
