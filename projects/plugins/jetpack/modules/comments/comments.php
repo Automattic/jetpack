@@ -188,7 +188,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * Get the site's blog token.
 	 * This can be used to bypass Comments entirely if Jetpack is not properly connected.
 	 *
-	 * @since $$next-version$$
+	 * @since 11.2
 	 *
 	 * @return bool|object False if not properly connected. Object with the blog token if connected.
 	 */

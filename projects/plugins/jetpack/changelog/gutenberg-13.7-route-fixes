@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Calipsoify the `site-editor.php` route so that it opens the Site Editor from the Gutenframe. Gutenberg 13.7 deprecated the old routes and uses core's `site-editor.php`.

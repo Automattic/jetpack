@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Tokens: edit return doc to highlight possibility of returning WP_Error.
