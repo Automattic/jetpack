@@ -82,17 +82,17 @@ class Uploader {
 	 */
 	public function __construct( $attachment_id ) {
 		if ( ! $this->is_supported() ) {
-			throw new Upload_Exception( __( 'VideoPress uploader requires PHP 7 or higher', 'jetpack-videopress' ), 'not_supported' );
+			throw new Upload_Exception( __( 'VideoPress uploader requires PHP 7 or higher', 'jetpack-videopress-pkg' ), 'not_supported' );
 		}
 		$this->attachment_id = $attachment_id;
 		if ( ! $this->get_file_path() ) {
-			throw new Upload_Exception( __( 'Invalid attachment ID', 'jetpack-videopress' ) );
+			throw new Upload_Exception( __( 'Invalid attachment ID', 'jetpack-videopress-pkg' ) );
 		}
 		if ( ! is_readable( $this->get_file_path() ) ) {
-			throw new Upload_Exception( __( 'File not found', 'jetpack-videopress' ) );
+			throw new Upload_Exception( __( 'File not found', 'jetpack-videopress-pkg' ) );
 		}
 		if ( ! $this->file_has_supported_mime_type() ) {
-			throw new Upload_Exception( __( 'Mime type not supported', 'jetpack-videopress' ) );
+			throw new Upload_Exception( __( 'Mime type not supported', 'jetpack-videopress-pkg' ) );
 		}
 	}
 
@@ -155,7 +155,7 @@ class Uploader {
 		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
 		if ( is_wp_error( $result ) ) {
 			throw new Upload_Exception(
-				__( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack-videopress' ) .
+				__( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack-videopress-pkg' ) .
 				'(' . $result->get_error_message() . ')'
 			);
 		}
@@ -163,7 +163,7 @@ class Uploader {
 		$response = json_decode( $result['body'], true );
 
 		if ( empty( $response['upload_token'] ) ) {
-			throw new Upload_Exception( __( 'Could not obtain a VideoPress upload JWT. Please try again later. (empty upload token)', 'jetpack-videopress' ) );
+			throw new Upload_Exception( __( 'Could not obtain a VideoPress upload JWT. Please try again later. (empty upload token)', 'jetpack-videopress-pkg' ) );
 		}
 
 		return $response['upload_token'];
