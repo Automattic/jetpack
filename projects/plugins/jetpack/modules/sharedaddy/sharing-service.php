@@ -943,7 +943,8 @@ function sharing_display( $text = '', $echo = false ) {
 	}
 
 	// Prevent from rendering sharing buttons in block which is fetched from REST endpoint by editor
-	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST &&
+		isset( $_GET['context'] ) && 'edit' === $_GET['context'] ) {
 		return $text;
 	}
 
