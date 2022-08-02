@@ -72,6 +72,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		title,
 		longDescription,
 		features,
+		disclaimers,
 		pricingForUi,
 		isBundle,
 		supportedProducts,
@@ -232,6 +233,25 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
 						}
 					</Text>
+				) }
+
+				{ disclaimers.length > 0 && (
+					<div class={ styles.disclaimers }>
+						{ disclaimers.map( ( disclaimer, id ) => {
+							const { text, link_text = null, url = null } = disclaimer;
+
+							return (
+								<Text key={ `disclaimer-${ id }` } component="p" variant="body-small">
+									{ `${ text } ` }
+									{ url && link_text && (
+										<ExternalLink href={ url } target="_blank" rel="noopener noreferrer">
+											{ link_text }
+										</ExternalLink>
+									) }
+								</Text>
+							);
+						} ) }
+					</div>
 				) }
 
 				{ isBundle && hasRequiredPlan && (
