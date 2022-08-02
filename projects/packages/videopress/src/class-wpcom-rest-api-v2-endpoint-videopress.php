@@ -37,7 +37,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			array(
 				'args'                => array(
 					'id'              => array(
-						'description'       => __( 'The post id for the attachment.', 'jetpack-videopress' ),
+						'description'       => __( 'The post id for the attachment.', 'jetpack-videopress-pkg' ),
 						'type'              => 'int',
 						'required'          => true,
 						'validate_callback' => function ( $param ) {
@@ -45,37 +45,37 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						},
 					),
 					'title'           => array(
-						'description'       => __( 'The title of the video.', 'jetpack-videopress' ),
+						'description'       => __( 'The title of the video.', 'jetpack-videopress-pkg' ),
 						'type'              => 'string',
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'description'     => array(
-						'description'       => __( 'The description of the video.', 'jetpack-videopress' ),
+						'description'       => __( 'The description of the video.', 'jetpack-videopress-pkg' ),
 						'type'              => 'string',
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'rating'          => array(
-						'description'       => __( 'The video content rating. One of G, PG-13 or R-17', 'jetpack-videopress' ),
+						'description'       => __( 'The video content rating. One of G, PG-13 or R-17', 'jetpack-videopress-pkg' ),
 						'type'              => 'string',
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'display_embed'   => array(
-						'description'       => __( 'Display the share menu in the player.', 'jetpack-videopress' ),
+						'description'       => __( 'Display the share menu in the player.', 'jetpack-videopress-pkg' ),
 						'type'              => 'boolean',
 						'required'          => false,
 						'sanitize_callback' => 'rest_sanitize_boolean',
 					),
 					'allow_download'  => array(
-						'description'       => __( 'Display download option and allow viewers to download this video', 'jetpack-videopress' ),
+						'description'       => __( 'Display download option and allow viewers to download this video', 'jetpack-videopress-pkg' ),
 						'type'              => 'boolean',
 						'required'          => false,
 						'sanitize_callback' => 'rest_sanitize_boolean',
 					),
 					'privacy_setting' => array(
-						'description'       => __( 'How to determine if the video should be public or private', 'jetpack-videopress' ),
+						'description'       => __( 'How to determine if the video should be public or private', 'jetpack-videopress-pkg' ),
 						'type'              => 'int',
 						'required'          => false,
 						'validate_callback' => function ( $param ) {
@@ -114,7 +114,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			return rest_ensure_response(
 				new WP_Error(
 					'error',
-					__( 'This attachment cannot be updated yet.', 'jetpack-videopress' )
+					__( 'This attachment cannot be updated yet.', 'jetpack-videopress-pkg' )
 				)
 			);
 		}
@@ -153,7 +153,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					return rest_ensure_response(
 						new WP_Error(
 							'error',
-							__( 'Attachment meta was not found.', 'jetpack-videopress' )
+							__( 'Attachment meta was not found.', 'jetpack-videopress-pkg' )
 						)
 					);
 				}
@@ -192,7 +192,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
-					'message' => __( 'Video meta updated successfully.', 'jetpack-videopress' ),
+					'message' => __( 'Video meta updated successfully.', 'jetpack-videopress-pkg' ),
 					'data'    => 200,
 				)
 			);
@@ -207,3 +207,4 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		}
 	}
 }
+
