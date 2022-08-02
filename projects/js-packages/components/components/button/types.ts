@@ -10,15 +10,12 @@ type JetpackButtonBaseProps = {
 	isExternalLink?: boolean;
 	size?: 'normal' | 'small';
 	text?: string;
+	variant?: 'primary' | 'secondary' | 'link';
 	weight?: 'bold' | 'regular';
 };
 
-type JetpackLinkProps = Omit< Button.AnchorProps, 'size' | 'variant' > & {
-	variant?: 'link';
-};
+type JetpackLinkProps = Omit< Button.AnchorProps, 'size' | 'variant' >;
 
-type JetpackButtonProps = Omit< Button.ButtonProps, 'size' | 'variant' > & {
-	variant?: 'primary' | 'secondary';
-};
+type JetpackButtonProps = Omit< Button.ButtonProps, 'size' | 'variant' >;
 
 export type ButtonProps = JetpackButtonBaseProps & ( JetpackLinkProps | JetpackButtonProps );
