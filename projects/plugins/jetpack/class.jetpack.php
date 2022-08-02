@@ -245,6 +245,10 @@ class Jetpack {
 			'The SEO Framework'              => 'autodescription/autodescription.php',
 			'Rank Math'                      => 'seo-by-rank-math/rank-math.php',
 			'Slim SEO'                       => 'slim-seo/slim-seo.php',
+			'SEOKEY'                         => 'seo-key/seo-key.php',
+			'SEOKEY Pro'                     => 'seo-key-pro/seo-key.php',
+			'SEOPress'                       => 'wp-seopress/seopress.php',
+			'SEOPress Pro'                   => 'wp-seopress-pro/seopress-pro.php',
 		),
 		'verification-tools' => array(
 			'WordPress SEO by Yoast'         => 'wordpress-seo/wp-seo.php',
@@ -1565,7 +1569,7 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function is_active() {
-		return self::connection()->is_active();
+		return self::connection()->has_connected_owner();
 	}
 
 	/**
@@ -1581,14 +1585,6 @@ class Jetpack {
 	 * @return bool is the site connection ready to be used?
 	 */
 	public static function is_connection_ready() {
-		$is_connected = false;
-
-		if ( method_exists( self::connection(), 'is_connected' ) ) {
-			$is_connected = self::connection()->is_connected();
-		} elseif ( method_exists( self::connection(), 'is_registered' ) ) {
-			$is_connected = self::connection()->is_registered();
-		}
-
 		/**
 		 * Allows filtering whether the connection is ready to be used. If true, this will enable the Jetpack UI and modules
 		 *
@@ -1599,7 +1595,7 @@ class Jetpack {
 		 * @param bool                                  $is_connection_ready Is the connection ready?
 		 * @param Automattic\Jetpack\Connection\Manager $connection_manager Instance of the Manager class, can be used to check the connection status.
 		 */
-		return apply_filters( 'jetpack_is_connection_ready', $is_connected, self::connection() );
+		return apply_filters( 'jetpack_is_connection_ready', self::connection()->is_connected(), self::connection() );
 	}
 
 	/**
@@ -3949,6 +3945,7 @@ p {
 						$url = add_query_arg( 'auth_approved', 'true', $url );
 					}
 
+					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $url );
 					exit;
 				case 'activate':
@@ -3997,6 +3994,8 @@ p {
 					check_admin_referer( 'jetpack-reconnect' );
 					self::log( 'reconnect' );
 					self::disconnect();
+
+					add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 					wp_safe_redirect( $this->build_connect_url( true, false, 'reconnect' ) );
 					exit;
 				case 'deactivate':
@@ -4045,6 +4044,7 @@ p {
 							$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 						}
 
+						add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 						wp_safe_redirect( $url );
 						exit;
 					}

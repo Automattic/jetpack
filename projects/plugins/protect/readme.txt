@@ -4,7 +4,7 @@ Tags: jetpack, protect, security, malware, scan
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
-Stable tag: 0.1.0-alpha
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -109,19 +109,7 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-### 1.0.1 - 2022-07-07
-#### Added
-- Added new two FAQ entries
-- Protect: record even just after the site is registered
-
-#### Changed
-- Moved normalization of the Protect status report data to the server side.
-- Renamed `master` references to `trunk`
-- Reorder JS imports for `import/order` eslint rule.
-
+### 1.0.2 - 2022-07-27
 #### Fixed
-- Fixed bug that would not display Core vulnerabilities.
-- Removed legacy code and documentation and added new docs on the debug helper plugin.
-- Fixed recommendation for plugins that don't have a fix yet
-- Protect: Fix visual issue of the Interstitial page
-
+- Admin toolbar: ensure the toolbar icon is properly displayed, even when the Jetpack plugin is enabled and connected.
+- General: avoid PHP notices when fetching reports about your site.

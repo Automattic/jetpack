@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button } from '@wordpress/components';
+import { Button, withNotices, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
+import { useRef } from 'react';
 import { PlaceholderWrapper } from '../../edit.js';
 /**
  * Internal dependencies
@@ -19,10 +19,12 @@ import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-const UploadProgress = ( { progress, file } ) => {
+const UploadProgress = ( { progress, file, paused, onPauseOrResume } ) => {
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
 
+	const resumeText = __( 'Resume', 'jetpack' );
+	const pauseText = __( 'Pause', 'jetpack' );
 	const fileSizeLabel = filesize( file?.size );
 	const escapedFileName = escapeHTML( file?.name );
 	const fileNameLabel = createInterpolateElement(
@@ -47,6 +49,11 @@ const UploadProgress = ( { progress, file } ) => {
 				</div>
 				<div className="videopress-uploader-progress__actions">
 					<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
+					{ roundedProgress < 100 && (
+						<Button variant="link" onClick={ onPauseOrResume }>
+							{ paused ? resumeText : pauseText }
+						</Button>
+					) }
 				</div>
 			</div>
 		</PlaceholderWrapper>
@@ -54,10 +61,8 @@ const UploadProgress = ( { progress, file } ) => {
 };
 
 const UploadError = ( { message, onRetry, onCancel } ) => {
-	const errorMessage = message ?? __( 'Failed to upload your video. Please try again.', 'jetpack' );
-
 	return (
-		<PlaceholderWrapper errorMessage={ errorMessage } onNoticeRemove={ onCancel }>
+		<PlaceholderWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
 			<div className="videopress-uploader__error-actions">
 				<Button variant="primary" onClick={ onRetry }>
 					{ __( 'Try again', 'jetpack' ) }
@@ -70,7 +75,10 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 	);
 };
 
-const VideoPressUploader = ( { attributes, setAttributes } ) => {
+const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperations } ) => {
+	const [ uploadPaused, setUploadPaused ] = useState( false );
+	const tusUploader = useRef( null );
+
 	/*
 	 * Storing the file to get it name and size for progress.
 	 */
@@ -181,7 +189,17 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 		setUploadingProgress( 0, file.size );
 
 		// Upload file to VideoPress infrastructure.
-		videoPressUploader( file );
+		tusUploader.current = videoPressUploader( file );
+	};
+
+	const pauseOrResumeUpload = () => {
+		const uploader = tusUploader?.current;
+
+		if ( uploader ) {
+			const uploaderCall = uploadPaused ? 'start' : 'abort';
+			uploader[ uploaderCall ]();
+			setUploadPaused( ! uploadPaused );
+		}
 	};
 
 	/**
@@ -191,20 +209,62 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
-		const fileUrl = media?.url;
-		if ( ! isBlobURL( fileUrl ) ) {
+		const isFileUploading = null !== media && media instanceof FileList;
+
+		// Handle upload by selecting a File
+		if ( isFileUploading ) {
+			const file = media[ 0 ];
+			startUpload( file );
 			return;
 		}
 
-		const file = getBlobByURL( fileUrl );
-		const isResumableUploading = null !== file && file instanceof File;
-
-		if ( ! isResumableUploading ) {
-			return;
+		// Handle selection of Media Library VideoPress attachment
+		if ( media.videopress_guid ) {
+			const videoGuid = media.videopress_guid[ 0 ];
+			const videoUrl = `https://videopress.com/v/${ videoGuid }`;
+			if ( getGuidFromVideoUrl( videoUrl ) ) {
+				return onSelectURL( videoUrl );
+			}
 		}
 
-		startUpload( file );
+		setUploadErrorDataState( {
+			data: {
+				message: __(
+					'Please select a VideoPress video from Library or upload a new one',
+					'jetpack'
+				),
+			},
+		} );
 	}
+
+	const getErrorMessage = () => {
+		if ( ! uploadErrorData ) {
+			return '';
+		}
+
+		let errorMessage =
+			uploadErrorData?.data?.message ||
+			__( 'Failed to upload your video. Please try again.', 'jetpack' );
+
+		// Let's give this error a better message.
+		if ( errorMessage === 'Invalid Mime' ) {
+			errorMessage = (
+				<>
+					{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
+					&nbsp;
+					<ExternalLink
+						href="https://wordpress.com/support/videopress/recommended-video-settings/"
+						target="_blank"
+						rel="noreferrer"
+					>
+						{ __( 'Check the recommended video settings.', 'jetpack' ) }
+					</ExternalLink>
+				</>
+			);
+		}
+
+		return errorMessage;
+	};
 
 	// Showing error if upload fails
 	if ( uploadErrorData ) {
@@ -218,24 +278,26 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 			setUploadErrorData( null );
 		};
 
-		return (
-			<UploadError
-				onRetry={ onRetry }
-				onCancel={ onCancel }
-				message={ uploadErrorData?.data?.message }
-			/>
-		);
+		return <UploadError onRetry={ onRetry } onCancel={ onCancel } message={ getErrorMessage() } />;
 	}
 
 	// Uploading file to backend
 	if ( isUploadingFile || fileHasBeenUploaded ) {
 		const progress = ( uploadingProgress[ 0 ] / uploadingProgress[ 1 ] ) * 100;
-		return <UploadProgress file={ uploadFile } progress={ progress } />;
+		return (
+			<UploadProgress
+				file={ uploadFile }
+				progress={ progress }
+				paused={ uploadPaused }
+				onPauseOrResume={ pauseOrResumeUpload }
+			/>
+		);
 	}
 
 	// Default view to select file to upload
 	return (
 		<MediaPlaceholder
+			handleUpload={ false }
 			className="is-videopress-placeholder"
 			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			labels={ {
@@ -247,12 +309,13 @@ const VideoPressUploader = ( { attributes, setAttributes } ) => {
 			accept="video/*"
 			allowedTypes={ ALLOWED_MEDIA_TYPES }
 			value={ attributes }
+			notices={ noticeUI }
 			onError={ function ( error ) {
-				// eslint-disable-next-line no-console
-				console.error( 'Error: ', error );
+				noticeOperations.removeAllNotices();
+				noticeOperations.createErrorNotice( error );
 			} }
 		/>
 	);
 };
 
-export default VideoPressUploader;
+export default withNotices( VideoPressUploader );

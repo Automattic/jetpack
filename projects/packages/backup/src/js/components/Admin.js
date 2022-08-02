@@ -12,10 +12,15 @@ import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import {
+	JETPACK_PLANS_WITH_BACKUP,
+	JETPACK_BACKUP_PRODUCTS,
+} from '../../../../../../projects/plugins/jetpack/_inc/client/lib/plans/constants';
 import useAnalytics from '../hooks/useAnalytics';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
 import Backups from './Backups';
+import ReviewRequest from './review-request';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
 
@@ -29,6 +34,11 @@ const Admin = () => {
 	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
 	const [ price, setPrice ] = useState( 0 );
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
+	const [ restores, setRestores ] = useState( [] );
+	// To be used on next iteration of review requests
+	const [ currentPurchases, setCurrentPurchases ] = useState( [] );
+	const [ reviewRequestReason, SetReviewRequestReason ] = useState( '' );
+	const [ reviewText, setReviewText ] = useState( '' );
 	const { tracks } = useAnalytics();
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
@@ -45,6 +55,22 @@ const Admin = () => {
 	}, [ connectionStatus ] );
 
 	useEffect( () => {
+		apiFetch( { path: '/jetpack/v4/restores' } ).then(
+			res => {
+				setRestores( res );
+			},
+			() => {
+				setRestores( 'Failed to fetch restores' );
+			}
+		);
+		apiFetch( { path: '/jetpack/v4/site/current-purchases' } ).then(
+			res => {
+				setCurrentPurchases( res );
+			},
+			() => {
+				setCurrentPurchases( 'Failed to fetch current purchases' );
+			}
+		);
 		apiFetch( { path: '/jetpack/v4/backup-capabilities' } ).then(
 			res => {
 				setCapabilities( res.capabilities );
@@ -73,9 +99,59 @@ const Admin = () => {
 		return capabilities.includes( 'backup' );
 	};
 
-	const sendToCart = () => {
-		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
+	// Check if the site has an active Backup subscription older than 3 months
+	const hasThreeMonthsSub = () => {
+		if ( ! Array.isArray( currentPurchases ) || currentPurchases.length === 0 ) {
+			return false;
+		}
+
+		for ( const purchase of currentPurchases ) {
+			const isActive = purchase.subscription_status === 'active';
+			const isBackupPlan =
+				JETPACK_BACKUP_PRODUCTS.includes( purchase.product_slug ) ||
+				JETPACK_PLANS_WITH_BACKUP.includes( purchase.product_slug );
+
+			if ( isBackupPlan && isActive ) {
+				const subscriptionTimeInDays =
+					( new Date() - Date.parse( purchase.subscribed_date ) ) / 86400000;
+
+				if ( subscriptionTimeInDays > 90 ) {
+					SetReviewRequestReason( 'time_based' );
+					setReviewText( __( 'Are you happy with Jetpack Backup?', 'jetpack-backup-pkg' ) );
+
+					return true;
+				}
+			}
+		}
+
+		return false;
 	};
+
+	// Check if the site has a successful restore not older than 15 days
+	const hasRecentSuccesfulRestore = () => {
+		if ( restores[ 0 ] && restores[ 0 ].status === 'finished' ) {
+			// Number of days we consider the restore recent
+			const maxDays = 15;
+			const daysDifference = ( new Date() - Date.parse( restores[ 0 ].when ) ) / 86400000;
+			if ( daysDifference < maxDays ) {
+				SetReviewRequestReason( 'restore' );
+				setReviewText( __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' ) );
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	const sendToCart = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_plugin_upgrade_click', { site: domain } );
+		window.location.href = getRedirectUrl( 'backup-plugin-upgrade-10gb', { site: domain } );
+	}, [ tracks, domain ] );
+
+	const sendToReview = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_new_review_click' );
+		window.location.href = getRedirectUrl( 'jetpack-backup-new-review' );
+	}, [ tracks ] );
 
 	const trackLearnMoreClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_learn_more_click' );
@@ -89,7 +165,7 @@ const Admin = () => {
 		tracks.recordEvent( 'jetpack_backup_see_site_activity_click', { site: domain } );
 	}, [ tracks, domain ] );
 
-	const renderNoBackupCapabilities = () => {
+	const NoBackupCapabilities = () => {
 		const basicInfoText = __( '14 day money back guarantee.', 'jetpack-backup-pkg' );
 		const introductoryInfoText = __(
 			'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
@@ -131,7 +207,27 @@ const Admin = () => {
 		);
 	};
 
-	const renderLoadedState = () => {
+	const ReviewMessage = () => (
+		<Col lg={ 6 } md={ 4 }>
+			<ReviewRequest
+				cta={ createInterpolateElement(
+					__(
+						'<strong>Please leave a review and help us spread the word!</strong>',
+						'jetpack-backup-pkg'
+					),
+					{
+						strong: <strong></strong>,
+					}
+				) }
+				// eslint-disable-next-line react/jsx-no-bind
+				onClick={ sendToReview }
+				requestReason={ reviewRequestReason }
+				reviewText={ reviewText }
+			/>
+		</Col>
+	);
+
+	const LoadedState = () => {
 		if (
 			! connectionLoaded ||
 			! connectionStatus.isUserConnected ||
@@ -180,11 +276,11 @@ const Admin = () => {
 			);
 		}
 
-		return renderNoBackupCapabilities();
+		return <NoBackupCapabilities />;
 	};
 
 	// Renders additional segments under the jp-hero area condition on having a backup plan
-	const renderBackupSegments = () => {
+	const BackupSegments = () => {
 		return (
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col lg={ 6 } md={ 4 }>
@@ -244,15 +340,18 @@ const Admin = () => {
 						</p>
 					) }
 				</Col>
+				{ ( hasRecentSuccesfulRestore() || hasThreeMonthsSub() ) && <ReviewMessage /> }
 			</Container>
 		);
 	};
 
-	const renderContent = () => {
+	const Content = () => {
 		return (
 			<div className="content">
-				<AdminSectionHero>{ renderLoadedState() }</AdminSectionHero>
-				<AdminSection>{ isFullyConnected() && renderBackupSegments() }</AdminSection>
+				<AdminSectionHero>
+					<LoadedState />
+				</AdminSectionHero>
+				<AdminSection>{ isFullyConnected() && <BackupSegments /> }</AdminSection>
 			</div>
 		);
 	};
@@ -265,7 +364,7 @@ const Admin = () => {
 			a8cLogoHref="https://www.jetpack.com"
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
-				{ renderContent() }
+				<Content />
 			</div>
 		</AdminPage>
 	);

@@ -2,6 +2,28 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.17.1 - 2022-07-29
+### Changed
+- JS Components: Converted AutomatticBylineLogo component to TypeScript
+- JS Components: Converted DecorativeCard component to TypeScript
+- JS Components: Converted icons to TypeScript
+- JS Components: Convert Gridicon to TypeScript
+
+## 0.17.0 - 2022-07-26
+### Added
+- Added missing color to ThemeProvider [#25147]
+
+### Changed
+- Converted PricingCard component to TypeScript [#24906]
+- Updated package dependencies. [#25158]
+
+## 0.16.8 - 2022-07-19
+### Changed
+- Updated package dependencies. [#24710]
+
+### Fixed
+- Gridicon: Change title to desc [#25081]
+
 ## 0.16.7 - 2022-07-12
 ### Changed
 - JS Components: Converted ProductPrice component to TypeScript [#24931]
