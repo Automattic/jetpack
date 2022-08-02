@@ -24,6 +24,13 @@
 	top: 0;
 	margin: 0;
 	line-height: 1.3;
+	border: none;
+	background-color: inherit;
+
+	&:hover,
+	&:focus {
+		text-decoration: underline;
+	}
 }
 
 .jetpack-instant-search__search-filter-sub-heading {
