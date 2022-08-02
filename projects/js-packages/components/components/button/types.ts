@@ -12,6 +12,7 @@ type JetpackButtonBaseProps = {
 	text?: string;
 	variant?: 'primary' | 'secondary' | 'link';
 	weight?: 'bold' | 'regular';
+	fullWidth?: boolean;
 };
 
 type JetpackLinkProps = Omit< Button.AnchorProps, 'size' | 'variant' >;
