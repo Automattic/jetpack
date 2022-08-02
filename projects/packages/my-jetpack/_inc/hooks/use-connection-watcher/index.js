@@ -16,7 +16,12 @@ export default function useConnectionWatcher() {
 	const productsThatRequiresUserConnection = useSelect( select =>
 		select( STORE_ID ).getProductsThatRequiresUserConnection()
 	);
-	const { isSiteConnected, topJetpackMenuItemUrl, hasConnectedOwner } = useMyJetpackConnection();
+	const {
+		isSiteConnected,
+		topJetpackMenuItemUrl,
+		hasConnectedOwner,
+		connectionErrors,
+	} = useMyJetpackConnection();
 
 	const requiresUserConnection =
 		! hasConnectedOwner && productsThatRequiresUserConnection.length > 0;
@@ -62,4 +67,20 @@ export default function useConnectionWatcher() {
 			} );
 		}
 	}, [ message, requiresUserConnection, navToConnection, setGlobalNotice ] );
+
+	useEffect( () => {
+		if ( connectionErrors.length ) {
+			setGlobalNotice( __( 'Your Jetpack Connection is broken', 'jetpack-my-jetpack' ), {
+				status: 'error',
+				actions: [
+					{
+						label: __( 'Fix Jetpack Connection', 'jetpack-my-jetpack' ),
+						onClick: navToConnection,
+						variant: 'link',
+						noDefaultClasses: true,
+					},
+				],
+			} );
+		}
+	}, [ message, connectionErrors, navToConnection, setGlobalNotice ] );
 }
