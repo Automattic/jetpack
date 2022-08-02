@@ -1,8 +1,7 @@
 import { ClipboardButton } from '@wordpress/components';
-import React from 'react';
 import Col from '../../layout/col';
 import Container from '../../layout/container';
-import ThemeProvider, { typography, colors, borders, spacing } from '../index.jsx';
+import ThemeProvider, { typography, colors, borders, spacing } from '../index';
 import styles from './style.module.scss';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
