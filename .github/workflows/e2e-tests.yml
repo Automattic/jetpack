@@ -179,7 +179,6 @@ jobs:
       - name: Set up tools
         uses: ./.github/actions/tool-setup
 
-      # remove this step after action release and replace with the action from marketplace
       - name: Build action
         env:
           COMPOSER_ROOT_VERSION: dev-trunk
