@@ -43,6 +43,7 @@ function execSyncShellCommand( cmd ) {
 
 async function resetWordpressInstall() {
 	const cmd = 'pnpm e2e-env reset';
+	await cancelPartnerPlan();
 	execSyncShellCommand( cmd );
 }
 
@@ -78,6 +79,13 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'w
 	await execWpCommand( 'jetpack status' );
 
 	return true;
+}
+
+async function cancelPartnerPlan() {
+	logger.step( `Cancelling partner plan` );
+	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
+	const cmd = `sh /usr/local/src/jetpack-monorepo/tools/partner-cancel.sh -- --partner_id=${ clientID } --partner_secret=${ clientSecret } --allow-root`;
+	await execContainerShellCommand( cmd );
 }
 
 /**

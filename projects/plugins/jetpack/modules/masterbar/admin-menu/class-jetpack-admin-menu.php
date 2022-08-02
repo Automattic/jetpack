@@ -137,6 +137,8 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_jetpack_menu() {
 		parent::add_jetpack_menu();
+		/* translators: Jetpack sidebar menu item. */
+		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'manage_options', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 4 );
 
 		// Place "Scan" submenu after Backup.
 		$position = 0;

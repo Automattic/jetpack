@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack: register VideoPress block from its editor.js file

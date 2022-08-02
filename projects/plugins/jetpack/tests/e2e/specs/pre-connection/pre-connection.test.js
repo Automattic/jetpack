@@ -49,7 +49,7 @@ test.describe( 'Jetpack pre-connection', () => {
 		const jetpackPage = await JetpackPage.init( page );
 		expect(
 			await jetpackPage.isConnectScreenVisible(),
-			'Connect screen shoud be visible'
+			'Connect screen should be visible'
 		).toBeTruthy();
 	} );
 } );

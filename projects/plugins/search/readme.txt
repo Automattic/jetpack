@@ -4,7 +4,7 @@ Tags: search, jetpack
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
-Stable tag: 0.1.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,9 +111,13 @@ You can purchase a Search subscription directly through this plugin or via the [
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.0.0 - 2022-05-30
+### 1.1.0-beta - 2022-07-29
 #### Added
-- Initial release.
+Dashboard: new Record Meter feature to show the breakdown of records in your search index.
+
+#### Fixed
+Various bug fixes and improvements. See CHANGELOG.md for full details.
+
 == Testimonials ==
 
 “I like having a search experience that is sortable, filterable, and feels like it's integrated natively into the site. Jetpack Search does all of this, but most importantly, it returns great results without heavy configuration.” - Chris Coyier, Web Design Expert (codepen.io / ShopTalk Show)

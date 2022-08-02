@@ -28,16 +28,21 @@ export type ProductPriceProps = {
 	 * Force the price as a not off price.
 	 */
 	isNotConvenientPrice?: boolean;
+
+	/**
+	 * Hides the price fraction if fraction is zero.
+	 */
+	hidePriceFraction?: boolean;
 };
 
 export type PriceProps = {
 	/**
-	 * Price valuerice.
+	 * Price value.
 	 */
 	value: number;
 
 	/**
-	 * Price current code.
+	 * Price currency code.
 	 */
 	currency: string;
 
@@ -45,4 +50,9 @@ export type PriceProps = {
 	 * True when it is an off price.
 	 */
 	isOff: boolean;
+
+	/**
+	 * Hides the price fraction if fraction is zero.
+	 */
+	hidePriceFraction?: boolean;
 };

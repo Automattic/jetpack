@@ -42,7 +42,7 @@
 		"payments-intro",
 		"post-publish-qr-post-panel"
 	],
-	"beta": [ "amazon", "recipe", "videopress-block" ],
+	"beta": [ "amazon", "google-docs-embed", "recipe", "videopress-block" ],
 	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",

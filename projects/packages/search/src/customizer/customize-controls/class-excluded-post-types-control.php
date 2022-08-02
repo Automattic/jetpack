@@ -51,7 +51,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 	 * @return array $post_types An array of strings representing post type names.
 	 */
 	public function get_arrayed_value() {
-		return empty( $this->value() ) ? array() : explode( ',', $this->value() );
+		return explode( ',', $this->value() );
 	}
 
 	/**
@@ -93,13 +93,6 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 	 */
 	protected function render_content() {
 		$post_types = get_post_types( array( 'exclude_from_search' => false ), 'objects' );
-		$post_types = array_filter(
-			$post_types,
-			function ( $key ) {
-				return ! in_array( $key, Helper::POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST, true );
-			},
-			ARRAY_FILTER_USE_KEY
-		);
 		if ( count( $post_types ) === 0 ) {
 			return;
 		}
