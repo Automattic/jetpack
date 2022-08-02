@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.2-beta - 2022-07-26
+## 11.2 - 2022-08-02
 ### Enhancements
 - Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress. [#25155]
 - VideoPress Block (beta): add block transforms for the VideoPress block. [#25154]
@@ -13,6 +13,7 @@
 - Connection: fix Jetpack redirect after registration. [#25135]
 - Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites. [#25085]
 - Sharing: ensure that sharing buttons are not displayed for excerpts. [#24896]
+- Sharing: hide button information in Blog Posts block in editor. [#25346]
 - Slideshow Block: support wide and full alignment options. [#25107]
 - Subscribe block: fix support for allowed HTML tags in submit button. [#25114]
 - VideoPress: avoid PHP notices when inserting videos that miss some metadata. [#25129]
@@ -22,6 +23,7 @@
 - Cleanup old videopress player code (D75134-code). [#23384]
 - E2E tests: cancel partner plan when resetting test environment. [#25264]
 - Init 11.2-a.6 cycle. [#25126]
+- Jetpack 11.2 changelog editorial [#25276]
 - Jetpack 11.2-a.5 changelog editorial. [#25128]
 - Publicize: Remove folder from modules. [#25049]
 - Search: remove Calypso search page link in admin menu for simple sites. [#25149]
