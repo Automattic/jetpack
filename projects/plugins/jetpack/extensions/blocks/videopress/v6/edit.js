@@ -29,6 +29,8 @@ export const PlaceholderWrapper = withNotices( function ( {
 	errorMessage,
 	noticeUI,
 	noticeOperations,
+	instructions = description,
+	disableInstructions,
 } ) {
 	useEffect( () => {
 		if ( ! errorMessage ) {
@@ -43,7 +45,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 		<Placeholder
 			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			label={ title }
-			instructions={ description }
+			instructions={ disableInstructions ? null : instructions }
 			className="videopress-uploader is-videopress-placeholder"
 			notices={ noticeUI }
 		>
