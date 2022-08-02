@@ -14,8 +14,8 @@ const Container: React.FC< ContainerProps > = ( {
 	children,
 	fluid = false,
 	className,
-	horizontalGap,
-	horizontalSpacing,
+	horizontalGap = 1,
+	horizontalSpacing = 1,
 } ) => {
 	const containerStyle = useMemo( () => {
 		const padding = `calc( var(--horizontal-spacing) * ${ horizontalSpacing } )`;
