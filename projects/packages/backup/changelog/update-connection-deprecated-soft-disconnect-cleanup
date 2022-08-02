@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Removed calls to deprecated components of the soft disconnect system as it is no longer in use.

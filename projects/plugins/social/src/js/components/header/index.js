@@ -8,6 +8,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { Icon, postList } from '@wordpress/icons';
 import { STORE_ID } from '../../store';
 import ShareCounter from '../share-counter';
 import StatCards from '../stat-cards';
@@ -19,6 +20,7 @@ const Header = () => {
 		isModuleEnabled,
 		connectionsAdminUrl,
 		sharesCount,
+		postsCount,
 		isShareLimitEnabled,
 	} = useSelect( select => {
 		const store = select( STORE_ID );
@@ -27,6 +29,7 @@ const Header = () => {
 			isModuleEnabled: store.isModuleEnabled(),
 			connectionsAdminUrl: store.getConnectionsAdminUrl(),
 			sharesCount: select( STORE_ID ).getSharesCount(),
+			postsCount: select( STORE_ID ).getPostsCount(),
 			isShareLimitEnabled: select( STORE_ID ).isShareLimitEnabled(),
 		};
 	} );
@@ -62,6 +65,12 @@ const Header = () => {
 								label: __( 'Total shares this month', 'jetpack-social' ),
 								loading: null === sharesCount,
 								value: formatter.format( sharesCount ),
+							},
+							{
+								icon: <Icon icon={ postList } />,
+								label: __( 'Posted this month', 'jetpack-social' ),
+								loading: null === postsCount,
+								value: formatter.format( postsCount ),
 							},
 						] }
 					/>

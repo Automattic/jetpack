@@ -242,19 +242,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.2-a.5 - 2022-07-19
+### 11.2-beta - 2022-07-26
 #### Enhancements
-- Blocks: enable Jetpack block collection for the native editor block inserter (on self hosted Jetpack sites).
-- Connection: make sure pre-existing settings are respected on plugin activation.
-- VideoPress: add UX improvements including fallback thumbnail replaced by loading element, and better error messaging (in Beta only).
-
-#### Improved compatibility
-- Admin UI: add h1 page headings for better screen reader navigation.
-- Custom Post Types: change Nova functions to public to re-allow hooking.
+- Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress.
+- VideoPress Block (beta): add block transforms for the VideoPress block.
 
 #### Bug fixes
-- Form block: fix Checkbox Group option color.
-- Masterbar: fix All Posts dashboard redirect issue when switching between classic and default editor views.
+- Admin menu: display the translations for the plan name.
+- Comments: avoid PHP Notice when using Jetpack's Comment form feature when your site is no longer properly connected to WordPress.com.
+- Connection: fix Jetpack redirect after registration.
+- Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites.
+- Sharing: ensure that sharing buttons are not displayed for excerpts.
+- Slideshow Block: add a bit of CSS to support align wide and align full.
+- Subscribe block: fix support for allowed HTML tags in submit button.
+- VideoPress: avoid PHP notices when inserting videos that miss some metadata.
 
 --------
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: Redirect to the Search Dashboard on activation only when Jetpack plugin does not exist
