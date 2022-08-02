@@ -1,7 +1,7 @@
 name: "Send tests results to Slack"
 description: "Send Slack notifications with test results."
 branding:
-  icon: 'activity'
+  icon: 'message-square'
   color: 'green'
 inputs:
   github_token:
