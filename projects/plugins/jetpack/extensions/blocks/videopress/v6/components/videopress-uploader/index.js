@@ -23,6 +23,8 @@ const UploadProgress = ( { progress, file, paused, onPauseOrResume } ) => {
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
 
+	const resumeText = __( 'Resume', 'jetpack' );
+	const pauseText = __( 'Pause', 'jetpack' );
 	const fileSizeLabel = filesize( file?.size );
 	const escapedFileName = escapeHTML( file?.name );
 	const fileNameLabel = createInterpolateElement(
@@ -49,7 +51,7 @@ const UploadProgress = ( { progress, file, paused, onPauseOrResume } ) => {
 					<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
 					{ roundedProgress < 100 && (
 						<Button variant="link" onClick={ onPauseOrResume }>
-							{ paused ? __( 'Resume', 'jetpack' ) : __( 'Pause', 'jetpack' ) }
+							{ paused ? resumeText : pauseText }
 						</Button>
 					) }
 				</div>
