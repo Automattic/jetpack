@@ -1,78 +1,84 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { useBreakpointMatch, Text } from '@automattic/jetpack-components';
+import { Fragment, createContext, useContext, Children, cloneElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import styles from './styles.module.scss';
 
-const PricingTableValue = ( { label, value } ) => {
-	const [ isLg ] = useBreakpointMatch( 'lg' );
+const PricingTableContext = createContext();
 
-	const isIncluded = typeof value === 'object' ? value.value : value;
+const PricingTableItem = ( { isIncluded, rowLabel, label = null } ) => {
+	const [ isLg ] = useBreakpointMatch( 'lg' );
+	let defaultLabel = isIncluded
+		? __( 'Included', 'jetpack-social' )
+		: __( 'Not included', 'jetpack-social' );
+	defaultLabel = isLg ? defaultLabel : rowLabel;
 
 	if ( ! isLg && ! isIncluded ) {
 		return <></>;
 	}
 
-	const customLabel = typeof value === 'object' ? value.label : null;
-	const defaultLabel = isIncluded ? 'Included' : 'Not included';
-
-	label = isLg ? defaultLabel : label;
-
 	return (
-		<span data-check={ isIncluded } className={ styles.value }>
-			{ customLabel || label }
-		</span>
+		<Text
+			variant="body-small"
+			data-check={ isIncluded }
+			className={ classnames( styles.item, styles.value ) }
+		>
+			{ label || defaultLabel }
+		</Text>
 	);
 };
 
-const PricingTable = () => {
+const PricingTableHeader = ( { children } ) => <div className={ styles.header }>{ children }</div>;
+
+const PricingTableColumn = ( { children } ) => {
+	const [ isLg ] = useBreakpointMatch( 'lg' );
+	const items = useContext( PricingTableContext );
+	const Wrapper = isLg ? Fragment : 'div';
+	const wrapperProps = ! isLg ? { className: styles.card } : {};
+	let index = 0;
+
+	return (
+		<Wrapper { ...wrapperProps }>
+			{ Children.map( Children.toArray( children ), child => {
+				const props = {};
+
+				if ( child.type === PricingTableItem ) {
+					props.rowLabel = items[ index ];
+					index++;
+				}
+
+				return cloneElement( child, { ...props } );
+			} ) }
+		</Wrapper>
+	);
+};
+
+const PricingTable = ( { title, items, children } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 
-	const headers = [ <span>Header 1</span>, <span>Header 2</span> ];
-
-	const table = [
-		{
-			label: 'Number of shares',
-			values: [
-				{
-					value: true,
-					label: isLg ? <strong>Up to 1000</strong> : <strong>Up to 1000 shares per month</strong>,
-				},
-				{ value: true, label: isLg ? 'Up to 30' : 'Up to 30 shares per month' },
-			],
-		},
-		{ label: 'Twitter, Facebook, LinkedIn & Tumblr', values: [ true, true ] },
-		{ label: 'Custom excerpts', values: [ true, true ] },
-		{
-			label: isLg
-				? 'Schedule publishing to social channels'
-				: 'Schedule publishing to social media channels',
-			values: [ true, true ],
-		},
-		{ label: 'Priority support', values: [ true, false ] },
-	];
-
-	const labels = table.map( item => item.label );
-	const values = table.map( item => item.values );
-
 	return (
-		<div
-			className={ styles.container }
-			style={ { '--rows': values.length + 1, '--columns': headers.length + 1 } }
-		>
-			<div className={ styles.table }>
-				<div>Title</div>
-				{ labels.map( label => (
-					<span className={ styles.value }>{ label }</span>
-				) ) }
-				{ headers.map( ( header, i ) => (
-					<>
-						<div data-heading>{ header }</div>
-						{ table.map( row => (
-							<PricingTableValue label={ row.label } value={ row.values[ i ] } />
+		<PricingTableContext.Provider value={ items }>
+			<div
+				className={ classnames( styles.container, { [ styles[ 'is-viewport-large' ] ]: isLg } ) }
+				style={ { '--rows': items.length + 1, '--columns': children.length + 1 } }
+			>
+				<div className={ styles.table }>
+					<Text variant="headline-small">{ title }</Text>
+					{ isLg &&
+						items.map( ( item, i ) => (
+							<Text
+								variant="body-small"
+								className={ classnames( styles.item, styles.label ) }
+								key={ i }
+							>
+								<strong>{ item }</strong>
+							</Text>
 						) ) }
-					</>
-				) ) }
+					{ children }
+				</div>
 			</div>
-		</div>
+		</PricingTableContext.Provider>
 	);
 };
 
-export default PricingTable;
+export { PricingTable, PricingTableColumn, PricingTableHeader, PricingTableItem };

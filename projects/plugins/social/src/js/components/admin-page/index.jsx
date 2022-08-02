@@ -8,7 +8,12 @@ import {
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import PricingTable from '../pricing-table';
+import {
+	PricingTable,
+	PricingTableColumn,
+	PricingTableHeader,
+	PricingTableItem,
+} from '../pricing-table';
 import Header from './../header';
 import InfoSection from './../info-section';
 import Logo from './../logo';
@@ -23,7 +28,22 @@ const Admin = () => {
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) } header={ <Logo /> }>
 				<AdminSectionHero>
-					<PricingTable />
+					<Container horizontalSpacing={ 6 }>
+						<Col>
+							<PricingTable title={ 'Buy here' } items={ [ 'Row 1', 'Row 2' ] }>
+								<PricingTableColumn>
+									<PricingTableHeader>Header one</PricingTableHeader>
+									<PricingTableItem isIncluded={ true } label="Up to 30" />
+									<PricingTableItem isIncluded={ false } />
+								</PricingTableColumn>
+								<PricingTableColumn>
+									<PricingTableHeader>Header Two</PricingTableHeader>
+									<PricingTableItem isIncluded={ true } />
+									<PricingTableItem isIncluded={ true } />
+								</PricingTableColumn>
+							</PricingTable>
+						</Col>
+					</Container>
 				</AdminSectionHero>
 			</AdminPage>
 		);
