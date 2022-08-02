@@ -189,7 +189,7 @@ jobs:
         working-directory: ./projects/github-actions/test-results-to-slack
 
       - name: "Send notification"
-        uses: ./projects/github-actions/test-results-to-slack # replace with the action from marketplace after the action is released
+        uses: ./projects/github-actions/test-results-to-slack
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
