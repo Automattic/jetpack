@@ -11,12 +11,13 @@ import type React from 'react';
  * @param {PriceProps} props  - Component props.
  * @returns {React.ReactNode} -Price react component.
  */
-export const Price: React.FC< PriceProps > = ( { value, currency, isOff } ) => {
+export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePriceFraction } ) => {
 	const classNames = classnames( styles.price, {
 		[ styles[ 'is-not-off-price' ] ]: ! isOff,
 	} );
 
 	const { symbol, integer, fraction } = getCurrencyObject( value, currency );
+	const showPriceFraction = ! hidePriceFraction || ! fraction.endsWith( '00' );
 
 	return (
 		<Text className={ classNames } variant="headline-medium" component="p">
@@ -24,9 +25,11 @@ export const Price: React.FC< PriceProps > = ( { value, currency, isOff } ) => {
 				{ symbol }
 			</Text>
 			{ integer }
-			<Text component="sup" variant="title-medium">
-				{ fraction }
-			</Text>
+			{ showPriceFraction && (
+				<Text component="sup" variant="title-medium" data-testid="PriceFraction">
+					{ fraction }
+				</Text>
+			) }
 		</Text>
 	);
 };
