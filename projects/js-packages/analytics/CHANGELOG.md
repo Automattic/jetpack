@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Analytics package releases.
 
+## 0.1.18 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
 ## 0.1.17 - 2022-07-12
 ### Fixed
 - Fix crash if `analytics.assignSuperProps()` is called without something first calling `.setSuperProps()`. [#25043]
