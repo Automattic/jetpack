@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refactoring to remove usage of deprecated methods and method arguments.

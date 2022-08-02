@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\VideoPress;
 /**
  * VideoPress playback module markup generator.
  *
- * @since $$next-version$$
+ * @since 0.1.1
  */
 class XMLRPC {
 

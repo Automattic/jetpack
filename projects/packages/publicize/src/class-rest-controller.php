@@ -98,19 +98,9 @@ class REST_Controller {
 	 * GET `jetpack/v4/publicize/shares-count`
 	 */
 	public function get_publicize_shares_count() {
-		$blog_id  = $this->get_blog_id();
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( 'sites/%d/shares-count', absint( $blog_id ) ),
-			'2',
-			array(
-				'headers' => array( 'content-type' => 'application/json' ),
-				'method'  => 'GET',
-			),
-			null,
-			'wpcom'
-		);
-
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+		global $publicize;
+		$response = $publicize->get_publicize_shares_count( $this->get_blog_id() );
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -118,7 +108,7 @@ class REST_Controller {
 	 *
 	 * @param array|WP_Error $response - Response from WPCOM.
 	 */
-	protected function make_proper_response( $response ) {
+	public function make_proper_response( $response ) {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
