@@ -40,6 +40,54 @@ function wpcomsh_is_managed_plugin( $plugin_file ) {
 }
 
 /**
+ * Checks if a plugin has been installed from the WP.com marketplace.
+ *
+ * @param string $plugin_file The plugin file name.
+ * @return bool Whether the plugin has a matching marketplace purchase.
+ */
+function wpcomsh_is_marketplace_plugin( $plugin_file ) {
+	if ( ! wpcomsh_is_managed_plugin( $plugin_file ) ) {
+		return false;
+	}
+
+	$persistent_data = new Atomic_Persistent_Data();
+	if ( ! $persistent_data ) { // phpcs:ignore WordPress.NamingConventions
+		return false;
+	}
+
+	$marketplace_plugins = array();
+
+	if ( ! empty( $persistent_data->WPCOM_MARKETPLACE ) ) { // phpcs:ignore WordPress.NamingConventions
+		$marketplace_software = json_decode( $persistent_data->WPCOM_MARKETPLACE, true ); // phpcs:ignore WordPress.NamingConventions
+		$marketplace_plugins  = $marketplace_software['plugins'];
+	} else {
+		/*
+		 * Some sites might have an empty `WPCOM_MARKETPLACE` field despite having software installed from
+		 * the marketplace (mainly because this field has not been backfilled after its introduction).
+		 *
+		 * For those cases, we check against the purchases of a site as a fallback, but that only works for
+		 * purchases of products with slugs that have not been shortened.
+		 */
+		$marketplace_purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'marketplace_plugin' ) );
+		if ( empty( $marketplace_purchases ) ) {
+			return false;
+		}
+
+		foreach ( $marketplace_purchases as $marketplace_purchase ) {
+			$marketplace_plugins[] = preg_replace( array( '/(_monthly|_yearly)$/', '/_/' ), array( '', '-' ), $marketplace_purchase->product_slug );
+		}
+	}
+
+	foreach ( $marketplace_plugins as $marketplace_plugin ) {
+		if ( ( 0 === strpos( $plugin_file, $marketplace_plugin . '/' ) || 0 === strpos( $plugin_file, $marketplace_plugin . '.php' ) ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Add managed plugins action links.
  */
 function wpcomsh_managed_plugins_action_links() {
@@ -61,29 +109,14 @@ function wpcomsh_managed_plugins_action_links() {
 	}
 
 	// Remove `delete` link for all managed plugins purchased from WordPress.com Marketplace.
-	$all_plugin_files     = array_keys( get_plugins() );
-	$active_subscriptions = get_option( 'wpcom_active_subscriptions', array() );
-	foreach ( $active_subscriptions as $plugin_slug => $subscription ) {
-		if ( ! isset( $subscription->product_type ) || 'marketplace_plugin' !== $subscription->product_type ) {
+	$all_plugin_files = array_keys( get_plugins() );
+	foreach ( $all_plugin_files as $plugin_file ) {
+		if ( ! wpcomsh_is_marketplace_plugin( $plugin_file ) ) {
 			continue;
 		}
 
-		// Get installed plugin.
-		$installed_plugin = array_values(
-			array_filter(
-				$all_plugin_files,
-				function( $plugin_file ) use ( $plugin_slug ) {
-					return wpcomsh_is_managed_plugin( $plugin_file ) && str_starts_with( $plugin_file, $plugin_slug );
-				}
-			)
-		);
-
-		if ( ! $installed_plugin ) {
-			continue;
-		}
-
-		add_filter( 'plugin_action_links_' . $installed_plugin[0], 'wpcomsh_hide_plugin_remove_link' );
-		add_action( 'after_plugin_row_' . $installed_plugin[0], 'wpcomsh_show_plugin_auto_managed_notice', 10, 2 );
+		add_filter( 'plugin_action_links_' . $plugin_file, 'wpcomsh_hide_plugin_remove_link' );
+		add_action( 'after_plugin_row_' . $plugin_file, 'wpcomsh_show_plugin_auto_managed_notice', 10, 2 );
 	}
 }
 add_action( 'load-plugins.php', 'wpcomsh_managed_plugins_action_links' );

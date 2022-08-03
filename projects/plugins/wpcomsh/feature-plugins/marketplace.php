@@ -17,26 +17,13 @@ function maybe_limit_to_marketplace_plugins( $plugins ) {
 		return $plugins;
 	}
 
-	$marketplace_plugins   = array();
-	$marketplace_purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'marketplace_plugin' ) );
-	if ( empty( $marketplace_purchases ) ) {
-		return $marketplace_plugins;
-	}
-
-	$marketplace_purchases = wp_list_pluck( $marketplace_purchases, 'product_slug' );
-	// Woocommerce is never purchased, and might not be on this site, but should be shown if it's installed.
-	$marketplace_purchases[] = 'woocommerce';
-
-	foreach ( $plugins as $plugin_file => $plugin ) {
-		foreach ( $marketplace_purchases as $product_slug ) {
-			$product_slug = preg_replace( array( '/(_monthly|_yearly)$/', '/_/' ), array( '', '-' ), $product_slug );
-
-			if ( 0 === strpos( $plugin_file, $product_slug . '/' ) || 0 === strpos( $plugin_file, $product_slug . '.php' ) ) {
-				$marketplace_plugins[ $plugin_file ] = $plugin;
-			}
-		}
-	}
-
-	return $marketplace_plugins;
+	return array_filter(
+		$plugins,
+		function( $plugin_file ) {
+			// Woocommerce is never purchased, and might not be on this site, but should be shown if it's installed.
+			return $plugin_file === 'woocommerce/woocommerce.php' || wpcomsh_is_marketplace_plugin( $plugin_file );
+		},
+		ARRAY_FILTER_USE_KEY
+	);
 }
 add_filter( 'all_plugins', 'maybe_limit_to_marketplace_plugins' );
