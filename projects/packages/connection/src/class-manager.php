@@ -2351,7 +2351,7 @@ class Manager {
 	 * Whether the plugin is allowed to use the connection, or it's been disconnected by user.
 	 * If no plugin slug was passed into the constructor, always returns true.
 	 *
-	 * @deprecated $$next-version$$ This method no longer has a purpose after the removal of the soft disconnect feature.
+	 * @deprecated 1.42.0 This method no longer has a purpose after the removal of the soft disconnect feature.
 	 *
 	 * @return bool
 	 */
