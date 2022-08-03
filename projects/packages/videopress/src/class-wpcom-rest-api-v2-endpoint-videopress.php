@@ -192,7 +192,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
-					'message' => __( 'Video meta updated successfully.', 'jetpack-videopress-pkg' ),
+					'message' => __( 'Video meta updated successfully. Dummy change', 'jetpack-videopress-pkg' ),
 					'data'    => 200,
 				)
 			);
