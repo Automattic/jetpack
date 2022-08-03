@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
-
+use Automattic\Jetpack\Status\Cache;
 /**
  * Unit tests for the REST_Controller class.
  *
@@ -88,17 +88,29 @@ class Test_Module_Control extends Search_Test_Case {
 	}
 
 	/**
-	 * Test static::$search_module->activate() when search is not supported
+	 * Test static::$search_module->activate() when site is not connected
 	 */
 	public function test_activate_module_connection_required() {
 		$connection_manager = $this->createMock( Connection_Manager::class );
 		$connection_manager->method( 'is_connected' )->willReturn( false );
 		$search_module = new Module_Control( null, $connection_manager );
 		$err           = $search_module->activate();
-		// // Cannot activate search if not supported.
+		// Cannot activate search if site is not connected.
 		$this->assertEquals( 'connection_required', $err->get_error_code() );
 		$this->assertEquals( array(), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
 
+	}
+
+	/**
+	 * Test static::$search_module->activate() when site is in offline mode
+	 */
+	public function test_activate_module_site_offline() {
+		Cache::set( 'is_offline_mode', true );
+		$err = static::$search_module->activate();
+		Cache::set( 'is_offline_mode', null );
+		// Cannot activate search if site is in offline mode.
+		$this->assertEquals( 'site_offline', $err->get_error_code() );
+		$this->assertEquals( array(), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
 	}
 
 	/**
