@@ -4,7 +4,7 @@
 
 ## 11.3-a.1 - 2022-08-03
 ### Enhancements
-- GSuite blocks (beta): add blocks for Google document embeds. [#24628]
+- GSuite blocks (beta): add blocks for Google document embeds. Currently a JETPACK_BETA_BLOCKS feature. [#24628]
 - Payments Block: include 'earn' patterns in the block UI. [#24914]
 - VideoPress Block (beta): add support to pause/resume upload. [#25350]
 
