@@ -202,23 +202,4 @@ class Test_Module_Control extends Search_Test_Case {
 		}
 		return array( 'some-module-1', 'some-module-2', 'some-module-3' );
 	}
-
-	/**
-	 * Intercept the `Jetpack_Options` call and mock the values.
-	 * Site-level connection set-up.
-	 *
-	 * @param mixed  $value The current option value.
-	 * @param string $name Option name.
-	 *
-	 * @return mixed
-	 */
-	public function unconnected_sites_jetpack_options( $value, $name ) {
-		switch ( $name ) {
-			case 'blog_token':
-				return false;
-		}
-
-		return $value;
-	}
-
 }
