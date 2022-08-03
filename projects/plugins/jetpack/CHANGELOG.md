@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.2 - 2022-08-02
+## [11.2] - 2022-08-02
 ### Enhancements
 - Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress. [#25155]
 - VideoPress Block (beta): add block transforms for the VideoPress block. [#25154]
@@ -6859,6 +6859,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.2]: https://wp.me/p1moTy-JYL
 [11.1]: https://wp.me/p1moTy-Juo
 [11.0]: https://wp.me/p1moTy-IbF
 [10.9]: https://wp.me/p1moTy-EHd
