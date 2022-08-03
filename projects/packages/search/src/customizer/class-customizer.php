@@ -115,7 +115,7 @@ class Customizer {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'   => Options::OVERLAY_TRIGGER_IMMEDIATE,
+				'default'   => Options::DEFAULT_OVERLAY_TRIGGER,
 				'transport' => 'postMessage',
 				'type'      => 'option',
 			)
