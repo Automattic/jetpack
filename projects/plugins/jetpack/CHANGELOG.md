@@ -2,6 +2,37 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.3-a.1 - 2022-08-03
+### Enhancements
+- Add blocks for GSuite document embeds. [#24628]
+- Blocks: add support for podcast player to have per-feed cache timeouts. [#24966]
+- Include 'earn' patterns in the Payment Introducer block UI [#24914]
+- Jetpack: register VideoPress block from its editor.js file [#25349]
+- VPBlock: Add support to pause/resume upload [#25350]
+
+### Improved compatibility
+- Contact Form Block: Use a less strict comparison for Atomic compat [#25278]
+- Moving videopress REST endpoint to package [#25042]
+- SEO Tools: avoid conflicts with SEOPress and SEOKEY plugins. [#25277]
+
+### Bug fixes
+- Calipsoify the `site-editor.php` route so that it opens the Site Editor from the Gutenframe. Gutenberg 13.7 deprecated the old routes and uses core's `site-editor.php`. [#25281]
+- Sharing buttons are now hidden in Blog Posts block in editor [#25346]
+- Subscriptions Block: fix subscriber count display when padding dimension is added. [#25262]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Disabled postcss deprecation notices for build [#25296]
+- E2E tests: only retry failed tests in CI [#25273]
+- Google Docs Embed block: switch to a stricter check for Google Docs URLs. [#25345]
+- Jetpack 11.2 changelog editorial [#25276]
+- Jetpack: init 11.3 cycle [#25274]
+- Masterbar: bugfix removing empty space between folded adminbar and editor [#25331]
+- Updated package dependencies. [#25061]
+- Updated package dependencies. [#25279]
+- Updated package dependencies. [#25300]
+- Updated package dependencies. [#25315]
+- Updating the 11.2 testing instructions on trunk [#25287]
+
 ## 11.2-beta - 2022-07-26
 ### Enhancements
 - Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress. [#25155]

@@ -44,7 +44,7 @@ class Jetpack_Podcast_Helper {
 		 * Note that this timeout will only work if the site is using the default `WP_Feed_Cache_Transient` cache implementation for RSS feeds,
 		 * or their cache implementation relies on the `wp_feed_cache_transient_lifetime` filter.
 		 *
-		 * @since $$next-version$$
+		 * @since 11.3
 		 * @see https://developer.wordpress.org/reference/hooks/wp_feed_cache_transient_lifetime/
 		 *
 		 * @param int|null $cache_timeout The number of seconds to cache the podcast data. Default value is null, so we don't override any defaults from existing filters.
