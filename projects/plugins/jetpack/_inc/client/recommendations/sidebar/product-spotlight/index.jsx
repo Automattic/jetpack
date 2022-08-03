@@ -41,8 +41,8 @@ const ProductSpotlightComponent = props => {
 						<h3 className="jp-recommendations-discount-card__heading">{ productCardTitle }</h3>
 						{ productCardList && (
 							<ul className="jp-recommendations-discount-card__feature-list">
-								{ productCardList.map( listItem => {
-									return <li>{ listItem }</li>;
+								{ productCardList.map( ( listItem, id ) => {
+									return <li key={ `feature-${ id }` }>{ listItem }</li>;
 								} ) }
 							</ul>
 						) }
@@ -69,7 +69,7 @@ const ProductSpotlightComponent = props => {
 	);
 };
 
-ProductSpotlightComponent.PropTypes = {
+ProductSpotlightComponent.propTypes = {
 	productSlug: PropTypes.string.isRequired,
 };
 
