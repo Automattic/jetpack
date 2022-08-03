@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-JS Components: Fix price render on ProductPrice when price is 0
