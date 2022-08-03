@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
 
 /**
@@ -80,9 +81,24 @@ class Test_Module_Control extends Search_Test_Case {
 		$plan->method( 'supports_search' )->willReturn( false );
 
 		$search_module = new Module_Control( $plan );
-		$search_module->activate();
+		$err           = $search_module->activate();
 		// Cannot activate search if not supported.
+		$this->assertEquals( 'not_supported', $err->get_error_code() );
 		$this->assertEquals( array(), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
+	}
+
+	/**
+	 * Test static::$search_module->activate() when search is not supported
+	 */
+	public function test_activate_module_connection_required() {
+		$connection_manager = $this->createMock( Connection_Manager::class );
+		$connection_manager->method( 'is_connected' )->willReturn( false );
+		$search_module = new Module_Control( null, $connection_manager );
+		$err           = $search_module->activate();
+		// // Cannot activate search if not supported.
+		$this->assertEquals( 'connection_required', $err->get_error_code() );
+		$this->assertEquals( array(), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
+
 	}
 
 	/**
@@ -173,6 +189,24 @@ class Test_Module_Control extends Search_Test_Case {
 			return $value;
 		}
 		return array( 'some-module-1', 'some-module-2', 'some-module-3' );
+	}
+
+	/**
+	 * Intercept the `Jetpack_Options` call and mock the values.
+	 * Site-level connection set-up.
+	 *
+	 * @param mixed  $value The current option value.
+	 * @param string $name Option name.
+	 *
+	 * @return mixed
+	 */
+	public function unconnected_sites_jetpack_options( $value, $name ) {
+		switch ( $name ) {
+			case 'blog_token':
+				return false;
+		}
+
+		return $value;
 	}
 
 }
