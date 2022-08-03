@@ -70,7 +70,7 @@ const AgenciesCard: FC< Props > = ( {
 						{ sprintf(
 							/* translators: %s is the percentage discount the users get in the agencies portal */
 							__(
-								`Monitor site and product activity, manage licenses, and get a %s discount in our agency portal.`,
+								`Manage your clients' sites with ease and get a %s discount with the Jetpack licensing platform.`,
 								'jetpack'
 							),
 							`${ discountPercentage }%`
