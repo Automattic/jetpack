@@ -49,6 +49,6 @@
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},
-		"textdomain": "jetpack-videopress"
+		"textdomain": "jetpack-videopress-pkg"
 	}
 }

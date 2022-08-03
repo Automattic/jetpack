@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.42.0] - 2022-08-03
+### Changed
+- Refactoring to remove usage of deprecated methods and method arguments. [#25315]
+
+### Deprecated
+- Removed deprecated method calls [#25300]
+
 ## [1.41.8] - 2022-07-29
+
 - Updated package dependencies
 
 ## [1.41.7] - 2022-07-26
@@ -655,6 +663,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.42.0]: https://github.com/Automattic/jetpack-connection/compare/v1.41.8...v1.42.0
 [1.41.8]: https://github.com/Automattic/jetpack-connection/compare/v1.41.7...v1.41.8
 [1.41.7]: https://github.com/Automattic/jetpack-connection/compare/v1.41.6...v1.41.7
 [1.41.6]: https://github.com/Automattic/jetpack-connection/compare/v1.41.5...v1.41.6
