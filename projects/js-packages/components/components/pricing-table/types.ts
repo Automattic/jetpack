@@ -19,7 +19,7 @@ export type PricingTableColumnProps = {
 	/**
 	 * Items to show in a column.
 	 */
-	children: React.ReactNode;
+	children: React.ReactElement[];
 };
 
 export type PricingTableHeaderProps = {

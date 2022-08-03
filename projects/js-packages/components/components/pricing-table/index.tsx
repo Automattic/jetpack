@@ -1,6 +1,14 @@
-import { Fragment, createContext, useContext, Children, cloneElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
+import {
+	Fragment,
+	createContext,
+	useContext,
+	Children,
+	cloneElement,
+	PropsWithChildren,
+	ReactElement,
+} from 'react';
 import React, { CSSProperties } from 'react';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import Text from '../text';
@@ -12,7 +20,7 @@ import {
 	PricingTableItemProps,
 } from './types';
 
-const PricingTableContext = createContext();
+const PricingTableContext = createContext( undefined );
 
 const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	isIncluded,
@@ -53,13 +61,16 @@ const PricingTableColumn: React.FC< PricingTableColumnProps > = ( { children } )
 		<Wrapper { ...wrapperProps }>
 			{ Children.map( Children.toArray( children ), child => {
 				const props: { rowLabel?: string } = {};
+				const item = child as ReactElement<
+					PropsWithChildren< PricingTableHeaderProps | PricingTableItemProps >
+				>;
 
-				if ( child.type === PricingTableItem ) {
+				if ( item.type === PricingTableItem ) {
 					props.rowLabel = items[ index ];
 					index++;
 				}
 
-				return cloneElement( child, { ...props } );
+				return cloneElement( item, { ...props } );
 			} ) }
 		</Wrapper>
 	);

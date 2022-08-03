@@ -19,7 +19,7 @@ const Template: ComponentStory< typeof PricingTable > = args => (
 					leyend="/month, billed yearly"
 					currency="USD"
 				/>
-				<Button>Get Premium</Button>
+				<Button fullWidth>Get Premium</Button>
 			</PricingTableHeader>
 			<PricingTableItem isIncluded={ true } label={ <strong>Up to 1000</strong> } />
 			<PricingTableItem isIncluded={ true } />
@@ -29,8 +29,10 @@ const Template: ComponentStory< typeof PricingTable > = args => (
 		</PricingTableColumn>
 		<PricingTableColumn>
 			<PricingTableHeader>
-				<ProductPrice price={ '0' } leyend="Free forever" currency="USD" />
-				<Button variant="secondary">Start for free</Button>
+				<ProductPrice price={ 0 } leyend="Free forever" currency="USD" hidePriceFraction />
+				<Button fullWidth variant="secondary">
+					Start for free
+				</Button>
 			</PricingTableHeader>
 			<PricingTableItem isIncluded={ true } label="Up to 300" />
 			<PricingTableItem isIncluded={ true } />
