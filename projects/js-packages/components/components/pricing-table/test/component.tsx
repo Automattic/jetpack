@@ -1,6 +1,5 @@
-import { jest } from '@jest/globals';
-import { render, screen, cleanup } from '@testing-library/react/pure';
-import PricingTable from '../index';
+import { render, screen } from '@testing-library/react';
+import { PricingTable, PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
 
 // Note we're using @testing-library/react/pure here to disable the automatic cleanup.
 // So be sure to call `cleanup()` for each `render()`.
@@ -9,81 +8,34 @@ import PricingTable from '../index';
 describe( 'PricingTable', () => {
 	const testProps = {
 		title: 'Dummy Pricing Table',
-		icon: 'dummy_icon',
-		priceBefore: 9,
-		priceAfter: 4.5,
-		ctaText: 'Get Dummy Offer',
-		infoText: 'Dummy Info Text',
-		onCtaClick: jest.fn(),
+		items: [ 'Dummy Item 1', 'Dummy Item 2', 'Dummy Item 3' ],
+		children: (
+			<>
+				<PricingTableColumn>
+					<PricingTableHeader>Header 1</PricingTableHeader>
+					<PricingTableItem isIncluded={ true } />
+					<PricingTableItem isIncluded={ true } />
+					<PricingTableItem isIncluded={ true } />
+				</PricingTableColumn>
+				<PricingTableColumn>
+					<PricingTableHeader>Header 2</PricingTableHeader>
+					<PricingTableItem isIncluded={ true } />
+					<PricingTableItem isIncluded={ true } />
+					<PricingTableItem isIncluded={ false } />
+				</PricingTableColumn>
+			</>
+		),
 	};
 
-	describe( 'Initially', () => {
-		let container;
-
-		beforeAll( () => {
-			( { container } = render( <PricingTable { ...testProps } /> ) );
-		} );
-		afterAll( () => {
-			cleanup();
-		} );
-
-		it( 'renders the title', () => {
-			expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'Dummy Pricing Card' );
-		} );
-
-		it( 'renders the icon', () => {
-			const img = screen.getByAltText( 'Icon for the product Dummy Pricing Card' );
-			expect( img ).toBeInTheDocument();
-			expect( img ).toHaveAttribute( 'src', 'dummy_icon' );
-		} );
-
-		it( 'renders the price before', () => {
-			// eslint-disable-next-line testing-library/no-node-access
-			const node = container.querySelector( '.jp-components__pricing-card__price-before' );
-			expect( node ).toBeInTheDocument();
-			expect( node ).toHaveTextContent( '$9' );
-		} );
-
-		it( 'renders the price after', () => {
-			// eslint-disable-next-line testing-library/no-node-access
-			const node = container.querySelector( '.jp-components__pricing-card__price-after' );
-			expect( node ).toBeInTheDocument();
-			expect( node ).toHaveTextContent( '$4.50' );
-		} );
-
-		it( 'renders the CTA button', () => {
-			expect( screen.getByRole( 'button' ) ).toHaveTextContent( 'Get Dummy Offer' );
-		} );
-
-		it( 'renders the info text', () => {
-			// eslint-disable-next-line testing-library/no-node-access
-			const node = container.querySelector( '.jp-components__pricing-card__info' );
-			expect( node ).toBeInTheDocument();
-			expect( node ).toHaveTextContent( 'Dummy Info Text' );
-		} );
+	it( 'renders the title', () => {
+		render( <PricingTable { ...testProps }></PricingTable> );
+		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'Dummy Pricing Table' );
 	} );
 
-	describe( 'When price before and price after match', () => {
-		let container;
+	it( 'renders all included items', () => {
+		const { container } = render( <PricingTable { ...testProps }></PricingTable> );
 
-		beforeAll( () => {
-			( { container } = render( <PricingTable { ...testProps } priceAfter={ 9 } /> ) );
-		} );
-		afterAll( () => {
-			cleanup();
-		} );
-
-		it( "doesn't render the price before", () => {
-			// eslint-disable-next-line testing-library/no-node-access
-			const node = container.querySelector( '.jp-components__pricing-card__price-before' );
-			expect( node ).not.toBeInTheDocument();
-		} );
-
-		it( 'renders the price after', () => {
-			// eslint-disable-next-line testing-library/no-node-access
-			const node = container.querySelector( '.jp-components__pricing-card__price-after' );
-			expect( node ).toBeInTheDocument();
-			expect( node ).toHaveTextContent( '$9' );
-		} );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelectorAll( '[data-check]' ) ).toHaveLength( 5 );
 	} );
 } );

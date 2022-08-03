@@ -118,6 +118,7 @@ importers:
       '@wordpress/components': 19.14.0
       '@wordpress/compose': 5.10.0
       '@wordpress/date': 4.12.0
+      '@wordpress/element': 4.10.0
       '@wordpress/i18n': 4.12.0
       '@wordpress/icons': 9.3.0
       classnames: 2.3.1
@@ -139,6 +140,7 @@ importers:
       '@wordpress/components': 19.14.0_gqc7fjcsvvycrv46lldq2mzv6i
       '@wordpress/compose': 5.10.0_react@17.0.2
       '@wordpress/date': 4.12.0
+      '@wordpress/element': 4.10.0
       '@wordpress/i18n': 4.12.0
       '@wordpress/icons': 9.3.0
       classnames: 2.3.1
