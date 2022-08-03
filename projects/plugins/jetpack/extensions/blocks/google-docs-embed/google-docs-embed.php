@@ -2,7 +2,7 @@
 /**
  * GSuite Block.
  *
- * @since $$next-version$$
+ * @since 11.3
  *
  * @package automattic/jetpack
  */
