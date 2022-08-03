@@ -134,7 +134,7 @@ Template_First_Themes::get_instance();
 // https://core.trac.wordpress.org/ticket/53705
 if (
 	! defined( 'JETPACK_PLUGIN_AUTOUPDATE' ) &&
-	0 === strncmp( $_SERVER['REQUEST_URI'], '/xmlrpc.php?', strlen( '/xmlrpc.php?' ) ) ) { //phpcs:ignore
+	0 === strncmp( $_SERVER['REQUEST_URI'], '/xmlrpc.php?', strlen( '/xmlrpc.php?' ) ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 	define( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 }
 
@@ -146,12 +146,12 @@ if (
  * @param array $args    Optional parameters passed to has_cap(), typically object ID.
  * @return array
  */
-function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) { //phpcs:ignore
+function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) {
 	// Trying to edit or delete a user other than yourself?
 	if ( in_array( $args[0], array( 'edit_user', 'delete_user', 'remove_user', 'promote_user' ), true ) ) {
 		$jetpack = get_option( 'jetpack_options' );
 
-		if ( ! empty( $jetpack['master_user'] ) && $args[2] == $jetpack['master_user'] ) { //phpcs:ignore
+		if ( ! empty( $jetpack['master_user'] ) && $args[2] === $jetpack['master_user'] ) {
 			return array();
 		}
 	}
@@ -175,7 +175,9 @@ add_filter( 'user_has_cap', 'wpcomsh_prevent_owner_removal', 10, 3 );
 function wpcomsh_get_attachment_url( $url, $post_id ) {
 	$attachment_subdomain = get_option( 'wpcom_attachment_subdomain' );
 	if ( $attachment_subdomain ) {
-		if ( $file = get_post_meta( $post_id, '_wp_attached_file', true ) ) { //phpcs:ignore
+		$file = get_post_meta( $post_id, '_wp_attached_file', true );
+
+		if ( $file ) {
 			$local_file = WP_CONTENT_DIR . '/uploads/' . $file;
 			if ( ! file_exists( $local_file ) ) {
 				return esc_url( 'https://' . $attachment_subdomain . '/' . $file );
@@ -188,15 +190,14 @@ add_filter( 'wp_get_attachment_url', 'wpcomsh_get_attachment_url', 11, 2 );
 
 /**
  * When WordPress.com passes along an expiration for auth cookies and it is smaller
- * than the value set by Jetpack by default (YEAR_IN_SECONDS), use the smaller
- * value.
+ * than the value set by Jetpack by default (YEAR_IN_SECONDS), use the smaller value.
  *
  * @param int $seconds The cookie expiration in seconds
  * @return int The filtered cookie expiration in seconds
  */
 function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
-	if ( isset( $_GET['expires'] ) ) { //phpcs:ignore
-		$expires = absint( $_GET['expires'] ); //phpcs:ignore
+	if ( isset( $_GET['expires'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$expires = absint( $_GET['expires'] ); //phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( ! empty( $expires ) && $expires < $seconds ) {
 			$seconds = $expires;
@@ -227,7 +228,7 @@ add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );
 /**
  * Allow custom wp options
  *
- * @param araay $options The options
+ * @param array $options The options
  *
  * @return array
  */
@@ -261,6 +262,7 @@ add_filter( 'jetpack_site_pending_automated_transfer', 'check_site_has_pending_a
  * Require library helper function
  *
  * @param mixed $slug Slug of library
+ * @return void
  */
 function require_lib( $slug ) {
 	if ( ! preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
@@ -274,7 +276,7 @@ function require_lib( $slug ) {
 	);
 
 	// hand off to `jetpack_require_lib`, if possible.
-	if ( in_array( $slug, $in_jetpack ) && function_exists( 'jetpack_require_lib' ) ) { //phpcs:ignore
+	if ( in_array( $slug, $in_jetpack, true ) && function_exists( 'jetpack_require_lib' ) ) {
 		return jetpack_require_lib( $slug );
 	}
 
@@ -287,7 +289,7 @@ function require_lib( $slug ) {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @param str $lib_dir Path to the library directory.
+	 * @param string $lib_dir Path to the library directory.
 	 */
 	$lib_dir = apply_filters( 'require_lib_dir', $lib_dir );
 
@@ -377,11 +379,9 @@ add_filter( 'http_headers_useragent', 'wpcomsh_filter_outgoing_user_agent', 999 
 /**
  * Limit post revisions
  *
- * @param mixed $revisions The revisions
- *
- * @return [type]
+ * @return int
  */
-function wpcomsh_limit_post_revisions( $revisions ) { //phpcs:ignore
+function wpcomsh_limit_post_revisions() {
 	return 100;
 }
 add_filter( 'wp_revisions_to_keep', 'wpcomsh_limit_post_revisions', 5 );
@@ -398,7 +398,7 @@ add_filter( 'wp_revisions_to_keep', 'wpcomsh_limit_post_revisions', 5 );
  */
 function wpcomsh_wp_die_handler( $message, $title, $args ) {
 	$e = new Exception( 'wp_die was called' );
-	error_log( $e ); //phpcs:ignore
+	error_log( $e ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions
 
 	if ( function_exists( '_default_wp_die_handler' ) ) {
 		_default_wp_die_handler( $message, $title, $args );
@@ -448,7 +448,7 @@ add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
  *
  * Converts all plain-text HTTP URLs in post_content to links on display
  *
- * @param array $content The content
+ * @param string $content The content
  *
  * @uses make_clickable()
  * @since 20121125
@@ -459,9 +459,11 @@ function wpcomsh_make_content_clickable( $content ) {
 	// don't look in <a></a>, <pre></pre>, <script></script> and <style></style>
 	// use <div class="skip-make-clickable"> in support docs where linkifying
 	// breaks shortcodes, etc.
-	$_split = preg_split( '/(<[^<>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
-	$end    = $out = $combine = ''; //phpcs:ignore
-	$split  = array();
+	$_split  = preg_split( '/(<[^<>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
+	$end     = '';
+	$out     = '';
+	$combine = '';
+	$split   = array();
 
 	// filter the array and combine <a></a>, <pre></pre>, <script></script> and <style></style> into one
 	// (none of these tags can be nested so when we see the opening tag, we grab everything untill we reach the closing tag)
@@ -473,9 +475,10 @@ function wpcomsh_make_content_clickable( $content ) {
 		if ( $end ) {
 			$combine .= $chunk;
 
-			if ( $end == strtolower( str_replace( array( "\t", ' ', "\r", "\n" ), '', $chunk ) ) ) { //phpcs:ignore
+			if ( $end === strtolower( str_replace( array( "\t", ' ', "\r", "\n" ), '', $chunk ) ) ) {
 				$split[] = $combine;
-				$end     = $combine = ''; //phpcs:ignore
+				$end     = '';
+				$combine = '';
 			}
 			continue;
 		}
@@ -505,7 +508,7 @@ function wpcomsh_make_content_clickable( $content ) {
 
 	foreach ( $split as $chunk ) {
 		// if $chunk is white space or a tag (or a combined tag), add it and continue
-		if ( preg_match( '/^\s+$/', $chunk ) || ( $chunk[0] == '<' && $chunk[ strlen( $chunk ) - 1 ] == '>' ) ) { //phpcs:ignore
+		if ( preg_match( '/^\s+$/', $chunk ) || ( $chunk[0] === '<' && $chunk[ strlen( $chunk ) - 1 ] === '>' ) ) {
 			$out .= $chunk;
 			continue;
 		}
@@ -521,7 +524,6 @@ function wpcomsh_make_content_clickable( $content ) {
 
 	return $out;
 }
-
 add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
 
@@ -565,7 +567,7 @@ function wpcom_hide_scan_threats_from_api( $response ) {
 	}
 
 	$json_body['threats']  = array();
-	$response_data['data'] = json_encode( $json_body ); //phpcs:ignore
+	$response_data['data'] = wp_json_encode( $json_body );
 	$response->set_data( $response_data );
 
 	return $response;
@@ -593,7 +595,12 @@ function wpcomsh_footer_rum_js() {
 		}
 	}
 
-	echo "<script defer id='bilmur' data-provider='wordpress.com' data-service='" . esc_attr( $service ) . "' " . $allow_iframe . " src='https://s0.wp.com/wp-content/js/bilmur.min.js?m=" . gmdate( 'YW' ) . "'></script>\n"; //phpcs:ignore
+	printf(
+		'<script defer id="bilmur" data-provider="wordpress.com" data-service="%1$s" %2$s src="%3$s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		esc_attr( $service ),
+		wp_kses_post( $allow_iframe ),
+		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) )
+	);
 }
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 add_action( 'admin_footer', 'wpcomsh_footer_rum_js' );
@@ -607,7 +614,7 @@ function wpcomsh_upgrade_transferred_db() {
 	global $wp_db_version;
 
 	if ( isset( $_SERVER['ATOMIC_SITE_ID'] ) ) {
-		$atomic_site_id = $_SERVER['ATOMIC_SITE_ID']; //phpcs:ignore
+		$atomic_site_id = $_SERVER['ATOMIC_SITE_ID']; //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 	} elseif ( defined( 'ATOMIC_SITE_ID' ) ) {
 		$atomic_site_id = ATOMIC_SITE_ID;
 	}
@@ -648,7 +655,7 @@ function wpcomsh_upgrade_transferred_db() {
 	if (
 		false !== get_option( 'comment_whitelist' ) &&
 		// default value from: https://github.com/WordPress/wordpress-develop/blob/f0733600c9b8a0833d7e63f60fae651d46f22320/src/wp-admin/includes/schema.php#L536
-		in_array( get_option( 'comment_previously_approved' ), array( false, 1 /* default value */ ) ) //phpcs:ignore
+		in_array( get_option( 'comment_previously_approved' ), array( false, 1 /* default value */ ) ) //phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 	) {
 		$comment_previously_approved = get_option( 'comment_whitelist', '' );
 		update_option( 'comment_previously_approved', $comment_previously_approved );
@@ -660,7 +667,7 @@ function wpcomsh_upgrade_transferred_db() {
 	if (
 		false !== get_option( 'blacklist_keys' ) &&
 		// default value from https://github.com/WordPress/wordpress-develop/blob/f0733600c9b8a0833d7e63f60fae651d46f22320/src/wp-admin/includes/schema.php#L535
-		in_array( get_option( 'disallowed_keys' ), array( false, '' /* default value */ ) ) //phpcs:ignore
+		in_array( get_option( 'disallowed_keys' ), array( false, '' /* default value */ ) ) //phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 	) {
 		// Use more clear and inclusive language.
 		$disallowed_list = get_option( 'blacklist_keys' );
@@ -797,7 +804,7 @@ function wpcomsh_avoid_proxied_v2_banner() {
 // which are normally embedded within another page
 if (
 	defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST &&
-	isset( $_GET['legacy-widget-preview'] ) && //phpcs:ignore
-	0 === strncmp( $_SERVER['REQUEST_URI'], '/wp-admin/widgets.php?', strlen( '/wp-admin/widgets.php?' ) ) ) { //phpcs:ignore
+	isset( $_GET['legacy-widget-preview'] ) && //phpcs:ignore WordPress.Security.NonceVerification
+	0 === strncmp( $_SERVER['REQUEST_URI'], '/wp-admin/widgets.php?', strlen( '/wp-admin/widgets.php?' ) ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 	add_action( 'plugins_loaded', 'wpcomsh_avoid_proxied_v2_banner' );
 }
