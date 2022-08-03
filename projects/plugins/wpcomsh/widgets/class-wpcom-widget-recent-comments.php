@@ -408,7 +408,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 			<label><?php esc_html_e( 'Show comments from:', 'wpcomsh' ); ?></label><br />
 
 			<?php foreach ( $this->get_allowed_post_types() as $post_type => $label ) : ?>
-				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]" id="<?php echo esc_attr( $this->get_field_id( 'post_types' ) ); ?>-<?php echo esc_attr( $post_type ); ?>" value="<?php echo esc_attr( $post_type ); ?>"<?php checked( true, in_array( $post_type, $instance['post_types'] ) ); ?> /> <label for="<?php echo esc_attr( $this->get_field_id( 'post_types' ) ); ?>-<?php echo esc_attr( $post_type ); ?>"><?php echo $label; // Don't translate as it's already translated. ?></label><br />
+				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]" id="<?php echo esc_attr( $this->get_field_id( 'post_types' ) ); ?>-<?php echo esc_attr( $post_type ); ?>" value="<?php echo esc_attr( $post_type ); ?>"<?php checked( true, in_array( $post_type, (array) $instance['post_types'] ) ); ?> /> <label for="<?php echo esc_attr( $this->get_field_id( 'post_types' ) ); ?>-<?php echo esc_attr( $post_type ); ?>"><?php echo $label; // Don't translate as it's already translated. ?></label><br />
 			<?php endforeach; ?>
 		</p>
 		<?php
