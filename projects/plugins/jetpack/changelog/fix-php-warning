@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Avoid PHP Warnings when parsing badges and count bubbles in admin menu.
