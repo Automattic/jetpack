@@ -32,6 +32,7 @@ export const colors = {
 	'--jp-gray-off': '#e2e2df',
 	// Red
 	'--jp-red-0': '#F7EBEC',
+	'--jp-red-40': '#E65054',
 	'--jp-red-50': '#D63638',
 	'--jp-red-60': '#B32D2E',
 	'--jp-red-70': '#8A2424',
