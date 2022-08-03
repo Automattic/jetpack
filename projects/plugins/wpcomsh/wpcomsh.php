@@ -76,8 +76,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 // REST API
 require_once __DIR__ . '/endpoints/rest-api.php';
 
-// Load feature plugin overrides
+// Load feature plugins.
 require_once __DIR__ . '/feature-plugins/additional-css.php';
+require_once __DIR__ . '/feature-plugins/autoload-homepage-replacement.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
 require_once __DIR__ . '/feature-plugins/full-site-editing.php';
@@ -124,11 +125,6 @@ require_once __DIR__ . '/jetpack-token-migration-cleanup/class-wpcomsh-token-mig
 
 // Enable MailPoet subscriber stats reports
 require_once __DIR__ . '/mailpoet/class-wpcomsh-mailpoet-subscribers-stats-report.php';
-
-// Require class necessary for home page replacement after theme switch.
-require_once __DIR__ . '/feature-plugins/autoload-homepage-replacement.php';
-add_action( 'jetpack_pre_switch_theme', 'wpcomsh_replace_homepage_on_theme_switch', 10, 2 );
-Template_First_Themes::get_instance();
 
 // Force Jetpack to update plugins one-at-a-time to avoid a site-breaking core concurrent update bug
 // https://core.trac.wordpress.org/ticket/53705
