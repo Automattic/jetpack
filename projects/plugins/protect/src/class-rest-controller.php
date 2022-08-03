@@ -3,7 +3,7 @@
  * The Protect Rest Controller class.
  * Registers the REST routes for Protect.
  *
- * @package automattic/jetpack-protect
+ * @package automattic/jetpack-protect-plugin
  */
 
 namespace Automattic\Jetpack\Protect;

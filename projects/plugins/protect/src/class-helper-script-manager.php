@@ -2,7 +2,7 @@
 /**
  * The Jetpack Protect Helper Script Manager class.
  *
- * @package automattic/jetpack-protect
+ * @package automattic/jetpack-protect-plugin
  */
 
 namespace Automattic\Jetpack\Protect;
