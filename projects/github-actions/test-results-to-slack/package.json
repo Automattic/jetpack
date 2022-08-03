@@ -16,13 +16,17 @@
 	"dependencies": {
 		"@actions/core": "1.6.0",
 		"@actions/github": "5.0.1",
-		"@slack/web-api": "6.7.1"
+		"@slack/web-api": "6.7.1",
+		"nock": "13.2.9"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "0.28.5"
+		"@vercel/ncc": "0.28.5",
+		"jest": "28.1.3"
 	},
 	"scripts": {
-		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt"
+		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "jest --config=tests/jest.config.cjs --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"engines": {
 		"node": "^16.13.2",

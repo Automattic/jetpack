@@ -1,6 +1,6 @@
 const { setFailed, getInput } = require( '@actions/core' );
 const { context, getOctokit } = require( '@actions/github' );
-const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
+const { WebClient } = require( '@slack/web-api' );
 
 ( async function main() {
 	const ghToken = getInput( 'github_token' );
@@ -34,7 +34,6 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 	}
 
 	const isFailure = await isWorkflowFailed( ghToken );
-
 	const status = isFailure ? 'failed' : 'passed';
 	let event = context.sha;
 
@@ -44,7 +43,7 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 	}
 
 	if ( context.eventName === 'push' ) {
-		event = `commit \`${ context.sha } \` on branch \`${ context.ref.substring( 11 ) }\` ${
+		event = `commit \`${ context.sha }\` on branch \`${ context.ref.substring( 11 ) }\` ${
 			context.payload.head_commit.url
 		}`;
 	}
@@ -92,10 +91,7 @@ async function isWorkflowFailed( token ) {
  * @param {string} icon_emoji - icon emoji
  */
 async function sendSlackMessage( token, text, blocks, channel, username, icon_emoji ) {
-	const client = new WebClient( token, {
-		retryConfig: retryPolicies.rapidRetryPolicy,
-		logLevel: LogLevel.ERROR,
-	} );
+	const client = new WebClient( token );
 
 	await client.chat.postMessage( {
 		text,
