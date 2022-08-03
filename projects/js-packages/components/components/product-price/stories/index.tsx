@@ -21,6 +21,7 @@ const DefaultArgs = {
 	offPrice: 12.42,
 	showNotOffPrice: true,
 	isNotConvenientPrice: false,
+	hidePriceFraction: false,
 };
 
 // Export Default story

@@ -259,6 +259,10 @@ const iconsMap = {
 	...socialIcons,
 };
 
+export type JetpackIconSlug = keyof typeof jetpackIcons;
+
+export type SocialIconSlug = keyof typeof socialIcons;
+
 export type IconsMap = typeof iconsMap;
 
 export type IconSlug = keyof IconsMap;
