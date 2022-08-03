@@ -89,7 +89,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.3.0 - 2022-08-03
+### 1.2.0 - 2022-08-03
 #### Added
 - Dashboard: Add stats about the number of posts published.
 
