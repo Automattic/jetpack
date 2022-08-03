@@ -24,6 +24,9 @@ export const cleanLocale = ( locale: string ) => {
 	);
 };
 
+// Since global is used inside getUserLocale, we need to declare it for TS
+declare const global: typeof globalThis;
+
 /**
  * Current user locale, or browser locale as fallback.
  *
