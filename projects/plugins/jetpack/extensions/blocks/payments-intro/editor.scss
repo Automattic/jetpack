@@ -1,16 +1,61 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-payments-intro {
-	.components-placeholder__instructions {
-		// Defer to vertical margins applied by template picker options.
-		margin-bottom: 0;
-	}
-
 	.components-placeholder__fieldset {
 		// Options will render horizontally, but the immediate children of the
 		// fieldset are the choose pattern button and the block options, oriented
 		// vertically.
 		flex-direction: column;
+
+		>p {
+			margin-bottom: 0;
+		}
+	}
+	.components-placeholder__instructions {
+		margin-bottom: 0;
+	}
+}
+
+.wp-payments-intro-pattern-picker__opener {
+	width: min-content;
+	margin-top: $grid-unit-20;
+}
+
+.wp-block-jetpack-payments-intro__pattern-picker-selection-content .block-editor-block-patterns-list {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-gap: $grid-unit-10;
+
+	.block-editor-block-patterns-list__list-item {
+		margin-bottom: 0;
+		.block-editor-block-preview__container {
+			max-height: 250px;
+		}
+	}
+}
+
+.wp-block-jetpack-payments-intro__pattern-picker__selection-modal .components-modal__content {
+	overflow: hidden;
+	padding: 0;
+	&::before {
+		margin-bottom: 0;
+	}
+}
+
+.wp-block-jetpack-payments-intro__pattern-picker__selection-modal {
+	// To keep modal dimensions consistent as subsections are navigated, width
+	// and height are used instead of max-(width/height).
+	@include break-small() {
+		width: calc(100% - #{ $grid-unit-20 * 2 });
+		height: calc(100% - #{ $header-height * 2 });
+	}
+	@include break-medium() {
+		width: $break-medium - $grid-unit-20 * 2;
+	}
+	@include break-large() {
+		height: 80%;
+		width: 80%;
+		max-height: none;
 	}
 }
 
