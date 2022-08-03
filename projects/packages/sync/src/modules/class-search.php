@@ -424,6 +424,10 @@ class Search extends Module {
 		'weight'                             => array(),
 		'year'                               => array(),
 
+		// wp.com martketplace search - @see https://wp.me/pdh6GB-Ax#comment-2104
+		'_app_icon'                          => array(),
+		'_featured_product_video'            => array(),
+
 	); // end indexed post meta.
 
 	/**
@@ -1700,6 +1704,9 @@ class Search extends Module {
 		'target-type',
 		'timeline-pillar',
 		'timeline-type',
+
+		// wp.com martketplace search - @see https://wp.me/pdh6GB-Ax#comment-2104
+		'wpcom_marketplace_categories',
 
 	); // end taxonomies.
 
