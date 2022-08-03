@@ -1,10 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { PricingTable, PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
 
-// Note we're using @testing-library/react/pure here to disable the automatic cleanup.
-// So be sure to call `cleanup()` for each `render()`.
-/* eslint-disable testing-library/no-render-in-setup */
-
 describe( 'PricingTable', () => {
 	const testProps = {
 		title: 'Dummy Pricing Table',
