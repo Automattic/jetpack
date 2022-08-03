@@ -66,7 +66,7 @@ class Test_Module_Control extends Search_Test_Case {
 	/**
 	 * Test static::$search_module->activate()
 	 */
-	public function test_activate_module() {
+	public function test_activate_module_success() {
 		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ), 10, 2 );
 		static::$search_module->activate();
 		$this->assertEquals( array( 'some-module-1', 'some-module-2', 'some-module-3', Module_Control::JETPACK_SEARCH_MODULE_SLUG ), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
@@ -76,7 +76,7 @@ class Test_Module_Control extends Search_Test_Case {
 	/**
 	 * Test static::$search_module->activate() when search is not supported
 	 */
-	public function test_activate_module_not_supported() {
+	public function test_activate_module_failed_not_supported() {
 		$plan = $this->createMock( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( false );
 
@@ -90,7 +90,7 @@ class Test_Module_Control extends Search_Test_Case {
 	/**
 	 * Test static::$search_module->activate() when site is not connected
 	 */
-	public function test_activate_module_connection_required() {
+	public function test_activate_module_failed_connection_required() {
 		$connection_manager = $this->createMock( Connection_Manager::class );
 		$connection_manager->method( 'is_connected' )->willReturn( false );
 		$search_module = new Module_Control( null, $connection_manager );
@@ -104,7 +104,7 @@ class Test_Module_Control extends Search_Test_Case {
 	/**
 	 * Test static::$search_module->activate() when site is in offline mode
 	 */
-	public function test_activate_module_site_offline() {
+	public function test_activate_module_failed_site_offline() {
 		Cache::set( 'is_offline_mode', true );
 		$err = static::$search_module->activate();
 		Cache::set( 'is_offline_mode', null );
