@@ -557,6 +557,7 @@ export function getProductsForPurchase( state ) {
 			key: key,
 			description: product.description,
 			features: product.features,
+			disclaimer: product.disclaimer,
 			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
 			currencyCode: get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
