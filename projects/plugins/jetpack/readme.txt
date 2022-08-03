@@ -247,7 +247,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Blocks: enable Jetpack block collection for the native editor block inserter (on self hosted Jetpack sites).
 - Connection: make sure pre-existing settings are respected on plugin activation.
 - Form Block: add a lock to the contact form submit button.
-- Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress.
+- Native Block Inserter: only display blocks under a Jetpack heading if the host app is WordPress.
 - Podcast Player: add new actions to make it possible for users to set up code that runs for podcast fetches.
 - VideoPress Block (beta): mutiple UI enhancements including error messaging, markup, layout and behavior. Currently a JETPACK_BETA_BLOCKS feature.
 
@@ -261,8 +261,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Comments: avoid PHP Notice when using Jetpack's Comment form feature when your site is no longer properly connected to WordPress.com.
 - Connection: fix Jetpack redirect after registration.
 - Form Block: prevent error notice when processing submission from 404 page.
-- Form block: fix Checkbox Group option color.
-- Form block: preserve line breaks in form submissions.
+- Form Block: fix Checkbox Group option color.
+- Form Block: preserve line breaks in form submissions.
 - Gathering Twitter Threads: ensure that only contributors can access the endpoint to unroll threads.
 - Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites.
 - Masterbar: fix All Posts dashboard redirect issue when switching between classic and default editor views.
@@ -274,7 +274,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Slideshow Block: support wide and full alignment options.
 - Stats: allow custom user role stats settings to be properly recognized and saved.
 - Stats: fix dashboard widget form name to allow form choices to be saved.
-- Subscribe block: fix support for allowed HTML tags in submit button.
+- Subscribe Block: fix support for allowed HTML tags in submit button.
 - Subscriptions: format the number of subscribers displayed in the block editor's controls.
 - VideoPress: avoid PHP notices when inserting videos that miss some metadata.
 - VideoPress: fix bug when getting the video preview of the VideoPress block.

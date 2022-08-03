@@ -4,7 +4,7 @@
 
 ## [11.2] - 2022-08-02
 ### Enhancements
-- Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress. [#25155]
+- Native Block Inserter: only display blocks under a Jetpack heading if the host app is WordPress. [#25155]
 - VideoPress Block (beta): add block transforms for the VideoPress block. [#25154]
 
 ### Bug fixes
@@ -15,7 +15,7 @@
 - Sharing: ensure that sharing buttons are not displayed for excerpts. [#24896]
 - Sharing: hide button information in Blog Posts block in editor. [#25346]
 - Slideshow Block: support wide and full alignment options. [#25107]
-- Subscribe block: fix support for allowed HTML tags in submit button. [#25114]
+- Subscribe Block: fix support for allowed HTML tags in submit button. [#25114]
 - VideoPress: avoid PHP notices when inserting videos that miss some metadata. [#25129]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
@@ -30,7 +30,7 @@
 - Update analytics. [#25257]
 - Updated package dependencies. [#24929]
 - Updating composer.lock. [#25142]
-- VideoPress block (beta): under the hood improvements such as emit events to window where bridge runs. [#25148]
+- VideoPress Block (beta): under the hood improvements such as emit events to window where bridge runs. [#25148]
 - WordPress.com REST API: remove default for 'dont_change_homepage' in the '/sites/%s/themes/mine' endpoint. [#25141]
 
 ## 11.2-a.5 - 2022-07-19
