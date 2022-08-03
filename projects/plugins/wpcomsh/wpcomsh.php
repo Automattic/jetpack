@@ -719,11 +719,6 @@ add_action( 'muplugins_loaded', 'wpcomsh_upgrade_transferred_db' );
 
 add_filter( 'amp_dev_tools_user_default_enabled', '__return_false' );
 
-// Disable the Widgets Block Editor screen feature
-// See D48850-code
-// See https://github.com/WordPress/gutenberg/pull/24843
-add_filter( 'gutenberg_use_widgets_block_editor', '__return_false', 100 );
-
 /**
  * Tracks helper. Filters Jetpack TOS option if class exists.
  *
@@ -765,23 +760,6 @@ function wpcomsh_jetpack_filter_tos_for_tracking( $value, $name ) {
 
 	return $value;
 }
-
-/**
- * Disable the Conversation and Dialogue blocks.
- * See: pbAPfg-1l8-p2
- */
-add_filter(
-	'jetpack_set_available_extensions',
-	function ( $extensions ) {
-		return array_diff(
-			$extensions,
-			array(
-				'conversation',
-				'dialogue',
-			)
-		);
-	}
-);
 
 /**
  * Avoid proxied v2 banner
