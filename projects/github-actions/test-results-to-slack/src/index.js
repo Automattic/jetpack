@@ -27,7 +27,7 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 		return;
 	}
 
-	const icon_emoji = getInput( 'slack_icon_emoji' );
+	let icon_emoji = getInput( 'slack_icon_emoji' );
 	if ( ! icon_emoji ) {
 		setFailed( 'Input `slack_icon_emoji` is required' );
 		return;
@@ -36,6 +36,7 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 	const isFailure = await isWorkflowFailed( ghToken );
 
 	const status = isFailure ? 'failed' : 'passed';
+	icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';
 	let event = context.sha;
 
 	if ( context.eventName === 'pull_request' ) {
