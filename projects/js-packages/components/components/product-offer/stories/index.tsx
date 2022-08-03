@@ -1,7 +1,7 @@
-/* eslint-disable react/react-in-jsx-scope */
-import React from 'react';
 import withMock from 'storybook-addon-mock';
-import ProductOffer, { IconsCard } from '..';
+import ProductOffer from '..';
+import { IconsCard } from '../icons-card';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Product Offer',
@@ -11,9 +11,9 @@ export default {
 		actions: { argTypesRegex: '^on.*' },
 		layout: 'centered',
 	},
-};
+} as ComponentMeta< typeof ProductOffer >;
 
-const Template = args => <ProductOffer { ...args } />;
+const Template: ComponentStory< typeof ProductOffer > = args => <ProductOffer { ...args } />;
 
 export const SecurityBundle = Template.bind( {} );
 SecurityBundle.parameters = {};
@@ -96,7 +96,7 @@ JetpackProtect.args = {
 	isLoading: false,
 };
 
-const IconsCardTemplate = args => <IconsCard { ...args } />;
+const IconsCardTemplate: ComponentStory< typeof IconsCard > = args => <IconsCard { ...args } />;
 
 export const IconsCardStory = IconsCardTemplate.bind( {} );
 IconsCardStory.parameters = {};
