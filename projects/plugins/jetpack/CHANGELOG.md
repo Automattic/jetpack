@@ -32,6 +32,7 @@
 - Updated package dependencies. [#25300]
 - Updated package dependencies. [#25315]
 - Updating the 11.2 testing instructions on trunk [#25287]
+
 ## [11.2] - 2022-08-02
 ### Enhancements
 - Native Block Inserter: only display blocks under a Jetpack heading if the host app is WordPress. [#25155]
