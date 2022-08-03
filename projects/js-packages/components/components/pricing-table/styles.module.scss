@@ -65,6 +65,7 @@
 		background-size: cover;
 		background-position: center;
 		margin-right: var( --spacing-base );
+		flex-shrink: 0;
 	}
 
 	& + & {

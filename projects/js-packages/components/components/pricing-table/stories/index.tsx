@@ -1,92 +1,56 @@
 import Button from '../../button';
 import ProductPrice from '../../product-price';
-import PricingTable from '../index';
+import { PricingTable, PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Pricing Table',
 	component: PricingTable,
+	subcomponents: { PricingTableColumn, PricingTableHeader, PricingTableItem },
 } as ComponentMeta< typeof PricingTable >;
 
-const Template: ComponentStory< typeof PricingTable > = args => <PricingTable { ...args } />;
+const Template: ComponentStory< typeof PricingTable > = args => (
+	<PricingTable { ...args }>
+		<PricingTableColumn>
+			<PricingTableHeader>
+				<ProductPrice
+					price={ 9.95 }
+					offPrice={ 4.98 }
+					leyend="/month, billed yearly"
+					currency="USD"
+				/>
+				<Button>Get Premium</Button>
+			</PricingTableHeader>
+			<PricingTableItem isIncluded={ true } label={ <strong>Up to 1000</strong> } />
+			<PricingTableItem isIncluded={ true } />
+			<PricingTableItem isIncluded={ true } />
+			<PricingTableItem isIncluded={ true } />
+			<PricingTableItem isIncluded={ true } />
+		</PricingTableColumn>
+		<PricingTableColumn>
+			<PricingTableHeader>
+				<ProductPrice price={ '0' } leyend="Free forever" currency="USD" />
+				<Button variant="secondary">Start for free</Button>
+			</PricingTableHeader>
+			<PricingTableItem isIncluded={ true } label="Up to 300" />
+			<PricingTableItem isIncluded={ true } />
+			<PricingTableItem isIncluded={ true } />
+			<PricingTableItem isIncluded={ true } />
+			<PricingTableItem isIncluded={ false } />
+		</PricingTableColumn>
+	</PricingTable>
+);
 
 const DefaultArgs = {
 	title: 'Buy premium, or start for free',
-	headers: [ <h2>Column 1</h2>, <h2>Column 2</h2> ],
-	table: [
-		{ label: 'Number of shares', values: [ true, false ] },
-		{ label: 'Schedule your posts', values: [ false, false ] },
-		{
-			label: 'Use multiple social channels',
-			values: [
-				{
-					value: true,
-					icon: 'info',
-					label: 'A custom label',
-				},
-				true,
-			],
-		},
+	items: [
+		'Feature A with limit',
+		'Feature B',
+		'Feature C with a longer title that will span multiple lines',
+		'Feature D',
+		'Feature E',
 	],
 };
-
-const DefaultArgs = {
-	title: 'Buy premium, or start for free',
-	items: {
-		numberOfShares: 'Number of shares',
-		scheduling: 'Schedule your posts',
-		socialChannels: 'Use multiple social channels',
-	},
-	columns: [
-		{
-			header: <h2>Column 1</h2>,
-			values: {
-				numberOfShares: true,
-				scheduling: false,
-				socialChannels: {
-					value: true,
-					icon: 'info',
-					label: 'A custom label',
-				},
-			},
-		},
-		{
-			header: <h2>Column 2</h2>,
-			values: {
-				numberOfShares: false,
-				scheduling: false,
-				socialChannels: true,
-			},
-		},
-	],
-};
-
-{/* <PricingTable items={ items }>
-	<PricingTableColumn
-		values={ {
-			numberOfShares: true,
-			scheduling: false,
-			socialChannels: {
-				value: true,
-				icon: 'info',
-				label: 'A custom label',
-			},
-		} }
-	>
-		<h2>Column 1</h2>
-	</PricingTableColumn>
-	<PricingTableColumn
-		values={ {
-			numberOfShares: false,
-			scheduling: false,
-			socialChannels: true,
-		} }
-	>
-		<h2>Column 2</h2>
-	</PricingTableColumn>
-</PricingTable>; */}
-
-// <PricingTable items={ items } columns={ columns } />;
 
 export const _default = Template.bind( {} );
 _default.args = DefaultArgs;

@@ -1,5 +1,3 @@
-import { ReactElement } from 'react';
-
 export type PricingTableProps = {
 	/**
 	 * Title of the pricing table.
@@ -7,17 +5,43 @@ export type PricingTableProps = {
 	title: string;
 
 	/**
-	 * Headers for each column in the table.
+	 * Array of items to display in the pricing table.
 	 */
-	headers: React.ReactElement[];
+	items: string[];
 
 	/**
-	 * Values for the pricing table.
-	 *
-	 * Each item in the array is a row in the table.
+	 * The columns to add to the table.
 	 */
-	table: {
-		label: string;
-		values: ( boolean | { value: boolean; label: string | ReactElement } )[];
-	}[];
+	children: React.ReactNode;
+};
+
+export type PricingTableColumnProps = {
+	/**
+	 * Items to show in a column.
+	 */
+	children: React.ReactNode;
+};
+
+export type PricingTableHeaderProps = {
+	/**
+	 * Items to show in a header.
+	 */
+	children: React.ReactNode;
+};
+
+export type PricingTableItemProps = {
+	/**
+	 * Whether or not the item is included in the column.
+	 */
+	isIncluded: boolean;
+
+	/**
+	 * A custom label to display instead of the default one.
+	 */
+	label?: string | number | React.ReactElement;
+
+	/**
+	 * Default label on smaller screens. Internal use only.
+	 */
+	rowLabel?: string;
 };
