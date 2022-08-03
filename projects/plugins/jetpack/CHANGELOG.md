@@ -21,7 +21,7 @@
 - Contact Form Block: use a less strict comparison for Atomic compat. [#25278]
 - Tooling: disable postcss deprecation notices for build. [#25296]
 - E2E tests: only retry failed tests in CI. [#25273]
-- Google Docs Embed block: switch to a stricter check for Google Docs URLs. [#25345]
+- Google Docs Embed Block (beta): switch to a stricter check for Google Docs URLs. [#25345]
 - Masterbar: bugfix removing empty space between folded adminbar and editor [#25331]
 - Admin: calipsoify the `site-editor.php` route so that it opens the Site Editor from the Gutenframe to comply with deprecations in Gutenberg 13.7. [#25281]
 
