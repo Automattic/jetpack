@@ -15,6 +15,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
+import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
@@ -72,6 +73,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		title,
 		longDescription,
 		features,
+		disclaimers,
 		pricingForUi,
 		isBundle,
 		supportedProducts,
@@ -90,6 +92,8 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		wpcomProductSlug,
 	} = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
+
+	const { recordEvent } = useAnalytics();
 
 	/*
 	 * Product needs purchase when:
@@ -131,6 +135,16 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 			onClick();
 		}
 	}, [ onClick, trackButtonClick ] );
+
+	const disclaimerClickHandler = useCallback(
+		id => {
+			recordEvent( 'jetpack_myjetpack_product_card_disclaimer_click', {
+				id: id,
+				product: slug,
+			} );
+		},
+		[ slug, recordEvent ]
+	);
 
 	/**
 	 * Temporary ProductIcon component.
@@ -232,6 +246,32 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
 						}
 					</Text>
+				) }
+
+				{ disclaimers.length > 0 && (
+					<div className={ styles.disclaimers }>
+						{ disclaimers.map( ( disclaimer, id ) => {
+							const { text, link_text = null, url = null } = disclaimer;
+
+							return (
+								<Text key={ `disclaimer-${ id }` } component="p" variant="body-small">
+									{ `${ text } ` }
+									{ url && link_text && (
+										<ExternalLink
+											// Ignoring rule so I can pass ID to analytics in order to tell which disclaimer was clicked if there is more than one
+											/* eslint-disable react/jsx-no-bind */
+											onClick={ () => disclaimerClickHandler( id ) }
+											href={ url }
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											{ link_text }
+										</ExternalLink>
+									) }
+								</Text>
+							);
+						} ) }
+					</div>
 				) }
 
 				{ isBundle && hasRequiredPlan && (

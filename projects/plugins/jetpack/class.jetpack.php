@@ -6720,8 +6720,13 @@ endif;
 			'features'          => array(
 				_x( 'Real-time cloud backups', 'Backup Product Feature', 'jetpack' ),
 				_x( '10GB of backup storage', 'Backup Product Feature', 'jetpack' ),
-				_x( '30-day archive & activity log', 'Backup Product Feature', 'jetpack' ),
+				_x( '30-day archive & activity log*', 'Backup Product Feature', 'jetpack' ),
 				_x( 'One-click restores', 'Backup Product Feature', 'jetpack' ),
+			),
+			'disclaimer'        => array(
+				'text'      => __( '* Subject to your usage and storage limit.', 'jetpack' ),
+				'link_text' => __( 'Learn more', 'jetpack' ),
+				'url'       => Redirect::get_url( 'jetpack-faq-backup-disclaimer' ),
 			),
 		);
 

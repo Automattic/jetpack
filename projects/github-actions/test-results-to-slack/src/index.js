@@ -27,7 +27,7 @@ const { WebClient } = require( '@slack/web-api' );
 		return;
 	}
 
-	const icon_emoji = getInput( 'slack_icon_emoji' );
+	let icon_emoji = getInput( 'slack_icon_emoji' );
 	if ( ! icon_emoji ) {
 		setFailed( 'Input `slack_icon_emoji` is required' );
 		return;
@@ -35,17 +35,17 @@ const { WebClient } = require( '@slack/web-api' );
 
 	const isFailure = await isWorkflowFailed( ghToken );
 	const status = isFailure ? 'failed' : 'passed';
+	icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';
 	let event = context.sha;
 
 	if ( context.eventName === 'pull_request' ) {
 		const { pull_request } = context.payload;
-		event = `PR \`${ pull_request.number }: ${ pull_request.title }\` (${ pull_request.html_url })`;
+		event = `PR <${ pull_request.html_url }|${ pull_request.number }: ${ pull_request.title }>`;
 	}
-
 	if ( context.eventName === 'push' ) {
-		event = `commit \`${ context.sha }\` on branch \`${ context.ref.substring( 11 ) }\` ${
-			context.payload.head_commit.url
-		}`;
+		event = `commit <${ context.payload.head_commit.url }|${
+			context.sha
+		}> on branch *${ context.ref.substring( 11 ) }*`;
 	}
 
 	const text = `Tests ${ status } for ${ event }`;
@@ -99,5 +99,6 @@ async function sendSlackMessage( token, text, blocks, channel, username, icon_em
 		username,
 		icon_emoji,
 		unfurl_links: false,
+		unfurl_media: false,
 	} );
 }
