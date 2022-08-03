@@ -94,7 +94,7 @@ class Jetpack_VideoPress {
 			'media-video-jwt-bridge',
 			$bridge_url,
 			array(),
-			self::VERSION,
+			JETPACK__VERSION,
 			false
 		);
 
