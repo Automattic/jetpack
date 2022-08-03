@@ -1,3 +1,5 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
@@ -76,14 +78,16 @@ const AgenciesCard: FC< Props > = ( {
 							`${ discountPercentage }%`
 						) }
 					</p>
-					<p className="jp-agencies-card__description">
-						<Button
-							onClick={ trackEvent( 'learn-more-click' ) }
-							href="https://jetpack.com/for/agencies"
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( 'Learn More', 'jetpack' ) }
+					<p className="jp-agencies-card__link-button">
+						<Button>
+							<ExternalLink
+								onClick={ trackEvent( 'learn-more-click' ) }
+								href={ getRedirectUrl( 'jitm-jetpack_agencies_ad' ) }
+								target="_blank"
+								rel="noreferrer"
+							>
+								{ __( 'Learn More', 'jetpack' ) }
+							</ExternalLink>
 						</Button>
 					</p>
 				</div>
