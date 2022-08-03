@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Moving videopress REST endpoint to package
