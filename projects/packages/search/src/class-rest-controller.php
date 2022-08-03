@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Products\Search as Search_Product;
 use Jetpack_Options;
 use WP_Error;
