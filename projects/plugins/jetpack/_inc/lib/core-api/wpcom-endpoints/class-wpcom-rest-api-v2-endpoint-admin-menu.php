@@ -427,13 +427,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	private function parse_menu_item( $title ) {
 		$item = array();
 
-		if ( false !== strpos( $title, 'count-' ) ) {
-			preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches );
-
-			$count = absint( $matches[1] );
-			if ( $count > 0 ) {
+		if ( false !== strpos( $title, 'count-' ) && preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches ) ) {
+			if ( ! empty( $matches[1] ) && absint( $matches[1] ) > 0 ) {
 				// Keep the counter in the item array.
-				$item['count'] = $count;
+				$item['count'] = absint( $matches[1] );
 			}
 
 			// Finally remove the markup.
@@ -453,13 +450,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$title = trim( str_replace( $matches[0], '', $title ) );
 		}
 
-		if ( false !== strpos( $title, 'awaiting-mod' ) ) {
-			preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches );
-
-			$text = $matches[1];
-			if ( $text ) {
+		if ( false !== strpos( $title, 'awaiting-mod' ) && preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches ) ) {
+			if ( ! empty( $matches[1] ) ) {
 				// Keep the text in the item array.
-				$item['badge'] = $text;
+				$item['badge'] = $matches[1];
 			}
 
 			// Finally remove the markup.
