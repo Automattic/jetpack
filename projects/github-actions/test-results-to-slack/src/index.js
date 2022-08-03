@@ -102,5 +102,6 @@ async function sendSlackMessage( token, text, blocks, channel, username, icon_em
 		username,
 		icon_emoji,
 		unfurl_links: false,
+		unfurl_media: false,
 	} );
 }
