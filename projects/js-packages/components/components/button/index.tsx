@@ -24,6 +24,7 @@ export const Button: React.FC< ButtonProps > = ( {
 	isExternalLink,
 	className: propsClassName,
 	text,
+	fullWidth,
 	...componentProps
 } ) => {
 	const className = classNames( styles.button, propsClassName, {
@@ -32,6 +33,7 @@ export const Button: React.FC< ButtonProps > = ( {
 		[ styles.icon ]: Boolean( icon ),
 		[ styles.loading ]: isLoading,
 		[ styles.regular ]: weight === 'regular',
+		[ styles[ 'full-width' ] ]: fullWidth,
 	} );
 
 	const externalIconSize = size === 'normal' ? 20 : 16;

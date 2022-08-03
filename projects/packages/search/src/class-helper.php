@@ -24,11 +24,6 @@ class Helper {
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
 
 	/**
-	 * The post types to hide from 'Excluded post types'.
-	 */
-	const POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST = array( 'attachment' );
-
-	/**
 	 * Create a URL for the current search that doesn't include the "paged" parameter.
 	 *
 	 * @since 5.8.0
@@ -814,13 +809,6 @@ class Helper {
 				'name'          => $obj->labels->name,
 			);
 		}
-		$post_type_labels = array_filter(
-			$post_type_labels,
-			function ( $key ) {
-				return ! in_array( $key, self::POST_TYPES_TO_HIDE_FROM_EXCLUDED_CHECK_LIST, true );
-			},
-			ARRAY_FILTER_USE_KEY
-		);
 
 		$prefix         = Options::OPTION_PREFIX;
 		$posts_per_page = (int) get_option( 'posts_per_page' );
@@ -853,7 +841,7 @@ class Helper {
 				'enableInfScroll'   => get_option( $prefix . 'inf_scroll', '1' ) === '1',
 				'enableSort'        => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
-				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', 'immediate' ),
+				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
 				'resultFormat'      => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
 				'showPoweredBy'     => get_option( $prefix . 'show_powered_by', '1' ) === '1',
 

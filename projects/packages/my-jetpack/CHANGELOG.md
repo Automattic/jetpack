@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.3] - 2022-08-03
+### Changed
+- Updated package dependencies. [#25300, #25315]
+
+## [1.8.2] - 2022-07-27
+### Changed
+- My Jetpack: changed link used in ProductCard component to a button when the plugin is absent
+
 ## [1.8.1] - 2022-07-26
 ### Changed
 - My Jetpack: changed button used in ProductCard component from WordPress to Jetpack default [#25146]
@@ -544,6 +552,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[1.8.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.8.2...1.8.3
+[1.8.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.8.1...1.8.2
 [1.8.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.8.0...1.8.1
 [1.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.7.4...1.8.0
 [1.7.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.7.3...1.7.4
