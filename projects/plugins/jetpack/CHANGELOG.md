@@ -2,9 +2,35 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.2-beta - 2022-07-26
+## 11.3-a.1 - 2022-08-03
 ### Enhancements
-- Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress. [#25155]
+- Add blocks for GSuite document embeds. [#24628]
+- Blocks: add support for podcast player to have per-feed cache timeouts. [#24966]
+- Include 'earn' patterns in the Payment Introducer block UI [#24914]
+- Jetpack: register VideoPress block from its editor.js file [#25349]
+- VPBlock: Add support to pause/resume upload [#25350]
+
+### Improved compatibility
+- Contact Form Block: Use a less strict comparison for Atomic compat [#25278]
+- Moving videopress REST endpoint to package [#25042]
+- SEO Tools: avoid conflicts with SEOPress and SEOKEY plugins. [#25277]
+
+### Bug fixes
+- Calipsoify the `site-editor.php` route so that it opens the Site Editor from the Gutenframe. Gutenberg 13.7 deprecated the old routes and uses core's `site-editor.php`. [#25281]
+- Subscriptions Block: fix subscriber count display when padding dimension is added. [#25262]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Disabled postcss deprecation notices for build [#25296]
+- E2E tests: only retry failed tests in CI [#25273]
+- Google Docs Embed block: switch to a stricter check for Google Docs URLs. [#25345]
+- Jetpack: init 11.3 cycle [#25274]
+- Masterbar: bugfix removing empty space between folded adminbar and editor [#25331]
+- Updated package dependencies. [#25300, #25315, #25279, #25061]
+- Updating the 11.2 testing instructions on trunk [#25287]
+
+## [11.2] - 2022-08-02
+### Enhancements
+- Native Block Inserter: only display blocks under a Jetpack heading if the host app is WordPress. [#25155]
 - VideoPress Block (beta): add block transforms for the VideoPress block. [#25154]
 
 ### Bug fixes
@@ -13,8 +39,9 @@
 - Connection: fix Jetpack redirect after registration. [#25135]
 - Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites. [#25085]
 - Sharing: ensure that sharing buttons are not displayed for excerpts. [#24896]
+- Sharing: hide button information in Blog Posts block in editor. [#25346]
 - Slideshow Block: support wide and full alignment options. [#25107]
-- Subscribe block: fix support for allowed HTML tags in submit button. [#25114]
+- Subscribe Block: fix support for allowed HTML tags in submit button. [#25114]
 - VideoPress: avoid PHP notices when inserting videos that miss some metadata. [#25129]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
@@ -22,13 +49,14 @@
 - Cleanup old videopress player code (D75134-code). [#23384]
 - E2E tests: cancel partner plan when resetting test environment. [#25264]
 - Init 11.2-a.6 cycle. [#25126]
+- Jetpack 11.2 changelog editorial [#25276]
 - Jetpack 11.2-a.5 changelog editorial. [#25128]
 - Publicize: Remove folder from modules. [#25049]
 - Search: remove Calypso search page link in admin menu for simple sites. [#25149]
 - Update analytics. [#25257]
 - Updated package dependencies. [#24929]
 - Updating composer.lock. [#25142]
-- VideoPress block (beta): under the hood improvements such as emit events to window where bridge runs. [#25148]
+- VideoPress Block (beta): under the hood improvements such as emit events to window where bridge runs. [#25148]
 - WordPress.com REST API: remove default for 'dont_change_homepage' in the '/sites/%s/themes/mine' endpoint. [#25141]
 
 ## 11.2-a.5 - 2022-07-19
@@ -6857,6 +6885,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.2]: https://wp.me/p1moTy-JYL
 [11.1]: https://wp.me/p1moTy-Juo
 [11.0]: https://wp.me/p1moTy-IbF
 [10.9]: https://wp.me/p1moTy-EHd
