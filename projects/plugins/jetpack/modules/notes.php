@@ -82,8 +82,15 @@ class Jetpack_Notifications {
 
 		// Do not show notifications in the Site Editor, which is always in fullscreen mode.
 		global $pagenow;
-		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page'] ) {
+
+		// Pre 13.7 pages that still need to be supported if < 13.7 is
+		// still installed.
+		$allowed_old_pages       = array( 'admin.php', 'themes.php' );
+		$is_old_site_editor_page = in_array( $pagenow, $allowed_old_pages, true ) && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// For Gutenberg > 13.7, the core `site-editor.php` route is used instead
+		$is_site_editor_page = 'site-editor.php' === $pagenow;
+
+		if ( $is_site_editor_page || $is_old_site_editor_page ) {
 			return;
 		}
 

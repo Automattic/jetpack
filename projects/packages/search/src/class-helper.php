@@ -841,7 +841,7 @@ class Helper {
 				'enableInfScroll'   => get_option( $prefix . 'inf_scroll', '1' ) === '1',
 				'enableSort'        => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
-				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', 'immediate' ),
+				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
 				'resultFormat'      => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
 				'showPoweredBy'     => get_option( $prefix . 'show_powered_by', '1' ) === '1',
 
