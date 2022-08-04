@@ -28,7 +28,15 @@
 			"@composer phpunit"
 		],
 		"build-production": "echo 'Add your build step to composer.json, please!'",
-		"build-development": "echo 'Add your build step to composer.json, please!'"
+		"build-development": [
+			"pnpm run build",
+			"pnpm run build:block-editor-extensions"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch",
+			"pnpm run watch:block-editor-extensions"
+		]
 	},
 	"repositories": [
 		{

@@ -16,12 +16,20 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "echo 'Not implemented.'",
+		"build:block-editor-extensions": "wp-scripts build src/client/block-editor/index.js --webpack-bin=./node_modules/.bin/webpack",
 		"build-js": "echo 'Not implemented.'",
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true"
+		"clean": "true",
+		"watch": "echo 'Not implemented.'",
+		"watch:block-editor-extensions": "npm run build:block-editor-extensions -- --watch"
 	},
-	"devDependencies": {},
+	"devDependencies": {
+		"@wordpress/browserslist-config": "4.1.2",
+		"@wordpress/scripts": "23.6.0",
+		"webpack": "5.72.1",
+		"webpack-cli": "4.9.1"
+	},
 	"engines": {
 		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
