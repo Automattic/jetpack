@@ -77,6 +77,7 @@ const renderProduct = ( product, offers, priority, hasRelatedPlan ) => {
 			productSlug={ product.slug }
 			description={ product.description }
 			features={ product.features }
+			disclaimer={ product.disclaimer }
 			currencyCode={ product.currencyCode }
 			price={ price / 12 }
 			discountedPrice={ discountedPrice && discountedPrice !== price ? discountedPrice / 12 : null }
