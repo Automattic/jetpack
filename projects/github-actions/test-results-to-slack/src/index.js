@@ -9,8 +9,8 @@ const { isWorkflowFailed, getNotificationText } = require( './utils' );
 		return;
 	}
 
-	const token = getInput( 'slack_token' );
-	if ( ! token ) {
+	const slackToken = getInput( 'slack_token' );
+	if ( ! slackToken ) {
 		setFailed( 'Input `slack_token` is required' );
 		return;
 	}
@@ -32,11 +32,11 @@ const { isWorkflowFailed, getNotificationText } = require( './utils' );
 		setFailed( 'Input `slack_icon_emoji` is required' );
 		return;
 	}
-	const isFailure = await isWorkflowFailed( token );
+	const isFailure = await isWorkflowFailed( ghToken );
 	icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';
 
 	const text = await getNotificationText( isFailure );
-	await sendSlackMessage( token, text, [], channel, username, icon_emoji );
+	await sendSlackMessage( slackToken, text, [], channel, username, icon_emoji );
 } )();
 
 /**
