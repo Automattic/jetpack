@@ -71,6 +71,9 @@ export const settings = {
 		'venmo',
 	],
 	usesContext: [ 'isPremiumContentChild' ],
+	providesContext: {
+		'jetpack/parentBlockWidth': 'width',
+	},
 	attributes: {
 		planId: {
 			type: 'integer',
@@ -87,6 +90,9 @@ export const settings = {
 			type: 'string',
 			// Used for blocks created without the payment form auto open feature.
 			default: 'id',
+		},
+		width: {
+			type: 'string',
 		},
 	},
 	edit,

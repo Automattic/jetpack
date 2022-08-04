@@ -8,10 +8,11 @@ import {
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
+import './controls.scss';
 
 const widthUnits = [
-	{ value: 'px', label: 'px', default: 150 },
 	{ value: '%', label: '%', default: 100 },
+	{ value: 'px', label: 'px', default: 150 },
 	{ value: 'em', label: 'em', default: 10 },
 ];
 
@@ -22,19 +23,19 @@ const alignedWidthUnits = [
 
 const predefinedWidths = [ '25%', '50%', '75%', '100%' ];
 
-export default function ButtonWidthPanel( props ) {
+export function WidthPanel( props ) {
 	return (
 		<PanelBody title={ __( 'Width settings', 'jetpack' ) }>
-			<ButtonWidthControl { ...props } />
+			<WidthControl showLabel={ false } { ...props } />
 		</PanelBody>
 	);
 }
 
-export function ButtonWidthControl( { align, width, onChange } ) {
-	const [ unit, setUnit ] = useState( null );
+export function WidthControl( { align, width, onChange, showLabel = true } ) {
+	const [ unit, setUnit ] = useState( '%' );
 
 	useEffect( () => {
-		// If a button has a % width selected and is changed to left or right
+		// If a block has a % width selected and is changed to left or right
 		// alignment, it will be floated and the width selection cleared. The
 		// unit should also be updated.
 		if ( width === undefined ) {
@@ -55,9 +56,9 @@ export function ButtonWidthControl( { align, width, onChange } ) {
 	}
 
 	return (
-		<BaseControl label={ __( 'Button width', 'jetpack' ) }>
+		<BaseControl label={ showLabel && __( 'Width', 'jetpack' ) }>
 			<div
-				className={ classnames( 'jetpack-button__width-settings', {
+				className={ classnames( 'jetpack-block-width-controls', {
 					'is-aligned': isAlignedLeftOrRight,
 				} ) }
 			>
@@ -78,7 +79,6 @@ export function ButtonWidthControl( { align, width, onChange } ) {
 					</ButtonGroup>
 				) }
 				<UnitControl
-					className="jetpack-button__custom-width"
 					isResetValueOnUnitChange
 					max={ unit === '%' || width?.includes( '%' ) ? 100 : undefined }
 					min={ 0 }
@@ -87,7 +87,6 @@ export function ButtonWidthControl( { align, width, onChange } ) {
 					size={ 'small' }
 					units={ isAlignedLeftOrRight ? alignedWidthUnits : widthUnits }
 					value={ width }
-					unit={ unit }
 				/>
 			</div>
 		</BaseControl>
