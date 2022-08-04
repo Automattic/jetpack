@@ -19,9 +19,14 @@ export function buildInitialState() {
 						features: [
 							'Real-time cloud backups',
 							'10GB of backup storage',
-							'30-day archive & activity log',
+							'30-day archive & activity log*',
 							'One-click restores',
 						],
+						disclaimer: {
+							text: '* Subject to your usage and storage limit.',
+							link_text: 'Learn more',
+							url: 'https://cloud.jetpack.com/pricing#backup-storage-limits-faq',
+						},
 					},
 					scan: {
 						title: 'Jetpack Scan',

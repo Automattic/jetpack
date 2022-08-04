@@ -37,7 +37,7 @@ jobs:
   assign_jarvis_review_prs:
     name: Assign PRs where JARVIS is requested as reviewer to the JARVIS board.
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'review_requested'
+    if: github.event_name == 'pull_request_target' && github.event.action == 'review_requested'
     steps:
       - uses: leonsteinhaeuser/project-beta-automations@v1.2.1
         if: contains(github.event.pull_request.requested_teams, 'Automattic/jarvis-jetpack-quality')
