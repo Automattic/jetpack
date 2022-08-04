@@ -1,7 +1,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import React, { Component, Fragment } from 'react';
 import { getConstrastingColor } from '../lib/colors';
-import { MULTISITE_NO_GROUP_VALUE } from '../lib/constants';
+import { MULTISITE_NO_GROUP_VALUE, OVERLAY_FOCUS_ANCHOR_ID } from '../lib/constants';
 import { getAvailableStaticFilters } from '../lib/filters';
 import Gridicon from './gridicon';
 import Notice from './notice';
@@ -288,7 +288,7 @@ class SearchResults extends Component {
 						{ this.renderSecondarySection() }
 					</div>
 				</div>
-				<button id="jetpack-instant-search__overlay-tab-anchor" onClick={ this.closeOverlay }>
+				<button id={ OVERLAY_FOCUS_ANCHOR_ID } onClick={ this.closeOverlay }>
 					Close Search
 				</button>
 			</div>

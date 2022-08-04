@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
-import { OVERLAY_CLASS_NAME } from '../lib/constants';
+import { OVERLAY_CLASS_NAME, OVERLAY_FOCUS_ANCHOR_ID } from '../lib/constants';
 import './overlay.scss';
 
 const Overlay = props => {
@@ -16,12 +16,13 @@ const Overlay = props => {
 
 		const handleTabEvent = event => {
 			if ( event.key === 'Tab' ) {
-				const overlay = document.getElementsByClassName( 'jetpack-instant-search__overlay' )[ 0 ];
+				const overlay = document.getElementsByClassName( OVERLAY_CLASS_NAME )[ 0 ];
 				const isInsideOverlay = overlay.contains( event.target );
 
 				// Looking up the searchInput assumes knowledge of another component.
+				// Not currently a constent as it's dynamically generated.
 				const searchInput = document.getElementById( 'jetpack-instant-search__box-input-1' );
-				const tabAnchor = document.getElementById( 'jetpack-instant-search__overlay-tab-anchor' );
+				const tabAnchor = document.getElementById( OVERLAY_FOCUS_ANCHOR_ID );
 				if ( event.shiftKey === true ) {
 					if ( event.target === searchInput || false === isInsideOverlay ) {
 						event.preventDefault();
