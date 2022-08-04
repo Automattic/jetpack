@@ -83,7 +83,7 @@ jobs:
       - name: Delete testing reminder comment if the PR no longer touches Jetpack
         id: delete-test-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != '' && ! contains( steps.changed.outputs.projects, 'plugins/jetpack' ) }}
+        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != '' && !contains( steps.changed.outputs.projects, 'plugins/jetpack' ) }}
         env:
           COMMENT_DB_ID: ${{ steps.check-test-reminder-comment.outputs.result }}
         with:
