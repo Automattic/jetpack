@@ -584,6 +584,12 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 
 	$activate = WP_CLI\Utils\get_flag_value( $assoc_args, 'activate', false );
 	if ( $activate ) {
+
+		// Invalidate cache so that the plugins can be read from the fs again.
+		if ( ! $already_symlinked ) {
+			wp_cache_delete( 'plugins', 'plugins' );
+		}
+
 		WP_CLI::runcommand(
 			"--skip-plugins --skip-themes plugin activate '$plugin_to_symlink'",
 			array(
