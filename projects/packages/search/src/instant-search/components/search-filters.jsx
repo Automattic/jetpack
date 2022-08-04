@@ -27,13 +27,8 @@ class SearchFilters extends Component {
 	onClearFilters = event => {
 		event.preventDefault();
 
-		if (
-			event.type === 'click' ||
-			( event.type === 'keydown' && ( event.key === 'Enter' || event.key === ' ' ) )
-		) {
-			this.props.clearFilters();
-			this.props.onChange && this.props.onChange();
-		}
+		this.props.clearFilters();
+		this.props.onChange && this.props.onChange();
 	};
 
 	hasActiveFilters() {
@@ -86,16 +81,12 @@ class SearchFilters extends Component {
 					</h2>
 				) }
 				{ this.props.showClearFiltersButton && this.hasActiveFilters() && (
-					<a
+					<button
 						class="jetpack-instant-search__clear-filters-link"
-						href="#"
 						onClick={ this.onClearFilters }
-						onKeyDown={ this.onClearFilters }
-						role="button"
-						tabIndex="0"
 					>
 						{ __( 'Clear filters', 'jetpack-search-pkg' ) }
-					</a>
+					</button>
 				) }
 
 				{ this.props.widget?.filters &&
