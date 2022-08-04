@@ -16,16 +16,23 @@ const Overlay = props => {
 
 		const handleTabEvent = event => {
 			if ( event.key === 'Tab' ) {
+				const overlay = document.getElementsByClassName( 'jetpack-instant-search__overlay' )[ 0 ];
+				const isInsideOverlay = overlay.contains( event.target );
+
 				// Looking up the searchInput assumes knowledge of another component.
-				const tabAnchor = document.getElementById( 'jetpack-instant-search__overlay-tab-anchor' );
 				const searchInput = document.getElementById( 'jetpack-instant-search__box-input-1' );
-				if ( event.shiftKey === true && event.target === searchInput ) {
-					event.preventDefault();
-					tabAnchor.focus();
+				const tabAnchor = document.getElementById( 'jetpack-instant-search__overlay-tab-anchor' );
+				if ( event.shiftKey === true ) {
+					if ( event.target === searchInput || false === isInsideOverlay ) {
+						event.preventDefault();
+						tabAnchor.focus();
+					}
 				}
-				if ( event.shiftKey === false && event.target === tabAnchor ) {
-					event.preventDefault();
-					searchInput.focus();
+				if ( event.shiftKey === false ) {
+					if ( event.target === tabAnchor || false === isInsideOverlay ) {
+						event.preventDefault();
+						searchInput.focus();
+					}
 				}
 			}
 		};
