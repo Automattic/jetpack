@@ -39,3 +39,20 @@
 		width: 100%;
 	}
 }
+
+// Uploader Editor
+
+.uploading-editor {
+	width: 100%;
+	margin-bottom: 20px;
+
+	.uploading-editor__title {
+		margin-top: 10px;
+	}
+
+	.uploading-editor__summary {
+		padding: 0;
+		margin-left: -4px;
+	}
+}
+

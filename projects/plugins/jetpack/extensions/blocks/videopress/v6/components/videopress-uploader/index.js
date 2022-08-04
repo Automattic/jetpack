@@ -15,6 +15,8 @@ import { PlaceholderWrapper } from '../../edit.js';
 import { useResumableUploader } from '../../hooks/use-uploader.js';
 import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
+import UploadingEditor from './uploader-editor.js';
+
 import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
@@ -37,7 +39,8 @@ const UploadProgress = ( { progress, file, paused, onPauseOrResume } ) => {
 	);
 
 	return (
-		<PlaceholderWrapper>
+		<PlaceholderWrapper disableInstructions>
+			<UploadingEditor file={ file } fileName={ escapedFileName } />
 			<div className="videopress-uploader-progress">
 				<div className="videopress-uploader-progress__file-info">
 					<div className="videopress-uploader-progress__file-name">{ fileNameLabel }</div>
