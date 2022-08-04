@@ -3,9 +3,8 @@
  */
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Button, withNotices, ExternalLink } from '@wordpress/components';
-import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
-import { escapeHTML } from '@wordpress/escape-html';
-import { __, sprintf } from '@wordpress/i18n';
+import { useCallback, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import filesize from 'filesize';
 import { useRef } from 'react';
 import { PlaceholderWrapper } from '../../edit.js';
@@ -28,22 +27,15 @@ const UploadProgress = ( { progress, file, paused, onPauseOrResume } ) => {
 	const resumeText = __( 'Resume', 'jetpack' );
 	const pauseText = __( 'Pause', 'jetpack' );
 	const fileSizeLabel = filesize( file?.size );
-	const escapedFileName = escapeHTML( file?.name );
-	const fileNameLabel = createInterpolateElement(
-		sprintf(
-			/* translators: Placeholder is a video file name. */
-			__( 'Uploading <strong>%s</strong>', 'jetpack' ),
-			escapedFileName
-		),
-		{ strong: <strong /> }
-	);
 
 	return (
 		<PlaceholderWrapper disableInstructions>
-			<UploadingEditor file={ file } fileName={ escapedFileName } />
+			<UploadingEditor file={ file } />
 			<div className="videopress-uploader-progress">
 				<div className="videopress-uploader-progress__file-info">
-					<div className="videopress-uploader-progress__file-name">{ fileNameLabel }</div>
+					<div className="videopress-uploader-progress__file-name">
+						{ __( 'Uploading', 'jetpack' ) }
+					</div>
 					&nbsp;&#8212;&nbsp;
 					<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
 				</div>

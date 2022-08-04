@@ -3,22 +3,27 @@
  */
 import { Button, TextControl, TabPanel } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import { escapeHTML } from '@wordpress/escape-html';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, chevronDown } from '@wordpress/icons';
 
 import './style.scss';
 
+const removeFileNameExtension = name => {
+	return name.replace( /\.[^/.]+$/, '' );
+};
+
 const UploadingEditor = props => {
 	const {
-		// file,
-		fileName,
+		file,
 		// onSelectPoster,
 		// onRemovePoster,
 		// videoPosterImageData,
 		// onChangeTitle,
 		// onVideoFrameSelected,
 	} = props;
-	const [ title, setTitle ] = useState( fileName );
+	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
+	const [ title, setTitle ] = useState( filename );
 	const [ expanded, setExpanded ] = useState( false );
 
 	return (
