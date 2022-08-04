@@ -30,6 +30,8 @@ class Initializer {
 		// Register VideoPress block
 		add_action( 'init', array( __CLASS__, 'create_block_videopress_block_init' ) );
 
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_frontend_scripts' ) );
+
 		/**
 		 * Fires after the VideoPress package is initialized
 		 *
@@ -89,5 +91,24 @@ class Initializer {
 	 */
 	public static function create_block_videopress_block_init() {
 		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
+	}
+
+	/**
+	 * Enqueue scripts for the VideoPress block,
+	 * in the frontend.
+	 *
+	 * @return void
+	 */
+	public static function add_frontend_scripts() {
+		$path         = plugins_url( '/../build/view.js', __FILE__ );
+		$build_assets = require_once __DIR__ . '/../build/view.asset.php';
+
+		wp_enqueue_script(
+			'media-manager-media-center',
+			$path,
+			$build_assets['dependencies'],
+			filemtime( plugin_dir_path( __FILE__ ) . 'build/view.js' ),
+			true
+		);
 	}
 }

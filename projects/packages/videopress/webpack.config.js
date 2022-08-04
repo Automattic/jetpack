@@ -5,6 +5,7 @@ module.exports = [
 	{
 		entry: {
 			editor: './src/client/block-editor/index.js',
+			view: './src/client/block-editor/view.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
