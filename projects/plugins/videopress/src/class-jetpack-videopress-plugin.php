@@ -19,7 +19,7 @@ use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
 /**
- * Class Jetpack_Videopress
+ * Class Jetpack_Videopress_Plugin
  */
 class Jetpack_Videopress_Plugin {
 
