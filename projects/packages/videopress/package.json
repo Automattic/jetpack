@@ -26,6 +26,7 @@
 	},
 	"devDependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",
+		"@automattic/jetpack-base-styles": "workspace:0.3.8",
 		"@automattic/jetpack-webpack-config": "workspace:1.3.8",
 		"@wordpress/browserslist-config": "4.1.2",
 		"@wordpress/scripts": "23.6.0",
@@ -41,5 +42,12 @@
 	"engines": {
 		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"dependencies": {
+		"@wordpress/icons": "9.3.0",
+		"classnames": "2.3.1",
+		"debug": "4.3.4",
+		"filesize": "8.0.6",
+		"tus-js-client": "2.3.0"
 	}
 }
