@@ -115,4 +115,4 @@ add_filter(
 register_deactivation_hook( __FILE__, array( 'Jetpack_Videopress', 'plugin_deactivation' ) );
 
 // Main plugin class.
-new Jetpack_Videopress();
+new Jetpack_Videopress_Plugin();

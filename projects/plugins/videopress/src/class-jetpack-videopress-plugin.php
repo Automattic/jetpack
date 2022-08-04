@@ -20,7 +20,7 @@ use Automattic\Jetpack\Sync\Data_Settings;
 /**
  * Class Jetpack_Videopress
  */
-class Jetpack_Videopress {
+class Jetpack_Videopress_Plugin {
 
 	/**
 	 * Constructor.
@@ -58,6 +58,8 @@ class Jetpack_Videopress {
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
+
+				$config->ensure( 'videopress' );
 			},
 			1
 		);

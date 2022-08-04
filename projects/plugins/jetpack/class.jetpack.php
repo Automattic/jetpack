@@ -38,7 +38,6 @@ use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 
 /*
 Options:
@@ -830,6 +829,7 @@ class Jetpack {
 				'jitm',
 				'sync',
 				'waf',
+				'videopress',
 			)
 			as $feature
 		) {
@@ -924,7 +924,6 @@ class Jetpack {
 
 		Partner::init();
 		My_Jetpack_Initializer::init();
-		VideoPress_Initializer::init();
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
