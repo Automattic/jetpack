@@ -19,6 +19,11 @@
 		"url": "https://github.com/foo/bar/commit/2533d1ea61d89d418bdb617608848f1e52d6fc9c"
 	},
 	"ref": "refs/heads/main",
-	"repository": {},
+	"repository": {
+		"owner": {
+			"login": "foo"
+		},
+		"name": "bar"
+	},
 	"sender": {}
 }
