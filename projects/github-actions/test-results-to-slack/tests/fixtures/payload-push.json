@@ -1,0 +1,18 @@
+{
+	"after": "2533d1ea61d89d418bdb617608848f1e52d6fc9c",
+	"before": "01fad7c0facec37c1ecdf0119ae46bf9cca9ae80",
+	"head_commit": {
+		"id": "2533d1ea61d89d418bdb617608848f1e52d6fc9c",
+		"message": "Commit message",
+		"timestamp": "2022-07-29T14:37:51+03:00",
+		"url": "https://github.com/foo/bar/commit/2533d1ea61d89d418bdb617608848f1e52d6fc9c"
+	},
+	"ref": "refs/heads/main",
+	"repository": {
+		"owner": {
+			"login": "foo"
+		},
+		"name": "bar"
+	},
+	"sender": {}
+}
