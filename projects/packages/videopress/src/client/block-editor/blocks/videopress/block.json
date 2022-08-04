@@ -1,17 +1,17 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 2,
-	"name": "jetpack/videopress",
+	"name": "jetpack/videopress-block",
 	"version": "0.1.0",
-	"title": "Videopress",
+	"title": "VideoPress",
 	"category": "widgets",
 	"icon": "smiley",
 	"description": "Example static block scaffolded with Create Block tool.",
 	"supports": {
 		"html": false
 	},
-	"textdomain": "videopress",
-	"editorScript": "file:./index.js",
-	"editorStyle": "file:./index.css",
-	"style": "file:./style-index.css"
+	"textdomain": "VideoPress",
+	"editorScript": "file:../../../../../build/editor.js",
+	"editorStyle": "file:../../../../../build/editor.css",
+	"style": "file:../../../../../build/style-editor.css"
 }
