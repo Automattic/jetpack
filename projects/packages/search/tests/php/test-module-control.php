@@ -2,15 +2,15 @@
 
 namespace Automattic\Jetpack\Search;
 
-use PHPUnit\Framework\TestCase;
-use WorDBless\Options as WorDBless_Options;
-
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
+use Automattic\Jetpack\Status\Cache;
 /**
  * Unit tests for the REST_Controller class.
  *
  * @package automattic/jetpack-search
  */
-class Test_Module_Control extends TestCase {
+class Test_Module_Control extends Search_Test_Case {
 	/**
 	 * Module_Control object
 	 *
@@ -31,7 +31,7 @@ class Test_Module_Control extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-		WorDBless_Options::init()->clear_options();
+		parent::set_up();
 
 		$plan = $this->createMock( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( true );
@@ -47,15 +47,6 @@ class Test_Module_Control extends TestCase {
 	}
 
 	/**
-	 * Returning the environment into its initial state.
-	 *
-	 * @after
-	 */
-	public function tear_down() {
-		WorDBless_Options::init()->clear_options();
-	}
-
-	/**
 	 * Test static::$search_module->is_active()
 	 */
 	public function test_is_module_active() {
@@ -63,11 +54,11 @@ class Test_Module_Control extends TestCase {
 		$this->assertFalse( static::$search_module->is_active() );
 		remove_filter( 'jetpack_options', '__return_false' );
 
-		add_filter( 'jetpack_options', array( $this, 'return_empty_array' ) );
+		add_filter( 'jetpack_options', array( $this, 'return_empty_array' ), 10, 2 );
 		$this->assertFalse( static::$search_module->is_active() );
 		remove_filter( 'jetpack_options', array( $this, 'return_empty_array' ) );
 
-		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
 		$this->assertTrue( static::$search_module->is_active() );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
 	}
@@ -75,8 +66,8 @@ class Test_Module_Control extends TestCase {
 	/**
 	 * Test static::$search_module->activate()
 	 */
-	public function test_activate_module() {
-		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
+	public function test_activate_module_success() {
+		add_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ), 10, 2 );
 		static::$search_module->activate();
 		$this->assertEquals( array( 'some-module-1', 'some-module-2', 'some-module-3', Module_Control::JETPACK_SEARCH_MODULE_SLUG ), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
 		remove_filter( 'jetpack_options', array( $this, 'return_active_modules_array_without_search' ) );
@@ -85,13 +76,40 @@ class Test_Module_Control extends TestCase {
 	/**
 	 * Test static::$search_module->activate() when search is not supported
 	 */
-	public function test_activate_module_not_supported() {
+	public function test_activate_module_failed_not_supported() {
 		$plan = $this->createMock( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( false );
 
 		$search_module = new Module_Control( $plan );
-		$search_module->activate();
+		$err           = $search_module->activate();
 		// Cannot activate search if not supported.
+		$this->assertEquals( 'not_supported', $err->get_error_code() );
+		$this->assertEquals( array(), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
+	}
+
+	/**
+	 * Test static::$search_module->activate() when site is not connected
+	 */
+	public function test_activate_module_failed_connection_required() {
+		$connection_manager = $this->createMock( Connection_Manager::class );
+		$connection_manager->method( 'is_connected' )->willReturn( false );
+		$search_module = new Module_Control( null, $connection_manager );
+		$err           = $search_module->activate();
+		// Cannot activate search if site is not connected.
+		$this->assertEquals( 'connection_required', $err->get_error_code() );
+		$this->assertEquals( array(), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
+
+	}
+
+	/**
+	 * Test static::$search_module->activate() when site is in offline mode
+	 */
+	public function test_activate_module_failed_site_offline() {
+		Cache::set( 'is_offline_mode', true );
+		$err = static::$search_module->activate();
+		Cache::set( 'is_offline_mode', null );
+		// Cannot activate search if site is in offline mode.
+		$this->assertEquals( 'site_offline', $err->get_error_code() );
 		$this->assertEquals( array(), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
 	}
 
@@ -99,7 +117,7 @@ class Test_Module_Control extends TestCase {
 	 * Test static::$search_module->deactivate()
 	 */
 	public function test_deactivate_module() {
-		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
 		static::$search_module->deactivate();
 		$this->assertNotContains( 'search', get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
 		$this->assertEquals( array( 'some-module-1', 'some-module-2', 'some-module-3' ), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
@@ -127,7 +145,7 @@ class Test_Module_Control extends TestCase {
 		static::$search_module->enable_instant_search();
 		// plan doesn't support search.
 		$this->assertFalse( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
-		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
+		add_filter( 'jetpack_options', array( $this, 'return_search_active_array' ), 10, 2 );
 		static::$search_module->enable_instant_search();
 		$this->assertTrue( get_option( Module_Control::SEARCH_MODULE_INSTANT_SEARCH_OPTION_KEY ) );
 		remove_filter( 'jetpack_options', array( $this, 'return_search_active_array' ) );
@@ -161,16 +179,27 @@ class Test_Module_Control extends TestCase {
 
 	/**
 	 * Returns an array with 'search' in it
+	 *
+	 * @param array  $value The value of the option.
+	 * @param string $name The name of the option being retrieved.
 	 */
-	public function return_search_active_array() {
+	public function return_search_active_array( $value, $name ) {
+		if ( 'active_modules' !== $name ) {
+			return $value;
+		}
 		return array( 'some-module-1', Module_Control::JETPACK_SEARCH_MODULE_SLUG, 'some-module-2', 'some-module-3' );
 	}
 
 	/**
 	 * Returns an array with 'search' in it
+	 *
+	 * @param array  $value The value of the option.
+	 * @param string $name The name of the option being retrieved.
 	 */
-	public function return_active_modules_array_without_search() {
+	public function return_active_modules_array_without_search( $value, $name ) {
+		if ( 'active_modules' !== $name ) {
+			return $value;
+		}
 		return array( 'some-module-1', 'some-module-2', 'some-module-3' );
 	}
-
 }
