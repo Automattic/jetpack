@@ -12,7 +12,6 @@ import save from './save';
 import './style.scss';
 
 export const { name, title, description } = metadata;
-export const namespace = 'jetpack';
 
 registerBlockType( name, {
 	edit: Edit,
