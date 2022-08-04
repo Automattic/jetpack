@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.1] - 2022-08-03
+### Added
+- Instant Search: Adds descriptions to post type icons for accessibility purposes [#25323]
+- Record Meter: add info link to docs [#25002]
+
+### Changed
+- Updated package dependencies. [#25300, #25315]
+
+### Fixed
+- Instant Search: Improve accessibility of seach options controls.
+- Search: ensure overlay trigger is consistent for new installs [#25093]
+
+## [0.17.0] - 2022-07-29
+### Added
+- Record Meter: make feature available to all users
+- Search: re-add 'Media' to 'Excluded Post Types'
+
+## [0.16.2] - 2022-07-26
+### Added
+- Dashboard: added support WPCOM simple sites [#25094]
+
+### Changed
+- Instant search: updates overlay focus elements for design consistency [#25260]
+- Updated package dependencies. [#25144]
+- Updated package dependencies. [#25147]
+- Updated package dependencies. [#25158]
+
+### Fixed
+- Instant Search: Fix keyboard handling of sort options. [#25163]
+- Instant Search: prevent hidden submit button appearing on focus [#25136]
+- Search Dashboard: Fixed layout issues when Hello Dolly plugin is active. [#25139]
+
 ## [0.16.1] - 2022-07-19
 ### Changed
 - Updated package dependencies. [#25086]
@@ -376,6 +408,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.17.1]: https://github.com/Automattic/jetpack-search/compare/v0.17.0...v0.17.1
+[0.17.0]: https://github.com/Automattic/jetpack-search/compare/v0.16.2...v0.17.0
+[0.16.2]: https://github.com/Automattic/jetpack-search/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/Automattic/jetpack-search/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/Automattic/jetpack-search/compare/v0.15.4...v0.16.0
 [0.15.4]: https://github.com/Automattic/jetpack-search/compare/v0.15.3...v0.15.4

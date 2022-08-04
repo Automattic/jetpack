@@ -354,6 +354,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$form_id = self::get_redirect_fragment();
 			?>
 
+			<div class="wp-block-jetpack-subscriptions__container">
 			<form
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
@@ -364,18 +365,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				if ( ! $show_only_email_and_button ) {
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo wpautop( $subscribe_text );
-				}
-				if ( $show_subscribers_total && $subscribers_total ) {
-					?>
-					<div class="jetpack-subscribe-count">
-						<p>
-						<?php
-						/* translators: %s: number of folks following the blog */
-						echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
-						?>
-						</p>
-					</div>
-					<?php
 				}
 				$email_field_id  = 'subscribe-field';
 				$email_field_id .= self::$instance_count > 1
@@ -445,6 +434,15 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					</button>
 				</p>
 			</form>
+			<?php if ( $show_subscribers_total && $subscribers_total ) { ?>
+				<div class="wp-block-jetpack-subscriptions__subscount">
+					<?php
+					/* translators: %s: number of folks following the blog */
+					echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					?>
+				</div>
+			<?php } ?>
+			</div>
 			<?php
 		}
 
@@ -463,6 +461,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 			$form_id = self::get_redirect_fragment( $widget_id );
 			?>
+			<div class="wp-block-jetpack-subscriptions__container">
 			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
 				<?php
 				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
@@ -471,18 +470,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 														<?php
 				}
 
-				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
-					?>
-					<div class="jetpack-subscribe-count">
-						<p>
-						<?php
-						/* translators: %s: number of folks following the blog */
-						echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
-						?>
-						</p>
-					</div>
-					<?php
-				}
 				if ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display of unsubmitted form.
 					?>
 					<p id="subscribe-email">
@@ -537,6 +524,15 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					</p>
 				<?php } ?>
 			</form>
+			<?php if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) { ?>
+				<div class="wp-block-jetpack-subscriptions__subscount">
+					<?php
+					/* translators: %s: number of folks following the blog */
+					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
+					?>
+				</div>
+			<?php } ?>
+			</div>
 			<?php
 		}
 	}
