@@ -288,6 +288,9 @@ class SearchResults extends Component {
 						{ this.renderSecondarySection() }
 					</div>
 				</div>
+				<button id="jetpack-instant-search__overlay-tab-anchor" onClick={ this.closeOverlay }>
+					Close Search
+				</button>
 			</div>
 		);
 	}

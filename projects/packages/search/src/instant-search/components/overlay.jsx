@@ -93,13 +93,6 @@ const Overlay = props => {
 				{ __( 'Search results', 'jetpack-search-pkg' ) }
 			</h1>
 			{ children }
-			<button
-				id="jetpack-instant-search__overlay-tab-anchor"
-				className="screen-reader-text assistive-text"
-				onClick={ closeOverlay }
-			>
-				Close Search
-			</button>
 		</div>
 	);
 };
