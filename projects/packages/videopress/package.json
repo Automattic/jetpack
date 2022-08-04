@@ -16,6 +16,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "echo 'Not implemented.'",
+		"build-client": "NODE_PATH=\"$PWD/node_modules\" webpack",
 		"build:block-editor-extensions": "wp-scripts build src/client/block-editor/index.js --webpack-bin=./node_modules/.bin/webpack",
 		"build-js": "echo 'Not implemented.'",
 		"build-production": "echo 'Not implemented.'",
@@ -25,8 +26,16 @@
 		"watch:block-editor-extensions": "npm run build:block-editor-extensions -- --watch"
 	},
 	"devDependencies": {
+		"@automattic/calypso-color-schemes": "2.1.1",
+		"@automattic/jetpack-webpack-config": "workspace:1.3.8",
 		"@wordpress/browserslist-config": "4.1.2",
 		"@wordpress/scripts": "23.6.0",
+		"autoprefixer": "10.4.2",
+		"postcss": "8.4.14",
+		"postcss-custom-properties": "12.1.7",
+		"postcss-loader": "6.2.0",
+		"sass": "1.54.2",
+		"sass-loader": "12.4.0",
 		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"
 	},
