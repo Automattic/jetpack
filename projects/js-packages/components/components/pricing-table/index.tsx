@@ -22,7 +22,7 @@ import {
 
 const PricingTableContext = createContext( undefined );
 
-const PricingTableItem: React.FC< PricingTableItemProps > = ( {
+export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	isIncluded,
 	rowLabel,
 	label = null,
@@ -46,11 +46,11 @@ const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	);
 };
 
-const PricingTableHeader: React.FC< PricingTableHeaderProps > = ( { children } ) => (
+export const PricingTableHeader: React.FC< PricingTableHeaderProps > = ( { children } ) => (
 	<div className={ styles.header }>{ children }</div>
 );
 
-const PricingTableColumn: React.FC< PricingTableColumnProps > = ( { children } ) => {
+export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( { children } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 	const items = useContext( PricingTableContext );
 	const Wrapper = isLg ? Fragment : 'div';
@@ -109,4 +109,4 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 	);
 };
 
-export { PricingTable, PricingTableColumn, PricingTableHeader, PricingTableItem };
+export default PricingTable;
