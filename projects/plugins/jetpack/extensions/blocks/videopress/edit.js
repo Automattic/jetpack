@@ -20,14 +20,20 @@ import {
 	ToolbarGroup,
 	Tooltip,
 } from '@wordpress/components';
-import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
+import {
+	compose,
+	createHigherOrderComponent,
+	usePrevious,
+	withInstanceId,
+} from '@wordpress/compose';
+import { useSelect, withDispatch, withSelect } from '@wordpress/data';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, pencil } from '@wordpress/icons';
 import classnames from 'classnames';
 import { get, indexOf } from 'lodash';
+import { useEffect } from 'react';
 import { VideoPressIcon } from '../../shared/icons';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
@@ -816,9 +822,8 @@ const VideoPressEdit = CoreVideoEdit =>
 				} ).catch( e => e );
 			};
 
-			const dismissEditor = () => {
+			const saveEditorData = () => {
 				const { title, videoPosterImageData, videoFrameSelectedInMillis } = this.state;
-				this.setState( { isEditingWhileUploading: false } );
 
 				if ( title ) {
 					sendUpdateTitleRequest();
@@ -833,6 +838,11 @@ const VideoPressEdit = CoreVideoEdit =>
 				) {
 					sendUpdatePosterFromMillisecondsRequest();
 				}
+			};
+
+			const dismissEditor = () => {
+				this.setState( { isEditingWhileUploading: false } );
+				saveEditorData();
 			};
 
 			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
@@ -854,6 +864,7 @@ const VideoPressEdit = CoreVideoEdit =>
 						title={ title }
 						videoPosterImageData={ this.state.videoPosterImageData }
 						onVideoFrameSelected={ onVideoFrameSelected }
+						onSave={ saveEditorData }
 					/>
 				);
 			}
@@ -956,8 +967,19 @@ const UploaderBlock = props => {
 		fileForUpload,
 		isUploadComplete,
 		onDismissEditor,
+		onSave,
 		onVideoFrameSelected,
 	} = props;
+
+	// Avoid triggering save action multiple times
+	const isSaving = useSelect( select => select( 'core/editor' ).isSavingPost(), [] );
+	const wasSaving = usePrevious( isSaving );
+
+	useEffect( () => {
+		if ( isSaving && ! wasSaving ) {
+			onSave();
+		}
+	}, [ isSaving, wasSaving, onSave ] );
 
 	return (
 		<VideoPressBlockProvider onUploadFinished={ props.uploadFinished }>
@@ -1079,7 +1101,7 @@ export const VpBlock = props => {
 
 export default createHigherOrderComponent(
 	compose( [
-		withSelect( ( select, ownProps ) => {
+		withSelect( ( _select, ownProps ) => {
 			const {
 				autoplay,
 				controls,
@@ -1096,7 +1118,7 @@ export default createHigherOrderComponent(
 				src,
 				useAverageColor,
 			} = ownProps.attributes;
-			const { getEmbedPreview, isRequestingEmbedPreview } = select( 'core' );
+			const { getEmbedPreview, isRequestingEmbedPreview } = _select( 'core' );
 
 			const url = getVideoPressUrl( guid, {
 				autoplay,
