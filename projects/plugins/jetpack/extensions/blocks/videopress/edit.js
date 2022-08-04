@@ -302,11 +302,13 @@ const VideoPressEdit = CoreVideoEdit =>
 		onSelectPoster = image => {
 			const { setAttributes } = this.props;
 			setAttributes( { poster: image.url } );
+			this.setState( { videoPosterImageData: image } );
 		};
 
 		onRemovePoster = () => {
 			const { setAttributes } = this.props;
 			setAttributes( { poster: '' } );
+			this.setState( { videoPosterImageData: null } );
 
 			// Move focus back to the Media Upload button.
 			this.posterImageButton.current.focus();
@@ -451,6 +453,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				privacySetting,
 				isUpdatingAllowDownload,
 				isUpdatingPrivacySetting,
+				videoPosterImageData,
 			} = this.state;
 
 			const {
@@ -474,6 +477,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
+			const hasPoster = !! ( poster || videoPosterImageData );
 
 			const blockSettings = (
 				<Fragment>
@@ -574,7 +578,7 @@ const VideoPressEdit = CoreVideoEdit =>
 												ref={ this.posterImageButton }
 												aria-describedby={ videoPosterDescription }
 											>
-												{ ! poster
+												{ ! hasPoster
 													? __( 'Select Poster Image', 'jetpack' )
 													: __(
 															'Replace image',
@@ -585,15 +589,15 @@ const VideoPressEdit = CoreVideoEdit =>
 										) }
 									/>
 									<p id={ videoPosterDescription } hidden>
-										{ poster
+										{ hasPoster
 											? sprintf(
 													/* translators: Placeholder is an image URL. */
 													__( 'The current poster image url is %s', 'jetpack' ),
-													poster
+													poster ?? videoPosterImageData
 											  )
 											: __( 'There is no poster image currently selected', 'jetpack' ) }
 									</p>
-									{ !! poster && (
+									{ hasPoster && (
 										<Button onClick={ this.onRemovePoster } variant="link" isDestructive>
 											{ __( 'Remove Poster Image', 'jetpack' ) }
 										</Button>
@@ -735,14 +739,6 @@ const VideoPressEdit = CoreVideoEdit =>
 				this.setState( { title: newTitle } );
 			};
 
-			const onSelectPoster = attachment => {
-				this.setState( { videoPosterImageData: attachment } );
-			};
-
-			const onRemovePoster = () => {
-				this.setState( { videoPosterImageData: null } );
-			};
-
 			const onVideoFrameSelected = ms => {
 				this.setState( {
 					videoFrameSelectedInMillis: ms,
@@ -823,7 +819,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			};
 
 			const saveEditorData = () => {
-				const { title, videoPosterImageData, videoFrameSelectedInMillis } = this.state;
+				const { title, videoFrameSelectedInMillis } = this.state;
 
 				if ( title ) {
 					sendUpdateTitleRequest();
@@ -858,8 +854,8 @@ const VideoPressEdit = CoreVideoEdit =>
 						blockSettings={ blockSettings }
 						onDismissEditor={ dismissEditor }
 						isUploadComplete={ this.state.isUploadComplete }
-						onSelectPoster={ onSelectPoster }
-						onRemovePoster={ onRemovePoster }
+						onSelectPoster={ this.onSelectPoster }
+						onRemovePoster={ this.onRemovePoster }
 						onChangeTitle={ onChangeTitle }
 						title={ title }
 						videoPosterImageData={ this.state.videoPosterImageData }
