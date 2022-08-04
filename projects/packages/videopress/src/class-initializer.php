@@ -27,6 +27,9 @@ class Initializer {
 			}
 		}
 
+		// Register VideoPress block
+		add_action( 'init', array( __CLASS__, 'create_block_videopress_block_init' ) );
+
 		/**
 		 * Fires after the VideoPress package is initialized
 		 *
@@ -66,5 +69,15 @@ class Initializer {
 		wp_oembed_add_provider( '#^https?://video.wordpress.com/v/.*#', 'https://public-api.wordpress.com/oembed/?for=' . $host, true );
 		// This is needed as it's not supported in oEmbed discovery
 		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/?for=' . $host, true ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+	}
+
+	/**
+	 * Register the VideoPress block,
+	 * via block metadata
+	 *
+	 * @return void
+	 */
+	public static function create_block_videopress_block_init() {
+		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
 	}
 }
