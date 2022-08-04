@@ -1,16 +1,96 @@
 /**
  * WordPress dependencies
  */
-import { Button, TextControl, TabPanel } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { MediaUpload } from '@wordpress/block-editor';
+import { TextControl, BaseControl, RangeControl } from '@wordpress/components';
+import { createInterpolateElement, useEffect, useRef, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __ } from '@wordpress/i18n';
-import { Icon, chevronRight, chevronDown } from '@wordpress/icons';
 
 import './style.scss';
 
+const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
+
 const removeFileNameExtension = name => {
 	return name.replace( /\.[^/.]+$/, '' );
+};
+
+const SelectFrame = ( { file } ) => {
+	const [ maxDuration, setMaxDuration ] = useState( 100 );
+	const videoPlayer = useRef( null );
+	const posterImageLink = useRef( null );
+
+	useEffect( () => {
+		videoPlayer.current.src = URL.createObjectURL( file );
+	}, [ file ] );
+
+	const onSelectPoster = () => {};
+
+	const onDurationChange = event => {
+		const newDuration = event.target.duration;
+		setMaxDuration( newDuration );
+
+		if ( videoPlayer.current ) {
+			videoPlayer.current.currentTime = newDuration / 2;
+		}
+	};
+
+	const onRangeChange = newRangeValue => {
+		// onVideoFrameSelected( newRangeValue * 1000 );
+
+		if ( videoPlayer.current ) {
+			videoPlayer.current.currentTime = newRangeValue;
+		}
+	};
+
+	return (
+		<>
+			<video
+				ref={ videoPlayer }
+				muted
+				className="uploading-editor__video"
+				onDurationChange={ onDurationChange }
+			/>
+			<RangeControl
+				className="uploading-editor__range"
+				min="0"
+				step="0.1"
+				max={ maxDuration }
+				showTooltip={ false }
+				withInputField={ false }
+				onChange={ onRangeChange }
+			/>
+			<span className="uploading-editor__scrubber-help">
+				{ createInterpolateElement(
+					__(
+						'This is how the video will look. Use the slider to choose a poster or <a>select a custom one</a>.',
+						'jetpack'
+					),
+					{
+						a: (
+							<MediaUpload
+								title={ __( 'Select Poster Image', 'jetpack' ) }
+								onSelect={ onSelectPoster }
+								allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
+								render={ ( { open } ) => (
+									<a
+										className="uploading-editor__upload-link"
+										onClick={ open }
+										onKeyDown={ open }
+										ref={ posterImageLink }
+										role="button"
+										tabIndex={ 0 }
+									>
+										{ __( 'select a custom one', 'jetpack' ) }
+									</a>
+								) }
+							/>
+						),
+					}
+				) }
+			</span>
+		</>
+	);
 };
 
 const UploadingEditor = props => {
@@ -24,43 +104,19 @@ const UploadingEditor = props => {
 	} = props;
 	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
 	const [ title, setTitle ] = useState( filename );
-	const [ expanded, setExpanded ] = useState( false );
 
 	return (
-		<>
-			<div className="uploading-editor">
-				<Button
-					className="uploading-editor__summary"
-					onClick={ () => setExpanded( current => ! current ) }
-				>
-					<Icon icon={ expanded ? chevronDown : chevronRight } size={ 20 } />
-					{ __(
-						'Your video is uploading. You can edit your title and poster image while you wait.',
-						'jetpack'
-					) }
-				</Button>
-				{ expanded && (
-					<div className="uploading-editor__fields">
-						<TextControl
-							className="uploading-editor__title"
-							onChange={ newTitle => setTitle( newTitle ) }
-							value={ title }
-						/>
-						<TabPanel
-							tabs={ [
-								{
-									name: 'frame',
-									title: 'Select frame',
-								},
-								{ name: 'upload', title: 'Upload' },
-							] }
-						>
-							{ tab => <div>{ tab?.title }</div> }
-						</TabPanel>
-					</div>
-				) }
-			</div>
-		</>
+		<div className="uploading-editor">
+			<TextControl
+				label={ __( 'Video title', 'jetpack' ) }
+				className="uploading-editor__title"
+				onChange={ newTitle => setTitle( newTitle ) }
+				value={ title }
+			/>
+			<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>
+				<SelectFrame file={ file } />
+			</BaseControl>
+		</div>
 	);
 };
 
