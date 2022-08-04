@@ -79,5 +79,6 @@
 	"textdomain": "jetpack-videopress",
 	"editorScript": "file:../../../../../build/editor.js",
 	"editorStyle": "file:../../../../../build/editor.css",
-	"style": "file:../../../../../build/style-editor.css"
+	"style": "file:../../../../../build/style-editor.css",
+	"viewScript": "file:../../../../../build/view.js"
 }
