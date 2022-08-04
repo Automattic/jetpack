@@ -44,6 +44,7 @@ test.describe( 'Instant Search', () => {
 		await test.step( 'Can open the overlay by entering a query', async () => {
 			await homepage.focusSearchInput();
 			await homepage.enterQuery();
+			await homepage.pressEnterInSearchInput();
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.isOverlayVisible(), 'Overlay should be visible' ).toBeTruthy();
@@ -155,6 +156,7 @@ test.describe( 'Instant Search', () => {
 			await homepage.waitForInstantSearchReady();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-1' );
+			await homepage.pressEnterInSearchInput();
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.isOverlayVisible(), 'Overlay should be visible' ).toBeTruthy();
@@ -169,6 +171,7 @@ test.describe( 'Instant Search', () => {
 			await homepage.waitForInstantSearchReady();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-2' );
+			await homepage.pressEnterInSearchInput();
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.isOverlayVisible(), 'Overlay should be visible' ).toBeTruthy();
