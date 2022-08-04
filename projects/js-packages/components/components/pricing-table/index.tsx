@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import {
-	Fragment,
 	createContext,
 	useContext,
 	Children,
@@ -46,19 +45,21 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	);
 };
 
-export const PricingTableHeader: React.FC< PricingTableHeaderProps > = ( { children } ) => (
-	<div className={ styles.header }>{ children }</div>
-);
+export const PricingTableHeader: React.FC< PricingTableHeaderProps > = ( { children } ) => {
+	const [ isSmall ] = useBreakpointMatch( 'lg', '<' );
+	return (
+		<div className={ classnames( styles.header, { [ styles[ 'is-viewport-small' ] ]: isSmall } ) }>
+			{ children }
+		</div>
+	);
+};
 
 export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( { children } ) => {
-	const [ isLg ] = useBreakpointMatch( 'lg' );
 	const items = useContext( PricingTableContext );
-	const Wrapper = isLg ? Fragment : 'div';
-	const wrapperProps = ! isLg ? { className: styles.card } : {};
 	let index = 0;
 
 	return (
-		<Wrapper { ...wrapperProps }>
+		<div className={ styles.card }>
 			{ Children.map( Children.toArray( children ), child => {
 				const props: { rowLabel?: string } = {};
 				const item = child as ReactElement<
@@ -72,7 +73,7 @@ export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( { child
 
 				return cloneElement( item, { ...props } );
 			} ) }
-		</Wrapper>
+		</div>
 	);
 };
 
