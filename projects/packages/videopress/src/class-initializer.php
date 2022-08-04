@@ -20,6 +20,7 @@ class Initializer {
 	public static function init() {
 		if ( ! did_action( 'videopress_init' ) ) {
 			self::register_oembed_providers();
+			new WPCOM_REST_API_V2_Endpoint_VideoPress();
 		}
 
 		/**
