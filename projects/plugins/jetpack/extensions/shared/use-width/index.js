@@ -36,7 +36,14 @@ export default function useWidth( { attributes, clientId, context = {}, setAttri
 	const setWidth = useCallback(
 		newWidth => {
 			if ( isWidthSetOnParentBlock ) {
-				doAction( 'jetpack.useWidth.setWidth', newWidth, clientId );
+				/*
+				 * There are cases where we trigger this action during the first render of a block
+				 * (e.g. like in the effect a few lines below) before giving any chance to hook into
+				 * it, so we deliberately delay the action as a workaround.
+				 */
+				setTimeout( () => {
+					doAction( 'jetpack.useWidth.setWidth', newWidth, clientId );
+				}, 0 );
 				setAttributes( { width: undefined } );
 				return;
 			}
