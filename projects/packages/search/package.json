@@ -42,7 +42,7 @@
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-api": "workspace:* || ^0.13",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@automattic/jetpack-components": "workspace:* || ^0.17",
+		"@automattic/jetpack-components": "workspace:* || ^0.18",
 		"@automattic/jetpack-connection": "workspace:* || ^0.18",
 		"@wordpress/base-styles": "4.6.0",
 		"@wordpress/block-editor": "9.4.0",
