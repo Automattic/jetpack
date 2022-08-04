@@ -28,8 +28,9 @@ class Initializer {
 		}
 
 		// Register VideoPress block
-		add_action( 'init', array( __CLASS__, 'create_block_videopress_block_init' ) );
+		add_action( 'init', array( __CLASS__, 'register_block_editor_blocks' ) );
 
+		// Enqueue VideoPress block assets in the frontend.
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_frontend_scripts' ) );
 
 		/**
@@ -74,12 +75,12 @@ class Initializer {
 	}
 
 	/**
-	 * Register the VideoPress block,
-	 * via block metadata
+	 * Register the block editor blocks:
+	 * - VideoPress block
 	 *
 	 * @return void
 	 */
-	public static function create_block_videopress_block_init() {
+	public static function register_block_editor_blocks() {
 		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
 	}
 
