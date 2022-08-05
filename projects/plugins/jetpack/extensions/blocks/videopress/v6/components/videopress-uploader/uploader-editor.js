@@ -2,13 +2,13 @@
  * WordPress dependencies
  */
 import { MediaUpload } from '@wordpress/block-editor';
-import { TextControl, BaseControl, RangeControl } from '@wordpress/components';
+import { Button, TextControl, BaseControl, RangeControl } from '@wordpress/components';
 import { createInterpolateElement, useEffect, useRef, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import classNames from 'classnames';
 import { PlayIcon } from '../icons';
-
 import './style.scss';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
@@ -17,16 +17,26 @@ const removeFileNameExtension = name => {
 	return name.replace( /\.[^/.]+$/, '' );
 };
 
-const SelectFrame = ( { file } ) => {
-	const [ maxDuration, setMaxDuration ] = useState( 100 );
+const PosterImage = ( { videoPosterImageUrl } ) => {
+	return (
+		<div className="uploading-editor__poster-image">
+			{ videoPosterImageUrl ? (
+				<img src={ videoPosterImageUrl } alt="Poster" />
+			) : (
+				<span>No Poster Selected</span>
+			) }
+		</div>
+	);
+};
+
+const Poster = ( { file, videoPosterImageData } ) => {
+	const [ maxDuration, setMaxDuration ] = useState( 0 );
 	const videoPlayer = useRef( null );
-	const posterImageLink = useRef( null );
+	const hasPosterImage = Boolean( videoPosterImageData?.url );
 
 	useEffect( () => {
 		videoPlayer.current.src = URL.createObjectURL( file );
 	}, [ file ] );
-
-	const onSelectPoster = () => {};
 
 	const onDurationChange = event => {
 		const newDuration = event.target.duration;
@@ -39,62 +49,92 @@ const SelectFrame = ( { file } ) => {
 
 	const onRangeChange = newRangeValue => {
 		// onVideoFrameSelected( newRangeValue * 1000 );
-
 		if ( videoPlayer.current ) {
 			videoPlayer.current.currentTime = newRangeValue;
 		}
 	};
 
 	return (
-		<>
-			<div className="uploading-editor__video-container">
-				<video
-					ref={ videoPlayer }
-					muted
-					className="uploading-editor__video"
-					onDurationChange={ onDurationChange }
-				/>
-				<Icon className="uploading-editor__play-icon" icon={ PlayIcon } />
-			</div>
-			<RangeControl
-				className="uploading-editor__range"
-				min="0"
-				step="0.1"
-				max={ maxDuration }
-				showTooltip={ false }
-				withInputField={ false }
-				onChange={ onRangeChange }
+		<div
+			className={ classNames( 'uploading-editor__video-container', {
+				[ 'uploading-editor__video-container--enabled' ]: ! hasPosterImage,
+			} ) }
+		>
+			<video
+				ref={ videoPlayer }
+				muted
+				className={ classNames( 'uploading-editor__video', {
+					[ 'uploading-editor__video--hide' ]: hasPosterImage,
+				} ) }
+				onDurationChange={ onDurationChange }
 			/>
-			<span className="uploading-editor__scrubber-help">
-				{ createInterpolateElement(
-					__(
-						'This is how the video will look. Use the slider to choose a poster or <a>select a custom one</a>.',
-						'jetpack'
-					),
-					{
-						a: (
-							<MediaUpload
-								title={ __( 'Select Poster Image', 'jetpack' ) }
-								onSelect={ onSelectPoster }
-								allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
-								render={ ( { open } ) => (
-									<a
-										className="uploading-editor__upload-link"
-										onClick={ open }
-										onKeyDown={ open }
-										ref={ posterImageLink }
-										role="button"
-										tabIndex={ 0 }
-									>
-										{ __( 'select a custom one', 'jetpack' ) }
-									</a>
-								) }
-							/>
-						),
-					}
+			{ hasPosterImage && <PosterImage videoPosterImageUrl={ videoPosterImageData?.url } /> }
+			<Icon className="uploading-editor__play-icon" icon={ PlayIcon } />
+			{ ! hasPosterImage && (
+				<RangeControl
+					className="uploading-editor__range"
+					min="0"
+					step="0.1"
+					max={ maxDuration }
+					showTooltip={ false }
+					withInputField={ false }
+					onChange={ onRangeChange }
+				/>
+			) }
+		</div>
+	);
+};
+
+const PosterActions = ( { hasPoster, onSelectPoster, onRemovePoster } ) => {
+	if ( hasPoster ) {
+		return (
+			<MediaUpload
+				title={ __( 'Select Poster Image', 'jetpack' ) }
+				onSelect={ onSelectPoster }
+				allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
+				render={ ( { open } ) => (
+					<div className="uploading-editor__poster-buttons">
+						<Button onClick={ onRemovePoster } variant="secondary" isDestructive>
+							{ __( 'Remove Poster Image', 'jetpack' ) }
+						</Button>
+						<Button variant="secondary" onClick={ open }>
+							{ __( 'Select Poster Image', 'jetpack' ) }
+						</Button>
+					</div>
 				) }
-			</span>
-		</>
+			/>
+		);
+	}
+
+	return (
+		<span className="uploading-editor__scrubber-help">
+			{ createInterpolateElement(
+				__(
+					'This is how the video will look. Use the slider to choose a poster or <a>select a custom one</a>.',
+					'jetpack'
+				),
+				{
+					a: (
+						<MediaUpload
+							title={ __( 'Select Poster Image', 'jetpack' ) }
+							onSelect={ onSelectPoster }
+							allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
+							render={ ( { open } ) => (
+								<a
+									className="uploading-editor__upload-link"
+									onClick={ open }
+									onKeyDown={ open }
+									role="button"
+									tabIndex={ 0 }
+								>
+									{ __( 'select a custom one', 'jetpack' ) }
+								</a>
+							) }
+						/>
+					),
+				}
+			) }
+		</span>
 	);
 };
 
@@ -109,7 +149,15 @@ const UploadingEditor = props => {
 	} = props;
 	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
 	const [ title, setTitle ] = useState( filename );
+	const [ videoPosterImageData, setVideoPosterImageData ] = useState( null );
 
+	const onSelectPoster = image => {
+		setVideoPosterImageData( image );
+	};
+
+	const onRemovePoster = () => {
+		setVideoPosterImageData( null );
+	};
 	return (
 		<div className="uploading-editor">
 			<TextControl
@@ -119,7 +167,12 @@ const UploadingEditor = props => {
 				value={ title }
 			/>
 			<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>
-				<SelectFrame file={ file } />
+				<Poster file={ file } videoPosterImageData={ videoPosterImageData } />
+				<PosterActions
+					hasPoster={ Boolean( videoPosterImageData ) }
+					onSelectPoster={ onSelectPoster }
+					onRemovePoster={ onRemovePoster }
+				/>
 			</BaseControl>
 		</div>
 	);
