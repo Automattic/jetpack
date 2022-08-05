@@ -36,6 +36,7 @@ const { isWorkflowFailed, getNotificationText } = require( './utils' );
 	icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';
 
 	const text = await getNotificationText( isFailure );
+
 	await sendSlackMessage( slackToken, text, [], channel, username, icon_emoji );
 } )();
 
@@ -51,7 +52,6 @@ const { isWorkflowFailed, getNotificationText } = require( './utils' );
  */
 async function sendSlackMessage( token, text, blocks, channel, username, icon_emoji ) {
 	const client = new WebClient( token );
-
 	await client.chat.postMessage( {
 		text,
 		channel,
