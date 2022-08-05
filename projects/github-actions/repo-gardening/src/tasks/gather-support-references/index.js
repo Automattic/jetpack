@@ -90,9 +90,15 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
  * @param {Array}   issueReferences     - Array of support references.
  * @param {Set}     checkedRefs         - Set of support references already checked.
  * @param {boolean} needsEscalationNote - Whether the issue needs an escalation note.
+ * @param {string}  escalationNote      - String that indicates an issue was escalated.
  * @returns {string} Comment body.
  */
-function buildCommentBody( issueReferences, checkedRefs = new Set(), needsEscalationNote = false ) {
+function buildCommentBody(
+	issueReferences,
+	checkedRefs = new Set(),
+	needsEscalationNote = false,
+	escalationNote = ''
+) {
 	let commentBody = `**Support References**
 
 *This comment is automatically generated. Please do not edit it.*
@@ -107,7 +113,7 @@ ${ issueReferences
 
 	// If this issue was escalated, make note of it, so next time we edit that comment, we won't escalate it again.
 	if ( needsEscalationNote === true ) {
-		commentBody += `\n*Note: a notification was sent for this issue.*`;
+		commentBody += `\n${ escalationNote }`;
 	}
 
 	return commentBody;
@@ -193,10 +199,11 @@ function formatSlackMessage( payload, channel, message ) {
  *
  * @param {Array}               issueReferences - Array of support references.
  * @param {string}              commentBody     - Previous comment ID.
+ * @param {string}              escalationNote  - String that indicates an issue was escalated.
  * @param {WebhookPayloadIssue} payload         - Issue event payload.
  * @returns {Promise<boolean>} Was the issue escalated?
  */
-async function checkForEscalation( issueReferences, commentBody, payload ) {
+async function checkForEscalation( issueReferences, commentBody, escalationNote, payload ) {
 	// No Slack tokens, we won't be able to escalate. Bail.
 	const slackToken = getInput( 'slack_token' );
 	const channel = getInput( 'slack_quality_channel' );
@@ -210,7 +217,7 @@ async function checkForEscalation( issueReferences, commentBody, payload ) {
 	}
 
 	// We already sent a Slack message about this issue, bail.
-	if ( commentBody.includes( 'Note: a notification was sent for this issue.' ) ) {
+	if ( commentBody.includes( escalationNote ) ) {
 		debug(
 			`gather-support-references: Issue ${ payload.issue.number } already escalated to triage team. No need to warn them again.`
 		);
@@ -240,6 +247,7 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 	const { number } = issue;
 	const { name: repo, owner } = repository;
 	const ownerLogin = owner.login;
+	const escalationNote = '<!-- Issue escalated to triage team. ->';
 
 	const existingComment = await getListComment( issueComments );
 
@@ -264,11 +272,17 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 		const needsEscalationNote = await checkForEscalation(
 			issueReferences,
 			existingComment.body,
+			escalationNote,
 			payload
 		);
 
 		// Build our comment body, with first the checked references, then the unchecked references.
-		const updatedComment = buildCommentBody( issueReferences, checkedRefs, needsEscalationNote );
+		const updatedComment = buildCommentBody(
+			issueReferences,
+			checkedRefs,
+			needsEscalationNote,
+			escalationNote
+		);
 
 		await octokit.rest.issues.updateComment( {
 			owner: ownerLogin,
