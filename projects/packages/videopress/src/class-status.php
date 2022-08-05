@@ -38,16 +38,6 @@ class Status {
 	 * @return boolean
 	 */
 	public static function is_standalone_plugin_active() {
-		$possible_folders = array(
-			'videopress', // monorepo.
-			'jetpack-videopress', // production.
-			'jetpack-videopress-dev', // Jetpack Beta.
-		);
-		foreach ( $possible_folders as $folder ) {
-			if ( is_plugin_active( $folder . '/jetpack-videopress.php' ) ) {
-				return true;
-			}
-		}
-		return false;
+		return class_exists( 'Jetpack_Videopress_Plugin' );
 	}
 }
