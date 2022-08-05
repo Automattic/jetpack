@@ -1,5 +1,4 @@
 import { useEffect, useRef } from '@wordpress/element';
-import { WidthPanel } from './controls';
 
 const usePrevious = value => {
 	const ref = useRef();
@@ -25,14 +24,4 @@ export default function useWidth( { attributes, setAttributes } ) {
 			setAttributes( { width: undefined } );
 		}
 	}, [ align, previousAlign, setAttributes, width ] );
-
-	const WidthSettings = () => (
-		<WidthPanel
-			align={ align }
-			width={ width }
-			onChange={ newWidth => setAttributes( { width: newWidth } ) }
-		/>
-	);
-
-	return { WidthSettings };
 }

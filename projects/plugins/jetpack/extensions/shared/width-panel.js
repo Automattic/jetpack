@@ -8,7 +8,7 @@ import {
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import './controls.scss';
+import './width-panel.scss';
 
 const widthUnits = [
 	{ value: '%', label: '%', default: 100 },

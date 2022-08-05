@@ -1,3 +1,4 @@
+import { WidthPanel } from '../../shared/width-panel';
 import ButtonBorderPanel from './button-border-panel';
 import ButtonColorsPanel from './button-colors-panel';
 
@@ -13,7 +14,6 @@ export default function ButtonControls( {
 	gradientValue,
 	setGradient,
 	isGradientAvailable,
-	WidthSettings,
 } ) {
 	const { borderRadius } = attributes;
 
@@ -33,7 +33,7 @@ export default function ButtonControls( {
 				} }
 			/>
 			<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
-			<WidthSettings />
+			<WidthPanel />
 		</>
 	);
 }

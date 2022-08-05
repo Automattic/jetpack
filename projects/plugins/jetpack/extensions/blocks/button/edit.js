@@ -19,8 +19,7 @@ export function ButtonEdit( props ) {
 	const { borderRadius, element, placeholder, text, width } = attributes;
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
-
-	const { WidthSettings } = useWidth( { attributes, setAttributes } );
+	useWidth( { attributes, setAttributes } );
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {
@@ -74,7 +73,6 @@ export function ButtonEdit( props ) {
 						gradientValue,
 						setGradient,
 						isGradientAvailable: IS_GRADIENT_AVAILABLE,
-						WidthSettings,
 						...props,
 					} }
 				/>
