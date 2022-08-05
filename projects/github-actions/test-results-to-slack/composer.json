@@ -10,7 +10,8 @@
 	"scripts": {
 		"build-development": [
 			"pnpm run build"
-		]
+		],
+		"test-js": "pnpm run test"
 	},
 	"repositories": [
 		{
