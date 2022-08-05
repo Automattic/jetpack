@@ -1,5 +1,5 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -10,6 +10,7 @@ import { useCallback } from 'react';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
+import useWidth from '../../shared/use-width';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { icon, title } from './';
 
@@ -17,7 +18,7 @@ import { icon, title } from './';
 const BLOCK_NAME = 'recurring-payments';
 
 export default function Edit( { attributes, clientId, context, setAttributes } ) {
-	const { planId } = attributes;
+	const { planId, width } = attributes;
 	const { isPremiumContentChild } = context;
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
@@ -58,14 +59,21 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 	 * Filters the editor settings of the Payment Button block (`jetpack/recurring-payments`).
 	 *
 	 * @param {object} editorSettings - An object with the block settings.
+	 * @param {boolean} editorSettings.hasWidthSupport - Whether the block supports can adjust its width.
 	 * @param {boolean} editorSettings.showProductManagementControls - Whether the product management block controls should be shown.
 	 * @param {boolean} editorSettings.showStripeNudge - Whether the action to connect to Stripe should be shown.
 	 * @param {boolean} editorSettings.showUpgradeNudge - Whether the plan upgrade nudge should be shown.
 	 * @param {string} clientId - Block ID.
 	 */
-	const { showProductManagementControls, showStripeNudge, showUpgradeNudge } = applyFilters(
+	const {
+		hasWidthSupport,
+		showProductManagementControls,
+		showStripeNudge,
+		showUpgradeNudge,
+	} = applyFilters(
 		'jetpack.recurringPayments.editorSettings',
 		{
+			hasWidthSupport: false,
 			showProductManagementControls: true,
 			showStripeNudge: true,
 			showUpgradeNudge: showJetpackUpgradeNudge,
@@ -73,7 +81,9 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 		clientId
 	);
 
-	const blockProps = useBlockProps();
+	const { WidthSettings } = useWidth( { attributes, hasWidthSupport, setAttributes } );
+
+	const blockProps = useBlockProps( { style: { width } } );
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
 		{
@@ -103,6 +113,11 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 					selectedProductId={ planId }
 					setSelectedProductId={ updateSubscriptionPlan }
 				/>
+			) }
+			{ hasWidthSupport && (
+				<InspectorControls>
+					<WidthSettings />
+				</InspectorControls>
 			) }
 			{ showUpgradeNudge && (
 				<Placeholder

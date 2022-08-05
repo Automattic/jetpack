@@ -2,7 +2,8 @@ import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-exte
 import { BlockControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { addFilter } from '@wordpress/hooks';
+import { useEffect } from '@wordpress/element';
+import { addFilter, removeFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
@@ -32,25 +33,38 @@ function PaymentButtonsEdit( { clientId } ) {
 		[ clientId ]
 	);
 
-	// Hides the Stripe/plan upgrade nudges from the inner blocks since this block already displays them.
-	addFilter(
-		'jetpack.recurringPayments.editorSettings',
-		'jetpack/payment-buttons-hide-nudges-from-inner-blocks',
-		( editorSettings, paymentButtonClientId ) => {
-			if (
-				paymentButtonBlocks.some(
-					paymentButtonBlock => paymentButtonBlock.clientId === paymentButtonClientId
-				)
-			) {
-				return {
-					...editorSettings,
-					showStripeNudge: false,
-					showUpgradeNudge: false,
-				};
+	useEffect( () => {
+		addFilter(
+			'jetpack.recurringPayments.editorSettings',
+			'jetpack/payment-buttons-hide-nudges-from-inner-blocks',
+			( editorSettings, paymentButtonClientId ) => {
+				if (
+					paymentButtonBlocks.some(
+						paymentButtonBlock => paymentButtonBlock.clientId === paymentButtonClientId
+					)
+				) {
+					return {
+						...editorSettings,
+						// Makes easier for users to set a custom width in the inner blocks.
+						hasWidthSupport: true,
+						/*
+						 * This block already displays Stripe and plan upgrades nudges, so we hide the ones
+						 * displayed in the inner blocks.
+						 */
+						showStripeNudge: false,
+						showUpgradeNudge: false,
+					};
+				}
+				return editorSettings;
 			}
-			return editorSettings;
-		}
-	);
+		);
+
+		return () =>
+			removeFilter(
+				'jetpack.recurringPayments.editorSettings',
+				'jetpack/payment-buttons-hide-nudges-from-inner-blocks'
+			);
+	}, [ paymentButtonBlocks ] );
 
 	const availability = getJetpackExtensionAvailability( 'recurring-payments' );
 	const hasWpcomUpgradeNudge =
