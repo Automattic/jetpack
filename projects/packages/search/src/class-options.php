@@ -46,7 +46,6 @@ class Options {
 	 * @var string
 	 */
 	const OVERLAY_TRIGGER_IMMEDIATE = 'immediate';
-	const OVERLAY_TRIGGER_RESULTS   = 'results';
 	const OVERLAY_TRIGGER_SUBMIT    = 'submit';
 	const DEFAULT_OVERLAY_TRIGGER   = self::OVERLAY_TRIGGER_SUBMIT;
 
