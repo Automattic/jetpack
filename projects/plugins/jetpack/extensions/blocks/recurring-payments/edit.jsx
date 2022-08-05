@@ -48,20 +48,30 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 		updateSubscriptionPlan( planId );
 	}, [ planId, updateSubscriptionPlan ] );
 
-	/**
-	 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
-	 * We supply true as the first argument since we should always show the controls by default.
-	 *
-	 * @param {boolean} showControls - Whether inspectors controls are shown.
-	 * @param {string} showControls - Block ID.
-	 */
-	const showControls = applyFilters( 'jetpack.RecurringPayments.showControls', true, clientId );
-
 	const availability = getJetpackExtensionAvailability( 'recurring-payments' );
 	const hasWpcomUpgradeNudge =
 		! availability.available && 'missing_plan' === availability.unavailableReason;
 	const showJetpackUpgradeNudge =
 		!! upgradeUrl && ! hasWpcomUpgradeNudge && ! isPremiumContentChild;
+
+	/**
+	 * Filters the editor settings of the Payment Button block (`jetpack/recurring-payments`).
+	 *
+	 * @param {object} editorSettings - An object with the block settings.
+	 * @param {boolean} editorSettings.showProductManagementControls - Whether the product management block controls should be shown.
+	 * @param {boolean} editorSettings.showStripeNudge - Whether the action to connect to Stripe should be shown.
+	 * @param {boolean} editorSettings.showUpgradeNudge - Whether the plan upgrade nudge should be shown.
+	 * @param {string} clientId - Block ID.
+	 */
+	const { showProductManagementControls, showStripeNudge, showUpgradeNudge } = applyFilters(
+		'jetpack.recurringPayments.editorSettings',
+		{
+			showProductManagementControls: true,
+			showStripeNudge: true,
+			showUpgradeNudge: showJetpackUpgradeNudge,
+		},
+		clientId
+	);
 
 	const blockProps = useBlockProps();
 	const innerBlocksProps = useInnerBlocksProps(
@@ -86,7 +96,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 
 	return (
 		<div { ...blockProps }>
-			{ showControls && (
+			{ showProductManagementControls && (
 				<ProductManagementControls
 					blockName={ BLOCK_NAME }
 					clientId={ clientId }
@@ -94,7 +104,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 					setSelectedProductId={ updateSubscriptionPlan }
 				/>
 			) }
-			{ showJetpackUpgradeNudge && (
+			{ showUpgradeNudge && (
 				<Placeholder
 					icon={ icon }
 					instructions={ __(
@@ -113,7 +123,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 					</div>
 				</Placeholder>
 			) }
-			<StripeNudge blockName={ BLOCK_NAME } />
+			{ showStripeNudge && <StripeNudge blockName={ BLOCK_NAME } /> }
 			<div { ...innerBlocksProps } />
 		</div>
 	);

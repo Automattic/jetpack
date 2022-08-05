@@ -2,6 +2,7 @@ import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-exte
 import { BlockControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
@@ -10,7 +11,7 @@ import { icon, title } from '.';
 
 const ALLOWED_BLOCKS = [ 'jetpack/recurring-payments' ];
 
-function PaymentButtonsEdit() {
+function PaymentButtonsEdit( { clientId } ) {
 	const { connectUrl, isApiConnected, shouldUpgrade, upgradeUrl } = useSelect( select => {
 		const { getConnectUrl, getShouldUpgrade, getUpgradeUrl, isApiStateConnected } = select(
 			membershipProductsStore
@@ -23,6 +24,34 @@ function PaymentButtonsEdit() {
 		};
 	} );
 
+	const paymentButtonBlocks = useSelect(
+		select =>
+			select( 'core/block-editor' )
+				.getBlock( clientId )
+				.innerBlocks.filter( block => block.name === 'jetpack/recurring-payments' ),
+		[ clientId ]
+	);
+
+	// Hides the Stripe/plan upgrade nudges from the inner blocks since this block already displays them.
+	addFilter(
+		'jetpack.recurringPayments.editorSettings',
+		'jetpack/payment-buttons-hide-nudges-from-inner-blocks',
+		( editorSettings, paymentButtonClientId ) => {
+			if (
+				paymentButtonBlocks.some(
+					paymentButtonBlock => paymentButtonBlock.clientId === paymentButtonClientId
+				)
+			) {
+				return {
+					...editorSettings,
+					showStripeNudge: false,
+					showUpgradeNudge: false,
+				};
+			}
+			return editorSettings;
+		}
+	);
+
 	const availability = getJetpackExtensionAvailability( 'recurring-payments' );
 	const hasWpcomUpgradeNudge =
 		! availability.available && 'missing_plan' === availability.unavailableReason;
@@ -30,18 +59,20 @@ function PaymentButtonsEdit() {
 	const showStripeConnectAction = ! shouldUpgrade && ! isApiConnected && !! connectUrl;
 
 	const blockProps = useBlockProps();
-
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: ALLOWED_BLOCKS,
-		orientation: 'horizontal',
-		template: [ [ 'jetpack/recurring-payments' ] ],
-		templateInsertUpdatesSelection: true,
-	} );
+	const innerBlocksProps = useInnerBlocksProps(
+		{},
+		{
+			allowedBlocks: ALLOWED_BLOCKS,
+			orientation: 'horizontal',
+			template: [ [ 'jetpack/recurring-payments' ] ],
+			templateInsertUpdatesSelection: true,
+		}
+	);
 
 	return (
-		<>
+		<div { ...blockProps }>
 			{ showStripeConnectAction && (
-				<BlockControls __experimentalShareWithChildBlocks group="block">
+				<BlockControls group="block">
 					<StripeConnectToolbarButton
 						blockName="jetpack/payment-buttons"
 						connectUrl={ connectUrl }
@@ -69,7 +100,7 @@ function PaymentButtonsEdit() {
 			) }
 			{ showStripeConnectAction && <StripeNudge blockName="payment-buttons" /> }
 			<div { ...innerBlocksProps } />
-		</>
+		</div>
 	);
 }
 
