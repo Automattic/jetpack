@@ -5,6 +5,7 @@ import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
+	PLAN_JETPACK_BOOST,
 } from 'lib/plans/constants';
 import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
@@ -149,8 +150,40 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 	}
 };
 
-export const getStepContent = stepSlug => {
+export const getStepContent = ( state, stepSlug ) => {
+	const siteRawUrl = getSiteRawUrl( state );
+
 	switch ( stepSlug ) {
+		case 'boost-free':
+			return {
+				question: __( 'Get more views for your new page.', 'jetpack' ),
+				description: __(
+					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%. Make your site blazing fast with <ExternalLink>Jetpack Boost’s</ExternalLink> simple dashboard and acceleration tool:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Optimize CSS loading', 'jetpack' ),
+					__( 'Defer non-essential Javascript', 'jetpack' ),
+					__( 'Lazy image loading and site performance scores', 'jetpack' ),
+				],
+				descriptionLink: 'https://jetpack.com/boost/',
+				ctaText: __( 'Install Jetpack Boost for free', 'jetpack' ),
+			};
+		case 'boost-paid':
+			return {
+				question: __( 'Don’t let your new page slow down your site.', 'jetpack' ),
+				description: __(
+					'To keep your site to keep blazing fast, It’s a good idea to refresh your Critical CSS after adding a new page. Upgrade Jetpack boost and save time by <ExternalLink>generating Critical CSS automatically</ExternalLink> with every change to your site.',
+					'jetpack'
+				),
+				descriptionLink:
+					'https://jetpack.com/support/performance/jetpack-boost/jetpack-boost-automated-critical-css-feature-for-paid-subscriptions/',
+				ctaText: __( 'Upgrade Jetpack Boost', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: PLAN_JETPACK_BOOST,
+				} ),
+			};
 		case 'creative-mail':
 			return {
 				progressValue: '83',

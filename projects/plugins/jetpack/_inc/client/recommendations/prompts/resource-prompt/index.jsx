@@ -158,7 +158,7 @@ const ResourcePromptComponent = props => {
 const ResourcePrompt = connect(
 	( state, ownProps ) => ( {
 		nextRoute: getNextRoute( state ),
-		...getStepContent( ownProps.stepSlug ),
+		...getStepContent( state, ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
 		summaryViewed: isStepViewed( state, 'summary' ),
