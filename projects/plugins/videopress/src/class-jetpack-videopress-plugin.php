@@ -68,6 +68,9 @@ class Jetpack_Videopress_Plugin {
 			1
 		);
 
+		// Register VideoPress block
+		add_action( 'init', array( $this, 'register_videopress_block' ) );
+
 		My_Jetpack_Initializer::init();
 	}
 
@@ -140,5 +143,12 @@ class Jetpack_Videopress_Plugin {
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-videopress' );
 		$manager->remove_connection();
+	}
+
+	/**
+	 * Register the VideoPress block.
+	 */
+	public function register_videopress_block() {
+		VideoPress_Pkg_Initializer::register_videopress_block();
 	}
 }
