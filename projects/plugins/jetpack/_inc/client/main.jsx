@@ -553,6 +553,7 @@ class Main extends React.Component {
 
 		// Only show on dashboard when users are managing 2 or more sites
 		return (
+			this.props.userCanConnectSite &&
 			site_count >= 2 &&
 			this.props.isSiteConnected &&
 			! this.shouldShowWooConnectionScreen() &&
