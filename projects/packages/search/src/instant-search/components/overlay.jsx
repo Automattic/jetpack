@@ -19,20 +19,22 @@ const Overlay = props => {
 				const overlay = document.getElementsByClassName( OVERLAY_CLASS_NAME )[ 0 ];
 				const isInsideOverlay = overlay.contains( event.target );
 
-				// Looking up the searchInput assumes knowledge of another component.
+				// Looking up the focusTrapFirstElement assumes knowledge of another component.
 				// Not currently a constent as it's dynamically generated.
-				const searchInput = document.getElementById( 'jetpack-instant-search__box-input-1' );
-				const tabAnchor = document.getElementById( OVERLAY_FOCUS_ANCHOR_ID );
+				const focusTrapFirstElement = document.getElementById(
+					'jetpack-instant-search__box-input-1'
+				);
+				const focusTrapLastElement = document.getElementById( OVERLAY_FOCUS_ANCHOR_ID );
 				if ( event.shiftKey === true ) {
-					if ( event.target === searchInput || false === isInsideOverlay ) {
+					if ( event.target === focusTrapFirstElement || false === isInsideOverlay ) {
 						event.preventDefault();
-						tabAnchor.focus();
+						focusTrapLastElement.focus();
 					}
 				}
 				if ( event.shiftKey === false ) {
-					if ( event.target === tabAnchor || false === isInsideOverlay ) {
+					if ( event.target === focusTrapLastElement || false === isInsideOverlay ) {
 						event.preventDefault();
-						searchInput.focus();
+						focusTrapFirstElement.focus();
 					}
 				}
 			}
