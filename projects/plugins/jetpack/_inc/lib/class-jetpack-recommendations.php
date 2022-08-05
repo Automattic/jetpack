@@ -23,7 +23,7 @@ use Automattic\Jetpack\Status\Host;
 class Jetpack_Recommendations {
 
 	const PUBLICIZE_RECOMMENDATION     = 'publicize';
-	const SECURITY_PLAN_RECOMMENDATION = 'security-plan';
+	const SECURITY_PLAN_RECOMMENDATION = 'protect';
 	const ANTI_SPAM_RECOMMENDATION     = 'anti-spam';
 	const VIDEOPRESS_RECOMMENDATION    = 'videopress';
 	const BACKUP_PLAN_RECOMMENDATION   = 'backup-plan';
