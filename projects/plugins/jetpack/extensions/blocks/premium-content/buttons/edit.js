@@ -61,22 +61,20 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 		}
 	}, [ planId, subscribeButton, setSubscribeButtonPlan ] );
 
-	/*
-	 * Hides the product management controls of the Recurring Payments inner block acting as a subscribe
-	 * button so users can only switch plans using the plan selector of the Premium Content block.
-	 */
+	// Hides the inspector controls of the Recurring Payments inner block acting as a subscribe button so users can only
+	// switch plans using the plan selector of the Premium Content block.
 	useEffect( () => {
 		if ( ! subscribeButton ) {
 			return;
 		}
 		addFilter(
-			'jetpack.RecurringPayments.showProductManagementControls',
-			'jetpack/premium-content-hide-recurring-payments-product-management-controls',
-			( showProductManagementControls, clientId ) => {
+			'jetpack.RecurringPayments.showControls',
+			'jetpack/premium-content-hide-recurring-payments-controls',
+			( showControls, clientId ) => {
 				if ( clientId === subscribeButton.clientId ) {
 					return false;
 				}
-				return showProductManagementControls;
+				return showControls;
 			}
 		);
 	}, [ subscribeButton ] );
