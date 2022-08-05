@@ -15,7 +15,7 @@ import { GetRedirectUrlArgs, QueryVars } from './types';
  * @param {string} source - The URL handler registered in the server or the full destination URL (starting with https://).
  * @param {GetRedirectUrlArgs} args - Additional arguments to build the url.
  * This is not a complete list as any argument passed here
- * will be sent to as a query parameterto the Redirect server.
+ * will be sent to as a query parameter to the Redirect server.
  * These parameters will not necessarily be passed over to the final destination URL.
  * If you want to add a parameter to the final destination URL, use the `query` argument.
  * @returns {string} The redirect URL
