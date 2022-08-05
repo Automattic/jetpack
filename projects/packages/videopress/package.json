@@ -20,7 +20,7 @@
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "rm -rf build/",
-		"watch": "pnpm run build && NODE_PATH=\"$PWD/node_modules\" webpack watch"
+		"watch": "pnpm build && pnpm build:client --watch"
 	},
 	"devDependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",
