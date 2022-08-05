@@ -26,8 +26,8 @@
 	},
 	"devDependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",
-		"@automattic/jetpack-base-styles": "workspace:0.3.8",
-		"@automattic/jetpack-webpack-config": "workspace:1.3.8",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.3",
 		"@wordpress/browserslist-config": "4.1.2",
 		"@wordpress/scripts": "23.6.0",
 		"autoprefixer": "10.4.2",
