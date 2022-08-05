@@ -6,6 +6,8 @@ import { TextControl, BaseControl, RangeControl } from '@wordpress/components';
 import { createInterpolateElement, useEffect, useRef, useState } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __ } from '@wordpress/i18n';
+import { Icon } from '@wordpress/icons';
+import { PlayIcon } from '../icons';
 
 import './style.scss';
 
@@ -45,12 +47,15 @@ const SelectFrame = ( { file } ) => {
 
 	return (
 		<>
-			<video
-				ref={ videoPlayer }
-				muted
-				className="uploading-editor__video"
-				onDurationChange={ onDurationChange }
-			/>
+			<div className="uploading-editor__video-container">
+				<video
+					ref={ videoPlayer }
+					muted
+					className="uploading-editor__video"
+					onDurationChange={ onDurationChange }
+				/>
+				<Icon className="uploading-editor__play-icon" icon={ PlayIcon } />
+			</div>
 			<RangeControl
 				className="uploading-editor__range"
 				min="0"
