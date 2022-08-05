@@ -17,6 +17,11 @@
 	padding: calc( var( --spacing-base ) * 7 ) 0;
 }
 
+.loading-content {
+	display: flex;
+	align-items: center;
+}
+
 .illustration {
 	display: flex;
 	align-items: center;
