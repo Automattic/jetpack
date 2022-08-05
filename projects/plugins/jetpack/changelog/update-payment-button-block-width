@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Added a new Ã`ÃuseWidth` hook to control the width settings of a block
+Added a new `useWidth` hook to control the width settings of a block
