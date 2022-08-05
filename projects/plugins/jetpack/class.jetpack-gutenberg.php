@@ -821,6 +821,12 @@ class Jetpack_Gutenberg {
 					}
 				}
 			}
+
+			// Register blocks defined by external rojects.
+			$external_blocks_file_path = JETPACK__PLUGIN_DIR . 'extensions/blocks/external-blocks.php';
+			if ( file_exists( $external_blocks_file_path ) ) {
+				include_once $external_blocks_file_path;
+			}
 		}
 	}
 
