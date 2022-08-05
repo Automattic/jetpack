@@ -1,5 +1,5 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
-import { InnerBlocks } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -63,8 +63,29 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 	const showJetpackUpgradeNudge =
 		!! upgradeUrl && ! hasWpcomUpgradeNudge && ! isPremiumContentChild;
 
+	const blockProps = useBlockProps();
+	const innerBlocksProps = useInnerBlocksProps(
+		{},
+		{
+			template: [
+				[
+					'jetpack/button',
+					{
+						element: 'a',
+						passthroughAttributes: {
+							uniqueId: 'uniqueId',
+							url: 'url',
+						},
+					},
+				],
+			],
+			templateLock: 'all',
+			templateInsertUpdatesSelection: true,
+		}
+	);
+
 	return (
-		<div className="wp-block-jetpack-recurring-payments">
+		<div { ...blockProps }>
 			{ showControls && (
 				<ProductManagementControls
 					blockName={ BLOCK_NAME }
@@ -73,7 +94,6 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 					setSelectedProductId={ updateSubscriptionPlan }
 				/>
 			) }
-
 			{ showJetpackUpgradeNudge && (
 				<Placeholder
 					icon={ icon }
@@ -94,23 +114,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 				</Placeholder>
 			) }
 			<StripeNudge blockName={ BLOCK_NAME } />
-			<InnerBlocks
-				template={ [
-					[
-						'jetpack/button',
-						{
-							element: 'a',
-							passthroughAttributes: {
-								uniqueId: 'uniqueId',
-								url: 'url',
-							},
-						},
-					],
-				] }
-				templateLock="all"
-				__experimentalCaptureToolbars={ true }
-				templateInsertUpdatesSelection={ false }
-			/>
+			<div { ...innerBlocksProps } />
 		</div>
 	);
 }
