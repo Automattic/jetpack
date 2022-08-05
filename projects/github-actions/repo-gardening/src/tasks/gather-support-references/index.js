@@ -214,7 +214,7 @@ async function checkForEscalation( issueReferences, commentBody, payload ) {
 		debug(
 			`gather-support-references: Issue ${ payload.issue.number } already escalated to triage team. No need to warn them again.`
 		);
-		return false;
+		return true;
 	}
 
 	debug(
