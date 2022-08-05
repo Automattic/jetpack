@@ -7,3 +7,7 @@
 	max-height: 600px;
 	flex-direction: column;
 }
+
+.threat-section + .threat-section {
+	margin-top: 40px;
+}
