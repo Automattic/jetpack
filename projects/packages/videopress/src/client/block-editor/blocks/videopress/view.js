@@ -11,5 +11,5 @@ import './style.scss';
 
 domReady( function () {
 	// eslint-disable-next-line no-console
-	console.log( __( 'VideoPress init', 'jetpack-videopress' ) );
+	console.log( __( 'VideoPress init', 'jetpack-videopress-pkg' ) );
 } );

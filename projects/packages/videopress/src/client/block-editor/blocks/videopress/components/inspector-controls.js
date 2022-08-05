@@ -40,12 +40,12 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 
 	return (
 		<InspectorControls>
-			<PanelBody title={ __( 'Video Settings', 'jetpack-videopress' ) }>
+			<PanelBody title={ __( 'Video Settings', 'jetpack-videopress-pkg' ) }>
 				<ToggleControl
 					label={ renderControlLabelWithTooltip(
-						__( 'Autoplay', 'jetpack-videopress' ),
+						__( 'Autoplay', 'jetpack-videopress-pkg' ),
 						/* translators: Tooltip describing the "autoplay" option for the VideoPress player */
-						__( 'Start playing the video as soon as the page loads', 'jetpack-videopress' )
+						__( 'Start playing the video as soon as the page loads', 'jetpack-videopress-pkg' )
 					) }
 					onChange={ handleAttributeChange( 'autoplay' ) }
 					checked={ autoplay }
@@ -53,41 +53,41 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 						autoplay
 							? __(
 									'Note: Autoplaying videos may cause usability issues for some visitors.',
-									'jetpack-videopress'
+									'jetpack-videopress-pkg'
 							  )
 							: null
 					}
 				/>
 				<ToggleControl
 					label={ renderControlLabelWithTooltip(
-						__( 'Loop', 'jetpack-videopress' ),
+						__( 'Loop', 'jetpack-videopress-pkg' ),
 						/* translators: Tooltip describing the "loop" option for the VideoPress player */
-						__( 'Restarts the video when it reaches the end', 'jetpack-videopress' )
+						__( 'Restarts the video when it reaches the end', 'jetpack-videopress-pkg' )
 					) }
 					onChange={ handleAttributeChange( 'loop' ) }
 					checked={ loop }
 				/>
 				<ToggleControl
-					label={ __( 'Muted', 'jetpack-videopress' ) }
+					label={ __( 'Muted', 'jetpack-videopress-pkg' ) }
 					onChange={ handleAttributeChange( 'muted' ) }
 					checked={ muted }
 				/>
 				<ToggleControl
 					label={ renderControlLabelWithTooltip(
-						__( 'Playback Controls', 'jetpack-videopress' ),
+						__( 'Playback Controls', 'jetpack-videopress-pkg' ),
 						/* translators: Tooltip describing the "controls" option for the VideoPress player */
-						__( 'Display the video playback controls', 'jetpack-videopress' )
+						__( 'Display the video playback controls', 'jetpack-videopress-pkg' )
 					) }
 					onChange={ handleAttributeChange( 'controls' ) }
 					checked={ controls }
 				/>
 				<ToggleControl
 					label={ renderControlLabelWithTooltip(
-						__( 'Play Inline', 'jetpack-videopress' ),
+						__( 'Play Inline', 'jetpack-videopress-pkg' ),
 						/* translators: Tooltip describing the "playsinline" option for the VideoPress player */
 						__(
 							'Play the video inline instead of full-screen on mobile devices',
-							'jetpack-videopress'
+							'jetpack-videopress-pkg'
 						)
 					) }
 					onChange={ handleAttributeChange( 'playsinline' ) }
@@ -95,31 +95,31 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 				/>
 				<SelectControl
 					label={ renderControlLabelWithTooltip(
-						__( 'Preload', 'jetpack-videopress' ),
+						__( 'Preload', 'jetpack-videopress-pkg' ),
 						/* translators: Tooltip describing the "preload" option for the VideoPress player */
-						__( 'Content to dowload before the video is played', 'jetpack-videopress' )
+						__( 'Content to dowload before the video is played', 'jetpack-videopress-pkg' )
 					) }
 					value={ preload }
 					onChange={ value => setAttributes( { preload: value } ) }
 					options={ [
 						{
 							value: 'auto',
-							label: _x( 'Auto', 'VideoPress preload setting', 'jetpack-videopress' ),
+							label: _x( 'Auto', 'VideoPress preload setting', 'jetpack-videopress-pkg' ),
 						},
 						{
 							value: 'metadata',
-							label: _x( 'Metadata', 'VideoPress preload setting', 'jetpack-videopress' ),
+							label: _x( 'Metadata', 'VideoPress preload setting', 'jetpack-videopress-pkg' ),
 						},
 						{
 							value: 'none',
-							label: _x( 'None', 'VideoPress preload setting', 'jetpack-videopress' ),
+							label: _x( 'None', 'VideoPress preload setting', 'jetpack-videopress-pkg' ),
 						},
 					] }
 					help={
 						'auto' === preload
 							? __(
 									'Note: Automatically downloading videos may cause issues if there are many videos displayed on the same page.',
-									'jetpack-videopress'
+									'jetpack-videopress-pkg'
 							  )
 							: null
 					}

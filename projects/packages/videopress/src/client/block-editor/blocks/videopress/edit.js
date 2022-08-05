@@ -245,7 +245,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		return (
 			<PlaceholderWrapper>
 				<Spinner />
-				{ __( 'Generating preview…', 'jetpack-videopress' ) }
+				{ __( 'Generating preview…', 'jetpack-videopress-pkg' ) }
 				<strong> { generatingPreviewCounter }</strong>
 			</PlaceholderWrapper>
 		);
@@ -257,13 +257,13 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 			<PlaceholderWrapper
 				errorMessage={ __(
 					'Impossible to get a video preview after ten attempts.',
-					'jetpack-videopress'
+					'jetpack-videopress-pkg'
 				) }
 				onNoticeRemove={ invalidateResolution }
 			>
 				<div className="videopress-uploader__error-actions">
 					<Button variant="primary" onClick={ invalidateResolution }>
-						{ __( 'Try again', 'jetpack-videopress' ) }
+						{ __( 'Try again', 'jetpack-videopress-pkg' ) }
 					</Button>
 					<Button
 						variant="secondary"
@@ -271,7 +271,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 							setAttributes( { src: undefined, id: undefined, guid: undefined } );
 						} }
 					>
-						{ __( 'Cancel', 'jetpack-videopress' ) }
+						{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</div>
 			</PlaceholderWrapper>

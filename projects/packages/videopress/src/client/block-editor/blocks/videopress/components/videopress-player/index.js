@@ -167,7 +167,7 @@ export default function VideoPressPlayer( {
 					<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
 					{ ! isVideoLoaded && (
 						<div className="jetpack-videopress-player__loading">
-							{ __( 'Loading…', 'jetpack-videopress' ) }
+							{ __( 'Loading…', 'jetpack-videopress-pkg' ) }
 						</div>
 					) }
 				</div>
@@ -176,7 +176,7 @@ export default function VideoPressPlayer( {
 			{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
 				<RichText
 					tagName="figcaption"
-					placeholder={ __( 'Write caption…', 'jetpack-videopress' ) }
+					placeholder={ __( 'Write caption…', 'jetpack-videopress-pkg' ) }
 					value={ caption }
 					onChange={ value => setAttributes( { caption: value } ) }
 					inlineToolbar
