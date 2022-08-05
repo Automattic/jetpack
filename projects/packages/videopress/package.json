@@ -17,11 +17,9 @@
 	"scripts": {
 		"build": "echo 'Not implemented.'",
 		"build:client": "NODE_PATH=\"$PWD/node_modules\" webpack",
-		"build:block-editor-extensions": "wp-scripts build src/client/block-editor/index.js --webpack-bin=./node_modules/.bin/webpack",
-		"build-js": "echo 'Not implemented.'",
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true",
+		"clean": "rm -rf build/",
 		"watch": "pnpm run build && NODE_PATH=\"$PWD/node_modules\" webpack watch"
 	},
 	"devDependencies": {
