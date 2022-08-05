@@ -23,14 +23,14 @@ const UploadProgress = ( { progress, file, paused, onPauseOrResume } ) => {
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
 
-	const resumeText = __( 'Resume', 'jetpack-videopress' );
-	const pauseText = __( 'Pause', 'jetpack-videopress' );
+	const resumeText = __( 'Resume', 'jetpack-videopress-pkg' );
+	const pauseText = __( 'Pause', 'jetpack-videopress-pkg' );
 	const fileSizeLabel = filesize( file?.size );
 	const escapedFileName = escapeHTML( file?.name );
 	const fileNameLabel = createInterpolateElement(
 		sprintf(
 			/* translators: Placeholder is a video file name. */
-			__( 'Uploading <strong>%s</strong>', 'jetpack-videopress' ),
+			__( 'Uploading <strong>%s</strong>', 'jetpack-videopress-pkg' ),
 			escapedFileName
 		),
 		{ strong: <strong /> }
@@ -65,10 +65,10 @@ const UploadError = ( { message, onRetry, onCancel } ) => {
 		<PlaceholderWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
 			<div className="videopress-uploader__error-actions">
 				<Button variant="primary" onClick={ onRetry }>
-					{ __( 'Try again', 'jetpack-videopress' ) }
+					{ __( 'Try again', 'jetpack-videopress-pkg' ) }
 				</Button>
 				<Button variant="secondary" onClick={ onCancel }>
-					{ __( 'Cancel', 'jetpack-videopress' ) }
+					{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
 				</Button>
 			</div>
 		</PlaceholderWrapper>
@@ -172,7 +172,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 		const videoGuid = getGuidFromVideoUrl( videoUrl );
 		if ( ! videoGuid ) {
 			setUploadErrorDataState( {
-				data: { message: __( 'Invalid VideoPress URL', 'jetpack-videopress' ) },
+				data: { message: __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' ) },
 			} );
 			return;
 		}
@@ -233,7 +233,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 			data: {
 				message: __(
 					'Please select a VideoPress video from Library or upload a new one',
-					'jetpack-videopress'
+					'jetpack-videopress-pkg'
 				),
 			},
 		} );
@@ -246,20 +246,23 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 
 		let errorMessage =
 			uploadErrorData?.data?.message ||
-			__( 'Failed to upload your video. Please try again.', 'jetpack-videopress' );
+			__( 'Failed to upload your video. Please try again.', 'jetpack-videopress-pkg' );
 
 		// Let's give this error a better message.
 		if ( errorMessage === 'Invalid Mime' ) {
 			errorMessage = (
 				<>
-					{ __( 'The format of the video you uploaded is not supported.', 'jetpack-videopress' ) }
+					{ __(
+						'The format of the video you uploaded is not supported.',
+						'jetpack-videopress-pkg'
+					) }
 					&nbsp;
 					<ExternalLink
 						href="https://wordpress.com/support/videopress/recommended-video-settings/"
 						target="_blank"
 						rel="noreferrer"
 					>
-						{ __( 'Check the recommended video settings.', 'jetpack-videopress' ) }
+						{ __( 'Check the recommended video settings.', 'jetpack-videopress-pkg' ) }
 					</ExternalLink>
 				</>
 			);

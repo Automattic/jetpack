@@ -38,12 +38,12 @@ class SeekbarColorSettings extends Component {
 		return (
 			<PanelBody
 				className="seekbar-color-settings__panel"
-				title={ __( 'Progress Bar Colors', 'jetpack-videopress' ) }
+				title={ __( 'Progress Bar Colors', 'jetpack-videopress-pkg' ) }
 				initialOpen={ false }
 			>
 				<ToggleControl
-					label={ __( 'Match video', 'jetpack-videopress' ) }
-					help={ __( 'Colors adapt to the video as it plays', 'jetpack-videopress' ) }
+					label={ __( 'Match video', 'jetpack-videopress-pkg' ) }
+					help={ __( 'Colors adapt to the video as it plays', 'jetpack-videopress-pkg' ) }
 					onChange={ toggleAttribute( 'useAverageColor' ) }
 					checked={ useAverageColor }
 				/>
@@ -54,25 +54,25 @@ class SeekbarColorSettings extends Component {
 						{
 							value: seekbarColor,
 							onChange: this.handleChangeSeekbarColor,
-							label: __( 'Main', 'jetpack-videopress' ),
+							label: __( 'Main', 'jetpack-videopress-pkg' ),
 							showTitle,
 						},
 						{
 							value: seekbarLoadingColor,
 							onChange: this.handleChangeSeekbarLoadingColor,
-							label: __( 'Loaded', 'jetpack-videopress' ),
+							label: __( 'Loaded', 'jetpack-videopress-pkg' ),
 							showTitle,
 						},
 						{
 							value: seekbarPlayedColor,
 							onChange: this.handleChangeSeekbarPlayedColor,
-							label: __( 'Progress', 'jetpack-videopress' ),
+							label: __( 'Progress', 'jetpack-videopress-pkg' ),
 							showTitle,
 						},
 					] }
 				>
 					<Button variant="secondary" onClick={ this.saveColors }>
-						{ __( 'Save colors', 'jetpack-videopress' ) }
+						{ __( 'Save colors', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</PanelColorSettings>
 			</PanelBody>
