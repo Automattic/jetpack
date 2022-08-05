@@ -15,7 +15,7 @@ describe( 'cleanLocale', () => {
 		[ 'en_alotofchars', 'en' ], // region or variant tags should not be more than 8 chars.
 	];
 
-	it.each( testLocales )( '%s is cleaned into %s', ( from, to ) => {
-		expect( cleanLocale( from ) ).toBe( to );
+	it.each( testLocales )( '%s is cleaned into %s', ( input, expected ) => {
+		expect( cleanLocale( input ) ).toBe( expected );
 	} );
 } );
