@@ -45,7 +45,7 @@ class Initializer {
 		Module_Control::init();
 		new WPCOM_REST_API_V2_Endpoint_VideoPress();
 		if ( is_admin() ) {
-			Ajax::init();
+			AJAX::init();
 		}
 	}
 
