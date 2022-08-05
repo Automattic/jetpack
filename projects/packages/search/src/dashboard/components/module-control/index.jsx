@@ -17,7 +17,7 @@ const SEARCH_DESCRIPTION = __(
 	'jetpack-search-pkg'
 );
 const INSTANT_SEARCH_DESCRIPTION = __(
-	'Instant search uses a dynamic overlay for lightning-fast results, sorting, and filtering without reloading the page.',
+	'Instant search uses a dynamic overlay for lightning-fast searching, sorting, and filtering without reloading the page.',
 	'jetpack-search-pkg'
 );
 const RETURN_PATH = 'admin.php?page=jetpack-search';
