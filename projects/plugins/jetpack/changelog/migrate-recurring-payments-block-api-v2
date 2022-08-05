@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+The Payment button block uses now the Block API v2 to simplify the overall markup
