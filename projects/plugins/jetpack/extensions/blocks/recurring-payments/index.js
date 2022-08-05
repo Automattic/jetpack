@@ -91,6 +91,7 @@ export const settings = {
 	},
 	edit,
 	save,
+	parent: [ 'jetpack/payment-buttons' ],
 	supports: {
 		html: false,
 		__experimentalExposeControlsToChildren: true,

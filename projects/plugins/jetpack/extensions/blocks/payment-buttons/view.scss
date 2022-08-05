@@ -1,0 +1,24 @@
+.wp-block-jetpack-payment-buttons {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+	flex-wrap: wrap;
+	gap: 0.5em;
+	margin-top: 0;
+	margin-bottom: 0;
+
+	/*.wp-block-jetpack-recurring-payments {
+		display: inline-block;
+		width: auto;
+	}
+
+	.wp-block-jetpack-recurring-payments,
+	.wp-block-jetpack-button {
+		margin: 0;
+	}
+
+	.wp-block-button__link {
+		width: 100%;
+	}*/
+}
