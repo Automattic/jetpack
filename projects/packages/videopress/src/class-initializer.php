@@ -27,9 +27,6 @@ class Initializer {
 			}
 		}
 
-		// Register VideoPress block
-		add_action( 'init', array( __CLASS__, 'register_block_editor_blocks' ) );
-
 		/**
 		 * Fires after the VideoPress package is initialized
 		 *
@@ -72,12 +69,11 @@ class Initializer {
 	}
 
 	/**
-	 * Register the block editor blocks:
-	 * - VideoPress block
+	 * Register the VideoPress block editor block
 	 *
 	 * @return void
 	 */
-	public static function register_block_editor_blocks() {
+	public static function register_videopress_block() {
 		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
 	}
 }
