@@ -81,6 +81,7 @@ function PaymentButtonsEdit( { clientId } ) {
 			) }
 			{ showJetpackUpgradeNudge && (
 				<Placeholder
+					className="jetpack-payment-buttons__upgrade-nudge"
 					icon={ icon }
 					instructions={ __(
 						"You'll need to upgrade your plan to use the Payment Buttons block.",
