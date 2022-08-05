@@ -1471,7 +1471,7 @@ abstract class Publicize_Base {
 	 */
 	public function calculate_scheduled_shares( $blog_id ) {
 		$response        = Client::wpcom_json_api_request_as_blog(
-			sprintf( 'sites/%d/count-scheduled-shares', absint( $blog_id ) ),
+			sprintf( 'sites/%d/jetpack-social/count-scheduled-shares', absint( $blog_id ) ),
 			'2',
 			array(
 				'headers' => array( 'content-type' => 'application/json' ),
