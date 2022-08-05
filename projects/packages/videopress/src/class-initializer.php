@@ -43,6 +43,8 @@ class Initializer {
 	private static function unconditional_initialization() {
 		Module_Control::init();
 		new WPCOM_REST_API_V2_Endpoint_VideoPress();
+		// Register VideoPress block
+		add_action( 'init', array( __CLASS__, 'register_videopress_block' ) );
 	}
 
 	/**
