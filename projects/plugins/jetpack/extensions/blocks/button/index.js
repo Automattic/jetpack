@@ -24,4 +24,5 @@ export const settings = {
 	attributes,
 	edit,
 	save,
+	usesContext: [ 'jetpack/parentBlockWidth' ],
 };

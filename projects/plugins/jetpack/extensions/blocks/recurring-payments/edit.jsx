@@ -4,7 +4,7 @@ import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
-import { applyFilters } from '@wordpress/hooks';
+import { addAction, applyFilters, removeAction } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import ProductManagementControls from '../../shared/components/product-management-controls';
@@ -81,7 +81,36 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 		clientId
 	);
 
-	const { WidthSettings } = useWidth( { attributes, hasWidthSupport, setAttributes } );
+	const { WidthSettings } = useWidth( { attributes, clientId, hasWidthSupport, setAttributes } );
+
+	const buttonBlock = useSelect(
+		select =>
+			select( 'core/block-editor' )
+				.getBlock( clientId )
+				?.innerBlocks.find( block => block.name === 'jetpack/button' ),
+		[ clientId ]
+	);
+
+	// Updates the width whenever it is changed from the inner button block settings.
+	useEffect( () => {
+		if ( ! buttonBlock ) {
+			return;
+		}
+
+		addAction(
+			'jetpack.useWidth.setWidth',
+			'jetpack/recurring-payments-set-width',
+			( newWidth, blockClientId ) => {
+				if ( blockClientId !== buttonBlock.clientId ) {
+					return;
+				}
+				setAttributes( { width: newWidth } );
+			}
+		);
+
+		return () =>
+			removeAction( 'jetpack.useWidth.setWidth', 'jetpack/recurring-payments-set-width' );
+	}, [ buttonBlock, setAttributes ] );
 
 	const blockProps = useBlockProps( { style: { width } } );
 	const innerBlocksProps = useInnerBlocksProps(

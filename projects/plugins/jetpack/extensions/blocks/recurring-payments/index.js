@@ -71,6 +71,9 @@ export const settings = {
 		'venmo',
 	],
 	usesContext: [ 'isPremiumContentChild' ],
+	providesContext: {
+		'jetpack/parentBlockWidth': 'width',
+	},
 	attributes: {
 		planId: {
 			type: 'integer',

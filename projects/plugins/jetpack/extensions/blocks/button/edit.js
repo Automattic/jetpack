@@ -15,11 +15,19 @@ import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
 
 export function ButtonEdit( props ) {
-	const { attributes, backgroundColor, className, clientId, setAttributes, textColor } = props;
+	const {
+		attributes,
+		backgroundColor,
+		className,
+		clientId,
+		context,
+		setAttributes,
+		textColor,
+	} = props;
 	const { borderRadius, element, placeholder, text, width } = attributes;
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
-	useWidth( { attributes, setAttributes } );
+	useWidth( { attributes, clientId, setAttributes } );
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {
