@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0684843a6938bb85296bb1ffe5cacab1",
+    "content-hash": "d7b4d3e39d9254c23d24348db2252883",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1832,7 +1832,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "eae6b38717b44f6259ae3be3026aa3cd920af678"
+                "reference": "27a6ce4e8f5f11bcf209ff90b11e9fc8742ffe76"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.42",
@@ -1850,7 +1850,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-videopress-pkg"
             },
@@ -1873,7 +1873,12 @@
                     "echo 'Add your build step to composer.json, please!'"
                 ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build",
+                    "pnpm run build:client"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
