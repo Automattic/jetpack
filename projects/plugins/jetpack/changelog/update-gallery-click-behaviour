@@ -1,4 +1,4 @@
 Significance: minor
-Type: enhancement
+Type: bugifx
 
-Gallery: change click behaviour when image is rounded.
+Gallery: ensure clicks will navigate to custom URL when image has rounded corners. 
