@@ -171,4 +171,84 @@ class Test_REST_Controller extends TestCase {
 		$this->assertTrue( $response->get_data()['success'] );
 	}
 
+	/**
+	 * Signs a request with a blog token before dispatching it.
+	 *
+	 * Ensures that these tests pass through Connection_Rest_Authentication::wp_rest_authenticate,
+	 * because WP_REST_Server::dispatch doesn't call any auth logic (in a real
+	 * request, this would all happen earlier).
+	 *
+	 * @param WP_REST_Request $request The request to sign before dispatching.
+	 * @return WP_REST_Response
+	 */
+	private function dispatch_request_signed_with_blog_token( $request ) {
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+
+		$token     = 'new:1:0';
+		$timestamp = (string) time();
+		$nonce     = 'testing123';
+		$body_hash = '';
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = $token;
+		$_GET['timestamp'] = $timestamp;
+		$_GET['nonce']     = $nonce;
+		$_GET['body-hash'] = $body_hash;
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					array(
+						$token,
+						$timestamp,
+						$nonce,
+						$body_hash,
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		$jp_connection_auth = Connection_Rest_Authentication::init();
+		$jp_connection_auth->wp_rest_authenticate( false );
+
+		$response = $this->server->dispatch( $request );
+
+		$jp_connection_auth->reset_saved_auth_state();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+
+		return $response;
+	}
+
+	/**
+	 * Intercept the `Jetpack_Options` call and mock the values.
+	 * Site-level connection set-up.
+	 *
+	 * @param mixed  $value The current option value.
+	 * @param string $name Option name.
+	 *
+	 * @return mixed
+	 */
+	public function mock_jetpack_site_connection_options( $value, $name ) {
+		switch ( $name ) {
+			case 'blog_token':
+				return 'new.blogtoken';
+			case 'id':
+				return '999';
+		}
+
+		return $value;
+	}
+
 }
