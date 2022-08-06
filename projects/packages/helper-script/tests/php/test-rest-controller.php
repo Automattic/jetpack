@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Helper_Script;
 
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
