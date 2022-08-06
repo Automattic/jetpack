@@ -1608,17 +1608,21 @@
 				// If Gallery is made up of individual Image blocks check for custom link before
 				// loading carousel. The custom link may be the parent or could be a descendant
 				// of the parent if the image has rounded corners.
+				var parentHref = null;
+				if ( grandparent && grandparent.classList.contains( 'wp-block-image' ) {
+					parentHref = parent.getAttribute( 'href' );
+				} else if ( parent && parent.classList.contains( 'wp-block-image' ) && parent.querySelector( 'a' ) ) {
+					parentHref = parent.querySelector( 'a' ).getAttribute( 'href' );
+				}
+				
 				if (
-					( grandparent && grandparent.classList.contains( 'wp-block-image' ) ) ||
-					( parent && parent.classList.contains( 'wp-block-image' ) && parent.querySelector( 'a' ) )
+					parentHref &&
+					parentHref.split( '?' )[ 0 ] !==
+						target.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
+					parentHref !== target.getAttribute( 'data-permalink' )
 				) {
-					var parentHref = parent.getAttribute( 'href' );
-
-					if ( ! parentHref ) {
-						// The link must be a descendant instead.
-						parentHref = parent.querySelector( 'a' ).getAttribute( 'href' );
-					}
-
+					return;
+				}
 					// If the link does not point to the attachment or media file then assume Image has
 					// a custom link so don't load the carousel.
 					if (
