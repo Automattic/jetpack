@@ -1,4 +1,4 @@
 Significance: minor
-Type: bugifx
+Type: bugfix
 
 Gallery: ensure clicks will navigate to custom URL when image has rounded corners. 
