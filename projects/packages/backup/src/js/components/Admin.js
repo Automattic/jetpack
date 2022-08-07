@@ -232,7 +232,7 @@ const ReviewMessage = connectionLoaded => {
 	if ( hasRecentSuccesfulRestore() ) {
 		requestReason = 'restore';
 		reviewText = __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' );
-	} else {
+	} else if ( hasThreeMonthsSub() ) {
 		requestReason = 'time_based';
 		reviewText = __( 'Are you happy with Jetpack Backup?', 'jetpack-backup-pkg' );
 	}
@@ -318,7 +318,7 @@ const useDismissedReviewRequest = ( connectionLoaded, requestReason ) => {
 	const [ dismissedReview, setDismissedReview ] = useState( true );
 
 	useEffect( () => {
-		if ( ! connectionLoaded ) {
+		if ( ! connectionLoaded || ! requestReason ) {
 			return;
 		}
 		apiFetch( {
