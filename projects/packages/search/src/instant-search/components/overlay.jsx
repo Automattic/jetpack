@@ -1,6 +1,10 @@
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
-import { OVERLAY_CLASS_NAME, OVERLAY_FOCUS_ANCHOR_ID } from '../lib/constants';
+import {
+	OVERLAY_CLASS_NAME,
+	OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME,
+	OVERLAY_FOCUS_ANCHOR_ID,
+} from '../lib/constants';
 import './overlay.scss';
 
 const Overlay = props => {
@@ -16,15 +20,16 @@ const Overlay = props => {
 
 		const handleTabEvent = event => {
 			if ( event.key === 'Tab' ) {
+				// Looking up the overlay and its first and last elements assumes knowledge of other components.
+				// We currently try to mimimize any side effects by relying on constants for these class names/ids.
 				const overlay = document.getElementsByClassName( OVERLAY_CLASS_NAME )[ 0 ];
 				const isInsideOverlay = overlay.contains( event.target );
-
-				// Looking up the focusTrapFirstElement assumes knowledge of another component.
-				// Not currently a constent as it's dynamically generated.
-				const focusTrapFirstElement = document.getElementById(
-					'jetpack-instant-search__box-input-1'
-				);
+				const focusTrapFirstElement = document.getElementsByClassName(
+					OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME
+				)[ 0 ];
 				const focusTrapLastElement = document.getElementById( OVERLAY_FOCUS_ANCHOR_ID );
+
+				// Trap any Tab key events and make sure focus stays within the overlay.
 				if ( event.shiftKey === true ) {
 					if ( event.target === focusTrapFirstElement || false === isInsideOverlay ) {
 						event.preventDefault();
