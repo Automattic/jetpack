@@ -23,3 +23,12 @@ function wpcomsh_replace_homepage_on_theme_switch( $theme_name, $request_args ) 
 	}
 }
 add_action( 'jetpack_pre_switch_theme', 'wpcomsh_replace_homepage_on_theme_switch', 10, 2 );
+
+/**
+ * Disables homepage replacement when invoked from CLI to preserve original behaviour.
+ */
+function wpcomsh_disable_homepage_switch_on_cli() {
+	remove_action( 'switch_theme', array( Template_First_Themes::get_instance(), 'update_homepage_template' ) );
+}
+
+add_action( 'cli_init', 'wpcomsh_disable_homepage_switch_on_cli' );
