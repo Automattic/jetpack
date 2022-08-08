@@ -1,6 +1,6 @@
 import Button from '../../button';
 import ProductPrice from '../../product-price';
-import { PricingTable, PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
+import PricingTable, { PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
