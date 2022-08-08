@@ -661,6 +661,13 @@ class Search_Widget extends \WP_Widget {
 							'count' => $count,
 						);
 						break;
+					case 'author':
+						$filters[] = array(
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type'  => 'author',
+							'count' => $count,
+						);
+						break;
 					case 'date_histogram':
 						$filters[] = array(
 							'name'     => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
@@ -950,6 +957,9 @@ class Search_Widget extends \WP_Widget {
 						</option>
 						<option value="post_type" <?php $this->render_widget_option_selected( 'type', $args['type'], 'post_type', $is_template ); ?>>
 							<?php esc_html_e( 'Post Type', 'jetpack-search-pkg' ); ?>
+						</option>
+						<option value="author" <?php $this->render_widget_option_selected( 'type', $args['type'], 'author', $is_template ); ?>>
+							<?php esc_html_e( 'Author', 'jetpack-search-pkg' ); ?>
 						</option>
 						<option value="date_histogram" <?php $this->render_widget_option_selected( 'type', $args['type'], 'date_histogram', $is_template ); ?>>
 							<?php esc_html_e( 'Date', 'jetpack-search-pkg' ); ?>
