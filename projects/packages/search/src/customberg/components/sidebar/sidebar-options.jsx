@@ -100,7 +100,7 @@ export default function SidebarOptions() {
 							value: 'submit',
 						},
 						{
-							label: __( 'Open when the user starts typing', 'jetpack-search-pkg' ),
+							label: __( 'Open when user starts typing', 'jetpack-search-pkg' ),
 							value: 'immediate',
 						},
 					] }
