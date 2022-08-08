@@ -1606,45 +1606,61 @@
 				var grandparent = parent.parentElement;
 
 				// If Gallery is made up of individual Image blocks check for custom link before
-				// loading carousel.
+				// loading carousel. The custom link may be the parent or could be a descendant
+				// of the parent if the image has rounded corners.
+				var parentHref = null;
 				if ( grandparent && grandparent.classList.contains( 'wp-block-image' ) ) {
-					var parentHref = parent.getAttribute( 'href' );
-
-					// If the link does not point to the attachment or media file then assume Image has
-					// a custom link so don't load the carousel.
-					if (
-						parentHref.split( '?' )[ 0 ] !==
-							target.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
-						parentHref !== target.getAttribute( 'data-permalink' )
-					) {
-						return;
-					}
+					parentHref = parent.getAttribute( 'href' );
+				} else if (
+					parent &&
+					parent.classList.contains( 'wp-block-image' ) &&
+					parent.querySelector( 'a' )
+				) {
+					parentHref = parent.querySelector( 'a' ).getAttribute( 'href' );
 				}
 
-				// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
-				if ( parent.classList.contains( 'gallery-caption' ) ) {
+				if (
+					parentHref &&
+					parentHref.split( '?' )[ 0 ] !==
+						target.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
+					parentHref !== target.getAttribute( 'data-permalink' )
+				) {
 					return;
 				}
-
-				// Do not open the modal if we are looking at a caption of a gallery block, which may contain a link.
-				if ( domUtil.matches( parent, 'figcaption' ) ) {
+				// If the link does not point to the attachment or media file then assume Image has
+				// a custom link so don't load the carousel.
+				if (
+					parentHref.split( '?' )[ 0 ] !==
+						target.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
+					parentHref !== target.getAttribute( 'data-permalink' )
+				) {
 					return;
 				}
-
-				// Set height to auto.
-				// Fix some themes where closing carousel brings view back to top.
-				document.documentElement.style.height = 'auto';
-
-				e.preventDefault();
-
-				// Stopping propagation in case there are parent elements
-				// with .gallery or .tiled-gallery class
-				e.stopPropagation();
-
-				var item = domUtil.closest( target, itemSelector );
-				var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
-				loadSwiper( gallery, { startIndex: index } );
 			}
+
+			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
+			if ( parent.classList.contains( 'gallery-caption' ) ) {
+				return;
+			}
+
+			// Do not open the modal if we are looking at a caption of a gallery block, which may contain a link.
+			if ( domUtil.matches( parent, 'figcaption' ) ) {
+				return;
+			}
+
+			// Set height to auto.
+			// Fix some themes where closing carousel brings view back to top.
+			document.documentElement.style.height = 'auto';
+
+			e.preventDefault();
+
+			// Stopping propagation in case there are parent elements
+			// with .gallery or .tiled-gallery class
+			e.stopPropagation();
+
+			var item = domUtil.closest( target, itemSelector );
+			var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
+			loadSwiper( gallery, { startIndex: index } );
 		} );
 
 		// Handle lightbox (single image gallery) for images linking to 'Attachment Page'.
