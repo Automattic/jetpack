@@ -15,7 +15,7 @@ export default function ButtonControls( {
 	setGradient,
 	isGradientAvailable,
 } ) {
-	const { borderRadius } = attributes;
+	const { align, borderRadius, width } = attributes;
 
 	return (
 		<>
@@ -33,7 +33,11 @@ export default function ButtonControls( {
 				} }
 			/>
 			<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
-			<WidthPanel />
+			<WidthPanel
+				align={ align }
+				width={ width }
+				onChange={ newWidth => setAttributes( { width: newWidth } ) }
+			/>
 		</>
 	);
 }
