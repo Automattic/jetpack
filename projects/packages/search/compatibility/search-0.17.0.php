@@ -15,5 +15,5 @@ add_filter( 'option_jetpack_search_overlay_trigger', __NAMESPACE__ . '\map_resul
  * @param string $overlay_trigger Overlay trigger.
  */
 function map_results_overlay_trigger( $overlay_trigger ) {
-	return 'results' === $overlay_trigger ? Automattic\Jetpack\Search\Options::OVERLAY_TRIGGER_IMMEDIATE : $overlay_trigger;
+	return 'results' === $overlay_trigger ? \Automattic\Jetpack\Search\Options::OVERLAY_TRIGGER_IMMEDIATE : $overlay_trigger;
 }
