@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Migrating VideoPress code from the plugin to the package
