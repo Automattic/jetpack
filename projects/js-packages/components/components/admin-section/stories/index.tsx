@@ -1,16 +1,16 @@
-import React from 'react';
 import AdminPage from '../../admin-page';
 import Col from '../../layout/col';
 import Container from '../../layout/container';
 import AdminSection from '../basic';
 import AdminSectionHero from '../hero';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Admin Sections',
-};
+} as ComponentMeta< typeof AdminSection >;
 
 // Export additional stories using pre-defined values
-const Template = () => (
+const Template: ComponentStory< typeof AdminSection > = () => (
 	<AdminPage>
 		<AdminSectionHero>
 			<Container>
