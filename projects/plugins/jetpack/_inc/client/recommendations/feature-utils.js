@@ -46,7 +46,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Jetpack Protect', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
-				configLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/recommendations/summary', //page=jetpack-protect',
+				configLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-protect',
 			};
 		case 'site-accelerator':
 			return {
