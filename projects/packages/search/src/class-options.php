@@ -50,6 +50,14 @@ class Options {
 	const DEFAULT_OVERLAY_TRIGGER   = self::OVERLAY_TRIGGER_SUBMIT;
 
 	/**
+	 * Deprecated overlay trigger.
+	 *
+	 * @var string
+	 * @deprecated since 11.3
+	 */
+	const OVERLAY_TRIGGER_RESULTS = 'results';
+
+	/**
 	 * Returns a boolean for whether instant search is enabled.
 	 *
 	 * @since 8.3.0
