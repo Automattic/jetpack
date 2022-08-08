@@ -5,6 +5,7 @@ import ButtonColorsPanel from './button-colors-panel';
 export default function ButtonControls( {
 	attributes,
 	backgroundColor,
+	context,
 	fallbackBackgroundColor,
 	fallbackTextColor,
 	setAttributes,
@@ -15,7 +16,9 @@ export default function ButtonControls( {
 	setGradient,
 	isGradientAvailable,
 } ) {
-	const { align, borderRadius, width } = attributes;
+	const { align, borderRadius } = attributes;
+	const isWidthSetOnParentBlock = 'jetpack/parentBlockWidth' in context;
+	const width = isWidthSetOnParentBlock ? context[ 'jetpack/parentBlockWidth' ] : attributes.width;
 
 	return (
 		<>
