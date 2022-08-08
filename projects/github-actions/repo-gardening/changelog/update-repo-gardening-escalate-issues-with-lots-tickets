@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Gather support references: add option to send a Slack message when issuees start gathering a lot of tickets, and would need to be escalated.
