@@ -91,3 +91,17 @@ const messages = {
 export function getMessageByProductType( message, productType = PRODUCT_TYPE_PAYMENT_PLAN ) {
 	return messages?.[ message ]?.[ productType ] || null;
 }
+
+const titles = {
+	'false,1 month': __( 'Monthly Subscription', 'jetpack' ),
+	'true,1 month': __( 'Monthly Donation', 'jetpack' ),
+	'false,1 year': __( 'Yearly Subscription', 'jetpack' ),
+	'true,1 year': __( 'Yearly Donation', 'jetpack' ),
+	'false,one-time': __( 'Subscription', 'jetpack' ),
+	'true,one-time': __( 'Donation', 'jetpack' ),
+};
+
+export function getTitleByProps( isDonation, interval ) {
+	const key = [ isDonation, interval ];
+	return titles[ key ] ?? '';
+}

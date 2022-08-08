@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+WordPress.com REST API: add missing site owner id to single site REST API response to fix UI issue in Calypso
