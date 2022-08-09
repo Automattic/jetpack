@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use InvalidArgumentException;
 
 abstract class Abstract_Tus
@@ -31,9 +29,6 @@ abstract class Abstract_Tus
 
     /** @var string */
     protected $apiPath = '/files';
-
-    /** @var EventDispatcherInterface */
-    protected $dispatcher;
 
     /**
      * Set cache.
@@ -97,31 +92,4 @@ abstract class Abstract_Tus
         return $this->apiPath;
     }
 
-    /**
-     * Set and get event dispatcher.
-     *
-     * @return EventDispatcherInterface
-     */
-    public function event()
-    {
-        if ( ! $this->dispatcher) {
-            $this->dispatcher = new EventDispatcher();
-        }
-
-        return $this->dispatcher;
-    }
-
-    /**
-     * Set event dispatcher.
-     *
-     * @param EventDispatcherInterface $dispatcher
-     *
-     * @return self
-     */
-    public function setDispatcher(EventDispatcherInterface $dispatcher)
-    {
-        $this->dispatcher = $dispatcher;
-
-        return $this;
-    }
 }
