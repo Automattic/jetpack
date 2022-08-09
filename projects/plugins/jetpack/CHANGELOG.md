@@ -4,22 +4,19 @@
 
 ## 11.3-a.3 - 2022-08-09
 ### Enhancements
-- Add disclaimer text and link to the backup product card that links to an FAQ on the Pricing page [#25265]
-- The Payment button block uses now the Block API v2 to simplify the overall markup [#25384]
-- When adding a payment plan, the plan name field will update according to the other options selected, unless it's already been modified. [#25397]
+- Payments block: use Block API v2 to simplify the overall markup. [#25384]
+- Payments block: ensure the plan name field will update according to the other options selected, unless it's already been modified. [#25397]
 
+### Improved compatibility
+- Backup: add disclaimer text and link to the backup product card that links to an FAQ on the Pricing page. [#25265]
 ### Bug fixes
-- WordPress.com REST API: add missing site owner id to single site REST API response to fix UI issue in Calypso [#25367]
+- WordPress.com REST API: add missing site owner id to single site REST API response. [#25367]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Changelog cleanup [#25375]
 - Dashboard: do not show a VideoPress upgrade banner on paid WoA sites. [#25368]
-- Init 11.3-a.1 [#25373]
+- Latest Instagram Posts Block: update Instagram gallery endpoint to use access token id as an integer. [#25337]
 - Nav Unification: improve performance when fetching user information. [#25333]
-- Updated package dependencies. [#24477]
-- Updated package dependencies. [#25265]
-- Updated package dependencies. [#25334]
-- Update Instagram gallery endpoint to use access token id as an integer, since that what it is :) [#25337]
+- Updated package dependencies. [#24477, #25265, #25334]
 
 ## 11.3-a.1 - 2022-08-03
 ### Enhancements
