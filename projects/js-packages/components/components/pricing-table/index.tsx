@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Icon, check, info, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
 import {
 	Fragment,
@@ -38,11 +39,15 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	}
 
 	return (
-		<Text
-			variant="body-small"
-			data-check={ isIncluded }
-			className={ classnames( styles.item, styles.value ) }
-		>
+		<Text variant="body-small" className={ classnames( styles.item, styles.value ) }>
+			<Icon
+				className={ classnames(
+					styles.item,
+					isIncluded ? styles[ 'icon-check' ] : styles[ 'icon-cross' ]
+				) }
+				size={ 32 }
+				icon={ isIncluded ? check : closeSmall }
+			/>
 			{ label || defaultLabel }
 		</Text>
 	);
@@ -99,6 +104,7 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 								className={ classnames( styles.item, styles.label ) }
 								key={ i }
 							>
+								<Icon className={ classnames( styles.icon ) } size={ 24 } icon={ info } />
 								<strong>{ item }</strong>
 							</Text>
 						) ) }
