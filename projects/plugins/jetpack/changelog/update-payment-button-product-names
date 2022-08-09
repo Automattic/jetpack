@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-When adding a payment plan, the plan name field will update according to the other options selected, unless it's already been modified.
