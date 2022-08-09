@@ -1,6 +1,10 @@
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
-import { OVERLAY_CLASS_NAME } from '../lib/constants';
+import {
+	OVERLAY_CLASS_NAME,
+	OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME,
+	OVERLAY_FOCUS_ANCHOR_ID,
+} from '../lib/constants';
 import './overlay.scss';
 
 const Overlay = props => {
@@ -11,6 +15,33 @@ const Overlay = props => {
 			if ( event.key === 'Escape' ) {
 				event.preventDefault();
 				closeOverlay();
+			}
+		};
+
+		const handleTabEvent = event => {
+			if ( event.key === 'Tab' ) {
+				// Looking up the overlay and its first and last elements assumes knowledge of other components.
+				// We currently try to mimimize any side effects by relying on constants for these class names/ids.
+				const overlay = document.getElementsByClassName( OVERLAY_CLASS_NAME )[ 0 ];
+				const isInsideOverlay = overlay.contains( event.target );
+				const focusTrapFirstElement = document.getElementsByClassName(
+					OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME
+				)[ 0 ];
+				const focusTrapLastElement = document.getElementById( OVERLAY_FOCUS_ANCHOR_ID );
+
+				// Trap any Tab key events and make sure focus stays within the overlay.
+				if ( event.shiftKey === true ) {
+					if ( event.target === focusTrapFirstElement || false === isInsideOverlay ) {
+						event.preventDefault();
+						focusTrapLastElement.focus();
+					}
+				}
+				if ( event.shiftKey === false ) {
+					if ( event.target === focusTrapLastElement || false === isInsideOverlay ) {
+						event.preventDefault();
+						focusTrapFirstElement.focus();
+					}
+				}
 			}
 		};
 
@@ -27,20 +58,29 @@ const Overlay = props => {
 			}
 		};
 
-		window.addEventListener( 'keydown', closeWithEscape );
+		const addEventListeners = () => {
+			window.addEventListener( 'click', closeWithOutsideClick );
+			window.addEventListener( 'keydown', closeWithEscape );
+			window.addEventListener( 'keydown', handleTabEvent );
+		};
+
+		const removeEventListeners = () => {
+			window.removeEventListener( 'click', closeWithOutsideClick );
+			window.removeEventListener( 'keydown', closeWithEscape );
+			window.removeEventListener( 'keydown', handleTabEvent );
+		};
 
 		// Ensures that the click closed handler only fires when the overlay is active.
 		// This ensures it doesn't erroneously intercept filter links or overlay spawner buttons.
 		if ( isVisible ) {
-			window.addEventListener( 'click', closeWithOutsideClick );
+			addEventListeners();
 		} else {
-			window.removeEventListener( 'click', closeWithOutsideClick );
+			removeEventListeners();
 		}
 
 		return () => {
 			// Cleanup on component dismount
-			window.removeEventListener( 'keydown', closeWithEscape );
-			window.removeEventListener( 'click', closeWithOutsideClick );
+			removeEventListeners();
 		};
 	}, [ closeOverlay, isVisible ] );
 

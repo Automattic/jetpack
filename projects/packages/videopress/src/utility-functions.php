@@ -36,7 +36,7 @@ function videopress_is_valid_guid( $guid ) {
  */
 function videopress_get_video_details( $guid ) {
 	if ( ! videopress_is_valid_guid( $guid ) ) {
-		return new WP_Error( 'bad-guid-format', __( 'Invalid Video GUID!', 'jetpack' ) );
+		return new WP_Error( 'bad-guid-format', __( 'Invalid Video GUID!', 'jetpack-videopress-pkg' ) );
 	}
 
 	$version   = '1.1';
@@ -86,7 +86,7 @@ function videopress_download_poster_image( $url, $attachment_id ) {
 	// Set variables for storage, fix file filename for query strings.
 	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
 	if ( ! $matches ) {
-		return new WP_Error( 'image_sideload_failed', __( 'Invalid image URL', 'jetpack' ) );
+		return new WP_Error( 'image_sideload_failed', __( 'Invalid image URL', 'jetpack-videopress-pkg' ) );
 	}
 
 	$file_array             = array();

@@ -35,7 +35,7 @@ const Backups = () => {
 		warnings: false,
 	} );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
-	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle(), '' );
+	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle(), [] );
 
 	const BACKUP_STATE = {
 		LOADING: 0,
