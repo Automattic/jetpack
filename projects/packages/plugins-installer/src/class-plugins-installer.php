@@ -263,7 +263,7 @@ class Plugins_Installer {
 		}
 
 		// not the plugins page
-		if ( ! str_contains( $request_file, 'wp-admin/plugins.php' ) ) {
+		if ( strpos( $request_file, 'wp-admin/plugins.php' ) === false ) {
 			return false;
 		}
 
