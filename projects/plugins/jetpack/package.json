@@ -15,7 +15,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client && pnpm run build-extensions && pnpm run build-widget-visibility && pnpm run build-asset-cdn-json",
+		"build": "pnpm run clean && pnpm run build-action-bar && pnpm run build-client && pnpm run build-extensions && pnpm run build-widget-visibility && pnpm run build-asset-cdn-json",
+		"build-action-bar": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.action-bar.js",
 		"build-asset-cdn-json": "php tools/build-asset-cdn-json.php",
 		"//": "# We set NODE_PATH here (and in other 'build-' scripts) so postcss-loader can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
 		"build-client": "NODE_PATH=\"$PWD/node_modules\" concurrently --names js,css,masterbar,module-headings 'webpack --config ./tools/webpack.config.js' 'webpack --config ./tools/webpack.config.css.js' 'webpack --config ./tools/webpack.config.masterbar.js' 'php tools/build-module-headings-translations.php'",
@@ -23,7 +24,8 @@
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:compile-ts' 'pnpm:build-client' 'pnpm:build-extensions' 'pnpm:build-widget-visibility' && pnpm run build-asset-cdn-json",
 		"build-extensions": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.extensions.js",
 		"build-production": "pnpm run clean && pnpm run build-production-client && pnpm run build-production-extensions && pnpm run build-production-widget-visibility && pnpm run build-asset-cdn-json",
-		"build-production-concurrently": "pnpm run clean && concurrently 'pnpm:compile-ts' 'pnpm:build-production-client' 'pnpm:build-production-extensions' 'pnpm:build-production-widget-visibility' && pnpm run build-asset-cdn-json",
+		"build-production-action-bar": "NODE_ENV=production BABEL_ENV=production pnpm run build-action-bar && pnpm exec validate-es ./_inc/actionbar.js",
+		"build-production-concurrently": "pnpm run clean && concurrently 'pnpm:compile-ts' 'pnpm:build-production-client' 'pnpm:build-production-action-bar' 'pnpm:build-production-extensions' 'pnpm:build-production-widget-visibility' && pnpm run build-asset-cdn-json",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production pnpm run build-client && pnpm exec validate-es ./_inc/build/",
 		"build-production-extensions": "NODE_ENV=production BABEL_ENV=production pnpm run build-extensions && pnpm exec validate-es ./_inc/blocks",
 		"build-production-widget-visibility": "NODE_ENV=production BABEL_ENV=production pnpm run build-widget-visibility && pnpm exec validate-es ./_inc/build/widget-visibility/editor",
@@ -39,7 +41,7 @@
 		"test-client": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.client.js",
 		"test-extensions": "TZ=UTC jest --config=tests/jest.config.extensions.js",
 		"test-gui": "NODE_PATH=tests:_inc/client jest --config=tests/jest.config.gui.js",
-		"watch": "NODE_PATH=\"$PWD/node_modules\" concurrently --names client-js,client-css,masterbar,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'webpack watch --config ./tools/webpack.config.masterbar.js' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'"
+		"watch": "NODE_PATH=\"$PWD/node_modules\" concurrently --names client-js,client-css,masterbar,extensions,widget-visibility 'webpack watch --config ./tools/webpack.config.js' 'webpack watch --config ./tools/webpack.config.css.js' 'webpack watch --config ./tools/webpack.config.action-bar.js' 'webpack watch --config ./tools/webpack.config.masterbar.js' 'webpack watch --config ./tools/webpack.config.extensions.js' 'webpack watch --config ./tools/webpack.config.widget-visibility.js'"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
