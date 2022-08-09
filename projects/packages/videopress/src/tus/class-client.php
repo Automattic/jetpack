@@ -2,11 +2,9 @@
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
-use TusPhp\File;
 use Carbon\Carbon;
 use TusPhp\Config;
 use Ramsey\Uuid\Uuid;
-use TusPhp\Exception\TusException;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -397,7 +395,7 @@ class Client extends Abstract_Tus
      *
      * @param int $bytes Bytes to upload
      *
-     * @throws TusException
+     * @throws Tus_Exception
      * @throws GuzzleException
      * @throws Connection_Exception
      *
@@ -426,7 +424,7 @@ class Client extends Abstract_Tus
 
         // Verify that upload is not yet expired.
         if ($this->isExpired()) {
-            throw new TusException('Upload expired.');
+            throw new Tus_Exception('Upload expired.');
         }
 
         // Now, resume upload with PATCH request.
@@ -653,7 +651,7 @@ class Client extends Abstract_Tus
      * @param int $bytes
      * @param int $offset
      *
-     * @throws TusException
+     * @throws Tus_Exception
      * @throws File_Exception
      * @throws GuzzleException
      * @throws Connection_Exception
@@ -713,10 +711,10 @@ class Client extends Abstract_Tus
         }
 
         if (HttpResponse::HTTP_UNSUPPORTED_MEDIA_TYPE === $statusCode) {
-            return new TusException('Unsupported media types.');
+            return new Tus_Exception('Unsupported media types.');
         }
 
-        return new TusException((string) $response->getBody(), $statusCode);
+        return new Tus_Exception((string) $response->getBody(), $statusCode);
     }
 
     /**
