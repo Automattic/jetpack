@@ -1,15 +1,15 @@
 <?php
 
-namespace TusPhp\Cache;
+namespace Automattic\Jetpack\VideoPress\Tus;
 
-use TusPhp\File;
 use Carbon\Carbon;
-use TusPhp\Config;
 
-class FileStore extends Abstract_Cache
+class File_Store extends Abstract_Cache
 {
-    /** @var int */
-    public const LOCK_NONE = 0;
+
+
+	/** @var int */
+    const LOCK_NONE = 0;
 
     /** @var string */
     protected $cacheDir;
@@ -18,15 +18,22 @@ class FileStore extends Abstract_Cache
     protected $cacheFile;
 
     /**
-     * FileStore constructor.
+     * File_Store constructor.
      *
      * @param string|null $cacheDir
      * @param string|null $cacheFile
      */
-    public function __construct(string $cacheDir = null, string $cacheFile = null)
+    public function __construct($cacheDir = null, $cacheFile = null)
     {
-        $cacheDir  = $cacheDir ?? Config::get('file.dir');
-        $cacheFile = $cacheFile ?? Config::get('file.name');
+        if ( ! is_null( $cacheDir ) && ! is_string( $cacheDir )) {
+			throw new InvalidArgumentException('$cacheDir needs to be a string');
+		}
+		if ( ! is_null( $cacheFile ) && ! is_string( $cacheFile )) {
+			throw new InvalidArgumentException('$cacheFile needs to be a string');
+		}
+
+		$cacheDir  = ! empty($cacheDir) ? $cacheDir : Config::get('file.dir');
+        $cacheFile = ! empty($cacheFile) ? $cacheFile : Config::get('file.name');
 
         $this->setCacheDir($cacheDir);
         $this->setCacheFile($cacheFile);
@@ -39,9 +46,12 @@ class FileStore extends Abstract_Cache
      *
      * @return self
      */
-    public function setCacheDir(string $path): self
+    public function setCacheDir($path)
     {
-        $this->cacheDir = $path;
+        if ( ! is_string( $path ) ) {
+			throw new InvalidArgumentException('$path needs to be a string');
+		}
+		$this->cacheDir = $path;
 
         return $this;
     }
@@ -51,7 +61,7 @@ class FileStore extends Abstract_Cache
      *
      * @return string
      */
-    public function getCacheDir(): string
+    public function getCacheDir()
     {
         return $this->cacheDir;
     }
@@ -63,9 +73,12 @@ class FileStore extends Abstract_Cache
      *
      * @return self
      */
-    public function setCacheFile(string $file): self
+    public function setCacheFile($file)
     {
-        $this->cacheFile = $file;
+        if ( ! is_string( $file ) ) {
+			throw new InvalidArgumentException('$file needs to be a string');
+		}
+		$this->cacheFile = $file;
 
         return $this;
     }
@@ -75,7 +88,7 @@ class FileStore extends Abstract_Cache
      *
      * @return string
      */
-    public function getCacheFile(): string
+    public function getCacheFile()
     {
         return $this->cacheDir . $this->cacheFile;
     }
@@ -111,9 +124,15 @@ class FileStore extends Abstract_Cache
     /**
      * {@inheritDoc}
      */
-    public function get(string $key, bool $withExpired = false)
+    public function get($key, $withExpired = false)
     {
-        $key      = $this->getActualCacheKey($key);
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		if ( ! is_bool( $withExpired ) ) {
+			throw new InvalidArgumentException('$withExpired needs to be a boolean');
+		}
+		$key      = $this->getActualCacheKey($key);
         $contents = $this->getCacheContents();
 
         if (empty($contents[$key])) {
@@ -134,9 +153,15 @@ class FileStore extends Abstract_Cache
      *
      * @return mixed
      */
-    protected function lock(string $path, int $type = LOCK_SH, callable $cb = null)
+    protected function lock($path, $type = LOCK_SH, callable $cb = null)
     {
-        $out    = false;
+        if ( ! is_string( $path ) ) {
+			throw new InvalidArgumentException('$path needs to be a string');
+		}
+		if ( ! is_int( $type ) ) {
+			throw new InvalidArgumentException('$type needs to be an integer');
+		}
+		$out    = false;
         $handle = @fopen($path, File::READ_BINARY);
 
         if (false === $handle) {
@@ -164,9 +189,12 @@ class FileStore extends Abstract_Cache
      *
      * @return string
      */
-    public function sharedGet(string $path): string
+    public function sharedGet($path)
     {
-        return $this->lock($path, LOCK_SH, function ($handle) use ($path) {
+        if ( ! is_string( $path ) ) {
+			throw new InvalidArgumentException('$path needs to be a string');
+		}
+		return $this->lock($path, LOCK_SH, function ($handle) use ($path) {
             $contents = fread($handle, filesize($path) ?: 1);
 
             if (false === $contents) {
@@ -186,17 +214,29 @@ class FileStore extends Abstract_Cache
      *
      * @return int|false
      */
-    public function put(string $path, string $contents, int $lock = LOCK_EX)
+    public function put($path, $contents, $lock = LOCK_EX)
     {
-        return file_put_contents($path, $contents, $lock);
+        if ( ! is_string( $path ) ) {
+			throw new InvalidArgumentException('$path needs to be a string');
+		}
+		if ( ! is_string( $contents ) ) {
+			throw new InvalidArgumentException('$contents needs to be a string');
+		}
+		if ( ! is_int( $lock ) ) {
+			throw new InvalidArgumentException('$lock needs to be an integer');
+		}
+		return file_put_contents($path, $contents, $lock);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function set(string $key, $value)
+    public function set($key, $value)
     {
-        $cacheKey  = $this->getActualCacheKey($key);
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		$cacheKey  = $this->getActualCacheKey($key);
         $cacheFile = $this->getCacheFile();
 
         if ( ! file_exists($cacheFile) || ! $this->isValid($cacheKey)) {
@@ -204,8 +244,8 @@ class FileStore extends Abstract_Cache
         }
 
         return $this->lock($cacheFile, LOCK_EX, function ($handle) use ($cacheKey, $cacheFile, $value) {
-            $contents = fread($handle, filesize($cacheFile) ?: 1) ?? '';
-            $contents = json_decode($contents, true) ?? [];
+            $contents = fread($handle, filesize($cacheFile) ?: 1);
+			$contents = $contents ? json_decode($contents, true) : [];
 
             if ( ! empty($contents[$cacheKey]) && \is_array($value)) {
                 $contents[$cacheKey] = $value + $contents[$cacheKey];
@@ -220,9 +260,12 @@ class FileStore extends Abstract_Cache
     /**
      * {@inheritDoc}
      */
-    public function delete(string $key): bool
+    public function delete($key)
     {
-        $cacheKey = $this->getActualCacheKey($key);
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		$cacheKey = $this->getActualCacheKey($key);
         $contents = $this->getCacheContents();
 
         if (isset($contents[$cacheKey])) {
@@ -255,10 +298,13 @@ class FileStore extends Abstract_Cache
      *
      * @return bool
      */
-    public function isValid(string $key): bool
+    public function isValid($key)
     {
-        $key  = $this->getActualCacheKey($key);
-        $meta = $this->getCacheContents()[$key] ?? [];
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		$key  = $this->getActualCacheKey($key);
+        $meta = ! empty( $this->getCacheContents()[$key] ) ? $this->getCacheContents()[$key] : array();
 
         if (empty($meta['expires_at'])) {
             return false;
@@ -280,7 +326,8 @@ class FileStore extends Abstract_Cache
             return false;
         }
 
-        return json_decode($this->sharedGet($cacheFile), true) ?? [];
+        $content = json_decode($this->sharedGet($cacheFile), true);
+		return $content ? $content : [];
     }
 
     /**
@@ -290,9 +337,12 @@ class FileStore extends Abstract_Cache
      *
      * @return string
      */
-    public function getActualCacheKey(string $key): string
+    public function getActualCacheKey($key)
     {
-        $prefix = $this->getPrefix();
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		$prefix = $this->getPrefix();
 
         if (false === strpos($key, $prefix)) {
             $key = $prefix . $key;

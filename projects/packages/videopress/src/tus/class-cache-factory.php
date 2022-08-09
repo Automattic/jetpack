@@ -25,6 +25,6 @@ class Cache_Factory
         //     case 'apcu':
         //         return new ApcuStore();
         // }
-        return new FileStore();
+        return new File_Store();
     }
 }
