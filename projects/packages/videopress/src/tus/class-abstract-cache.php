@@ -1,8 +1,8 @@
 <?php
 
-namespace TusPhp\Cache;
+namespace Automattic\Jetpack\VideoPress\Tus;
 
-abstract class AbstractCache implements Cacheable
+abstract class Abstract_Cache implements Cacheable
 {
     /** @var int TTL in secs (default 1 day) */
     protected $ttl = 86400;
@@ -17,9 +17,12 @@ abstract class AbstractCache implements Cacheable
      *
      * @return self
      */
-    public function setTtl(int $secs): self
+    public function setTtl($secs)
     {
-        $this->ttl = $secs;
+        if ( ! is_int( $secs ) ) {
+			throw new InvalidArgumentException('$secs needs to be an integer');
+		}
+		$this->ttl = $secs;
 
         return $this;
     }
@@ -27,7 +30,7 @@ abstract class AbstractCache implements Cacheable
     /**
      * {@inheritDoc}
      */
-    public function getTtl(): int
+    public function getTtl()
     {
         return $this->ttl;
     }
@@ -39,9 +42,12 @@ abstract class AbstractCache implements Cacheable
      *
      * @return Cacheable
      */
-    public function setPrefix(string $prefix): Cacheable
+    public function setPrefix($prefix)
     {
-        $this->prefix = $prefix;
+        if ( ! is_string( $prefix ) ) {
+			throw new InvalidArgumentException('$prefix needs to be a string');
+		}
+		$this->prefix = $prefix;
 
         return $this;
     }
@@ -51,7 +57,7 @@ abstract class AbstractCache implements Cacheable
      *
      * @return string
      */
-    public function getPrefix(): string
+    public function getPrefix()
     {
         return $this->prefix;
     }
@@ -63,7 +69,7 @@ abstract class AbstractCache implements Cacheable
      *
      * @return bool
      */
-    public function deleteAll(array $keys): bool
+    public function deleteAll(array $keys)
     {
         if (empty($keys)) {
             return false;

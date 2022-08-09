@@ -6,7 +6,7 @@ use TusPhp\File;
 use Carbon\Carbon;
 use TusPhp\Config;
 
-class FileStore extends AbstractCache
+class FileStore extends Abstract_Cache
 {
     /** @var int */
     public const LOCK_NONE = 0;
