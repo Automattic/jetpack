@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.17.3 - 2022-08-09
+### Changed
+- JS Components: Convert AdminPage component to TypeScript [#25352]
+- JS Components: Convert AdminSection and AdminSectionHero components to TypeScript [#25360]
+- JS Components: Converted ThemeProvider component to TypeScript [#25353]
+- JS Components: Convert utility functions to TypeScript [#25361]
+
+## 0.17.2 - 2022-08-03
+### Added
+- JS Components: Add fullWidth prop to Button [#25357]
+- JS Components: Add hidePriceFraction prop to ProductPrice [#25318]
+
+### Changed
+- JS Components: Converted Col and Container components to TypeScript [#25325]
+- JS Components: Convert JetpackFooter component to TypeScript [#25295]
+- JS Components: Convert ProductOffer component to TypeScript [#25294]
+
+### Fixed
+- JS Components: Fix price render on ProductPrice when price is 0 [#25318]
+
 ## 0.17.1 - 2022-07-29
 ### Changed
 - JS Components: Converted AutomatticBylineLogo component to TypeScript
