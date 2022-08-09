@@ -9,6 +9,7 @@
 
 ### Improved compatibility
 - Backup: add disclaimer text and link to the backup product card that links to an FAQ on the Pricing page. [#25265]
+
 ### Bug fixes
 - WordPress.com REST API: add missing site owner id to single site REST API response. [#25367]
 

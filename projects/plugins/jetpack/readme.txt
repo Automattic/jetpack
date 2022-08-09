@@ -249,6 +249,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Improved compatibility
 - Backup: add disclaimer text and link to the backup product card that links to an FAQ on the Pricing page.
+
 #### Bug fixes
 - WordPress.com REST API: add missing site owner id to single site REST API response.
 
