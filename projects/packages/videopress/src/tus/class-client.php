@@ -8,7 +8,6 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ConnectException;
-use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use InvalidArgumentException;
 
 class Client extends Abstract_Tus
@@ -522,7 +521,7 @@ class Client extends Abstract_Tus
 
         $statusCode = $response->getStatusCode();
 
-        if (HttpResponse::HTTP_CREATED !== $statusCode) {
+        if (Response_Codes::HTTP_CREATED !== $statusCode) {
             throw new File_Exception('Unable to create resource.');
         }
 
@@ -569,7 +568,7 @@ class Client extends Abstract_Tus
         $checksum   = ! empty( $data['data']['checksum'] ) ? $data['data']['checksum'] : null;
         $statusCode = $response->getStatusCode();
 
-        if (HttpResponse::HTTP_CREATED !== $statusCode || ! $checksum) {
+        if (Response_Codes::HTTP_CREATED !== $statusCode || ! $checksum) {
             throw new File_Exception('Unable to create resource.');
         }
 
@@ -591,7 +590,7 @@ class Client extends Abstract_Tus
         } catch (ClientException $e) {
             $statusCode = $e->getResponse()->getStatusCode();
 
-            if (HttpResponse::HTTP_NOT_FOUND === $statusCode || HttpResponse::HTTP_GONE === $statusCode) {
+            if (Response_Codes::HTTP_NOT_FOUND === $statusCode || Response_Codes::HTTP_GONE === $statusCode) {
                 throw new File_Exception('File not found.');
             }
         }
@@ -637,7 +636,7 @@ class Client extends Abstract_Tus
         $response   = $this->getClient()->head($this->getUrl());
         $statusCode = $response->getStatusCode();
 
-        if (HttpResponse::HTTP_OK !== $statusCode) {
+        if (Response_Codes::HTTP_OK !== $statusCode) {
             throw new File_Exception('File not found.');
         }
 
@@ -699,17 +698,17 @@ class Client extends Abstract_Tus
     protected function handleClientException(ClientException $e)
     {
         $response   = $e->getResponse();
-        $statusCode = $response !== null ? $response->getStatusCode() : HttpResponse::HTTP_INTERNAL_SERVER_ERROR;
+        $statusCode = $response !== null ? $response->getStatusCode() : Response_Codes::HTTP_INTERNAL_SERVER_ERROR;
 
-        if (HttpResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE === $statusCode) {
+        if (Response_Codes::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE === $statusCode) {
             return new File_Exception('The uploaded file is corrupt.');
         }
 
-        if (HttpResponse::HTTP_CONTINUE === $statusCode) {
+        if (Response_Codes::HTTP_CONTINUE === $statusCode) {
             return new Connection_Exception('Connection aborted by user.');
         }
 
-        if (HttpResponse::HTTP_UNSUPPORTED_MEDIA_TYPE === $statusCode) {
+        if (Response_Codes::HTTP_UNSUPPORTED_MEDIA_TYPE === $statusCode) {
             return new Tus_Exception('Unsupported media types.');
         }
 
