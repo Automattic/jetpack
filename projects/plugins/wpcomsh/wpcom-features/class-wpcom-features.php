@@ -104,6 +104,7 @@ class WPCOM_Features {
 	private const AKISMET_ENTERPRISE_2M_YEARLY                = 'ak_ep2m_yearly'; // 2308
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
+	private const JETPACK_SOCIAL_BASIC_MONTHLY                = 'jetpack_social_monthly'; // 2500
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS       = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -247,6 +248,7 @@ class WPCOM_Features {
 	public const SFTP                          = 'sftp';
 	public const SIMPLE_PAYMENTS               = 'simple-payments';
 	public const SOCIAL_PREVIEWS               = 'social-previews';
+	public const SOCIAL_SHARES_1000            = 'social-shares-1000';
 	public const SPACE                         = 'space';
 	public const SPACE_UPGRADED_STORAGE        = 'space-upgraded-storage';
 	public const SUPPORT                       = 'support';
@@ -675,6 +677,15 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
+
+		/*
+		 * SOCIAL_SHARES_1000 - This feature is linked to the ability to share upto 1000 social media shares on the Jetpack Social Plugin.
+		 *
+		 */
+		self::SOCIAL_SHARES_1000            => array(
+			self::JETPACK_SOCIAL_BASIC_MONTHLY,
+		),
+
 		self::SPACE                         => array(
 			self::WPCOM_ALL_SITES,
 		),
@@ -761,6 +772,7 @@ class WPCOM_Features {
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
+
 		self::VAULTPRESS_AUTOMATED_RESTORES => array(
 			self::JETPACK_PREMIUM_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
