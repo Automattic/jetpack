@@ -1,6 +1,6 @@
 <?php
 
-namespace TusPhp\Tus;
+namespace Automattic\Jetpack\VideoPress\Tus;
 
 use TusPhp\File;
 use Carbon\Carbon;
@@ -14,6 +14,7 @@ use TusPhp\Exception\ConnectionException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ConnectException;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
+use InvalidArgumentException;
 
 class Client extends AbstractTus
 {
@@ -61,9 +62,12 @@ class Client extends AbstractTus
      *
      * @throws \ReflectionException
      */
-    public function __construct(string $baseUri, array $options = [])
+    public function __construct( $baseUri, array $options = array() )
     {
-        $this->headers      = $options['headers'] ?? [];
+        if ( ! is_string( $baseUri ) ) {
+			throw new InvalidArgumentException('$baseUri needs to be a string');
+		}
+		$this->headers      = isset( $options['headers'] ) ? $options['headers'] : array();
         $options['headers'] = [
             'Tus-Resumable' => self::TUS_PROTOCOL_VERSION,
         ] + ($this->headers);
@@ -85,15 +89,18 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function file(string $file, string $name = null): self
+    public function file( $file, $name = null )
     {
-        $this->filePath = $file;
+        if ( ! is_string( $file ) ) {
+			throw new InvalidArgumentException('$file needs to be a string');
+		}
+		$this->filePath = $file;
 
         if ( ! file_exists($file) || ! is_readable($file)) {
             throw new FileException('Cannot read file: ' . $file);
         }
 
-        $this->fileName = $name ?? basename($this->filePath);
+        $this->fileName = ! empty( $name ) ? basename($this->filePath) : '';
         $this->fileSize = filesize($file);
 
         $this->addMetadata('filename', $this->fileName);
@@ -106,7 +113,7 @@ class Client extends AbstractTus
      *
      * @return string|null
      */
-    public function getFilePath(): ?string
+    public function getFilePath()
     {
         return $this->filePath;
     }
@@ -118,9 +125,12 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setFileName(string $name): self
+    public function setFileName($name)
     {
-        $this->addMetadata('filename', $this->fileName = $name);
+        if ( ! is_string( $name ) ) {
+			throw new InvalidArgumentException('$name needs to be a string');
+		}
+		$this->addMetadata('filename', $this->fileName = $name);
 
         return $this;
     }
@@ -130,7 +140,7 @@ class Client extends AbstractTus
      *
      * @return string|null
      */
-    public function getFileName(): ?string
+    public function getFileName()
     {
         return $this->fileName;
     }
@@ -140,7 +150,7 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    public function getFileSize(): int
+    public function getFileSize()
     {
         return $this->fileSize;
     }
@@ -150,7 +160,7 @@ class Client extends AbstractTus
      *
      * @return GuzzleClient
      */
-    public function getClient(): GuzzleClient
+    public function getClient()
     {
         return $this->client;
     }
@@ -162,9 +172,12 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setChecksum(string $checksum): self
+    public function setChecksum($checksum)
     {
-        $this->checksum = $checksum;
+        if ( ! is_string( $checksum ) ) {
+			throw new InvalidArgumentException('$checksum needs to be a string');
+		}
+		$this->checksum = $checksum;
 
         return $this;
     }
@@ -174,7 +187,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function getChecksum(): string
+    public function getChecksum()
     {
         if (empty($this->checksum)) {
             $this->setChecksum(hash_file($this->getChecksumAlgorithm(), $this->getFilePath()));
@@ -191,9 +204,12 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function addMetadata(string $key, string $value): self
+    public function addMetadata($key, $value)
     {
-        $this->metadata[$key] = base64_encode($value);
+        if ( ! is_string( $key ) || ! is_string( $value ) ) {
+			throw new InvalidArgumentException('$key and $value need to be strings');
+		}
+		$this->metadata[$key] = base64_encode($value);
 
         return $this;
     }
@@ -205,9 +221,12 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function removeMetadata(string $key): self
+    public function removeMetadata($key)
     {
-        unset($this->metadata[$key]);
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		unset($this->metadata[$key]);
 
         return $this;
     }
@@ -219,7 +238,7 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setMetadata(array $items): self
+    public function setMetadata(array $items)
     {
         $items = array_map('base64_encode', $items);
 
@@ -243,7 +262,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    protected function getUploadMetadataHeader(): string
+    protected function getUploadMetadataHeader()
     {
         $metadata = [];
 
@@ -261,9 +280,12 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setKey(string $key): self
+    public function setKey($key)
     {
-        $this->key = $key;
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		$this->key = $key;
 
         return $this;
     }
@@ -273,7 +295,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function getKey(): string
+    public function getKey()
     {
         return $this->key;
     }
@@ -283,9 +305,9 @@ class Client extends AbstractTus
      *
      * @return string|null
      */
-    public function getUrl(): ?string
+    public function getUrl()
     {
-        $this->url = $this->getCache()->get($this->getKey())['location'] ?? null;
+        $this->url =  ! empty( $this->getCache()->get($this->getKey())['location'] ) ? $this->getCache()->get($this->getKey())['location'] : null;
 
         if ( ! $this->url) {
             throw new FileException('File not found.');
@@ -301,9 +323,12 @@ class Client extends AbstractTus
      *
      * @return Client
      */
-    public function setChecksumAlgorithm(string $algorithm): self
+    public function setChecksumAlgorithm($algorithm)
     {
-        $this->checksumAlgorithm = $algorithm;
+        if ( ! is_string( $algorithm ) ) {
+			throw new InvalidArgumentException('$algorithm needs to be a string');
+		}
+		$this->checksumAlgorithm = $algorithm;
 
         return $this;
     }
@@ -313,7 +338,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function getChecksumAlgorithm(): string
+    public function getChecksumAlgorithm()
     {
         return $this->checksumAlgorithm;
     }
@@ -323,9 +348,9 @@ class Client extends AbstractTus
      *
      * @return bool
      */
-    public function isExpired(): bool
+    public function isExpired()
     {
-        $expiresAt = $this->getCache()->get($this->getKey())['expires_at'] ?? null;
+        $expiresAt = ! empty( $this->getCache()->get($this->getKey())['expires_at'] ) ? $this->getCache()->get($this->getKey())['expires_at'] : null;
 
         return empty($expiresAt) || Carbon::parse($expiresAt)->lt(Carbon::now());
     }
@@ -335,7 +360,7 @@ class Client extends AbstractTus
      *
      * @return bool
      */
-    public function isPartial(): bool
+    public function isPartial()
     {
         return $this->partial;
     }
@@ -345,7 +370,7 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    public function getPartialOffset(): int
+    public function getPartialOffset()
     {
         return $this->partialOffset;
     }
@@ -357,9 +382,12 @@ class Client extends AbstractTus
      *
      * @return self
      */
-    public function seek(int $offset): self
+    public function seek($offset)
     {
-        $this->partialOffset = $offset;
+        if ( ! is_int( $offset ) ) {
+			throw new InvalidArgumentException('$offset needs to be an integer');
+		}
+		$this->partialOffset = $offset;
 
         $this->partial();
 
@@ -377,15 +405,21 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    public function upload(int $bytes = -1): int
+    public function upload($bytes = -1)
     {
-        $bytes  = $bytes < 0 ? $this->getFileSize() : $bytes;
+        if ( ! is_int( $bytes ) ) {
+			throw new InvalidArgumentException('$bytes needs to be an integer');
+		}
+		$bytes  = $bytes < 0 ? $this->getFileSize() : $bytes;
         $offset = $this->partialOffset < 0 ? 0 : $this->partialOffset;
 
         try {
             // Check if this upload exists with HEAD request.
             $offset = $this->sendHeadRequest();
-        } catch (FileException | ClientException $e) {
+        } catch (FileException $e) {
+            // Create a new upload.
+            $this->url = $this->create($this->getKey());
+        } catch (ClientException $e) {
             // Create a new upload.
             $this->url = $this->create($this->getKey());
         } catch (ConnectException $e) {
@@ -412,7 +446,9 @@ class Client extends AbstractTus
     {
         try {
             $offset = $this->sendHeadRequest();
-        } catch (FileException | ClientException $e) {
+        } catch (FileException $e) {
+            return false;
+        } catch (ClientException $e) {
             return false;
         }
 
@@ -429,9 +465,12 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function create(string $key): string
+    public function create($key)
     {
-        return $this->createWithUpload($key, 0)['location'];
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		return $this->createWithUpload($key, 0)['location'];
     }
 
     /**
@@ -449,9 +488,12 @@ class Client extends AbstractTus
      *     'offset' => int
      * ]
      */
-    public function createWithUpload(string $key, int $bytes = -1): array
+    public function createWithUpload($key, $bytes = -1): array
     {
-        $bytes = $bytes < 0 ? $this->fileSize : $bytes;
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		$bytes = $bytes < 0 ? $this->fileSize : $bytes;
 
         $headers = $this->headers + [
             'Upload-Length' => $this->fileSize,
@@ -513,9 +555,12 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    public function concat(string $key, ...$partials): string
+    public function concat($key, ...$partials)
     {
-        $response = $this->getClient()->post($this->apiPath, [
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		$response = $this->getClient()->post($this->apiPath, [
             'headers' => $this->headers + [
                 'Upload-Length' => $this->fileSize,
                 'Upload-Key' => $key,
@@ -526,7 +571,7 @@ class Client extends AbstractTus
         ]);
 
         $data       = json_decode($response->getBody(), true);
-        $checksum   = $data['data']['checksum'] ?? null;
+        $checksum   = ! empty( $data['data']['checksum'] ) ? $data['data']['checksum'] : null;
         $statusCode = $response->getStatusCode();
 
         if (HttpResponse::HTTP_CREATED !== $statusCode || ! $checksum) {
@@ -564,9 +609,12 @@ class Client extends AbstractTus
      *
      * @return void
      */
-    protected function partial(bool $state = true)
+    protected function partial($state = true)
     {
-        $this->partial = $state;
+        if ( ! is_bool( $state ) ) {
+			throw new InvalidArgumentException('$state needs to be a boolean');
+		}
+		$this->partial = $state;
 
         if ( ! $this->partial) {
             return;
@@ -575,7 +623,7 @@ class Client extends AbstractTus
         $key = $this->getKey();
 
         if (false !== strpos($key, self::PARTIAL_UPLOAD_NAME_SEPARATOR)) {
-            [$key, /* $partialKey */] = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
+            list($key, /* $partialKey */) = explode(self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key);
         }
 
         $this->key = $key . self::PARTIAL_UPLOAD_NAME_SEPARATOR . Uuid::uuid4()->toString();
@@ -589,7 +637,7 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    protected function sendHeadRequest(): int
+    protected function sendHeadRequest()
     {
         $response   = $this->getClient()->head($this->getUrl());
         $statusCode = $response->getStatusCode();
@@ -614,9 +662,12 @@ class Client extends AbstractTus
      *
      * @return int
      */
-    protected function sendPatchRequest(int $bytes, int $offset): int
+    protected function sendPatchRequest($bytes, $offset)
     {
-        $data    = $this->getData($offset, $bytes);
+        if ( ! is_int( $bytes ) || ! is_int($offset) ) {
+			throw new InvalidArgumentException('$bytes and $offset need to be integers');
+		}
+		$data    = $this->getData($offset, $bytes);
         $headers = $this->headers + [
             'Content-Type' => self::HEADER_CONTENT_TYPE,
             'Content-Length' => \strlen($data),
@@ -678,9 +729,12 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    protected function getData(int $offset, int $bytes): string
+    protected function getData($offset, $bytes)
     {
-        $file   = new File();
+        if ( ! is_int( $bytes ) || ! is_int($offset) ) {
+			throw new InvalidArgumentException('$bytes and $offset need to be integers');
+		}
+		$file   = new File();
         $handle = $file->open($this->getFilePath(), $file::READ_BINARY);
 
         $file->seek($handle, $offset);
@@ -697,7 +751,7 @@ class Client extends AbstractTus
      *
      * @return string
      */
-    protected function getUploadChecksumHeader(): string
+    protected function getUploadChecksumHeader()
     {
         return $this->getChecksumAlgorithm() . ' ' . base64_encode($this->getChecksum());
     }
