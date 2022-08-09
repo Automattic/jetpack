@@ -50,7 +50,7 @@ describe( 'getRedirectUrl', () => {
 			query: 'key=1234&other=super',
 			anchor: 'section',
 			site: 'example.org',
-			path: 123,
+			path: '123',
 		} );
 		const parsedUrl = new URL( url );
 
