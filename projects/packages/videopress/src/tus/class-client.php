@@ -74,7 +74,7 @@ class Client extends Abstract_Tus
             ['base_uri' => $baseUri] + $options
         );
 
-        Config::set(__DIR__ . '/../Config/client.php');
+        Config::set(__DIR__ . '/client-config.php');
 
         $this->setCache('file');
     }

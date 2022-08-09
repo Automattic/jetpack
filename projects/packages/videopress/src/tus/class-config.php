@@ -1,11 +1,11 @@
 <?php
 
-namespace TusPhp;
+namespace Automattic\Jetpack\VideoPress\Tus;
 
 class Config
 {
     /** @const string */
-    private const DEFAULT_CONFIG_PATH = __DIR__ . '/Config/server.php';
+    const DEFAULT_CONFIG_PATH = __DIR__ . '/client-config.php';
 
     /** @var array */
     protected static $config = [];
@@ -18,16 +18,19 @@ class Config
      *
      * @return void
      */
-    public static function set($config = null, bool $force = false)
+    public static function set($config = null, $force = false)
     {
-        if ( ! $force && ! empty(self::$config)) {
+        if ( ! is_bool( $force ) ) {
+			throw new InvalidArgumentException('$force needs to be a boolean');
+		}
+		if ( ! $force && ! empty(self::$config)) {
             return;
         }
 
         if (\is_array($config)) {
             self::$config = $config;
         } else {
-            self::$config = require $config ?? self::DEFAULT_CONFIG_PATH;
+            self::$config = require ! empty( $config ) ? $config : self::DEFAULT_CONFIG_PATH;
         }
     }
 
@@ -38,9 +41,12 @@ class Config
      *
      * @return mixed
      */
-    public static function get(string $key = null)
+    public static function get($key = null) //a
     {
-        self::set();
+        if ( $key !== null && ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		self::set();
 
         if (empty($key)) {
             return self::$config;
