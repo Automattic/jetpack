@@ -13,10 +13,6 @@ use Carbon\Carbon;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
-use Symfony\Component\HttpFoundation\Response as HttpResponse;
-use TusPhp\Exception\ConnectionException;
-use TusPhp\Exception\FileException;
-use TusPhp\Exception\TusException;
 
 /**
  * VideoPress Tus Client class.
@@ -25,7 +21,7 @@ use TusPhp\Exception\TusException;
  * * Use only POST and GET requests.
  * * Store the key specific token our server sends after we create the upload and use it in patch requests.
  */
-class Tus_Client extends \TusPhp\Tus\Client {
+class Tus_Client extends Tus\Client {
 
 	/**
 	 * The details of the server response about the uploaded file
@@ -76,71 +72,68 @@ class Tus_Client extends \TusPhp\Tus\Client {
 	 *   'offset' => int
 	 * ]
 	 */
-	public function createWithUpload( string $key, int $bytes = -1 ): array {
+	public function createWithUpload($key, $bytes = -1): array
+    {
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
 		$bytes = $bytes < 0 ? $this->fileSize : $bytes;
 
-		$headers = $this->headers + array(
-			'Upload-Length'   => $this->fileSize,
-			'Upload-Key'      => $key,
-			'Upload-Checksum' => $this->getUploadChecksumHeader(),
-			'Upload-Metadata' => $this->getUploadMetadataHeader(),
-		);
+        $headers = $this->headers + [
+            'Upload-Length' => $this->fileSize,
+            'Upload-Key' => $key,
+            'Upload-Checksum' => $this->getUploadChecksumHeader(),
+            'Upload-Metadata' => $this->getUploadMetadataHeader(),
+        ];
 
-		$data = '';
-		if ( $bytes > 0 ) {
-			$data = $this->getData( 0, $bytes );
+        $data = '';
+        if ($bytes > 0) {
+            $data = $this->getData(0, $bytes);
 
-			$headers += array(
-				'Content-Type'   => self::HEADER_CONTENT_TYPE,
-				'Content-Length' => \strlen( $data ),
-			);
-		}
+            $headers += [
+                'Content-Type' => self::HEADER_CONTENT_TYPE,
+                'Content-Length' => \strlen($data),
+            ];
+        }
 
-		if ( $this->isPartial() ) {
-			$headers += array( 'Upload-Concat' => 'partial' );
-		}
+        if ($this->isPartial()) {
+            $headers += ['Upload-Concat' => 'partial'];
+        }
 
-		try {
-			$response = $this->getClient()->post(
-				$this->apiPath,
-				array(
-					'body'    => $data,
-					'headers' => $headers,
-				)
-			);
-		} catch ( ClientException $e ) {
-			$response = $e->getResponse();
-		}
+        try {
+            $response = $this->getClient()->post($this->apiPath, [
+                'body' => $data,
+                'headers' => $headers,
+            ]);
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
+        }
 
-		$statusCode = $response->getStatusCode();
+        $statusCode = $response->getStatusCode();
 
-		if ( HttpResponse::HTTP_CREATED !== $statusCode ) {
-			throw new FileException( 'Unable to create resource.' );
-		}
+        if (Response_Codes::HTTP_CREATED !== $statusCode) {
+            throw new File_Exception('Unable to create resource.');
+        }
 
-		$uploadOffset   = $bytes > 0 ? current( $response->getHeader( 'upload-offset' ) ) : 0;
-		$uploadLocation = current( $response->getHeader( 'location' ) );
+        $uploadOffset   = $bytes > 0 ? current($response->getHeader('upload-offset')) : 0;
+        $uploadLocation = current($response->getHeader('location'));
 
-		$this->getCache()->set(
-			$this->getKey(),
-			array(
-				'location'      => $uploadLocation,
-				'expires_at'    => Carbon::now()->addSeconds( $this->getCache()->getTtl() )->format( $this->getCache()::RFC_7231 ),
-				// VideoPress mod: Store key specific token for future usage
-				'token_for_key' => $response->getHeader( 'x-videopress-upload-key-token' ),
-			)
-		);
+        $this->getCache()->set($this->getKey(), [
+            'location' => $uploadLocation,
+            'expires_at' => Carbon::now()->addSeconds($this->getCache()->getTtl())->format($this->getCache()::RFC_7231),
+			'token_for_key' => $response->getHeader( 'x-videopress-upload-key-token' ),
+        ]);
 
-		return array(
-			'location' => $uploadLocation,
-			'offset'   => $uploadOffset,
-		);
-	}
+        return [
+            'location' => $uploadLocation,
+            'offset' => $uploadOffset,
+        ];
+    }
 
 	/**
 	 * Send DELETE request.
 	 *
-	 * @throws FileException
+	 * @throws File_Exception
 	 * @throws GuzzleException
 	 *
 	 * @return void
@@ -154,8 +147,8 @@ class Tus_Client extends \TusPhp\Tus\Client {
 		} catch ( ClientException $e ) {
 			$statusCode = $e->getResponse()->getStatusCode();
 
-			if ( HttpResponse::HTTP_NOT_FOUND === $statusCode || HttpResponse::HTTP_GONE === $statusCode ) {
-				throw new FileException( 'File not found.' );
+			if ( Response_Codes::HTTP_NOT_FOUND === $statusCode || Response_Codes::HTTP_GONE === $statusCode ) {
+				throw new File_Exception( 'File not found.' );
 			}
 		}
 	}
@@ -163,7 +156,7 @@ class Tus_Client extends \TusPhp\Tus\Client {
 	/**
 	 * Send HEAD request.
 	 *
-	 * @throws FileException
+	 * @throws File_Exception
 	 * @throws GuzzleException
 	 *
 	 * @return int
@@ -175,8 +168,8 @@ class Tus_Client extends \TusPhp\Tus\Client {
 		$response   = $this->getClient()->get( $this->getUrl(), array( 'headers' => $headers ) ); // VideoPress mod: use get() instead of head()
 		$statusCode = $response->getStatusCode();
 
-		if ( HttpResponse::HTTP_OK !== $statusCode ) {
-			throw new FileException( 'File not found.' );
+		if ( Response_Codes::HTTP_OK !== $statusCode ) {
+			throw new File_Exception( 'File not found.' );
 		}
 
 		return (int) current( $response->getHeader( 'upload-offset' ) );
@@ -188,14 +181,17 @@ class Tus_Client extends \TusPhp\Tus\Client {
 	 * @param int $bytes
 	 * @param int $offset
 	 *
-	 * @throws TusException
-	 * @throws FileException
+	 * @throws Tus_Exception
+	 * @throws File_Exception
 	 * @throws GuzzleException
-	 * @throws ConnectionException
+	 * @throws Connection_Exception
 	 *
 	 * @return int
 	 */
-	protected function sendPatchRequest( int $bytes, int $offset ): int {
+	protected function sendPatchRequest( $bytes, $offset ) {
+		if ( ! is_int( $bytes ) || ! is_int($offset) ) {
+			throw new InvalidArgumentException('$bytes and $offset need to be integers');
+		}
 		$data    = $this->getData( $offset, $bytes );
 		$headers = $this->headers + array(
 			'Content-Type'           => self::HEADER_CONTENT_TYPE,
@@ -237,7 +233,7 @@ class Tus_Client extends \TusPhp\Tus\Client {
 		} catch ( ClientException $e ) {
 			throw $this->handleClientException( $e );
 		} catch ( ConnectException $e ) {
-			throw new ConnectionException( "Couldn't connect to server." );
+			throw new Connection_Exception( "Couldn't connect to server." );
 		}
 	}
 

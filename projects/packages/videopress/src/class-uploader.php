@@ -9,9 +9,6 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
-use TusPhp\Exception\ConnectionException;
-use TusPhp\Exception\FileException;
-use TusPhp\Exception\TusException;
 
 /**
  * VideoPress Uploader class
@@ -263,7 +260,7 @@ class Uploader {
 				'file_name'      => $this->get_file_name(),
 				'upload_key'     => $this->get_key(),
 			);
-		} catch ( Upload_Exception | ConnectionException | FileException | TusException $e ) { // phpcs:ignore PHPCompatibility.ControlStructures.NewMultiCatch.Found
+		} catch ( \Exception $e ) {
 			return array(
 				'status'         => 'error',
 				'bytes_uploaded' => -1,
@@ -291,6 +288,13 @@ class Uploader {
 			);
 		}
 
+		$error_response = array(
+			'status'         => 'error',
+			'bytes_uploaded' => -1,
+			'file_size'      => $this->get_file_size(),
+			'file_name'      => $this->get_file_name(),
+		);
+
 		try {
 			$offset = $this->get_client()->getOffset();
 			$status = false !== $offset ? 'resume' : 'new';
@@ -303,14 +307,7 @@ class Uploader {
 				'file_name'      => $this->get_file_name(),
 				'upload_key'     => $this->get_key(),
 			);
-		} catch ( Upload_Exception | ConnectException $e ) { // phpcs:ignore PHPCompatibility.ControlStructures.NewMultiCatch.Found
-			return array(
-				'status'         => 'error',
-				'bytes_uploaded' => -1,
-				'file_size'      => $this->get_file_size(),
-				'file_name'      => $this->get_file_name(),
-			);
-		} catch ( FileException $e ) {
+		} catch ( File_Exception $e ) {
 			return array(
 				'status'         => 'resume',
 				'bytes_uploaded' => 0,
@@ -318,6 +315,10 @@ class Uploader {
 				'file_name'      => $this->get_file_name(),
 				'upload_key'     => $this->get_key(),
 			);
+		} catch ( Upload_Exception $e ) {
+			return $error_response;
+		} catch ( Connection_Exception $e ) {
+			return $error_response;
 		}
 	}
 
