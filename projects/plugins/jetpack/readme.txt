@@ -242,20 +242,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.3-a.1 - 2022-08-03
+### 11.3-a.3 - 2022-08-09
 #### Enhancements
-- GSuite blocks (beta): add blocks for Google document embeds. Currently a JETPACK_BETA_BLOCKS feature.
-- Payments Block: include 'earn' patterns in the block UI.
-- VideoPress Block (beta): add support to pause/resume upload.
+- Payments block: use Block API v2 to simplify the overall markup.
+- Payments block: ensure the plan name field will update according to the other options selected, unless it's already been modified.
 
 #### Improved compatibility
-- Jetpack: register VideoPress block from its editor.js file.
-- VideoPress Block (beta): move VideoPress REST endpoint to package.
-- Podcast Player: add support for podcast player to have per-feed cache timeouts.
-- SEO Tools: avoid conflicts with SEOPress and SEOKEY plugins.
+- Backup: add disclaimer text and link to the backup product card that links to an FAQ on the Pricing page.
 
 #### Bug fixes
-- Subscriptions Block: fix subscriber count display when padding dimension is added.
+- WordPress.com REST API: add missing site owner id to single site REST API response.
 
 --------
 

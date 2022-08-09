@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.17.3 - 2022-08-09
+### Changed
+- JS Components: Convert AdminPage component to TypeScript [#25352]
+- JS Components: Convert AdminSection and AdminSectionHero components to TypeScript [#25360]
+- JS Components: Converted ThemeProvider component to TypeScript [#25353]
+- JS Components: Convert utility functions to TypeScript [#25361]
+
 ## 0.17.2 - 2022-08-03
 ### Added
 - JS Components: Add fullWidth prop to Button [#25357]
