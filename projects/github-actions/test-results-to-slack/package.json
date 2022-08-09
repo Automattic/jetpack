@@ -24,7 +24,9 @@
 		"nock": "13.2.9"
 	},
 	"scripts": {
-		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt"
+		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
+		"test": "jest --config=tests/jest.config.js --verbose --runInBand",
+		"test-coverage": "jest --config=tests/jest.config.js --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"engines": {
 		"node": "^16.13.2",
