@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\VideoPress\Tus;
 
 use TusPhp\Cache\Cacheable;
-use TusPhp\Cache\CacheFactory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -48,7 +47,7 @@ abstract class Abstract_Tus
     public function setCache($cache)
     {
         if (\is_string($cache)) {
-            $this->cache = CacheFactory::make($cache);
+            $this->cache = Cache_Factory::make($cache);
         } elseif ($cache instanceof Cacheable) {
             $this->cache = $cache;
         }

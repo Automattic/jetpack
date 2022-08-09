@@ -1,8 +1,8 @@
 <?php
 
-namespace TusPhp\Cache;
+namespace Automattic\Jetpack\VideoPress\Tus;
 
-class CacheFactory
+class Cache_Factory
 {
     /**
      * Make cache.
@@ -13,14 +13,18 @@ class CacheFactory
      *
      * @return Cacheable
      */
-    public static function make(string $type = 'file'): Cacheable
+    public static function make($type = 'file')
     {
-        switch ($type) {
-            case 'redis':
-                return new RedisStore();
-            case 'apcu':
-                return new ApcuStore();
-        }
+        if ( ! is_string( $type ) ) {
+			throw new InvalidArgumentException('$type needs to be a string');
+		}
+		// Not adapted for PHP 5.6.
+		// switch ($type) {
+        //     case 'redis':
+        //         return new RedisStore();
+        //     case 'apcu':
+        //         return new ApcuStore();
+        // }
         return new FileStore();
     }
 }
