@@ -1,9 +1,9 @@
 import { ClipboardButton } from '@wordpress/components';
-import React from 'react';
 import Col from '../../layout/col';
 import Container from '../../layout/container';
-import ThemeProvider, { typography, colors, borders, spacing } from '../index.jsx';
+import ThemeProvider, { typography, colors, borders, spacing } from '../index';
 import styles from './style.module.scss';
+import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 /**
  * Get the contrasting color for any hex color
@@ -40,14 +40,15 @@ function getContrast( hexcolor ) {
 	// Check contrast
 	return yiq >= 128 ? 'black' : 'white';
 }
-
 export default {
 	title: 'JS Packages/Components/Theme Provider',
+} as ComponentMeta< typeof ThemeProvider >;
+
+const noop = () => {
+	//
 };
 
-const noop = () => {};
-
-const Section = ( { title, data, children } ) => (
+const Section = ( { title, data, children = null } ) => (
 	<div className={ styles.section }>
 		<h1 className={ styles.title }>{ title }</h1>
 		<Container fluid>
@@ -61,7 +62,7 @@ const Section = ( { title, data, children } ) => (
 							<input
 								type="text"
 								value={ data[ key ] }
-								readOnly="readonly"
+								readOnly={ true }
 								className={ styles.value }
 							/>
 						</Col>
@@ -135,7 +136,7 @@ export const Colors = () => (
 	</div>
 );
 
-const Template = args => (
+const Template: ComponentStory< typeof ThemeProvider > = args => (
 	<ThemeProvider { ...args }>
 		<div
 			style={ {
