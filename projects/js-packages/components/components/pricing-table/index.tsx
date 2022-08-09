@@ -2,7 +2,6 @@ import { __ } from '@wordpress/i18n';
 import { Icon, check, info, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
 import {
-	Fragment,
 	createContext,
 	useContext,
 	Children,
@@ -42,7 +41,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 		<Text variant="body-small" className={ classnames( styles.item, styles.value ) }>
 			<Icon
 				className={ classnames(
-					styles.item,
+					styles.icon,
 					isIncluded ? styles[ 'icon-check' ] : styles[ 'icon-cross' ]
 				) }
 				size={ 32 }
@@ -58,13 +57,10 @@ export const PricingTableHeader: React.FC< PricingTableHeaderProps > = ( { child
 );
 
 export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( { children } ) => {
-	const [ isLg ] = useBreakpointMatch( 'lg' );
-	const Wrapper = isLg ? Fragment : 'div';
-	const wrapperProps = ! isLg ? { className: styles.card } : {};
 	let index = 0;
 
 	return (
-		<Wrapper { ...wrapperProps }>
+		<div className={ styles.card }>
 			{ Children.map( children, child => {
 				const item = child as ReactElement<
 					PropsWithChildren< PricingTableHeaderProps | PricingTableItemProps >
@@ -77,7 +73,7 @@ export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( { child
 
 				return item;
 			} ) }
-		</Wrapper>
+		</div>
 	);
 };
 

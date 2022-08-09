@@ -19,50 +19,62 @@
 }
 
 .card {
-	background: var( --jp-white );
-	box-shadow: 0px calc( var( --spacing-base ) * 0.5 ) calc( var( --spacing-base ) * 3 )
-			rgba( 0, 0, 0, 0.05 ),
-		inset 0px 0px 0px 1px var( --jp-gray );
-	border-radius: calc( var( --spacing-base ) * 0.5 );
-	padding: var( --padding ) 0;
 	margin-top: var( --padding );
 
-	& + & {
-		margin-top: var( --gap );
+	.is-viewport-large & {
+		display: contents;
+	}
+
+	> * {
+		background: var( --jp-white );
+		border: solid var( --jp-gray );
+		border-width: 0 1px;
+		box-shadow: 0px 4px 24px rgba( 0, 0, 0, 0.05 );
+		clip-path: inset(
+			0px -24px -24px -24px
+		); // Offset clip-path everywhere but the top to display the shadows.
+	}
+
+	> :first-child {
+		border-top-left-radius: var( --jp-border-radius );
+		border-top-right-radius: var( --jp-border-radius );
+		border-width: 1px 1px 0;
+		clip-path: none; // Allow shadows everywhere.
+	}
+
+	> :last-child {
+		border-width: 0 1px 1px;
+		border-bottom-left-radius: var( --jp-border-radius );
+		border-bottom-right-radius: var( --jp-border-radius );
 	}
 }
 
 .header {
-	margin-bottom: var( --padding );
-	padding: 0 var( --padding );
-
-	.is-viewport-large & {
-		&::before {
-			top: 0;
-			position: absolute;
-			height: 100%;
-			width: calc(
-				( 100% / var( --columns ) ) - ( ( var( --columns ) - 1 ) * var( --gap ) / var( --columns ) )
-			);
-			content: '';
-			background: var( --jp-white );
-			box-shadow: 0px 4px 24px rgba( 0, 0, 0, 0.05 ), inset 0px 0px 0px 1px var( --jp-gray );
-			border-radius: 4px;
-			z-index: -1;
-			transform: translateX( calc( var( --padding ) * -1 ) );
-		}
-	}
+	padding: var( --padding );
 }
 
 .item {
 	display: flex;
 	align-items: center;
+	padding-bottom: calc( var( --spacing-base ) * 2 );
+	position: relative;
 
-	// Target all items from the second row onwards.
-	& + & {
-		border-top: 1px solid var( --jp-gray );
-		margin-top: calc( var( --spacing-base ) * 2 );
+	&:not( :first-of-type ) {
 		padding-top: calc( var( --spacing-base ) * 2 );
+
+		&::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: var( --border-offset, 0 );
+			right: var( --border-offset, 0 );
+			height: 1px;
+			background-color: var( --jp-gray );
+		}
+	}
+
+	&:last-of-type {
+		padding-bottom: var( --padding );
 	}
 }
 
@@ -71,20 +83,21 @@
 }
 
 .value {
-	margin-left: var( --padding );
-	margin-right: var( --padding );
+	--border-offset: var( --padding );
+	padding-left: var( --padding );
+	padding-right: var( --padding );
 }
 
 .icon {
 	margin: 0 var( --spacing-base );
-	fill: var( --jp-gray-30 );
+	fill: var( --fill, var( --jp-gray ) );
 	flex-shrink: 0;
 }
 
 .icon-check {
-	fill: var( --jp-green-40 );
+	--fill: var( --jp-green-40 );
 }
 
 .icon-cross {
-	fill: var( --jp-red-50 );
+	--fill: var( --jp-red-50 );
 }
