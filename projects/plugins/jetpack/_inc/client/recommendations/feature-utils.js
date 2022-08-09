@@ -13,6 +13,13 @@ import { fetchPluginsData } from 'state/site/plugins';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
+		case 'boost-free':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Jetpack Boost', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
+				configLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-boost',
+			};
 		case 'creative-mail':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -70,7 +77,18 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 };
 
 export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
+	const siteRawUrl = getSiteRawUrl( state );
+
 	switch ( resourceSlug ) {
+		case 'boost-paid':
+			return {
+				displayName: __( 'Jetpack Boost', 'jetpack' ),
+				ctaLabel: __( 'Upgrade', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: PLAN_JETPACK_BOOST,
+				} ),
+			};
 		case 'security-plan':
 			return {
 				displayName: __( 'Site Security', 'jetpack' ),
@@ -90,6 +108,14 @@ export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 
 export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 	switch ( featureSlug ) {
+		case 'boost-free':
+			return {
+				activateFeature: () => {
+					return restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
+						dispatch( fetchPluginsData() );
+					} );
+				},
+			};
 		case 'creative-mail':
 			return {
 				activateFeature: () => {

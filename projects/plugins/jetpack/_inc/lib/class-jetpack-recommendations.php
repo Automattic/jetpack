@@ -180,7 +180,10 @@ class Jetpack_Recommendations {
 		// A new page has been published
 		if ( 'page' === $post->post_type && 'publish' === $new_status && 'publish' !== $old_status ) {
 			// The boost plugin is not installed
-			if ( ! Plugins_Installer::is_plugin_active( 'boost/jetpack-boost.php' ) ) {
+			if (
+				! Plugins_Installer::is_plugin_active( 'boost/jetpack-boost.php' ) &&
+				! Plugins_Installer::is_plugin_active( 'jetpack-boost/jetpack-boost.php' )
+			) {
 				self::enable_conditional_recommendation( self::BOOST_FREE_RECOMMENDATION );
 				// Boost is installed & active
 			} else {

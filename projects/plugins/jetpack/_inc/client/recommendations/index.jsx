@@ -137,6 +137,12 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/videopress">
 						<FeaturePrompt stepSlug="videopress" isNew={ isNew( 'videopress' ) } />
 					</Route>
+					<Route path="/recommendations/boost-free">
+						<FeaturePrompt stepSlug="boost-free" />
+					</Route>
+					<Route path="/recommendations/boost-paid">
+						<ResourcePrompt stepSlug="boost-paid" />
+					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />
 					</Route>
