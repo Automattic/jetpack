@@ -1,7 +1,7 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 import { InspectorControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
@@ -24,7 +24,6 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 	const upgradeUrl = useSelect( select => select( membershipProductsStore ).getUpgradeUrl() );
-	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 
 	const updateSubscriptionPlan = useCallback(
 		newPlanId => {
@@ -84,28 +83,6 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 	);
 
 	useWidth( { attributes, disableEffects: ! hasWidthSupport, setAttributes } );
-
-	const buttonBlock = useSelect(
-		select =>
-			select( 'core/block-editor' )
-				.getBlock( clientId )
-				?.innerBlocks.find( block => block.name === 'jetpack/button' ),
-		[ clientId ]
-	);
-
-	// Updates the width whenever it is changed from the inner button block settings.
-	useEffect( () => {
-		if ( ! buttonBlock || ! hasWidthSupport ) {
-			return;
-		}
-
-		setAttributes( { width: buttonBlock.attributes.width } );
-
-		// TODO: Ignore this width attribute change.
-		updateBlockAttributes( buttonBlock.clientId, {
-			width: undefined,
-		} );
-	}, [ buttonBlock, hasWidthSupport, setAttributes, updateBlockAttributes ] );
 
 	const blockProps = useBlockProps( { style: { width } } );
 	const innerBlocksProps = useInnerBlocksProps(
