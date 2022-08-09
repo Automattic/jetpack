@@ -436,7 +436,15 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$calypso_preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
 
 		$sidebar_collapsed = isset( $calypso_preferences['sidebarCollapsed'] ) ? $calypso_preferences['sidebarCollapsed'] : false;
-		set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+
+		// Read the current stored setting and convert it to boolean in order to be able to compare the values later.
+		$current_sidebar_collapsed_setting = ( 'f' === get_user_setting( 'mfold' ) ) ? true : false;
+
+		// Only set the setting if the value differs, as `set_user_setting` always updates at least the timestamp
+		// which leads to unnecessary user meta cache purging on all wp-admin screen requests.
+		if ( $current_sidebar_collapsed_setting !== $sidebar_collapsed ) {
+			set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+		}
 	}
 
 	/**

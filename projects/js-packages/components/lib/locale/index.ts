@@ -6,7 +6,7 @@ import { __experimentalGetSettings } from '@wordpress/date'; // eslint-disable-l
  * @param {string} locale - Locale given by WordPress.
  * @returns {string} Browser-formatted locale.
  */
-export const cleanLocale = locale => {
+export const cleanLocale = ( locale: string ) => {
 	const regex = /^([a-z]{2,3})(_[a-z]{2}|_[a-z][a-z0-9]{4,7})?(?:_.*)?$/i;
 
 	// Search for the correct locale format:
@@ -23,6 +23,9 @@ export const cleanLocale = locale => {
 		`${ localeRegex[ 1 ] }${ localeRegex[ 2 ] ? localeRegex[ 2 ] : '' }`.replace( '_', '-' )
 	);
 };
+
+// Since global is used inside getUserLocale, we need to declare it for TS
+declare const global: typeof globalThis;
 
 /**
  * Current user locale, or browser locale as fallback.

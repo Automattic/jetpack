@@ -24,6 +24,28 @@ $modal-max-width-lg: 95%;
 		color: $color-text;
 		background: $color-mark-background-default;
 	}
+
+	#jetpack-instant-search__overlay-focus-anchor {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		border: none;
+		background-color: inherit;
+		color: inherit;
+		font-size: 0.7em;
+		font-weight: 400;
+		margin-right: 4px;
+		margin-bottom: 4px;
+		width: 1px;
+		overflow: hidden;
+		clip: rect( 1px, 1px, 1px, 1px );
+
+		&:focus {
+			clip: auto !important;
+			clip-path: none;
+			width: auto;
+		}
+	}
 }
 
 .jetpack-instant-search__search-results-controls {

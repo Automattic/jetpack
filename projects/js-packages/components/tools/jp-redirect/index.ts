@@ -1,4 +1,7 @@
 /* global jetpack_redirects */
+
+import { GetRedirectUrlArgs, QueryVars } from './types';
+
 /**
  * Builds an URL using the jetpack.com/redirect/ service
  *
@@ -10,15 +13,15 @@
  *
  * @since 0.2.0
  * @param {string} source - The URL handler registered in the server or the full destination URL (starting with https://).
- * @param {object} args - Additional arguments to build the url.  This is not a complete list as any argument passed here will be sent to as a query parameter to the Redirect server. These parameters will not necessarily be passed over to the final destination URL. If you want to add a parameter to the final destination URL, use the `query` argument.
- * @param {string} args.site - URL of the current site. Will default to the value of jetpack_redirects.currentSiteRawUrl, if available. Used to fill in the `[site]` placeholder in the target.
- * @param {string} args.path - Additional path to be appended to the URL. Used to fill in the `[path]` placeholder in the target.
- * @param {string} args.query - Query parameters to be added to the final destination URL. should be in query string format (e.g. 'key=value&foo=bar').
- * @param {string} args.anchor - Anchor to be added to the URL. Must be a single string. Example: `section1`.
+ * @param {GetRedirectUrlArgs} args - Additional arguments to build the url.
+ * This is not a complete list as any argument passed here
+ * will be sent to as a query parameter to the Redirect server.
+ * These parameters will not necessarily be passed over to the final destination URL.
+ * If you want to add a parameter to the final destination URL, use the `query` argument.
  * @returns {string} The redirect URL
  */
-export default function getRedirectUrl( source, args = {} ) {
-	const queryVars = {};
+export default function getRedirectUrl( source: string, args: GetRedirectUrlArgs = {} ) {
+	const queryVars: QueryVars = {};
 
 	let calypsoEnv;
 	if ( typeof window !== 'undefined' ) {
