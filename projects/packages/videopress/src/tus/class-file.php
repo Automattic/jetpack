@@ -1,26 +1,27 @@
 <?php
 
-namespace TusPhp;
+namespace Automattic\Jetpack\VideoPress\Tus;
 
 use Carbon\Carbon;
 use TusPhp\Cache\Cacheable;
 use TusPhp\Exception\FileException;
 use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\OutOfRangeException;
+use InvalidArgumentException;
 
 class File
 {
     /** @const Max chunk size */
-    public const CHUNK_SIZE = 8192; // 8 kilobytes.
+    const CHUNK_SIZE = 8192; // 8 kilobytes.
 
     /** @const Input stream */
-    public const INPUT_STREAM = 'php://input';
+    const INPUT_STREAM = 'php://input';
 
     /** @const Read binary mode */
-    public const READ_BINARY = 'rb';
+    const READ_BINARY = 'rb';
 
     /** @const Append binary mode */
-    public const APPEND_BINARY = 'ab';
+    const APPEND_BINARY = 'ab';
 
     /** @var string */
     protected $key;
@@ -55,9 +56,12 @@ class File
      * @param string|null    $name
      * @param Cacheable|null $cache
      */
-    public function __construct(string $name = null, Cacheable $cache = null)
+    public function __construct($name = null, Cacheable $cache = null)
     {
-        $this->name  = $name;
+        if ( ! is_null( $name ) && ! is_string( $name ) ) {
+			throw new InvalidArgumentException('$name needs to be a string');
+		}
+		$this->name  = $name;
         $this->cache = $cache;
     }
 
@@ -71,9 +75,18 @@ class File
      *
      * @return File
      */
-    public function setMeta(int $offset, int $fileSize, string $filePath, string $location = null): self
+    public function setMeta($offset, $fileSize, $filePath, $location = null)
     {
-        $this->offset   = $offset;
+        if ( ! is_string( $filePath ) ) {
+			throw new InvalidArgumentException('$filePath needs to be a string');
+		}
+		if ( ! is_null( $location ) && ! is_string( $location) ) {
+			throw new InvalidArgumentException('$location needs to be a string');
+		}
+		if ( ! is_int( $offset ) || ! is_int( $fileSize ) ) {
+			throw new InvalidArgumentException('$offset and $fileSize need to be integers');
+		}
+		$this->offset   = $offset;
         $this->fileSize = $fileSize;
         $this->filePath = $filePath;
         $this->location = $location;
@@ -88,9 +101,12 @@ class File
      *
      * @return File
      */
-    public function setName(string $name): self
+    public function setName($name)
     {
-        $this->name = $name;
+        if ( ! is_string( $name ) ) {
+			throw new InvalidArgumentException('$name needs to be a string');
+		}
+		$this->name = $name;
 
         return $this;
     }
@@ -100,7 +116,7 @@ class File
      *
      * @return string
      */
-    public function getName(): string
+    public function getName()
     {
         return $this->name;
     }
@@ -112,9 +128,12 @@ class File
      *
      * @return File
      */
-    public function setFileSize(int $size): self
+    public function setFileSize($size)
     {
-        $this->fileSize = $size;
+        if ( ! is_int( $size ) ) {
+			throw new InvalidArgumentException('$size needs to be an integer');
+		}
+		$this->fileSize = $size;
 
         return $this;
     }
@@ -124,7 +143,7 @@ class File
      *
      * @return int
      */
-    public function getFileSize(): int
+    public function getFileSize()
     {
         return $this->fileSize;
     }
@@ -136,9 +155,12 @@ class File
      *
      * @return File
      */
-    public function setKey(string $key): self
+    public function setKey($key)
     {
-        $this->key = $key;
+        if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException('$key needs to be a string');
+		}
+		$this->key = $key;
 
         return $this;
     }
@@ -148,7 +170,7 @@ class File
      *
      * @return string
      */
-    public function getKey(): string
+    public function getKey()
     {
         return $this->key;
     }
@@ -160,9 +182,12 @@ class File
      *
      * @return File
      */
-    public function setChecksum(string $checksum): self
+    public function setChecksum($checksum)
     {
-        $this->checksum = $checksum;
+        if ( ! is_string( $checksum ) ) {
+			throw new InvalidArgumentException('$checksum needs to be a string');
+		}
+		$this->checksum = $checksum;
 
         return $this;
     }
@@ -172,7 +197,7 @@ class File
      *
      * @return string
      */
-    public function getChecksum(): string
+    public function getChecksum()
     {
         return $this->checksum;
     }
@@ -184,9 +209,12 @@ class File
      *
      * @return File
      */
-    public function setOffset(int $offset): self
+    public function setOffset($offset)
     {
-        $this->offset = $offset;
+        if ( ! is_int( $offset ) ) {
+			throw new InvalidArgumentException('$offset needs to be an integer');
+		}
+		$this->offset = $offset;
 
         return $this;
     }
@@ -196,7 +224,7 @@ class File
      *
      * @return int
      */
-    public function getOffset(): int
+    public function getOffset()
     {
         return $this->offset;
     }
@@ -208,9 +236,12 @@ class File
      *
      * @return File
      */
-    public function setLocation(string $location): self
+    public function setLocation($location)
     {
-        $this->location = $location;
+        if ( ! is_string( $location ) ) {
+			throw new InvalidArgumentException('$location needs to be a string');
+		}
+		$this->location = $location;
 
         return $this;
     }
@@ -220,7 +251,7 @@ class File
      *
      * @return string
      */
-    public function getLocation(): string
+    public function getLocation()
     {
         return $this->location;
     }
@@ -232,9 +263,12 @@ class File
      *
      * @return File
      */
-    public function setFilePath(string $path): self
+    public function setFilePath($path)
     {
-        $this->filePath = $path;
+        if ( ! is_string( $path ) ) {
+			throw new InvalidArgumentException('$path needs to be a string');
+		}
+		$this->filePath = $path;
 
         return $this;
     }
@@ -244,7 +278,7 @@ class File
      *
      * @return string
      */
-    public function getFilePath(): string
+    public function getFilePath()
     {
         return $this->filePath;
     }
@@ -254,7 +288,7 @@ class File
      *
      * @return File
      */
-    public function setUploadMetadata(array $metadata): self
+    public function setUploadMetadata(array $metadata)
     {
         $this->uploadMetadata = $metadata;
 
@@ -266,7 +300,7 @@ class File
      *
      * @return string
      */
-    public function getInputStream(): string
+    public function getInputStream()
     {
         return self::INPUT_STREAM;
     }
@@ -302,9 +336,12 @@ class File
      *
      * @return int
      */
-    public function upload(int $totalBytes): int
+    public function upload($totalBytes)
     {
-        if ($this->offset === $totalBytes) {
+        if ( ! is_int( $totalBytes ) ) {
+			throw new InvalidArgumentException('$totalBytes needs to be an integer');
+		}
+		if ($this->offset === $totalBytes) {
             return $this->offset;
         }
 
@@ -353,9 +390,12 @@ class File
      *
      * @return resource
      */
-    public function open(string $filePath, string $mode)
+    public function open($filePath, $mode)
     {
-        $this->exists($filePath, $mode);
+        if ( ! is_string( $filePath ) || ! is_string( $mode ) ) {
+			throw new InvalidArgumentException('$filePath and $mode need to be strings');
+		}
+		$this->exists($filePath, $mode);
 
         $ptr = @fopen($filePath, $mode);
 
@@ -376,9 +416,12 @@ class File
      *
      * @return bool
      */
-    public function exists(string $filePath, string $mode = self::READ_BINARY): bool
+    public function exists($filePath, $mode = self::READ_BINARY)
     {
-        if (self::INPUT_STREAM === $filePath) {
+        if ( ! is_string( $filePath ) || ! is_string( $mode ) ) {
+			throw new InvalidArgumentException('$filePath and $mode need to be strings');
+		}
+		if (self::INPUT_STREAM === $filePath) {
             return true;
         }
 
@@ -400,9 +443,12 @@ class File
      *
      * @return int
      */
-    public function seek($handle, int $offset, int $whence = SEEK_SET): int
+    public function seek($handle, $offset, $whence = SEEK_SET)
     {
-        $position = fseek($handle, $offset, $whence);
+        if ( ! is_int( $offset ) || ! is_int( $whence ) ) {
+			throw new InvalidArgumentException('$offset and $whence need to be integers');
+		}
+		$position = fseek($handle, $offset, $whence);
 
         if (-1 === $position) {
             throw new FileException('Cannot move pointer to desired position.');
@@ -421,9 +467,12 @@ class File
      *
      * @return string
      */
-    public function read($handle, int $chunkSize): string
+    public function read($handle, $chunkSize)
     {
-        $data = fread($handle, $chunkSize);
+        if ( ! is_int( $chunkSize ) ) {
+			throw new InvalidArgumentException('$chunkSize needs to be an integer');
+		}
+		$data = fread($handle, $chunkSize);
 
         if (false === $data) {
             throw new FileException('Cannot read file.');
@@ -443,9 +492,12 @@ class File
      *
      * @return int
      */
-    public function write($handle, string $data, $length = null): int
+    public function write($handle, $data, $length = null)
     {
-        $bytesWritten = \is_int($length) ? fwrite($handle, $data, $length) : fwrite($handle, $data);
+        if ( ! is_string( $data ) ) {
+			throw new InvalidArgumentException('$data needs to be a string');
+		}
+		$bytesWritten = \is_int($length) ? fwrite($handle, $data, $length) : fwrite($handle, $data);
 
         if (false === $bytesWritten) {
             throw new FileException('Cannot write to a file.');
@@ -461,7 +513,7 @@ class File
      *
      * @return int
      */
-    public function merge(array $files): int
+    public function merge(array $files)
     {
         $destination = $this->getFilePath();
         $firstFile   = array_shift($files);
@@ -497,9 +549,12 @@ class File
      *
      * @return bool
      */
-    public function copy(string $source, string $destination): bool
+    public function copy($source, $destination)
     {
-        $status = @copy($source, $destination);
+        if ( ! is_string( $source ) || ! is_string( $destination ) ) {
+			throw new InvalidArgumentException('$source and $destination need to be strings');
+		}
+		$status = @copy($source, $destination);
 
         if (false === $status) {
             throw new FileException(sprintf('Cannot copy source (%s) to destination (%s).', $source, $destination));
@@ -516,9 +571,12 @@ class File
      *
      * @return bool
      */
-    public function delete(array $files, bool $folder = false): bool
+    public function delete(array $files, $folder = false)
     {
-        $status = $this->deleteFiles($files);
+        if ( ! is_bool( $folder ) ) {
+			throw new InvalidArgumentException('$folder needs to be a boolean');
+		}
+		$status = $this->deleteFiles($files);
 
         if ($status && $folder) {
             return rmdir(\dirname(current($files)));
@@ -534,7 +592,7 @@ class File
      *
      * @return bool
      */
-    public function deleteFiles(array $files): bool
+    public function deleteFiles(array $files)
     {
         if (empty($files)) {
             return false;
@@ -558,7 +616,7 @@ class File
      *
      * @return bool
      */
-    public function close($handle): bool
+    public function close($handle)
     {
         return fclose($handle);
     }
