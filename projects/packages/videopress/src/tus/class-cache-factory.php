@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
+use InvalidArgumentException;
+
 class Cache_Factory
 {
     /**

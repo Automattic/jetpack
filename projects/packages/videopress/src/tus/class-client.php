@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\VideoPress\Tus;
 
 use Carbon\Carbon;
-use TusPhp\Config;
 use Ramsey\Uuid\Uuid;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;

@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
+use InvalidArgumentException;
+
 abstract class Abstract_Cache implements Cacheable
 {
     /** @var int TTL in secs (default 1 day) */

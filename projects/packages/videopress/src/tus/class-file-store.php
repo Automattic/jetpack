@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\VideoPress\Tus;
 
 use Carbon\Carbon;
+use InvalidArgumentException;
 
 class File_Store extends Abstract_Cache
 {

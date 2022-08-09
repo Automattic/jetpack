@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\VideoPress\Tus;
 
 use Carbon\Carbon;
-use TusPhp\Cache\Cacheable;
 use InvalidArgumentException;
 
 class File
