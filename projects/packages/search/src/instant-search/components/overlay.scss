@@ -42,7 +42,33 @@ $overlay-horizontal-padding-lg: 3em;
 		padding: $overlay-vertical-padding-lg $overlay-horizontal-padding-lg;
 	}
 
-	h1, h2, h3, h4, h5, h6 {
+	button {
+		background-color: inherit !important;
+		color: $color-text-lighter !important;
+		font-size: inherit;
+		font-weight: inherit;
+		padding: inherit;
+		outline-offset: inherit;
+
+		&:focus {
+			outline: 1px auto Highlight;
+			outline: 1px auto -webkit-focus-ring-color !important;
+		}
+	}
+
+	input[type='checkbox'] {
+		&:focus {
+			outline: 1px auto Highlight;
+			outline: 1px auto -webkit-focus-ring-color !important;
+		}
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
 		@include remove-header-styling();
 	}
 
@@ -61,9 +87,9 @@ $overlay-horizontal-padding-lg: 3em;
 
 // Ensure the hidden overlay doesn't add whitespace to printed pages
 @media print {
-    .jetpack-instant-search__overlay.is-hidden {
-        display: none;
-    }
+	.jetpack-instant-search__overlay.is-hidden {
+		display: none;
+	}
 }
 
 // Only show animation to users who have not chosen reduced motion
