@@ -24,15 +24,17 @@ const PricingTableContext = createContext( undefined );
 
 export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	isIncluded,
-	rowLabel,
+	index = 0,
 	label = null,
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
+	const items = useContext( PricingTableContext );
+	const rowLabel = items[ index ];
 	let defaultLabel = isIncluded ? __( 'Included', 'jetpack' ) : __( 'Not included', 'jetpack' );
 	defaultLabel = isLg ? defaultLabel : rowLabel;
 
 	if ( ! isLg && ! isIncluded ) {
-		return <></>;
+		return null;
 	}
 
 	return (
@@ -52,25 +54,23 @@ export const PricingTableHeader: React.FC< PricingTableHeaderProps > = ( { child
 
 export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( { children } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
-	const items = useContext( PricingTableContext );
 	const Wrapper = isLg ? Fragment : 'div';
 	const wrapperProps = ! isLg ? { className: styles.card } : {};
 	let index = 0;
 
 	return (
 		<Wrapper { ...wrapperProps }>
-			{ Children.map( Children.toArray( children ), child => {
-				const props: { rowLabel?: string } = {};
+			{ Children.map( children, child => {
 				const item = child as ReactElement<
 					PropsWithChildren< PricingTableHeaderProps | PricingTableItemProps >
 				>;
 
 				if ( item.type === PricingTableItem ) {
-					props.rowLabel = items[ index ];
 					index++;
+					return cloneElement( item, { index: index - 1 } );
 				}
 
-				return cloneElement( item, { ...props } );
+				return item;
 			} ) }
 		</Wrapper>
 	);

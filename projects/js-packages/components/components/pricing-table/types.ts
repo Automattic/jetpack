@@ -41,7 +41,7 @@ export type PricingTableItemProps = {
 	label?: string | number | React.ReactElement;
 
 	/**
-	 * Default label on smaller screens. Internal use only.
+	 * Index of the item, relative to other PricingTableItem components. Internal use only.
 	 */
-	rowLabel?: string;
+	index?: number;
 };
