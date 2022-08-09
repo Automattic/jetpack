@@ -1,7 +1,7 @@
 <?php
 
-namespace TusPhp\Exception;
+namespace Automattic\Jetpack\VideoPress\Tus;
 
-class OutOfRangeException extends \OutOfRangeException
+class Out_Of_Range_Exception extends \OutOfRangeException
 {
 }

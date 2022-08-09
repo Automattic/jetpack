@@ -4,9 +4,6 @@ namespace Automattic\Jetpack\VideoPress\Tus;
 
 use Carbon\Carbon;
 use TusPhp\Cache\Cacheable;
-use TusPhp\Exception\FileException;
-use TusPhp\Exception\ConnectionException;
-use TusPhp\Exception\OutOfRangeException;
 use InvalidArgumentException;
 
 class File
@@ -332,7 +329,7 @@ class File
      *
      * @param int $totalBytes
      *
-     * @throws ConnectionException
+     * @throws Connection_Exception
      *
      * @return int
      */
@@ -354,7 +351,7 @@ class File
 
             while ( ! feof($input)) {
                 if (CONNECTION_NORMAL !== connection_status()) {
-                    throw new ConnectionException('Connection aborted by user.');
+                    throw new Connection_Exception('Connection aborted by user.');
                 }
 
                 $data  = $this->read($input, self::CHUNK_SIZE);
@@ -365,7 +362,7 @@ class File
                 $this->cache->set($key, ['offset' => $this->offset]);
 
                 if ($this->offset > $totalBytes) {
-                    throw new OutOfRangeException('The uploaded file is corrupt.');
+                    throw new Out_Of_Range_Exception('The uploaded file is corrupt.');
                 }
 
                 if ($this->offset === $totalBytes) {
@@ -386,7 +383,7 @@ class File
      * @param string $filePath
      * @param string $mode
      *
-     * @throws FileException
+     * @throws File_Exception
      *
      * @return resource
      */
@@ -400,7 +397,7 @@ class File
         $ptr = @fopen($filePath, $mode);
 
         if (false === $ptr) {
-            throw new FileException("Unable to open $filePath.");
+            throw new File_Exception("Unable to open $filePath.");
         }
 
         return $ptr;
@@ -412,7 +409,7 @@ class File
      * @param string $filePath
      * @param string $mode
      *
-     * @throws FileException
+     * @throws File_Exception
      *
      * @return bool
      */
@@ -426,7 +423,7 @@ class File
         }
 
         if (self::READ_BINARY === $mode && ! file_exists($filePath)) {
-            throw new FileException('File not found.');
+            throw new File_Exception('File not found.');
         }
 
         return true;
@@ -439,7 +436,7 @@ class File
      * @param int      $offset
      * @param int      $whence
      *
-     * @throws FileException
+     * @throws File_Exception
      *
      * @return int
      */
@@ -451,7 +448,7 @@ class File
 		$position = fseek($handle, $offset, $whence);
 
         if (-1 === $position) {
-            throw new FileException('Cannot move pointer to desired position.');
+            throw new File_Exception('Cannot move pointer to desired position.');
         }
 
         return $position;
@@ -463,7 +460,7 @@ class File
      * @param resource $handle
      * @param int      $chunkSize
      *
-     * @throws FileException
+     * @throws File_Exception
      *
      * @return string
      */
@@ -475,7 +472,7 @@ class File
 		$data = fread($handle, $chunkSize);
 
         if (false === $data) {
-            throw new FileException('Cannot read file.');
+            throw new File_Exception('Cannot read file.');
         }
 
         return $data;
@@ -488,7 +485,7 @@ class File
      * @param string   $data
      * @param int|null $length
      *
-     * @throws FileException
+     * @throws File_Exception
      *
      * @return int
      */
@@ -500,7 +497,7 @@ class File
 		$bytesWritten = \is_int($length) ? fwrite($handle, $data, $length) : fwrite($handle, $data);
 
         if (false === $bytesWritten) {
-            throw new FileException('Cannot write to a file.');
+            throw new File_Exception('Cannot write to a file.');
         }
 
         return $bytesWritten;
@@ -528,7 +525,7 @@ class File
 
         foreach ($files as $file) {
             if ( ! file_exists($file['file_path'])) {
-                throw new FileException('File to be merged not found.');
+                throw new File_Exception('File to be merged not found.');
             }
 
             $this->fileSize += $this->write($handle, file_get_contents($file['file_path']));
@@ -557,7 +554,7 @@ class File
 		$status = @copy($source, $destination);
 
         if (false === $status) {
-            throw new FileException(sprintf('Cannot copy source (%s) to destination (%s).', $source, $destination));
+            throw new File_Exception(sprintf('Cannot copy source (%s) to destination (%s).', $source, $destination));
         }
 
         return $status;

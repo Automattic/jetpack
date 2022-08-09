@@ -7,10 +7,8 @@ use Carbon\Carbon;
 use TusPhp\Config;
 use Ramsey\Uuid\Uuid;
 use TusPhp\Exception\TusException;
-use TusPhp\Exception\FileException;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
-use TusPhp\Exception\ConnectionException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ConnectException;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -97,7 +95,7 @@ class Client extends Abstract_Tus
 		$this->filePath = $file;
 
         if ( ! file_exists($file) || ! is_readable($file)) {
-            throw new FileException('Cannot read file: ' . $file);
+            throw new File_Exception('Cannot read file: ' . $file);
         }
 
         $this->fileName = ! empty( $name ) ? basename($this->filePath) : '';
@@ -310,7 +308,7 @@ class Client extends Abstract_Tus
         $this->url =  ! empty( $this->getCache()->get($this->getKey())['location'] ) ? $this->getCache()->get($this->getKey())['location'] : null;
 
         if ( ! $this->url) {
-            throw new FileException('File not found.');
+            throw new File_Exception('File not found.');
         }
 
         return $this->url;
@@ -401,7 +399,7 @@ class Client extends Abstract_Tus
      *
      * @throws TusException
      * @throws GuzzleException
-     * @throws ConnectionException
+     * @throws Connection_Exception
      *
      * @return int
      */
@@ -416,14 +414,14 @@ class Client extends Abstract_Tus
         try {
             // Check if this upload exists with HEAD request.
             $offset = $this->sendHeadRequest();
-        } catch (FileException $e) {
+        } catch (File_Exception $e) {
             // Create a new upload.
             $this->url = $this->create($this->getKey());
         } catch (ClientException $e) {
             // Create a new upload.
             $this->url = $this->create($this->getKey());
         } catch (ConnectException $e) {
-            throw new ConnectionException("Couldn't connect to server.");
+            throw new Connection_Exception("Couldn't connect to server.");
         }
 
         // Verify that upload is not yet expired.
@@ -446,7 +444,7 @@ class Client extends Abstract_Tus
     {
         try {
             $offset = $this->sendHeadRequest();
-        } catch (FileException $e) {
+        } catch (File_Exception $e) {
             return false;
         } catch (ClientException $e) {
             return false;
@@ -460,7 +458,7 @@ class Client extends Abstract_Tus
      *
      * @param string $key
      *
-     * @throws FileException
+     * @throws File_Exception
      * @throws GuzzleException
      *
      * @return string
@@ -528,7 +526,7 @@ class Client extends Abstract_Tus
         $statusCode = $response->getStatusCode();
 
         if (HttpResponse::HTTP_CREATED !== $statusCode) {
-            throw new FileException('Unable to create resource.');
+            throw new File_Exception('Unable to create resource.');
         }
 
         $uploadOffset   = $bytes > 0 ? current($response->getHeader('upload-offset')) : 0;
@@ -575,7 +573,7 @@ class Client extends Abstract_Tus
         $statusCode = $response->getStatusCode();
 
         if (HttpResponse::HTTP_CREATED !== $statusCode || ! $checksum) {
-            throw new FileException('Unable to create resource.');
+            throw new File_Exception('Unable to create resource.');
         }
 
         return $checksum;
@@ -584,7 +582,7 @@ class Client extends Abstract_Tus
     /**
      * Send DELETE request.
      *
-     * @throws FileException
+     * @throws File_Exception
      * @throws GuzzleException
      *
      * @return void
@@ -597,7 +595,7 @@ class Client extends Abstract_Tus
             $statusCode = $e->getResponse()->getStatusCode();
 
             if (HttpResponse::HTTP_NOT_FOUND === $statusCode || HttpResponse::HTTP_GONE === $statusCode) {
-                throw new FileException('File not found.');
+                throw new File_Exception('File not found.');
             }
         }
     }
@@ -632,7 +630,7 @@ class Client extends Abstract_Tus
     /**
      * Send HEAD request.
      *
-     * @throws FileException
+     * @throws File_Exception
      * @throws GuzzleException
      *
      * @return int
@@ -643,7 +641,7 @@ class Client extends Abstract_Tus
         $statusCode = $response->getStatusCode();
 
         if (HttpResponse::HTTP_OK !== $statusCode) {
-            throw new FileException('File not found.');
+            throw new File_Exception('File not found.');
         }
 
         return (int) current($response->getHeader('upload-offset'));
@@ -656,9 +654,9 @@ class Client extends Abstract_Tus
      * @param int $offset
      *
      * @throws TusException
-     * @throws FileException
+     * @throws File_Exception
      * @throws GuzzleException
-     * @throws ConnectionException
+     * @throws Connection_Exception
      *
      * @return int
      */
@@ -690,7 +688,7 @@ class Client extends Abstract_Tus
         } catch (ClientException $e) {
             throw $this->handleClientException($e);
         } catch (ConnectException $e) {
-            throw new ConnectionException("Couldn't connect to server.");
+            throw new Connection_Exception("Couldn't connect to server.");
         }
     }
 
@@ -707,11 +705,11 @@ class Client extends Abstract_Tus
         $statusCode = $response !== null ? $response->getStatusCode() : HttpResponse::HTTP_INTERNAL_SERVER_ERROR;
 
         if (HttpResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE === $statusCode) {
-            return new FileException('The uploaded file is corrupt.');
+            return new File_Exception('The uploaded file is corrupt.');
         }
 
         if (HttpResponse::HTTP_CONTINUE === $statusCode) {
-            return new ConnectionException('Connection aborted by user.');
+            return new Connection_Exception('Connection aborted by user.');
         }
 
         if (HttpResponse::HTTP_UNSUPPORTED_MEDIA_TYPE === $statusCode) {

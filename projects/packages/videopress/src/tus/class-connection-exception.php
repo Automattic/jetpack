@@ -1,7 +1,7 @@
 <?php
 
-namespace TusPhp\Exception;
+namespace Automattic\Jetpack\VideoPress\Tus;
 
-class ConnectionException extends \Exception
+class Connection_Exception extends \Exception
 {
 }
