@@ -41,8 +41,12 @@ class Initializer {
 	 * @return void
 	 */
 	private static function unconditional_initialization() {
+		require_once __DIR__ . '/utility-functions.php';
 		Module_Control::init();
 		new WPCOM_REST_API_V2_Endpoint_VideoPress();
+		if ( is_admin() ) {
+			AJAX::init();
+		}
 	}
 
 	/**
