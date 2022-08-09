@@ -16,7 +16,7 @@ use GuzzleHttp\Exception\ConnectException;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use InvalidArgumentException;
 
-class Client extends AbstractTus
+class Client extends Abstract_Tus
 {
     /** @var GuzzleClient */
     protected $client;

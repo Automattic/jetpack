@@ -1,31 +1,31 @@
 <?php
 
-namespace TusPhp\Tus;
+namespace Automattic\Jetpack\VideoPress\Tus;
 
 use TusPhp\Cache\Cacheable;
 use TusPhp\Cache\CacheFactory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-abstract class AbstractTus
+abstract class Abstract_Tus
 {
     /** @const string Tus protocol version. */
-    public const TUS_PROTOCOL_VERSION = '1.0.0';
+    const TUS_PROTOCOL_VERSION = '1.0.0';
 
     /** @const string Upload type partial. */
-    public const UPLOAD_TYPE_PARTIAL = 'partial';
+    const UPLOAD_TYPE_PARTIAL = 'partial';
 
     /** @const string Upload type final. */
-    public const UPLOAD_TYPE_FINAL = 'final';
+    const UPLOAD_TYPE_FINAL = 'final';
 
     /** @const string Name separator for partial upload. */
-    protected const PARTIAL_UPLOAD_NAME_SEPARATOR = '_';
+    const PARTIAL_UPLOAD_NAME_SEPARATOR = '_';
 
     /** @const string Upload type normal. */
-    protected const UPLOAD_TYPE_NORMAL = 'normal';
+    const UPLOAD_TYPE_NORMAL = 'normal';
 
     /** @const string Header Content Type */
-    protected const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
+    const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
 
     /** @var Cacheable */
     protected $cache;
@@ -45,7 +45,7 @@ abstract class AbstractTus
      *
      * @return self
      */
-    public function setCache($cache): self
+    public function setCache($cache)
     {
         if (\is_string($cache)) {
             $this->cache = CacheFactory::make($cache);
@@ -65,7 +65,7 @@ abstract class AbstractTus
      *
      * @return Cacheable
      */
-    public function getCache(): Cacheable
+    public function getCache()
     {
         return $this->cache;
     }
@@ -77,9 +77,13 @@ abstract class AbstractTus
      *
      * @return self
      */
-    public function setApiPath(string $path): self
+    public function setApiPath($path)
     {
-        $this->apiPath = $path;
+        if ( ! is_string( $path ) ) {
+			throw new InvalidArgumentException('$path needs to be a string');
+		}
+
+		$this->apiPath = $path;
 
         return $this;
     }
@@ -89,7 +93,7 @@ abstract class AbstractTus
      *
      * @return string
      */
-    public function getApiPath(): string
+    public function getApiPath()
     {
         return $this->apiPath;
     }
@@ -99,7 +103,7 @@ abstract class AbstractTus
      *
      * @return EventDispatcherInterface
      */
-    public function event(): EventDispatcherInterface
+    public function event()
     {
         if ( ! $this->dispatcher) {
             $this->dispatcher = new EventDispatcher();
@@ -115,7 +119,7 @@ abstract class AbstractTus
      *
      * @return self
      */
-    public function setDispatcher(EventDispatcherInterface $dispatcher): self
+    public function setDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
 
