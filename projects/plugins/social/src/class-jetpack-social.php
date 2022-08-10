@@ -78,7 +78,7 @@ class Jetpack_Social {
 		);
 
 		// Activate the module as the plugin is activated
-		add_action( 'admin_init', array( $this, 'activate_module_on_plugin_activation' ) );
+		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -236,16 +236,33 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Runs an admin_init and checks the activation option to work out
-	 * if we should activate the module. This needs to be run after the
-	 * activation hook, as that results in a redirect, and we need the
-	 * sync module's actions and filters to be registered.
+	 * Runs on admin_init, and does actions required on plugin activation, based on
+	 * the activation option.
+	 *
+	 * This needs to be run after the activation hook, as that results in a redirect,
+	 * and we need the sync module's actions and filters to be registered.
 	 */
-	public function activate_module_on_plugin_activation() {
+	public function do_plugin_activation_activities() {
 		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) && $this->is_connected() ) {
-			delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
-			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+			$this->calculate_scheduled_shares();
+			$this->activate_module();
 		}
+	}
+
+	/**
+	 * Activates the Publicize module and disables the activation option
+	 */
+	public function activate_module() {
+		delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
+		( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+	}
+
+	/**
+	 * Calls out to WPCOM to calculate the scheduled shares.
+	 */
+	public function calculate_scheduled_shares() {
+		global $publicize;
+		$publicize->calculate_scheduled_shares( Jetpack_Options::get_option( 'id' ) );
 	}
 
 	/**

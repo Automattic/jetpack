@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+moving videopress dependencies to the package
