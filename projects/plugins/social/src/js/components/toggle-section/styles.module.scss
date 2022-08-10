@@ -59,8 +59,10 @@
 	margin-top: calc( var( --spacing-base ) * 2 );
 	grid-column: span 2;
 	justify-self: flex-start;
+	width: 100%;
 
 	@media ( min-width: 600px ) {
 		grid-column: 2;
+		width: auto;
 	}
 }
