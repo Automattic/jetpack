@@ -1,6 +1,7 @@
 <?php
 /**
  * Class Jetpack_Contact_Info_Block
+ * And a change
  *
  * @package automattic/jetpack
  */
