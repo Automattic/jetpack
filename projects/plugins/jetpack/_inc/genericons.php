@@ -1,6 +1,7 @@
 <?php
 /**
  * Globally registers the 'genericons' style and font.
+ * And a change
  *
  * This ensures any theme or plugin using it is on the latest version of Genericons, and helps to avoid conflicts.
  *
