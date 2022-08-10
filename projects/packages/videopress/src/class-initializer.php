@@ -19,8 +19,12 @@ class Initializer {
 	 */
 	public static function init() {
 		if ( ! did_action( 'videopress_init' ) ) {
-			self::register_oembed_providers();
-			new WPCOM_REST_API_V2_Endpoint_VideoPress();
+
+			self::unconditional_initialization();
+
+			if ( Status::is_active() ) {
+				self::active_initialization();
+			}
 		}
 
 		/**
@@ -29,6 +33,29 @@ class Initializer {
 		 * @since 0.1.1
 		 */
 		do_action( 'videopress_init' );
+	}
+
+	/**
+	 * Initialize VideoPress features that should be initialized whenever VideoPress is present, even if the module is not active
+	 *
+	 * @return void
+	 */
+	private static function unconditional_initialization() {
+		require_once __DIR__ . '/utility-functions.php';
+		Module_Control::init();
+		new WPCOM_REST_API_V2_Endpoint_VideoPress();
+		if ( is_admin() ) {
+			AJAX::init();
+		}
+	}
+
+	/**
+	 * Initialize VideoPress features that should be initialized only when the module is active
+	 *
+	 * @return void
+	 */
+	private static function active_initialization() {
+		self::register_oembed_providers();
 	}
 
 	/**
