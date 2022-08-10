@@ -1832,7 +1832,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "c0b5a957db1c542c5cedf5c2143f1b889a1e7216"
+                "reference": "d3ddccb864640853402ca547246619a87001a46d"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.42",
