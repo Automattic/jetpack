@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Update Instagram gallery endpoint to use access token id as an integer, since that what it is :)
