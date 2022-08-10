@@ -322,7 +322,8 @@ class File {
 	 * @return array
 	 */
 	public function details() {
-		$now = time();
+		$now   = time();
+		$cache = $this->cache;
 
 		return array(
 			'name'       => $this->name,
@@ -332,8 +333,8 @@ class File {
 			'location'   => $this->location,
 			'file_path'  => $this->filePath,
 			'metadata'   => $this->uploadMetadata,
-			'created_at' => gmdate( $this->cache::RFC_7231, $now ),
-			'expires_at' => gmdate( $this->cache::RFC_7231, $now + $this->cache->getTtl() ),
+			'created_at' => gmdate( $cache::RFC_7231, $now ),
+			'expires_at' => gmdate( $cache::RFC_7231, $now + $cache->getTtl() ),
 		);
 	}
 
