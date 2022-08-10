@@ -9,11 +9,10 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Carbon\Carbon;
+use Automattic\Jetpack\VideoPress\Tus\Response_Codes;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
-
 /**
  * VideoPress Tus Client class.
  *

@@ -3,7 +3,7 @@
  * List of Response codes
  */
 
-namespace Automattic\Jetpack\VideoPress;
+namespace Automattic\Jetpack\VideoPress\Tus;
 
 
 /**
