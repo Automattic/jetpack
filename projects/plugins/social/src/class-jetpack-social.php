@@ -52,6 +52,7 @@ class Jetpack_Social {
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
 			'plugins_loaded',
@@ -80,6 +81,7 @@ class Jetpack_Social {
 
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
+
 		add_action(
 			'plugins_loaded',
 			function () {
