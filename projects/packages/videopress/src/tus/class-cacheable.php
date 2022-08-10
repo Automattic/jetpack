@@ -1,77 +1,93 @@
 <?php
+/**
+ * Cacheable
+ *
+ * @package jetpack-videopress
+ */
+
+// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamComment
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+// phpcs:disable Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.FunctionComment.EmptyThrows
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
-interface Cacheable
-{
-    /** @see https://tools.ietf.org/html/rfc7231#section-7.1.1.1 */
-    const RFC_7231 = 'D, d M Y H:i:s \G\M\T';
+/**
+ * Cacheable
+ */
+interface Cacheable {
 
-    /**
-     * Get data associated with the key.
-     *
-     * @param string $key
-     * @param bool   $withExpired
-     *
-     * @return mixed
-     */
-    public function get($key, $withExpired = false);
+	/** @see https://tools.ietf.org/html/rfc7231#section-7.1.1.1 */
+	const RFC_7231 = 'D, d M Y H:i:s \G\M\T';
 
-    /**
-     * Set data to the given key.
-     *
-     * @param string $key
-     * @param mixed  $value
-     *
-     * @return mixed
-     */
-    public function set($key, $value);
+	/**
+	 * Get data associated with the key.
+	 *
+	 * @param string $key
+	 * @param bool   $withExpired
+	 *
+	 * @return mixed
+	 */
+	public function get( $key, $withExpired = false);
 
-    /**
-     * Delete data associated with the key.
-     *
-     * @param string $key
-     *
-     * @return bool
-     */
-    public function delete($key);
+	/**
+	 * Set data to the given key.
+	 *
+	 * @param string $key
+	 * @param mixed  $value
+	 *
+	 * @return mixed
+	 */
+	public function set( $key, $value);
 
-    /**
-     * Delete all data associated with the keys.
-     *
-     * @param array $keys
-     *
-     * @return bool
-     */
-    public function deleteAll(array $keys);
+	/**
+	 * Delete data associated with the key.
+	 *
+	 * @param string $key
+	 *
+	 * @return bool
+	 */
+	public function delete( $key);
 
-    /**
-     * Get time to live.
-     *
-     * @return int
-     */
-    public function getTtl();
+	/**
+	 * Delete all data associated with the keys.
+	 *
+	 * @param array $keys
+	 *
+	 * @return bool
+	 */
+	public function deleteAll( array $keys);
 
-    /**
-     * Get cache keys.
-     *
-     * @return array
-     */
-    public function keys();
+	/**
+	 * Get time to live.
+	 *
+	 * @return int
+	 */
+	public function getTtl();
 
-    /**
-     * Set cache prefix.
-     *
-     * @param string $prefix
-     *
-     * @return self
-     */
-    public function setPrefix($prefix);
+	/**
+	 * Get cache keys.
+	 *
+	 * @return array
+	 */
+	public function keys();
 
-    /**
-     * Get cache prefix.
-     *
-     * @return string
-     */
-    public function getPrefix();
+	/**
+	 * Set cache prefix.
+	 *
+	 * @param string $prefix
+	 *
+	 * @return self
+	 */
+	public function setPrefix( $prefix);
+
+	/**
+	 * Get cache prefix.
+	 *
+	 * @return string
+	 */
+	public function getPrefix();
 }
