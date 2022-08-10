@@ -1,95 +1,107 @@
 <?php
+/**
+ * Abstract Tus
+ *
+ * @package jetpack-videopress
+ */
+
+// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamComment
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+// phpcs:disable Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.FunctionComment.EmptyThrows
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
 use InvalidArgumentException;
 
-abstract class Abstract_Tus
-{
-    /** @const string Tus protocol version. */
-    const TUS_PROTOCOL_VERSION = '1.0.0';
+/**
+ * Abstract Tus
+ */
+abstract class Abstract_Tus {
 
-    /** @const string Upload type partial. */
-    const UPLOAD_TYPE_PARTIAL = 'partial';
+	/** @const string Tus protocol version. */
+	const TUS_PROTOCOL_VERSION = '1.0.0';
 
-    /** @const string Upload type final. */
-    const UPLOAD_TYPE_FINAL = 'final';
+	/** @const string Upload type partial. */
+	const UPLOAD_TYPE_PARTIAL = 'partial';
 
-    /** @const string Name separator for partial upload. */
-    const PARTIAL_UPLOAD_NAME_SEPARATOR = '_';
+	/** @const string Upload type final. */
+	const UPLOAD_TYPE_FINAL = 'final';
 
-    /** @const string Upload type normal. */
-    const UPLOAD_TYPE_NORMAL = 'normal';
+	/** @const string Name separator for partial upload. */
+	const PARTIAL_UPLOAD_NAME_SEPARATOR = '_';
 
-    /** @const string Header Content Type */
-    const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
+	/** @const string Upload type normal. */
+	const UPLOAD_TYPE_NORMAL = 'normal';
 
-    /** @var Cacheable */
-    protected $cache;
+	/** @const string Header Content Type */
+	const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
 
-    /** @var string */
-    protected $apiPath = '/files';
+	/** @var Cacheable */
+	protected $cache;
 
-    /**
-     * Set cache.
-     *
-     * @param mixed $cache
-     *
-     * @throws \ReflectionException
-     *
-     * @return self
-     */
-    public function setCache($cache)
-    {
-        if (\is_string($cache)) {
-            $this->cache = Cache_Factory::make($cache);
-        } elseif ($cache instanceof Cacheable) {
-            $this->cache = $cache;
-        }
+	/** @var string */
+	protected $apiPath = '/files';
 
-        $prefix = 'tus:' . strtolower((new \ReflectionClass(static::class))->getShortName()) . ':';
+	/**
+	 * Set cache.
+	 *
+	 * @param mixed $cache
+	 *
+	 * @throws \ReflectionException
+	 *
+	 * @return self
+	 */
+	public function setCache( $cache ) {
+		if ( \is_string( $cache ) ) {
+			$this->cache = Cache_Factory::make( $cache );
+		} elseif ( $cache instanceof Cacheable ) {
+			$this->cache = $cache;
+		}
 
-        $this->cache->setPrefix($prefix);
+		$prefix = 'tus:' . strtolower( ( new \ReflectionClass( static::class ) )->getShortName() ) . ':';
 
-        return $this;
-    }
+		$this->cache->setPrefix( $prefix );
 
-    /**
-     * Get cache.
-     *
-     * @return Cacheable
-     */
-    public function getCache()
-    {
-        return $this->cache;
-    }
+		return $this;
+	}
 
-    /**
-     * Set API path.
-     *
-     * @param string $path
-     *
-     * @return self
-     */
-    public function setApiPath($path)
-    {
-        if ( ! is_string( $path ) ) {
-			throw new InvalidArgumentException('$path needs to be a string');
+	/**
+	 * Get cache.
+	 *
+	 * @return Cacheable
+	 */
+	public function getCache() {
+		return $this->cache;
+	}
+
+	/**
+	 * Set API path.
+	 *
+	 * @param string $path
+	 *
+	 * @throws InvalidArgumentException
+	 * @return self
+	 */
+	public function setApiPath( $path ) {
+		if ( ! is_string( $path ) ) {
+			throw new InvalidArgumentException( '$path needs to be a string' );
 		}
 
 		$this->apiPath = $path;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * Get API path.
-     *
-     * @return string
-     */
-    public function getApiPath()
-    {
-        return $this->apiPath;
-    }
+	/**
+	 * Get API path.
+	 *
+	 * @return string
+	 */
+	public function getApiPath() {
+		return $this->apiPath;
+	}
 
 }
