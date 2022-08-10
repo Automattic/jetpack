@@ -395,7 +395,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'videopress':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		case 'boost':
-
+			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		default:
 			return ! isFeatureActive( state, step );
 	}
