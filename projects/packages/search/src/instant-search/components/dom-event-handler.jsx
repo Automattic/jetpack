@@ -17,6 +17,7 @@ export default class DomEventHandler extends Component {
 			isComposing: false,
 			// `bodyScrollTop` remembers the body scroll position.
 			bodyScrollTop: 0,
+			prefersReducedMotion: getPrefersReducedMotion(),
 			previousStyle: null,
 			previousBodyStyleAttribute: '',
 		};
@@ -134,9 +135,10 @@ export default class DomEventHandler extends Component {
 			return;
 		}
 
-		const prefersReducedMotion = getPrefersReducedMotion();
-
-		if ( this.props.overlayOptions.overlayTrigger === 'submit' || prefersReducedMotion ) {
+		if (
+			this.props.overlayOptions.overlayTrigger === 'submit' ||
+			this.state.prefersReducedMotion
+		) {
 			return;
 		}
 
