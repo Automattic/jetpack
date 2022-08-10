@@ -31,7 +31,7 @@ class Jetpack_Social_Test extends BaseTestCase {
 		do_action( 'activate_' . $plugin );
 		// Run the function that would be called on admin_init.
 		// Calling do_action( 'admin_init' ) has other side effects.
-		$this->social->activate_module_on_plugin_activation();
+		$this->social->do_plugin_activation_activities();
 	}
 	/**
 	 * Test that plugin activation activates the Publicize module.
@@ -45,7 +45,14 @@ class Jetpack_Social_Test extends BaseTestCase {
 
 		$connection_manager = $this->createMock( Connection_Manager::class );
 		$connection_manager->method( 'is_connected' )->willReturn( true );
-		$this->social = new Jetpack_Social( $connection_manager );
+
+		// Publicize global is not available at the moment during these tests
+		$this->social = $this->getMockBuilder( Jetpack_Social::class )
+			->setConstructorArgs( array( $connection_manager ) )
+			->setMethods( array( 'calculate_scheduled_shares' ) )
+			->getMock();
+		$this->social->expects( $this->once() )->method( 'calculate_scheduled_shares' );
+
 		$this->activate_plugin( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH );
 		$this->assertTrue( ( new Modules() )->is_active( Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG ) );
 
