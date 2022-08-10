@@ -4,7 +4,7 @@ Tags: search, jetpack
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
-Stable tag: 0.1.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,9 +111,27 @@ You can purchase a Search subscription directly through this plugin or via the [
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.0.0 - 2022-05-30
+### 1.1.0 - 2022-08-02
 #### Added
-- Initial release.
+- Dashboard: new Record Meter feature to show the breakdown of records in your search index.
+
+#### Fixed
+- Customization: fix fill color for gridicons in dark mode.
+- Customization: hide unsupported taxonomies from Search widget.
+- Customization: re-enable auto-collapsing sidebar in Customberg.
+- Dashboard: fix currency code in upsell page.
+- Dashboard: fix pricing issue before site is connected to Jetpack.
+- Dashboard: minor CSS changes for Hello Dolly compatibility.
+- Instant Search: avoid search query on component mount.
+- Instant Search: consistent design for focus states in Search overlay.
+- Instant Search: don't open modal if only sort parameter is set.
+- Instant Search: fix header letter spacing in modal.
+- Instant Search: fix irrelevant widgets added to sidebar during auto config.
+- Instant Search: fix keyboard handling on search options.
+- Instant Search: prevent hidden submit button appearing on focus.
+- Instant Search: restore support for filtering by multiple post types with post_type=.
+- Search: redirect to the Search Dashboard on activation only when Jetpack plugin does not exist.
+
 == Testimonials ==
 
 “I like having a search experience that is sortable, filterable, and feels like it's integrated natively into the site. Jetpack Search does all of this, but most importantly, it returns great results without heavy configuration.” - Chris Coyier, Web Design Expert (codepen.io / ShopTalk Show)

@@ -22,6 +22,8 @@ jobs:
     env:
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
+      # This string is used as a unique identifier of test reminder comments on PRs.
+      TEST_COMMENT_INDICATOR: "<!-- wpcom-reminder-comment -->"
     outputs:
       any_plugins: ${{ steps.plugins.outputs.any }}
 
@@ -48,53 +50,16 @@ jobs:
           CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
           echo "::set-output name=projects::${CHANGED}"
 
-      - name: Check if a WordPress.com test reminder comment exists
+      - name: Check if a WordPress.com test reminder comment is needed.
         id: check-test-reminder-comment
         uses: actions/github-script@v6
         if: ${{ github.event_name == 'pull_request' }}
         with:
           result-encoding: string
           script: |
-            const query = `query($owner:String!, $name:String!, $number:Int!) {
-              repository(owner:$owner, name:$name){
-                pullRequest(number:$number) {
-                  comments(first: 100) {
-                    nodes {
-                      body
-                    }
-                  }
-                }
-              }
-            }`;
-            const variables = {
-              owner: context.repo.owner,
-              name: context.repo.repo,
-              number: context.issue.number,
-            };
-            const comments = await github.graphql(query, variables);
-            let hasComment = false;
-            comments.repository.pullRequest.comments.nodes.map( comment => {
-              if ( comment.body.includes( '<!-- wpcom-reminder-comment -->' ) ) {
-                hasComment = true;
-              }
-            } );
-
-            return hasComment;
-
-      - name: Post reminder to test on WordPress.com
-        id: set-reminder-comment
-        uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != 'true' && contains( steps.changed.outputs.projects, 'plugins/jetpack' ) }}
-        with:
-          result-encoding: string
-          script: |
-            const { data: { id } } = await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '<!-- wpcom-reminder-comment -->Are you an Automattician? The PR will need to be tested on WordPress.com. This comment will be updated with testing instructions as soon the build is complete.',
-            });
-            return id;
+            const checkTestReminderComment = require('.github/actions/build/check-test-reminder-comment.js')
+            const commentId = await checkTestReminderComment( github, context, core );
+            return commentId;
 
       - name: Build changed projects
         id: build
@@ -147,20 +112,20 @@ jobs:
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' && steps.set-reminder-comment.outputs.result != null }}
+        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
-          COMMENT_ID: ${{ steps.set-reminder-comment.outputs.result }}
+          COMMENT_ID: ${{ steps.check-test-reminder-comment.outputs.result }}
         with:
           script: |
-            const { BRANCH_NAME, COMMENT_ID } = process.env;
-            const commentBody = `<!-- wpcom-reminder-comment -->
+            const { BRANCH_NAME, COMMENT_ID, TEST_COMMENT_INDICATOR } = process.env;
+            const commentBody = `${ TEST_COMMENT_INDICATOR }
             Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started.`;
             await github.rest.issues.updateComment( {
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: commentBody,
-              comment_id: COMMENT_ID,
+              comment_id: +COMMENT_ID,
             } );
 
   upgrade_test:

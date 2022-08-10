@@ -96,16 +96,12 @@ export default function SidebarOptions() {
 					value={ trigger }
 					options={ [
 						{
-							label: __( 'Open when the user starts typing', 'jetpack-search-pkg' ),
-							value: 'immediate',
-						},
-						{
-							label: __( 'Open when results are available', 'jetpack-search-pkg' ),
-							value: 'results',
-						},
-						{
-							label: __( 'Open when user submits the form', 'jetpack-search-pkg' ),
+							label: __( 'Open when user submits the form (recommended)', 'jetpack-search-pkg' ),
 							value: 'submit',
+						},
+						{
+							label: __( 'Open when user starts typing', 'jetpack-search-pkg' ),
+							value: 'immediate',
 						},
 					] }
 					onChange={ setTrigger }

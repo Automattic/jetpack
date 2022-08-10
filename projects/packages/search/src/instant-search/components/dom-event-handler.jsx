@@ -139,12 +139,8 @@ export default class DomEventHandler extends Component {
 
 		this.props.setSearchQuery( event.target.value );
 
-		if ( this.props.overlayOptions.overlayTrigger === 'immediate' ) {
+		if ( [ 'immediate', 'results' ].includes( this.props.overlayOptions.overlayTrigger ) ) {
 			this.props.showResults();
-		}
-
-		if ( this.props.overlayOptions.overlayTrigger === 'results' ) {
-			this.props.response?.results && this.props.showResults();
 		}
 	}, 200 );
 

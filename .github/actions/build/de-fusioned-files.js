@@ -1,0 +1,20 @@
+/**
+ * List of all files and directories
+ * that we do not need to keep in sync between Jetpack and WordPress.com anymore.
+ *
+ * Notes:
+ * Make sure to keep this list up to date as you remove files from build-plugin-files.php on WordPress.com.
+ * Keep this list in alphabetical order.
+ */
+const deFusionedFiles = [
+	'projects/plugins/jetpack/_inc/genericons.php',
+	'projects/plugins/jetpack/_inc/genericons/',
+	'projects/plugins/jetpack/modules/widget-visibility/widget-conditions.php',
+	'projects/plugins/jetpack/modules/widget-visibility/widget-conditions/',
+	'projects/plugins/jetpack/modules/widget-visibility/editor/',
+	'projects/plugins/jetpack/modules/memberships/',
+	'projects/plugins/jetpack/modules/cloudflare-analytics/',
+	'projects/plugins/jetpack/src/',
+];
+
+module.exports = deFusionedFiles;
