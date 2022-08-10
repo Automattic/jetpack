@@ -1,7 +1,15 @@
 <?php
+/**
+ * File Exception
+ *
+ * @package jetpack-videopress
+ */
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
-class File_Exception extends \RuntimeException
-{
+/**
+ * File Exception
+ */
+class File_Exception extends \RuntimeException {
+
 }

@@ -1,7 +1,15 @@
 <?php
+/**
+ * Connection Exception
+ *
+ * @package jetpack-videopress
+ */
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
-class Connection_Exception extends \Exception
-{
+/**
+ * Connection Exception
+ */
+class Connection_Exception extends \Exception {
+
 }
