@@ -70,6 +70,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.VIDEOPRESS:
 			redirectPath = '/videopress';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.BOOST:
+			redirectPath = '/boost';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
@@ -137,11 +140,8 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/videopress">
 						<FeaturePrompt stepSlug="videopress" isNew={ isNew( 'videopress' ) } />
 					</Route>
-					<Route path="/recommendations/boost-free">
-						<FeaturePrompt stepSlug="boost-free" />
-					</Route>
-					<Route path="/recommendations/boost-paid">
-						<ResourcePrompt stepSlug="boost-paid" />
+					<Route path="/recommendations/boost">
+						<FeaturePrompt stepSlug="boost" isNew={ isNew( 'boost' ) } />
 					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />

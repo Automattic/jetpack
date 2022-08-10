@@ -12,8 +12,7 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	SECURITY_PLAN: 'security-plan',
 	ANTI_SPAM: 'anti-spam',
 	VIDEOPRESS: 'videopress',
-	BOOST_FREE: 'boost-free',
-	BOOST_PAID: 'boost-paid',
+	BOOST: 'boost',
 	SUMMARY: 'summary',
 };
 

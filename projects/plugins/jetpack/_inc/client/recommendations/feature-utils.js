@@ -5,7 +5,6 @@ import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
-	PLAN_JETPACK_BOOST,
 } from 'lib/plans/constants';
 import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
@@ -13,7 +12,7 @@ import { fetchPluginsData } from 'state/site/plugins';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
-		case 'boost-free':
+		case 'boost':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Jetpack Boost', 'jetpack' ),
@@ -77,18 +76,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 };
 
 export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
-	const siteRawUrl = getSiteRawUrl( state );
-
 	switch ( resourceSlug ) {
-		case 'boost-paid':
-			return {
-				displayName: __( 'Jetpack Boost', 'jetpack' ),
-				ctaLabel: __( 'Upgrade', 'jetpack' ),
-				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
-					site: siteRawUrl,
-					path: PLAN_JETPACK_BOOST,
-				} ),
-			};
 		case 'security-plan':
 			return {
 				displayName: __( 'Site Security', 'jetpack' ),
@@ -108,10 +96,10 @@ export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 
 export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 	switch ( featureSlug ) {
-		case 'boost-free':
+		case 'boost':
 			return {
 				activateFeature: () => {
-					return restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
+					restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
 						dispatch( fetchPluginsData() );
 					} );
 				},
@@ -177,10 +165,8 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 };
 
 export const getStepContent = ( state, stepSlug ) => {
-	const siteRawUrl = getSiteRawUrl( state );
-
 	switch ( stepSlug ) {
-		case 'boost-free':
+		case 'boost':
 			return {
 				question: __( 'Get more views for your new page.', 'jetpack' ),
 				description: __(
@@ -194,21 +180,6 @@ export const getStepContent = ( state, stepSlug ) => {
 				],
 				descriptionLink: 'https://jetpack.com/boost/',
 				ctaText: __( 'Install Jetpack Boost for free', 'jetpack' ),
-			};
-		case 'boost-paid':
-			return {
-				question: __( 'Don’t let your new page slow down your site.', 'jetpack' ),
-				description: __(
-					'To keep your site to keep blazing fast, It’s a good idea to refresh your Critical CSS after adding a new page. Upgrade Jetpack boost and save time by <ExternalLink>generating Critical CSS automatically</ExternalLink> with every change to your site.',
-					'jetpack'
-				),
-				descriptionLink:
-					'https://jetpack.com/support/performance/jetpack-boost/jetpack-boost-automated-critical-css-feature-for-paid-subscriptions/',
-				ctaText: __( 'Upgrade Jetpack Boost', 'jetpack' ),
-				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
-					site: siteRawUrl,
-					path: PLAN_JETPACK_BOOST,
-				} ),
 			};
 		case 'creative-mail':
 			return {

@@ -26,8 +26,7 @@ class Jetpack_Recommendations {
 	const SECURITY_PLAN_RECOMMENDATION = 'security-plan';
 	const ANTI_SPAM_RECOMMENDATION     = 'anti-spam';
 	const VIDEOPRESS_RECOMMENDATION    = 'videopress';
-	const BOOST_FREE_RECOMMENDATION    = 'boost-free';
-	const BOOST_PAID_RECOMMENDATION    = 'boost-paid';
+	const BOOST_RECOMMENDATION         = 'boost';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
@@ -35,8 +34,7 @@ class Jetpack_Recommendations {
 		self::SECURITY_PLAN_RECOMMENDATION,
 		self::ANTI_SPAM_RECOMMENDATION,
 		self::VIDEOPRESS_RECOMMENDATION,
-		self::BOOST_FREE_RECOMMENDATION,
-		self::BOOST_PAID_RECOMMENDATION,
+		self::BOOST_RECOMMENDATION,
 	);
 
 	const VIDEOPRESS_TIMED_ACTION = 'jetpack_recommend_videopress';
@@ -178,23 +176,15 @@ class Jetpack_Recommendations {
 			return;
 		}
 		// A new page has been published
-		if ( 'page' === $post->post_type && 'publish' === $new_status && 'publish' !== $old_status ) {
-			// The boost plugin is not installed
-			if (
-				! Plugins_Installer::is_plugin_active( 'boost/jetpack-boost.php' ) &&
-				! Plugins_Installer::is_plugin_active( 'jetpack-boost/jetpack-boost.php' )
-			) {
-				self::enable_conditional_recommendation( self::BOOST_FREE_RECOMMENDATION );
-				// Boost is installed & active
-			} else {
-				// Check for a boost product
-				$site_products     = array_column( Jetpack_Plan::get_products(), 'product_slug' );
-				$has_boost_product = count( array_intersect( array( 'jetpack_boost', 'jetpack_boost_monthly' ), $site_products ) ) > 0;
-				if ( ! $has_boost_product ) {
-					self::disable_conditional_recommendation( self::BOOST_FREE_RECOMMENDATION );
-					self::enable_conditional_recommendation( self::BOOST_PAID_RECOMMENDATION );
-				}
-			}
+		// Check to see if the boost plugin is active
+		if (
+			'page' === $post->post_type &&
+			'publish' === $new_status &&
+			'publish' !== $old_status &&
+			! Plugins_Installer::is_plugin_active( 'boost/jetpack-boost.php' ) &&
+			! Plugins_Installer::is_plugin_active( 'jetpack-boost/jetpack-boost.php' )
+		) {
+			self::enable_conditional_recommendation( self::BOOST_RECOMMENDATION );
 		}
 	}
 
