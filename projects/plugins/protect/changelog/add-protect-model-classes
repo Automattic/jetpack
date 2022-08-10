@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added data model classes for the status report and its related threats and extension data.
