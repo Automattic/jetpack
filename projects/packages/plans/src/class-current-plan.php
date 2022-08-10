@@ -211,9 +211,9 @@ class Current_Plan {
 	 */
 	public static function refresh_from_wpcom() {
 		// Make the API request.
-		$request  = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
-		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+		$args = array( 'headers' => array() );
 
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) ) . '?force=wpcom', '1.1', $args );
 		return self::update_from_sites_response( $response );
 	}
 
@@ -330,12 +330,11 @@ class Current_Plan {
 	 * @return bool True if plan supports feature, false if not
 	 */
 	public static function supports( $feature, $refresh_from_wpcom = false ) {
-		// Hijack the feature eligibility check on WordPress.com sites since they are gated differently.
-
 		if ( $refresh_from_wpcom ) {
 			self::refresh_from_wpcom();
 		}
 
+		// Hijack the feature eligibility check on WordPress.com sites since they are gated differently.
 		$should_wpcom_gate_feature = (
 			function_exists( 'wpcom_site_has_feature' ) &&
 			function_exists( 'wpcom_feature_exists' ) &&
