@@ -62,7 +62,7 @@ class Jetpack_Google_Analytics_Options {
 	 * @return bool
 	 */
 	public static function honor_dnt_is_enabled() {
-		return (bool) self::get_option( 'honor_dnt' );
+		return (bool) static::get_option( 'honor_dnt' );
 	}
 
 	/**
