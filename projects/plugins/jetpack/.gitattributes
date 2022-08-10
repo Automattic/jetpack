@@ -17,6 +17,7 @@
 /vendor/jetpack-autoloader/**                            production-include
 /vendor/nojimage/**                                      production-include
 /vendor/wikimedia/aho-corasick/**                        production-include
+/vendor/ralouphie/**                                     production-include
 
 # Files to exclude from Automattic/jetpack-production.
 # Remember to end all directories with `/**` to properly tag every file.
