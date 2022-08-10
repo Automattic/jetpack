@@ -206,3 +206,13 @@ export function emptyStatsCardDismissed( state ) {
 export function backupGettingStartedDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_dash_backup_getting_started', false );
 }
+
+/**
+ * Returns true if Agencies Learn More card has been dismissed.
+ *
+ * @param {Object} state - Global state tree
+ * @returns {boolean} Whether the card has been dismissed
+ */
+export function agenciesLearnMoreDismissed( state ) {
+	return get( state.jetpack.settings.items, 'dismiss_dash_agencies_learn_more', false );
+}
