@@ -534,7 +534,7 @@ class Client extends Abstract_Tus {
 		$uploadOffset   = $bytes > 0 ? current( $response->getHeader( 'upload-offset' ) ) : 0;
 		$uploadLocation = current( $response->getHeader( 'location' ) );
 
-		$cache = $this->get_cache();
+		$cache = $this->getCache();
 
 		$this->getCache()->set(
 			$this->getKey(),

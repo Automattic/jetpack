@@ -126,7 +126,7 @@ class Tus_Client extends Tus\Client {
 		$uploadOffset   = $bytes > 0 ? current( $response->getHeader( 'upload-offset' ) ) : 0;
 		$uploadLocation = current( $response->getHeader( 'location' ) );
 
-		$cache = $this->get_cache();
+		$cache = $this->getCache();
 
 		$this->getCache()->set(
 			$this->getKey(),
