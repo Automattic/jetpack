@@ -267,7 +267,7 @@ class Uploader {
 				'file_size'      => $this->get_file_size(),
 				'file_name'      => $this->get_file_name(),
 				'upload_key'     => $this->get_key(),
-				'error'          => $e->getMessage(),
+				'error'          => $e->getCode() . ': ' . $e->getMessage(),
 			);
 		}
 	}
