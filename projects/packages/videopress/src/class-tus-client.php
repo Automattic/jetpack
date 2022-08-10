@@ -126,11 +126,13 @@ class Tus_Client extends Tus\Client {
 		$uploadOffset   = $bytes > 0 ? current( $response->getHeader( 'upload-offset' ) ) : 0;
 		$uploadLocation = current( $response->getHeader( 'location' ) );
 
+		$cache = $this->get_cache();
+
 		$this->getCache()->set(
 			$this->getKey(),
 			array(
 				'location'      => $uploadLocation,
-				'expires_at'    => gmdate( $this->getCache()::RFC_7231, time() + $this->getCache()->getTtl() ),
+				'expires_at'    => gmdate( $cache::RFC_7231, time() + $cache->getTtl() ),
 				'token_for_key' => $response->getHeader( 'x-videopress-upload-key-token' ),
 			)
 		);
