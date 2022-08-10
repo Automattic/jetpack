@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
@@ -40,7 +41,6 @@ class Jetpack_Social {
 	public function __construct( $connection_manager = null ) {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
-
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Social', 'jetpack-social' ),
 			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
@@ -50,7 +50,6 @@ class Jetpack_Social {
 			99
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
 			'plugins_loaded',
@@ -145,8 +144,9 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
-		$shares = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-
+		$shares                  = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		$refresh_plan_from_wpcom = true;
+		$show_nudge              = ! Current_Plan::supports( 'social-shares-1000', $refresh_plan_from_wpcom );
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
@@ -161,6 +161,7 @@ class Jetpack_Social {
 				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 			),
 			'sharesData'      => ! is_wp_error( $shares ) ? $shares : null,
+			'showNudge'       => $show_nudge,
 		);
 	}
 
