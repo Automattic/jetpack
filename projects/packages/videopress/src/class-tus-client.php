@@ -120,7 +120,7 @@ class Tus_Client extends Tus\Client {
 
         $this->getCache()->set($this->getKey(), [
             'location' => $uploadLocation,
-            'expires_at' => Carbon::now()->addSeconds($this->getCache()->getTtl())->format($this->getCache()::RFC_7231),
+            'expires_at' => date( $this->getCache()::RFC_7231, time() + $this->getCache()->getTtl() ),
 			'token_for_key' => $response->getHeader( 'x-videopress-upload-key-token' ),
         ]);
 

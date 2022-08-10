@@ -7,7 +7,6 @@
 		"automattic/jetpack-connection": "^1.42",
 		"automattic/jetpack-plans": "^0.1",
 		"guzzlehttp/guzzle": "^6.5",
-    	"nesbot/carbon": "^1.26.3",
 		"ramsey/uuid": "^3.7"
 
 	},

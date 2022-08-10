@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
-use Carbon\Carbon;
 use InvalidArgumentException;
 
 class File_Store extends Abstract_Cache
@@ -311,7 +310,7 @@ class File_Store extends Abstract_Cache
             return false;
         }
 
-        return Carbon::now() < Carbon::createFromFormat(self::RFC_7231, $meta['expires_at']);
+        return time() < strtotime( $meta['expires_at'] );
     }
 
     /**

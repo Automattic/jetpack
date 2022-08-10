@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
-use Carbon\Carbon;
 use InvalidArgumentException;
 
 class File
@@ -308,7 +307,7 @@ class File
      */
     public function details(): array
     {
-        $now = Carbon::now();
+        $now = time();
 
         return [
             'name' => $this->name,
@@ -318,8 +317,8 @@ class File
             'location' => $this->location,
             'file_path' => $this->filePath,
             'metadata' => $this->uploadMetadata,
-            'created_at' => $now->format($this->cache::RFC_7231),
-            'expires_at' => $now->addSeconds($this->cache->getTtl())->format($this->cache::RFC_7231),
+            'created_at' => date( $this->cache::RFC_7231, $now ),
+            'expires_at' => date( $this->cache::RFC_7231, $now + $this->cache->getTtl() ),
         ];
     }
 

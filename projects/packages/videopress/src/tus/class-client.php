@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\VideoPress\Tus;
 
-use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
@@ -346,7 +345,7 @@ class Client extends Abstract_Tus
     {
         $expiresAt = ! empty( $this->getCache()->get($this->getKey())['expires_at'] ) ? $this->getCache()->get($this->getKey())['expires_at'] : null;
 
-        return empty($expiresAt) || Carbon::parse($expiresAt)->lt(Carbon::now());
+        return empty($expiresAt) || time() > strtotime( $expiresAt );
     }
 
     /**
@@ -530,7 +529,7 @@ class Client extends Abstract_Tus
 
         $this->getCache()->set($this->getKey(), [
             'location' => $uploadLocation,
-            'expires_at' => Carbon::now()->addSeconds($this->getCache()->getTtl())->format($this->getCache()::RFC_7231),
+            'expires_at' => date( $this->getCache()::RFC_7231, time() + $this->getCache()->getTtl() ),
         ]);
 
         return [
