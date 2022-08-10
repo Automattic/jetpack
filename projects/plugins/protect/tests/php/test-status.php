@@ -40,7 +40,7 @@ class Test_Status extends BaseTestCase {
 			'version'         => '1.0.2',
 			'name'            => 'Sample Theme',
 			'checked'         => true,
-			'type'            => 'theme',
+			'type'            => 'themes',
 			'vulnerabilities' => array(),
 			'slug'            => "theme-$id",
 		);
@@ -62,7 +62,7 @@ class Test_Status extends BaseTestCase {
 			'version'         => '1.0.2',
 			'name'            => 'Sample Plugin',
 			'checked'         => true,
-			'type'            => 'plugin',
+			'type'            => 'plugins',
 			'vulnerabilities' => array(),
 			'slug'            => "plugin-$id",
 		);
@@ -114,8 +114,10 @@ class Test_Status extends BaseTestCase {
 	 * @return object
 	 */
 	public function get_sample_empty_response() {
-		return (object) array(
-			'last_checked' => '',
+		return new Status_Model(
+			array(
+				'last_checked' => '',
+			)
 		);
 	}
 
@@ -148,21 +150,23 @@ class Test_Status extends BaseTestCase {
 	 * @return object
 	 */
 	public function get_sample_status() {
-		return (object) array(
-			'plugins'                     => array(
-				$this->get_sample_plugin( '1' ),
-				$this->get_sample_plugin( '2', false ),
-			),
-			'themes'                      => array(
-				$this->get_sample_theme( '1' ),
-			),
-			'core'                        => $this->get_sample_core(),
-			'wordpress'                   => $this->get_sample_core(),
-			'last_checked'                => '2003-03-03 03:03:03',
-			'num_vulnerabilities'         => 3,
-			'num_themes_vulnerabilities'  => 1,
-			'num_plugins_vulnerabilities' => 1,
-			'hasUncheckedItems'           => false,
+		return new Status_Model(
+			array(
+				'plugins'                     => array(
+					new Extension_Model( $this->get_sample_plugin( '1' ) ),
+					new Extension_Model( $this->get_sample_plugin( '2', false ) ),
+				),
+				'themes'                      => array(
+					new Extension_Model( $this->get_sample_theme( '1' ) ),
+				),
+				'core'                        => new Extension_Model( $this->get_sample_core() ),
+				'wordpress'                   => $this->get_sample_core(),
+				'last_checked'                => '2003-03-03 03:03:03',
+				'num_vulnerabilities'         => 3,
+				'num_themes_vulnerabilities'  => 1,
+				'num_plugins_vulnerabilities' => 1,
+				'has_unchecked_items'         => false,
+			)
 		);
 	}
 
@@ -264,7 +268,7 @@ class Test_Status extends BaseTestCase {
 		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
-		$this->assertSame( 'site_not_connected', $status['error_code'] );
+		$this->assertSame( 'site_not_connected', $status->error_code );
 
 		// Make sure this was not cached
 		$this->assertFalse( Status::get_from_options() );
@@ -311,9 +315,9 @@ class Test_Status extends BaseTestCase {
 		$this->mock_connection();
 
 		$expected = array(
-			$this->get_sample_vul(),
-			$this->get_sample_vul(),
-			$this->get_sample_vul(),
+			new Threat_Model( $this->get_sample_vul() ),
+			new Threat_Model( $this->get_sample_vul() ),
+			new Threat_Model( $this->get_sample_vul() ),
 		);
 
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
