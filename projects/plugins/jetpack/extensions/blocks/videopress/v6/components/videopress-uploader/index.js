@@ -4,7 +4,7 @@
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Button, withNotices, ExternalLink } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
 import { useRef } from 'react';
 import { PlaceholderWrapper } from '../../edit.js';
@@ -33,17 +33,19 @@ const UploadProgress = ( { progress, file, paused, onPauseOrResume } ) => {
 			<UploadingEditor file={ file } />
 			<div className="videopress-uploader-progress">
 				<div className="videopress-uploader-progress__file-info">
-					<div className="videopress-uploader-progress__file-name">
-						{ __( 'Uploading', 'jetpack' ) }
+					<div className="videopress-uploader-progress__progress">
+						<div className="videopress-uploader-progress__progress-loaded" style={ cssWidth } />
 					</div>
-					&nbsp;&#8212;&nbsp;
+					<div className="videopress-upload__percent-complete">
+						{ sprintf(
+							/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
+							__( 'Uploading (%1$s%%)', 'jetpack' ),
+							roundedProgress
+						) }
+					</div>
 					<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
 				</div>
-				<div className="videopress-uploader-progress__progress">
-					<div className="videopress-uploader-progress__progress-loaded" style={ cssWidth } />
-				</div>
 				<div className="videopress-uploader-progress__actions">
-					<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
 					{ roundedProgress < 100 && (
 						<Button variant="link" onClick={ onPauseOrResume }>
 							{ paused ? resumeText : pauseText }
