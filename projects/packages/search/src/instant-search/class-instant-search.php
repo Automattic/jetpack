@@ -661,12 +661,6 @@ class Instant_Search extends Classic_Search {
 			);
 		}
 
-		$settings['filters'][] = array(
-			'name'  => '',
-			'type'  => 'author',
-			'count' => 5,
-		);
-
 		// Grab a maximum of 3 taxonomies.
 		$taxonomies = array_slice(
 			get_taxonomies(
