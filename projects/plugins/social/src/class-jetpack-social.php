@@ -40,6 +40,7 @@ class Jetpack_Social {
 	 */
 	public function __construct( $connection_manager = null ) {
 		// Set up the REST authentication hooks.
+
 		Connection_Rest_Authentication::init();
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Social', 'jetpack-social' ),
@@ -49,6 +50,7 @@ class Jetpack_Social {
 			array( $this, 'plugin_settings_page' ),
 			99
 		);
+
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
