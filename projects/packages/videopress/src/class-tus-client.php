@@ -26,11 +26,13 @@ use GuzzleHttp\Exception\GuzzleException;
  * This class extends the TusPHP client class in order to make a few changes to work with our server:
  * * Use only POST and GET requests.
  * * Store the key specific token our server sends after we create the upload and use it in patch requests.
+ * All customizations are flagged with a "// VideoPress mod" comment
  */
 class Tus_Client extends Tus\Client {
 
 	/**
 	 * The details of the server response about the uploaded file
+	 * VideoPress mod: Create new attribute
 	 *
 	 * @var array
 	 */
@@ -40,6 +42,7 @@ class Tus_Client extends Tus\Client {
 	 * Sets the uploaded video details
 	 *
 	 * Values come wrapped in arrays because are result of a getHeader() call
+	 * VideoPress mod: Create new method
 	 *
 	 * @param array $guid The guid of the created video.
 	 * @param array $media_id The ID of the attachment created.
@@ -56,6 +59,7 @@ class Tus_Client extends Tus\Client {
 
 	/**
 	 * Gets the details of the uploaded video
+	 * VideoPress mod: Create new method
 	 *
 	 * @return array
 	 */
@@ -133,7 +137,7 @@ class Tus_Client extends Tus\Client {
 			array(
 				'location'      => $uploadLocation,
 				'expires_at'    => gmdate( $cache::RFC_7231, time() + $cache->getTtl() ),
-				'token_for_key' => $response->getHeader( 'x-videopress-upload-key-token' ),
+				'token_for_key' => $response->getHeader( 'x-videopress-upload-key-token' ), // VideoPress mod: add key-specific token to the cache.
 			)
 		);
 
@@ -237,7 +241,6 @@ class Tus_Client extends Tus\Client {
 			$guid       = $response->getHeader( 'x-videopress-upload-guid' );
 			$media_id   = $response->getHeader( 'x-videopress-upload-media-id' );
 			$upload_src = $response->getHeader( 'x-videopress-upload-src-url' );
-
 			if ( $guid && $media_id && $upload_src ) {
 				$this->set_uploaded_video_details( $guid, $media_id, $upload_src );
 			}
