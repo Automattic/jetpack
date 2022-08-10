@@ -5,7 +5,14 @@
  * @package automattic/jetpack-videopress
  */
 
-// phpcs:disable
+// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamComment
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+// phpcs:disable Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.FunctionComment.EmptyThrows
+// phpcs:disable Squiz.Commenting.FunctionCommentThrowTag.WrongNumber
 
 namespace Automattic\Jetpack\VideoPress;
 
@@ -62,7 +69,7 @@ class Tus_Client extends Tus\Client {
 	 * @see https://tus.io/protocols/resumable-upload.html#creation-with-upload
 	 *
 	 * @param string $key
-	 * @param int    $bytes -1 => all data; 0 => no data
+	 * @param int    $bytes -1 => all data; 0 => no data.
 	 *
 	 * @throws GuzzleException
 	 *
@@ -71,63 +78,68 @@ class Tus_Client extends Tus\Client {
 	 *   'offset' => int
 	 * ]
 	 */
-	public function createWithUpload($key, $bytes = -1): array
-    {
-        if ( ! is_string( $key ) ) {
-			throw new InvalidArgumentException('$key needs to be a string');
+	public function createWithUpload( $key, $bytes = -1 ) {
+		if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException( '$key needs to be a string' );
 		}
 		$bytes = $bytes < 0 ? $this->fileSize : $bytes;
 
-        $headers = $this->headers + [
-            'Upload-Length' => $this->fileSize,
-            'Upload-Key' => $key,
-            'Upload-Checksum' => $this->getUploadChecksumHeader(),
-            'Upload-Metadata' => $this->getUploadMetadataHeader(),
-        ];
+		$headers = $this->headers + array(
+			'Upload-Length'   => $this->fileSize,
+			'Upload-Key'      => $key,
+			'Upload-Checksum' => $this->getUploadChecksumHeader(),
+			'Upload-Metadata' => $this->getUploadMetadataHeader(),
+		);
 
-        $data = '';
-        if ($bytes > 0) {
-            $data = $this->getData(0, $bytes);
+		$data = '';
+		if ( $bytes > 0 ) {
+			$data = $this->getData( 0, $bytes );
 
-            $headers += [
-                'Content-Type' => self::HEADER_CONTENT_TYPE,
-                'Content-Length' => \strlen($data),
-            ];
-        }
+			$headers += array(
+				'Content-Type'   => self::HEADER_CONTENT_TYPE,
+				'Content-Length' => \strlen( $data ),
+			);
+		}
 
-        if ($this->isPartial()) {
-            $headers += ['Upload-Concat' => 'partial'];
-        }
+		if ( $this->isPartial() ) {
+			$headers += array( 'Upload-Concat' => 'partial' );
+		}
 
-        try {
-            $response = $this->getClient()->post($this->apiPath, [
-                'body' => $data,
-                'headers' => $headers,
-            ]);
-        } catch (ClientException $e) {
-            $response = $e->getResponse();
-        }
+		try {
+			$response = $this->getClient()->post(
+				$this->apiPath,
+				array(
+					'body'    => $data,
+					'headers' => $headers,
+				)
+			);
+		} catch ( ClientException $e ) {
+			$response = $e->getResponse();
+		}
 
-        $statusCode = $response->getStatusCode();
+		$statusCode = $response->getStatusCode();
 
-        if (Response_Codes::HTTP_CREATED !== $statusCode) {
-            throw new File_Exception('Unable to create resource.');
-        }
+		if ( Response_Codes::HTTP_CREATED !== $statusCode ) {
+			throw new File_Exception( 'Unable to create resource.' );
+		}
 
-        $uploadOffset   = $bytes > 0 ? current($response->getHeader('upload-offset')) : 0;
-        $uploadLocation = current($response->getHeader('location'));
+		$uploadOffset   = $bytes > 0 ? current( $response->getHeader( 'upload-offset' ) ) : 0;
+		$uploadLocation = current( $response->getHeader( 'location' ) );
 
-        $this->getCache()->set($this->getKey(), [
-            'location' => $uploadLocation,
-            'expires_at' => date( $this->getCache()::RFC_7231, time() + $this->getCache()->getTtl() ),
-			'token_for_key' => $response->getHeader( 'x-videopress-upload-key-token' ),
-        ]);
+		$this->getCache()->set(
+			$this->getKey(),
+			array(
+				'location'      => $uploadLocation,
+				'expires_at'    => gmdate( $this->getCache()::RFC_7231, time() + $this->getCache()->getTtl() ),
+				'token_for_key' => $response->getHeader( 'x-videopress-upload-key-token' ),
+			)
+		);
 
-        return [
-            'location' => $uploadLocation,
-            'offset' => $uploadOffset,
-        ];
-    }
+		return array(
+			'location' => $uploadLocation,
+			'offset'   => $uploadOffset,
+		);
+	}
 
 	/**
 	 * Send DELETE request.
@@ -142,7 +154,7 @@ class Tus_Client extends Tus\Client {
 			'X-HTTP-Method-Override' => 'DELETE', // VideoPress mod: add method override header.
 		);
 		try {
-			$this->getClient()->post( $this->getUrl() ); // VideoPress mod: use post() instead of delete()
+			$this->getClient()->post( $this->getUrl(), array( 'headers' => $headers ) ); // VideoPress mod: use post() instead of delete()
 		} catch ( ClientException $e ) {
 			$statusCode = $e->getResponse()->getStatusCode();
 
@@ -160,7 +172,7 @@ class Tus_Client extends Tus\Client {
 	 *
 	 * @return int
 	 */
-	protected function sendHeadRequest(): int {
+	protected function sendHeadRequest() {
 		$headers    = $this->headers + array(
 			'X-HTTP-Method-Override' => 'HEAD', // VideoPress mod: add method override header.
 		);
@@ -188,8 +200,8 @@ class Tus_Client extends Tus\Client {
 	 * @return int
 	 */
 	protected function sendPatchRequest( $bytes, $offset ) {
-		if ( ! is_int( $bytes ) || ! is_int($offset) ) {
-			throw new InvalidArgumentException('$bytes and $offset need to be integers');
+		if ( ! is_int( $bytes ) || ! is_int( $offset ) ) {
+			throw new InvalidArgumentException( '$bytes and $offset need to be integers' );
 		}
 		$data    = $this->getData( $offset, $bytes );
 		$headers = $this->headers + array(
@@ -201,7 +213,7 @@ class Tus_Client extends Tus\Client {
 		);
 
 		// VideoPress mod: override token with key specific token.
-		$token                                = $this->getCache()->get( $this->getKey() )['token_for_key'] ?? null;
+		$token                                = ! empty( $this->getCache()->get( $this->getKey() )['token_for_key'] ) ? $this->getCache()->get( $this->getKey() )['token_for_key'] : null;
 		$headers['x-videopress-upload-token'] = $token;
 
 		if ( $this->isPartial() ) {
