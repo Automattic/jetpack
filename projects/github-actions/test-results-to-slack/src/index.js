@@ -35,6 +35,7 @@ const { isWorkflowFailed, getNotificationText } = require( './utils' );
 	const isFailure = await isWorkflowFailed( ghToken );
 
 	if ( ! isFailure ) {
+		// this is only temporary. In the future: it will send notification for success if the previous run was failed.
 		return;
 	}
 
