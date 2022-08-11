@@ -203,7 +203,7 @@ class VideoPress_Gutenberg {
 		wp_enqueue_script(
 			'jetpack-videopress-gutenberg-playback-jwt',
 			Assets::get_file_url_for_environment(
-				'modules/videopress/js/videopress-token-bridge.js',
+				'_inc/build/videopress/js/videopress-token-bridge.min.js',
 				'modules/videopress/js/videopress-token-bridge.js'
 			),
 			array(),
