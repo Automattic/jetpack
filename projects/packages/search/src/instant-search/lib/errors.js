@@ -16,7 +16,7 @@ export function getErrorMessage( error ) {
 			return sprintf(
 				// translators: %s: Error code.
 				__(
-					"Jetpack Search has encountered an error (reason: '%s'). Please contact the site administrator if the issue persists.",
+					'Jetpack Search has encountered an error. Please contact the site administrator if the issue persists. [%s]',
 					'jetpack-search-pkg'
 				),
 				error.message
@@ -32,7 +32,7 @@ export function getErrorMessage( error ) {
 			return sprintf(
 				// translators: %s: Error code.
 				__(
-					"Jetpack Search is currently unavailable (reason: '%s'). Please try again later.",
+					'Jetpack Search is currently unavailable. Please try again later. [%s]',
 					'jetpack-search-pkg'
 				),
 				error?.message ?? 'unknown'
