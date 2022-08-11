@@ -45,8 +45,6 @@ function PaymentButtonsEdit( { clientId } ) {
 				) {
 					return {
 						...editorSettings,
-						// Makes easier for users to set a custom width in the inner blocks.
-						hasWidthSupport: true,
 						/*
 						 * This block already displays Stripe and plan upgrades nudges, so we hide the ones
 						 * displayed in the inner blocks.

@@ -60,21 +60,14 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 	 * Filters the editor settings of the Payment Button block (`jetpack/recurring-payments`).
 	 *
 	 * @param {object} editorSettings - An object with the block settings.
-	 * @param {boolean} editorSettings.hasWidthSupport - Whether the block can adjust its width.
 	 * @param {boolean} editorSettings.showProductManagementControls - Whether the product management block controls should be shown.
 	 * @param {boolean} editorSettings.showStripeNudge - Whether the action to connect to Stripe should be shown.
 	 * @param {boolean} editorSettings.showUpgradeNudge - Whether the plan upgrade nudge should be shown.
 	 * @param {string} clientId - Block ID.
 	 */
-	const {
-		hasWidthSupport,
-		showProductManagementControls,
-		showStripeNudge,
-		showUpgradeNudge,
-	} = applyFilters(
+	const { showProductManagementControls, showStripeNudge, showUpgradeNudge } = applyFilters(
 		'jetpack.recurringPayments.editorSettings',
 		{
-			hasWidthSupport: false,
 			showProductManagementControls: true,
 			showStripeNudge: true,
 			showUpgradeNudge: showJetpackUpgradeNudge,
@@ -82,7 +75,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 		clientId
 	);
 
-	useWidth( { attributes, disableEffects: ! hasWidthSupport, setAttributes } );
+	useWidth( { attributes, setAttributes } );
 
 	const blockProps = useBlockProps( { style: { width } } );
 	const innerBlocksProps = useInnerBlocksProps(
@@ -115,15 +108,13 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 					setSelectedProductId={ updateSubscriptionPlan }
 				/>
 			) }
-			{ hasWidthSupport && (
-				<InspectorControls>
-					<WidthPanel
-						align={ align }
-						width={ width }
-						onChange={ newWidth => setAttributes( { width: newWidth } ) }
-					/>
-				</InspectorControls>
-			) }
+			<InspectorControls>
+				<WidthPanel
+					align={ align }
+					width={ width }
+					onChange={ newWidth => setAttributes( { width: newWidth } ) }
+				/>
+			</InspectorControls>
 			{ showUpgradeNudge && (
 				<Placeholder
 					icon={ icon }
