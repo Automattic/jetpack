@@ -14,13 +14,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Action_Bar;
 
-function jetpack_enqueue_action_bar() {
-		wp_enqueue_script(
-			'jetpack-action-bar',
-			Assets::get_file_url_for_environment( '_inc/build/action-bar.min.js', '_inc/build/action-bar.js' ),
-		);
-}
-
-add_action( 'wp_enqueue_scripts', 'jetpack_enqueue_action_bar' );
+$action_bar = new Action_Bar();
+$action_bar->init();

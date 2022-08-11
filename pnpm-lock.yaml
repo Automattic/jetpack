@@ -698,6 +698,35 @@ importers:
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
+  projects/packages/action-bar:
+    specifiers:
+      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@babel/core': 7.18.6
+      '@babel/plugin-transform-react-jsx': 7.18.6
+      '@preact/compat': 17.1.1
+      '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0
+      '@wordpress/browserslist-config': 4.1.2
+      '@wordpress/dependency-extraction-webpack-plugin': 3.6.0
+      core-js: 3.23.5
+      preact: 10.5.15
+      webpack: 5.72.1
+      webpack-cli: 4.9.1
+      wp-prettier: npm:wp-prettier@2.0.5
+    dependencies:
+      '@preact/compat': 17.1.1_preact@10.5.15
+      preact: 10.5.15
+    devDependencies:
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      '@babel/core': 7.18.6
+      '@babel/plugin-transform-react-jsx': 7.18.6_@babel+core@7.18.6
+      '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0_@babel+core@7.18.6
+      '@wordpress/browserslist-config': 4.1.2
+      '@wordpress/dependency-extraction-webpack-plugin': 3.6.0_webpack@5.72.1
+      core-js: 3.23.5
+      webpack: 5.72.1_webpack-cli@4.9.1
+      webpack-cli: 4.9.1_webpack@5.72.1
+      wp-prettier: 2.0.5
+
   projects/packages/admin-ui:
     specifiers: {}
 
@@ -5348,6 +5377,14 @@ packages:
 
   /@popperjs/core/2.11.5:
     resolution: {integrity: sha512-9X2obfABZuDVLCgPK9aX0a/x4jaOEweTTWE2+9sr0Qqqevj2Uv5XorvusThmc9XGYpS9yI+fhh8RTafBtGposw==}
+
+  /@preact/compat/17.1.1_preact@10.5.15:
+    resolution: {integrity: sha512-OjQJ6oVcjFTiKWs4MIoE/cORFFGhqnt1RO0uxGNAFUglBMPNahMDJyX5w+qEOEaOpaNTLM1L3ixc2bFEpxgs3A==}
+    peerDependencies:
+      preact: '*'
+    dependencies:
+      preact: 10.5.15
+    dev: false
 
   /@react-spring/animated/9.4.5_react@17.0.2:
     resolution: {integrity: sha512-KWqrtvJSMx6Fj9nMJkhTwM9r6LIriExDRV6YHZV9HKQsaolUFppgkOXpC+rsL1JEtEvKv6EkLLmSqHTnuYjiIA==}

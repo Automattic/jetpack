@@ -1,0 +1,4 @@
+build
+vendor/
+node_modules/
+wordpress
