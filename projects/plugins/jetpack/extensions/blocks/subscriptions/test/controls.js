@@ -3,13 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { DEFAULT_FONTSIZE_VALUE } from '../constants';
 import SubscriptionsInspectorControls from '../controls';
 
-// Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
-// dependencies in the jest test runner.
-jest.mock( '../../button/button-width-panel', () => ( {
-	...jest.requireActual( '../../button/button-width-panel' ),
-	ButtonWidthControl: () => <div>Mocked Width Control</div>,
-} ) );
-
 const setButtonBackgroundColor = jest.fn();
 const setGradient = jest.fn();
 const setTextColor = jest.fn();
