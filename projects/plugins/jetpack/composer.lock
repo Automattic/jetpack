@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c45e64ee74ab0fcedafa57a31bf52d40",
+    "content-hash": "53ed8e56507308e080b113193652ed44",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -104,6 +104,68 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Provides an interface to the WP.com A/B tests.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-action-bar",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/action-bar",
+                "reference": "e5fc5abb587b66b80878c0300ee0756ada6e47d7"
+            },
+            "require": {
+                "automattic/jetpack-assets": "1.17.x-dev",
+                "automattic/jetpack-constants": "1.6.x-dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.2",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-action-bar",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-action-bar/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-action-bar"
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "An easy way for visitors to follow, like, and comment on your site.",
             "transport-options": {
                 "relative": true
             }
@@ -5155,6 +5217,7 @@
     "stability-flags": {
         "automattic/jetpack-a8c-mc-stats": 20,
         "automattic/jetpack-abtest": 20,
+        "automattic/jetpack-action-bar": 20,
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-backup": 20,
