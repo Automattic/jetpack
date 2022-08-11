@@ -141,12 +141,7 @@ class SearchResults extends Component {
 					<Notice type="warning">{ getErrorMessage( this.props.response.error ) }</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
-					<Notice type="warning">
-						{ __(
-							"It looks like you're offline. Please reconnect to load the latest results.",
-							'jetpack-search-pkg'
-						) }
-					</Notice>
+					<Notice type="warning">{ getErrorMessage( { message: 'offline' } ) }</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && (
 					<ol
