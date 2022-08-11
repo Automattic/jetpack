@@ -63,6 +63,8 @@ class Waf_Runner {
 		if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
 			wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
 		}
+		// Register REST routes.
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 	}
 
 	/**

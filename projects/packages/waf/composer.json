@@ -12,7 +12,6 @@
 	},
 	"autoload": {
 		"files": [
-			"actions.php",
 			"cli.php"
 		],
 		"classmap": [
