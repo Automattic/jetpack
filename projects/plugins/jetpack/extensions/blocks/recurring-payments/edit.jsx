@@ -13,6 +13,7 @@ import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
 import useWidth from '../../shared/use-width';
 import { WidthPanel } from '../../shared/width-panel';
 import { store as membershipProductsStore } from '../../store/membership-products';
+import { getBlockStyles } from './util';
 import { icon, title } from './';
 
 // If we use the name on index.js and the block name changes the events block name will also change.
@@ -77,7 +78,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 
 	useWidth( { attributes, setAttributes } );
 
-	const blockProps = useBlockProps( { style: { width } } );
+	const blockProps = useBlockProps( { style: getBlockStyles( { width } ) } );
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
 		{
