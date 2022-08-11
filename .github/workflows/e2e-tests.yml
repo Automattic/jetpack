@@ -124,7 +124,7 @@ jobs:
         pnpm run test:run "${TEST_ARGS[@]}"
 
     - name: Send Slack notification
-      if: ${{ ! cancelled() }}
+      if: ${{ ! failure() }}
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
         SUITE: ${{ matrix.project }}

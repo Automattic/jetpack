@@ -33,6 +33,11 @@ const { isWorkflowFailed, getNotificationText } = require( './utils' );
 		return;
 	}
 	const isFailure = await isWorkflowFailed( ghToken );
+
+	if ( ! isFailure ) {
+		return;
+	}
+
 	icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';
 
 	const text = await getNotificationText( isFailure );
