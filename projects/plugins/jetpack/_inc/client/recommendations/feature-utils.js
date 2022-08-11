@@ -5,6 +5,7 @@ import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
+	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
 import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
@@ -70,6 +71,12 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 
 export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 	switch ( resourceSlug ) {
+		case 'backup-plan':
+			return {
+				displayName: __( 'Site Backups', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-backups-101' ),
+			};
 		case 'security-plan':
 			return {
 				displayName: __( 'Site Security', 'jetpack' ),
@@ -151,6 +158,16 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 
 export const getStepContent = stepSlug => {
 	switch ( stepSlug ) {
+		case 'backup-plan':
+			return {
+				question: __( 'Be prepared for auto-updates.', 'jetpack' ),
+				description: __(
+					'We noticed that you’ve recently enabled auto-updates for one of your plugins. Nice work, keeping plugins updated is vital for a healthy site! Sometimes auto-updating plugins can cause unexpected changes on your site. Finding an older version of the plugin or learning how to install it to revert the changes can be challenging. Here at Jetpack, we recommend regular backups of your site so you can go back in time with the click of a button.',
+					'jetpack'
+				),
+				ctaText: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-backups-101' ),
+			};
 		case 'creative-mail':
 			return {
 				progressValue: '83',
@@ -316,6 +333,17 @@ export const getProductCardData = ( state, productSlug ) => {
 				productCardCtaText: __( 'Get VideoPress', 'jetpack' ),
 				productCardList: products.videopress ? products.videopress.features : [],
 				productCardIcon: '/recommendations/video-icon.svg',
+			};
+		case PLAN_JETPACK_BACKUP_T1_YEARLY:
+			return {
+				productCardTitle: __( 'Go back in time with one click', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get Jetpack Backup', 'jetpack' ),
+				productCardList: products.backup ? products.backup.features : [],
+				productCardIcon: '/recommendations/cloud-icon.svg',
 			};
 		default:
 			throw `Unknown product slug for getProductCardData: ${ productSlug }`;
