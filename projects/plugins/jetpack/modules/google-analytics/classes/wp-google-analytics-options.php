@@ -57,6 +57,15 @@ class Jetpack_Google_Analytics_Options {
 	}
 
 	/**
+	 * Get the 'honor_dnt' option used by both legacy and universal analytics.
+	 *
+	 * @return bool
+	 */
+	public static function honor_dnt_is_enabled() {
+		return (bool) static::get_option( 'honor_dnt' );
+	}
+
+	/**
 	 * Get the 'ec_track_purchases' eCommerce option used by both legacy and universal analytics
 	 *
 	 * @return bool
