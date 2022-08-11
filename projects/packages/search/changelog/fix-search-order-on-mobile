@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Instant Search: Fix the display order on mobile to match the tab order.
