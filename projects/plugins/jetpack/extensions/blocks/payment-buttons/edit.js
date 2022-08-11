@@ -3,7 +3,7 @@ import { BlockControls, useBlockProps, useInnerBlocksProps } from '@wordpress/bl
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { addFilter, removeFilter } from '@wordpress/hooks';
+import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
@@ -56,12 +56,6 @@ function PaymentButtonsEdit( { clientId } ) {
 				return editorSettings;
 			}
 		);
-
-		return () =>
-			removeFilter(
-				'jetpack.recurringPayments.editorSettings',
-				'jetpack/payment-buttons-hide-nudges-from-inner-blocks'
-			);
 	}, [ paymentButtonBlocks ] );
 
 	const availability = getJetpackExtensionAvailability( 'recurring-payments' );

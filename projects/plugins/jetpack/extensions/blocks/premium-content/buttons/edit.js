@@ -2,7 +2,7 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { addFilter, removeFilter } from '@wordpress/hooks';
+import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 
 const ALLOWED_BLOCKS = [
@@ -82,12 +82,6 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 				return editorSettings;
 			}
 		);
-
-		return () =>
-			removeFilter(
-				'jetpack.recurringPayments.editorSettings',
-				'jetpack/premium-content-hide-recurring-payments-controls'
-			);
 	}, [ subscribeButton ] );
 
 	const blockProps = useBlockProps( {
