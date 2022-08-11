@@ -1,9 +1,32 @@
 import { render } from 'preact';
 import './action-bar.scss';
+import { CommentIcon, EllipsisIcon, FollowIcon, StarIcon } from './icons';
 
-console.log( 'Hello from the Action Bar!' );
+const ActionBar = () => {
+	return (
+		<ul className="jetpack-action-bar__action-list">
+			<li>
+				<button class="jetpack-action-bar__action-button">
+					<EllipsisIcon />
+				</button>
+			</li>
+			<li>
+				<button class="jetpack-action-bar__action-button">
+					<CommentIcon />
+				</button>
+			</li>
+			<li>
+				<button class="jetpack-action-bar__action-button">
+					<StarIcon />
+				</button>
+			</li>
+			<li>
+				<button class="jetpack-action-bar__action-button">
+					<FollowIcon />
+				</button>
+			</li>
+		</ul>
+	);
+};
 
-const App = <h1>Hello World!</h1>;
-
-// Inject our app into the DOM
-render( App, document.getElementById( 'jetpack-action-bar' ) );
+render( <ActionBar />, document.getElementById( 'jetpack-action-bar' ) );
