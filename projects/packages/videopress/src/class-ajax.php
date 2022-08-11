@@ -1,24 +1,25 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+namespace Automattic\Jetpack\VideoPress;
+
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\VideoPress\Options as VideoPress_Options;
 
 /**
  * VideoPress AJAX action handlers and utilities.
  */
-class VideoPress_AJAX {
+class AJAX {
 
 	/**
-	 * Singleton VideoPress_AJAX instance.
+	 * Singleton AJAX instance.
 	 *
-	 * @var VideoPress_AJAX
+	 * @var AJAX
 	 **/
 	private static $instance = null;
 
 	/**
-	 * Private VideoPress_AJAX constructor.
+	 * Private AJAX constructor.
 	 *
-	 * Use the VideoPress_AJAX::init() method to get an instance.
+	 * Use the AJAX::init() method to get an instance.
 	 */
 	private function __construct() {
 		add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
@@ -37,13 +38,13 @@ class VideoPress_AJAX {
 	}
 
 	/**
-	 * Initialize the VideoPress_AJAX and get back a singleton instance.
+	 * Initialize the AJAX and get back a singleton instance.
 	 *
-	 * @return VideoPress_AJAX
+	 * @return AJAX
 	 */
 	public static function init() {
 		if ( self::$instance === null ) {
-			self::$instance = new VideoPress_AJAX();
+			self::$instance = new AJAX();
 		}
 
 		return self::$instance;
@@ -86,24 +87,24 @@ class VideoPress_AJAX {
 		}
 
 		if ( empty( $guid ) || ! $this->is_valid_guid( $guid ) ) {
-			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'need a guid', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
 
 		if ( ! $this->is_current_user_authed_for_video( $guid, $embedded_post_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'You cannot view this video.', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'You cannot view this video.', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
 
 		$token = $this->request_jwt_from_wpcom( $guid );
 
 		if ( empty( $token ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress playback JWT. Please try again later. (empty upload token)', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress playback JWT. Please try again later. (empty upload token)', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
 
 		if ( is_wp_error( $token ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
 
@@ -170,7 +171,7 @@ class VideoPress_AJAX {
 	 * @param string $guid The video id being checked.
 	 */
 	private function request_jwt_from_wpcom( $guid ) {
-		$options = VideoPress_Options::get_options();
+		$options = Options::get_options();
 
 		$args = array(
 			'method' => 'POST',
@@ -198,7 +199,7 @@ class VideoPress_AJAX {
 	 */
 	public function wp_ajax_videopress_get_upload_jwt() {
 
-		$options = VideoPress_Options::get_options();
+		$options = Options::get_options();
 
 		$args = array(
 			'method' => 'POST',
@@ -207,14 +208,14 @@ class VideoPress_AJAX {
 		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-upload-jwt";
 		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
 
 		$response = json_decode( $result['body'], true );
 
 		if ( empty( $response['upload_token'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later. (empty upload token)', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later. (empty upload token)', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
 
@@ -230,7 +231,7 @@ class VideoPress_AJAX {
 	 */
 	public function wp_ajax_videopress_get_upload_token() {
 
-		$options = VideoPress_Options::get_options();
+		$options = Options::get_options();
 
 		$args = array(
 			'method' => 'POST',
@@ -240,14 +241,14 @@ class VideoPress_AJAX {
 		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $args );
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
 
 		$response = json_decode( $result['body'], true );
 
 		if ( empty( $response['upload_token'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
 
@@ -263,25 +264,22 @@ class VideoPress_AJAX {
 	 */
 	public function wp_ajax_update_transcoding_status() {
 		if ( ! isset( $_POST['post_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Informational AJAX response.
-			wp_send_json_error( array( 'message' => __( 'A valid post_id is required.', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'A valid post_id is required.', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
 
 		$post_id = (int) $_POST['post_id']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		if ( ! videopress_update_meta_data( $post_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'That post does not have a VideoPress video associated to it.', 'jetpack' ) ) );
+			wp_send_json_error( array( 'message' => __( 'That post does not have a VideoPress video associated to it.', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
 
 		wp_send_json_success(
 			array(
-				'message' => __( 'Status updated', 'jetpack' ),
+				'message' => __( 'Status updated', 'jetpack-videopress-pkg' ),
 				'status'  => videopress_get_transcoding_status( $post_id ),
 			)
 		);
 	}
 }
-
-// Let's start this thing up.
-VideoPress_AJAX::init();
