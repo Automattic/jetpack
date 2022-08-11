@@ -50,13 +50,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	} ),
 } ) );
 
-// Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
-// dependencies in the jest test runner.
-jest.mock( '../button-width-panel', () => ( {
-	...jest.requireActual( '../button-width-panel' ),
-	ButtonWidthControl: () => <div>Mocked Width Control</div>,
-} ) );
-
 beforeEach( () => {
 	defaultProps.setAttributes.mockClear();
 } );
