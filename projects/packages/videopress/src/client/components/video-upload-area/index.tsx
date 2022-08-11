@@ -1,11 +1,9 @@
+import { Button, useBreakpointMatch, Text } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, cloudUpload } from '@wordpress/icons';
 import classnames from 'classnames';
 import { DragEvent, useCallback, useState } from 'react';
-import Button from '../button';
-import useBreakpointMatch from '../layout/use-breakpoint-match';
-import Text from '../text';
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
 import type React from 'react';
@@ -52,7 +50,7 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( {
 
 			const { files } = event.dataTransfer;
 			if ( files.length > 1 ) {
-				throw new Error( __( 'Only one file allowed', 'jetpack' ) );
+				throw new Error( __( 'Only one file allowed', 'jetpack-videopress-pkg' ) );
 			}
 
 			onSelectFile( files[ 0 ] );
@@ -67,7 +65,7 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( {
 				<Spinner></Spinner>
 			</div>
 			<div className={ classnames( styles.row ) }>
-				<Text variant="title-small">{ __( 'Uploading', 'jetpack' ) }</Text>
+				<Text variant="title-small">{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</Text>
 			</div>
 		</div>
 	) : (
@@ -84,7 +82,9 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( {
 				<Icon icon={ cloudUpload } size={ 48 } className={ classnames( styles.icon ) }></Icon>
 			</div>
 			<div className={ classnames( styles.row ) }>
-				<Text variant="title-small">{ __( 'Drag and drop your video here', 'jetpack' ) }</Text>
+				<Text variant="title-small">
+					{ __( 'Drag and drop your video here', 'jetpack-videopress-pkg' ) }
+				</Text>
 			</div>
 			<div className={ classnames( styles.row ) }>
 				<Button
@@ -93,7 +93,7 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( {
 					onClick={ handleClickEvent }
 					disabled={ isDraggingOver }
 				>
-					{ __( 'Select file to upload', 'jetpack' ) }
+					{ __( 'Select file to upload', 'jetpack-videopress-pkg' ) }
 				</Button>
 			</div>
 		</div>

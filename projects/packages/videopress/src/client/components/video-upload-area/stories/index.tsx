@@ -3,7 +3,7 @@ import Doc from './VideoUploadArea.mdx';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
-	title: 'JS Packages/Components/Video Upload Area',
+	title: 'Packages/Videopress/Video Upload Area',
 	component: VideoUploadArea,
 	parameters: {
 		docs: {
