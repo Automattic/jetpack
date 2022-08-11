@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
  * @returns {*}	an error message
  */
 export function getErrorMessage( error ) {
-	switch ( error.message ) {
+	switch ( error?.message ) {
 		case 'service_unavailable':
 			return __(
 				'Jetpack Search is currently unavailable. Please try again later.',
