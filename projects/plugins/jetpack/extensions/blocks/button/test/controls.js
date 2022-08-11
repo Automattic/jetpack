@@ -18,6 +18,7 @@ const defaultProps = {
 		class: undefined,
 		color: undefined,
 	},
+	context: {},
 	fallbackBackgroundColor: 'rgba(0, 0, 0, 0)',
 	fallbackTextColor: undefined,
 	setAttributes: setAttributes,
