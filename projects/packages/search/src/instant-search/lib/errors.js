@@ -15,7 +15,7 @@ export function getErrorMessage( error ) {
 			);
 		case 'unknown_blog':
 		case 'unauthorized':
-			return __( 'You are not authorized to perform search on the website.', 'jetpack-search-pkg' );
+			return __( 'You are not authorized to search on the website.', 'jetpack-search-pkg' );
 		case 'bad_request':
 			return __(
 				'One or more parameters are not accepted by the server. Please contact the website administrator.',
