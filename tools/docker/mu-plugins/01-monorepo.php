@@ -39,7 +39,7 @@ class Monorepo {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		$this->monorepo = '/usr/local/src/jetpack-monorepo/';
+		$this->monorepo = apply_filters( 'jetpack_monorepo_path', '/usr/local/src/jetpack-monorepo/' );
 		$this->plugins  = $this->monorepo . 'projects/plugins/';
 		$this->packages = $this->monorepo . 'projects/packages/';
 	}
