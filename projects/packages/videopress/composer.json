@@ -50,10 +50,5 @@
 			"dev-trunk": "0.1.x-dev"
 		},
 		"textdomain": "jetpack-videopress-pkg"
-	},
-	"config": {
-		"allow-plugins": {
-			"kylekatarnls/update-helper": false
-		}
 	}
 }
