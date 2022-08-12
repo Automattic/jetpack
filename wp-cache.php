@@ -243,7 +243,6 @@ function wp_cache_add_pages() {
 }
 add_action( 'admin_menu', 'wp_cache_add_pages' );
 
-
 function wp_cache_network_pages() {
 	add_submenu_page( 'settings.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
 }
@@ -734,7 +733,6 @@ function wp_cache_manager_updates() {
 if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == 'wpsupercache' )
 	add_action( 'admin_init', 'wp_cache_manager_updates' );
 
-
 function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled;
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_no_cache_for_get;
@@ -1044,13 +1042,6 @@ table.wpsc-settings-table {
 
 	</fieldset>
 	</td><td valign='top' style='width: 300px'>
-	<div style='background: #cde9ff; border: 1px solid #333; margin: 3px; margin-bottom:5px; padding: 3px 15px'>
-	<h4><?php _e("We have launched our 2022 survey.","wp-super-cache");?></h4>
-	<p><?php _e("Tell us what you think of WP Super Cache.", "wp-super-cache") ?>
-		<a href="https://forms.gle/cwG1T4AhME6opjjw5" target="_blank"><?php  _e("Take the Survey here","wp-super-cache"); ?></a>
-	</p>
-	</div>
-
 	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px'>
 	<h4><?php _e( 'Other Site Tools', 'wp-super-cache' ); ?></h4>
 	<ul style="list-style: square; margin-left: 2em;">
