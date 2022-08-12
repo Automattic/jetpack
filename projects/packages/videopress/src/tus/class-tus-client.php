@@ -15,6 +15,7 @@ namespace VideoPressUploader;
 
 use InvalidArgumentException;
 use WP_Error;
+use WP_Http;
 
 /**
  * Tus_Client
@@ -544,7 +545,7 @@ class Tus_Client {
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 
-		if ( Response_Codes::HTTP_CREATED !== $status_code ) {
+		if ( WP_Http::CREATED !== $status_code ) {
 			throw new Tus_Exception( 'Unable to create resource.' );
 		}
 
@@ -620,7 +621,7 @@ class Tus_Client {
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 
-		if ( Response_Codes::HTTP_OK !== $response_code ) {
+		if ( WP_Http::OK !== $response_code ) {
 			return false;
 		}
 
@@ -668,7 +669,7 @@ class Tus_Client {
 		);
 
 		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( Response_Codes::HTTP_NO_CONTENT !== $response_code ) {
+		if ( WP_Http::NO_CONTENT !== $response_code ) {
 			throw $this->handle_patch_exception( $response );
 		}
 
@@ -698,15 +699,15 @@ class Tus_Client {
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 
-		if ( Response_Codes::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE === $response_code ) {
+		if ( WP_Http::REQUESTED_RANGE_NOT_SATISFIABLE === $response_code ) {
 			return new Tus_Exception( 'The uploaded file is corrupt.' );
 		}
 
-		if ( Response_Codes::HTTP_CONTINUE === $response_code ) {
+		if ( WP_Http::HTTP_CONTINUE === $response_code ) {
 			return new Tus_Exception( 'Connection aborted by user.' );
 		}
 
-		if ( Response_Codes::HTTP_UNSUPPORTED_MEDIA_TYPE === $response_code ) {
+		if ( WP_Http::UNSUPPORTED_MEDIA_TYPE === $response_code ) {
 			return new Tus_Exception( 'Unsupported media types.' );
 		}
 
