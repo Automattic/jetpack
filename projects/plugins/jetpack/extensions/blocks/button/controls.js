@@ -1,6 +1,6 @@
+import { WidthPanel } from '../../shared/width-panel';
 import ButtonBorderPanel from './button-border-panel';
 import ButtonColorsPanel from './button-colors-panel';
-import ButtonWidthPanel from './button-width-panel';
 
 export default function ButtonControls( {
 	attributes,
@@ -33,7 +33,7 @@ export default function ButtonControls( {
 				} }
 			/>
 			<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
-			<ButtonWidthPanel
+			<WidthPanel
 				align={ align }
 				width={ width }
 				onChange={ newWidth => setAttributes( { width: newWidth } ) }

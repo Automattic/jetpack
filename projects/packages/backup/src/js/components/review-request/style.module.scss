@@ -11,6 +11,11 @@
 	background: none;
 	margin: 0;
 	width: 100%;
+	text-decoration:none;
+
+	svg{
+		display:none;
+	}
 
 	&:focus, &:active {
 		outline-color: var(--jp-black);
