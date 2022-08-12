@@ -1,4 +1,5 @@
 [
+	"projects/plugins/super-cache/partials/lockdown.php",
 	"projects/plugins/super-cache/wp-cache.php",
 	"projects/plugins/super-cache/plugins/multisite.php",
 	"projects/plugins/super-cache/plugins/awaitingmoderation.php",
@@ -28,7 +29,6 @@
 	"projects/plugins/super-cache/partials/easy.php",
 	"projects/plugins/super-cache/partials/debug.php",
 	"projects/plugins/super-cache/partials/preload.php",
-	"plugins/super-cache/partials/lockdown.php",
 	"projects/plugins/super-cache/partials/advanced.php",
 	"projects/plugins/super-cache/wp-cache-phase1.php",
 	"projects/plugins/super-cache/wp-cache-config-sample.php",
