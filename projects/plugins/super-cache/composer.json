@@ -38,9 +38,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-super-cache",
+		"mirror-repo": "Automattic/wp-super-cache",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-super-cache/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/wp-super-cache/compare/v${old}...v${new}"
 		},
 		"release-branch-prefix": "super-cache"
 	}
