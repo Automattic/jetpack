@@ -55,6 +55,7 @@ class Initializer {
 	 * @return void
 	 */
 	private static function active_initialization() {
+		Uploader_Rest_Endpoints::init();
 		self::register_oembed_providers();
 	}
 
