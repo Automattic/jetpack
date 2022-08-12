@@ -29,11 +29,11 @@ Text Domain: wp-super-cache
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-require_once( dirname( __FILE__ ) . '/inc/delete-cache-button.php');
-require_once( dirname( __FILE__ ) . '/inc/preload-notification.php');
+require_once( __DIR__. '/inc/delete-cache-button.php');
+require_once( __DIR__. '/inc/preload-notification.php');
 
 if ( ! function_exists( 'wp_cache_phase2' ) ) {
-	require_once( dirname( __FILE__ ) . '/wp-cache-phase2.php');
+	require_once( __DIR__. '/wp-cache-phase2.php');
 }
 
 if ( ! defined( 'PHP_VERSION_ID' ) ) {
@@ -56,9 +56,9 @@ function wpsc_init() {
 		define( 'WPCACHEHOME', dirname( __FILE__ ) . '/' );
 		$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
 		$wpsc_advanced_cache_dist_filename = WPCACHEHOME . 'advanced-cache.php';
-	} elseif ( realpath( WPCACHEHOME ) != realpath( dirname( __FILE__ ) ) ) {
-		$wp_cache_config_file_sample = dirname( __FILE__ ) . '/wp-cache-config-sample.php';
-		$wpsc_advanced_cache_dist_filename = dirname( __FILE__ ) . '/advanced-cache.php';
+	} elseif ( realpath( WPCACHEHOME ) != realpath( __DIR__ ) ) {
+		$wp_cache_config_file_sample = __DIR__. '/wp-cache-config-sample.php';
+		$wpsc_advanced_cache_dist_filename = __DIR__. '/advanced-cache.php';
 		if ( ! defined( 'ADVANCEDCACHEPROBLEM' ) ) {
 			define( 'ADVANCEDCACHEPROBLEM', 1 ); // force an update of WPCACHEHOME
 		}
@@ -101,12 +101,12 @@ if ( ! isset( $cache_enabled, $super_cache_enabled, $wp_cache_mod_rewrite, $cach
 
 include(WPCACHEHOME . 'wp-cache-base.php');
 if ( class_exists( 'WP_REST_Controller' ) ) {
-	include( dirname( __FILE__ ) . '/rest/load.php' );
+	include( __DIR__. '/rest/load.php' );
 }
 
 function wp_super_cache_init_action() {
 
-	load_plugin_textdomain( 'wp-super-cache', false, basename( dirname( __FILE__ ) ) . '/languages' );
+	load_plugin_textdomain( 'wp-super-cache', false, basename( __DIR__ ) . '/languages' );
 
 	wpsc_register_post_hooks();
 }
@@ -130,10 +130,10 @@ function get_wpcachehome() {
 	}
 
 	if ( ! defined( 'WPCACHEHOME' ) ) {
-		if ( is_file( dirname( __FILE__ ) . '/wp-cache-config-sample.php' ) ) {
+		if ( is_file( __DIR__ . '/wp-cache-config-sample.php' ) ) {
 			define( 'WPCACHEHOME', trailingslashit( dirname( __FILE__ ) ) );
-		} elseif ( is_file( dirname( __FILE__ ) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
-			define( 'WPCACHEHOME', dirname( __FILE__ ) . '/wp-super-cache/' );
+		} elseif ( is_file( __DIR__ . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
+			define( 'WPCACHEHOME', __DIR__ . '/wp-super-cache/' );
 		} else {
 			die( sprintf( esc_html__( 'Please create %s/wp-cache-config.php from wp-super-cache/wp-cache-config-sample.php', 'wp-super-cache' ), esc_attr( WPCACHECONFIGPATH ) ) );
 		}

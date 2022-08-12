@@ -1,15 +1,15 @@
 <?php
 
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-rest-get-settings.php' );
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-rest-update-settings.php' );
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-rest-get-stats.php' );
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-rest-get-cache.php' );
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-rest-get-status.php' );
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-rest-test-cache.php' );
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-rest-delete-cache.php' );
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-rest-preload.php' );
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-rest-get-plugins.php' );
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-rest-update-plugins.php' );
+require_once( __DIR__ . '/class.wp-super-cache-rest-get-settings.php' );
+require_once( __DIR__ . '/class.wp-super-cache-rest-update-settings.php' );
+require_once( __DIR__ . '/class.wp-super-cache-rest-get-stats.php' );
+require_once( __DIR__ . '/class.wp-super-cache-rest-get-cache.php' );
+require_once( __DIR__ . '/class.wp-super-cache-rest-get-status.php' );
+require_once( __DIR__ . '/class.wp-super-cache-rest-test-cache.php' );
+require_once( __DIR__ . '/class.wp-super-cache-rest-delete-cache.php' );
+require_once( __DIR__ . '/class.wp-super-cache-rest-preload.php' );
+require_once( __DIR__ . '/class.wp-super-cache-rest-get-plugins.php' );
+require_once( __DIR__. '/class.wp-super-cache-rest-update-plugins.php' );
 
 class WP_Super_Cache_Router {
 
