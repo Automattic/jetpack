@@ -7,6 +7,8 @@
 
 namespace VideoPressUploader;
 
+use InvalidArgumentException;
+
 // Avoid direct calls to this file.
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
@@ -493,8 +495,8 @@ class Tus_File {
 	 * @return int
 	 */
 	public function seek( $handle, $offset, $whence = SEEK_SET ) {
-		if ( ! is_int( $handle ) ) {
-			throw new InvalidArgumentException( '$handle needs to be an integer' );
+		if ( ! is_int( $offset ) ) {
+			throw new InvalidArgumentException( '$offset needs to be an integer' );
 		}
 		$position = fseek( $handle, $offset, $whence );
 
