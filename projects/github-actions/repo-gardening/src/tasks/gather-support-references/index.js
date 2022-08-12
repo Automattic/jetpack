@@ -224,6 +224,14 @@ async function checkForEscalation( issueReferences, commentBody, escalationNote,
 		return true;
 	}
 
+	// When the issue is already closed, do not send any Slack reminder.
+	if ( payload.issue.state === 'closed' ) {
+		debug(
+			`gather-support-references: Issue ${ payload.issue.number } is closed, no need to escalate.`
+		);
+		return false;
+	}
+
 	debug(
 		`gather-support-references: Issue #${ payload.issue.number } has now gathered more than 10 tickets. It's time to escalate it.`
 	);
