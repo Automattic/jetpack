@@ -17,13 +17,6 @@ class Jetpack_VideoPress {
 	public $module = 'videopress';
 
 	/**
-	 * Version number used for cache busting.
-	 *
-	 * @var string
-	 */
-	const VERSION = '6';
-
-	/**
 	 * Singleton
 	 */
 	public static function init() {
@@ -84,7 +77,7 @@ class Jetpack_VideoPress {
 		$post_id = isset( $post->ID ) ? absint( $post->ID ) : 0;
 
 		$bridge_url = Assets::get_file_url_for_environment(
-			'modules/videopress/js/videopress-token-bridge.js',
+			'_inc/build/videopress/js/videopress-token-bridge.min.js',
 			'modules/videopress/js/videopress-token-bridge.js'
 		);
 
@@ -92,7 +85,7 @@ class Jetpack_VideoPress {
 			'media-video-jwt-bridge',
 			$bridge_url,
 			array(),
-			self::VERSION,
+			JETPACK__VERSION,
 			false
 		);
 
@@ -178,7 +171,7 @@ class Jetpack_VideoPress {
 	 * Register and enqueue VideoPress admin styles.
 	 */
 	public function enqueue_admin_styles() {
-		wp_register_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), self::VERSION );
+		wp_register_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'videopress-admin' );
 	}
 
@@ -258,7 +251,7 @@ class Jetpack_VideoPress {
 					'jquery',
 					'wp-plupload',
 				),
-				self::VERSION,
+				JETPACK__VERSION,
 				true
 			);
 
@@ -271,7 +264,7 @@ class Jetpack_VideoPress {
 				array(
 					'videopress-plupload',
 				),
-				self::VERSION,
+				JETPACK__VERSION,
 				true
 			);
 
@@ -282,7 +275,7 @@ class Jetpack_VideoPress {
 					'modules/videopress/js/media-video-widget-extensions.js'
 				),
 				array(),
-				self::VERSION,
+				JETPACK__VERSION,
 				true
 			);
 		}
