@@ -1,17 +1,24 @@
 <?php
 /**
- * Client
+ * Tus_Client
  *
  * @package VideoPressUploader
  **/
+
+// phpcs:disable Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.VariableComment.Missing
+// phpcs:disable Squiz.Commenting.FunctionComment.EmptyThrows
+// phpcs:disable Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamComment
 
 namespace VideoPressUploader;
 
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
+use WP_Error;
 
 /**
- * Client
+ * Tus_Client
  */
 class Tus_Client {
 
@@ -38,9 +45,6 @@ class Tus_Client {
 
 	/** @var Cacheable */
 	protected $cache;
-
-	/** @var GuzzleClient */
-	protected $client;
 
 	/** @var string */
 	protected $file_path;
@@ -83,10 +87,15 @@ class Tus_Client {
 	 */
 	protected $uploaded_video_details = null;
 
+	/**
+	 * The API url composed by BASE_API_URL and the Blod ID.
+	 *
+	 * @var string
+	 */
 	protected $api_url = null;
 
 	/**
-	 * Client constructor.
+	 * Tus_Client constructor.
 	 *
 	 * @param string $key The unique upload key identifier.
 	 * @param string $upload_token The upload token retrieved from the server.
@@ -133,20 +142,13 @@ class Tus_Client {
 	/**
 	 * Sets the uploaded video details
 	 *
-	 * Values come wrapped in arrays because are result of a getHeader() call
-	 * VideoPress mod: Create new method
-	 *
-	 * @param array $guid The guid of the created video.
-	 * @param array $media_id The ID of the attachment created.
-	 * @param array $upload_src The video URL.
+	 * @param string $guid The guid of the created video.
+	 * @param string $media_id The ID of the attachment created.
+	 * @param string $upload_src The video URL.
 	 * @return void
 	 */
 	protected function set_uploaded_video_details( $guid, $media_id, $upload_src ) {
-		$this->uploaded_video_details = array(
-			'guid'       => $guid[0],
-			'media_id'   => $media_id[0],
-			'upload_src' => $upload_src[0],
-		);
+		$this->uploaded_video_details = compact( 'guid', 'media_id', 'upload_src' );
 	}
 
 	/**
@@ -166,8 +168,8 @@ class Tus_Client {
 	 * @param string|null $name File name.
 	 *
 	 * @throws InvalidArgumentException
-	 * @throws \Exception
-	 * @return Client
+	 * @throws Tus_Exception
+	 * @return Tus_Client
 	 */
 	public function file( $file, $name = null ) {
 		if ( ! is_string( $file ) ) {
@@ -176,7 +178,7 @@ class Tus_Client {
 		$this->file_path = $file;
 
 		if ( ! file_exists( $file ) || ! is_readable( $file ) ) {
-			throw new \Exception( 'Cannot read file: ' . $file );
+			throw new Tus_Exception( 'Cannot read file: ' . $file );
 		}
 
 		$this->file_name = ! empty( $name ) ? basename( $this->file_path ) : '';
@@ -199,10 +201,10 @@ class Tus_Client {
 	/**
 	 * Set file name.
 	 *
-	 * @param string $name
+	 * @param string $name The file name.
 	 *
 	 * @throws InvalidArgumentException
-	 * @return Client
+	 * @return Tus_Client
 	 */
 	public function set_file_name( $name ) {
 		if ( ! is_string( $name ) ) {
@@ -237,7 +239,7 @@ class Tus_Client {
 	 * @param string $checksum
 	 *
 	 * @throws InvalidArgumentException
-	 * @return Client
+	 * @return Tus_Client
 	 */
 	public function set_checksum( $checksum ) {
 		if ( ! is_string( $checksum ) ) {
@@ -268,7 +270,7 @@ class Tus_Client {
 	 * @param string $value
 	 *
 	 * @throws InvalidArgumentException
-	 * @return Client
+	 * @return Tus_Client
 	 */
 	public function add_metadata( $key, $value ) {
 		if ( ! is_string( $key ) || ! is_string( $value ) ) {
@@ -285,7 +287,7 @@ class Tus_Client {
 	 * @param string $key
 	 *
 	 * @throws InvalidArgumentException
-	 * @return Client
+	 * @return Tus_Client
 	 */
 	public function remove_metadata( $key ) {
 		if ( ! is_string( $key ) ) {
@@ -301,7 +303,7 @@ class Tus_Client {
 	 *
 	 * @param array $items
 	 *
-	 * @return Client
+	 * @return Tus_Client
 	 */
 	public function set_metadata( array $items ) {
 		$items = array_map( 'base64_encode', $items );
@@ -366,7 +368,7 @@ class Tus_Client {
 	 * @param string $algorithm
 	 *
 	 * @throws InvalidArgumentException
-	 * @return Client
+	 * @return Tus_Client
 	 */
 	public function set_checksum_algorithm( $algorithm ) {
 		if ( ! is_string( $algorithm ) ) {
@@ -392,9 +394,9 @@ class Tus_Client {
 	 * @return bool
 	 */
 	public function is_expired() {
-		$expiresAt = $this->get_cache_attribute( 'expires_at' );
+		$expires_at = $this->get_cache_attribute( 'expires_at' );
 
-		return empty( $expiresAt ) || time() > strtotime( $expiresAt );
+		return empty( $expires_at ) || time() > strtotime( $expires_at );
 	}
 
 	/**
@@ -440,8 +442,6 @@ class Tus_Client {
 	 * @param int $bytes Bytes to upload.
 	 *
 	 * @throws Tus_Exception
-	 * @throws GuzzleException
-	 * @throws Connection_Exception
 	 * @throws InvalidArgumentException
 	 *
 	 * @return int
@@ -450,16 +450,17 @@ class Tus_Client {
 		if ( ! is_int( $bytes ) ) {
 			throw new InvalidArgumentException( '$bytes needs to be an integer' );
 		}
-		$bytes  = $bytes < 0 ? $this->get_file_size() : $bytes;
-		$offset = $this->partial_offset < 0 ? 0 : $this->partial_offset;
+		$bytes          = $bytes < 0 ? $this->get_file_size() : $bytes;
+		$partial_offset = $this->partial_offset < 0 ? 0 : $this->partial_offset;
 
 		$offset = $this->get_offset();
 		if ( is_wp_error( $offset ) ) {
 			throw new Tus_Exception( "Couldn't connect to server." );
 		}
 
-		if ( false ===  $offset ) {
+		if ( false === $offset ) {
 			$this->url = $this->create( $this->get_key() );
+			$offset    = $partial_offset;
 		}
 
 		// Verify that upload is not yet expired.
@@ -495,7 +496,8 @@ class Tus_Client {
 	 * @param string $key
 	 * @param int    $bytes -1 => all data; 0 => no data.
 	 *
-	 * @throws GuzzleException
+	 * @throws InvalidArgumentException
+	 * @throws Tus_Exception
 	 *
 	 * @return array [
 	 *   'location' => string,
@@ -529,7 +531,7 @@ class Tus_Client {
 			$headers += array( 'Upload-Concat' => 'partial' );
 		}
 
-		$response = wp_remote_post(
+		$response = $this->do_post_request(
 			$this->api_url,
 			array(
 				'body'    => $data,
@@ -574,6 +576,7 @@ class Tus_Client {
 	 * @param mixed  ...$partials
 	 *
 	 * @throws Tus_Exception
+	 * @throws InvalidArgumentException
 	 *
 	 * @return string
 	 */
@@ -581,7 +584,7 @@ class Tus_Client {
 		if ( ! is_string( $key ) ) {
 			throw new InvalidArgumentException( '$key needs to be a string' );
 		}
-		$response = wp_remote_post(
+		$response = $this->do_post_request(
 			$this->api_url,
 			array(
 				'headers' => $this->headers + array(
@@ -613,17 +616,17 @@ class Tus_Client {
 	 * @return void
 	 */
 	public function delete() {
-		$headers = $this->headers + array(
+		$headers  = $this->headers + array(
 			'X-HTTP-Method-Override' => 'DELETE',
 		);
-		$response = wp_remote_post(
+		$response = $this->do_post_request(
 			$this->get_url(),
 			array( 'headers' => $headers )
 		);
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 
-		if ( Response_Codes::HTTP_NOT_FOUND === $statusCode || Response_Codes::HTTP_GONE === $statusCode ) {
+		if ( Response_Codes::HTTP_NOT_FOUND === $status_code || Response_Codes::HTTP_GONE === $status_code ) {
 			throw new Tus_Exception( 'File not found.' );
 		}
 
@@ -662,10 +665,10 @@ class Tus_Client {
 	 * @return bool|int|WP_Error integer with the offset uploaded if file exists. False if file does not exist. WP_Error on connection error.
 	 */
 	public function get_offset() {
-		$headers    = $this->headers + array(
+		$headers  = $this->headers + array(
 			'X-HTTP-Method-Override' => 'HEAD',
 		);
-		$response = wp_remote_get(
+		$response = $this->do_get_request(
 			$this->get_url(),
 			array( 'headers' => $headers )
 		);
@@ -689,7 +692,7 @@ class Tus_Client {
 	 * @param int $bytes
 	 * @param int $offset
 	 *
-	 * @throws Tus_Exception
+	 * @throws InvalidArgumentException
 	 *
 	 * @return int
 	 */
@@ -706,7 +709,6 @@ class Tus_Client {
 
 		);
 
-		// VideoPress mod: override token with key specific token.
 		$token                                = $this->get_cache_attribute( 'token_for_key' );
 		$headers['x-videopress-upload-token'] = $token;
 
@@ -716,7 +718,7 @@ class Tus_Client {
 			$headers += array( 'Upload-Offset' => $offset );
 		}
 
-		$response = wp_remote_post(
+		$response = $this->do_post_request(
 			$this->get_url(),
 			array(
 				'body'    => $data,
@@ -754,7 +756,6 @@ class Tus_Client {
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $response );
-		$response_code = $response !== null ? $response->getStatusCode() : Response_Codes::HTTP_INTERNAL_SERVER_ERROR;
 
 		if ( Response_Codes::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE === $response_code ) {
 			return new Tus_Exception( 'The uploaded file is corrupt.' );
@@ -785,7 +786,7 @@ class Tus_Client {
 		if ( ! is_int( $bytes ) || ! is_int( $offset ) ) {
 			throw new InvalidArgumentException( '$bytes and $offset need to be integers' );
 		}
-		$file   = new File();
+		$file   = new Tus_File();
 		$handle = $file->open( $this->get_file_path(), $file::READ_BINARY );
 
 		$file->seek( $handle, $offset );
@@ -804,5 +805,56 @@ class Tus_Client {
 	 */
 	protected function get_upload_checksum_header() {
 		return $this->get_checksum_algorithm() . ' ' . base64_encode( $this->get_checksum() ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+	}
+
+	/**
+	 * Do HTTP request
+	 *
+	 * @param string $url The URL to make the request to.
+	 * @param array  $args Request arguments.
+	 * @return array|WP_Error WordPress Http response
+	 */
+	protected function do_request( $url, $args ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'timeout' => 25,
+			)
+		);
+		return wp_remote_request( $url, $args );
+	}
+
+	/**
+	 * Do a GET HTTP request
+	 *
+	 * @param string $url The URL to make the request to.
+	 * @param array  $args Request arguments.
+	 * @return array|WP_Error WordPress Http response
+	 */
+	protected function do_get_request( $url, $args ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'method' => 'GET',
+			)
+		);
+		return $this->do_request( $url, $args );
+	}
+
+	/**
+	 * Do a POST HTTP request
+	 *
+	 * @param string $url The URL to make the request to.
+	 * @param array  $args Request arguments.
+	 * @return array|WP_Error WordPress Http response
+	 */
+	protected function do_post_request( $url, $args ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'method' => 'POST',
+			)
+		);
+		return $this->do_request( $url, $args );
 	}
 }
