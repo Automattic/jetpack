@@ -50,15 +50,6 @@ class Uploader {
 	/**
 	 * Checks whether this feature is supported by the server
 	 *
-	 * @return boolean
-	 */
-	public static function is_supported() {
-		return version_compare( phpversion(), '7.2.5', '>=' );
-	}
-
-	/**
-	 * Checks whether this feature is supported by the server
-	 *
 	 * @param int $attachment_id The ID of the video attachment we want to upload to VideoPress.
 	 * @return boolean
 	 */
@@ -80,9 +71,6 @@ class Uploader {
 	 * @param int $attachment_id The ID of the video attachment we want to upload to VideoPress.
 	 */
 	public function __construct( $attachment_id ) {
-		if ( ! $this->is_supported() ) {
-			throw new Upload_Exception( __( 'VideoPress uploader requires PHP 7 or higher', 'jetpack-videopress-pkg' ), 'not_supported' );
-		}
 		$this->attachment_id = $attachment_id;
 		if ( ! $this->get_file_path() ) {
 			throw new Upload_Exception( __( 'Invalid attachment ID', 'jetpack-videopress-pkg' ) );
