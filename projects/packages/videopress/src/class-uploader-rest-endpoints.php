@@ -67,7 +67,6 @@ class Uploader_Rest_Endpoints {
 	 * @return boolean
 	 */
 	public static function permissions_callback() {
-		return true;
 		return current_user_can( 'upload_files' );
 	}
 
@@ -78,16 +77,24 @@ class Uploader_Rest_Endpoints {
 	 * @return boolean|WP_Error
 	 */
 	public static function validate_attachment_id( $value ) {
-		try {
-			new Uploader( $value );
-			return true;
-		} catch ( Upload_Exception $e ) {
+		return Uploader::is_valid_attachment_id( $value );
+	}
+
+	/**
+	 * Checks whether the Uploader is supported
+	 *
+	 * @return boolean|WP_Error
+	 */
+	protected static function is_uploader_supported() {
+		$is_supported = Uploader::is_supported();
+		if ( ! $is_supported ) {
 			return new WP_Error(
-				'rest_invalid_param',
-				$e->getMessage(),
+				'not_supported',
+				'This feature requires PHP 7.2.5',
 				array( 'status' => 400 )
 			);
 		}
+		return true;
 	}
 
 	/**
@@ -97,6 +104,10 @@ class Uploader_Rest_Endpoints {
 	 * @return array|WP_Error
 	 */
 	public static function check_status( $request ) {
+		$is_supported = self::is_uploader_supported();
+		if ( is_wp_error( $is_supported ) ) {
+			return $is_supported;
+		}
 		$attachment_id = $request->get_param( 'attachment_id' );
 		try {
 			$uploader = new Uploader( $attachment_id );
@@ -118,6 +129,10 @@ class Uploader_Rest_Endpoints {
 	 * @return array|WP_Error
 	 */
 	public static function do_upload( $request ) {
+		$is_supported = self::is_uploader_supported();
+		if ( is_wp_error( $is_supported ) ) {
+			return $is_supported;
+		}
 		$attachment_id = $request->get_param( 'attachment_id' );
 		try {
 			$uploader = new Uploader( $attachment_id );
