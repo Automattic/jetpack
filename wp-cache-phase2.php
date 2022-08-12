@@ -516,6 +516,9 @@ function wp_cache_check_mobile( $cache_key ) {
 	if ( !isset( $wp_cache_mobile_enabled ) || false == $wp_cache_mobile_enabled )
 		return $cache_key;
 
+	// a check of wp_is_mobile() should be added here, but if the Jetpack WPSC plugin
+	// is enabled, jetpack_is_mobile() is used through the wp_cache_check_mobile action.
+
 	wp_cache_debug( "wp_cache_check_mobile: $cache_key" );
 
 	// allow plugins to short circuit mobile check. Cookie, extra UA checks?
