@@ -1,4 +1,4 @@
-import { Button, Container, Text } from '@automattic/jetpack-components';
+import { Button, Container, Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -15,6 +15,8 @@ const ToggleSection = () => {
 			connectionsAdminUrl: store.getConnectionsAdminUrl(),
 		};
 	} );
+
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	return (
 		<Container horizontalSpacing={ 7 } horizontalGap={ 3 }>
@@ -35,6 +37,7 @@ const ToggleSection = () => {
 				</Text>
 				{ connectionsAdminUrl && (
 					<Button
+						fullWidth={ isSmall }
 						className={ styles.button }
 						variant="secondary"
 						isExternalLink={ true }
