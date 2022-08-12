@@ -14,7 +14,6 @@
 namespace VideoPressUploader;
 
 use InvalidArgumentException;
-use Ramsey\Uuid\Uuid;
 use WP_Error;
 
 /**
@@ -570,69 +569,6 @@ class Tus_Client {
 	}
 
 	/**
-	 * Concatenate 2 or more partial uploads.
-	 *
-	 * @param string $key
-	 * @param mixed  ...$partials
-	 *
-	 * @throws Tus_Exception
-	 * @throws InvalidArgumentException
-	 *
-	 * @return string
-	 */
-	public function concat( $key, ...$partials ) {
-		if ( ! is_string( $key ) ) {
-			throw new InvalidArgumentException( '$key needs to be a string' );
-		}
-		$response = $this->do_post_request(
-			$this->api_url,
-			array(
-				'headers' => $this->headers + array(
-					'Upload-Length'   => $this->file_size,
-					'Upload-Key'      => $key,
-					'Upload-Checksum' => $this->get_upload_checksum_header(),
-					'Upload-Metadata' => $this->get_upload_metadata_header(),
-					'Upload-Concat'   => self::UPLOAD_TYPE_FINAL . ';' . implode( ' ', $partials ),
-				),
-			)
-		);
-
-		$data        = json_decode( wp_remote_retrieve_body( $response ), true );
-		$checksum    = ! empty( $data['data']['checksum'] ) ? $data['data']['checksum'] : null;
-		$status_code = wp_remote_retrieve_response_code( $response );
-
-		if ( Response_Codes::HTTP_CREATED !== $status_code || ! $checksum ) {
-			throw new Tus_Exception( 'Unable to create resource.' );
-		}
-
-		return $checksum;
-	}
-
-	/**
-	 * Send DELETE request.
-	 *
-	 * @throws Tus_Exception
-	 *
-	 * @return void
-	 */
-	public function delete() {
-		$headers  = $this->headers + array(
-			'X-HTTP-Method-Override' => 'DELETE',
-		);
-		$response = $this->do_post_request(
-			$this->get_url(),
-			array( 'headers' => $headers )
-		);
-
-		$status_code = wp_remote_retrieve_response_code( $response );
-
-		if ( Response_Codes::HTTP_NOT_FOUND === $status_code || Response_Codes::HTTP_GONE === $status_code ) {
-			throw new Tus_Exception( 'File not found.' );
-		}
-
-	}
-
-	/**
 	 * Set as partial request.
 	 *
 	 * @param bool $state
@@ -656,7 +592,7 @@ class Tus_Client {
 			list($key, /* $partialKey */) = explode( self::PARTIAL_UPLOAD_NAME_SEPARATOR, $key );
 		}
 
-		$this->key = $key . self::PARTIAL_UPLOAD_NAME_SEPARATOR . Uuid::uuid4()->toString();
+		$this->key = $key . self::PARTIAL_UPLOAD_NAME_SEPARATOR . wp_generate_uuid4();
 	}
 
 	/**
@@ -665,13 +601,18 @@ class Tus_Client {
 	 * @return bool|int|WP_Error integer with the offset uploaded if file exists. False if file does not exist. WP_Error on connection error.
 	 */
 	public function get_offset() {
-		$headers  = $this->headers + array(
+		$headers = $this->headers + array(
 			'X-HTTP-Method-Override' => 'HEAD',
 		);
-		$response = $this->do_get_request(
-			$this->get_url(),
-			array( 'headers' => $headers )
-		);
+
+		try {
+			$response = $this->do_get_request(
+				$this->get_url(),
+				array( 'headers' => $headers )
+			);
+		} catch ( File_Exception $e ) {
+			return false;
+		}
 
 		if ( is_wp_error( $response ) ) {
 			return $response;

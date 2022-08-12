@@ -6,8 +6,7 @@
 	"require": {
 		"automattic/jetpack-connection": "^1.42",
 		"automattic/jetpack-plans": "^0.1",
-		"guzzlehttp/guzzle": "^6.5",
-		"ramsey/uuid": "^3.7"
+		"guzzlehttp/guzzle": "^6.5"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
