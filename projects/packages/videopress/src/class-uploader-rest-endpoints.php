@@ -81,33 +81,12 @@ class Uploader_Rest_Endpoints {
 	}
 
 	/**
-	 * Checks whether the Uploader is supported
-	 *
-	 * @return boolean|WP_Error
-	 */
-	protected static function is_uploader_supported() {
-		$is_supported = Uploader::is_supported();
-		if ( ! $is_supported ) {
-			return new WP_Error(
-				'not_supported',
-				'This feature requires PHP 7.2.5',
-				array( 'status' => 400 )
-			);
-		}
-		return true;
-	}
-
-	/**
 	 * Endpoint callback for the GET method. Checks the upload status
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 * @return array|WP_Error
 	 */
 	public static function check_status( $request ) {
-		$is_supported = self::is_uploader_supported();
-		if ( is_wp_error( $is_supported ) ) {
-			return $is_supported;
-		}
 		$attachment_id = $request->get_param( 'attachment_id' );
 		try {
 			$uploader = new Uploader( $attachment_id );
@@ -129,10 +108,6 @@ class Uploader_Rest_Endpoints {
 	 * @return array|WP_Error
 	 */
 	public static function do_upload( $request ) {
-		$is_supported = self::is_uploader_supported();
-		if ( is_wp_error( $is_supported ) ) {
-			return $is_supported;
-		}
 		$attachment_id = $request->get_param( 'attachment_id' );
 		try {
 			$uploader = new Uploader( $attachment_id );
