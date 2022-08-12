@@ -1,4 +1,4 @@
 Significance: patch
-Type: bugfix
+Type: compat
 
-Hide WPCOM notifications button when 3rd party cookies are blocked
+Notifications: do not attempt to display the Notifications panel when 3rd-party cookies are disabled in the browser.
