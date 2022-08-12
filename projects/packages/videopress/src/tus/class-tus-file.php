@@ -112,9 +112,20 @@ class Tus_File {
 	 * @param string $file_path File path.
 	 * @param string $location Location.
 	 *
+	 * @throws InvalidArgumentException If argument is invalid.
 	 * @return $this
 	 */
-	public function set_meta( int $offset, int $file_size, string $file_path, $location = null ) {
+	public function set_meta( $offset, $file_size, $file_path, $location = null ) {
+		if ( ! is_int( $offset ) ) {
+			throw new InvalidArgumentException( '$offset needs to be an integer' );
+		}
+		if ( ! is_int( $file_size ) ) {
+			throw new InvalidArgumentException( '$file_size needs to be an integer' );
+		}
+		if ( ! is_string( $file_path ) ) {
+			throw new InvalidArgumentException( '$file_path needs to be a string' );
+		}
+
 		$this->offset    = absint( $offset );
 		$this->file_size = absint( $file_size );
 		$this->file_path = $file_path;
@@ -128,9 +139,14 @@ class Tus_File {
 	 *
 	 * @param string $name Name.
 	 *
+	 * @throws InvalidArgumentException If argument is invalid.
+	 *
 	 * @return $this
 	 */
-	public function set_name( string $name ) {
+	public function set_name( $name ) {
+		if ( ! is_string( $name ) ) {
+			throw new InvalidArgumentException( '$name needs to be a string' );
+		}
 		$this->name = $name;
 
 		return $this;
@@ -150,9 +166,13 @@ class Tus_File {
 	 *
 	 * @param int $size The size.
 	 *
+	 * @throws InvalidArgumentException If argument is invalid.
 	 * @return Tus_File
 	 */
-	public function set_file_size( int $size ) {
+	public function set_file_size( $size ) {
+		if ( ! is_int( $size ) ) {
+			throw new InvalidArgumentException( '$size needs to be an integer' );
+		}
 		$this->file_size = $size;
 
 		return $this;
@@ -172,9 +192,13 @@ class Tus_File {
 	 *
 	 * @param string $key The key.
 	 *
+	 * @throws InvalidArgumentException If argument is invalid.
 	 * @return Tus_File
 	 */
-	public function set_key( string $key ) {
+	public function set_key( $key ) {
+		if ( ! is_string( $key ) ) {
+			throw new InvalidArgumentException( '$key needs to be a string' );
+		}
 		$this->key = $key;
 
 		return $this;
@@ -194,9 +218,13 @@ class Tus_File {
 	 *
 	 * @param string $checksum The checksum.
 	 *
+	 * @throws InvalidArgumentException If argument is invalid.
 	 * @return Tus_File
 	 */
-	public function set_checksum( string $checksum ) {
+	public function set_checksum( $checksum ) {
+		if ( ! is_string( $checksum ) ) {
+			throw new InvalidArgumentException( '$checksum needs to be a string' );
+		}
 		$this->checksum = $checksum;
 
 		return $this;
@@ -216,9 +244,13 @@ class Tus_File {
 	 *
 	 * @param int $offset The offset.
 	 *
+	 * @throws InvalidArgumentException If argument is invalid.
 	 * @return self
 	 */
-	public function set_offset( int $offset ) {
+	public function set_offset( $offset ) {
+		if ( ! is_int( $offset ) ) {
+			throw new InvalidArgumentException( '$offset needs to be an integer' );
+		}
 		$this->offset = absint( $offset );
 
 		return $this;
@@ -238,9 +270,13 @@ class Tus_File {
 	 *
 	 * @param string $location The location.
 	 *
+	 * @throws InvalidArgumentException If argument is invalid.
 	 * @return self
 	 */
-	public function set_location( string $location ) {
+	public function set_location( $location ) {
+		if ( ! is_string( $location ) ) {
+			throw new InvalidArgumentException( '$location needs to be a string' );
+		}
 		$this->location = $location;
 
 		return $this;
@@ -316,7 +352,7 @@ class Tus_File {
 	 * @return array
 	 * @throws \Exception If date fails.
 	 */
-	public function details() : array {
+	public function details() {
 		$now = Tus_Date_Utils::date_utc();
 		$ttl = $this->cache->get_ttl();
 
@@ -396,8 +432,15 @@ class Tus_File {
 	 *
 	 * @return resource
 	 * @throws File_Exception Exc.
+	 * @throws InvalidArgumentException If argument is invalid.
 	 */
-	public function open( string $file_path, string $mode ) {
+	public function open( $file_path, $mode ) {
+		if ( ! is_string( $file_path ) ) {
+			throw new InvalidArgumentException( '$file_path needs to be a string' );
+		}
+		if ( ! is_string( $mode ) ) {
+			throw new InvalidArgumentException( '$mode needs to be a string' );
+		}
 		$this->exists( $file_path, $mode );
 
 		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
@@ -420,8 +463,12 @@ class Tus_File {
 	 *
 	 * @return bool
 	 * @throws File_Exception File.
+	 * @throws InvalidArgumentException If argument is invalid.
 	 */
-	public function exists( string $file_path, $mode = self::READ_BINARY ) {
+	public function exists( $file_path, $mode = self::READ_BINARY ) {
+		if ( ! is_string( $file_path ) ) {
+			throw new InvalidArgumentException( '$file_path needs to be a string' );
+		}
 		if ( self::INPUT_STREAM === $file_path ) {
 			return true;
 		}
@@ -441,10 +488,14 @@ class Tus_File {
 	 * @param int      $whence The whence.
 	 *
 	 * @throws File_Exception Exc.
+	 * @throws InvalidArgumentException If argument is invalid.
 	 *
 	 * @return int
 	 */
-	public function seek( $handle, int $offset, $whence = SEEK_SET ) {
+	public function seek( $handle, $offset, $whence = SEEK_SET ) {
+		if ( ! is_int( $handle ) ) {
+			throw new InvalidArgumentException( '$handle needs to be an integer' );
+		}
 		$position = fseek( $handle, $offset, $whence );
 
 		if ( -1 === $position ) {
@@ -462,8 +513,12 @@ class Tus_File {
 	 *
 	 * @return string
 	 * @throws File_Exception If no data is read.
+	 * @throws InvalidArgumentException If argument is invalid.
 	 */
-	public function read( $handle, int $chunk_size ) {
+	public function read( $handle, $chunk_size ) {
+		if ( ! is_int( $chunk_size ) ) {
+			throw new InvalidArgumentException( '$chunk_size needs to be an integer' );
+		}
 		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fread
 		$data = fread( $handle, $chunk_size );
 
