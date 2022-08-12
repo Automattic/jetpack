@@ -1,6 +1,7 @@
 const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getComments = require( '../../utils/get-comments' );
+const getLabels = require( '../../utils/get-labels' );
 const sendSlackMessage = require( '../../utils/send-slack-message' );
 
 /* global GitHub, WebhookPayloadIssue */
@@ -235,6 +236,69 @@ async function checkForEscalation( issueReferences, commentBody, escalationNote,
 }
 
 /**
+ * Add or update a label on the issue to indicate a number range of support references,
+ * once it has gathered more than 10 support references.
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} repo - Repository name.
+ * @param {string} ownerLogin - Owner of the repository.
+ * @param {number} number - Issue number.
+ * @param {number} issueReferencesCount - Number of support references gathered in this issue.
+ * @returns {Promise<void>}
+ */
+async function addOrUpdateInteractionCountLabel(
+	octokit,
+	repo,
+	ownerLogin,
+	number,
+	issueReferencesCount
+) {
+	const ranges = [ 50, 20, 10 ];
+
+	// Check if our issue has issues in one of the ranges where we want to label it.
+	const issueRange = ranges.find( range => issueReferencesCount > range );
+
+	// Bail if our issue hasn't gathered enough support references to warrant a label.
+	if ( ! issueRange ) {
+		return;
+	}
+
+	// Name of the label we want to add to this issue.
+	const interactionCountLabel = `[Interaction #] > ${ issueRange }`;
+
+	// Check if the issue already has this label.
+	const labels = await getLabels( octokit, ownerLogin, repo, number );
+	const existingInteractionCountLabel = labels.find( label =>
+		label.startsWith( '[Interaction #]' )
+	);
+
+	// If our issue already has a label,
+	// but that's not the one we want to add, remove it.
+	if ( existingInteractionCountLabel && existingInteractionCountLabel !== interactionCountLabel ) {
+		await octokit.rest.issues.removeLabel( {
+			owner: ownerLogin,
+			repo,
+			issue_number: +number,
+			name: existingInteractionCountLabel,
+		} );
+	}
+
+	// If our issue doesn't have the label we want to add, add it.
+	if ( ! existingInteractionCountLabel ) {
+		await octokit.rest.issues.addLabels( {
+			owner: ownerLogin,
+			repo,
+			issue_number: +number,
+			labels: [ interactionCountLabel ],
+		} );
+	}
+
+	// Final return. By now, we know our issue has the label we want to add,
+	// either because it already had it, or because we just added it.
+	return;
+}
+
+/**
  * Creates or updates a comment on issue.
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
@@ -274,6 +338,15 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 			existingComment.body,
 			escalationNote,
 			payload
+		);
+
+		// Add or update a label counting the number of tickets on that issue.
+		await addOrUpdateInteractionCountLabel(
+			octokit,
+			repo,
+			ownerLogin,
+			number,
+			issueReferences.length
 		);
 
 		// Build our comment body, with first the checked references, then the unchecked references.
