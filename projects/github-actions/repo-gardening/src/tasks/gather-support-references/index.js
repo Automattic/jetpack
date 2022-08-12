@@ -276,35 +276,34 @@ async function addOrUpdateInteractionCountLabel(
 		label.startsWith( '[Interaction #]' )
 	);
 
-	// If our issue already has a label,
-	// but that's not the one we want to add, remove it.
-	if ( existingInteractionCountLabel && existingInteractionCountLabel !== interactionCountLabel ) {
-		debug(
-			`gather-support-references: Issue #${ number } already has a label, "${ existingInteractionCountLabel }". We want to add the "${ interactionCountLabel }" label. Removing the "${ existingInteractionCountLabel }" label.`
-		);
+	// Our issue already has a label. Is is the right one?
+	if ( existingInteractionCountLabel ) {
+		// if that's not the one we want to add, remove it.
+		if ( existingInteractionCountLabel !== interactionCountLabel ) {
+			debug(
+				`gather-support-references: Issue #${ number } already has a label, "${ existingInteractionCountLabel }". We want to add the "${ interactionCountLabel }" label. Removing the "${ existingInteractionCountLabel }" label.`
+			);
 
-		await octokit.rest.issues.removeLabel( {
-			owner: ownerLogin,
-			repo,
-			issue_number: +number,
-			name: existingInteractionCountLabel,
-		} );
+			await octokit.rest.issues.removeLabel( {
+				owner: ownerLogin,
+				repo,
+				issue_number: +number,
+				name: existingInteractionCountLabel,
+			} );
+		} else {
+			// Bail now. We have a label already, and it's the right one.
+			return;
+		}
 	}
 
 	// If our issue doesn't have the label we want to add, add it.
-	if ( ! existingInteractionCountLabel ) {
-		debug( `gather-support-references: Adding the "${ interactionCountLabel }" label.` );
-		await octokit.rest.issues.addLabels( {
-			owner: ownerLogin,
-			repo,
-			issue_number: +number,
-			labels: [ interactionCountLabel ],
-		} );
-	}
-
-	// Final return. By now, we know our issue has the label we want to add,
-	// either because it already had it, or because we just added it.
-	return;
+	debug( `gather-support-references: Adding the "${ interactionCountLabel }" label.` );
+	await octokit.rest.issues.addLabels( {
+		owner: ownerLogin,
+		repo,
+		issue_number: +number,
+		labels: [ interactionCountLabel ],
+	} );
 }
 
 /**
