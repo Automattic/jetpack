@@ -266,6 +266,10 @@ async function addOrUpdateInteractionCountLabel(
 	// Name of the label we want to add to this issue.
 	const interactionCountLabel = `[Interaction #] > ${ issueRange }`;
 
+	debug(
+		`gather-support-references: Issue #${ number } has gathered ${ issueReferencesCount } support references. It deserves a label, "${ interactionCountLabel }"`
+	);
+
 	// Check if the issue already has this label.
 	const labels = await getLabels( octokit, ownerLogin, repo, number );
 	const existingInteractionCountLabel = labels.find( label =>
@@ -275,6 +279,10 @@ async function addOrUpdateInteractionCountLabel(
 	// If our issue already has a label,
 	// but that's not the one we want to add, remove it.
 	if ( existingInteractionCountLabel && existingInteractionCountLabel !== interactionCountLabel ) {
+		debug(
+			`gather-support-references: Issue #${ number } already has a label, "${ existingInteractionCountLabel }". We want to add the "${ interactionCountLabel }" label. Removing the "${ existingInteractionCountLabel }" label.`
+		);
+
 		await octokit.rest.issues.removeLabel( {
 			owner: ownerLogin,
 			repo,
@@ -285,6 +293,7 @@ async function addOrUpdateInteractionCountLabel(
 
 	// If our issue doesn't have the label we want to add, add it.
 	if ( ! existingInteractionCountLabel ) {
+		debug( `gather-support-references: Adding the "${ interactionCountLabel }" label.` );
 		await octokit.rest.issues.addLabels( {
 			owner: ownerLogin,
 			repo,
