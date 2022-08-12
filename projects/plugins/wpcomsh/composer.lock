@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e5c1c827959f40032cf87eee02b88974",
+    "content-hash": "4aa4b3f05ba717841dbe7146868952f8",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -30,21 +30,21 @@
         },
         {
             "name": "automattic/custom-fonts",
-            "version": "v1.1.1",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts.git",
-                "reference": "72b5afa7ff77cb88e8a43a2db2e9d4c6ffb8d793"
+                "reference": "f2a53c4e391d0f361f8b4d66163b75ca2a42019e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/72b5afa7ff77cb88e8a43a2db2e9d4c6ffb8d793",
-                "reference": "72b5afa7ff77cb88e8a43a2db2e9d4c6ffb8d793",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/f2a53c4e391d0f361f8b4d66163b75ca2a42019e",
+                "reference": "f2a53c4e391d0f361f8b4d66163b75ca2a42019e",
                 "shasum": ""
             },
             "require-dev": {
                 "10up/wp_mock": "0.4.2",
-                "phpunit/phpunit": "^7"
+                "phpunit/phpunit": "^7 || ^8"
             },
             "type": "library",
             "autoload": {
@@ -52,7 +52,7 @@
                     "custom-fonts.php"
                 ]
             },
-            "time": "2020-12-08T21:49:26+00:00"
+            "time": "2022-08-08T08:04:56+00:00"
         },
         {
             "name": "automattic/custom-fonts-typekit",
@@ -525,5 +525,5 @@
     "platform-dev": {
         "php": ">=7.0.0"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.3.0"
 }
