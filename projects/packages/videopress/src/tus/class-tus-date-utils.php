@@ -37,7 +37,7 @@ class Tus_Date_Utils {
 	 * @return \DateTimeImmutable
 	 * @throws \Exception If invalid interval.
 	 */
-	public static function add_seconds( \DateTimeImmutable $date, int $seconds ) : \DateTimeImmutable {
+	public static function add_seconds( \DateTimeImmutable $date, $seconds ) {
 		return $date->add( new \DateInterval( 'PT' . absint( $seconds ) . 'S' ) );
 	}
 }
