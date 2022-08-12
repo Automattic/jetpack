@@ -243,6 +243,7 @@ function wp_cache_add_pages() {
 }
 add_action( 'admin_menu', 'wp_cache_add_pages' );
 
+
 function wp_cache_network_pages() {
 	add_submenu_page( 'settings.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
 }
@@ -733,6 +734,17 @@ function wp_cache_manager_updates() {
 if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == 'wpsupercache' )
 	add_action( 'admin_init', 'wp_cache_manager_updates' );
 
+
+add_action( 'wp_ajax_wpsc-hide-survey', 'wpsc_hide_survey' );
+function wpsc_hide_survey(){
+	//nonce it
+	check_ajax_referer( 'wpsc-2022-survey', 'security' );
+	//update it
+	update_option('wpsc_2022-survey', 0, false);
+	wp_die();
+}
+
+
 function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled;
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_no_cache_for_get;
@@ -919,6 +931,125 @@ table.wpsc-settings-table {
 	}
 
 	?>
+	<style>
+		.feedback-notice{
+			background:white;
+			border: 1px solid #DCDCDE;
+			border-radius: 4px;
+			position:relative;
+			height: 86px;
+			width: calc(100% - 310px);
+		}
+		.feedback-notice .content{
+			margin-top:5px;
+			position: absolute;
+			width:65%;
+			padding-right:5%;
+			height: 42px;
+			left: 65px;
+			top: calc(50% - 65px/2);
+			font-size: 14px;
+		}
+		.megaphone{
+			position:absolute;
+			width: 24px;
+			height: 24px;
+			left: 21px;
+			top: calc(50% - 24px/2);
+		}
+		.survey-title b{
+			font-size:14px;
+		}
+		.survey-cta{
+			position: absolute;
+			width: 140px;
+			height: 40px;
+			right: 64px;
+			top: calc(50% - 40px/2);
+			background: #FFFFFF;
+			border: 1px solid #000000;
+			border-radius: 4px;
+			line-height:40px;
+			text-align:center;
+			font-style: normal;
+			font-weight: 600;
+			font-size: 16px;
+			letter-spacing: -0.01em;
+		}
+		.survey-cta a{
+			color:#000000 !important;
+			text-decoration:none !important;
+		}
+		.close{
+			position: absolute;
+			width: 24px;
+			height: 24px;
+			right: 20px;
+			top: calc(50% - 24px/2);
+			cursor:pointer;
+		}
+	</style>
+
+	<?php
+		$survey_nonce = wp_create_nonce( "wpsc-2022-survey" );
+		$call_out_box = "0px";
+		$showing_2022_survey = get_option('wpsc_2022-survey', true);
+		//to handle the way the yellow box is output in the UI in a table cell.
+		if($showing_2022_survey){
+			$call_out_box = "-90px";
+		}
+	?>
+	
+	<script>
+
+		function dismissNotice(){
+			// hide the notice here sometimes it can be a little slow if waiting for 
+			// the success response.
+			jQuery('#wp-super-cache-2022-survey').fadeOut('slow');
+			document.getElementById('wpsc-callout').style.marginTop = "0px";
+			jQuery.ajax({
+				type: "post",
+				dataType: "json",
+				url: ajaxurl,
+				data: {
+					action: 'wpsc-hide-survey',
+					security: '<?php echo $survey_nonce; ?>',
+				}
+			});
+		}
+	
+	</script>
+
+	<?php 
+	//only show the notification if not dismissed.
+	if($showing_2022_survey){
+		?>
+		<div class="feedback-notice" id="wp-super-cache-2022-survey">
+			<div class="megaphone">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M5 10H5.07846L5.15522 9.98376L18.0785 7.25H19.25V15.25H18.0785L5.15522 12.5162L5.07846 12.5H5H4.75V10H5Z" stroke="#1E1E1E" stroke-width="1.5"/>
+				<path fill-rule="evenodd" clip-rule="evenodd" d="M9.92831 16.2481C8.73996 15.8848 8.07114 14.6269 8.43446 13.4386L7 13C6.39448 14.9806 7.50918 17.077 9.48975 17.6825C11.4703 18.2881 13.5668 17.1734 14.1723 15.1928L12.7378 14.7542C12.3745 15.9426 11.1166 16.6114 9.92831 16.2481Z" fill="#1E1E1E"/>
+				</svg>
+			</div>
+			<div class="content">
+				<div style="survey-title">
+					<b><?php _e("WP Super Cache Survey", "wp-super-cache"); ?></b>
+				</div>
+				<?php
+					_e("We’d love to hear your thoughts about what should make it into WP Super Cache in the future. Please take our quick survey to help us improve!", "wp-super-cache"); 
+				?>
+			</div>
+			<div class="survey-cta">
+				<a href="https://docs.google.com/forms/d/e/1FAIpQLScOnrNs4_g-vOqzpPRghfK4WPFGGrBWqn9J5ZX8OYwyxa_QKg/viewform" target="_blank"><?php _e("Take Survey", "wp-super-cache"); ?></a>
+			</div>
+			<div class="close" onclick="dismissNotice()">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M5.40456 5L19 19M5 19L18.5954 5" stroke="#1E1E1E" stroke-width="1.5"/>
+				</svg>
+			</div>
+		</div>
+	<?php } ?>
+
 	<table class="wpsc-settings-table"><td valign="top">
 	<?php
 
@@ -1042,7 +1173,7 @@ table.wpsc-settings-table {
 
 	</fieldset>
 	</td><td valign='top' style='width: 300px'>
-	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px'>
+	<div id="wpsc-callout" style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px;margin-top:<?php echo $call_out_box;?>;'>
 	<h4><?php _e( 'Other Site Tools', 'wp-super-cache' ); ?></h4>
 	<ul style="list-style: square; margin-left: 2em;">
 
