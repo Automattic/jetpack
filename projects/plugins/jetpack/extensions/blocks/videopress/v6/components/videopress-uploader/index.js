@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Button, withNotices, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
@@ -83,6 +84,8 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	 * Storing the file to get it name and size for progress.
 	 */
 	const [ uploadFile, setFile ] = useState( null );
+
+	const [ isLoading, setIsLoading ] = useState( false );
 
 	/*
 	 * Tracking state when uploading the video file.
@@ -202,6 +205,36 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 		}
 	};
 
+	const startUploadFromLibrary = attachmentId => {
+		const route = `https://leogermani.jurassic.tube/wp-json/videopress/v1/upload/${ attachmentId }`;
+		fetch( route, { method: 'POST' } )
+			.then( result => result.json() )
+			.then( result => {
+				if ( 'uploading' === result.status ) {
+					setUploadingProgress( result.bytes_uploaded, result.file_size );
+					startUploadFromLibrary( attachmentId );
+					return;
+				} else if ( 'complete' === result.status ) {
+					const guid = result.uploaded_details.guid;
+					const videoUrl = `https://videopress.com/v/${ guid }`;
+					if ( getGuidFromVideoUrl( videoUrl ) ) {
+						return onSelectURL( videoUrl );
+					}
+				} else if ( 'error' === result.status ) {
+					setUploadErrorDataState( {
+						data: { message: result.error },
+					} );
+					return;
+				} else {
+					setUploadErrorDataState( {
+						// Should never happen.
+						data: { message: __( 'Unexpected error uploading video.', 'jetpack' ) },
+					} );
+					return;
+				}
+			} );
+	};
+
 	/**
 	 * Uploading file handler.
 	 *
@@ -209,32 +242,61 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
-		const isFileUploading = null !== media && media instanceof FileList;
-
-		// Handle upload by selecting a File
-		if ( isFileUploading ) {
-			const file = media[ 0 ];
-			startUpload( file );
-			return;
-		}
-
 		// Handle selection of Media Library VideoPress attachment
+		const fileUrl = media?.url;
 		if ( media.videopress_guid ) {
 			const videoGuid = media.videopress_guid[ 0 ];
 			const videoUrl = `https://videopress.com/v/${ videoGuid }`;
 			if ( getGuidFromVideoUrl( videoUrl ) ) {
 				return onSelectURL( videoUrl );
 			}
-		}
+		} else if ( media.id ) {
+			setIsLoading( true );
+			const route = `https://leogermani.jurassic.tube/wp-json/videopress/v1/upload/${ media.id }`;
+			fetch( route )
+				.then( result => result.json() )
+				.then( result => {
+					if ( 'new' === result.status || 'resume' === result.status ) {
+						setFile( {
+							size: result.file_size,
+							name: result.file_name,
+						} );
+						setUploadingProgress( result.bytes_uploaded, result.file_size );
+						setIsLoading( false );
+						startUploadFromLibrary( media.id );
+						return;
+					} else if ( 'uploaded' === result.status ) {
+						const videoUrl = `https://videopress.com/v/${ result.uploaded_video_guid }`;
+						setIsLoading( false );
+						return onSelectURL( videoUrl );
+					}
+					setUploadErrorDataState( {
+						data: { message: __( 'Error selecting video. Please try again.', 'jetpack' ) },
+					} );
+					return;
+				} );
+		} else if ( fileUrl ) {
+			if ( ! isBlobURL( fileUrl ) ) {
+				setUploadErrorDataState( {
+					data: { message: __( 'Please select a VideoPress video', 'jetpack' ) },
+				} );
+				return;
+			}
 
-		setUploadErrorDataState( {
-			data: {
-				message: __(
-					'Please select a VideoPress video from Library or upload a new one',
-					'jetpack'
-				),
-			},
-		} );
+			const file = getBlobByURL( fileUrl );
+			const isResumableUploading = null !== file && file instanceof File;
+
+			if ( ! isResumableUploading ) {
+				return;
+			}
+
+			startUpload( file );
+		} else {
+			// Should never happen.
+			setUploadErrorDataState( {
+				data: { message: __( 'Error selecting the video', 'jetpack' ) },
+			} );
+		}
 	}
 
 	const getErrorMessage = () => {
@@ -265,6 +327,10 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 
 		return errorMessage;
 	};
+
+	if ( isLoading ) {
+		return <span>Loading...</span>;
+	}
 
 	// Showing error if upload fails
 	if ( uploadErrorData ) {
