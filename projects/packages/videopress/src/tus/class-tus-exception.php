@@ -5,7 +5,7 @@
  * @package jetpack-videopress
  */
 
-namespace Automattic\Jetpack\VideoPress\Tus;
+namespace VideoPressUploader;
 
 /**
  * Tus Exception

@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
+use VideoPressUploader\File_Exception;
+use VideoPressUploader\Tus_Client;
 
 /**
  * VideoPress Uploader class
@@ -213,16 +215,8 @@ class Uploader {
 		if ( $this->client !== null ) {
 			return $this->client;
 		}
-		$options      = array(
-			'headers' => array(
-				'x-videopress-upload-token' => $this->get_upload_token(),
-			),
-		);
-		$endpoint     = sprintf( 'https://public-api.wordpress.com/rest/v1.1/video-uploads/%d', Jetpack_Options::get_option( 'id' ) );
-		$client       = new \Automattic\Jetpack\VideoPress\Tus_Client( $endpoint, $options );
-		$this->client = $client->setApiPath( '' )->setKey( $this->get_key() );
 
-		$this->client->getCache()->setCacheDir( trailingslashit( sys_get_temp_dir() ) )->setCacheFile( $this->get_key() . '.tus.cache' );
+		$this->client = new Tus_Client( $this->get_key(), $this->get_upload_token(), Jetpack_Options::get_option( 'id' ) );
 
 		return $this->client;
 	}
@@ -288,15 +282,8 @@ class Uploader {
 			);
 		}
 
-		$error_response = array(
-			'status'         => 'error',
-			'bytes_uploaded' => -1,
-			'file_size'      => $this->get_file_size(),
-			'file_name'      => $this->get_file_name(),
-		);
-
 		try {
-			$offset = $this->get_client()->getOffset();
+			$offset = $this->get_client()->get_offset();
 			$status = false !== $offset ? 'resume' : 'new';
 			$offset = false === $offset ? 0 : $offset;
 
@@ -315,10 +302,13 @@ class Uploader {
 				'file_name'      => $this->get_file_name(),
 				'upload_key'     => $this->get_key(),
 			);
-		} catch ( Upload_Exception $e ) {
-			return $error_response;
-		} catch ( Connection_Exception $e ) {
-			return $error_response;
+		} catch ( \Exception $e ) {
+			return array(
+				'status'         => 'error',
+				'bytes_uploaded' => -1,
+				'file_size'      => $this->get_file_size(),
+				'file_name'      => $this->get_file_name(),
+			);
 		}
 	}
 

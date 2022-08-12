@@ -5,7 +5,7 @@
  * @package jetpack-videopress
  */
 
-namespace Automattic\Jetpack\VideoPress\Tus;
+namespace VideoPressUploader;
 
 /**
  * Class with list of response codes

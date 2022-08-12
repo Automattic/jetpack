@@ -1,15 +1,21 @@
 <?php
 /**
- * File Exception
+ * Cap checker.
  *
- * @package jetpack-videopress
- */
+ * @package VideoPressUploader
+ **/
 
-namespace Automattic\Jetpack\VideoPress\Tus;
+namespace VideoPressUploader;
+
+// Avoid direct calls to this file.
+if ( ! defined( 'ABSPATH' ) ) {
+	die();
+}
 
 /**
- * File Exception
- */
-class File_Exception extends \RuntimeException {
-
+ * Unauthorized_Exception class.
+ *
+ * @package VideoPressUploader
+ **/
+class File_Exception extends \Exception {
 }
