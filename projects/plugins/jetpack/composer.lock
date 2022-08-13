@@ -1832,9 +1832,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "69c89b4ab937ece56706973e7174c90ab4492039"
+                "reference": "4350425d1e84d902ff012616a84195dbfb2f8f40"
             },
             "require": {
+                "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.42",
                 "automattic/jetpack-plans": "^0.2"
             },
@@ -1851,6 +1852,9 @@
                 },
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
+                },
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-package-version.php"
                 },
                 "textdomain": "jetpack-videopress-pkg"
             },

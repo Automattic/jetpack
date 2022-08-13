@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
 
 /**
  * Register a VideoPress extension to replace the default Core Video block.
@@ -200,16 +201,8 @@ class VideoPress_Gutenberg {
 			false
 		);
 
-		wp_enqueue_script(
-			'jetpack-videopress-gutenberg-playback-jwt',
-			Assets::get_file_url_for_environment(
-				'_inc/build/videopress/js/videopress-token-bridge.min.js',
-				'modules/videopress/js/videopress-token-bridge.js'
-			),
-			array(),
-			JETPACK__VERSION,
-			false
-		);
+		Jwt_Token_Bridge::enqueue_script( 'jetpack-videopress-gutenberg-playback-jwt' );
+
 	}
 }
 
