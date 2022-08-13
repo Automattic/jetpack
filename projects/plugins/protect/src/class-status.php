@@ -325,7 +325,7 @@ class Status {
 		$status->core = self::normalize_core_information( isset( $report_data->core ) ? $report_data->core : new \stdClass() );
 
 		// check if any installed items (themes, plugins, or core) have not been checked in the report
-		$all_items                   = array_merge( $status->plugins, $status->themes, array( $report_data->core ) );
+		$all_items                   = array_merge( $status->plugins, $status->themes, array( $status->core ) );
 		$unchecked_items             = array_filter(
 			$all_items,
 			function ( $item ) {
