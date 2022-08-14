@@ -1629,31 +1629,31 @@
 				) {
 					return;
 				}
+
+				// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
+				if ( parent.classList.contains( 'gallery-caption' ) ) {
+					return;
+				}
+
+				// Do not open the modal if we are looking at a caption of a gallery block, which may contain a link.
+				if ( domUtil.matches( parent, 'figcaption' ) ) {
+					return;
+				}
+
+				// Set height to auto.
+				// Fix some themes where closing carousel brings view back to top.
+				document.documentElement.style.height = 'auto';
+
+				e.preventDefault();
+
+				// Stopping propagation in case there are parent elements
+				// with .gallery or .tiled-gallery class
+				e.stopPropagation();
+
+				var item = domUtil.closest( target, itemSelector );
+				var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
+				loadSwiper( gallery, { startIndex: index } );
 			}
-
-			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
-			if ( parent.classList.contains( 'gallery-caption' ) ) {
-				return;
-			}
-
-			// Do not open the modal if we are looking at a caption of a gallery block, which may contain a link.
-			if ( domUtil.matches( parent, 'figcaption' ) ) {
-				return;
-			}
-
-			// Set height to auto.
-			// Fix some themes where closing carousel brings view back to top.
-			document.documentElement.style.height = 'auto';
-
-			e.preventDefault();
-
-			// Stopping propagation in case there are parent elements
-			// with .gallery or .tiled-gallery class
-			e.stopPropagation();
-
-			var item = domUtil.closest( target, itemSelector );
-			var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
-			loadSwiper( gallery, { startIndex: index } );
 		} );
 
 		// Handle lightbox (single image gallery) for images linking to 'Attachment Page'.
