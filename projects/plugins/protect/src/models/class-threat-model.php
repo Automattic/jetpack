@@ -62,18 +62,11 @@ class Threat_Model {
 	public $severity;
 
 	/**
-	 * Whether the threat is fixable.
+	 * Information about the auto-fix available for this threat. False when not auto-fixable.
 	 *
-	 * @var bool
+	 * @var false|object
 	 */
 	public $fixable;
-
-	/**
-	 * Information about the auto-fix available for this threat.
-	 *
-	 * @var object
-	 */
-	public $fixer;
 
 	/**
 	 * The current status of the threat.
