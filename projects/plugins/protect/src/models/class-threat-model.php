@@ -97,13 +97,6 @@ class Threat_Model {
 	public $context;
 
 	/**
-	 * The vulnerable extension related to the threat.
-	 *
-	 * @var Extension_Model
-	 */
-	public $extension;
-
-	/**
 	 * Threat Constructor
 	 *
 	 * @param array|object $threat Threat data to load into the class instance.
