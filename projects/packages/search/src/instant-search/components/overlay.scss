@@ -42,6 +42,7 @@ $overlay-horizontal-padding-lg: 3em;
 		padding: $overlay-vertical-padding-lg $overlay-horizontal-padding-lg;
 	}
 
+	// TODO: look into a more sustainable approach to reduce the number of !important being used to override the button styles
 	button {
 		background-color: inherit !important;
 		color: $color-text-lighter !important;

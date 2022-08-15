@@ -25,7 +25,7 @@
 	cursor: pointer;
 	position: absolute;
 	margin: 0;
-	padding: 0 4px !important;
+	padding: 0 4px !important; // TODO: look into a more sustainable approach to reduce the number of !important being used to force the overlay styles
 	line-height: 1.3;
 	padding: 0;
 	right: 0;

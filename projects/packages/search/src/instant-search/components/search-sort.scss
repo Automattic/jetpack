@@ -54,6 +54,7 @@
 	}
 }
 
+// TODO: look into a more sustainable approach to reduce the number of !important being used to override the theme option styles
 .jetpack-instant-search__search-sort-option {
 	@include remove-button-styling();
 	@include inherit-parent-colors-important();
