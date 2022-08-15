@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-super-cache",
+	"name": "automattic/wp-super-cache",
 	"description": "A very fast caching engine for WordPress that produces static html files.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
@@ -40,7 +40,8 @@
 	"extra": {
 		"mirror-repo": "Automattic/wp-super-cache",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/wp-super-cache/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/wp-super-cache/compare/v${old}...v${new}",
+			"versioning": "wordpress"
 		},
 		"release-branch-prefix": "super-cache",
 		"wp-plugin-slug": "wp-super-cache"
