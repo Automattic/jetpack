@@ -77,7 +77,7 @@ class Initializer {
 		// This is needed as it's not supported in oEmbed discovery
 		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/?for=' . $host, true ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 
-		add_filter( 'embed_oembed_html', array( 'Automattic\Jetpack\VideoPress\Initializer', 'video_enqueue_bridge_when_oembed_present' ), 10, 4 );
+		add_filter( 'embed_oembed_html', array( __CLASS__, 'video_enqueue_bridge_when_oembed_present' ), 10, 4 );
 	}
 
 	/**
