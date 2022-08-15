@@ -6,6 +6,10 @@
 	column-gap: calc( var( --spacing-base ) * 3 );
 	row-gap: calc( var( --spacing-base ) * 2 );
 
+	> * + * {
+		margin-top: calc( var( --spacing-base ) * 2 );
+	}
+	
 	@supports ( display: grid ) {
 		> * + * {
 			margin-top: 0;
