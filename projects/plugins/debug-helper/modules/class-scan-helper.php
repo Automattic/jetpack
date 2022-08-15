@@ -5,8 +5,6 @@
  * @package automattic/jetpack-debug-helper
  */
 
-require_once ABSPATH . '/wp-admin/includes/file.php';
-
 /**
  * Helps debug Scan
  */
@@ -78,6 +76,21 @@ class Scan_Helper {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get contents of a file to an array using the WP Filesystem API
+	 *
+	 * @param string $file_path File path.
+	 */
+	private function get_contents_array( $file_path ) {
+		global $wp_filesystem;
+
+		if ( ! $this->has_credentials() ) {
+			die;
+		}
+
+		return $wp_filesystem->get_contents_array( $file_path );
 	}
 
 	/**
@@ -205,15 +218,12 @@ class Scan_Helper {
 	 * @return string|WP_Error Success message on success, WP_Error object on failure.
 	 */
 	private function generate_core_file_modification_threat() {
-		$lines = file( $this->threats['core_file_modification'] );
+		$lines = $this->get_contents_array( $this->threats['core_file_modification'] );
 
 		// add the threat by modifying the file
 		$lines[] = 'if ( true === false ) exit();';
 
-		$fp      = fopen( $this->threats['core_file_modification'], 'w' );
-		$success = fwrite( $fp, implode( '', $lines ) );
-		fclose( $fp );
-
+		$success = $this->write_file( $this->threats['core_file_modification'], implode( '', $lines ) );
 		if ( ! $success ) {
 			return new WP_Error( 'could-not-write', "Unable to write threat file {$this->threats['core_file_modification']}" );
 		}
@@ -227,7 +237,7 @@ class Scan_Helper {
 	 * @return string|WP_Error Success message on success, WP_Error object on failure.
 	 */
 	private function remove_core_file_modification_threat() {
-		$lines = file( $this->threats['core_file_modification'] );
+		$lines = $this->get_contents_array( $this->threats['core_file_modification'] );
 
 		if ( $lines[ count( $lines ) - 1 ] === 'if ( true === false ) exit();' ) {
 			// eliminate the threat by removing the modification
@@ -465,7 +475,7 @@ class Scan_Helper {
 
 		// core modification check
 		$dir      = str_replace( site_url() . '/', ABSPATH, admin_url() );
-		$lines    = file( "$dir/index.php" );
+		$lines    = $this->get_contents_array( "$dir/index.php" );
 		$core_mod = $lines[ count( $lines ) - 1 ] === 'if ( true === false ) exit();' ? 'checked' : '';
 
 		// non-core file check
