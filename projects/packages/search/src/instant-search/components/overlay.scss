@@ -58,7 +58,7 @@ $overlay-horizontal-padding-lg: 3em;
 		}
 	}
 
-	input[type='checkbox'] {
+	.jetpack-instant-search__search-filter-list-input {
 		&:focus {
 			outline: 1px auto Highlight;
 			outline: 1px auto -webkit-focus-ring-color !important;
