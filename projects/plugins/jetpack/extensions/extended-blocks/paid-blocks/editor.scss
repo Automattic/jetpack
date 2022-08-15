@@ -7,16 +7,14 @@ $icon-background-color: #fff;
 
 // Upgrade Banner.
 .jetpack-upgrade-plan-banner {
-	$banner-height: 48px;
-
 	.jetpack-upgrade-plan-banner__wrapper {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		font-size: 14px;
-		height: $banner-height;
+		height: auto;
 		background: black;
-		padding: 0 20px;
+		padding: 10px 20px;
 		border-radius: 2px;
 		box-shadow: 0 0 1px inset $studio-white;
 
