@@ -272,3 +272,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 ### 1.7.9 ###
 * Fix nonces used by "Delete Cache" button and remove JS from it on the frontend admin bar.
 * Define the constant WPSCDISABLEDELETEBUTTON to disable the "Delete Cache" button in the admin bar.
+
+--------
+
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/super-cache/CHANGELOG.md#changelog)
