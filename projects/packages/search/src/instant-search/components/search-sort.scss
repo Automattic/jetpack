@@ -64,6 +64,7 @@
 	padding: 0 2px 0 2px;
 
 	&.is-selected {
+		// !important is temporarily needed to override :not() selectors in certain themes like Twenty Twenty One
 		color: $color-link-alt !important;
 		font-weight: 600;
 		text-decoration: none;
