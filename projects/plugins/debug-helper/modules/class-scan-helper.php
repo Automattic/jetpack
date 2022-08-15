@@ -81,10 +81,25 @@ class Scan_Helper {
 	}
 
 	/**
+	 * Checks the existance of a file through the WP Filesystem API.
+	 *
+	 * @param string $file_path File path.
+	 */
+	private function wp_file_exists( $file_path ) {
+		global $wp_filesystem;
+
+		if ( ! $this->has_credentials() ) {
+			die;
+		}
+
+		return $wp_filesystem->exists( $file_path );
+	}
+
+	/**
 	 * Write File
 	 *
-	 * @param string $file
-	 * @param string $contents
+	 * @param string $file File path.
+	 * @param string $contents File contents.
 	 */
 	private function write_file( $file, $contents ) {
 		global $wp_filesystem;
@@ -92,7 +107,7 @@ class Scan_Helper {
 		check_admin_referer( 'scan-helper-nonce' );
 
 		if ( ! $this->has_credentials() ) {
-			return;
+			die;
 		}
 
 		$file_written = $wp_filesystem->put_contents( $file, $contents, FS_CHMOD_FILE );
@@ -107,13 +122,13 @@ class Scan_Helper {
 	/**
 	 * Delete File
 	 *
-	 * @param string $file The file path.
+	 * @param string $file File path.
 	 */
 	private function delete_file( $file ) {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			return;
+			die;
 		}
 
 		return $wp_filesystem->delete( $file );
@@ -430,7 +445,6 @@ class Scan_Helper {
 	 * Render the UI.
 	 */
 	public function render_ui() {
-
 		$submission = $this->handle_submit();
 		if ( $submission ) {
 			foreach ( $submission['errors'] as $wp_error ) {
@@ -445,9 +459,9 @@ class Scan_Helper {
 
 		// eicar check
 		$dir   = wp_upload_dir()['basedir'];
-		$eicar = file_exists( $this->threats['eicar'] ) ? 'checked="checked"' : '';
+		$eicar = $this->wp_file_exists( $this->threats['eicar'] ) ? 'checked="checked"' : '';
 		// suspciious link check
-		$suspicious_link = file_exists( $this->threats['suspicious_link'] ) ? 'checked="checked"' : '';
+		$suspicious_link = $this->wp_file_exists( $this->threats['suspicious_link'] ) ? 'checked="checked"' : '';
 
 		// core modification check
 		$dir      = str_replace( site_url() . '/', ABSPATH, admin_url() );
@@ -456,7 +470,7 @@ class Scan_Helper {
 
 		// non-core file check
 		$dir      = str_replace( site_url() . '/', ABSPATH, admin_url() );
-		$core_add = file_exists( "$dir/non-core-file.php" ) ? 'checked' : '';
+		$core_add = $this->wp_file_exists( "$dir/non-core-file.php" ) ? 'checked' : '';
 
 		// post db check
 		$post_db = post_exists( 'Scan Tester Post' ) ? 'checked' : '';
