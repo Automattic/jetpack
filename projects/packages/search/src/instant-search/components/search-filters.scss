@@ -19,7 +19,7 @@
 }
 
 .jetpack-instant-search__clear-filters-link {
-	@include inherit-button-parent-colors-important();
+	@include inherit-parent-colors-important();
 	@include inherit-parent-font-size-important();
 	border: none;
 	cursor: pointer;

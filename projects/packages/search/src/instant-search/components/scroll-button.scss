@@ -1,5 +1,7 @@
+@import '../lib/styles/_helper.scss';
+
 .jetpack-instant-search__scroll-button {
-	@include inherit-button-parent-colors-important();
+	@include inherit-parent-colors-important();
 	outline: 0;
 	border: 0;
 	box-shadow: none;

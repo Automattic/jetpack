@@ -56,7 +56,7 @@
 
 .jetpack-instant-search__search-sort-option {
 	@include remove-button-styling();
-	@include inherit-button-parent-colors-important();
+	@include inherit-parent-colors-important();
 	@include inherit-parent-font-size-important();
 	cursor: pointer;
 	padding: 0 2px 0 2px;
