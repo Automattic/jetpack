@@ -1078,7 +1078,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "d408d25d435644483fb6eec5cff5892a85e0be20"
+                "reference": "15d9d88b6ff6a6ca6b8781bdf5ef855b0438196b"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
