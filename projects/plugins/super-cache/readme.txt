@@ -267,7 +267,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 * [WordPress Mobile Pack](https://wordpress.org/plugins/wordpress-mobile-pack/) (can't have "Don't cache pages for known users." enabled)
 
 
-## Changelog ##
+== Changelog ==
 
 ### 1.7.9 ###
 * Fix nonces used by "Delete Cache" button and remove JS from it on the frontend admin bar.
