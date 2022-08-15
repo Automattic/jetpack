@@ -67,10 +67,25 @@ class Scan_Helper {
 	}
 
 	/**
+	 * Checks the existance of a file through the WP Filesystem API.
+	 *
+	 * @param string $file_path File path.
+	 */
+	private function wp_file_exists( $file_path ) {
+		global $wp_filesystem;
+
+		if ( ! $this->has_credentials() ) {
+			return;
+		}
+
+		return $wp_filesystem->exists( $file_path );
+	}
+
+	/**
 	 * Write File
 	 *
-	 * @param string $file
-	 * @param string $contents
+	 * @param string $file File path.
+	 * @param string $contents File contents.
 	 */
 	private function write_file( $file, $contents ) {
 		global $wp_filesystem;
@@ -94,7 +109,7 @@ class Scan_Helper {
 	/**
 	 * Delete File
 	 *
-	 * @param string $file
+	 * @param string $file File path.
 	 */
 	private function delete_file( $file ) {
 		global $wp_filesystem;
@@ -122,7 +137,7 @@ class Scan_Helper {
 					$filepath = "$dir/jptt_eicar.php";
 					$filerel  = str_replace( ABSPATH, '', $filepath );
 
-					if ( file_exists( $filepath ) ) {
+					if ( $this->wp_file_exists( $filepath ) ) {
 						$success = $this->delete_file( $filerel );
 						$message = 'Removed the EICAR threat.';
 					} else {
@@ -324,11 +339,12 @@ class Scan_Helper {
 	 * Render the UI.
 	 */
 	public function render_ui() {
+
 		// eicar check
 		$dir   = wp_upload_dir()['basedir'];
-		$eicar = file_exists( "$dir/jptt_eicar.php" ) ? 'checked' : '';
+		$eicar = $this->wp_file_exists( "$dir/jptt_eicar.php" ) ? 'checked' : '';
 		// suspciious link check
-		$suspicious_link = file_exists( "$dir/jptt_suspicious_link.php" ) ? 'checked' : '';
+		$suspicious_link = $this->wp_file_exists( "$dir/jptt_suspicious_link.php" ) ? 'checked' : '';
 
 		// core modification check
 		$dir      = str_replace( site_url() . '/', ABSPATH, admin_url() );
@@ -337,7 +353,7 @@ class Scan_Helper {
 
 		// non-core file check
 		$dir      = str_replace( site_url() . '/', ABSPATH, admin_url() );
-		$core_add = file_exists( "$dir/non-core-file.php" ) ? 'checked' : '';
+		$core_add = $this->wp_file_exists( "$dir/non-core-file.php" ) ? 'checked' : '';
 
 		// post db check
 		$post_db = post_exists( 'Scan Tester Post' ) ? 'checked' : '';
@@ -351,8 +367,6 @@ class Scan_Helper {
 		?>
 	
 		<div id="a8cjptt-alert" class="a8cjptt-alert"><strong>Notifications</strong></div>
-
-		<?php echo request_filesystem_credentials( 'admin.php?page=scan-helper', false, false, null ); ?>
 	
 		<div class="wrap">
 			<ul class="a8cjptt-threats">
