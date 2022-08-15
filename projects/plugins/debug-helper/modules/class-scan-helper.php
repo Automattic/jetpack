@@ -5,7 +5,7 @@
  * @package automattic/jetpack-debug-helper
  */
 
-require_once(ABSPATH . '/wp-admin/includes/file.php';
+require_once ABSPATH . '/wp-admin/includes/file.php';
 
 /**
  * Helps debug Scan
