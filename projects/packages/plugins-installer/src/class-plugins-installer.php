@@ -253,7 +253,6 @@ class Plugins_Installer {
 			return false;
 		}
 
-		// Looking for a request to plugins.php with the 'activate' action
 		if ( isset( $_SERVER['SCRIPT_NAME'] ) ) {
 			$request_file = esc_url_raw( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
 		} elseif ( isset( $_SERVER['REQUEST_URI'] ) ) {
@@ -262,7 +261,7 @@ class Plugins_Installer {
 			return false;
 		}
 
-		// not the plugins page
+		// Not the plugins page
 		if ( strpos( $request_file, 'wp-admin/plugins.php' ) === false ) {
 			return false;
 		}
@@ -271,12 +270,17 @@ class Plugins_Installer {
 		$wp_list_table = _get_list_table( 'WP_Plugins_List_Table' );
 		$action        = $wp_list_table->current_action();
 
-		// not an activation
+		// Not a singular activation
+		// This also means that if the plugin is activated as part of a group ( bulk activation ), this function will return false here.
 		if ( 'activate' !== $action ) {
 			return false;
 		}
 
-		// not the right plugin
+		// Check the nonce associated with the plugin activation
+		// We are not changing any data here, so this is not super necessary, it's just a best practice before using the form data from $_REQUEST.
+		check_admin_referer( 'activate-plugin_' . $plugin );
+
+		// Not the right plugin
 		$requested_plugin = isset( $_REQUEST['plugin'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['plugin'] ) ) : null;
 		if ( $requested_plugin !== $plugin ) {
 			return false;
