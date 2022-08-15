@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-super-cache",
+	"name": "automattic/wp-super-cache",
 	"description": "A very fast caching engine for WordPress that produces static html files.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
