@@ -56,16 +56,23 @@ class Status_Model {
 	/**
 	 * Status themes.
 	 *
-	 * @var array
+	 * @var array<Extension_Model>
 	 */
 	public $themes = array();
 
 	/**
 	 * Status plugins.
 	 *
-	 * @var array
+	 * @var array<Extension_Model>
 	 */
 	public $plugins = array();
+
+	/**
+	 * Whether the site includes items that have not been checked.
+	 *
+	 * @var boolean
+	 */
+	public $has_unchecked_items;
 
 	/**
 	 * Whether there was an error loading the status.
@@ -87,13 +94,6 @@ class Status_Model {
 	 * @var string
 	 */
 	public $error_message;
-
-	/**
-	 * Whether the site includes items that have not been checked.
-	 *
-	 * @var boolean
-	 */
-	public $has_unchecked_items;
 
 	/**
 	 * Status constructor.
