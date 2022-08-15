@@ -55,12 +55,10 @@
 }
 
 .jetpack-instant-search__search-sort-option {
-	// !important is temporarily needed to override :not() selectors in certain themes like Twenty Twenty One
 	@include remove-button-styling();
-	background-color: inherit !important;
-	color: inherit !important;
+	@include inherit-button-parent-colors-important();
+	@include inherit-parent-font-size-important();
 	cursor: pointer;
-	font-size: inherit !important;
 	padding: 0 2px 0 2px;
 
 	&.is-selected {

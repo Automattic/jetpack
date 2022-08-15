@@ -1,6 +1,8 @@
 .jetpack-instant-search__scroll-button {
+	@include inherit-button-parent-colors-important();
 	outline: 0;
 	border: 0;
 	box-shadow: none;
-	font-size: 13px;
+	// !important is temporarily needed to override :not() selectors in certain themes like Twenty Twenty One
+	font-size: 13px !important;
 }
