@@ -261,7 +261,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Caching of more http headers.
 * Lots of bug fixes.
 
-## 1.4.9
+## 1.4.9 2017-06-01
 * Fixed bug when not running sem_remove after sem_release. See https://github.com/Automattic/wp-super-cache/issues/85
 * Fixed a PHP error impacting PHP 7.1.
 * Fixed a bug where we cached PUT and DELETE requests. We're treating them like POST requests now.
@@ -276,17 +276,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add fix for customizer [#161](https://github.com/Automattic/wp-super-cache/pull/161) and don't cache PUT AND DELETE requests [#178](https://github.com/Automattic/wp-super-cache/pull/178)
 * Check for superglobals before using them. [#131](https://github.com/Automattic/wp-super-cache/pull/131)
 
-## 1.4.8
+## 1.4.8 2017-01-11
 * Removed malware URL in a code comment. (harmless to operation of plugin but gets flagged by A/V software)
 * Updated translation file.
 
-## 1.4.7
+## 1.4.7 2016-12-09
 * Update the settings page for WordPress 4.4. layout changes.
 
-## 1.4.6
+## 1.4.6 2015-10-09
 * Generate the file cache/.htaccess even when one exists so gzip rules are created and gzipped pages are served correctly. Props Tigertech. https://wordpress.org/support/topic/all-website-pages-downloading-gz-file-after-latest-update?replies=36#post-7494087
 
-## 1.4.5
+## 1.4.5 2015-09-25
 * Enhancement: Only preload public post types. Props webaware.
 * Added an uninstall function that deletes the config file. Deactivate function doesn't delete it any more.
 * Possible to deactivate the plugin without visiting the settings page now.
@@ -301,47 +301,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Hide cache files when servers display directory indexes.
 * Prevent PHP object injection through use of serialize().
 
-## 1.4.4
+## 1.4.4 2015-05-15
 * Fixed fatal error in output handler if GET parameters present in query. Props webaware.
 * Fixed debug log. It wasn't logging the right message.
 
-## 1.4.3
+## 1.4.3 2015-04-03
 * Security release fixing an XSS bug in the settings page. Props Marc Montpas from Sucuri.
 * Added wp_debug_log(). Props Jen Heilemann.
 * Minor fixes.
 
-## 1.4.2
+## 1.4.2 2014-12-18
 * Fixed "acceptable file list".
 * Fixed "Don't cache GET requests" feature.
 * Maybe fixed "304 not modified" problem for some users.
 * Fixed some PHP warnings.
 
-## 1.4.1
+## 1.4.1 2014-08-07
 * Fixed XSS in settings page. Props Simon Waters, Surevine Limited.
 * Fix to object cache so entries may now be deleted when posts updated. (object cache still experimental)
 * Documentation updates and cleanup of settings page.
 
-## 1.4
+## 1.4 2014-04-17
 * Replace legacy mfunc/mnclude/dynamic-cached-content functionality with a "wpsc_cachedata" cacheaction filter.
 * Added dynamic-cache-test.php plugin example wpsc_cachedata filter plugin.
 * Delete post, tag and category cache when a post changes from draft to publish or vice versa. Props @Biranit.
 * Update advanced-cache.php and wp-config.php if wp-cache-phase1.php doesn't load, usually happening after migrating to a new hosting service.
 * Misc bugfixes.
 
-## 1.3.2
+## 1.3.2 2013-08-19
 * Any mfunc/mclude/dynamic-cached-content tags in comments are now removed.
 * Dynamic cached content feature disabled by default and must be enabled on the Advanced Settings page.
 * Support for the mobile theme in Jetpack via helper plugin on script's Plugins tab.
 
-## 1.3.1
+## 1.3.1 2013-04-12
 * Minor updates to documentation
 * Fixed XSS in settings page.
 
-## 1.3
+## 1.3 2013-04-11
 * mfunc tags could be executed in comments. Fixed.
 * More support for sites that use the LOGGED_IN_COOKIE constant and custom cookies.
 
-## 1.2
+## 1.2 2012-12-13
 * Garbage collection of old cache files is significantly improved. I added a scheduled job that keeps an eye on things and restarts the job if necessary. Also, if you enable caching from the Easy page garbage collection will be enabled too.
 * Editors can delete single cached files from the Toolbar now.
 * Fixed the cached page counter on the settings page.
@@ -354,7 +354,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Some sites had problems with scheduled posts. For some reason the plugin thought the post was in draft mode and then because it only checked the same post once, when the post magically became published the cache wasn.t cleared. That.s fixed, thanks to the debug logging of several patient users.
 * And more bug fixes and translation updates.
 
-## 1.1
+## 1.1 2012-06-13
 * Use $_SERVER[ 'SERVER_NAME' ] to create cache directories.
 * Only create blogs cached directories if valid requests and blogs exist.
 * Only clear current blog's cache files if navigation menu is modified
@@ -381,7 +381,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Removed debug level from logging as it wasn't helpful.
 * Removed mention of wp-minify.
 
-## 1.0
+## 1.0 2012-01-30
 * Removed AddDefaultCharset .htaccess rule
 * Fixed problem with blogs in a folder and don't have a trailing slash
 * New scheduling of garbage collection
@@ -395,7 +395,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Use WP 3.0 variables to detect multisite installs
 * Hash filenames so files are served from the same CDNs
 
-## 0.9.9.9
+## 0.9.9.9 2011-07-12
 * Fixed typo, is_front_page.
 * Serve repeated static files from the same CDN hostname.
 * Updated translations.
@@ -404,7 +404,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Remove 5 second check on age of existing cache files. Should help with posts that get lots of comments and traffic.
 * Lots of bugs fixed.
 
-## 0.9.9.8
+## 0.9.9.8 2011-01-07
 * CDN updates: can be switched off, multiple CNAMEs.
 * Uninstall process improved. It removes generated files and fixes edited files.
 * Cached dynamic pages can now be stored in Supercache files and compressed.
@@ -412,20 +412,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Remove log by email functionality as it caused problems for users who were inundated by email
 * Many more minor fixes and changes.
 
-## 0.9.9.6
+## 0.9.9.6 2010-09-29 
 * Fixed problem serving cached files with PHP
 * Added support for 304 "file not modified" header to help browser caching. (PHP caching only)
 * Added French & German translations, updated Italian translation and fixed translation strings.
 * Sleep 4 seconds between preload urls to reduce load on the server
 * Updated docs and FAQs.
 
-## 0.9.9.5
+## 0.9.9.5 2010-09-24
 * Disable compression on on easy setup page. Still causes problems on some hosts.
 * Remove footerlink on easy setup page.
 * Don't delete mod_rewrite rules when caching is disabled.
 * Don't stop users using settings page when in safe mode.
 
-## 0.9.9.4
+## 0.9.9.4 2010-09-22
 * Settings page split into tabbed pages.
 * Added new "Easy" settings page for new users.
 * New PHP caching mode to serve supercached files.
@@ -440,16 +440,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Serve the gzipped page when first cached if the client supports compression.
 * Lots more bug fixes..
 
-## 0.9.9.3
+## 0.9.9.3 2010-06-16
 * Fixed division by zero error in half on mode.
 * Always show "delete cache" button.
 * Fixed "Update mod_rewrite rules" button.
 * Minor text changes to admin page.
 
-## 0.9.9.2
+## 0.9.9.2 2010-06-15
 * Forgot to change version number in wp-cache.php
 
-## 0.9.9.1
+## 0.9.9.1 2010-06-15
 * Added preloading of static cache.
 * Better mobile plugin support
 * .htaccess rules can be updated now. Added wpsc_update_htaccess().
@@ -458,7 +458,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added clear_post_supercache() to clear supercache for a single post.
 * Put quotes around rewrite rules in case paths have spaces.
 
-## 0.9.9
+## 0.9.9 2017 2010-02-08
 * Added experimental object cache support.
 * Added Chinese(Traditional) translation by Pseric.
 * Added FAQ on WP-Cache vs Supercache files.
@@ -474,7 +474,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Updated Italian translation.
 * Link to WP Mobile Edition from admin page for mobile support.
 
-## 0.9.8
+## 0.9.8 2009-11-18
 * Added Spanish translation by Omi.
 * Added Italian translation by Gianni Diurno.
 * Addded advanced debug code to check front page for category problem. Enable by setting $wp_super_cache_advanced_debug to 1 in the config file.
@@ -486,7 +486,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed problem deleting cache file.
 * Don't delete cache files when moderated comments are deleted.
 
-## 0.9.7
+## 0.9.7 2009-10-02
 * Fixed problem with blogs in folders.
 * Added cache file listing and delete links to admin page.
 * Added "Newest Cached Pages" listing in sidebox.
@@ -502,12 +502,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed problem with PHP safe_mode detection.
 * Various bugfixes and documentation updates. See Changelog.txt
 
-## 0.9.6.1
+## 0.9.6.1 2009-07-29
 * Move "not logged in" message init below check for POST.
 * Add is_admin() check so plugin definitely can't cache the backend.
 * Add "do not cache" page type to admin page.
 
-## 0.9.6
+## 0.9.6 2009-07-27
 * Add uninstall.php uninstall script.
 * Updated cache/.htaccess rules (option to upgrade that)
 * Added FAQ about category and static homepage problem.
@@ -515,7 +515,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Show message for logged in users when caching disable for them.
 * Check filemtime on correct supercache file
 
-## 0.9.5
+## 0.9.5 2009-07-17
 * Show next and last GC times in minutes, not local time.
 * Don't serve wp_cache cache files to rejected user agents. Supercache files are still served to them.
 * If enabled, mobile support now serves php cached files to mobile clients and static cached files to everyone else.
@@ -523,7 +523,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added check for DONOTCACHEPAGE constant to avoid caching a page.
 * Use PHP_DOCUMENT_ROOT when creating .htaccess if necessary.
 
-## 0.9.4.3
+## 0.9.4.3 2009-04-25
 1. Added "Don't cache for logged in users" option.
 2. Display file size stats on admin page.
 3. Clear the cache when profile page is updated.
