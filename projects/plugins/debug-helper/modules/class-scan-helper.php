@@ -46,6 +46,67 @@ class Scan_Helper {
 	}
 
 	/**
+	 * Has Credentials
+	 *
+	 * @return bool
+	 */
+	private function has_credentials() {
+		$url         = wp_nonce_url( add_query_arg( array( 'page' => 'scan-helper' ), 'options-general.php' ), 'scan-helper-nonce' );
+		$credentials = request_filesystem_credentials( $url );
+
+		if ( false === $credentials ) {
+			return false;
+		}
+
+		if ( ! WP_Filesystem( $credentials ) ) {
+			request_filesystem_credentials( $url, '', true );
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Write File
+	 *
+	 * @param string $file
+	 * @param string $contents
+	 */
+	private function write_file( $file, $contents ) {
+		global $wp_filesystem;
+
+		check_admin_referer( 'scan-helper-nonce' );
+
+		if ( ! $this->has_credentials() ) {
+			return;
+		}
+
+		$file_written = $wp_filesystem->put_contents( $file, $contents, FS_CHMOD_FILE );
+
+		if ( ! $file_written ) {
+			echo 'Error!';
+			return;
+		}
+
+		echo 'File written';
+	}
+
+	/**
+	 * Delete File
+	 *
+	 * @param string $file
+	 */
+	private function delete_file( $file ) {
+		global $wp_filesystem;
+
+		if ( ! $this->has_credentials() ) {
+			return;
+		}
+
+		return $wp_filesystem->delete( $file );
+	}
+
+	/**
 	 * Initialize the rest api.
 	 */
 	public function initialize_api() {
@@ -62,19 +123,19 @@ class Scan_Helper {
 					$filerel  = str_replace( ABSPATH, '', $filepath );
 
 					if ( file_exists( $filepath ) ) {
-						$success = unlink( $filerel );
+						$success = $this->delete_file( $filerel );
 						$message = 'Removed the EICAR threat.';
 					} else {
 						// write the EICAR pattern to the file (base64-encoded here so this plugin doesn't get flagged)
-						$success = file_put_contents( $filepath, "<?php\n\necho <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;\n" );
+						$success = $this->write_file( $filepath, "<?php\n\necho <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;\n" );
 						// SUSP
-						$success = file_put_contents( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNVU1BJQ0lPVVMtQU5USVZJUlVTLVRFU1QtRklMRSEkSCtIKg==' ) . "\nHTML;\n", FILE_APPEND );
+						$success = $this->write_file( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNVU1BJQ0lPVVMtQU5USVZJUlVTLVRFU1QtRklMRSEkSCtIKg==' ) . "\nHTML;\n", FILE_APPEND );
 						// LOW
-						$success = file_put_contents( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLUxPVy1BTlRJVklSVVMtVEVTVC1GSUxFISRIK0gq' ) . "\nHTML;\n", FILE_APPEND );
+						$success = $this->write_file( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLUxPVy1BTlRJVklSVVMtVEVTVC1GSUxFISRIK0gq' ) . "\nHTML;\n", FILE_APPEND );
 						// MED
-						$success = file_put_contents( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLU1FRElVTS1BTlRJVklSVVMtVEVTVC1GSUxFISRIK0gq' ) . "\nHTML;\n", FILE_APPEND );
+						$success = $this->write_file( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLU1FRElVTS1BTlRJVklSVVMtVEVTVC1GSUxFISRIK0gq' ) . "\nHTML;\n", FILE_APPEND );
 						// CRITICAL
-						$success = file_put_contents( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLUNSSVRJQ0FMLUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;\n", FILE_APPEND );
+						$success = $this->write_file( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLUNSSVRJQ0FMLUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;\n", FILE_APPEND );
 
 						$message = "Created $filerel.";
 					}
@@ -101,11 +162,11 @@ class Scan_Helper {
 					$filerel  = str_replace( ABSPATH, '', $filepath );
 
 					if ( file_exists( $filepath ) ) {
-						$success = unlink( $filerel );
+						$success = $this->delete_file( $filerel );
 						$message = 'Removed the Suspicious Link threat.';
 					} else {
 						// write the suspicious link
-						$success = file_put_contents( $filepath, "<?php\n \$url = 'https://example.com/akismet-guaranteed-spam/'; \n" );
+						$success = $this->write_file( $filepath, "<?php\n \$url = 'https://example.com/akismet-guaranteed-spam/'; \n" );
 
 						$message = "Created $filerel.";
 					}
@@ -168,11 +229,11 @@ class Scan_Helper {
 					$filerel  = str_replace( ABSPATH, '', $filepath );
 
 					if ( file_exists( $filepath ) ) {
-						$success = unlink( $filerel );
+						$success = $this->delete_file( $filerel );
 						$message = 'Removed the non-core file from core directory.';
 					} else {
 						// write a innocuous file to
-						$success = file_put_contents( $filepath, "<?php echo 'I am a bad file'; ?>" );
+						$success = $this->write_file( $filepath, "<?php echo 'I am a bad file'; ?>" );
 						$message = "Created non-core file $filerel in a core directory.";
 					}
 
@@ -237,14 +298,14 @@ class Scan_Helper {
 					if ( $lines[ count( $lines ) - 1 ] === 'HTML;' ) {
 						// eliminate the threat by removing the modification
 						array_splice( $lines, count( $lines ) - 3, 3 );
-						$success = file_put_contents( $filepath, implode( '', $lines ) );
+						$success = $this->write_file( $filepath, implode( '', $lines ) );
 
 						$message = "Removed the EICAR threat from: $filerel";
 					} else {
 						// add the threat by modifying the file
 						$content = "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;";
 
-						$success = file_put_contents( $filepath, $content, FILE_APPEND );
+						$success = $this->write_file( $filepath, $content, FILE_APPEND );
 						$message = "Added an EICAR threat to: $filerel";
 					}
 
@@ -290,6 +351,8 @@ class Scan_Helper {
 		?>
 	
 		<div id="a8cjptt-alert" class="a8cjptt-alert"><strong>Notifications</strong></div>
+
+		<?php echo request_filesystem_credentials( 'admin.php?page=scan-helper', false, false, null ); ?>
 	
 		<div class="wrap">
 			<ul class="a8cjptt-threats">
