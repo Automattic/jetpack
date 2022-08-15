@@ -75,7 +75,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			return;
+			die;
 		}
 
 		return $wp_filesystem->exists( $file_path );
@@ -93,7 +93,7 @@ class Scan_Helper {
 		check_admin_referer( 'scan-helper-nonce' );
 
 		if ( ! $this->has_credentials() ) {
-			return;
+			die;
 		}
 
 		$file_written = $wp_filesystem->put_contents( $file, $contents, FS_CHMOD_FILE );
@@ -115,7 +115,7 @@ class Scan_Helper {
 		global $wp_filesystem;
 
 		if ( ! $this->has_credentials() ) {
-			return;
+			die;
 		}
 
 		return $wp_filesystem->delete( $file );
