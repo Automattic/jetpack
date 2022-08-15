@@ -83,7 +83,7 @@ class Extension_Model {
 	 *
 	 * @param array<Threat_Model|array|object> $vulnerabilities An array of vulnerability data to add to the extension.
 	 */
-	private function set_vulnerabilities( $vulnerabilities ) {
+	public function set_vulnerabilities( $vulnerabilities ) {
 		if ( ! is_array( $vulnerabilities ) ) {
 			$this->vulnerabilities = array();
 			return;

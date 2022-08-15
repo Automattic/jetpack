@@ -426,13 +426,8 @@ class Status {
 
 		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
 			if ( is_array( $core_check->vulnerabilities ) ) {
-				$core->checked         = true;
-				$core->vulnerabilities = array_map(
-					function ( $vulnerability ) {
-						return new Threat_Model( $vulnerability );
-					},
-					$core_check->vulnerabilities
-				);
+				$core->checked = true;
+				$core->set_vulnerabilities( $core_check->vulnerabilities );
 			}
 		}
 
