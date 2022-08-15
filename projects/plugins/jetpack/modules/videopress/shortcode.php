@@ -1,5 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-require_once plugin_dir_path( __FILE__ ) . 'class.jetpack-videopress.php';
+use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
 /**
  * VideoPress Shortcode Handler
  *
@@ -269,7 +269,7 @@ class VideoPress_Shortcode {
 	 */
 	public function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( preg_match( '/https?:\/\/(video.wordpress.com|videopress.com)\/(v|embed)\//', $url ) ) {
-			Jetpack_VideoPress::enqueue_jwt_token_bridge(); // TODO: swap for new function
+			Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		}
 		return $cache;
 	}
