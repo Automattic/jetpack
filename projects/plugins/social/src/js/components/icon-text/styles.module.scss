@@ -12,11 +12,11 @@
 		}
 	}
 
-	@media ( min-width: 600px ) {
+	&.viewport-gt-small {
 		grid-column: 2 / span 6;
 	}
 
-	@media ( min-width: 960px ) {
+	&.viewport-gt-medium {
 		column-gap: calc( var( --spacing-base ) * 6 );
 		grid-column: 3 / span 8;
 	}
@@ -25,7 +25,7 @@
 .title {
 	grid-row: 1;
 
-	@media ( min-width: 600px ) {
+	.viewport-gt-small & {
 		grid-column: 2;
 	}
 }
@@ -37,7 +37,7 @@
 		color: inherit;
 	}
 
-	@media ( min-width: 600px ) {
+	.viewport-gt-small & {
 		grid-column: 2;
 	}
 }
@@ -49,9 +49,9 @@
 
 	justify-self: flex-end;
 
-	margin-right: calc( var( --spacing-base ));
+	margin-right: var( --spacing-base );
 
-	@media ( min-width: 600px ) {
+	.viewport-gt-small & {
 		margin-right: auto;
 		grid-column: 1;
 	}
