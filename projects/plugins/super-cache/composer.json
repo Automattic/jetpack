@@ -40,7 +40,8 @@
 	"extra": {
 		"mirror-repo": "Automattic/wp-super-cache",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/wp-super-cache/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/wp-super-cache/compare/v${old}...v${new}",
+			"versioning": "wordpress"
 		},
 		"release-branch-prefix": "super-cache",
 		"wp-plugin-slug": "wp-super-cache"
