@@ -41,3 +41,11 @@ class Scan_Helper {
 	}
 
 }
+
+add_action(
+	'plugins_loaded',
+	function () {
+		new Scan_Helper();
+	},
+	1000
+);
