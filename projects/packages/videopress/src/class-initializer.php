@@ -91,7 +91,8 @@ class Initializer {
 	 * @return string|false
 	 */
 	public static function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( preg_match( '/https?:\/\/(video.wordpress.com|videopress.com)\/(v|embed)\//', $url ) ) {
+		if ( preg_match( '/https?:\/\/(video.wordpress.com|videopress.com)\/(v|embed)\//', $url )
+			|| preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 			Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		}
 		return $cache;
