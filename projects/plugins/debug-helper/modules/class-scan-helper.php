@@ -5,18 +5,32 @@
  * @package automattic/jetpack-debug-helper
  */
 
+require_once(ABSPATH . '/wp-admin/includes/file.php';
+
 /**
  * Helps debug Scan
  */
 class Scan_Helper {
 
+	private $threats = array();
+
 	/**
 	 * Construction.
 	 */
 	public function __construct() {
+		$upload_dir    = wp_upload_dir()['basedir'];
+		$admin_dir     = str_replace( site_url() . '/', ABSPATH, admin_url() );
+		$content_dir   = str_replace( site_url() . '/', ABSPATH, content_url() );
+		$this->threats = array(
+			'eicar'                  => "$upload_dir/jptt_eicar.php",
+			'suspicious_link'        => "$upload_dir/jptt_suspicious_link.php",
+			'core_file_modification' => "{$admin_dir}index.php",
+			'non_core_file'          => "{$admin_dir}non-core-file.php",
+			'infected_file'          => "$content_dir/index.php",
+		);
+
 		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'rest_api_init', array( $this, 'initialize_api' ) );
 	}
 
 	/**
@@ -88,13 +102,12 @@ class Scan_Helper {
 			return;
 		}
 
-		echo 'File written';
 	}
 
 	/**
 	 * Delete File
 	 *
-	 * @param string $file
+	 * @param string $file The file path.
 	 */
 	private function delete_file( $file ) {
 		global $wp_filesystem;
@@ -107,216 +120,309 @@ class Scan_Helper {
 	}
 
 	/**
-	 * Initialize the rest api.
+	 * Generate EICAR threats.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
 	 */
-	public function initialize_api() {
+	private function generate_eicar_threat() {
+		$eicar_patterns =
+			"<?php\n\necho <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;\n" .
+			"echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNVU1BJQ0lPVVMtQU5USVZJUlVTLVRFU1QtRklMRSEkSCtIKg==' ) . "\nHTML;\n" .
+			"echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNVU1BJQ0lPVVMtQU5USVZJUlVTLVRFU1QtRklMRSEkSCtIKg==' ) . "\nHTML;\n" .
+			"echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLU1FRElVTS1BTlRJVklSVVMtVEVTVC1GSUxFISRIK0gq' ) . "\nHTML;\n" .
+			"echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLUNSSVRJQ0FMLUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;\n";
+
+		if ( ! $this->write_file( $this->threats['eicar'], $eicar_patterns ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat file {$this->threats['eicar']}." );
+
+		}
+
+		return "Successfully added EICAR threats to {$this->threats['eicar']}.";
+	}
+
+	/**
+	 * Remove EICAR Threat
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_eicar_threat() {
+		$relative_file_path = str_replace( ABSPATH, '', $this->threats['eicar'] );
+
+		if ( ! $this->delete_file( $this->threats['eicar'] ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat file $relative_file_path." );
+		}
+
+		return "Successfully removed EICAR threats to $relative_file_path.";
+	}
+
+	/**
+	 * Generate suspicious link threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_suspicious_link_threat() {
+		if ( ! $this->write_file( $this->threats['suspicious_link'], "<?php\n \$url = 'https://example.com/akismet-guaranteed-spam/'; \n" ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat file {$this->threats['suspicious_link']}" );
+		}
+
+		return "Successfully added Suspicious Link threat to {$this->threats['suspicious_link']}";
+	}
+
+	/**
+	 * Remove suspicious link threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_suspicious_link_threat() {
+		$relative_file_path = str_replace( ABSPATH, '', $this->threats['suspicious_link'] );
+
+		if ( ! $this->delete_file( $relative_file_path ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat file $relative_file_path." );
+
+		}
+
+		return "Successfully removed Suspicious Link threat from $relative_file_path.";
+	}
+
+	/**
+	 * Generate core file modification threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_core_file_modification_threat() {
+		$lines = file( $this->threats['core_file_modification'] );
+
+		// add the threat by modifying the file
+		$lines[] = 'if ( true === false ) exit();';
+
+		$fp      = fopen( $this->threats['core_file_modification'], 'w' );
+		$success = fwrite( $fp, implode( '', $lines ) );
+		fclose( $fp );
+
+		if ( ! $success ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat file {$this->threats['core_file_modification']}" );
+		}
+
+		return "Modified the core file: {$this->threats['core_file_modification']}";
+	}
+
+	/**
+	 * Remove core file modification threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_core_file_modification_threat() {
+		$lines = file( $this->threats['core_file_modification'] );
+
+		if ( $lines[ count( $lines ) - 1 ] === 'if ( true === false ) exit();' ) {
+			// eliminate the threat by removing the modification
+			$last = count( $lines ) - 1;
+			$this->delete_file( $lines[ $last ] ); // to do - this might not work
+			return 'Removed the core modification threat.';
+		}
+
+		return new WP_Error( 'could-not-write', "Unable to write/remove threat from $filerel" );
+	}
+
+	/**
+	 * Generate core file modification threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_non_core_file_threat() {
+		if ( ! $this->write_file( $this->threats['non_core_file'], "<?php echo 'I am a bad file'; ?>" ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat file {$this->threats['non_core_file']}" );
+		}
+
+		return "Successfully added a non-core file {$this->threats['non_core_file']} in a core directory.";
+	}
+
+	/**
+	 * Remove non-core file threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_non_core_file_threat() {
+		$relative_file_path = str_replace( ABSPATH, '', $this->threats['non_core_file'] );
+
+		if ( ! $this->delete_file( $relative_file_path ) ) {
+			return new WP_Error( 'could-not-write', "Unable to remove Non-Core File threat from $relative_fle_path." );
+		}
+
+		return "Successfully removed Non-Core File threat from $relative_file_path.";
+	}
+
+	/**
+	 * Generate post db threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_post_db_threat() {
+		global $wpdb;
+
+		$post_id = $wpdb->get_var( "SELECT ID FROM $wpdb->posts WHERE post_title = 'Scan Tester Post'" );
+
+		if ( $post_id ) {
+			return 'Scan tester post already exists.';
+		}
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Scan Tester Post',
+				'post_content' => 'This will trigger the db scanner <script>let url="' . base64_decode( 'Y2xhc3NpY3RyYWluZXJzb25saW5lLmNvbQ==' ) . '"</script>',
+				'post_status'  => 'publish',
+				'post_type'    => 'post',
+			)
+		);
+
+		if ( ! $post_id || ! is_int( $post_id ) ) {
+			return new WP_Error( 'could-not-write', 'Unable to create post.' );
+		}
+
+		return 'Successfully created a new Scan tester post.';
+	}
+
+	/**
+	 * Remove post db threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_post_db_threat() {
+		global $wpdb;
+
+		$post_id = $wpdb->get_var( "SELECT ID FROM $wpdb->posts WHERE post_title = 'Scan Tester Post'" );
+
+		if ( ! $post_id ) {
+			return 'Scan tester post does not exist.';
+		}
+
+		if ( ! wp_delete_post( $post_id, true ) ) {
+			return new WP_Error( 'could-not-write', 'Unable to remove post.' );
+		}
+
+		return 'Successfully removed the Scan tester post.';
+	}
+
+	/**
+	 * Generate infected file threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_infected_file_threat() {
+		$content = "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;";
+		if ( ! $this->write_file( $this->threats['infected_file'], $content, FILE_APPEND ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat from {$this->threats['infected_file']}" );
+		}
+
+		return "Successfully added infected file threat to {$this->threats['infected_file']}.";
+	}
+
+	/**
+	 * Remove infected file threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_infected_file_threat() {
+		$relative_file_path = str_replace( ABSPATH, '', $this->threats['infected_file'] );
+		$lines              = file( $this->threats['infected_file'] );
+		if ( ! $lines[ count( $lines ) - 1 ] === 'HTML;' ) {
+			return 'Infected file does not exist.';
+		}
+
+		// eliminate the threat by removing the modification
+		array_splice( $lines, count( $lines ) - 3, 3 );
+		if ( ! $this->write_file( $this->threats['infected_file'], implode( '', $lines ) ) ) {
+			return new WP_Error( 'could-not-write', "Unable to remove threat from $relative_file_path." );
+		}
+
+		return "Removed the infected file threat from: $relative_file_path";
+	}
+
+	private function handle_submit() {
+		if ( ! isset( $_POST['save-scan-helper'] ) ) {
+			return;
+		}
+
+		check_admin_referer( 'scan-helper-nonce' );
+
+		$successes = array();
+		$errors    = array();
+
 		// EICAR
-		register_rest_route(
-			'jptt/v1',
-			'/generate-eicar',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => function ( \WP_REST_Request $req ) {
-					// generate a unique filename
-					$dir      = wp_upload_dir()['basedir'];
-					$filepath = "$dir/jptt_eicar.php";
-					$filerel  = str_replace( ABSPATH, '', $filepath );
+		if ( isset( $_POST['threat-eicar'] ) ) {
+			$eicar = $this->generate_eicar_threat();
+		} else {
+			$eicar = $this->remove_eicar_threat();
+		}
+		if ( is_wp_error( $eicar ) ) {
+			$errors[] = $eicar;
+		} else {
+			$successes[] = $eicar;
+		}
 
-					if ( file_exists( $filepath ) ) {
-						$success = $this->delete_file( $filerel );
-						$message = 'Removed the EICAR threat.';
-					} else {
-						// write the EICAR pattern to the file (base64-encoded here so this plugin doesn't get flagged)
-						$success = $this->write_file( $filepath, "<?php\n\necho <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;\n" );
-						// SUSP
-						$success = $this->write_file( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNVU1BJQ0lPVVMtQU5USVZJUlVTLVRFU1QtRklMRSEkSCtIKg==' ) . "\nHTML;\n", FILE_APPEND );
-						// LOW
-						$success = $this->write_file( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLUxPVy1BTlRJVklSVVMtVEVTVC1GSUxFISRIK0gq' ) . "\nHTML;\n", FILE_APPEND );
-						// MED
-						$success = $this->write_file( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLU1FRElVTS1BTlRJVklSVVMtVEVTVC1GSUxFISRIK0gq' ) . "\nHTML;\n", FILE_APPEND );
-						// CRITICAL
-						$success = $this->write_file( $filepath, "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLUNSSVRJQ0FMLUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;\n", FILE_APPEND );
+		// Suspicious Link
+		if ( isset( $_POST['threat-suspicious-link'] ) ) {
+			$suspicious_link = $this->generate_suspicious_link_threat();
+		} else {
+			$suspicious_link = $this->remove_suspicious_link_threat();
+		}
+		if ( is_wp_error( $suspicious_link ) ) {
+			$errors[] = $suspicious_link;
+		} else {
+			$successes[] = $suspicious_link;
+		}
 
-						$message = "Created $filerel.";
-					}
+		// Core File Modification
+		if ( isset( $_POST['threat-core'] ) ) {
+			$core_modification = $this->generate_core_file_modification_threat();
+		} else {
+			$core_modification = $this->remove_core_file_modification_threat();
+		}
+		if ( is_wp_error( $core_modification ) ) {
+			$errors[] = $core_modification;
+		} else {
+			$successes[] = $core_modification;
+		}
 
-					if ( $success !== false ) {
-						return $message;
-					} else {
-						return new WP_Error( 'could-not-write', "Unable to write/remove threat file $filerel" );
-					}
-				},
-				'permission_callback' => '__return_true',
-			)
-		);
-		// SUSPICIOUS LINK
-		register_rest_route(
-			'jptt/v1',
-			'/generate-suspicious-link',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => function ( \WP_REST_Request $req ) {
-					// generate a unique filename
-					$dir      = wp_upload_dir()['basedir'];
-					$filepath = "$dir/jptt_suspicious_link.php";
-					$filerel  = str_replace( ABSPATH, '', $filepath );
+		// Non-Core File
+		if ( isset( $_POST['threat-core-add'] ) ) {
+			$core_add = $this->generate_core_file_modification_threat();
+		} else {
+			$core_add = $this->remove_non_core_file_threat();
+		}
+		if ( is_wp_error( $core_add ) ) {
+			$errors[] = $core_add;
+		} else {
+			$successes[] = $core_add;
+		}
 
-					if ( file_exists( $filepath ) ) {
-						$success = $this->delete_file( $filerel );
-						$message = 'Removed the Suspicious Link threat.';
-					} else {
-						// write the suspicious link
-						$success = $this->write_file( $filepath, "<?php\n \$url = 'https://example.com/akismet-guaranteed-spam/'; \n" );
+		// Post DB
+		if ( isset( $_POST['threat-post'] ) ) {
+			$post_db = $this->generate_post_db_threat();
+		} else {
+			$post_db = $this->remove_post_db_threat();
+		}
+		if ( is_wp_error( $post_db ) ) {
+			$errors[] = $post_db;
+		} else {
+			$successes[] = $post_db;
+		}
 
-						$message = "Created $filerel.";
-					}
+		// Infected File
+		if ( isset( $_POST['threat-infect'] ) ) {
+			$infected_file = $this->generate_infected_file_threat();
+		} else {
+			$infected_file = $this->remove_infected_file_threat();
+		}
+		if ( is_wp_error( $infected_file ) ) {
+			$errors[] = $infected_file;
+		} else {
+			$successes[] = $infected_file;
+		}
 
-					if ( $success !== false ) {
-						return $message;
-					} else {
-						return new WP_Error( 'could-not-write', "Unable to write/remove threat file $filerel" );
-					}
-				},
-				'permission_callback' => '__return_true',
-			)
-		);
-		// CORE FILE MODIFICATION
-		register_rest_route(
-			'jptt/v1',
-			'/generate-core',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => function ( \WP_REST_Request $req ) {
-					$dir      = str_replace( site_url() . '/', ABSPATH, admin_url() );
-					$filepath = $dir . 'index.php';
-					$filerel  = str_replace( ABSPATH, '', $filepath );
-					$lines    = file( $filepath );
-
-					// check if we've already modified this file
-					if ( $lines[ count( $lines ) - 1 ] === 'if ( true === false ) exit();' ) {
-						// eliminate the threat by removing the modification
-						$last = count( $lines ) - 1;
-						unset( $lines[ $last ] );
-						$message = 'Removed the core modification threat.';
-					} else {
-						// add the threat by modifying the file
-						$lines[] = 'if ( true === false ) exit();';
-						$message = "Modified the core file: $filerel";
-					}
-					$fp      = fopen( $filepath, 'w' );
-					$success = fwrite( $fp, implode( '', $lines ) );
-					fclose( $fp );
-
-					if ( $success !== false ) {
-						return $message;
-					} else {
-						return new WP_Error( 'could-not-write', "Unable to write/remove threat from $filerel" );
-					}
-				},
-				'permission_callback' => '__return_true',
-			)
-		);
-		// CORE DIRECTORY ADD FILE
-		register_rest_route(
-			'jptt/v1',
-			'/generate-core-add',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => function ( \WP_REST_Request $req ) {
-					// generate a unique filename
-					$dir      = str_replace( site_url() . '/', ABSPATH, admin_url() );
-					$filepath = $dir . 'non-core-file.php';
-					$filerel  = str_replace( ABSPATH, '', $filepath );
-
-					if ( file_exists( $filepath ) ) {
-						$success = $this->delete_file( $filerel );
-						$message = 'Removed the non-core file from core directory.';
-					} else {
-						// write a innocuous file to
-						$success = $this->write_file( $filepath, "<?php echo 'I am a bad file'; ?>" );
-						$message = "Created non-core file $filerel in a core directory.";
-					}
-
-					if ( $success !== false ) {
-						return $message;
-					} else {
-						return new WP_Error( 'could-not-write', "Unable to write/remove threat file $filerel" );
-					}
-				},
-				'permission_callback' => '__return_true',
-			)
-		);
-		// POST DB
-		register_rest_route(
-			'jptt/v1',
-			'/generate-post',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => function ( \WP_REST_Request $req ) {
-					global $wpdb;
-					$post_id = $wpdb->get_var( "SELECT ID FROM $wpdb->posts WHERE post_title = 'Scan Tester Post'" );
-					if ( $post_id ) {
-						// Scan tester post already exists - remove it
-						$success = wp_delete_post( $post_id, true );
-						$message = 'Removed the Scan tester post.';
-					} else {
-						// Scan tester post does not exist - create it
-						$post_id = wp_insert_post(
-							array(
-								'post_title'   => 'Scan Tester Post',
-								'post_content' => 'This will trigger the db scanner <script>let url="' . base64_decode( 'Y2xhc3NpY3RyYWluZXJzb25saW5lLmNvbQ==' ) . '"</script>',
-								'post_status'  => 'publish',
-								'post_type'    => 'post',
-							)
-						);
-						$success = is_int( $post_id ) && $post_id > 0 ? true : false;
-						$message = 'Created a new Scan tester post.';
-					}
-
-					if ( $success ) {
-						return $message;
-					} else {
-						return new WP_Error( 'could-not-write', 'Unable to create/remove post.' );
-					}
-				},
-				'permission_callback' => '__return_true',
-			)
-		);
-		// INFECTED FILE
-		register_rest_route(
-			'jptt/v1',
-			'/generate-infect',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => function ( \WP_REST_Request $req ) {
-					$dir      = str_replace( site_url() . '/', ABSPATH, content_url() );
-					$filepath = $dir . '/index.php';
-					$filerel  = str_replace( ABSPATH, '', $filepath );
-					$lines    = file( $filepath );
-
-					// check if we've already modified this file
-					if ( $lines[ count( $lines ) - 1 ] === 'HTML;' ) {
-						// eliminate the threat by removing the modification
-						array_splice( $lines, count( $lines ) - 3, 3 );
-						$success = $this->write_file( $filepath, implode( '', $lines ) );
-
-						$message = "Removed the EICAR threat from: $filerel";
-					} else {
-						// add the threat by modifying the file
-						$content = "echo <<<HTML\n" . base64_decode( 'WDVPIVAlQEFQWzRcUFpYNTQoUF4pN0NDKTd9JEVJQ0FSLVNUQU5EQVJELUFOVElWSVJVUy1URVNULUZJTEUhJEgrSCo=' ) . "\nHTML;";
-
-						$success = $this->write_file( $filepath, $content, FILE_APPEND );
-						$message = "Added an EICAR threat to: $filerel";
-					}
-
-					if ( $success !== false ) {
-						return $message;
-					} else {
-						return new WP_Error( 'could-not-write', "Unable to write/remove threat from $filerel" );
-					}
-				},
-				'permission_callback' => '__return_true',
-			)
+		return array(
+			'errors'    => $errors,
+			'successes' => $successes,
 		);
 	}
 
@@ -324,11 +430,24 @@ class Scan_Helper {
 	 * Render the UI.
 	 */
 	public function render_ui() {
+
+		$submission = $this->handle_submit();
+		if ( $submission ) {
+			foreach ( $submission['errors'] as $wp_error ) {
+				foreach ( $wp_error->errors as $error ) {
+					echo $error . '<br>';
+				}
+			}
+			foreach ( $submission['successes'] as $success ) {
+				echo $success . '<br>';
+			}
+		}
+
 		// eicar check
 		$dir   = wp_upload_dir()['basedir'];
-		$eicar = file_exists( "$dir/jptt_eicar.php" ) ? 'checked' : '';
+		$eicar = file_exists( $this->threats['eicar'] ) ? 'checked="checked"' : '';
 		// suspciious link check
-		$suspicious_link = file_exists( "$dir/jptt_suspicious_link.php" ) ? 'checked' : '';
+		$suspicious_link = file_exists( $this->threats['suspicious_link'] ) ? 'checked="checked"' : '';
 
 		// core modification check
 		$dir      = str_replace( site_url() . '/', ABSPATH, admin_url() );
@@ -347,105 +466,75 @@ class Scan_Helper {
 		$lines  = file( "$dir/index.php" );
 		$infect = $lines[ count( $lines ) - 1 ] === 'HTML;' ? 'checked' : '';
 
-		$ajax_nonce = wp_create_nonce( 'wp_rest' );
 		?>
+
+		<h1>Site Threats</h1>
 	
 		<div id="a8cjptt-alert" class="a8cjptt-alert"><strong>Notifications</strong></div>
 
-		<?php echo request_filesystem_credentials( 'admin.php?page=scan-helper', false, false, null ); ?>
-	
-		<div class="wrap">
-			<ul class="a8cjptt-threats">
-				<li>
-					EICAR Threat
-					<label class="a8cjptt-switch">
-						<input id="threat-eicar" type="checkbox" <?php echo esc_attr( $eicar ); ?>>
-						<span class="a8cjptt-slider round"></span>
-					</label>
-					<p>Add/Remove five EICAR threats (one for every severity) to a new file in the WordPress <code>uploads</code> folder.</p>
-				</li>
-				<li>
-					Suspicious Link
-					<label class="a8cjptt-switch">
-						<input id="threat-suspicious-link" type="checkbox" <?php echo esc_attr( $suspicious_link ); ?>>
-						<span class="a8cjptt-slider round"></span>
-					</label>
-					<p>Add/Remove a link that will be flagged by Akismet to a new file in the Wordpress <code>uploads</code> folder.</p>
-				</li>
-				<li>
-					Core File Modification Threat
-					<label class="a8cjptt-switch">
-						<input id="threat-core" type="checkbox" <?php echo esc_attr( $core_mod ); ?>>
-						<span class="a8cjptt-slider round"></span>
-					</label>
-					<p>Add/Remove a Core File Modification threat in the WordPress <code>wp-admin</code> folder.</p>
-				</li>
-				<li>
-					Add a Non-Core File to Core Directory
-					<label class="a8cjptt-switch">
-						<input id="threat-core-add" type="checkbox" <?php echo esc_attr( $core_add ); ?>>
-						<span class="a8cjptt-slider round"></span>
-					</label>
-					<p>Add/Remove a file to the <code>wp-admin</code> core directory.</p>
-				</li>
-				<li>
-					Post DB Threat
-					<label class="a8cjptt-switch">
-						<input id="threat-post" type="checkbox" <?php echo esc_attr( $post_db ); ?>>
-						<span class="a8cjptt-slider round"></span>
-					</label>
-					<p>Add/Remove a blog post containing data that will trigger a DB scan.</p>
-				</li>
-				<li>
-					Infect a File Threat
-					<label class="a8cjptt-switch">
-						<input id="threat-infect" type="checkbox" <?php echo esc_attr( $infect ); ?>>
-						<span class="a8cjptt-slider round"></span>
-					</label>
-					<p>Add/Remove an EICAR threat to an existing file in the WordPress <code>contents</code> folder.</p>
-				</li>
-			</ul>
-		</div>
-	
-		<script type="text/javascript">
-		jQuery.ajaxSetup( { headers: { 'X-WP-Nonce': '<?php echo esc_attr( $ajax_nonce ); ?>' } } );
-		jQuery( document ).ready( function ( $ ) {
-	
-			function sendRequest( $cmd ) {
-				$.post(
-					'<?php echo esc_attr( rest_url() ); ?>jptt/v1/' + $cmd,
-					{ action: 'generate' }
-				).then(
-					// success
-					function( message ) {
-						$( '#a8cjptt-alert' )
-							.removeClass( 'a8cjptt-danger' )
-							.addClass( 'a8cjptt-success' )
-							.text( message );
-					},
-					// error
-					function( response ) {
-						$( '#a8cjptt-alert' )
-							.removeClass( 'a8cjptt-success' )
-							.addClass( 'a8cjptt-danger' )
-							.text( response.responseJSON.message );
-					}
-				);
-			}
-	
-			$( '#threat-eicar' ).on( 'click', () => sendRequest( 'generate-eicar' ) );
-	
-			$( '#threat-suspicious-link' ).on( 'click', () => sendRequest( 'generate-suspicious-link' ) );
-	
-			$( '#threat-core' ).on( 'click', () => sendRequest( 'generate-core' ) );
-	
-			$( '#threat-core-add' ).on( 'click', () => sendRequest( 'generate-core-add' ) );
-	
-			$( '#threat-post' ).on( 'click', () => sendRequest( 'generate-post' ) );
-	
-			$( '#threat-infect' ).on( 'click', () => sendRequest( 'generate-infect' ) );
-		} );
-		</script>
+		<form method="post" class="a8cjptt-threats">
+			
+			<?php wp_nonce_field( 'scan-helper-nonce' ); ?>
+
+			<div>
+				<label for="threat-eicar">
+					<input type="checkbox" name="threat-eicar" id="threat-eicar" <?php echo $eicar; ?>> 
+					<strong>EICAR Threat</strong>
+					<br>
+					Add/Remove five EICAR threats (one for every severity) to a new file in the WordPress <code>uploads</code> folder.
+				</label>
+			</div>
+
+			<div>
+				<label for="threat-suspicious-link">
+					<input type="checkbox" name="threat-suspicious-link" id="threat-suspicious-link" <?php echo $suspicious_link; ?>> 
+					<strong>Suspicious Link</strong>
+					<br>
+					Add/Remove a link that will be flagged by Akismet to a new file in the Wordpress <code>uploads</code> folder.
+				</label>
+			</div>
+
+			<div>
+				<label for="threat-core">
+					<input type="checkbox" name="threat-core" id="threat-core" <?php echo $core_mod; ?>> 
+					<strong>Core File Modification Threat</strong>
+					<br>
+					Add/Remove a Core File Modification threat in the WordPress <code>wp-admin</code> folder.
+				</label>
+			</div>
+
+			<div>
+				<label for="threat-core-add">
+					<input type="checkbox" name="threat-core-add" id="threat-core-add" <?php echo $core_add; ?>> 
+					<strong>Add a Non-Core File to Core Directory</strong>
+					<br>
+					Add/Remove a file to the <code>wp-admin</code> core directory.
+				</label>
+			</div>
+
+			<div>
+				<label for="threat-post">
+					<input type="checkbox" name="threat-post" id="threat-post" <?php echo $post_db; ?>> 
+					<strong>Post DB Threat</strong>
+					<br>
+					Add/Remove a blog post containing data that will trigger a DB scan.
+				</label>
+			</div>
+
+			<div>
+				<label for="threat-infect">
+					<input type="checkbox" name="threat-infect" id="threat-infect" <?php echo $infect; ?>> 
+					<strong>Infect a File Threat</strong>
+					<br>
+					Add/Remove an EICAR threat to an existing file in the WordPress <code>contents</code> folder.
+				</label>
+			</div>
+
+			<div>
+				<input type="submit" name="save-scan-helper" value="Update Site Threats" class="button button-primary">
+			</div>
+
+		</form>
 		<?php
 	}
 }
