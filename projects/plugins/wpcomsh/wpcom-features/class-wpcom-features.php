@@ -251,6 +251,7 @@ class WPCOM_Features {
 	public const SOCIAL_SHARES_1000            = 'social-shares-1000';
 	public const SPACE                         = 'space';
 	public const SPACE_UPGRADED_STORAGE        = 'space-upgraded-storage';
+	public const SSH                           = 'ssh';
 	public const SUPPORT                       = 'support';
 	public const UPGRADED_UPLOAD_FILETYPES     = 'upgraded_upload_filetypes';
 	public const UPLOAD_AUDIO_FILES            = 'upload-audio-files';
@@ -669,6 +670,10 @@ class WPCOM_Features {
 		self::SFTP                          => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+
+		self::SSH                           => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::SIMPLE_PAYMENTS               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
