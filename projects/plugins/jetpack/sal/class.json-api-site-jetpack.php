@@ -208,6 +208,17 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
+	 * Returns VideoPress storage used, in MB.
+	 *
+	 * @see class.json-api-site-jetpack-shadow.php on WordPress.com for implementation. Only applicable on WordPress.com.
+	 *
+	 * @return float
+	 */
+	public function get_videopress_storage_used() {
+		return 0;
+	}
+
+	/**
 	 * Sets the upgraded_filetypes_enabled Jetpack option to true as a default.
 	 *
 	 * Only relevant for WordPress.com sites:

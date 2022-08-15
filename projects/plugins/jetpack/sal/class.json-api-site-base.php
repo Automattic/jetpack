@@ -1325,7 +1325,9 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Whether a site has Vertical ID (used for Starter Templates) - default false, and only applicable on WordPress.com.
+	 * Whether a site has Vertical ID (used for Starter Templates) - default to only applicable on WordPress.com
+	 *
+	 * @see /wpcom/public.api/rest/sal/class.json-api-site-wpcom.php
 	 *
 	 * @return false
 	 */
@@ -1334,7 +1336,7 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Whether a site has a 'site_creation_flow' option set (eg gutenboarding, mobile) - only applicable on WordPress.com.
+	 * Whether a site has a 'site_creation_flow' option set (eg gutenboarding, mobile) - only applicable on WordPress.com
 	 *
 	 * @see /wpcom-json-endpoints/class.wpcom-json-api-new-site-endpoint.php for more on the option.
 	 *
@@ -1354,7 +1356,7 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Return true if the site design was created with a Blank Canvas (empty homepage template), false otherwise. Only applicable on WordPress.com.
+	 * Return true if the site design was created with a Blank Canvas (empty homepage template), false otherwise.
 	 *
 	 * @return bool
 	 */
