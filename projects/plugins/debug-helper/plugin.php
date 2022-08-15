@@ -84,6 +84,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'Jetpack Protect Helper',
 		'description' => 'Allows you to force different results for the Jetpack Protect plugin to make it easier to develop it.',
 	),
+	'scan-helper'        => array(
+		'file'        => 'class-scan-helper.php',
+		'name'        => 'Jetpack Scan Helper',
+		'description' => '',
+	),
 );
 
 require_once __DIR__ . '/class-admin.php';
