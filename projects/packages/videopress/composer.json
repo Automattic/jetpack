@@ -29,11 +29,11 @@
 		],
 		"build-production": [
 			"pnpm run build",
-			"pnpm run build:client"
+			"pnpm run build-client"
 		],
 		"build-development": [
 			"pnpm run build",
-			"pnpm run build:client"
+			"pnpm run build-client"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",

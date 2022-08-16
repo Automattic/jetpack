@@ -15,12 +15,10 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build:client": "NODE_PATH=\"$PWD/node_modules\" webpack",
-		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "NODE_PATH=\"$PWD/node_modules\" webpack",
 		"clean": "rm -rf build/",
-		"watch": "pnpm build && pnpm build:client --watch"
+		"watch": "pnpm build && pnpm build-client --watch"
 	},
 	"devDependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",
