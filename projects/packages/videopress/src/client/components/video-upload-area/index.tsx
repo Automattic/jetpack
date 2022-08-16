@@ -3,7 +3,7 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, cloudUpload } from '@wordpress/icons';
 import classnames from 'classnames';
-import { DragEvent, useCallback, useState } from 'react';
+import { DragEvent, useCallback, useState, useRef, useEffect } from 'react';
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
 import type React from 'react';
@@ -21,21 +21,18 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( {
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ isDraggingOver, setIsDraggingOver ] = useState( false );
+	const inputRef = useRef( null );
+
+	const handleFileInputChangeEvent = useCallback( ( e: Event ) => {
+		const target = e.target as HTMLInputElement;
+		onSelectFile( target.files[ 0 ] );
+	} );
 
 	const handleClickEvent = useCallback( () => {
-		const input = document.createElement( 'input' );
-		input.type = 'file';
+		inputRef.current.click();
+	}, [] );
 
-		input.addEventListener( 'change', ( e: Event ) => {
-			const target = e.target as HTMLInputElement;
-			onSelectFile( target.files[ 0 ] );
-			input.remove();
-		} );
-
-		input.click();
-	}, [ onSelectFile ] );
-
-	const handleDragOverEvent = useCallback( ( event: DragEvent< HTMLDivElement > ) => {
+	const handleDragOverEvent = useCallback( ( event: DragEvent< HTMLInputElement > ) => {
 		event.preventDefault();
 		setIsDraggingOver( true );
 	}, [] );
@@ -45,8 +42,9 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( {
 	}, [] );
 
 	const handleDropEvent = useCallback(
-		( event: DragEvent< HTMLDivElement > ) => {
+		( event: DragEvent< HTMLInputElement > ) => {
 			event.preventDefault();
+			setIsDraggingOver( false );
 
 			const { files } = event.dataTransfer;
 			if ( files.length > 1 ) {
@@ -54,48 +52,56 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( {
 			}
 
 			onSelectFile( files[ 0 ] );
-			setIsDraggingOver( false );
 		},
 		[ onSelectFile ]
 	);
 
-	return isLoading ? (
-		<div className={ classnames( styles.wrapper, className, { [ styles.small ]: isSm } ) }>
-			<div className={ classnames( styles.row, styles.loader ) }>
-				<Spinner></Spinner>
-			</div>
-			<div className={ classnames( styles.row ) }>
-				<Text variant="title-small">{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</Text>
-			</div>
-		</div>
-	) : (
+	useEffect( () => {
+		if ( isLoading ) {
+			setIsDraggingOver( false );
+		}
+	}, [ isLoading ] );
+
+	return (
 		<div
 			className={ classnames( styles.wrapper, className, {
 				[ styles.small ]: isSm,
 				[ styles.hover ]: isDraggingOver,
 			} ) }
-			onDrop={ handleDropEvent }
-			onDragOver={ handleDragOverEvent }
-			onDragLeave={ handleDragLeaveEvent }
+			{ ...( ! isLoading && {
+				onDrop: handleDropEvent,
+				onDragOver: handleDragOverEvent,
+				onDragLeave: handleDragLeaveEvent,
+			} ) }
 		>
-			<div className={ classnames( styles.row ) }>
-				<Icon icon={ cloudUpload } size={ 48 } className={ classnames( styles.icon ) }></Icon>
-			</div>
-			<div className={ classnames( styles.row ) }>
-				<Text variant="title-small">
-					{ __( 'Drag and drop your video here', 'jetpack-videopress-pkg' ) }
-				</Text>
-			</div>
-			<div className={ classnames( styles.row ) }>
-				<Button
-					variant="secondary"
-					className={ classnames( styles.button ) }
-					onClick={ handleClickEvent }
-					disabled={ isDraggingOver }
-				>
-					{ __( 'Select file to upload', 'jetpack-videopress-pkg' ) }
-				</Button>
-			</div>
+			{ isLoading ? (
+				<>
+					<Spinner className={ classnames( styles.loader ) } />
+					<Text variant="title-small">{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</Text>
+				</>
+			) : (
+				<>
+					<input
+						ref={ inputRef }
+						type="file"
+						className={ classnames( styles[ 'file-input' ] ) }
+						onChange={ handleFileInputChangeEvent }
+					/>
+					<Icon icon={ cloudUpload } size={ 48 } className={ classnames( styles.icon ) } />
+					<Text variant="title-small">
+						{ __( 'Drag and drop your video here', 'jetpack-videopress-pkg' ) }
+					</Text>
+					<Button
+						size="small"
+						variant="secondary"
+						className={ classnames( styles.button ) }
+						onClick={ handleClickEvent }
+						disabled={ isDraggingOver }
+					>
+						{ __( 'Select file to upload', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</>
+			) }
 		</div>
 	);
 };

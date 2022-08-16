@@ -1,32 +1,34 @@
 .wrapper {
-	max-width: 552px;
-	width: 100%;
-	border-radius: var(--jp-border-radius);
-	border: 1px dashed var(--jp-gray-20);
-	background-color: var(--jp-gray-0);
-	padding: 48px 0 64px;
+	height: 250px;
+	border-radius: var( --jp-border-radius );
+	border: 1px dashed var( --jp-gray-20 );
+	background-color: var( --jp-gray-0 );
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
 
 	.button {
-		background: var(--jp-white);
-		padding: 4px 8px;
-		font-size: var(--font-body-extra-small);
+		margin-bottom: calc( var( --spacing-base ) * 2 ); // 16px;
 	}
 
 	&.small {
-		max-width: 358px;
-		padding: 19px 0 44px;
+		height: 200px;
+
+		.button {
+			margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px;
+		}
 	}
 }
 
-.hover {
-	background-color: var(--jp-gray-5);
-	transition: all 0.1s linear;
+.file-input {
+	display: none;
+}
 
-	.button:disabled {
-		background-color: #E7E7E8;
-		color: #9A9A9B;
-		box-shadow: inset 0 0 0 1px #9A9A9B;
-	}
+.hover {
+	background-color: var( --jp-gray-5 );
+	transition: all 0.1s linear;
 
 	// Avoiding drag events on children
 	* {
@@ -35,24 +37,16 @@
 }
 
 .icon {
-	fill: var(--jp-green-50);
-}
-
-.row {
-	display: flex;
-	justify-content: center;
-
-	& +.row {
-		margin-top: 16px;
-	}
+	fill: var( --jp-green-50 );
+	flex-shrink: 0;
 }
 
 // Spinner customization
-.loader svg {
+svg.loader {
 	height: 24px;
 	width: 24px;
 	margin: 4px;
-	color: var(--jp-green-50);
+	color: var( --jp-green-50 );
 
 	circle {
 		stroke: transparent;
