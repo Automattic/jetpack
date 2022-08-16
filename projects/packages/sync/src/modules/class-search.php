@@ -1005,6 +1005,7 @@ class Search extends Module {
 		'pa_zout-water-geschikt',
 		'product',
 		'product-category',
+		'product-brand',
 		'product_brand',
 		'product_delivery_time',
 		'product_delivery_times',
