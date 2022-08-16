@@ -435,9 +435,9 @@ export function search( options, requestId ) {
 	} )
 		.then( response => {
 			if ( response.status !== 200 ) {
-				return Promise.reject(
-					`Unexpected response from API with status code ${ response.status }.`
-				);
+				return response.json().then( json => {
+					throw new Error( json.error );
+				} );
 			}
 			return response;
 		} )
