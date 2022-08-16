@@ -27,31 +27,115 @@ async function isWorkflowFailed( token ) {
 }
 
 /**
- * Creates the notification message text
+ * Returns na object with notification data.
+ * Properties: `text` for notification's text and `id` for a unique identifier for the message
+ * that can be used later on to find this message and update it or send replies.
  *
  * @param {boolean} isFailure - whether the workflow is failed or not
  */
-async function getNotificationText( isFailure ) {
+async function getNotificationData( isFailure ) {
 	const {
-		context: { eventName, sha, ref_type, ref_name, payload },
+		context: { eventName, sha, ref_type, ref_name, payload, runId },
 	} = github;
 	let event = sha;
+	let msgId;
+	const contextElements = [];
+	const buttons = [];
+	const style = isFailure ? 'danger' : 'primary';
 
 	if ( eventName === 'pull_request' ) {
 		const { html_url, number, title } = payload.pull_request;
 		event = `PR <${ html_url }|${ number }: ${ title }>`;
+		msgId = `pr-${ number }`;
+		contextElements.push( {
+			type: 'plain_text',
+			text: 'Author: ',
+			emoji: false,
+		} );
 	}
 
 	if ( eventName === 'push' ) {
-		const { url, id } = payload.head_commit;
-		event = `commit <${ url }|${ id }> on ${ ref_type } *${ ref_name }*`;
+		const { url, id, author, message } = payload.head_commit;
+		event = `on ${ ref_type } *${ ref_name }*`;
+		msgId = `commit-${ id }`;
+
+		contextElements.push(
+			{
+				type: 'plain_text',
+				text: `Last run id: ${ runId }`,
+				emoji: false,
+			},
+			{
+				type: 'plain_text',
+				text: `Commit: ${ id } | ${ message }`,
+				emoji: false,
+			},
+			{
+				type: 'plain_text',
+				text: `Author: ${ author.name }`,
+				emoji: false,
+			}
+		);
+
+		buttons.push(
+			{
+				type: 'button',
+				text: {
+					type: 'plain_text',
+					text: `Last run`,
+				},
+				url: 'https://github.com',
+				style,
+			},
+			{
+				type: 'button',
+				text: {
+					type: 'plain_text',
+					text: `Commit ${ id.substring( 0, 8 ) }`,
+				},
+				url,
+				style,
+			}
+		);
 	}
 
 	if ( eventName === 'schedule' ) {
 		event = `scheduled run on ${ ref_type } *${ ref_name }*`;
+		// we return a timestamp because we don't ever want to group messages with schedule event
+		// this way, we'll never be able to compute this same id later and cannot find this message
+		msgId = `sched-${ Date.now() }`;
 	}
 
-	return `Tests ${ isFailure ? 'failed' : 'passed' } for ${ event }`;
+	const text = `Tests ${ isFailure ? 'failed' : 'passed' } for ${ event }`;
+	const mainMsgBlocks = [
+		{
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text,
+			},
+		},
+		{
+			type: 'context',
+			elements: contextElements,
+		},
+		{
+			type: 'actions',
+			elements: buttons,
+		},
+	];
+
+	const detailsMsgBlocks = [
+		{
+			type: 'section',
+			text: {
+				type: 'mrkdwn',
+				text: `New ${ isFailure ? 'failed' : 'passed' } tests in run ${ runId }`,
+			},
+		},
+	];
+
+	return { text, id: msgId, mainMsgBlocks, detailsMsgBlocks };
 }
 
 /**
@@ -63,6 +147,7 @@ async function getNotificationText( isFailure ) {
  * @returns {Promise<*|null>} the message Object
  */
 async function getMessage( client, channelId, identifier ) {
+	console.log( `Looking for ${ identifier }` );
 	let message;
 	// Get the messages in the channel. It only returns parent messages in case of threads.
 	// If the message has a `thread_ts` defined we have a thread
@@ -78,7 +163,8 @@ async function getMessage( client, channelId, identifier ) {
 		message = result.messages.filter( m => m.text.includes( identifier ) )[ 0 ];
 	}
 
+	console.log( `Found ${ message }` );
 	return message;
 }
 
-module.exports = { isWorkflowFailed, getNotificationText, getMessage };
+module.exports = { isWorkflowFailed, getNotificationData, getMessage };

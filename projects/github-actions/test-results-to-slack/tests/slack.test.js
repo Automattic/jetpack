@@ -25,12 +25,15 @@ describe( 'Notification is sent', () => {
 		const utils = require( '../src/utils' );
 		jest.spyOn( utils, 'isWorkflowFailed' ).mockImplementation().mockReturnValueOnce( true );
 
+		// Mock existing message
+		jest.spyOn( utils, 'getMessage' ).mockImplementation().mockReturnValueOnce( undefined );
+
 		// Mock notification text
-		const expectedText = 'This is the message text';
+		const expectedData = { text: 'This is the message text', id: 'expected-id' };
 		jest
-			.spyOn( utils, 'getNotificationText' )
+			.spyOn( utils, 'getNotificationData' )
 			.mockImplementation()
-			.mockReturnValueOnce( expectedText );
+			.mockReturnValueOnce( expectedData );
 
 		// Run the action
 		const action = await require( '../src/index' );
@@ -39,7 +42,7 @@ describe( 'Notification is sent', () => {
 		// Expect that Slack client gets called with the right arguments
 		await expect( client.chat.postMessage ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				text: expectedText,
+				text: expectedData.text,
 				channel: slackChannel,
 				username: slackUsername,
 				icon_emoji: ':red_circle:',
