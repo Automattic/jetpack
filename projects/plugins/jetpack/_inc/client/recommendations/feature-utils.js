@@ -164,7 +164,7 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 	}
 };
 
-export const getStepContent = ( state, stepSlug ) => {
+export const getStepContent = stepSlug => {
 	switch ( stepSlug ) {
 		case 'boost':
 			return {

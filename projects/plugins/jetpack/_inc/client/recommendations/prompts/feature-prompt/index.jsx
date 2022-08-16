@@ -39,6 +39,8 @@ const FeaturePromptComponent = props => {
 		ctaText,
 		description,
 		descriptionLink,
+		descriptionList,
+		descriptionSecondary,
 		illustration,
 		nextRoute,
 		progressValue,
@@ -135,6 +137,22 @@ const FeaturePromptComponent = props => {
 				strong: <strong />,
 				ExternalLink: <ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />,
 			} ) }
+			content={
+				descriptionList || descriptionSecondary ? (
+					<React.Fragment>
+						{ descriptionList && (
+							<ul className="jp-recommendations-question__description-list">
+								{ descriptionList.map( item => (
+									<li>{ item }</li>
+								) ) }
+							</ul>
+						) }
+						{ descriptionSecondary && (
+							<p className="jp-recommendations-question__description">{ descriptionSecondary }</p>
+						) }
+					</React.Fragment>
+				) : null
+			}
 			answer={
 				<div className="jp-recommendations-question__install-section">
 					{ featureActive ? (
@@ -193,7 +211,7 @@ const FeaturePromptComponent = props => {
 const FeaturePrompt = connect(
 	( state, ownProps ) => ( {
 		nextRoute: getNextRoute( state ),
-		...getStepContent( state, ownProps.stepSlug ),
+		...getStepContent( ownProps.stepSlug ),
 		...mapStateToSummaryFeatureProps( state, ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
