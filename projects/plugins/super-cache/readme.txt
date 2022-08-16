@@ -269,12 +269,11 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 == Changelog ==
 ### 1.8 - 2022-08-16
-#### Added
-- Added WP Super cache to the repo.
-- PHP 8 Support: Ensure the expected value for the $auto_release in sem_get is used.
-
-#### Fixed
-- Fixed the display issue with the survey link
+- Added PHP 8 Support
+- Added a link to give feedback on WP Super Cache
+- Added information on Jetpack Boost 
+- Fixed jQuery deprecated notice
+- Fixed replacing dirname(__FILE__) with __DIR__
 - Updated readme.txt, changelog.md and the composer slug.
 
 --------
