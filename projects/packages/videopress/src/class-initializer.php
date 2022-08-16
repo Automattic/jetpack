@@ -77,4 +77,13 @@ class Initializer {
 		// This is needed as it's not supported in oEmbed discovery
 		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/?for=' . $host, true ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 	}
+
+	/**
+	 * Register the VideoPress block editor block
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_block() {
+		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
+	}
 }

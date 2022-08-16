@@ -1,0 +1,67 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.wp-block-jetpack-videopress {
+	position: relative;
+
+	.jetpack-videopress-player {
+		margin: 0;
+	}
+
+	&.is-updating-preview {
+		opacity: 0.5; // @todo: consider improve this state in the UI
+	}
+
+	.jetpack-videopress-player__overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: transparent;
+		z-index: 2;
+	}
+
+	.jetpack-videopress-player__wrapper {
+		iframe.components-sandbox {
+			position: relative;
+			z-index: 1;
+		}
+
+		.jetpack-videopress-player__loading {
+			object-fit: cover;			
+			position: absolute;
+			z-index: 0;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: 13px;
+			animation-name: fadeIn;
+			animation-duration: 0.5s;
+			animation-direction: alternate;
+			animation-iteration-count: infinite;
+		}
+	}
+}
+
+.is-videopress-placeholder {
+	.components-notice {
+		padding-right: 12px;
+
+		.components-notice__dismiss {
+			align-self: center;
+		}
+	}
+
+	.components-placeholder__fieldset {
+		min-height: 82px;
+	}
+}
+
+@keyframes fadeIn {
+    from { opacity: 0.2; }
+    to   { opacity: 0.8; }
+}
