@@ -39,10 +39,18 @@ async function getNotificationText( isFailure ) {
 		const { html_url, number, title } = github.context.payload.pull_request;
 		event = `PR <${ html_url }|${ number }: ${ title }>`;
 	}
-	if ( github.context.eventName === 'push' || github.context.eventName === 'schedule' ) {
+
+	if ( github.context.eventName === 'push' ) {
 		const { url, id } = github.context.payload.head_commit;
-		event = `commit <${ url }|${ id }> on branch *${ github.context.ref.substring( 11 ) }*`;
+		const { ref_type, ref_name } = github.context;
+		event = `commit <${ url }|${ id }> on ${ ref_type } *${ ref_name }*`;
 	}
+
+	if ( github.context.eventName === 'schedule' ) {
+		const { ref_type, ref_name } = github.context;
+		event = `scheduled run on ${ ref_type } *${ ref_name }*`;
+	}
+
 	return `Tests ${ isFailure ? 'failed' : 'passed' } for ${ event }`;
 }
 
