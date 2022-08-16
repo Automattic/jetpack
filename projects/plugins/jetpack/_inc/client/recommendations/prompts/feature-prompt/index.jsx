@@ -142,8 +142,8 @@ const FeaturePromptComponent = props => {
 					<React.Fragment>
 						{ descriptionList && (
 							<ul className="jp-recommendations-question__description-list">
-								{ descriptionList.map( item => (
-									<li>{ item }</li>
+								{ descriptionList.map( ( item, index ) => (
+									<li key={ index }>{ item }</li>
 								) ) }
 							</ul>
 						) }
