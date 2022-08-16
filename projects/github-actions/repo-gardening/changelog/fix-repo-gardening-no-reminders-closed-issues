@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Gather Support References: avoid sending reminders for closed issues.
