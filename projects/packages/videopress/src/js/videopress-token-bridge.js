@@ -1,6 +1,6 @@
 ( function () {
 	window.addEventListener( 'message', function ( event ) {
-		var allowed_origins = [ 'https://videopress.com', 'https://video.wordpress.com' ];
+		const allowed_origins = [ 'https://videopress.com', 'https://video.wordpress.com' ];
 		if ( -1 === allowed_origins.indexOf( event.origin ) ) {
 			return;
 		}
@@ -13,7 +13,7 @@
 			return;
 		}
 
-		var fetchData = {
+		const fetchData = {
 			action: 'videopress-get-playback-jwt',
 			guid: event.data.guid,
 			post_id: window.videopressAjax.post_id || 0,

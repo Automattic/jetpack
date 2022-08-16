@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed missing import for recent VideoPress namespace changes

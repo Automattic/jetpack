@@ -52,8 +52,11 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		// If we're in the admin_area, return without inserting code.
-		if ( is_admin() ) {
+		// If we're in the admin_area or DNT is honored and enabled, return without inserting code.
+		if (
+			is_admin()
+			|| Jetpack_Google_Analytics_Utils::is_dnt_enabled()
+		) {
 			return;
 		}
 
