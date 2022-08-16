@@ -948,8 +948,10 @@ class Search_Widget extends \WP_Widget {
 		$args['name_placeholder'] = Helper::generate_widget_filter_name( $args );
 
 		// Hide author filter when Instant Search is turned off.
-		if ( $is_instant_search || 'author' !== $args['type'] ) :
-			?>
+		if ( ! $is_instant_search && 'author' === $args['type'] ) :
+			return;
+		endif;
+		?>
 		<div class="jetpack-search-filters-widget__filter is-<?php $this->render_widget_attr( 'type', $args['type'], $is_template ); ?>">
 			<p class="jetpack-search-filters-widget__type-select">
 				<label>
@@ -1068,7 +1070,6 @@ class Search_Widget extends \WP_Widget {
 			</p>
 		</div>
 			<?php
-		endif;
 	}
 
 	/**
