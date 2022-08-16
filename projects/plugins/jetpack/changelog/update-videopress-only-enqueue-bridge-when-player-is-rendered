@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Only add the VideoPress bridge script when a VideoPress player will be rendered on the page.
+VideoPress: ensure that the player's resources are only loaded when necessary, when a video was added to the page.
