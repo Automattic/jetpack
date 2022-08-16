@@ -13,6 +13,24 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Jetpack_Admin_Menu.
  */
 class Jetpack_Admin_Menu extends Admin_Menu {
+
+	/**
+	 * Returns an array with the CPT menu items different form post and page types.
+	 *
+	 * @param array $menu The menu array to filter from.
+	 * @return array The filtered menu array.
+	 */
+	private function filter_cpt_menu_items( $menu ) {
+		$exclude_slugs = array( 'menu-posts', 'menu-pages' );
+		return array_filter(
+			$menu,
+			function ( $item ) use ( $exclude_slugs ) {
+				$is_edit_post_type = strpos( $item[2], 'edit.php?post_type=' ) === 0;
+				return $is_edit_post_type && ! in_array( $item[5], $exclude_slugs, true );
+			}
+		);
+	}
+
 	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
@@ -29,8 +47,8 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		global $menu, $submenu;
 
-		// Reset menus so there are no third-party plugin items.
-		$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		// Reset menus so there are no third-party plugin items, except CPTs.
+		$menu    = $this->filter_cpt_menu_items( $menu ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		parent::reregister_menu_items();
