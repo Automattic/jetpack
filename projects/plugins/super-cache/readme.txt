@@ -268,10 +268,14 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
+### 1.8 - 2022-08-16
+#### Added
+- Added WP Super cache to the repo.
+- PHP 8 Support: Ensure the expected value for the $auto_release in sem_get is used.
 
-### 1.7.9 ###
-* Fix nonces used by "Delete Cache" button and remove JS from it on the frontend admin bar.
-* Define the constant WPSCDISABLEDELETEBUTTON to disable the "Delete Cache" button in the admin bar.
+#### Fixed
+- Fixed the display issue with the survey link
+- Updated readme.txt, changelog.md and the composer slug.
 
 --------
 
