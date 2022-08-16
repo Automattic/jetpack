@@ -60,10 +60,10 @@ class Jetpack_VideoPress {
 	/**
 	 * Enqueues the jwt bridge script.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.3
 	 */
 	public function enqueue_jwt_token_bridge() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\VideoPress\Jwt_Token_Bridge::enqueue_jwt_token_bridge' );
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Jwt_Token_Bridge::enqueue_jwt_token_bridge' );
 		return Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 	}
 
@@ -149,12 +149,12 @@ class Jetpack_VideoPress {
 	 * @param Boolean $delete if the deletion should occur or not (unused).
 	 * @param WP_Post $post the post object.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.3
 	 *
 	 * @return null|WP_Error|Boolean null if deletion should continue.
 	 */
 	public function delete_video_wpcom( $delete, $post ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\VideoPress\Attachment_Handler::delete_video_wpcom' );
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::delete_video_wpcom' );
 		return Attachment_Handler::delete_video_wpcom( $delete, $post );
 	}
 
@@ -219,13 +219,13 @@ class Jetpack_VideoPress {
 	 *
 	 * This is an attachment-based filter handler.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.3
 	 *
 	 * @param string $default The default return value if post id is not a VideoPress video.
 	 * @param int    $post_id The post id for the current attachment.
 	 */
 	public function maybe_get_attached_url_for_videopress( $default, $post_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\VideoPress\Attachment_Handler::maybe_get_attached_url_for_videopress' );
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::maybe_get_attached_url_for_videopress' );
 		return Attachment_Handler::maybe_get_attached_url_for_videopress( $default, $post_id );
 	}
 
@@ -325,26 +325,26 @@ class Jetpack_VideoPress {
 	/**
 	 * Makes sure that all video mimes are added in, as multi site installs can remove them.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.3
 	 *
 	 * @param array $existing_mimes Mime types to extend/filter.
 	 * @return array
 	 */
 	public function add_video_upload_mimes( $existing_mimes = array() ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\VideoPress\Attachment_Handler::add_video_upload_mimes' );
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::add_video_upload_mimes' );
 		return Attachment_Handler::add_video_upload_mimes( $existing_mimes );
 	}
 
 	/**
 	 * Filter designed to get rid of non video mime types.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.3
 	 *
 	 * @param string $value Mime type to filter.
 	 * @return int
 	 */
 	public function filter_video_mimes( $value ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\VideoPress\Attachment_Handler::filter_video_mimes' );
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::filter_video_mimes' );
 		return Attachment_Handler::filter_video_mimes( $value );
 	}
 
@@ -355,12 +355,12 @@ class Jetpack_VideoPress {
 	 * @param string $mime Mime type.
 	 * @param int    $post_id Post ID.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.3
 	 *
 	 * @return string
 	 */
 	public function wp_mime_type_icon( $icon, $mime, $post_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\VideoPress\Attachment_Handler::wp_mime_type_icon' );
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::wp_mime_type_icon' );
 		return Attachment_Handler::wp_mime_type_icon( $icon, $mime, $post_id );
 	}
 
@@ -369,12 +369,12 @@ class Jetpack_VideoPress {
 	 *
 	 * @param array $extensions Supported video formats.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 11.3
 	 *
 	 * @return array
 	 */
 	public function add_videopress_extenstion( $extensions ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\VideoPress\Attachment_Handler::add_videopress_extenstion' );
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::add_videopress_extenstion' );
 		return Attachment_Handler::add_videopress_extenstion( $extensions );
 	}
 }
