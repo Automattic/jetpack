@@ -1078,7 +1078,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "7d9f6c7a9129485317318079a405f2cf8ab862cc"
+                "reference": "12f9163b993947ccc77df6367455e3ab7c425b3f"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1120,12 +1120,10 @@
                     "@composer phpunit"
                 ],
                 "build-production": [
-                    "pnpm run build",
-                    "pnpm run build-client"
+                    "pnpm run build"
                 ],
                 "build-development": [
-                    "pnpm run build",
-                    "pnpm run build-client"
+                    "pnpm run build"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
