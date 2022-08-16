@@ -274,7 +274,6 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 - Added information on Jetpack Boost 
 - Fixed jQuery deprecated notice
 - Fixed replacing dirname(__FILE__) with __DIR__
-- Updated readme.txt, changelog.md and the composer slug.
 
 --------
 
