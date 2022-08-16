@@ -247,20 +247,17 @@ class Jetpack_Backup {
 			'jetpack/v4',
 			'/site/dismissed-review-request',
 			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_dismissed_backup_review_request',
-					'permission_callback' => __CLASS__ . '::backups_permissions_callback',
-				),
-				array(
-					'methods'             => \WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::set_dismissed_backup_review_request',
-					'permission_callback' => __CLASS__ . '::backups_permissions_callback',
-					'args'                => array(
-						'dismissed_value' => array(
-							'required' => true,
-							'type'     => 'boolean',
-						),
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::manage_dismissed_backup_review_request',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+				'args'                => array(
+					'option_name'    => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+					'should_dismiss' => array(
+						'required' => true,
+						'type'     => 'boolean',
 					),
 				),
 			)
@@ -410,47 +407,31 @@ class Jetpack_Backup {
 			return self::get_failed_fetch_error();
 		}
 
-		// Decode the results.
-		$results = json_decode( $response['body'], true );
-
-		// Bail if there were no results or purchase details returned.
-		if ( ! is_array( $results ) ) {
-			return self::get_failed_fetch_error();
-		}
-
 		return rest_ensure_response(
-			array(
-				'code'    => 'success',
-				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack-backup-pkg' ),
-				'data'    => $results,
-			)
+			json_decode( $response['body'], true )
 		);
-	}
 
-	/**
-	 * Returns the value of the dismissed_backup_review_request Jetack option.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return bool option value.
-	 */
-	public static function get_dismissed_backup_review_request() {
-		return rest_ensure_response(
-			\Jetpack_Options::get_option( 'dismissed_backup_review_request' )
-		);
 	}
 
 	/**
 	 * Set value of the dismissed_backup_review_request Jetack option.
+	 * Get value if should_dismiss is false
 	 *
 	 * @access public
 	 * @static
-	 * @param bool $request used ot update value of the option.
-	 * @return void
+	 * @param array $request arguments should_dismiss and option_name.
+	 * @return bool value of option if value is requested | updated or not if value is updated.
 	 */
-	public static function set_dismissed_backup_review_request( $request ) {
-		\Jetpack_Options::update_option( 'dismissed_backup_review_request', $request['dismissed_value'] );
+	public static function manage_dismissed_backup_review_request( $request ) {
+
+		if ( ! $request['should_dismiss'] ) {
+
+			return rest_ensure_response(
+				\Jetpack_Options::get_option( 'dismissed_backup_review_' . $request['option_name'] )
+			);
+		}
+
+		return \Jetpack_Options::update_option( 'dismissed_backup_review_' . $request['option_name'], true );
 	}
 
 	/**

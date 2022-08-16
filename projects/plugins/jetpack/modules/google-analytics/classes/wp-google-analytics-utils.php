@@ -64,4 +64,31 @@ class Jetpack_Google_Analytics_Utils {
 
 		return $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
 	}
+
+	/**
+	 * Checks if filter is set and dnt is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function is_dnt_enabled() {
+		/**
+		 * Filter the option which decides honor DNT or not.
+		 *
+		 * @module google-analytics
+		 * @since 11.3
+		 *
+		 * @param bool $honor_dnt Honors DNT for clients who don't want to be tracked. Set to true to enable.
+		 */
+		if ( false === apply_filters( 'jetpack_honor_dnt_header_for_wga', Jetpack_Google_Analytics_Options::honor_dnt_is_enabled() ) ) {
+			return false;
+		}
+
+		foreach ( $_SERVER as $name => $value ) {
+			if ( 'http_dnt' === strtolower( $name ) && 1 === (int) $value ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

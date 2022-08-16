@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.1.2
+Stable tag: 11.2
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
@@ -242,20 +242,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.2-beta - 2022-07-26
+### 11.3-a.5 - 2022-08-16
 #### Enhancements
-- Native block inserter: only display blocks under a Jetpack heading if the host app is WordPress.
-- VideoPress Block (beta): add block transforms for the VideoPress block.
+- Payments block: add a new `useWidth` hook to control the width settings of a block.
+- Google Analytics: add support for the DNT sent by the browser.
+- Dashboard: add new card to highlight options available to WordPress agencies.
+
+#### Improved compatibility
+- VideoPress: minify videopress-token-bridge.
+- Notifications: do not attempt to display the Notifications panel when 3rd-party cookies are disabled in the browser.
 
 #### Bug fixes
-- Admin menu: display the translations for the plan name.
-- Comments: avoid PHP Notice when using Jetpack's Comment form feature when your site is no longer properly connected to WordPress.com.
-- Connection: fix Jetpack redirect after registration.
-- Masterbar: ensure that the WordPress.com Add Ons menu item doesn't display on Jetpack-connected sites.
-- Sharing: ensure that sharing buttons are not displayed for excerpts.
-- Slideshow Block: add a bit of CSS to support align wide and align full.
-- Subscribe block: fix support for allowed HTML tags in submit button.
-- VideoPress: avoid PHP notices when inserting videos that miss some metadata.
+- Carousel: resolve a PHP warning when non-attachments are processed.
+- Dashboard: avoid displaying a blank dashboard page for editors when the site owner has an unused license.
+- Calendly block: update the embed options link.
 
 --------
 
