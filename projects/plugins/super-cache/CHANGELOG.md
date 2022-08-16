@@ -7,12 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8] - 2022-08-16
 ### Added
-- Added WP Super cache to the repo.
 - PHP 8 Support: Ensure the expected value for the $auto_release in sem_get is used.
+- Added a link to give feedback on WP Super Cache
+- Added information on Jetpack Boost
 
 ### Fixed
-- Fixed the display issue with the survey link
-- Updated readme.txt, changelog.md and the composer slug.
+- Fixed jQuery deprecated notice
+- Fixed replacing dirname(__FILE__) with __DIR__
 
 ## 1.7.9 - 2022-06-07
 
