@@ -1,0 +1,15 @@
+.notice {
+	color: #757575;
+	margin-bottom: 16px;
+}
+
+.notice--warning {
+	padding: 8px 16px;
+	color: #4f3500;
+	background-color: #f5f1e1;
+	border-left: 2px solid #f0c930;
+
+	a {
+		color: inherit;
+	}
+}

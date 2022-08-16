@@ -101,6 +101,8 @@ class Jetpack_Social {
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
+
+		add_action( 'admin_init', array( $this, 'set_up_sharing_limits' ) );
 	}
 
 	/**
@@ -203,6 +205,8 @@ class Jetpack_Social {
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
 
+		wp_add_inline_script( 'jetpack-social-editor', $this->render_initial_state(), 'before' );
+
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
@@ -278,5 +282,28 @@ class Jetpack_Social {
 	 */
 	public function social_filter_available_modules( $modules ) {
 		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
+	}
+
+	/**
+	 * Set up sharing limits.
+	 */
+	public function set_up_sharing_limits() {
+		global $publicize;
+
+		$info = $publicize->get_publicize_shares_info( \Jetpack_Options::get_option( 'id' ) );
+
+		if ( is_wp_error( $info ) ) {
+			return;
+		}
+
+		if ( empty( $info['is_share_limit_enabled'] ) ) {
+			return;
+		}
+
+		$connections      = $publicize->get_all_connections();
+		$shares_remaining = 1; // @TODO: add this calculated number to the endpoint.
+
+		$share_limits = new Automattic\Jetpack\Social\Share_Limits( $connections, $shares_remaining );
+		$share_limits->enforce_share_limits();
 	}
 }
