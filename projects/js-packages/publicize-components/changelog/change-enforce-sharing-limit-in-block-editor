@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Enforce sharing limits for Jetpack Social in the block editor, if it is enabled for a site.
