@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Added a new `useWidth` hook to control the width settings of a block
