@@ -35,6 +35,7 @@ export default class SearchSort extends Component {
 						{ __( 'Sort:', 'jetpack-search-pkg' ) }
 					</label>
 					<select
+						className="jetpack-instant-search__search-sort-select"
 						id="jetpack-instant-search__search-sort-select"
 						onBlur={ this.handleSelectChange }
 						onChange={ this.handleSelectChange }
