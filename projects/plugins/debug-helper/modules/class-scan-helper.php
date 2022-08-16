@@ -10,6 +10,11 @@
  */
 class Scan_Helper {
 
+	/**
+	 * Associative array that defines which files to use for our threats.
+	 *
+	 * @var array
+	 */
 	private $threats = array();
 
 	/**
@@ -246,7 +251,7 @@ class Scan_Helper {
 			return 'Removed the core modification threat.';
 		}
 
-		return new WP_Error( 'could-not-write', "Unable to write/remove threat from $filerel" );
+		return new WP_Error( 'could-not-write', "Unable to write/remove threat from $this->threats['core_file_modification']" );
 	}
 
 	/**
@@ -271,7 +276,7 @@ class Scan_Helper {
 		$relative_file_path = str_replace( ABSPATH, '', $this->threats['non_core_file'] );
 
 		if ( ! $this->delete_file( $relative_file_path ) ) {
-			return new WP_Error( 'could-not-write', "Unable to remove Non-Core File threat from $relative_fle_path." );
+			return new WP_Error( 'could-not-write', "Unable to remove Non-Core File threat from $relative_file_path." );
 		}
 
 		return "Successfully removed Non-Core File threat from $relative_file_path.";
@@ -363,6 +368,11 @@ class Scan_Helper {
 		return "Removed the infected file threat from: $relative_file_path";
 	}
 
+	/**
+	 * Handles the form submission
+	 *
+	 * @return array Associative array containing all the successes and errors.
+	 */
 	private function handle_submit() {
 		if ( ! isset( $_POST['save-scan-helper'] ) ) {
 			return;
@@ -459,11 +469,11 @@ class Scan_Helper {
 		if ( $submission ) {
 			foreach ( $submission['errors'] as $wp_error ) {
 				foreach ( $wp_error->errors as $error ) {
-					echo $error . '<br>';
+					echo esc_attr( $error ) . '<br>';
 				}
 			}
 			foreach ( $submission['successes'] as $success ) {
-				echo $success . '<br>';
+				echo esc_attr( $success ) . '<br>';
 			}
 		}
 
@@ -502,7 +512,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-eicar">
-					<input type="checkbox" name="threat-eicar" id="threat-eicar" <?php echo $eicar; ?>> 
+					<input type="checkbox" name="threat-eicar" id="threat-eicar" <?php echo esc_attr( $eicar ); ?>> 
 					<strong>EICAR Threat</strong>
 					<br>
 					Add/Remove five EICAR threats (one for every severity) to a new file in the WordPress <code>uploads</code> folder.
@@ -511,7 +521,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-suspicious-link">
-					<input type="checkbox" name="threat-suspicious-link" id="threat-suspicious-link" <?php echo $suspicious_link; ?>> 
+					<input type="checkbox" name="threat-suspicious-link" id="threat-suspicious-link" <?php echo esc_attr( $suspicious_link ); ?>> 
 					<strong>Suspicious Link</strong>
 					<br>
 					Add/Remove a link that will be flagged by Akismet to a new file in the Wordpress <code>uploads</code> folder.
@@ -520,7 +530,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-core">
-					<input type="checkbox" name="threat-core" id="threat-core" <?php echo $core_mod; ?>> 
+					<input type="checkbox" name="threat-core" id="threat-core" <?php echo esc_attr( $core_mod ); ?>> 
 					<strong>Core File Modification Threat</strong>
 					<br>
 					Add/Remove a Core File Modification threat in the WordPress <code>wp-admin</code> folder.
@@ -529,7 +539,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-core-add">
-					<input type="checkbox" name="threat-core-add" id="threat-core-add" <?php echo $core_add; ?>> 
+					<input type="checkbox" name="threat-core-add" id="threat-core-add" <?php echo esc_attr( $core_add ); ?>> 
 					<strong>Add a Non-Core File to Core Directory</strong>
 					<br>
 					Add/Remove a file to the <code>wp-admin</code> core directory.
@@ -538,7 +548,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-post">
-					<input type="checkbox" name="threat-post" id="threat-post" <?php echo $post_db; ?>> 
+					<input type="checkbox" name="threat-post" id="threat-post" <?php echo esc_attr( $post_db ); ?>> 
 					<strong>Post DB Threat</strong>
 					<br>
 					Add/Remove a blog post containing data that will trigger a DB scan.
@@ -547,7 +557,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-infect">
-					<input type="checkbox" name="threat-infect" id="threat-infect" <?php echo $infect; ?>> 
+					<input type="checkbox" name="threat-infect" id="threat-infect" <?php echo esc_attr( $infect ); ?>> 
 					<strong>Infect a File Threat</strong>
 					<br>
 					Add/Remove an EICAR threat to an existing file in the WordPress <code>contents</code> folder.
