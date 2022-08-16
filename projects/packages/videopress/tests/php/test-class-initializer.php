@@ -54,6 +54,12 @@ class InitializerTest extends TestCase {
 				'https://videopress.com/v/GUID',
 			),
 			array(
+				'https://video.wordpress.com/embed/GUID',
+			),
+			array(
+				'https://videopress.com/embed/GUID',
+			),
+			array(
 				'https://v.wordpress.com/GUID1234',
 			),
 		);
