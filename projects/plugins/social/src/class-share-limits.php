@@ -53,11 +53,6 @@ class Share_Limits {
 			return;
 		}
 
-		add_filter(
-			'publicize_checkbox_default',
-			function () {
-				return false;
-			}
-		);
+		add_filter( 'publicize_checkbox_default', '__return_false' );
 	}
 }
