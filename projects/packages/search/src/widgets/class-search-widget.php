@@ -947,7 +947,7 @@ class Search_Widget extends \WP_Widget {
 
 		$args['name_placeholder'] = Helper::generate_widget_filter_name( $args );
 
-		// Hide filter author set from Instant Search widget for Classic Search widget
+		// Hide author filter when Instant Search is turned off.
 		if ( $is_instant_search || 'author' !== $args['type'] ) :
 			?>
 		<div class="jetpack-search-filters-widget__filter is-<?php $this->render_widget_attr( 'type', $args['type'], $is_template ); ?>">

@@ -1309,7 +1309,7 @@ class Classic_Search {
 	/**
 	 * Given an individual author aggregation, add it to the query builder object for use in Elasticsearch.
 	 *
-	 * @since 5.0.0
+	 * @since $$next-version$$
 	 *
 	 * @param array                                        $aggregation The aggregation to add to the query builder.
 	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
@@ -1590,7 +1590,7 @@ class Classic_Search {
 
 						break;
 
-					// The filter `author` is NOT supported in Classic Search. This is used to be compatible for filters in the Footer section with Instant Search.
+					// The `author` filter is NOT supported in Classic Search. This is used to keep the compatibility for filters outside the overlay with Instant Search.
 					case 'author':
 						$name = preg_split( '/\/(.+)/', $item['key'] )[0];
 
