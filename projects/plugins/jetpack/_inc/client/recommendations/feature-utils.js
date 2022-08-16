@@ -162,7 +162,7 @@ export const getStepContent = stepSlug => {
 			return {
 				question: __( 'Be prepared for auto-updates.', 'jetpack' ),
 				description: __(
-					'We noticed that you’ve recently enabled auto-updates for one of your plugins. Nice work, keeping plugins updated is vital for a healthy site! Sometimes auto-updating plugins can cause unexpected changes on your site. Finding an older version of the plugin or learning how to install it to revert the changes can be challenging. Here at Jetpack, we recommend regular backups of your site so you can go back in time with the click of a button.',
+					'We noticed that you’ve recently enabled auto-updates for one of your plugins. Nice work, keeping plugins updated is vital for a healthy site!<br/><br/>Sometimes auto-updating plugins can cause unexpected changes on your site. Finding an older version of the plugin or learning how to install it to revert the changes can be challenging.<br/><br/>Here at Jetpack, we recommend regular backups of your site so you can go back in time with the click of a button.',
 					'jetpack'
 				),
 				ctaText: __( 'Read More', 'jetpack' ),
@@ -344,6 +344,7 @@ export const getProductCardData = ( state, productSlug ) => {
 				productCardCtaText: __( 'Get Jetpack Backup', 'jetpack' ),
 				productCardList: products.backup ? products.backup.features : [],
 				productCardIcon: '/recommendations/cloud-icon.svg',
+				productCardDisclaimer: products.backup ? products.backup.disclaimer : '',
 			};
 		default:
 			throw `Unknown product slug for getProductCardData: ${ productSlug }`;
