@@ -7,23 +7,23 @@ const flatData = ( data, icon ) => {
 		return data.map( plugin => flatData( plugin, icon ) ).flat();
 	}
 
-	return data?.vulnerabilities?.map( vul => ( {
-		...vul,
+	return data?.threats?.map( threat => ( {
+		...threat,
 		...data,
 		icon,
 	} ) );
 };
 
-const mergeAllVuls = ( { core, plugins, themes } ) => [
+const mergeAllThreats = ( { core, plugins, themes } ) => [
 	...flatData( core, wordpress ),
 	...flatData( plugins, pluginsIcon ),
 	...flatData( themes, color ),
 ];
 
-const useVulsList = () => {
+const useThreatsList = () => {
 	const { plugins, themes, core } = useProtectData();
 	const [ item, setItem ] = useState( {} );
-	const [ list, setList ] = useState( mergeAllVuls( { core, plugins, themes } ) );
+	const [ list, setList ] = useState( mergeAllThreats( { core, plugins, themes } ) );
 	const [ selected, setSelected ] = useState( list?.length ? 'all' : null );
 
 	const handleSelected = id => {
@@ -34,7 +34,7 @@ const useVulsList = () => {
 		}
 
 		if ( id === 'all' ) {
-			setList( mergeAllVuls( { core, plugins, themes } ) );
+			setList( mergeAllThreats( { core, plugins, themes } ) );
 			setItem( {} );
 			return;
 		}
@@ -45,7 +45,7 @@ const useVulsList = () => {
 			return;
 		}
 
-		const pluginsItem = plugins.find( vul => vul?.name === id );
+		const pluginsItem = plugins.find( threat => threat?.name === id );
 
 		if ( pluginsItem ) {
 			setList( flatData( pluginsItem, pluginsIcon ) );
@@ -53,7 +53,7 @@ const useVulsList = () => {
 			return;
 		}
 
-		const themesItem = themes.find( vul => vul?.name === id );
+		const themesItem = themes.find( threat => threat?.name === id );
 
 		if ( themesItem ) {
 			setList( flatData( themesItem, color ) );
@@ -70,4 +70,4 @@ const useVulsList = () => {
 	};
 };
 
-export default useVulsList;
+export default useThreatsList;

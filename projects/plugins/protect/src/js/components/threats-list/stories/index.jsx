@@ -1,12 +1,12 @@
 import React from 'react';
-import VulnerabilitiesList from '..';
+import ThreatsList from '..';
 
 export default {
-	title: 'Plugins/Protect/VulnerabilitiesList',
-	component: VulnerabilitiesList,
+	title: 'Plugins/Protect/ThreatsList',
+	component: ThreatsList,
 };
 
-const Template = args => <VulnerabilitiesList { ...args } />;
+const Template = args => <ThreatsList { ...args } />;
 export const Default = Template.bind( {} );
 Default.args = {
 	title: 'Plugins',
@@ -14,29 +14,29 @@ Default.args = {
 		{
 			name: 'Jetpack Backup',
 			version: '1.0.1',
-			vulnerabilities: [
+			threats: [
 				{
 					id: '1fd6742e-1a32-446d-be3d-7cce44f8f416',
-					title: 'Vulnerability Title 1',
-					description: 'Vulnerability Description 1',
+					title: 'Threat Title 1',
+					description: 'Threat Description 1',
 					fixedIn: '1.1.0',
 				},
 				{
 					id: '1fd6742e-1a32-446d-be3d-7cce44f8f417',
-					title: 'Vulnerability Title 2',
-					description: 'Vulnerability Description 2',
+					title: 'Threat Title 2',
+					description: 'Threat Description 2',
 					fixedIn: '1.1.0',
 				},
 				{
 					id: '1fd6742e-1a32-446d-be3d-7cce44f8f418',
-					title: 'Vulnerability Title 3',
-					description: 'Vulnerability Description 3',
+					title: 'Threat Title 3',
+					description: 'Threat Description 3',
 					fixedIn: '1.1.0',
 				},
 				{
 					id: '1fd6742e-1a32-446d-be3d-7cce44f8f410',
-					title: 'Vulnerability Title 4',
-					description: 'Vulnerability Description 4',
+					title: 'Threat Title 4',
+					description: 'Threat Description 4',
 					fixedIn: '1.1.0',
 				},
 			],
@@ -44,29 +44,29 @@ Default.args = {
 		{
 			name: 'Jetpack Boost',
 			version: '1.2.1',
-			vulnerabilities: [
+			threats: [
 				{
 					id: '1fd6742e-1a32-446d-be3d-7cce44f8f411',
-					title: 'Vulnerability Title 1',
-					description: 'Vulnerability Description 1',
+					title: 'Threat Title 1',
+					description: 'Threat Description 1',
 					fixedIn: '1.2.2',
 				},
 				{
 					id: '1fd6742e-1a32-446d-be3d-7cce44f8f412',
-					title: 'Vulnerability Title 2',
-					description: 'Vulnerability Description 2',
+					title: 'Threat Title 2',
+					description: 'Threat Description 2',
 					fixedIn: '1.2.2',
 				},
 				{
 					id: '1fd6742e-1a32-446d-be3d-7cce44f8f413',
-					title: 'Vulnerability Title 3',
-					description: 'Vulnerability Description 3',
+					title: 'Threat Title 3',
+					description: 'Threat Description 3',
 					fixedIn: '1.2.2',
 				},
 				{
 					id: '1fd6742e-1a32-446d-be3d-7cce44f8f414',
-					title: 'Vulnerability Title 4',
-					description: 'Vulnerability Description 4',
+					title: 'Threat Title 4',
+					description: 'Threat Description 4',
 					fixedIn: '1.2.2',
 				},
 			],

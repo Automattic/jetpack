@@ -19,25 +19,25 @@ class Status_Model {
 	public $last_checked;
 
 	/**
-	 * The number of vulnerabilities.
+	 * The number of threats.
 	 *
 	 * @var int
 	 */
-	public $num_vulnerabilities;
+	public $num_threats;
 
 	/**
-	 * The number of plugin vulnerabilities.
+	 * The number of plugin threats.
 	 *
 	 * @var int
 	 */
-	public $num_plugins_vulnerabilities;
+	public $num_plugins_threats;
 
 	/**
-	 * The number of theme vulnerabilities.
+	 * The number of theme threats.
 	 *
 	 * @var int
 	 */
-	public $num_themes_vulnerabilities;
+	public $num_themes_threats;
 
 	/**
 	 * The current report status.

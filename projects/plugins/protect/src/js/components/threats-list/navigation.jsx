@@ -6,8 +6,8 @@ import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
-const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
-	const { plugins, themes, numVulnerabilities, numCoreVulnerabilities } = useProtectData();
+const ThreatsNavigation = ( { selected, onSelect } ) => {
+	const { plugins, themes, numThreats, numCoreThreats } = useProtectData();
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
 
@@ -36,10 +36,10 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 			<NavigationItem
 				initial
 				id="all"
-				label={ __( 'All vulnerabilities', 'jetpack-protect' ) }
+				label={ __( 'All threats', 'jetpack-protect' ) }
 				icon={ warning }
-				badge={ numVulnerabilities }
-				disabled={ numVulnerabilities <= 0 }
+				badge={ numThreats }
+				disabled={ numThreats <= 0 }
 				onClick={ trackNavigationClickAll }
 				checked={ true }
 			/>
@@ -47,33 +47,33 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 				id="wordpress"
 				label={ __( 'WordPress', 'jetpack-protect' ) }
 				icon={ wordpress }
-				badge={ numCoreVulnerabilities }
-				disabled={ numCoreVulnerabilities <= 0 }
+				badge={ numCoreThreats }
+				disabled={ numCoreThreats <= 0 }
 				onClick={ trackNavigationClickCore }
 				checked={ true }
 			/>
 			<NavigationGroup label={ __( 'Plugins', 'jetpack-protect' ) } icon={ pluginsIcon }>
-				{ plugins.map( ( { name, vulnerabilities, checked } ) => (
+				{ plugins.map( ( { name, threats, checked } ) => (
 					<NavigationItem
 						key={ name }
 						id={ name }
 						label={ name }
 						checked={ checked }
-						badge={ vulnerabilities?.length }
-						disabled={ vulnerabilities?.length <= 0 }
+						badge={ threats?.length }
+						disabled={ threats?.length <= 0 }
 						onClick={ trackNavigationClickPlugin }
 					/>
 				) ) }
 			</NavigationGroup>
 			<NavigationGroup label={ __( 'Themes', 'jetpack-protect' ) } icon={ color }>
-				{ themes.map( ( { name, vulnerabilities, checked } ) => (
+				{ themes.map( ( { name, threats, checked } ) => (
 					<NavigationItem
 						key={ name }
 						id={ name }
 						label={ name }
 						checked={ checked }
-						badge={ vulnerabilities?.length }
-						disabled={ vulnerabilities?.length <= 0 }
+						badge={ threats?.length }
+						disabled={ threats?.length <= 0 }
 						onClick={ trackNavigationClickTheme }
 					/>
 				) ) }
@@ -82,4 +82,4 @@ const VulnerabilitiesNavigation = ( { selected, onSelect } ) => {
 	);
 };
 
-export default VulnerabilitiesNavigation;
+export default ThreatsNavigation;

@@ -21,7 +21,7 @@ import Footer from '../footer';
 import Interstitial from '../interstitial';
 import Logo from '../logo';
 import Summary from '../summary';
-import VulnerabilitiesList from '../vulnerabilities-list';
+import ThreatsList from '../threats-list';
 import inProgressImage from './in-progress.png';
 import styles from './styles.module.scss';
 
@@ -206,7 +206,7 @@ const ProtectAdminPage = () => {
 						<Summary />
 					</Col>
 					<Col>
-						<VulnerabilitiesList />
+						<ThreatsList />
 					</Col>
 				</Container>
 			</AdminSectionHero>

@@ -6,7 +6,7 @@ import useProtectData from '../../hooks/use-protect-data';
 import styles from './styles.module.scss';
 
 const Summary = () => {
-	const { numVulnerabilities, lastChecked } = useProtectData();
+	const { numThreats, lastChecked } = useProtectData();
 	const Icon = getIconBySlug( 'protect' );
 
 	return (
@@ -20,12 +20,12 @@ const Summary = () => {
 						dateI18n( 'F jS', lastChecked )
 					) }
 				</Title>
-				{ numVulnerabilities > 0 && (
+				{ numThreats > 0 && (
 					<Text variant="headline-small" component="h1">
 						{ sprintf(
-							/* translators: %s: Total number of vulnerabilities  */
-							__( '%s vulnerabilities found', 'jetpack-protect' ),
-							numVulnerabilities
+							/* translators: %s: Total number of threats  */
+							__( '%s threats found', 'jetpack-protect' ),
+							numThreats
 						) }
 					</Text>
 				) }

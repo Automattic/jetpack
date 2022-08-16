@@ -5,7 +5,7 @@ import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Accordion, { AccordionItem } from '../accordion';
 import styles from './styles.module.scss';
 
-const VulAccordionItem = ( { id, name, version, title, description, icon, fixedIn, type } ) => {
+const ThreatAccordionItem = ( { id, name, version, title, description, icon, fixedIn, type } ) => {
 	const { recordEvent } = useAnalyticsTracks();
 
 	const learnMoreButton = (
@@ -15,7 +15,7 @@ const VulAccordionItem = ( { id, name, version, title, description, icon, fixedI
 			weight="regular"
 			href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: id } ) }
 		>
-			{ __( 'See more technical details of this vulnerability', 'jetpack-protect' ) }
+			{ __( 'See more technical details of this threat', 'jetpack-protect' ) }
 		</Button>
 	);
 
@@ -63,7 +63,7 @@ const List = ( { list } ) => {
 	return (
 		<Accordion>
 			{ list.map( ( { id, name, title, description, version, fixedIn, icon, type } ) => (
-				<VulAccordionItem
+				<ThreatAccordionItem
 					key={ id }
 					id={ id }
 					name={ name }
