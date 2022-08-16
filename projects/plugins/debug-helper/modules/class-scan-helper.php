@@ -10,6 +10,11 @@
  */
 class Scan_Helper {
 
+	/**
+	 * Threats
+	 *
+	 * @var array<string>
+	 */
 	private $threats = array();
 
 	/**
@@ -117,19 +122,11 @@ class Scan_Helper {
 	private function write_file( $file, $contents ) {
 		global $wp_filesystem;
 
-		check_admin_referer( 'scan-helper-nonce' );
-
 		if ( ! $this->has_credentials() ) {
 			die;
 		}
 
-		$file_written = $wp_filesystem->put_contents( $file, $contents, FS_CHMOD_FILE );
-
-		if ( ! $file_written ) {
-			echo 'Error!';
-			return;
-		}
-
+		return $wp_filesystem->put_contents( $file, $contents, FS_CHMOD_FILE );
 	}
 
 	/**
@@ -145,6 +142,10 @@ class Scan_Helper {
 		}
 
 		return $wp_filesystem->delete( $file );
+	}
+
+	private function eicar_threat_exists() {
+		return file_exists( $this->threats['eicar'] );
 	}
 
 	/**
@@ -180,7 +181,11 @@ class Scan_Helper {
 			return new WP_Error( 'could-not-write', "Unable to write threat file $relative_file_path." );
 		}
 
-		return "Successfully removed EICAR threats to $relative_file_path.";
+		return "Successfully removed EICAR threats from $relative_file_path.";
+	}
+
+	private function suspicious_link_threat_exists() {
+		return file_exists( $this->threats['suspicious_link'] );
 	}
 
 	/**
@@ -204,12 +209,17 @@ class Scan_Helper {
 	private function remove_suspicious_link_threat() {
 		$relative_file_path = str_replace( ABSPATH, '', $this->threats['suspicious_link'] );
 
-		if ( ! $this->delete_file( $relative_file_path ) ) {
+		if ( ! $this->delete_file( $this->threats['suspicious_link'] ) ) {
 			return new WP_Error( 'could-not-write', "Unable to write threat file $relative_file_path." );
 
 		}
 
 		return "Successfully removed Suspicious Link threat from $relative_file_path.";
+	}
+
+	private function core_file_modification_threat_exists() {
+		$lines = file( $this->threats['core_file_modification'] );
+		return $lines[ count( $lines ) - 1 ] === 'if ( true === false ) exit();';
 	}
 
 	/**
@@ -241,12 +251,16 @@ class Scan_Helper {
 
 		if ( $lines[ count( $lines ) - 1 ] === 'if ( true === false ) exit();' ) {
 			// eliminate the threat by removing the modification
-			$last = count( $lines ) - 1;
-			$this->delete_file( $lines[ $last ] ); // to do - this might not work
+			array_pop( $lines );
+			$this->write_file( $this->threats['core_file_modification'], implode( '', $lines ) );
 			return 'Removed the core modification threat.';
 		}
 
 		return new WP_Error( 'could-not-write', "Unable to write/remove threat from $filerel" );
+	}
+
+	private function non_core_file_threat_exists() {
+		return file_exists( $this->threats['non_core_file'] );
 	}
 
 	/**
@@ -270,11 +284,17 @@ class Scan_Helper {
 	private function remove_non_core_file_threat() {
 		$relative_file_path = str_replace( ABSPATH, '', $this->threats['non_core_file'] );
 
-		if ( ! $this->delete_file( $relative_file_path ) ) {
+		if ( ! $this->delete_file( $this->threats['non_core_file'] ) ) {
 			return new WP_Error( 'could-not-write', "Unable to remove Non-Core File threat from $relative_fle_path." );
 		}
 
 		return "Successfully removed Non-Core File threat from $relative_file_path.";
+	}
+
+	private function post_db_threat_exists() {
+		global $wpdb;
+		$post_id = $wpdb->get_var( "SELECT ID FROM $wpdb->posts WHERE post_title = 'Scan Tester Post'" );
+		return (bool) $post_id;
 	}
 
 	/**
@@ -328,6 +348,11 @@ class Scan_Helper {
 		return 'Successfully removed the Scan tester post.';
 	}
 
+	private function infected_file_threat_exists() {
+		$lines = file( $this->threats['infected_file'] );
+		return $lines[ count( $lines ) - 1 ] === 'HTML;';
+	}
+
 	/**
 	 * Generate infected file threat.
 	 *
@@ -375,73 +400,72 @@ class Scan_Helper {
 
 		// EICAR
 		if ( isset( $_POST['threat-eicar'] ) ) {
-			$eicar = $this->generate_eicar_threat();
+			$eicar = ! $this->eicar_threat_exists() ? $this->generate_eicar_threat() : null;
 		} else {
-			$eicar = $this->remove_eicar_threat();
+			$eicar = $this->eicar_threat_exists() ? $this->remove_eicar_threat() : null;
 		}
 		if ( is_wp_error( $eicar ) ) {
 			$errors[] = $eicar;
-		} else {
+		} elseif ( $eicar ) {
 			$successes[] = $eicar;
 		}
-
 		// Suspicious Link
 		if ( isset( $_POST['threat-suspicious-link'] ) ) {
-			$suspicious_link = $this->generate_suspicious_link_threat();
+			$suspicious_link = ! $this->suspicious_link_threat_exists() ? $this->generate_suspicious_link_threat() : null;
 		} else {
-			$suspicious_link = $this->remove_suspicious_link_threat();
+			$suspicious_link = $this->suspicious_link_threat_exists() ? $this->remove_suspicious_link_threat() : null;
 		}
 		if ( is_wp_error( $suspicious_link ) ) {
 			$errors[] = $suspicious_link;
-		} else {
+		} elseif ( $suspicious_link ) {
 			$successes[] = $suspicious_link;
 		}
 
 		// Core File Modification
 		if ( isset( $_POST['threat-core'] ) ) {
-			$core_modification = $this->generate_core_file_modification_threat();
+			$core_modification = ! $this->core_file_modification_threat_exists() ? $this->generate_core_file_modification_threat() : null;
 		} else {
-			$core_modification = $this->remove_core_file_modification_threat();
+			$core_modification = $this->core_file_modification_threat_exists() ? $this->remove_core_file_modification_threat() : null;
 		}
 		if ( is_wp_error( $core_modification ) ) {
 			$errors[] = $core_modification;
-		} else {
+		} elseif ( $core_modification ) {
 			$successes[] = $core_modification;
 		}
 
 		// Non-Core File
 		if ( isset( $_POST['threat-core-add'] ) ) {
-			$core_add = $this->generate_core_file_modification_threat();
+			$core_add = ! $this->non_core_file_threat_exists() ? $this->generate_non_core_file_threat() : null;
 		} else {
-			$core_add = $this->remove_non_core_file_threat();
+			$core_add = $this->non_core_file_threat_exists() ? $this->remove_non_core_file_threat() : null;
 		}
 		if ( is_wp_error( $core_add ) ) {
 			$errors[] = $core_add;
-		} else {
+		} elseif ( $core_add ) {
 			$successes[] = $core_add;
 		}
 
 		// Post DB
 		if ( isset( $_POST['threat-post'] ) ) {
-			$post_db = $this->generate_post_db_threat();
+			$post_db = ! $this->post_db_threat_exists() ? $this->generate_post_db_threat() : null;
 		} else {
-			$post_db = $this->remove_post_db_threat();
+			$post_db = $this->post_db_threat_exists() ? $this->remove_post_db_threat() : null;
 		}
 		if ( is_wp_error( $post_db ) ) {
 			$errors[] = $post_db;
-		} else {
+		} elseif ( $post_db ) {
 			$successes[] = $post_db;
 		}
 
 		// Infected File
 		if ( isset( $_POST['threat-infect'] ) ) {
-			$infected_file = $this->generate_infected_file_threat();
+			$infected_file = ! $this->infected_file_threat_exists() ? $this->generate_infected_file_threat() : null;
 		} else {
-			$infected_file = $this->remove_infected_file_threat();
+			$infected_file = $this->infected_file_threat_exists() ? $this->remove_infected_file_threat() : null;
 		}
 		if ( is_wp_error( $infected_file ) ) {
 			$errors[] = $infected_file;
-		} else {
+		} elseif ( $infected_file ) {
 			$successes[] = $infected_file;
 		}
 
@@ -458,9 +482,7 @@ class Scan_Helper {
 		$submission = $this->handle_submit();
 		if ( $submission ) {
 			foreach ( $submission['errors'] as $wp_error ) {
-				foreach ( $wp_error->errors as $error ) {
-					echo $error . '<br>';
-				}
+				echo $wp_error->get_error_message() . '<br>';
 			}
 			foreach ( $submission['successes'] as $success ) {
 				echo $success . '<br>';
