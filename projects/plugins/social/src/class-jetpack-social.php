@@ -301,7 +301,7 @@ class Jetpack_Social {
 		}
 
 		$connections      = $publicize->get_all_connections();
-		$shares_remaining = 1; // @TODO: add this calculated number to the endpoint.
+		$shares_remaining = $info['shares_remaining'];
 
 		$share_limits = new Automattic\Jetpack\Social\Share_Limits( $connections, $shares_remaining );
 		$share_limits->enforce_share_limits();
