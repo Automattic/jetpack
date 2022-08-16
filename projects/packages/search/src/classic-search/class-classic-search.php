@@ -1592,9 +1592,15 @@ class Classic_Search {
 
 					// The `author` filter is NOT supported in Classic Search. This is used to keep the compatibility for filters outside the overlay with Instant Search.
 					case 'author':
-						$name = preg_split( '/\/(.+)/', $item['key'] )[0];
+						$split_names = preg_split( '/\/(.?)/', $item['key'] );
 
-						if ( ! $name ) {
+						$name = '';
+
+						if ( false !== $split_names ) {
+							$name = $split_names[0];
+						}
+
+						if ( empty( $name ) ) {
 							continue 2;  // switch() is considered a looping structure.
 						}
 
@@ -1602,11 +1608,9 @@ class Classic_Search {
 							'author' => $name,
 						);
 
-						if ( ! empty( $name ) ) {
-							$active = true;
+						$active = true;
 
-							$remove_url = Helper::remove_query_arg( 'author' );
-						}
+						$remove_url = Helper::remove_query_arg( 'author' );
 
 						break;
 
