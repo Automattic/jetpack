@@ -5,7 +5,7 @@ const { isWorkflowFailed, getNotificationText } = require( './utils' );
 ( async function main() {
 	const ghToken = getInput( 'github_token' );
 	if ( ! ghToken ) {
-		setFailed( 'main: Input `github_token` is required' );
+		setFailed( 'Input `github_token` is required' );
 		return;
 	}
 
@@ -14,6 +14,8 @@ const { isWorkflowFailed, getNotificationText } = require( './utils' );
 		setFailed( 'Input `slack_token` is required' );
 		return;
 	}
+
+	const client = new WebClient( slackToken );
 
 	const channel = getInput( 'slack_channel' );
 	if ( ! channel ) {
@@ -43,21 +45,20 @@ const { isWorkflowFailed, getNotificationText } = require( './utils' );
 
 	const text = await getNotificationText( isFailure );
 
-	await sendSlackMessage( slackToken, text, [], channel, username, icon_emoji );
+	await sendSlackMessage( client, text, [], channel, username, icon_emoji );
 } )();
 
 /**
  * Sends a Slack message
  *
- * @param {string} token - slack token
+ * @param {Object} client - Slack client
  * @param {string} text - message text
  * @param {string} blocks - message blocks
  * @param {string} channel - slack channel
  * @param {string} username - slack bot username
  * @param {string} icon_emoji - icon emoji
  */
-async function sendSlackMessage( token, text, blocks, channel, username, icon_emoji ) {
-	const client = new WebClient( token );
+async function sendSlackMessage( client, text, blocks, channel, username, icon_emoji ) {
 	await client.chat.postMessage( {
 		text,
 		channel,
