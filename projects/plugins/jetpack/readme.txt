@@ -249,8 +249,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Dashboard: add new card to highlight options available to WordPress agencies.
 
 #### Improved compatibility
-- VideoPress: migrate code from the plugin to the package.
-- VideoPress: move dependencies to the package.
 - VideoPress: minify videopress-token-bridge.
 - Notifications: do not attempt to display the Notifications panel when 3rd-party cookies are disabled in the browser.
 

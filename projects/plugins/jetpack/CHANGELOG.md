@@ -9,8 +9,6 @@
 - Dashboard: add new card to highlight options available to WordPress agencies. [#25041]
 
 ### Improved compatibility
-- VideoPress: migrate code from the plugin to the package. [#25412]
-- VideoPress: move dependencies to the package. [#25398]
 - VideoPress: minify videopress-token-bridge. [#25354]
 - Notifications: do not attempt to display the Notifications panel when 3rd-party cookies are disabled in the browser. [#25448]
 
@@ -21,6 +19,8 @@
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - P2: Hide Jetpack menu for all p2 spaces/hubs. [#25405]
+- VideoPress: migrate code from the plugin to the package. [#25412]
+- VideoPress: move dependencies to the package. [#25398]
 - Updated package dependencies. [#25433]
 
 ## 11.3-a.3 - 2022-08-09
