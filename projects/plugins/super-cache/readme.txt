@@ -1,6 +1,6 @@
-=== Jetpack super-cache ===
-Contributors: automattic,
-Tags: jetpack, stuff
+=== WP Super Cache ===
+Contributors: donncha, automattic
+Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
