@@ -39,7 +39,7 @@ async function getNotificationText( isFailure ) {
 	let event = sha;
 
 	if ( eventName === 'pull_request' ) {
-		const { html_url, number, title } = github.context.payload.pull_request;
+		const { html_url, number, title } = payload.pull_request;
 		event = `PR <${ html_url }|${ number }: ${ title }>`;
 	}
 
