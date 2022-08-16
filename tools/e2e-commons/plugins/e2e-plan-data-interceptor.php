@@ -87,7 +87,7 @@ RULES;
 
 		return array(
 			'response' => array( 'code' => 200 ),
-			'body'     => json_encode(
+			'body'     => wp_json_encode(
 				array(
 					'data' => $rules,
 				)
