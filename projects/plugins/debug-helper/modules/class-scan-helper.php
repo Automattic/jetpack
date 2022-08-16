@@ -68,7 +68,7 @@ class Scan_Helper {
 	 * @return bool
 	 */
 	private function has_credentials() {
-		$url         = wp_nonce_url( add_query_arg( array( 'page' => 'scan-helper' ), 'options-general.php' ), 'scan-helper-nonce' );
+		$url         = wp_nonce_url( 'admin.php?page=scan-helper', 'scan-helper-nonce' );
 		$credentials = request_filesystem_credentials( $url );
 
 		if ( false === $credentials ) {
@@ -515,14 +515,6 @@ class Scan_Helper {
 	 */
 	public function render_ui() {
 		$submission = $this->handle_submit();
-		if ( $submission ) {
-			foreach ( $submission['errors'] as $wp_error ) {
-				echo esc_attr( $wp_error->get_error_message() . '<br>' );
-			}
-			foreach ( $submission['successes'] as $success ) {
-				echo esc_attr( $success ) . '<br>';
-			}
-		}
 
 		// eicar check
 		$dir   = wp_upload_dir()['basedir'];
@@ -551,7 +543,21 @@ class Scan_Helper {
 
 		<h1>Site Threats</h1>
 
-		<div id="a8cjptt-alert" class="a8cjptt-alert"><strong>Notifications</strong></div>
+		<div id="a8cjptt-alert" class="a8cjptt-alert">
+			<?php
+			if ( $submission ) {
+				foreach ( $submission['errors'] as $wp_error ) {
+					echo '<div class="a8cjptt-alert a8cjptt-danger">' . esc_attr( $wp_error->get_error_message() ) . '</div>';
+				}
+				foreach ( $submission['successes'] as $success ) {
+					echo '<div class="a8cjptt-alert a8cjptt-success">' . esc_attr( $success ) . '</div>';
+				}
+				if ( empty( $submission['errors'] ) && empty( $submission['successes'] ) ) {
+					echo '<div class="a8cjptt-alert a8cjptt-info">No modifications were made.</div>';
+				}
+			}
+			?>
+		</div>
 
 		<form method="post" class="a8cjptt-threats">
 
