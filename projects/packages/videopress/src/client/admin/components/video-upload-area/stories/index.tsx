@@ -6,7 +6,7 @@ import styles from './style.module.scss';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
-	title: 'Packages/Videopress/Video Upload Area',
+	title: 'Packages/VideoPress/Video Upload Area',
 	component: VideoUploadArea,
 	parameters: {
 		docs: {

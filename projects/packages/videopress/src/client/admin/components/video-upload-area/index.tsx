@@ -1,9 +1,15 @@
+/**
+ * External dependencies
+ */
 import { Button, useBreakpointMatch, Text } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, cloudUpload } from '@wordpress/icons';
 import classnames from 'classnames';
 import { DragEvent, useCallback, useState, useRef, useEffect } from 'react';
+/**
+ * Internal dependencies
+ */
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
 import type React from 'react';
