@@ -24,7 +24,8 @@ import styles from './styles.module.scss';
  * @param {boolean} props.isPublicizeEnabled            - Whether Publicize is enabled for this post.
  * @param {boolean} props.isRePublicizeFeatureEnabled   - True if the RePublicize feature is available.
  * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
- * @param {boolean} props.numberOfSharesRemaining       - The number of shares remaining for the current period. Optional.
+ * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
+ * @param {boolean} props.showShareLimitNotice          - True if a notice with shares remaining should be shown. Optional.
  * @returns {object}                                    - Publicize form component.
  */
 export default function PublicizeForm( {
@@ -32,6 +33,7 @@ export default function PublicizeForm( {
 	isRePublicizeFeatureEnabled,
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
+	showShareLimitNotice = false,
 } ) {
 	const {
 		connections,
@@ -52,7 +54,7 @@ export default function PublicizeForm( {
 		<Wrapper>
 			{ hasConnections && (
 				<>
-					{ numberOfSharesRemaining !== null && (
+					{ numberOfSharesRemaining !== null && showShareLimitNotice && (
 						<PanelRow>
 							<Notice type={ numberOfSharesRemaining < connections.length ? 'warning' : 'default' }>
 								<>

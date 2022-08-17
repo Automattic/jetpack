@@ -153,6 +153,7 @@ class Jetpack_Social {
 		$shares                  = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
 		$refresh_plan_from_wpcom = true;
 		$show_nudge              = ! Current_Plan::supports( 'social-shares-1000', $refresh_plan_from_wpcom );
+
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),

@@ -29,11 +29,12 @@ const PublicizePanel = ( { prePublish } ) => {
 	);
 	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
 
-	const { isShareLimitEnabled, numberOfSharesRemaining } = useSelect( select => {
+	const { isShareLimitEnabled, numberOfSharesRemaining, hasPaidPlan } = useSelect( select => {
 		const socialStore = select( STORE_ID );
 		return {
 			isShareLimitEnabled: socialStore.isShareLimitEnabled(),
 			numberOfSharesRemaining: socialStore.numberOfSharesRemaining(),
+			hasPaidPlan: socialStore.hasPaidPlan(),
 		};
 	} );
 
@@ -84,6 +85,7 @@ const PublicizePanel = ( { prePublish } ) => {
 					isPublicizeEnabled={ isPublicizeEnabled }
 					isRePublicizeFeatureEnabled={ ! isPostPublished }
 					numberOfSharesRemaining={ isShareLimitEnabled ? numberOfSharesRemaining : null }
+					showShareLimitNotice={ ! hasPaidPlan }
 				/>
 			</Fragment>
 		</PanelWrapper>
