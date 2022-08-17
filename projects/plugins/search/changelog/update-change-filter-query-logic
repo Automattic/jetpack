@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Search E2E: change search request interception to cope with filtering changes
