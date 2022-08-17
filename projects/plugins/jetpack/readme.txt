@@ -244,7 +244,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 11.3-a.7 - 2022-08-17
 #### Bug fixes
-- VideoPress: remove inclusion modules/videopress/utility-functions.php from Jetpack shortcodes module.
+- VideoPress: remove inclusion modules/videopress/utility-functions.php from Jetpack shortcodes module to prevent errors.
 
 --------
 

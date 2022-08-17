@@ -4,7 +4,7 @@
 
 ## 11.3-a.7 - 2022-08-17
 ### Bug fixes
-- VideoPress: remove inclusion modules/videopress/utility-functions.php from Jetpack shortcodes module. [#25660]
+- VideoPress: remove inclusion of modules/videopress/utility-functions.php from Jetpack shortcodes module to prevent errors. [#25660]
 
 ## 11.3-a.5 - 2022-08-16
 ### Enhancements
