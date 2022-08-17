@@ -40,9 +40,6 @@ const { isWorkflowFailed, getNotificationData, getMessage } = require( './utils'
 
 	const isFailure = await isWorkflowFailed( ghToken );
 	const { text, id, mainMsgBlocks, detailsMsgBlocks } = await getNotificationData( isFailure );
-
-	debug( JSON.stringify( mainMsgBlocks ) );
-
 	const existingMessage = await getMessage( client, channel, id );
 	let mainMessageTS = existingMessage ? existingMessage.ts : undefined;
 	icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';

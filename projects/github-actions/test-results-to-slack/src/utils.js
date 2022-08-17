@@ -248,7 +248,7 @@ async function getMessage( client, channelId, identifier ) {
 		message = result.messages.filter( m => m.text.includes( identifier ) )[ 0 ];
 	}
 
-	debug( `Found ${ message }` );
+	debug( `Found message: ${ message }` );
 	return message;
 }
 
@@ -259,7 +259,6 @@ async function getMessage( client, channelId, identifier ) {
  */
 function getRunUrl() {
 	const { server_url, repository, run_id, run_attempt } = github.context;
-
 	return `${ server_url }/${ repository }/actions/runs/${ run_id }/attempts/${ run_attempt }`;
 }
 
