@@ -100,7 +100,7 @@ class Initializer {
 
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, Connection_Initial_State::render(), 'before' );
-		wp_add_inline_script( 'jetpack-videopress=pkg', self::render_initial_state(), 'before' );
+		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, self::render_initial_state(), 'before' );
 	}
 
 	/**
