@@ -158,6 +158,7 @@ const UploadingEditor = props => {
 	const onRemovePoster = () => {
 		setVideoPosterImageData( null );
 	};
+
 	return (
 		<div className="uploading-editor">
 			<TextControl
