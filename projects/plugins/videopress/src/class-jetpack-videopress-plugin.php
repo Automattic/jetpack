@@ -10,15 +10,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Sync\Data_Settings;
+use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
 /**
- * Class Jetpack_Videopress
+ * Class Jetpack_Videopress_Plugin
  */
 class Jetpack_Videopress_Plugin {
 
@@ -28,6 +27,9 @@ class Jetpack_Videopress_Plugin {
 	public function __construct() {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
+
+		// Init VideoPress package.
+		VideoPress_Pkg_Initializer::init();
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack VideoPress', 'jetpack-videopress' ),
@@ -64,6 +66,9 @@ class Jetpack_Videopress_Plugin {
 			1
 		);
 
+		// Register VideoPress block
+		add_action( 'init', array( $this, 'register_videopress_block' ) );
+
 		My_Jetpack_Initializer::init();
 	}
 
@@ -78,43 +83,7 @@ class Jetpack_Videopress_Plugin {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
-
-		Assets::register_script(
-			'jetpack-videopress',
-			'build/index.js',
-			JETPACK_VIDEOPRESS_ROOT_FILE,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-videopress',
-			)
-		);
-		Assets::enqueue_script( 'jetpack-videopress' );
-		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-videopress', Connection_Initial_State::render(), 'before' );
-		wp_add_inline_script( 'jetpack-videopress', $this->render_initial_state(), 'before' );
-
-	}
-
-	/**
-	 * Render the initial state into a JavaScript variable.
-	 *
-	 * @return string
-	 */
-	public function render_initial_state() {
-		return 'var jetpackVideopressInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
-	}
-
-	/**
-	 * Get the initial state data for hydrating the React UI.
-	 *
-	 * @return array
-	 */
-	public function initial_state() {
-		return array(
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-		);
+		VideoPress_Pkg_Initializer::enqueue_admin_scripts();
 	}
 
 	/**
@@ -136,5 +105,12 @@ class Jetpack_Videopress_Plugin {
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-videopress' );
 		$manager->remove_connection();
+	}
+
+	/**
+	 * Register the VideoPress block.
+	 */
+	public function register_videopress_block() {
+		VideoPress_Pkg_Initializer::register_videopress_block();
 	}
 }
