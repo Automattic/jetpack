@@ -17,7 +17,7 @@ beforeAll( () => {
 	setInputData( { slackChannel, slackUsername } );
 } );
 
-describe( 'Notification is sent', () => {
+describe.skip( 'Notification is sent', () => {
 	const client = new WebClient();
 
 	test( `Correct message is sent to Slack`, async () => {

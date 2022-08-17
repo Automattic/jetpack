@@ -1,4 +1,5 @@
 const github = require( '@actions/github' );
+const debug = require( './debug' );
 /**
  * Decides if the current workflow failed
  *
@@ -7,12 +8,13 @@ const github = require( '@actions/github' );
 async function isWorkflowFailed( token ) {
 	// eslint-disable-next-line new-cap
 	const octokit = new github.getOctokit( token );
+	const { payload, run_id } = github.context;
 
 	// Get the list of jobs for the current workflow run
 	const response = await octokit.rest.actions.listJobsForWorkflowRun( {
-		owner: github.context.payload.repository.owner.login,
-		repo: github.context.payload.repository.name,
-		run_id: github.context.runId,
+		owner: payload.repository.owner.login,
+		repo: payload.repository.name,
+		run_id,
 	} );
 
 	// Get unique list of conclusions of completed jobs
@@ -35,9 +37,21 @@ async function isWorkflowFailed( token ) {
  */
 async function getNotificationData( isFailure ) {
 	const {
-		context: { eventName, sha, ref_type, ref_name, payload, runId },
+		context: {
+			eventName,
+			sha,
+			ref_type,
+			ref_name,
+			payload,
+			run_id,
+			run_attempt,
+			actor,
+			triggering_actor,
+			server_url,
+			repository,
+		},
 	} = github;
-	let event = sha;
+	let target = `for ${ sha }`;
 	let msgId;
 	const contextElements = [];
 	const buttons = [];
@@ -45,34 +59,23 @@ async function getNotificationData( isFailure ) {
 
 	if ( eventName === 'pull_request' ) {
 		const { html_url, number, title } = payload.pull_request;
-		event = `PR <${ html_url }|${ number }: ${ title }>`;
+		target = `for pull request *#${ number }*`;
 		msgId = `pr-${ number }`;
-		contextElements.push( {
-			type: 'plain_text',
-			text: 'Author: ',
-			emoji: false,
-		} );
-	}
-
-	if ( eventName === 'push' ) {
-		const { url, id, author, message } = payload.head_commit;
-		event = `on ${ ref_type } *${ ref_name }*`;
-		msgId = `commit-${ id }`;
 
 		contextElements.push(
 			{
 				type: 'plain_text',
-				text: `Last run id: ${ runId }`,
+				text: `Title: ${ title }`,
 				emoji: false,
 			},
 			{
 				type: 'plain_text',
-				text: `Commit: ${ id } | ${ message }`,
+				text: `Actor: ${ actor }`,
 				emoji: false,
 			},
 			{
 				type: 'plain_text',
-				text: `Author: ${ author.name }`,
+				text: `Last run: attempt ${ run_attempt } of run ${ run_id }, triggered by ${ triggering_actor }`,
 				emoji: false,
 			}
 		);
@@ -84,7 +87,52 @@ async function getNotificationData( isFailure ) {
 					type: 'plain_text',
 					text: `Last run`,
 				},
-				url: 'https://github.com',
+				url: getRunUrl(),
+				style,
+			},
+			{
+				type: 'button',
+				text: {
+					type: 'plain_text',
+					text: `PR #${ number }`,
+				},
+				url: html_url,
+				style,
+			}
+		);
+	}
+
+	if ( eventName === 'push' ) {
+		const { url, id, message } = payload.head_commit;
+		target = `on ${ ref_type } *${ ref_name }*`;
+		msgId = `commit-${ id }`;
+
+		contextElements.push(
+			{
+				type: 'plain_text',
+				text: `Commit: ${ id.substring( 0, 8 ) } ${ message }`,
+				emoji: false,
+			},
+			{
+				type: 'plain_text',
+				text: `Actor: ${ actor }`,
+				emoji: false,
+			},
+			{
+				type: 'plain_text',
+				text: `Last run: attempt ${ run_attempt } of run ${ run_id }, triggered by ${ triggering_actor }`,
+				emoji: false,
+			}
+		);
+
+		buttons.push(
+			{
+				type: 'button',
+				text: {
+					type: 'plain_text',
+					text: `Last run`,
+				},
+				url: getRunUrl(),
 				style,
 			},
 			{
@@ -100,13 +148,48 @@ async function getNotificationData( isFailure ) {
 	}
 
 	if ( eventName === 'schedule' ) {
-		event = `scheduled run on ${ ref_type } *${ ref_name }*`;
+		target = `for scheduled run on ${ ref_type } *${ ref_name }*`;
 		// we return a timestamp because we don't ever want to group messages with schedule event
 		// this way, we'll never be able to compute this same id later and cannot find this message
 		msgId = `sched-${ Date.now() }`;
+		const commitUrl = `${ server_url }/${ repository }/commit/${ sha }`;
+
+		contextElements.push(
+			{
+				type: 'plain_text',
+				text: `Last commit: ${ sha.substring( 0, 8 ) }`,
+				emoji: false,
+			},
+			{
+				type: 'plain_text',
+				text: `Last run: attempt ${ run_attempt } of run ${ run_id }, triggered by ${ triggering_actor }`,
+				emoji: false,
+			}
+		);
+
+		buttons.push(
+			{
+				type: 'button',
+				text: {
+					type: 'plain_text',
+					text: `Last run`,
+				},
+				url: getRunUrl(),
+				style,
+			},
+			{
+				type: 'button',
+				text: {
+					type: 'plain_text',
+					text: `Commit ${ sha.substring( 0, 8 ) }`,
+				},
+				url: commitUrl,
+				style,
+			}
+		);
 	}
 
-	const text = `Tests ${ isFailure ? 'failed' : 'passed' } for ${ event }`;
+	const text = `Tests ${ isFailure ? 'failed' : 'passed' } ${ target }`;
 	const mainMsgBlocks = [
 		{
 			type: 'section',
@@ -130,7 +213,9 @@ async function getNotificationData( isFailure ) {
 			type: 'section',
 			text: {
 				type: 'mrkdwn',
-				text: `New ${ isFailure ? 'failed' : 'passed' } tests in run ${ runId }`,
+				text: `<${ getRunUrl() } | New ${
+					isFailure ? 'failed' : 'passed'
+				} tests in run ${ run_id }, attempt ${ run_attempt }>`,
 			},
 		},
 	];
@@ -147,7 +232,7 @@ async function getNotificationData( isFailure ) {
  * @returns {Promise<*|null>} the message Object
  */
 async function getMessage( client, channelId, identifier ) {
-	console.log( `Looking for ${ identifier }` );
+	debug( `Looking for ${ identifier }` );
 	let message;
 	// Get the messages in the channel. It only returns parent messages in case of threads.
 	// If the message has a `thread_ts` defined we have a thread
@@ -163,8 +248,19 @@ async function getMessage( client, channelId, identifier ) {
 		message = result.messages.filter( m => m.text.includes( identifier ) )[ 0 ];
 	}
 
-	console.log( `Found ${ message }` );
+	debug( `Found ${ message }` );
 	return message;
+}
+
+/**
+ * Creates and returns a run url
+ *
+ * @returns {string} the run url
+ */
+function getRunUrl() {
+	const { server_url, repository, run_id, run_attempt } = github.context;
+
+	return `${ server_url }/${ repository }/actions/runs/${ run_id }/attempts/${ run_attempt }`;
 }
 
 module.exports = { isWorkflowFailed, getNotificationData, getMessage };
