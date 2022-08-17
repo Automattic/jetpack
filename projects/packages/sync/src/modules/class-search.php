@@ -427,6 +427,7 @@ class Search extends Module {
 		// wp.com martketplace search - @see https://wp.me/pdh6GB-Ax#comment-2104
 		'_app_icon'                          => array(),
 		'_featured_product_video'            => array(),
+		'wpcom_marketplace_org_slug'         => array(),
 
 	); // end indexed post meta.
 
