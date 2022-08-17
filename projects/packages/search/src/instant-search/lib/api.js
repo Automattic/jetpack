@@ -189,14 +189,18 @@ function buildFilterObject( filterQuery, adminQueryFilter, excludedPostTypes ) {
 	getFilterKeys()
 		.filter( key => isLengthyArray( filterQuery[ key ] ) )
 		.forEach( key => {
+			// Filter conditions in the same group are OR-ed together.
+			const group_condition = { bool: { should: [] } };
 			filterQuery[ key ].forEach( item => {
 				if ( filterKeyToEsFilter.has( key ) ) {
-					filter.bool.must.push( filterKeyToEsFilter.get( key )( item ) );
+					group_condition.bool.should.push( filterKeyToEsFilter.get( key )( item ) );
 				} else {
 					// If key is not in the standard map, assume to be a custom taxonomy
-					filter.bool.must.push( { term: { [ `taxonomy.${ key }.slug` ]: item } } );
+					group_condition.bool.should.push( { term: { [ `taxonomy.${ key }.slug` ]: item } } );
 				}
 			} );
+			// Filter groups are AND-ed together.
+			filter.bool.must.push( group_condition );
 		} );
 
 	if ( adminQueryFilter ) {
