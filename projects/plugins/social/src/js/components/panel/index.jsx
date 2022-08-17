@@ -83,7 +83,7 @@ const PublicizePanel = ( { prePublish } ) => {
 				<PublicizeForm
 					isPublicizeEnabled={ isPublicizeEnabled }
 					isRePublicizeFeatureEnabled={ ! isPostPublished }
-					numberOfSharesRemaining={ isShareLimitEnabled ? numberOfSharesRemaining : undefined }
+					numberOfSharesRemaining={ isShareLimitEnabled ? numberOfSharesRemaining : null }
 				/>
 			</Fragment>
 		</PanelWrapper>
