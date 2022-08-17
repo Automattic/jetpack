@@ -573,11 +573,13 @@ importers:
       '@wordpress/element': 4.10.0
       '@wordpress/format-library': 3.10.0
       '@wordpress/postcss-plugins-preset': 3.9.0
+      autoprefixer: 10.4.2
       babel-loader: 8.2.5
       babel-plugin-inline-json-import: 0.3.2
       css-loader: 6.5.1
       jest: 28.1.0
       postcss: 8.4.14
+      postcss-custom-properties: 12.1.7
       postcss-loader: 6.2.0
       react: 17.0.2
       react-dom: 17.0.2
@@ -617,11 +619,13 @@ importers:
       '@wordpress/element': 4.10.0
       '@wordpress/format-library': 3.10.0_apvyc6hsquzbx56wwdowrbgkzm
       '@wordpress/postcss-plugins-preset': 3.9.0_postcss@8.4.14
+      autoprefixer: 10.4.2_postcss@8.4.14
       babel-loader: 8.2.5_asrrglqazygxr56oqkwuellecm
       babel-plugin-inline-json-import: 0.3.2
       css-loader: 6.5.1_webpack@5.72.1
       jest: 28.1.0
       postcss: 8.4.14
+      postcss-custom-properties: 12.1.7_postcss@8.4.14
       postcss-loader: 6.2.0_xvg4ntyrrwt57qzvggqcbeozu4
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
