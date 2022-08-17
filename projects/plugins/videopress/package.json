@@ -12,15 +12,6 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client",
-		"build-client": "webpack",
-		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
-		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
-		"clean": "rm -rf build/",
-		"validate": "pnpm exec validate-es build/",
-		"watch": "pnpm run build && webpack watch"
-	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
