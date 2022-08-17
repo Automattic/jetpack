@@ -38,7 +38,7 @@ class Initial_State {
 			'connectedPlugins'             => REST_Connector::get_connection_plugins( false ),
 			'wpVersion'                    => $wp_version,
 			'siteSuffix'                   => ( new Status() )->get_site_suffix(),
-			'connectionVerificationErrors' => Error_Handler->get_instance()->get_verified_errors(),
+			'connectionVerificationErrors' => Error_Handler::get_instance()->get_verified_errors(),
 		);
 	}
 
