@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Search: change conditions inside the same filter group to be unioned
