@@ -303,7 +303,7 @@ class Protect_Helper {
 		);
 		for ( $i = 1; $i <= $how_many; $i++ ) {
 			$id     = $current_index < count( $ids ) ? $ids[ $current_index ] : $this->get_random_id();
-			$vuls[] = array(
+			$vuls[] = (object) array(
 				'id'          => $id,
 				'title'       => 'Sample Vulnerability number ' . $i . ' with a long title',
 				'description' => 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit. 
