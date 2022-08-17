@@ -17,13 +17,13 @@ beforeAll( () => {
 describe( 'Notification text', () => {
 	test.each`
 		event               | isFailure  | expected
-		${ 'push' }         | ${ false } | ${ { text: `Tests passed for commit <${ commitURL }|${ commitId }> on ${ ref_type } *${ ref_name }*` } }
-		${ 'push' }         | ${ true }  | ${ { text: `Tests failed for commit <${ commitURL }|${ commitId }> on ${ ref_type } *${ ref_name }*` } }
-		${ 'schedule' }     | ${ false } | ${ { text: `Tests passed for scheduled run on ${ ref_type } *${ ref_name }*` } }
-		${ 'schedule' }     | ${ true }  | ${ { text: `Tests failed for scheduled run on ${ ref_type } *${ ref_name }*` } }
-		${ 'pull_request' } | ${ false } | ${ { text: `Tests passed for PR <${ prUrl }|${ prNumber }: ${ prTitle }>` } }
-		${ 'pull_request' } | ${ true }  | ${ { text: `Tests failed for PR <${ prUrl }|${ prNumber }: ${ prTitle }>` } }
-		${ 'unsupported' }  | ${ true }  | ${ { text: `Tests failed for ${ sha }` } }
+		${ 'push' }         | ${ false } | ${ `Tests passed for commit <${ commitURL }|${ commitId }> on ${ ref_type } *${ ref_name }*` }
+		${ 'push' }         | ${ true }  | ${ `Tests failed for commit <${ commitURL }|${ commitId }> on ${ ref_type } *${ ref_name }*` }
+		${ 'schedule' }     | ${ false } | ${ `Tests passed for scheduled run on ${ ref_type } *${ ref_name }*` }
+		${ 'schedule' }     | ${ true }  | ${ `Tests failed for scheduled run on ${ ref_type } *${ ref_name }*` }
+		${ 'pull_request' } | ${ false } | ${ `Tests passed for PR <${ prUrl }|${ prNumber }: ${ prTitle }>` }
+		${ 'pull_request' } | ${ true }  | ${ `Tests failed for PR <${ prUrl }|${ prNumber }: ${ prTitle }>` }
+		${ 'unsupported' }  | ${ true }  | ${ `Tests failed for ${ sha }` }
 	`(
 		`Message text is correct for $event event and workflow failed=$isFailure`,
 		async ( { event, isFailure, expected } ) => {
@@ -45,9 +45,8 @@ describe( 'Notification text', () => {
 				.spyOn( utils, 'isWorkflowFailed' )
 				.mockReturnValueOnce( isFailure );
 			await isWorkflowFailed();
-			const actual = await utils.getNotificationData( isFailure );
 
-			expect( actual.text ).toBe( expected.text );
+			await expect( utils.getNotificationText( isFailure ) ).resolves.toBe( expected );
 		}
 	);
 } );
