@@ -24,7 +24,7 @@ $image-square-size: 128px;
 	max-width: 100%;
 
 	@include break-small-up() {
-		width: calc(100% - #{$image-square-size} - 1em);
+		width: calc( 100% - #{$image-square-size} - 1em );
 	}
 
 	.jetpack-instant-search__search-result-expanded--no-image & {
@@ -40,7 +40,6 @@ $image-square-size: 128px;
 .jetpack-instant-search__search-result-expanded__image-link {
 	margin-left: 1em;
 	@include break-small-down() {
-		order: -1;
 		margin: 0 auto 0.5em auto;
 	}
 }

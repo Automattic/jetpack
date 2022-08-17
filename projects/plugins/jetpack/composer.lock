@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1630ba9c6ca6e7589159314b3e27c9ec",
+    "content-hash": "ec5e424bd04b2293241da07b219524b8",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1364,7 +1364,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "5d6f96f0b36b8b9dce26cdc423e07f84420d4639"
+                "reference": "65e9320ea13c29b16053c4badaa93962e46f9b0a"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.42"
@@ -1383,7 +1383,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 }
             },
             "autoload": {
@@ -1476,7 +1476,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "3e910dc444d18300c312eba59d106d50127f85de"
+                "reference": "d6c8e90ca1f29382019df49f1073977d61435dff"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",
@@ -1497,7 +1497,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.10.x-dev"
+                    "dev-trunk": "0.11.x-dev"
                 }
             },
             "autoload": {
@@ -1638,7 +1638,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "bbe4c7a4e31b05439b0f93b35caff7e3886b7544"
+                "reference": "80452a5f3fdd3e20ee9a4d36849734f45812356a"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1662,7 +1662,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.18.x-dev"
+                    "dev-trunk": "0.20.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
@@ -1832,11 +1832,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "eae6b38717b44f6259ae3be3026aa3cd920af678"
+                "reference": "12f9163b993947ccc77df6367455e3ab7c425b3f"
             },
             "require": {
+                "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.42",
-                "automattic/jetpack-plans": "^0.1"
+                "automattic/jetpack-plans": "^0.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
@@ -1850,7 +1851,10 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
+                },
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-package-version.php"
                 },
                 "textdomain": "jetpack-videopress-pkg"
             },
@@ -1870,10 +1874,14 @@
                     "@composer phpunit"
                 ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build"
                 ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [

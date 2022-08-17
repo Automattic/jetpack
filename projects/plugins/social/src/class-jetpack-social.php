@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
@@ -49,6 +50,7 @@ class Jetpack_Social {
 			array( $this, 'plugin_settings_page' ),
 			99
 		);
+
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
 		// Init Jetpack packages and ConnectionUI.
@@ -78,7 +80,8 @@ class Jetpack_Social {
 		);
 
 		// Activate the module as the plugin is activated
-		add_action( 'admin_init', array( $this, 'activate_module_on_plugin_activation' ) );
+		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
+
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -145,8 +148,9 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
-		$shares = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-
+		$shares                  = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		$refresh_plan_from_wpcom = true;
+		$show_nudge              = ! Current_Plan::supports( 'social-shares-1000', $refresh_plan_from_wpcom );
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
@@ -161,6 +165,7 @@ class Jetpack_Social {
 				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 			),
 			'sharesData'      => ! is_wp_error( $shares ) ? $shares : null,
+			'showNudge'       => $show_nudge,
 		);
 	}
 
@@ -236,16 +241,33 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Runs an admin_init and checks the activation option to work out
-	 * if we should activate the module. This needs to be run after the
-	 * activation hook, as that results in a redirect, and we need the
-	 * sync module's actions and filters to be registered.
+	 * Runs on admin_init, and does actions required on plugin activation, based on
+	 * the activation option.
+	 *
+	 * This needs to be run after the activation hook, as that results in a redirect,
+	 * and we need the sync module's actions and filters to be registered.
 	 */
-	public function activate_module_on_plugin_activation() {
+	public function do_plugin_activation_activities() {
 		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) && $this->is_connected() ) {
-			delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
-			( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+			$this->calculate_scheduled_shares();
+			$this->activate_module();
 		}
+	}
+
+	/**
+	 * Activates the Publicize module and disables the activation option
+	 */
+	public function activate_module() {
+		delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
+		( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+	}
+
+	/**
+	 * Calls out to WPCOM to calculate the scheduled shares.
+	 */
+	public function calculate_scheduled_shares() {
+		global $publicize;
+		$publicize->calculate_scheduled_shares( Jetpack_Options::get_option( 'id' ) );
 	}
 
 	/**
