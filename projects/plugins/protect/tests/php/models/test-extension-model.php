@@ -21,12 +21,12 @@ class Test_Extension_Model extends BaseTestCase {
 	}
 
 	/**
-	 * Get a sample vulnerability
+	 * Get a sample threat
 	 *
-	 * @param int|string $id The sample vulnerability's unique identifier.
+	 * @param int|string $id The sample threat's unique identifier.
 	 * @return array
 	 */
-	private static function get_sample_vulnerability( $id = 0 ) {
+	private static function get_sample_threat( $id = 0 ) {
 		return array(
 			'id'          => "test-threat-$id",
 			'signature'   => 'Test.Threat',
@@ -40,16 +40,16 @@ class Test_Extension_Model extends BaseTestCase {
 	 */
 	public function test_extension_model_construct() {
 		$test_data = array(
-			'name'            => 'Test Extension',
-			'slug'            => 'test-extension',
-			'version'         => '1.0.0',
-			'vulnerabilities' => array(
-				self::get_sample_vulnerability( 0 ),
-				self::get_sample_vulnerability( 1 ),
-				self::get_sample_vulnerability( 2 ),
+			'name'    => 'Test Extension',
+			'slug'    => 'test-extension',
+			'version' => '1.0.0',
+			'threats' => array(
+				self::get_sample_threat( 0 ),
+				self::get_sample_threat( 1 ),
+				self::get_sample_threat( 2 ),
 			),
-			'checked'         => true,
-			'type'            => 'plugins',
+			'checked' => true,
+			'type'    => 'plugins',
 		);
 
 		// Initialize multiple instances of Extension_Model to test varying initial params
@@ -59,13 +59,13 @@ class Test_Extension_Model extends BaseTestCase {
 		);
 
 		foreach ( $test_extensions as $extension ) {
-			foreach ( $extension->vulnerabilities as $loop_index => $vulnerability ) {
+			foreach ( $extension->threats as $loop_index => $threat ) {
 				// Validate the threat data is converted into Threat_Models
-				$this->assertSame( get_class( $vulnerability ), 'Automattic\Jetpack\Protect\Threat_Model' );
+				$this->assertSame( get_class( $threat ), 'Automattic\Jetpack\Protect\Threat_Model' );
 
 				// Validate the threat data is set properly
-				foreach ( self::get_sample_vulnerability( $loop_index ) as $key => $value ) {
-					$this->assertSame( $value, $vulnerability->{ $key } );
+				foreach ( self::get_sample_threat( $loop_index ) as $key => $value ) {
+					$this->assertSame( $value, $threat->{ $key } );
 				}
 			}
 		}

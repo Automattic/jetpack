@@ -21,21 +21,6 @@ class Test_Threat_Model extends BaseTestCase {
 	}
 
 	/**
-	 * Get a sample vulnerability
-	 *
-	 * @param int|string $id The sample vulnerability's unique identifier.
-	 * @return array
-	 */
-	private static function get_sample_vulnerability( $id = 0 ) {
-		return array(
-			'id'          => "test-threat-$id",
-			'signature'   => 'Test.Threat',
-			'title'       => "Test Threat $id",
-			'description' => 'This is a test threat.',
-		);
-	}
-
-	/**
 	 * Tests for threat model's __construct() method.
 	 */
 	public function test_threat_model_construct() {
