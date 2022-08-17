@@ -41,8 +41,16 @@ class Initializer {
 	 * @return void
 	 */
 	private static function unconditional_initialization() {
+		require_once __DIR__ . '/utility-functions.php';
+
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
+
 		Module_Control::init();
 		new WPCOM_REST_API_V2_Endpoint_VideoPress();
+		if ( is_admin() ) {
+			AJAX::init();
+		}
 	}
 
 	/**
@@ -51,6 +59,8 @@ class Initializer {
 	 * @return void
 	 */
 	private static function active_initialization() {
+		Attachment_Handler::init();
+		Jwt_Token_Bridge::init();
 		self::register_oembed_providers();
 	}
 
@@ -66,5 +76,14 @@ class Initializer {
 		wp_oembed_add_provider( '#^https?://video.wordpress.com/v/.*#', 'https://public-api.wordpress.com/oembed/?for=' . $host, true );
 		// This is needed as it's not supported in oEmbed discovery
 		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/?for=' . $host, true ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+	}
+
+	/**
+	 * Register the VideoPress block editor block
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_block() {
+		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
 	}
 }
