@@ -36,6 +36,6 @@ if ( ( new Automattic\Jetpack\Status\Host() )->is_atomic_platform() ) {
 /**
  * Triggers when the Jetpack plugin is updated
  */
-add_action( 'upgrader_process_complete', array( 'Automattic\Jetpack\Waf\Waf_Runner', 'update_rules_if_changed' ) );
+add_action( 'upgrader_process_complete', array( 'Automattic\Jetpack\Waf\Waf_Runner', 'update_waf' ) );
 
 Automattic\Jetpack\Waf\Waf_Runner::initialize();

@@ -335,6 +335,16 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Handle updates to the WAF
+	 */
+	public static function update_waf() {
+		self::update_rules_if_changed();
+		// Re-generate the standalone bootstrap file on every update
+		// TODO: We may consider only doing this when the WAF version changes
+		( new Waf_Standalone_Bootstrap() )->generate();
+	}
+
+	/**
 	 * Retrieve rules from the API
 	 *
 	 * @throws \Exception If site is not registered.
