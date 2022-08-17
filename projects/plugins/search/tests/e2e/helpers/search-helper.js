@@ -88,8 +88,8 @@ export async function searchAPIRoute( page ) {
 		}
 
 		// deal with filtering: only works with one category and one tag by filtering the results array
-		const category = params.get( 'filter[bool][must][0][term][category.slug]' );
-		const tag = params.get( 'filter[bool][must][0][term][tag.slug]' );
+		const category = params.get( 'filter[bool][must][0][bool][should][0][term][category.slug]' );
+		const tag = params.get( 'filter[bool][must][1][bool][should][0][term][tag.slug]' );
 
 		if ( category ) {
 			body.results = body.results.filter( v => v?.categories?.includes( category ) );
