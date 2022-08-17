@@ -8,7 +8,9 @@ const StatCard = ( { icon, label, value, link, loading = false } ) => (
 		{ loading ? (
 			<Spinner color="#000" size={ 24 } className={ styles.spinner } />
 		) : (
-			<Text variant="headline-small">{ value }</Text>
+			<Text className={ styles.value } variant="headline-small">
+				{ value }
+			</Text>
 		) }
 	</div>
 );

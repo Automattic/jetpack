@@ -65,11 +65,12 @@
     - yamato-scan
     - jetpack-approvers
 
-# The Boost team reviews changes to the Boost plugin,
+# The Heart of Gold team reviews changes to the Boost or Super Cache plugin,
 # and can add dependencies to the monorepo's lock file.
 - name: Boost
   paths:
    - 'projects/plugins/boost/**'
+   - 'projects/plugins/super-cache/**'
    - '!projects/plugins/*/composer.lock'
    - '!projects/plugins/*/composer.json'
    - '!projects/plugins/*/changelog/*'

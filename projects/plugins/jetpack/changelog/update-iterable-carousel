@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Carousel: resolve a PHP warning when non-attachments are processed.

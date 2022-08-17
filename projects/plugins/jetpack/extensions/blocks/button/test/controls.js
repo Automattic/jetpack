@@ -2,13 +2,6 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ButtonControls from '../controls';
 
-// Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
-// dependencies in the jest test runner.
-jest.mock( '../button-width-panel', () => ( {
-	__esModule: true,
-	default: () => <div>Mocked Width Settings</div>,
-} ) );
-
 const defaultAttributes = {
 	align: undefined,
 	width: undefined,
@@ -37,6 +30,7 @@ const defaultProps = {
 	gradientValue: undefined,
 	setGradient: setGradient,
 	isGradientAvailable: false,
+	WidthSettings: () => null,
 };
 
 beforeEach( () => {

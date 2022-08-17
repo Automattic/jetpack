@@ -40,7 +40,7 @@ const Header = () => {
 	} );
 
 	return (
-		<Container horizontalSpacing={ 3 } horizontalGap={ 7 } className={ styles.container }>
+		<Container horizontalSpacing={ 3 } horizontalGap={ 3 } className={ styles.container }>
 			<Col sm={ 4 } md={ 4 } lg={ 5 }>
 				<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-social' ) }</H3>
 				<div className={ styles.actions }>
