@@ -97,4 +97,13 @@ class Initializer {
 		}
 		return $cache;
 	}
+
+	/**
+	 * Register the VideoPress block editor block
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_block() {
+		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
+	}
 }

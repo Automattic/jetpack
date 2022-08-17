@@ -33,16 +33,25 @@ async function isWorkflowFailed( token ) {
  * @param {boolean} isFailure - whether the workflow is failed or not
  */
 async function getNotificationText( isFailure ) {
-	let event = github.context.sha;
+	const {
+		context: { eventName, sha, ref_type, ref_name, payload },
+	} = github;
+	let event = sha;
 
-	if ( github.context.eventName === 'pull_request' ) {
-		const { html_url, number, title } = github.context.payload.pull_request;
+	if ( eventName === 'pull_request' ) {
+		const { html_url, number, title } = payload.pull_request;
 		event = `PR <${ html_url }|${ number }: ${ title }>`;
 	}
-	if ( github.context.eventName === 'push' || github.context.eventName === 'schedule' ) {
-		const { url, id } = github.context.payload.head_commit;
-		event = `commit <${ url }|${ id }> on branch *${ github.context.ref.substring( 11 ) }*`;
+
+	if ( eventName === 'push' ) {
+		const { url, id } = payload.head_commit;
+		event = `commit <${ url }|${ id }> on ${ ref_type } *${ ref_name }*`;
 	}
+
+	if ( eventName === 'schedule' ) {
+		event = `scheduled run on ${ ref_type } *${ ref_name }*`;
+	}
+
 	return `Tests ${ isFailure ? 'failed' : 'passed' } for ${ event }`;
 }
 

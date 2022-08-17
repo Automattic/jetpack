@@ -47,6 +47,11 @@
 	display: none;
 }
 
+/* When author type is selected, remove the other controls */
+.jetpack-search-filters-widget__filter.is-author .jetpack-search-filters-widget__taxonomy-select {
+	display: none;
+}
+
 /* When date is selected, remove the other controls */
 .jetpack-search-filters-widget__filter.is-date_histogram .jetpack-search-filters-widget__date-histogram-select {
 	display: inline;
