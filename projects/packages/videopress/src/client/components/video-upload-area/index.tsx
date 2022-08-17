@@ -17,7 +17,7 @@ import type React from 'react';
 const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( {
 	isLoading = false,
 	className,
-	onSelectFile,
+	onSelectFiles,
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ isDraggingOver, setIsDraggingOver ] = useState( false );
@@ -25,7 +25,7 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( {
 
 	const handleFileInputChangeEvent = useCallback( ( e: Event ) => {
 		const target = e.target as HTMLInputElement;
-		onSelectFile( target.files[ 0 ] );
+		onSelectFiles( target.files );
 	} );
 
 	const handleClickEvent = useCallback( () => {
@@ -46,14 +46,9 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( {
 			event.preventDefault();
 			setIsDraggingOver( false );
 
-			const { files } = event.dataTransfer;
-			if ( files.length > 1 ) {
-				throw new Error( __( 'Only one file allowed', 'jetpack-videopress-pkg' ) );
-			}
-
-			onSelectFile( files[ 0 ] );
+			onSelectFiles( event.dataTransfer.files );
 		},
-		[ onSelectFile ]
+		[ onSelectFiles ]
 	);
 
 	useEffect( () => {

@@ -28,7 +28,7 @@ const Template: ComponentStory< typeof VideoUploadArea > = args => {
 			className={ classnames( styles.container, {
 				[ styles.small ]: isSm,
 			} ) }
-			onSelectFile={ noop }
+			onSelectFiles={ noop }
 		/>
 	);
 };
