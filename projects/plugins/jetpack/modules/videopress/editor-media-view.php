@@ -23,7 +23,7 @@ function videopress_handle_editor_view_js() {
 		'videopress-editor-ui',
 		plugins_url( 'css/editor.css', __FILE__ ),
 		array(),
-		Jetpack_VideoPress::VERSION
+		JETPACK__VERSION
 	);
 	wp_enqueue_script(
 		'videopress-editor-view',
@@ -32,7 +32,7 @@ function videopress_handle_editor_view_js() {
 			'modules/videopress/js/editor-view.js'
 		),
 		array( 'wp-util', 'jquery' ),
-		Jetpack_VideoPress::VERSION,
+		JETPACK__VERSION,
 		true
 	);
 	wp_localize_script(
