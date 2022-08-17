@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { PricingTable, PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
+import PricingTable, { PricingTableColumn, PricingTableHeader, PricingTableItem } from '../index';
 
 describe( 'PricingTable', () => {
 	const testProps = {
@@ -29,9 +29,9 @@ describe( 'PricingTable', () => {
 	} );
 
 	it( 'renders all included items', () => {
-		const { container } = render( <PricingTable { ...testProps }></PricingTable> );
-
-		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.querySelectorAll( '[data-check]' ) ).toHaveLength( 5 );
+		render( <PricingTable { ...testProps }></PricingTable> );
+		expect( screen.getAllByText( 'Dummy Item 1' ) ).toHaveLength( 2 );
+		expect( screen.getAllByText( 'Dummy Item 2' ) ).toHaveLength( 2 );
+		expect( screen.getAllByText( 'Dummy Item 3' ) ).toHaveLength( 1 ); // eslint-disable-line jest-dom/prefer-in-document
 	} );
 } );
