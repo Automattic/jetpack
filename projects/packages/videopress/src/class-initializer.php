@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 
@@ -18,7 +19,9 @@ class Initializer {
 	const JETPACK_VIDEOPRESS_PKG_NAMESPACE = 'jetpack-videopress-pkg';
 
 	/**
-	 * Invoke this method to initialize the VideoPress package
+	 * Initializes the VideoPress package
+	 *
+	 * This method is called by Config::ensure
 	 *
 	 * @return void
 	 */
@@ -38,6 +41,41 @@ class Initializer {
 		 * @since 0.1.1
 		 */
 		do_action( 'videopress_init' );
+	}
+
+	/**
+	 * Initializes the Admin UI of VideoPress
+	 *
+	 * This method is called by Config::ensure
+	 *
+	 * @return void
+	 */
+	public static function init_admin_ui() {
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
+			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
+			'manage_options',
+			'jetpack-videopress',
+			array( __CLASS__, 'plugin_settings_page' ),
+			99
+		);
+		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
+	 * Initialize the admin resources.
+	 */
+	public static function admin_init() {
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+	}
+
+	/**
+	 * Main plugin settings page.
+	 */
+	public static function plugin_settings_page() {
+		?>
+			<div id="jetpack-videopress-root"></div>
+		<?php
 	}
 
 	/**
