@@ -10,7 +10,8 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.2"
+		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/wordbless": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -36,7 +37,8 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
-		]
+		],
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
 	},
 	"repositories": [
 		{
@@ -62,5 +64,10 @@
 			"::PACKAGE_VERSION": "src/class-package-version.php"
 		},
 		"textdomain": "jetpack-videopress-pkg"
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
 	}
 }
