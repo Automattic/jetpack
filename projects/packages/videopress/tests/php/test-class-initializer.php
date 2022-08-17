@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 class InitializerTest extends TestCase {
 
 	/** PHPUnit setUp */
-	protected function setUp() {
+	protected function setUp(): void { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
 		parent::setUp();
 		Monkey\setUp();
 		$plugin_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/';
@@ -39,7 +39,7 @@ class InitializerTest extends TestCase {
 	}
 
 	/** PHPUnit tearDown */
-	protected function tearDown() {
+	protected function tearDown(): void { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
 		Monkey\tearDown();
 		parent::tearDown();
 	}
