@@ -10,6 +10,8 @@ async function isWorkflowFailed( token ) {
 	const octokit = new github.getOctokit( token );
 	const { payload, run_id } = github.context;
 
+	debug( JSON.stringify( github.context ) );
+
 	// Get the list of jobs for the current workflow run
 	const response = await octokit.rest.actions.listJobsForWorkflowRun( {
 		owner: payload.repository.owner.login,
