@@ -1751,7 +1751,7 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 			printf(
 				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" target="_blank"></a>',
 				esc_url( $stats_post_url ),
-				esc_html__( 'View stats for this post in WordPress.com', 'jetpack' )
+				esc_html__( 'View stats for this post at WordPress.com', 'jetpack' )
 			);
 		}
 	}
