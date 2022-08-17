@@ -45,8 +45,8 @@ class Jwt_Token_Bridge {
 	public static function get_bridge_url() {
 		// TODO: use minified version in production.
 		return Assets::get_file_url_for_environment(
-			'client/lib/videopress-token-bridge.js',
-			'client/lib/videopress-token-bridge.js',
+			'../build/lib/videopress-token-bridge.js', // <- production
+			'client/lib/videopress-token-bridge.js', // <- development
 			__FILE__
 		);
 	}
