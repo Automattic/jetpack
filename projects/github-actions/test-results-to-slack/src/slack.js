@@ -1,4 +1,4 @@
-const { debug } = require( '@actions/core' );
+const debug = require( './debug' );
 
 /**
  * Sends a Slack message.

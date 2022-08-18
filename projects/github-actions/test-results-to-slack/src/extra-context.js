@@ -6,6 +6,4 @@ const extras = {
 	triggeringActor: process.env.GITHUB_TRIGGERING_ACTOR,
 };
 
-module.exports = {
-	extras,
-};
+module.exports = extras;

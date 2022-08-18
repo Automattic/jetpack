@@ -12,7 +12,7 @@ describe( 'Extra context', () => {
 	process.env.GITHUB_TRIGGERING_ACTOR = triggeringActor;
 
 	test( 'Environment variables are exposed in extra context', async () => {
-		const { extras } = require( '../src/extra-context' );
+		const extras = require( '../src/extra-context' );
 
 		expect( extras.runAttempt ).toBe( runAttempt );
 		expect( extras.refType ).toBe( refType );

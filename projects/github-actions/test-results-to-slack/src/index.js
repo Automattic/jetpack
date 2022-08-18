@@ -1,5 +1,6 @@
-const { setFailed, getInput, debug, startGroup, endGroup } = require( '@actions/core' );
+const { setFailed, getInput, startGroup, endGroup } = require( '@actions/core' );
 const { WebClient } = require( '@slack/web-api' );
+const debug = require( './debug' );
 const { isWorkflowFailed, getNotificationData } = require( './github' );
 const { getMessage, sendMessage } = require( './slack' );
 

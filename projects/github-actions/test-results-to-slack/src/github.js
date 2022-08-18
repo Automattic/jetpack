@@ -1,5 +1,5 @@
 const github = require( '@actions/github' );
-const { extras } = require( './extra-context' );
+const extras = require( './extra-context' );
 
 /**
  * Decides if the current workflow failed
