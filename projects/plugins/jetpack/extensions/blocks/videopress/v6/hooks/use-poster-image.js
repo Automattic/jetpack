@@ -9,7 +9,7 @@ const usePosterImage = guid => {
 		}
 
 		apiFetch( {
-			url: url,
+			url: url.toString(),
 			method: 'GET',
 			credentials: 'omit',
 		} )
@@ -21,20 +21,24 @@ const usePosterImage = guid => {
 			} );
 	};
 
-	return new Promise( ( resolve, reject ) => {
-		window.wp.ajax
-			.post( 'videopress-get-playback-jwt', {
-				async: true,
-				guid: guid,
-			} )
-			.done( function ( response ) {
-				getPosterRequest( resolve, reject, response.jwt );
-			} )
-			.fail( () => {
-				// Also try on ajax failure if the video doesn't need a jwt anyway
-				getPosterRequest( resolve, reject );
-			} );
-	} );
+	const videopressGetPoster = () => {
+		return new Promise( ( resolve, reject ) => {
+			window.wp.ajax
+				.post( 'videopress-get-playback-jwt', {
+					async: true,
+					guid: guid,
+				} )
+				.done( function ( response ) {
+					getPosterRequest( resolve, reject, response.jwt );
+				} )
+				.fail( () => {
+					// Also try on ajax failure if the video doesn't need a jwt anyway
+					getPosterRequest( resolve, reject );
+				} );
+		} );
+	};
+
+	return videopressGetPoster;
 };
 
 export default usePosterImage;
