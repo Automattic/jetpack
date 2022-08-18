@@ -288,13 +288,18 @@ class Config {
 	 * Enables VideoPress.
 	 */
 	protected function enable_videopress() {
-		$options = $this->get_feature_options( 'videopress' );
 		VideoPress_Pkg_Initializer::init();
+		return true;
+	}
 
-		if ( isset( $options['admin_ui'] ) && true === $options['admin_ui'] ) {
-			VideoPress_Pkg_Initializer::init_admin_ui();
+	/**
+	 * Hanldes VideoPress options
+	 */
+	protected function ensure_options_videopress() {
+		$options = $this->get_feature_options( 'videopress' );
+		if ( ! empty( $options ) ) {
+			VideoPress_Pkg_Initializer::update_init_options( $options );
 		}
-
 		return true;
 	}
 

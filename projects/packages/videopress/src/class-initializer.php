@@ -19,13 +19,31 @@ class Initializer {
 	const JETPACK_VIDEOPRESS_PKG_NAMESPACE = 'jetpack-videopress-pkg';
 
 	/**
+	 * Initialization optinos
+	 *
+	 * @var array
+	 */
+	protected static $init_options = array();
+
+	/**
 	 * Initializes the VideoPress package
 	 *
-	 * This method is called by Config::ensure
+	 * This method is called by Config::ensure.
 	 *
 	 * @return void
 	 */
 	public static function init() {
+		add_action( 'plugins_loaded', array( __CLASS__, 'do_init' ), 90 ); // do the actual initialization after Config ensured options from all consumers.
+	}
+
+	/**
+	 * Actually initializes the package, after all calls to Config::ensure have been processed
+	 *
+	 * Do not call this method directly.
+	 *
+	 * @return void
+	 */
+	public static function do_init() {
 		if ( ! did_action( 'videopress_init' ) ) {
 
 			self::unconditional_initialization();
@@ -41,6 +59,31 @@ class Initializer {
 		 * @since 0.1.1
 		 */
 		do_action( 'videopress_init' );
+	}
+
+	/**
+	 * Update the initialization options
+	 *
+	 * This method is called by the Config class
+	 *
+	 * @param array $options The initialization options.
+	 * @return void
+	 */
+	public static function update_init_options( array $options ) {
+		if ( empty( $options['admin_ui'] ) || self::should_initialize_admin_ui() ) { // do not overwrite if already set to true.
+			return;
+		}
+
+		self::$init_options['admin_ui'] = $options['admin_ui'];
+	}
+
+	/**
+	 * Checks the initialization options and returns whether the admin_ui should be initialized or not
+	 *
+	 * @return boolean
+	 */
+	public static function should_initialize_admin_ui() {
+		return isset( self::$init_options['admin_ui'] ) && true === self::$init_options['admin_ui'];
 	}
 
 	/**
@@ -105,6 +148,9 @@ class Initializer {
 		Attachment_Handler::init();
 		Jwt_Token_Bridge::init();
 		self::register_oembed_providers();
+		if ( self::should_initialize_admin_ui() ) {
+			self::init_admin_ui();
+		}
 	}
 
 	/**
