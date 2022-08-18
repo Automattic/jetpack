@@ -55,29 +55,23 @@ export default function PublicizeForm( {
 					{ numberOfSharesRemaining !== null && (
 						<PanelRow>
 							<Notice type={ numberOfSharesRemaining < connections.length ? 'warning' : 'default' }>
-								<>
-									{ createInterpolateElement(
-										sprintf(
-											/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
-											_n(
-												'You have %d share remaining. <upgradeLink>Upgrade</upgradeLink> to share to all your social media accounts.',
-												'You have %d shares remaining. <upgradeLink>Upgrade</upgradeLink> to share to all your social media accounts.',
-												numberOfSharesRemaining,
-												'jetpack'
-											),
-											numberOfSharesRemaining
+								{ createInterpolateElement(
+									sprintf(
+										/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
+										_n(
+											'You have %d share remaining. <upgradeLink>Upgrade</upgradeLink> to share to all your social media accounts.',
+											'You have %d shares remaining. <upgradeLink>Upgrade</upgradeLink> to share to all your social media accounts.',
+											numberOfSharesRemaining,
+											'jetpack'
 										),
-										{
-											upgradeLink: (
-												<a
-													href={ 'https://example.com' }
-													rel="noopener noreferrer"
-													target="_blank"
-												/>
-											),
-										}
-									) }
-								</>
+										numberOfSharesRemaining
+									),
+									{
+										upgradeLink: (
+											<a href={ 'https://example.com' } rel="noopener noreferrer" target="_blank" />
+										),
+									}
+								) }
 							</Notice>
 						</PanelRow>
 					) }
