@@ -11,7 +11,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.2",
-		"brain/monkey": "^2.6"
+		"brain/monkey": "2.6.1"
 	},
 	"autoload": {
 		"classmap": [
