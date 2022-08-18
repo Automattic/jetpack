@@ -66,10 +66,6 @@ class Jetpack_Backup {
 		if ( did_action( 'jetpack_backup_initialized' ) ) {
 			return;
 		}
-		// Admin menu shouldn't get displayed when Jetpack is active and disconnected.
-		if ( ! ( new Connection_Manager() )->is_connected() && class_exists( 'Jetpack' ) ) {
-			return;
-		}
 
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();

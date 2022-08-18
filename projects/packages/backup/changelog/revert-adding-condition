@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Reverting change from the latest commit. Removing condition for loading UI.
