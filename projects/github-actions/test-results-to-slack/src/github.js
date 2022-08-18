@@ -33,8 +33,8 @@ async function isWorkflowFailed( token ) {
 }
 
 /**
- * Returns na object with notification data.
- * Properties: `text` for notification's text and `id` for a unique identifier for the message
+ * Returns an object with notification data.
+ * Properties: `text` for notification's text and `id` for a unique identifier for the message.
  * that can be used later on to find this message and update it or send replies.
  *
  * @param {boolean} isFailure - whether the workflow is failed or not

@@ -1,10 +1,11 @@
-const { setFailed, getInput } = require( '@actions/core' );
+const { setFailed, getInput, debug, startGroup, endGroup } = require( '@actions/core' );
 const { WebClient } = require( '@slack/web-api' );
-const debug = require( './debug' );
 const { isWorkflowFailed, getNotificationData } = require( './github' );
 const { getMessage, sendMessage } = require( './slack' );
 
 ( async function main() {
+	startGroup( 'Send results to Slack' );
+
 	//region validate input
 	const ghToken = getInput( 'github_token' );
 	if ( ! ghToken ) {
@@ -98,4 +99,6 @@ const { getMessage, sendMessage } = require( './slack' );
 			debug( 'No previous failure found, no notification needed for success' );
 		}
 	}
+
+	endGroup();
 } )();

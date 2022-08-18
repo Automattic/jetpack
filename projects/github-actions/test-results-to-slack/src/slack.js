@@ -1,4 +1,4 @@
-const debug = require( './debug' );
+const { debug } = require( '@actions/core' );
 
 /**
  * Sends a Slack message.
@@ -49,7 +49,8 @@ async function getMessage( client, channelId, identifier ) {
 		message = result.messages.filter( m => m.text.includes( identifier ) )[ 0 ];
 	}
 
-	debug( `Found: ${ message }` );
+	message ? debug( 'Message found' ) : debug( 'Message not found' );
+
 	return message;
 }
 
