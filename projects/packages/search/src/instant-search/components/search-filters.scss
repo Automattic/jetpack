@@ -19,8 +19,8 @@
 }
 
 .jetpack-instant-search__clear-filters-link {
-	@include inherit-parent-colors-important();
-	@include inherit-parent-font-size-important();
+	// @include inherit-parent-colors-important();
+	// @include inherit-parent-font-size-important();
 	border: none;
 	cursor: pointer;
 	position: absolute;
@@ -35,6 +35,17 @@
 		outline: 1px auto -webkit-focus-ring-color !important;
 		outline-offset: inherit;
 	}
+}
+
+.jetpack-instant-search__sidebar
+	.jetpack-instant-search__search-filters
+	button.jetpack-instant-search__clear-filters-link {
+	// Extra specificity to override overly agressive theme styles.
+	// Without this, we need to use "!important" to get our default styling.
+	background-color: inherit;
+	color: #646970;
+	font-size: inherit;
+	font-weight: inherit;
 }
 
 .jetpack-instant-search__search-filter-sub-heading {

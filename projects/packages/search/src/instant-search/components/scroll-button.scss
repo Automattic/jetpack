@@ -1,12 +1,10 @@
 @import '../lib/styles/_helper.scss';
 
 .jetpack-instant-search__scroll-button {
-	@include inherit-parent-colors-important();
+	// @include inherit-parent-colors-important();
 	outline: 0;
 	border: 0;
 	box-shadow: none;
-	// !important is temporarily needed to override :not() selectors in certain themes like Twenty Twenty One
-	font-size: 13px !important;
 	padding: 0 6px;
 
 	&:focus {
@@ -14,4 +12,15 @@
 		outline: 1px auto -webkit-focus-ring-color !important;
 		outline-offset: inherit;
 	}
+}
+
+.jetpack-instant-search__search-results
+	.jetpack-instant-search__search-results-pagination
+	button.jetpack-instant-search__scroll-button {
+	// Extra specificity to override overly agressive theme styles.
+	// Without this, we need to use "!important" to get our default styling.
+	background-color: inherit;
+	color: #646970;
+	font-size: inherit;
+	font-weight: inherit;
 }

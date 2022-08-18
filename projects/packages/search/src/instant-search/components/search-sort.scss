@@ -56,8 +56,8 @@
 
 .jetpack-instant-search__search-sort-option {
 	@include remove-button-styling();
-	@include inherit-parent-colors-important();
-	@include inherit-parent-font-size-important();
+	// @include inherit-parent-colors-important();
+	// @include inherit-parent-font-size-important();
 	cursor: pointer;
 	padding: 0 2px 0 2px;
 
@@ -66,10 +66,20 @@
 		outline: 1px auto -webkit-focus-ring-color !important;
 		outline-offset: inherit;
 	}
+}
+
+.jetpack-instant-search__search-form-controls
+	.jetpack-instant-search__search-sort
+	button.jetpack-instant-search__search-sort-option {
+	// Extra specificity to override overly agressive theme styles.
+	// Without this, we need to use "!important" to get our default styling.
+	background-color: inherit;
+	color: #646970;
+	font-size: inherit;
+	font-weight: inherit;
 
 	&.is-selected {
-		// !important is temporarily needed to override :not() selectors in certain themes like Twenty Twenty One
-		color: $color-link-alt !important;
+		color: $color-link-alt;
 		font-weight: 600;
 		text-decoration: none;
 	}
