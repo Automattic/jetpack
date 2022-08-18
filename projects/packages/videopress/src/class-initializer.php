@@ -81,6 +81,26 @@ class Initializer {
 		wp_oembed_add_provider( '#^https?://video.wordpress.com/v/.*#', 'https://public-api.wordpress.com/oembed/?for=' . $host, true );
 		// This is needed as it's not supported in oEmbed discovery
 		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/?for=' . $host, true ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+
+		add_filter( 'embed_oembed_html', array( __CLASS__, 'video_enqueue_bridge_when_oembed_present' ), 10, 4 );
+	}
+
+	/**
+	 * Enqueues VideoPress token bridge when a VideoPress oembed is present on the current page.
+	 *
+	 * @param string|false $cache   The cached HTML result, stored in post meta.
+	 * @param string       $url     The attempted embed URL.
+	 * @param array        $attr    An array of shortcode attributes.
+	 * @param int          $post_ID Post ID.
+	 *
+	 * @return string|false
+	 */
+	public static function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( preg_match( '/^https?:\/\/(video\.wordpress\.com|videopress\.com)\/(v|embed)\//', $url ) // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+			|| preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+			Jwt_Token_Bridge::enqueue_jwt_token_bridge();
+		}
+		return $cache;
 	}
 
 	/**
