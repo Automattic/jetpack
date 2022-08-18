@@ -27,6 +27,18 @@ class Jetpack_Search_Plugin {
 		add_action( 'plugins_loaded', array( self::class, 'configure_packages' ), 1 );
 		add_action( 'plugins_loaded', array( self::class, 'initialize_other_packages' ) );
 		add_action( 'activated_plugin', array( self::class, 'handle_plugin_activation' ) );
+		add_filter( 'plugin_action_links', array( self::class, 'plugin_page_settings_link' ) );
+	}
+
+	/**
+	 * Add settings link to plugin actions
+	 *
+	 * @param array $links the array of links.
+	 */
+	public static function plugin_page_settings_link( $links ) {
+		$settings_link = '<a href="' . admin_url( 'admin.php?page=jetpack-search' ) . '">' . esc_html__( 'Settings', 'jetpack-search' ) . '</a>';
+		array_unshift( $links, $settings_link );
+		return $links;
 	}
 
 	/**
@@ -80,6 +92,7 @@ class Jetpack_Search_Plugin {
 	 * @param string $plugin Path to the plugin file relative to the plugins directory.
 	 */
 	public static function handle_plugin_activation( $plugin ) {
+
 		// If site is already connected, enable the search module and enable instant search.
 		if ( ( new Connection_Manager() )->is_connected() ) {
 			$controller        = new Search_Module_Control();
