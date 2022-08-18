@@ -16,3 +16,5 @@ wp_oembed_add_provider( '#https?://sketchfab\.com/.*#i', 'https://sketchfab.com/
 wp_oembed_add_provider( '#https?://(www\.)?icloud\.com/keynote/.*#i', 'https://iwmb.icloud.com/iwmb/oembed', true );
 wp_oembed_add_provider( '#https?://((song|album|artist|pods|playlist)\.link|odesli\.com?|mylink\.page)/.*#', 'https://odesli.co/oembed', true );
 wp_oembed_add_provider( '#https?://(www\.)?loom\.com/share/.*#i', 'https://www.loom.com/v1/oembed', true );
+wp_oembed_add_provider( '#https?://pca\.st/.+#i', 'https://pca.st/oembed.json', true );
+wp_oembed_add_provider( '#https?://pcast\.pocketcasts\.net/.+#i', 'https://pcast.pocketcasts.net/oembed.json', true );
