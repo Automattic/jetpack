@@ -66,6 +66,8 @@ export default function SearchResultExpanded( props ) {
 					className="jetpack-instant-search__search-result-expanded__image-link"
 					href={ `//${ fields[ 'permalink.url.raw' ] }` }
 					onClick={ props.onClick }
+					tabIndex="-1"
+					aria-hidden="true"
 				>
 					<div className="jetpack-instant-search__search-result-expanded__image-container">
 						{ firstImage ? (
