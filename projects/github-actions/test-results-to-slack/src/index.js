@@ -58,7 +58,7 @@ const { isWorkflowFailed, getNotificationData, getMessage } = require( './utils'
 		} );
 
 		if ( isFailure ) {
-			debug( 'Sending new reply to main message' );
+			debug( 'Sending new reply to main message with failure details' );
 			// Send a reply to the main message with the current failure result
 			await sendSlackMessage( client, false, {
 				text,
@@ -83,7 +83,7 @@ const { isWorkflowFailed, getNotificationData, getMessage } = require( './utils'
 			} );
 			mainMessageTS = response.ts;
 
-			debug( 'Sending new reply to main message' );
+			debug( 'Sending new reply to main message with failure details' );
 			// Send a reply to the main message with the current failure result
 			await sendSlackMessage( client, false, {
 				text,
@@ -93,6 +93,8 @@ const { isWorkflowFailed, getNotificationData, getMessage } = require( './utils'
 				icon_emoji,
 				thread_ts: mainMessageTS,
 			} );
+		} else {
+			debug( 'No previous failure found, no notification needed for success' );
 		}
 	}
 } )();

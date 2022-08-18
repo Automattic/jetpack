@@ -241,7 +241,7 @@ async function getMessage( client, channelId, identifier ) {
 		message = result.messages.filter( m => m.text.includes( identifier ) )[ 0 ];
 	}
 
-	debug( `Found message: ${ message }` );
+	debug( `Found: ${ message }` );
 	return message;
 }
 

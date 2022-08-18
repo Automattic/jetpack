@@ -12,7 +12,7 @@ beforeAll( () => {
 
 describe( 'Workflow conclusion', () => {
 	// Mock GitHub context
-	mockGitHubContext( { payload: { repository }, run_id: runId } );
+	mockGitHubContext( { payload: { repository }, runId } );
 
 	test.each`
 		expected   | description                                                   | jobs
