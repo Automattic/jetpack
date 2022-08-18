@@ -143,18 +143,22 @@ const UploadingEditor = props => {
 		onSelectPoster,
 		onRemovePoster,
 		videoPosterImageData,
-		// onChangeTitle,
+		onChangeTitle,
 		// onVideoFrameSelected,
 	} = props;
 	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
 	const [ title, setTitle ] = useState( filename );
+	const handleTitleChange = newTitle => {
+		onChangeTitle( newTitle );
+		setTitle( newTitle );
+	};
 
 	return (
 		<div className="uploading-editor">
 			<TextControl
 				label={ __( 'Video title', 'jetpack' ) }
 				className="uploading-editor__title"
-				onChange={ newTitle => setTitle( newTitle ) }
+				onChange={ handleTitleChange }
 				value={ title }
 			/>
 			<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>

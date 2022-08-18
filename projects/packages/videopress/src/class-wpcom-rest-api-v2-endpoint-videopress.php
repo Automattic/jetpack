@@ -168,6 +168,17 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					$should_update_meta           = true;
 				}
 
+				if ( isset( $json_params['title'] ) ) {
+					$meta['videopress']['title'] = sanitize_text_field( $json_params['title'] );
+					$should_update_meta          = true;
+					wp_update_post(
+						array(
+							'ID'         => $post_id,
+							'post_title' => $json_params['title'],
+						)
+					);
+				}
+
 				if ( isset( $json_params['allow_download'] ) ) {
 					$allow_download = (bool) $json_params['allow_download'];
 					if ( ! isset( $meta['videopress']['allow_download'] ) || $meta['videopress']['allow_download'] !== $allow_download ) {

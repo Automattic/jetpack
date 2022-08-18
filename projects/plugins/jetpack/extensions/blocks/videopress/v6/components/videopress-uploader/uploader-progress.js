@@ -10,6 +10,7 @@ import { PlaceholderWrapper } from '../../edit.js';
 /**
  * Internal dependencies
  */
+import useMetaUpdate from '../../hooks/use-meta-update.js';
 import usePosterUpload from '../../hooks/use-poster-upload.js';
 import UploadingEditor from './uploader-editor.js';
 
@@ -24,7 +25,9 @@ const UploaderProgress = ( {
 	onDone,
 } ) => {
 	const [ videoPosterImageData, setVideoPosterImageData ] = useState( null );
+	const [ title, setTitle ] = useState( null );
 	const videoPressUploadPoster = usePosterUpload();
+	const updateMeta = useMetaUpdate();
 
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
@@ -41,22 +44,7 @@ const UploaderProgress = ( {
 		setVideoPosterImageData( null );
 	};
 
-	const shouldUseJetpackVideoFetch = () => {
-		return 'videoPressUploadPoster' in window;
-	};
-
-	const getPosterImage = () => {
-		if ( shouldUseJetpackVideoFetch() ) {
-			return window.videoPressGetPoster( guid );
-		}
-
-		return apiFetch( {
-			path: `/videos/${ guid }/poster`,
-			apiNamespace: 'rest/v1.1',
-			global: true,
-			method: 'GET',
-		} );
-	};
+	const getPosterImage = () => {};
 
 	const startPollingForPosterImage = () => {
 		setTimeout( () => {
@@ -103,18 +91,20 @@ const UploaderProgress = ( {
 		} );
 	};
 
+	const sendUpdateTitleRequest = () => {
+		return updateMeta( attributes?.id, { title } );
+	};
+
 	const handleDoneUpload = () => {
 		// const { title, videoFrameSelectedInMillis } = this.state;
+		const updates = [];
 
-		// if ( title ) {
-		// sendUpdateTitleRequest();
-		// }
+		if ( title ) {
+			updates.push( sendUpdateTitleRequest() );
+		}
 
 		if ( videoPosterImageData ) {
-			sendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } ).then( () => {
-				onDone();
-			} );
-			return;
+			updates.push( sendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } ) );
 		}
 
 		// if (
@@ -124,6 +114,10 @@ const UploaderProgress = ( {
 		// ) {
 		// sendUpdatePosterFromMillisecondsRequest();
 		// }
+
+		Promise.allSettled( updates ).then( () => {
+			onDone();
+		} );
 	};
 
 	return (
@@ -133,6 +127,7 @@ const UploaderProgress = ( {
 				onSelectPoster={ handleSelectPoster }
 				onRemovePoster={ handleRemovePoster }
 				videoPosterImageData={ videoPosterImageData }
+				onChangeTitle={ setTitle }
 			/>
 			{ completed ? (
 				<div className="uploader-block__upload-complete">
