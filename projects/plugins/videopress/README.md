@@ -6,6 +6,16 @@ Jetpack VideoPress plugin
 
 ### Installation From Git Repo
 
+## Development
+
+Build the plugin
+
+When testing locally, the first time, don't forget to link the plugin:
+
+```cli
+jetpack docker link-plugin videopress
+```
+
 ## Contribute
 
 ## Get Help

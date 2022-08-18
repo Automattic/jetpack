@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix issue in the license activation notice banner that appears even after being dismissed.
