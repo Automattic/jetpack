@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search: added product-brand to taxonomy sync list to support WooCommerce Brands plugin

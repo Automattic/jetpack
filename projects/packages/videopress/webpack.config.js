@@ -7,6 +7,7 @@ module.exports = [
 			'block-editor/index': './src/client/block-editor/index.js',
 			'block-editor/view': './src/client/block-editor/view.js',
 			'lib/videopress-token-bridge': './src/client/lib/videopress-token-bridge.js',
+			'admin/index': './src/client/admin/index.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,

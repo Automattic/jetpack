@@ -11,7 +11,7 @@
 		"automattic/jetpack-config": "1.9.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
 		"automattic/jetpack-my-jetpack": "2.0.x-dev",
-		"automattic/jetpack-sync": "1.37.x-dev",
+		"automattic/jetpack-sync": "1.38.x-dev",
 		"automattic/jetpack-videopress": "0.2.x-dev"
 	},
 	"require-dev": {
@@ -24,28 +24,7 @@
 			"src/"
 		]
 	},
-	"scripts": {
-		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
-		"build-development": [
-			"pnpm run build"
-		],
-		"build-production": [
-			"pnpm run build-production-concurrently"
-		],
-		"watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run watch"
-		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
-	},
+	"scripts": {},
 	"repositories": [
 		{
 			"type": "path",
