@@ -55,20 +55,15 @@
 }
 
 .jetpack-instant-search__search-sort-option {
+	@include remove-button-styling();
+	@include inherit-parent-colors-important();
+	@include inherit-parent-font-size-important();
 	cursor: pointer;
 	padding: 0 2px 0 2px;
-	color: $color-text-lighter;
-	text-decoration: none;
-	border: none;
-	background-color: inherit;
-
-	.jetpack-instant-search__search-sort &:focus,
-	.jetpack-instant-search__search-sort &:hover {
-		text-decoration: none;
-	}
 
 	&.is-selected {
-		color: $color-link-alt;
+		// !important is temporarily needed to override :not() selectors in certain themes like Twenty Twenty One
+		color: $color-link-alt !important;
 		font-weight: 600;
 		text-decoration: none;
 	}

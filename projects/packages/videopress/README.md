@@ -1,12 +1,26 @@
-# videopress
+# VideoPress
 
 VideoPress package
 
-## How to install videopress
+## How to install VideoPress
 
 ### Installation From Git Repo
 
 ## Contribute
+
+### Development
+
+Build all bundles
+
+```cli
+jetpack build packages/videopress
+```
+
+Build in watching dog mode 🐕
+
+```cli
+jetpack watch packages/videopress
+```
 
 ## Get Help
 

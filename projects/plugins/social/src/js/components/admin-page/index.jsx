@@ -8,6 +8,7 @@ import {
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
+import SupportSection from '../support-section';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
@@ -46,6 +47,9 @@ const Admin = () => {
 			<AdminSectionHero>
 				<InfoSection />
 			</AdminSectionHero>
+			<AdminSection>
+				<SupportSection />
+			</AdminSection>
 		</AdminPage>
 	);
 };
