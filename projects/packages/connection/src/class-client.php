@@ -41,7 +41,12 @@ class Client {
 
 		$response = self::_wp_remote_request( $result['url'], $result['request'] );
 
-		Error_Handler::get_instance()->check_api_response_for_errors( $response, $result['auth'], $args['url'], $args['method'] );
+		Error_Handler::get_instance()->check_api_response_for_errors(
+			$response,
+			$result['auth'],
+			empty( $args['url'] ) ? '' : $args['url'],
+			empty( $args['method'] ) ? 'POST' : $args['method']
+		);
 
 		/**
 		 * Fired when the remote request response has been received.
