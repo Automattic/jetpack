@@ -2,7 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
@@ -16,6 +16,7 @@ import usePosterUpload from '../../hooks/use-poster-upload.js';
 import UploadingEditor from './uploader-editor.js';
 
 const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
+	const [ isFinishingUpdate, setIsFinishingUpdate ] = useState( false );
 	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
 	const [ videoPosterImageData, setVideoPosterImageData ] = useState( null );
 	const [ title, setTitle ] = useState( null );
@@ -95,6 +96,8 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 	};
 
 	const handleDoneUpload = () => {
+		setIsFinishingUpdate( true );
+
 		const updates = [];
 
 		if ( title ) {
@@ -112,6 +115,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 		}
 
 		Promise.allSettled( updates ).then( () => {
+			setIsFinishingUpdate( false );
 			onDone();
 		} );
 	};
@@ -123,6 +127,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 		setTitle,
 		handleDoneUpload,
 		videoPosterImageData,
+		isFinishingUpdate,
 	];
 };
 
@@ -143,6 +148,7 @@ const UploaderProgress = ( {
 		handleChangeTitle,
 		handleDoneUpload,
 		videoPosterImageData,
+		isFinishingUpdate,
 	] = usePosterAndTitleUpdate( { setAttributes, attributes, onDone } );
 
 	const roundedProgress = Math.round( progress );
@@ -161,37 +167,51 @@ const UploaderProgress = ( {
 				onVideoFrameSelected={ handleVideoFrameSelected }
 				videoPosterImageData={ videoPosterImageData }
 			/>
-			{ completed ? (
-				<div className="uploader-block__upload-complete">
-					<span>{ __( 'Upload Complete!', 'jetpack' ) } 🎉</span>
-					<Button variant="primary" onClick={ handleDoneUpload }>
-						{ __( 'Done', 'jetpack' ) }
-					</Button>
-				</div>
-			) : (
-				<div className="videopress-uploader-progress">
-					<div className="videopress-uploader-progress__file-info">
-						<div className="videopress-uploader-progress__progress">
-							<div className="videopress-uploader-progress__progress-loaded" style={ cssWidth } />
-						</div>
-						<div className="videopress-upload__percent-complete">
-							{ sprintf(
-								/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
-								__( 'Uploading (%1$s%%)', 'jetpack' ),
-								roundedProgress
-							) }
-						</div>
-						<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
-					</div>
-					<div className="videopress-uploader-progress__actions">
-						{ roundedProgress < 100 && (
-							<Button variant="link" onClick={ onPauseOrResume }>
-								{ paused ? resumeText : pauseText }
-							</Button>
+			<div className="videopress-uploader-progress">
+				{ completed ? (
+					<>
+						<span>{ __( 'Upload Complete!', 'jetpack' ) } 🎉</span>
+						<Button variant="primary" onClick={ handleDoneUpload } disabled={ isFinishingUpdate }>
+							{ isFinishingUpdate ? <Spinner /> : __( 'Done', 'jetpack' ) }
+						</Button>
+					</>
+				) : (
+					<>
+						{ roundedProgress < 100 ? (
+							<>
+								<div className="videopress-uploader-progress__file-info">
+									<div className="videopress-uploader-progress__progress">
+										<div
+											className="videopress-uploader-progress__progress-loaded"
+											style={ cssWidth }
+										/>
+									</div>
+									<div className="videopress-upload__percent-complete">
+										{ sprintf(
+											/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
+											__( 'Uploading (%1$s%%)', 'jetpack' ),
+											roundedProgress
+										) }
+									</div>
+									<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
+								</div>
+								<div className="videopress-uploader-progress__actions">
+									{ roundedProgress < 100 && (
+										<Button variant="link" onClick={ onPauseOrResume }>
+											{ paused ? resumeText : pauseText }
+										</Button>
+									) }
+								</div>
+							</>
+						) : (
+							<>
+								<span>{ __( 'Finishing up …', 'jetpack' ) } 🎬</span>
+								<Spinner />
+							</>
 						) }
-					</div>
-				</div>
-			) }
+					</>
+				) }
+			</div>
 		</PlaceholderWrapper>
 	);
 };
