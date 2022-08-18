@@ -5,7 +5,7 @@ on:
     paths-ignore:
     - '**.md'
   push:
-    branches: [ trunk, update/group-slack-notifications ]
+    branches: [ trunk ]
     paths-ignore:
     - '**.md'
   schedule:
