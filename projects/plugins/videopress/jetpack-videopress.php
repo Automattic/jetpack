@@ -112,7 +112,7 @@ add_filter(
 	}
 );
 
-register_deactivation_hook( __FILE__, array( 'Jetpack_Videopress_Plugin', 'plugin_deactivation' ) );
+register_deactivation_hook( __FILE__, array( 'Jetpack_VideoPress_Plugin', 'plugin_deactivation' ) );
 
 // Main plugin class.
-new Jetpack_Videopress_Plugin();
+new Jetpack_VideoPress_Plugin();
