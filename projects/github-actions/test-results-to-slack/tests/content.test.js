@@ -47,13 +47,8 @@ describe( 'Notification text', () => {
 			process.env.GITHUB_REPOSITORY = repo;
 			process.env.GITHUB_TRIGGERING_ACTOR = triggeringActor;
 
-			// Mock workflow conclusion
-			const utils = require( '../src/utils' );
-			const isWorkflowFailed = jest
-				.spyOn( utils, 'isWorkflowFailed' )
-				.mockReturnValueOnce( isFailure );
-			await isWorkflowFailed();
-			const actual = await utils.getNotificationData( isFailure );
+			const { getNotificationData } = require( '../src/github' );
+			const actual = await getNotificationData( isFailure );
 
 			expect( actual.text ).toBe( expected.text );
 		}

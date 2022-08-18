@@ -22,16 +22,17 @@ describe.skip( 'Notification is sent', () => {
 
 	test( `Correct message is sent to Slack`, async () => {
 		// Mock workflow conclusion
-		const utils = require( '../src/utils' );
-		jest.spyOn( utils, 'isWorkflowFailed' ).mockImplementation().mockReturnValueOnce( true );
+		const gh = require( '../src/github' );
+		jest.spyOn( gh, 'isWorkflowFailed' ).mockImplementation().mockReturnValueOnce( true );
 
 		// Mock existing message
-		jest.spyOn( utils, 'getMessage' ).mockImplementation().mockReturnValueOnce( undefined );
+		const slack = require( '../src/slack' );
+		jest.spyOn( slack, 'getMessage' ).mockImplementation().mockReturnValueOnce( undefined );
 
 		// Mock notification text
 		const expectedData = { text: 'This is the message text', id: 'expected-id' };
 		jest
-			.spyOn( utils, 'getNotificationData' )
+			.spyOn( gh, 'getNotificationData' )
 			.mockImplementation()
 			.mockReturnValueOnce( expectedData );
 

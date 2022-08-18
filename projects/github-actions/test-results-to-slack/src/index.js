@@ -1,7 +1,8 @@
 const { setFailed, getInput } = require( '@actions/core' );
 const { WebClient } = require( '@slack/web-api' );
 const debug = require( './debug' );
-const { isWorkflowFailed, getNotificationData, getMessage } = require( './utils' );
+const { isWorkflowFailed, getNotificationData } = require( './github' );
+const { getMessage, sendMessage } = require( './slack' );
 
 ( async function main() {
 	//region validate input
@@ -48,7 +49,7 @@ const { isWorkflowFailed, getNotificationData, getMessage } = require( './utils'
 		debug( 'Main message found' );
 		debug( 'Updating the main message' );
 		// Update the existing message
-		await sendSlackMessage( client, true, {
+		await sendMessage( client, true, {
 			text: `${ text }\n${ id }`,
 			blocks: mainMsgBlocks,
 			channel,
@@ -60,7 +61,7 @@ const { isWorkflowFailed, getNotificationData, getMessage } = require( './utils'
 		if ( isFailure ) {
 			debug( 'Sending new reply to main message with failure details' );
 			// Send a reply to the main message with the current failure result
-			await sendSlackMessage( client, false, {
+			await sendMessage( client, false, {
 				text,
 				blocks: detailsMsgBlocks,
 				channel,
@@ -74,7 +75,7 @@ const { isWorkflowFailed, getNotificationData, getMessage } = require( './utils'
 		if ( isFailure ) {
 			debug( 'Sending new main message' );
 			// Send a new main message
-			const response = await sendSlackMessage( client, false, {
+			const response = await sendMessage( client, false, {
 				text: `${ text }\n${ id }`,
 				blocks: mainMsgBlocks,
 				channel,
@@ -85,7 +86,7 @@ const { isWorkflowFailed, getNotificationData, getMessage } = require( './utils'
 
 			debug( 'Sending new reply to main message with failure details' );
 			// Send a reply to the main message with the current failure result
-			await sendSlackMessage( client, false, {
+			await sendMessage( client, false, {
 				text,
 				blocks: detailsMsgBlocks,
 				channel,
@@ -98,27 +99,3 @@ const { isWorkflowFailed, getNotificationData, getMessage } = require( './utils'
 		}
 	}
 } )();
-
-/**
- * Sends a Slack message.
- *
- * @param {Object} client - Slack client
- * @param {boolean} update - if it should update a message. For true, it will update an existing message based on `ts`, false will send a new message.
- * @param {Object} options - options
- */
-async function sendSlackMessage( client, update, options ) {
-	const { text, blocks = [], channel, username, icon_emoji, ts, thread_ts } = options;
-
-	const method = update ? 'update' : 'postMessage';
-	return await client.chat[ method ]( {
-		text,
-		blocks,
-		channel,
-		ts,
-		thread_ts,
-		username,
-		icon_emoji,
-		unfurl_links: false,
-		unfurl_media: false,
-	} );
-}

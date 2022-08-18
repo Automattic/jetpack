@@ -1,6 +1,6 @@
 const github = require( '@actions/github' );
-const debug = require( './debug' );
 const { extras } = require( './extra-context' );
+
 /**
  * Decides if the current workflow failed
  *
@@ -217,35 +217,6 @@ async function getNotificationData( isFailure ) {
 }
 
 /**
- * Finds and returns a Slack message that contains a given string in its text (not in blocks!)
- *
- * @param {Object} client - the Slack client
- * @param {string} channelId - the channel id
- * @param {string} identifier - the string to search for in the messages text
- * @returns {Promise<*|null>} the message Object
- */
-async function getMessage( client, channelId, identifier ) {
-	debug( `Looking for ${ identifier }` );
-	let message;
-	// Get the messages in the channel. It only returns parent messages in case of threads.
-	// If the message has a `thread_ts` defined we have a thread
-	// If `thread_ts === ts` we have a parent message
-	const result = await client.conversations.history( {
-		channel: channelId,
-		limit: 200,
-	} );
-
-	if ( result.ok && result.messages ) {
-		// should not find more than one message, but, just in case
-		// the first message found should be the most recent
-		message = result.messages.filter( m => m.text.includes( identifier ) )[ 0 ];
-	}
-
-	debug( `Found: ${ message }` );
-	return message;
-}
-
-/**
  * Creates and returns a run url
  *
  * @returns {string} the run url
@@ -256,4 +227,4 @@ function getRunUrl() {
 	return `${ serverUrl }/${ repository }/actions/runs/${ runId }/attempts/${ runAttempt }`;
 }
 
-module.exports = { isWorkflowFailed, getNotificationData, getMessage };
+module.exports = { isWorkflowFailed, getNotificationData };

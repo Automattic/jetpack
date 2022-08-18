@@ -16,8 +16,8 @@ describe( 'Existing messages', () => {
 			.post( `/api/conversations.history`, /channel=\w+/gi )
 			.reply( 200, response );
 
-		const utils = require( '../src/utils' );
-		const message = await utils.getMessage( new WebClient( 'token' ), '123abc', messageIdentifier );
+		const { getMessage } = require( '../src/slack' );
+		const message = await getMessage( new WebClient( 'token' ), '123abc', messageIdentifier );
 		await expect( JSON.stringify( message ) ).toBe( JSON.stringify( expected ) );
 	} );
 } );
