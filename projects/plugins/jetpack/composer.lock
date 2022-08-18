@@ -1832,7 +1832,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "98d67c0db5da3345136039869d2efd186e3f9402"
+                "reference": "1fd97a4af0e1f78b6cf771c80fa1498547135bc3"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1841,6 +1841,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
+                "brain/monkey": "^2.6",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
