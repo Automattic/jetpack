@@ -137,7 +137,7 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 		case 'protect':
 			return {
 				activateFeature: () => {
-					return restApi.installPlugin( 'protect', 'recommendations' ).then( () => {
+					return restApi.installPlugin( 'jetpack-protect', 'recommendations' ).then( () => {
 						dispatch( fetchPluginsData() );
 					} );
 				},
