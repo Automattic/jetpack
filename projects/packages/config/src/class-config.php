@@ -293,7 +293,7 @@ class Config {
 	}
 
 	/**
-	 * Hanldes VideoPress options
+	 * Handles VideoPress options
 	 */
 	protected function ensure_options_videopress() {
 		$options = $this->get_feature_options( 'videopress' );
