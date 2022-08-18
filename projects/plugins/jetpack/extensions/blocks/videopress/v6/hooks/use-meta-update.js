@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 
-const useMetaUpdate = () => {
-	const updateMeta = ( id, data ) => {
+const useMetaUpdate = id => {
+	const updateMeta = data => {
 		return new Promise( ( resolve, reject ) => {
 			const apiData = Object.assign( { id }, data );
 

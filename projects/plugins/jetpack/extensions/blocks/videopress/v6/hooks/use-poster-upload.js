@@ -1,8 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 
-const usePosterUpload = () => {
-	const videoPressUploadPoster = function ( guid, data ) {
-		// eslint-disable-next-line no-undef
+const usePosterUpload = guid => {
+	const videoPressUploadPoster = function ( data ) {
 		return new Promise( function ( resolve, reject ) {
 			window.wp.media
 				.ajax( 'videopress-get-upload-token', { async: true } )

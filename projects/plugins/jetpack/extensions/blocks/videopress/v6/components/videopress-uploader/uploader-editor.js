@@ -28,7 +28,7 @@ const PosterImage = ( { videoPosterImageUrl } ) => {
 	);
 };
 
-const Poster = ( { file, videoPosterImageData } ) => {
+const Poster = ( { file, videoPosterImageData, onVideoFrameSelected } ) => {
 	const [ maxDuration, setMaxDuration ] = useState( 0 );
 	const videoPlayer = useRef( null );
 	const hasPosterImage = Boolean( videoPosterImageData?.url );
@@ -47,7 +47,7 @@ const Poster = ( { file, videoPosterImageData } ) => {
 	};
 
 	const onRangeChange = newRangeValue => {
-		// onVideoFrameSelected( newRangeValue * 1000 );
+		onVideoFrameSelected( newRangeValue * 1000 );
 		if ( videoPlayer.current ) {
 			videoPlayer.current.currentTime = newRangeValue;
 		}
@@ -144,7 +144,7 @@ const UploadingEditor = props => {
 		onRemovePoster,
 		videoPosterImageData,
 		onChangeTitle,
-		// onVideoFrameSelected,
+		onVideoFrameSelected,
 	} = props;
 	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
 	const [ title, setTitle ] = useState( filename );
@@ -162,7 +162,11 @@ const UploadingEditor = props => {
 				value={ title }
 			/>
 			<BaseControl label={ __( 'Video poster (optional)', 'jetpack' ) }>
-				<Poster file={ file } videoPosterImageData={ videoPosterImageData } />
+				<Poster
+					file={ file }
+					videoPosterImageData={ videoPosterImageData }
+					onVideoFrameSelected={ onVideoFrameSelected }
+				/>
 				<PosterActions
 					hasPoster={ Boolean( videoPosterImageData ) }
 					onSelectPoster={ onSelectPoster }

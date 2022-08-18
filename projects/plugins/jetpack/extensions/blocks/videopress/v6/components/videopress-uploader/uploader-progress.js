@@ -11,66 +11,52 @@ import { PlaceholderWrapper } from '../../edit.js';
  * Internal dependencies
  */
 import useMetaUpdate from '../../hooks/use-meta-update.js';
+import usePosterImage from '../../hooks/use-poster-image.js';
 import usePosterUpload from '../../hooks/use-poster-upload.js';
 import UploadingEditor from './uploader-editor.js';
 
-const UploaderProgress = ( {
-	attributes,
-	setAttributes,
-	progress,
-	file,
-	paused,
-	completed,
-	onPauseOrResume,
-	onDone,
-} ) => {
+const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
+	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
 	const [ videoPosterImageData, setVideoPosterImageData ] = useState( null );
 	const [ title, setTitle ] = useState( null );
-	const videoPressUploadPoster = usePosterUpload();
-	const updateMeta = useMetaUpdate();
 
-	const roundedProgress = Math.round( progress );
-	const cssWidth = { width: `${ roundedProgress }%` };
-	const resumeText = __( 'Resume', 'jetpack' );
-	const pauseText = __( 'Pause', 'jetpack' );
-	const fileSizeLabel = filesize( file?.size );
 	const guid = attributes?.guid;
+	const videoPressUploadPoster = usePosterUpload( guid );
+	const videoPressGetPoster = usePosterImage( guid );
+	const updateMeta = useMetaUpdate( attributes?.id );
 
-	const handleSelectPoster = image => {
-		setVideoPosterImageData( image );
+	const getPosterImage = () => {
+		return new Promise( ( resolve, reject ) => {
+			videoPressGetPoster( guid )
+				.then( response => resolve( response ) )
+				.catch( () => {
+					apiFetch( {
+						path: `/videos/${ guid }/poster`,
+						apiNamespace: 'rest/v1.1',
+						global: true,
+						method: 'GET',
+					} )
+						.then( response => resolve( response ) )
+						.catch( e => reject( e ) );
+				} );
+		} );
 	};
 
-	const handleRemovePoster = () => {
-		setVideoPosterImageData( null );
-	};
-
-	const getPosterImage = () => {};
-
-	const startPollingForPosterImage = () => {
-		setTimeout( () => {
-			getPosterImage().then( result => updatePosterFromApiResult( result ) );
-		}, 2000 );
-	};
-
-	const updatePosterImage = newPosterImage => {
-		if ( newPosterImage ) {
-			setAttributes( { poster: newPosterImage } );
-		}
-	};
-
-	const updatePosterFromApiResult = result => {
-		if ( result.generating ) {
-			startPollingForPosterImage();
-		} else {
-			updatePosterImage( result.poster );
+	const updatePoster = result => {
+		if ( result?.generating ) {
+			setTimeout( () => {
+				getPosterImage().then( response => updatePoster( response ) );
+			}, 2000 );
+		} else if ( result?.poster ) {
+			setAttributes( { poster: result?.poster } );
 		}
 	};
 
 	const sendUpdatePoster = data => {
 		return new Promise( ( resolve, reject ) => {
-			videoPressUploadPoster( guid, data )
+			videoPressUploadPoster( data )
 				.then( result => {
-					updatePosterFromApiResult( result );
+					updatePoster( result );
 					resolve();
 				} )
 				.catch( () => {
@@ -92,11 +78,23 @@ const UploaderProgress = ( {
 	};
 
 	const sendUpdateTitleRequest = () => {
-		return updateMeta( attributes?.id, { title } );
+		return updateMeta( { title } );
+	};
+
+	const handleSelectPoster = image => {
+		setVideoPosterImageData( image );
+	};
+
+	const handleRemovePoster = () => {
+		setVideoPosterImageData( null );
+	};
+
+	const handleVideoFrameSelected = ms => {
+		setVideoFrameMs( ms );
+		setVideoPosterImageData( null );
 	};
 
 	const handleDoneUpload = () => {
-		// const { title, videoFrameSelectedInMillis } = this.state;
 		const updates = [];
 
 		if ( title ) {
@@ -105,20 +103,53 @@ const UploaderProgress = ( {
 
 		if ( videoPosterImageData ) {
 			updates.push( sendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } ) );
+		} else if (
+			// Check if videoFrameMs is not undefined or null instead of bool check to allow 0ms. selection
+			'undefined' !== typeof videoFrameMs &&
+			null !== videoFrameMs
+		) {
+			updates.push( sendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } ) );
 		}
-
-		// if (
-		// // Check if videoFrameSelectedInMillis is not undefined or null instead of bool check to allow 0ms. selection
-		// 'undefined' !== typeof videoFrameSelectedInMillis &&
-		// null !== videoFrameSelectedInMillis
-		// ) {
-		// sendUpdatePosterFromMillisecondsRequest();
-		// }
 
 		Promise.allSettled( updates ).then( () => {
 			onDone();
 		} );
 	};
+
+	return [
+		handleVideoFrameSelected,
+		handleSelectPoster,
+		handleRemovePoster,
+		setTitle,
+		handleDoneUpload,
+		videoPosterImageData,
+	];
+};
+
+const UploaderProgress = ( {
+	attributes,
+	setAttributes,
+	progress,
+	file,
+	paused,
+	completed,
+	onPauseOrResume,
+	onDone,
+} ) => {
+	const [
+		handleVideoFrameSelected,
+		handleSelectPoster,
+		handleRemovePoster,
+		handleChangeTitle,
+		handleDoneUpload,
+		videoPosterImageData,
+	] = usePosterAndTitleUpdate( { setAttributes, attributes, onDone } );
+
+	const roundedProgress = Math.round( progress );
+	const cssWidth = { width: `${ roundedProgress }%` };
+	const resumeText = __( 'Resume', 'jetpack' );
+	const pauseText = __( 'Pause', 'jetpack' );
+	const fileSizeLabel = filesize( file?.size );
 
 	return (
 		<PlaceholderWrapper disableInstructions>
@@ -126,8 +157,9 @@ const UploaderProgress = ( {
 				file={ file }
 				onSelectPoster={ handleSelectPoster }
 				onRemovePoster={ handleRemovePoster }
+				onChangeTitle={ handleChangeTitle }
+				onVideoFrameSelected={ handleVideoFrameSelected }
 				videoPosterImageData={ videoPosterImageData }
-				onChangeTitle={ setTitle }
 			/>
 			{ completed ? (
 				<div className="uploader-block__upload-complete">
