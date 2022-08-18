@@ -48,6 +48,7 @@
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.18",
 		"@automattic/jetpack-connection": "workspace:* || ^0.18",
+		"@wordpress/components": "19.14.0",
 		"@wordpress/data": "6.12.0",
 		"@wordpress/element": "4.10.0",
 		"@wordpress/date": "4.12.0",
