@@ -235,7 +235,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "6264b1a28f6f825f60114a8d73a478d1f384e556"
+                "reference": "202aa0a4e87dab44794b5992eb6b8adf46c92d90"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -801,7 +801,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "9c0d1d88d8142f67f93eefb07b116ed6c1053e13"
+                "reference": "c5a38b137c33bdb49415d4213cbf1e807b5d73c9"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1137,7 +1137,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "fbf52175a2482d68e519ae7813f68417e535d321"
+                "reference": "5b71c6b268210417aa4f611e2be0cad011351b42"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.43",

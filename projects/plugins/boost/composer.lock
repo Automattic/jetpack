@@ -608,7 +608,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "9c0d1d88d8142f67f93eefb07b116ed6c1053e13"
+                "reference": "c5a38b137c33bdb49415d4213cbf1e807b5d73c9"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
