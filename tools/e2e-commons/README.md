@@ -116,6 +116,10 @@ Tests rely on functionality plugins that provide some additional functionality, 
 
 The purpose of this plugin is to provide a way to `mock` a Jetpack plan, for cases when we test functionality that does not directly use paid services. A great example of this purpose is testing paid Gutenberg blocks.
 
+#### e2e-waf-data-interceptor.php
+
+Very similiar to the one above, but it mocks waf rules data instead of Jetpack plans.
+
 ## Test architecture
 
 ### Pages
