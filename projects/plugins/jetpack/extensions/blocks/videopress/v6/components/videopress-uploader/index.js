@@ -19,11 +19,16 @@ import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperations } ) => {
+const VideoPressUploader = ( {
+	attributes,
+	setAttributes,
+	noticeUI,
+	noticeOperations,
+	handleDoneUpload,
+} ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
-	const [ currentAttrs, setCurrentAttrs ] = useState( null );
 	const [ uploadCompleted, setUploadCompleted ] = useState( false );
-	const [ isUploadingFile, setIsUploadingFile ] = useState( false );
+	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const tusUploader = useRef( null );
 
 	/*
@@ -68,7 +73,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	 * Handle upload success
 	 */
 	const handleUploadSuccess = attr => {
-		setCurrentAttrs( attr );
+		setAttributes( attr );
 		setUploadCompleted( true );
 	};
 
@@ -119,6 +124,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 
 		// Update guid based on the URL.
 		setAttributes( { guid: videoGuid, src: videoUrl } );
+		handleDoneUpload();
 	}
 
 	const startUpload = file => {
@@ -129,7 +135,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 
 		setFile( file );
 		setUploadingProgress( 0, file.size );
-		setIsUploadingFile( true );
+		setIsUploadingInProgress( true );
 
 		// Upload file to VideoPress infrastructure.
 		tusUploader.current = videoPressUploader( file );
@@ -190,27 +196,25 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 			setFile( null );
 			setUploadingProgress( [] );
 			setUploadErrorData( null );
-			setIsUploadingFile( false );
+			setIsUploadingInProgress( false );
 		};
 
 		return <UploadError onRetry={ onRetry } onCancel={ onCancel } errorData={ uploadErrorData } />;
 	}
 
 	// Uploading file to backend
-	if ( isUploadingFile ) {
+	if ( isUploadingInProgress ) {
 		const progress = ( uploadingProgress[ 0 ] / uploadingProgress[ 1 ] ) * 100;
-		const handleDone = () => {
-			setAttributes( currentAttrs );
-		};
-
 		return (
 			<UploadProgress
+				attributes={ attributes }
+				setAttributes={ setAttributes }
 				file={ uploadFile }
 				progress={ progress }
 				paused={ uploadPaused }
 				completed={ uploadCompleted }
 				onPauseOrResume={ pauseOrResumeUpload }
-				onDone={ handleDone }
+				onDone={ handleDoneUpload }
 			/>
 		);
 	}

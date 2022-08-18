@@ -218,8 +218,23 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		} ),
 	} );
 
-	if ( ! isRequestingEmbedPreview && ! videoPressUrl ) {
-		return <VideoPressUploader setAttributes={ setAttributes } attributes={ attributes } />;
+	const [ isUploadingFile, setIsUploadingFile ] = useState( true );
+
+	// Handling all the upload/select file step
+	// This is the first action for the user
+
+	if ( isUploadingFile ) {
+		const handleDoneUpload = () => {
+			setIsUploadingFile( false );
+		};
+
+		return (
+			<VideoPressUploader
+				setAttributes={ setAttributes }
+				attributes={ attributes }
+				handleDoneUpload={ handleDoneUpload }
+			/>
+		);
 	}
 
 	// Generating video preview.

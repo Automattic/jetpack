@@ -140,23 +140,14 @@ const PosterActions = ( { hasPoster, onSelectPoster, onRemovePoster } ) => {
 const UploadingEditor = props => {
 	const {
 		file,
-		// onSelectPoster,
-		// onRemovePoster,
-		// videoPosterImageData,
+		onSelectPoster,
+		onRemovePoster,
+		videoPosterImageData,
 		// onChangeTitle,
 		// onVideoFrameSelected,
 	} = props;
 	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
 	const [ title, setTitle ] = useState( filename );
-	const [ videoPosterImageData, setVideoPosterImageData ] = useState( null );
-
-	const onSelectPoster = image => {
-		setVideoPosterImageData( image );
-	};
-
-	const onRemovePoster = () => {
-		setVideoPosterImageData( null );
-	};
 
 	return (
 		<div className="uploading-editor">
