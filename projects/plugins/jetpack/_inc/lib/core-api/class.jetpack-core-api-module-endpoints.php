@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 
@@ -76,7 +77,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 			);
 		}
 
-		if ( ! Jetpack_Plan::supports( $module_slug ) ) {
+		if ( ! Current_Plan::supports( $module_slug ) ) {
 			return new WP_Error(
 				'not_supported',
 				esc_html__( 'The requested Jetpack module is not supported by your plan.', 'jetpack' ),

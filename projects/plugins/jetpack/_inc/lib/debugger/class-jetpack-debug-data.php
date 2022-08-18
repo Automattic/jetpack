@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Sync\Modules;
@@ -29,7 +30,7 @@ class Jetpack_Debug_Data {
 	 * @return string The plan slug.
 	 */
 	public static function what_jetpack_plan() {
-		$plan = Jetpack_Plan::get();
+		$plan = Current_Plan::get();
 		return ! empty( $plan['class'] ) ? $plan['class'] : 'undefined';
 	}
 

@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -196,16 +197,16 @@ class Jetpack_Recommendations {
 		$plugin_file = $path_parts ? array_pop( $path_parts ) : $plugin;
 
 		if ( ! in_array( $plugin_file, $plugin_whitelist, true ) ) {
-			$products              = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+			$products              = array_column( Current_Plan::get_products(), 'product_slug' );
 			$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $products ) ) > 0;
-			$has_anti_spam         = is_plugin_active( 'akismet/akismet.php' ) || Jetpack_Plan::supports( 'antispam' ) || $has_anti_spam_product;
+			$has_anti_spam         = is_plugin_active( 'akismet/akismet.php' ) || Current_Plan::supports( 'antispam' ) || $has_anti_spam_product;
 
 			// Check the backup state.
 			$rewind_state = get_transient( 'jetpack_rewind_state' );
 			$has_backup   = $rewind_state && in_array( $rewind_state->state, array( 'awaiting_credentials', 'provisioning', 'active' ), true );
 
 			// Check for a plan or product that enables scan.
-			$plan_supports_scan = Jetpack_Plan::supports( 'scan' );
+			$plan_supports_scan = Current_Plan::supports( 'scan' );
 			$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
 			$has_scan           = $plan_supports_scan || $has_scan_product;
 
@@ -232,10 +233,10 @@ class Jetpack_Recommendations {
 		}
 
 		// The site has anti-spam features already.
-		$site_products         = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+		$site_products         = array_column( Current_Plan::get_products(), 'product_slug' );
 		$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $site_products ) ) > 0;
 
-		if ( Jetpack_Plan::supports( 'antispam' ) || $has_anti_spam_product ) {
+		if ( Current_Plan::supports( 'antispam' ) || $has_anti_spam_product ) {
 			return;
 		}
 
@@ -273,8 +274,8 @@ class Jetpack_Recommendations {
 			return;
 		}
 
-		$site_plan     = Jetpack_Plan::get();
-		$site_products = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+		$site_plan     = Current_Plan::get();
+		$site_products = array_column( Current_Plan::get_products(), 'product_slug' );
 
 		if ( self::should_recommend_videopress( $site_plan, $site_products ) ) {
 			self::enable_conditional_recommendation( self::VIDEOPRESS_RECOMMENDATION );
@@ -297,7 +298,7 @@ class Jetpack_Recommendations {
 
 		// Does the site plan have upgraded videopress features?
 		// For now, this just checks to see if the site has a free plan.
-		// Jetpack_Plan::supports('videopress') returns true for all plans, since there is a free tier.
+		// Current_Plan::supports('videopress') returns true for all plans, since there is a free tier.
 		$is_free_plan = 'free' === $site_plan['class'];
 		if ( ! $is_free_plan ) {
 			return false;
