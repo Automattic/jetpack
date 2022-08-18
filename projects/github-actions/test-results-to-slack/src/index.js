@@ -31,12 +31,6 @@ const { getMessage, sendMessage } = require( './slack' );
 		setFailed( 'Input `slack_username` is required' );
 		return;
 	}
-
-	let icon_emoji = getInput( 'slack_icon_emoji' );
-	if ( ! icon_emoji ) {
-		setFailed( 'Input `slack_icon_emoji` is required' );
-		return;
-	}
 	//endregion
 
 	const client = new WebClient( slackToken );
@@ -45,7 +39,11 @@ const { getMessage, sendMessage } = require( './slack' );
 	const { text, id, mainMsgBlocks, detailsMsgBlocks } = await getNotificationData( isFailure );
 	const existingMessage = await getMessage( client, channel, id );
 	let mainMessageTS = existingMessage ? existingMessage.ts : undefined;
-	icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';
+
+	let icon_emoji = getInput( 'slack_icon_emoji' );
+	if ( ! icon_emoji ) {
+		icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';
+	}
 
 	if ( existingMessage ) {
 		debug( 'Main message found' );
