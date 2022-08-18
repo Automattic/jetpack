@@ -17,8 +17,6 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "NODE_PATH=\"$PWD/node_modules\" webpack",
-		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
-		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm build && pnpm build-client --watch"
@@ -42,9 +40,17 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"dependencies": {
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
+		"@automattic/jetpack-components": "workspace:* || ^0.18",
+		"@automattic/jetpack-connection": "workspace:* || ^0.18",
+		"@wordpress/data": "6.12.0",
+		"@wordpress/element": "4.10.0",
+		"@wordpress/date": "4.12.0",
+		"@wordpress/i18n": "4.12.0",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
 		"@wordpress/icons": "9.3.0",
 		"classnames": "2.3.1",
-		"concurrently": "7.3.0",
 		"debug": "4.3.4",
 		"filesize": "8.0.6",
 		"tus-js-client": "2.3.0"
