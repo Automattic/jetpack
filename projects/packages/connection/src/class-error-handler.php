@@ -199,15 +199,16 @@ class Error_Handler {
 	 *
 	 * @since 1.14.2
 	 *
-	 * @param \WP_Error $error the error object.
-	 * @param boolean   $force Force the report, even if should_report_error is false.
+	 * @param \WP_Error $error  The error object.
+	 * @param boolean   $force  Force the report, even if should_report_error is false.
+	 * @param boolean   $verify_locally Set to 'true' to verify the error locally and skip the WP.com verification.
 	 * @return void
 	 */
-	public function report_error( \WP_Error $error, $force = false ) {
+	public function report_error( \WP_Error $error, $force = false, $verify_locally = false ) {
 		if ( in_array( $error->get_error_code(), $this->known_errors, true ) && $this->should_report_error( $error ) || $force ) {
 			$stored_error = $this->store_error( $error );
 			if ( $stored_error ) {
-				$this->send_error_to_wpcom( $stored_error );
+				$verify_locally ? $this->verify_error( $stored_error ) : $this->send_error_to_wpcom( $stored_error );
 			}
 		}
 	}
@@ -223,7 +224,6 @@ class Error_Handler {
 	 * @return boolean $should_report True if gate is open and the error should be reported.
 	 */
 	public function should_report_error( \WP_Error $error ) {
-
 		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
 			return true;
 		}
@@ -603,7 +603,6 @@ class Error_Handler {
 	 * @return boolean
 	 */
 	public function verify_xml_rpc_error( \WP_REST_Request $request ) {
-
 		$error = $this->get_error_by_nonce( $request['nonce'] );
 
 		if ( $error ) {
@@ -685,6 +684,50 @@ class Error_Handler {
 			'data'    => array( 'api_error_code' => $this->error_code ),
 		);
 		return $errors;
+	}
+
+	/**
+	 * Check REST API response for errors, and report them to WP.com if needed.
+	 *
+	 * @see wp_remote_request() For more information on the $http_response array format.
+	 * @param array|\WP_Error $http_response The response or WP_Error on failure.
+	 * @param array           $auth_data Auth data, allowed keys: `token`, `timestamp`, `nonce`, `body-hash`.
+	 * @param string          $url Request URL.
+	 * @param string          $method Request method.
+	 *
+	 * @return void
+	 */
+	public function check_api_response_for_errors( $http_response, $auth_data, $url, $method ) {
+		if ( 200 === wp_remote_retrieve_response_code( $http_response ) || ! is_array( $auth_data ) || ! $url || ! $method ) {
+			return;
+		}
+
+		$body_raw = wp_remote_retrieve_body( $http_response );
+		if ( ! $body_raw ) {
+			return;
+		}
+
+		$body = json_decode( $body_raw, true );
+		if ( empty( $body['error'] ) ) {
+			return;
+		}
+
+		$error = new \WP_Error(
+			$body['error'],
+			empty( $body['message'] ) ? '' : $body['message'],
+			array(
+				'signature_details' => array(
+					'token'     => empty( $auth_data['token'] ) ? '' : $auth_data['token'],
+					'timestamp' => empty( $auth_data['timestamp'] ) ? '' : $auth_data['timestamp'],
+					'nonce'     => empty( $auth_data['nonce'] ) ? '' : $auth_data['nonce'],
+					'body_hash' => empty( $auth_data['body_hash'] ) ? '' : $auth_data['body_hash'],
+					'method'    => $method,
+					'url'       => $url,
+				),
+			)
+		);
+
+		$this->report_error( $error, false, true );
 	}
 
 }
