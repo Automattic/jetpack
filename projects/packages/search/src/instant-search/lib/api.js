@@ -190,7 +190,7 @@ function buildFilterObject( filterQuery, adminQueryFilter, excludedPostTypes ) {
 		.filter( key => isLengthyArray( filterQuery[ key ] ) )
 		.forEach( key => {
 			// Filter conditions in the same group are OR-ed together.
-			const group_condition = { bool: { should: [] } };
+			const group_condition = { bool: { should: [], minimum_should_match: 1 } };
 			filterQuery[ key ].forEach( item => {
 				if ( filterKeyToEsFilter.has( key ) ) {
 					group_condition.bool.should.push( filterKeyToEsFilter.get( key )( item ) );
