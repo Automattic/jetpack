@@ -137,6 +137,8 @@ function formatSlackMessage( payload, channel, message ) {
 			dris = '@jpop-da';
 			break;
 		case 'Automattic/zero-bs-crm':
+		case 'Automattic/sensei':
+		case 'Automattic/WP-Job-Manager':
 			dris = '@heysatellite';
 			break;
 	}
@@ -222,6 +224,14 @@ async function checkForEscalation( issueReferences, commentBody, escalationNote,
 			`gather-support-references: Issue ${ payload.issue.number } already escalated to triage team. No need to warn them again.`
 		);
 		return true;
+	}
+
+	// When the issue is already closed, do not send any Slack reminder.
+	if ( payload.issue.state === 'closed' ) {
+		debug(
+			`gather-support-references: Issue ${ payload.issue.number } is closed, no need to escalate.`
+		);
+		return false;
 	}
 
 	debug(

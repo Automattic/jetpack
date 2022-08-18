@@ -19,14 +19,16 @@
 }
 
 .jetpack-instant-search__clear-filters-link {
+	@include inherit-parent-colors-important();
+	@include inherit-parent-font-size-important();
+	border: none;
 	cursor: pointer;
 	position: absolute;
-	right: 0;
-	top: 0;
 	margin: 0;
 	line-height: 1.3;
-	border: none;
-	background-color: inherit;
+	padding: 0;
+	right: 0;
+	top: 0;
 }
 
 .jetpack-instant-search__search-filter-sub-heading {

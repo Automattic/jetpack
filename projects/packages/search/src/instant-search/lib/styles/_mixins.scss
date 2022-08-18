@@ -108,3 +108,13 @@ $customberg-container-selector: '.jp-search-configure-app-wrapper' !default;
 @mixin remove-header-styling() {
 	letter-spacing: inherit;
 }
+
+// !important is temporarily needed to override :not() selectors in certain themes like Twenty Twenty One
+@mixin inherit-parent-colors-important() {
+	background-color: inherit !important;
+	color: inherit !important;
+}
+
+@mixin inherit-parent-font-size-important() {
+	font-size: inherit !important;
+}
