@@ -17,7 +17,6 @@ class VideoPress_Shortcode {
 	 * VideoPress_Shortcode constructor.
 	 */
 	protected function __construct() {
-
 		add_shortcode( 'videopress', array( $this, 'shortcode_callback' ) );
 		add_shortcode( 'wpvideo', array( $this, 'shortcode_callback' ) );
 

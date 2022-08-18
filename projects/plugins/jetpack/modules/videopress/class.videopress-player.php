@@ -1,4 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
+
 /**
  * VideoPress playback module markup generator.
  *
@@ -611,6 +613,8 @@ class VideoPress_Player {
 	 */
 	public function html5_dynamic_next() {
 		$video_container_id = 'v-' . $this->video->guid;
+
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 
 		// Must not use iframes for IE11 due to a fullscreen bug
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 'Trident/7.0; rv:11.0' ) ) {
