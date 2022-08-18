@@ -2,84 +2,22 @@
  * External dependencies
  */
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button, withNotices, ExternalLink } from '@wordpress/components';
+import { withNotices } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import filesize from 'filesize';
+import { __ } from '@wordpress/i18n';
 import { useRef } from 'react';
-import { PlaceholderWrapper } from '../../edit.js';
 /**
  * Internal dependencies
  */
 import { useResumableUploader } from '../../hooks/use-uploader.js';
 import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
-import UploadingEditor from './uploader-editor.js';
+import UploadError from './uploader-error.js';
+import UploadProgress from './uploader-progress.js';
 
 import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
-
-const UploadProgress = ( { progress, file, paused, completed, onPauseOrResume, onDone } ) => {
-	const roundedProgress = Math.round( progress );
-	const cssWidth = { width: `${ roundedProgress }%` };
-
-	const resumeText = __( 'Resume', 'jetpack' );
-	const pauseText = __( 'Pause', 'jetpack' );
-	const fileSizeLabel = filesize( file?.size );
-
-	return (
-		<PlaceholderWrapper disableInstructions>
-			<UploadingEditor file={ file } />
-			{ completed ? (
-				<div className="uploader-block__upload-complete">
-					<span>{ __( 'Upload Complete!', 'jetpack' ) } 🎉</span>
-					<Button variant="primary" onClick={ onDone }>
-						{ __( 'Done', 'jetpack' ) }
-					</Button>
-				</div>
-			) : (
-				<div className="videopress-uploader-progress">
-					<div className="videopress-uploader-progress__file-info">
-						<div className="videopress-uploader-progress__progress">
-							<div className="videopress-uploader-progress__progress-loaded" style={ cssWidth } />
-						</div>
-						<div className="videopress-upload__percent-complete">
-							{ sprintf(
-								/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
-								__( 'Uploading (%1$s%%)', 'jetpack' ),
-								roundedProgress
-							) }
-						</div>
-						<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
-					</div>
-					<div className="videopress-uploader-progress__actions">
-						{ roundedProgress < 100 && (
-							<Button variant="link" onClick={ onPauseOrResume }>
-								{ paused ? resumeText : pauseText }
-							</Button>
-						) }
-					</div>
-				</div>
-			) }
-		</PlaceholderWrapper>
-	);
-};
-
-const UploadError = ( { message, onRetry, onCancel } ) => {
-	return (
-		<PlaceholderWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
-			<div className="videopress-uploader__error-actions">
-				<Button variant="primary" onClick={ onRetry }>
-					{ __( 'Try again', 'jetpack' ) }
-				</Button>
-				<Button variant="secondary" onClick={ onCancel }>
-					{ __( 'Cancel', 'jetpack' ) }
-				</Button>
-			</div>
-		</PlaceholderWrapper>
-	);
-};
 
 const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperations } ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
@@ -242,35 +180,6 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 		} );
 	}
 
-	const getErrorMessage = () => {
-		if ( ! uploadErrorData ) {
-			return '';
-		}
-
-		let errorMessage =
-			uploadErrorData?.data?.message ||
-			__( 'Failed to upload your video. Please try again.', 'jetpack' );
-
-		// Let's give this error a better message.
-		if ( errorMessage === 'Invalid Mime' ) {
-			errorMessage = (
-				<>
-					{ __( 'The format of the video you uploaded is not supported.', 'jetpack' ) }
-					&nbsp;
-					<ExternalLink
-						href="https://wordpress.com/support/videopress/recommended-video-settings/"
-						target="_blank"
-						rel="noreferrer"
-					>
-						{ __( 'Check the recommended video settings.', 'jetpack' ) }
-					</ExternalLink>
-				</>
-			);
-		}
-
-		return errorMessage;
-	};
-
 	// Showing error if upload fails
 	if ( uploadErrorData ) {
 		const onRetry = () => {
@@ -284,7 +193,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 			setIsUploadingFile( false );
 		};
 
-		return <UploadError onRetry={ onRetry } onCancel={ onCancel } message={ getErrorMessage() } />;
+		return <UploadError onRetry={ onRetry } onCancel={ onCancel } errorData={ uploadErrorData } />;
 	}
 
 	// Uploading file to backend
