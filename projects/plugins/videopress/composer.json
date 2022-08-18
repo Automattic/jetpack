@@ -24,28 +24,7 @@
 			"src/"
 		]
 	},
-	"scripts": {
-		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
-		"build-development": [
-			"pnpm run build"
-		],
-		"build-production": [
-			"pnpm run build-production-concurrently"
-		],
-		"watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run watch"
-		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
-	},
+	"scripts": {},
 	"repositories": [
 		{
 			"type": "path",
