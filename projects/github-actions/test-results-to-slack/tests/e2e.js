@@ -2,8 +2,8 @@ const nock = require( 'nock' );
 const { mockGitHubContext } = require( './test-utils' );
 process.env.INPUT_GITHUB_TOKEN = 'token';
 const sha = '5dc6ab9d13d9b79317b719a32a60cc682cd6930d';
-const ref_name = 'trunk';
-const ref_type = 'branch';
+const refName = 'trunk';
+const refType = 'branch';
 const repo = 'foo/bar';
 const commitId = '5dc6ab9d13d9b79317b719a32a60cc682cd6930d';
 const commitURL = `https://github.com/commit/${ commitId }`;
@@ -11,13 +11,19 @@ const prNumber = '1234';
 const prUrl = `https://github.com/foo/bar/pull/${ prNumber }`;
 const prTitle = 'Pull request title';
 const repository = { owner: { login: 'foo' }, name: 'bar' };
-const run_id = '12345756096';
-const run_attempt = '3';
-const server_url = 'https://github.com';
+const runId = '12345756096';
+const runAttempt = '3';
+const serverUrl = 'https://github.com';
 const actor = 'octocat';
-const triggering_actor = 'another_octocat';
+const triggeringActor = 'another-octocat';
 
 ( async function main() {
+	process.env.GITHUB_RUN_ATTEMPT = runAttempt;
+	process.env.GITHUB_REF_TYPE = refType;
+	process.env.GITHUB_REF_NAME = refName;
+	process.env.GITHUB_REPOSITORY = repo;
+	process.env.GITHUB_TRIGGERING_ACTOR = triggeringActor;
+
 	// Pull request
 	await run(
 		{
@@ -26,12 +32,9 @@ const triggering_actor = 'another_octocat';
 				pull_request: { html_url: prUrl, number: prNumber, title: prTitle },
 			},
 			eventName: 'pull_request',
-			run_id,
-			run_attempt,
-			repository: repo,
-			server_url,
+			runId,
+			serverUrl,
 			actor,
-			triggering_actor,
 		},
 		[ { status: 'completed', conclusion: 'failed' } ]
 	);
@@ -48,15 +51,10 @@ const triggering_actor = 'another_octocat';
 				},
 			},
 			eventName: 'push',
-			ref_name,
-			ref_type,
 			sha,
-			run_id,
-			run_attempt,
-			repository: repo,
-			server_url,
+			runId,
+			serverUrl,
 			actor,
-			triggering_actor,
 		},
 		[ { status: 'completed', conclusion: 'failed' } ]
 	);
@@ -68,14 +66,9 @@ const triggering_actor = 'another_octocat';
 				repository,
 			},
 			eventName: 'schedule',
-			ref_name,
-			ref_type,
 			sha,
-			run_id,
-			run_attempt,
-			repository: repo,
-			triggering_actor,
-			server_url,
+			runId,
+			serverUrl,
 		},
 		[ { status: 'completed', conclusion: 'failed' } ]
 	);
@@ -93,7 +86,7 @@ async function run( context, workflowJobs ) {
 
 	// Intercept request to GitHub Api and mock response
 	nock( 'https://api.github.com' )
-		.get( `/repos/${ repo }/actions/runs/${ run_id }/jobs` )
+		.get( `/repos/${ repo }/actions/runs/${ runId }/jobs` )
 		.reply( 200, {
 			jobs: workflowJobs,
 		} );

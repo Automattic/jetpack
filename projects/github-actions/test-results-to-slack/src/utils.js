@@ -1,5 +1,6 @@
 const github = require( '@actions/github' );
 const debug = require( './debug' );
+const { extras } = require( './extra-context' );
 /**
  * Decides if the current workflow failed
  *
@@ -8,15 +9,16 @@ const debug = require( './debug' );
 async function isWorkflowFailed( token ) {
 	// eslint-disable-next-line new-cap
 	const octokit = new github.getOctokit( token );
-	const { payload, run_id } = github.context;
-
-	debug( JSON.stringify( github.context ) );
+	const {
+		payload: { repository },
+		runId,
+	} = github.context;
 
 	// Get the list of jobs for the current workflow run
 	const response = await octokit.rest.actions.listJobsForWorkflowRun( {
-		owner: payload.repository.owner.login,
-		repo: payload.repository.name,
-		run_id,
+		owner: repository.owner.login,
+		repo: repository.name,
+		run_id: runId,
 	} );
 
 	// Get unique list of conclusions of completed jobs
@@ -39,20 +41,9 @@ async function isWorkflowFailed( token ) {
  */
 async function getNotificationData( isFailure ) {
 	const {
-		context: {
-			eventName,
-			sha,
-			ref_type,
-			ref_name,
-			payload,
-			run_id,
-			run_attempt,
-			actor,
-			triggering_actor,
-			server_url,
-			repository,
-		},
+		context: { eventName, sha, payload, runId, actor, serverUrl },
 	} = github;
+	const { refType, refName, runAttempt, triggeringActor, repository } = extras;
 	let target = `for ${ sha }`;
 	let msgId;
 	const contextElements = [];
@@ -77,7 +68,7 @@ async function getNotificationData( isFailure ) {
 			},
 			{
 				type: 'plain_text',
-				text: `Last run: attempt ${ run_attempt } of run ${ run_id }, triggered by ${ triggering_actor }`,
+				text: `Last run: attempt ${ runAttempt } of run ${ runId }, triggered by ${ triggeringActor }`,
 				emoji: false,
 			}
 		);
@@ -106,7 +97,7 @@ async function getNotificationData( isFailure ) {
 
 	if ( eventName === 'push' ) {
 		const { url, id, message } = payload.head_commit;
-		target = `on ${ ref_type } *${ ref_name }*`;
+		target = `on ${ refType } *${ refName }*`;
 		msgId = `commit-${ id }`;
 
 		contextElements.push(
@@ -122,7 +113,7 @@ async function getNotificationData( isFailure ) {
 			},
 			{
 				type: 'plain_text',
-				text: `Last run: attempt ${ run_attempt } of run ${ run_id }, triggered by ${ triggering_actor }`,
+				text: `Last run: attempt ${ runAttempt } of run ${ runId }, triggered by ${ triggeringActor }`,
 				emoji: false,
 			}
 		);
@@ -150,11 +141,11 @@ async function getNotificationData( isFailure ) {
 	}
 
 	if ( eventName === 'schedule' ) {
-		target = `for scheduled run on ${ ref_type } *${ ref_name }*`;
+		target = `for scheduled run on ${ refType } *${ refName }*`;
 		// we return a timestamp because we don't ever want to group messages with schedule event
 		// this way, we'll never be able to compute this same id later and cannot find this message
 		msgId = `sched-${ Date.now() }`;
-		const commitUrl = `${ server_url }/${ repository }/commit/${ sha }`;
+		const commitUrl = `${ serverUrl }/${ repository }/commit/${ sha }`;
 
 		contextElements.push(
 			{
@@ -164,7 +155,7 @@ async function getNotificationData( isFailure ) {
 			},
 			{
 				type: 'plain_text',
-				text: `Last run: attempt ${ run_attempt } of run ${ run_id }, triggered by ${ triggering_actor }`,
+				text: `Last run: attempt ${ runAttempt } of run ${ runId }, triggered by ${ triggeringActor }`,
 				emoji: false,
 			}
 		);
@@ -217,7 +208,7 @@ async function getNotificationData( isFailure ) {
 				type: 'mrkdwn',
 				text: `<${ getRunUrl() } | New ${
 					isFailure ? 'failed' : 'passed'
-				} tests in run ${ run_id }, attempt ${ run_attempt }>`,
+				} tests in run ${ runId }, attempt ${ runAttempt }>`,
 			},
 		},
 	];
@@ -260,8 +251,9 @@ async function getMessage( client, channelId, identifier ) {
  * @returns {string} the run url
  */
 function getRunUrl() {
-	const { server_url, repository, run_id, run_attempt } = github.context;
-	return `${ server_url }/${ repository }/actions/runs/${ run_id }/attempts/${ run_attempt }`;
+	const { serverUrl, runId } = github.context;
+	const { repository, runAttempt } = extras;
+	return `${ serverUrl }/${ repository }/actions/runs/${ runId }/attempts/${ runAttempt }`;
 }
 
 module.exports = { isWorkflowFailed, getNotificationData, getMessage };
