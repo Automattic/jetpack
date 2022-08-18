@@ -171,8 +171,13 @@ const UploaderProgress = ( {
 				{ completed ? (
 					<>
 						<span>{ __( 'Upload Complete!', 'jetpack' ) } 🎉</span>
-						<Button variant="primary" onClick={ handleDoneUpload } disabled={ isFinishingUpdate }>
-							{ isFinishingUpdate ? <Spinner /> : __( 'Done', 'jetpack' ) }
+						<Button
+							variant="primary"
+							onClick={ handleDoneUpload }
+							disabled={ isFinishingUpdate }
+							isBusy={ isFinishingUpdate }
+						>
+							{ __( 'Done', 'jetpack' ) }
 						</Button>
 					</>
 				) : (
