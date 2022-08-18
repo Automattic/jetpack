@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
 
@@ -218,7 +219,7 @@ class Jetpack_Plugin_Search {
 			return false;
 		}
 
-		$plan = Jetpack_Plan::get();
+		$plan = Current_Plan::get();
 		if ( isset( $plan['class'] ) && ( 'free' === $plan['class'] || 'personal' === $plan['class'] ) && 'vaultpress' === $hint ) {
 			return false;
 		}
@@ -360,11 +361,11 @@ class Jetpack_Plugin_Search {
 			foreach ( $jetpack_modules_list as $module_slug => $module_opts ) {
 				/*
 				* Does the site's current plan support the feature?
-				* We don't use Jetpack_Plan::supports() here because
+				* We don't use Current_Plan::supports() here because
 				* that check always returns Akismet as supported,
 				* since Akismet has a free version.
 				*/
-				$current_plan         = Jetpack_Plan::get();
+				$current_plan         = Current_Plan::get();
 				$is_supported_by_plan = in_array( $module_slug, $current_plan['supports'], true );
 
 				if (
@@ -537,7 +538,7 @@ class Jetpack_Plugin_Search {
 		} elseif (
 			current_user_can( 'jetpack_activate_modules' ) &&
 			! Jetpack::is_module_active( $plugin['module'] ) &&
-			Jetpack_Plan::supports( $plugin['module'] )
+			Current_Plan::supports( $plugin['module'] )
 		) {
 			$links[] = '<button
 					id="plugin-select-activate"

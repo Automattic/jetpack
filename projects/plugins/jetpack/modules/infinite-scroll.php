@@ -11,6 +11,8 @@
  * Additional Search Queries: scroll, infinite, infinite scroll
  */
 
+use Automattic\Jetpack\Current_Plan;
+
 /**
  * Jetpack-specific elements of Infinite Scroll
  */
@@ -76,7 +78,7 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * @action admin_init
 	 */
 	public function action_admin_init() {
-		if ( ! Jetpack_Plan::supports( 'google-analytics' ) ) {
+		if ( ! Current_Plan::supports( 'google-analytics' ) ) {
 			return;
 		}
 
@@ -171,7 +173,7 @@ class Jetpack_Infinite_Scroll_Extras {
 		}
 
 		// Check if Google Analytics tracking is requested.
-		$settings['google_analytics'] = Jetpack_Plan::supports( 'google-analytics' ) && Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
+		$settings['google_analytics'] = Current_Plan::supports( 'google-analytics' ) && Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
 
 		return $settings;
 	}

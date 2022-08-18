@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Current_Plan;
 
 /**
  * Class Jetpack_Memberships
@@ -449,7 +450,7 @@ class Jetpack_Memberships {
 	public static function is_supported_jetpack_recurring_payments() {
 		return (
 			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
-			Jetpack_Plan::supports( 'recurring-payments' )
+			Current_Plan::supports( 'recurring-payments' )
 		);
 	}
 

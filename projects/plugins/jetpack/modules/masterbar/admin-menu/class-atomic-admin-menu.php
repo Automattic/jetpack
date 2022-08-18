@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Plan;
+use Automattic\Jetpack\Current_Plan;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -308,7 +308,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
-		$products = Jetpack_Plan::get();
+		$products = Current_Plan::get();
 		if ( array_key_exists( 'product_name_short', $products ) ) {
 			$plan = $products['product_name_short'];
 		}
@@ -339,7 +339,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		if ( Jetpack_Plan::supports( 'security-settings' ) ) {
+		if ( Current_Plan::supports( 'security-settings' ) ) {
 			add_submenu_page(
 				'options-general.php',
 				esc_attr__( 'Security', 'jetpack' ),

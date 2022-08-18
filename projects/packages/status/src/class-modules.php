@@ -436,7 +436,7 @@ class Modules {
 				}
 			}
 
-			if ( class_exists( 'Jetpack_Plan' ) && ! \Jetpack_Plan::supports( $module ) ) {
+			if ( class_exists( 'Current_Plan' ) && ! Current_Plan::supports( $module ) ) {
 				return false;
 			}
 

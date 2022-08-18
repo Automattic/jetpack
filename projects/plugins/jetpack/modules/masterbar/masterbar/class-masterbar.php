@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
@@ -18,7 +19,6 @@ use GP_Locale;
 use GP_Locales;
 use Jetpack;
 use Jetpack_AMP_Support;
-use Jetpack_Plan;
 use WP_Admin_Bar;
 
 /**
@@ -1034,7 +1034,7 @@ class Masterbar {
 		if ( is_user_member_of_blog( $current_user->ID ) && current_user_can( 'manage_options' ) ) {
 			$plans_url = Redirect::get_url( 'calypso-plans' );
 			$label     = esc_html__( 'Plan', 'jetpack' );
-			$plan      = Jetpack_Plan::get();
+			$plan      = Current_Plan::get();
 
 			$plan_title = $this->create_menu_item_pair(
 				array(

@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
 
 /**
@@ -71,7 +72,7 @@ class VideoPress_Gutenberg {
 	 * unavailable (key `unavailable_reason`)
 	 */
 	public function check_videopress_availability() {
-		if ( ! Jetpack_Plan::supports( 'videopress' ) ) {
+		if ( ! Current_Plan::supports( 'videopress' ) ) {
 			return array(
 				'available'          => false,
 				'unavailable_reason' => 'missing_plan',

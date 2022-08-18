@@ -7,10 +7,10 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Jetpack_Plan;
 
 /**
  * Class Dashboard_Switcher_Tracking
@@ -106,7 +106,7 @@ class Dashboard_Switcher_Tracking {
 		}
 
 		// @todo: Maybe introduce a helper for this since we are duplicating it from Atomic_Admin_Menu:240
-		$products = Jetpack_Plan::get();
+		$products = Current_Plan::get();
 		if ( ! empty( $products['product_slug'] ) ) {
 			return $products['product_slug'];
 		}
