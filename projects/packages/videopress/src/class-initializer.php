@@ -7,10 +7,15 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+
 /**
  * Initialized the VideoPress package
  */
 class Initializer {
+
+	const JETPACK_VIDEOPRESS_PKG_NAMESPACE = 'jetpack-videopress-pkg';
 
 	/**
 	 * Invoke this method to initialize the VideoPress package
@@ -76,6 +81,48 @@ class Initializer {
 		wp_oembed_add_provider( '#^https?://video.wordpress.com/v/.*#', 'https://public-api.wordpress.com/oembed/?for=' . $host, true );
 		// This is needed as it's not supported in oEmbed discovery
 		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/?for=' . $host, true ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+	}
+
+	/**
+	 * Enqueue plugin admin scripts and styles.
+	 */
+	public static function enqueue_admin_scripts() {
+		Assets::register_script(
+			self::JETPACK_VIDEOPRESS_PKG_NAMESPACE,
+			'../build/admin/index.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-videopress-pkg',
+			)
+		);
+		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
+
+		// Initial JS state including JP Connection data.
+		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, Connection_Initial_State::render(), 'before' );
+		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, self::render_initial_state(), 'before' );
+	}
+
+	/**
+	 * Render the initial state into a JavaScript variable.
+	 *
+	 * @return string
+	 */
+	public static function render_initial_state() {
+		return 'var jetpackVideopressInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::initial_state() ) ) . '"));';
+	}
+
+	/**
+	 * Get the initial state data for hydrating the React UI.
+	 *
+	 * @return array
+	 */
+	public static function initial_state() {
+		return array(
+			'apiRoot'           => esc_url_raw( rest_url() ),
+			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+		);
 	}
 
 	/**
