@@ -100,6 +100,7 @@ if ( ! class_exists( 'Jetpack_Data' ) ) {
 // wp-admin Notices
 require_once __DIR__ . '/notices/plan-notices.php';
 require_once __DIR__ . '/notices/storage-notices.php';
+require_once __DIR__ . '/notices/php-version-notices.php';
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/class-wpcomsh-cli-commands.php';
