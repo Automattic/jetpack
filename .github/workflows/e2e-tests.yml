@@ -121,8 +121,7 @@ jobs:
         JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
       run: |
         mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-        exit 1
-#        pnpm run test:run "${TEST_ARGS[@]}"
+        pnpm run test:run "${TEST_ARGS[@]}"
 
     - name: Send Slack notification
       if: ${{ failure() && ! cancelled() }}
