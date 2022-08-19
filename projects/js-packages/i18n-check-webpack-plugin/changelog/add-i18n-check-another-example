@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add documentation of another problematic pattern (same string with different translator comments).

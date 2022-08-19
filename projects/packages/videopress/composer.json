@@ -4,6 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-assets": "^1.17",
 		"automattic/jetpack-connection": "^1.42",
 		"automattic/jetpack-plans": "^0.2"
@@ -11,7 +12,8 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.2",
-		"automattic/wordbless": "@dev"
+		"automattic/wordbless": "@dev",
+		"brain/monkey": "2.6.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -29,7 +31,7 @@
 			"@composer phpunit"
 		],
 		"build-production": [
-			"pnpm run build"
+			"NODE_ENV=production BABEL_ENV=production pnpm run build"
 		],
 		"build-development": [
 			"pnpm run build"
