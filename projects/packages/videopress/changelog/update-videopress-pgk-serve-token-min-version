@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: serve a minified token bridge version in production env

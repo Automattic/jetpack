@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "62f23563f988c7656934e4dbab390431",
+    "content-hash": "0af771c916d5bccb8f269b9a73317d25",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -290,7 +290,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "b07065b05f7c9efc3fd2150e0d4bd742dc6b3e5b"
+                "reference": "6264b1a28f6f825f60114a8d73a478d1f384e556"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -303,7 +303,7 @@
                 "automattic/jetpack-identity-crisis": "^0.8",
                 "automattic/jetpack-my-jetpack": "^2.0",
                 "automattic/jetpack-status": "^1.14",
-                "automattic/jetpack-sync": "^1.37"
+                "automattic/jetpack-sync": "^1.38"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
@@ -1173,7 +1173,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "27d8d6508913a129ca3c9e80569147d776a65aaf"
+                "reference": "9c0d1d88d8142f67f93eefb07b116ed6c1053e13"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1181,7 +1181,7 @@
                 "automattic/jetpack-connection": "^1.42",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-licensing": "^1.7",
-                "automattic/jetpack-plugins-installer": "^0.1",
+                "automattic/jetpack-plugins-installer": "^0.2",
                 "automattic/jetpack-redirect": "^1.7"
             },
             "require-dev": {
@@ -1425,7 +1425,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugins-installer",
-                "reference": "b14c9e3bfbe88df233872f9b302e7b7796e1306a"
+                "reference": "15b99481e685050e153fa59f5cf5a9dff6f3216e"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4"
@@ -1437,7 +1437,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-plugins-installer",
                 "changelogger": {
@@ -1638,7 +1638,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "dce2ca66e301a94854e5eabb3e5b5fd57a512650"
+                "reference": "80452a5f3fdd3e20ee9a4d36849734f45812356a"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1662,7 +1662,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.19.x-dev"
+                    "dev-trunk": "0.20.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
@@ -1769,7 +1769,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "a302ad3bc019fc4103fb6eb3c3a0ef6536fbd085"
+                "reference": "fbf52175a2482d68e519ae7813f68417e535d321"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.42",
@@ -1796,7 +1796,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.37.x-dev"
+                    "dev-trunk": "1.38.x-dev"
                 }
             },
             "autoload": {
@@ -1832,15 +1832,17 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "4350425d1e84d902ff012616a84195dbfb2f8f40"
+                "reference": "d5e5218d28f67ab4ea94ccd48c875a631ac12ff3"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.42",
                 "automattic/jetpack-plans": "^0.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
+                "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -1851,7 +1853,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
@@ -1874,10 +1876,14 @@
                     "@composer phpunit"
                 ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "NODE_ENV=production BABEL_ENV=production pnpm run build"
                 ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
