@@ -65,7 +65,7 @@ export class Navigation extends React.Component {
 		if ( isBubbleVisible ) {
 			recommendationsTrackData = {
 				...recommendationsTrackData,
-				new_recommendations: this.props.newRecommendations ?? 'none',
+				new_recommendations: this.props.newRecommendations ?? 'unknown',
 			};
 		}
 
