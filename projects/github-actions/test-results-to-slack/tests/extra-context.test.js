@@ -1,3 +1,5 @@
+const { mockContextExtras } = require( './test-utils' );
+
 describe( 'Extra context', () => {
 	const runAttempt = '3';
 	const refType = 'branch';
@@ -5,11 +7,7 @@ describe( 'Extra context', () => {
 	const repository = 'foo/bar';
 	const triggeringActor = 'octocat';
 
-	process.env.GITHUB_RUN_ATTEMPT = runAttempt;
-	process.env.GITHUB_REF_TYPE = refType;
-	process.env.GITHUB_REF_NAME = refName;
-	process.env.GITHUB_REPOSITORY = repository;
-	process.env.GITHUB_TRIGGERING_ACTOR = triggeringActor;
+	mockContextExtras( { repository, refType, refName, triggeringActor, runAttempt } );
 
 	test( 'Environment variables are exposed in extra context', async () => {
 		const extras = require( '../src/extra-context' );
