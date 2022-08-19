@@ -28,8 +28,8 @@ describe( 'Workflow conclusion', () => {
 				jobs,
 			} );
 
-		const utils = require( '../src/utils' );
-		const conclusion = await utils.isWorkflowFailed( ghToken );
+		const { isWorkflowFailed } = require( '../src/github' );
+		const conclusion = await isWorkflowFailed( ghToken );
 		await expect( conclusion ).toBe( expected );
 	} );
 } );
