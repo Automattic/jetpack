@@ -327,4 +327,36 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertCount( 1, $errors['no_user_tokens'] );
 
 	}
+
+	/**
+	 * Test `Error_Handler::check_api_response_for_errors()`.
+	 */
+	public function test_check_api_response_for_errors() {
+		$this->error_handler->check_api_response_for_errors(
+			array(
+				'response' => array(
+					'code' => 500,
+				),
+				'body'     => '{"error":"unknown_token","message":"It looks like your Jetpack connection is broken."}',
+			),
+			array( 'token' => 'broken:1:0' ),
+			'https://localhost/',
+			'POST'
+		);
+
+		$stored_errors   = $this->error_handler->get_stored_errors();
+		$verified_errors = $this->error_handler->get_verified_errors();
+
+		$this->assertCount( 1, $stored_errors );
+		$this->arrayHasKey( 'unknown_token', $stored_errors );
+		$this->assertCount( 1, $stored_errors['unknown_token'] );
+		$this->arrayHasKey( '1', $stored_errors['unknown_token'] );
+		$this->arrayHasKey( 'error_code', $stored_errors['unknown_token']['0'] );
+
+		$this->assertCount( 1, $verified_errors );
+		$this->arrayHasKey( 'unknown_token', $verified_errors );
+		$this->assertCount( 1, $verified_errors['unknown_token'] );
+		$this->arrayHasKey( '1', $verified_errors['unknown_token'] );
+		$this->arrayHasKey( 'error_code', $verified_errors['unknown_token']['0'] );
+	}
 }
