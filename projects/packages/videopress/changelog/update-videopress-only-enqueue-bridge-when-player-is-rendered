@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Only add the VideoPress bridge script when a VideoPress player will be rendered on the page.

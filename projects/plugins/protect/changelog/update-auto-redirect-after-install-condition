@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Add condition to check plugin activation context before redirecting

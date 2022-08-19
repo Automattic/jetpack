@@ -86,6 +86,9 @@ function generateAggregation( filter ) {
 		case 'post_type': {
 			return { terms: { field: filter.type, size: filter.count } };
 		}
+		case 'author': {
+			return { terms: { field: 'author_login_slash_name', size: filter.count } };
+		}
 	}
 }
 
@@ -125,6 +128,9 @@ export function generateDateRangeFilter( fieldName, input, type ) {
 const filterKeyToEsFilter = new Map( [
 	// Post type
 	[ 'post_types', postType => ( { term: { post_type: postType } } ) ],
+
+	// Author
+	[ 'authors', author => ( { term: { author_login: author } } ) ],
 
 	// Built-in taxonomies
 	[ 'category', category => ( { term: { 'category.slug': category } } ) ],
