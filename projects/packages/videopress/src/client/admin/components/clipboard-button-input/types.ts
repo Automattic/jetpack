@@ -15,4 +15,9 @@ export type ClipboardButtonInput = {
 	 * Callback to be invoked when the text is successfully copied.
 	 */
 	onCopy: () => void;
+
+	/**
+	 * Timer in miliseconds to reset the copy button to its initial state.
+	 */
+	isCopiedTimeout?: number;
 };

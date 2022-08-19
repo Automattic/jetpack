@@ -22,19 +22,24 @@ const noop = () => {
  * @param {ClipboardButtonInput} props - Component props.
  * @returns {React.ReactNode} - VideoDetailsCard react component.
  */
-const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( { text, value, onCopy = noop } ) => {
-	const textToCopy = value || text;
+const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( {
+	text,
+	value,
+	onCopy = noop,
+	isCopiedTimeout = 3000,
+} ) => {
 	const onClickInputHandler = ( event: React.MouseEvent< HTMLInputElement > ) => {
 		event.currentTarget.select();
 	};
 
 	const [ hasCopied, setHasCopied ] = useState( false );
 
+	const textToCopy = value || text;
 	const ref = useCopyToClipboard( textToCopy, () => {
 		const timer = setTimeout( () => {
 			setHasCopied( false );
 			clearTimeout( timer );
-		}, 3000 );
+		}, isCopiedTimeout );
 
 		setHasCopied( true );
 		onCopy();
@@ -43,9 +48,9 @@ const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( { text, value, onCo
 	return (
 		<div className={ styles.wrapper }>
 			<input
-				value={ textToCopy }
+				value={ text || value }
 				onClick={ onClickInputHandler }
-				defaultValue={ textToCopy }
+				defaultValue={ text || value }
 				readOnly
 			/>
 			<span className={ styles[ 'button-wrapper' ] } ref={ ref }>
