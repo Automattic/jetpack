@@ -1,0 +1,59 @@
+.video-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: calc( var(--spacing-base) * 3 );
+	background-color: var(--jp-white);
+	cursor: pointer;
+
+	&:hover {
+		background-color: var(--jp-gray-0);
+	}
+}
+
+.info-wrapper {
+	display: flex;
+	align-items: center;
+	gap: calc( var(--spacing-base) * 3 );
+}
+
+.poster {
+	width: 92px;
+	height: 60px;
+	object-fit: cover;
+	border-radius: var(--jp-border-radius);
+}
+
+.meta-wrapper {
+	width: 30%;
+}
+
+.stats {
+	display: flex;
+	gap: calc( var(--spacing-base) * 3 );
+
+	& > * {
+		flex: 1;
+	}
+
+	& > .upload {
+		flex: 2;
+	}
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: calc( var(--spacing-base) * 3 );
+	margin-right: calc( var(--spacing-base) * 3 );
+}
+
+.trash {
+	fill: var(--jp-red-60);
+}
+
+.popover {
+	padding: var(--spacing-base);
+	text-align: center;
+	white-space: nowrap;
+}
