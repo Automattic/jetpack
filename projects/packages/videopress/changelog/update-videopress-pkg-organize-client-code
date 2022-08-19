@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: move videopress-token-bridge.js to client/ folder in the VideoPress package
