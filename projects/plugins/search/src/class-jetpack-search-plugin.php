@@ -99,7 +99,6 @@ class Jetpack_Search_Plugin {
 	 * @param string $plugin Path to the plugin file relative to the plugins directory.
 	 */
 	public static function handle_plugin_activation( $plugin ) {
-
 		// If site is already connected, enable the search module and enable instant search.
 		if ( ( new Connection_Manager() )->is_connected() ) {
 			$controller        = new Search_Module_Control();
