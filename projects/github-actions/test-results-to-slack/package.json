@@ -14,7 +14,7 @@
 	],
 	"main": "src/index.js",
 	"dependencies": {
-		"@actions/core": "1.6.0",
+		"@actions/core": "1.9.1",
 		"@actions/github": "5.0.1",
 		"@slack/web-api": "6.7.1"
 	},
