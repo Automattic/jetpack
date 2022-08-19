@@ -32,6 +32,18 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Replaces the wp-admin CPT URLs with the WPcom calypso url.
+	 *
+	 * @param array $menu_item The CPT menu item to replace.
+	 * @return array The CPT menu item with the replaced URL.
+	 */
+	private function replace_admin_link_to_calypso( $menu_item ) {
+		$post_type    = str_replace( 'edit.php?post_type=', '', $menu_item[2] );
+		$menu_item[2] = 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
+		return $menu_item;
+	}
+
+	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
 	 * Performs the check against the current locale set on the WordPress.com's account settings.
@@ -47,8 +59,10 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		global $menu, $submenu;
 
-		// Reset menus so there are no third-party plugin items, except CPTs.
-		$menu    = $this->filter_cpt_menu_items( $menu ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$cpt_items = $this->filter_cpt_menu_items( $menu );
+
+		// Reset menus so there are no third-party plugin items, only CPTs.
+		$menu    = array_map( array( $this, 'replace_admin_link_to_calypso' ), $cpt_items ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		parent::reregister_menu_items();
