@@ -138,6 +138,6 @@ class Extras extends Product {
 		/*
 		 * Silent mode True to avoid redirect
 		 */
-		return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ), '', false, true );
+		return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ) );
 	}
 }
