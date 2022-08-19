@@ -1832,9 +1832,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "8ed7703335b2620e0c2d152e2d44702c3eb5d353"
+                "reference": "d5e5218d28f67ab4ea94ccd48c875a631ac12ff3"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.42",
                 "automattic/jetpack-plans": "^0.2"
