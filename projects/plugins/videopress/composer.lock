@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dfca2391da9110a4f9a1ca7fe07d35be",
+    "content-hash": "799e7137d54856d84d6fa2f1fe821a04",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1078,7 +1078,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "98d67c0db5da3345136039869d2efd186e3f9402"
+                "reference": "1fd97a4af0e1f78b6cf771c80fa1498547135bc3"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1087,6 +1087,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
+                "brain/monkey": "^2.6",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -4233,6 +4234,7 @@
         "automattic/jetpack-identity-crisis": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-sync": 20,
+        "automattic/jetpack-plugins-installer": 20,
         "automattic/jetpack-videopress": 20
     },
     "prefer-stable": true,
