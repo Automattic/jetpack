@@ -77,8 +77,8 @@
 		}
 	},
 	"textdomain": "jetpack-videopress",
-	"editorScript": "file:../../../../../build/editor.js",
-	"editorStyle": "file:../../../../../build/editor.css",
-	"style": "file:../../../../../build/style-editor.css",
-	"viewScript": "file:../../../../../build/view.js"
+	"editorScript": "file:../../../../../build/block-editor/index.js",
+	"editorStyle": "file:../../../../../build/block-editor/index.css",
+	"style": "file:../../../../../build/block-editor/style-index.css",
+	"viewScript": "file:../../../../../build/block-editor/view.js"
 }
