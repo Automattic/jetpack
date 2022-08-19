@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "799e7137d54856d84d6fa2f1fe821a04",
+    "content-hash": "a14962093c292db38edeb8846b656d60",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1078,16 +1078,17 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "1250a8369cfa97af1a530f07b0aefc4e05f356aa"
+                "reference": "c51d7be56302465b2a37110ad9e560431e200c3a"
             },
             "require": {
+                "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-connection": "^1.43",
                 "automattic/jetpack-plans": "^0.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
-                "brain/monkey": "^2.6",
+                "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -2262,7 +2263,8 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress/zipball/refs/tags/5.9.3"
+                "url": "https://api.github.com/repos/WordPress/WordPress/zipball/refs/tags/5.9.3",
+                "reference": "5.9.3"
             },
             "require": {
                 "php": ">=5.3.2",
@@ -4227,7 +4229,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-assets": 20,
-        "automattic/jetpack-admin-ui": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
