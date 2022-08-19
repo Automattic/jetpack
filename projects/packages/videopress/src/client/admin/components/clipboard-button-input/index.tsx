@@ -4,6 +4,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -23,7 +24,9 @@ const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( { text, value } ) =
 		event.currentTarget.select();
 	};
 
-	const ref = useCopyToClipboard( inputValue );
+	const [ hasCopied, setHasCopied ] = useState( false );
+
+	const ref = useCopyToClipboard( inputValue, () => setHasCopied( true ) );
 
 	return (
 		<div className={ styles.wrapper }>
@@ -35,7 +38,9 @@ const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( { text, value } ) =
 			/>
 			<span className={ styles[ 'button-wrapper' ] } ref={ ref }>
 				<Button weight="regular" variant="secondary" size="small">
-					{ __( 'Copy', 'jetpack-videopress-pkg' ) }
+					{ hasCopied
+						? __( 'Copied', 'jetpack-videopress-pkg' )
+						: __( 'Copy', 'jetpack-videopress-pkg' ) }
 				</Button>
 			</span>
 		</div>
