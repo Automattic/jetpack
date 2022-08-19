@@ -66,7 +66,7 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackVideopressInitialState;
+	const { apiNonce, apiRoot, registrationNonce } = window.jetpackVideoPressInitialState;
 	return (
 		<ConnectScreenRequiredPlan
 			buttonLabel={ __( 'Get Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
