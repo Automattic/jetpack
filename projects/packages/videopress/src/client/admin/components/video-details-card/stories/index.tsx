@@ -31,4 +31,5 @@ export const _default = Template.bind( {} );
 _default.args = {
 	thumbnail,
 	filename: 'video-thumbnail.png',
+	src: 'https://videos.files.wordpress.com/fx123456B/video-thumbnail.mov',
 };
