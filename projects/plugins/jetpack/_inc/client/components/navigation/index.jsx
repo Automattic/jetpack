@@ -53,7 +53,13 @@ export class Navigation extends React.Component {
 	};
 
 	trackRecommendationsClick = () => {
-		this.trackNavClick( 'recommendations' );
+		analytics.tracks.recordJetpackClick( {
+			target: 'nav_item',
+			path: 'recommendations',
+			is_new_recommendations_bubble_visible: this.props.newRecommendationsCount > 0,
+			new_recommendations:
+				this.props.newRecommendationsCount > 0 ? this.props.newRecommendations : 'none',
+		} );
 	};
 
 	trackMyJetpackClick = () => {
