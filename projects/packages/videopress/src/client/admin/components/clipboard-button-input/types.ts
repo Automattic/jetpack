@@ -10,8 +10,9 @@ export type ClipboardButtonInput = {
 	 * The value to be copied when clicking the copy button. Optional.
 	 */
 	value?: string;
+
 	/**
-	 * Callback to be invoked when the video is changed.
+	 * Callback to be invoked when the text is successfully copied.
 	 */
-	onCopy: ( arg0: string ) => void;
+	onCopy: () => void;
 };
