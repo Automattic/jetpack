@@ -1,4 +1,9 @@
 <?php
+/**
+ * Tests PocketCasts oEmbed.
+ *
+ * @todo Remove when WordPress 6.1 is the minimum version.
+ */
 
 require_once __DIR__ . '/trait.http-request-cache.php';
 
@@ -9,7 +14,7 @@ class WP_Test_Jetpack_Shortcodes_PocketCasts extends WP_UnitTestCase {
 	const POCKETCASTS_BETA_TEST_URL = 'https://pcast.pocketcasts.net/drtlaf9s';
 
 	/**
-	 * Set up.
+	 * Set up.tail
 	 */
 	public function set_up() {
 		parent::set_up();
