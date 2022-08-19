@@ -13,12 +13,12 @@ import { ClipboardButtonInput } from './types';
 import type React from 'react';
 
 /**
- * Video Details Card component
+ * ClipboardButtionInput component
  *
  * @param {ClipboardButtonInput} props - Component props.
- * @returns {React.ReactNode} - VideoDetailsCard react component.
+ * @returns {React.ReactNode} - ClipboardButtonInput react component.
  */
-const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( {
+const ClipboardButtonInput: React.FC< ClipboardButtonInput > = ( {
 	text,
 	value,
 	onCopy,
@@ -60,4 +60,4 @@ const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( {
 	);
 };
 
-export default VideoDetailsCard;
+export default ClipboardButtonInput;
