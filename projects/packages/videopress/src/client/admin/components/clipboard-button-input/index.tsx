@@ -38,7 +38,7 @@ const ClipboardButtonInput: React.FC< ClipboardButtonInputProps > = ( {
 		}, isCopiedTimeout );
 
 		setHasCopied( true );
-		onCopy();
+		onCopy?.();
 	} );
 
 	return (
