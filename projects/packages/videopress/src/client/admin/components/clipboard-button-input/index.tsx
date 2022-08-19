@@ -26,7 +26,14 @@ const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( { text, value } ) =
 
 	const [ hasCopied, setHasCopied ] = useState( false );
 
-	const ref = useCopyToClipboard( inputValue, () => setHasCopied( true ) );
+	const ref = useCopyToClipboard( inputValue, () => {
+		const timer = setTimeout( () => {
+			setHasCopied( false );
+			clearTimeout( timer );
+		}, 3000 );
+
+		setHasCopied( true );
+	} );
 
 	return (
 		<div className={ styles.wrapper }>
