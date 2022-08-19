@@ -1,8 +1,8 @@
-export type ClipboardButtonInput = {
+export type ClipboardButtonInputProps = {
 	/**
 	 * The text to show in the input element.
-	 * And the value be copied when clicking the copy button,
-	 * in case the value property is not defined
+	 * And, in case the value property is not defined,
+	 * it represents the value be copied when clicking the copy button,
 	 */
 	text: string;
 

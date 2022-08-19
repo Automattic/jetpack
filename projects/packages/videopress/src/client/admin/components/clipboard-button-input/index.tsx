@@ -9,7 +9,7 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.scss';
-import { ClipboardButtonInput } from './types';
+import { ClipboardButtonInputProps } from './types';
 import type React from 'react';
 
 /**
@@ -18,7 +18,7 @@ import type React from 'react';
  * @param {ClipboardButtonInput} props - Component props.
  * @returns {React.ReactNode} - ClipboardButtonInput react component.
  */
-const ClipboardButtonInput: React.FC< ClipboardButtonInput > = ( {
+const ClipboardButtonInput: React.FC< ClipboardButtonInputProps > = ( {
 	text,
 	value,
 	onCopy,
