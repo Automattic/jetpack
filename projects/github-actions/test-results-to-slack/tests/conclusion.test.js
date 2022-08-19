@@ -1,18 +1,13 @@
 const nock = require( 'nock' );
-const { mockGitHubContext, setInputData } = require( './test-utils' );
+const { mockGitHubContext, mockContextExtras } = require( './test-utils' );
 
 const runId = '12345';
-const repo = 'foo/bar';
-const ghToken = 'token';
-const repository = { owner: { login: 'foo' }, name: 'bar' };
-
-beforeAll( () => {
-	setInputData( { repo } );
-} );
+const repository = 'foo/bar';
 
 describe( 'Workflow conclusion', () => {
 	// Mock GitHub context
-	mockGitHubContext( { payload: { repository }, runId } );
+	mockGitHubContext( { runId } );
+	mockContextExtras( { repository } );
 
 	test.each`
 		expected   | description                                                   | jobs
@@ -23,13 +18,13 @@ describe( 'Workflow conclusion', () => {
 	`( '$description', async ( { expected, jobs } ) => {
 		// Intercept request to GitHub Api and mock response
 		nock( 'https://api.github.com' )
-			.get( `/repos/${ repo }/actions/runs/${ runId }/jobs` )
+			.get( `/repos/${ repository }/actions/runs/${ runId }/jobs` )
 			.reply( 200, {
 				jobs,
 			} );
 
 		const { isWorkflowFailed } = require( '../src/github' );
-		const conclusion = await isWorkflowFailed( ghToken );
+		const conclusion = await isWorkflowFailed( 'token' );
 		await expect( conclusion ).toBe( expected );
 	} );
 } );

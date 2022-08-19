@@ -9,15 +9,15 @@ const extras = require( './extra-context' );
 async function isWorkflowFailed( token ) {
 	// eslint-disable-next-line new-cap
 	const octokit = new github.getOctokit( token );
-	const {
-		payload: { repository },
-		runId,
-	} = github.context;
+
+	const { runId } = github.context;
+	const { repository } = extras;
+	const repo = repository.split( '/' );
 
 	// Get the list of jobs for the current workflow run
 	const response = await octokit.rest.actions.listJobsForWorkflowRun( {
-		owner: repository.owner.login,
-		repo: repository.name,
+		owner: repo[ 0 ],
+		repo: repo[ 1 ],
 		run_id: runId,
 	} );
 
