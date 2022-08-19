@@ -11,7 +11,8 @@
 		"automattic/jetpack-my-jetpack": "2.0.x-dev",
 		"automattic/jetpack-search": "0.20.x-dev",
 		"automattic/jetpack-status": "^1.14",
-		"automattic/jetpack-sync": "1.38.x-dev"
+		"automattic/jetpack-sync": "1.38.x-dev",
+		"automattic/jetpack-plugins-installer": "0.2.x-dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.2",
