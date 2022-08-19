@@ -450,28 +450,6 @@ function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
 		$url = home_url( '/wp-content/plugins/' . basename( $plugin, '.php' ) );
 	}
 
-	if ( 0 === strpos( $plugin, '/wordpress/plugins/' ) ) {
-		/**
-		 * The search term will match paths that start with /wordpress/plugins/ and captures the next group until a / or end of string.
-		 * Some examples are:
-		 * - /wordpress/plugins/woocommerce-conditional-shipping-and-payments/1.14.1/woocommerce-conditional-shipping-and-payments.php => woocommerce-conditional-shipping-and-payments/woocommerce-conditional-shipping-and-payments
-		 * - /wordpress/plugins/woocommerce-conditional-shipping-and-payments/1.14.1/ => woocommerce-conditional-shipping-and-payments/woocommerce-conditional-shipping-and-payments
-		 * - /wordpress/plugins/woocommerce-conditional-shipping-and-payments/1.14.1 => woocommerce-conditional-shipping-and-payments/woocommerce-conditional-shipping-and-payments
-		 * - /wordpress/plugins/woocommerce-conditional-shipping-and-payments/ => woocommerce-conditional-shipping-and-payments/woocommerce-conditional-shipping-and-payments
-		 * - /wordpress/plugins/woocommerce-conditional-shipping-and-payments => woocommerce-conditional-shipping-and-payments/woocommerce-conditional-shipping-and-payments
-		 */
-		$search      = '/^\/wordpress\/plugins\/(.+?(?=\/|\z)).*/';
-		$replacement = '${1}/${1}';
-
-		$plugin = preg_replace( $search, $replacement, $plugin );
-
-		if ( wpcomsh_is_managed_plugin( $plugin ) ) {
-			remove_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0 );
-			$url = plugins_url( $path, $plugin );
-			add_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0, 3 );
-		}
-	}
-
 	return $url;
 }
 add_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0, 3 );
